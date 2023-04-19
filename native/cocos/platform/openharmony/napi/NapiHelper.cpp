@@ -30,7 +30,7 @@
 #include "platform/openharmony/FileUtils-OpenHarmony.h"
 #include "bindings/jswrapper/SeApi.h"
 #if CC_USE_EDITBOX
-#include "ui/edit-box/EditBox-openharmony.h"
+    #include "ui/edit-box/EditBox-openharmony.h"
 #endif
 #if CC_USE_WEBVIEW
     #include "ui/webview/WebViewImpl-openharmony.h"
