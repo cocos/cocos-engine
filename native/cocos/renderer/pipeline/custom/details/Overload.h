@@ -30,7 +30,7 @@
 
 namespace cc {
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1916)
+#if defined(_MSC_VER) && (_MSC_VER <= 1920)
 // https://stackoverflow.com/questions/50510122/stdvariant-with-overloaded-lambdas-alternative-with-msvc
 template <class... Ts>
 struct Overloaded {}; // NOLINT
