@@ -219,7 +219,7 @@ CCProgram macro-remapping %{
 
   // functionality for each effect
 #if USE_HIGH_QUALITY_REFLECTION
-  #define CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT 15
+  #define CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT 9
 #endif
 }%
 
