@@ -467,7 +467,6 @@ export class Root {
      * @param deltaTime @en The delta time since last update. @zh 距离上一帧间隔时间
      */
     public frameMove (deltaTime: number) {
-        const { director, Director } = cclegacy;
         this._frameTime = deltaTime;
 
         /*
@@ -489,46 +488,10 @@ export class Root {
             this._frameCount = 0;
             this._fpsTime = 0.0;
         }
-        for (let i = 0; i < this._scenes.length; ++i) {
-            this._scenes[i].removeBatches();
-        }
 
-        const windows = this._windows;
-        const cameraList = this._cameraList;
-        cameraList.length = 0;
-
-        for (let i = 0; i < windows.length; i++) {
-            const window = windows[i];
-            window.extractRenderCameras(cameraList);
-        }
-
-        if (this._pipeline && cameraList.length > 0) {
-            this._device.acquire([deviceManager.swapchain]);
-            const scenes = this._scenes;
-            const stamp = director.getTotalFrames();
-
-            if (this._batcher) {
-                this._batcher.update();
-                this._batcher.uploadBuffers();
-            }
-
-            for (let i = 0; i < scenes.length; i++) {
-                scenes[i].update(stamp);
-            }
-
-            director.emit(Director.EVENT_BEFORE_COMMIT);
-            cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
-
-            for (let i = 0; i < cameraList.length; ++i) {
-                cameraList[i].geometryRenderer?.update();
-            }
-            director.emit(Director.EVENT_BEFORE_RENDER);
-            this._pipeline.render(cameraList);
-            director.emit(Director.EVENT_AFTER_RENDER);
-            this._device.present();
-        }
-
-        if (this._batcher) this._batcher.reset();
+        this._frameMoveBegin();
+        this._frameMoveProcess();
+        this._frameMoveEnd();
     }
 
     /**
@@ -717,6 +680,59 @@ export class Root {
                 }
             }
         }
+    }
+
+    private _frameMoveBegin () {
+        for (let i = 0; i < this._scenes.length; ++i) {
+            this._scenes[i].removeBatches();
+        }
+
+        this._cameraList.length = 0;
+    }
+
+    private _frameMoveProcess () {
+        const { director } = cclegacy;
+        const windows = this._windows;
+        const cameraList = this._cameraList;
+
+        for (let i = 0; i < windows.length; i++) {
+            const window = windows[i];
+            window.extractRenderCameras(cameraList);
+        }
+
+        if (this._pipeline && cameraList.length > 0) {
+            this._device.acquire([deviceManager.swapchain]);
+            const scenes = this._scenes;
+            const stamp = director.getTotalFrames();
+
+            if (this._batcher) {
+                this._batcher.update();
+                this._batcher.uploadBuffers();
+            }
+
+            for (let i = 0; i < scenes.length; i++) {
+                scenes[i].update(stamp);
+            }
+        }
+    }
+
+    private _frameMoveEnd () {
+        const { director, Director } = cclegacy;
+        const cameraList = this._cameraList;
+        if (this._pipeline && cameraList.length > 0) {
+            director.emit(Director.EVENT_BEFORE_COMMIT);
+            cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
+
+            for (let i = 0; i < cameraList.length; ++i) {
+                cameraList[i].geometryRenderer?.update();
+            }
+            director.emit(Director.EVENT_BEFORE_RENDER);
+            this._pipeline.render(cameraList);
+            director.emit(Director.EVENT_AFTER_RENDER);
+            this._device.present();
+        }
+
+        if (this._batcher) this._batcher.reset();
     }
 
     private _resizeMaxJointForDS () {
