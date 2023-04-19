@@ -116,6 +116,12 @@ void ReflectionProbeBatchedQueue::clear() {
 
 void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
     for (const auto &subModel : model->getSubModels()) {
+        //Filter transparent objects
+        const bool isTransparent = subModel->getPass(0)->getBlendState()->targets[0].blend;
+        if (isTransparent) {
+            continue;
+        }
+
         auto passIdx = getReflectMapPassIndex(subModel);
         bool bUseReflectPass = true;
         if (passIdx == -1) {

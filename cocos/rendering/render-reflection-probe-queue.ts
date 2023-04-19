@@ -138,6 +138,12 @@ export class RenderReflectionProbeQueue {
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
 
+            //Filter transparent objects
+            const isTransparent = subModel.passes[0].blendState.targets[0].blend;
+            if (isTransparent) {
+                continue;
+            }
+
             let passIdx = getReflectMapPassIndex(subModel);
             let bUseReflectPass = true;
             if (passIdx < 0) {
