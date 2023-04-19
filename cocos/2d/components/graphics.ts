@@ -719,7 +719,7 @@ export class Graphics extends UIRenderer {
         const subModelList = this.model!.subModels;
         for (let i = 0; i < renderDataList.length; i++) {
             const renderData = renderDataList[i];
-            const dataCount = renderData.vertexStart * componentPerVertex
+            const dataCount = renderData.vertexStart * componentPerVertex;
             const vb = new Float32Array(dataCount);
             for (let j = 0; j < dataCount; j++) {
                 if (j % componentPerVertex === 6) {
