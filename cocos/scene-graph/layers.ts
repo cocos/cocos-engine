@@ -131,6 +131,9 @@ export class Layers {
         js.value(Layers.Enum, String(val), name);
         Layers.BitMask[name] = val;
         js.value(Layers.BitMask, String(val), name);
+
+        BitMask.update(Layers.BitMask);
+        Enum.update(Layers.Enum);
     }
 
     /**
@@ -148,6 +151,9 @@ export class Layers {
         delete Layers.Enum[val];
         delete Layers.BitMask[Layers.BitMask[val]];
         delete Layers.BitMask[val];
+
+        BitMask.update(Layers.BitMask);
+        Enum.update(Layers.Enum);
     }
 
     /**

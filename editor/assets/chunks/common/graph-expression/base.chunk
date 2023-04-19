@@ -23,8 +23,10 @@ vec2 Rotator(vec2 uv, vec2 centerUV, float time, float speed)
 vec3 TransformNormalMap(vec3 vectorFromNormalMap)
 {
   vec3 vectorTS = normalize(vectorFromNormalMap - vec3(0.5));
-  vec3 binormal = CalculateBinormal(FSInput_worldNormal, FSInput_worldTangent, FSInput_mirrorNormal);
-  vec3 vecWS = vectorTS.x * FSInput_worldTangent + vectorTS.y * binormal + vectorTS.z * FSInput_worldNormal;
+  vec3 normal = normalize(FSInput_worldNormal);
+  vec3 tangent = normalize(FSInput_worldTangent);
+  vec3 binormal = CalculateBinormal(normal, tangent, FSInput_mirrorNormal);
+  vec3 vecWS = vectorTS.x * tangent + vectorTS.y * binormal + vectorTS.z * normal;
   return vecWS * vec3(1.0, 1.0, -1.0); // inverse Z for RH
 }
 

@@ -60,7 +60,7 @@ export class Renderer extends Component {
      * @zh 获取默认的共享材质
      */
     get sharedMaterial () {
-        return this.getMaterial(0);
+        return this.getSharedMaterial(0);
     }
 
     /**
@@ -139,10 +139,17 @@ export class Renderer extends Component {
     protected _materialInstances: (MaterialInstance | null)[] = [];
 
     /**
+     * @deprecated Since v3.7.3, please use [[getSharedMaterial]] instead.
+     */
+    public getMaterial (idx: number): Material | null {
+        return this.getSharedMaterial(idx);
+    }
+
+    /**
      * @en Get the shared material asset of the specified sub-model.
      * @zh 获取指定子模型的共享材质资源。
      */
-    public getMaterial (idx: number): Material | null {
+    public getSharedMaterial (idx: number): Material | null {
         if (idx < 0 || idx >= this._materials.length) {
             return null;
         }

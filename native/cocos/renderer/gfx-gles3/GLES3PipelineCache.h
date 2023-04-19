@@ -32,6 +32,10 @@
 #include "base/RefCounted.h"
 #include "GLES3GPUObjects.h"
 
+namespace cc {
+class BinaryOutputArchive;
+}
+
 namespace cc::gfx {
 class GLES3GPUShader;
 
@@ -47,8 +51,9 @@ public:
     bool checkProgramFormat(GLuint format) const;
 
 private:
-    void loadCache();
-    void saveCache();
+    bool loadCache();
+    void saveCacheFull();
+    void saveCacheIncremental(GLES3GPUProgramBinary *binary);
 
     ccstd::vector<GLint> _programBinaryFormats;
     ccstd::unordered_map<ccstd::string, IntrusivePtr<GLES3GPUProgramBinary>> _programCaches;

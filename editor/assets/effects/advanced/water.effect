@@ -165,7 +165,7 @@ CCProgram surface-fragment %{
   {
     vec3 normal = FSInput_worldNormal;
     #if USE_NORMAL_MAP
-      normal = GetDetailedNormal(NORMAL_UV, pbrParams.x, normalMap, normalMapDetailed, normal, FSInput_worldTangent);
+      normal = GetDetailedNormal(NORMAL_UV, pbrParams.x, normalMap, normalMapDetailed, normalize(normal), normalize(FSInput_worldTangent));
     #endif
 
     return normalize(normal);

@@ -133,8 +133,14 @@ CCProgram surface-fragment %{
     #endif
     surfaceData.baseColor = vec4(SRGBToLinear(baseColor.rgb), 1.0);
 
-    vec4 baseNormal = vec4(0, 0, 0, 0);
+    vec3 normal = FSInput_worldNormal;
+    vec3 tangent = vec3(1.0, 0.0, 0.0);
+    vec3 binormal = vec3(0.0, 0.0, 1.0);
+    binormal = cross(tangent, normal);
+    tangent = cross(normal, binormal);
+
     #if USE_NORMALMAP
+      vec4 baseNormal = vec4(0, 0, 0, 0);
       #if LAYERS == 1
         baseNormal = texture(normalMap0, uv0);
       #elif LAYERS == 2
@@ -153,20 +159,12 @@ CCProgram surface-fragment %{
         baseNormal = texture(normalMap0, uv0);
       #endif
 
-      vec3 tangent = vec3(1.0, 0.0, 0.0);
-      vec3 binormal = vec3(0.0, 0.0, 1.0);
-
-      binormal = cross(tangent, FSInput_worldNormal);
-      tangent = cross(FSInput_worldNormal, binormal);
-
       vec3 nmmp = baseNormal.xyz - vec3(0.5);
-      surfaceData.worldNormal =
-        nmmp.x * normalize(tangent) +
-        nmmp.y * normalize(binormal) +
-        nmmp.z * normalize(FSInput_worldNormal);
-    #else
-      surfaceData.worldNormal = FSInput_worldNormal;
+      normal = CalculateNormalFromTangentSpace(nmmp, 1.0, normalize(normal.xyz), normalize(tangent), 1.0);
     #endif
+    surfaceData.worldNormal = normalize(normal);
+    surfaceData.worldTangent = normalize(tangent);
+    surfaceData.worldBinormal = normalize(binormal);
 
     float roughnessValue = 1.0;
     float metallicValue = 0.0;
