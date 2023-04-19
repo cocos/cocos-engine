@@ -94,7 +94,9 @@ exports.listeners = {
         } catch (error) {
             console.error(error);
         } finally {
-            Editor.Message.send('scene', 'snapshot');
+            if (!panel.snapshotLock) {
+                Editor.Message.send('scene', 'snapshot');
+            }
             panel.readyToUpdate = true;
         }
     },
