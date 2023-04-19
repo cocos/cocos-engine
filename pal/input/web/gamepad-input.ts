@@ -139,7 +139,7 @@ export class GamepadInputDevice {
 
     private static _eventTarget: EventTarget = new EventTarget();
     private static _cachedWebGamepads: (WebGamepad | null)[] = [];
-    private static _cachedWebXRGamepadMap: (Map<string, Gamepad> | null) = null;
+    private static _cachedWebXRGamepadMap: (Map<string, Gamepad | undefined> | null) = null;
     private static _intervalId = -1;
 
     private _buttonNorth!: InputSourceButton;
@@ -348,7 +348,11 @@ export class GamepadInputDevice {
         }
 
         // update cache
-        GamepadInputDevice._cachedWebXRGamepadMap = webxrGamepadMap;
+        if (!GamepadInputDevice._cachedWebXRGamepadMap) {
+            GamepadInputDevice._cachedWebXRGamepadMap = new Map<string, Gamepad | undefined>();
+        }
+        GamepadInputDevice._cachedWebXRGamepadMap.set(XRLeftHandedness, webxrGamepadMap.get(XRLeftHandedness));
+        GamepadInputDevice._cachedWebXRGamepadMap.set(XRRightHandedness, webxrGamepadMap.get(XRRightHandedness));
     }
 
     private static checkGamepadChanged (currGamepad: (Gamepad | undefined), cachedGamepad: (Gamepad | undefined)) {
