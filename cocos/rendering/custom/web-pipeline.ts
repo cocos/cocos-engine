@@ -907,13 +907,13 @@ export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassB
         throw new Error('Method not implemented.');
     }
     addRasterView (name: string, view: RasterView): void {
-
+        throw new Error('Method not implemented.');
     }
     addComputeView (name: string, view: ComputeView): void {
-
+        throw new Error('Method not implemented.');
     }
     setViewport (viewport: Viewport): void {
-
+        throw new Error('Method not implemented.');
     }
     addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default'): RasterQueueBuilder {
         if (DEBUG) {
@@ -957,11 +957,22 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
-    addRasterView (name: string, view: RasterView): void {
-        throw new Error('Method not implemented.');
+    addRasterView (name: string, view: RasterView) {
+        this._pass.rasterViews.set(name, view);
     }
-    addComputeView (name: string, view: ComputeView): void {
-        throw new Error('Method not implemented.');
+    addComputeView (name: string, view: ComputeView) {
+        if (DEBUG) {
+            assert(view.name);
+            assert(name && this._resourceGraph.contains(name));
+            const descriptorName = view.name;
+            const descriptorID = this._layoutGraph.attributeIndex.get(descriptorName);
+            assert(descriptorID !== undefined);
+        }
+        if (this._pass.computeViews.has(name)) {
+            this._pass.computeViews.get(name)?.push(view);
+        } else {
+            this._pass.computeViews.set(name, [view]);
+        }
     }
     setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
         throw new Error('Method not implemented.');
@@ -1256,7 +1267,7 @@ export class WebPipeline implements Pipeline {
         this._layoutGraph = layoutGraph;
     }
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
-        throw new Error('Method not implemented.');
+        return this.addRenderWindow(name, format, width, height, renderWindow);
     }
     addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
         const desc = new ResourceDesc();
