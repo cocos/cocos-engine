@@ -139,7 +139,7 @@ export class Renderer extends Component {
     protected _materialInstances: (MaterialInstance | null)[] = [];
 
     /**
-     * @deprecated Since v3.7.3, Duplicated with getSharedMaterial.
+     * @deprecated Since v3.7.3, please use [[getSharedMaterial]] instead.
      */
     public getMaterial (idx: number): Material | null {
         return this.getSharedMaterial(idx);
