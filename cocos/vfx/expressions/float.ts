@@ -33,6 +33,7 @@ export abstract class FloatExpression extends Expression {
     public get type () {
         return 'Float';
     }
+
     public abstract evaluateSingle (time: number, randomStream: RandomStream, context: ParticleExecContext): number;
     public abstract evaluate (index: number): number;
 }

@@ -68,11 +68,20 @@ export class AddSpeedInInitialDirectionModule extends ParticleModule {
         this.speed.bind(particles, params, context, this._randomOffset);
         const { startDir } = particles;
         const speed = this.speed;
-        for (let i = fromIndex; i < toIndex; ++i) {
-            const curveStartSpeed = speed.evaluate(i);
-            startDir.getVec3At(tempVelocity, i);
-            Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
-            velocity.addVec3At(tempVelocity, i);
+        if (speed.isConstant) {
+            const curveStartSpeed = speed.evaluate(0);
+            for (let i = fromIndex; i < toIndex; ++i) {
+                startDir.getVec3At(tempVelocity, i);
+                Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
+                velocity.addVec3At(tempVelocity, i);
+            }
+        } else {
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const curveStartSpeed = speed.evaluate(i);
+                startDir.getVec3At(tempVelocity, i);
+                Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
+                velocity.addVec3At(tempVelocity, i);
+            }
         }
     }
 }

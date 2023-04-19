@@ -564,16 +564,18 @@ describe('ParticleVec3ArrayParameter', () => {
 
     test('copyToTypedArray', () => {
         const array = new Float32Array(10000);
-        expect(() => vec3Parameter.copyToTypedArray(new Float32Array(100), 3, 0, 0, vec3Parameter.capacity)).toThrowError();
-        expect(() => vec3Parameter.copyToTypedArray(array, 0, 3, 0, 1)).toThrowError();
-        expect(() => vec3Parameter.copyToTypedArray(array, 3, 0, 3, 1)).toThrowError();
-        expect(() => vec3Parameter.copyToTypedArray(array, 3, 0, -1, 1)).toThrowError();
-        expect(() => vec3Parameter.copyToTypedArray(array, 3, 0, 1, 10000)).toThrowError();
-        expect(() => vec3Parameter.copyToTypedArray(array, 3, 1, 1, 100)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(new Float32Array(100), 0, 3, 0, 0, vec3Parameter.capacity)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(array, 0, 0, 3, 0, 1)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(array, 0, 3, 0, 3, 1)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(array, 0, 3, 0, -1, 1)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(array, 0, 3, 0, 1, 10000)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(array, 0, 3, 1, 1, 100)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(array, -1, 3, 0, 1, 100)).toThrowError();
+        expect(() => vec3Parameter.copyToTypedArray(array, 10000, 3, 0, 1, 100)).toThrowError();
         const typedArray = new Float32Array(vec3Parameter.capacity * 5);
         const val = Math.random() * 1000 - 500;
         vec3Parameter.fill1f(val, 0, vec3Parameter.capacity);
-        vec3Parameter.copyToTypedArray(typedArray, 5, 1, 0, vec3Parameter.capacity);
+        vec3Parameter.copyToTypedArray(typedArray, 0, 5, 1, 0, vec3Parameter.capacity);
         for (let i = 0; i < vec3Parameter.capacity; i++) {
             expect(typedArray[i * 5]).toBeCloseTo(0, 5);
             expect(typedArray[i * 5 + 1]).toBeCloseTo(val, 4);
@@ -583,7 +585,7 @@ describe('ParticleVec3ArrayParameter', () => {
         }
         const val2 = Math.random() * 1000 - 500;
         vec3Parameter.fill1f(val2, 0, vec3Parameter.capacity);
-        vec3Parameter.copyToTypedArray(typedArray, 5, 2, 0, vec3Parameter.capacity);
+        vec3Parameter.copyToTypedArray(typedArray, 0, 5, 2, 0, vec3Parameter.capacity);
         for (let i = 0; i < vec3Parameter.capacity; i++) {
             expect(typedArray[i * 5]).toBeCloseTo(0, 5);
             expect(typedArray[i * 5 + 1]).toBeCloseTo(val, 4);
@@ -594,7 +596,7 @@ describe('ParticleVec3ArrayParameter', () => {
         const val3 = Math.random() * 1000 - 500;
         vec3Parameter.fill1f(val3, 0, vec3Parameter.capacity);
         typedArray.fill(0);
-        vec3Parameter.copyToTypedArray(typedArray, 3, 0, 0, vec3Parameter.capacity);
+        vec3Parameter.copyToTypedArray(typedArray, 0, 3, 0, 0, vec3Parameter.capacity);
         for (let i = 0; i < vec3Parameter.capacity; i++) {
             expect(typedArray[i * 3 + 0]).toBeCloseTo(val3, 4);
             expect(typedArray[i * 3 + 1]).toBeCloseTo(val3, 4);
@@ -605,6 +607,34 @@ describe('ParticleVec3ArrayParameter', () => {
             expect(typedArray[i]).toBe(0);
             expect(typedArray[i + 1]).toBe(0);
             expect(typedArray[i + 2]).toBe(0);
+        }
+
+        typedArray.fill(0);
+        vec3Parameter.copyToTypedArray(typedArray, 1000, 3, 0, 0, 50);
+        for (let i = 0; i < 1000 * 3; i++) {
+            expect(typedArray[i]).toBeCloseTo(0, 4);
+        }
+        for (let i = 1000 * 3; i < 3000 + 50 * 3; i += 3) {
+            expect(typedArray[i]).toBeCloseTo(val3, 4);
+            expect(typedArray[i + 1]).toBeCloseTo(val3, 4);
+            expect(typedArray[i + 2]).toBeCloseTo(val3, 4);
+        }
+        for (let i = 3000 + 50 * 3; i < typedArray.length; i++) {
+            expect(typedArray[i]).toBeCloseTo(0, 4);
+        }
+
+        typedArray.fill(0);
+        vec3Parameter.copyToTypedArray(typedArray, 100, 3, 0, 0, vec3Parameter.capacity);
+        for (let i = 0; i < 100 * 3; i++) {
+            expect(typedArray[i]).toBeCloseTo(0, 4);
+        }
+        for (let i = 100 * 3; i < 300 + vec3Parameter.capacity * 3; i += 3) {
+            expect(typedArray[i]).toBeCloseTo(val3, 4);
+            expect(typedArray[i + 1]).toBeCloseTo(val3, 4);
+            expect(typedArray[i + 2]).toBeCloseTo(val3, 4);
+        }
+        for (let i = 300 + vec3Parameter.capacity * 3; i < typedArray.length; i++) {
+            expect(typedArray[i]).toBeCloseTo(0, 4);
         }
     });
 
@@ -970,24 +1000,155 @@ describe('ParticleFloatArrayParameter', () => {
     });
 
     test('move', () => {
-        const randomStream = new RandomStream(Math.random() * 10000);
-        const randomStream2 = new RandomStream(randomStream.seed);
+        expect(() => floatParameter.move(-1, 0)).toThrowError();
+        expect(() => floatParameter.move(0, -1)).toThrowError();
+        expect(() => floatParameter.move(0, 200)).toThrowError();
+        expect(() => floatParameter.move(200, 0)).toThrowError();
         for (let i = 0; i < floatParameter.capacity; i++) {
             floatParameter.setFloatAt(i, i);
         }
         floatParameter.move(0, 1);
+        expect(floatParameter.getFloatAt(0)).toBeCloseTo(0, 4);
+        expect(floatParameter.getFloatAt(1)).toBeCloseTo(0, 4);
+        floatParameter.move(floatParameter.capacity - 1, 0);
+        expect(floatParameter.getFloatAt(0)).toBeCloseTo(floatParameter.capacity - 1, 4);
+        expect(floatParameter.getFloatAt(floatParameter.capacity - 1)).toBeCloseTo(floatParameter.capacity - 1, 4);
+        for (let i = 0; i < 100; i++) {
+            const randomIndex = Math.floor(Math.random() * floatParameter.capacity);
+            const randomIndex2 = Math.floor(Math.random() * floatParameter.capacity);
+            floatParameter.move(randomIndex, randomIndex2);
+            expect(floatParameter.getFloatAt(randomIndex)).toBeCloseTo(floatParameter.getFloatAt(randomIndex2), 4);
+        }
+       
+    });
+
+    test('fill', () => {
+        expect(() => floatParameter.fill(1, -1, 1)).toThrowError();
+        expect(() => floatParameter.fill(1, 0, 200)).toThrowError();
+        expect(() => floatParameter.fill(1, 200, 0)).toThrowError();
+        floatParameter.fill(1, 0, floatParameter.capacity);
         for (let i = 0; i < floatParameter.capacity; i++) {
-            if (i === 0) {
-                expect(floatParameter.getFloatAt(i)).toBeCloseTo(0, 4);
+            expect(floatParameter.getFloatAt(i)).toBeCloseTo(1, 4);
+        }
+        floatParameter.fill(0, 0, floatParameter.capacity);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            expect(floatParameter.getFloatAt(i)).toBeCloseTo(0, 4);
+        }
+        const randomIndex = Math.floor(Math.random() * floatParameter.capacity);
+        const val = Math.random() * 100;
+        floatParameter.fill(val, randomIndex, randomIndex + 1);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            if (i === randomIndex) {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(val, 4);
             } else {
-                const random = randomStream2.getFloat() * 100;
-                expect(floatParameter.getFloatAt(i)).toBeCloseTo(random, 4);
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(0, 4);
             }
         }
-        floatParameter.move(1, 0);
+    });
+
+    test('copyFrom', () => {
+        const floatParameter2 = new ParticleFloatArrayParameter();
+        expect(() => floatParameter.copyFrom(floatParameter2, -1, 0)).toThrowError();
+        expect(() => floatParameter.copyFrom(floatParameter2, 0, -1)).toThrowError();
+        expect(() => floatParameter.copyFrom(floatParameter2, 0, 200)).toThrowError();
+        expect(() => floatParameter.copyFrom(floatParameter2, 200, 0)).toThrowError();
+        expect(() => floatParameter.copyFrom(floatParameter2, 0, 25)).toThrowError();
+        floatParameter2.reserve(floatParameter.capacity);
+        const val = Math.random() * 100;
+        floatParameter2.fill(val, 0, floatParameter2.capacity);
+        floatParameter.copyFrom(floatParameter2, 0, floatParameter.capacity);
         for (let i = 0; i < floatParameter.capacity; i++) {
-            const random = randomStream2.getFloat() * 100;
-            expect(floatParameter.getFloatAt(i)).toBeCloseTo(random, 4);
+            expect(floatParameter.getFloatAt(i)).toBeCloseTo(val, 4);
+        }
+        floatParameter.reserve(2000);
+        floatParameter2.reserve(2000);
+        floatParameter.fill(0, 0, floatParameter.capacity);
+        floatParameter2.fill(val, 0, floatParameter2.capacity);
+        floatParameter.copyFrom(floatParameter2, 0, floatParameter.capacity);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            expect(floatParameter.getFloatAt(i)).toBeCloseTo(val, 4);
+        }
+        floatParameter.fill(0, 0, floatParameter.capacity);
+        floatParameter.copyFrom(floatParameter2, 50, 100);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            if (i >= 50 && i < 100) {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(val, 4);
+            } else {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(0, 4);
+            }
+        }
+        floatParameter.fill(0, 0, floatParameter.capacity);
+        floatParameter.copyFrom(floatParameter2, 50, 1250);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            if (i >= 50 && i < 1250) {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(val, 4);
+            } else {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(0, 4);
+            }
+        }
+
+    });
+
+    test('copyToTypedArray', () => {
+        const typedArray = new Float32Array(10000);
+        expect(() => floatParameter.copyToTypedArray(new Float32Array(100), 0, 1, 0, 0, floatParameter.capacity)).toThrowError();
+        expect(() => floatParameter.copyToTypedArray(typedArray, -1, 1, 0, 0, 100)).toThrowError();
+        expect(() => floatParameter.copyToTypedArray(typedArray, 10000, 1, 0, 0, 100)).toThrowError();
+        expect(() => floatParameter.copyToTypedArray(typedArray, 0, 0, 0, 0, 100)).toThrowError();
+        expect(() => floatParameter.copyToTypedArray(typedArray, 0, 1, 1, 0, 100)).toThrowError();
+        expect(() => floatParameter.copyToTypedArray(typedArray, 0, 1, 0, -1, 100)).toThrowError();
+        expect(() => floatParameter.copyToTypedArray(typedArray, 0, 1, 0, 10000, 100)).toThrowError();
+        expect(() => floatParameter.copyToTypedArray(typedArray, 0, 1, 0, 0, 10000)).toThrowError();
+        const val = Math.random() * 1000 - 500;
+        floatParameter.fill(val, 0, floatParameter.capacity);
+        floatParameter.copyToTypedArray(typedArray, 0, 2, 1, 0, floatParameter.capacity);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            expect(typedArray[i * 2]).toBeCloseTo(0, 5);
+            expect(typedArray[i * 2 + 1]).toBeCloseTo(val, 4);
+        }
+        const val2 = Math.random() * 1000 - 500;
+        floatParameter.fill(val2, 0, floatParameter.capacity);
+        floatParameter.copyToTypedArray(typedArray, 0, 2, 0, 0, floatParameter.capacity);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            expect(typedArray[i * 2]).toBeCloseTo(val2, 4);
+            expect(typedArray[i * 2 + 1]).toBeCloseTo(val, 4);
+        }
+        const val3 = Math.random() * 1000 - 500;
+        floatParameter.fill(val3, 0, floatParameter.capacity);
+        typedArray.fill(0);
+        floatParameter.copyToTypedArray(typedArray, 0, 3, 0, 0, floatParameter.capacity);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            expect(typedArray[i * 3 + 0]).toBeCloseTo(val3, 4);
+            expect(typedArray[i * 3 + 1]).toBeCloseTo(0, 4);
+            expect(typedArray[i * 3 + 2]).toBeCloseTo(0, 4);
+        }
+        expect(floatParameter.capacity * 3).toBeLessThan(typedArray.length);
+        for (let i = floatParameter.capacity * 3; i < typedArray.length; i++) {
+            expect(typedArray[i]).toBe(0);
+        }
+
+        typedArray.fill(0);
+        floatParameter.copyToTypedArray(typedArray, 1000, 1, 0, 0, 50);
+        for (let i = 0; i < 1000; i++) {
+            expect(typedArray[i]).toBeCloseTo(0, 4);
+        }
+        for (let i = 1000; i < 1000 + 50; i++) {
+            expect(typedArray[i]).toBeCloseTo(val3, 4);
+        }
+        for (let i = 1000 + 50; i < typedArray.length; i++) {
+            expect(typedArray[i]).toBeCloseTo(0, 4);
+        }
+
+        typedArray.fill(0);
+        floatParameter.copyToTypedArray(typedArray, 100, 1, 0, 0, floatParameter.capacity);
+        for (let i = 0; i < 100; i++) {
+            expect(typedArray[i]).toBeCloseTo(0, 4);
+        }
+        for (let i = 100; i < 100 + floatParameter.capacity; i++) {
+            expect(typedArray[i]).toBeCloseTo(val3, 4);
+        }
+        for (let i = 100 + floatParameter.capacity; i < typedArray.length; i++) {
+            expect(typedArray[i]).toBeCloseTo(0, 4);
         }
     });
 });

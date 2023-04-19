@@ -138,27 +138,27 @@ export class SpriteRendererModule extends RendererModule {
         let offset = 0;
         const define = this._defines;
         if (define[CC_PARTICLE_POSITION]) {
-            particles.position.copyToTypedArray(dynamicBufferFloatView, vertexStreamSizeDynamic, offset, 0, count);
+            particles.position.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         if (define[CC_PARTICLE_ROTATION]) {
-            particles.rotation.copyToTypedArray(dynamicBufferFloatView, vertexStreamSizeDynamic, offset, 0, count);
+            particles.rotation.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         if (define[CC_PARTICLE_SIZE]) {
-            particles.size.copyToTypedArray(dynamicBufferFloatView, vertexStreamSizeDynamic, offset, 0, count);
+            particles.size.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         if (define[CC_PARTICLE_COLOR]) {
-            particles.color.copyToTypedArray(dynamicBufferUintView, vertexStreamSizeDynamic, offset, 0, count);
+            particles.color.copyToTypedArray(dynamicBufferUintView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_PARTICLE_FRAME_INDEX]) {
-            particles.frameIndex.copyToTypedArray(dynamicBufferFloatView, vertexStreamSizeDynamic, offset, 0, count);
+            particles.frameIndex.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_PARTICLE_VELOCITY]) {
-            particles.velocity.copyToTypedArray(dynamicBufferFloatView, vertexStreamSizeDynamic, offset, 0, count);
+            particles.velocity.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         this._dynamicBuffer.update(dynamicBufferFloatView); // update dynamic buffer

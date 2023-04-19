@@ -27,6 +27,10 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
     @serializable
     public channel = Vec3Channel.X;
 
+    public get isConstant (): boolean {
+        return this.vec3.isConstant;
+    }
+
     private _getChannel = this._getX;
 
     private _getX (vec3: Vec3) {

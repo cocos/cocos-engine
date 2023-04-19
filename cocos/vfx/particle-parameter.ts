@@ -95,6 +95,7 @@ export abstract class ParticleArrayParameter extends ParticleParameter {
     protected _capacity = DEFAULT_CAPACITY;
     abstract reserve (capacity: number);
     abstract move (a: ParticleHandle, b: ParticleHandle);
+    abstract copyToTypedArray (dest: ArrayBufferView, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle);
 }
 
 export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
@@ -370,7 +371,8 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
             assertIsTrue(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
-            this._data.set(src._data.subarray(fromIndex * 3, toIndex * 3), fromIndex * 3);
+            const source = (fromIndex === 0 && toIndex === this._capacity) ? src._data : src._data.subarray(fromIndex * 3, toIndex * 3);
+            this._data.set(source, fromIndex * 3);
         } else {
             const destData = this._data;
             const srcData = src._data;
@@ -380,19 +382,26 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
         }
     }
 
-    copyToTypedArray (dest: Float32Array, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= this.stride && strideOffset >= 0 && strideOffset < stride);
             assertIsTrue(stride >= strideOffset + this.stride);
-            assertIsTrue(dest.length >= (toIndex - fromIndex) * stride);
+            assertIsTrue(destOffset >= 0);
+            assertIsTrue(destOffset >= 0 && (destOffset * stride) + (toIndex - fromIndex) * stride <= dest.length);
+        }
+
+        if (stride === this.stride && strideOffset === 0 && (toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
+            const source = (toIndex === this._capacity && fromIndex === 0) ? this._data : this._data.subarray(fromIndex * 3, toIndex * 3);
+            dest.set(source, destOffset * stride);
+            return;
         }
 
         const data = this._data;
-        for (let offset = fromIndex * stride + strideOffset, offset3 = fromIndex * 3, length = toIndex * 3; offset3 < length; offset += stride, offset3 += 3) {
-            dest[offset] = data[offset3];
-            dest[offset + 1] = data[offset3 + 1];
-            dest[offset + 2] = data[offset3 + 2];
+        for (let offset = destOffset * stride + strideOffset, sourceOffset = fromIndex * 3, length = toIndex * 3; sourceOffset < length; offset += stride, sourceOffset += 3) {
+            dest[offset] = data[sourceOffset];
+            dest[offset + 1] = data[sourceOffset + 1];
+            dest[offset + 2] = data[sourceOffset + 2];
         }
     }
 
@@ -436,7 +445,7 @@ export class ParticleFloatArrayParameter extends ParticleArrayParameter {
     }
 
     get stride (): number {
-        return 1;    
+        return 1;
     }
 
     private _data = new Float32Array(this._capacity);
@@ -479,8 +488,13 @@ export class ParticleFloatArrayParameter extends ParticleArrayParameter {
     }
 
     copyFrom (src: ParticleFloatArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(src._capacity === this._capacity);
+        }
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
-            this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
+            const source = (toIndex === this._capacity && fromIndex === 0) ? src._data : src._data.subarray(fromIndex, toIndex);
+            this._data.set(source, fromIndex);
         } else {
             const destData = this._data;
             const srcData = src._data;
@@ -490,20 +504,31 @@ export class ParticleFloatArrayParameter extends ParticleArrayParameter {
         }
     }
 
-    copyToTypedArray (dest: Float32Array, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
-            assertIsTrue(dest.length >= (toIndex - fromIndex) * stride);
+            assertIsTrue(destOffset >= 0);
+            assertIsTrue(dest.length >= (toIndex - fromIndex) * stride + destOffset * stride);
+            assertIsTrue(stride >= strideOffset + this.stride);
+        }
+
+        if (stride === this.stride && strideOffset === 0 && toIndex - fromIndex > BATCH_OPERATION_THRESHOLD) {
+            const source = (toIndex === this._capacity && fromIndex === 0) ? this._data : this._data.subarray(fromIndex, toIndex);
+            dest.set(source, destOffset * stride);
+            return;
         }
 
         const data = this._data;
-        for (let offset = fromIndex * stride + strideOffset, i = fromIndex; i < toIndex; offset += stride, i++) {
+        for (let offset = destOffset * stride + strideOffset, i = fromIndex; i < toIndex; offset += stride, i++) {
             dest[offset] = data[i];
         }
     }
 
     fill (val: number, fromIndex: number, toIndex: number) {
+        if (DEBUG) {
+            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+        }
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.fill(val, fromIndex, toIndex);
         } else {
@@ -539,20 +564,35 @@ export class ParticleBoolArrayParameter extends ParticleArrayParameter {
     }
 
     move (a: ParticleHandle, b: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(a <= this._capacity && a >= 0);
+            assertIsTrue(b <= this._capacity && b >= 0);
+        }
         this._data[b] = this._data[a];
     }
 
     getBoolAt (handle: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(handle <= this._capacity && handle >= 0);
+        }
         return this._data[handle] !== 0;
     }
 
     setBoolAt (val: boolean, handle: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(handle <= this._capacity && handle >= 0);
+        }
         this._data[handle] = val ? 1 : 0;
     }
 
     copyFrom (src: ParticleBoolArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(src._capacity === this._capacity);
+        }
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
-            this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
+            const source = (toIndex === this._capacity && fromIndex === 0) ? src._data : src._data.subarray(fromIndex, toIndex);
+            this._data.set(source, fromIndex);
         } else {
             const destData = this._data;
             const srcData = src._data;
@@ -562,15 +602,21 @@ export class ParticleBoolArrayParameter extends ParticleArrayParameter {
         }
     }
 
-    copyToTypedArray (dest: Uint8Array, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Uint8Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
+            assertIsTrue(destOffset >= 0);
             assertIsTrue(dest.length >= (toIndex - fromIndex) * stride);
+            assertIsTrue(stride >= strideOffset + this.stride);
         }
-
+        if (stride === this.stride && strideOffset === 0 && toIndex - fromIndex > BATCH_OPERATION_THRESHOLD) {
+            const source = (toIndex === this._capacity && fromIndex === 0) ? this._data : this._data.subarray(fromIndex, toIndex);
+            dest.set(source, destOffset * stride);
+            return;
+        }
         const data = this._data;
-        for (let offset = fromIndex * stride + strideOffset, i = fromIndex; i < toIndex; offset += stride, i++) {
+        for (let offset = destOffset * stride + strideOffset, i = fromIndex; i < toIndex; offset += stride, i++) {
             dest[offset] = data[i];
         }
     }
@@ -635,15 +681,15 @@ export class ParticleUint32ArrayParameter extends ParticleArrayParameter {
         }
     }
 
-    copyToTypedArray (dest: Uint32Array, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
-            assertIsTrue(dest.length >= (toIndex - fromIndex) * stride);
+            assertIsTrue(dest.length >= (toIndex - fromIndex) * stride + destOffset * stride);
         }
 
         const data = this._data;
-        for (let offset = fromIndex * stride + strideOffset, i = fromIndex; i < toIndex; offset += stride, i++) {
+        for (let offset = destOffset * stride + strideOffset, i = fromIndex; i < toIndex; offset += stride, i++) {
             dest[offset] = data[i];
         }
     }
@@ -662,7 +708,7 @@ export class ParticleUint32ArrayParameter extends ParticleArrayParameter {
 
 export class ParticleUint8ArrayParameter extends ParticleArrayParameter {
     get stride (): number {
-        return 1;   
+        return 1;
     }
 
     get type (): ParticleParameterType {
@@ -674,6 +720,10 @@ export class ParticleUint8ArrayParameter extends ParticleArrayParameter {
     }
 
     move (a: number, b: number) {
+        throw new Error('Method not implemented.');
+    }
+
+    copyToTypedArray (dest: ArrayBufferView, destOffset: number, stride: number, strideOffset: number, fromIndex: number, toIndex: number) {
         throw new Error('Method not implemented.');
     }
 }
@@ -744,11 +794,18 @@ export class ParticleColorArrayParameter extends ParticleArrayParameter {
         this.fillUint32(val, fromIndex, toIndex);
     }
 
-    copyToTypedArray (dest: Uint32Array, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
-            assertIsTrue(dest.length >= (toIndex - fromIndex) * stride);
+            assertIsTrue(strideOffset + this.stride <= stride);
+            assertIsTrue(dest.length >= (toIndex - fromIndex) * stride + destOffset * stride);
+        }
+
+        if (stride === this.stride && strideOffset === 0 && (toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
+            const source = (fromIndex === 0 && toIndex === this._capacity) ? this._data : this._data.subarray(fromIndex, toIndex);
+            dest.set(source, destOffset * stride);
+            return;
         }
 
         const data = this._data;

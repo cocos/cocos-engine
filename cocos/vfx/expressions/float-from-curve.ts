@@ -17,6 +17,10 @@ export class FloatFromCurveExpression extends FloatExpression {
     @serializable
     public curveScaler: FloatExpression = new ConstantExpression(1);
 
+    public get isConstant (): boolean {
+        return false;
+    }
+
     private declare _time: Float32Array;
 
     constructor (curve?: RealCurve) {

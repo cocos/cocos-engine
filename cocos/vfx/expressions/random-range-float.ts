@@ -16,6 +16,10 @@ export class RandomRangeFloat extends FloatExpression {
     @serializable
     public minimum: FloatExpression = new ConstantExpression(0);
 
+    public get isConstant (): boolean {
+        return false;
+    }
+
     private declare _seed: Uint32Array;
     private _randomOffset = 0;
 

@@ -17,6 +17,10 @@ export class Vec3FromFloatExpression extends Vec3Expression {
     @serializable
     public value: FloatExpression = new ConstantExpression();
 
+    public get isConstant (): boolean {
+        return this.value.isConstant;
+    }
+
     public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
         this.value.tick(particles, params, context);
     }

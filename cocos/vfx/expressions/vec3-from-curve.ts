@@ -27,6 +27,10 @@ export class Vec3FromCurveExpression extends Vec3Expression {
     @serializable
     public curveScaler: Vec3Expression = new ConstantVec3Expression(Vec3.ONE);
 
+    public get isConstant (): boolean {
+        return false;
+    }
+
     private declare _time: Float32Array;
 
     constructor (x?: RealCurve, y?: RealCurve, z?: RealCurve) {

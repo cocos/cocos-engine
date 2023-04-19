@@ -35,6 +35,10 @@ export class ConstantExpression extends FloatExpression {
     @serializable
     public value = 0;
 
+    public get isConstant () {
+        return true;
+    }
+
     constructor (value = 0) {
         super();
         this.value = value;

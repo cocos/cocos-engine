@@ -19,6 +19,10 @@ export class RandomRangeVec3 extends Vec3Expression {
     @serializable
     public minimum: Vec3Expression = new ConstantVec3Expression(Vec3.ZERO);
 
+    public get isConstant (): boolean {
+        return false;
+    }
+
     private declare _seed: Uint32Array;
     private _randomOffset = 0;
 

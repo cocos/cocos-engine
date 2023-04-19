@@ -19,6 +19,10 @@ export class ConstantVec3Expression extends Vec3Expression {
     @serializable
     public z = 0;
 
+    public get isConstant (): boolean {
+        return true;
+    }
+
     constructor (val: Vec3 = Vec3.ZERO) {
         super();
         this.x = val.x;
