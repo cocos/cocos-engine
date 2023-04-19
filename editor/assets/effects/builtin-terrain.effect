@@ -160,11 +160,11 @@ CCProgram surface-fragment %{
       tangent = cross(v_normal.xyz, binormal);
 
       vec3 nmmp = baseNormal.xyz - vec3(0.5);
-      surfaceData.worldNormal =
+      vec3 normal =
         nmmp.x * normalize(tangent) +
         nmmp.y * normalize(binormal) +
         nmmp.z * normalize(v_normal.xyz);
-      surfaceData.worldNormal = normalize(surfaceData.worldNormal);
+      surfaceData.worldNormal = normalize(normal);
     #else
       surfaceData.worldNormal = FSInput_worldNormal;
     #endif
