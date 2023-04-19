@@ -423,7 +423,7 @@ export class UIRenderer extends Renderer {
         if (DEBUG) {
             assert(this.isValid, 'this component should not be invalid!');
         }
-        return this.getMaterial(0) !== null
+        return this.getSharedMaterial(0) !== null
             && this._enabled
             && this._color.a > 0;
     }
@@ -432,7 +432,7 @@ export class UIRenderer extends Renderer {
 
     protected updateMaterial () {
         if (this._customMaterial) {
-            if (this.getMaterial(0) !== this._customMaterial) {
+            if (this.getSharedMaterial(0) !== this._customMaterial) {
                 this.setMaterial(this._customMaterial, 0);
             }
             return;
