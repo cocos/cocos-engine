@@ -27,7 +27,8 @@ vec2 GetPlanarReflectScreenUV(vec3 worldPos, mat4 matVirtualCameraViewProj, floa
   return screenUV;
 }
 
-// depthHS = ndc depth(-1 ~ +1)
+// depthHS (Z) = ndc depth(-1 ~ +1)
+// return camera depth (W), negative in RH
 float GetCameraDepthRH(float depthHS, mat4 matProj)
 {
     return -matProj[3][2] / (depthHS + matProj[2][2]);

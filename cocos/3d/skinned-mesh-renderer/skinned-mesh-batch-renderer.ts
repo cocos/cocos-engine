@@ -114,7 +114,7 @@ export class SkinnedMeshUnit {
         if (!comp) { return; }
         this.mesh = comp.mesh;
         this.skeleton = comp.skeleton;
-        this.material = comp.getMaterial(0);
+        this.material = comp.getSharedMaterial(0);
         if (comp.skinningRoot) { getWorldTransformUntilRoot(comp.node, comp.skinningRoot, this._localTransform); }
     }
 
@@ -223,7 +223,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
 
     public cookMaterials () {
         if (!this._batchMaterial) {
-            this._batchMaterial = this.getMaterial(0);
+            this._batchMaterial = this.getSharedMaterial(0);
         }
         const mat = this.getMaterialInstance(0);
         if (!mat || !this._batchMaterial || !this._batchMaterial.effectAsset) {
