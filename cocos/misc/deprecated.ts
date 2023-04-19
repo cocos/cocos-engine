@@ -56,7 +56,7 @@ replaceProperty(Camera.prototype, 'Camera.prototype', [
 markAsWarning(Renderer.prototype, 'Renderer.prototype', [
     {
         name: 'getMaterial',
-        suggest: 'please use [[getSharedMaterial]] instead.',
+        suggest: 'please use renderer.getSharedMaterial instead.',
     },
 ]);
 
