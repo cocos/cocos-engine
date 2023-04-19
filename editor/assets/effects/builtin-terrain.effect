@@ -163,8 +163,8 @@ CCProgram surface-fragment %{
       normal = CalculateNormalFromTangentSpace(nmmp, 1.0, normalize(normal.xyz), normalize(tangent), 1.0);
     #endif
     surfaceData.worldNormal = normalize(normal);
-    //surfaceData.worldTangent = normalize(tangent);
-    //surfaceData.worldBinormal = normalize(binormal);
+    surfaceData.worldTangent = normalize(tangent);
+    surfaceData.worldBinormal = normalize(binormal);
 
     float roughnessValue = 1.0;
     float metallicValue = 0.0;
