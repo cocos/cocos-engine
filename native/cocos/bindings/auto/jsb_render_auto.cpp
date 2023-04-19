@@ -719,6 +719,33 @@ static bool js_delete_cc_render_RenderNode(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_render_RenderNode) 
 
+static bool js_cc_render_RenderNode_setCustomBehavior(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RenderNode *arg1 = (cc::render::RenderNode *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ccstd::string temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::RenderNode>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    (arg1)->setCustomBehavior((ccstd::string const &)*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_RenderNode_setCustomBehavior) 
+
 static bool js_cc_render_RenderNode_name_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -766,6 +793,7 @@ bool js_register_cc_render_RenderNode(se::Object* obj) {
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_render_RenderNode_name_get), _SE(js_cc_render_RenderNode_name_set)); 
     
+    cls->defineFunction("setCustomBehavior", _SE(js_cc_render_RenderNode_setCustomBehavior)); 
     
     
     
@@ -1387,6 +1415,31 @@ static bool js_cc_render_RasterQueueBuilder_setViewport(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_setViewport) 
 
+static bool js_cc_render_RasterQueueBuilder_addCustomCommand(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
+    std::string_view arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    (arg1)->addCustomCommand(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_RasterQueueBuilder_addCustomCommand) 
+
 static bool js_cc_render_RasterQueueBuilder_addSceneOfCamera__SWIG_1(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1634,6 +1687,7 @@ bool js_register_cc_render_RasterQueueBuilder(se::Object* obj) {
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("setViewport", _SE(js_cc_render_RasterQueueBuilder_setViewport)); 
+    cls->defineFunction("addCustomCommand", _SE(js_cc_render_RasterQueueBuilder_addCustomCommand)); 
     cls->defineFunction("addSceneOfCamera", _SE(js_cc_render_RasterQueueBuilder_addSceneOfCamera)); 
     cls->defineFunction("addScene", _SE(js_cc_render_RasterQueueBuilder_addScene)); 
     cls->defineFunction("addFullscreenQuad", _SE(js_cc_render_RasterQueueBuilder_addFullscreenQuad)); 
