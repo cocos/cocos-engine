@@ -63,15 +63,6 @@ CCProgram macro-remapping %{
 }%
 
 CCProgram surface-vertex %{  
-
-  out mediump vec3 local_normal;
-  #define CC_SURFACES_VERTEX_MODIFY_LOCAL_NORMAL
-  vec3 SurfacesVertexModifyLocalNormal(in SurfacesStandardVertexIntermediate In)
-  {
-    local_normal = a_normal;
-    return In.normal.xyz;
-  }
-
   #define CC_SURFACES_VERTEX_MODIFY_WORLD_POS
   vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
   { 
@@ -102,7 +93,6 @@ CCProgram surface-fragment %{
   uniform sampler2D normalMap1;
   uniform sampler2D normalMap2;
   uniform sampler2D normalMap3;
-  in mediump vec3 local_normal;
 
   #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
   void SurfacesFragmentAlphaClipOnly(){}
@@ -166,14 +156,14 @@ CCProgram surface-fragment %{
       vec3 tangent = vec3(1.0, 0.0, 0.0);
       vec3 binormal = vec3(0.0, 0.0, 1.0);
 
-      binormal = cross(tangent, local_normal);
-      tangent = cross(local_normal, binormal);
+      binormal = cross(tangent, v_normal.xyz);
+      tangent = cross(v_normal.xyz, binormal);
 
       vec3 nmmp = baseNormal.xyz - vec3(0.5);
       surfaceData.worldNormal =
         nmmp.x * normalize(tangent) +
         nmmp.y * normalize(binormal) +
-        nmmp.z * normalize(local_normal);
+        nmmp.z * normalize(v_normal.xyz);
       surfaceData.worldNormal = normalize(surfaceData.worldNormal);
     #else
       surfaceData.worldNormal = FSInput_worldNormal;
