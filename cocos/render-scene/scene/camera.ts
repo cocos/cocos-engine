@@ -998,8 +998,8 @@ export class Camera {
         let viewProjDirty = false;
         const xr = globalThis.__globalXR;
         if (xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs) {
-            const wndXREye = globalThis.__globalXR.webXRWindowMap.get(this._window);
-            const x = 1 / globalThis.__globalXR.webXRMatProjs.length;
+            const wndXREye = xr.webXRWindowMap.get(this._window);
+            const x = 1 / xr.webXRMatProjs.length;
             this.setViewportInOrientedSpace(new Rect(x * wndXREye, 0, x, 1));
         }
         // view matrix
