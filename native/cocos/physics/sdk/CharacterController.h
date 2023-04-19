@@ -61,7 +61,7 @@
         void setGroup(uint32_t g) override;                             \
         uint32_t getMask() override;                                    \
         void setMask(uint32_t m) override;                              \
-        void updateEventListener(EShapeFilterFlag flag);                \
+        void updateEventListener(EShapeFilterFlag flag) override;       \
         uint32_t getObjectID() const override;
 
 namespace cc {
