@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const { throttle } = require('lodash');
 const utils = require('./utils');
 const { trackEventWithTimer } = require('../utils/metrics');
 
@@ -58,19 +59,9 @@ exports.listeners = {
         }
 
         try {
-            /**
-             * When the multi-select node is updated in bulk, 
-             * the node-change of the previous node may be issued due to await, 
-             * so it is necessary to block the interface data update.
-             */
-            const lockUpdateTimes = panel.uuidList.length - 1;
             panel.readyToUpdate = false;
 
             for (let i = 0; i < panel.uuidList.length; i++) {
-                if (i === lockUpdateTimes) {
-                    panel.readyToUpdate = true;
-                }
-
                 const uuid = panel.uuidList[i];
                 const { path, type, isArray } = dump;
                 let value = dump.value;
@@ -102,15 +93,15 @@ exports.listeners = {
             }
         } catch (error) {
             console.error(error);
+        } finally {
+            Editor.Message.send('scene', 'snapshot');
+            panel.readyToUpdate = true;
         }
     },
     'confirm-dump'() {
         const panel = this;
 
         panel.snapshotLock = false;
-
-        // In combination with change-dump, snapshot only generated once after ui-elements continuously changed.
-        Editor.Message.send('scene', 'snapshot');
     },
     async 'create-dump'(event) {
         const panel = this;
@@ -415,22 +406,22 @@ const Elements = {
     panel: {
         ready() {
             const panel = this;
-            panel.__nodeChangedHandle__ = undefined;
+
+            panel.throttleUpdate = throttle(async () => {
+                if (!panel.readyToUpdate) {
+                    return;
+                }
+                for (const prop in Elements) {
+                    const element = Elements[prop];
+                    if (element.update) {
+                        await element.update.call(panel);
+                    }
+                }
+            }, 100, { leading: false, trailing: true });
 
             panel.__nodeChanged__ = (uuid) => {
                 if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
-                    window.cancelAnimationFrame(panel.__nodeChangedHandle__);
-                    panel.__nodeChangedHandle__ = window.requestAnimationFrame(async () => {
-                        for (const prop in Elements) {
-                            if (!panel.readyToUpdate) {
-                                return;
-                            }
-                            const element = Elements[prop];
-                            if (element.update) {
-                                await element.update.call(panel);
-                            }
-                        }
-                    });
+                    panel.throttleUpdate();
                 }
             };
 
@@ -498,6 +489,20 @@ const Elements = {
 
                 Editor.Message.send('scene', 'snapshot');
             });
+
+            panel._readyToUpdate = true;
+            Object.defineProperty(panel, 'readyToUpdate', {
+                enumerable: true,
+                get() {
+                    return panel._readyToUpdate;
+                },
+                set(val) {
+                    panel._readyToUpdate = val;
+                    if (val) {
+                        panel.throttleUpdate();
+                    }
+                },
+            });
         },
         async update() {
             const panel = this;
@@ -544,10 +549,8 @@ const Elements = {
         close() {
             const panel = this;
 
-            if (panel.__nodeChangedHandle__) {
-                window.cancelAnimationFrame(panel.__nodeChangedHandle__);
-                panel.__nodeChangedHandle__ = undefined;
-            }
+            panel.throttleUpdate.cancel();
+            panel.throttleUpdate = undefined;
 
             Editor.Message.removeBroadcastListener('scene:change-node', panel.__nodeChanged__);
             Editor.Message.removeBroadcastListener('scene:animation-time-change', panel.__animationTimeChange__);
@@ -2017,7 +2020,6 @@ exports.ready = async function ready() {
 
     // 为了避免把 ui-num-input, ui-color 的连续 change 进行 snapshot
     panel.snapshotLock = false;
-    panel.readyToUpdate = true;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -2034,7 +2036,6 @@ exports.ready = async function ready() {
 
 exports.close = async function close() {
     const panel = this;
-    panel.readyToUpdate = false;
 
     for (const prop in Elements) {
         const element = Elements[prop];
