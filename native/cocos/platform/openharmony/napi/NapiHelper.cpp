@@ -197,13 +197,17 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
         }
         case EDITBOX_UTILS: {
             std::vector<napi_property_descriptor> desc;
-            OpenHarmonyEditBox::GetInterfaces(desc);
+            #if CC_USE_EDITBOX
+                OpenHarmonyEditBox::GetInterfaces(desc);
+            #endif
             NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
         }
 
         case WEBVIEW_UTILS: {
             std::vector<napi_property_descriptor> desc;
-            OpenHarmonyWebView::GetInterfaces(desc);
+            #if CC_USE_WEBVIEW
+                OpenHarmonyWebView::GetInterfaces(desc);
+            #endif
             NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
         } break;
         case UV_ASYNC_SEND: {

@@ -27,7 +27,7 @@
 
 #include "CommonHeader.h"
 #if !defined(_WIN)
-    #include <Hilog/log.h>
+    #include <hilog/log.h>
 
     #ifndef LOGI
         #define LOGI(...) ((void) OH_LOG_Print(LOG_APP, LOG_INFO, LOG_DOMAIN, "HMG_LOG", __VA_ARGS__))
