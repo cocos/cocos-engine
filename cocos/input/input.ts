@@ -345,6 +345,7 @@ export class Input {
             const eventGamepadList = this._eventGamepadList;
             GamepadInputDevice._on(InputEventType.GAMEPAD_CHANGE, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
             GamepadInputDevice._on(InputEventType.GAMEPAD_INPUT, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
+            GamepadInputDevice._on(InputEventType.HANDLE_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
         }
 
         if (sys.hasFeature(sys.Feature.EVENT_HANDLE)) {
