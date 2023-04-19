@@ -254,12 +254,39 @@ void NativeRasterPassBuilder::addDepthStencil(
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void NativeRasterPassBuilder::addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            AccessType::READ,
+            gfx::ClearFlagBit::NONE,
+            gfx::Color{},
+            ClearValueType::FLOAT_TYPE,
+            renderGraph->get_allocator()});
 }
 
 void NativeRasterPassBuilder::addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            gfx::Color{},
+            ClearValueType::FLOAT_TYPE,
+            renderGraph->get_allocator()});
 }
 
 void NativeRasterPassBuilder::addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            gfx::Color{},
+            ClearValueType::FLOAT_TYPE,
+            renderGraph->get_allocator()});
 }
 
 void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
@@ -442,12 +469,39 @@ void NativeRasterSubpassBuilder::addDepthStencil(
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void NativeRasterSubpassBuilder::addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            AccessType::READ,
+            gfx::ClearFlagBit::NONE,
+            gfx::Color{},
+            ClearValueType::FLOAT_TYPE,
+            renderGraph->get_allocator()});
 }
 
 void NativeRasterSubpassBuilder::addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            gfx::Color{},
+            ClearValueType::FLOAT_TYPE,
+            renderGraph->get_allocator()});
 }
 
 void NativeRasterSubpassBuilder::addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            gfx::Color{},
+            ClearValueType::FLOAT_TYPE,
+            renderGraph->get_allocator()});
 }
 
 void NativeRasterSubpassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
@@ -507,12 +561,39 @@ void NativeComputeSubpassBuilder::addRenderTarget(const ccstd::string &name, con
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void NativeComputeSubpassBuilder::addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            AccessType::READ,
+            gfx::ClearFlagBit::NONE,
+            gfx::Color{},
+            ClearValueType::FLOAT_TYPE,
+            renderGraph->get_allocator()});
 }
 
 void NativeComputeSubpassBuilder::addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            gfx::Color{},
+            ClearValueType::FLOAT_TYPE,
+            renderGraph->get_allocator()});
 }
 
 void NativeComputeSubpassBuilder::addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            gfx::Color{},
+            ClearValueType::FLOAT_TYPE,
+            renderGraph->get_allocator()});
 }
 
 void NativeComputeSubpassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
@@ -1254,12 +1335,39 @@ void NativeComputeQueueBuilder::addDispatch(
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void NativeComputePassBuilder::addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            AccessType::READ,
+            gfx::ClearFlagBit::NONE,
+            gfx::Color{},
+            ClearValueType::FLOAT_TYPE,
+            renderGraph->get_allocator()});
 }
 
 void NativeComputePassBuilder::addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            gfx::Color{},
+            ClearValueType::FLOAT_TYPE,
+            renderGraph->get_allocator()});
 }
 
 void NativeComputePassBuilder::addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            gfx::Color{},
+            ClearValueType::FLOAT_TYPE,
+            renderGraph->get_allocator()});
 }
 
 void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {

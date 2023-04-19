@@ -118,6 +118,9 @@ public:
 
     virtual ccstd::string getName() const = 0;
     virtual void setName(const ccstd::string &name) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void setCustomBehavior(const ccstd::string &name) = 0;
 };
 
@@ -149,6 +152,9 @@ public:
     virtual void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addCustomCommand(std::string_view customBehavior) = 0;
     void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
         addSceneOfCamera(camera, std::move(light), SceneFlags::NONE);
@@ -171,10 +177,25 @@ class RasterSubpassBuilder : public Setter {
 public:
     RasterSubpassBuilder() noexcept = default;
 
+    /**
+     * @beta method's name might change
+     */
     virtual void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     /**
      * @deprecated method will be removed in 3.8.0
@@ -233,9 +254,21 @@ class ComputeSubpassBuilder : public Setter {
 public:
     ComputeSubpassBuilder() noexcept = default;
 
+    /**
+     * @beta method's name might change
+     */
     virtual void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     /**
      * @deprecated method will be removed in 3.8.0
@@ -251,10 +284,25 @@ class RasterPassBuilder : public Setter {
 public:
     RasterPassBuilder() noexcept = default;
 
+    /**
+     * @beta method's name might change
+     */
     virtual void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     /**
      * @deprecated method will be removed in 3.8.0
@@ -313,8 +361,17 @@ class ComputePassBuilder : public Setter {
 public:
     ComputePassBuilder() noexcept = default;
 
+    /**
+     * @beta method's name might change
+     */
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     /**
      * @deprecated method will be removed in 3.8.0

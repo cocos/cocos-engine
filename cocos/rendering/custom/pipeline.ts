@@ -67,6 +67,9 @@ export interface PipelineRuntime {
 
 export interface RenderNode {
     name: string;
+    /**
+     * @beta method's name might change
+     */
     setCustomBehavior (name: string): void;
 }
 
@@ -97,22 +100,64 @@ export interface RasterQueueBuilder extends Setter {
     clearRenderTarget (name: string, color: Color): void;
     clearRenderTarget (name: string/*, new Color()*/): void;
     setViewport (viewport: Viewport): void;
+    /**
+     * @beta method's name might change
+     */
     addCustomCommand (customBehavior: string): void;
 }
 
 export interface RasterSubpassBuilder extends Setter {
+    /**
+     * @beta method's name might change
+     */
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, color: Color): void;
+    /**
+     * @beta method's name might change
+     */
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, new Color()*/): void;
+    /**
+     * @beta method's name might change
+     */
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, new Color()*/): void;
+    /**
+     * @beta method's name might change
+     */
     addRenderTarget (name: string, accessType: AccessType, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, new Color()*/): void;
+    /**
+     * @beta method's name might change
+     */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number, clearFlags: ClearFlagBit): void;
+    /**
+     * @beta method's name might change
+     */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number/*, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number/*, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
     addDepthStencil (name: string, accessType: AccessType, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
     addTexture (name: string, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
     addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     /**
      * @deprecated method will be removed in 3.8.0
@@ -132,9 +177,21 @@ export interface ComputeQueueBuilder extends Setter {
 }
 
 export interface ComputeSubpassBuilder extends Setter {
+    /**
+     * @beta method's name might change
+     */
     addRenderTarget (name: string, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
     addTexture (name: string, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
     addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     /**
      * @deprecated method will be removed in 3.8.0
@@ -145,18 +202,57 @@ export interface ComputeSubpassBuilder extends Setter {
 }
 
 export interface RasterPassBuilder extends Setter {
+    /**
+     * @beta method's name might change
+     */
     addRenderTarget (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, color: Color): void;
+    /**
+     * @beta method's name might change
+     */
     addRenderTarget (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, new Color()*/): void;
+    /**
+     * @beta method's name might change
+     */
     addRenderTarget (name: string, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, new Color()*/): void;
+    /**
+     * @beta method's name might change
+     */
     addRenderTarget (name: string, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, new Color()*/): void;
+    /**
+     * @beta method's name might change
+     */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number, clearFlags: ClearFlagBit): void;
+    /**
+     * @beta method's name might change
+     */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number/*, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number/*, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
     addDepthStencil (name: string, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
+    /**
+     * @beta method's name might change
+     */
     addTexture (name: string, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
     addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     /**
      * @deprecated method will be removed in 3.8.0
@@ -179,8 +275,17 @@ export interface RasterPassBuilder extends Setter {
 }
 
 export interface ComputePassBuilder extends Setter {
+    /**
+     * @beta method's name might change
+     */
     addTexture (name: string, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
     addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     /**
      * @deprecated method will be removed in 3.8.0
