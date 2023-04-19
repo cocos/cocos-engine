@@ -139,7 +139,7 @@ export class GamepadInputDevice {
 
     private static _eventTarget: EventTarget = new EventTarget();
     private static _cachedWebGamepads: (WebGamepad | null)[] = [];
-    private static _cachedWebXRGamepadMap: (Map<string, Gamepad | undefined> | null) = null;
+    private static _cachedWebXRGamepadMap: (Map<string, any | undefined> | null) = null;
     private static _intervalId = -1;
 
     private _buttonNorth!: InputSourceButton;
@@ -327,7 +327,9 @@ export class GamepadInputDevice {
             GamepadInputDevice.xr = new GamepadInputDevice(-1);
         }
 
-        if (!webxrGamepadMap.get(XRLeftHandedness) && !webxrGamepadMap.get(XRRightHandedness)) {
+        const left = webxrGamepadMap.get(XRLeftHandedness);
+        const right = webxrGamepadMap.get(XRRightHandedness);
+        if (!left && !right) {
             if (GamepadInputDevice.xr._connected) {
                 GamepadInputDevice.xr._connected = false;
                 GamepadInputDevice._eventTarget.emit(InputEventType.GAMEPAD_CHANGE,
@@ -339,23 +341,24 @@ export class GamepadInputDevice {
                 new EventGamepad(InputEventType.GAMEPAD_CHANGE, GamepadInputDevice.xr));
         }
 
-        if (GamepadInputDevice.checkGamepadChanged(webxrGamepadMap.get(XRLeftHandedness),
+        if (GamepadInputDevice.checkGamepadChanged(left,
             GamepadInputDevice._cachedWebXRGamepadMap?.get(XRLeftHandedness))) {
             devices.push(GamepadInputDevice.xr);
-        } else if (GamepadInputDevice.checkGamepadChanged(webxrGamepadMap.get(XRRightHandedness),
+        } else if (GamepadInputDevice.checkGamepadChanged(right,
             GamepadInputDevice._cachedWebXRGamepadMap?.get(XRRightHandedness))) {
             devices.push(GamepadInputDevice.xr);
         }
 
         // update cache
         if (!GamepadInputDevice._cachedWebXRGamepadMap) {
-            GamepadInputDevice._cachedWebXRGamepadMap = new Map<string, Gamepad | undefined>();
+            GamepadInputDevice._cachedWebXRGamepadMap = new Map<string, any | undefined>();
         }
-        GamepadInputDevice._cachedWebXRGamepadMap.set(XRLeftHandedness, webxrGamepadMap.get(XRLeftHandedness));
-        GamepadInputDevice._cachedWebXRGamepadMap.set(XRRightHandedness, webxrGamepadMap.get(XRRightHandedness));
+
+        GamepadInputDevice._cachedWebXRGamepadMap.set(XRLeftHandedness, GamepadInputDevice._copyCacheGamepadValue(left));
+        GamepadInputDevice._cachedWebXRGamepadMap.set(XRLeftHandedness, GamepadInputDevice._copyCacheGamepadValue(right));
     }
 
-    private static checkGamepadChanged (currGamepad: (Gamepad | undefined), cachedGamepad: (Gamepad | undefined)) {
+    private static checkGamepadChanged (currGamepad: (Gamepad | undefined), cachedGamepad: (any | undefined)) {
         if (!currGamepad && !cachedGamepad) {
             return false;
         } else if (!currGamepad || !cachedGamepad) {
@@ -366,7 +369,7 @@ export class GamepadInputDevice {
         for (let j = 0; j < cachedButtons.length; ++j) {
             const cachedButton = cachedButtons[j];
             const button = currGamepad.buttons[j];
-            if (button.value !== 0 || cachedButton.value !== 0) {
+            if (button.value !== 0 || cachedButton !== 0) {
                 return true;
             }
         }
@@ -381,6 +384,22 @@ export class GamepadInputDevice {
         }
 
         return false;
+    }
+
+    private static _copyCacheGamepadValue (gamepad: Gamepad | undefined) {
+        if (!gamepad) {
+            return undefined;
+        }
+
+        const cacheGamepad = { buttons: new Array(gamepad.buttons.length), axes: new Array(gamepad.axes.length) };
+        for (let j = 0; j < gamepad.buttons.length; ++j) {
+            cacheGamepad.buttons[j] = gamepad.buttons[j].value;
+        }
+        for (let j = 0; j < gamepad.axes.length; ++j) {
+            cacheGamepad.axes[j] = gamepad.axes[j];
+        }
+
+        return cacheGamepad;
     }
 
     private static _scanWebXRGamepadsPose () {
