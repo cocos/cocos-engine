@@ -27,8 +27,11 @@ export enum ParticleParameterType {
     FLOAT,
     BOOL,
     VEC3,
+    VEC2,
+    VEC4,
     COLOR,
     UINT32,
+    UINT8,
 }
 
 export enum ParameterNameSpace {

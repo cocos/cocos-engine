@@ -1,4 +1,5 @@
 import { Vec3 } from '../../cocos/core';
+import { float } from '../../cocos/core/data/class-decorator';
 import { ParticleParameterType } from '../../cocos/vfx/enum';
 import { BATCH_OPERATION_THRESHOLD_VEC3, ParticleBoolArrayParameter, ParticleColorArrayParameter, ParticleFloatArrayParameter, ParticleUint32ArrayParameter, ParticleVec3ArrayParameter } from '../../cocos/vfx/particle-parameter';
 import { RandomStream } from '../../cocos/vfx/random-stream';
@@ -15,19 +16,19 @@ describe('ParticleVec3ArrayParameter', () => {
         expect(vec3Parameter.capacity).toBe(16);
         expect(vec3Parameter.data).toBeTruthy();
         expect(vec3Parameter.data instanceof Float32Array).toBeTruthy();
-        expect(vec3Parameter.data.length).toBe(16 * 3);
-        for (let i = 0; i < vec3Parameter.capacity * 3; i++) {
+        expect(vec3Parameter.data.length).toBe(16 * vec3Parameter.stride);
+        for (let i = 0; i < vec3Parameter.capacity * vec3Parameter.stride; i++) {
             expect(vec3Parameter.data[i]).toBe(0);
         }
         vec3Parameter.reserve(32);
         expect(vec3Parameter.capacity).toBe(32);
-        expect(vec3Parameter.data.length).toBe(32 * 3);
-        for (let i = 0; i < vec3Parameter.capacity * 3; i++) {
+        expect(vec3Parameter.data.length).toBe(32 * vec3Parameter.stride);
+        for (let i = 0; i < vec3Parameter.capacity * vec3Parameter.stride; i++) {
             expect(vec3Parameter.data[i]).toBe(0);
         }
         vec3Parameter.reserve(16);
         expect(vec3Parameter.capacity).toBe(32);
-        expect(vec3Parameter.data.length).toBe(32 * 3);
+        expect(vec3Parameter.data.length).toBe(32 * vec3Parameter.stride);
     });
 
     test('fill1f', () => {
@@ -831,7 +832,47 @@ describe('ParticleVec3ArrayParameter', () => {
             expect(vec3.y).toBeCloseTo(random + val2, 4);
             expect(vec3.z).toBeCloseTo(random + val2, 4);
         }
-    })
+    });
+
+    test('copyFrom', () => {
+        const vec3Parameter2 = new ParticleVec3ArrayParameter();
+        expect(() => vec3Parameter.copyFrom(vec3Parameter2, 0, vec3Parameter.capacity)).toThrowError();
+        vec3Parameter2.reserve(vec3Parameter.capacity);
+        expect(() => vec3Parameter.copyFrom(vec3Parameter2, -1, 100)).toThrowError();
+        expect(() => vec3Parameter.copyFrom(vec3Parameter2, 0, 10000)).toThrowError();
+        expect(() => vec3Parameter.copyFrom(vec3Parameter2, 100, 50)).toThrowError();
+        const rand = Math.random() * 100;
+        vec3Parameter2.fill1f(rand, 0, vec3Parameter2.capacity);
+        vec3Parameter.copyFrom(vec3Parameter2, 0, vec3Parameter.capacity);
+        for (let i = 0; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            expect(vec3.x).toBeCloseTo(rand, 4);
+            expect(vec3.y).toBeCloseTo(rand, 4);
+            expect(vec3.z).toBeCloseTo(rand, 4);
+        }
+        const rand2 = Math.random() * 100;
+        vec3Parameter2.fill1f(rand2, 0, vec3Parameter2.capacity);
+        vec3Parameter.copyFrom(vec3Parameter2, 50, 100);
+
+        for (let i = 0; i < 50; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            expect(vec3.x).toBeCloseTo(rand, 4);
+            expect(vec3.y).toBeCloseTo(rand, 4);
+            expect(vec3.z).toBeCloseTo(rand, 4);
+        }
+        for (let i = 50; i < 100; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            expect(vec3.x).toBeCloseTo(rand2, 4);
+            expect(vec3.y).toBeCloseTo(rand2, 4);
+            expect(vec3.z).toBeCloseTo(rand2, 4);
+        }
+        for (let i = 100; i < vec3Parameter.capacity; i++) {
+            vec3Parameter.getVec3At(vec3, i);
+            expect(vec3.x).toBeCloseTo(rand, 4);
+            expect(vec3.y).toBeCloseTo(rand, 4);
+            expect(vec3.z).toBeCloseTo(rand, 4);
+        }
+    });
 });
 
 describe('ParticleFloatArrayParameter', () => {
@@ -844,13 +885,110 @@ describe('ParticleFloatArrayParameter', () => {
     test('capacity', () => {
         expect(floatParameter.capacity).toBe(16);
         expect(floatParameter.data).toBeTruthy();
-        expect(floatParameter.data.length).toBe(16);
+        expect(floatParameter.data.length).toBe(16 * floatParameter.stride);
         floatParameter.reserve(32);
         expect(floatParameter.capacity).toBe(32);
-        expect(floatParameter.data.length).toBe(32);
+        expect(floatParameter.data.length).toBe(32 * floatParameter.stride);
         floatParameter.reserve(16);
         expect(floatParameter.capacity).toBe(32);
-        expect(floatParameter.data.length).toBe(32);
+        expect(floatParameter.data.length).toBe(32 * floatParameter.stride);
+    });
+
+    test('getFloatAt', () => {
+        expect(() => floatParameter.getFloatAt(-1)).toThrowError();
+        expect(() => floatParameter.getFloatAt(200)).toThrowError();
+        const randomIndex = Math.floor(Math.random() * floatParameter.capacity);
+        const val = Math.random() * 100;
+        floatParameter.data[randomIndex] = val;
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            if (i === randomIndex) {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(val, 4);
+            } else {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(0, 4);
+            }
+        }
+        const randomStream = new RandomStream(Math.random() * 10000);
+        const randomStream2 = new RandomStream(randomStream.seed);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            floatParameter.data[i] = randomStream.getFloat() * 100;
+        }
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            const random = randomStream2.getFloat() * 100;
+            expect(floatParameter.getFloatAt(i)).toBeCloseTo(random, 4);
+        }
+    });
+
+    test('setFloatAt', () => {
+        expect(() => floatParameter.setFloatAt(0, -1)).toThrowError();
+        expect(() => floatParameter.setFloatAt(0, 200)).toThrowError();
+        const randomIndex = Math.floor(Math.random() * floatParameter.capacity);
+        const val = Math.random() * 100;
+        floatParameter.data.fill(0);
+        floatParameter.setFloatAt(val, randomIndex);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            if (i === randomIndex) {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(val, 4);
+            } else {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(0, 4);
+            }
+        }
+        const randomStream = new RandomStream(Math.random() * 10000);
+        const randomStream2 = new RandomStream(randomStream.seed);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            floatParameter.setFloatAt(randomStream.getFloat() * 100, i);
+        }
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            const random = randomStream2.getFloat() * 100;
+            expect(floatParameter.getFloatAt(i)).toBeCloseTo(random, 4);
+        }
+    });
+
+    test('addFloatAt', () => {
+        expect(() => floatParameter.addFloatAt(0, -1)).toThrowError();
+        expect(() => floatParameter.addFloatAt(0, 200)).toThrowError();
+        const randomIndex = Math.floor(Math.random() * floatParameter.capacity);
+        const val = Math.random() * 100;
+        floatParameter.data.fill(1);
+        floatParameter.addFloatAt(val, randomIndex);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            if (i === randomIndex) {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(val + 1, 4);
+            } else {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(1, 4);
+            }
+        }
+        floatParameter.setFloatAt(1, randomIndex);
+        const randomStream = new RandomStream(Math.random() * 10000);
+        const randomStream2 = new RandomStream(randomStream.seed);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            floatParameter.addFloatAt(randomStream.getFloat() * 100, i);
+        }
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            const random = randomStream2.getFloat() * 100 + 1;
+            expect(floatParameter.getFloatAt(i)).toBeCloseTo(random, 4);
+        }
+    });
+
+    test('move', () => {
+        const randomStream = new RandomStream(Math.random() * 10000);
+        const randomStream2 = new RandomStream(randomStream.seed);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            floatParameter.setFloatAt(i, i);
+        }
+        floatParameter.move(0, 1);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            if (i === 0) {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(0, 4);
+            } else {
+                const random = randomStream2.getFloat() * 100;
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(random, 4);
+            }
+        }
+        floatParameter.move(1, 0);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            const random = randomStream2.getFloat() * 100;
+            expect(floatParameter.getFloatAt(i)).toBeCloseTo(random, 4);
+        }
     });
 });
 
@@ -864,14 +1002,16 @@ describe('ParticleUint32ArrayParameter', () => {
     test('capacity', () => {
         expect(uint32Parameter.capacity).toBe(16);
         expect(uint32Parameter.data).toBeTruthy();
-        expect(uint32Parameter.data.length).toBe(16);
+        expect(uint32Parameter.data.length).toBe(16 * uint32Parameter.stride);
         uint32Parameter.reserve(32);
         expect(uint32Parameter.capacity).toBe(32);
-        expect(uint32Parameter.data.length).toBe(32);
+        expect(uint32Parameter.data.length).toBe(32 * uint32Parameter.stride);
         uint32Parameter.reserve(16);
         expect(uint32Parameter.capacity).toBe(32);
-        expect(uint32Parameter.data.length).toBe(32);
+        expect(uint32Parameter.data.length).toBe(32 * uint32Parameter.stride);
     });
+
+
 });
 
 describe('ParticleBoolArrayParameter', () => {
@@ -884,13 +1024,13 @@ describe('ParticleBoolArrayParameter', () => {
     test('capacity', () => {
         expect(boolParameter.capacity).toBe(16);
         expect(boolParameter.data).toBeTruthy();
-        expect(boolParameter.data.length).toBe(16);
+        expect(boolParameter.data.length).toBe(16 * boolParameter.stride);
         boolParameter.reserve(32);
         expect(boolParameter.capacity).toBe(32);
-        expect(boolParameter.data.length).toBe(32);
+        expect(boolParameter.data.length).toBe(32 * boolParameter.stride);
         boolParameter.reserve(16);
         expect(boolParameter.capacity).toBe(32);
-        expect(boolParameter.data.length).toBe(32);
+        expect(boolParameter.data.length).toBe(32 * boolParameter.stride);
     });
 });
 
@@ -904,13 +1044,13 @@ describe('ParticleColorArrayParameter', () => {
     test('capacity', () => {
         expect(colorParameter.capacity).toBe(16);
         expect(colorParameter.data).toBeTruthy();
-        expect(colorParameter.data.length).toBe(16);
+        expect(colorParameter.data.length).toBe(16 * colorParameter.stride);
         colorParameter.reserve(32);
         expect(colorParameter.capacity).toBe(32);
-        expect(colorParameter.data.length).toBe(32);
+        expect(colorParameter.data.length).toBe(32 * colorParameter.stride);
         colorParameter.reserve(16);
         expect(colorParameter.capacity).toBe(32);
-        expect(colorParameter.data.length).toBe(32);
+        expect(colorParameter.data.length).toBe(32 * colorParameter.stride);
     });
 });
 

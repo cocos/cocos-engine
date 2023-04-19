@@ -28,6 +28,9 @@ import { ParticleDataSet } from './particle-data-set';
 
 @ccclass('cc.Expression')
 export abstract class Expression {
+    public get isConstant () {
+        return false;
+    }
     public abstract tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext);
     public abstract bind (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext, randomOffset: number);
 }

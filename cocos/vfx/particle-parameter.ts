@@ -91,10 +91,7 @@ export abstract class ParticleArrayParameter extends ParticleParameter {
         return true;
     }
 
-    get stride () {
-        return 1;
-    }
-
+    abstract get stride (): number;
     protected _capacity = DEFAULT_CAPACITY;
     abstract reserve (capacity: number);
     abstract move (a: ParticleHandle, b: ParticleHandle);
@@ -438,6 +435,10 @@ export class ParticleFloatArrayParameter extends ParticleArrayParameter {
         return ParticleParameterType.FLOAT;
     }
 
+    get stride (): number {
+        return 1;    
+    }
+
     private _data = new Float32Array(this._capacity);
 
     reserve (capacity: number) {
@@ -449,18 +450,31 @@ export class ParticleFloatArrayParameter extends ParticleArrayParameter {
     }
 
     move (a: number, b: number) {
+        if (DEBUG) {
+            assertIsTrue(a <= this._capacity && a >= 0);
+            assertIsTrue(b <= this._capacity && b >= 0);
+        }
         this._data[b] = this._data[a];
     }
 
     getFloatAt (handle: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(handle <= this._capacity && handle >= 0);
+        }
         return this._data[handle];
     }
 
     setFloatAt (val: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(handle <= this._capacity && handle >= 0);
+        }
         this._data[handle] = val;
     }
 
     addFloatAt (val: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(handle <= this._capacity && handle >= 0);
+        }
         this._data[handle] += val;
     }
 
@@ -508,6 +522,10 @@ export class ParticleBoolArrayParameter extends ParticleArrayParameter {
 
     get type () {
         return ParticleParameterType.BOOL;
+    }
+
+    get stride (): number {
+        return 1;
     }
 
     private _data = new Uint8Array(this._capacity);
@@ -579,6 +597,10 @@ export class ParticleUint32ArrayParameter extends ParticleArrayParameter {
         return ParticleParameterType.UINT32;
     }
 
+    get stride (): number {
+        return 1;
+    }
+
     private _data = new Uint32Array(this._capacity);
 
     reserve (capacity: number) {
@@ -638,6 +660,24 @@ export class ParticleUint32ArrayParameter extends ParticleArrayParameter {
     }
 }
 
+export class ParticleUint8ArrayParameter extends ParticleArrayParameter {
+    get stride (): number {
+        return 1;   
+    }
+
+    get type (): ParticleParameterType {
+        return ParticleParameterType.UINT8;
+    }
+
+    reserve (capacity: number) {
+        throw new Error('Method not implemented.');
+    }
+
+    move (a: number, b: number) {
+        throw new Error('Method not implemented.');
+    }
+}
+
 export class ParticleColorArrayParameter extends ParticleArrayParameter {
     get data () {
         return this._data;
@@ -645,6 +685,10 @@ export class ParticleColorArrayParameter extends ParticleArrayParameter {
 
     get type () {
         return ParticleParameterType.COLOR;
+    }
+
+    get stride (): number {
+        return 1;
     }
 
     private _data = new Uint32Array(this._capacity);

@@ -40,5 +40,6 @@ export {
     Expression,
 };
 
+export * from './particle-parameter';
 export * from './modules';
 export * from './expressions';
