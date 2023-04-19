@@ -25,7 +25,7 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
 
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
   if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_NORMAL_MAP)
-    surfaceData.worldNormal = FSInput_worldNormal;
+    surfaceData.worldNormal = normalize(FSInput_worldNormal);
 #endif
 
 #if CC_USE_DEBUG_VIEW

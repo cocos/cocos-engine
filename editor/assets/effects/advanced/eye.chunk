@@ -155,7 +155,8 @@ vec2 GetRefractedUV(vec3 irisUVMask, sampler2D irisHeightMap, sampler2D T_Eye_N,
   float b5 = lerp(0.325, 1.0, dot(cameraW,arg7_EyeDirectionWorld) * dot(cameraW,arg7_EyeDirectionWorld));
   vec3 heightW = a5 / b5;
   vec3 b3 = RefractionDirection*heightW;
-  vec3 a3 = normalize(FSInput_worldTangent - dot(FSInput_worldTangent, arg7_EyeDirectionWorld) * arg7_EyeDirectionWorld);
+  vec3 tangent = normalize(FSInput_worldTangent);
+  vec3 a3 = normalize(tangent - dot(tangent, arg7_EyeDirectionWorld) * arg7_EyeDirectionWorld);
   vec3 a4 = cross(a3,arg7_EyeDirectionWorld);
   vec3 b4 = b3;
   vec2 b2 = vec2(dot(a3,b3),dot(a4,b4));
