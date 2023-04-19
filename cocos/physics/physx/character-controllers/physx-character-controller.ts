@@ -29,7 +29,6 @@ import { CharacterController } from '../../framework/components/character-contro
 import { IBaseCharacterController } from '../../spec/i-character-controller';
 import { getWrapShape, PX, _trans } from '../physx-adapter';
 import { EFilterDataWord3 } from '../physx-enum';
-import { PhysXInstance } from '../physx-instance';
 import { PhysXWorld } from '../physx-world';
 import { PhysXShape } from '../shapes/physx-shape';
 import { degreesToRadians } from '../../../core/utils/misc';

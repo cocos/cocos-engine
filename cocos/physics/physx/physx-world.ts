@@ -392,7 +392,7 @@ const PhysXCallback = {
         contactEventDic.reset();
     },
     controllerHitReportCB: {
-        onShapeHit (hit: PX.PxControllerShapeHit): void {
+        onShapeHit (hit: any): void { //PX.ControllerShapeHit
             const cct = getWrapShape<PhysXCharacterController>(hit.getCurrentController());
             const s = getWrapShape<PhysXShape>(hit.getTouchedShape());
             let item = cctShapeEventDic.get<any>(hit.getCurrentController(), hit.getTouchedShape());
@@ -408,7 +408,7 @@ const PhysXCallback = {
                     { PhysXCharacterController: cct, PhysXShape: s, worldPos, worldNormal, motionDir, motionLength });
             }
         },
-        onControllerHit (hit: PX.PxControllersHit): void {
+        onControllerHit (hit: any): void { //PX.ControllersHit
         },
     },
     emitCCTShapeEvent (): void {
