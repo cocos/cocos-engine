@@ -699,7 +699,37 @@ export class Graphics extends UIRenderer {
             this._uploadData();
         }
 
+        if (this.node._uiProps.colorDirty || this._isNeedUploadData) {
+            this._updateOpacity();
+        }
+
         render.commitModel(this, this.model, this.getMaterialInstance(0));
+    }
+
+    private _updateOpacity () {
+        const impl = this.impl;
+        if (!impl) {
+            return;
+        }
+
+        const renderDataList = impl.getRenderDataList();
+        if (renderDataList.length <= 0) {
+            return;
+        }
+        const subModelList = this.model!.subModels;
+        for (let i = 0; i < renderDataList.length; i++) {
+            const renderData = renderDataList[i];
+            const dataCount = renderData.vertexStart * componentPerVertex
+            const vb = new Float32Array(dataCount);
+            for (let j = 0; j < dataCount; j++) {
+                if (j % componentPerVertex === 6) {
+                    vb[j] = renderData.vData[j] * this.node._uiProps.opacity;
+                } else {
+                    vb[j] = renderData.vData[j];
+                }
+            }
+            subModelList[i].inputAssembler.vertexBuffers[0].update(vb);
+        }
     }
 
     protected _flushAssembler () {
