@@ -175,7 +175,7 @@ export default class Gradient {
                 }
             }
             const lastIndex = this.colorKeys.length - 1;
-            if (approx(time - this.colorKeys[lastIndex].time, 0.0, EPSILON)) {
+            if (approx(time, this.colorKeys[lastIndex].time, EPSILON)) {
                 this._color.set(this.colorKeys[lastIndex].color);
             } else if (time < this.colorKeys[0].time) {
                 Color.lerp(this._color, Color.BLACK, this.colorKeys[0].color, time / this.colorKeys[0].time);
@@ -209,7 +209,7 @@ export default class Gradient {
                 }
             }
             const lastIndex = this.alphaKeys.length - 1;
-            if (approx(time - this.alphaKeys[lastIndex].time, 0.0, EPSILON)) {
+            if (approx(time, this.alphaKeys[lastIndex].time, EPSILON)) {
                 return this.alphaKeys[lastIndex].alpha;
             } else if (time < this.alphaKeys[0].time) {
                 return lerp(basicAlpha, this.alphaKeys[0].alpha, time / this.alphaKeys[0].time);
