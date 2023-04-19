@@ -27,7 +27,7 @@ import { systemInfo } from 'pal/system-info';
 import { DEBUG } from 'internal:constants';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
-import { AccessType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, RasterSubpassBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -957,6 +957,12 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
+    addRasterView (name: string, view: RasterView): void {
+        throw new Error('Method not implemented.');
+    }
+    addComputeView (name: string, view: ComputeView): void {
+        throw new Error('Method not implemented.');
+    }
     setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
         throw new Error('Method not implemented.');
     }
@@ -971,24 +977,36 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         this._renderGraph.setName(this._vertID, name);
     }
     addRenderTarget (name: string, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()) {
-        throw new Error('Method not implemented.');
-    }
-    addDepthStencil (name: string, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
-        throw new Error('Method not implemented.');
-    }
-    addTexture (name: string, slotName: string): void {
-        throw new Error('Method not implemented.');
-    }
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
-        throw new Error('Method not implemented.');
-    }
-    addStorageImage (name: string, accessType: AccessType, slotName: string): void {
-        throw new Error('Method not implemented.');
-    }
-    addRasterView (name: string, view: RasterView) {
+        if (DEBUG) {
+            assert(name && this._resourceGraph.contains(name));
+        }
+        let clearFlag = ClearFlagBit.COLOR;
+        if (loadOp === LoadOp.LOAD) {
+            clearFlag = ClearFlagBit.NONE;
+        }
+        const view = new RasterView(slotName,
+            AccessType.WRITE, AttachmentType.RENDER_TARGET,
+            loadOp,
+            storeOp,
+            clearFlag,
+            clearColor);
         this._pass.rasterViews.set(name, view);
     }
-    addComputeView (name: string, view: ComputeView) {
+    addDepthStencil (name: string, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
+        if (DEBUG) {
+            assert(name && this._resourceGraph.contains(name));
+        }
+        const view = new RasterView(slotName,
+            AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+            loadOp,
+            storeOp,
+            clearFlag,
+            new Color(depth, stencil, 0, 0));
+        this._pass.rasterViews.set(name, view);
+    }
+    private _addComputeResource (name: string, accessType: AccessType, slotName: string) {
+        const view = new ComputeView(slotName);
+        view.accessType = accessType;
         if (DEBUG) {
             assert(view.name);
             assert(name && this._resourceGraph.contains(name));
@@ -1001,6 +1019,15 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         } else {
             this._pass.computeViews.set(name, [view]);
         }
+    }
+    addTexture (name: string, slotName: string): void {
+        this._addComputeResource(name, AccessType.READ, slotName);
+    }
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
+        this._addComputeResource(name, accessType, slotName);
+    }
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void {
+        this._addComputeResource(name, accessType, slotName);
     }
     addRasterSubpass (layoutName = ''): RasterSubpassBuilder {
         const name = 'Raster';
@@ -1228,8 +1255,40 @@ export class WebPipeline implements Pipeline {
     constructor (layoutGraph: LayoutGraphData) {
         this._layoutGraph = layoutGraph;
     }
-    addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
+    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
         throw new Error('Method not implemented.');
+    }
+    addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
+        const desc = new ResourceDesc();
+        desc.dimension = ResourceDimension.TEXTURE2D;
+        desc.width = width;
+        desc.height = height;
+        desc.depthOrArraySize = 1;
+        desc.mipLevels = 1;
+        desc.format = format;
+        desc.flags = ResourceFlags.COLOR_ATTACHMENT;
+
+        if (renderWindow.swapchain === null) {
+            assert(renderWindow.framebuffer.colorTextures.length === 1
+                && renderWindow.framebuffer.colorTextures[0] !== null);
+            return this._resourceGraph.addVertex<ResourceGraphValue.Framebuffer>(
+                ResourceGraphValue.Framebuffer,
+                renderWindow.framebuffer,
+                name, desc,
+                new ResourceTraits(ResourceResidency.EXTERNAL),
+                new ResourceStates(),
+                new SamplerInfo(),
+            );
+        } else {
+            return this._resourceGraph.addVertex<ResourceGraphValue.Swapchain>(
+                ResourceGraphValue.Swapchain,
+                new RenderSwapchain(renderWindow.swapchain),
+                name, desc,
+                new ResourceTraits(ResourceResidency.BACKBUFFER),
+                new ResourceStates(),
+                new SamplerInfo(),
+            );
+        }
     }
     updateRenderWindow (name: string, renderWindow: RenderWindow): void {
         const resId = this.resourceGraph.vertex(name);
@@ -1483,38 +1542,6 @@ export class WebPipeline implements Pipeline {
     }
     endSetup (): void {
         this.compile();
-    }
-    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow) {
-        const desc = new ResourceDesc();
-        desc.dimension = ResourceDimension.TEXTURE2D;
-        desc.width = width;
-        desc.height = height;
-        desc.depthOrArraySize = 1;
-        desc.mipLevels = 1;
-        desc.format = format;
-        desc.flags = ResourceFlags.COLOR_ATTACHMENT;
-
-        if (renderWindow.swapchain === null) {
-            assert(renderWindow.framebuffer.colorTextures.length === 1
-                && renderWindow.framebuffer.colorTextures[0] !== null);
-            return this._resourceGraph.addVertex<ResourceGraphValue.Framebuffer>(
-                ResourceGraphValue.Framebuffer,
-                renderWindow.framebuffer,
-                name, desc,
-                new ResourceTraits(ResourceResidency.EXTERNAL),
-                new ResourceStates(),
-                new SamplerInfo(),
-            );
-        } else {
-            return this._resourceGraph.addVertex<ResourceGraphValue.Swapchain>(
-                ResourceGraphValue.Swapchain,
-                new RenderSwapchain(renderWindow.swapchain),
-                name, desc,
-                new ResourceTraits(ResourceResidency.BACKBUFFER),
-                new ResourceStates(),
-                new SamplerInfo(),
-            );
-        }
     }
     addStorageBuffer (name: string, format: Format, size: number, residency = ResourceResidency.MANAGED): number {
         const desc = new ResourceDesc();
