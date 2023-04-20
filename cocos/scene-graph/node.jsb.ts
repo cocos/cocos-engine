@@ -188,9 +188,16 @@ nodeProto.addComponent = function (typeOrClassName) {
 
     // check requirement
 
-    const ReqComp = (constructor)._requireComponent;
-    if (ReqComp && !this.getComponent(ReqComp)) {
-        this.addComponent(ReqComp);
+    const reqComps = constructor._requireComponent;
+    if (reqComps) {
+        const tryAdd = (c: Component) => {
+            if (!this.getComponent(c)) { this.addComponent(c); }
+        };
+        if (Array.isArray(reqComps)) {
+            reqComps.forEach((c) => tryAdd(c));
+        } else {
+            tryAdd(reqComps);
+        }
     }
 
     /// / check conflict
@@ -812,7 +819,7 @@ nodeProto.getWorldRS = function getWorldRS (out?: Mat4): Mat4 {
     return out;
 };
 
-nodeProto.isTransformDirty = function(): Boolean {
+nodeProto.isTransformDirty = function (): Boolean {
     return this._transformFlags !== TransformBit.NONE;
 };
 
