@@ -132,7 +132,6 @@ private:
     cc::IntrusivePtr<XRRemotePreviewManager> _xrRemotePreviewManager{nullptr};
 #endif
     LegacyThreadPool *_gThreadPool{nullptr};
-    bool _isEnabledEyeRenderJsCallback{false};
 };
 
 } // namespace cc

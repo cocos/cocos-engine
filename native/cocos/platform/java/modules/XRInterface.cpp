@@ -793,7 +793,6 @@ bool XRInterface::platformLoopStart() {
 bool XRInterface::beginRenderFrame() {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] beginRenderFrame.%d", _committedFrame);
-    _isEnabledEyeRenderJsCallback = xr::XrEntry::getInstance()->getXRConfig(xr::XRConfigKey::EYE_RENDER_JS_CALLBACK).getBool();
     if (gfx::DeviceAgent::getInstance()) {
         static uint64_t frameId = 0;
         frameId++;
@@ -839,11 +838,6 @@ bool XRInterface::isRenderAllowable() {
 bool XRInterface::beginRenderEyeFrame(uint32_t eye) {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] beginRenderEyeFrame %d", eye);
-    if (_isEnabledEyeRenderJsCallback) {
-        se::ValueArray args;
-        args.emplace_back(se::Value(eye));
-        EventDispatcher::doDispatchJsEvent("onXREyeRenderBegin", args);
-    }
     if (gfx::DeviceAgent::getInstance()) {
         ENQUEUE_MESSAGE_1(gfx::DeviceAgent::getInstance()->getMessageQueue(),
                           BeginRenderEyeFrame, eye, eye,
@@ -863,11 +857,6 @@ bool XRInterface::beginRenderEyeFrame(uint32_t eye) {
 bool XRInterface::endRenderEyeFrame(uint32_t eye) {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] endRenderEyeFrame %d", eye);
-    if (_isEnabledEyeRenderJsCallback) {
-        se::ValueArray args;
-        args.emplace_back(se::Value(eye));
-        EventDispatcher::doDispatchJsEvent("onXREyeRenderEnd", args);
-    }
     if (gfx::DeviceAgent::getInstance()) {
         ENQUEUE_MESSAGE_1(gfx::DeviceAgent::getInstance()->getMessageQueue(),
                           EndRenderEyeFrame, eye, eye,
