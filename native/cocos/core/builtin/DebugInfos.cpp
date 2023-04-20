@@ -421,6 +421,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 9611, "[Physics]: builtin physics system doesn't support mesh collider" },
 { 9612, "[Physics]: builtin physics system doesn't support cylinder collider" },
 { 9620, "[Physics][Ammo]: changing the mesh is not supported after the initialization is completed" },
+{ 9630, "[Physics]: A dynamic rigid body can not have the following collider shapes: Terrain, Plane and Non-convex Mesh. Node name: %s" },
 { 10001, "The sub-mesh contains %d vertices, which beyonds the capability (%d vertices most) of renderer of your platform." },
 { 10002, "Sub-mesh may include at most %d morph targets, but you specified %d." },
 { 11000, "WebGL context lost." },
