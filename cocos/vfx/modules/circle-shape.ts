@@ -28,11 +28,13 @@ import { Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { AngleBasedShapeModule } from './angle-based-shape';
-import { ParticleVec3Parameter } from '../particle-parameter';
+import { Vec3ArrayParameter } from '../particle-parameter';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const temp = new Vec3();
 @ccclass('cc.CircleShapeModule')
-@VFXModule.register('CircleShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('CircleShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])
 export class CircleShapeModule extends AngleBasedShapeModule {
     /**
       * @zh 粒子发射器半径。
@@ -55,12 +57,12 @@ export class CircleShapeModule extends AngleBasedShapeModule {
         this._innerRadius = (1 - this.radiusThickness) ** 2;
     }
 
-    protected generatePosAndDir (index: number, angle: number, startDir: ParticleVec3Parameter, vec3Register: ParticleVec3Parameter) {
+    protected generatePosAndDir (index: number, angle: number, initialDir: Vec3ArrayParameter, vec3Register: Vec3ArrayParameter) {
         const radiusRandom = Math.sqrt(this._rand.getFloatFromRange(this._innerRadius, 1.0));
         const r = radiusRandom * this.radius;
         temp.x = Math.cos(angle);
         temp.y = Math.sin(angle);
-        startDir.setVec3At(temp, index);
+        initialDir.setVec3At(temp, index);
         Vec3.multiplyScalar(temp, temp, r);
         vec3Register.setVec3At(temp, index);
     }

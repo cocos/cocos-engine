@@ -35,32 +35,21 @@ export class EmitterDataSet {
     public prevLoopAge = 0;
     public normalizedLoopAge = 0;
     public normalizedPrevLoopAge = 0;
-    public emitterDeltaTime = 0;
-    public emitterFrameOffset = 0;
+    public deltaTime = 0;
+    public frameOffset = 0;
     public loopCount = 0;
     public spawnContinuousCount = 0;
     public burstCount = 0;
-    /**
-     * The velocity of the emitter in world space.
-     */
-    public emitterVelocity = new Vec3();
-    /**
-     * The velocity of the emitter in emitting space. When emitting space equals to world space, it's equals to emitterVelocity.
-     */
-    public emitterVelocityInEmittingSpace = new Vec3();
-    // end emitter range
-
-    // simulation range
-    public deltaTime = 0;
+    public currentDuration = 0;
+    public velocity = new Vec3();
     public localToWorld = new Mat4();
     public worldToLocal = new Mat4();
-    public rotationIfNeedTransform = new Quat();
-    public localScale = new Vec3(1, 1, 1);
-    public worldScale = new Vec3(1, 1, 1);
-    public worldRotation = new Quat();
-    public localRotation = new Quat();
 
-    setDeltaTime (deltaTime: number) {
-        this.deltaTime = deltaTime;
+    getFloatParameter (id: number) {
+        return 0;
+    }
+
+    getVec3Parameter (id: number) {
+        return new Vec3();
     }
 }

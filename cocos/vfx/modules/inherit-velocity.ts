@@ -30,6 +30,9 @@ import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDa
 import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { RandomStream } from '../random-stream';
+import { ConstantFloatExpression } from '../expressions';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const tempVelocity = new Vec3();
 const requiredParameters = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.VELOCITY;
@@ -39,25 +42,10 @@ export class InheritVelocityModule extends VFXModule {
     @type(FloatExpression)
     @visible(true)
     @serializable
-    public scale = new FloatExpression();
+    public scale: FloatExpression = new ConstantFloatExpression(1);
 
-    private _randomOffset = 0;
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._randomOffset = state.randomStream.getUInt32();
-    }
-
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
-        if (this.scale.mode === FloatExpression.Mode.TWO_CONSTANTS || this.scale.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
-        }
-        if (this.scale.mode === FloatExpression.Mode.TWO_CURVES || this.scale.mode === FloatExpression.Mode.CURVE) {
-            if (context.executionStage !== ModuleExecStage.SPAWN) {
-                particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
-            } else {
-                particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
-            }
-        }
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        this.scale.tick(particles, emitter, user, context);
         particles.markRequiredParameters(requiredParameters);
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
@@ -65,35 +53,19 @@ export class InheritVelocityModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { fromIndex, toIndex, emitterVelocityInEmittingSpace: initialVelocity } = context;
+        const { fromIndex, toIndex } = context;
+        const initialVelocity = emitter.velocity;
         const velocity = context.executionStage === ModuleExecStage.SPAWN ? particles.baseVelocity : particles.velocity;
-        const randomOffset = this._randomOffset;
-        if (this.scale.mode === FloatExpression.Mode.CONSTANT) {
-            Vec3.multiplyScalar(tempVelocity, initialVelocity, this.scale.constant);
+        if (!emitter.isWorldSpace) { return; }
+        this.scale.bind(particles, emitter, user, context);
+        if (this.scale.isConstant) {
+            Vec3.multiplyScalar(tempVelocity, initialVelocity, this.scale.evaluate(0));
             for (let i = fromIndex; i < toIndex; i++) {
-                velocity.addVec3At(tempVelocity, i);
-            }
-        } else if (this.scale.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-            const { constantMin, constantMax } = this.scale;
-            const seed = particles.randomSeed.data;
-            for (let i = fromIndex; i < toIndex; i++) {
-                Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(constantMin, constantMax, RandomStream.getFloat(seed[i] + randomOffset)));
-                velocity.addVec3At(tempVelocity, i);
-            }
-        } else if (this.scale.mode === FloatExpression.Mode.CURVE) {
-            const { spline, multiplier } = this.scale;
-            const normalizedAliveTime = particles.normalizedAliveTime.data;
-            for (let i = fromIndex; i < toIndex; i++) {
-                Vec3.multiplyScalar(tempVelocity, initialVelocity, spline.evaluate(normalizedAliveTime[i]) * multiplier);
                 velocity.addVec3At(tempVelocity, i);
             }
         } else {
-            const { splineMin, splineMax, multiplier } = this.scale;
-            const normalizedAliveTime = particles.normalizedAliveTime.data;
-            const seed = particles.randomSeed.data;
             for (let i = fromIndex; i < toIndex; i++) {
-                const time = normalizedAliveTime[i];
-                Vec3.multiplyScalar(tempVelocity, initialVelocity, lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(seed[i] + randomOffset)) * multiplier);
+                Vec3.multiplyScalar(tempVelocity, initialVelocity, this.scale.evaluate(i));
                 velocity.addVec3At(tempVelocity, i);
             }
         }

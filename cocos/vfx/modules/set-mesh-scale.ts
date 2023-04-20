@@ -31,25 +31,26 @@ import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { lerp, Vec3, assertIsTrue } from '../../core';
 import { RandomStream } from '../random-stream';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const seed = new Vec3();
 
-@ccclass('cc.SetSizeModule')
-@VFXModule.register('SetSize', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [ParameterName.SIZE], [ParameterName.NORMALIZED_ALIVE_TIME])
-export class SetSizeModule extends VFXModule {
+@ccclass('cc.SetMeshScaleModule')
+@VFXModule.register('SetMeshScale', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [ParameterName.SCALE], [ParameterName.NORMALIZED_AGE])
+export class SetMeshScaleModule extends VFXModule {
     @serializable
     @tooltip('i18n:particle_system.startSize3D')
     public separateAxes = false;
 
     @range([0, 1])
     @type(FloatExpression)
-    @tooltip('i18n:particle_system.startSizeX')
-    @visible(function (this: SetSizeModule): boolean { return !this.separateAxes; })
-    public get size () {
+    @visible(function (this: SetMeshScaleModule): boolean { return !this.separateAxes; })
+    public get scale () {
         return this.x;
     }
 
-    public set size (val) {
+    public set scale (val) {
         this.x = val;
     }
 
@@ -58,8 +59,7 @@ export class SetSizeModule extends VFXModule {
       */
     @range([0, 1])
     @type(FloatExpression)
-    @tooltip('i18n:particle_system.startSizeX')
-    @visible(function (this: SetSizeModule): boolean { return this.separateAxes; })
+    @visible(function (this: SetMeshScaleModule): boolean { return this.separateAxes; })
     public x = new FloatExpression(1);
 
     /**
@@ -67,8 +67,7 @@ export class SetSizeModule extends VFXModule {
       */
     @type(FloatExpression)
     @range([0, 1])
-    @tooltip('i18n:particle_system.startSizeY')
-    @visible(function (this: SetSizeModule): boolean { return this.separateAxes; })
+    @visible(function (this: SetMeshScaleModule): boolean { return this.separateAxes; })
     public get y () {
         if (!this._y) {
             this._y = new FloatExpression(1);
@@ -85,8 +84,7 @@ export class SetSizeModule extends VFXModule {
       */
     @type(FloatExpression)
     @range([0, 1])
-    @tooltip('i18n:particle_system.startSizeZ')
-    @visible(function (this: SetSizeModule): boolean { return this.separateAxes; })
+    @visible(function (this: SetMeshScaleModule): boolean { return this.separateAxes; })
     public get z () {
         if (!this._z) {
             this._z = new FloatExpression(1);
@@ -102,36 +100,17 @@ export class SetSizeModule extends VFXModule {
     private _y: FloatExpression | null = null;
     @serializable
     private _z: FloatExpression | null = null;
-    private _randomOffset = 0;
 
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._randomOffset = state.randomStream.getUInt32();
-    }
-
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_SIZE);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_SCALE);
         }
 
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.SIZE);
-        if (this.separateAxes && DEBUG) {
-            assertIsTrue(this.x.mode === this.y.mode && this.x.mode === this.z.mode,
-                'SetSizeModule: x, y and z must have the same mode.');
-        }
-        if (this.x.mode === FloatExpression.Mode.CURVE || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            if (context.executionStage === ModuleExecStage.SPAWN) {
-                particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
-            } else {
-                particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
-            }
-        }
-        if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
-        }
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.SCALE);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const size = context.executionStage === ModuleExecStage.SPAWN ? particles.baseSize : particles.size;
+        const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.baseScale : particles.scale;
         const { fromIndex, toIndex } = context;
         const randomOffset = this._randomOffset;
         if (this.separateAxes) {
@@ -140,7 +119,7 @@ export class SetSizeModule extends VFXModule {
                 const constantY = this.y.constant;
                 const constantZ = this.z.constant;
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    size.set3fAt(constantX, constantY, constantZ, i);
+                    scale.set3fAt(constantX, constantY, constantZ, i);
                 }
             } else if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS) {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
@@ -152,62 +131,62 @@ export class SetSizeModule extends VFXModule {
                     const x = lerp(xMin, xMax, ratio.x);
                     const y = lerp(yMin, yMax, ratio.y);
                     const z = lerp(zMin, zMax, ratio.z);
-                    size.set3fAt(x, y, z, i);
+                    scale.set3fAt(x, y, z, i);
                 }
             } else if (this.x.mode === FloatExpression.Mode.CURVE) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const { spline: yCurve, multiplier: yMultiplier } = this.y;
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
-                const normalizedTime = context.executionStage === ModuleExecStage.SPAWN ? particles.spawnNormalizedTime.data : particles.normalizedAliveTime.data;
+                const normalizedTime = context.executionStage === ModuleExecStage.SPAWN ? particles.spawnNormalizedTime.data : particles.normalizedAge.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const time = normalizedTime[i];
                     const x = xCurve.evaluate(time) * xMultiplier;
                     const y = yCurve.evaluate(time) * yMultiplier;
                     const z = zCurve.evaluate(time) * zMultiplier;
-                    size.set3fAt(x, y, z, i);
+                    scale.set3fAt(x, y, z, i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 const randomSeed = particles.randomSeed.data;
-                const normalizedTime = context.executionStage === ModuleExecStage.SPAWN ? particles.spawnNormalizedTime.data : particles.normalizedAliveTime.data;
+                const normalizedTime = context.executionStage === ModuleExecStage.SPAWN ? particles.spawnNormalizedTime.data : particles.normalizedAge.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const time = normalizedTime[i];
                     const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     const x = lerp(xMin.evaluate(time), xMax.evaluate(time), ratio.x) * xMultiplier;
                     const y = lerp(yMin.evaluate(time), yMax.evaluate(time), ratio.y) * yMultiplier;
                     const z = lerp(zMin.evaluate(time), zMax.evaluate(time), ratio.z) * zMultiplier;
-                    size.set3fAt(x, y, z, i);
+                    scale.set3fAt(x, y, z, i);
                 }
             }
         } else {
             // eslint-disable-next-line no-lonely-if
             if (this.x.mode === FloatExpression.Mode.CONSTANT) {
                 const constantX = this.x.constant;
-                size.fill1f(constantX, fromIndex, toIndex);
+                scale.fill1f(constantX, fromIndex, toIndex);
             } else if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS) {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const pSize = lerp(xMin, xMax, RandomStream.getFloat(randomSeed[i] + randomOffset));
-                    size.set1fAt(pSize, i);
+                    scale.set1fAt(pSize, i);
                 }
             } else if (this.x.mode === FloatExpression.Mode.CURVE) {
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
-                const normalizedTime = context.executionStage === ModuleExecStage.SPAWN ? particles.spawnNormalizedTime.data : particles.normalizedAliveTime.data;
+                const normalizedTime = context.executionStage === ModuleExecStage.SPAWN ? particles.spawnNormalizedTime.data : particles.normalizedAge.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const pSize = xCurve.evaluate(normalizedTime[i]) * xMultiplier;
-                    size.set1fAt(pSize, i);
+                    scale.set1fAt(pSize, i);
                 }
             } else {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const randomSeed = particles.randomSeed.data;
-                const normalizedTime = context.executionStage === ModuleExecStage.SPAWN ? particles.spawnNormalizedTime.data : particles.normalizedAliveTime.data;
+                const normalizedTime = context.executionStage === ModuleExecStage.SPAWN ? particles.spawnNormalizedTime.data : particles.normalizedAge.data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const time = normalizedTime[i];
                     const pSize = lerp(xMin.evaluate(time), xMax.evaluate(time), RandomStream.getFloat(randomSeed[i] + randomOffset)) * xMultiplier;
-                    size.set1fAt(pSize, i);
+                    scale.set1fAt(pSize, i);
                 }
             }
         }

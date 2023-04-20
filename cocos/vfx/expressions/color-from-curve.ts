@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { Color, Gradient, serializable } from '../../core';
-import { type } from '../../core/data/decorators';
+import { ccclass, type } from '../../core/data/decorators';
 import { ModuleExecContext, VFXEmitterParams } from '../base';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStage } from '../vfx-module';
@@ -32,6 +32,7 @@ import { ColorExpression } from './color';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
+@ccclass('cc.ColorFromCurveExpression')
 export class ColorFromCurveExpression extends ColorExpression {
     @type(Gradient)
     @serializable
@@ -47,12 +48,12 @@ export class ColorFromCurveExpression extends ColorExpression {
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
         } else {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
         }
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        this._time = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
+        this._time = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
     }
 
     evaluateSingle (time: number, randomStream: RandomStream, out: Color) {

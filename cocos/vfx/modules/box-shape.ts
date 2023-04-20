@@ -39,7 +39,7 @@ enum EmitFrom {
 
 const tempPosition = new Vec3();
 @ccclass('cc.BoxShapeModule')
-@VFXModule.register('BoxShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('BoxShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])
 export class BoxShapeModule extends ShapeModule {
     static EmitFrom = EmitFrom;
 
@@ -63,13 +63,13 @@ export class BoxShapeModule extends ShapeModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const thicknessPercent = this._thicknessPercent;
         const { fromIndex, toIndex } = context;
-        const { startDir, vec3Register } = particles;
+        const { initialDir, vec3Register } = particles;
         const rand = this._rand;
         switch (this.emitFrom) {
         case EmitFrom.VOLUME:
             for (let i = fromIndex; i < toIndex; ++i) {
                 vec3Register.set3fAt(rand.getFloat() - 0.5, rand.getFloat() - 0.5, rand.getFloat() - 0.5, i);
-                startDir.set3fAt(0, 0, 1, i);
+                initialDir.set3fAt(0, 0, 1, i);
             }
             break;
         case EmitFrom.SHELL:
@@ -86,7 +86,7 @@ export class BoxShapeModule extends ShapeModule {
                 tempPosition.y *= rand.getFloatFromRange(thicknessPercent.y, 1);
                 tempPosition.z *= rand.getFloatFromRange(thicknessPercent.z, 1);
                 vec3Register.set3fAt(tempPosition.x - 0.5, tempPosition.y - 0.5, tempPosition.z - 0.5, i);
-                startDir.set3fAt(0, 0, 1, i);
+                initialDir.set3fAt(0, 0, 1, i);
             }
             break;
         case EmitFrom.EDGE:
@@ -103,11 +103,11 @@ export class BoxShapeModule extends ShapeModule {
                 tempPosition.y *= rand.getFloatFromRange(thicknessPercent.y, 1);
                 tempPosition.z *= rand.getFloatFromRange(thicknessPercent.z, 1);
                 vec3Register.set3fAt(tempPosition.x - 0.5, tempPosition.y - 0.5, tempPosition.z - 0.5, i);
-                startDir.set3fAt(0, 0, 1, i);
+                initialDir.set3fAt(0, 0, 1, i);
             }
             break;
         default:
         }
-        super.execute(particles, params, context);
+        super.execute(particles, emitter, user, context);
     }
 }

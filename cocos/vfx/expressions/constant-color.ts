@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { Color, serializable } from '../../core';
-import { type } from '../../core/data/class-decorator';
+import { ccclass, type } from '../../core/data/class-decorator';
 import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
@@ -31,6 +31,7 @@ import { RandomStream } from '../random-stream';
 import { UserDataSet } from '../user-data-set';
 import { ColorExpression } from './color';
 
+@ccclass('cc.ConstantColorExpression')
 export class ConstantColorExpression extends ColorExpression {
     @type(Color)
     @serializable

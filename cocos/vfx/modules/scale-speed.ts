@@ -48,7 +48,7 @@ export class ScaleSpeedModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         if (this.scalar.mode === FloatExpression.Mode.CURVE || this.scalar.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
         }
         if (this.scalar.mode === FloatExpression.Mode.TWO_CONSTANTS || this.scalar.mode === FloatExpression.Mode.TWO_CURVES) {
             particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
@@ -68,9 +68,9 @@ export class ScaleSpeedModule extends VFXModule {
             }
         } else if (this.scalar.mode === FloatExpression.Mode.CURVE) {
             const { spline, multiplier } = this.scalar;
-            const normalizedAliveTime = particles.normalizedAliveTime.data;
+            const normalizedAge = particles.normalizedAge.data;
             for (let i = fromIndex; i < toIndex; i++) {
-                velocity.multiply1fAt(spline.evaluate(normalizedAliveTime[i]) * multiplier, i);
+                velocity.multiply1fAt(spline.evaluate(normalizedAge[i]) * multiplier, i);
             }
         } else if (this.scalar.mode === FloatExpression.Mode.TWO_CONSTANTS) {
             const randomSeed = particles.randomSeed.data;
@@ -81,9 +81,9 @@ export class ScaleSpeedModule extends VFXModule {
         } else {
             const { splineMin, splineMax, multiplier } = this.scalar;
             const randomSeed = particles.randomSeed.data;
-            const normalizedAliveTime = particles.normalizedAliveTime.data;
+            const normalizedAge = particles.normalizedAge.data;
             for (let i = fromIndex; i < toIndex; i++) {
-                const normalizedTime = normalizedAliveTime[i];
+                const normalizedTime = normalizedAge[i];
                 velocity.multiply1fAt(lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET)) * multiplier, i);
             }
         }

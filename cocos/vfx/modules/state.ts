@@ -35,7 +35,7 @@ export enum LifetimeElapsedOperation {
 }
 
 @ccclass('cc.StateModule')
-@VFXModule.register('State', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
+@VFXModule.register('State', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.NORMALIZED_AGE])
 export class StateModule extends VFXModule {
     @type(Enum(LifetimeElapsedOperation))
     @visible(true)
@@ -43,43 +43,43 @@ export class StateModule extends VFXModule {
     public lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
 
     public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
         particles.markRequiredParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const normalizedAliveTime = particles.normalizedAliveTime.data;
+        const normalizedAge = particles.normalizedAge.data;
         const invStartLifeTime = particles.invStartLifeTime.data;
         const { fromIndex, toIndex, deltaTime } = context;
         if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.LOOP_LIFETIME) {
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                normalizedAliveTime[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
-                if (normalizedAliveTime[particleHandle] > 1) {
-                    normalizedAliveTime[particleHandle] -= 1;
+                normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
+                if (normalizedAge[particleHandle] > 1) {
+                    normalizedAge[particleHandle] -= 1;
                 }
             }
         } else if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.KEEP) {
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                normalizedAliveTime[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
-                if (normalizedAliveTime[particleHandle] > 1) {
-                    normalizedAliveTime[particleHandle] = 1;
+                normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
+                if (normalizedAge[particleHandle] > 1) {
+                    normalizedAge[particleHandle] = 1;
                 }
             }
             // if has isDead parameter, deferred to remove particle until rendering.
         } else if (particles.hasParameter(BuiltinParticleParameter.IS_DEAD)) {
             const isDead = particles.isDead.data;
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                normalizedAliveTime[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
-                if (normalizedAliveTime[particleHandle] > 1) {
-                    normalizedAliveTime[particleHandle] = 1;
+                normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
+                if (normalizedAge[particleHandle] > 1) {
+                    normalizedAge[particleHandle] = 1;
                     isDead[particleHandle] = 1;
                 }
             }
         } else {
             for (let particleHandle = toIndex - 1; particleHandle >= fromIndex; particleHandle--) {
-                normalizedAliveTime[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
-                if (normalizedAliveTime[particleHandle] > 1) {
-                    normalizedAliveTime[particleHandle] = 1;
+                normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
+                if (normalizedAge[particleHandle] > 1) {
+                    normalizedAge[particleHandle] = 1;
                     particles.removeParticle(particleHandle);
                     context.setExecuteRange(fromIndex, context.toIndex - 1);
                 }

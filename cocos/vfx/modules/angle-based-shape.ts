@@ -28,9 +28,10 @@ import { Enum, lerp, toDegree, toRadian } from '../../core';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
-import { ParticleVec3Parameter } from '../particle-parameter';
+import { Vec3ArrayParameter } from '../particle-parameter';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { ConstantFloatExpression } from '../expressions';
 
 @ccclass('cc.AngleBasedShapeModule')
 export abstract class AngleBasedShapeModule extends ShapeModule {
@@ -72,7 +73,7 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
     @visible(function (this: AngleBasedShapeModule) {
         return this.distributionMode === DistributionMode.MOVE;
     })
-    public moveSpeed = new FloatExpression();
+    public moveSpeed: FloatExpression = new ConstantFloatExpression();
 
     /**
       * @zh 控制可能产生粒子的弧周围的离散间隔。
@@ -101,12 +102,12 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
             particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_TIME_RATIO);
         }
         this._arcTimePrev = this._arcTimer;
-        let deltaTime = context.emitterDeltaTime;
-        if (context.normalizedLoopAge < context.normalizedPrevLoopAge) {
-            this._arcTimer += (this.moveSpeed.evaluate(1, 1) * (params.duration - context.previousTime)) * Math.PI * 2;
-            deltaTime = context.currentTime;
+        let deltaTime = emitter.deltaTime;
+        if (emitter.normalizedLoopAge < emitter.normalizedPrevLoopAge) {
+            this._arcTimer += (this.moveSpeed.evaluateSingle(1, 1) * (emitter.currentDuration - emitter.prevLoopAge)) * Math.PI * 2;
+            deltaTime = emitter.loopAge;
         }
-        this._arcTimer += (this.moveSpeed.evaluate(context.normalizedLoopAge, 1) * deltaTime) * Math.PI * 2;
+        this._arcTimer += (this.moveSpeed.evaluateSingle(emitter.normalizedLoopAge, 1) * deltaTime) * Math.PI * 2;
         this._invArc = 1 / this._arc;
         this._spreadStep = this._arc * this.spread;
         this._arcRounded = Math.ceil(this._arc / this._spreadStep) * this._spreadStep;
@@ -121,15 +122,15 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
         const arcTimePrev = this._arcTimePrev;
         const arc = this._arc;
         const invArc = this._invArc;
-        const { startDir, vec3Register } = particles;
+        const { initialDir, vec3Register } = particles;
         if (this.distributionMode === DistributionMode.RANDOM) {
             if (this.spread > 0) {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    this.generatePosAndDir(i, arc * rand.getFloat(), startDir, vec3Register);
+                    this.generatePosAndDir(i, arc * rand.getFloat(), initialDir, vec3Register);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    this.generatePosAndDir(i, Math.floor((arcRounded * rand.getFloat()) / spreadStep) * spreadStep, startDir, vec3Register);
+                    this.generatePosAndDir(i, Math.floor((arcRounded * rand.getFloat()) / spreadStep) * spreadStep, initialDir, vec3Register);
                 }
             }
         } else if (this.distributionMode === DistributionMode.MOVE) {
@@ -143,7 +144,7 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
                         if (angle < 0) {
                             angle += arc;
                         }
-                        this.generatePosAndDir(i, angle, startDir, vec3Register);
+                        this.generatePosAndDir(i, angle, initialDir, vec3Register);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; ++i) {
@@ -152,7 +153,7 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
                         if (angle < 0) {
                             angle += arc;
                         }
-                        this.generatePosAndDir(i, angle, startDir, vec3Register);
+                        this.generatePosAndDir(i, angle, initialDir, vec3Register);
                     }
                 }
             } else {
@@ -167,7 +168,7 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
                         if (angle >= 1.0) {
                             angle = 2 - angle;
                         }
-                        this.generatePosAndDir(i, angle * arc, startDir, vec3Register);
+                        this.generatePosAndDir(i, angle * arc, initialDir, vec3Register);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; ++i) {
@@ -178,7 +179,7 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
                         if (angle >= 1.0) {
                             angle = 2 - angle;
                         }
-                        this.generatePosAndDir(i, angle * arc, startDir, vec3Register);
+                        this.generatePosAndDir(i, angle * arc, initialDir, vec3Register);
                     }
                 }
             }
@@ -188,16 +189,16 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
                 for (let i = fromIndex; i < toIndex; ++i) {
                     let angle = i * invTotal * arc;
                     angle = Math.floor(angle / spreadStep) * spreadStep;
-                    this.generatePosAndDir(i, angle, startDir, vec3Register);
+                    this.generatePosAndDir(i, angle, initialDir, vec3Register);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    this.generatePosAndDir(i, i * invTotal * arc, startDir, vec3Register);
+                    this.generatePosAndDir(i, i * invTotal * arc, initialDir, vec3Register);
                 }
             }
         }
-        super.execute(particles, params, context);
+        super.execute(particles, emitter, user, context);
     }
 
-    protected abstract generatePosAndDir (index: number, angle: number, startDir: ParticleVec3Parameter, vec3Register: ParticleVec3Parameter);
+    protected abstract generatePosAndDir (index: number, angle: number, initialDir: Vec3ArrayParameter, vec3Register: Vec3ArrayParameter);
 }

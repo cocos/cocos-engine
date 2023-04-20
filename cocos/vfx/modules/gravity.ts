@@ -31,6 +31,9 @@ import { FloatExpression } from '../expressions/float';
 import { lerp, Vec3 } from '../../core';
 import { Space } from '../enum';
 import { RandomStream } from '../random-stream';
+import { ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const gravity = new Vec3();
 const requiredParameters = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.BASE_VELOCITY | BuiltinParticleParameterFlags.VELOCITY;
@@ -40,27 +43,16 @@ export class GravityModule extends VFXModule {
     /**
      * @zh 粒子受重力影响的重力系数。
      */
-    @type(FloatExpression)
+    @type(Vec3Expression)
     @serializable
     @range([-1, 1])
     @displayOrder(13)
     @tooltip('i18n:particle_system.gravityModifier')
-    public gravityModifier = new FloatExpression();
+    public gravity: Vec3Expression = new ConstantVec3Expression();
 
-    private _randomOffset = 0;
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._randomOffset = state.randomStream.getUInt32();
-    }
-
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameters(requiredParameters);
-        if (this.gravityModifier.mode === FloatExpression.Mode.CURVE || this.gravityModifier.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
-        }
-        if (this.gravityModifier.mode === FloatExpression.Mode.TWO_CONSTANTS || this.gravityModifier.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
-        }
+        this.gravity.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
@@ -81,9 +73,9 @@ export class GravityModule extends VFXModule {
             } else if (this.gravityModifier.mode === FloatExpression.Mode.CURVE) {
                 const { spline } = this.gravityModifier;
                 const multiplier = this.gravityModifier.multiplier * deltaVelocity;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedAge = particles.normalizedAge.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    Vec3.set(gravity, 0, -spline.evaluate(normalizedAliveTime[i]) * multiplier, 0);
+                    Vec3.set(gravity, 0, -spline.evaluate(normalizedAge[i]) * multiplier, 0);
                     Vec3.transformQuat(gravity, gravity, invRotation);
                     velocity.addVec3At(gravity, i);
                     baseVelocity.addVec3At(gravity, i);
@@ -100,10 +92,10 @@ export class GravityModule extends VFXModule {
             } else {
                 const { splineMin, splineMax } = this.gravityModifier;
                 const multiplier = this.gravityModifier.multiplier * deltaVelocity;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedAge = particles.normalizedAge.data;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const normalizedTime = normalizedAliveTime[i];
+                    const normalizedTime = normalizedAge[i];
                     Vec3.set(gravity, 0, -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(randomSeed[i] + randomOffset)) * multiplier, 0);
                     Vec3.transformQuat(gravity, gravity, invRotation);
                     velocity.addVec3At(gravity, i);
@@ -121,9 +113,9 @@ export class GravityModule extends VFXModule {
             } else if (this.gravityModifier.mode === FloatExpression.Mode.CURVE) {
                 const { spline } = this.gravityModifier;
                 const multiplier = this.gravityModifier.multiplier * deltaVelocity;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedAge = particles.normalizedAge.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const gravity = -spline.evaluate(normalizedAliveTime[i]) * multiplier;
+                    const gravity = -spline.evaluate(normalizedAge[i]) * multiplier;
                     velocity.addYAt(gravity, i);
                     baseVelocity.addYAt(gravity, i);
                 }
@@ -138,10 +130,10 @@ export class GravityModule extends VFXModule {
             } else {
                 const { splineMin, splineMax } = this.gravityModifier;
                 const multiplier = this.gravityModifier.multiplier * deltaVelocity;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedAge = particles.normalizedAge.data;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const normalizedTime = normalizedAliveTime[i];
+                    const normalizedTime = normalizedAge[i];
                     const gravity = -lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(randomSeed[i] + randomOffset)) * multiplier;
                     velocity.addYAt(gravity, i);
                     baseVelocity.addYAt(gravity, i);

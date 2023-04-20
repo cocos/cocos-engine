@@ -36,6 +36,7 @@ export enum VFXParameterType {
 }
 
 export enum ParameterNameSpace {
+    UNKNOWN,
     PARTICLE,
     EMITTER,
     USER,
@@ -107,7 +108,7 @@ export enum CapacityMode {
 
 export enum InheritedProperty {
     COLOR = 1,
-    SIZE = 1 << 1,
+    SCALE = 1 << 1,
     ROTATION = 1 << 2,
 }
 
@@ -117,7 +118,7 @@ export enum PlayingState {
     PAUSED,
 }
 
-export enum ParticleEventType {
+export enum VFXEventType {
     UNKNOWN,
     LOCATION,
     DEATH,

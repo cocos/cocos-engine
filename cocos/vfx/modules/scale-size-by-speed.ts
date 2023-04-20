@@ -33,7 +33,7 @@ import { RandomStream } from '../random-stream';
 
 const SCALE_SIZE_RAND = 2818312;
 @ccclass('cc.ScaleSizeBySpeedModule')
-@VFXModule.register('ScaleSizeBySpeed', ModuleExecStageFlags.UPDATE, [ParameterName.SIZE], [ParameterName.SIZE, ParameterName.VELOCITY])
+@VFXModule.register('ScaleSizeBySpeed', ModuleExecStageFlags.UPDATE, [ParameterName.SCALE], [ParameterName.SCALE, ParameterName.VELOCITY])
 export class ScaleSizeBySpeedModule extends VFXModule {
     /**
       * @zh 决定是否在每个轴上独立控制粒子大小。
@@ -49,7 +49,7 @@ export class ScaleSizeBySpeedModule extends VFXModule {
     @type(FloatExpression)
     @range([0, 1])
     @displayOrder(2)
-    @tooltip('i18n:sizeOvertimeModule.size')
+    @tooltip('i18n:sizeOvertimeModule.scale')
     @visible(function (this: ScaleSizeBySpeedModule): boolean { return !this.separateAxes; })
     public get scalar () {
         return this.x;
@@ -120,41 +120,41 @@ export class ScaleSizeBySpeedModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         assertIsTrue(!approx(this.speedRange.x, this.speedRange.y), 'Speed Range X is so closed to Speed Range Y');
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.SIZE);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.SCALE);
         if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
             particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this.x.mode === FloatExpression.Mode.CURVE || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
         }
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { size } = particles;
-        const normalizedAliveTime = particles.normalizedAliveTime.data;
+        const { scale } = particles;
+        const normalizedAge = particles.normalizedAge.data;
         const randomSeed = particles.randomSeed.data;
         const { fromIndex, toIndex } = context;
         if (!this.separateAxes) {
             if (this.x.mode === FloatExpression.Mode.CONSTANT) {
                 const constant = this.x.constant;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    size.multiply1fAt(constant, i);
+                    scale.multiply1fAt(constant, i);
                 }
             } else if (this.x.mode === FloatExpression.Mode.CURVE) {
                 const { spline, multiplier } = this.x;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    size.multiply1fAt(spline.evaluate(normalizedAliveTime[i]) * multiplier, i);
+                    scale.multiply1fAt(spline.evaluate(normalizedAge[i]) * multiplier, i);
                 }
             } else if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS) {
                 const { constantMin, constantMax } = this.x;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    size.multiply1fAt(lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)), i);
+                    scale.multiply1fAt(lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)), i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.x;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const currentLife = normalizedAliveTime[i];
-                    size.multiply1fAt(lerp(splineMin.evaluate(currentLife),
+                    const currentLife = normalizedAge[i];
+                    scale.multiply1fAt(lerp(splineMin.evaluate(currentLife),
                         splineMax.evaluate(currentLife),
                         RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * multiplier, i);
                 }
@@ -166,15 +166,15 @@ export class ScaleSizeBySpeedModule extends VFXModule {
                 const { constant: constantY } = this.y;
                 const { constant: constantZ } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    size.multiply3fAt(constantX, constantY, constantZ, i);
+                    scale.multiply3fAt(constantX, constantY, constantZ, i);
                 }
             } else if (this.x.mode === FloatExpression.Mode.CURVE) {
                 const { spline: splineX, multiplier: xMultiplier } = this.x;
                 const { spline: splineY, multiplier: yMultiplier } = this.y;
                 const { spline: splineZ, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const currentLife = normalizedAliveTime[i];
-                    size.multiply3fAt(splineX.evaluate(currentLife) * xMultiplier,
+                    const currentLife = normalizedAge[i];
+                    scale.multiply3fAt(splineX.evaluate(currentLife) * xMultiplier,
                         splineY.evaluate(currentLife) * yMultiplier,
                         splineZ.evaluate(currentLife) * zMultiplier, i);
                 }
@@ -183,7 +183,7 @@ export class ScaleSizeBySpeedModule extends VFXModule {
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    size.multiply3fAt(lerp(xMin, xMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)),
+                    scale.multiply3fAt(lerp(xMin, xMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)),
                         lerp(yMin, yMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)),
                         lerp(zMin, zMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)), i);
                 }
@@ -192,8 +192,8 @@ export class ScaleSizeBySpeedModule extends VFXModule {
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const currentLife = normalizedAliveTime[i];
-                    size.multiply3fAt(
+                    const currentLife = normalizedAge[i];
+                    scale.multiply3fAt(
                         lerp(xMin.evaluate(currentLife), xMax.evaluate(currentLife), RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * xMultiplier,
                         lerp(yMin.evaluate(currentLife), yMax.evaluate(currentLife), RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * yMultiplier,
                         lerp(zMin.evaluate(currentLife), zMax.evaluate(currentLife), RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * zMultiplier, i,

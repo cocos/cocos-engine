@@ -36,7 +36,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.MultiplyColor')
-@VFXModule.register('MultiplyColor', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
+@VFXModule.register('MultiplyColor', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], [BuiltinParticleParameterName.NORMALIZED_AGE])
 export class MultiplyColorModule extends VFXModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
@@ -59,7 +59,7 @@ export class MultiplyColorModule extends VFXModule {
         }
         if (this.color.mode === ColorExpression.Mode.TWO_GRADIENTS || this.color.mode === ColorExpression.Mode.GRADIENT) {
             if (context.executionStage === ModuleExecStage.UPDATE) {
-                particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+                particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
             } else {
                 particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
             }
@@ -83,13 +83,13 @@ export class MultiplyColorModule extends VFXModule {
             }
         } else if (this.color.mode === ColorExpression.Mode.GRADIENT) {
             const gradient = this.color.gradient;
-            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
+            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
             for (let i = fromIndex; i < toIndex; i++) {
                 color.multiplyColorAt(gradient.evaluate(tempColor, normalizedTime[i]), i);
             }
         } else if (this.color.mode === ColorExpression.Mode.TWO_GRADIENTS) {
             const { gradientMin, gradientMax } = this.color;
-            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
+            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
             const randomSeed = particles.randomSeed.data;
             for (let i = fromIndex; i < toIndex; i++) {
                 const time = normalizedTime[i];

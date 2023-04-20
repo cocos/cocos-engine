@@ -29,9 +29,10 @@ import { Enum, lerp } from '../../core';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
+import { EmitterDataSet } from '../emitter-data-set';
 
 @ccclass('cc.LineShapeModule')
-@VFXModule.register('LineShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('LineShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])
 export class LineShapeModule extends ShapeModule {
     /**
      * @zh 粒子发射器半径。
@@ -108,7 +109,7 @@ export class LineShapeModule extends ShapeModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const { vec3Register, startDir } = particles;
+        const { vec3Register, initialDir } = particles;
         const rand = this._rand;
         const spreadStep = this._spreadStep;
         const lengthTimer = this._lengthTimer;
@@ -122,13 +123,13 @@ export class LineShapeModule extends ShapeModule {
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const len = length * rand.getFloat();
                     vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                    startDir.set3fAt(0, 1, 0, i);
+                    initialDir.set3fAt(0, 1, 0, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const len = Math.floor((lengthRounded * rand.getFloat()) / spreadStep) * spreadStep;
                     vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                    startDir.set3fAt(0, 1, 0, i);
+                    initialDir.set3fAt(0, 1, 0, i);
                 }
             }
         } else if (this.distributionMode === DistributionMode.MOVE) {
@@ -143,7 +144,7 @@ export class LineShapeModule extends ShapeModule {
                             len += length;
                         }
                         vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                        startDir.set3fAt(0, 1, 0, i);
+                        initialDir.set3fAt(0, 1, 0, i);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; ++i) {
@@ -153,7 +154,7 @@ export class LineShapeModule extends ShapeModule {
                             len += length;
                         }
                         vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                        startDir.set3fAt(0, 1, 0, i);
+                        initialDir.set3fAt(0, 1, 0, i);
                     }
                 }
             } else {
@@ -170,7 +171,7 @@ export class LineShapeModule extends ShapeModule {
                         }
                         len *= length;
                         vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                        startDir.set3fAt(0, 1, 0, i);
+                        initialDir.set3fAt(0, 1, 0, i);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; ++i) {
@@ -183,7 +184,7 @@ export class LineShapeModule extends ShapeModule {
                         }
                         len *= length;
                         vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                        startDir.set3fAt(0, 1, 0, i);
+                        initialDir.set3fAt(0, 1, 0, i);
                     }
                 }
             }
@@ -194,13 +195,13 @@ export class LineShapeModule extends ShapeModule {
                     let len = i * invTotal * length;
                     len = Math.floor(len / spreadStep) * spreadStep;
                     vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                    startDir.set3fAt(0, 1, 0, i);
+                    initialDir.set3fAt(0, 1, 0, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const len = i * invTotal * length;
                     vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                    startDir.set3fAt(0, 1, 0, i);
+                    initialDir.set3fAt(0, 1, 0, i);
                 }
             }
         }

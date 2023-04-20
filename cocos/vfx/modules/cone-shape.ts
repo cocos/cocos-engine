@@ -28,7 +28,9 @@ import { Enum, toDegree, toRadian, Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { AngleBasedShapeModule } from './angle-based-shape';
-import { ParticleVec3Parameter } from '../particle-parameter';
+import { Vec3ArrayParameter } from '../particle-parameter';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 enum EmitFrom {
     BASE = 0,
@@ -37,7 +39,7 @@ enum EmitFrom {
 
 const temp = new Vec3();
 @ccclass('cc.ConeShapeModule')
-@VFXModule.register('ConeShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('ConeShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])
 export class ConeShapeModule extends AngleBasedShapeModule {
     static EmitFrom = EmitFrom;
 
@@ -84,14 +86,14 @@ export class ConeShapeModule extends AngleBasedShapeModule {
     private _cosAngle = 0;
     private _innerRadius = 0;
 
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         super.tick(particles, emitter, user, context);
         this._sinAngle = Math.sin(this._angle);
         this._cosAngle = Math.cos(this._angle);
         this._innerRadius = (1 - this.radiusThickness) ** 2;
     }
 
-    protected generatePosAndDir (index: number, angle: number, startDir: ParticleVec3Parameter, vec3Register: ParticleVec3Parameter) {
+    protected generatePosAndDir (index: number, angle: number, initialDir: Vec3ArrayParameter, vec3Register: Vec3ArrayParameter) {
         const rand = this._rand;
         const innerRadius = this._innerRadius;
         const radius = this.radius;
@@ -102,14 +104,14 @@ export class ConeShapeModule extends AngleBasedShapeModule {
             const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
             const x = Math.cos(angle);
             const y = Math.sin(angle);
-            startDir.set3fAt(x * sinAngle, y * sinAngle, cosAngle, index);
+            initialDir.set3fAt(x * sinAngle, y * sinAngle, cosAngle, index);
             vec3Register.set3fAt(x * r, y * r, 0, index);
         } else {
             const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
             const x = Math.cos(angle);
             const y = Math.sin(angle);
             Vec3.set(temp, x * sinAngle, y * sinAngle, cosAngle);
-            startDir.setVec3At(temp, index);
+            initialDir.setVec3At(temp, index);
             vec3Register.set3fAt(x * r, y * r, 0, index);
             vec3Register.addVec3At(Vec3.multiplyScalar(temp, temp, rand.getFloat() * length), index);
         }

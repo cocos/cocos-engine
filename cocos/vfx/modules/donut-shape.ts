@@ -29,11 +29,13 @@ import { Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { AngleBasedShapeModule } from './angle-based-shape';
-import { ParticleVec3Parameter } from '../particle-parameter';
+import { Vec3ArrayParameter } from '../particle-parameter';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const temp = new Vec3();
 @ccclass('cc.DonutShapeModule')
-@VFXModule.register('DonutShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('DonutShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])
 export class DonutShapeModule extends AngleBasedShapeModule {
     /**
        * @zh 粒子发射器半径。
@@ -62,7 +64,7 @@ export class DonutShapeModule extends AngleBasedShapeModule {
         this._donutInnerRadius = (1 - this.radiusThickness) ** 2;
     }
 
-    protected generatePosAndDir (index: number, angle: number, startDir: ParticleVec3Parameter, vec3Register: ParticleVec3Parameter) {
+    protected generatePosAndDir (index: number, angle: number, initialDir: Vec3ArrayParameter, vec3Register: Vec3ArrayParameter) {
         const innerRadius = this._donutInnerRadius;
         const radius = this.radius;
         const donutRadius = this.donutRadius;
@@ -74,7 +76,7 @@ export class DonutShapeModule extends AngleBasedShapeModule {
         const donutAngle = rand.getFloatFromRange(0, Math.PI * 2);
         const dx = Math.cos(donutAngle);
         const dy = Math.sin(donutAngle);
-        startDir.set3fAt(x * dx, y * dx, dy, index);
+        initialDir.set3fAt(x * dx, y * dx, dy, index);
         temp.x = (radius + r * dx) * x;
         temp.y = (radius + r * dy) * y;
         temp.z = r * dy;

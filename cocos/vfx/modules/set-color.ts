@@ -38,7 +38,7 @@ const tempColor3 = new Color();
 const COLOR_RAND_SEED = 1767123;
 
 @ccclass('cc.SetColorModule')
-@VFXModule.register('SetColor', ModuleExecStageFlags.SPAWN, [ParameterName.COLOR], [ParameterName.NORMALIZED_ALIVE_TIME])
+@VFXModule.register('SetColor', ModuleExecStageFlags.SPAWN, [ParameterName.COLOR], [ParameterName.NORMALIZED_AGE])
 export class SetColorModule extends VFXModule {
     /**
       * @zh 粒子初始颜色。
@@ -64,7 +64,7 @@ export class SetColorModule extends VFXModule {
             if (context.executionStage === ModuleExecStage.SPAWN) {
                 particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
             } else {
-                particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+                particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
             }
         }
         if (this.color.mode === ColorExpression.Mode.TWO_CONSTANTS || this.color.mode === ColorExpression.Mode.TWO_GRADIENTS || this.color.mode === ColorExpression.Mode.RANDOM_COLOR) {
@@ -82,7 +82,7 @@ export class SetColorModule extends VFXModule {
             }
         } else if (this.color.mode === ColorExpression.Mode.GRADIENT) {
             const { gradient } = this.color;
-            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
+            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
             for (let i = fromIndex, num = 0; i < toIndex; i++, num++) {
                 color[i] = Color.toUint32(gradient.evaluate(tempColor, normalizedTime[i]));
             }
@@ -94,7 +94,7 @@ export class SetColorModule extends VFXModule {
             }
         } else if (this.color.mode === ColorExpression.Mode.TWO_GRADIENTS) {
             const { gradientMin, gradientMax } = this.color;
-            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
+            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
             const randomSeed = particles.randomSeed.data;
             for (let i = fromIndex, num = 0; i < toIndex; i++, num++) {
                 const time = normalizedTime[i];

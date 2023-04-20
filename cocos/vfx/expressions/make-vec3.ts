@@ -39,11 +39,11 @@ export class MakeVec3Expression extends Vec3Expression {
     @serializable
     public x: FloatExpression = new ConstantFloatExpression();
 
-    @type(CCFloat)
+    @type(FloatExpression)
     @serializable
     public y: FloatExpression = new ConstantFloatExpression();
 
-    @type(CCFloat)
+    @type(FloatExpression)
     @serializable
     public z: FloatExpression = new ConstantFloatExpression();
 

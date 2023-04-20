@@ -31,7 +31,7 @@ import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { ShapeModule } from './shape';
 
 @ccclass('cc.GridShapeModule')
-@VFXModule.register('GridShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('GridShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])
 export class GridShape extends ShapeModule {
     @serializable
     public length = 1;
@@ -70,7 +70,7 @@ export class GridShape extends ShapeModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const { startDir, vec3Register } = particles;
+        const { initialDir, vec3Register } = particles;
         const xyCellNum = this._xyCellNum;
         const numInX = this.numInX;
         const numInZ = this.numInZ;
@@ -78,7 +78,7 @@ export class GridShape extends ShapeModule {
         const widthPerCell = this._widthPerCell;
         const heightPerCell = this._heightPerCell;
         for (let i = fromIndex, index = 0; i < toIndex; i++, index++) {
-            startDir.set3fAt(0, 0, 1, index);
+            initialDir.set3fAt(0, 0, 1, index);
             const zIndex = Math.floor(index / xyCellNum) % numInZ;
             const cellIndex = index % xyCellNum;
             const xIndex =  cellIndex % numInX;

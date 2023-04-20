@@ -25,7 +25,7 @@
 
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
-import { ParticleParameter, ParticleBoolParameter, ParticleColorParameter, ParticleFloatParameter, VFXParameterIdentity, ParticleUint32Parameter, ParticleVec3Parameter } from './particle-parameter';
+import { ArrayParameter, BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, VFXParameterIdentity, Uint32ArrayParameter, Vec3ArrayParameter } from './particle-parameter';
 import { VFXParameterType } from './enum';
 
 export type ParticleHandle = number;
@@ -36,22 +36,22 @@ export enum BuiltinParticleParameterName {
     ID = 'id',
     RANDOM_SEED = 'random-seed',
     INV_START_LIFETIME = 'inv-start-lifetime',
-    NORMALIZED_ALIVE_TIME = 'normalized-alive-time',
+    NORMALIZED_AGE = 'normalized-alive-time',
     IS_DEAD = 'is-dead',
     POSITION = 'position',
-    START_DIR = 'start-dir',
+    INITIAL_DIR = 'start-dir',
     BASE_VELOCITY = 'base-velocity',
     VELOCITY = 'velocity',
     ROTATION = 'rotation',
     MESH_ORIENTATION = 'mesh-orientation',
     ANGULAR_VELOCITY = 'angular-velocity',
-    FRAME_INDEX = 'frame-index',
+    SUB_UV_INDEX = 'frame-index',
     RIBBON_ID = 'ribbon-id',
     RIBBON_LINK_ORDER = 'ribbon-link-order',
     BASE_RIBBON_WIDTH = 'base-ribbon-width',
     RIBBON_WIDTH = 'ribbon-width',
-    BASE_SPRITE_SIZE = 'base-sprite-size',
-    SPRITE_SIZE = 'sprite-size',
+    BASE_SPRITE_SIZE = 'base-sprite-scale',
+    SPRITE_SIZE = 'sprite-scale',
     BASE_SCALE = 'base-scale',
     SCALE = 'scale',
     BASE_COLOR = 'base-color',
@@ -69,16 +69,16 @@ export enum BuiltinParticleParameter {
     ID,
     RANDOM_SEED,
     INV_START_LIFETIME,
-    NORMALIZED_ALIVE_TIME,
+    NORMALIZED_AGE,
     IS_DEAD,
     POSITION,
-    START_DIR,
+    INITIAL_DIR,
     BASE_VELOCITY,
     VELOCITY,
     ROTATION,
     MESH_ORIENTATION,
     ANGULAR_VELOCITY,
-    FRAME_INDEX,
+    SUB_UV_INDEX,
     RIBBON_ID,
     RIBBON_LINK_ORDER,
     BASE_RIBBON_WIDTH,
@@ -101,16 +101,16 @@ export enum BuiltinParticleParameterFlags {
     ID = 1 << BuiltinParticleParameter.ID,
     RANDOM_SEED = 1 << BuiltinParticleParameter.RANDOM_SEED,
     INV_START_LIFETIME = 1 << BuiltinParticleParameter.INV_START_LIFETIME,
-    NORMALIZED_ALIVE_TIME = 1 << BuiltinParticleParameter.NORMALIZED_ALIVE_TIME,
+    NORMALIZED_AGE = 1 << BuiltinParticleParameter.NORMALIZED_AGE,
     IS_DEAD = 1 << BuiltinParticleParameter.IS_DEAD,
     POSITION = 1 << BuiltinParticleParameter.POSITION,
-    START_DIR = 1 << BuiltinParticleParameter.START_DIR,
+    INITIAL_DIR = 1 << BuiltinParticleParameter.INITIAL_DIR,
     BASE_VELOCITY = 1 << BuiltinParticleParameter.BASE_VELOCITY,
     VELOCITY = 1 << BuiltinParticleParameter.VELOCITY,
     ROTATION = 1 << BuiltinParticleParameter.ROTATION,
     MESH_ORIENTATION = 1 << BuiltinParticleParameter.MESH_ORIENTATION,
     ANGULAR_VELOCITY = 1 << BuiltinParticleParameter.ANGULAR_VELOCITY,
-    FRAME_INDEX = 1 << BuiltinParticleParameter.FRAME_INDEX,
+    SUB_UV_INDEX = 1 << BuiltinParticleParameter.SUB_UV_INDEX,
     RIBBON_ID = 1 << BuiltinParticleParameter.RIBBON_ID,
     RIBBON_LINK_ORDER = 1 << BuiltinParticleParameter.RIBBON_LINK_ORDER,
     BASE_RIBBON_WIDTH = 1 << BuiltinParticleParameter.BASE_RIBBON_WIDTH,
@@ -132,16 +132,16 @@ export const builtinParticleParameterIdentities = [
     new VFXParameterIdentity(BuiltinParticleParameter.ID, BuiltinParticleParameterName.ID, VFXParameterType.UINT32),
     new VFXParameterIdentity(BuiltinParticleParameter.RANDOM_SEED, BuiltinParticleParameterName.RANDOM_SEED, VFXParameterType.UINT32),
     new VFXParameterIdentity(BuiltinParticleParameter.INV_START_LIFETIME, BuiltinParticleParameterName.INV_START_LIFETIME, VFXParameterType.FLOAT),
-    new VFXParameterIdentity(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME, BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME, VFXParameterType.FLOAT),
+    new VFXParameterIdentity(BuiltinParticleParameter.NORMALIZED_AGE, BuiltinParticleParameterName.NORMALIZED_AGE, VFXParameterType.FLOAT),
     new VFXParameterIdentity(BuiltinParticleParameter.IS_DEAD, BuiltinParticleParameterName.IS_DEAD, VFXParameterType.BOOL),
     new VFXParameterIdentity(BuiltinParticleParameter.POSITION, BuiltinParticleParameterName.POSITION, VFXParameterType.VEC3),
-    new VFXParameterIdentity(BuiltinParticleParameter.START_DIR, BuiltinParticleParameterName.START_DIR, VFXParameterType.VEC3),
+    new VFXParameterIdentity(BuiltinParticleParameter.INITIAL_DIR, BuiltinParticleParameterName.INITIAL_DIR, VFXParameterType.VEC3),
     new VFXParameterIdentity(BuiltinParticleParameter.BASE_VELOCITY, BuiltinParticleParameterName.BASE_VELOCITY, VFXParameterType.VEC3),
     new VFXParameterIdentity(BuiltinParticleParameter.VELOCITY, BuiltinParticleParameterName.VELOCITY, VFXParameterType.VEC3),
     new VFXParameterIdentity(BuiltinParticleParameter.ROTATION, BuiltinParticleParameterName.ROTATION, VFXParameterType.VEC3),
     new VFXParameterIdentity(BuiltinParticleParameter.MESH_ORIENTATION, BuiltinParticleParameterName.MESH_ORIENTATION, VFXParameterType.QUAT),
     new VFXParameterIdentity(BuiltinParticleParameter.ANGULAR_VELOCITY, BuiltinParticleParameterName.ANGULAR_VELOCITY, VFXParameterType.VEC3),
-    new VFXParameterIdentity(BuiltinParticleParameter.FRAME_INDEX, BuiltinParticleParameterName.FRAME_INDEX, VFXParameterType.FLOAT),
+    new VFXParameterIdentity(BuiltinParticleParameter.SUB_UV_INDEX, BuiltinParticleParameterName.SUB_UV_INDEX, VFXParameterType.FLOAT),
     new VFXParameterIdentity(BuiltinParticleParameter.BASE_SCALE, BuiltinParticleParameterName.BASE_SCALE, VFXParameterType.VEC3),
     new VFXParameterIdentity(BuiltinParticleParameter.SCALE, BuiltinParticleParameterName.SCALE, VFXParameterType.VEC3),
     new VFXParameterIdentity(BuiltinParticleParameter.BASE_COLOR, BuiltinParticleParameterName.BASE_COLOR, VFXParameterType.COLOR),
@@ -162,83 +162,83 @@ export class ParticleDataSet {
     }
 
     public get id () {
-        return this.getParameterUnsafe<ParticleUint32Parameter>(BuiltinParticleParameter.ID);
+        return this.getParameterUnsafe<Uint32ArrayParameter>(BuiltinParticleParameter.ID);
     }
 
     public get position () {
-        return this.getParameterUnsafe<ParticleVec3Parameter>(BuiltinParticleParameter.POSITION);
+        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.POSITION);
     }
 
     public get randomSeed () {
-        return this.getParameterUnsafe<ParticleUint32Parameter>(BuiltinParticleParameter.RANDOM_SEED);
+        return this.getParameterUnsafe<Uint32ArrayParameter>(BuiltinParticleParameter.RANDOM_SEED);
     }
 
     public get invStartLifeTime () {
-        return this.getParameterUnsafe<ParticleFloatParameter>(BuiltinParticleParameter.INV_START_LIFETIME);
+        return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.INV_START_LIFETIME);
     }
 
-    public get normalizedAliveTime () {
-        return this.getParameterUnsafe<ParticleFloatParameter>(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME);
+    public get normalizedAge () {
+        return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.NORMALIZED_AGE);
     }
 
     public get isDead () {
-        return this.getParameterUnsafe<ParticleBoolParameter>(BuiltinParticleParameter.IS_DEAD);
+        return this.getParameterUnsafe<BoolArrayParameter>(BuiltinParticleParameter.IS_DEAD);
     }
 
-    public get frameIndex () {
-        return this.getParameterUnsafe<ParticleFloatParameter>(BuiltinParticleParameter.FRAME_INDEX);
+    public get subUVIndex () {
+        return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.SUB_UV_INDEX);
     }
 
     public get baseVelocity () {
-        return this.getParameterUnsafe<ParticleVec3Parameter>(BuiltinParticleParameter.BASE_VELOCITY);
+        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.BASE_VELOCITY);
     }
 
     public get velocity () {
-        return this.getParameterUnsafe<ParticleVec3Parameter>(BuiltinParticleParameter.VELOCITY);
+        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.VELOCITY);
     }
 
-    public get startDir () {
-        return this.getParameterUnsafe<ParticleVec3Parameter>(BuiltinParticleParameter.START_DIR);
+    public get initialDir () {
+        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.INITIAL_DIR);
     }
 
     public get rotation () {
-        return this.getParameterUnsafe<ParticleVec3Parameter>(BuiltinParticleParameter.ROTATION);
+        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.ROTATION);
     }
 
     public get angularVelocity () {
-        return this.getParameterUnsafe<ParticleVec3Parameter>(BuiltinParticleParameter.ANGULAR_VELOCITY);
+        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.ANGULAR_VELOCITY);
     }
 
-    public get baseSize () {
-        return this.getParameterUnsafe<ParticleVec3Parameter>(BuiltinParticleParameter.BASE_SIZE);
+    public get baseScale () {
+        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.BASE_SCALE);
     }
 
-    public get size () {
-        return this.getParameterUnsafe<ParticleVec3Parameter>(BuiltinParticleParameter.SIZE);
+    public get scale () {
+        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.SCALE);
     }
 
     public get baseColor () {
-        return this.getParameterUnsafe<ParticleColorParameter>(BuiltinParticleParameter.BASE_COLOR);
+        return this.getParameterUnsafe<ColorArrayParameter>(BuiltinParticleParameter.BASE_COLOR);
     }
 
     public get color () {
-        return this.getParameterUnsafe<ParticleColorParameter>(BuiltinParticleParameter.COLOR);
+        return this.getParameterUnsafe<ColorArrayParameter>(BuiltinParticleParameter.COLOR);
     }
 
     public get spawnTimeRatio () {
-        return this.getParameterUnsafe<ParticleFloatParameter>(BuiltinParticleParameter.SPAWN_TIME_RATIO);
+        return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.SPAWN_TIME_RATIO);
     }
 
     public get spawnNormalizedTime () {
-        return this.getParameterUnsafe<ParticleFloatParameter>(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
+        return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
     }
 
     public get vec3Register () {
-        return this.getParameterUnsafe<ParticleVec3Parameter>(BuiltinParticleParameter.VEC3_REGISTER);
+        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.VEC3_REGISTER);
     }
 
     public get floatRegister () {
-        return this.getParameterUnsafe<ParticleFloatParameter>(BuiltinParticleParameter.FLOAT_REGISTER);
+        return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.FLOAT_REGISTER);
     }
 
     public get parameterCount () {
@@ -250,17 +250,17 @@ export class ParticleDataSet {
     private _parameterCount = 0;
     private _parameterFlags = 0;
     private _requiredParameterFlags = 0;
-    private _parameters: ParticleParameter[] = [];
-    private _parameterMap: Record<number, ParticleParameter | null> = {};
+    private _parameters: ArrayParameter[] = [];
+    private _parameterMap: Record<number, ArrayParameter | null> = {};
 
-    public getParameter<T extends ParticleParameter> (id: number) {
+    public getParameter<T extends ArrayParameter> (id: number) {
         if (!this.hasParameter(id)) {
             return null;
         }
         return this.getParameterUnsafe<T>(id);
     }
 
-    public getParameterUnsafe<T extends ParticleParameter> (id: number) {
+    public getParameterUnsafe<T extends ArrayParameter> (id: number) {
         if (DEBUG) {
             assertIsTrue(id < MAX_PARAMETER_COUNT && id >= 0);
             assertIsTrue(this.hasParameter(id));
@@ -284,19 +284,19 @@ export class ParticleDataSet {
         }
         switch (type) {
         case VFXParameterType.FLOAT:
-            this.addParameter_internal(id, new ParticleFloatParameter());
+            this.addParameter_internal(id, new FloatArrayParameter());
             break;
         case VFXParameterType.VEC3:
-            this.addParameter_internal(id, new ParticleVec3Parameter());
+            this.addParameter_internal(id, new Vec3ArrayParameter());
             break;
         case VFXParameterType.COLOR:
-            this.addParameter_internal(id, new ParticleColorParameter());
+            this.addParameter_internal(id, new ColorArrayParameter());
             break;
         case VFXParameterType.UINT32:
-            this.addParameter_internal(id, new ParticleUint32Parameter());
+            this.addParameter_internal(id, new Uint32ArrayParameter());
             break;
         case VFXParameterType.BOOL:
-            this.addParameter_internal(id, new ParticleBoolParameter());
+            this.addParameter_internal(id, new BoolArrayParameter());
             break;
         default:
             throw new Error('Unknown particle parameter type!');
@@ -388,7 +388,7 @@ export class ParticleDataSet {
         this._requiredParameterFlags = 0;
     }
 
-    private addParameter_internal (id: number, parameter: ParticleParameter) {
+    private addParameter_internal (id: number, parameter: ArrayParameter) {
         this._parameterCount++;
         this._parameters.push(parameter);
         this._parameterMap[id] = parameter;

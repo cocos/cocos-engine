@@ -147,19 +147,13 @@ export class LimitVelocityModule extends VFXModule {
     @serializable
     private _z: FloatExpression | null = null;
 
-    private _randomOffset = 0;
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._randomOffset = state.randomStream.getUInt32();
-    }
-
     public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         if (this.separateAxes && DEBUG) {
             assertIsTrue(this.limitX.mode === this.limitY.mode && this.limitY.mode === this.limitZ.mode, 'The curve of limitX, limitY, limitZ must have same mode!');
         }
         particles.markRequiredParameters(requiredParameters);
         if (this.limitX.mode === FloatExpression.Mode.CURVE || this.limitX.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
         }
         if (this.limitX.mode === FloatExpression.Mode.TWO_CONSTANTS || this.limitX.mode === FloatExpression.Mode.TWO_CURVES) {
             particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
@@ -194,9 +188,9 @@ export class LimitVelocityModule extends VFXModule {
                     const { spline: splineX, multiplier: xMultiplier } = this.limitX;
                     const { spline: splineY, multiplier: yMultiplier } = this.limitY;
                     const { spline: splineZ, multiplier: zMultiplier } = this.limitZ;
-                    const normalizedAliveTime = particles.normalizedAliveTime.data;
+                    const normalizedAge = particles.normalizedAge.data;
                     for (let i = fromIndex; i < toIndex; i++) {
-                        const normalizedTime = normalizedAliveTime[i];
+                        const normalizedTime = normalizedAge[i];
                         Vec3.set(_temp_v3_1, splineX.evaluate(normalizedTime) * xMultiplier,
                             splineY.evaluate(normalizedTime) * yMultiplier,
                             splineZ.evaluate(normalizedTime) * zMultiplier);
@@ -232,11 +226,11 @@ export class LimitVelocityModule extends VFXModule {
                     const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.limitX;
                     const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.limitY;
                     const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.limitZ;
-                    const normalizedAliveTime = particles.normalizedAliveTime.data;
+                    const normalizedAge = particles.normalizedAge.data;
                     const randomSeed = particles.randomSeed.data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
-                        const normalizedTime = normalizedAliveTime[i];
+                        const normalizedTime = normalizedAge[i];
                         Vec3.set(_temp_v3_1, lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x) * xMultiplier,
                             lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y) * yMultiplier,
                             lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), ratio.z) * zMultiplier);
@@ -267,9 +261,9 @@ export class LimitVelocityModule extends VFXModule {
                     const { spline: splineX, multiplier: xMultiplier } = this.limitX;
                     const { spline: splineY, multiplier: yMultiplier } = this.limitY;
                     const { spline: splineZ, multiplier: zMultiplier } = this.limitZ;
-                    const normalizedAliveTime = particles.normalizedAliveTime.data;
+                    const normalizedAge = particles.normalizedAge.data;
                     for (let i = fromIndex; i < toIndex; i++) {
-                        const normalizedTime = normalizedAliveTime[i];
+                        const normalizedTime = normalizedAge[i];
                         Vec3.set(_temp_v3_1, splineX.evaluate(normalizedTime) * xMultiplier,
                             splineY.evaluate(normalizedTime) * yMultiplier,
                             splineZ.evaluate(normalizedTime) * zMultiplier);
@@ -303,11 +297,11 @@ export class LimitVelocityModule extends VFXModule {
                     const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.limitX;
                     const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.limitY;
                     const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.limitZ;
-                    const normalizedAliveTime = particles.normalizedAliveTime.data;
+                    const normalizedAge = particles.normalizedAge.data;
                     const randomSeed = particles.randomSeed.data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const seed = randomSeed[i];
-                        const normalizedTime = normalizedAliveTime[i];
+                        const normalizedTime = normalizedAge[i];
                         Vec3.set(_temp_v3_1, lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), RandomStream.getFloat(seed + randomOffset)) * xMultiplier,
                             lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), RandomStream.getFloat(seed + randomOffset)) * yMultiplier,
                             lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), RandomStream.getFloat(seed + randomOffset)) * zMultiplier);
@@ -335,12 +329,12 @@ export class LimitVelocityModule extends VFXModule {
                 }
             } else if (this.limitX.mode === FloatExpression.Mode.CURVE) {
                 const { spline, multiplier } = this.limit;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedAge = particles.normalizedAge.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.getVec3At(tempVelocity, i);
                     const length = tempVelocity.length();
                     Vec3.multiplyScalar(tempVelocity, tempVelocity,
-                        1 - dampenBeyondLimit(length, spline.evaluate(normalizedAliveTime[i]) * multiplier, dampen) / length);
+                        1 - dampenBeyondLimit(length, spline.evaluate(normalizedAge[i]) * multiplier, dampen) / length);
                     velocity.subVec3At(tempVelocity, i);
                     baseVelocity.subVec3At(tempVelocity, i);
                 }
@@ -358,11 +352,11 @@ export class LimitVelocityModule extends VFXModule {
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.limit;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedAge = particles.normalizedAge.data;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i];
-                    const normalizedTime = normalizedAliveTime[i];
+                    const normalizedTime = normalizedAge[i];
                     velocity.getVec3At(tempVelocity, i);
                     const length = tempVelocity.length();
                     Vec3.multiplyScalar(tempVelocity, tempVelocity,

@@ -25,23 +25,21 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, ParticleEventType, PlayingState, ScalingMode, Space } from './enum';
-import { Color, Mat4, Quat, Vec3, Vec2, assertIsTrue } from '../core';
-import { Node } from '../scene-graph';
+import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, PlayingState, ScalingMode, Space, VFXEventType } from './enum';
+import { Color, Vec3, Vec2, assertIsTrue } from '../core';
 import { ModuleExecStage } from './vfx-module';
 import { RandomStream } from './random-stream';
-import { BuiltinParticleParameterFlags } from './particle-data-set';
-import { ParticleColorParameter, ParticleFloatParameter, ParticleUint32Parameter, ParticleVec3Parameter } from './particle-parameter';
+import { ColorArrayParameter, FloatArrayParameter, Uint32ArrayParameter, Vec3ArrayParameter } from './particle-parameter';
 
 export class VFXEventInfo {
-    public type = ParticleEventType.UNKNOWN;
+    public type = VFXEventType.UNKNOWN;
     public particleId = 0;
     public currentTime = 0;
     public prevTime = 0;
     public position = new Vec3();
     public velocity = new Vec3();
     public rotation = new Vec3();
-    public size = new Vec3();
+    public scale = new Vec3();
     public color = new Color();
     public randomSeed = 0;
 }
@@ -56,18 +54,18 @@ export class VFXEvents {
     }
 
     private _count = 0;
-    private _particleId = new ParticleUint32Parameter();
-    private _currentTime = new ParticleFloatParameter();
-    private _prevTime = new ParticleFloatParameter();
-    private _position = new ParticleVec3Parameter();
-    private _velocity = new ParticleVec3Parameter();
-    private _rotation = new ParticleVec3Parameter();
-    private _size = new ParticleVec3Parameter();
-    private _color = new ParticleColorParameter();
-    private _startLifeTime = new ParticleFloatParameter();
-    private _randomSeed = new ParticleUint32Parameter();
-    private _normalizedAliveTime = new ParticleFloatParameter();
-    private _type = new ParticleUint32Parameter();
+    private _particleId = new Uint32ArrayParameter();
+    private _currentTime = new FloatArrayParameter();
+    private _prevTime = new FloatArrayParameter();
+    private _position = new Vec3ArrayParameter();
+    private _velocity = new Vec3ArrayParameter();
+    private _rotation = new Vec3ArrayParameter();
+    private _size = new Vec3ArrayParameter();
+    private _color = new ColorArrayParameter();
+    private _startLifeTime = new FloatArrayParameter();
+    private _randomSeed = new Uint32ArrayParameter();
+    private _normalizedAliveTime = new FloatArrayParameter();
+    private _type = new Uint32ArrayParameter();
 
     clear () {
         this._count = 0;
@@ -96,7 +94,7 @@ export class VFXEvents {
         this._position.setVec3At(eventInfo.position, handle);
         this._velocity.setVec3At(eventInfo.velocity, handle);
         this._rotation.setVec3At(eventInfo.rotation, handle);
-        this._size.setVec3At(eventInfo.size, handle);
+        this._size.setVec3At(eventInfo.scale, handle);
         this._color.setColorAt(eventInfo.color, handle);
         this._randomSeed.setUint32At(eventInfo.randomSeed, handle);
         this._type.setUint32At(eventInfo.type, handle);
@@ -114,7 +112,7 @@ export class VFXEvents {
         this._position.getVec3At(out.position, handle);
         this._velocity.getVec3At(out.velocity, handle);
         this._rotation.getVec3At(out.rotation, handle);
-        this._size.getVec3At(out.size, handle);
+        this._size.getVec3At(out.scale, handle);
         this._color.getColorAt(out.color, handle);
         return out;
     }
@@ -202,12 +200,17 @@ export class ModuleExecContext {
     }
 
     public get moduleRandomSeed () {
-        return this._moduleRandomOffset;
+        return this._moduleRandomSeed;
+    }
+
+    public get deltaTime () {
+        return this._deltaTime;
     }
 
     private _fromIndex = 0;
     private _toIndex = 0;
-    private _moduleRandomOffset = 0;
+    private _moduleRandomSeed = 0;
+    private _deltaTime = 0;
     private _executionStage = ModuleExecStage.UNKNOWN;
     private _events: VFXEvents | null = null;
 
@@ -230,7 +233,7 @@ export class ModuleExecContext {
         this.setExecuteRange(0, 0);
     }
 
-    setModuleRandomOffset (offset: number) {
-        this._moduleRandomOffset = offset;
+    setModuleRandomSeed (seed: number) {
+        this._moduleRandomSeed = seed;
     }
 }

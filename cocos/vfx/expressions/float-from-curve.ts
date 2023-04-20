@@ -58,12 +58,12 @@ export class FloatFromCurveExpression extends FloatExpression {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameters(context.executionStage === ModuleExecStage.UPDATE
-            ? BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME : BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+            ? BuiltinParticleParameterFlags.NORMALIZED_AGE : BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
         this.scale.tick(particles, emitter, user, context);
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        this._time = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
+        this._time = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
         this.scale.bind(particles, emitter, user, context);
     }
 

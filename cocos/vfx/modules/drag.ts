@@ -30,17 +30,20 @@ import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
+import { ConstantFloatExpression } from '../expressions';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const _temp_v3 = new Vec3();
 const requiredParameters = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.BASE_VELOCITY | BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.FLOAT_REGISTER;
 
 @ccclass('cc.DragModule')
-@VFXModule.register('Drag', ModuleExecStageFlags.UPDATE, [ParameterName.VELOCITY], [ParameterName.VELOCITY, ParameterName.SIZE])
+@VFXModule.register('Drag', ModuleExecStageFlags.UPDATE, [ParameterName.VELOCITY], [ParameterName.VELOCITY, ParameterName.SCALE])
 export class DragModule extends VFXModule {
     @type(FloatExpression)
     @visible(true)
     @serializable
-    public drag = new FloatExpression();
+    public drag: FloatExpression = new ConstantFloatExpression();
 
     @type(CCBoolean)
     @serializable
@@ -49,22 +52,11 @@ export class DragModule extends VFXModule {
     @serializable
     public multiplyBySpeed = true;
 
-    private _randomOffset = 0;
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._randomOffset = state.randomStream.getUInt32();
-    }
-
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameters(requiredParameters);
-        if (this.drag.mode === FloatExpression.Mode.CURVE || this.drag.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
-        }
-        if (this.drag.mode === FloatExpression.Mode.TWO_CONSTANTS || this.drag.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
-        }
+        this.drag.tick(particles, emitter, user, context);
         if (this.multiplyBySize) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.SIZE);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.SCALE);
         }
     }
 
@@ -80,10 +72,10 @@ export class DragModule extends VFXModule {
                 floatRegister[i] = drag;
             }
         } else if (this.drag.mode === FloatExpression.Mode.CURVE) {
-            const normalizedAliveTime = particles.normalizedAliveTime.data;
+            const normalizedAge = particles.normalizedAge.data;
             const { spline, multiplier } = this.drag;
             for (let i = fromIndex; i < toIndex; i++) {
-                const normalizedTime = normalizedAliveTime[i];
+                const normalizedTime = normalizedAge[i];
                 floatRegister[i] = spline.evaluate(normalizedTime) * multiplier;
             }
         } else if (this.drag.mode === FloatExpression.Mode.TWO_CONSTANTS) {
@@ -95,16 +87,16 @@ export class DragModule extends VFXModule {
         } else {
             const { splineMin, splineMax, multiplier } = this.drag;
             const randomSeed = particles.randomSeed.data;
-            const normalizedAliveTime = particles.normalizedAliveTime.data;
+            const normalizedAge = particles.normalizedAge.data;
             for (let i = fromIndex; i < toIndex; i++) {
-                const normalizedTime = normalizedAliveTime[i];
+                const normalizedTime = normalizedAge[i];
                 floatRegister[i] = lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(randomSeed[i] + randomOffset))  * multiplier;
             }
         }
         if (this.multiplyBySize) {
-            const size = particles.size;
+            const scale = particles.scale;
             for (let i = fromIndex; i < toIndex; i++) {
-                size.getVec3At(_temp_v3, i);
+                scale.getVec3At(_temp_v3, i);
                 const maxDimension = Math.max(_temp_v3.x, _temp_v3.y, _temp_v3.z) * 0.5;
                 floatRegister[i] *= maxDimension ** 2 * Math.PI;
             }

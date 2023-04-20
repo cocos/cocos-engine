@@ -29,7 +29,9 @@ import { ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { RandomStream } from '../random-stream';
-import { ConstantExpression } from '../expressions';
+import { ConstantFloatExpression } from '../expressions';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 @ccclass('cc.SpawnRateModule')
 @VFXModule.register('SpawnRate', ModuleExecStageFlags.EMITTER | ModuleExecStageFlags.EVENT_HANDLER)
@@ -42,16 +44,14 @@ export class SpawnRateModule extends VFXModule {
     @range([0, 1])
     @displayOrder(14)
     @tooltip('i18n:particle_system.rateOverTime')
-    public rate = new ConstantExpression(10);
+    public rate = new ConstantFloatExpression(10);
 
-    private _rand = new RandomStream();
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        this.rate.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext)  {
-        const { emitterDeltaTime, normalizedLoopAge: normalizedT, previousTime, currentTime } = context;
+        const { deltaTime, normalizedLoopAge: normalizedT, previousTime, currentTime } = emitter;
         let deltaTime = emitterDeltaTime;
         if (previousTime > currentTime) {
             const seed = this._rand.seed;

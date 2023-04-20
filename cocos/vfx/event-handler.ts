@@ -28,7 +28,7 @@ import { BitMask, Enum, assertIsTrue } from '../core';
 import { ModuleExecContext } from './base';
 import { VFXEmitter } from './vfx-emitter';
 import { ModuleExecStage, VFXModuleStage } from './vfx-module';
-import { ParticleFloatParameter, ParticleUint32Parameter } from './particle-parameter';
+import { FloatArrayParameter, Uint32ArrayParameter } from './particle-parameter';
 import { ParticleDataSet } from './particle-data-set';
 import { ParticleEventType, InheritedProperty } from './enum';
 import { EmitterDataSet } from './emitter-data-set';
@@ -46,9 +46,9 @@ export class EventSpawnStates {
     private _version = 1;
     private _particleId2Index = {};
     private _count = 0;
-    private _particleId = new ParticleUint32Parameter();
-    private _lastUsed = new ParticleUint32Parameter();
-    private _spawnFraction = new ParticleFloatParameter();
+    private _particleId = new Uint32ArrayParameter();
+    private _lastUsed = new Uint32ArrayParameter();
+    private _spawnFraction = new FloatArrayParameter();
 
     public getSpawnFraction (id: number) {
         if (id in this._particleId2Index) {

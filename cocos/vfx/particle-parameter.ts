@@ -79,7 +79,7 @@ export abstract class VFXParameter {
     abstract get type (): VFXParameterType;
 }
 
-export abstract class ParticleParameter extends VFXParameter {
+export abstract class ArrayParameter extends VFXParameter {
     get capacity () {
         return this._capacity;
     }
@@ -93,11 +93,11 @@ export abstract class ParticleParameter extends VFXParameter {
     protected _capacity = DEFAULT_CAPACITY;
     abstract reserve (capacity: number);
     abstract move (a: ParticleHandle, b: ParticleHandle);
-    abstract copyFrom (src: ParticleParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle);
+    abstract copyFrom (src: ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle);
     abstract copyToTypedArray (dest: ArrayBufferView, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle);
 }
 
-export class ParticleVec3Parameter extends ParticleParameter {
+export class Vec3ArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
     }
@@ -112,7 +112,7 @@ export class ParticleVec3Parameter extends ParticleParameter {
 
     private _data = new Float32Array(3 * this._capacity);
 
-    static add (out: ParticleVec3Parameter, a: ParticleVec3Parameter, b: ParticleVec3Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    static add (out: Vec3ArrayParameter, a: Vec3ArrayParameter, b: Vec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(out._capacity === a._capacity && a._capacity === b._capacity
                 && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
@@ -125,7 +125,7 @@ export class ParticleVec3Parameter extends ParticleParameter {
         }
     }
 
-    static sub (out: ParticleVec3Parameter, a: ParticleVec3Parameter, b: ParticleVec3Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    static sub (out: Vec3ArrayParameter, a: Vec3ArrayParameter, b: Vec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(out._capacity === a._capacity && a._capacity === b._capacity
                 && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
@@ -138,7 +138,7 @@ export class ParticleVec3Parameter extends ParticleParameter {
         }
     }
 
-    static scaleAndAdd (out: ParticleVec3Parameter, a: ParticleVec3Parameter, b: ParticleVec3Parameter, scale: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    static scaleAndAdd (out: Vec3ArrayParameter, a: Vec3ArrayParameter, b: Vec3ArrayParameter, scale: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(out._capacity === a._capacity && a._capacity === b._capacity
                 && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
@@ -365,7 +365,7 @@ export class ParticleVec3Parameter extends ParticleParameter {
         data[offset + 2] += val;
     }
 
-    copyFrom (src: ParticleVec3Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: Vec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }
@@ -434,7 +434,7 @@ export class ParticleVec3Parameter extends ParticleParameter {
     }
 }
 
-export class ParticleFloatParameter extends ParticleParameter {
+export class FloatArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
     }
@@ -486,7 +486,7 @@ export class ParticleFloatParameter extends ParticleParameter {
         this._data[handle] += val;
     }
 
-    copyFrom (src: ParticleFloatParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: FloatArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(src._capacity === this._capacity);
@@ -539,7 +539,7 @@ export class ParticleFloatParameter extends ParticleParameter {
     }
 }
 
-export class ParticleBoolParameter extends ParticleParameter {
+export class BoolArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
     }
@@ -584,7 +584,7 @@ export class ParticleBoolParameter extends ParticleParameter {
         this._data[handle] = val ? 1 : 0;
     }
 
-    copyFrom (src: ParticleBoolParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: BoolArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(src._capacity === this._capacity);
@@ -633,7 +633,7 @@ export class ParticleBoolParameter extends ParticleParameter {
     }
 }
 
-export class ParticleUint32Parameter extends ParticleParameter {
+export class Uint32ArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
     }
@@ -668,7 +668,7 @@ export class ParticleUint32Parameter extends ParticleParameter {
         this._data[handle] = val;
     }
 
-    copyFrom (src: ParticleUint32Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: Uint32ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {
@@ -705,7 +705,7 @@ export class ParticleUint32Parameter extends ParticleParameter {
     }
 }
 
-export class ParticleUint8Parameter extends ParticleParameter {
+export class Uint8ArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
     }
@@ -740,7 +740,7 @@ export class ParticleUint8Parameter extends ParticleParameter {
         this._data[handle] = val;
     }
 
-    copyFrom (src: ParticleUint8Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: Uint8ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {
@@ -777,7 +777,7 @@ export class ParticleUint8Parameter extends ParticleParameter {
     }
 }
 
-export class ParticleColorParameter extends ParticleParameter {
+export class ColorArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
     }
@@ -863,7 +863,7 @@ export class ParticleColorParameter extends ParticleParameter {
         }
     }
 
-    copyFrom (src: ParticleColorParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ColorArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {

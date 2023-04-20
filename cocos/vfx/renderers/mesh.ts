@@ -171,23 +171,23 @@ export class MeshParticleRenderer extends ParticleRenderer {
                 dynamicBuffer[offset + 5] = rotation[zOffset];
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.SIZE)) {
-            const size = particles.size.data;
+        if (particles.hasParameter(BuiltinParticleParameter.SCALE)) {
+            const scale = particles.scale.data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 const xOffset = i * 3;
                 const yOffset = xOffset + 1;
                 const zOffset = yOffset + 1;
-                dynamicBuffer[offset + 6] = size[xOffset];
-                dynamicBuffer[offset + 7] = size[yOffset];
-                dynamicBuffer[offset + 8] = size[zOffset];
+                dynamicBuffer[offset + 6] = scale[xOffset];
+                dynamicBuffer[offset + 7] = scale[yOffset];
+                dynamicBuffer[offset + 8] = scale[zOffset];
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.FRAME_INDEX)) {
-            const frameIndex = particles.frameIndex.data;
+        if (particles.hasParameter(BuiltinParticleParameter.SUB_UV_INDEX)) {
+            const subUVIndex = particles.subUVIndex.data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
-                dynamicBuffer[offset + 9] = frameIndex[i];
+                dynamicBuffer[offset + 9] = subUVIndex[i];
             }
         }
         if (particles.hasParameter(BuiltinParticleParameter.COLOR)) {
@@ -289,7 +289,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
         let vertexStreamSizeDynamic = 0;
         for (let i = 0, length = this._vertexStreamAttributes.length; i < length; i++) {
             if (this._vertexStreamAttributes[i].stream === 1) {
-                vertexStreamSizeDynamic += FormatInfos[this._vertexStreamAttributes[i].format].size;
+                vertexStreamSizeDynamic += FormatInfos[this._vertexStreamAttributes[i].format].scale;
             }
         }
         this._vertexStreamSize = vertexStreamSizeDynamic;
@@ -312,14 +312,14 @@ export class MeshParticleRenderer extends ParticleRenderer {
             let offset = 0;
             let vIdx = this._vertexStreamAttributes.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD); // find ATTR_TEX_COORD index
             mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, vertexStreamSizeStatic, offset);  // copy mesh uv to ATTR_TEX_COORD
-            offset += FormatInfos[this._vertexStreamAttributes[vIdx].format].size; // find ATTR_TEX_COORD offset
+            offset += FormatInfos[this._vertexStreamAttributes[vIdx].format].scale; // find ATTR_TEX_COORD offset
             vIdx = this._vertexStreamAttributes.findIndex((val) => val.name === AttributeName.ATTR_POSITION); // find ATTR_TEX_COORD3 index
             mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, vertexStreamSizeStatic, offset);  // copy mesh position to ATTR_TEX_COORD3
-            offset += FormatInfos[this._vertexStreamAttributes[vIdx].format].size; // find ATTR_TEX_COORD offset
+            offset += FormatInfos[this._vertexStreamAttributes[vIdx].format].scale; // find ATTR_TEX_COORD offset
             mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, vertexStreamSizeStatic, offset);  // copy mesh normal to ATTR_NORMAL
-            offset += FormatInfos[this._vertexStreamAttributes[vIdx].format].size; // find ATTR_TEX_COORD offset
+            offset += FormatInfos[this._vertexStreamAttributes[vIdx].format].scale; // find ATTR_TEX_COORD offset
             if (!mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, vertexStreamSizeStatic, offset)) {  // copy mesh color to ATTR_COLOR1
-                offset += FormatInfos[this._vertexStreamAttributes[vIdx].format].size;
+                offset += FormatInfos[this._vertexStreamAttributes[vIdx].format].scale;
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
                     vb[iVertex * vertStaticAttrsFloatCount + offset / 4] = Color.WHITE._val;

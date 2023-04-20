@@ -29,15 +29,15 @@ import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-
 import { VFXEmitterParams, ModuleExecContext } from '../base';
 
 @ccclass('cc.RectangleShapeModule')
-@VFXModule.register('RectangleShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('RectangleShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])
 export class RectangleShapeModule extends ShapeModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const { vec3Register, startDir } = particles;
+        const { vec3Register, initialDir } = particles;
         const rand = this._rand;
         for (let i = fromIndex; i < toIndex; i++) {
             vec3Register.set3fAt(rand.getFloatFromRange(-0.5, 0.5), rand.getFloatFromRange(-0.5, 0.5), 0, i);
-            startDir.set3fAt(0, 0, 1, i);
+            initialDir.set3fAt(0, 0, 1, i);
         }
     }
 }

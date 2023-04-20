@@ -32,6 +32,9 @@ import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
+import { ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet } from '../emitter-data-set';
 
 const seed = new Vec3();
 
@@ -43,32 +46,12 @@ export class ForceModule extends VFXModule {
     /**
      * @zh X 轴方向上的加速度分量。
      */
-    @type(FloatExpression)
+    @type(Vec3Expression)
     @serializable
     @range([-1, 1])
     @displayOrder(2)
     @tooltip('i18n:forceOvertimeModule.x')
-    public x = new FloatExpression();
-
-    /**
-     * @zh Y 轴方向上的加速度分量。
-     */
-    @type(FloatExpression)
-    @serializable
-    @range([-1, 1])
-    @displayOrder(3)
-    @tooltip('i18n:forceOvertimeModule.y')
-    public y = new FloatExpression();
-
-    /**
-     * @zh Z 轴方向上的加速度分量。
-     */
-    @type(FloatExpression)
-    @serializable
-    @range([-1, 1])
-    @displayOrder(4)
-    @tooltip('i18n:forceOvertimeModule.z')
-    public z = new FloatExpression();
+    public force: Vec3Expression = new ConstantVec3Expression();
 
     /**
      * @zh 加速度计算时采用的坐标系 [[Space]]。
@@ -82,31 +65,17 @@ export class ForceModule extends VFXModule {
     // TODO:currently not supported
     public randomized = false;
 
-    private _randomOffset = 0;
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._randomOffset = state.randomStream.getUInt32();
-    }
-
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
-        if (DEBUG) {
-            assertIsTrue(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
-        }
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
         particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
         particles.markRequiredParameters(BuiltinParticleParameterFlags.VELOCITY);
-        if (this.x.mode === FloatExpression.Mode.CURVE || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
-        }
-        if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
-        }
+        this.force.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { velocity, baseVelocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
-        const needTransform = this.space === params.simulationSpace;
+        const needTransform = (this.space === Space.WORLD) !== emitter.isWorldSpace;
         const randomOffset = this._randomOffset;
         const rotation = context.rotationIfNeedTransform;
         if (needTransform) {
@@ -122,12 +91,12 @@ export class ForceModule extends VFXModule {
                     baseVelocity.addVec3At(force, i);
                 }
             } else if (this.x.mode === FloatExpression.Mode.CURVE) {
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedAge = particles.normalizedAge.data;
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const { spline: yCurve, multiplier: yMultiplier } = this.y;
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const normalizedTime = normalizedAliveTime[i];
+                    const normalizedTime = normalizedAge[i];
                     const force = Vec3.set(_temp_v3,
                         xCurve.evaluate(normalizedTime) * xMultiplier,
                         yCurve.evaluate(normalizedTime) * yMultiplier,
@@ -157,10 +126,10 @@ export class ForceModule extends VFXModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedAge = particles.normalizedAge.data;
                 const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const normalizedTime = normalizedAliveTime[i];
+                    const normalizedTime = normalizedAge[i];
                     const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     const force = Vec3.set(_temp_v3,
                         lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x)  * xMultiplier,
@@ -185,12 +154,12 @@ export class ForceModule extends VFXModule {
                     baseVelocity.addVec3At(force, i);
                 }
             } else if (this.x.mode === FloatExpression.Mode.CURVE) {
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedAge = particles.normalizedAge.data;
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const { spline: yCurve, multiplier: yMultiplier } = this.y;
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const normalizedTime = normalizedAliveTime[i];
+                    const normalizedTime = normalizedAge[i];
                     const force = Vec3.set(_temp_v3,
                         xCurve.evaluate(normalizedTime) * xMultiplier,
                         yCurve.evaluate(normalizedTime) * yMultiplier,
@@ -219,9 +188,9 @@ export class ForceModule extends VFXModule {
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 const randomSeed = particles.randomSeed.data;
-                const normalizedAliveTime = particles.normalizedAliveTime.data;
+                const normalizedAge = particles.normalizedAge.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const normalizedTime = normalizedAliveTime[i];
+                    const normalizedTime = normalizedAge[i];
                     const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     const force = Vec3.set(_temp_v3,
                         lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x)  * xMultiplier,

@@ -50,7 +50,7 @@ export class Vec3FromFloatExpression extends Vec3Expression {
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        this.value.bind(particles, emitter, context, context);
+        this.value.bind(particles, emitter, user, context);
     }
 
     public evaluate (index: number, out: Vec3) {

@@ -335,6 +335,10 @@ export class VFXEmitter extends Component {
         return this._state.accumulatedTime;
     }
 
+    public get userParameters () {
+        return this._userParameters;
+    }
+
     @displayName('发射器更新')
     @type(VFXModuleStage)
     public get emitterStage () {
@@ -381,6 +385,8 @@ export class VFXEmitter extends Component {
         return this._state.boundsMax as Readonly<Vec3>;
     }
 
+    @serializable
+    private _userParameters: any[] = [];
     @serializable
     private _emitterStage = new VFXModuleStage(ModuleExecStage.EMITTER);
     @serializable
@@ -729,7 +735,7 @@ export class VFXEmitter extends Component {
                         spawnFraction = eventHandler.eventSpawnStates.getSpawnFraction(eventInfo.particleId);
                     }
                     eventHandler.execute(particles, params, context);
-                    spawnFraction = this.spawn(spawnFraction, tempEmitterTransform, eventInfo.color, eventInfo.size, eventInfo.rotation);
+                    spawnFraction = this.spawn(spawnFraction, tempEmitterTransform, eventInfo.color, eventInfo.scale, eventInfo.rotation);
                     if (eventHandler.eventType === ParticleEventType.LOCATION) {
                         eventHandler.eventSpawnStates.setSpawnFraction(eventInfo.particleId, spawnFraction);
                     }
@@ -750,11 +756,11 @@ export class VFXEmitter extends Component {
                 particles.velocity.fill1f(0, fromIndex, toIndex);
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.SIZE)) {
-            if (particles.hasParameter(BuiltinParticleParameter.BASE_SIZE)) {
-                particles.size.copyFrom(particles.baseSize, fromIndex, toIndex);
+        if (particles.hasParameter(BuiltinParticleParameter.SCALE)) {
+            if (particles.hasParameter(BuiltinParticleParameter.BASE_SCALE)) {
+                particles.scale.copyFrom(particles.baseScale, fromIndex, toIndex);
             } else {
-                particles.size.fill1f(1, fromIndex, toIndex);
+                particles.scale.fill1f(1, fromIndex, toIndex);
             }
         }
         if (particles.hasParameter(BuiltinParticleParameter.ANGULAR_VELOCITY)) {
@@ -837,8 +843,8 @@ export class VFXEmitter extends Component {
         if (particles.hasParameter(BuiltinParticleParameter.ROTATION)) {
             particles.rotation.fill(initialRotation, fromIndex, toIndex);
         }
-        if (particles.hasParameter(BuiltinParticleParameter.BASE_SIZE)) {
-            particles.baseSize.fill(initialSize, fromIndex, toIndex);
+        if (particles.hasParameter(BuiltinParticleParameter.BASE_SCALE)) {
+            particles.baseScale.fill(initialSize, fromIndex, toIndex);
         }
         if (particles.hasParameter(BuiltinParticleParameter.BASE_COLOR)) {
             particles.baseColor.fill(initialColor, fromIndex, toIndex);
@@ -846,8 +852,8 @@ export class VFXEmitter extends Component {
         if (particles.hasParameter(BuiltinParticleParameter.INV_START_LIFETIME)) {
             particles.invStartLifeTime.fill(1, fromIndex, toIndex);
         }
-        if (particles.hasParameter(BuiltinParticleParameter.NORMALIZED_ALIVE_TIME)) {
-            particles.normalizedAliveTime.fill(0, fromIndex, toIndex);
+        if (particles.hasParameter(BuiltinParticleParameter.NORMALIZED_AGE)) {
+            particles.normalizedAge.fill(0, fromIndex, toIndex);
         }
         if (particles.hasParameter(BuiltinParticleParameter.ID)) {
             const id = particles.id.data;
@@ -862,10 +868,10 @@ export class VFXEmitter extends Component {
                 randomSeed[i] = randomStream.getUInt32();
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.START_DIR)) {
-            const { startDir } = particles;
+        if (particles.hasParameter(BuiltinParticleParameter.INITIAL_DIR)) {
+            const { initialDir } = particles;
             const initialDir = Vec3.set(tempDir, initialTransform.m02, initialTransform.m06, initialTransform.m10);
-            startDir.fill(initialDir, fromIndex, toIndex);
+            initialDir.fill(initialDir, fromIndex, toIndex);
         }
 
         context.setExecuteRange(fromIndex, toIndex);

@@ -197,7 +197,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             offset += 3;
         }
         if (define[CC_PARTICLE_SIZE]) {
-            particles.size.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.scale.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         if (define[CC_PARTICLE_COLOR]) {
@@ -205,7 +205,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             offset += 1;
         }
         if (define[CC_PARTICLE_FRAME_INDEX]) {
-            particles.frameIndex.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.subUVIndex.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_PARTICLE_VELOCITY]) {
@@ -301,7 +301,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             needRecompile = true;
         }
 
-        const hasSize = particles.hasParameter(BuiltinParticleParameter.SIZE);
+        const hasSize = particles.hasParameter(BuiltinParticleParameter.SCALE);
         if (define[CC_PARTICLE_SIZE] !== hasSize) {
             define[CC_PARTICLE_SIZE] = hasSize;
             needRecompile = true;
@@ -313,7 +313,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             needRecompile = true;
         }
 
-        const hasFrameIndex = particles.hasParameter(BuiltinParticleParameter.FRAME_INDEX);
+        const hasFrameIndex = particles.hasParameter(BuiltinParticleParameter.SUB_UV_INDEX);
         if (define[CC_PARTICLE_FRAME_INDEX] !== hasFrameIndex) {
             define[CC_PARTICLE_FRAME_INDEX] = hasFrameIndex;
             needRecompile = true;
@@ -336,27 +336,27 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         const define = this._defines;
         if (define[CC_PARTICLE_POSITION]) {
             vertexStreamAttributes.push(particlePosition);
-            vertexStreamSizeDynamic += FormatInfos[particlePosition.format].size;
+            vertexStreamSizeDynamic += FormatInfos[particlePosition.format].scale;
         }
         if (define[CC_PARTICLE_ROTATION]) {
             vertexStreamAttributes.push(particleRotation);
-            vertexStreamSizeDynamic += FormatInfos[particleRotation.format].size;
+            vertexStreamSizeDynamic += FormatInfos[particleRotation.format].scale;
         }
         if (define[CC_PARTICLE_SIZE]) {
             vertexStreamAttributes.push(particleSize);
-            vertexStreamSizeDynamic += FormatInfos[particleSize.format].size;
+            vertexStreamSizeDynamic += FormatInfos[particleSize.format].scale;
         }
         if (define[CC_PARTICLE_COLOR]) {
             vertexStreamAttributes.push(particleColor);
-            vertexStreamSizeDynamic += FormatInfos[particleColor.format].size;
+            vertexStreamSizeDynamic += FormatInfos[particleColor.format].scale;
         }
         if (define[CC_PARTICLE_FRAME_INDEX]) {
             vertexStreamAttributes.push(particleFrameIndex);
-            vertexStreamSizeDynamic += FormatInfos[particleFrameIndex.format].size;
+            vertexStreamSizeDynamic += FormatInfos[particleFrameIndex.format].scale;
         }
         if (define[CC_PARTICLE_VELOCITY]) {
             vertexStreamAttributes.push(particleVelocity);
-            vertexStreamSizeDynamic += FormatInfos[particleVelocity.format].size;
+            vertexStreamSizeDynamic += FormatInfos[particleVelocity.format].scale;
         }
         this._vertexStreamSize = vertexStreamSizeDynamic;
         return vertexStreamAttributes;

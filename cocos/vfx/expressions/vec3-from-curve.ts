@@ -51,7 +51,7 @@ export class Vec3FromCurveExpression extends Vec3Expression {
 
     @type(Vec3Expression)
     @serializable
-    public curveScaler: Vec3Expression = new ConstantVec3Expression(Vec3.ONE);
+    public scale: Vec3Expression = new ConstantVec3Expression(Vec3.ONE);
 
     public get isConstant (): boolean {
         return false;
@@ -74,17 +74,17 @@ export class Vec3FromCurveExpression extends Vec3Expression {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameters(context.executionStage === ModuleExecStage.UPDATE
-            ? BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME : BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
-        this.curveScaler.tick(particles, emitter, user, context);
+            ? BuiltinParticleParameterFlags.NORMALIZED_AGE : BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+        this.scale.tick(particles, emitter, user, context);
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        this._time = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAliveTime.data : particles.spawnNormalizedTime.data;
-        this.curveScaler.bind(particles, emitter, user, context);
+        this._time = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
+        this.scale.bind(particles, emitter, user, context);
     }
 
     public evaluate (index: number, out: Vec3) {
-        this.curveScaler.evaluate(index, ratio);
+        this.scale.evaluate(index, ratio);
         const time = this._time[index];
         out.x = this.x.evaluate(time) * ratio.x;
         out.y = this.y.evaluate(time) * ratio.y;
@@ -93,7 +93,7 @@ export class Vec3FromCurveExpression extends Vec3Expression {
     }
 
     public evaluateSingle (time: number, randomStream: RandomStream, out: Vec3): Vec3 {
-        this.curveScaler.evaluateSingle(time, randomStream, out);
+        this.scale.evaluateSingle(time, randomStream, out);
         out.x = this.x.evaluate(time) * ratio.x;
         out.y = this.y.evaluate(time) * ratio.y;
         out.z = this.z.evaluate(time) * ratio.z;

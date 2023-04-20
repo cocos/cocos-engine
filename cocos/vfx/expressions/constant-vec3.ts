@@ -31,7 +31,7 @@ import { RandomStream } from '../random-stream';
 import { UserDataSet } from '../user-data-set';
 import { Vec3Expression } from './vec3';
 
-@ccclass('cc.ConstantVec3')
+@ccclass('cc.ConstantVec3Expression')
 export class ConstantVec3Expression extends Vec3Expression {
     @type(CCFloat)
     @serializable

@@ -28,13 +28,13 @@ import { approx, CCFloat, Color, Vec3 } from '../../core';
 import { ParticleEventType, Space } from '../enum';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleColorParameter, ParticleVec3Parameter } from '../particle-parameter';
+import { ColorArrayParameter, Vec3ArrayParameter } from '../particle-parameter';
 import { ModuleExecContext, VFXEmitterParams, VFXEventInfo, VFXEmitterState } from '../base';
 import { RandomStream } from '../random-stream';
 
 const eventInfo = new VFXEventInfo();
 const requiredParameters = BuiltinParticleParameterFlags.INV_START_LIFETIME | BuiltinParticleParameterFlags.RANDOM_SEED
-| BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME | BuiltinParticleParameterFlags.ID;
+| BuiltinParticleParameterFlags.NORMALIZED_AGE | BuiltinParticleParameterFlags.ID;
 
 @ccclass('cc.LocationEventGeneratorModule')
 @VFXModule.register('LocationEventGenerator', ModuleExecStageFlags.UPDATE, [], [ParameterName.POSITION, ParameterName.VELOCITY, ParameterName.COLOR])
@@ -55,7 +55,7 @@ export class LocationEventGeneratorModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const normalizedAliveTime = particles.normalizedAliveTime.data;
+        const normalizedAge = particles.normalizedAge.data;
         const randomSeed = particles.randomSeed.data;
         const invStartLifeTime = particles.invStartLifeTime.data;
         const id = particles.id.data;
@@ -65,14 +65,14 @@ export class LocationEventGeneratorModule extends VFXModule {
         const { simulationSpace } = params;
         const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
         const hasRotation = particles.hasParameter(BuiltinParticleParameter.ROTATION);
-        const hasSize = particles.hasParameter(BuiltinParticleParameter.SIZE);
+        const hasSize = particles.hasParameter(BuiltinParticleParameter.SCALE);
         const hasColor = particles.hasParameter(BuiltinParticleParameter.COLOR);
         const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
-        let velocity: ParticleVec3Parameter | null = null;
-        let rotation: ParticleVec3Parameter | null = null;
-        let size: ParticleVec3Parameter | null = null;
-        let color: ParticleColorParameter | null = null;
-        let position: ParticleVec3Parameter | null = null;
+        let velocity: Vec3ArrayParameter | null = null;
+        let rotation: Vec3ArrayParameter | null = null;
+        let scale: Vec3ArrayParameter | null = null;
+        let color: ColorArrayParameter | null = null;
+        let position: Vec3ArrayParameter | null = null;
         if (hasVelocity) {
             velocity = particles.velocity;
         }
@@ -80,7 +80,7 @@ export class LocationEventGeneratorModule extends VFXModule {
             rotation = particles.rotation;
         }
         if (hasSize) {
-            size = particles.size;
+            scale = particles.scale;
         }
         if (hasColor) {
             color = particles.color;
@@ -95,30 +95,30 @@ export class LocationEventGeneratorModule extends VFXModule {
                 }
                 Vec3.zero(eventInfo.position);
                 Vec3.zero(eventInfo.velocity);
-                Vec3.copy(eventInfo.size, Vec3.ONE);
+                Vec3.copy(eventInfo.scale, Vec3.ONE);
                 Vec3.zero(eventInfo.rotation);
                 Color.copy(eventInfo.color, Color.WHITE);
                 if (hasPosition) {
-                    (position as ParticleVec3Parameter).getVec3At(eventInfo.position, i);
+                    (position as Vec3ArrayParameter).getVec3At(eventInfo.position, i);
                 }
                 if (hasVelocity) {
-                    (velocity as ParticleVec3Parameter).getVec3At(eventInfo.velocity, i);
+                    (velocity as Vec3ArrayParameter).getVec3At(eventInfo.velocity, i);
                 }
                 if (hasRotation) {
-                    (rotation as ParticleVec3Parameter).getVec3At(eventInfo.rotation, i);
+                    (rotation as Vec3ArrayParameter).getVec3At(eventInfo.rotation, i);
                 }
                 if (hasSize) {
-                    (size as ParticleVec3Parameter).getVec3At(eventInfo.size, i);
+                    (scale as Vec3ArrayParameter).getVec3At(eventInfo.scale, i);
                 }
                 if (hasColor) {
-                    (color as ParticleColorParameter).getColorAt(eventInfo.color, i);
+                    (color as ColorArrayParameter).getColorAt(eventInfo.color, i);
                 }
                 if (simulationSpace === Space.LOCAL) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);
                     Vec3.transformMat4(eventInfo.velocity, eventInfo.velocity, localToWorld);
                 }
                 eventInfo.particleId = id[i];
-                eventInfo.currentTime = 1 / invStartLifeTime[i] * normalizedAliveTime[i];
+                eventInfo.currentTime = 1 / invStartLifeTime[i] * normalizedAge[i];
                 eventInfo.prevTime = eventInfo.currentTime - deltaTime;
                 eventInfo.randomSeed = randomSeed[i];
                 eventInfo.type = ParticleEventType.LOCATION;

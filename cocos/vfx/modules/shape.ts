@@ -156,13 +156,13 @@ export class ShapeModule extends VFXModule {
             this._isTransformDirty = false;
         }
         particles.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.START_DIR);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.INITIAL_DIR);
         particles.markRequiredParameters(BuiltinParticleParameterFlags.VEC3_REGISTER);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const { position, startDir, vec3Register } = particles;
+        const { position, initialDir, vec3Register } = particles;
         const randomPositionAmount = this.randomPositionAmount;
         if (randomPositionAmount > 0) {
             for (let i = fromIndex; i < toIndex; ++i) {
@@ -177,10 +177,10 @@ export class ShapeModule extends VFXModule {
         if (this.sphericalDirectionAmount > 0) {
             for (let i = fromIndex; i < toIndex; ++i) {
                 vec3Register.getVec3At(tmpPosition, i);
-                startDir.getVec3At(tmpDir, i);
+                initialDir.getVec3At(tmpDir, i);
                 const sphericalVel = Vec3.normalize(_intermediVec, tmpPosition);
                 Vec3.lerp(tmpDir, tmpDir, sphericalVel, this.sphericalDirectionAmount);
-                startDir.setVec3At(tmpDir, i);
+                initialDir.setVec3At(tmpDir, i);
             }
         }
 
@@ -190,8 +190,8 @@ export class ShapeModule extends VFXModule {
         }
 
         for (let i = fromIndex; i < toIndex; ++i) {
-            startDir.getVec3At(tmpDir, i);
-            startDir.setVec3At(Vec3.transformQuat(tmpDir, tmpDir, this._quat), i);
+            initialDir.getVec3At(tmpDir, i);
+            initialDir.setVec3At(Vec3.transformQuat(tmpDir, tmpDir, this._quat), i);
         }
     }
 }
