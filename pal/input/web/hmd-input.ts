@@ -97,7 +97,7 @@ export class HMDInputDevice {
     }
 
     private _scanHmd () {
-        const infoList = globalThis.__globalXR.webxrHmdPoseInfos as IPoseInfo[];
+        const infoList = globalThis.__globalXR?.webxrHmdPoseInfos as IPoseInfo[];
         if (!infoList) {
             return;
         }

@@ -490,7 +490,7 @@ export class Root {
             this._fpsTime = 0.0;
         }
 
-        if (globalThis.__globalXR.isWebXR) {
+        if (globalThis.__globalXR?.isWebXR) {
             this._doWebXRFrameMove();
         } else {
             this._frameMoveBegin();
@@ -688,12 +688,14 @@ export class Root {
     }
 
     private _doWebXRFrameMove () {
+        const xr = globalThis.__globalXR;
+        if (!xr || !xr.webXRMatProjs) {
+            return;
+        }
+
         const windows = this._windows;
         const cameraList = this._cameraList;
-
-        let viewCount = 1;
-        const xr = globalThis.__globalXR;
-        viewCount = xr.webXRMatProjs?.length;
+        const viewCount = xr.webXRMatProjs.length;
         if (!xr.webXRWindowMap) {
             xr.webXRWindowMap = new Map<RenderWindow, number>();
         }
@@ -703,7 +705,7 @@ export class Root {
 
             for (let i = 0; i < windows.length; i++) {
                 const window = windows[i];
-                if (window.swapchain && xr.isWebXR) {
+                if (window.swapchain) {
                     xr.webXRWindowMap.set(window, xrEye);
                 }
             }

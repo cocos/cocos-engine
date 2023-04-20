@@ -408,7 +408,7 @@ export class GamepadInputDevice {
     }
 
     private static _scanWebXRGamepadsPose () {
-        const infoList = globalThis.__globalXR.webxrHandlePoseInfos as IPoseInfo[];
+        const infoList = globalThis.__globalXR?.webxrHandlePoseInfos as IPoseInfo[];
         if (!infoList || !GamepadInputDevice.xr) {
             return;
         }
@@ -422,7 +422,7 @@ export class GamepadInputDevice {
     }
 
     private static _getWebXRGamepadMap (): (Map<string, Gamepad> | undefined) {
-        return globalThis.__globalXR.webxrGamepadMap as Map<string, Gamepad>;
+        return globalThis.__globalXR?.webxrGamepadMap as Map<string, Gamepad>;
     }
 
     private static _getWebGamePads (): (WebGamepad | null)[] {
