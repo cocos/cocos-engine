@@ -52,6 +52,36 @@ exports.adapt = function (canvas, width, height) {
         };
     };
 
+    wx.onKeyboardInput = function (cb) {
+        GameGlobal._onKeyboardInput = function (event) {
+            cb(event.detail);
+        };
+    };
+
+    wx.onKeyboardConfirm = function (cb) {
+        GameGlobal._onKeyboardConfirm = function (event) {
+            cb(event.detail);
+        };
+    };
+
+    wx.onKeyboardComplete = function (cb) {
+        GameGlobal._onKeyboardComplete = function (event) {
+            GameGlobal.indexThis.setData({
+                showInput: false,
+            });
+            cb(event.detail);
+        };
+    };
+
+    wx.showKeyboard = function (obj) {
+        GameGlobal.indexThis.setData({
+            showInput: true,
+            isPassword: false,
+            maxLength: obj.maxLength,
+            confirmType: obj.confirmType
+        });
+    };
+
     function handleTouchEvent (event) {
         let changedTouches = event.changedTouches;
         if (changedTouches) {

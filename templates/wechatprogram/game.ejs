@@ -2,6 +2,7 @@ globalThis.__wxRequire = require;
 var GameGlobal = getApp().GameGlobal;
 Page({
     onReady() {
+        GameGlobal.indexThis = this;
         const query = wx.createSelectorQuery()
         query.select('#myCanvas').node().exec(async (res) => {
             const canvas = res[0].node;
@@ -65,6 +66,20 @@ Page({
             }
 
         })
+    },
+
+    onKeyboardInput: function (event) {
+        GameGlobal._onKeyboardInput && GameGlobal._onKeyboardInput(event);
+    },
+
+    onKeyboardConfirm: function (event) {
+        console.log(event.detail.value);
+        GameGlobal._onKeyboardConfirm && GameGlobal._onKeyboardConfirm(event);
+    },
+
+    onKeyboardComplete: function (event) {
+        console.log(event.detail.value);
+        GameGlobal._onKeyboardComplete && GameGlobal._onKeyboardComplete(event);
     },
 
     touchStart(event) {
