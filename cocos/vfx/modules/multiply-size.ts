@@ -114,11 +114,6 @@ export class MultiplySizeModule extends VFXModule {
     @serializable
     private _z: FloatExpression | null = null;
 
-    private _randomOffset = 0;
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._randomOffset = state.randomStream.getUInt32();
-    }
 
     public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         particles.markRequiredParameters(BuiltinParticleParameterFlags.SCALE);

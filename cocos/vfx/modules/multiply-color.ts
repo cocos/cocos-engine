@@ -46,12 +46,6 @@ export class MultiplyColorModule extends VFXModule {
     @displayOrder(1)
     public color = new ColorExpression();
 
-    private _randomOffset = 0;
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._randomOffset = state.randomStream.getUInt32();
-    }
-
     public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         particles.markRequiredParameters(BuiltinParticleParameterFlags.COLOR);
         if (this.color.mode === ColorExpression.Mode.TWO_GRADIENTS || this.color.mode === ColorExpression.Mode.TWO_CONSTANTS || this.color.mode === ColorExpression.Mode.RANDOM_COLOR) {

@@ -30,6 +30,9 @@ import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { ColorExpression } from '../expressions/color';
 import { Color } from '../../core';
 import { RandomStream } from '../random-stream';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
+import { ConstantColorExpression } from '../expressions';
 
 const tempColor = new Color();
 const tempColor2 = new Color();
@@ -47,65 +50,29 @@ export class SetColorModule extends VFXModule {
     @serializable
     @displayOrder(8)
     @tooltip('i18n:particle_system.baseColor')
-    public color = new ColorExpression();
+    public color: ColorExpression = new ConstantColorExpression();
 
-    private _rand = new RandomStream();
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._rand.seed = state.randomStream.getUInt32();
-    }
-
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameters(BuiltinParticleParameterFlags.COLOR);
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_COLOR);
         }
-        if (this.color.mode === ColorExpression.Mode.GRADIENT || this.color.mode === ColorExpression.Mode.TWO_GRADIENTS) {
-            if (context.executionStage === ModuleExecStage.SPAWN) {
-                particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
-            } else {
-                particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
-            }
-        }
-        if (this.color.mode === ColorExpression.Mode.TWO_CONSTANTS || this.color.mode === ColorExpression.Mode.TWO_GRADIENTS || this.color.mode === ColorExpression.Mode.RANDOM_COLOR) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
-        }
+        this.color.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const color = context.executionStage === ModuleExecStage.SPAWN ? particles.baseColor.data : particles.color.data;
         const { fromIndex, toIndex } = context;
-        if (this.color.mode === ColorExpression.Mode.CONSTANT) {
-            const colorNum = Color.toUint32(this.color.color);
+        this.color.bind(particles, emitter, user, context);
+        if (this.color.isConstant) {
+            const colorNum = Color.toUint32(this.color.evaluate(0, tempColor));
             for (let i = fromIndex; i < toIndex; i++) {
                 color[i] = colorNum;
             }
-        } else if (this.color.mode === ColorExpression.Mode.GRADIENT) {
-            const { gradient } = this.color;
-            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
-            for (let i = fromIndex, num = 0; i < toIndex; i++, num++) {
-                color[i] = Color.toUint32(gradient.evaluate(tempColor, normalizedTime[i]));
-            }
-        } else if (this.color.mode === ColorExpression.Mode.TWO_CONSTANTS) {
-            const { colorMin, colorMax } = this.color;
-            const randomSeed = particles.randomSeed.data;
-            for (let i = fromIndex; i < toIndex; i++) {
-                color[i] = Color.toUint32(Color.lerp(tempColor, colorMin, colorMax, RandomStream.getFloat(randomSeed[i] + COLOR_RAND_SEED)));
-            }
-        } else if (this.color.mode === ColorExpression.Mode.TWO_GRADIENTS) {
-            const { gradientMin, gradientMax } = this.color;
-            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
-            const randomSeed = particles.randomSeed.data;
-            for (let i = fromIndex, num = 0; i < toIndex; i++, num++) {
-                const time = normalizedTime[i];
-                color[i] = Color.toUint32(Color.lerp(tempColor,
-                    gradientMin.evaluate(tempColor2, time), gradientMax.evaluate(tempColor3, time), RandomStream.getFloat(randomSeed[i] + COLOR_RAND_SEED)));
-            }
         } else {
-            const { gradient } = this.color;
-            const randomSeed = particles.randomSeed.data;
-            for (let i = fromIndex; i < toIndex; ++i) {
-                color[i] = Color.toUint32(gradient.evaluate(tempColor, RandomStream.getFloat(randomSeed[i] + COLOR_RAND_SEED)));
+            for (let i = fromIndex; i < toIndex; i++) {
+                const colorNum = Color.toUint32(this.color.evaluate(i, tempColor));
+                color[i] = colorNum;
             }
         }
     }

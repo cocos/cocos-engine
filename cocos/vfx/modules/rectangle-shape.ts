@@ -27,6 +27,8 @@ import { ShapeModule } from './shape';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 @ccclass('cc.RectangleShapeModule')
 @VFXModule.register('RectangleShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])

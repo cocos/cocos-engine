@@ -44,12 +44,6 @@ export class LocationEventGeneratorModule extends VFXModule {
     @serializable
     public probability = 1;
 
-    private _randomOffset = 0;
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._randomOffset = state.randomStream.getUInt32();
-    }
-
     public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         particles.markRequiredParameters(requiredParameters);
     }

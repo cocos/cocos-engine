@@ -24,16 +24,14 @@
  */
 
 import { ccclass, tooltip, range, type, serializable } from 'cc.decorator';
-import { Enum, lerp, Mat3, Vec3 } from '../../core';
+import { Enum, Mat3, Vec3 } from '../../core';
 import { Space } from '../enum';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
-import { FloatExpression } from '../expressions/float';
-import { RandomStream } from '../random-stream';
+import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
-import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 
 const tempVelocity = new Vec3();
 const seed = new Vec3();
