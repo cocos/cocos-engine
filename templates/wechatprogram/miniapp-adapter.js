@@ -54,15 +54,13 @@ exports.adapt = function (canvas, width, height) {
 
     wx.onKeyboardInput = function (cb) {
         GameGlobal._onKeyboardInput = function (event) {
-            let res = event.detail;
-            cb(res);
+            cb(event.detail);
         };
     };
 
     wx.onKeyboardConfirm = function (cb) {
         GameGlobal._onKeyboardConfirm = function (event) {
-            let res = event.detail;
-            cb(res);
+            cb(event.detail);
         };
     };
 
@@ -71,8 +69,7 @@ exports.adapt = function (canvas, width, height) {
             GameGlobal.indexThis.setData({
                 showInput: false,
             });
-            let res = event.detail;
-            cb(res);
+            cb(event.detail);
         };
     };
 
