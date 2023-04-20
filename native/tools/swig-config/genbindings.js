@@ -46,9 +46,9 @@ if (hostName == 'darwin') {
 }
 
 // Release
-const SWIG_ROOT = path.join(COCOS_NATIVE_ROOT, 'external', hostName, 'bin', 'swig');
-const SWIG_EXE = path.join(SWIG_ROOT, 'bin', 'swig') + exeSuffix;
-const SWIG_LIB_ARRAY = [
+const SWIG_ROOT=path.join(COCOS_NATIVE_ROOT, 'external', hostName, 'bin', 'swig');
+const SWIG_EXE=path.join(SWIG_ROOT, 'bin', 'swig') + exeSuffix;
+const SWIG_LIB_ARRAY=[
     path.join(SWIG_ROOT, 'share', 'swig', '4.1.0', 'javascript', 'cocos'),
     path.join(SWIG_ROOT, 'share', 'swig', '4.1.0'),
 ];
@@ -90,7 +90,7 @@ let swigConfig = {
 };
 
 function makeSwigConfig(configJSPath) {
-    const configObj = require(configJSPath);
+    const configObj = require(configJSPath); 
     const configJSDir = path.dirname(configJSPath);
 
     function resolveDir(dir) {
@@ -102,7 +102,7 @@ function makeSwigConfig(configJSPath) {
             assert(fs.existsSync(dir), `${dir} doesn't exist`);
             return dir;
         }
-
+        
         return null;
     }
 
@@ -120,7 +120,7 @@ function makeSwigConfig(configJSPath) {
     const interfacesDir = resolveDir(configObj.interfacesDir);
     const bindingsOutDir = resolveDir(configObj.bindingsOutDir);
     const configList = [];
-
+    
     for (let oneConfig of configObj.configList) {
         let interfaceFile = path.normalize(oneConfig[0]);
         let outputFile = path.normalize(oneConfig[1]);
@@ -144,7 +144,7 @@ function makeSwigConfig(configJSPath) {
         const outputDir = path.dirname(outputFile);
         assert(fs.existsSync(outputDir), `${outputDir} doesn't exist`);
 
-        configList.push([interfaceFile, outputFile]);
+        configList.push([ interfaceFile, outputFile ]);
     }
 
     return {
@@ -155,8 +155,22 @@ function makeSwigConfig(configJSPath) {
 }
 
 const commandLineArgs = process.argv.slice(2);
-if (commandLineArgs.includes('--help') || commandLineArgs.includes('-h')) {
-    console.log(`
+if (commandLineArgs.length === 0) {
+    const SWIG_CONFIG_FILE_NAME = 'swig-config.js';
+    let swigConfigPathPriority = [
+        path.join(WORK_DIR, SWIG_CONFIG_FILE_NAME),
+        path.join(SCRIPT_DIR, SWIG_CONFIG_FILE_NAME)
+    ];
+
+    for (const swigConfigPath of swigConfigPathPriority) {
+        if (fs.existsSync(swigConfigPath)) {
+            swigConfig = makeSwigConfig(swigConfigPath);
+            break;
+        }
+    }
+} else {
+    if (commandLineArgs.includes('--help') || commandLineArgs.includes('-h')) {
+        console.log(`
 Usage: node genbindings.js [arguments]
        
        node genbindings.js   : Without arguments, the tool will generate binding code by the 'swig-config.js' file in current workspace
@@ -197,17 +211,18 @@ Usage: node genbindings.js [arguments]
             };
 
         `);
-    process.exit(EXIT_CODE_SUCCESS);
-}
+        process.exit(EXIT_CODE_SUCCESS);
+    }
 
-console.log(`==> commandLineArgs: ${commandLineArgs}`);
+    console.log(`==> commandLineArgs: ${commandLineArgs}`);
 
-const configIndex = commandLineArgs.indexOf('-c');
-if (configIndex !== -1) {
-    swigConfig = makeSwigConfig(ensureAbsolutePath(WORK_DIR, commandLineArgs[configIndex + 1]));
-} else {
-    console.error(`==> ERROR: Could not find -c argument`);
-    process.exit(EXIT_CODE_WRONG_ARGUMENT);
+    const configIndex = commandLineArgs.indexOf('-c');
+    if (configIndex !== -1) {
+        swigConfig = makeSwigConfig(ensureAbsolutePath(WORK_DIR, commandLineArgs[configIndex+1]));
+    } else {
+        console.error(`==> ERROR: Could not find -c argument`);
+        process.exit(EXIT_CODE_WRONG_ARGUMENT);
+    }
 }
 
 function generateBindings(swigArgs, interfaceFile, generatedCppFile) {
