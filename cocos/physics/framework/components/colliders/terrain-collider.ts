@@ -35,7 +35,9 @@ import { Collider } from './collider';
 import { ITerrainShape } from '../../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../../spec/i-external';
 import { TerrainAsset } from '../../../../terrain/terrain-asset';
-import { EColliderType } from '../../physics-enum';
+import { EColliderType, ERigidBodyType } from '../../physics-enum';
+import { RigidBody } from '../rigid-body';
+import { warnID } from '../../../../core';
 
 /**
  * @en
@@ -75,6 +77,17 @@ export class TerrainCollider extends Collider {
      */
     get shape () {
         return this._shape as ITerrainShape;
+    }
+
+    protected onEnable () {
+        super.onEnable();
+
+        if (this.node) {
+            const body = this.node.getComponent(RigidBody);
+            if (body && body.isValid && (body.type === ERigidBodyType.DYNAMIC)) {
+                warnID(9630, this.node.name);
+            }
+        }
     }
 
     /// PRIVATE PROPERTY ///

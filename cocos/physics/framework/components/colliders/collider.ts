@@ -29,7 +29,6 @@ import { Eventify, Vec3, error, geometry } from '../../../../core';
 import { CollisionEventType, TriggerEventType } from '../../physics-interface';
 import { RigidBody } from '../rigid-body';
 import { PhysicsMaterial } from '../../assets/physics-material';
-import { PhysicsSystem } from '../../physics-system';
 import { Component, Node } from '../../../../scene-graph';
 import { IBaseShape } from '../../../spec/i-physics-shape';
 import { EColliderType, EAxisDirection } from '../../physics-enum';

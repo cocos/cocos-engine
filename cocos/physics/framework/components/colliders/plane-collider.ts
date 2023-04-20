@@ -32,10 +32,11 @@ import {
     editable,
     serializable,
 } from 'cc.decorator';
-import { Vec3 } from '../../../../core';
+import { Vec3, warnID } from '../../../../core';
 import { Collider } from './collider';
 import { IPlaneShape } from '../../../spec/i-physics-shape';
-import { EColliderType } from '../../physics-enum';
+import { EColliderType, ERigidBodyType } from '../../physics-enum';
+import { RigidBody } from '../rigid-body';
 
 /**
  * @en
@@ -98,6 +99,17 @@ export class PlaneCollider extends Collider {
      */
     public get shape () {
         return this._shape as IPlaneShape;
+    }
+
+    protected onEnable () {
+        super.onEnable();
+
+        if (this.node) {
+            const body = this.node.getComponent(RigidBody);
+            if (body && body.isValid && (body.type === ERigidBodyType.DYNAMIC)) {
+                warnID(9630, this.node.name);
+            }
+        }
     }
 
     /// PRIVATE PROPERTY ///

@@ -35,7 +35,9 @@ import {
 import { Collider } from './collider';
 import { Mesh } from '../../../../3d/assets';
 import { ITrimeshShape } from '../../../spec/i-physics-shape';
-import { EColliderType } from '../../physics-enum';
+import { EColliderType, ERigidBodyType } from '../../physics-enum';
+import { warnID } from '../../../../core';
+import { RigidBody } from '../rigid-body';
 
 /**
  * @en
@@ -95,6 +97,17 @@ export class MeshCollider extends Collider {
      */
     get shape () {
         return this._shape as ITrimeshShape;
+    }
+
+    protected onEnable () {
+        super.onEnable();
+
+        if (this.node) {
+            const body = this.node.getComponent(RigidBody);
+            if (body && body.isValid && (body.type === ERigidBodyType.DYNAMIC) && !this.convex) {
+                warnID(9630, this.node.name);
+            }
+        }
     }
 
     /// PRIVATE PROPERTY ///
