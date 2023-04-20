@@ -472,7 +472,7 @@ void XRInterface::initialize(void *javaVM, void *activity) {
                 _gThreadPool = LegacyThreadPool::newSingleThreadPool();
             }
             _gThreadPool->pushTask([imagePath, this](int /*tid*/) {
-              asyncLoadAssetsImage(imagePath);
+              this->asyncLoadAssetsImage(imagePath);
             });
         }
     });
@@ -1152,10 +1152,10 @@ void XRInterface::asyncLoadAssetsImage(const std::string &imagePath) {
       imageData->buffer = buffer;
       imageData->pixelSizeWidth = imageWidth;
       imageData->pixelSizeHeight = imageHeight;
-      if (!getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer()) {
+      if (!this->getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer()) {
           auto *imagesMapPtr = new std::unordered_map<std::string, void *>();
           (*imagesMapPtr).emplace(std::make_pair(imagePath, static_cast<void *>(imageData)));
-          setXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS, static_cast<void *>(imagesMapPtr));
+          this->setXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS, static_cast<void *>(imagesMapPtr));
       } else {
           auto *imagesMapPtr = static_cast<std::unordered_map<std::string,
                                                               void *> *>(getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer());
