@@ -196,6 +196,8 @@ class SystemInfo extends EventTarget {
 
         const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || EDITOR);
         const supportMouse = document.documentElement.onmouseup !== undefined || EDITOR;
+        // NOTE: xr is not totally supported on web
+        const supportXR = typeof (navigator as any).xr !== 'undefined';
         this._featureMap = {
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BITMAP]: false,      // Initialize in Promise
@@ -209,11 +211,10 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_TOUCH]: supportTouch || supportMouse,
             [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
             // @ts-expect-error undefined webkitGetGamepads
-            [Feature.EVENT_GAMEPAD]: (navigator.getGamepads !== undefined || navigator.webkitGetGamepads !== undefined),
+            [Feature.EVENT_GAMEPAD]: (navigator.getGamepads !== undefined || navigator.webkitGetGamepads !== undefined || supportXR),
             [Feature.EVENT_HANDLE]: EDITOR || PREVIEW,
-            [Feature.EVENT_HMD]: this.isXR,
-            // @ts-expect-error undefined xr
-            [Feature.EVENT_HANDHELD]: (typeof navigator.xr !== 'undefined'),
+            [Feature.EVENT_HMD]: supportXR,
+            [Feature.EVENT_HANDHELD]: supportXR,
         };
 
         this._initPromise = [];
