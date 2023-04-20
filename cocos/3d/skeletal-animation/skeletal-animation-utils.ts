@@ -493,7 +493,6 @@ export class JointAnimationInfo {
         info.currentClip = clip;
         info.data[0] = 0; // reset default frame 0
         info.buffer.update(info.data);
-        info.data[0] = -1; // reset frame index to -1. sampleCurves will calculate frame to 0.
         info.dirty = false;
         if (JSB) {
             info.dirtyForJSB[0] = 0;
