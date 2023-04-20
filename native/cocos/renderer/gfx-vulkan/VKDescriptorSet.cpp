@@ -185,11 +185,6 @@ void CCVKDescriptorSet::update() {
     }
 }
 
-void CCVKDescriptorSet::forceUpdate() {
-    _isDirty = true;
-    update();
-}
-
 void CCVKGPUDescriptorSet::shutdown() {
     CCVKDevice *device = CCVKDevice::getInstance();
     CCVKGPUDescriptorHub *descriptorHub = CCVKDevice::getInstance()->gpuDescriptorHub();

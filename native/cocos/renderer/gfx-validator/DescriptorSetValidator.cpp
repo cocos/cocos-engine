@@ -103,12 +103,6 @@ void DescriptorSetValidator::update() {
     _isDirty = false;
 }
 
-void DescriptorSetValidator::forceUpdate() {
-    _isDirty = true;
-    _actor->forceUpdate();
-    _isDirty = false;
-}
-
 void DescriptorSetValidator::updateReferenceStamp() {
     _referenceStamp = DeviceValidator::getInstance()->currentFrame();
 }

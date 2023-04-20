@@ -290,7 +290,6 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
         gpuDevice->curBackBufferIndex = 0;
         _gpuSwapchain->curImageIndex = 0;
-        CCVKDevice::getInstance()->updateBackBufferCount(imageCount);
         CCVKDevice::getInstance()->waitAllFences();
         CC_LOG_INFO("Resizing surface: %dx%d, surface rotation: %d degrees", newWidth, newHeight, static_cast<uint32_t>(_transform) * 90);
     } else {
@@ -342,7 +341,6 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         _gpuSwapchain->vkSwapchain = vkSwapchain;
 
         VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, nullptr));
-        CCVKDevice::getInstance()->updateBackBufferCount(imageCount);
         _gpuSwapchain->swapchainImages.resize(imageCount);
         VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
     }

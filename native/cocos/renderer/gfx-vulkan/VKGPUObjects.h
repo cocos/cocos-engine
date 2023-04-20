@@ -232,7 +232,7 @@ struct CCVKGPUBuffer : public CCVKGPUDeviceObject {
     ThsvsAccessType transferAccess = THSVS_ACCESS_NONE;
 
     VkDeviceSize getStartOffset(uint32_t curBackBufferIndex) const {
-        return instanceSize * curBackBufferIndex;
+        return hasFlag(flags, BufferFlagBit::DYNAMIC_BIT) ? instanceSize * curBackBufferIndex : 0;
     }
 };
 
@@ -434,7 +434,7 @@ public:
     VkFormat depthStencilFormat{VK_FORMAT_UNDEFINED};
 
     uint32_t curBackBufferIndex{0U};
-    uint32_t backBufferCount{3U};
+    uint32_t backBufferCount{2U};
 
     bool useDescriptorUpdateTemplate{false};
     bool useMultiDrawIndirect{false};
@@ -983,7 +983,7 @@ public:
 private:
     void doUpdate(const CCVKGPUBufferView *buffer, VkDescriptorBufferInfo *descriptor) {
         descriptor->buffer = buffer->gpuBuffer->vkBuffer;
-        descriptor->offset = buffer->getStartOffset(0);
+        descriptor->offset = buffer->offset;
         descriptor->range = buffer->range;
     }
 
@@ -1256,52 +1256,5 @@ private:
     ccstd::unordered_set<CCVKGPUTexture *> _texturesToBeChecked;
     CCVKGPUDevice *_device = nullptr;
 };
-
-/**
- * Manages buffer update events, across all back buffer instances.
- */
-class CCVKGPUBufferHub final {
-public:
-    explicit CCVKGPUBufferHub(CCVKGPUDevice *device)
-    : _device(device) {
-        _buffersToBeUpdated.resize(device->backBufferCount);
-    }
-
-    void record(CCVKGPUBuffer *gpuBuffer, uint32_t backBufferIndex, size_t size, bool canMemcpy) {
-        for (uint32_t i = 0U; i < _device->backBufferCount; ++i) {
-            if (i == backBufferIndex) {
-                _buffersToBeUpdated[i].erase(gpuBuffer);
-            } else {
-                _buffersToBeUpdated[i][gpuBuffer] = {backBufferIndex, size, canMemcpy};
-            }
-        }
-    }
-
-    void erase(CCVKGPUBuffer *gpuBuffer) {
-        for (uint32_t i = 0U; i < _device->backBufferCount; ++i) {
-            if (_buffersToBeUpdated[i].count(gpuBuffer)) {
-                _buffersToBeUpdated[i].erase(gpuBuffer);
-            }
-        }
-    }
-
-    void updateBackBufferCount(uint32_t backBufferCount) {
-        _buffersToBeUpdated.resize(backBufferCount);
-    }
-
-    void flush(CCVKGPUTransportHub *transportHub);
-
-private:
-    struct BufferUpdate {
-        uint32_t srcIndex = 0U;
-        size_t size = 0U;
-        bool canMemcpy = false;
-    };
-
-    ccstd::vector<ccstd::unordered_map<CCVKGPUBuffer *, BufferUpdate>> _buffersToBeUpdated;
-
-    CCVKGPUDevice *_device = nullptr;
-};
-
 } // namespace gfx
 } // namespace cc

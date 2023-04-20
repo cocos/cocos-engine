@@ -38,7 +38,6 @@ public:
     ~GLES2DescriptorSet() override;
 
     void update() override;
-    void forceUpdate() override;
 
     inline GLES2GPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
 

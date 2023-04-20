@@ -36,8 +36,5 @@ void EmptyDescriptorSet::doDestroy() {
 void EmptyDescriptorSet::update() {
 }
 
-void EmptyDescriptorSet::forceUpdate() {
-}
-
 } // namespace gfx
 } // namespace cc
