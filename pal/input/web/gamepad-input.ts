@@ -90,7 +90,7 @@ interface PoseInfo {
     readonly orientation: DOMPointReadOnly;
 }
 
-type NativePoseState = Record<Pose, IPoseValue>
+type WebPoseState = Record<Pose, IPoseValue>
 
 interface IAxisValue {
     negative: number;
@@ -174,7 +174,7 @@ export class GamepadInputDevice {
     private _deviceId = -1;
     private _connected = false;
 
-    private _nativePoseState: NativePoseState = {
+    private _webPoseState: WebPoseState = {
         [Pose.HAND_LEFT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
         [Pose.HAND_RIGHT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
         [Pose.AIM_LEFT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
@@ -410,7 +410,7 @@ export class GamepadInputDevice {
 
         for (let i = 0; i < infoList.length; ++i) {
             const info = infoList[i];
-            GamepadInputDevice.xr._updateNativePoseState(info);
+            GamepadInputDevice.xr._updateWebPoseState(info);
         }
         GamepadInputDevice._eventTarget.emit(InputEventType.HANDLE_POSE_INPUT,
             new EventGamepad(InputEventType.HANDLE_POSE_INPUT, GamepadInputDevice.xr));
@@ -453,13 +453,13 @@ export class GamepadInputDevice {
         }
     }
 
-    private _updateNativePoseState (info: PoseInfo) {
+    private _updateWebPoseState (info: PoseInfo) {
         if (info.code !== Pose.HAND_LEFT && info.code !== Pose.AIM_LEFT
              && info.code !== Pose.HAND_RIGHT && info.code !== Pose.AIM_RIGHT) {
             return;
         }
 
-        this._nativePoseState[info.code] = {
+        this._webPoseState[info.code] = {
             position: new Vec3(info.position.x, info.position.y, info.position.z),
             orientation: new Quat(info.orientation.x, info.orientation.y, info.orientation.z, info.orientation.w),
         };
@@ -824,23 +824,23 @@ export class GamepadInputDevice {
         };
 
         this._handLeftPosition = new InputSourcePosition();
-        this._handLeftPosition.getValue = () => this._nativePoseState[Pose.HAND_LEFT].position;
+        this._handLeftPosition.getValue = () => this._webPoseState[Pose.HAND_LEFT].position;
         this._handLeftOrientation = new InputSourceOrientation();
-        this._handLeftOrientation.getValue = () => this._nativePoseState[Pose.HAND_LEFT].orientation;
+        this._handLeftOrientation.getValue = () => this._webPoseState[Pose.HAND_LEFT].orientation;
 
         this._handRightPosition = new InputSourcePosition();
-        this._handRightPosition.getValue = () => this._nativePoseState[Pose.HAND_RIGHT].position;
+        this._handRightPosition.getValue = () => this._webPoseState[Pose.HAND_RIGHT].position;
         this._handRightOrientation = new InputSourceOrientation();
-        this._handRightOrientation.getValue = () => this._nativePoseState[Pose.HAND_RIGHT].orientation;
+        this._handRightOrientation.getValue = () => this._webPoseState[Pose.HAND_RIGHT].orientation;
 
         this._aimLeftPosition = new InputSourcePosition();
-        this._aimLeftPosition.getValue = () => this._nativePoseState[Pose.AIM_LEFT].position;
+        this._aimLeftPosition.getValue = () => this._webPoseState[Pose.AIM_LEFT].position;
         this._aimLeftOrientation = new InputSourceOrientation();
-        this._aimLeftOrientation.getValue = () => this._nativePoseState[Pose.AIM_LEFT].orientation;
+        this._aimLeftOrientation.getValue = () => this._webPoseState[Pose.AIM_LEFT].orientation;
 
         this._aimRightPosition = new InputSourcePosition();
-        this._aimRightPosition.getValue = () => this._nativePoseState[Pose.AIM_RIGHT].position;
+        this._aimRightPosition.getValue = () => this._webPoseState[Pose.AIM_RIGHT].position;
         this._aimRightOrientation = new InputSourceOrientation();
-        this._aimRightOrientation.getValue = () => this._nativePoseState[Pose.AIM_RIGHT].orientation;
+        this._aimRightOrientation.getValue = () => this._webPoseState[Pose.AIM_RIGHT].orientation;
     }
 }

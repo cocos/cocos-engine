@@ -47,7 +47,7 @@ interface PoseInfo {
     readonly orientation: DOMPointReadOnly;
 }
 
-type NativePoseState = Record<Pose, IPoseValue>
+type WebPoseState = Record<Pose, IPoseValue>
 
 export class HMDInputDevice {
     public get viewLeftPosition () { return this._viewLeftPosition; }
@@ -67,7 +67,7 @@ export class HMDInputDevice {
     private _headMiddlePosition!: InputSourcePosition;
     private _headMiddleOrientation!: InputSourceOrientation;
 
-    private _nativePoseState: NativePoseState = {
+    private _webPoseState: WebPoseState = {
         [Pose.VIEW_LEFT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
         [Pose.VIEW_RIGHT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
         [Pose.HEAD_MIDDLE]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
@@ -104,7 +104,7 @@ export class HMDInputDevice {
 
         for (let i = 0; i < infoList.length; ++i) {
             const info = infoList[i];
-            this._updateNativePoseState(info);
+            this._updateWebPoseState(info);
         }
         this._eventTarget.emit(InputEventType.HMD_POSE_INPUT, new EventHMD(InputEventType.HMD_POSE_INPUT, this));
     }
@@ -116,12 +116,12 @@ export class HMDInputDevice {
         this._eventTarget.on(eventType, callback, target);
     }
 
-    private _updateNativePoseState (info: PoseInfo) {
+    private _updateWebPoseState (info: PoseInfo) {
         if (info.code !== Pose.VIEW_LEFT && info.code !== Pose.VIEW_RIGHT && info.code !== Pose.HEAD_MIDDLE) {
             return;
         }
 
-        this._nativePoseState[info.code] = {
+        this._webPoseState[info.code] = {
             position: new Vec3(info.position.x, info.position.y, info.position.z),
             orientation: new Quat(info.orientation.x, info.orientation.y, info.orientation.z, info.orientation.w),
         };
@@ -129,18 +129,18 @@ export class HMDInputDevice {
 
     private _initInputSource () {
         this._viewLeftPosition = new InputSourcePosition();
-        this._viewLeftPosition.getValue = () => this._nativePoseState[Pose.VIEW_LEFT].position;
+        this._viewLeftPosition.getValue = () => this._webPoseState[Pose.VIEW_LEFT].position;
         this._viewLeftOrientation = new InputSourceOrientation();
-        this._viewLeftOrientation.getValue = () => this._nativePoseState[Pose.VIEW_LEFT].orientation;
+        this._viewLeftOrientation.getValue = () => this._webPoseState[Pose.VIEW_LEFT].orientation;
 
         this._viewRightPosition = new InputSourcePosition();
-        this._viewRightPosition.getValue = () => this._nativePoseState[Pose.VIEW_RIGHT].position;
+        this._viewRightPosition.getValue = () => this._webPoseState[Pose.VIEW_RIGHT].position;
         this._viewRightOrientation = new InputSourceOrientation();
-        this._viewRightOrientation.getValue = () => this._nativePoseState[Pose.VIEW_RIGHT].orientation;
+        this._viewRightOrientation.getValue = () => this._webPoseState[Pose.VIEW_RIGHT].orientation;
 
         this._headMiddlePosition = new InputSourcePosition();
-        this._headMiddlePosition.getValue = () => this._nativePoseState[Pose.HEAD_MIDDLE].position;
+        this._headMiddlePosition.getValue = () => this._webPoseState[Pose.HEAD_MIDDLE].position;
         this._headMiddleOrientation = new InputSourceOrientation();
-        this._headMiddleOrientation.getValue = () => this._nativePoseState[Pose.HEAD_MIDDLE].orientation;
+        this._headMiddleOrientation.getValue = () => this._webPoseState[Pose.HEAD_MIDDLE].orientation;
     }
 }
