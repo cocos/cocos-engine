@@ -80,19 +80,23 @@ export class PhysXCharacterController implements IBaseCharacterController {
             error('[Physics]: PhysXCharacterController Initialize createCapsuleCharacterController Failed');
             return false;
         } else {
-            this.setDetectCollisions(this._comp.detectCollisions);
-            this.setOverlapRecovery(this._comp.enableOverlapRecovery);
-            (PhysicsSystem.instance.physicsWorld as PhysXWorld).addCCT(this);
             return true;
         }
     }
 
     onEnable (): void {
         this._isEnabled = true;
+        if (!this._impl) {
+            this.onComponentSet();
+        }
+        this.setDetectCollisions(this._comp.detectCollisions);
+        this.setOverlapRecovery(this._comp.enableOverlapRecovery);
+        (PhysicsSystem.instance.physicsWorld as PhysXWorld).addCCT(this);
     }
 
     onDisable (): void {
         this._isEnabled = false;
+        this.onDestroy();
     }
 
     onLoad (): void {
@@ -140,6 +144,10 @@ export class PhysXCharacterController implements IBaseCharacterController {
         this._impl.setCollision(value);
     }
 
+    setQuery (value: boolean): void {
+        this._impl.setQuery(value);
+    }
+
     setOverlapRecovery (value: boolean): void {
         this._overlapRecovery = value;
     }
@@ -177,6 +185,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     };
 
     move (movement: IVec3Like, minDist: number, elapsedTime: number) {
+        if (!this._isEnabled) { return; }
         (PhysicsSystem.instance.physicsWorld as PhysXWorld).controllerManager.setOverlapRecoveryModule(this._overlapRecovery);
         this._pxCollisionFlags = this._impl.move(movement, minDist, elapsedTime, this.filterData, this.queryFilterCB);
     }

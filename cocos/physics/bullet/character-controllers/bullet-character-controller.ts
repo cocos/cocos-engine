@@ -71,10 +71,6 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
             error('[Physics]: BulletCharacterController initialize createCapsuleCharacterController failed');
             return false;
         } else {
-            this.setDetectCollisions(this._comp.detectCollisions);
-            this.setOverlapRecovery(this._comp.enableOverlapRecovery);
-            (PhysicsSystem.instance.physicsWorld as BulletWorld).addCCT(this);
-            this.setWrapper();
             return true;
         }
     }
@@ -85,17 +81,26 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
 
     onEnable (): void {
         this._isEnabled = true;
+        if (!this._impl) {
+            this.onComponentSet();
+        }
+        this.setDetectCollisions(this._comp.detectCollisions);
+        this.setOverlapRecovery(this._comp.enableOverlapRecovery);
+        (PhysicsSystem.instance.physicsWorld as BulletWorld).addCCT(this);
+        this.setWrapper();
     }
 
     onDisable (): void {
         this._isEnabled = false;
+        this.onDestroy();
     }
 
     onDestroy (): void {
-        (this._comp as any) = null;
+        //(this._comp as any) = null;
         (PhysicsSystem.instance.physicsWorld as BulletWorld).removeCCT(this);
         bt._safe_delete(this._impl, EBulletType.EBulletTypeCharacterController);
         BulletCache.delWrapper(this._impl, bt.CCT_CACHE_NAME);
+        this._impl = null;
     }
 
     onLoad (): void {
@@ -141,6 +146,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     }
 
     move (movement: IVec3Like, minDist: number, elapsedTime: number) {
+        if (!this._isEnabled) { return; }
         const movementBT = BulletCache.instance.BT_V3_0;
         bt.Vec3_set(movementBT, movement.x, movement.y, movement.z);
         this._btCollisionFlags = bt.CharacterController_move(this.impl, movementBT, minDist, elapsedTime);
