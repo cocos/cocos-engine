@@ -196,6 +196,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _tmp_velLenScale: Vec4;
     private _defaultMat: Material | null = null;
     private _node_scale: Vec4;
+    private _scale_now: Vec4;
     private _attrs: any[];
     private _particles: RecyclePool | null = null;
     private _defaultTrailMat: Material | null = null;
@@ -219,6 +220,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
         this._node_scale = new Vec4();
+        this._scale_now = new Vec4(-1, -1, -1, -1);
         this._attrs = new Array(8);
         this._defines = {
             CC_USE_WORLD_SPACE: true,
@@ -409,8 +411,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             // while (this._uScaleHandle.length < passLen) {
             //     this._uScaleHandle.push(0);
             // }
-            for (let p = 0; p < passLen; ++p) {
-                mat.passes[p].setUniform(this._uScaleHandle[p], this._node_scale);
+            if (!Vec4.equals(this._node_scale, this._scale_now)) {
+                for (let p = 0; p < passLen; ++p) {
+                    mat.passes[p].setUniform(this._uScaleHandle[p], this._node_scale);
+                }
+                this._scale_now.set(this._node_scale);
             }
         }
     }
