@@ -355,7 +355,7 @@ export class GamepadInputDevice {
         }
 
         GamepadInputDevice._cachedWebXRGamepadMap.set(XRLeftHandedness, GamepadInputDevice._copyCacheGamepadValue(left));
-        GamepadInputDevice._cachedWebXRGamepadMap.set(XRLeftHandedness, GamepadInputDevice._copyCacheGamepadValue(right));
+        GamepadInputDevice._cachedWebXRGamepadMap.set(XRRightHandedness, GamepadInputDevice._copyCacheGamepadValue(right));
     }
 
     private static checkGamepadChanged (currGamepad: (Gamepad | undefined), cachedGamepad: (any | undefined)) {
