@@ -396,7 +396,7 @@ export class GamepadInputDevice {
             return undefined;
         }
 
-        const cacheGamepad = { buttons: new Array(gamepad.buttons.length), axes: new Array(gamepad.axes.length) } as IGamepadCacheInfo;
+        const cacheGamepad: IGamepadCacheInfo = { buttons: new Array(gamepad.buttons.length), axes: new Array(gamepad.axes.length) };
         for (let j = 0; j < gamepad.buttons.length; ++j) {
             cacheGamepad.buttons[j] = gamepad.buttons[j].value;
         }
