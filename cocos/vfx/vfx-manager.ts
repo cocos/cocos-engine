@@ -25,16 +25,16 @@
 
 import { Director, director, game } from '../game';
 import { js, System } from '../core';
-import { ParticleEmitter } from './particle-emitter';
-import { ParticleRenderer } from './particle-renderer';
+import { VFXEmitter } from './vfx-emitter';
+import { VFXRenderer } from './vfx-renderer';
 
 export class VFXManager extends System {
     get totalFrames () {
         return this._totalFrames;
     }
 
-    private _emitters: ParticleEmitter[] = [];
-    private _renderers: ParticleRenderer[] = [];
+    private _emitters: VFXEmitter[] = [];
+    private _renderers: VFXRenderer[] = [];
     private _totalFrames = 0;
 
     init () {
@@ -42,22 +42,22 @@ export class VFXManager extends System {
         director.on(Director.EVENT_BEFORE_COMMIT, this.render, this);
     }
 
-    addEmitter (particleSystem: ParticleEmitter) {
+    addEmitter (particleSystem: VFXEmitter) {
         this._emitters.push(particleSystem);
     }
 
-    removeEmitter (particleSystem: ParticleEmitter) {
+    removeEmitter (particleSystem: VFXEmitter) {
         const index = this._emitters.indexOf(particleSystem);
         if (index !== -1) {
             js.array.fastRemoveAt(this._emitters, index);
         }
     }
 
-    addRenderer (renderer: ParticleRenderer) {
+    addRenderer (renderer: VFXRenderer) {
         this._renderers.push(renderer);
     }
 
-    removeRenderer (renderer: ParticleRenderer) {
+    removeRenderer (renderer: VFXRenderer) {
         const index = this._renderers.indexOf(renderer);
         if (index !== -1) {
             js.array.fastRemoveAt(this._renderers, index);
@@ -82,7 +82,7 @@ export class VFXManager extends System {
         }
     }
 
-    simulate (emitter: ParticleEmitter, dt: number) {
+    simulate (emitter: VFXEmitter, dt: number) {
         if (!emitter.isValid) {
             return;
         }

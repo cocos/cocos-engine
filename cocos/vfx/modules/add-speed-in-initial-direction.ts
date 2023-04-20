@@ -24,19 +24,21 @@
  */
 
 import { ccclass, range, serializable, tooltip, type } from 'cc.decorator';
-import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
+import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { Vec3 } from '../../core';
 import { ConstantFloatExpression } from '../expressions';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const tempVelocity = new Vec3();
 const requiredParameter = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.START_DIR;
 
 @ccclass('cc.AddSpeedInInitialDirectionModule')
-@ParticleModule.register('AddSpeedInInitialDirection', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [ParameterName.VELOCITY], [ParameterName.START_DIR])
-export class AddSpeedInInitialDirectionModule extends ParticleModule {
+@VFXModule.register('AddSpeedInInitialDirection', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [ParameterName.VELOCITY], [ParameterName.START_DIR])
+export class AddSpeedInInitialDirectionModule extends VFXModule {
     /**
       * @zh 粒子初始速度。
       */
@@ -46,26 +48,20 @@ export class AddSpeedInInitialDirectionModule extends ParticleModule {
     @tooltip('i18n:particle_system.startSpeed')
     public speed: FloatExpression = new ConstantFloatExpression(5);
 
-    private _randomOffset = 0;
-
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
-        this._randomOffset = state.randomStream.getUInt32();
-    }
-
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredBuiltinParameters(requiredParameter);
-        this.speed.tick(particles, params, context);
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        particles.markRequiredParameters(requiredParameter);
+        this.speed.tick(particles, emitter, user, context);
         if (context.executionStage !== ModuleExecStage.UPDATE) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
         const velocity = context.executionStage === ModuleExecStage.SPAWN ? particles.baseVelocity : particles.velocity;
         const { startDir } = particles;
         const speed = this.speed;
-        speed.bind(particles, params, context, this._randomOffset);
+        speed.bind(particles, emitter, user, context);
         if (speed.isConstant) {
             const curveStartSpeed = speed.evaluate(fromIndex);
             for (let i = fromIndex; i < toIndex; ++i) {

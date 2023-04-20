@@ -25,7 +25,6 @@
 
 import { ccclass } from 'cc.decorator';
 import { Expression, ExpressionType } from '../expression';
-import { ParticleExecContext } from '../particle-base';
 import { RandomStream } from '../random-stream';
 
 @ccclass('cc.FloatExpression')
@@ -34,6 +33,6 @@ export abstract class FloatExpression extends Expression {
         return ExpressionType.FLOAT;
     }
 
-    public abstract evaluateSingle (time: number, randomStream: RandomStream, context: ParticleExecContext): number;
+    public abstract evaluateSingle (time: number, randomStream: RandomStream): number;
     public abstract evaluate (index: number): number;
 }

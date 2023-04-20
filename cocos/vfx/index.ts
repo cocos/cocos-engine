@@ -23,23 +23,27 @@
  THE SOFTWARE.
  */
 
-import { ParticleEmitter } from './particle-emitter';
+import { VFXEmitter } from './vfx-emitter';
 import { EventHandler } from './event-handler';
 import { FloatExpression } from './expressions/float';
 import { ColorExpression } from './expressions/color';
 import './vfx-manager';
-import { ParticleRenderer } from './particle-renderer';
+import { VFXRenderer } from './vfx-renderer';
 import { Expression } from './expression';
 
 export {
-    ParticleEmitter,
-    ParticleRenderer,
+    VFXEmitter,
+    VFXRenderer,
     FloatExpression,
     ColorExpression,
     EventHandler,
     Expression,
 };
 
+export * from './particle-renderer';
 export * from './particle-parameter';
 export * from './modules';
 export * from './expressions';
+export * from './renderers';
+export * from './emitter-data-set';
+export * from './user-data-set';

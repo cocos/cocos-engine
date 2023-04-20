@@ -1,9 +1,9 @@
 import { Vec2 } from '../../cocos/core';
-import { ParticleEmitter } from '../../cocos/vfx/particle-emitter';
+import { VFXEmitter } from '../../cocos/vfx/vfx-emitter';
 import { ModuleExecStage } from '../../cocos/vfx/particle-module';
-describe('ParticleEmitter', () => {
+describe('VFXEmitter', () => {
     test('Parameters Validation', () => {
-        const particleEmitter = new ParticleEmitter();
+        const particleEmitter = new VFXEmitter();
         expect(particleEmitter.duration).toBe(5);
         particleEmitter.duration = -1;
         expect(particleEmitter.duration).toBe(0.01);
@@ -38,7 +38,7 @@ describe('ParticleEmitter', () => {
     });
 
     test('Event Handler', () => {
-        const particleEmitter = new ParticleEmitter();
+        const particleEmitter = new VFXEmitter();
         expect(particleEmitter.eventHandlers.length).toBe(0);
         expect(particleEmitter.eventHandlerCount).toBe(0);
         expect(() => particleEmitter.getEventHandlerAt(0)).toThrowError();
@@ -91,14 +91,13 @@ describe('ParticleEmitter', () => {
     });
 
     test('Stage', () => {
-        const particleEmitter = new ParticleEmitter();
+        const particleEmitter = new VFXEmitter();
         expect(particleEmitter.spawnStage.modules.length).toBe(0);
         expect(particleEmitter.updateStage.modules.length).toBe(0);
         expect(particleEmitter.renderStage.modules.length).toBe(0);
         expect(particleEmitter.emitterStage.modules.length).toBe(0);
         expect(particleEmitter.updateStage.execStage).toBe(ModuleExecStage.UPDATE);
-        expect(particleEmitter.renderStage.execStage).toBe(ModuleExecStage.RENDER);
-        expect(particleEmitter.emitterStage.execStage).toBe(ModuleExecStage.EMITTER_UPDATE);
+        expect(particleEmitter.emitterStage.execStage).toBe(ModuleExecStage.EMITTER);
         expect(particleEmitter.spawnStage.execStage).toBe(ModuleExecStage.SPAWN);
     });
     

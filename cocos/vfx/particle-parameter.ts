@@ -27,7 +27,7 @@ import { Color, Enum, Vec3 } from '../core';
 import { ccclass, serializable, type, visible } from '../core/data/decorators';
 import { ParticleHandle } from './particle-data-set';
 import { assertIsTrue } from '../core/data/utils/asserts';
-import { ParticleParameterType } from './enum';
+import { VFXParameterType } from './enum';
 
 const DEFAULT_CAPACITY = 16;
 const tempColor = new Color();
@@ -35,8 +35,8 @@ const tempVec3 = new Vec3();
 export const BATCH_OPERATION_THRESHOLD_VEC3 = 330;
 export const BATCH_OPERATION_THRESHOLD = 1000;
 
-@ccclass('cc.ParticleParameterIdentity')
-export class ParticleParameterIdentity {
+@ccclass('cc.VFXParameterIdentity')
+export class VFXParameterIdentity {
     public get id () {
         return this._id;
     }
@@ -51,7 +51,7 @@ export class ParticleParameterIdentity {
     }
 
     @visible(true)
-    @type(Enum(ParticleParameterType))
+    @type(Enum(VFXParameterType))
     public get type () {
         return this._type;
     }
@@ -65,21 +65,21 @@ export class ParticleParameterIdentity {
     @serializable
     private _name = '';
     @serializable
-    private _type: ParticleParameterType = ParticleParameterType.FLOAT;
+    private _type: VFXParameterType = VFXParameterType.FLOAT;
 
-    constructor (id: number, name: string, type: ParticleParameterType) {
+    constructor (id: number, name: string, type: VFXParameterType) {
         this._id = id;
         this._name = name;
         this._type = type;
     }
 }
 
-export abstract class ParticleParameter {
+export abstract class VFXParameter {
     abstract get isArray (): boolean;
-    abstract get type (): ParticleParameterType;
+    abstract get type (): VFXParameterType;
 }
 
-export abstract class ParticleArrayParameter extends ParticleParameter {
+export abstract class ParticleParameter extends VFXParameter {
     get capacity () {
         return this._capacity;
     }
@@ -93,17 +93,17 @@ export abstract class ParticleArrayParameter extends ParticleParameter {
     protected _capacity = DEFAULT_CAPACITY;
     abstract reserve (capacity: number);
     abstract move (a: ParticleHandle, b: ParticleHandle);
-    abstract copyFrom (src: ParticleArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle);
+    abstract copyFrom (src: ParticleParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle);
     abstract copyToTypedArray (dest: ArrayBufferView, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle);
 }
 
-export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
+export class ParticleVec3Parameter extends ParticleParameter {
     get data () {
         return this._data;
     }
 
     get type () {
-        return ParticleParameterType.VEC3;
+        return VFXParameterType.VEC3;
     }
 
     get stride () {
@@ -112,7 +112,7 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
 
     private _data = new Float32Array(3 * this._capacity);
 
-    static add (out: ParticleVec3ArrayParameter, a: ParticleVec3ArrayParameter, b: ParticleVec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    static add (out: ParticleVec3Parameter, a: ParticleVec3Parameter, b: ParticleVec3Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(out._capacity === a._capacity && a._capacity === b._capacity
                 && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
@@ -125,7 +125,7 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
         }
     }
 
-    static sub (out: ParticleVec3ArrayParameter, a: ParticleVec3ArrayParameter, b: ParticleVec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    static sub (out: ParticleVec3Parameter, a: ParticleVec3Parameter, b: ParticleVec3Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(out._capacity === a._capacity && a._capacity === b._capacity
                 && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
@@ -138,7 +138,7 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
         }
     }
 
-    static scaleAndAdd (out: ParticleVec3ArrayParameter, a: ParticleVec3ArrayParameter, b: ParticleVec3ArrayParameter, scale: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    static scaleAndAdd (out: ParticleVec3Parameter, a: ParticleVec3Parameter, b: ParticleVec3Parameter, scale: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(out._capacity === a._capacity && a._capacity === b._capacity
                 && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
@@ -365,7 +365,7 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
         data[offset + 2] += val;
     }
 
-    copyFrom (src: ParticleVec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ParticleVec3Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }
@@ -434,13 +434,13 @@ export class ParticleVec3ArrayParameter extends ParticleArrayParameter {
     }
 }
 
-export class ParticleFloatArrayParameter extends ParticleArrayParameter {
+export class ParticleFloatParameter extends ParticleParameter {
     get data () {
         return this._data;
     }
 
     get type () {
-        return ParticleParameterType.FLOAT;
+        return VFXParameterType.FLOAT;
     }
 
     get stride (): number {
@@ -486,7 +486,7 @@ export class ParticleFloatArrayParameter extends ParticleArrayParameter {
         this._data[handle] += val;
     }
 
-    copyFrom (src: ParticleFloatArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ParticleFloatParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(src._capacity === this._capacity);
@@ -539,13 +539,13 @@ export class ParticleFloatArrayParameter extends ParticleArrayParameter {
     }
 }
 
-export class ParticleBoolArrayParameter extends ParticleArrayParameter {
+export class ParticleBoolParameter extends ParticleParameter {
     get data () {
         return this._data;
     }
 
     get type () {
-        return ParticleParameterType.BOOL;
+        return VFXParameterType.BOOL;
     }
 
     get stride (): number {
@@ -584,7 +584,7 @@ export class ParticleBoolArrayParameter extends ParticleArrayParameter {
         this._data[handle] = val ? 1 : 0;
     }
 
-    copyFrom (src: ParticleBoolArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ParticleBoolParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(src._capacity === this._capacity);
@@ -633,13 +633,13 @@ export class ParticleBoolArrayParameter extends ParticleArrayParameter {
     }
 }
 
-export class ParticleUint32ArrayParameter extends ParticleArrayParameter {
+export class ParticleUint32Parameter extends ParticleParameter {
     get data () {
         return this._data;
     }
 
     get type () {
-        return ParticleParameterType.UINT32;
+        return VFXParameterType.UINT32;
     }
 
     get stride (): number {
@@ -668,7 +668,7 @@ export class ParticleUint32ArrayParameter extends ParticleArrayParameter {
         this._data[handle] = val;
     }
 
-    copyFrom (src: ParticleUint32ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ParticleUint32Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {
@@ -705,7 +705,7 @@ export class ParticleUint32ArrayParameter extends ParticleArrayParameter {
     }
 }
 
-export class ParticleUint8ArrayParameter extends ParticleArrayParameter {
+export class ParticleUint8Parameter extends ParticleParameter {
     get data () {
         return this._data;
     }
@@ -714,8 +714,8 @@ export class ParticleUint8ArrayParameter extends ParticleArrayParameter {
         return 1;
     }
 
-    get type (): ParticleParameterType {
-        return ParticleParameterType.UINT8;
+    get type (): VFXParameterType {
+        return VFXParameterType.UINT8;
     }
 
     private _data = new Uint8Array(this._capacity);
@@ -740,7 +740,7 @@ export class ParticleUint8ArrayParameter extends ParticleArrayParameter {
         this._data[handle] = val;
     }
 
-    copyFrom (src: ParticleUint8ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ParticleUint8Parameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {
@@ -777,13 +777,13 @@ export class ParticleUint8ArrayParameter extends ParticleArrayParameter {
     }
 }
 
-export class ParticleColorArrayParameter extends ParticleArrayParameter {
+export class ParticleColorParameter extends ParticleParameter {
     get data () {
         return this._data;
     }
 
     get type () {
-        return ParticleParameterType.COLOR;
+        return VFXParameterType.COLOR;
     }
 
     get stride (): number {
@@ -863,7 +863,7 @@ export class ParticleColorArrayParameter extends ParticleArrayParameter {
         }
     }
 
-    copyFrom (src: ParticleColorArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ParticleColorParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {

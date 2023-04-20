@@ -1,0 +1,236 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { ccclass, serializable } from 'cc.decorator';
+import { DEBUG } from 'internal:constants';
+import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, ParticleEventType, PlayingState, ScalingMode, Space } from './enum';
+import { Color, Mat4, Quat, Vec3, Vec2, assertIsTrue } from '../core';
+import { Node } from '../scene-graph';
+import { ModuleExecStage } from './vfx-module';
+import { RandomStream } from './random-stream';
+import { BuiltinParticleParameterFlags } from './particle-data-set';
+import { ParticleColorParameter, ParticleFloatParameter, ParticleUint32Parameter, ParticleVec3Parameter } from './particle-parameter';
+
+export class VFXEventInfo {
+    public type = ParticleEventType.UNKNOWN;
+    public particleId = 0;
+    public currentTime = 0;
+    public prevTime = 0;
+    public position = new Vec3();
+    public velocity = new Vec3();
+    public rotation = new Vec3();
+    public size = new Vec3();
+    public color = new Color();
+    public randomSeed = 0;
+}
+
+export class VFXEvents {
+    get count () {
+        return this._count;
+    }
+
+    get capacity () {
+        return this._particleId.capacity;
+    }
+
+    private _count = 0;
+    private _particleId = new ParticleUint32Parameter();
+    private _currentTime = new ParticleFloatParameter();
+    private _prevTime = new ParticleFloatParameter();
+    private _position = new ParticleVec3Parameter();
+    private _velocity = new ParticleVec3Parameter();
+    private _rotation = new ParticleVec3Parameter();
+    private _size = new ParticleVec3Parameter();
+    private _color = new ParticleColorParameter();
+    private _startLifeTime = new ParticleFloatParameter();
+    private _randomSeed = new ParticleUint32Parameter();
+    private _normalizedAliveTime = new ParticleFloatParameter();
+    private _type = new ParticleUint32Parameter();
+
+    clear () {
+        this._count = 0;
+    }
+
+    dispatch (eventInfo: VFXEventInfo) {
+        if (this._count === this.capacity) {
+            const capacity = this.capacity * 2;
+            this._particleId.reserve(capacity);
+            this._currentTime.reserve(capacity);
+            this._prevTime.reserve(capacity);
+            this._position.reserve(capacity);
+            this._velocity.reserve(capacity);
+            this._rotation.reserve(capacity);
+            this._size.reserve(capacity);
+            this._color.reserve(capacity);
+            this._startLifeTime.reserve(capacity);
+            this._randomSeed.reserve(capacity);
+            this._normalizedAliveTime.reserve(capacity);
+            this._type.reserve(capacity);
+        }
+        const handle = this._count++;
+        this._particleId.setUint32At(eventInfo.particleId, handle);
+        this._currentTime.setFloatAt(eventInfo.currentTime, handle);
+        this._prevTime.setFloatAt(eventInfo.prevTime, handle);
+        this._position.setVec3At(eventInfo.position, handle);
+        this._velocity.setVec3At(eventInfo.velocity, handle);
+        this._rotation.setVec3At(eventInfo.rotation, handle);
+        this._size.setVec3At(eventInfo.size, handle);
+        this._color.setColorAt(eventInfo.color, handle);
+        this._randomSeed.setUint32At(eventInfo.randomSeed, handle);
+        this._type.setUint32At(eventInfo.type, handle);
+    }
+
+    getEventInfoAt (out: VFXEventInfo, handle: number) {
+        if (DEBUG) {
+            assertIsTrue(handle < this._count && handle >= 0, 'handle out of range');
+        }
+        out.particleId = this._particleId.getUint32At(handle);
+        out.currentTime = this._currentTime.getFloatAt(handle);
+        out.prevTime = this._prevTime.getFloatAt(handle);
+        out.randomSeed = this._randomSeed.getUint32At(handle);
+        out.type = this._type.getUint32At(handle);
+        this._position.getVec3At(out.position, handle);
+        this._velocity.getVec3At(out.velocity, handle);
+        this._rotation.getVec3At(out.rotation, handle);
+        this._size.getVec3At(out.size, handle);
+        this._color.getColorAt(out.color, handle);
+        return out;
+    }
+}
+
+@ccclass('cc.VFXEmitterParams')
+export class VFXEmitterParams {
+    @serializable
+    public loopMode = LoopMode.INFINITE;
+    @serializable
+    public loopCount = 1;
+    @serializable
+    public duration = 5;
+    @serializable
+    public prewarm = false;
+    @serializable
+    public prewarmTime = 5;
+    @serializable
+    public prewarmTimeStep = 0.03;
+    @serializable
+    public simulationSpace = Space.LOCAL;
+    @serializable
+    public scalingMode = ScalingMode.LOCAL;
+    @serializable
+    public simulationSpeed = 1.0;
+    @serializable
+    public maxDeltaTime = 0.05;
+    @serializable
+    public playOnAwake = true;
+    @serializable
+    public delayMode = DelayMode.NONE;
+    @serializable
+    public delayRange = new Vec2(0, 0);
+    @serializable
+    public boundsMode = BoundsMode.AUTO;
+    @serializable
+    public fixedBoundsMin = new Vec3(-100, -100, -100);
+    @serializable
+    public fixedBoundsMax = new Vec3(100, 100, 100);
+    @serializable
+    public cullingMode = CullingMode.ALWAYS_SIMULATE;
+    @serializable
+    public capacityMode = CapacityMode.AUTO;
+    @serializable
+    public capacity = 100;
+    @serializable
+    public useAutoRandomSeed = true;
+    @serializable
+    public randomSeed = 0;
+    @serializable
+    public finishAction = FinishAction.NONE;
+}
+
+export class VFXEmitterState {
+    public accumulatedTime = 0;
+    public playingState = PlayingState.STOPPED;
+    public isSimulating = true;
+    public isEmitting = true;
+    public lastSimulateFrame = 0;
+    public maxParticleId = 0;
+    public boundsMin = new Vec3();
+    public boundsMax = new Vec3();
+    public randomStream = new RandomStream();
+    public lastTransformChangedVersion = 0xffffffff;
+}
+
+export class ModuleExecContext {
+    public get events (): VFXEvents {
+        if (!this._events) {
+            this._events = new VFXEvents();
+        }
+        return this._events;
+    }
+
+    public get fromIndex () {
+        return this._fromIndex;
+    }
+
+    public get toIndex () {
+        return this._toIndex;
+    }
+
+    public get executionStage () {
+        return this._executionStage;
+    }
+
+    public get moduleRandomSeed () {
+        return this._moduleRandomOffset;
+    }
+
+    private _fromIndex = 0;
+    private _toIndex = 0;
+    private _moduleRandomOffset = 0;
+    private _executionStage = ModuleExecStage.UNKNOWN;
+    private _events: VFXEvents | null = null;
+
+    setExecutionStage (stage: ModuleExecStage) {
+        this._executionStage = stage;
+    }
+
+    setExecuteRange (fromIndex: number, toIndex: number) {
+        if (DEBUG) {
+            assertIsTrue(fromIndex <= toIndex);
+            assertIsTrue(fromIndex >= 0);
+        }
+        this._fromIndex = fromIndex;
+        this._toIndex = toIndex;
+    }
+
+    reset () {
+        this._events?.clear();
+        this._executionStage = ModuleExecStage.UNKNOWN;
+        this.setExecuteRange(0, 0);
+    }
+
+    setModuleRandomOffset (offset: number) {
+        this._moduleRandomOffset = offset;
+    }
+}

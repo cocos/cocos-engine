@@ -27,9 +27,9 @@
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Vec3, lerp, assertIsTrue, CCBoolean } from '../../core';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 
@@ -37,8 +37,8 @@ const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 const seed = new Vec3();
 
 @ccclass('cc.RotationModule')
-@ParticleModule.register('Rotation', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.ANGULAR_VELOCITY], [])
-export class RotationModule extends ParticleModule {
+@VFXModule.register('Rotation', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.ANGULAR_VELOCITY], [])
+export class RotationModule extends VFXModule {
     /**
      * @zh 是否三个轴分开设定旋转。
      */
@@ -126,21 +126,21 @@ export class RotationModule extends ParticleModule {
     @serializable
     private _x: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         if (this.separateAxes && DEBUG) {
             assertIsTrue(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
         }
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.ANGULAR_VELOCITY);
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.ROTATION);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.ANGULAR_VELOCITY);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.ROTATION);
         if (this.z.mode === FloatExpression.Mode.CURVE || this.z.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this.z.mode === FloatExpression.Mode.TWO_CONSTANTS || this.z.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { angularVelocity } = particles;
         const { fromIndex, toIndex } = context;
         if (!this._separateAxes) {

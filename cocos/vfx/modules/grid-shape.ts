@@ -25,13 +25,13 @@
 
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { CCInteger } from '../../core';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { ShapeModule } from './shape';
 
 @ccclass('cc.GridShapeModule')
-@ParticleModule.register('GridShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('GridShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class GridShape extends ShapeModule {
     @serializable
     public length = 1;
@@ -60,15 +60,15 @@ export class GridShape extends ShapeModule {
     private _widthPerCell = 0;
     private _heightPerCell = 0;
 
-    public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
-        super.tick(particles, params, context);
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        super.tick(particles, emitter, user, context);
         this._xyCellNum = this.numInX * this.numInY;
         this._lengthPerCell = this.length / this.numInX;
         this._widthPerCell = this.width / this.numInY;
         this._heightPerCell = this.height / this.numInZ;
     }
 
-    public execute (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
         const { startDir, vec3Register } = particles;
         const xyCellNum = this._xyCellNum;

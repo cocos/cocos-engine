@@ -26,15 +26,15 @@
 import { ccclass, serializable, type, range, editable } from 'cc.decorator';
 import { lerp } from '../../core';
 import { FloatExpression } from '../expressions/float';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet } from '../particle-data-set';
-import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
+import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { RandomStream } from '../random-stream';
 import { ConstantExpression } from '../expressions';
 
 @ccclass('cc.SpawnBurstModule')
-@ParticleModule.register('SpawnBurst', ModuleExecStageFlags.EMITTER_UPDATE | ModuleExecStageFlags.EVENT_HANDLER)
-export class SpawnBurstModule extends ParticleModule {
+@VFXModule.register('SpawnBurst', ModuleExecStageFlags.EMITTER | ModuleExecStageFlags.EVENT_HANDLER)
+export class SpawnBurstModule extends VFXModule {
     /**
       * @zh 发射的粒子的数量。
       */
@@ -80,24 +80,24 @@ export class SpawnBurstModule extends ParticleModule {
 
     private _rand = new RandomStream();
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32()) >>> 0;
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { emitterPreviousTime, emitterCurrentTime, emitterNormalizedTime } = context;
-        let prevT = emitterPreviousTime;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        const { previousTime, currentTime, normalizedLoopAge } = context;
+        let prevT = previousTime;
         // handle loop.
-        if (prevT > emitterCurrentTime) {
+        if (prevT > currentTime) {
             const seed = this._rand.seed;
             this._accumulateBurst(prevT, params.duration, 1, context);
             prevT = 0;
             this._rand.seed = seed;
         }
-        this._accumulateBurst(prevT, emitterCurrentTime, emitterNormalizedTime, context);
+        this._accumulateBurst(prevT, currentTime, normalizedLoopAge, context);
     }
 
-    private _accumulateBurst (prevT: number, currT: number, normalizeT: number, context: ParticleExecContext) {
+    private _accumulateBurst (prevT: number, currT: number, normalizeT: number, context: ModuleExecContext) {
         const rand = this._rand;
         if ((prevT <= this.time && currT > this.time) || (prevT > this.time && this.repeatCount > 1)) {
             const preEmitTime = Math.max(Math.floor((prevT - this.time) / this.repeatInterval), 0);

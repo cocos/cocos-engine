@@ -25,17 +25,17 @@
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
 import { lerp, Vec3 } from '../../core';
-import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 
 const seed = new Vec3();
 
 @ccclass('cc.MultiplySizeModule')
-@ParticleModule.register('MultiplySize', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.SIZE], [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
-export class MultiplySizeModule extends ParticleModule {
+@VFXModule.register('MultiplySize', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.SIZE], [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
+export class MultiplySizeModule extends VFXModule {
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。
      */
@@ -116,28 +116,28 @@ export class MultiplySizeModule extends ParticleModule {
 
     private _randomOffset = 0;
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._randomOffset = state.randomStream.getUInt32();
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SIZE);
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.SIZE);
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.BASE_SIZE);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_SIZE);
         }
         if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this.x.mode === FloatExpression.Mode.CURVE || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
             if (context.executionStage === ModuleExecStage.SPAWN) {
-                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+                particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
             } else {
-                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+                particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
             }
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const size = context.executionStage === ModuleExecStage.SPAWN ? particles.baseSize : particles.size;
         const randomOffset = this._randomOffset;
         const { fromIndex, toIndex } = context;

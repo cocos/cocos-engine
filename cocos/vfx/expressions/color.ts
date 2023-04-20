@@ -26,7 +26,7 @@
 import { ccclass } from 'cc.decorator';
 import { Color } from '../../core';
 import { Expression, ExpressionType } from '../expression';
-import { ParticleExecContext } from '../particle-base';
+import { ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 
 @ccclass('cc.ColorExpression')
@@ -34,6 +34,6 @@ export abstract  class ColorExpression extends Expression {
     public get type () {
         return ExpressionType.COLOR;
     }
-    abstract evaluateSingle (time: number, randomStream: RandomStream, context: ParticleExecContext, out: Color): Color;
+    abstract evaluateSingle (time: number, randomStream: RandomStream, out: Color): Color;
     abstract evaluate (index: number, out: Color): Color;
 }

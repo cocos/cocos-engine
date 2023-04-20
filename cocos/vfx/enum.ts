@@ -23,12 +23,13 @@
  THE SOFTWARE.
  */
 
-export enum ParticleParameterType {
+export enum VFXParameterType {
     FLOAT,
     BOOL,
     VEC2,
     VEC3,
     VEC4,
+    QUAT,
     COLOR,
     UINT32,
     UINT8,

@@ -27,11 +27,11 @@ import { ccclass, type, serializable, range, rangeMin, visible } from 'cc.decora
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue, CCFloat, Enum, approx, clamp, lerp, Vec2, Vec3 } from '../../core';
 import { FloatExpression } from '../expressions/float';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
-import { ParticleVec3ArrayParameter } from '../particle-parameter';
+import { ParticleVec3Parameter } from '../particle-parameter';
 
 export class PerlinNoise1DCache {
     i0 = 0;
@@ -370,8 +370,8 @@ export enum Quality {
 }
 
 @ccclass('cc.CurlNoiseModule')
-@ParticleModule.register('CurlNoise', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY], [])
-export class CurlNoiseModule extends ParticleModule {
+@VFXModule.register('CurlNoise', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY], [])
+export class CurlNoiseModule extends VFXModule {
     @serializable
     @visible(true)
     public separateAxes = false;
@@ -523,19 +523,19 @@ export class CurlNoiseModule extends ParticleModule {
 
     private _randomOffset = 0;
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         RandomStream.get3Float(state.randomStream.getUInt32() + state.randomStream.getUInt32(), this._offset);
         this._randomOffset = state.randomStream.getUInt32();
         this._offset.multiplyScalar(100);
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         let deltaTime = context.emitterDeltaTime;
-        if (context.emitterNormalizedTime < context.emitterNormalizedPrevTime) {
-            this._scrollOffset += (this._scrollSpeed.evaluate(1, 1) * (params.duration - context.emitterPreviousTime));
-            deltaTime = context.emitterCurrentTime;
+        if (context.normalizedLoopAge < context.normalizedPrevLoopAge) {
+            this._scrollOffset += (this._scrollSpeed.evaluate(1, 1) * (params.duration - context.previousTime));
+            deltaTime = context.currentTime;
         }
-        this._scrollOffset += this._scrollSpeed.evaluate(context.emitterNormalizedTime, 1) * deltaTime;
+        this._scrollOffset += this._scrollSpeed.evaluate(context.normalizedLoopAge, 1) * deltaTime;
         if (this._scrollOffset > 256) {
             this._scrollOffset -= 256;
         }
@@ -555,19 +555,19 @@ export class CurlNoiseModule extends ParticleModule {
         }
         this.frequency = Math.max(this.frequency, 0.0001);
         this._amplitudeScale = this.damping ? (1 / this.frequency) : 1;
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.VEC3_REGISTER);
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.VELOCITY);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.VEC3_REGISTER);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.VELOCITY);
 
         if (this._strengthX.mode === FloatExpression.Mode.CURVE || this._strengthX.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this._strengthX.mode === FloatExpression.Mode.TWO_CONSTANTS || this._strengthX.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { vec3Register } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
         const scrollOffset = this._scrollOffset;
@@ -728,7 +728,7 @@ export class CurlNoiseModule extends ParticleModule {
             }
         }
         const velocity = particles.velocity;
-        ParticleVec3ArrayParameter.add(velocity, velocity, vec3Register, fromIndex, toIndex);
+        ParticleVec3Parameter.add(velocity, velocity, vec3Register, fromIndex, toIndex);
     }
 
     protected needsFilterSerialization () {

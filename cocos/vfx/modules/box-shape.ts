@@ -24,10 +24,12 @@
  */
 import { ccclass, displayOrder, serializable, tooltip, type, visible } from 'cc.decorator';
 import { ShapeModule } from './shape';
-import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 enum EmitFrom {
     VOLUME,
@@ -37,7 +39,7 @@ enum EmitFrom {
 
 const tempPosition = new Vec3();
 @ccclass('cc.BoxShapeModule')
-@ParticleModule.register('BoxShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('BoxShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class BoxShapeModule extends ShapeModule {
     static EmitFrom = EmitFrom;
 
@@ -53,12 +55,12 @@ export class BoxShapeModule extends ShapeModule {
 
     private _thicknessPercent = new Vec3(0, 0, 0);
 
-    public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
-        super.tick(particles, params, context);
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        super.tick(particles, emitter, user, context);
         Vec3.set(this._thicknessPercent, 1 - this.boxThickness.x, 1 - this.boxThickness.y, 1 - this.boxThickness.z);
     }
 
-    public execute (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const thicknessPercent = this._thicknessPercent;
         const { fromIndex, toIndex } = context;
         const { startDir, vec3Register } = particles;

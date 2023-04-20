@@ -22,16 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, displayOrder, serializable, tooltip, type, visible } from 'cc.decorator';
+import { ccclass, displayName, displayOrder, serializable, tooltip, type, visible } from 'cc.decorator';
 import { Material, RenderingSubMesh } from '../../asset/assets';
 import { Enum, Quat, Vec3, Vec4 } from '../../core';
 import { Buffer, BufferInfo, BufferUsageBit, deviceManager, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../gfx';
-import { MacroRecord } from '../../render-scene';
+import { MacroRecord, MaterialInstance } from '../../render-scene';
 import { AlignmentSpace, ScalingMode, Space } from '../enum';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
-import { CC_PARTICLE_COLOR, CC_PARTICLE_FRAME_INDEX, CC_PARTICLE_POSITION, CC_PARTICLE_ROTATION, CC_PARTICLE_SIZE, CC_PARTICLE_VELOCITY, CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, RendererModule, ROTATION_OVER_TIME_MODULE_ENABLE } from './renderer';
+import { CC_PARTICLE_COLOR, CC_PARTICLE_FRAME_INDEX, CC_PARTICLE_POSITION, CC_PARTICLE_ROTATION, CC_PARTICLE_SIZE, CC_PARTICLE_VELOCITY, CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, ROTATION_OVER_TIME_MODULE_ENABLE, ParticleRenderer } from '../particle-renderer';
 
 const fixedVertexBuffer = new Float32Array([
     0, 0, 0, 0, 0, 0, // bottom-left
@@ -67,9 +66,36 @@ export enum RenderMode {
      */
     VERTICAL_BILLBOARD,
 }
-@ccclass('cc.SpriteRendererModule')
-@ParticleModule.register('SpriteRenderer', ModuleExecStageFlags.RENDER)
-export class SpriteRendererModule extends RendererModule {
+@ccclass('cc.SpriteParticleRenderer')
+export class SpriteParticleRenderer extends ParticleRenderer {
+    @type(Material)
+    @displayName('Material')
+    public get sharedMaterial () {
+        return this._sharedMaterial;
+    }
+
+    public set sharedMaterial (val) {
+        if (this._sharedMaterial !== val) {
+            this._sharedMaterial = val;
+            this._material = null;
+            this._isMaterialDirty = true;
+        }
+    }
+
+    public get material () {
+        if (!this._material && this._sharedMaterial) {
+            this._material = new MaterialInstance({ parent: this._sharedMaterial });
+        }
+        return this._material;
+    }
+
+    public set material (val) {
+        if (this._material !== val) {
+            this._material = val;
+            this._sharedMaterial = null;
+            this._isMaterialDirty = true;
+        }
+    }
     /**
      * @zh 设定粒子生成模式。
      */
@@ -85,7 +111,7 @@ export class SpriteRendererModule extends RendererModule {
     }
 
     @tooltip('i18n:particleSystemRenderer.velocityScale')
-    @visible(function (this: SpriteRendererModule) { return this.renderMode === RenderMode.STRETCHED_BILLBOARD; })
+    @visible(function (this: SpriteParticleRenderer) { return this.renderMode === RenderMode.STRETCHED_BILLBOARD; })
     public get velocityScale () {
         return this._subUVTilesAndVelLenScale.z;
     }
@@ -95,7 +121,7 @@ export class SpriteRendererModule extends RendererModule {
     }
 
     @tooltip('i18n:particleSystemRenderer.lengthScale')
-    @visible(function (this: SpriteRendererModule) { return this.renderMode === RenderMode.STRETCHED_BILLBOARD; })
+    @visible(function (this: SpriteParticleRenderer) { return this.renderMode === RenderMode.STRETCHED_BILLBOARD; })
     public get lengthScale () {
         return this._subUVTilesAndVelLenScale.w;
     }
@@ -104,6 +130,31 @@ export class SpriteRendererModule extends RendererModule {
         this._subUVTilesAndVelLenScale.w = val;
         this._isSubUVTilesAndVelLenScaleDirty = true;
     }
+
+    public get renderingSubMesh () {
+        return this._renderingSubMesh;
+    }
+
+    public get vertexCount () {
+        return this._vertexCount;
+    }
+
+    public get indexCount () {
+        return this._indexCount;
+    }
+
+    public get instanceCount () {
+        return this._instanceCount;
+    }
+
+    protected _isMaterialDirty = false;
+    protected _renderingSubMesh: RenderingSubMesh | null = null;
+    protected _vertexCount = 0;
+    protected _indexCount = 0;
+    protected _instanceCount = 0;
+    @serializable
+    private _sharedMaterial: Material | null = null;
+    private _material: MaterialInstance | null = null;
 
     @serializable
     private _alignmentSpace = AlignmentSpace.LOCAL;
@@ -120,7 +171,7 @@ export class SpriteRendererModule extends RendererModule {
     private declare _dynamicBufferUintView: Uint32Array;
     private _vertexStreamSize = 0;
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const material = this.material;
         if (!material) {
             return;
@@ -164,7 +215,7 @@ export class SpriteRendererModule extends RendererModule {
         this._dynamicBuffer.update(dynamicBufferFloatView); // update dynamic buffer
     }
 
-    private _updateSubUvTilesAndVelocityLengthScale (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    private _updateSubUvTilesAndVelocityLengthScale (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         if (!this._isSubUVTilesAndVelLenScaleDirty && !this._isMaterialDirty) {
             return;
         }
@@ -172,7 +223,7 @@ export class SpriteRendererModule extends RendererModule {
         this._isSubUVTilesAndVelLenScaleDirty = false;
     }
 
-    private _updateRotation (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    private _updateRotation (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         let currentRotation: Quat;
         if (this._alignmentSpace === AlignmentSpace.LOCAL) {
             currentRotation = context.localRotation;
@@ -201,7 +252,7 @@ export class SpriteRendererModule extends RendererModule {
         }
     }
 
-    private _updateRenderScale (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    private _updateRenderScale (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         let currentScale: Vec3;
         switch (params.scalingMode) {
         case ScalingMode.LOCAL:
@@ -220,7 +271,7 @@ export class SpriteRendererModule extends RendererModule {
         }
     }
 
-    private _compileMaterial (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    private _compileMaterial (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         let needRecompile = this._isMaterialDirty;
         const define = this._defines;
         if (define[CC_USE_WORLD_SPACE] !== (params.simulationSpace === Space.WORLD)) {
@@ -279,7 +330,7 @@ export class SpriteRendererModule extends RendererModule {
         }
     }
 
-    private _updateAttributes (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    private _updateAttributes (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         let vertexStreamSizeDynamic = 0;
         const vertexStreamAttributes = [meshPosition, meshUv];
         const define = this._defines;
@@ -311,7 +362,7 @@ export class SpriteRendererModule extends RendererModule {
         return vertexStreamAttributes;
     }
 
-    private _updateRenderingSubMesh (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    private _updateRenderingSubMesh (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         if (!this._renderingSubMesh) {
             const vertexStreamAttributes = this._updateAttributes(material, particles, params, context);
             const vertexStreamSizeStatic = 24;

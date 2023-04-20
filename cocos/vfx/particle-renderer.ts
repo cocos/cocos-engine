@@ -22,104 +22,53 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { ccclass, serializable, type } from 'cc.decorator';
+import { CCBoolean } from '../core';
+import { AttributeName, Format, Attribute } from '../gfx';
+import { EmitterDataSet } from './emitter-data-set';
+import { ParticleDataSet } from './particle-data-set';
 
-import { ccclass, visible, override, executeInEditMode, requireComponent, menu } from 'cc.decorator';
-import { legacyCC } from '../core/global-exports';
-import { ModelRenderer } from '../misc';
-import { ParticleEmitter } from './particle-emitter';
-import { vfxManager } from './vfx-manager';
-import { scene } from '../render-scene';
-import { RendererModule } from './modules/renderer';
+export const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
+export const CC_RENDER_MODE = 'CC_RENDER_MODE';
+export const ROTATION_OVER_TIME_MODULE_ENABLE = 'ROTATION_OVER_TIME_MODULE_ENABLE';
+export const INSTANCE_PARTICLE = 'CC_INSTANCE_PARTICLE';
+export const CC_PARTICLE_POSITION = 'CC_PARTICLE_POSITION';
+export const CC_PARTICLE_ROTATION = 'CC_PARTICLE_ROTATION';
+export const CC_PARTICLE_SIZE = 'CC_PARTICLE_SIZE';
+export const CC_PARTICLE_COLOR = 'CC_PARTICLE_COLOR';
+export const CC_PARTICLE_FRAME_INDEX = 'CC_PARTICLE_FRAME_INDEX';
+export const CC_PARTICLE_VELOCITY = 'CC_PARTICLE_VELOCITY';
+export const RENDER_MODE_BILLBOARD = 0;
+export const RENDER_MODE_STRETCHED_BILLBOARD = 1;
+export const RENDER_MODE_HORIZONTAL_BILLBOARD = 2;
+export const RENDER_MODE_VERTICAL_BILLBOARD = 3;
+export const RENDER_MODE_MESH = 4;
+
+export const meshPosition = new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F, false, 0);           // mesh position
+export const meshUv = new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 0);                // mesh uv
+export const meshNormal = new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 0);               // mesh normal
+export const meshColorRGBA8 = new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true, 0);              // mesh color
+export const particlePosition = new Attribute('a_particle_position', Format.RGB32F, false, 1, true);       // particle position
+export const particleRotation = new Attribute('a_particle_rotation', Format.RGB32F, false, 1, true);       // particle rotation
+export const particleSize = new Attribute('a_particle_size', Format.RGB32F, false, 1, true);               // particle size
+export const particleColor = new Attribute('a_particle_color', Format.RGBA8, true, 1, true);               // particle color
+export const particleFrameIndex = new Attribute('a_particle_frame_index', Format.R32F, false, 1, true);          // particle frame id
+export const particleVelocity = new Attribute('a_particle_velocity', Format.RGB32F, false, 1, true);       // particle velocity
 
 @ccclass('cc.ParticleRenderer')
-@menu('Effects/ParticleRenderer')
-@executeInEditMode
-@requireComponent(ParticleEmitter)
-export class ParticleRenderer extends ModelRenderer {
-    @override
-    @visible(false)
-    get sharedMaterials () {
-        return super.sharedMaterials;
+export abstract class ParticleRenderer {
+    @type(CCBoolean)
+    public get enabled () {
+        return this._enabled;
     }
 
-    set sharedMaterials (val) {
-        super.sharedMaterials = val;
+    public set enabled (val) {
+        this._enabled = val;
     }
 
-    private _model: scene.Model | null = null;
-    private _emitter: ParticleEmitter | null = null;
+    abstract get name (): string;
+    @serializable
+    private _enabled = true;
 
-    public onEnable () {
-        this._emitter = this.getComponent(ParticleEmitter);
-        if (!this._model) {
-            this._model = legacyCC.director.root.createModel(scene.Model) as scene.Model;
-            this._model.visFlags = this.node.layer;
-            this._model.node = this._model.transform = this.node;
-        }
-        this._models.push(this._model);
-        this._getRenderScene().addModel(this._model);
-        vfxManager.addRenderer(this);
-    }
-
-    public onDisable () {
-        this._model!.scene!.removeModel(this._model!);
-        this._models.length = 0;
-        vfxManager.removeRenderer(this);
-    }
-
-    public onDestroy () {
-        if (this._model) {
-            legacyCC.director.root.destroyModel(this._model);
-            this._model = null;
-        }
-    }
-
-    // internal function
-    public updateRenderData () {
-        if (!this._emitter || !this._model) return;
-        const { particles } = this._emitter;
-        this._model.enabled = particles.count !== 0;
-        if (particles.count === 0) {
-            return;
-        }
-        this._emitter.render();
-        const model = this._model;
-        const subModels = model.subModels;
-        const rendererModules = this._emitter.renderStage.modules;
-        const materials = this._materials;
-        const materialInstances = this._materialInstances;
-        let subModelIndex = 0;
-        for (let i = 0, length = rendererModules.length; i < length; i++) {
-            const module = rendererModules[i];
-            if (!(module instanceof RendererModule) || !module.enabled) continue;
-            const { renderingSubMesh, material, sharedMaterial } = module;
-            if (renderingSubMesh && material) {
-                let materialDirty = false;
-                if (materialInstances[subModelIndex] !== material) {
-                    materials[subModelIndex] = sharedMaterial;
-                    materialInstances[subModelIndex] = material;
-                    materialDirty = true;
-                }
-                let subModel = subModels[subModelIndex];
-                if (!subModel) {
-                    model.initSubModel(subModelIndex, renderingSubMesh, material);
-                    subModel = subModels[subModelIndex];
-                } else if (subModel.subMesh !== renderingSubMesh || materialDirty) {
-                    model.setSubModelMesh(i, renderingSubMesh);
-                    model.setSubModelMaterial(i, material);
-                }
-                subModel.inputAssembler.instanceCount = module.instanceCount;
-                subModel.inputAssembler.vertexCount = module.vertexCount;
-                subModel.inputAssembler.indexCount = module.indexCount;
-                subModelIndex++;
-            }
-        }
-        if (subModelIndex < subModels.length) {
-            for (let i = subModelIndex, length = subModels.length; i < length; i++) {
-                subModels[i].destroy();
-            }
-            subModels.length = subModelIndex;
-        }
-        model.createBoundingShape(this._emitter.boundsMin, this._emitter.boundsMax);
-    }
+    public abstract render (particles: ParticleDataSet, emitter: EmitterDataSet);
 }

@@ -28,8 +28,8 @@ import { DEBUG } from 'internal:constants';
 import { lerp, Vec3, assertIsTrue, Enum } from '../../core';
 import { Space } from '../enum';
 import { FloatExpression } from '../expressions/float';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 
@@ -38,8 +38,8 @@ const seed = new Vec3();
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.ForceModule')
-@ParticleModule.register('Force', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY])
-export class ForceModule extends ParticleModule {
+@VFXModule.register('Force', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY])
+export class ForceModule extends VFXModule {
     /**
      * @zh X 轴方向上的加速度分量。
      */
@@ -84,26 +84,26 @@ export class ForceModule extends ParticleModule {
 
     private _randomOffset = 0;
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._randomOffset = state.randomStream.getUInt32();
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         if (DEBUG) {
             assertIsTrue(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
         }
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.VELOCITY);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.VELOCITY);
         if (this.x.mode === FloatExpression.Mode.CURVE || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { velocity, baseVelocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
         const needTransform = this.space === params.simulationSpace;

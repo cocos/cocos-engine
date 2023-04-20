@@ -23,12 +23,12 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, tooltip, type } from 'cc.decorator';
-import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, toDegree, toRadian, Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { AngleBasedShapeModule } from './angle-based-shape';
-import { ParticleVec3ArrayParameter } from '../particle-parameter';
+import { ParticleVec3Parameter } from '../particle-parameter';
 
 enum EmitFrom {
     BASE = 0,
@@ -37,7 +37,7 @@ enum EmitFrom {
 
 const temp = new Vec3();
 @ccclass('cc.ConeShapeModule')
-@ParticleModule.register('ConeShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('ConeShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class ConeShapeModule extends AngleBasedShapeModule {
     static EmitFrom = EmitFrom;
 
@@ -84,14 +84,14 @@ export class ConeShapeModule extends AngleBasedShapeModule {
     private _cosAngle = 0;
     private _innerRadius = 0;
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        super.tick(particles, params, context);
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+        super.tick(particles, emitter, user, context);
         this._sinAngle = Math.sin(this._angle);
         this._cosAngle = Math.cos(this._angle);
         this._innerRadius = (1 - this.radiusThickness) ** 2;
     }
 
-    protected generatePosAndDir (index: number, angle: number, startDir: ParticleVec3ArrayParameter, vec3Register: ParticleVec3ArrayParameter) {
+    protected generatePosAndDir (index: number, angle: number, startDir: ParticleVec3Parameter, vec3Register: ParticleVec3Parameter) {
         const rand = this._rand;
         const innerRadius = this._innerRadius;
         const radius = this.radius;

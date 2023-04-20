@@ -27,9 +27,9 @@ import { ccclass, tooltip, displayOrder, range, type, serializable, visible, ran
 import { DEBUG } from 'internal:constants';
 import { lerp, Vec3, approx, assertIsTrue } from '../../core';
 import { Space } from '../enum';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 
@@ -41,8 +41,8 @@ const seed = new Vec3();
 const requiredParameters = BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.BASE_VELOCITY;
 
 @ccclass('cc.LimitVelocity')
-@ParticleModule.register('LimitVelocity', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
-export class LimitVelocityModule extends ParticleModule {
+@VFXModule.register('LimitVelocity', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
+export class LimitVelocityModule extends VFXModule {
     /**
      * @zh X 轴方向上的速度下限。
      */
@@ -149,24 +149,24 @@ export class LimitVelocityModule extends ParticleModule {
 
     private _randomOffset = 0;
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._randomOffset = state.randomStream.getUInt32();
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         if (this.separateAxes && DEBUG) {
             assertIsTrue(this.limitX.mode === this.limitY.mode && this.limitY.mode === this.limitZ.mode, 'The curve of limitX, limitY, limitZ must have same mode!');
         }
-        context.markRequiredBuiltinParameters(requiredParameters);
+        particles.markRequiredParameters(requiredParameters);
         if (this.limitX.mode === FloatExpression.Mode.CURVE || this.limitX.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this.limitX.mode === FloatExpression.Mode.TWO_CONSTANTS || this.limitX.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
         const dampen = this.dampen;
         if (approx(dampen, 0)) {

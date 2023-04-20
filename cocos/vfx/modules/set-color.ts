@@ -24,9 +24,9 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type } from 'cc.decorator';
-import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
+import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { ColorExpression } from '../expressions/color';
 import { Color } from '../../core';
 import { RandomStream } from '../random-stream';
@@ -38,8 +38,8 @@ const tempColor3 = new Color();
 const COLOR_RAND_SEED = 1767123;
 
 @ccclass('cc.SetColorModule')
-@ParticleModule.register('SetColor', ModuleExecStageFlags.SPAWN, [ParameterName.COLOR], [ParameterName.NORMALIZED_ALIVE_TIME])
-export class SetColorModule extends ParticleModule {
+@VFXModule.register('SetColor', ModuleExecStageFlags.SPAWN, [ParameterName.COLOR], [ParameterName.NORMALIZED_ALIVE_TIME])
+export class SetColorModule extends VFXModule {
     /**
       * @zh 粒子初始颜色。
       */
@@ -51,28 +51,28 @@ export class SetColorModule extends ParticleModule {
 
     private _rand = new RandomStream();
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._rand.seed = state.randomStream.getUInt32();
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.COLOR);
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.COLOR);
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.BASE_COLOR);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_COLOR);
         }
         if (this.color.mode === ColorExpression.Mode.GRADIENT || this.color.mode === ColorExpression.Mode.TWO_GRADIENTS) {
             if (context.executionStage === ModuleExecStage.SPAWN) {
-                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+                particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
             } else {
-                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+                particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
             }
         }
         if (this.color.mode === ColorExpression.Mode.TWO_CONSTANTS || this.color.mode === ColorExpression.Mode.TWO_GRADIENTS || this.color.mode === ColorExpression.Mode.RANDOM_COLOR) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const color = context.executionStage === ModuleExecStage.SPAWN ? particles.baseColor.data : particles.color.data;
         const { fromIndex, toIndex } = context;
         if (this.color.mode === ColorExpression.Mode.CONSTANT) {

@@ -26,16 +26,16 @@
 import { ccclass, displayOrder, range, serializable, tooltip, type } from 'cc.decorator';
 import { lerp } from '../../core';
 import { FloatExpression } from '../expressions/float';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 
 const SPEED_MODIFIER_RAND_OFFSET = 388180;
 
 @ccclass('cc.ScaleSpeedModule')
-@ParticleModule.register('ScaleSpeed', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
-export class ScaleSpeedModule extends ParticleModule {
+@VFXModule.register('ScaleSpeed', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
+export class ScaleSpeedModule extends VFXModule {
     /**
      * @zh 速度修正系数。
      */
@@ -46,16 +46,16 @@ export class ScaleSpeedModule extends ParticleModule {
     @tooltip('i18n:velocityOvertimeModule.speedModifier')
     public scalar = new FloatExpression(1);
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         if (this.scalar.mode === FloatExpression.Mode.CURVE || this.scalar.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this.scalar.mode === FloatExpression.Mode.TWO_CONSTANTS || this.scalar.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (!particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
             return;
         }

@@ -1,8 +1,34 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 import { CCFloat, Vec3, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/class-decorator';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
+import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { Vec3Expression } from './vec3';
@@ -25,15 +51,15 @@ export class MakeVec3Expression extends Vec3Expression {
         return this.x.isConstant && this.y.isConstant && this.z.isConstant;
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        this.x.tick(particles, params, context);
-        this.y.tick(particles, params, context);
-        this.z.tick(particles, params, context);
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        this.x.tick(particles, emitter, user, context);
+        this.y.tick(particles, emitter, user, context);
+        this.z.tick(particles, emitter, user, context);
     }
-    public bind (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext, randomOffset: number) {
-        this.x.bind(particles, params, context, randomOffset);
-        this.y.bind(particles, params, context, randomOffset);
-        this.z.bind(particles, params, context, randomOffset);
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        this.x.bind(particles, emitter, user, context);
+        this.y.bind(particles, emitter, user, context);
+        this.z.bind(particles, emitter, user, context);
     }
 
     public evaluate (index: number, out: Vec3) {
@@ -43,10 +69,10 @@ export class MakeVec3Expression extends Vec3Expression {
         return out;
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream, context: ParticleExecContext, out: Vec3) {
-        out.x = this.x.evaluateSingle(time, randomStream, context);
-        out.y = this.y.evaluateSingle(time, randomStream, context);
-        out.z = this.z.evaluateSingle(time, randomStream, context);
+    public evaluateSingle (time: number, randomStream: RandomStream, out: Vec3) {
+        out.x = this.x.evaluateSingle(time, randomStream);
+        out.y = this.y.evaluateSingle(time, randomStream);
+        out.z = this.z.evaluateSingle(time, randomStream);
         return out;
     }
 }

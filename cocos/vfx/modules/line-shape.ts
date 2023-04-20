@@ -24,14 +24,14 @@
  */
 import { ccclass, range, rangeMin, serializable, tooltip, type, visible } from 'cc.decorator';
 import { ShapeModule, DistributionMode, MoveWarpMode } from './shape';
-import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, lerp } from '../../core';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 
 @ccclass('cc.LineShapeModule')
-@ParticleModule.register('LineShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('LineShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class LineShapeModule extends ShapeModule {
     /**
      * @zh 粒子发射器半径。
@@ -82,31 +82,31 @@ export class LineShapeModule extends ShapeModule {
     private _lengthRounded = 0;
     private _halfLength = 0;
 
-    public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, states: VFXEmitterState) {
         super.onPlay(params, states);
         this._lengthTimer = 0;
         this._lengthTimePrev = 0;
     }
 
-    public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
-        super.tick(particles, params, context);
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        super.tick(particles, emitter, user, context);
         if (this.distributionMode === DistributionMode.MOVE) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_TIME_RATIO);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_TIME_RATIO);
         }
         this._lengthTimePrev = this._lengthTimer;
         let deltaTime = context.emitterDeltaTime;
-        if (context.emitterNormalizedTime < context.emitterNormalizedPrevTime) {
-            this._lengthTimer += (this.moveSpeed.evaluate(1, 1) * (params.duration - context.emitterPreviousTime));
-            deltaTime = context.emitterCurrentTime;
+        if (context.normalizedLoopAge < context.normalizedPrevLoopAge) {
+            this._lengthTimer += (this.moveSpeed.evaluate(1, 1) * (params.duration - context.previousTime));
+            deltaTime = context.currentTime;
         }
-        this._lengthTimer += this.moveSpeed.evaluate(context.emitterNormalizedTime, 1) * deltaTime;
+        this._lengthTimer += this.moveSpeed.evaluate(context.normalizedLoopAge, 1) * deltaTime;
         this._invLength = 1 / this.length;
         this._spreadStep = this.spread * this._invLength;
         this._lengthRounded = Math.ceil(this.length / this._spreadStep) * this._spreadStep;
         this._halfLength = this.length * 0.5;
     }
 
-    public execute (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
         const { vec3Register, startDir } = particles;
         const rand = this._rand;

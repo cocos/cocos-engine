@@ -25,9 +25,9 @@
 
 import { DEBUG } from 'internal:constants';
 import { ccclass, range, serializable, tooltip, type, visible } from 'cc.decorator';
-import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
+import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { lerp, Vec3, assertIsTrue } from '../../core';
 import { RandomStream } from '../random-stream';
@@ -35,8 +35,8 @@ import { RandomStream } from '../random-stream';
 const seed = new Vec3();
 
 @ccclass('cc.SetSizeModule')
-@ParticleModule.register('SetSize', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [ParameterName.SIZE], [ParameterName.NORMALIZED_ALIVE_TIME])
-export class SetSizeModule extends ParticleModule {
+@VFXModule.register('SetSize', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [ParameterName.SIZE], [ParameterName.NORMALIZED_ALIVE_TIME])
+export class SetSizeModule extends VFXModule {
     @serializable
     @tooltip('i18n:particle_system.startSize3D')
     public separateAxes = false;
@@ -104,33 +104,33 @@ export class SetSizeModule extends ParticleModule {
     private _z: FloatExpression | null = null;
     private _randomOffset = 0;
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._randomOffset = state.randomStream.getUInt32();
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.BASE_SIZE);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_SIZE);
         }
 
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SIZE);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.SIZE);
         if (this.separateAxes && DEBUG) {
             assertIsTrue(this.x.mode === this.y.mode && this.x.mode === this.z.mode,
                 'SetSizeModule: x, y and z must have the same mode.');
         }
         if (this.x.mode === FloatExpression.Mode.CURVE || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
             if (context.executionStage === ModuleExecStage.SPAWN) {
-                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+                particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
             } else {
-                context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+                particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
             }
         }
         if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const size = context.executionStage === ModuleExecStage.SPAWN ? particles.baseSize : particles.size;
         const { fromIndex, toIndex } = context;
         const randomOffset = this._randomOffset;

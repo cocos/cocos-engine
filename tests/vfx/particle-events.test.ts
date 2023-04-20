@@ -1,10 +1,10 @@
-import { ParticleEventInfo, ParticleEvents } from '../../cocos/vfx/particle-base';
+import { VFXEventInfo, VFXEvents } from '../../cocos/vfx/particle-base';
 import { RandomStream } from '../../cocos/vfx/random-stream';
 
-describe('ParticleEvents', () => {
+describe('VFXEvents', () => {
     test('capacity', () => {
-        const particleEventInfo = new ParticleEventInfo();
-        const particleEvents = new ParticleEvents();
+        const particleEventInfo = new VFXEventInfo();
+        const particleEvents = new VFXEvents();
         expect(particleEvents.capacity).toBe(16);
         expect(particleEvents.count).toBe(0);
         particleEvents.dispatch(particleEventInfo);
@@ -29,8 +29,8 @@ describe('ParticleEvents', () => {
     });
     
     test('dispatch and getEventInfo', () => {
-        const particleEventInfo = new ParticleEventInfo();
-        const particleEvents = new ParticleEvents();
+        const particleEventInfo = new VFXEventInfo();
+        const particleEvents = new VFXEvents();
         expect(particleEvents.count).toBe(0);
         expect(() => particleEvents.getEventInfoAt(particleEventInfo, 0)).toThrowError();
         const randomStream = new RandomStream();
@@ -53,7 +53,7 @@ describe('ParticleEvents', () => {
         expect(() => particleEvents.getEventInfoAt(particleEventInfo, -1)).toThrowError();
         expect(() => particleEvents.getEventInfoAt(particleEventInfo, 200)).toThrowError();
 
-        const particleEventInfo2 = new ParticleEventInfo();
+        const particleEventInfo2 = new VFXEventInfo();
         for (let i = 0; i < 100; i++) {
             const eventInfo = particleEvents.getEventInfoAt(particleEventInfo2, i);
             expect(eventInfo.type).toBe(randomStream2.getIntFromRange(0, 4));

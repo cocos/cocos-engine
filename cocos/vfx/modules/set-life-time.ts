@@ -24,16 +24,16 @@
  */
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from 'cc.decorator';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
-import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
+import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { lerp } from '../../core';
 import { RandomStream } from '../random-stream';
 
 @ccclass('cc.SetLifeTimeModule')
-@ParticleModule.register('SetLifeTime', ModuleExecStageFlags.SPAWN)
-export class SetLifeTimeModule extends ParticleModule {
+@VFXModule.register('SetLifeTime', ModuleExecStageFlags.SPAWN)
+export class SetLifeTimeModule extends VFXModule {
     /**
       * @zh 粒子生命周期。
       */
@@ -46,18 +46,18 @@ export class SetLifeTimeModule extends ParticleModule {
 
     private _rand = new RandomStream();
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
         if (this.lifetime.mode === FloatExpression.Mode.CURVE || this.lifetime.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const invStartLifeTime = particles.invStartLifeTime.data;
         const { fromIndex, toIndex } = context;
         if (this.lifetime.mode === FloatExpression.Mode.CONSTANT) {

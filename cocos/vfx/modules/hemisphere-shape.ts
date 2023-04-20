@@ -23,16 +23,16 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, tooltip } from 'cc.decorator';
-import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { AngleBasedShapeModule } from './angle-based-shape';
-import { ParticleVec3ArrayParameter } from '../particle-parameter';
+import { ParticleVec3Parameter } from '../particle-parameter';
 
 const temp = new Vec3();
 @ccclass('cc.HemisphereShapeModule')
-@ParticleModule.register('HemisphereShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('HemisphereShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class HemisphereShapeModule extends AngleBasedShapeModule {
     /**
       * @zh 粒子发射器半径。
@@ -53,12 +53,12 @@ export class HemisphereShapeModule extends AngleBasedShapeModule {
 
     private _innerRadius = 0;
 
-    public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
-        super.tick(particles, params, context);
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        super.tick(particles, emitter, user, context);
         this._innerRadius = (1 - this.radiusThickness) ** 3;
     }
 
-    protected generatePosAndDir (index: number, angle: number, startDir: ParticleVec3ArrayParameter, vec3Register: ParticleVec3ArrayParameter) {
+    protected generatePosAndDir (index: number, angle: number, startDir: ParticleVec3Parameter, vec3Register: ParticleVec3Parameter) {
         const innerRadius = this._innerRadius;
         const radius = this.radius;
         const rand = this._rand;

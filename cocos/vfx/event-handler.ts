@@ -25,12 +25,14 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { BitMask, Enum, assertIsTrue } from '../core';
-import { ParticleEmitterParams, ParticleExecContext } from './particle-base';
-import { ParticleEmitter } from './particle-emitter';
-import { ModuleExecStage, ParticleModuleStage } from './particle-module';
-import { ParticleFloatArrayParameter, ParticleUint32ArrayParameter } from './particle-parameter';
+import { ModuleExecContext } from './base';
+import { VFXEmitter } from './vfx-emitter';
+import { ModuleExecStage, VFXModuleStage } from './vfx-module';
+import { ParticleFloatParameter, ParticleUint32Parameter } from './particle-parameter';
 import { ParticleDataSet } from './particle-data-set';
 import { ParticleEventType, InheritedProperty } from './enum';
+import { EmitterDataSet } from './emitter-data-set';
+import { UserDataSet } from './user-data-set';
 
 export class EventSpawnStates {
     get capacity () {
@@ -44,9 +46,9 @@ export class EventSpawnStates {
     private _version = 1;
     private _particleId2Index = {};
     private _count = 0;
-    private _particleId = new ParticleUint32ArrayParameter();
-    private _lastUsed = new ParticleUint32ArrayParameter();
-    private _spawnFraction = new ParticleFloatArrayParameter();
+    private _particleId = new ParticleUint32Parameter();
+    private _lastUsed = new ParticleUint32Parameter();
+    private _spawnFraction = new ParticleFloatParameter();
 
     public getSpawnFraction (id: number) {
         if (id in this._particleId2Index) {
@@ -105,10 +107,10 @@ export class EventSpawnStates {
 }
 
 @ccclass('cc.EventHandler')
-export class EventHandler extends ParticleModuleStage {
+export class EventHandler extends VFXModuleStage {
     @visible(true)
     @serializable
-    public target: ParticleEmitter | null = null;
+    public target: VFXEmitter | null = null;
 
     @type(Enum(ParticleEventType))
     @visible(true)
@@ -128,9 +130,9 @@ export class EventHandler extends ParticleModuleStage {
     }
     private _eventSpawnStates: EventSpawnStates | null = null;
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this._eventSpawnStates?.tick();
-        super.tick(particles, params, context);
+        super.tick(particles, emitter, user, context);
     }
 
     constructor () {

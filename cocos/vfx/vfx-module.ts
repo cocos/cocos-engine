@@ -23,62 +23,62 @@
  THE SOFTWARE.
  */
 
-import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from './particle-base';
+import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from './base';
 import { ParticleDataSet } from './particle-data-set';
 import { ccclass, serializable, type, visible } from '../core/data/decorators';
 import { assertIsTrue, CCBoolean, CCString, Enum } from '../core';
+import { EmitterDataSet } from './emitter-data-set';
+import { UserDataSet } from './user-data-set';
 
 export enum ModuleExecStage {
     UNKNOWN = -1,
-    EMITTER_UPDATE,
+    EMITTER,
     SPAWN,
     UPDATE,
     EVENT_HANDLER,
-    RENDER,
 }
 
 export enum ModuleExecStageFlags {
     NONE = 0,
-    EMITTER_UPDATE = 1 << ModuleExecStage.EMITTER_UPDATE,
+    EMITTER = 1 << ModuleExecStage.EMITTER,
     SPAWN = 1 << ModuleExecStage.SPAWN,
     UPDATE = 1 << ModuleExecStage.UPDATE,
     EVENT_HANDLER = 1 << ModuleExecStage.EVENT_HANDLER,
-    RENDER = 1 << ModuleExecStage.RENDER,
 }
 
-@ccclass('cc.ParticleModule')
-export abstract class ParticleModule {
+@ccclass('cc.VFXModule')
+export abstract class VFXModule {
     public static register (name: string, stages: ModuleExecStageFlags, provide: string[] = [], consume: string[] = []) {
-        return function (ctor: Constructor<ParticleModule>) {
-            for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
-                if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
+        return function (ctor: Constructor<VFXModule>) {
+            for (let i = 0, length = VFXModule._allRegisteredModules.length; i < length; i++) {
+                if (VFXModule._allRegisteredModules[i].ctor === ctor) {
                     throw new Error(`Duplicated calling registered module for module ${name}!`);
                 }
-                if (ParticleModule._allRegisteredModules[i].name === name) {
+                if (VFXModule._allRegisteredModules[i].name === name) {
                     throw new Error(`Duplicated name ${name} with other module!`);
                 }
             }
-            const identity = new ParticleModuleIdentity(ctor, name, stages, provide, consume);
-            ParticleModule._allRegisteredModules.push(identity);
+            const identity = new VFXModuleIdentity(ctor, name, stages, provide, consume);
+            VFXModule._allRegisteredModules.push(identity);
         };
     }
 
-    public static get allRegisteredModules (): ReadonlyArray<ParticleModuleIdentity> {
+    public static get allRegisteredModules (): ReadonlyArray<VFXModuleIdentity> {
         return this._allRegisteredModules;
     }
 
-    public static findAProperPositionToInsert (modules: ParticleModule[], module: ParticleModule, fromIndex: number, toIndex: number): number {
+    public static findAProperPositionToInsert (modules: VFXModule[], module: VFXModule, fromIndex: number, toIndex: number): number {
         if (fromIndex === toIndex) {
             return fromIndex;
         }
-        const identity = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
+        const identity = VFXModule.getModuleIdentityByClassUnsafe(module.constructor as Constructor<VFXModule>);
         const provideParams = identity.provideParams;
         const consumeParams = identity.consumeParams;
         let lastIndexOfPreDependency = -1;
         for (let i = 0, l = consumeParams.length; i < l; i++) {
             for (let j = fromIndex; j < toIndex; j++) {
                 const module = modules[j];
-                const currentModuleId = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
+                const currentModuleId = VFXModule.getModuleIdentityByClassUnsafe(module.constructor as Constructor<VFXModule>);
                 const currentProduceParams = currentModuleId.provideParams;
                 if (currentProduceParams.includes(consumeParams[i])) {
                     if (j > lastIndexOfPreDependency) {
@@ -91,7 +91,7 @@ export abstract class ParticleModule {
         for (let i = 0, l = provideParams.length; i < l; i++) {
             for (let j = toIndex - 1; j >= fromIndex; j--) {
                 const module = modules[j];
-                const currentModuleId = ParticleModule.getModuleIdentityByClassNoCheck(module.constructor as Constructor<ParticleModule>);
+                const currentModuleId = VFXModule.getModuleIdentityByClassUnsafe(module.constructor as Constructor<VFXModule>);
                 const currentConsumeParams = currentModuleId.consumeParams;
                 if (currentConsumeParams.includes(provideParams[i])) {
                     if (j < firstIndexOfPostDependency) {
@@ -103,37 +103,37 @@ export abstract class ParticleModule {
         if (firstIndexOfPostDependency > lastIndexOfPreDependency) {
             return firstIndexOfPostDependency;
         } else {
-            return ParticleModule.findAProperPositionToInsert(modules, module, lastIndexOfPreDependency + 1, toIndex);
+            return VFXModule.findAProperPositionToInsert(modules, module, lastIndexOfPreDependency + 1, toIndex);
         }
     }
 
-    public static getModuleIdentityByClassNoCheck (ctor: Constructor<ParticleModule>) {
+    public static getModuleIdentityByClassUnsafe (ctor: Constructor<VFXModule>) {
         const identity = this.getModuleIdentityByClass(ctor);
         assertIsTrue(identity, 'Module not registered!');
         return identity;
     }
 
-    public static getModuleIdentityByClass (ctor: Constructor<ParticleModule>) {
-        for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
-            if (ParticleModule._allRegisteredModules[i].ctor === ctor) {
-                return ParticleModule._allRegisteredModules[i];
+    public static getModuleIdentityByClass (ctor: Constructor<VFXModule>) {
+        for (let i = 0, length = VFXModule._allRegisteredModules.length; i < length; i++) {
+            if (VFXModule._allRegisteredModules[i].ctor === ctor) {
+                return VFXModule._allRegisteredModules[i];
             }
         }
         return null;
     }
 
     public static getModuleIdentityByName (name: string) {
-        for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
-            if (ParticleModule._allRegisteredModules[i].name === name) {
-                return ParticleModule._allRegisteredModules[i];
+        for (let i = 0, length = VFXModule._allRegisteredModules.length; i < length; i++) {
+            if (VFXModule._allRegisteredModules[i].name === name) {
+                return VFXModule._allRegisteredModules[i];
             }
         }
         return null;
     }
 
-    public static getModuleIdentitiesWithSpecificStage (stage: ModuleExecStage, out: ParticleModuleIdentity[]) {
-        for (let i = 0, length = ParticleModule._allRegisteredModules.length; i < length; i++) {
-            const identity = ParticleModule._allRegisteredModules[i];
+    public static getModuleIdentitiesWithSpecificStage (stage: ModuleExecStage, out: VFXModuleIdentity[]) {
+        for (let i = 0, length = VFXModule._allRegisteredModules.length; i < length; i++) {
+            const identity = VFXModule._allRegisteredModules[i];
             if (identity.execStages & 1 << stage) {
                 out.push(identity);
             }
@@ -145,7 +145,7 @@ export abstract class ParticleModule {
         this._allRegisteredModules.length = 0;
     }
 
-    private static _allRegisteredModules: ParticleModuleIdentity[] = [];
+    private static _allRegisteredModules: VFXModuleIdentity[] = [];
 
     @type(CCBoolean)
     public get enabled () {
@@ -158,11 +158,16 @@ export abstract class ParticleModule {
 
     @type(CCString)
     private get name () {
-        return ParticleModule.getModuleIdentityByClass(this.constructor as Constructor<ParticleModule>)?.name;
+        return VFXModule.getModuleIdentityByClass(this.constructor as Constructor<VFXModule>)?.name;
+    }
+
+    public get randomSeed () {
+        return this._randomSeed;
     }
 
     @serializable
     private _enabled = true;
+    private _randomSeed = 0;
 
     protected needsFilterSerialization () {
         return false;
@@ -186,28 +191,30 @@ export abstract class ParticleModule {
      * @engineInternal
      * @internal
      */
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {}
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {}
     /**
      * @engineInternal
      * @internal
      */
-    public abstract execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext);
+    public abstract execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext);
     /**
      * @engineInternal
      * @internal
      */
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {}
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
+        this._randomSeed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
+    }
     /**
      * @engineInternal
      * @internal
      */
-    public onStop (params: ParticleEmitterParams, state: ParticleEmitterState) {}
+    public onStop (params: VFXEmitterParams, state: VFXEmitterState) {}
 }
 
-@ccclass('cc.ParticleModuleStage')
-export class ParticleModuleStage {
-    @type([ParticleModule])
-    public get modules (): ReadonlyArray<ParticleModule> {
+@ccclass('cc.VFXModuleStage')
+export class VFXModuleStage {
+    @type([VFXModule])
+    public get modules (): ReadonlyArray<VFXModule> {
         return this._modules;
     }
 
@@ -216,7 +223,7 @@ export class ParticleModuleStage {
     }
 
     @serializable
-    private _modules: ParticleModule[] = [];
+    private _modules: VFXModule[] = [];
     @serializable
     private _execStage = ModuleExecStage.UNKNOWN;
 
@@ -227,12 +234,12 @@ export class ParticleModuleStage {
     /**
      * @zh 添加粒子模块
      */
-    public addModule<T extends ParticleModule> (ModuleType: Constructor<T>): T {
-        const id = ParticleModule.getModuleIdentityByClass(ModuleType);
+    public addModule<T extends VFXModule> (ModuleType: Constructor<T>): T {
+        const id = VFXModule.getModuleIdentityByClass(ModuleType);
         assertIsTrue(id, 'Particle Module should be registered!');
         if (id.execStages & 1 << this._execStage) {
             const newModule = new ModuleType();
-            const index = ParticleModule.findAProperPositionToInsert(this._modules, newModule, 0, this._modules.length);
+            const index = VFXModule.findAProperPositionToInsert(this._modules, newModule, 0, this._modules.length);
             this._modules.splice(index, 0, newModule);
             return newModule;
         } else {
@@ -240,7 +247,7 @@ export class ParticleModuleStage {
         }
     }
 
-    public getModule<T extends ParticleModule> (moduleType: Constructor<T> | AbstractedConstructor<T>): T | null {
+    public getModule<T extends VFXModule> (moduleType: Constructor<T> | AbstractedConstructor<T>): T | null {
         for (let i = 0, l = this._modules.length; i < l; i++) {
             const particleModule = this._modules[i];
             if (particleModule instanceof moduleType) {
@@ -250,7 +257,7 @@ export class ParticleModuleStage {
         return null;
     }
 
-    public getModules<T extends ParticleModule> (moduleType: Constructor<T> | AbstractedConstructor<T>, out: Array<any>): Array<T> {
+    public getModules<T extends VFXModule> (moduleType: Constructor<T> | AbstractedConstructor<T>, out: Array<any>): Array<T> {
         out.length = 0;
         for (let i = 0, l = this._modules.length; i < l; i++) {
             const module = this._modules[i];
@@ -261,7 +268,7 @@ export class ParticleModuleStage {
         return out as Array<T>;
     }
 
-    public moveUpModule (module: ParticleModule) {
+    public moveUpModule (module: VFXModule) {
         const index = this._modules.indexOf(module);
         if (index !== -1 && index !== 0) {
             this._modules.splice(index, 1);
@@ -269,7 +276,7 @@ export class ParticleModuleStage {
         }
     }
 
-    public moveDownModule (module: ParticleModule) {
+    public moveDownModule (module: VFXModule) {
         const index = this._modules.indexOf(module);
         if (index !== -1 && index !== this._modules.length - 1) {
             this._modules.splice(index, 1);
@@ -277,14 +284,14 @@ export class ParticleModuleStage {
         }
     }
 
-    public removeModule (module: ParticleModule) {
+    public removeModule (module: VFXModule) {
         const index = this._modules.indexOf(module);
         if (index !== -1) {
             this._modules.splice(index, 1);
         }
     }
 
-    public getOrAddModule<T extends ParticleModule> (moduleType: Constructor<T>): T {
+    public getOrAddModule<T extends VFXModule> (moduleType: Constructor<T>): T {
         let module = this.getModule(moduleType);
         if (!module) {
             module = this.addModule(moduleType);
@@ -296,7 +303,7 @@ export class ParticleModuleStage {
      * @engineInternal
      * @internal
      */
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         for (let i = 0, length = this._modules.length; i < length; i++) {
             const module = this._modules[i];
             module.onPlay(params, state);
@@ -307,7 +314,7 @@ export class ParticleModuleStage {
      * @engineInternal
      * @internal
      */
-    public onStop (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onStop (params: VFXEmitterParams, state: VFXEmitterState) {
         for (let i = 0, length = this._modules.length; i < length; i++) {
             const module = this._modules[i];
             module.onStop(params, state);
@@ -318,13 +325,14 @@ export class ParticleModuleStage {
      * @engineInternal
      * @internal
      */
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         context.setExecutionStage(this._execStage);
         const modules = this._modules;
         for (let i = 0, length = modules.length; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
-                module.tick(particles, params, context);
+                context.moduleRandomSeed = module.randomSeed;
+                module.tick(particles, emitter, user, context);
             }
         }
         context.setExecutionStage(ModuleExecStage.UNKNOWN);
@@ -334,27 +342,27 @@ export class ParticleModuleStage {
      * @engineInternal
      * @internal
      */
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         context.setExecutionStage(this._execStage);
         const modules = this._modules;
         for (let i = 0, length = modules.length; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
-                module.execute(particles, params, context);
+                module.execute(particles, emitter, user, context);
             }
         }
         context.setExecutionStage(ModuleExecStage.UNKNOWN);
     }
 }
 
-class ParticleModuleIdentity {
-    public readonly ctor: Constructor<ParticleModule> | null = null;
+class VFXModuleIdentity {
+    public readonly ctor: Constructor<VFXModule> | null = null;
     public readonly name: string = '';
     public readonly execStages = ModuleExecStageFlags.NONE;
     public readonly provideParams: string[];
     public readonly consumeParams: string[];
 
-    constructor (ctor: Constructor<ParticleModule>, name: string, execStages: ModuleExecStageFlags, provideParams: string[] = [], consumeParams: string[] = []) {
+    constructor (ctor: Constructor<VFXModule>, name: string, execStages: ModuleExecStageFlags, provideParams: string[] = [], consumeParams: string[] = []) {
         this.ctor = ctor;
         this.name = name;
         this.execStages = execStages;

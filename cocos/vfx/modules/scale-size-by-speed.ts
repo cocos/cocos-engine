@@ -25,16 +25,16 @@
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible, rangeMin } from 'cc.decorator';
 import { approx, lerp, Vec2, assertIsTrue } from '../../core';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 
 const SCALE_SIZE_RAND = 2818312;
 @ccclass('cc.ScaleSizeBySpeedModule')
-@ParticleModule.register('ScaleSizeBySpeed', ModuleExecStageFlags.UPDATE, [ParameterName.SIZE], [ParameterName.SIZE, ParameterName.VELOCITY])
-export class ScaleSizeBySpeedModule extends ParticleModule {
+@VFXModule.register('ScaleSizeBySpeed', ModuleExecStageFlags.UPDATE, [ParameterName.SIZE], [ParameterName.SIZE, ParameterName.VELOCITY])
+export class ScaleSizeBySpeedModule extends VFXModule {
     /**
       * @zh 决定是否在每个轴上独立控制粒子大小。
       */
@@ -118,18 +118,18 @@ export class ScaleSizeBySpeedModule extends ParticleModule {
     @serializable
     private _z: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         assertIsTrue(!approx(this.speedRange.x, this.speedRange.y), 'Speed Range X is so closed to Speed Range Y');
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SIZE);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.SIZE);
         if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this.x.mode === FloatExpression.Mode.CURVE || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { size } = particles;
         const normalizedAliveTime = particles.normalizedAliveTime.data;
         const randomSeed = particles.randomSeed.data;

@@ -24,16 +24,16 @@
  */
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from 'cc.decorator';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
-import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 import { ConstantExpression } from '../expressions';
 
 @ccclass('cc.SpawnPerUnitModule')
-@ParticleModule.register('SpawnPerUnit', ModuleExecStageFlags.EMITTER_UPDATE | ModuleExecStageFlags.EVENT_HANDLER)
-export class SpawnPerUnitModule extends ParticleModule {
+@VFXModule.register('SpawnPerUnit', ModuleExecStageFlags.EMITTER | ModuleExecStageFlags.EVENT_HANDLER)
+export class SpawnPerUnitModule extends VFXModule {
     /**
       * @zh 每移动单位距离发射的粒子数。
       */
@@ -46,17 +46,17 @@ export class SpawnPerUnitModule extends ParticleModule {
 
     private _rand = new RandomStream();
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        const { emitterVelocity, emitterNormalizedTime: normalizeT, emitterDeltaTime, emitterPreviousTime, emitterCurrentTime } = context;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        const { emitterVelocity, normalizedLoopAge: normalizeT, emitterDeltaTime, previousTime, currentTime } = context;
         let deltaTime = emitterDeltaTime;
-        if (emitterPreviousTime > emitterCurrentTime) {
+        if (previousTime > currentTime) {
             const seed = this._rand.seed;
-            context.spawnContinuousCount += emitterVelocity.length() * this.rate.evaluateSingle(1, this._rand, context) * (params.duration - emitterPreviousTime);
-            deltaTime = emitterCurrentTime;
+            context.spawnContinuousCount += emitterVelocity.length() * this.rate.evaluateSingle(1, this._rand, context) * (params.duration - previousTime);
+            deltaTime = currentTime;
             this._rand.seed = seed;
         }
         context.spawnContinuousCount += emitterVelocity.length() * this.rate.evaluateSingle(normalizeT, this._rand, context) * deltaTime;

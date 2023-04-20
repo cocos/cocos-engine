@@ -26,8 +26,8 @@
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { lerp, Vec3, CCBoolean } from '../../core';
 import { FloatExpression } from '../expressions/float';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 
@@ -35,8 +35,8 @@ const _temp_v3 = new Vec3();
 const requiredParameters = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.BASE_VELOCITY | BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.FLOAT_REGISTER;
 
 @ccclass('cc.DragModule')
-@ParticleModule.register('Drag', ModuleExecStageFlags.UPDATE, [ParameterName.VELOCITY], [ParameterName.VELOCITY, ParameterName.SIZE])
-export class DragModule extends ParticleModule {
+@VFXModule.register('Drag', ModuleExecStageFlags.UPDATE, [ParameterName.VELOCITY], [ParameterName.VELOCITY, ParameterName.SIZE])
+export class DragModule extends VFXModule {
     @type(FloatExpression)
     @visible(true)
     @serializable
@@ -51,24 +51,24 @@ export class DragModule extends ParticleModule {
 
     private _randomOffset = 0;
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._randomOffset = state.randomStream.getUInt32();
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredBuiltinParameters(requiredParameters);
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+        particles.markRequiredParameters(requiredParameters);
         if (this.drag.mode === FloatExpression.Mode.CURVE || this.drag.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this.drag.mode === FloatExpression.Mode.TWO_CONSTANTS || this.drag.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this.multiplyBySize) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SIZE);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.SIZE);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { velocity, baseVelocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
         const floatRegister = particles.floatRegister.data;

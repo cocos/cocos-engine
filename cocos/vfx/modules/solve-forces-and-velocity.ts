@@ -24,23 +24,23 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { ParticleModule, ModuleExecStage, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
-import { ParticleVec3ArrayParameter } from '../particle-parameter';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { ParticleVec3Parameter } from '../particle-parameter';
 
 @ccclass('cc.SolveForcesAndVelocityModule')
-@ParticleModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [ParameterName.POSITION, ParameterName.ROTATION], [ParameterName.VELOCITY, ParameterName.ANGULAR_VELOCITY])
-export class SolveForceAndVelocityModule extends ParticleModule {
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+@VFXModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [ParameterName.POSITION, ParameterName.ROTATION], [ParameterName.VELOCITY, ParameterName.ANGULAR_VELOCITY])
+export class SolveForceAndVelocityModule extends VFXModule {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex, deltaTime } = context;
         if (particles.hasParameter(BuiltinParticleParameter.VELOCITY) && particles.hasParameter(BuiltinParticleParameter.POSITION)) {
             const { position, velocity } = particles;
-            ParticleVec3ArrayParameter.scaleAndAdd(position, position, velocity, deltaTime, fromIndex, toIndex);
+            ParticleVec3Parameter.scaleAndAdd(position, position, velocity, deltaTime, fromIndex, toIndex);
         }
         if (particles.hasParameter(BuiltinParticleParameter.ROTATION) && particles.hasParameter(BuiltinParticleParameter.ANGULAR_VELOCITY)) {
             const { angularVelocity, rotation } = particles;
-            ParticleVec3ArrayParameter.scaleAndAdd(rotation, rotation, angularVelocity, deltaTime, fromIndex, toIndex);
+            ParticleVec3Parameter.scaleAndAdd(rotation, rotation, angularVelocity, deltaTime, fromIndex, toIndex);
         }
     }
 }

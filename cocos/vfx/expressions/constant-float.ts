@@ -24,9 +24,11 @@
  */
 import { CCFloat } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/class-decorator';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { ModuleExecContext } from '../base';
+import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
+import { UserDataSet } from '../user-data-set';
 import { FloatExpression } from './float';
 
 @ccclass('cc.ConstantFloatExpression')
@@ -44,14 +46,14 @@ export class ConstantFloatExpression extends FloatExpression {
         this.value = value;
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {}
-    public bind (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext, randomOffset: number) {}
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {}
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {}
 
     public evaluate (index: number): number {
         return this.value;
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream, context: ParticleExecContext): number {
+    public evaluateSingle (time: number, randomStream: RandomStream): number {
         return this.value;
     }
 }

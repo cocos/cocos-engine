@@ -1,14 +1,14 @@
 import { DelayMode, LoopMode } from '../../../cocos/vfx/enum';
 import { createRealCurve, FloatExpression } from '../../../cocos/vfx/expression/float-expression';
 import { SpawnRateModule } from '../../../cocos/vfx/modules/spawn-rate';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../../../cocos/vfx/particle-base';
+import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../../../cocos/vfx/particle-base';
 import { ParticleDataSet } from '../../../cocos/vfx/particle-data-set';
-import { ParticleEmitter } from '../../../cocos/vfx/particle-emitter';
+import { VFXEmitter } from '../../../cocos/vfx/particle-emitter';
 import { RandomStream } from '../../../cocos/vfx/random-stream';
 
 describe('SpawnRate', () => {
     test('addModule', () => {
-        const particleEmitter = new ParticleEmitter();
+        const particleEmitter = new VFXEmitter();
         particleEmitter.emitterStage.addModule(SpawnRateModule);
         expect(particleEmitter.emitterStage.modules.length).toBe(1);
         expect(particleEmitter.emitterStage.modules[0]).toBeInstanceOf(SpawnRateModule);
@@ -26,10 +26,10 @@ describe('SpawnRate', () => {
     test('execute', () => {
         const spawnRate = new SpawnRateModule();
         spawnRate.rate = new FloatExpression(1);
-        const context = new ParticleExecContext();
-        const params = new ParticleEmitterParams();
+        const context = new ModuleExecContext();
+        const params = new VFXEmitterParams();
         const particles = new ParticleDataSet();
-        const state = new ParticleEmitterState();
+        const state = new VFXEmitterState();
         const curveRange1 = new FloatExpression(5, 10);
         const curveRange2 = new FloatExpression(1, createRealCurve([[0.0, 0], [0.5, 1.0], [1.0, 0.0]]));
         const curveRange3 = new FloatExpression(1, createRealCurve([[0.0, 0.3], [0.5, 0.8], [1.0, 0.9]]), createRealCurve([[0.0, 0.1], [0.5, 0.5], [1.0, 0.7]]));

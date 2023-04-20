@@ -24,9 +24,9 @@
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { Enum } from '../../core';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 
 export enum LifetimeElapsedOperation {
     KILL = 0,
@@ -35,19 +35,19 @@ export enum LifetimeElapsedOperation {
 }
 
 @ccclass('cc.StateModule')
-@ParticleModule.register('State', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
-export class StateModule extends ParticleModule {
+@VFXModule.register('State', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.NORMALIZED_ALIVE_TIME])
+export class StateModule extends VFXModule {
     @type(Enum(LifetimeElapsedOperation))
     @visible(true)
     @serializable
     public lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const normalizedAliveTime = particles.normalizedAliveTime.data;
         const invStartLifeTime = particles.invStartLifeTime.data;
         const { fromIndex, toIndex, deltaTime } = context;

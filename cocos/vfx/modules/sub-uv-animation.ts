@@ -26,10 +26,10 @@
 import { ccclass, tooltip, type, serializable, range, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { lerp, repeat, Enum, assertIsTrue, CCFloat, CCInteger } from '../../core';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { createRealCurve, FloatExpression } from '../expressions/float';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
@@ -56,8 +56,8 @@ export enum Animation {
 }
 
 @ccclass('cc.SubUVAnimationModule')
-@ParticleModule.register('SubUVAnimation', ModuleExecStageFlags.UPDATE, [], [ParameterName.VELOCITY, ParameterName.NORMALIZED_ALIVE_TIME])
-export class SubUVAnimationModule extends ParticleModule {
+@VFXModule.register('SubUVAnimation', ModuleExecStageFlags.UPDATE, [], [ParameterName.VELOCITY, ParameterName.NORMALIZED_ALIVE_TIME])
+export class SubUVAnimationModule extends VFXModule {
     /**
      * @zh X 方向动画帧数。
      */
@@ -192,30 +192,30 @@ export class SubUVAnimationModule extends ParticleModule {
     @serializable
     private _fps = 30;
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         if (DEBUG) {
             assertIsTrue(this.startFrame.mode === FloatExpression.Mode.CONSTANT || this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS,
                 'The mode of startFrame in texture-animation module can not be Curve and TwoCurve!');
         }
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.FRAME_INDEX);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.FRAME_INDEX);
         if (this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS || (this.animation === Animation.SINGLE_ROW && this.randomRow)) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this._timeMode === TimeMode.LIFETIME && (this.frameOverTime.mode === FloatExpression.Mode.TWO_CONSTANTS
             || this.frameOverTime.mode === FloatExpression.Mode.TWO_CURVES)) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
         if (this._timeMode === TimeMode.LIFETIME && (this.frameOverTime.mode === FloatExpression.Mode.TWO_CURVES
             || this.frameOverTime.mode === FloatExpression.Mode.CURVE)) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this._timeMode === TimeMode.FPS) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const frameIndex = particles.frameIndex.data;
         const { fromIndex, toIndex } = context;
 

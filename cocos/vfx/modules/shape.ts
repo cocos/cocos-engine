@@ -26,9 +26,9 @@
 
 import { ccclass, tooltip, displayOrder, serializable } from 'cc.decorator';
 import { Mat4, Quat, Vec3, randomRange } from '../../core';
-import { ParticleModule } from '../particle-module';
+import { VFXModule } from '../vfx-module';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
-import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
+import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { RandomStream } from '../random-stream';
 
 const _intermediVec = new Vec3(0, 0, 0);
@@ -68,7 +68,7 @@ export enum MoveWarpMode {
 }
 
 @ccclass('cc.ShapeModule')
-export class ShapeModule extends ParticleModule {
+export class ShapeModule extends VFXModule {
     /**
      * @zh 粒子发射器位置。
      */
@@ -145,22 +145,22 @@ export class ShapeModule extends ParticleModule {
     private _isTransformDirty = true;
     protected _rand = new RandomStream();
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
     }
 
-    public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (this._isTransformDirty) {
             Quat.fromEuler(this._quat, this._rotation.x, this._rotation.y, this._rotation.z);
             Mat4.fromRTS(this._mat, this._quat, this._position, this._scale);
             this._isTransformDirty = false;
         }
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.POSITION);
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.START_DIR);
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.VEC3_REGISTER);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.START_DIR);
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.VEC3_REGISTER);
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
         const { position, startDir, vec3Register } = particles;
         const randomPositionAmount = this.randomPositionAmount;

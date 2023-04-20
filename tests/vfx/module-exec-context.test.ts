@@ -1,10 +1,10 @@
 import { DelayMode, LoopMode } from "../../cocos/vfx/enum";
-import { ParticleExecContext } from "../../cocos/vfx/particle-base";
-import { ModuleExecStage } from "../../cocos/vfx/particle-module";
+import { ModuleExecContext } from "../../cocos/vfx/base";
+import { ModuleExecStage } from "../../cocos/vfx/vfx-module";
 
-describe('particle-exec-context', () => {
+describe('module-exec-context', () => {
     describe('update Emitter Time', () => {
-        const context = new ParticleExecContext();
+        const context = new ModuleExecContext();
         test('Edge case', () => {
             expect(() => context.updateEmitterTime(1, 0, DelayMode.NONE, 0, LoopMode.ONCE, 1, 0.5)).toThrowError();
         });
@@ -85,7 +85,7 @@ describe('particle-exec-context', () => {
     });
 
     test ('ExecutionRange', () => {
-        const context = new ParticleExecContext();
+        const context = new ModuleExecContext();
         expect(context.fromIndex).toBe(0);
         expect(context.toIndex).toBe(0);
         context.setExecuteRange(0, 1);
@@ -104,22 +104,22 @@ describe('particle-exec-context', () => {
     });
 
     test ('setExecutionStage', () => {
-        const context = new ParticleExecContext();
+        const context = new ModuleExecContext();
         expect(context.executionStage).toBe(ModuleExecStage.UNKNOWN);
         context.setExecutionStage(ModuleExecStage.UPDATE);
         expect(context.executionStage).toBe(ModuleExecStage.UPDATE);
-        context.setExecutionStage(ModuleExecStage.EMITTER_UPDATE);
-        expect(context.executionStage).toBe(ModuleExecStage.EMITTER_UPDATE);
+        context.setExecutionStage(ModuleExecStage.EMITTER);
+        expect(context.executionStage).toBe(ModuleExecStage.EMITTER);
     });
 });
 
-function testEmitterTime(context: ParticleExecContext, input: number[], output: number[]) {
+function testEmitterTime(context: ModuleExecContext, input: number[], output: number[]) {
     context.updateEmitterTime(input[0], input[1], input[2], input[3], input[4], input[5], input[6]);
     expect(context.deltaTime).toBeCloseTo(input[0] - input[1], 5);
-    expect(context.emitterPreviousTime).toBeCloseTo(output[0], 5);
-    expect(context.emitterCurrentTime).toBeCloseTo(output[1], 5);
-    expect(context.emitterNormalizedTime).toBeCloseTo(output[2], 5);
-    expect(context.emitterNormalizedPrevTime).toBeCloseTo(output[3], 5);
+    expect(context.previousTime).toBeCloseTo(output[0], 5);
+    expect(context.currentTime).toBeCloseTo(output[1], 5);
+    expect(context.normalizedLoopAge).toBeCloseTo(output[2], 5);
+    expect(context.normalizedPrevLoopAge).toBeCloseTo(output[3], 5);
     expect(context.emitterDeltaTime).toBeCloseTo(output[4], 5);
     expect(context.emitterFrameOffset).toBeCloseTo(context.deltaTime > 0 ? (context.deltaTime - context.emitterDeltaTime) / context.deltaTime: 0, 5);
     expect(context.loopCount).toBeCloseTo(output[5], 5);

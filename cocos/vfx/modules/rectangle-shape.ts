@@ -24,14 +24,14 @@
  */
 import { ccclass } from 'cc.decorator';
 import { ShapeModule } from './shape';
-import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
+import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 
 @ccclass('cc.RectangleShapeModule')
-@ParticleModule.register('RectangleShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
+@VFXModule.register('RectangleShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.START_DIR])
 export class RectangleShapeModule extends ShapeModule {
-    public execute (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
         const { vec3Register, startDir } = particles;
         const rand = this._rand;

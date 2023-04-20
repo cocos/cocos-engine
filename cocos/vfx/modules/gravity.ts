@@ -24,9 +24,9 @@
  */
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from 'cc.decorator';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { lerp, Vec3 } from '../../core';
 import { Space } from '../enum';
@@ -35,8 +35,8 @@ import { RandomStream } from '../random-stream';
 const gravity = new Vec3();
 const requiredParameters = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.BASE_VELOCITY | BuiltinParticleParameterFlags.VELOCITY;
 @ccclass('cc.GravityModule')
-@ParticleModule.register('Gravity', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY])
-export class GravityModule extends ParticleModule {
+@VFXModule.register('Gravity', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY])
+export class GravityModule extends VFXModule {
     /**
      * @zh 粒子受重力影响的重力系数。
      */
@@ -49,21 +49,21 @@ export class GravityModule extends ParticleModule {
 
     private _randomOffset = 0;
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._randomOffset = state.randomStream.getUInt32();
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredBuiltinParameters(requiredParameters);
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+        particles.markRequiredParameters(requiredParameters);
         if (this.gravityModifier.mode === FloatExpression.Mode.CURVE || this.gravityModifier.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_ALIVE_TIME);
         }
         if (this.gravityModifier.mode === FloatExpression.Mode.TWO_CONSTANTS || this.gravityModifier.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { rotationIfNeedTransform } = context;
         const { velocity, baseVelocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;

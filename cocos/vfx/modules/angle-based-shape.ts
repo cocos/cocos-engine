@@ -26,9 +26,11 @@ import { ccclass, displayOrder, range, serializable, tooltip, type, visible } fr
 import { DistributionMode, MoveWarpMode, ShapeModule } from './shape';
 import { Enum, lerp, toDegree, toRadian } from '../../core';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
-import { ParticleEmitterParams, ParticleEmitterState, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
-import { ParticleVec3ArrayParameter } from '../particle-parameter';
+import { ParticleVec3Parameter } from '../particle-parameter';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 @ccclass('cc.AngleBasedShapeModule')
 export abstract class AngleBasedShapeModule extends ShapeModule {
@@ -87,30 +89,30 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
     private _arcTimer = 0;
     private _arcTimePrev = 0;
 
-    public onPlay (params: ParticleEmitterParams, states: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, states: VFXEmitterState) {
         super.onPlay(params, states);
         this._arcTimer = 0;
         this._arcTimePrev = 0;
     }
 
-    public tick (particles: ParticleDataSet,  params: ParticleEmitterParams, context: ParticleExecContext) {
-        super.tick(particles, params, context);
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        super.tick(particles, emitter, user, context);
         if (this.distributionMode === DistributionMode.MOVE) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_TIME_RATIO);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_TIME_RATIO);
         }
         this._arcTimePrev = this._arcTimer;
         let deltaTime = context.emitterDeltaTime;
-        if (context.emitterNormalizedTime < context.emitterNormalizedPrevTime) {
-            this._arcTimer += (this.moveSpeed.evaluate(1, 1) * (params.duration - context.emitterPreviousTime)) * Math.PI * 2;
-            deltaTime = context.emitterCurrentTime;
+        if (context.normalizedLoopAge < context.normalizedPrevLoopAge) {
+            this._arcTimer += (this.moveSpeed.evaluate(1, 1) * (params.duration - context.previousTime)) * Math.PI * 2;
+            deltaTime = context.currentTime;
         }
-        this._arcTimer += (this.moveSpeed.evaluate(context.emitterNormalizedTime, 1) * deltaTime) * Math.PI * 2;
+        this._arcTimer += (this.moveSpeed.evaluate(context.normalizedLoopAge, 1) * deltaTime) * Math.PI * 2;
         this._invArc = 1 / this._arc;
         this._spreadStep = this._arc * this.spread;
         this._arcRounded = Math.ceil(this._arc / this._spreadStep) * this._spreadStep;
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
         const rand = this._rand;
         const arcRounded = this._arcRounded;
@@ -197,5 +199,5 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
         super.execute(particles, params, context);
     }
 
-    protected abstract generatePosAndDir (index: number, angle: number, startDir: ParticleVec3ArrayParameter, vec3Register: ParticleVec3ArrayParameter);
+    protected abstract generatePosAndDir (index: number, angle: number, startDir: ParticleVec3Parameter, vec3Register: ParticleVec3Parameter);
 }

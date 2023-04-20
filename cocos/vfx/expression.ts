@@ -23,8 +23,10 @@
  THE SOFTWARE.
  */
 import { ccclass } from '../core/data/decorators';
-import { ParticleEmitterParams, ParticleExecContext } from './particle-base';
+import { ModuleExecContext } from './base';
+import { EmitterDataSet } from './emitter-data-set';
 import { ParticleDataSet } from './particle-data-set';
+import { UserDataSet } from './user-data-set';
 
 export enum ExpressionType {
     VEC3,
@@ -36,6 +38,6 @@ export enum ExpressionType {
 export abstract class Expression {
     public abstract get type (): ExpressionType;
     public abstract get isConstant (): boolean;
-    public abstract tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext);
-    public abstract bind (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext, randomOffset: number);
+    public abstract tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext);
+    public abstract bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext);
 }

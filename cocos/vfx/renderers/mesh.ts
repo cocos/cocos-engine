@@ -26,18 +26,16 @@
 import { Mesh } from '../../3d';
 import { Color, Quat, Vec3, Vec4 } from '../../core';
 import { Material, RenderingSubMesh } from '../../asset/assets';
-import { ccclass, displayOrder, serializable, tooltip, type } from '../../core/data/decorators';
+import { ccclass, displayName, displayOrder, serializable, tooltip, type } from '../../core/data/decorators';
 import { BufferInfo, BufferUsageBit, deviceManager, DrawInfo, DRAW_INFO_SIZE, IndirectBuffer, MemoryUsageBit, Buffer, FormatInfos, PrimitiveMode, AttributeName } from '../../gfx';
-import { MacroRecord } from '../../render-scene';
+import { MacroRecord, MaterialInstance } from '../../render-scene';
 import { AlignmentSpace, ScalingMode, Space } from '../enum';
-import { ParticleEmitterParams, ParticleExecContext } from '../particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecStageFlags, ParticleModule } from '../particle-module';
-import { CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshColorRGBA8, meshNormal, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, RendererModule, RENDER_MODE_MESH, ROTATION_OVER_TIME_MODULE_ENABLE } from './renderer';
+import { CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshColorRGBA8, meshNormal, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, RendererModule, RENDER_MODE_MESH, ROTATION_OVER_TIME_MODULE_ENABLE, ParticleRenderer } from '../particle-renderer';
 
 @ccclass('cc.MeshRendererModule')
-@ParticleModule.register('MeshRenderer', ModuleExecStageFlags.RENDER)
-export class MeshRendererModule extends RendererModule {
+export class MeshParticleRenderer extends ParticleRenderer {
     /**
      * @zh 粒子发射的模型。
      */
@@ -54,6 +52,60 @@ export class MeshRendererModule extends RendererModule {
         this._renderingSubMesh?.destroy();
         this._renderingSubMesh = null;
     }
+
+    @type(Material)
+    @displayName('Material')
+    public get sharedMaterial () {
+        return this._sharedMaterial;
+    }
+
+    public set sharedMaterial (val) {
+        if (this._sharedMaterial !== val) {
+            this._sharedMaterial = val;
+            this._material = null;
+            this._isMaterialDirty = true;
+        }
+    }
+
+    public get material () {
+        if (!this._material && this._sharedMaterial) {
+            this._material = new MaterialInstance({ parent: this._sharedMaterial });
+        }
+        return this._material;
+    }
+
+    public set material (val) {
+        if (this._material !== val) {
+            this._material = val;
+            this._sharedMaterial = null;
+            this._isMaterialDirty = true;
+        }
+    }
+
+    public get renderingSubMesh () {
+        return this._renderingSubMesh;
+    }
+
+    public get vertexCount () {
+        return this._vertexCount;
+    }
+
+    public get indexCount () {
+        return this._indexCount;
+    }
+
+    public get instanceCount () {
+        return this._instanceCount;
+    }
+
+    protected _isMaterialDirty = false;
+    protected _renderingSubMesh: RenderingSubMesh | null = null;
+    protected _vertexCount = 0;
+    protected _indexCount = 0;
+    protected _instanceCount = 0;
+    @serializable
+    private _sharedMaterial: Material | null = null;
+    private _material: MaterialInstance | null = null;
 
     @serializable
     private _mesh: Mesh | null = null;
@@ -81,7 +133,7 @@ export class MeshRendererModule extends RendererModule {
         DRAW_INFO_SIZE,
     ));
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const material = this.material;
         const mesh = this._mesh;
         if (!material || !mesh) {
@@ -161,14 +213,14 @@ export class MeshRendererModule extends RendererModule {
         this._insBuffers[1].update(dynamicBuffer); // update dynamic buffer
     }
 
-    private _updateSubUvTilesAndVelocityLengthScale (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    private _updateSubUvTilesAndVelocityLengthScale (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         if (!this._isSubUVTilesAndVelLenScaleDirty) {
             return;
         }
         material.setProperty('frameTile_velLenScale', this._subUVTilesAndVelLenScale);
     }
 
-    private _updateRotation (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    private _updateRotation (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         let currentRotation: Quat;
         if (this._alignmentSpace === AlignmentSpace.LOCAL) {
             currentRotation = context.localRotation;
@@ -197,7 +249,7 @@ export class MeshRendererModule extends RendererModule {
         }
     }
 
-    private _updateRenderScale (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    private _updateRenderScale (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         let currentScale: Vec3;
         switch (params.scalingMode) {
         case ScalingMode.LOCAL:
@@ -216,7 +268,7 @@ export class MeshRendererModule extends RendererModule {
         }
     }
 
-    private _compileMaterial (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    private _compileMaterial (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         let needRecompile = false;
         if (this._defines[CC_USE_WORLD_SPACE] !== (params.simulationSpace === Space.WORLD)) {
             this._defines[CC_USE_WORLD_SPACE] = params.simulationSpace === Space.WORLD;
@@ -233,7 +285,7 @@ export class MeshRendererModule extends RendererModule {
         }
     }
 
-    private _updateAttributes (material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    private _updateAttributes (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         let vertexStreamSizeDynamic = 0;
         for (let i = 0, length = this._vertexStreamAttributes.length; i < length; i++) {
             if (this._vertexStreamAttributes[i].stream === 1) {
@@ -243,7 +295,7 @@ export class MeshRendererModule extends RendererModule {
         this._vertexStreamSize = vertexStreamSizeDynamic;
     }
 
-    private _updateRenderingSubMesh (mesh: Mesh, material: Material, particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    private _updateRenderingSubMesh (mesh: Mesh, material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         if (!this._renderingSubMesh) {
             this._updateAttributes(material, particles, params, context);
             const vertCount = mesh.struct.vertexBundles[mesh.struct.primitives[0].vertexBundelIndices[0]].view.count;

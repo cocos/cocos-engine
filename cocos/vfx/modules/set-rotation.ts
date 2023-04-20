@@ -24,16 +24,16 @@
  */
 
 import { ccclass, radian, range, serializable, tooltip, type, visible } from 'cc.decorator';
-import { ParticleModule, ModuleExecStageFlags } from '../particle-module';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
-import { ParticleExecContext, ParticleEmitterParams, ParticleEmitterState } from '../particle-base';
+import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { lerp } from '../../core';
 import { RandomStream } from '../random-stream';
 
 @ccclass('cc.SetRotationModule')
-@ParticleModule.register('SetRotationModule', ModuleExecStageFlags.SPAWN)
-export class SetRotationModule extends ParticleModule {
+@VFXModule.register('SetRotationModule', ModuleExecStageFlags.SPAWN)
+export class SetRotationModule extends VFXModule {
     @serializable
     @tooltip('i18n:particle_system.startRotation3D')
     public separateAxes = false;
@@ -106,18 +106,18 @@ export class SetRotationModule extends ParticleModule {
 
     private _rand = new RandomStream();
 
-    public onPlay (params: ParticleEmitterParams, state: ParticleEmitterState) {
+    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._rand.seed = state.randomStream.getUInt32();
     }
 
-    public tick (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
-        context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.ROTATION);
+    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+        particles.markRequiredParameters(BuiltinParticleParameterFlags.ROTATION);
         if (this.x.mode === FloatExpression.Mode.CURVE || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            context.markRequiredBuiltinParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
         }
     }
 
-    public execute (particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { rotation } = particles;
         const { fromIndex, toIndex } = context;
         const rand = this._rand;

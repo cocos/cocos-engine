@@ -1,7 +1,7 @@
 import { EventHandler, EventSpawnStates } from '../../cocos/vfx/event-handler';
-import { ParticleEmitterParams, ParticleExecContext } from '../../cocos/vfx/particle-base';
+import { VFXEmitterParams, ModuleExecContext } from '../../cocos/vfx/particle-base';
 import { ParticleDataSet } from '../../cocos/vfx/particle-data-set';
-import { ModuleExecStage, ParticleModule } from '../../cocos/vfx/particle-module';
+import { ModuleExecStage, VFXModule } from '../../cocos/vfx/particle-module';
 
 describe('event-handler', () => {
     test ('EventSpawnStates', () => {
@@ -79,16 +79,16 @@ describe('event-handler', () => {
     });
 
     test('EventHandler', () => {
-        @ParticleModule.register('test', ModuleExecStage.EMITTER_UPDATE)
-        class TestModule extends ParticleModule {
-            public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        @VFXModule.register('test', ModuleExecStage.EMITTER)
+        class TestModule extends VFXModule {
+            public execute(particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
                 throw new Error('Method not implemented.');
             }
         }
 
-        @ParticleModule.register('test2', ModuleExecStage.EVENT_HANDLER)
-        class TestModule2 extends ParticleModule {
-            public execute(particles: ParticleDataSet, params: ParticleEmitterParams, context: ParticleExecContext) {
+        @VFXModule.register('test2', ModuleExecStage.EVENT_HANDLER)
+        class TestModule2 extends VFXModule {
+            public execute(particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
                 throw new Error('Method not implemented.');
             }
         }
@@ -103,14 +103,14 @@ describe('event-handler', () => {
         }
 
         const particles = new ParticleDataSet();
-        const params = new ParticleEmitterParams();
-        const context = new ParticleExecContext();
-        eventHandler.tick(particles, params, context);
+        const params = new VFXEmitterParams();
+        const context = new ModuleExecContext();
+        eventHandler.tick(particles, emitter, user, context);
         for (let i = 0; i < 5; i++) {
             expect(eventHandler.eventSpawnStates.getSpawnFraction(i)).toBe(i);
         }
-        eventHandler.tick(particles, params, context);
-        eventHandler.tick(particles, params, context);
+        eventHandler.tick(particles, emitter, user, context);
+        eventHandler.tick(particles, emitter, user, context);
         expect(eventHandler.eventSpawnStates.count).toBe(0);
         for (let i = 0; i < 5; i++) {
             expect(eventHandler.eventSpawnStates.getSpawnFraction(i)).toBe(0);
