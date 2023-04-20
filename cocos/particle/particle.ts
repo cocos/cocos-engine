@@ -39,7 +39,6 @@ export class Particle {
     public ultimateVelocity: Vec3;
     public angularVelocity: Vec3;
     public initialVelocity: Vec3;
-    public axisOfRotation: Vec3;
     public rotation: Vec3;
     public startEuler: Vec3;
     public startRotation: Quat;
@@ -64,8 +63,6 @@ export class Particle {
     public emitAccumulator1: number;
     public frameIndex: number;
     public startRow: number;
-    public id;
-    public delay;
     public active: boolean;
     public parentParticle: Particle | null;
     public dir: Quat;
@@ -82,7 +79,6 @@ export class Particle {
         this.ultimateVelocity = new Vec3(0, 0, 0);
         this.angularVelocity = new Vec3(0, 0, 0);
         this.initialVelocity = new Vec3(0, 0, 0);
-        this.axisOfRotation = new Vec3(0, 0, 0);
         this.rotation = new Vec3(0, 0, 0);
         this.startEuler = new Vec3(0, 0, 0);
         this.startRotation = new Quat();
@@ -107,7 +103,6 @@ export class Particle {
         this.emitAccumulator1 = 0.0;
         this.frameIndex = 0.0;
         this.startRow = 0;
-        this.id = -1;
         this.active = false;
         this.parentParticle = null;
         this.dir = new Quat();
@@ -124,7 +119,6 @@ export class Particle {
         this.startRotated = false;
         this.deltaQuat.set(0, 0, 0, 1);
         this.localQuat.set(0, 0, 0, 1);
-        this.delay = 0;
         this.parentParticle = null;
         this.initialVelocity.set(0, 0, 0);
         this.dir.set(Quat.IDENTITY);

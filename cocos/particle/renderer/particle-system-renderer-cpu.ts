@@ -210,7 +210,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _inited = false;
     private _localMat: Mat4 = new Mat4();
     private _gravity: Vec4 = new Vec4();
-    private _currid = -1;
 
     constructor (info: any) {
         super(info);
@@ -233,7 +232,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             CC_USE_WORLD_SPACE: true,
             // CC_DRAW_WIRE_FRAME: true,   // <wireframe debug>
         };
-        this._currid = -1;
     }
 
     public onInit (ps: Component) {
@@ -248,7 +246,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.updateTrailMaterial();
         this.setVertexAttributes();
         this._inited = true;
-        this._currid = -1;
     }
 
     public clear () {
@@ -278,10 +275,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             return null;
         }
         const p = this._particles!.add() as Particle;
-        if (p.id < 0) {
-            this._currid++;
-            p.id = this._currid;
-        }
         return p;
     }
 
