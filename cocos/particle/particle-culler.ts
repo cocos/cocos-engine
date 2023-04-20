@@ -201,7 +201,7 @@ export class ParticleCuller {
         }
 
         this._updateList.forEach((value: IParticleModule, key: string) => {
-            value.update(ps.simulationSpace, _node_mat);
+            value.update(ps, ps.simulationSpace, _node_mat);
         });
 
         if (ps.simulationSpace === Space.Local) {

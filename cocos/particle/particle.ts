@@ -198,7 +198,7 @@ export interface IParticleModule {
     needAnimate: boolean;
     name: string;
     bindTarget (target: any): void;
-    update (space: number, trans: Mat4): void;
+    update (ps: ParticleSystem, space: number, trans: Mat4): void;
     animate (p: Particle, dt?: number): void;
 }
 
@@ -211,7 +211,7 @@ export abstract class ParticleModuleBase implements IParticleModule {
         this.target = target;
     }
 
-    public update (space: number, trans: Mat4) {}
+    public update (ps: ParticleSystem, space: number, trans: Mat4) {}
     public abstract name: string;
     public abstract animate (p: Particle, dt?: number): void;
 }

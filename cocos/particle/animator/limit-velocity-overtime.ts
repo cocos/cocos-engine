@@ -30,6 +30,7 @@ import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle'
 import CurveRange from './curve-range';
 import { calculateTransform } from '../particle-general-function';
 import { CCBoolean, CCFloat } from '../../core';
+import { ParticleSystem } from '../particle-system';
 
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 const LIMIT_DRAG_RAND_OFFSET = LIMIT_VELOCITY_RAND_OFFSET + 1;
@@ -167,7 +168,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
         this.needUpdate = true;
     }
 
-    public update (space: number, worldTransform: Mat4) {
+    public update (ps:ParticleSystem, space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 

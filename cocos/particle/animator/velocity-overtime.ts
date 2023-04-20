@@ -29,6 +29,7 @@ import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
+import { ParticleSystem } from '../particle-system';
 
 const VELOCITY_X_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_X;
 const VELOCITY_Y_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Y;
@@ -183,6 +184,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     public name = PARTICLE_MODULE_NAME.VELOCITY;
     private worldToLocal: Mat3;
     private localToWorld: Mat3;
+    private hasOrbital: boolean;
 
     constructor () {
         super();
@@ -192,14 +194,15 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
         this.needUpdate = true;
         this.worldToLocal = new Mat3();
         this.localToWorld = new Mat3();
+        this.hasOrbital = false;
     }
 
-    public update (space: number, worldTransform: Mat4) {
+    public update (ps: ParticleSystem, space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
-        if (this.needTransform) {
-            const hasOrbital = this.offsetX.getMaxAbs() > 0 || this.offsetY.getMaxAbs() > 0 || this.offsetZ.getMaxAbs() > 0
+        this.hasOrbital = this.offsetX.getMaxAbs() > 0 || this.offsetY.getMaxAbs() > 0 || this.offsetZ.getMaxAbs() > 0
             || this.orbitX.getMaxAbs() > 0 || this.orbitY.getMaxAbs() > 0 || this.orbitZ.getMaxAbs() > 0;
-            if (hasOrbital) {
+        if (this.needTransform) {
+            if (this.hasOrbital) {
                 Mat3.fromMat4(this.localToWorld, worldTransform);
                 Mat3.invert(this.worldToLocal, this.localToWorld);
             }
@@ -249,9 +252,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
 
         const speedMod = this.speedModifier.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!;
 
-        const hasOrbital = this.offsetX.getMaxAbs() > 0 || this.offsetY.getMaxAbs() > 0 || this.offsetZ.getMaxAbs() > 0
-        || this.orbitX.getMaxAbs() > 0 || this.orbitY.getMaxAbs() > 0 || this.orbitZ.getMaxAbs() > 0;
-        if (hasOrbital) {
+        if (this.hasOrbital) {
             this.calculateOrbital(p, dt, normalizedTime, speedMod);
         }
 
