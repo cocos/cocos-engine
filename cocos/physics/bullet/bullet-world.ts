@@ -134,13 +134,14 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     destroy (): void {
-        if (this.constraints.length || this.bodies.length) error('You should destroy all physics component first.');
+        if (this.constraints.length || this.bodies.length || this.ccts.length) error('You should destroy all physics component first.');
         bt._safe_delete(this._world, EBulletType.EBulletTypeCollisionWorld);
         bt._safe_delete(this._broadphase, EBulletType.EBulletTypeDbvtBroadPhase);
         bt._safe_delete(this._dispatcher, EBulletType.EBulletTypeCollisionDispatcher);
         bt._safe_delete(this._solver, EBulletType.EBulletTypeSequentialImpulseConstraintSolver);
         (this as any).bodies = null;
         (this as any).ghosts = null;
+        (this as any).ccts = null;
         (this as any).constraints = null;
         (this as any).triggerArrayMat = null;
         (this as any).collisionArrayMat = null;
@@ -152,13 +153,12 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep = 0) {
-        if (!this.bodies.length && !this.ghosts.length) return;
+        if (!this.bodies.length && !this.ghosts.length && !this.ccts.length) return;
         if (timeSinceLastCalled === undefined) timeSinceLastCalled = deltaTime;
         bt.DynamicsWorld_stepSimulation(this._world, timeSinceLastCalled, maxSubStep, deltaTime);
 
         for (let i = 0; i < this.ccts.length; i++) {
-            const cct = this.ccts[i];
-            cct.syncPhysicsToScene();
+            this.ccts[i].syncPhysicsToScene();
         }
     }
 
@@ -269,7 +269,6 @@ export class BulletWorld implements IPhysicsWorld {
         const index = this.ccts.indexOf(cct);
         if (index < 0) {
             this.ccts.push(cct);
-
             const cctGhost = bt.CharacterController_getGhostObject(cct.impl);
             bt.CollisionWorld_addCollisionObject(this._world, cctGhost, cct.getGroup(), cct.getMask());
             bt.DynamicsWorld_addAction(this._world, cct.impl);
