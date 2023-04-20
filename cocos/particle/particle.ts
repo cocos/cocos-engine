@@ -59,8 +59,6 @@ export class Particle {
     public lastLoop: number;
     public trailDelay: number;
     public startLifetime: number;
-    public emitAccumulator0: number;
-    public emitAccumulator1: number;
     public frameIndex: number;
     public startRow: number;
     public active: boolean;
@@ -99,8 +97,6 @@ export class Particle {
         this.lastLoop = 0;
         this.trailDelay = 0;
         this.startLifetime = 0.0;
-        this.emitAccumulator0 = 0.0;
-        this.emitAccumulator1 = 0.0;
         this.frameIndex = 0.0;
         this.startRow = 0;
         this.active = false;

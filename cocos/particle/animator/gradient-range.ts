@@ -137,6 +137,25 @@ export default class GradientRange {
         }
     }
 
+    public evaluateOne (time: number, rndRatio: number) {
+        switch (this._mode) {
+        case Mode.Color:
+            return this.color;
+        case Mode.TwoColors:
+            this._color.set(this.colorMax);
+            return this._color;
+        case Mode.RandomColor:
+            return this.gradient.randomColor();
+        case Mode.Gradient:
+            return this.gradient.evaluate(time);
+        case Mode.TwoGradients:
+            this._color.set(this.gradientMax.evaluate(time));
+            return this._color;
+        default:
+            return this.color;
+        }
+    }
+
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */

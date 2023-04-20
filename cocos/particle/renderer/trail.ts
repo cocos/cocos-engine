@@ -461,7 +461,7 @@ export default class TrailModule {
     }
 
     public update () {
-        this._trailLifetime = this.lifeTime.evaluate(this._particleSystem._time, 1)!;
+        this._trailLifetime = this.lifeTime.evaluateOne(this._particleSystem._time, 1)!;
         if (this.space === Space.World && this._particleSystem._simulationSpace === Space.Local) {
             this._needTransform = true;
             this._particleSystem.node.getWorldMatrix(_temp_xform);
@@ -513,9 +513,9 @@ export default class TrailModule {
         Vec3.copy(lastSeg.position, _temp_vec3);
         lastSeg.lifetime = 0;
         if (this.widthFromParticle) {
-            lastSeg.width = p.size.x * this.widthRatio.evaluate(0, 1)!;
+            lastSeg.width = p.size.x * this.widthRatio.evaluateOne(0, 1)!;
         } else {
-            lastSeg.width = this.widthRatio.evaluate(0, 1)!;
+            lastSeg.width = this.widthRatio.evaluateOne(0, 1)!;
         }
 
         const trailNum = trail.count();
@@ -537,7 +537,7 @@ export default class TrailModule {
         if (this.colorFromParticle) {
             lastSeg.color.set(p.color);
         } else {
-            lastSeg.color.set(this.colorOvertime.evaluate(0, 1));
+            lastSeg.color.set(this.colorOvertime.evaluateOne(0, 1));
         }
     }
 
@@ -564,11 +564,11 @@ export default class TrailModule {
             // const lastSegRatio = vec3.distance(trailSeg.getTailElement()!.position, p.position) / this._minParticleDistance;
             const textCoordSeg = 1 / (trailNum /* - 1 + lastSegRatio */);
             const startSegEle = trailSeg.trailElements[trailSeg.start];
-            this._fillVertexBuffer(startSegEle, this.colorOverTrail.evaluate(1, 1), indexOffset, 1, 0, NEXT_TRIANGLE_INDEX);
+            this._fillVertexBuffer(startSegEle, this.colorOverTrail.evaluateOne(1, 1), indexOffset, 1, 0, NEXT_TRIANGLE_INDEX);
             for (let i = trailSeg.start + 1; i < end; i++) {
                 const segEle = trailSeg.trailElements[i % trailSeg.trailElements.length];
                 const j = i - trailSeg.start;
-                this._fillVertexBuffer(segEle, this.colorOverTrail.evaluate(1 - j / trailNum, 1),
+                this._fillVertexBuffer(segEle, this.colorOverTrail.evaluateOne(1 - j / trailNum, 1),
                     indexOffset, 1 - j * textCoordSeg, j, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
             }
             if (this._needTransform) {
@@ -608,23 +608,23 @@ export default class TrailModule {
                 this.vbOffset -= this._vertSize / 4 * 2;
                 this.ibOffset -= 6;
                 // _bcIdx = (_bcIdx - 6 + 9) % 9;  // <wireframe debug>
-                this._fillVertexBuffer(lastSecondTrail, this.colorOverTrail.evaluate(textCoordSeg, 1), indexOffset,
+                this._fillVertexBuffer(lastSecondTrail, this.colorOverTrail.evaluateOne(textCoordSeg, 1), indexOffset,
                     textCoordSeg, trailNum - 1, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
                 Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
                 Vec3.normalize(_temp_trailEle.velocity, _temp_trailEle.velocity);
                 this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
             }
             if (this.widthFromParticle) {
-                _temp_trailEle.width = p.size.x * this.widthRatio.evaluate(0, 1)!;
+                _temp_trailEle.width = p.size.x * this.widthRatio.evaluateOne(0, 1)!;
             } else {
-                _temp_trailEle.width = this.widthRatio.evaluate(0, 1)!;
+                _temp_trailEle.width = this.widthRatio.evaluateOne(0, 1)!;
             }
             _temp_trailEle.color = p.color;
 
             if (Vec3.equals(_temp_trailEle.velocity, Vec3.ZERO)) {
                 this.ibOffset -= 3;
             } else {
-                this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
+                this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluateOne(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
             }
         }
         if (this._trailModel) {
@@ -703,14 +703,14 @@ export default class TrailModule {
         trailEle.lifetime += dt;
         if (module.colorFromParticle) {
             trailEle.color.set(p.color);
-            trailEle.color.multiply(module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
+            trailEle.color.multiply(module.colorOvertime.evaluateOne(1.0 - p.remainingLifetime / p.startLifetime, 1));
         } else {
-            trailEle.color.set(module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
+            trailEle.color.set(module.colorOvertime.evaluateOne(1.0 - p.remainingLifetime / p.startLifetime, 1));
         }
         if (module.widthFromParticle) {
-            trailEle.width = p.size.x * module.widthRatio.evaluate(trailEle.lifetime / module._trailLifetime, 1)!;
+            trailEle.width = p.size.x * module.widthRatio.evaluateOne(trailEle.lifetime / module._trailLifetime, 1)!;
         } else {
-            trailEle.width = module.widthRatio.evaluate(trailEle.lifetime / module._trailLifetime, 1)!;
+            trailEle.width = module.widthRatio.evaluateOne(trailEle.lifetime / module._trailLifetime, 1)!;
         }
         return trailEle.lifetime > module._trailLifetime;
     }
