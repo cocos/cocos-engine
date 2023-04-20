@@ -287,8 +287,7 @@ jobs:
             @${{ steps.parse_pr.outputs.pr_author }}, Please check the result of `run test cases`:
             - Test Platform: PR-Test
             - Editor Version: ${{ steps.run_test_cases.outputs.editor }}
-            # - Task Result: ${{ steps.run_test_cases.outputs.task }}
-            # - Task URL: ${{ steps.run_test_cases.outputs.url }}
+            - Task Report URL: http://cctest.cocos.org/#/reportview/PR-TEST/$JOBID/-1
             - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
             ## Task Details
             ${{ steps.run_test_cases.outputs.report }}
