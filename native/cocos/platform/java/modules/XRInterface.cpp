@@ -1106,7 +1106,6 @@ void XRInterface::adaptOrthographicMatrix(cc::scene::Camera *camera, const ccstd
 }
 
 void XRInterface::asyncLoadAssetsImage(const std::string &imagePath) {
-#if CC_USE_XR
     auto *assetsImage = new Image();
     assetsImage->addRef();
     bool res = assetsImage->initWithImageFile(imagePath);
@@ -1163,11 +1162,7 @@ void XRInterface::asyncLoadAssetsImage(const std::string &imagePath) {
       }
     });
     assetsImage->release();
-#else
-    CC_UNUSED_PARAM(imagePath);
-#endif
 }
-
 
 #if CC_USE_XR
 
