@@ -474,6 +474,8 @@ void XRInterface::initialize(void *javaVM, void *activity) {
             _gThreadPool->pushTask([imagePath, this](int /*tid*/) {
               this->asyncLoadAssetsImage(imagePath);
             });
+        } else if (key == xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE && value.isInt()) {
+            _isFlipPixelY = value.getInt() == static_cast<int>(gfx::API::GLES3);
         }
     });
     #if XR_OEM_PICO
@@ -1125,8 +1127,14 @@ void XRInterface::asyncLoadAssetsImage(const std::string &imagePath) {
         for (uint32_t y = 0; y < imageHeight; y++) {
             for (uint32_t x = 0; x < imageWidth; x++) {
                 const unsigned int pixel = x + y * imageWidth;
+                const unsigned int pixelFlip = x + (imageHeight - y - 1) * imageWidth;
                 const uint8_t *originalPixel = &assetsImage->getData()[static_cast<size_t>(pixel * 3)];
-                uint8_t *convertedPixel = &buffer[static_cast<size_t>(pixel * 4)];
+                uint8_t *convertedPixel = nullptr;
+                if (_isFlipPixelY) {
+                    convertedPixel = &buffer[static_cast<size_t>(pixelFlip * 4)];
+                } else {
+                    convertedPixel = &buffer[static_cast<size_t>(pixel * 4)];
+                }
                 convertedPixel[0] = originalPixel[0];
                 convertedPixel[1] = originalPixel[1];
                 convertedPixel[2] = originalPixel[2];
@@ -1135,7 +1143,22 @@ void XRInterface::asyncLoadAssetsImage(const std::string &imagePath) {
         }
     } else {
         buffer = new uint8_t[bufferSize];
-        memcpy(buffer, assetsImage->getData(), bufferSize);
+        if(_isFlipPixelY) {
+            for (uint32_t y = 0; y < imageHeight; y++) {
+                for (uint32_t x = 0; x < imageWidth; x++) {
+                    const unsigned int pixel = x + y * imageWidth;
+                    const unsigned int pixelFlip = x + (imageHeight - y - 1) * imageWidth;
+                    const uint8_t *originalPixel = &assetsImage->getData()[static_cast<size_t>(pixel * 4)];
+                    uint8_t *convertedPixel = &buffer[static_cast<size_t>(pixelFlip * 4)];
+                    convertedPixel[0] = originalPixel[0];
+                    convertedPixel[1] = originalPixel[1];
+                    convertedPixel[2] = originalPixel[2];
+                    convertedPixel[3] = originalPixel[3];
+                }
+            }
+        } else {
+            memcpy(buffer, assetsImage->getData(), bufferSize);
+        }
     }
     auto app = CC_CURRENT_APPLICATION();
     if (!app) {

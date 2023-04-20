@@ -132,6 +132,7 @@ private:
     cc::IntrusivePtr<XRRemotePreviewManager> _xrRemotePreviewManager{nullptr};
 #endif
     LegacyThreadPool *_gThreadPool{nullptr};
+    bool _isFlipPixelY{false};
 };
 
 } // namespace cc
