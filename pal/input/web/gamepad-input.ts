@@ -84,7 +84,7 @@ interface IPoseValue {
     orientation: Quat;
 }
 
-interface PoseInfo {
+interface IPoseInfo {
     readonly code: number;
     readonly position: DOMPointReadOnly;
     readonly orientation: DOMPointReadOnly;
@@ -95,6 +95,11 @@ type WebPoseState = Record<Pose, IPoseValue>
 interface IAxisValue {
     negative: number;
     positive: number;
+}
+
+interface IGamepadCacheInfo {
+    buttons: Array<number>;
+    axes: Array<number>;
 }
 
 export class GamepadInputDevice {
@@ -139,7 +144,7 @@ export class GamepadInputDevice {
 
     private static _eventTarget: EventTarget = new EventTarget();
     private static _cachedWebGamepads: (WebGamepad | null)[] = [];
-    private static _cachedWebXRGamepadMap: (Map<string, any> | null) = null;
+    private static _cachedWebXRGamepadMap: (Map<string, IGamepadCacheInfo | undefined> | null) = null;
     private static _intervalId = -1;
 
     private _buttonNorth!: InputSourceButton;
@@ -351,14 +356,14 @@ export class GamepadInputDevice {
 
         // update cache
         if (!GamepadInputDevice._cachedWebXRGamepadMap) {
-            GamepadInputDevice._cachedWebXRGamepadMap = new Map<string, any>();
+            GamepadInputDevice._cachedWebXRGamepadMap = new Map<string, IGamepadCacheInfo | undefined>();
         }
 
         GamepadInputDevice._cachedWebXRGamepadMap.set(XRLeftHandedness, GamepadInputDevice._copyCacheGamepadValue(left));
         GamepadInputDevice._cachedWebXRGamepadMap.set(XRRightHandedness, GamepadInputDevice._copyCacheGamepadValue(right));
     }
 
-    private static checkGamepadChanged (currGamepad: (Gamepad | undefined), cachedGamepad: (any)) {
+    private static checkGamepadChanged (currGamepad: (Gamepad | undefined), cachedGamepad: (IGamepadCacheInfo | undefined)) {
         if (!currGamepad && !cachedGamepad) {
             return false;
         } else if (!currGamepad || !cachedGamepad) {
@@ -391,7 +396,7 @@ export class GamepadInputDevice {
             return undefined;
         }
 
-        const cacheGamepad = { buttons: new Array(gamepad.buttons.length), axes: new Array(gamepad.axes.length) };
+        const cacheGamepad = { buttons: new Array(gamepad.buttons.length), axes: new Array(gamepad.axes.length) } as IGamepadCacheInfo;
         for (let j = 0; j < gamepad.buttons.length; ++j) {
             cacheGamepad.buttons[j] = gamepad.buttons[j].value;
         }
@@ -403,7 +408,7 @@ export class GamepadInputDevice {
     }
 
     private static _scanWebXRGamepadsPose () {
-        const infoList = globalThis.__globalXR.webxrHandlePoseInfos as PoseInfo[];
+        const infoList = globalThis.__globalXR.webxrHandlePoseInfos as IPoseInfo[];
         if (!infoList || !GamepadInputDevice.xr) {
             return;
         }
@@ -453,7 +458,7 @@ export class GamepadInputDevice {
         }
     }
 
-    private _updateWebPoseState (info: PoseInfo) {
+    private _updateWebPoseState (info: IPoseInfo) {
         if (info.code !== Pose.HAND_LEFT && info.code !== Pose.AIM_LEFT
              && info.code !== Pose.HAND_RIGHT && info.code !== Pose.AIM_RIGHT) {
             return;

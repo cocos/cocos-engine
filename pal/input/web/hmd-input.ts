@@ -41,7 +41,7 @@ interface IPoseValue {
     orientation: Quat;
 }
 
-interface PoseInfo {
+interface IPoseInfo {
     readonly code: number;
     readonly position: DOMPointReadOnly;
     readonly orientation: DOMPointReadOnly;
@@ -97,7 +97,7 @@ export class HMDInputDevice {
     }
 
     private _scanHmd () {
-        const infoList = globalThis.__globalXR.webxrHmdPoseInfos as PoseInfo[];
+        const infoList = globalThis.__globalXR.webxrHmdPoseInfos as IPoseInfo[];
         if (!infoList) {
             return;
         }
@@ -116,7 +116,7 @@ export class HMDInputDevice {
         this._eventTarget.on(eventType, callback, target);
     }
 
-    private _updateWebPoseState (info: PoseInfo) {
+    private _updateWebPoseState (info: IPoseInfo) {
         if (info.code !== Pose.VIEW_LEFT && info.code !== Pose.VIEW_RIGHT && info.code !== Pose.HEAD_MIDDLE) {
             return;
         }
