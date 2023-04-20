@@ -460,8 +460,14 @@ void XRInterface::initialize(void *javaVM, void *activity) {
 
             std::string imageInfo = value.getString();
             _gThreadPool->pushTask([imageInfo, this](int /*tid*/) {
-                this->loadAssetsImage(imageInfo);
+                this->loadImageTrackingData(imageInfo);
             });
+        } else if (key == xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE && value.isString()) {
+            std::string imagePath = value.getString();
+            if (imagePath.length() == 0) {
+                return;
+            }
+            asyncLoadAssetsImage(imagePath);
         }
     });
     #if XR_OEM_PICO
@@ -787,6 +793,7 @@ bool XRInterface::platformLoopStart() {
 bool XRInterface::beginRenderFrame() {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] beginRenderFrame.%d", _committedFrame);
+    _isEnabledEyeRenderJsCallback = xr::XrEntry::getInstance()->getXRConfig(xr::XRConfigKey::EYE_RENDER_JS_CALLBACK).getBool();
     if (gfx::DeviceAgent::getInstance()) {
         static uint64_t frameId = 0;
         frameId++;
@@ -832,6 +839,11 @@ bool XRInterface::isRenderAllowable() {
 bool XRInterface::beginRenderEyeFrame(uint32_t eye) {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] beginRenderEyeFrame %d", eye);
+    if (_isEnabledEyeRenderJsCallback) {
+        se::ValueArray args;
+        args.emplace_back(se::Value(eye));
+        EventDispatcher::doDispatchJsEvent("onXREyeRenderBegin", args);
+    }
     if (gfx::DeviceAgent::getInstance()) {
         ENQUEUE_MESSAGE_1(gfx::DeviceAgent::getInstance()->getMessageQueue(),
                           BeginRenderEyeFrame, eye, eye,
@@ -851,6 +863,11 @@ bool XRInterface::beginRenderEyeFrame(uint32_t eye) {
 bool XRInterface::endRenderEyeFrame(uint32_t eye) {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] endRenderEyeFrame %d", eye);
+    if (_isEnabledEyeRenderJsCallback) {
+        se::ValueArray args;
+        args.emplace_back(se::Value(eye));
+        EventDispatcher::doDispatchJsEvent("onXREyeRenderEnd", args);
+    }
     if (gfx::DeviceAgent::getInstance()) {
         ENQUEUE_MESSAGE_1(gfx::DeviceAgent::getInstance()->getMessageQueue(),
                           EndRenderEyeFrame, eye, eye,
@@ -964,7 +981,7 @@ void XRInterface::bindXREyeWithRenderWindow(void *window, xr::XREye eye) {
     }
 }
 
-void XRInterface::loadAssetsImage(const std::string &imageInfo) {
+void XRInterface::loadImageTrackingData(const std::string &imageInfo) {
     // name|@assets/TrackingImage_SpacesTown.png|0.18|0.26
     ccstd::vector<ccstd::string> segments = StringUtil::split(imageInfo, "|");
     std::string imageName = segments.at(0);
@@ -975,7 +992,7 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
     spaceTownImage->addRef();
     bool res = spaceTownImage->initWithImageFile(imagePath);
     if (!res) {
-        CC_LOG_ERROR("[XRInterface] loadAssetsImage init failed, %s!!!", imageInfo.c_str());
+        CC_LOG_ERROR("[XRInterface] loadImageTrackingData init failed, %s!!!", imageInfo.c_str());
         return;
     }
     uint32_t imageWidth = spaceTownImage->getWidth();
@@ -998,7 +1015,7 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
 
     auto app = CC_CURRENT_APPLICATION();
     if (!app) {
-        CC_LOG_ERROR("[XRInterface] loadAssetsImage callback failed, application not exist!!!");
+        CC_LOG_ERROR("[XRInterface] loadImageTrackingData callback failed, application not exist!!!");
         return;
     }
     auto engine = app->getEngine();
@@ -1090,6 +1107,74 @@ void XRInterface::adaptOrthographicMatrix(cc::scene::Camera *camera, const ccstd
     CC_UNUSED_PARAM(preTransform);
     CC_UNUSED_PARAM(proj);
     CC_UNUSED_PARAM(view);
+#endif
+}
+
+void XRInterface::asyncLoadAssetsImage(const std::string &imagePath) {
+#if CC_USE_XR
+    if (!_gThreadPool) {
+        _gThreadPool = LegacyThreadPool::newSingleThreadPool();
+    }
+    _gThreadPool->pushTask([imagePath, this](int /*tid*/) {
+      auto *assetsImage = new Image();
+      assetsImage->addRef();
+      bool res = assetsImage->initWithImageFile(imagePath);
+      if (!res) {
+          CC_LOG_ERROR("[XRInterface] async load assets image init failed, %s!!!", imagePath.c_str());
+          assetsImage->release();
+          return;
+      }
+      uint32_t imageWidth = assetsImage->getWidth();
+      uint32_t imageHeight = assetsImage->getHeight();
+      uint32_t bufferSize = assetsImage->getDataLen();
+      uint8_t *buffer = nullptr;
+      if (assetsImage->getRenderFormat() == gfx::Format::RGB8) {
+          // convert to rgba8
+          bufferSize = imageWidth * imageHeight * 4;
+          buffer = new uint8_t[bufferSize];
+          for (uint32_t y = 0; y < imageHeight; y++) {
+              for (uint32_t x = 0; x < imageWidth; x++) {
+                  const unsigned int pixel = x + y * imageWidth;
+                  const uint8_t *originalPixel = &assetsImage->getData()[static_cast<size_t>(pixel * 3)];
+                  uint8_t *convertedPixel = &buffer[static_cast<size_t>(pixel * 4)];
+                  convertedPixel[0] = originalPixel[0];
+                  convertedPixel[1] = originalPixel[1];
+                  convertedPixel[2] = originalPixel[2];
+                  convertedPixel[3] = 255.0F;
+              }
+          }
+      } else {
+          buffer = new uint8_t[bufferSize];
+          memcpy(buffer, assetsImage->getData(), bufferSize);
+      }
+      auto app = CC_CURRENT_APPLICATION();
+      if (!app) {
+          CC_LOG_ERROR("[XRInterface] loadAssetsImage callback failed, application not exist!!!");
+          return;
+      }
+      auto engine = app->getEngine();
+      CC_ASSERT_NOT_NULL(engine);
+      engine->getScheduler()->performFunctionInCocosThread([=]() {
+        auto *imageData = new xr::XRTrackingImageData();
+        imageData->friendlyName = imagePath;
+        imageData->bufferSize = bufferSize;
+        imageData->buffer = buffer;
+        imageData->pixelSizeWidth = imageWidth;
+        imageData->pixelSizeHeight = imageHeight;
+        if (!getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer()) {
+            auto *imagesMapPtr = new std::unordered_map<std::string, void *>();
+            (*imagesMapPtr).emplace(std::make_pair(imagePath, static_cast<void *>(imageData)));
+            setXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS, static_cast<void *>(imagesMapPtr));
+        } else {
+            auto *imagesMapPtr = static_cast<std::unordered_map<std::string,
+                                                                void *> *>(getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer());
+            (*imagesMapPtr).emplace(std::make_pair(imagePath, static_cast<void *>(imageData)));
+        }
+      });
+      assetsImage->release();
+    });
+#else
+    CC_UNUSED_PARAM(imagePath);
 #endif
 }
 
