@@ -226,14 +226,11 @@ export class PhysXCharacterController implements IBaseCharacterController {
     }
 
     updateEventListener () {
-        if (this._comp.needTriggerEvent) {
-            this._filterData.word3 |= EFilterDataWord3.DETECT_TRIGGER_EVENT;
-        }
         this.updateFilterData();
     }
 
     updateFilterData () {
-        // this._impl.setQueryFilterData(filterData);
+        // this._impl.setQueryFilterData(filterData);//set inside move()
         this._impl.setSimulationFilterData(this.filterData);
     }
 }

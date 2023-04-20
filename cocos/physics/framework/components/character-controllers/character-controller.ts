@@ -260,7 +260,6 @@ export class CharacterController extends Eventify(Component) {
     private _currentPos: Vec3 = new Vec3();
     private _velocity: Vec3 = new Vec3();
 
-    protected _needTriggerEvent = false;
     protected _needCollisionEvent = false;
 
     protected get _isInitialized (): boolean {
@@ -295,7 +294,6 @@ export class CharacterController extends Eventify(Component) {
 
     protected onDestroy () {
         if (this._cct) {
-            this._needTriggerEvent = false;
             this._needCollisionEvent = false;
             this._cct.updateEventListener();
             this._cct.onDestroy!();
@@ -497,18 +495,19 @@ export class CharacterController extends Eventify(Component) {
         if (this._isInitialized) this._cct!.removeMask(v);
     }
 
-    public get needTriggerEvent () {
-        return this._needTriggerEvent;
-    }
-
     public get needCollisionEvent () {
         return this._needCollisionEvent;
     }
 
     private _updateNeedEvent (type?: string) {
         if (this.isValid) {
-            this._needTriggerEvent = false;
-            this._needCollisionEvent = false;
+            if (type !== undefined) {
+                if (type === 'onColliderHit') {
+                    this._needCollisionEvent = true;
+                }
+            } else if (!this.hasEventListener('onColliderHit')) {
+                this._needCollisionEvent = false;
+            }
             if (this._cct) this._cct.updateEventListener();
         }
     }

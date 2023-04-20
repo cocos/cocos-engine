@@ -87,6 +87,22 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
+    updateNeedEmitCCTEvents (v: boolean) {
+        if (!this.ccts) return; // return if destroyed
+        if (v) {
+            this._needEmitCCTEvents = true;
+        } else {
+            this._needEmitCCTEvents = false;
+            for (let i = 0; i < this.ccts.length; i++) {
+                const cctCom = this.ccts[i].characterController;
+                if (cctCom.needCollisionEvent) {
+                    this._needEmitCCTEvents = true;
+                    return;
+                }
+            }
+        }
+    }
+
     get impl () {
         return this._world;
     }
@@ -98,6 +114,7 @@ export class BulletWorld implements IPhysicsWorld {
 
     private _needEmitEvents = false;
     private _needSyncAfterEvents = false;
+    private _needEmitCCTEvents = false;
 
     readonly bodies: BulletSharedBody[] = [];
     readonly ghosts: BulletSharedBody[] = [];
@@ -289,116 +306,69 @@ export class BulletWorld implements IPhysicsWorld {
 
     emitEvents () {
         this._needSyncAfterEvents = false;
-        if (!this._needEmitEvents) return;
-        this.gatherConatactData();
-        // is enter or stay
-        let dicL = this.contactsDic.getLength();
-        while (dicL--) {
-            contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as BulletContactData[]);
-            CollisionEventObject.contacts.length = 0;
-            const key = this.contactsDic.getKeyByIndex(dicL);
-            const data = this.contactsDic.getDataByKey<any>(key);
-            const shape0: BulletShape = data.shape0;
-            const shape1: BulletShape = data.shape1;
-            this.oldContactsDic.set(shape0.id, shape1.id, data);
-            const collider0 = shape0.collider;
-            const collider1 = shape1.collider;
-            if (collider0 && collider1) {
-                const isTrigger = collider0.isTrigger || collider1.isTrigger;
-                if (isTrigger) {
-                    if (this.triggerArrayMat.get(shape0.id, shape1.id)) {
-                        TriggerEventObject.type = 'onTriggerStay';
-                    } else {
-                        TriggerEventObject.type = 'onTriggerEnter';
-                        this.triggerArrayMat.set(shape0.id, shape1.id, true);
-                    }
-                    TriggerEventObject.impl = data.impl; //btPersistentManifold
-                    TriggerEventObject.selfCollider = collider0;
-                    TriggerEventObject.otherCollider = collider1;
-                    collider0.emit(TriggerEventObject.type, TriggerEventObject);
 
-                    TriggerEventObject.selfCollider = collider1;
-                    TriggerEventObject.otherCollider = collider0;
-                    collider1.emit(TriggerEventObject.type, TriggerEventObject);
-                    this._needSyncAfterEvents = true;
-                } else {
-                    const body0 = collider0.attachedRigidBody;
-                    const body1 = collider1.attachedRigidBody;
-                    if (body0 && body1) {
-                        if (body0.isSleeping && body1.isSleeping) continue;
-                    } else if (!body0 && body1) {
-                        if (body1.isSleeping) continue;
-                    } else if (!body1 && body0) {
-                        if (body0.isSleeping) continue;
-                    }
-                    if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
-                        CollisionEventObject.type = 'onCollisionStay';
-                    } else {
-                        CollisionEventObject.type = 'onCollisionEnter';
-                        this.collisionArrayMat.set(shape0.id, shape1.id, true);
-                    }
-
-                    for (let i = 0; i < data.contacts.length; i++) {
-                        const cq = data.contacts[i]; //btManifoldPoint
-                        if (contactsPool.length > 0) {
-                            const c = contactsPool.pop();
-                            c!.impl = cq; //btManifoldPoint
-                            CollisionEventObject.contacts.push(c!);
-                        } else {
-                            const c = new BulletContactData(CollisionEventObject);
-                            c.impl = cq; //btManifoldPoint
-                            CollisionEventObject.contacts.push(c);
-                        }
-                    }
-                    CollisionEventObject.impl = data.impl; //btPersistentManifold
-                    CollisionEventObject.selfCollider = collider0;
-                    CollisionEventObject.otherCollider = collider1;
-                    collider0.emit(CollisionEventObject.type, CollisionEventObject);
-
-                    CollisionEventObject.selfCollider = collider1;
-                    CollisionEventObject.otherCollider = collider0;
-                    collider1.emit(CollisionEventObject.type, CollisionEventObject);
-                    this._needSyncAfterEvents = true;
-                }
-
-                if (this.oldContactsDic.get(shape0.id, shape1.id) == null) {
-                    this.oldContactsDic.set(shape0.id, shape1.id, data);
-                }
-            }
-        }
-
-        // is exit
-        let oldDicL = this.oldContactsDic.getLength();
-        while (oldDicL--) {
-            const key = this.oldContactsDic.getKeyByIndex(oldDicL);
-            const data = this.oldContactsDic.getDataByKey<any>(key);
-            const shape0: BulletShape = data.shape0;
-            const shape1: BulletShape = data.shape1;
-            const collider0 = shape0.collider;
-            const collider1 = shape1.collider;
-            if (collider0 && collider1) {
-                const isTrigger = collider0.isTrigger || collider1.isTrigger;
-                if (this.contactsDic.getDataByKey(key) == null) {
+        if (this._needEmitEvents) {
+            this.gatherConatactData();
+            // is enter or stay
+            let dicL = this.contactsDic.getLength();
+            while (dicL--) {
+                contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as BulletContactData[]);
+                CollisionEventObject.contacts.length = 0;
+                const key = this.contactsDic.getKeyByIndex(dicL);
+                const data = this.contactsDic.getDataByKey<any>(key);
+                const shape0: BulletShape = data.shape0;
+                const shape1: BulletShape = data.shape1;
+                this.oldContactsDic.set(shape0.id, shape1.id, data);
+                const collider0 = shape0.collider;
+                const collider1 = shape1.collider;
+                if (collider0 && collider1) {
+                    const isTrigger = collider0.isTrigger || collider1.isTrigger;
                     if (isTrigger) {
                         if (this.triggerArrayMat.get(shape0.id, shape1.id)) {
-                            TriggerEventObject.type = 'onTriggerExit';
-                            TriggerEventObject.selfCollider = collider0;
-                            TriggerEventObject.otherCollider = collider1;
-                            collider0.emit(TriggerEventObject.type, TriggerEventObject);
-
-                            TriggerEventObject.selfCollider = collider1;
-                            TriggerEventObject.otherCollider = collider0;
-                            collider1.emit(TriggerEventObject.type, TriggerEventObject);
-
-                            this.triggerArrayMat.set(shape0.id, shape1.id, false);
-                            this.oldContactsDic.set(shape0.id, shape1.id, null);
-                            this._needSyncAfterEvents = true;
+                            TriggerEventObject.type = 'onTriggerStay';
+                        } else {
+                            TriggerEventObject.type = 'onTriggerEnter';
+                            this.triggerArrayMat.set(shape0.id, shape1.id, true);
                         }
-                    } else if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
-                        contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as BulletContactData[]);
-                        CollisionEventObject.contacts.length = 0;
+                        TriggerEventObject.impl = data.impl; //btPersistentManifold
+                        TriggerEventObject.selfCollider = collider0;
+                        TriggerEventObject.otherCollider = collider1;
+                        collider0.emit(TriggerEventObject.type, TriggerEventObject);
 
-                        CollisionEventObject.type = 'onCollisionExit';
+                        TriggerEventObject.selfCollider = collider1;
+                        TriggerEventObject.otherCollider = collider0;
+                        collider1.emit(TriggerEventObject.type, TriggerEventObject);
+                        this._needSyncAfterEvents = true;
+                    } else {
+                        const body0 = collider0.attachedRigidBody;
+                        const body1 = collider1.attachedRigidBody;
+                        if (body0 && body1) {
+                            if (body0.isSleeping && body1.isSleeping) continue;
+                        } else if (!body0 && body1) {
+                            if (body1.isSleeping) continue;
+                        } else if (!body1 && body0) {
+                            if (body0.isSleeping) continue;
+                        }
+                        if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
+                            CollisionEventObject.type = 'onCollisionStay';
+                        } else {
+                            CollisionEventObject.type = 'onCollisionEnter';
+                            this.collisionArrayMat.set(shape0.id, shape1.id, true);
+                        }
+
+                        for (let i = 0; i < data.contacts.length; i++) {
+                            const cq = data.contacts[i]; //btManifoldPoint
+                            if (contactsPool.length > 0) {
+                                const c = contactsPool.pop();
+                                c!.impl = cq; //btManifoldPoint
+                                CollisionEventObject.contacts.push(c!);
+                            } else {
+                                const c = new BulletContactData(CollisionEventObject);
+                                c.impl = cq; //btManifoldPoint
+                                CollisionEventObject.contacts.push(c);
+                            }
+                        }
+                        CollisionEventObject.impl = data.impl; //btPersistentManifold
                         CollisionEventObject.selfCollider = collider0;
                         CollisionEventObject.otherCollider = collider1;
                         collider0.emit(CollisionEventObject.type, CollisionEventObject);
@@ -406,19 +376,68 @@ export class BulletWorld implements IPhysicsWorld {
                         CollisionEventObject.selfCollider = collider1;
                         CollisionEventObject.otherCollider = collider0;
                         collider1.emit(CollisionEventObject.type, CollisionEventObject);
-
-                        this.collisionArrayMat.set(shape0.id, shape1.id, false);
-                        this.oldContactsDic.set(shape0.id, shape1.id, null);
                         this._needSyncAfterEvents = true;
+                    }
+
+                    if (this.oldContactsDic.get(shape0.id, shape1.id) == null) {
+                        this.oldContactsDic.set(shape0.id, shape1.id, data);
                     }
                 }
             }
+
+            // is exit
+            let oldDicL = this.oldContactsDic.getLength();
+            while (oldDicL--) {
+                const key = this.oldContactsDic.getKeyByIndex(oldDicL);
+                const data = this.oldContactsDic.getDataByKey<any>(key);
+                const shape0: BulletShape = data.shape0;
+                const shape1: BulletShape = data.shape1;
+                const collider0 = shape0.collider;
+                const collider1 = shape1.collider;
+                if (collider0 && collider1) {
+                    const isTrigger = collider0.isTrigger || collider1.isTrigger;
+                    if (this.contactsDic.getDataByKey(key) == null) {
+                        if (isTrigger) {
+                            if (this.triggerArrayMat.get(shape0.id, shape1.id)) {
+                                TriggerEventObject.type = 'onTriggerExit';
+                                TriggerEventObject.selfCollider = collider0;
+                                TriggerEventObject.otherCollider = collider1;
+                                collider0.emit(TriggerEventObject.type, TriggerEventObject);
+
+                                TriggerEventObject.selfCollider = collider1;
+                                TriggerEventObject.otherCollider = collider0;
+                                collider1.emit(TriggerEventObject.type, TriggerEventObject);
+
+                                this.triggerArrayMat.set(shape0.id, shape1.id, false);
+                                this.oldContactsDic.set(shape0.id, shape1.id, null);
+                                this._needSyncAfterEvents = true;
+                            }
+                        } else if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
+                            contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as BulletContactData[]);
+                            CollisionEventObject.contacts.length = 0;
+
+                            CollisionEventObject.type = 'onCollisionExit';
+                            CollisionEventObject.selfCollider = collider0;
+                            CollisionEventObject.otherCollider = collider1;
+                            collider0.emit(CollisionEventObject.type, CollisionEventObject);
+
+                            CollisionEventObject.selfCollider = collider1;
+                            CollisionEventObject.otherCollider = collider0;
+                            collider1.emit(CollisionEventObject.type, CollisionEventObject);
+
+                            this.collisionArrayMat.set(shape0.id, shape1.id, false);
+                            this.oldContactsDic.set(shape0.id, shape1.id, null);
+                            this._needSyncAfterEvents = true;
+                        }
+                    }
+                }
+            }
+
+            this.contactsDic.reset();
         }
 
-        this.contactsDic.reset();
-
         // emit cct events
-        {
+        if (this._needEmitCCTEvents) {
             let dicL = this.cctShapeEventDic.getLength();
             while (dicL--) {
                 const key = this.cctShapeEventDic.getKeyByIndex(dicL);
@@ -436,6 +455,7 @@ export class BulletWorld implements IPhysicsWorld {
                 emitHit.motionDirection.set(motionDir.x, motionDir.y, motionDir.z);
                 emitHit.motionLength = motionLength;
                 emitHit.selfCCT?.emit('onColliderHit', emitHit.selfCCT, emitHit.otherCollider, emitHit);
+                this._needSyncAfterEvents = true;
             }
             this.cctShapeEventDic.reset();
         }

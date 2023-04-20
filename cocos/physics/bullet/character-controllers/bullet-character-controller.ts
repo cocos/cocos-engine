@@ -33,7 +33,6 @@ import { BulletWorld } from '../bullet-world';
 import { bt, EBulletType } from '../instantiated';
 import { PhysicsGroup } from '../../framework/physics-enum';
 import { BulletShape } from '../shapes/bullet-shape';
-import { BulletRigidBody } from '../bullet-rigid-body';
 import { degreesToRadians } from '../../../core/utils/misc';
 
 const v3_0 = new Vec3(0, 0, 0);
@@ -46,7 +45,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     private _btCollisionFlags = 0;//: btControllerCollisionFlag
     protected _word3 = 0;
     private _dirty = false;
-    private _collisionFilterGroup: number = PhysicsSystem.PhysicsGroup.DEFAULT;
+    private _collisionFilterGroup: number = PhysicsGroup.DEFAULT;
     private _collisionFilterMask = -1;
 
     get isEnabled (): boolean { return this._isEnabled; }
@@ -190,6 +189,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     }
 
     updateEventListener () {
+        (PhysicsSystem.instance.physicsWorld as BulletWorld).updateNeedEmitCCTEvents(this.characterController.needCollisionEvent);
     }
 
     // update group and mask by re-adding cct to physics world
