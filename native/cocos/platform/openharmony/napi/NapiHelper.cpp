@@ -29,9 +29,12 @@
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "platform/openharmony/FileUtils-OpenHarmony.h"
 #include "bindings/jswrapper/SeApi.h"
-#include "ui/edit-box/EditBox-openharmony.h"
-#include "ui/webview/WebViewImpl-openharmony.h"
-
+#if CC_USE_EDITBOX
+    #include "ui/edit-box/EditBox-openharmony.h"
+#endif
+#if CC_USE_WEBVIEW
+    #include "ui/webview/WebViewImpl-openharmony.h"
+#endif
 namespace cc {
 const int32_t kMaxStringLen = 512;
 
@@ -194,17 +197,20 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
                 DECLARE_NAPI_FUNCTION("writablePathInit", NapiHelper::napiWritablePathInit),
             };
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
-        }
+        } break;
         case EDITBOX_UTILS: {
-            std::vector<napi_property_descriptor> desc;
-            OpenHarmonyEditBox::GetInterfaces(desc);
-            NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
-        }
-
+            #if CC_USE_EDITBOX
+                std::vector<napi_property_descriptor> desc;
+                OpenHarmonyEditBox::GetInterfaces(desc);
+                NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
+            #endif
+        } break;
         case WEBVIEW_UTILS: {
-            std::vector<napi_property_descriptor> desc;
-            OpenHarmonyWebView::GetInterfaces(desc);
-            NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
+            #if CC_USE_WEBVIEW
+                std::vector<napi_property_descriptor> desc;
+                OpenHarmonyWebView::GetInterfaces(desc);
+                NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
+            #endif
         } break;
         case UV_ASYNC_SEND: {
             napi_property_descriptor desc[] = {
