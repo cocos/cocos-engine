@@ -25,10 +25,12 @@
 import { GamepadCallback } from 'pal/input';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { InputSourceButton, InputSourceDpad, InputSourceStick } from '../input-source';
+import { InputSourceButton, InputSourceDpad, InputSourceOrientation, InputSourcePosition, InputSourceStick } from '../input-source';
+import { Quat, Vec3 } from '../../../cocos/core';
 
 export class GamepadInputDevice {
     public static all: GamepadInputDevice[] = [];
+    public static xr: (GamepadInputDevice | null) = null;
 
     public get buttonNorth () { return this._buttonNorth; }
     public get buttonEast () { return this._buttonEast; }
@@ -48,6 +50,16 @@ export class GamepadInputDevice {
     public get leftStick () { return this._leftStick; }
     public get rightStick () { return this._rightStick; }
     public get buttonStart () { return this._buttonStart; }
+    public get gripLeft () { return this._gripLeft; }
+    public get gripRight () { return this._gripRight; }
+    public get handLeftPosition () { return this._handLeftPosition; }
+    public get handLeftOrientation () { return this._handLeftOrientation; }
+    public get handRightPosition () { return this._handRightPosition; }
+    public get handRightOrientation () { return this._handRightOrientation; }
+    public get aimLeftPosition () { return this._aimLeftPosition; }
+    public get aimLeftOrientation () { return this._aimLeftOrientation; }
+    public get aimRightPosition () { return this._aimRightPosition; }
+    public get aimRightOrientation () { return this._aimRightOrientation; }
 
     public get deviceId () {
         return this._deviceId;
@@ -76,6 +88,16 @@ export class GamepadInputDevice {
     private _leftStick!: InputSourceStick;
     private _rightStick!: InputSourceStick;
     private _buttonStart!: InputSourceButton;
+    private _gripLeft!: InputSourceButton;
+    private _gripRight!: InputSourceButton;
+    private _handLeftPosition!: InputSourcePosition;
+    private _handLeftOrientation!: InputSourceOrientation;
+    private _handRightPosition!: InputSourcePosition;
+    private _handRightOrientation!: InputSourceOrientation;
+    private _aimLeftPosition!: InputSourcePosition;
+    private _aimLeftOrientation!: InputSourceOrientation;
+    private _aimRightPosition!: InputSourcePosition;
+    private _aimRightOrientation!: InputSourceOrientation;
 
     private _deviceId = -1;
     private _connected = false;
@@ -164,5 +186,30 @@ export class GamepadInputDevice {
 
         this._buttonStart = new InputSourceButton();
         this._buttonStart.getValue = () => 0;
+
+        this._gripLeft = new InputSourceButton();
+        this._gripLeft.getValue = () => 0;
+        this._gripRight = new InputSourceButton();
+        this._gripRight.getValue = () => 0;
+
+        this._handLeftPosition = new InputSourcePosition();
+        this._handLeftPosition.getValue = () => Vec3.ZERO;
+        this._handLeftOrientation = new InputSourceOrientation();
+        this._handLeftOrientation.getValue = () => Quat.IDENTITY;
+
+        this._handRightPosition = new InputSourcePosition();
+        this._handRightPosition.getValue = () => Vec3.ZERO;
+        this._handRightOrientation = new InputSourceOrientation();
+        this._handRightOrientation.getValue = () => Quat.IDENTITY;
+
+        this._aimLeftPosition = new InputSourcePosition();
+        this._aimLeftPosition.getValue = () => Vec3.ZERO;
+        this._aimLeftOrientation = new InputSourceOrientation();
+        this._aimLeftOrientation.getValue = () => Quat.IDENTITY;
+
+        this._aimRightPosition = new InputSourcePosition();
+        this._aimRightPosition.getValue = () => Vec3.ZERO;
+        this._aimRightOrientation = new InputSourceOrientation();
+        this._aimRightOrientation.getValue = () => Quat.IDENTITY;
     }
 }
