@@ -22,50 +22,32 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
+// clang-format off
 #pragma once
-#include <boost/mp11/algorithm.hpp>
-#include <type_traits>
-#include <utility>
 #include "cocos/base/std/variant.h"
+#include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
 
 namespace cc {
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1920)
-// https://stackoverflow.com/questions/50510122/stdvariant-with-overloaded-lambdas-alternative-with-msvc
-template <class... Ts>
-struct Overloaded {}; // NOLINT
+namespace render {
 
-template <class T0>
-struct Overloaded<T0> : T0 {
-    using T0::operator();
-    Overloaded(T0 t0) // NOLINT
-    : T0(std::move(t0)) {}
-};
+class Customization;
+class CustomPipelineContext;
+struct CustomRenderGraphContext;
+class CustomRenderPass;
+class CustomRenderSubpass;
+class CustomComputeSubpass;
+class CustomComputePass;
+class CustomRenderQueue;
+class CustomRenderCommand;
 
-template <class T0, class T1, class... Ts>
-struct Overloaded<T0, T1, Ts...> : T0, Overloaded<T1, Ts...> {
-    using T0::operator();
-    using Overloaded<T1, Ts...>::operator();
-    Overloaded(T0 t0, T1 t1, Ts... ts)
-    : T0(std::move(t0)), Overloaded<T1, Ts...>(std::move(t1), std::move(ts)...) {}
-};
-#else
-template<class... Ts> struct Overloaded : Ts... {
-    using Ts::operator()...;
-};
-
-template<class... Ts> Overloaded(Ts...) -> Overloaded<Ts...>;
-#endif
-
-template <class... Ts>
-Overloaded<Ts...> overload(Ts&&... ts) {
-    return {std::forward<Ts>(ts)...};
-}
-
-template <typename V>
-auto variantFromIndex(size_t index) -> V { // NOLINT
-    return boost::mp11::mp_with_index<boost::mp11::mp_size<V>>(index,
-                                                               [](auto i) { return V(ccstd::in_place_index<i>); });
-}
+} // namespace render
 
 } // namespace cc
+
+// clang-format on

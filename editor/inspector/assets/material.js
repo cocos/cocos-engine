@@ -84,6 +84,7 @@ exports.methods = {
     },
 
     async abort() {
+        this.reset();
         await Editor.Message.request('scene', 'preview-material', this.asset.uuid);
     },
 
@@ -216,6 +217,7 @@ exports.methods = {
 
                 $container.$children[i] = document.createElement('ui-prop');
                 $container.$children[i].setAttribute('type', 'dump');
+                $container.$children[i].setAttribute('pass-index', i);
                 $container.appendChild($container.$children[i]);
                 $container.$children[i].render(pass);
 
@@ -344,10 +346,10 @@ exports.methods = {
                 return;
             }
 
-            cacheProperty(pass.value);
+            cacheProperty(pass.value, i);
         });
 
-        function cacheProperty(prop) {
+        function cacheProperty(prop, passIndex) {
             for (const name in prop) {
                 // 这些字段是基础类型或配置性的数据，不需要变动
                 if (excludeNames.includes(name)) {
@@ -355,22 +357,27 @@ exports.methods = {
                 }
 
                 if (prop[name] && typeof prop[name] === 'object') {
-                    if (!(name in cacheData)) {
-                        const { type, value } = prop[name];
-                        if (type) {
-                            if (value !== undefined) {
-                                cacheData[name] = { type };
-                                if (value && typeof value === 'object') {
-                                    cacheData[name].value = JSON.parse(JSON.stringify(value));
-                                } else {
-                                    cacheData[name].value = value;
-                                }
+                    if (!cacheData.name) {
+                        cacheData[name] = {};
+                    }
+
+                    const { type, value } = prop[name];
+                    if (type && value !== undefined) {
+                        if (!cacheData[name][passIndex]) {
+                            if (name === 'USE_INSTANCING' && passIndex !== 0) {
+                                continue;
+                            }
+                            cacheData[name][passIndex] = { type };
+                            if (value && typeof value === 'object') {
+                                cacheData[name][passIndex].value = JSON.parse(JSON.stringify(value));
+                            } else {
+                                cacheData[name][passIndex].value = value;
                             }
                         }
                     }
 
                     if (prop[name].childMap && typeof prop[name].childMap === 'object') {
-                        cacheProperty(prop[name].childMap);
+                        cacheProperty(prop[name].childMap, passIndex);
                     }
                 }
             }
@@ -380,13 +387,13 @@ exports.methods = {
         this.updateInstancing();
     },
 
-    storeCache(dump) {
+    storeCache(dump, passIndex) {
         const { name, type, value, default: defaultValue } = dump;
 
         if (JSON.stringify(value) === JSON.stringify(defaultValue)) {
-            delete this.cacheData[name];
+            delete this.cacheData[name][passIndex];
         } else {
-            this.cacheData[name] = JSON.parse(JSON.stringify({ type, value }));
+            this.cacheData[name][passIndex] = JSON.parse(JSON.stringify({ type, value }));
         }
     },
 
@@ -397,25 +404,28 @@ exports.methods = {
                 return;
             }
 
-            updateProperty(pass.value);
+            updateProperty(pass.value, i);
         });
 
-        function updateProperty(prop) {
+        function updateProperty(prop, passIndex) {
             for (const name in prop) {
                 if (prop[name] && typeof prop[name] === 'object') {
                     if (name in cacheData) {
-                        const { type, value } = cacheData[name];
-                        if (prop[name].type === type && JSON.stringify(prop[name].value) !== JSON.stringify(value)) {
-                            if (value && typeof value === 'object') {
-                                prop[name].value = JSON.parse(JSON.stringify(value));
-                            } else {
-                                prop[name].value = value;
+                        const passItem = cacheData[name][passIndex];
+                        if (passItem) {
+                            const { type, value } = passItem;
+                            if (prop[name].type === type && JSON.stringify(prop[name].value) !== JSON.stringify(value)) {
+                                if (value && typeof value === 'object') {
+                                    prop[name].value = JSON.parse(JSON.stringify(value));
+                                } else {
+                                    prop[name].value = value;
+                                }
                             }
                         }
                     }
 
                     if (prop[name].childMap && typeof prop[name].childMap === 'object') {
-                        updateProperty(prop[name].childMap);
+                        updateProperty(prop[name].childMap, passIndex);
                     }
                 }
             }
@@ -532,7 +542,7 @@ exports.ready = function() {
     // The event is triggered when the useInstancing is modified
     this.$.useInstancing.addEventListener('change-dump', (event) => {
         this.changeInstancing(event.target.dump.value);
-        this.storeCache(event.target.dump);
+        this.storeCache(event.target.dump, 0);
         this.change();
         this.snapshot();
     });
@@ -541,7 +551,15 @@ exports.ready = function() {
     this.$.materialDump.addEventListener('change-dump', (event) => {
         const dump = event.target.dump;
 
-        this.storeCache(dump);
+        let passIndex = 0;
+        for (let element of event.path) {
+            if (element instanceof HTMLElement && element.hasAttribute('pass-index')) {
+                passIndex = Number(element.getAttribute('pass-index'));
+                break;
+            }
+        }
+
+        this.storeCache(dump, passIndex);
         this.change();
     });
 

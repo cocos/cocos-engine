@@ -26,8 +26,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import { Camera } from './camera-component';
-import { replaceProperty, cclegacy, js } from '../core';
+import { replaceProperty, cclegacy, js, markAsWarning } from '../core';
 import { ModelRenderer } from './model-renderer';
+import { Renderer } from './renderer';
 
 replaceProperty(Camera, 'Camera', [
     {
@@ -48,6 +49,14 @@ replaceProperty(Camera.prototype, 'Camera.prototype', [
     {
         name: 'stencil',
         newName: 'clearStencil',
+    },
+]);
+
+// deprecate Renderer API
+markAsWarning(Renderer.prototype, 'Renderer.prototype', [
+    {
+        name: 'getMaterial',
+        suggest: 'please use renderer.getSharedMaterial instead.',
     },
 ]);
 

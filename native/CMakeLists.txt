@@ -1338,6 +1338,9 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/ArchiveFwd.h
                  cocos/renderer/pipeline/custom/ArchiveTypes.cpp
                  cocos/renderer/pipeline/custom/ArchiveTypes.h
+                 cocos/renderer/pipeline/custom/CustomFwd.h
+                 cocos/renderer/pipeline/custom/CustomTypes.cpp
+                 cocos/renderer/pipeline/custom/CustomTypes.h
                  cocos/renderer/pipeline/custom/FGDispatcherGraphs.h
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h

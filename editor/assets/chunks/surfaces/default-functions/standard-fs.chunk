@@ -1,4 +1,5 @@
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+// depends on CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
 vec4 SurfacesFragmentModifyBaseColorAndTransparency()
 {
     return FSInput_vertexColor;
@@ -6,6 +7,7 @@ vec4 SurfacesFragmentModifyBaseColorAndTransparency()
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+// depends on CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
 // for base shape without color usage, such as render-to-shadow
 void SurfacesFragmentAlphaClipOnly()
 {
@@ -14,6 +16,7 @@ void SurfacesFragmentAlphaClipOnly()
 
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
+// depends on CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
 vec3 SurfacesFragmentModifyWorldNormal()
 {
     return normalize(FSInput_worldNormal);
@@ -21,9 +24,10 @@ vec3 SurfacesFragmentModifyWorldNormal()
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_WORLD_TANGENT_AND_BINORMAL
+// depends on CC_SURFACES_FRAGMENT_MODIFY_WORLD_TANGENT_AND_BINORMAL
 void SurfacesFragmentModifyWorldTangentAndBinormal(inout vec3 worldTangent, inout vec3 worldBinormal, vec3 worldNormal)
 {
-    vec3 tangent = FSInput_worldTangent;
+    vec3 tangent = normalize(FSInput_worldTangent);
 
 #if CC_SURFACES_USE_TANGENT_SPACE
     vec3 binormal = normalize(CalculateBinormal(worldNormal.xyz, tangent, FSInput_mirrorNormal));
@@ -38,6 +42,7 @@ void SurfacesFragmentModifyWorldTangentAndBinormal(inout vec3 worldTangent, inou
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_IOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_IOR
 float SurfacesFragmentModifyIOR()
 {
     return 1.0;
@@ -45,6 +50,7 @@ float SurfacesFragmentModifyIOR()
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_ANISOTROPY_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_ANISOTROPY_PARAMS
 // isRotation=1.0: shape(0~1), rotation(0~2PI), 0.0, 0.0
 // or
 // isRotation=0.0: shape(0~1), anisoDir.xyz(-1~1)
@@ -56,6 +62,7 @@ vec4 SurfacesFragmentModifyAnisotropyParams(out float isRotation)
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
+// depends on CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
 vec3 SurfacesFragmentModifyEmissive()
 {
     return vec3(0.0, 0.0, 0.0);
@@ -63,6 +70,7 @@ vec3 SurfacesFragmentModifyEmissive()
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
 vec4 SurfacesFragmentModifyPBRParams()
 {
     // ao, roughness, metallic, specularIntensity
@@ -71,6 +79,7 @@ vec4 SurfacesFragmentModifyPBRParams()
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
 // scattering related parameters and colors
 vec4 SurfacesFragmentModifyTransmitScatteringParams()
 {
@@ -85,6 +94,7 @@ vec4 SurfacesFragmentModifyTransmitScatteringParams()
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_IN_SCATTERING_COLOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_IN_SCATTERING_COLOR
 vec3 SurfacesFragmentModifyTransmitInScatteringColor()
 {
     // added light multiplier
@@ -92,6 +102,7 @@ vec3 SurfacesFragmentModifyTransmitInScatteringColor()
 }
 #endif
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
 vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
 {
     // transmit background multiplier
@@ -100,6 +111,7 @@ vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_DIFFUSE_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_DIFFUSE_PARAMS
 vec4 SurfacesFragmentModifyTransmitDiffuseParams()
 {
     // this param valid only when CC_SURFACES_LIGHTING_USE_SHADOWMAP_TRANSMIT is 1
@@ -115,6 +127,7 @@ vec4 SurfacesFragmentModifyTransmitDiffuseParams()
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TRT_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TRT_PARAMS
 vec4 SurfacesFragmentModifyTRTParams()
 {
     //x: roughness offset
@@ -123,7 +136,9 @@ vec4 SurfacesFragmentModifyTRTParams()
     return vec4(0.2, 0.0, 0.0, 1.0);
 }
 #endif
+
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TRT_COLOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TRT_COLOR
 vec3 SurfacesFragmentModifyTRTColor()
 {
     return vec3(1.0, 1.0, 1.0);
@@ -131,6 +146,7 @@ vec3 SurfacesFragmentModifyTRTColor()
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TT_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TT_PARAMS
 vec4 SurfacesFragmentModifyTTParams()
 {
     //x: scatter coef
@@ -138,7 +154,9 @@ vec4 SurfacesFragmentModifyTTParams()
     return vec4(0.0, 0.0, 0.0, 1.0);
 }
 #endif
+
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
+// depends on CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
 vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor)
 {
     // baseColor for reference
@@ -147,6 +165,7 @@ vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor)
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_DUAL_LOBE_SPECULAR_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_DUAL_LOBE_SPECULAR_PARAMS
 vec4 SurfacesFragmentModifyDualLobeSpecularParams(float roughness)
 {
     //x: secondary lobe roughness, according to argument (first lobe roughness)
@@ -156,6 +175,7 @@ vec4 SurfacesFragmentModifyDualLobeSpecularParams(float roughness)
 #endif
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_SSS_PARAMS
+// depends on CC_SURFACES_FRAGMENT_MODIFY_SSS_PARAMS
 vec4 SurfacesFragmentModifySSSParams()
 {
     // x: sssIntensity, moisture
@@ -166,10 +186,11 @@ vec4 SurfacesFragmentModifySSSParams()
 }
 #endif
 
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+// depends on CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
 // some material datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
 // this function invokes at last
 // should use corresponding shading-model header: #include <surfaces/data-structures/XXX> before function define
-#ifndef CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
 void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
 {
 }

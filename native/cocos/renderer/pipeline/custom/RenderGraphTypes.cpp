@@ -287,13 +287,15 @@ RenderData::RenderData(const allocator_type& alloc) noexcept
 : constants(alloc),
   buffers(alloc),
   textures(alloc),
-  samplers(alloc) {}
+  samplers(alloc),
+  custom(alloc) {}
 
 RenderData::RenderData(RenderData&& rhs, const allocator_type& alloc)
 : constants(std::move(rhs.constants), alloc),
   buffers(std::move(rhs.buffers), alloc),
   textures(std::move(rhs.textures), alloc),
-  samplers(std::move(rhs.samplers), alloc) {}
+  samplers(std::move(rhs.samplers), alloc),
+  custom(std::move(rhs.custom), alloc) {}
 
 RenderGraph::RenderGraph(const allocator_type& alloc) noexcept
 : objects(alloc),

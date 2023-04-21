@@ -219,7 +219,7 @@ export function packGradientRange (tex: Texture2D | null, data: Uint8Array | nul
     if (data === null || data.length !== len) {
         data = new Uint8Array(samples * height * 4);
     }
-    const interval = 1.0 / (samples);
+    const interval = 1.0 / (samples - 1);
     let offset = 0;
 
     for (let h = 0; h < height; h++) {

@@ -136,7 +136,7 @@ DescriptorSetLayoutData::DescriptorSetLayoutData(const allocator_type& alloc) no
   uniformBlocks(alloc),
   bindingMap(alloc) {}
 
-DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocksIn, PmrFlatMap<NameLocalID, uint32_t> bindingMapIn, const allocator_type& alloc) noexcept // NOLINT
+DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, PmrUnorderedMap<NameLocalID, gfx::UniformBlock> uniformBlocksIn, PmrFlatMap<NameLocalID, uint32_t> bindingMapIn, const allocator_type& alloc) noexcept // NOLINT
 : slot(slotIn),
   capacity(capacityIn),
   descriptorBlocks(std::move(descriptorBlocksIn), alloc),
