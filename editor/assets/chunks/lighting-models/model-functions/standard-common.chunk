@@ -84,39 +84,6 @@ vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData ligh
     return envSpec;
 }
 
-vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData lightingData, float mipCount, vec3 worldPos, vec3 cubeCenterPos, vec3 boxHalfSize, bool isRGBE)
-{
-    vec3 envSpec = vec3(0.0);
-    float roughness = lightingData.specularParam;
-    #if CC_SURFACES_LIGHTING_ANISOTROPIC && !CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
-      vec3 R = GetAnisotropicReflect(roughness, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
-    #else
-      vec3 R = CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV);
-    #endif
-
-    vec4 fixedR = CalculateBoxProjectedDirection(R, worldPos, cubeCenterPos, boxHalfSize);
-    R = fixedR.xyz;
-
-    vec3 envmap = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w).xyz * cc_ambientSky.w;
-    #if CC_SURFACES_LIGHTING_ANISOTROPIC && CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
-      envSpec = EnvAnisotropicReflection(tex, fixedR.xyz, roughness, mipCount, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
-      #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
-        envSpec = mix(envmap, envSpec, fixedR.w);
-      #endif
-    #else
-      #if CC_SURFACES_USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
-        envSpec = EnvReflectionWithMipFiltering(normalize(R), roughness, mipCount, 0.6);
-      #else
-         #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
-          envSpec = mix(envmap, EnvReflectionOfReflectionProbe(tex, R, roughness, mipCount, isRGBE), fixedR.w);
-         #else
-          envSpec = EnvReflectionOfReflectionProbe(tex, R, roughness, mipCount, isRGBE);
-         #endif
-      #endif
-    #endif
-    return envSpec;
-}
-
 vec4 CalculateFixedDirection(in LightingIntermediateData lightingData, vec3 worldPos, vec3 cubeCenterPos, vec3 boxHalfSize)
 {
     float roughness = lightingData.specularParam;
@@ -128,6 +95,32 @@ vec4 CalculateFixedDirection(in LightingIntermediateData lightingData, vec3 worl
     return CalculateBoxProjectedDirection(R, worldPos, cubeCenterPos, boxHalfSize);
 }
 
+vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData lightingData, float mipCount, vec3 worldPos, vec3 cubeCenterPos, vec3 boxHalfSize, bool isRGBE)
+{
+    vec3 envSpec = vec3(0.0);
+    float roughness = lightingData.specularParam;
+
+    vec4 fixedR = CalculateFixedDirection(lightingData, worldPos, cubeCenterPos, boxHalfSize);
+    vec3 R = fixedR.xyz;
+
+    vec3 envmap = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w).xyz * cc_ambientSky.w;
+    #if CC_SURFACES_LIGHTING_ANISOTROPIC && CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
+      envSpec = EnvAnisotropicReflection(tex, fixedR.xyz, roughness, mipCount, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
+      #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
+        envSpec = mix(envmap, envSpec, fixedR.w);
+      #endif
+    #else
+      #if CC_SURFACES_USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
+        envSpec = EnvReflectionWithMipFiltering(normalize(R), roughness, mipCount, 0.6);
+      #else
+        envSpec = EnvReflectionOfReflectionProbe(tex, R, roughness, mipCount, isRGBE);
+        #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
+          envSpec = mix(envmap, envSpec, fixedR.w);
+        #endif
+      #endif
+    #endif
+    return envSpec;
+}
 
 vec3 CalculateEnvironmentDiffuse(in LightingIntermediateData lightingData, float lightIntensity)
 {
@@ -212,8 +205,8 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
           //blend with skybox
           envSpec = mix(envSpec, skyBoxEnv, blendFactor);
         #else
-          vec4 r = CalculateFixedDirection(lightingData, worldPos, centerPos, boxHalfSize);
-          envSpec = mix(skyBoxEnv, envSpec, r.w);
+          vec4 fixedR = CalculateFixedDirection(lightingData, worldPos, centerPos, boxHalfSize);
+          envSpec = mix(skyBoxEnv, envSpec, fixedR.w);
         #endif 
       }else{
         vec3 centerPosBlend, boxHalfSizeBlend;
