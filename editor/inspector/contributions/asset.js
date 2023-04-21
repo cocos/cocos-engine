@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+module.paths.push(path.join(Editor.App.path, 'node_modules'));
 const { throttle } = require('lodash');
 const History = require('./asset-history/index');
 
