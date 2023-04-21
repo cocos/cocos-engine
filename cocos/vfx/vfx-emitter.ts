@@ -436,7 +436,8 @@ export class VFXEmitter extends Component {
 
         this._state.playingState = PlayingState.PLAYING;
         this._state.isEmitting = true;
-        this.updateEmitterTransform(this.node);
+        Vec3.copy(this._emitterDataSet.prevWorldPosition, this._emitterDataSet.worldPosition);
+        Vec3.copy(this._emitterDataSet.worldPosition, this.node.worldPosition);
         vfxManager.addEmitter(this);
     }
 
@@ -556,6 +557,7 @@ export class VFXEmitter extends Component {
         const user = this._userDataSet;
         const state = this._state;
         context.reset();
+        context.deltaTime = deltaTime;
         this.updateEmitterState(deltaTime);
         this.preTick(particles, emitter, user, context);
 
@@ -569,33 +571,29 @@ export class VFXEmitter extends Component {
 
         if (state.isEmitting) {
             emitter.spawnFraction = this.spawn(emitter.spawnContinuousCount, emitter.burstCount, emitter.spawnFraction, emitter.isWorldSpace
-                ? emitter.localToWorld : Mat4.IDENTITY, Color.WHITE, Vec3.ONE, Vec3.ZERO);
+                ? emitter.localToWorld : Mat4.IDENTITY, emitter.isWorldSpace ? emitter.velocity : Vec3.ZERO, Color.WHITE, Vec3.ONE, Vec3.ZERO);
         }
 
         this.processEvents(particles, emitter, user, context);
         this.removeDeadParticles(particles);
+        this.updateBounds();
     }
 
     private updateEmitterState (dt: number) {
         const params = this._params;
         const emitterDataSet = this._emitterDataSet;
         emitterDataSet.burstCount = emitterDataSet.spawnContinuousCount = 0;
-        const prevTime = emitterDataSet.age;
-        emitterDataSet.age += dt;
-        const isWorldSpace = this._params.simulationSpace === Space.WORLD;
-        if (isWorldSpace) {
-            this._particleDataSet.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
-        }
-        this.updateEmitterTime(emitterDataSet.age, prevTime,
-            params.delayMode, emitterDataSet.currentDelay, params.loopMode, params.loopCount, params.duration);
+        this.updateEmitterTime(dt, params.delayMode, emitterDataSet.currentDelay, params.loopMode, params.loopCount, params.duration);
         this.updateEmitterTransform(this.node, dt);
     }
 
     private updateEmitterTime (deltaTime: number, delayMode: DelayMode,
         delay: number, loopMode: LoopMode, loopCount: number, duration: number) {
-        assertIsTrue(deltaTime < duration,
-            'The delta time should not exceed the duration of the particle system. please adjust the duration of the particle system.');
-        assertIsTrue(deltaTime >= 0);
+        if (DEBUG) {
+            assertIsTrue(deltaTime < duration,
+                'The delta time should not exceed the duration of the particle system. please adjust the duration of the particle system.');
+            assertIsTrue(deltaTime >= 0);
+        }
         const emitter = this._emitterDataSet;
         let prevTime = emitter.age;
         emitter.age += deltaTime;
@@ -658,7 +656,6 @@ export class VFXEmitter extends Component {
      * @engineInternal
      */
     public render () {
-        this.updateBounds();
         for (let i = 0, length = this._renderers.length; i < length; i++) {
             this._renderers[i].render(this._particleDataSet, this._emitterDataSet);
         }
@@ -672,6 +669,9 @@ export class VFXEmitter extends Component {
             for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
                 this._eventHandlers[i].tick(particles, emitter, user, context);
             }
+            particles.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
+        }
+        if (emitter.isWorldSpace) {
             particles.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
         }
         particles.ensureParameters(builtinParticleParameterIdentities);
@@ -721,7 +721,7 @@ export class VFXEmitter extends Component {
                         Vec3.transformMat4(initialVelocity, initialVelocity, emitter.worldToLocal);
                     }
                     context.setExecuteRange(0, 0);
-                    this.spawn(spawnFraction, tempEmitterTransform, eventInfo.color, eventInfo.scale, eventInfo.rotation);
+                    this.spawn(eventHandler.spawnCount, 0, 0, tempEmitterTransform, initialVelocity, eventInfo.color, eventInfo.scale, eventInfo.rotation);
                     eventHandler.execute(particles, emitter, user, context);
                 }
             }

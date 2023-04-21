@@ -28,7 +28,7 @@ import { approx, CCFloat, Color, Vec3 } from '../../core';
 import { ParticleEventType, Space } from '../enum';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ColorArrayParameter, Vec3ArrayParameter } from '../particle-parameter';
+import { ColorArrayParameter, Vec3ArrayParameter } from '../vfx-parameter';
 import { ModuleExecContext, VFXEmitterParams, VFXEventInfo, VFXEmitterState } from '../base';
 import { RandomStream } from '../random-stream';
 

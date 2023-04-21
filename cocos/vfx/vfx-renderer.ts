@@ -29,7 +29,7 @@ import { ModelRenderer } from '../misc';
 import { VFXEmitter } from './vfx-emitter';
 import { vfxManager } from './vfx-manager';
 import { scene } from '../render-scene';
-import { RendererModule } from './modules/renderer';
+import { ParticleRenderer } from './particle-renderer';
 
 @ccclass('cc.VFXRenderer')
 @menu('Effects/VFXRenderer')
@@ -85,14 +85,14 @@ export class VFXRenderer extends ModelRenderer {
         this._emitter.render();
         const model = this._model;
         const subModels = model.subModels;
-        const rendererModules = this._emitter.renderStage.modules;
+        const renderers = this._emitter.renderers;
         const materials = this._materials;
         const materialInstances = this._materialInstances;
         let subModelIndex = 0;
-        for (let i = 0, length = rendererModules.length; i < length; i++) {
-            const module = rendererModules[i];
-            if (!(module instanceof RendererModule) || !module.enabled) continue;
-            const { renderingSubMesh, material, sharedMaterial } = module;
+        for (let i = 0, length = renderers.length; i < length; i++) {
+            const renderer = renderers[i];
+            if (!renderer.enabled) continue;
+            const { renderingSubMesh, material, sharedMaterial } = renderer;
             if (renderingSubMesh && material) {
                 let materialDirty = false;
                 if (materialInstances[subModelIndex] !== material) {
@@ -108,9 +108,9 @@ export class VFXRenderer extends ModelRenderer {
                     model.setSubModelMesh(i, renderingSubMesh);
                     model.setSubModelMaterial(i, material);
                 }
-                subModel.inputAssembler.instanceCount = module.instanceCount;
-                subModel.inputAssembler.vertexCount = module.vertexCount;
-                subModel.inputAssembler.indexCount = module.indexCount;
+                subModel.inputAssembler.instanceCount = renderer.instanceCount;
+                subModel.inputAssembler.vertexCount = renderer.vertexCount;
+                subModel.inputAssembler.indexCount = renderer.indexCount;
                 subModelIndex++;
             }
         }

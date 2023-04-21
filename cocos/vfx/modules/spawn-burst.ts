@@ -43,7 +43,7 @@ export class SpawnBurstModule extends VFXModule {
     @type(FloatExpression)
     @serializable
     @range([0, 1])
-    public count = new ConstantFloatExpression(0);
+    public count: FloatExpression = new ConstantFloatExpression(0);
 
     /**
      * @zh 粒子系统开始运行到触发此次 Burst 的时间。

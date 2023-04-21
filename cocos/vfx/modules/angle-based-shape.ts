@@ -28,7 +28,7 @@ import { Enum, lerp, toDegree, toRadian } from '../../core';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
-import { Vec3ArrayParameter } from '../particle-parameter';
+import { Vec3ArrayParameter } from '../vfx-parameter';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression } from '../expressions';

@@ -331,7 +331,7 @@ export class VFXModuleStage {
         for (let i = 0, length = modules.length; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
-                context.moduleRandomSeed = module.randomSeed;
+                context.setModuleRandomSeed(module.randomSeed);
                 module.tick(particles, emitter, user, context);
             }
         }

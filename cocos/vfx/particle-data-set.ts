@@ -25,7 +25,7 @@
 
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
-import { ArrayParameter, BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, VFXParameterIdentity, Uint32ArrayParameter, Vec3ArrayParameter } from './particle-parameter';
+import { ArrayParameter, BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, VFXParameterIdentity, Uint32ArrayParameter, Vec3ArrayParameter } from './vfx-parameter';
 import { VFXParameterType } from './enum';
 
 export type ParticleHandle = number;

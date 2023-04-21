@@ -27,7 +27,7 @@ import { ccclass } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { VFXEmitterParams, ModuleExecContext } from '../base';
-import { Vec3ArrayParameter } from '../particle-parameter';
+import { Vec3ArrayParameter } from '../vfx-parameter';
 
 @ccclass('cc.SolveForcesAndVelocityModule')
 @VFXModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [ParameterName.POSITION, ParameterName.ROTATION], [ParameterName.VELOCITY, ParameterName.ANGULAR_VELOCITY])

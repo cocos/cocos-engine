@@ -29,10 +29,12 @@ import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
-import { ConstantExpression } from '../expressions';
+import { ConstantFloatExpression } from '../expressions';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 @ccclass('cc.SpawnPerUnitModule')
-@VFXModule.register('SpawnPerUnit', ModuleExecStageFlags.EMITTER | ModuleExecStageFlags.EVENT_HANDLER)
+@VFXModule.register('SpawnPerUnit', ModuleExecStageFlags.EMITTER)
 export class SpawnPerUnitModule extends VFXModule {
     /**
       * @zh 每移动单位距离发射的粒子数。
@@ -42,12 +44,13 @@ export class SpawnPerUnitModule extends VFXModule {
     @range([0, 1])
     @displayOrder(15)
     @tooltip('i18n:particle_system.rateOverDistance')
-    public rate = new ConstantExpression();
+    public rate: FloatExpression = new ConstantFloatExpression();
 
     private _rand = new RandomStream();
 
     public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
+        super.onPlay(params, state);
+        this._rand.seed = this.randomSeed;
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {

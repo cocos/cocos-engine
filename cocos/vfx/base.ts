@@ -29,7 +29,7 @@ import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMod
 import { Color, Vec3, Vec2, assertIsTrue } from '../core';
 import { ModuleExecStage } from './vfx-module';
 import { RandomStream } from './random-stream';
-import { ColorArrayParameter, FloatArrayParameter, Uint32ArrayParameter, Vec3ArrayParameter } from './particle-parameter';
+import { ColorArrayParameter, FloatArrayParameter, Uint32ArrayParameter, Vec3ArrayParameter } from './vfx-parameter';
 
 export class VFXEventInfo {
     public type = VFXEventType.UNKNOWN;

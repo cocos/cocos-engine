@@ -28,7 +28,7 @@ import { Vec3 } from '../../core';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { AngleBasedShapeModule } from './angle-based-shape';
-import { Vec3ArrayParameter } from '../particle-parameter';
+import { Vec3ArrayParameter } from '../vfx-parameter';
 
 const temp = new Vec3();
 @ccclass('cc.HemisphereShapeModule')

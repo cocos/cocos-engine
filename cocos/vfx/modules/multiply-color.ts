@@ -30,6 +30,9 @@ import { ColorExpression } from '../expressions/color';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
+import { ConstantColorExpression } from '../expressions';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const tempColor = new Color();
 const tempColor2 = new Color();
@@ -44,59 +47,26 @@ export class MultiplyColorModule extends VFXModule {
     @type(ColorExpression)
     @serializable
     @displayOrder(1)
-    public color = new ColorExpression();
+    public color: ColorExpression = new ConstantColorExpression();
 
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameters(BuiltinParticleParameterFlags.COLOR);
-        if (this.color.mode === ColorExpression.Mode.TWO_GRADIENTS || this.color.mode === ColorExpression.Mode.TWO_CONSTANTS || this.color.mode === ColorExpression.Mode.RANDOM_COLOR) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
-        }
-        if (this.color.mode === ColorExpression.Mode.TWO_GRADIENTS || this.color.mode === ColorExpression.Mode.GRADIENT) {
-            if (context.executionStage === ModuleExecStage.UPDATE) {
-                particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
-            } else {
-                particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
-            }
-        }
+        this.color.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const color = context.executionStage === ModuleExecStage.UPDATE ? particles.color : particles.baseColor;
-        const randomOffset = this._randomOffset;
-        if (this.color.mode === ColorExpression.Mode.CONSTANT) {
-            const colorVal = this.color.color;
+        const dest = context.executionStage === ModuleExecStage.UPDATE ? particles.color : particles.baseColor;
+        this.color.bind(particles, emitter, user, context);
+        if (this.color.isConstant) {
+            const colorVal = this.color.evaluate(0, tempColor);
             for (let i = fromIndex; i < toIndex; i++) {
-                color.multiplyColorAt(colorVal, i);
-            }
-        } else if (this.color.mode === ColorExpression.Mode.TWO_CONSTANTS) {
-            const { colorMin, colorMax } = this.color;
-            const randomSeed = particles.randomSeed.data;
-            for (let i = fromIndex; i < toIndex; i++) {
-                color.multiplyColorAt(Color.lerp(tempColor, colorMin, colorMax, RandomStream.getFloat(randomSeed[i] + randomOffset)), i);
-            }
-        } else if (this.color.mode === ColorExpression.Mode.GRADIENT) {
-            const gradient = this.color.gradient;
-            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
-            for (let i = fromIndex; i < toIndex; i++) {
-                color.multiplyColorAt(gradient.evaluate(tempColor, normalizedTime[i]), i);
-            }
-        } else if (this.color.mode === ColorExpression.Mode.TWO_GRADIENTS) {
-            const { gradientMin, gradientMax } = this.color;
-            const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
-            const randomSeed = particles.randomSeed.data;
-            for (let i = fromIndex; i < toIndex; i++) {
-                const time = normalizedTime[i];
-                color.multiplyColorAt(Color.lerp(tempColor,
-                    gradientMin.evaluate(tempColor2, time),
-                    gradientMax.evaluate(tempColor3, time),
-                    RandomStream.getFloat(randomSeed[i] + randomOffset)), i);
+                dest.multiplyColorAt(colorVal, i);
             }
         } else {
-            const randomSeed = particles.randomSeed.data;
-            const gradient = this.color.gradient;
             for (let i = fromIndex; i < toIndex; i++) {
-                color.multiplyColorAt(gradient.evaluate(tempColor, RandomStream.getFloat(randomSeed[i] + randomOffset)), i);
+                const colorVal = this.color.evaluate(0, tempColor);
+                dest.multiplyColorAt(colorVal, i);
             }
         }
     }

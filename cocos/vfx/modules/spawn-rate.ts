@@ -44,7 +44,7 @@ export class SpawnRateModule extends VFXModule {
     @range([0, 1])
     @displayOrder(14)
     @tooltip('i18n:particle_system.rateOverTime')
-    public rate = new ConstantFloatExpression(10);
+    public rate: FloatExpression = new ConstantFloatExpression(10);
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this.rate.tick(particles, emitter, user, context);

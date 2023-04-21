@@ -41,7 +41,7 @@ export {
 };
 
 export * from './particle-renderer';
-export * from './particle-parameter';
+export * from './vfx-parameter';
 export * from './modules';
 export * from './expressions';
 export * from './renderers';
