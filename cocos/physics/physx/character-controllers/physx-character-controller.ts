@@ -89,8 +89,8 @@ export class PhysXCharacterController implements IBaseCharacterController {
         if (!this._impl) {
             this.onComponentSet();
         }
-        this.setDetectCollisions(this._comp.detectCollisions);
-        this.setOverlapRecovery(this._comp.enableOverlapRecovery);
+        this.setDetectCollisions(true);
+        this.setOverlapRecovery(true);
         (PhysicsSystem.instance.physicsWorld as PhysXWorld).addCCT(this);
     }
 

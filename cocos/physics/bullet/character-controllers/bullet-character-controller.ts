@@ -84,8 +84,8 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         if (!this._impl) {
             this.onComponentSet();
         }
-        this.setDetectCollisions(this._comp.detectCollisions);
-        this.setOverlapRecovery(this._comp.enableOverlapRecovery);
+        this.setDetectCollisions(false);
+        this.setOverlapRecovery(true);
         (PhysicsSystem.instance.physicsWorld as BulletWorld).addCCT(this);
         this.setWrapper();
     }

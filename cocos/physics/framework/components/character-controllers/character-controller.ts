@@ -150,45 +150,45 @@ export class CharacterController extends Eventify(Component) {
         }
     }
 
-    /**
-     * @en
-     * Gets or sets if the character controller can collide with other objects.
-     * @zh
-     * 获取或设置角色控制器是否和发生碰撞。
-     */
-    @tooltip('i18n:physics3d.character_controller.detectCollisions')
-    @type(CCBoolean)
-    public get detectCollisions () {
-        return this._detectCollisions;
-    }
+    // /**
+    //  * @en
+    //  * Gets or sets if the character controller can collide with other objects.
+    //  * @zh
+    //  * 获取或设置角色控制器是否和发生碰撞。
+    //  */
+    // @tooltip('i18n:physics3d.character_controller.detectCollisions')
+    // @type(CCBoolean)
+    // public get detectCollisions () {
+    //     return this._detectCollisions;
+    // }
 
-    public set detectCollisions (value) {
-        if (this._detectCollisions === value) return;
-        this._detectCollisions = value;
-        if (this._cct) {
-            this._cct.setDetectCollisions(value);
-        }
-    }
+    // public set detectCollisions (value) {
+    //     if (this._detectCollisions === value) return;
+    //     this._detectCollisions = value;
+    //     if (this._cct) {
+    //         this._cct.setDetectCollisions(value);
+    //     }
+    // }
 
-    /**
-     * @en
-     * Gets or sets if the character controller enables overlap recovery when penetrating with other colliders.
-     * @zh
-     * 获取或设置角色控制器和其他碰撞体穿透时是否恢复。
-     */
-    @tooltip('i18n:physics3d.character_controller.enableOverlapRecovery')
-    @type(CCBoolean)
-    public get enableOverlapRecovery () {
-        return this._enableOverlapRecovery;
-    }
+    // /**
+    //  * @en
+    //  * Gets or sets if the character controller enables overlap recovery when penetrating with other colliders.
+    //  * @zh
+    //  * 获取或设置角色控制器和其他碰撞体穿透时是否恢复。
+    //  */
+    // @tooltip('i18n:physics3d.character_controller.enableOverlapRecovery')
+    // @type(CCBoolean)
+    // public get enableOverlapRecovery () {
+    //     return this._enableOverlapRecovery;
+    // }
 
-    public set enableOverlapRecovery (value) {
-        if (this._enableOverlapRecovery === value) return;
-        this._enableOverlapRecovery = value;
-        if (this._cct) {
-            this._cct.setOverlapRecovery(value);
-        }
-    }
+    // public set enableOverlapRecovery (value) {
+    //     if (this._enableOverlapRecovery === value) return;
+    //     this._enableOverlapRecovery = value;
+    //     if (this._cct) {
+    //         this._cct.setOverlapRecovery(value);
+    //     }
+    // }
 
     /**
      * @en
@@ -248,10 +248,10 @@ export class CharacterController extends Eventify(Component) {
     private _slopeLimit = 45.0; //degree[ 0, 180]
     @serializable
     private _contactOffset = 0.01;
-    @serializable
-    private _detectCollisions = true;
-    @serializable
-    private _enableOverlapRecovery = true;
+    // @serializable
+    // private _detectCollisions = true;
+    // @serializable
+    // private _enableOverlapRecovery = true;
     @serializable
     private _center: Vec3 = new Vec3();
 

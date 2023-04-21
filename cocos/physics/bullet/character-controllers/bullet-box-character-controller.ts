@@ -64,9 +64,7 @@ export class BulletBoxCharacterController extends BulletCharacterController impl
             this.component.halfSideExtent,
             this.component.halfForwardExtent,
         );
-        //controllerDesc.setReportCallback(PX.PxUserControllerHitReport.implement(physxWorld.callback.controllerHitReportCB));
         this._impl = bt.BoxCharacterController_new(bulletWorld.impl, controllerDesc, 0/*?*/);
-        //if (this._impl.$$) PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }
 
     setHalfHeight (value: number): void {
