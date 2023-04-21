@@ -108,30 +108,37 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     }
 
     getPosition (out: IVec3Like): void {
+        if (!this._impl) return;
         bullet2CocosVec3(out, bt.CharacterController_getPosition(this.impl));
     }
 
     setPosition (value: IVec3Like): void {
+        if (!this._impl) return;
         cocos2BulletVec3(bt.CharacterController_getPosition(this.impl), value);
     }
 
     setContactOffset (value: number): void {
+        if (!this._impl) return;
         bt.CharacterController_setContactOffset(this._impl, value);
     }
 
     setStepOffset (value: number): void {
+        if (!this._impl) return;
         bt.CharacterController_setStepOffset(this._impl, value);
     }
 
     setSlopeLimit (value: number): void {
+        if (!this._impl) return;
         bt.CharacterController_setSlopeLimit(this._impl, degreesToRadians(value));
     }
 
     setDetectCollisions (value: boolean): void {
+        if (!this._impl) return;
         bt.CharacterController_setCollision(this.impl, value);
     }
 
     setOverlapRecovery (value: boolean): void {
+        if (!this._impl) return;
         bt.CharacterController_setOverlapRecovery(this.impl, value);
     }
 

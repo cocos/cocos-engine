@@ -121,30 +121,37 @@ export class PhysXCharacterController implements IBaseCharacterController {
     }
 
     getPosition (out: IVec3Like): void {
+        if (!this._impl) return;
         Vec3.copy(out, this._impl.getPosition());
     }
 
     setPosition (value: IVec3Like): void {
+        if (!this._impl) return;
         this._impl.setPosition(value);
     }
 
     setContactOffset (value: number): void {
+        if (!this._impl) return;
         this._impl.setContactOffset(value);
     }
 
     setStepOffset (value: number): void {
+        if (!this._impl) return;
         this._impl.setStepOffset(value);
     }
 
     setSlopeLimit (value: number): void {
+        if (!this._impl) return;
         this._impl.setSlopeLimit(Math.cos(degreesToRadians(value)));
     }
 
     setDetectCollisions (value: boolean): void {
+        if (!this._impl) return;
         this._impl.setCollision(value);
     }
 
     setQuery (value: boolean): void {
+        if (!this._impl) return;
         this._impl.setQuery(value);
     }
 
@@ -239,6 +246,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     }
 
     updateFilterData () {
+        if (!this._impl) return;
         // this._impl.setQueryFilterData(filterData);//set inside move()
         this._impl.setSimulationFilterData(this.filterData);
     }

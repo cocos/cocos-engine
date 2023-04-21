@@ -72,10 +72,12 @@ export class PhysXCapsuleCharacterController extends PhysXCharacterController im
     }
 
     setRadius (value: number): void {
+        if (!this._impl) return;
         this._impl.setRadius(value);
     }
 
     setHeight (value: number): void {
+        if (!this._impl) return;
         this._impl.setHeight(value);
     }
 }
