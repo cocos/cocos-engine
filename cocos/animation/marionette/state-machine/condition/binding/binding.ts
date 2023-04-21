@@ -7,9 +7,9 @@ import { ConditionEvalContext } from '../condition-base';
  * Describes the type of value providing by a transition condition binding.
  */
 export enum TCBindingValueType {
-    FLOAT = 0,
+    FLOAT = 0 /* VariableType.FLOAT */,
 
-    INTEGER = 3,
+    INTEGER = 3 /* VariableType.INTEGER */,
 }
 
 type TCBindingValueTypeMap = {

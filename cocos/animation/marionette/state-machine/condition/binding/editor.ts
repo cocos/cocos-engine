@@ -46,7 +46,13 @@ function getOrCreateTCBindingTypeInfo <TFunction extends Function> (target: TFun
 export const menu = (menu: string): ClassDecorator => (!EDITOR ? () => {} : (target) => {
     const info = getOrCreateTCBindingTypeInfo(target);
     if (info) {
-        info.menu = menu;
+        const prefix = 'i18n:';
+        let i18nMenu = menu;
+        if (menu.startsWith(prefix)) {
+            const extensionPrefix = 'ENGINE.';
+            i18nMenu = `${prefix}${extensionPrefix}${menu.slice(prefix.length)}`;
+        }
+        info.menu = i18nMenu;
     }
 });
 

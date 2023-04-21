@@ -14,7 +14,7 @@ const { ccclass } = _decorator;
  * This type of binding yields float value.
  */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}TCStateWeightBinding`)
-@menu('状态权重绑定')
+@menu('i18n:animation.tc_state_weight_binding.menu')
 @provide(TCBindingValueType.FLOAT)
 export class TCStateWeightBinding extends TCBinding<TCBindingValueType.FLOAT> {
     public getValueType () {

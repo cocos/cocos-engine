@@ -15,11 +15,14 @@ const { ccclass, serializable } = _decorator;
  * This type of binding yields float value.
  */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}TCAuxiliaryCurveBinding`)
-@menu('辅助曲线绑定')
+@menu('i18n:animation.tc_auxiliary_curve_binding.menu')
 @provide(TCBindingValueType.FLOAT)
 export class TCAuxiliaryCurveBinding extends TCBinding<TCBindingValueType.FLOAT> {
     /**
+     * @zh
      * 辅助曲线的名称。
+     * @en
+     * The auxiliary curve's name.
      */
     @serializable
     public curveName = '';

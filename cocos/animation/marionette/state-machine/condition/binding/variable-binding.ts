@@ -3,12 +3,10 @@ import { _decorator } from '../../../../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../../define';
 import { TCBinding, TCBindingEvaluation, TCBindingValueType } from './binding';
 import { menu, provide } from './editor';
-import { VarInstance, VariableType } from '../../../variable';
+import { VarInstance } from '../../../variable';
 import { editorOnly } from '../../../../../core/data/decorators';
 
 const { ccclass, serializable } = _decorator;
-
-export type BindableVariableType = VariableType.FLOAT | VariableType.INTEGER;
 
 /**
  * @zh 一种过渡条件绑定，该绑定用于获取动画图变量的当前值。该类绑定产生的值类型对应于变量的值类型。
@@ -18,7 +16,7 @@ export type BindableVariableType = VariableType.FLOAT | VariableType.INTEGER;
  * This type of binding yields the type corresponding to the variable's type.
  */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}TCVariableBinding`)
-@menu('变量绑定')
+@menu('i18n:animation.tc_variable_binding.menu')
 @provide(TCBindingValueType.FLOAT, TCBindingValueType.INTEGER)
 export class TCVariableBinding<TValueType extends TCBindingValueType> extends TCBinding<TValueType> {
     @serializable
@@ -26,7 +24,10 @@ export class TCVariableBinding<TValueType extends TCBindingValueType> extends TC
     public type = TCBindingValueType.FLOAT as TValueType;
 
     /**
+     * @zh
      * 动画图变量的名称。
+     * @en
+     * The animation graph variable's name.
      */
     @serializable
     public variableName = '';
