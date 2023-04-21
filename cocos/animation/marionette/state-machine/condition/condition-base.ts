@@ -4,7 +4,7 @@ import { createEval } from '../../create-eval';
 import { VariableTypeMismatchedError } from '../../errors';
 import { AnimationGraphBindingContext } from '../../animation-graph-context';
 
-export type ConditionEvalContext = BindContext;
+export type ConditionEvalContext = AnimationGraphBindingContext;
 
 export interface Condition {
     clone (): Condition;

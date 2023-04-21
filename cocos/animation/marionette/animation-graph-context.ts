@@ -48,6 +48,10 @@ export type VarRegistry = Record<string, VarInstance>;
 
 export type TriggerResetter = (triggerName: string) => void;
 
+export interface EvaluationTimeAuxiliaryCurveView {
+    get(curveName: string): number;
+}
+
 /**
  * The binding context of an animation graph.
  */
@@ -123,6 +127,10 @@ export class AnimationGraphBindingContext {
 
     public bindAuxiliaryCurve (name: string): AuxiliaryCurveHandle {
         return this._layoutMaintainer.getOrCreateAuxiliaryCurveBinding(name);
+    }
+
+    public getEvaluationTimeAuxiliaryCurveView (): EvaluationTimeAuxiliaryCurveView {
+        return this._layoutMaintainer.auxiliaryCurveRegistry;
     }
 
     public getVar (id: string): VarInstance | undefined {
@@ -240,6 +248,10 @@ export class AnimationGraphPoseLayoutMaintainer {
 
     get auxiliaryCurveCount () {
         return this._auxiliaryCurveRecords.length;
+    }
+
+    get auxiliaryCurveRegistry (): { get(name: string): number; } {
+        return this._auxiliaryCurveRegistry;
     }
 
     @checkBindStatus(true)
