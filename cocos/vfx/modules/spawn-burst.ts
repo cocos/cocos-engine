@@ -30,10 +30,12 @@ import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { RandomStream } from '../random-stream';
-import { ConstantExpression } from '../expressions';
+import { ConstantFloatExpression } from '../expressions';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 @ccclass('cc.SpawnBurstModule')
-@VFXModule.register('SpawnBurst', ModuleExecStageFlags.EMITTER | ModuleExecStageFlags.EVENT_HANDLER)
+@VFXModule.register('SpawnBurst', ModuleExecStageFlags.EMITTER)
 export class SpawnBurstModule extends VFXModule {
     /**
       * @zh 发射的粒子的数量。
@@ -41,7 +43,7 @@ export class SpawnBurstModule extends VFXModule {
     @type(FloatExpression)
     @serializable
     @range([0, 1])
-    public count = new ConstantExpression();
+    public count = new ConstantFloatExpression(0);
 
     /**
      * @zh 粒子系统开始运行到触发此次 Burst 的时间。
@@ -81,7 +83,8 @@ export class SpawnBurstModule extends VFXModule {
     private _rand = new RandomStream();
 
     public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32()) >>> 0;
+        super.onPlay();
+        this._rand.seed = this.randomSeed;
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
@@ -90,7 +93,7 @@ export class SpawnBurstModule extends VFXModule {
         // handle loop.
         if (prevT > currentTime) {
             const seed = this._rand.seed;
-            this._accumulateBurst(prevT, params.duration, 1, context);
+            this._accumulateBurst(prevT, emitter.currentDuration, 1, context);
             prevT = 0;
             this._rand.seed = seed;
         }

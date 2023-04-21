@@ -15,3 +15,4 @@ export * from './color';
 export * from './random-range-color';
 export * from './constant-color';
 export * from './binding-float';
+export * from './legacy-curve';

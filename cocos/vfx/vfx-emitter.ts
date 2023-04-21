@@ -26,10 +26,10 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, displayName, serializable, visible, rangeMin } from 'cc.decorator';
 import { DEBUG, EDITOR } from 'internal:constants';
-import { approx, clamp01, Color, lerp, Mat4, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { approx, clamp01, Color, lerp, Mat4, Quat, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { VFXEmitterParams, VFXEmitterState, VFXEventInfo, ModuleExecContext } from './base';
-import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, ParticleEventType, PlayingState, ScalingMode, Space } from './enum';
+import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, PlayingState, ScalingMode, Space } from './enum';
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component, Node } from '../scene-graph';
@@ -335,10 +335,6 @@ export class VFXEmitter extends Component {
         return this._state.accumulatedTime;
     }
 
-    public get userParameters () {
-        return this._userParameters;
-    }
-
     @displayName('发射器更新')
     @type(VFXModuleStage)
     public get emitterStage () {
@@ -556,55 +552,56 @@ export class VFXEmitter extends Component {
     private tick (deltaTime: number) {
         const particles = this._particleDataSet;
         const context = this._context;
-        const params = this._params;
+        const emitter = this._emitterDataSet;
+        const user = this._userDataSet;
         const state = this._state;
         context.reset();
         this.updateEmitterState(deltaTime);
-        this.preTick(particles, params, context);
+        this.preTick(particles, emitter, user, context);
 
-        this._emitterStage.execute(particles, params, context);
+        this._emitterStage.execute(particles, emitter, user, context);
         const particleCount = particles.count;
         if (particleCount > 0) {
             context.setExecuteRange(0, particleCount);
             this.resetAnimatedState(particles, 0, particleCount);
-            this._updateStage.execute(particles, params, context);
+            this._updateStage.execute(particles, emitter, user, context);
         }
 
         if (state.isEmitting) {
-            state.spawnFraction = this.spawn(state.spawnFraction, params.simulationSpace === Space.WORLD
-                ? context.localToWorld : Mat4.IDENTITY, Color.WHITE, Vec3.ONE, Vec3.ZERO);
+            emitter.spawnFraction = this.spawn(emitter.spawnContinuousCount, emitter.burstCount, emitter.spawnFraction, emitter.isWorldSpace
+                ? emitter.localToWorld : Mat4.IDENTITY, Color.WHITE, Vec3.ONE, Vec3.ZERO);
         }
 
-        this.processEvents(particles, params, context);
-        this.removeDeadParticles(particles, params, context);
+        this.processEvents(particles, emitter, user, context);
+        this.removeDeadParticles(particles);
     }
 
     private updateEmitterState (dt: number) {
         const params = this._params;
         const emitterDataSet = this._emitterDataSet;
         emitterDataSet.burstCount = emitterDataSet.spawnContinuousCount = 0;
-        const prevTime = this._state.accumulatedTime;
-        this._state.accumulatedTime += dt;
+        const prevTime = emitterDataSet.age;
+        emitterDataSet.age += dt;
         const isWorldSpace = this._params.simulationSpace === Space.WORLD;
-        this.updateEmitterTime(this._state.accumulatedTime, prevTime,
-            this._params.delayMode, emitterDataSet.currentDelay, params.loopMode, params.loopCount, params.duration);
-        this.updateEmitterTransform(this.node, isWorldSpace);
-        Vec3.subtract(this.emitterVelocity, this.currentPosition, this.lastPosition);
-        Vec3.multiplyScalar(this.emitterVelocity, this.emitterVelocity, 1 / dt);
-        Vec3.copy(this.emitterVelocityInEmittingSpace, isWorldSpace ? this.emitterVelocity : Vec3.ZERO);
         if (isWorldSpace) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
+            this._particleDataSet.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
         }
+        this.updateEmitterTime(emitterDataSet.age, prevTime,
+            params.delayMode, emitterDataSet.currentDelay, params.loopMode, params.loopCount, params.duration);
+        this.updateEmitterTransform(this.node, dt);
     }
 
-    private updateEmitterTime (accumulatedTime: number, previousTime: number, delayMode: DelayMode,
+    private updateEmitterTime (deltaTime: number, delayMode: DelayMode,
         delay: number, loopMode: LoopMode, loopCount: number, duration: number) {
-        assertIsTrue((accumulatedTime - previousTime) < duration,
+        assertIsTrue(deltaTime < duration,
             'The delta time should not exceed the duration of the particle system. please adjust the duration of the particle system.');
-        assertIsTrue(accumulatedTime >= previousTime);
-        const deltaTime = accumulatedTime - previousTime;
-        let prevTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(previousTime - delay, 0) : previousTime;
-        let currentTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(accumulatedTime - delay, 0) : accumulatedTime;
+        assertIsTrue(deltaTime >= 0);
+        const emitter = this._emitterDataSet;
+        let prevTime = emitter.age;
+        emitter.age += deltaTime;
+        let currentTime = emitter.age;
+        prevTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(prevTime - delay, 0) : prevTime;
+        currentTime = delayMode === DelayMode.FIRST_LOOP_ONLY ? Math.max(currentTime - delay, 0) : currentTime;
         const expectedLoopCount = loopMode === LoopMode.INFINITE ? Number.MAX_SAFE_INTEGER
             : (loopMode === LoopMode.MULTIPLE ? loopCount : 1);
         const invDuration = 1 / duration;
@@ -634,29 +631,26 @@ export class VFXEmitter extends Component {
             emitterDeltaTime += duration;
         }
 
-        this.deltaTime = deltaTime;
-        this.emitterFrameOffset = deltaTime > 0 ? (deltaTime - emitterDeltaTime) / deltaTime : 0;
-        this.currentTime = currentTime;
-        this.previousTime = prevTime;
-        this.emitterDeltaTime = emitterDeltaTime;
-        this.normalizedLoopAge = currentTime * invDuration;
-        this.normalizedPrevLoopAge = prevTime * invDuration;
+        emitter.frameOffset = deltaTime > 0 ? (deltaTime - emitterDeltaTime) / deltaTime : 0;
+        emitter.loopAge = currentTime;
+        emitter.prevLoopAge = prevTime;
+        emitter.deltaTime = emitterDeltaTime;
+        emitter.normalizedLoopAge = currentTime * invDuration;
+        emitter.normalizedPrevLoopAge = prevTime * invDuration;
     }
 
-    private updateEmitterTransform (node: Node) {
-        const isWorldSpace = this._params.simulationSpace === Space.WORLD;
-        Vec3.copy(this.lastPosition, this.currentPosition);
-        Vec3.copy(this.currentPosition, node.worldPosition);
-        if (node.flagChangedVersion !== this._lastTransformChangedVersion) {
-            Mat4.invert(this.worldToLocal, this.localToWorld);
-            if (inWorldSpace) {
-                Mat4.getRotation(this.rotationIfNeedTransform, this.localToWorld);
-            } else {
-                Mat4.getRotation(this.rotationIfNeedTransform, this.worldToLocal);
-            }
-            Quat.normalize(this.rotationIfNeedTransform, this.rotationIfNeedTransform);
-            this._lastTransformChangedVersion = node.flagChangedVersion;
+    private updateEmitterTransform (node: Node, dt: number) {
+        const emitterDataSet = this._emitterDataSet;
+        emitterDataSet.isWorldSpace = this._params.simulationSpace === Space.WORLD;
+        Vec3.copy(emitterDataSet.prevWorldPosition, emitterDataSet.worldPosition);
+        Vec3.copy(emitterDataSet.worldPosition, node.worldPosition);
+        if (node.flagChangedVersion !== this._state.lastTransformChangedVersion) {
+            Mat4.invert(emitterDataSet.worldToLocal, emitterDataSet.localToWorld);
+            Mat3.fromMat4(emitterDataSet.worldToLocalRS, emitterDataSet.worldToLocal);
+            this._state.lastTransformChangedVersion = node.flagChangedVersion;
         }
+        Vec3.subtract(emitterDataSet.velocity, emitterDataSet.worldPosition, emitterDataSet.prevWorldPosition);
+        Vec3.multiplyScalar(emitterDataSet.velocity, emitterDataSet.velocity, 1 / dt);
     }
 
     /**
@@ -666,11 +660,11 @@ export class VFXEmitter extends Component {
     public render () {
         this.updateBounds();
         for (let i = 0, length = this._renderers.length; i < length; i++) {
-            this._renderers[i].render(this._particleDataSet);
+            this._renderers[i].render(this._particleDataSet, this._emitterDataSet);
         }
     }
 
-    private preTick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    private preTick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this._emitterStage.tick(particles, emitter, user, context);
         this._spawnStage.tick(particles, emitter, user, context);
         this._updateStage.tick(particles, emitter, user, context);
@@ -680,7 +674,7 @@ export class VFXEmitter extends Component {
             }
             particles.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
         }
-        particles.ensureParameters(context.particleParameterRequirements, builtinParticleParameterIdentities);
+        particles.ensureParameters(builtinParticleParameterIdentities);
     }
 
     private updateBounds () {
@@ -690,7 +684,7 @@ export class VFXEmitter extends Component {
         }
     }
 
-    private removeDeadParticles (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    private removeDeadParticles (particles: ParticleDataSet) {
         if (particles.hasParameter(BuiltinParticleParameter.IS_DEAD)) {
             const isDead = particles.isDead.data;
             for (let i = particles.count - 1; i >= 0; i--) {
@@ -705,12 +699,12 @@ export class VFXEmitter extends Component {
      * @internal
      * @engineInternal
      */
-    public processEvents (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    public processEvents (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
             const eventHandler = this._eventHandlers[i];
-            const emitter = eventHandler.target;
-            if (emitter && emitter.isValid) {
-                const events = emitter._context.events;
+            const target = eventHandler.target;
+            if (target && target.isValid) {
+                const events = target._context.events;
                 for (let i = 0, length = events.count; i < length; i++) {
                     events.getEventInfoAt(eventInfo, i);
                     if (eventInfo.type !== eventHandler.eventType) { continue; }
@@ -719,26 +713,16 @@ export class VFXEmitter extends Component {
                     Vec3.lerp(up, Vec3.UNIT_Z, Vec3.UNIT_Y, angle);
                     Quat.fromViewUp(rot, dir, up);
                     Mat4.fromRT(tempEmitterTransform, rot, eventInfo.position);
-                    Vec3.copy(context.emitterVelocity, eventInfo.velocity);
-                    Vec3.copy(context.emitterVelocityInEmittingSpace, eventInfo.velocity);
-                    if (params.simulationSpace === Space.LOCAL) {
-                        Mat4.multiply(tempEmitterTransform, context.worldToLocal, tempEmitterTransform);
-                        Vec3.transformMat4(context.emitterVelocityInEmittingSpace, context.emitterVelocityInEmittingSpace, context.worldToLocal);
+                    Vec3.copy(emitter.velocity, eventInfo.velocity);
+                    const initialVelocity = new Vec3();
+                    Vec3.copy(initialVelocity, eventInfo.velocity);
+                    if (!emitter.isWorldSpace) {
+                        Mat4.multiply(tempEmitterTransform, emitter.worldToLocal, tempEmitterTransform);
+                        Vec3.transformMat4(initialVelocity, initialVelocity, emitter.worldToLocal);
                     }
                     context.setExecuteRange(0, 0);
-                    context.resetSpawningState();
-                    const loopDelay = Math.max(lerp(params.delayRange.x, params.delayRange.y, RandomStream.getFloat(eventInfo.randomSeed)), 0);
-                    context.updateEmitterTime(eventInfo.currentTime, eventInfo.prevTime,
-                        params.delayMode, loopDelay, params.loopMode, params.loopCount, params.duration);
-                    let spawnFraction = 0;
-                    if (eventHandler.eventType === ParticleEventType.LOCATION) {
-                        spawnFraction = eventHandler.eventSpawnStates.getSpawnFraction(eventInfo.particleId);
-                    }
-                    eventHandler.execute(particles, params, context);
-                    spawnFraction = this.spawn(spawnFraction, tempEmitterTransform, eventInfo.color, eventInfo.scale, eventInfo.rotation);
-                    if (eventHandler.eventType === ParticleEventType.LOCATION) {
-                        eventHandler.eventSpawnStates.setSpawnFraction(eventInfo.particleId, spawnFraction);
-                    }
+                    this.spawn(spawnFraction, tempEmitterTransform, eventInfo.color, eventInfo.scale, eventInfo.rotation);
+                    eventHandler.execute(particles, emitter, user, context);
                 }
             }
         }
@@ -779,42 +763,42 @@ export class VFXEmitter extends Component {
      * @internal
      * @engineInternal
      */
-    public spawn (spawnFraction: number, initialTransform: Mat4, initialColor: Color,
+    public spawn (numContinuous: number, numBurst: number, spawnFraction: number, initialTransform: Mat4, initialVelocity: Vec3, initialColor: Color,
         initialSize: Vec3, initialRotation: Vec3): number {
-        const { _particleDataSet: particles, _params: params, _context: context } = this;
-        spawnFraction += context.spawnContinuousCount;
+        spawnFraction += numContinuous;
         const numOverTime = Math.floor(spawnFraction);
+        const burstCount = Math.floor(numBurst);
+
+        if (numOverTime === 0 && burstCount === 0) {
+            return spawnFraction;
+        }
+        const { _particleDataSet: particles, _params: params, _context: context, _emitterDataSet: emitter } = this;
         const fromIndex = particles.count;
         if (numOverTime > 0) {
             spawnFraction -= numOverTime;
             this.addNewParticles(particles, params, context, numOverTime);
         }
-        const numContinuous = particles.count - fromIndex;
-        const burstCount = Math.floor(context.burstCount);
+        const numContinuousSpawned = particles.count - fromIndex;
         if (burstCount > 0) {
             this.addNewParticles(particles, params, context, burstCount);
         }
-        if (numOverTime === 0 && burstCount === 0) {
-            return spawnFraction;
-        }
         const toIndex = particles.count;
-        const { emitterDeltaTime, emitterVelocityInEmittingSpace: initialVelocity, normalizedLoopAge,
-            normalizedPrevLoopAge, deltaTime, emitterFrameOffset: frameOffset } = context;
+        const { normalizedLoopAge, normalizedPrevLoopAge, deltaTime, frameOffset } = emitter;
         const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
         const hasSpawnNormalizedTime = particles.hasParameter(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
         const hasSpawnTimeRatio = particles.hasParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
-        const emitterTimeInterval = 1 / context.spawnContinuousCount;
+        const emitterTimeInterval = 1 / numContinuous;
         if (hasPosition) {
             const initialPosition = initialTransform.getTranslation(tempPosition);
             particles.position.fill(initialPosition, fromIndex, toIndex);
         }
         if (hasSpawnNormalizedTime || hasSpawnTimeRatio) {
             let noContinuousStartIndex = fromIndex;
-            if (!approx(emitterTimeInterval, 0) && numContinuous > 0) {
+            if (!approx(emitterTimeInterval, 0) && numContinuousSpawned > 0) {
                 const spawnNormalizedTime = hasSpawnNormalizedTime ? particles.spawnNormalizedTime.data : null;
                 const spawnRatio = hasSpawnNormalizedTime ? particles.spawnTimeRatio.data : null;
                 const emitterTime = normalizedLoopAge < normalizedPrevLoopAge ? normalizedLoopAge + 1 : normalizedLoopAge;
-                for (let i = fromIndex, num = 0, length = fromIndex + numContinuous; i < length; i++, num++) {
+                for (let i = fromIndex, num = 0, length = fromIndex + numContinuousSpawned; i < length; i++, num++) {
                     const offset = clamp01((spawnFraction + num) * emitterTimeInterval);
                     if (hasSpawnTimeRatio) {
                         spawnRatio![i] = offset;
@@ -827,7 +811,7 @@ export class VFXEmitter extends Component {
                         spawnNormalizedTime![i] = time;
                     }
                 }
-                noContinuousStartIndex = fromIndex + numContinuous;
+                noContinuousStartIndex = fromIndex + numContinuousSpawned;
             }
             if (hasSpawnNormalizedTime) {
                 particles.spawnNormalizedTime.fill(normalizedLoopAge, noContinuousStartIndex, toIndex);
@@ -870,16 +854,17 @@ export class VFXEmitter extends Component {
         }
         if (particles.hasParameter(BuiltinParticleParameter.INITIAL_DIR)) {
             const { initialDir } = particles;
-            const initialDir = Vec3.set(tempDir, initialTransform.m02, initialTransform.m06, initialTransform.m10);
-            initialDir.fill(initialDir, fromIndex, toIndex);
+            const initialDirVal = Vec3.set(tempDir, initialTransform.m02, initialTransform.m06, initialTransform.m10);
+            initialDir.fill(initialDirVal, fromIndex, toIndex);
         }
 
+        const user = this._userDataSet;
         context.setExecuteRange(fromIndex, toIndex);
-        this._spawnStage.execute(particles, params, context);
+        this._spawnStage.execute(particles, emitter, user, context);
         this.resetAnimatedState(particles, fromIndex, toIndex);
-        const emitterTimeDeltaTimeScale = emitterDeltaTime / deltaTime;
+        const emitterTimeDeltaTimeScale = deltaTime / context.deltaTime;
         const interval = emitterTimeInterval * emitterTimeDeltaTimeScale;
-        if (!approx(interval, 0) && numContinuous > 0) {
+        if (!approx(interval, 0) && numContinuousSpawned > 0) {
             const needPositionOffset = hasPosition && !initialVelocity.equals(Vec3.ZERO);
             const position = needPositionOffset ? particles.position : null;
             const updateStage = this._updateStage;
@@ -895,8 +880,7 @@ export class VFXEmitter extends Component {
                 // |----frameOffset----|
                 // Should add frameOffset to particle which spawnNormalizedTime is less than 1
                 const currentTime = normalizedLoopAge + 1;
-                const emitterTimeInterval = 1 / context.spawnContinuousCount;
-                for (let i = fromIndex + numContinuous - 1, num = numContinuous - 1; i >= fromIndex; i--, num--) {
+                for (let i = fromIndex + numContinuousSpawned - 1, num = numContinuousSpawned - 1; i >= fromIndex; i--, num--) {
                     const spawnOffset = clamp01((spawnFraction + num) * emitterTimeInterval);
                     if (DEBUG) {
                         assertIsTrue(spawnOffset >= 0 && spawnOffset <= 1);
@@ -912,8 +896,8 @@ export class VFXEmitter extends Component {
                         position!.addVec3At(startPositionOffset, i);
                     }
                     context.setExecuteRange(i, i + 1);
-                    context.setDeltaTime(subDt);
-                    updateStage.execute(particles, params, context);
+                    context.deltaTime = subDt;
+                    updateStage.execute(particles, emitter, user, context);
                 }
             } else {
                 // |------ Delay ------|-----------Duration-----------------------|
@@ -933,8 +917,8 @@ export class VFXEmitter extends Component {
                         position!.addVec3At(startPositionOffset, i);
                     }
                     context.setExecuteRange(i, i + 1);
-                    context.setDeltaTime(subDt);
-                    updateStage.execute(particles, params, context);
+                    context.deltaTime = subDt;
+                    updateStage.execute(particles, emitter, user, context);
                 }
             }
         }

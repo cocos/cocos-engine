@@ -207,6 +207,10 @@ export class ModuleExecContext {
         return this._deltaTime;
     }
 
+    public set deltaTime (value: number) {
+        this._deltaTime = value;
+    }
+
     private _fromIndex = 0;
     private _toIndex = 0;
     private _moduleRandomSeed = 0;

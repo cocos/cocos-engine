@@ -22,15 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { assertIsTrue, Mat4, Quat, Vec3 } from '../core';
+import { assertIsTrue, Mat3, Mat4, Quat, Vec3 } from '../core';
 
 export class EmitterDataSet {
     public isWorldSpace = false;
     public spawnFraction = 0;
-    public lastPosition = new Vec3();
-    public currentPosition = new Vec3();
     public currentDelay = 0;
     // emitter range
+    public age = 0;
     public loopAge = 0;
     public prevLoopAge = 0;
     public normalizedLoopAge = 0;
@@ -42,8 +41,12 @@ export class EmitterDataSet {
     public burstCount = 0;
     public currentDuration = 0;
     public velocity = new Vec3();
+    public prevWorldPosition = new Vec3();
+    public worldPosition = new Vec3();
     public localToWorld = new Mat4();
+    public localToWorldRS = new Mat3();
     public worldToLocal = new Mat4();
+    public worldToLocalRS = new Mat3();
 
     getFloatParameter (id: number) {
         return 0;

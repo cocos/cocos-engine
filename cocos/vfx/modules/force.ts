@@ -76,7 +76,7 @@ export class ForceModule extends VFXModule {
         const { velocity, baseVelocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
         const needTransform = (this.space === Space.WORLD) !== emitter.isWorldSpace;
-        const randomOffset = this._randomOffset;
+        const randomOffset = this.randomSeed;
         const rotation = context.rotationIfNeedTransform;
         if (needTransform) {
             if (this.x.mode === FloatExpression.Mode.CONSTANT) {

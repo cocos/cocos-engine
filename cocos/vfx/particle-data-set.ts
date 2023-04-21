@@ -40,6 +40,7 @@ export enum BuiltinParticleParameterName {
     IS_DEAD = 'is-dead',
     POSITION = 'position',
     INITIAL_DIR = 'start-dir',
+    PHYSICS_FORCE = 'physics-force',
     BASE_VELOCITY = 'base-velocity',
     VELOCITY = 'velocity',
     ROTATION = 'rotation',
@@ -73,6 +74,7 @@ export enum BuiltinParticleParameter {
     IS_DEAD,
     POSITION,
     INITIAL_DIR,
+    PHYSICS_FORCE,
     BASE_VELOCITY,
     VELOCITY,
     ROTATION,
@@ -105,6 +107,7 @@ export enum BuiltinParticleParameterFlags {
     IS_DEAD = 1 << BuiltinParticleParameter.IS_DEAD,
     POSITION = 1 << BuiltinParticleParameter.POSITION,
     INITIAL_DIR = 1 << BuiltinParticleParameter.INITIAL_DIR,
+    PHYSICS_FORCE = 1 << BuiltinParticleParameter.PHYSICS_FORCE,
     BASE_VELOCITY = 1 << BuiltinParticleParameter.BASE_VELOCITY,
     VELOCITY = 1 << BuiltinParticleParameter.VELOCITY,
     ROTATION = 1 << BuiltinParticleParameter.ROTATION,
@@ -187,6 +190,10 @@ export class ParticleDataSet {
 
     public get subUVIndex () {
         return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.SUB_UV_INDEX);
+    }
+
+    public get physicsForce () {
+        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.PHYSICS_FORCE);
     }
 
     public get baseVelocity () {

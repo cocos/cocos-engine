@@ -32,6 +32,7 @@ import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { BindingFloatExpression } from '../../../exports/vfx';
 
 @ccclass('cc.FloatFromCurveExpression')
 export class FloatFromCurveExpression extends FloatExpression {
@@ -43,8 +44,10 @@ export class FloatFromCurveExpression extends FloatExpression {
     @serializable
     public scale: FloatExpression = new ConstantFloatExpression(1);
 
+    public curveIndex: FloatExpression = new ConstantFloatExpression(0);
+
     public get isConstant (): boolean {
-        return false;
+        return this.curveIndex.isConstant && this.scale.isConstant;
     }
 
     private declare _time: Float32Array;
