@@ -11,8 +11,11 @@ const { ccclass, serializable } = _decorator;
 export type BindableVariableType = VariableType.FLOAT | VariableType.INTEGER;
 
 /**
- * @zh 描述过渡条件中的浮点值到动画图变量的绑定。
- * @en Describes the binding to a float binding in transition condition from animation graph.
+ * @zh 一种过渡条件绑定，该绑定用于获取动画图变量的当前值。该类绑定产生的值类型对应于变量的值类型。
+ *
+ * @en A kind of transition condition binding,
+ * which is used to obtain the current value of a animation graph variable.
+ * This type of binding yields the type corresponding to the variable's type.
  */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}TCVariableBinding`)
 @menu('变量绑定')

@@ -7,8 +7,11 @@ import { menu, provide } from './editor';
 const { ccclass } = _decorator;
 
 /**
- * @zh 描述过渡条件中的浮点值到当前状态权重的绑定。
- * @en Describes the binding to a float binding in transition condition from an auxiliary curve.
+ * @zh 一种过渡条件绑定，该绑定用于获取过渡的源头状态当前的权重值。该类绑定产生浮点值。
+ *
+ * @en A kind of transition condition binding,
+ * which is used to obtain the current weight value of transition source state.
+ * This type of binding yields float value.
  */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}TCStateWeightBinding`)
 @menu('状态权重绑定')

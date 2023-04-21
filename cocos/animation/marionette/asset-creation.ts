@@ -30,7 +30,7 @@ export type { Condition } from './state-machine/condition';
 
 export { TCBinding, TCBindingValueType } from './state-machine/condition/binding/binding';
 export { getTCBindingTypeInfo } from './state-machine/condition/binding/editor';
-export type { TCFBindingTypeInfo } from './state-machine/condition/binding/editor';
+export type { TCBindingTypeInfo } from './state-machine/condition/binding/editor';
 
 export type { Value } from './variable';
 export { TriggerResetMode } from './variable';

@@ -1,7 +1,10 @@
 import { ConditionEvalContext } from '../condition-base';
 
 /**
- * Describes the type of value providing by a binding.
+ * @zh
+ * 描述过渡条件中，某个绑定提供的值的类型。
+ * @en
+ * Describes the type of value providing by a transition condition binding.
  */
 export enum TCBindingValueType {
     FLOAT = 0,
@@ -15,11 +18,18 @@ type TCBindingValueTypeMap = {
 };
 
 /**
- * @zh 描述过渡条件中的值绑定。
- * @en Describes a value binding in transition condition.
+ * @zh 描述过渡条件中的值绑定，例如，二元条件的左操作数上的绑定。
+ * 前缀 “TC” 是 “Transition Condition” 的缩写。
+ *
+ * @en Describes a value binding in transition condition,
+ * for example, the binding on binary condition's left hand operand.
+ * The prefix "TC" is abbr of `Transition Condition`.
  */
 export abstract class TCBinding<TValueType extends TCBindingValueType> {
     /**
+     * @zh
+     * 获取绑定的值类型。
+     * @en
      * Gets the binding value type.
      */
     public abstract getValueType(): TValueType;

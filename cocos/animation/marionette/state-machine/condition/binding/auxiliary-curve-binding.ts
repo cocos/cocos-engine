@@ -8,8 +8,11 @@ import { EvaluationTimeAuxiliaryCurveView } from '../../../animation-graph-conte
 const { ccclass, serializable } = _decorator;
 
 /**
- * @zh 描述过渡条件中的浮点值到辅助曲线值的绑定。
- * @en Describes the binding to a float binding in transition condition from an auxiliary curve.
+ * @zh 一种过渡条件绑定，该绑定用于获取指定辅助曲线的当前值。该类绑定产生浮点值。
+ *
+ * @en A kind of transition condition binding,
+ * which is used to obtain the current value of specified auxiliary curve.
+ * This type of binding yields float value.
  */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}TCAuxiliaryCurveBinding`)
 @menu('辅助曲线绑定')
