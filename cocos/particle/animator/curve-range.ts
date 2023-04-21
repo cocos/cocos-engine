@@ -176,6 +176,20 @@ export default class CurveRange  {
         }
     }
 
+    public evaluateOne (time: number, rndRatio: number) {
+        switch (this.mode) {
+        default:
+        case Mode.Constant:
+            return this.constant;
+        case Mode.Curve:
+            return this.spline.evaluate(time) * this.multiplier;
+        case Mode.TwoCurves:
+            return this.splineMax.evaluate(time) * this.multiplier;
+        case Mode.TwoConstants:
+            return this.constantMax;
+        }
+    }
+
     public getMax (): number {
         switch (this.mode) {
         default:

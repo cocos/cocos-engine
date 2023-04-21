@@ -26,7 +26,7 @@
 import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
-import { AttributeName, Format, Attribute, FormatInfo, FormatInfos } from '../../core/gfx';
+import { AttributeName, Format, Attribute, FormatInfos } from '../../core/gfx';
 import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, random, EPSILON, approx, Mat3, Color } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
@@ -35,13 +35,10 @@ import { AlignmentSpace, RenderMode, Space } from '../enum';
 import { Particle, IParticleModule, PARTICLE_MODULE_ORDER, PARTICLE_MODULE_NAME } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
-import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Camera } from '../../core/renderer/scene/camera';
-import { Pass } from '../../core/renderer';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
 import { legacyCC } from '../../core/global-exports';
-import { ForceFieldComp } from '../animator/force-field-comp';
 import { forceFieldManager } from '../force-field-manager';
 import { ParticleSystem } from '../particle-system';
 import { SubBurst } from '../burst';
@@ -49,9 +46,7 @@ import { SubBurst } from '../burst';
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
 const _tempWorldInv = new Mat4();
-const _tempParentInverse = new Mat4();
 const _node_rot = new Quat();
-const _node_euler = new Vec3();
 const _lookMat4 = new Mat4();
 const _lookMat3 = new Mat3();
 const _zero = new Vec3(0);
@@ -201,6 +196,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _tmp_velLenScale: Vec4;
     private _defaultMat: Material | null = null;
     private _node_scale: Vec4;
+    private _scale_now: Vec4;
     private _attrs: any[];
     private _particles: RecyclePool | null = null;
     private _defaultTrailMat: Material | null = null;
@@ -215,7 +211,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _inited = false;
     private _localMat: Mat4 = new Mat4();
     private _gravity: Vec4 = new Vec4();
-    private _currid = -1;
 
     constructor (info: any) {
         super(info);
@@ -225,6 +220,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
         this._node_scale = new Vec4();
+        this._scale_now = new Vec4(-1, -1, -1, -1);
         this._attrs = new Array(8);
         this._defines = {
             CC_USE_WORLD_SPACE: true,
@@ -238,7 +234,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             CC_USE_WORLD_SPACE: true,
             // CC_DRAW_WIRE_FRAME: true,   // <wireframe debug>
         };
-        this._currid = -1;
     }
 
     public onInit (ps: Component) {
@@ -253,7 +248,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.updateTrailMaterial();
         this.setVertexAttributes();
         this._inited = true;
-        this._currid = -1;
     }
 
     public clear () {
@@ -283,10 +277,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             return null;
         }
         const p = this._particles!.add() as Particle;
-        if (p.id < 0) {
-            this._currid++;
-            p.id = this._currid;
-        }
         return p;
     }
 
@@ -421,8 +411,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             // while (this._uScaleHandle.length < passLen) {
             //     this._uScaleHandle.push(0);
             // }
-            for (let p = 0; p < passLen; ++p) {
-                mat.passes[p].setUniform(this._uScaleHandle[p], this._node_scale);
+            if (!Vec4.equals(this._node_scale, this._scale_now)) {
+                for (let p = 0; p < passLen; ++p) {
+                    mat.passes[p].setUniform(this._uScaleHandle[p], this._node_scale);
+                }
+                this._scale_now.set(this._node_scale);
             }
         }
     }
@@ -453,9 +446,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             Mat4.invert(_tempWorldInv, _tempWorldTrans);
         }
 
-        this._updateList.forEach((value: IParticleModule, key: string) => {
-            value.update(ps._simulationSpace, _tempWorldTrans);
-        });
+        for (const key in this._updateList) {
+            this._updateList[key].update(ps, ps._simulationSpace, _tempWorldTrans);
+        }
 
         const trailModule = ps._trailModule;
         const trailEnable = trailModule && trailModule.enable;
@@ -463,16 +456,15 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             trailModule.update();
         }
 
-        if (ps.simulationSpace === Space.Local) {
-            const r:Quat = ps.node.getRotation();
-            Mat4.fromQuat(this._localMat, r);
-            this._localMat.transpose(); // just consider rotation, use transpose as invert
-        }
-
-        if (ps.node.parent) {
-            const r:Quat = ps.node.parent.getWorldRotation();
-            Mat4.fromQuat(_tempParentInverse, r);
-            _tempParentInverse.transpose();
+        const useGravity = !approx(ps.gravityModifier.getMaxAbs(), 0.0, EPSILON);
+        if (useGravity) {
+            if (ps.simulationSpace === Space.Local) {
+                Mat4.invert(this._localMat, _tempWorldTrans);
+                this._localMat.m12 = 0;
+                this._localMat.m13 = 0;
+                this._localMat.m14 = 0;
+                this._localMat.m15 = 1;
+            }
         }
 
         for (let i = this._particles!.length; i >= 0; --i) {
@@ -484,26 +476,27 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             Vec3.set(p.animatedVelocity, 0, 0, 0);
 
             if (p.remainingLifetime >= 0.0) {
-                if (ps.simulationSpace === Space.Local) {
-                    // eslint-disable-next-line max-len
-                    const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-                    this._gravity.x = 0.0;
-                    this._gravity.y = gravityFactor;
-                    this._gravity.z = 0.0;
-                    this._gravity.w = 1.0;
-                    if (!approx(gravityFactor, 0.0, EPSILON)) {
-                        if (ps.node.parent) {
-                            this._gravity = this._gravity.transformMat4(_tempParentInverse);
-                        }
-                        this._gravity = this._gravity.transformMat4(this._localMat);
+                // apply gravity when both the mode is not Constant and the value is not 0.
+                if (useGravity) {
+                    const rand = pseudoRandom(p.randomSeed);
+                    if (ps.simulationSpace === Space.Local) {
+                        const time = 1 - p.remainingLifetime / p.startLifetime;
+                        const gravityFactor = -ps.gravityModifier.evaluate(time, rand)! * 9.8 * dt;
+                        this._gravity.x = 0.0;
+                        this._gravity.y = gravityFactor;
+                        this._gravity.z = 0.0;
+                        this._gravity.w = 1.0;
+                        if (!approx(gravityFactor, 0.0, EPSILON)) {
+                            Vec4.transformMat4(this._gravity, this._gravity, this._localMat);
 
-                        p.velocity.x += this._gravity.x;
-                        p.velocity.y += this._gravity.y;
-                        p.velocity.z += this._gravity.z;
+                            p.velocity.x += this._gravity.x;
+                            p.velocity.y += this._gravity.y;
+                            p.velocity.z += this._gravity.z;
+                        }
+                    } else {
+                        // apply gravity.
+                        p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
                     }
-                } else {
-                    // apply gravity.
-                    p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
                 }
 
                 if (ps.forceFieldModule && ps.forceFieldModule.enable) {

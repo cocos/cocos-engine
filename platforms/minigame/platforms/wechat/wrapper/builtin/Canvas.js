@@ -24,11 +24,18 @@ export default function Canvas() {
     return ret
   }
 
-  canvas.style = {
-    top: '0px',
-    left: '0px',
-    width: innerWidth + 'px',
-    height: innerHeight + 'px',
+  if (typeof canvas.style === 'undefined') {
+      canvas.style = {
+          top: '0px',
+          left: '0px',
+          width: innerWidth + 'px',
+          height: innerHeight + 'px',
+      }
+  } else {
+      canvas.style.top = '0px';
+      canvas.style.left = '0px';
+      canvas.style.width = innerWidth + 'px';
+      canvas.style.height = innerHeight + 'px';
   }
 
   canvas.addEventListener = function (type, listener, options = {}) {

@@ -29,8 +29,10 @@ import { Mat4, pseudoRandom, Quat, Vec4, Vec3 } from '../../core/math';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed, RenderMode } from '../enum';
+import { ParticleSystem } from '../particle-system';
 
 const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
+const _temp_rot = new Quat();
 
 @ccclass('cc.RotationOvertimeModule')
 export default class RotationOvertimeModule extends ParticleModuleBase {
@@ -103,30 +105,22 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     public z = new CurveRange();
 
     public name = PARTICLE_MODULE_NAME.ROTATION;
+    private renderMode;
 
-    private _quatRot:Quat = new Quat();
+    constructor () {
+        super();
+        this.needUpdate = true;
+    }
 
-    private _processRotation (p: Particle, r2d: number) {
-        // Same as the particle-vs-legacy.chunk glsl statemants
-        const renderMode = p.particleSystem.processor.getInfo().renderMode;
-        if (renderMode !== RenderMode.Mesh) {
-            if (renderMode === RenderMode.StrecthedBillboard) {
-                this._quatRot.set(0, 0, 0, 1);
-            }
-        }
-
-        Quat.normalize(this._quatRot, this._quatRot);
-        if (this._quatRot.w < 0.0) { // Use vec3 to save quat so we need identify negative w
-            this._quatRot.x += Particle.INDENTIFY_NEG_QUAT; // Indentify negative w & revert the quat in shader
-        }
+    public update (ps: ParticleSystem, space: number, worldTransform: Mat4) {
+        this.renderMode = ps.processor.getInfo().renderMode;
     }
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
-        const renderMode = p.particleSystem.processor.getInfo().renderMode;
 
-        if ((!this._separateAxes) || (renderMode === RenderMode.VerticalBillboard || renderMode === RenderMode.HorizontalBillboard)) {
+        if ((!this._separateAxes) || (this.renderMode === RenderMode.VerticalBillboard || this.renderMode === RenderMode.HorizontalBillboard)) {
             Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
         } else {
             Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
@@ -136,22 +130,22 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         Quat.multiply(p.localQuat, p.localQuat, p.deltaQuat); // accumulate rotation
         Quat.normalize(p.localQuat, p.localQuat);
         if (!p.startRotated) {
-            if (renderMode !== RenderMode.Mesh) {
-                if (renderMode === RenderMode.StrecthedBillboard) {
+            if (this.renderMode !== RenderMode.Mesh) {
+                if (this.renderMode === RenderMode.StrecthedBillboard) {
                     p.startEuler.set(0, 0, 0);
-                } else if (renderMode !== RenderMode.Billboard) {
+                } else if (this.renderMode !== RenderMode.Billboard) {
                     p.startEuler.set(0, 0, p.startEuler.z);
                 }
             }
             Quat.fromEuler(p.startRotation, p.startEuler.x * Particle.R2D, p.startEuler.y * Particle.R2D, p.startEuler.z * Particle.R2D);
+            Quat.normalize(p.startRotation, p.startRotation);
             p.startRotated = true;
         }
 
-        Quat.normalize(p.startRotation, p.startRotation);
-        Quat.multiply(this._quatRot, p.startRotation, p.localQuat);
-        Quat.normalize(this._quatRot, this._quatRot);
+        Quat.multiply(_temp_rot, p.startRotation, p.localQuat);
+        Quat.normalize(_temp_rot, _temp_rot);
 
-        Quat.toEuler(p.rotation, this._quatRot, true);
+        Quat.toEuler(p.rotation, _temp_rot, true);
         Vec3.set(p.rotation, p.rotation.x / Particle.R2D, p.rotation.y / Particle.R2D, p.rotation.z / Particle.R2D);
     }
 }

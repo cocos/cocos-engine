@@ -26,9 +26,10 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { CCFloat, CCInteger } from '../../core';
 import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
-import { Vec3 } from '../../core/math';
+import { Mat4, Vec3 } from '../../core/math';
 import { ParticleNoise } from '../noise';
 import { Particle, PARTICLE_MODULE_NAME, ParticleModuleBase } from '../particle';
+import { ParticleSystem } from '../particle-system';
 
 @ccclass('cc.NoiseModule')
 export class NoiseModule extends ParticleModuleBase {
@@ -236,14 +237,21 @@ export class NoiseModule extends ParticleModuleBase {
 
     private samplePosition: Vec3 = new Vec3();
 
-    public animate (particle: Particle, dt: number) {
-        this.noise.setTime(particle.particleSystem.time);
+    constructor () {
+        super();
+        this.needUpdate = true;
+    }
+
+    public update (ps: ParticleSystem, space: number, worldTransform: Mat4) {
+        this.noise.setTime(ps.time);
         this.noise.setSpeed(this.noiseSpeedX, this.noiseSpeedY, this.noiseSpeedZ);
         this.noise.setFrequency(this.noiseFrequency);
         this.noise.setAbs(this.remapX, this.remapY, this.remapZ);
         this.noise.setAmplititude(this.strengthX, this.strengthY, this.strengthZ);
         this.noise.setOctaves(this.octaves, this.octaveMultiplier, this.octaveScale);
+    }
 
+    public animate (particle: Particle, dt: number) {
         this.samplePosition.set(particle.position);
         this.noise.setSamplePoint(this.samplePosition);
         this.noise.getNoiseParticle();
