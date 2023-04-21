@@ -142,6 +142,8 @@ export class LineModel extends scene.Model {
 
     public addLineVertexData (positions: Vec3[], width: CurveRange, color: GradientRange) {
         if (positions.length > 1) {
+            width.bake();
+            color.bake();
             let offset = 0;
             Vec3.subtract(_temp_v1, positions[1], positions[0]);
             this._vdataF32![offset++] = positions[0].x;

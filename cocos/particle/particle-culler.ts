@@ -153,6 +153,7 @@ export class ParticleCuller {
                 ps._textureAnimationModule.init(particle);
             }
 
+            ps.startSpeed.bake();
             const curveStartSpeed = ps.startSpeed.evaluate(loopDelta, rand)!;
             Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
 
@@ -168,16 +169,21 @@ export class ParticleCuller {
 
             // apply startSize.
             if (ps.startSize3D) {
+                ps.startSizeX.bake();
+                ps.startSizeY.bake();
+                ps.startSizeZ.bake();
                 Vec3.set(particle.startSize, ps.startSizeX.evaluate(loopDelta, rand)!,
                     ps.startSizeY.evaluate(loopDelta, rand)!,
                     ps.startSizeZ.evaluate(loopDelta, rand)!);
             } else {
+                ps.startSizeX.bake();
                 Vec3.set(particle.startSize, ps.startSizeX.evaluate(loopDelta, rand)!, 1, 1);
                 particle.startSize.y = particle.startSize.x;
             }
             Vec3.copy(particle.size, particle.startSize);
 
             // apply startLifetime.
+            ps.startLifetime.bake();
             particle.startLifetime = ps.startLifetime.evaluate(loopDelta, rand)! + dt;
             particle.remainingLifetime = particle.startLifetime;
 
@@ -221,6 +227,7 @@ export class ParticleCuller {
             Vec3.set(p.animatedVelocity, 0, 0, 0);
 
             if (ps.simulationSpace === Space.Local) {
+                ps.gravityModifier.bake();
                 const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
                 this._gravity.x = 0.0;
                 this._gravity.y = gravityFactor;
@@ -238,6 +245,7 @@ export class ParticleCuller {
                 }
             } else {
                 // apply gravity.
+                ps.gravityModifier.bake();
                 p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
             }
 
@@ -294,6 +302,7 @@ export class ParticleCuller {
         const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
         this._updateParticles(0, this._particlesAll);
         this._calculateBounding(true);
+        this._particleSystem.startLifetime.bake();
         this._updateParticles(this._particleSystem.startLifetime.evaluate(0, rand), this._particlesAll);
         this._calculateBounding(false);
         this._updateBoundingNode();

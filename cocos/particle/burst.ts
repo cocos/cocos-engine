@@ -77,6 +77,7 @@ export class SubBurst {
 
             if (this._delayTime > this._time && this._current >= this.repeatInterval) {
                 const rand = pseudoRandom(parentParticle.randomSeed ^ (BURST_RND_SEED + 1));
+                this.count.bake();
                 const count = this.count.evaluate(this._ps.time / this._ps.duration, rand);
                 this._ps.emit(count, dt, parentParticle);
                 --this._remainingCount;
@@ -167,6 +168,7 @@ export default class Burst {
     public update (psys, dt: number, parentParticle?: Particle) {
         if (this._remainingCount === 0) {
             this._remainingCount = this._repeatCount;
+            psys.startDelay.bake();
             const startDelay: number = psys.startDelay.evaluate(0, random());
             this._curTime = this._time + startDelay;
         }
@@ -176,6 +178,7 @@ export default class Burst {
             const curFrameTime = repeat(psys.time, psys.duration);
             if (this._curTime >= preFrameTime && this._curTime < curFrameTime) {
                 if (!parentParticle) {
+                    this.count.bake();
                     psys.emit(this.count.evaluate(this._curTime / psys.duration, random()), dt - (curFrameTime - this._curTime));
                 }
                 this._curTime += this.repeatInterval;

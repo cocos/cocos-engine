@@ -170,6 +170,11 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
 
     public update (ps:ParticleSystem, space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
+        this.drag.bake();
+        this.limitX.bake();
+        this.limitY.bake();
+        this.limitZ.bake();
+        this.limit.bake();
     }
 
     private applyDrag (p: Particle, dt: number, velNormalized: Vec3, velMag: number) {

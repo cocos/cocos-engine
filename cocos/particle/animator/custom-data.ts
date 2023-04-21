@@ -23,9 +23,10 @@
  THE SOFTWARE.
 */
 
-import { Enum, pseudoRandom } from '../../core';
+import { Enum, Mat4, pseudoRandom } from '../../core';
 import { ccclass, displayOrder, serializable, type, visible } from '../../core/data/decorators';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { ParticleSystem } from '../particle-system';
 import CurveRange from './curve-range';
 import GradientRange from './gradient-range';
 
@@ -131,6 +132,20 @@ export class CustomDataModule extends ParticleModuleBase {
 
     constructor () {
         super();
+        this.needUpdate = true;
+    }
+
+    public update (ps: ParticleSystem, space: number, worldTransform: Mat4) {
+        this.data1Color.bake();
+        this.data1X.bake();
+        this.data1Y.bake();
+        this.data1Z.bake();
+        this.data1W.bake();
+        this.data2Color.bake();
+        this.data2X.bake();
+        this.data2Y.bake();
+        this.data2Z.bake();
+        this.data2W.bake();
     }
 
     public animate (p: Particle, dt: number) {

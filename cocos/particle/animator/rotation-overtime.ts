@@ -114,6 +114,9 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
 
     public update (ps: ParticleSystem, space: number, worldTransform: Mat4) {
         this.renderMode = ps.processor.getInfo().renderMode;
+        this.x.bake();
+        this.y.bake();
+        this.z.bake();
     }
 
     public animate (p: Particle, dt: number) {
