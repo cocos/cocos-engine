@@ -1893,6 +1893,7 @@ export class ParticleSystem extends ModelRenderer {
                 this._textureAnimationModule.init(particle);
             }
 
+            this.startSpeed.bake();
             const curveStartSpeed = this.startSpeed.evaluate(loopDelta, rand)!;
             Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
 
@@ -1930,25 +1931,34 @@ export class ParticleSystem extends ModelRenderer {
 
             // apply startRotation.
             if (this.startRotation3D) {
+                this.startRotationX.bake();
+                this.startRotationY.bake();
+                this.startRotationZ.bake();
                 // eslint-disable-next-line max-len
                 particle.startEuler.set(this.startRotationX.evaluate(loopDelta, rand), this.startRotationY.evaluate(loopDelta, rand), this.startRotationZ.evaluate(loopDelta, rand));
             } else {
+                this.startRotationZ.bake();
                 particle.startEuler.set(0, 0, this.startRotationZ.evaluate(loopDelta, rand));
             }
             particle.rotation.set(particle.startEuler);
 
             // apply startSize.
             if (this.startSize3D) {
+                this.startSizeX.bake();
+                this.startSizeY.bake();
+                this.startSizeZ.bake();
                 Vec3.set(particle.startSize, this.startSizeX.evaluate(loopDelta, rand)!,
                     this.startSizeY.evaluate(loopDelta, rand)!,
                     this.startSizeZ.evaluate(loopDelta, rand)!);
             } else {
+                this.startSizeX.bake();
                 Vec3.set(particle.startSize, this.startSizeX.evaluate(loopDelta, rand)!, 1, 1);
                 particle.startSize.y = particle.startSize.x;
             }
             Vec3.copy(particle.size, particle.startSize);
 
             // apply startColor.
+            this.startColor.bake();
             particle.startColor.set(this.startColor.evaluate(loopDelta, rand));
 
             if (parentParticle && this.inheritColor) {
@@ -1960,6 +1970,7 @@ export class ParticleSystem extends ModelRenderer {
             particle.color.set(particle.startColor);
 
             // apply startLifetime.
+            this.startLifetime.bake();
             particle.startLifetime = this.startLifetime.evaluate(loopDelta, rand)! + dt;
             particle.remainingLifetime = particle.startLifetime;
 
@@ -2011,6 +2022,7 @@ export class ParticleSystem extends ModelRenderer {
         }
 
         // emit particles.
+        this.startDelay.bake();
         const startDelay = this.startDelay.evaluate(0, random())!;
 
         let time = this._time;
@@ -2029,6 +2041,7 @@ export class ParticleSystem extends ModelRenderer {
 
             if (!parentParticle) {
                 // emit by rateOverTime
+                this.rateOverTime.bake();
                 this._emitRateTimeCounter += this.rateOverTime.evaluate(time / this.duration, 1)! * dt;
                 if (this._emitRateTimeCounter > 1) {
                     const emitNum = Math.floor(this._emitRateTimeCounter);
@@ -2040,6 +2053,7 @@ export class ParticleSystem extends ModelRenderer {
                 this.node.getWorldPosition(this._curWPos);
                 const distance = Vec3.distance(this._curWPos, this._oldWPos);
                 Vec3.copy(this._oldWPos, this._curWPos);
+                this.rateOverDistance.bake();
                 this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(time / this.duration, 1)!;
 
                 if (this._emitRateDistanceCounter > 1) {
@@ -2049,6 +2063,7 @@ export class ParticleSystem extends ModelRenderer {
                 }
             } else {
                 // emit by rateOverTime
+                this.rateOverTime.bake();
                 parentParticle.timeCounter += this.rateOverTime.evaluate(time / this.duration, 1)! * dt;
                 if (parentParticle.timeCounter > 1) {
                     const emitNum = Math.floor(parentParticle.timeCounter);
@@ -2058,6 +2073,7 @@ export class ParticleSystem extends ModelRenderer {
 
                 // emit by rateOverDistance
                 const distance = parentParticle.ultimateVelocity.length() * dt;
+                this.rateOverDistance.bake();
                 parentParticle.distanceCounter += distance * this.rateOverDistance.evaluate(time / this.duration, 1)!;
 
                 if (parentParticle.distanceCounter > 1) {

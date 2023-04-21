@@ -206,7 +206,7 @@ export default class CurveRange  {
         }
     }
 
-    public evaluate (time: number, rndRatio: number) {
+    public bake () {
         if (this.preSample) {
             if (this.mode === Mode.Curve && this.maxBuff === null) {
                 this.createBuff();
@@ -214,6 +214,9 @@ export default class CurveRange  {
                 this.createBuff();
             }
         }
+    }
+
+    public evaluate (time: number, rndRatio: number) {
         switch (this.mode) {
         default:
         case Mode.Constant:
@@ -236,13 +239,6 @@ export default class CurveRange  {
     }
 
     public evaluateOne (time: number, rndRatio: number) {
-        if (this.preSample) {
-            if (this.mode === Mode.Curve && this.maxBuff === null) {
-                this.createBuff();
-            } else if (this.mode === Mode.TwoCurves && (this.maxBuff === null || this.minBuff === null)) {
-                this.createBuff();
-            }
-        }
         switch (this.mode) {
         default:
         case Mode.Constant:

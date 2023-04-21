@@ -151,6 +151,16 @@ export default class GradientRange {
         }
     }
 
+    public bake () {
+        if (this.preSample) {
+            if (this.mode === Mode.Gradient && this.maxBuff === null) {
+                this.createBuff();
+            } else if (this.mode === Mode.TwoGradients && (this.maxBuff === null || this.minBuff === null)) {
+                this.createBuff();
+            }
+        }
+    }
+
     private sample (buff: Color[] | null, time: number): Color {
         const sampleCoord = time * (this.sampleCount - 1);
         const prev = Math.floor(sampleCoord);
@@ -175,13 +185,6 @@ export default class GradientRange {
     }
 
     public evaluate (time: number, rndRatio: number) {
-        if (this.preSample) {
-            if (this.mode === Mode.Gradient && this.maxBuff === null) {
-                this.createBuff();
-            } else if (this.mode === Mode.TwoGradients && (this.maxBuff === null || this.minBuff === null)) {
-                this.createBuff();
-            }
-        }
         switch (this._mode) {
         case Mode.Color:
             return this.color;
@@ -209,13 +212,6 @@ export default class GradientRange {
     }
 
     public evaluateOne (time: number, rndRatio: number) {
-        if (this.preSample) {
-            if (this.mode === Mode.Gradient && this.maxBuff === null) {
-                this.createBuff();
-            } else if (this.mode === Mode.TwoGradients && (this.maxBuff === null || this.minBuff === null)) {
-                this.createBuff();
-            }
-        }
         switch (this._mode) {
         case Mode.Color:
             return this.color;
