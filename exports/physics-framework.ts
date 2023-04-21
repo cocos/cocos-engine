@@ -53,6 +53,8 @@ export {
 
     Constraint,
     HingeConstraint,
+    ConfigurableConstraint,
+    FixedConstraint,
     PointToPointConstraint,
 
     EAxisDirection,

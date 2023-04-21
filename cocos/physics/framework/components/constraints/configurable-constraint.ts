@@ -40,7 +40,7 @@ import { EConstraintType, EConstraintMode, EDriverMode } from '../../physics-enu
 import { IConfigurableConstraint } from '../../../spec/i-physics-constraint';
 
 @ccclass('cc.LinearLimitSettings')
-class LinearLimitSettings {
+export class LinearLimitSettings  {
     @type(EConstraintMode)
     @tooltip('i18n:physics3d.constraint.linearLimit.xMotion')
     get xMotion () {
@@ -166,15 +166,14 @@ class LinearLimitSettings {
     @serializable
     private _damping = 0;
 
-    @serializable
-    private readonly _configurableConstraint: ConfigurableConstraint;
+    private _configurableConstraint: ConfigurableConstraint;
     constructor (configurableConstraint: ConfigurableConstraint) {
         this._configurableConstraint = configurableConstraint;
     }
 }
 
 @ccclass('cc.AngularLimitSettings')
-class AngularLimitSettings {
+export class AngularLimitSettings {
     @type(EConstraintMode)
     @tooltip('i18n:physics3d.constraint.angularLimit.twistMotion')
     get twistMotion () {
@@ -379,15 +378,14 @@ class AngularLimitSettings {
     @serializable
     private _twistDamping = 0;
 
-    @serializable
-    private readonly _configurableConstraint: ConfigurableConstraint;
+    private _configurableConstraint: ConfigurableConstraint;
     constructor (configurableConstraint: ConfigurableConstraint) {
         this._configurableConstraint = configurableConstraint;
     }
 }
 
 @ccclass('cc.LinearDriverSettings')
-class LinearDriverSettings {
+export class LinearDriverSettings {
     @type(EDriverMode)
     @tooltip('i18n:physics3d.constraint.linearDriver.xMode')
     get xDrive () {
@@ -475,15 +473,14 @@ class LinearDriverSettings {
     @serializable
     private _strength = 0;
 
-    @serializable
-    private readonly _configurableConstraint: ConfigurableConstraint;
+    private _configurableConstraint: ConfigurableConstraint;
     constructor (configurableConstraint: ConfigurableConstraint) {
         this._configurableConstraint = configurableConstraint;
     }
 }
 
 @ccclass('cc.AngularDriverSettings')
-class AngularDriverSettings {
+export class AngularDriverSettings {
     @serializable
     private _swingDrive1 = EDriverMode.DISABLED;
     @serializable
@@ -571,8 +568,7 @@ class AngularDriverSettings {
         }
     }
 
-    @serializable
-    private readonly _configurableConstraint: ConfigurableConstraint;
+    private _configurableConstraint: ConfigurableConstraint;
     constructor (configurableConstraint: ConfigurableConstraint) {
         this._configurableConstraint = configurableConstraint;
     }
@@ -697,7 +693,6 @@ export class ConfigurableConstraint extends Constraint {
      * @zh
      * 约束的断裂扭矩阈值。
      */
-
     @type(CCFloat)
     @tooltip('i18n:physics3d.constraint.breakTorque')
     get breakTorque () {
@@ -826,19 +821,19 @@ export class ConfigurableConstraint extends Constraint {
 
     @serializable
     @formerlySerializedAs('linearLimitSettings')
-    private _linearLimitSettings = new LinearLimitSettings(this);
+    private _linearLimitSettings: LinearLimitSettings;
 
     @serializable
     @formerlySerializedAs('angularLimitSettings')
-    private _angularLimitSettings = new AngularLimitSettings(this);
+    private _angularLimitSettings: AngularLimitSettings;
 
     @serializable
     @formerlySerializedAs('linearDriverSettings')
-    private _linearDriverSettings = new LinearDriverSettings(this);
+    private _linearDriverSettings: LinearDriverSettings;
 
     @serializable
     @formerlySerializedAs('angularDriverSettings')
-    private _angularDriverSettings = new AngularDriverSettings(this);
+    private _angularDriverSettings: AngularDriverSettings;
 
     @serializable
     private readonly _pivotA: Vec3 = new Vec3();
@@ -861,5 +856,23 @@ export class ConfigurableConstraint extends Constraint {
 
     constructor () {
         super(EConstraintType.CONFIGURABLE);
+        this._linearLimitSettings = new LinearLimitSettings(this);
+        this._angularLimitSettings = new AngularLimitSettings(this);
+        this._linearDriverSettings = new LinearDriverSettings(this);
+        this._angularDriverSettings = new AngularDriverSettings(this);
+    }
+
+    onLoad () {
+        super.onLoad();
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            // @ts-expect-error private member access
+            this.linearLimitSettings._configurableConstraint = this;
+            // @ts-expect-error private member access
+            this.angularLimitSettings._configurableConstraint = this;
+            // @ts-expect-error private member access
+            this.linearDriverSettings._configurableConstraint = this;
+            // @ts-expect-error private member access
+            this.angularDriverSettings._configurableConstraint = this;
+        }
     }
 }
