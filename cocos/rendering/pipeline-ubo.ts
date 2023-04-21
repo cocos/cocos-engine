@@ -406,7 +406,7 @@ export class PipelineUBO {
                 _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, spotLight.shadowPcf, spotLight.shadowBias);
                 Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET);
 
-                _vec4ShadowInfo.set(1.0, packing, spotLight.shadowNormalBias, 0.0);
+                _vec4ShadowInfo.set(2.0, packing, spotLight.shadowNormalBias, 0.0);
                 Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
             }
             break;
