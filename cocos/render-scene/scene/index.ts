@@ -30,6 +30,8 @@ export * from './skybox';
 export * from './shadows';
 export * from './fog';
 export * from './octree';
+export * from './skin';
+export * from './post-process';
 export * from './light';
 export * from './directional-light';
 export * from './sphere-light';

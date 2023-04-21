@@ -256,6 +256,9 @@
       },
       "lightProbeInfo": {
         "__id__": 13
+      },
+      "skin": {
+        "__id__": 14
       }
     },
     {
@@ -389,5 +392,14 @@
       "_showConvex": false,
       "_data": null,
       "_lightProbeGroups": []
+    },
+    {
+      "__type__": "cc.OctreeInfo",
+      "_enabled": false,
+      "_scale": 5.0
+    },
+    {
+      "__type__": "cc.PostProcessInfo",
+      "_toneMappingType": 0
     }
   ]

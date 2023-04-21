@@ -345,9 +345,9 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     /**
-   * @en local shadow normal bias for real time lighting.
-   * @zh 实时光照下模型局部的阴影法线偏移。
-   */
+     * @en local shadow normal bias for real time lighting.
+     * @zh 实时光照下模型局部的阴影法线偏移。
+     */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_normal_bias')
     @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
@@ -506,6 +506,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateCastShadow();
         this._updateReceiveShadow();
         this._updateShadowBias();
+        this._updateStandardSkin();
         this._updateShadowNormalBias();
         this._updateUseLightProbe();
         this._updateBakeToReflectionProbe();
@@ -522,6 +523,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateCastShadow();
         this._updateReceiveShadow();
         this._updateShadowBias();
+        this._updateStandardSkin();
         this._updateShadowNormalBias();
         this._updateUseLightProbe();
         this._updateBakeToReflectionProbe();
@@ -543,6 +545,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateCastShadow();
         this._updateReceiveShadow();
         this._updateShadowBias();
+        this._updateStandardSkin();
         this._updateShadowNormalBias();
         this._updateBakeToReflectionProbe();
         this._updateUseReflectionProbe();

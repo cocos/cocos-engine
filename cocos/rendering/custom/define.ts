@@ -37,6 +37,7 @@ import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
 import { legacyCC } from '../../core/global-exports';
+import { MeshRenderer } from '../../3d';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -452,12 +453,13 @@ export const COPY_INPUT_DS_PASS_INDEX = 0;
 export const SSSS_BLUR_X_PASS_INDEX = 1;
 export const SSSS_BLUR_Y_PASS_INDEX = 2;
 export const EXPONENT = 2.0;
-export const I_SAMPLES_COUNT = 28;
+export const I_SAMPLES_COUNT = 25;
 class SSSSBlurData {
     declare ssssBlurMaterial: Material;
-    ssssFov = 45.0;
-    ssssWidth = 2;
-    depthUnitScale = 1.0;
+    ssssFov = 45.0 / 57.3;
+    ssssWidth = 0.01;
+    boundingBox = 0.4;
+    ssssScale = 5.0;
 
     get ssssStrength () {
         return this._v3SSSSStrength;
@@ -541,8 +543,9 @@ class SSSSBlurData {
         }
 
         // We want the offset 0.0 to come first:
-        _vec4Temp.set(this._kernel[nSamples / 2]);
-        for (let i = nSamples / 2; i > 0; i--) {
+        const remainder = nSamples % 2;
+        _vec4Temp.set(this._kernel[(nSamples - remainder) / 2]);
+        for (let i = (nSamples - remainder) / 2; i > 0; i--) {
             _vec4Temp2.set(this._kernel[i - 1]);
             this._kernel[i].set(_vec4Temp2);
         }
@@ -618,13 +621,20 @@ let ssssBlurData: SSSSBlurData | null = null;
 export function buildSSSSBlurPass (camera: Camera,
     ppl: Pipeline,
     inputRT: string,
-    inputDS: string,
-    ssssWidth = 0.015,
-    depthUnitScale = 0.2) {
+    inputDS: string) {
+    const sceneData = ppl.pipelineSceneData;
+    const skin = sceneData.skin;
+    if (!skin.enabled) return { rtName: inputRT, dsName: inputDS };
+
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
     ssssBlurData.ssssFov = camera.fov;
-    ssssBlurData.ssssWidth = ssssWidth;
-    ssssBlurData.depthUnitScale = depthUnitScale;
+    ssssBlurData.ssssWidth = skin.width;
+    const scene = camera.scene!;
+    if (scene.standardSkinModel && (scene.standardSkinModel as MeshRenderer).model) {
+        const halfExtents = (scene.standardSkinModel as MeshRenderer).model!.worldBounds.halfExtents;
+        ssssBlurData.boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
+    }
+    ssssBlurData.ssssScale = skin.scale;
 
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
@@ -718,7 +728,8 @@ export function buildSSSSBlurPass (camera: Camera,
         camera.clearFlag,
         new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
     ssssblurXPass.addRasterView(inputDS, ssssBlurXPassDSView);
-    ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth, ssssBlurData.depthUnitScale, 0), SSSS_BLUR_X_PASS_INDEX);
+    ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth,
+        ssssBlurData.boundingBox, ssssBlurData.ssssScale), SSSS_BLUR_X_PASS_INDEX);
     ssssBlurData.ssssBlurMaterial.setProperty('kernel', ssssBlurData.kernel, SSSS_BLUR_X_PASS_INDEX);
     ssssblurXPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
         camera, ssssBlurData.ssssBlurMaterial, SSSS_BLUR_X_PASS_INDEX,
@@ -765,7 +776,8 @@ export function buildSSSSBlurPass (camera: Camera,
         camera.clearFlag,
         new Color(camera.clearDepth, camera.clearStencil, 0.0, 0.0));
     ssssblurYPass.addRasterView(inputDS, ssssBlurYPassDSView);
-    ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth, ssssBlurData.depthUnitScale, 0), SSSS_BLUR_Y_PASS_INDEX);
+    ssssBlurData.ssssBlurMaterial.setProperty('blurInfo', new Vec4(ssssBlurData.ssssFov, ssssBlurData.ssssWidth,
+        ssssBlurData.boundingBox, ssssBlurData.ssssScale), SSSS_BLUR_Y_PASS_INDEX);
     ssssBlurData.ssssBlurMaterial.setProperty('kernel', ssssBlurData.kernel, SSSS_BLUR_Y_PASS_INDEX);
     ssssblurYPass.addQueue(QueueHint.RENDER_OPAQUE | QueueHint.RENDER_TRANSPARENT).addCameraQuad(
         camera, ssssBlurData.ssssBlurMaterial, SSSS_BLUR_Y_PASS_INDEX,

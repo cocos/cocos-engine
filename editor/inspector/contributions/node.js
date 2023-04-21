@@ -314,6 +314,8 @@ exports.template = /* html*/`
         <ui-prop class="fog" type="dump"></ui-prop>
         <ui-prop class="shadows" type="dump"></ui-prop>
         <ui-prop class="octree" type="dump"></ui-prop>
+        <ui-prop class="skin" type="dump"></ui-prop>
+        <ui-prop class="postProcess" type="dump"></ui-prop>
     </section>
 
     <ui-section class="component node" expand>
@@ -384,6 +386,7 @@ exports.$ = {
     sceneSkyboxAfter: '.scene > .skybox > .after',
     postProcess: '.scene > .postProcess',
     sceneOctree: '.scene > .octree',
+    sceneSkin: '.scene > .skin',
 
     node: '.node',
     nodeHeader: '.node > header',
@@ -846,11 +849,19 @@ const Elements = {
             panel.dump._globals.octree.help = panel.getHelpUrl({ help: 'i18n:cc.OctreeCulling' });
             panel.$.sceneOctree.render(panel.dump._globals.octree);
 
+            panel.dump._globals.skin.displayName = 'Skin Settings';
+            panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
+            panel.$.sceneSkin.render(panel.dump._globals.skin);
+
+            panel.dump._globals.postProcess.displayName = 'Post Process Settings';
+            panel.dump._globals.postProcess.help = panel.getHelpUrl({ help: 'i18n:cc.PostProcess' });
+            panel.$.postProcess.render(panel.dump._globals.postProcess);
+
             // TODO：这个 if 暂时配合引擎调整使用，测试调通后可以去掉
-            if (panel.dump._globals.postProcess) {
-                panel.dump._globals.postProcess.displayName = 'Post Process';
-                panel.$.postProcess.render(panel.dump._globals.postProcess);
-            }
+            // if (panel.dump._globals.postProcess) {
+            //     panel.dump._globals.postProcess.displayName = 'Post Process';
+            //     panel.$.postProcess.render(panel.dump._globals.postProcess);
+            // }
 
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
             $skyProps.forEach(($prop) => {

@@ -331,8 +331,9 @@ CCProgram surface-fragment %{
     return pbr;
   }
 
-  #include <surfaces/data-structures/standard>
+  #include <common/effect/special-effects>
 
+  #include <surfaces/data-structures/standard>
   //see <surfaces/default-functions/XXXX> for more overrided functions, XXXX is shading-model name
   #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
   void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
@@ -341,8 +342,7 @@ CCProgram surface-fragment %{
     #if USE_SSS_MAP
       sssStrength = texture(sssMap, DEFAULT_UV).x;
     #endif
-    // 0 - 0.5 is valid value
-    surfaceData.baseColor.a = sssStrength * 0.5;
+    SkinOutputSSSStrength(surfaceData.baseColor, sssStrength);
   }
 
 }%

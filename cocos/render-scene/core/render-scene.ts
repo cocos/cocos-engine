@@ -31,6 +31,7 @@ import { SpotLight } from '../scene/spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../2d/renderer/draw-batch';
 import { LODGroup } from '../scene/lod-group';
+import { ModelRenderer } from '../../misc/model-renderer';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -134,6 +135,25 @@ export class RenderScene {
      */
     get lodGroups (): readonly LODGroup[] { return this._lodGroups; }
 
+    /**
+     * @engineInternal
+     * @en Generate a new model id.
+     * @zh 生成一个新的模型 ID
+     * @returns The model id
+     */
+    get standardSkinModel  () { return this._standardSkinModel; }
+
+    /**
+     * @engineInternal
+     * @en Generate a new model id.
+     * @zh 生成一个新的模型 ID
+     * @returns The model id
+     */
+    set standardSkinModel (val: ModelRenderer | null) {
+        if (this._standardSkinModel && this._standardSkinModel !== val) this._standardSkinModel.closedStandardSkin();
+        this._standardSkinModel = val;
+    }
+
     private _root: Root;
     private _name = '';
     private _cameras: Camera[] = [];
@@ -146,6 +166,7 @@ export class RenderScene {
     private _mainLight: DirectionalLight | null = null;
     private _modelId = 0;
     private _lodStateCache: LodStateCache = null!;
+    private _standardSkinModel: ModelRenderer | null = null;
 
     /**
      * Register the creation function of the render scene to root.
