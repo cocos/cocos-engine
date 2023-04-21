@@ -122,6 +122,7 @@ vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData ligh
     return envSpec;
 }
 
+
 vec3 CalculateEnvironmentDiffuse(in LightingIntermediateData lightingData, float lightIntensity)
 {
   // Hemisphere Lighting
