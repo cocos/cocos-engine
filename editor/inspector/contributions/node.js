@@ -1401,6 +1401,7 @@ const Elements = {
                     ],
                     listeners: {
                         async confirm(detail/* info */) {
+                            if (!detail) return;
                             Editor.Message.send('scene', 'snapshot');
 
                             for (const uuid of panel.uuidList) {
