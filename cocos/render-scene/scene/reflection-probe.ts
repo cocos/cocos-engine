@@ -394,12 +394,8 @@ export class ReflectionProbe {
     }
 
     public isRGBE (): boolean  {
-        if (this._cubemap?.isRGBE) {
-            return true;
-        }
-        // no baking will reflect the skybox
-        const envmap = this.node?.scene?._globals.skybox.envmap;
-        return !!envmap?.isRGBE;
+        //todo: realtime do not use rgbe
+        return true;
     }
 
     private _syncCameraParams (camera: Camera) {
