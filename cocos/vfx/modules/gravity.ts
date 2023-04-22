@@ -56,10 +56,8 @@ export class GravityModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { rotationIfNeedTransform } = context;
         const { velocity, baseVelocity } = particles;
         const { fromIndex, toIndex, deltaTime } = context;
-        const randomOffset = this._randomOffset;
         const deltaVelocity = 9.8 * deltaTime;
         if (params.simulationSpace === Space.LOCAL) {
             const invRotation = rotationIfNeedTransform;

@@ -561,6 +561,12 @@ export class VFXEmitter extends Component {
         this.updateEmitterState(deltaTime);
         this.preTick(particles, emitter, user, context);
 
+        if (emitter.loopAge + deltaTime > emitter.currentDuration) {
+            this.updateEmitterTime(emitter.currentDuration - emitter.loopAge);
+            this._emitterStage.execute(particles, emitter, user, context);
+            deltaTime -= emitter.deltaTime;
+        }
+        this.updateEmitterTime(deltaTime);
         this._emitterStage.execute(particles, emitter, user, context);
         const particleCount = particles.count;
         if (particleCount > 0) {
@@ -580,21 +586,26 @@ export class VFXEmitter extends Component {
     }
 
     private updateEmitterState (dt: number) {
-        const params = this._params;
         const emitterDataSet = this._emitterDataSet;
         emitterDataSet.burstCount = emitterDataSet.spawnContinuousCount = 0;
-        this.updateEmitterTime(dt, params.delayMode, emitterDataSet.currentDelay, params.loopMode, params.loopCount, params.duration);
         this.updateEmitterTransform(this.node, dt);
     }
 
-    private updateEmitterTime (deltaTime: number, delayMode: DelayMode,
-        delay: number, loopMode: LoopMode, loopCount: number, duration: number) {
+    private updateEmitterTime (deltaTime: number) {
+        const params = this._params;
+        const emitter = this._emitterDataSet;
         if (DEBUG) {
-            assertIsTrue(deltaTime < duration,
+            assertIsTrue(deltaTime < params.duration,
                 'The delta time should not exceed the duration of the particle system. please adjust the duration of the particle system.');
             assertIsTrue(deltaTime >= 0);
         }
-        const emitter = this._emitterDataSet;
+
+        const delayMode = params.delayMode;
+        const delay = emitter.currentDelay;
+        const loopMode = params.loopMode;
+        const loopCount = params.loopCount;
+        const duration = params.duration;
+
         let prevTime = emitter.age;
         emitter.age += deltaTime;
         let currentTime = emitter.age;
@@ -609,7 +620,7 @@ export class VFXEmitter extends Component {
         if (count < expectedLoopCount) {
             prevTime %= durationAndDelay;
             currentTime %= durationAndDelay;
-            this.loopCount = count;
+            emitter.currentLoopCount = count;
         } else {
             if (Math.floor(prevTime * invDurationAndDelay) >= expectedLoopCount) {
                 prevTime = durationAndDelay;
@@ -617,7 +628,7 @@ export class VFXEmitter extends Component {
                 prevTime %= durationAndDelay;
             }
             currentTime = durationAndDelay;
-            this.loopCount = expectedLoopCount;
+            emitter.currentLoopCount = expectedLoopCount;
         }
         if (delayMode === DelayMode.EVERY_LOOP) {
             prevTime = Math.max(prevTime - delay, 0);
@@ -643,6 +654,18 @@ export class VFXEmitter extends Component {
         Vec3.copy(emitterDataSet.prevWorldPosition, emitterDataSet.worldPosition);
         Vec3.copy(emitterDataSet.worldPosition, node.worldPosition);
         if (node.flagChangedVersion !== this._state.lastTransformChangedVersion) {
+            switch (this._params.scalingMode) {
+            case ScalingMode.LOCAL:
+                Vec3.copy(emitterDataSet.renderScale, node.scale);
+                break;
+            case ScalingMode.HIERARCHY:
+                Vec3.copy(emitterDataSet.renderScale, node.worldScale);
+                break;
+            default:
+                Vec3.copy(emitterDataSet.renderScale, Vec3.ONE);
+                break;
+            }
+            Mat4.copy(emitterDataSet.localToWorld, node.worldMatrix);
             Mat4.invert(emitterDataSet.worldToLocal, emitterDataSet.localToWorld);
             Mat3.fromMat4(emitterDataSet.worldToLocalRS, emitterDataSet.worldToLocal);
             this._state.lastTransformChangedVersion = node.flagChangedVersion;

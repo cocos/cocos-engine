@@ -36,7 +36,7 @@ export class EmitterDataSet {
     public normalizedPrevLoopAge = 0;
     public deltaTime = 0;
     public frameOffset = 0;
-    public loopCount = 0;
+    public currentLoopCount = 0;
     public spawnContinuousCount = 0;
     public burstCount = 0;
     public currentDuration = 0;
@@ -47,6 +47,9 @@ export class EmitterDataSet {
     public localToWorldRS = new Mat3();
     public worldToLocal = new Mat4();
     public worldToLocalRS = new Mat3();
+    public localRotation = new Quat();
+    public worldRotation = new Quat();
+    public renderScale = new Vec3();
 
     getFloatParameter (id: number) {
         return 0;

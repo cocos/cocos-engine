@@ -28,9 +28,10 @@ import { Enum, Quat, Vec3, Vec4 } from '../../core';
 import { Buffer, BufferInfo, BufferUsageBit, deviceManager, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../gfx';
 import { MacroRecord, MaterialInstance } from '../../render-scene';
 import { AlignmentSpace, ScalingMode, Space } from '../enum';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { VFXEmitterParams, ModuleExecContext, VFXEmitterState } from '../base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { CC_PARTICLE_COLOR, CC_PARTICLE_FRAME_INDEX, CC_PARTICLE_POSITION, CC_PARTICLE_ROTATION, CC_PARTICLE_SIZE, CC_PARTICLE_VELOCITY, CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, ROTATION_OVER_TIME_MODULE_ENABLE, ParticleRenderer } from '../particle-renderer';
+import { EmitterDataSet } from '../emitter-data-set';
 
 const fixedVertexBuffer = new Float32Array([
     0, 0, 0, 0, 0, 0, // bottom-left
@@ -68,33 +69,8 @@ export enum RenderMode {
 }
 @ccclass('cc.SpriteParticleRenderer')
 export class SpriteParticleRenderer extends ParticleRenderer {
-    @type(Material)
-    @displayName('Material')
-    public get sharedMaterial () {
-        return this._sharedMaterial;
-    }
-
-    public set sharedMaterial (val) {
-        if (this._sharedMaterial !== val) {
-            this._sharedMaterial = val;
-            this._material = null;
-            this._isMaterialDirty = true;
-        }
-    }
-
-    public get material () {
-        if (!this._material && this._sharedMaterial) {
-            this._material = new MaterialInstance({ parent: this._sharedMaterial });
-        }
-        return this._material;
-    }
-
-    public set material (val) {
-        if (this._material !== val) {
-            this._material = val;
-            this._sharedMaterial = null;
-            this._isMaterialDirty = true;
-        }
+    get name (): string {
+        return 'SpriteRenderer';
     }
     /**
      * @zh 设定粒子生成模式。
@@ -131,31 +107,6 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         this._isSubUVTilesAndVelLenScaleDirty = true;
     }
 
-    public get renderingSubMesh () {
-        return this._renderingSubMesh;
-    }
-
-    public get vertexCount () {
-        return this._vertexCount;
-    }
-
-    public get indexCount () {
-        return this._indexCount;
-    }
-
-    public get instanceCount () {
-        return this._instanceCount;
-    }
-
-    protected _isMaterialDirty = false;
-    protected _renderingSubMesh: RenderingSubMesh | null = null;
-    protected _vertexCount = 0;
-    protected _indexCount = 0;
-    protected _instanceCount = 0;
-    @serializable
-    private _sharedMaterial: Material | null = null;
-    private _material: MaterialInstance | null = null;
-
     @serializable
     private _alignmentSpace = AlignmentSpace.LOCAL;
     @serializable
@@ -171,17 +122,17 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     private declare _dynamicBufferUintView: Uint32Array;
     private _vertexStreamSize = 0;
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public render (particles: ParticleDataSet, emitter: EmitterDataSet) {
         const material = this.material;
         if (!material) {
             return;
         }
         const { count } = particles;
-        this._compileMaterial(material, particles, params, context);
-        this._updateSubUvTilesAndVelocityLengthScale(material, particles, params, context);
-        this._updateRotation(material, particles, params, context);
-        this._updateRenderScale(material, particles, params, context);
-        this._updateRenderingSubMesh(material, particles, params, context);
+        this._compileMaterial(material, particles, emitter);
+        this._updateSubUvTilesAndVelocityLengthScale(material);
+        this._updateRotation(material, particles, emitter);
+        this._updateRenderScale(material, particles, emitter);
+        this._updateRenderingSubMesh(material, particles, emitter);
         this._isMaterialDirty = false;
         const dynamicBufferFloatView = this._dynamicBufferFloatView;
         const dynamicBufferUintView = this._dynamicBufferUintView;
@@ -215,7 +166,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         this._dynamicBuffer.update(dynamicBufferFloatView); // update dynamic buffer
     }
 
-    private _updateSubUvTilesAndVelocityLengthScale (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    private _updateSubUvTilesAndVelocityLengthScale (material: Material) {
         if (!this._isSubUVTilesAndVelLenScaleDirty && !this._isMaterialDirty) {
             return;
         }
@@ -223,26 +174,14 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         this._isSubUVTilesAndVelLenScaleDirty = false;
     }
 
-    private _updateRotation (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    private _updateRotation (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let currentRotation: Quat;
         if (this._alignmentSpace === AlignmentSpace.LOCAL) {
-            currentRotation = context.localRotation;
+            currentRotation = emitter.localRotation;
         } else if (this._alignmentSpace === AlignmentSpace.WORLD) {
-            currentRotation = context.worldRotation;
+            currentRotation = emitter.worldRotation;
         } else if (this._alignmentSpace === AlignmentSpace.VIEW) {
             currentRotation = Quat.IDENTITY;
-            // const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
-            // if (cameraLst !== undefined) {
-            //     for (let i = 0; i < cameraLst?.length; ++i) {
-            //         const camera:Camera = cameraLst[i];
-            //         // eslint-disable-next-line max-len
-            //         const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this.node.layer) === this.node.layer : camera.name === 'Editor Camera';
-            //         if (checkCamera) {
-            //             Quat.fromViewUp(rotation, camera.forward);
-            //             break;
-            //         }
-            //     }
-            // }
         } else {
             currentRotation = Quat.IDENTITY;
         }
@@ -252,30 +191,18 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         }
     }
 
-    private _updateRenderScale (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
-        let currentScale: Vec3;
-        switch (params.scalingMode) {
-        case ScalingMode.LOCAL:
-            currentScale = context.localScale;
-            break;
-        case ScalingMode.HIERARCHY:
-            currentScale = context.worldScale;
-            break;
-        default:
-            currentScale = Vec3.ONE;
-            break;
-        }
-        if (!Vec3.equals(currentScale, this._renderScale) || this._isMaterialDirty) {
-            this._renderScale.set(currentScale.x, currentScale.y, currentScale.z);
+    private _updateRenderScale (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
+        if (!Vec3.equals(emitter.renderScale, this._renderScale) || this._isMaterialDirty) {
+            this._renderScale.set(emitter.renderScale.x, emitter.renderScale.y, emitter.renderScale.z);
             material.setProperty('scale', this._renderScale);
         }
     }
 
-    private _compileMaterial (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    private _compileMaterial (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let needRecompile = this._isMaterialDirty;
         const define = this._defines;
-        if (define[CC_USE_WORLD_SPACE] !== (params.simulationSpace === Space.WORLD)) {
-            define[CC_USE_WORLD_SPACE] = params.simulationSpace === Space.WORLD;
+        if (define[CC_USE_WORLD_SPACE] !== emitter.isWorldSpace) {
+            define[CC_USE_WORLD_SPACE] = emitter.isWorldSpace;
             needRecompile = true;
         }
 
@@ -330,41 +257,41 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         }
     }
 
-    private _updateAttributes (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    private _updateAttributes (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let vertexStreamSizeDynamic = 0;
         const vertexStreamAttributes = [meshPosition, meshUv];
         const define = this._defines;
         if (define[CC_PARTICLE_POSITION]) {
             vertexStreamAttributes.push(particlePosition);
-            vertexStreamSizeDynamic += FormatInfos[particlePosition.format].scale;
+            vertexStreamSizeDynamic += FormatInfos[particlePosition.format].size;
         }
         if (define[CC_PARTICLE_ROTATION]) {
             vertexStreamAttributes.push(particleRotation);
-            vertexStreamSizeDynamic += FormatInfos[particleRotation.format].scale;
+            vertexStreamSizeDynamic += FormatInfos[particleRotation.format].size;
         }
         if (define[CC_PARTICLE_SIZE]) {
             vertexStreamAttributes.push(particleSize);
-            vertexStreamSizeDynamic += FormatInfos[particleSize.format].scale;
+            vertexStreamSizeDynamic += FormatInfos[particleSize.format].size;
         }
         if (define[CC_PARTICLE_COLOR]) {
             vertexStreamAttributes.push(particleColor);
-            vertexStreamSizeDynamic += FormatInfos[particleColor.format].scale;
+            vertexStreamSizeDynamic += FormatInfos[particleColor.format].size;
         }
         if (define[CC_PARTICLE_FRAME_INDEX]) {
             vertexStreamAttributes.push(particleFrameIndex);
-            vertexStreamSizeDynamic += FormatInfos[particleFrameIndex.format].scale;
+            vertexStreamSizeDynamic += FormatInfos[particleFrameIndex.format].size;
         }
         if (define[CC_PARTICLE_VELOCITY]) {
             vertexStreamAttributes.push(particleVelocity);
-            vertexStreamSizeDynamic += FormatInfos[particleVelocity.format].scale;
+            vertexStreamSizeDynamic += FormatInfos[particleVelocity.format].size;
         }
         this._vertexStreamSize = vertexStreamSizeDynamic;
         return vertexStreamAttributes;
     }
 
-    private _updateRenderingSubMesh (material: Material, particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    private _updateRenderingSubMesh (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         if (!this._renderingSubMesh) {
-            const vertexStreamAttributes = this._updateAttributes(material, particles, params, context);
+            const vertexStreamAttributes = this._updateAttributes(material, particles, emitter);
             const vertexStreamSizeStatic = 24;
             const vertexBuffer = deviceManager.gfxDevice.createBuffer(new BufferInfo(
                 BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,

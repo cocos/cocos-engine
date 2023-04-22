@@ -22,66 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { Material, RenderingSubMesh } from '../../asset/assets';
-import { displayName } from '../../core';
-import { serializable, type } from '../../core/data/decorators';
-import { MaterialInstance } from '../../render-scene';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
 import { ParticleRenderer } from '../particle-renderer';
 
 export class RibbonParticleRenderer extends ParticleRenderer {
-    @type(Material)
-    @displayName('Material')
-    public get sharedMaterial () {
-        return this._sharedMaterial;
+    get name (): string {
+        return 'RibbonRenderer';
     }
 
-    public set sharedMaterial (val) {
-        if (this._sharedMaterial !== val) {
-            this._sharedMaterial = val;
-            this._material = null;
-            this._isMaterialDirty = true;
-        }
+    public render (particles: ParticleDataSet, emitter: EmitterDataSet) {
+        throw new Error('Method not implemented.');
     }
-
-    public get material () {
-        if (!this._material && this._sharedMaterial) {
-            this._material = new MaterialInstance({ parent: this._sharedMaterial });
-        }
-        return this._material;
-    }
-
-    public set material (val) {
-        if (this._material !== val) {
-            this._material = val;
-            this._sharedMaterial = null;
-            this._isMaterialDirty = true;
-        }
-    }
-
-    public get renderingSubMesh () {
-        return this._renderingSubMesh;
-    }
-
-    public get vertexCount () {
-        return this._vertexCount;
-    }
-
-    public get indexCount () {
-        return this._indexCount;
-    }
-
-    public get instanceCount () {
-        return this._instanceCount;
-    }
-
-    protected _isMaterialDirty = false;
-    protected _renderingSubMesh: RenderingSubMesh | null = null;
-    protected _vertexCount = 0;
-    protected _indexCount = 0;
-    protected _instanceCount = 0;
-    @serializable
-    private _sharedMaterial: Material | null = null;
-    private _material: MaterialInstance | null = null;
 }
