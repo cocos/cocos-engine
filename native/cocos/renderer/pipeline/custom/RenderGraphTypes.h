@@ -655,6 +655,7 @@ struct RenderQueue {
 
     QueueHint hint{QueueHint::RENDER_OPAQUE};
     uint32_t phaseID{0xFFFFFFFF};
+    gfx::Viewport viewport;
 };
 
 struct SceneData {

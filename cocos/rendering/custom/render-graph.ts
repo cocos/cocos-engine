@@ -1098,6 +1098,7 @@ export class RenderQueue {
     }
     hint: QueueHint;
     phaseID: number;
+    readonly viewport: Viewport | null = new Viewport();
 }
 
 export class SceneData {
