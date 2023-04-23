@@ -113,7 +113,7 @@ class DynamicVBO {
         }
 
         this._capacity = newCapacity;
-        this._vbo.resize(newCapacity);
+        this._vbo.resize(newCapacity * this._vertAttribSize);
         this._data = new ArrayBuffer(this._vertAttribSize * newCapacity);
         const oldFloatDataView = this._floatDataView;
         this._floatDataView = new Float32Array(this._data);
