@@ -689,13 +689,16 @@ export class Root {
 
     private _doWebXRFrameMove () {
         const xr = globalThis.__globalXR;
-        if (!xr || !xr.webXRMatProjs) {
+        if (!xr) {
             return;
         }
 
         const windows = this._windows;
         const cameraList = this._cameraList;
-        const viewCount = xr.webXRMatProjs.length;
+        let viewCount = 1;
+        if (xr.webXRMatProjs) {
+            viewCount = xr.webXRMatProjs.length;
+        }
         if (!xr.webXRWindowMap) {
             xr.webXRWindowMap = new Map<RenderWindow, number>();
         }
