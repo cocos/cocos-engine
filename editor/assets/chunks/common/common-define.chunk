@@ -18,7 +18,7 @@
 #define EPSILON           1e-6
 #define EPSILON_LOWP      1e-4
 #define LOG2              1.442695
-#define EXP_VALUE         2.71828183f
+#define EXP_VALUE         2.71828183
 #define FP_MAX            65504.0
 #define FP_SCALE          0.0009765625
 #define FP_SCALE_INV      1024.0
