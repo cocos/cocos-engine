@@ -1130,8 +1130,8 @@ describe('NewGen Anim', () => {
                 for (const [lhs, rhs, output] of samples) {
                     const condition = new BinaryCondition();
                     condition.operator = op;
-                    condition.lhs.value = lhs;
-                    condition.rhs.value = rhs;
+                    condition.lhs = lhs;
+                    condition.rhs = rhs;
                     const graph = createAnimationGraphForConditionTest([condition]);
                     const graphEval = createAnimationGraphEval(graph, new Node());
                     graphEval.update(0.0);

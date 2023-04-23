@@ -163,6 +163,16 @@ module.exports = {
             'Whether to bake animations. <br>Default to true, which substantially increases performance while making all animations completely fixed',
         sockets:
             'The joint sockets this animation component maintains.<br>Sockets have to be registered before attaching custom nodes to animated joints',
+
+        tc_variable_binding: {
+            menu: 'Variable Binding',
+        },
+        tc_auxiliary_curve_binding: {
+            menu: 'Auxiliary Curve Binding',
+        },
+        tc_state_weight_binding: {
+            menu: 'State Weight Binding',
+        },
     },
     audio: {
         clip: 'The default AudioClip to be played for this audio source',

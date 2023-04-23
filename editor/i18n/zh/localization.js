@@ -161,6 +161,15 @@ module.exports = {
         play_on_load: '是否在运行游戏后自动播放默认动画 clip。',
         use_baked_animation: '是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，<br>但所有动画效果会被彻底固定，不支持任何形式的编辑',
         sockets: '当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点',
+        tc_variable_binding: {
+            menu: '变量绑定',
+        },
+        tc_auxiliary_curve_binding: {
+            menu: '曲线值绑定',
+        },
+        tc_state_weight_binding: {
+            menu: '状态权重绑定',
+        },
     },
     audio: {
         clip: '通过该组件播放的默认 AudioClip 引用',

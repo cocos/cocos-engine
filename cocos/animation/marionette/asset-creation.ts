@@ -27,6 +27,11 @@ export { AnimationGraph, isAnimationTransition, StateMachine, SubStateMachine, E
 export type { Transition, AnimationTransition, Layer, State, VariableDescription } from './animation-graph';
 export { BinaryCondition, UnaryCondition, TriggerCondition } from './state-machine/condition';
 export type { Condition } from './state-machine/condition';
+
+export { TCBinding, TCBindingValueType } from './state-machine/condition/binding/binding';
+export { getTCBindingTypeInfo } from './state-machine/condition/binding/editor';
+export type { TCBindingTypeInfo } from './state-machine/condition/binding/editor';
+
 export type { Value } from './variable';
 export { TriggerResetMode } from './variable';
 export { MotionState } from './state-machine/motion-state';
