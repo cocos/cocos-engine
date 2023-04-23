@@ -314,7 +314,6 @@ exports.template = /* html*/`
         <ui-prop class="shadows" type="dump"></ui-prop>
         <ui-prop class="octree" type="dump"></ui-prop>
         <ui-prop class="skin" type="dump"></ui-prop>
-        <ui-prop class="postProcess" type="dump"></ui-prop>
     </section>
 
     <ui-section class="component node" expand>

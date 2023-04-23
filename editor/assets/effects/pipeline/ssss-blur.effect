@@ -193,6 +193,6 @@ CCProgram ssssBlurY-fs %{
   layout(location = 0) out vec4 fragColor;
 
   void main() {
-    fragColor = blur(v_uv, vec2(0.0, 1.0));
+    fragColor = vec4(blur(v_uv, vec2(0.0, 1.0)).rgb, 1.0);
   }
 }%

@@ -587,7 +587,7 @@ export function buildSSSSBlurPass (camera: Camera,
     inputDS: string) {
     const sceneData = ppl.pipelineSceneData;
     const skin = sceneData.skin;
-    if (!skin.enabled) return { rtName: inputRT, dsName: inputDS };
+    if (!skin.enabled && camera.scene!.standardSkinModel) return { rtName: inputRT, dsName: inputDS };
 
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
     ssssBlurData.ssssFov = camera.fov;
@@ -842,7 +842,9 @@ class ToneMappingInfo {
 let toneMappingInfo: ToneMappingInfo | null = null;
 export function buildToneMapPass (camera: Camera,
     ppl: Pipeline,
-    inputRT: string) {
+    inputRT: string,
+    inputDS: string) {
+    if (!ppl.pipelineSceneData.isHDR || !macro.ENABLE_FLOAT_OUTPUT) return { rtName: inputRT, dsName: inputDS };
     if (!toneMappingInfo) {
         toneMappingInfo = new ToneMappingInfo();
     }
@@ -862,10 +864,10 @@ export function buildToneMapPass (camera: Camera,
     const toneMappingPassRTName = `toneMappingPassRTName${cameraID}`;
     const toneMappingPassDS = `toneMappingPassDS${cameraID}`;
     if (!ppl.containsResource(toneMappingPassRTName)) {
-        ppl.addRenderTexture(toneMappingPassRTName, Format.RGBA16F, width, height, camera.window);
+        ppl.addRenderTarget(toneMappingPassRTName, Format.RGBA16F, width, height, ResourceResidency.MANAGED);
         ppl.addDepthStencil(toneMappingPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
-    ppl.updateRenderWindow(toneMappingPassRTName, camera.window);
+    ppl.updateRenderTarget(toneMappingPassRTName, width, height);
     ppl.updateDepthStencil(toneMappingPassDS, width, height);
     const toneMappingPass = ppl.addRasterPass(width, height, 'tone-mapping');
     toneMappingPass.name = `CameraToneMappingPass${cameraID}`;
@@ -902,7 +904,8 @@ export function buildToneMapPass (camera: Camera,
 
 export function buildForwardPass (camera: Camera,
     ppl: Pipeline,
-    isOffScreen: boolean) {
+    isOffScreen: boolean,
+    enabledAlpha = true) {
     if (EDITOR) {
         ppl.setMacroInt('CC_PIPELINE_TYPE', 0);
     }
@@ -963,10 +966,60 @@ export function buildForwardPass (camera: Camera,
         sceneFlags |= SceneFlags.UI;
         forwardPass.showStatistics = true;
     }
-    forwardPass
-        .addQueue(QueueHint.RENDER_TRANSPARENT)
-        .addSceneOfCamera(camera, new LightInfo(), sceneFlags);
+    if (enabledAlpha) {
+        forwardPass
+            .addQueue(QueueHint.RENDER_TRANSPARENT)
+            .addSceneOfCamera(camera, new LightInfo(), sceneFlags);
+    }
     return { rtName: forwardPassRTName, dsName: forwardPassDSName };
+}
+
+export function buildAlphaPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string,
+    inputDS: string,
+    postAlpha = false) {
+    if (!postAlpha) return { rtName: inputRT, dsName: inputDS };
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    const cameraInfo = buildShadowPasses(cameraName, camera, ppl);
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    const alphaPass = ppl.addRasterPass(width, height, 'default');
+    alphaPass.name = `CameraAlphaPass${cameraID}`;
+    alphaPass.setViewport(new Viewport(area.x, area.y, width, height));
+    for (const dirShadowName of cameraInfo.mainLightShadowNames) {
+        if (ppl.containsResource(dirShadowName)) {
+            alphaPass.addTexture(dirShadowName, 'cc_shadowMap');
+        }
+    }
+    for (const spotShadowName of cameraInfo.spotLightShadowNames) {
+        if (ppl.containsResource(spotShadowName)) {
+            alphaPass.addTexture(spotShadowName, 'cc_spotShadowMap');
+        }
+    }
+    const alphaPassView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.RENDER_TARGET,
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
+    const alphaPassDSView = new RasterView('_',
+        AccessType.WRITE,
+        AttachmentType.DEPTH_STENCIL,
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        camera.clearFlag,
+        new Color(camera.clearDepth, camera.clearStencil, 0, 0));
+    alphaPass.addRasterView(inputRT, alphaPassView);
+    alphaPass.addRasterView(inputDS, alphaPassDSView);
+    alphaPass
+        .addQueue(QueueHint.RENDER_TRANSPARENT)
+        .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
+    return { rtName: inputRT, dsName: inputDS };
 }
 
 export function buildSpecularPass (camera: Camera,

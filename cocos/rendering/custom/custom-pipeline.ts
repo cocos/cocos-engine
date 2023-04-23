@@ -25,7 +25,7 @@
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { buildFxaaPass, buildBloomPass as buildBloomPasses, buildForwardPass,
     buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass,
-    AntiAliasing, buildUIPass, buildSSSSBlurPass, buildSpecularPass, buildToneMapPass } from './define';
+    AntiAliasing, buildUIPass, buildSSSSBlurPass, buildSpecularPass, buildToneMapPass, buildAlphaPass } from './define';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { isUICamera } from './utils';
 
@@ -45,8 +45,9 @@ export class CustomPipelineBuilder implements PipelineBuilder {
             }
             // TODO: There is currently no effective way to judge the ui camera. Let’s do this first.
             if (!isUICamera(camera)) {
+                const postAlpha = true;
                 // forward pass
-                const forwardInfo = buildForwardPass(camera, ppl, isGameView);
+                const forwardInfo = buildForwardPass(camera, ppl, isGameView, !postAlpha);
                 // blur pass
                 const blurInfo  = buildSSSSBlurPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
                 // specalur pass
@@ -55,10 +56,12 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 // const fxaaInfo = buildFxaaPass(camera, ppl, specalurInfo.rtName);
                 // bloom passes
                 // const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
-                // Present Pass
-                // buildPostprocessPass(camera, ppl, specalurInfo.rtName, AntiAliasing.NONE);
+                // alpha pass
+                const alphaPass = buildAlphaPass(camera, ppl, specalurInfo.rtName, specalurInfo.dsName, postAlpha);
                 // tone map
-                buildToneMapPass(camera, ppl, specalurInfo.rtName);
+                const toneMapInfo = buildToneMapPass(camera, ppl, alphaPass.rtName, alphaPass.dsName);
+                // Present Pass
+                buildPostprocessPass(camera, ppl, toneMapInfo.rtName, AntiAliasing.NONE);
                 continue;
             }
             // render ui
