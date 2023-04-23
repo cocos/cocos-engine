@@ -625,6 +625,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     // internal function
     public updateRenderData () {
+        this._model?.ensureVBO(this._particles!.length);
         // update vertex buffer
         let idx = 0;
         for (let i = 0; i < this._particles!.length; ++i) {

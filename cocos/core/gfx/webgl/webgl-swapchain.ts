@@ -177,9 +177,9 @@ export function getExtensions (gl: WebGLRenderingContext) {
         }
     }
 
-    if (res.OES_vertex_array_object) {
-        res.useVAO = true;
-    }
+    // if (res.OES_vertex_array_object) {
+    //     res.useVAO = true;
+    // }
 
     return res;
 }
