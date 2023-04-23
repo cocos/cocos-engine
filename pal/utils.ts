@@ -22,8 +22,10 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
+
 /**
- * This method clones methods in minigame enviroment, sucb as `wx`, `swan` etc. to a module called minigame.
+ * This method clones methods in minigame environment, sub as `wx`, `swan` etc. to a module called minigame.
  * @param targetObject Usually it's specified as the minigame module.
  * @param originObj Original minigame environment such as `wx`, `swan` etc.
  */
@@ -199,7 +201,7 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
     || window.oRequestAnimationFrame
     || window.msRequestAnimationFrame;
 
-    if (raf === undefined || globalThis.__globalXR?.isWebXR) {
+    if (EDITOR || raf === undefined || globalThis.__globalXR?.isWebXR) {
         return setTimeout(callback, delay, ...args);
     }
 
@@ -231,7 +233,7 @@ export function clearTimeoutRAF (id) {
         || window.mozCancelAnimationFrame
         || window.webkitCancelAnimationFrame
         || window.ocancelAnimationFrame;
-    if (caf === undefined || globalThis.__globalXR?.isWebXR) {
+    if (EDITOR || caf === undefined || globalThis.__globalXR?.isWebXR) {
         clearTimeout(id);
     } else {
         cancelAnimationFrame(id);
