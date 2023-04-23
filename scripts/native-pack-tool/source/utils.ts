@@ -427,6 +427,22 @@ export const toolHelper = {
         }
     },
 
+    async runCommand(cmd:string, args:string[], cb?:(code:number, stdout:string, stderr:string)=>void): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            const cp = spawn(cmd, args);
+            const stdErr:Buffer[] = [];
+            const stdOut:Buffer[] = [];
+            cp.stderr.on('data', (d)=>stdErr.push(d));
+            cp.stdout.on('data', (d)=>stdOut.push(d));
+            cp.on('close', (code, signal)=>{
+                if(cb) {
+                    cb(code as any, Buffer.concat(stdOut).toString('utf8'), Buffer.concat(stdErr).toString('utf8'));
+                }
+                resolve(code === 0);
+            });
+        });
+    },
+
     runCmake(args: string[]) {
         const cmakePath = Paths.cmakePath;
         // Delete environment variables start with `npm_`, which may cause compile error on windows

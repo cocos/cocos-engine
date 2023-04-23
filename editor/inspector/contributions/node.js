@@ -668,7 +668,7 @@ const Elements = {
                 panel.$.active.dispatch('change-dump');
             });
             panel.$.active.addEventListener('confirm', () => {
-                panel.snapshotLock = false;
+                panel.$.active.dispatch('confirm-dump');
             });
 
             panel.$.name.addEventListener('change', (event) => {
@@ -685,7 +685,7 @@ const Elements = {
                 panel.$.name.dispatch('change-dump');
             });
             panel.$.name.addEventListener('confirm', () => {
-                panel.snapshotLock = false;
+                panel.$.active.dispatch('confirm-dump');
             });
         },
         update() {
@@ -1401,6 +1401,7 @@ const Elements = {
                     ],
                     listeners: {
                         async confirm(detail/* info */) {
+                            if (!detail) return;
                             Editor.Message.send('scene', 'snapshot');
 
                             for (const uuid of panel.uuidList) {

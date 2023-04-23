@@ -40,15 +40,6 @@ removeProperty(UIComponent.prototype, 'UIComponent', [
     },
 ]);
 
-removeProperty(UIRenderer.prototype, 'Renderable2D.prototype', [
-    {
-        name: 'srcBlendFactor',
-    },
-    {
-        name: 'dstBlendFactor',
-    },
-]);
-
 replaceProperty(Canvas.prototype, 'Canvas.prototype', [
     {
         name: 'camera',

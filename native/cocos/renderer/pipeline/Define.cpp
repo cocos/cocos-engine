@@ -202,6 +202,8 @@ const gfx::UniformBlock UBOLocal::LAYOUT = {
         {"cc_localShadowBias", gfx::Type::FLOAT4, 1},
         {"cc_reflectionProbeData1", gfx::Type::FLOAT4, 1},
         {"cc_reflectionProbeData2", gfx::Type::FLOAT4, 1},
+        {"cc_reflectionProbeBlendData1", gfx::Type::FLOAT4, 1},
+        {"cc_reflectionProbeBlendData1", gfx::Type::FLOAT4, 1},
     },
     1,
 };
@@ -627,6 +629,21 @@ const gfx::UniformSamplerTexture REFLECTIONPROBEDATAMAP::LAYOUT = {
     1,
 };
 
+const ccstd::string REFLECTIONPROBEBLENDCUBEMAP::NAME = "cc_reflectionProbeBlendCubemap";
+const gfx::DescriptorSetLayoutBinding REFLECTIONPROBEBLENDCUBEMAP::DESCRIPTOR = {
+    REFLECTIONPROBEBLENDCUBEMAP::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformSamplerTexture REFLECTIONPROBEBLENDCUBEMAP::LAYOUT = {
+    localSet,
+    REFLECTIONPROBEBLENDCUBEMAP::BINDING,
+    REFLECTIONPROBEBLENDCUBEMAP::NAME,
+    gfx::Type::SAMPLER_CUBE,
+    1,
+};
 
 uint32_t skyboxFlag = static_cast<uint32_t>(gfx::ClearFlagBit::STENCIL) << 1;
 

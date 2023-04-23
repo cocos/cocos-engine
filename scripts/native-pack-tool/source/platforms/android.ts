@@ -227,7 +227,7 @@ export class AndroidPackTool extends NativePackTool {
                 content = content.replace(/:/g, '\\:');
             }
 
-            fs.writeFileSync(cchelper.join(ps.dirname(gradlePropertyPath), 'local.properties'), content);
+            fs.writeFileSync(cchelper.join(ps.dirname(gradlePropertyPath), 'local.properties'), content, {encoding: 'utf8'});
         } else {
             console.log(`warning: ${gradlePropertyPath} not found!`);
         }
