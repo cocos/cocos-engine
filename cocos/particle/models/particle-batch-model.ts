@@ -785,5 +785,6 @@ legacyCC.director.on(legacyCC.Director.EVENT_UPLOAD_DYNAMIC_VBO, () => {
     for (const key in globalDynamicVBOMap) {
         const dynamicVBO = globalDynamicVBOMap[key];
         dynamicVBO.update();
+        dynamicVBO.reset();
     }
 });
