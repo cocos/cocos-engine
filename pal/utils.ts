@@ -220,13 +220,18 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
  * @returns Nothing.
  */
 export function clearTimeoutRAF (id) {
-    const raf = requestAnimationFrame
-    || window.requestAnimationFrame
-    || window.webkitRequestAnimationFrame
-    || window.mozRequestAnimationFrame
-    || window.oRequestAnimationFrame
-    || window.msRequestAnimationFrame;
-    if (raf === undefined || globalThis.__globalXR?.isWebXR) {
+    const caf = cancelAnimationFrame
+        || window.cancelAnimationFrame
+        || window.cancelRequestAnimationFrame
+        || window.msCancelRequestAnimationFrame
+        || window.mozCancelRequestAnimationFrame
+        || window.oCancelRequestAnimationFrame
+        || window.webkitCancelRequestAnimationFrame
+        || window.msCancelAnimationFrame
+        || window.mozCancelAnimationFrame
+        || window.webkitCancelAnimationFrame
+        || window.ocancelAnimationFrame;
+    if (caf === undefined || globalThis.__globalXR?.isWebXR) {
         clearTimeout(id);
     } else {
         cancelAnimationFrame(id);
