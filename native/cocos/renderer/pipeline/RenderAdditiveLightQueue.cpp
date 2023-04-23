@@ -429,7 +429,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 float shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, 1.0F, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(float) * 4);
 
-                float shadowLPNNInfos[4] = {2.0F, packing, 0.0F, 0.0F};
+                float shadowLPNNInfos[4] = {static_cast<float>(scene::LightType::SPHERE), packing, 0.0F, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
             } break;
             case scene::LightType::SPOT: {
@@ -461,7 +461,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 float shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, spotLight->getShadowPcf(), spotLight->getShadowBias()};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
 
-                float shadowLPNNInfos[4] = {1.0F, packing, spotLight->getShadowNormalBias(), 0.0F};
+                float shadowLPNNInfos[4] = {static_cast<float>(scene::LightType::SPOT), packing, spotLight->getShadowNormalBias(), 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
 
                 float shadowInvProjDepthInfos[4] = {matShadowInvProj.m[10], matShadowInvProj.m[14], matShadowInvProj.m[11], matShadowInvProj.m[15]};
@@ -493,7 +493,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 float shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, 1.0F, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(float) * 4);
 
-                float shadowLPNNInfos[4] = {2.0F, packing, 0.0F, 0.0F};
+                float shadowLPNNInfos[4] = {static_cast<float>(scene::LightType::POINT), packing, 0.0F, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
             } break;
             default:
