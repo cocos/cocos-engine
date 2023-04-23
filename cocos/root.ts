@@ -695,10 +695,7 @@ export class Root {
 
         const windows = this._windows;
         const cameraList = this._cameraList;
-        let viewCount = 1;
-        if (xr.webXRMatProjs) {
-            viewCount = xr.webXRMatProjs.length;
-        }
+        const viewCount = xr.webXRMatProjs ? xr.webXRMatProjs.length : 1;
         if (!xr.webXRWindowMap) {
             xr.webXRWindowMap = new Map<RenderWindow, number>();
         }
