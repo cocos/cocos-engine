@@ -235,7 +235,7 @@ export default class ParticleBatchModel extends scene.Model {
             if (a.stream === 0) {
                 (a as any).offset = this._vertAttribSize;
                 this._vertAttribSize += FormatInfos[a.format].size;
-                this._vertexAttributeHash += a.name;
+                this._vertexAttributeHash += `n${a.name}f${a.format}n${a.isNormalized}l${a.location}`;
             } else if (a.stream === 1) {
                 (a as any).offset = this._vertAttribSizeStatic;
                 this._vertAttribSizeStatic += FormatInfos[a.format].size;
