@@ -477,7 +477,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
             if (p.remainingLifetime >= 0.0) {
                 // apply gravity when both the mode is not Constant and the value is not 0.
-                if (useGravity && !p.firstAct) {
+                if (useGravity) {
                     const rand = pseudoRandom(p.randomSeed);
                     if (ps.simulationSpace === Space.Local) {
                         const time = 1 - p.remainingLifetime / p.startLifetime;
