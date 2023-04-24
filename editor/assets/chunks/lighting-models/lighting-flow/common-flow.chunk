@@ -65,7 +65,7 @@
 
         lightingResult.shadow = shadow;
 
-        float distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i]);
+        float distAtt = CCSurfacesLightingCalculateDistanceAttenuation(lightingData, cc_lightSizeRangeAngle[i], cc_lightPos[i].w);
 
         float angleAtt = 1.0;
         if (cc_lightPos[i].w > 0.0) {
