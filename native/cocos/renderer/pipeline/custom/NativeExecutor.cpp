@@ -2170,6 +2170,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             CustomRenderGraphContext{
                 custom.currentContext,
                 &rg,
+                submit.primaryCommandBuffer
             },
             scratch};
 
