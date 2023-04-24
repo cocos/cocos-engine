@@ -13,6 +13,7 @@ import {
 } from '../../../cocos/animation/marionette/animation-graph-context';
 import { blendPoseInto, Pose } from '../../../cocos/animation/core/pose';
 import { AnimationController } from '../../../cocos/animation/marionette/animation-controller';
+import { EventTarget } from '../../../exports/base';
 
 class AnimationGraphPartialPreviewer {
     constructor(root: Node) {
@@ -82,6 +83,7 @@ class AnimationGraphPartialPreviewer {
 
         const bindingContext = new AnimationGraphBindingContext(
             this._root, this._poseLayoutMaintainer, this._varInstances, this._dummyAnimationController,
+            new EventTarget(),
         );
 
         poseLayoutMaintainer.startBind();
