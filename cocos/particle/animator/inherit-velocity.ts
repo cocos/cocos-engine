@@ -85,6 +85,11 @@ export default class InheritVelocityModule extends ParticleModuleBase {
     constructor () {
         super();
         this.speedModifier.constant = 1;
+        this.needUpdate = true;
+    }
+
+    public update (ps, space, worldTransform) {
+        this.speedModifier.bake();
     }
 
     private caculateWorldVelocity (outVel: Vec3, p: Particle, parentPs, vel: Vec3) {

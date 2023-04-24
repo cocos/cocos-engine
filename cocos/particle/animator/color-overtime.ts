@@ -59,6 +59,15 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     public color = new GradientRange();
     public name = PARTICLE_MODULE_NAME.COLOR;
 
+    constructor () {
+        super();
+        this.needUpdate = true;
+    }
+
+    public update (ps, space, worldTransform) {
+        this.color.bake();
+    }
+
     public animate (particle: Particle) {
         particle.color.set(particle.startColor);
         particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET)));

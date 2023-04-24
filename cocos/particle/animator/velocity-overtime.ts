@@ -207,6 +207,17 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
                 Mat3.invert(this.worldToLocal, this.localToWorld);
             }
         }
+        this.offsetX.bake();
+        this.offsetY.bake();
+        this.offsetZ.bake();
+        this.radius.bake();
+        this.orbitX.bake();
+        this.orbitY.bake();
+        this.orbitZ.bake();
+        this.speedModifier.bake();
+        this.x.bake();
+        this.y.bake();
+        this.z.bake();
     }
 
     private calculateOrbital (p: Particle, dt: number, normalizedTime: number, speedMod: number) {

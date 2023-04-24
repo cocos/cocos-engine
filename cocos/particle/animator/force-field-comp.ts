@@ -116,6 +116,10 @@ export class ForceFieldComp extends Component {
         this._field = new ForceField();
     }
 
+    public updateFirst () {
+        this._field.updateFirst();
+    }
+
     protected update (dt: number) {
         this.node.getWorldMatrix(_tempWorldTrans);
         this._field.fieldLocalToWorld = _tempWorldTrans;

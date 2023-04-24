@@ -104,6 +104,18 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
 
     public name = PARTICLE_MODULE_NAME.SIZE;
 
+    constructor () {
+        super();
+        this.needUpdate = true;
+    }
+
+    public update (ps, space, worldTransform) {
+        this.x.bake();
+        this.y.bake();
+        this.z.bake();
+        this.size.bake();
+    }
+
     public animate (particle: Particle, dt: number) {
         if (!this.separateAxes) {
             Vec3.multiplyScalar(particle.size, particle.startSize, this.size.evaluate(1 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET))!);

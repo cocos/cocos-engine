@@ -84,6 +84,15 @@ export class ColorSpeedModule extends ParticleModuleBase {
 
     public name: string = PARTICLE_MODULE_NAME.COLORSPEED;
 
+    constructor () {
+        super();
+        this.needUpdate = true;
+    }
+
+    public update (ps, space, worldTransform) {
+        this.color.bake();
+    }
+
     public animate (p: Particle, dt: number): void {
         velo.set(p.velocity.x + p.animatedVelocity.x, p.velocity.y + p.animatedVelocity.y, p.velocity.z + p.animatedVelocity.z);
         const linearVelocity = velo.length();

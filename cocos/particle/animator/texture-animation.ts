@@ -235,6 +235,16 @@ export default class TextureAnimationModule extends ParticleModuleBase {
 
     public name = PARTICLE_MODULE_NAME.TEXTURE;
 
+    constructor () {
+        super();
+        this.needUpdate = true;
+    }
+
+    public update (ps, space, worldTransform) {
+        this.startFrame.bake();
+        this.frameOverTime.bake();
+    }
+
     public init (p: Particle) {
         p.startRow = Math.floor(random() * this.numTilesY);
     }

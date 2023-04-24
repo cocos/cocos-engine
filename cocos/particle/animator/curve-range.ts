@@ -162,15 +162,77 @@ export default class CurveRange  {
         }
     }
 
+    private preSample = true && !EDITOR;
+    private sampleCount = 64;
+    private interval = 1.0 / (this.sampleCount - 1.0);
+
+    private minBuff: number[] | null = null;
+    private maxBuff: number[] | null = null;
+
+    private createBuff () {
+        if (this.mode === Mode.Curve) {
+            this.maxBuff = new Array(this.sampleCount);
+            for (let i = 0; i < this.sampleCount; ++i) {
+                const time = i * this.interval;
+                const value = this.spline.evaluate(time) * this.multiplier;
+                this.maxBuff[i] = value;
+            }
+        } else if (this.mode === Mode.TwoCurves) {
+            this.minBuff = new Array(this.sampleCount);
+            this.maxBuff = new Array(this.sampleCount);
+            for (let i = 0; i < this.sampleCount; ++i) {
+                const time = i * this.interval;
+                const valueMin = this.splineMin.evaluate(time) * this.multiplier;
+                const valueMax = this.splineMax.evaluate(time) * this.multiplier;
+                this.minBuff[i] = valueMin;
+                this.maxBuff[i] = valueMax;
+            }
+        }
+    }
+
+    private sample (buff: number[] | null, time: number): number {
+        const sampleCoord = time * (this.sampleCount - 1);
+        const prev = Math.floor(sampleCoord);
+        const next = Math.ceil(sampleCoord);
+        if (buff) {
+            if (prev === next) {
+                return buff[prev];
+            } else {
+                const ratio = sampleCoord - prev;
+                return buff[prev] * (1.0 - ratio) + buff[next] * ratio;
+            }
+        } else {
+            return 0.0;
+        }
+    }
+
+    public bake () {
+        if (this.preSample) {
+            if (this.mode === Mode.Curve && this.maxBuff === null) {
+                this.createBuff();
+            } else if (this.mode === Mode.TwoCurves && (this.maxBuff === null || this.minBuff === null)) {
+                this.createBuff();
+            }
+        }
+    }
+
     public evaluate (time: number, rndRatio: number) {
         switch (this.mode) {
         default:
         case Mode.Constant:
             return this.constant;
         case Mode.Curve:
-            return this.spline.evaluate(time) * this.multiplier;
+            if (this.preSample) {
+                return this.sample(this.maxBuff, time);
+            } else {
+                return this.spline.evaluate(time) * this.multiplier;
+            }
         case Mode.TwoCurves:
-            return lerp(this.splineMin.evaluate(time), this.splineMax.evaluate(time), rndRatio) * this.multiplier;
+            if (this.preSample) {
+                return lerp(this.sample(this.minBuff, time), this.sample(this.maxBuff, time), rndRatio);
+            } else {
+                return lerp(this.splineMin.evaluate(time), this.splineMax.evaluate(time), rndRatio) * this.multiplier;
+            }
         case Mode.TwoConstants:
             return lerp(this.constantMin, this.constantMax, rndRatio);
         }
@@ -182,9 +244,17 @@ export default class CurveRange  {
         case Mode.Constant:
             return this.constant;
         case Mode.Curve:
-            return this.spline.evaluate(time) * this.multiplier;
+            if (this.preSample) {
+                return this.sample(this.maxBuff, time);
+            } else {
+                return this.spline.evaluate(time) * this.multiplier;
+            }
         case Mode.TwoCurves:
-            return this.splineMax.evaluate(time) * this.multiplier;
+            if (this.preSample) {
+                return this.sample(this.maxBuff, time);
+            } else {
+                return this.splineMax.evaluate(time) * this.multiplier;
+            }
         case Mode.TwoConstants:
             return this.constantMax;
         }

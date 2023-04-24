@@ -51,10 +51,17 @@ export class ForceFieldModule extends ParticleModuleBase {
     @serializable
     @type([ForceFieldComp])
     @displayOrder(1)
-    public forceList = [];
+    public forceList: ForceFieldComp[] = [];
 
     constructor () {
         super();
+        this.needUpdate = true;
+    }
+
+    public update (ps, space, worldTransform) {
+        for (let i = 0; i < this.forceList.length; ++i) {
+            this.forceList[i].updateFirst();
+        }
     }
 
     public animate (p: Particle, dt: number): void {
