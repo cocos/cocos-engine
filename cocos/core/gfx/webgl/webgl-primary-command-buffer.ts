@@ -60,13 +60,28 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
 
     public draw (infoOrAssembler: DrawInfo | InputAssembler) {
         if (this._isInRenderPass) {
+            const { stateCache: cache } = WebGLDeviceManager.instance;
+            const info = 'drawInfo' in infoOrAssembler ? infoOrAssembler.drawInfo : infoOrAssembler;
+            if (cache.drawInfo.firstIndex !== info.firstIndex
+                || cache.drawInfo.indexCount !== info.indexCount
+                || cache.drawInfo.firstInstance !== info.firstInstance
+                || cache.drawInfo.instanceCount !== info.instanceCount
+                || cache.drawInfo.vertexCount !== info.vertexCount
+                || cache.drawInfo.firstVertex !== info.firstVertex
+                || cache.drawInfo.vertexOffset !== info.vertexOffset) {
+                cache.drawInfo.firstIndex = info.firstIndex;
+                cache.drawInfo.indexCount = info.indexCount;
+                cache.drawInfo.firstInstance = info.firstInstance;
+                cache.drawInfo.instanceCount = info.instanceCount;
+                cache.drawInfo.vertexCount = info.vertexCount;
+                cache.drawInfo.firstVertex = info.firstVertex;
+                cache.drawInfo.vertexOffset = info.vertexOffset;
+            }
             if (this._isStateInvalied) {
                 this.bindStates();
             }
 
-            const info = 'drawInfo' in infoOrAssembler ? infoOrAssembler.drawInfo : infoOrAssembler;
-
-            WebGLCmdFuncDraw(WebGLDeviceManager.instance, info as DrawInfo);
+            WebGLCmdFuncDraw(WebGLDeviceManager.instance, info);
 
             ++this._numDrawCalls;
             this._numInstances += info.instanceCount;
