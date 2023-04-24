@@ -5,7 +5,7 @@ apply plugin: 'com.android.application'
 RES_PATH = RES_PATH.replace("\\", "/")
 COCOS_ENGINE_PATH = COCOS_ENGINE_PATH.replace("\\", "/")
 
-buildDir = "${RES_PATH}/proj/build/$project.name"
+buildDir = "${RES_PATH}/proj/build/${project.name ==~ /^[_a-zA-Z0-9-]+$/ ? project.name : 'CocosGame'}"
 android {
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
     buildToolsVersion PROP_BUILD_TOOLS_VERSION
@@ -26,7 +26,7 @@ android {
         externalNativeBuild {
             cmake {
                 targets "cocos"
-                arguments "-DRES_DIR=${RES_PATH}", "-DCOCOS_X_PATH=${COCOS_ENGINE_PATH}", "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE", "-DANDROID_LD=gold"
+                arguments "-DRES_DIR=${RES_PATH}", "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE"
             }
             ndk { abiFilters PROP_APP_ABI.split(':') }
         }
@@ -82,7 +82,7 @@ android {
                 }
             }
 
-            if (PROP_IS_DEBUG == "false") {
+            if (!Boolean.parseBoolean(PROP_IS_DEBUG)) {
                 getIsDefault().set(true)
             }
 
@@ -106,4 +106,7 @@ dependencies {
     implementation project(':libservice')
     implementation project(':libxrcommon')
     implementation project(':libcocos')
+    if (Boolean.parseBoolean(PROP_ENABLE_INPUTSDK)) {
+        implementation 'com.google.android.libraries.play.games:inputmapping:1.0.0-beta'
+    }
 }
