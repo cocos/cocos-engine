@@ -25,6 +25,7 @@
 #include "GLES3Std.h"
 
 #include "GLES3Commands.h"
+#include "GLES3Device.h"
 #include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
 #include "GLES3RenderPass.h"
@@ -50,6 +51,21 @@ const GLenum GLE_S3_PRIMITIVES[] = {
     GL_NONE,
 };
 
+namespace {
+
+void initGpuShader(GLES3GPUShader *gpuShader, GLES3GPUPipelineLayout *gpuPipelineLayout) {
+    cmdFuncGLES3CreateShader(GLES3Device::getInstance(), gpuShader, gpuPipelineLayout);
+    CC_ASSERT(gpuShader->glProgram);
+
+    // Clear shader source after they're uploaded to GPU
+    for (auto &stage : gpuShader->gpuStages) {
+        stage.source.clear();
+        stage.source.shrink_to_fit();
+    }
+}
+
+} // namespace
+
 GLES3PipelineState::GLES3PipelineState() {
     _typedID = generateObjectID<decltype(this)>();
 }
@@ -61,11 +77,15 @@ GLES3PipelineState::~GLES3PipelineState() {
 void GLES3PipelineState::doInit(const PipelineStateInfo & /*info*/) {
     _gpuPipelineState = ccnew GLES3GPUPipelineState;
     _gpuPipelineState->glPrimitive = GLE_S3_PRIMITIVES[static_cast<int>(_primitive)];
-    _gpuPipelineState->gpuShader = static_cast<GLES3Shader *>(_shader)->gpuShader();
     _gpuPipelineState->rs = _rasterizerState;
     _gpuPipelineState->dss = _depthStencilState;
     _gpuPipelineState->bs = _blendState;
     _gpuPipelineState->gpuPipelineLayout = static_cast<GLES3PipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
+    _gpuPipelineState->gpuShader = static_cast<GLES3Shader *>(_shader)->gpuShader();
+    if (_gpuPipelineState->gpuShader->glProgram == 0) {
+        initGpuShader(_gpuPipelineState->gpuShader, _gpuPipelineState->gpuPipelineLayout);
+    }
+
     if (_renderPass) _gpuPipelineState->gpuRenderPass = static_cast<GLES3RenderPass *>(_renderPass)->gpuRenderPass();
 
     for (uint32_t i = 0; i < 31; i++) {

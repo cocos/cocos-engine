@@ -183,6 +183,7 @@ export class SkeletalAnimationState extends AnimationState {
             users.forEach((user) => {
                 user.uploadAnimation(clip);
             });
+            info.data[0] = -1; // reset frame index to -1. sampleCurves will calculate frame to 0.
         }
 
         const curFrame = (ratio * this._frames + 0.5) | 0;

@@ -21,7 +21,7 @@ CCEffect %{
         anisotropyIntensity:              { value: 1.0, target: anisotropyParam.x, editor: { slide : true, range : [0.0, 1.0] , step : 0.0001 } }
         anisotropyRotation:               { value: 0.0, target: anisotropyParam.y, editor: { slide : true, range : [0, 1.0] , step : 0.0001 } }
         mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
-        transparencyMap:                  { value: white, editor: { parent: USE_TRANSPRENCY_MAP, displayName: AlbedoMap } }
+        transparencyMap:                  { value: white, editor: { parent: USE_TRANSPRENCY_MAP, displayName: TransparencyMap } }
         normalMap:                        { value: normal }
         pbrMap:                           { value: grey }
         occlusionMap:                     { value: white }
@@ -34,9 +34,10 @@ CCEffect %{
         ScatterCoefTT:                    { value: 0.0, target: ttParams.x, editor: { displayName: TT Scatter Coef, slide: true, range: [0, 1.0], step: 0.01, tooltip: 'The saturation of internal transmit lighting color' } }
         IntensityTT:                      { value: 1.0, target: ttParams.w, editor: { displayName: TT Intensity, slide: true, range: [0, 1.0], step: 0.01 } }
         baseColorTT:                      { value: [0.5, 0.33, 0.18, 1.0], target: ttColor, linear: true, editor: { displayName: TT Albedo, type: color, tooltip: 'The color of internal transmit lighting, allow the light color to vary between backlit and light-facing areas' } }
-        thickness:                        { value: 1.0, target: ttParams.y, editor: { displayName: Scatter Thickness, slide: true, range: [0, 1.0], step: 0.001, tooltip: 'The extend range of internal reflection lighting around the direct specular' } }
-        extinction:                       { value: 0.0, target: ttParams.z, editor: { displayName: Scatter Extinction, slide: true, range: [0, 10.0], step: 0.001, tooltip: 'The position offset of internal reflection lighting compared to direct specular' } }
-        depthMap:                         { value: white }
+        thickness:                        { value: 1.0, target: ttParams.y, editor: { parent: USE_BACK_LIT, displayName: Scatter Thickness, slide: true, range: [0, 1.0], step: 0.001, tooltip: 'The extend range of internal reflection lighting around the direct specular' } }
+        extinction:                       { value: 0.0, target: ttParams.z, editor: { parent: USE_BACK_LIT, displayName: Scatter Extinction, slide: true, range: [0, 10.0], step: 0.001, tooltip: 'The position offset of internal reflection lighting compared to direct specular' } }
+        transmitColor:                    { value: [0.7, 0.5, 0.3, 1.0], linear: true, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Color, type: color, tooltip: 'The color of scattered lighting' } }
+        thicknessMap:                     { value: white, editor: { parent: USE_BACK_LIT } }
         selfShadowMap:                    { value: white, editor: { parent: USE_SELF_SHADOW_MAP } }
       rasterizerState:
         cullMode: None
@@ -149,7 +150,7 @@ CCEffect %{
         albedoScale:     { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold:  { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
         mainTexture:     { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
-        transparencyMap: { value: white, editor: { parent: USE_TRANSPRENCY_MAP, displayName: AlbedoMap } }
+        transparencyMap: { value: white, editor: { parent: USE_TRANSPRENCY_MAP, displayName: TransparencyMap } }
     - &reflect-map
       vert: standard-vs
       frag: reflect-map-fs
@@ -187,6 +188,7 @@ CCProgram shared-ubos %{
     vec4 trtParams;
     vec4 ttColor;
     vec4 ttParams;
+    vec4 transmitColor;
   };
 }%
 
@@ -197,15 +199,17 @@ CCProgram macro-remapping %{
   #pragma define IS_ANISOTROPY 1
   #pragma define-meta USE_VERTEX_COLOR
   #pragma define-meta USE_DITHERED_ALPHA_TEST
+  #pragma define-meta USE_BACK_LIT
+  #pragma define-meta USE_HIGH_QUALITY_REFLECTION
 
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
   #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
   
+  #define CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE USE_BACK_LIT
   #define CC_SURFACES_LIGHTING_TRT 1
   #define CC_SURFACES_LIGHTING_TT 1
-  #define CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE 1
   #define CC_SURFACES_TRANSFER_CLIP_POS 1
 
   // depend on UI macros
@@ -214,7 +218,9 @@ CCProgram macro-remapping %{
 #endif
 
   // functionality for each effect
-  #define CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT 31
+#if USE_HIGH_QUALITY_REFLECTION
+  #define CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT 9
+#endif
 }%
 
 CCProgram surface-vertex %{
@@ -259,8 +265,8 @@ CCProgram surface-fragment %{
     uniform sampler2D anisotropyMap;
   #endif
 
-  #if USE_DEPTH_MAP
-    uniform sampler2D depthMap;
+  #if USE_BACK_LIT && USE_THICKNESS_MAP
+    uniform sampler2D thicknessMap;
   #endif
   #if USE_SELF_SHADOW_MAP
     uniform sampler2D selfShadowMap;
@@ -284,7 +290,7 @@ CCProgram surface-fragment %{
       return ttParams;
   }
   #define CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
-  vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
+  vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor)
   {
       return mix(baseColor.rgb, ttColor.rgb, ttColor.a); //ttColor can be (0.992, 0.808, 0.516)
   }
@@ -294,8 +300,8 @@ CCProgram surface-fragment %{
   {
     float depth = SURFACES_MAX_TRANSMIT_DEPTH_VALUE;
     depth = ttParams.y;
-  #if USE_DEPTH_MAP
-    // depth = texture(depthMap, FSInput_texcoord).x;
+  #if USE_BACK_LIT && USE_THICKNESS_MAP
+    // depth = texture(thicknessMap, FSInput_texcoord).x;
     // depth = pow(depth, 1.0);
     // depth = 1.0 - depth;
     // depth *= ttParams.y;
@@ -307,8 +313,8 @@ CCProgram surface-fragment %{
   vec4 SurfacesFragmentModifyTransmitDiffuseParams()
   {
     float mask = 1.0;
-  #if USE_DEPTH_MAP
-    mask = texture(depthMap, FSInput_texcoord).x;
+  #if USE_BACK_LIT && USE_THICKNESS_MAP
+    mask = texture(thicknessMap, FSInput_texcoord).x;
     mask = pow(mask, 1.0);
     mask = 1.0 - mask;
     mask *= 10.0;
@@ -326,7 +332,7 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
   vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
   {
-    return vec3(0.7, 0.5, 0.3);
+    return transmitColor.rgb;
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY

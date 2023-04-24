@@ -466,7 +466,7 @@ public class CocosEditBoxActivity extends Activity {
      Native functions invoked by UI.
      **************************************************************************************/
     private void onKeyboardInput(String text) {
-        CocosHelper.runOnGameThreadAtForeground(new Runnable() {
+        CocosHelper.runOnGameThread(new Runnable() {
             @Override
             public void run() {
                 CocosEditBoxActivity.onKeyboardInputNative(text);
@@ -475,7 +475,7 @@ public class CocosEditBoxActivity extends Activity {
     }
 
     private void onKeyboardComplete(String text) {
-        CocosHelper.runOnGameThreadAtForeground(new Runnable() {
+        CocosHelper.runOnGameThread(new Runnable() {
             @Override
             public void run() {
                 CocosEditBoxActivity.onKeyboardCompleteNative(text);
@@ -484,7 +484,7 @@ public class CocosEditBoxActivity extends Activity {
     }
 
     private void onKeyboardConfirm(String text) {
-        CocosHelper.runOnGameThreadAtForeground(new Runnable() {
+        CocosHelper.runOnGameThread(new Runnable() {
             @Override
             public void run() {
                 CocosEditBoxActivity.onKeyboardConfirmNative(text);

@@ -17,7 +17,7 @@ exports.adapt = function (canvas, width, height) {
             isFirstCall = false;
             return canvas;
         } else {
-            return wx.createOffscreenCanvas(width, height);
+            return wx.createOffscreenCanvas({type:"2d", width: width, height: height});
         }
     }
 
@@ -50,6 +50,36 @@ exports.adapt = function (canvas, width, height) {
             handleTouchEvent(event);
             cb(event);
         };
+    };
+
+    wx.onKeyboardInput = function (cb) {
+        GameGlobal._onKeyboardInput = function (event) {
+            cb(event.detail);
+        };
+    };
+
+    wx.onKeyboardConfirm = function (cb) {
+        GameGlobal._onKeyboardConfirm = function (event) {
+            cb(event.detail);
+        };
+    };
+
+    wx.onKeyboardComplete = function (cb) {
+        GameGlobal._onKeyboardComplete = function (event) {
+            GameGlobal.indexThis.setData({
+                showInput: false,
+            });
+            cb(event.detail);
+        };
+    };
+
+    wx.showKeyboard = function (obj) {
+        GameGlobal.indexThis.setData({
+            showInput: true,
+            isPassword: false,
+            maxLength: obj.maxLength,
+            confirmType: obj.confirmType
+        });
     };
 
     function handleTouchEvent (event) {

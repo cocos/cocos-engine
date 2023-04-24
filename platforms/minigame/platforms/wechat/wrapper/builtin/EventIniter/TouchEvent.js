@@ -22,7 +22,13 @@ function touchEventHandlerFactory(type) {
     touchEvent.targetTouches = Array.prototype.slice.call(event.touches)
     touchEvent.changedTouches = event.changedTouches
     touchEvent.timeStamp = event.timeStamp
-    document.dispatchEvent(touchEvent)
+    if (typeof getApp === 'function') {
+      // for wechat miniprogram
+      GameGlobal.document.dispatchEvent(touchEvent)
+    } else {
+      // for wechat minigame
+      document.dispatchEvent(touchEvent)
+    }
   }
 }
 

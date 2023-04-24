@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST, VIVO, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { EDITOR, OPPO, TEST, VIVO, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
 import { TextureType, TextureInfo, TextureViewInfo, BufferTextureCopy } from '../../gfx';
 import { ImageAsset } from './image-asset';
@@ -190,7 +190,7 @@ export class TextureCube extends SimpleTexture {
         }
         //In ios wechat mini-game platform drawImage and getImageData can not get correct data,so upload to gfxTexture than use readPixels to get data
         //The performance of upload to gfxTexture and readPixels is not good, so only use this way in the ios wechat mini-game platform
-        if (((WECHAT || WECHAT_MINI_PROGRAM) && sys.os === OS.IOS) || VIVO) {
+        if (((WECHAT || WECHAT_MINI_PROGRAM) && sys.os === OS.IOS) || VIVO || OPPO) {
             this._uploadAtlas();
             return;
         }
