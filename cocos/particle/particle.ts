@@ -68,6 +68,7 @@ export class Particle {
     public timeCounter: number;
     public distanceCounter: number;
     public bursts: SubBurst[];
+    public firstAct: boolean;
 
     constructor (particleSystem: any) {
         this.particleSystem = particleSystem;
@@ -106,6 +107,7 @@ export class Particle {
         this.timeCounter = 0;
         this.distanceCounter = 0;
         this.bursts = [];
+        this.firstAct = true;
     }
 
     public reset () {
@@ -126,6 +128,7 @@ export class Particle {
         this.animatedSize = new Vec3(1, 1, 1);
         this.animatedColor.set(255, 255, 255, 255);
         this.bursts = [];
+        this.firstAct = true;
     }
 }
 

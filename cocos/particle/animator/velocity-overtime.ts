@@ -243,6 +243,10 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     }
 
     public animate (p: Particle, dt: number) {
+        if (p.firstAct) {
+            return;
+        }
+
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const vel = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET))!);
         if (this.needTransform) {

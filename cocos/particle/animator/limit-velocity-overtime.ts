@@ -195,6 +195,10 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     }
 
     public animate (p: Particle, dt: number) {
+        if (p.firstAct) {
+            return;
+        }
+
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
 
         animatedVelocity.set(p.animatedVelocity);

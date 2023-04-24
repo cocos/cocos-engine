@@ -1973,18 +1973,6 @@ export class ParticleSystem extends ModelRenderer {
             this._trigged = true;
             this.processor.setNewParticle(particle);
 
-            if (!this.processor.getModel()?.scene) {
-                this.processor.attachToScene();
-                this.processor.updateRenderData();
-            }
-            if (this._trailModule && this._trailModule.enable) {
-                this._trailModule.animate(particle, i * dd);
-                if (!this._trailModule.getModel()?.scene) {
-                    this._trailModule._attachToScene();
-                    this._trailModule.updateRenderData();
-                }
-            }
-
             if (parentParticle) {
                 const cpuPro: ParticleSystemRendererCPU = this.processor as ParticleSystemRendererCPU;
                 // @ts-expect-error private property access

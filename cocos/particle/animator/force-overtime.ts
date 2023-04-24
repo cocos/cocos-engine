@@ -112,6 +112,10 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     }
 
     public animate (p, dt) {
+        if (p.firstAct) {
+            return;
+        }
+
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const force = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!);
         if (this.needTransform) {
