@@ -199,7 +199,7 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
     || window.oRequestAnimationFrame
     || window.msRequestAnimationFrame;
 
-    if (raf === undefined) {
+    if (raf === undefined || globalThis.__globalXR?.isWebXR) {
         return setTimeout(callback, delay, ...args);
     }
 
@@ -226,7 +226,7 @@ export function clearTimeoutRAF (id) {
     || window.mozRequestAnimationFrame
     || window.oRequestAnimationFrame
     || window.msRequestAnimationFrame;
-    if (raf === undefined) {
+    if (raf === undefined || globalThis.__globalXR?.isWebXR) {
         clearTimeout(id);
     } else {
         cancelAnimationFrame(id);

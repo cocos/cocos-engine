@@ -52,6 +52,7 @@ vec3 CCSurfacesGetSpecularColor(in SurfacesMaterialData surfaceData)
 }
 void CCSurfacesLightingInitializeColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, inout vec3 specularColorWithEnvLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)
 {
+  diffuseColorWithLighting = vec3(0.0);
   specularColorWithEnvLighting = specularColorWithLighting = surfaceData.specular.xyz * surfaceData.baseStep;
 }
 void CCSurfacesLightingCalculateColorWithLighting(inout vec3 diffuseColorWithLighting, inout vec3 specularColorWithLighting, inout vec3 specularColorWithEnvLighting, in SurfacesMaterialData surfaceData, in LightingIntermediateData lightingData)

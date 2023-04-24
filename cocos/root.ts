@@ -25,7 +25,7 @@
 import { Pool, cclegacy, warnID, settings, Settings, macro } from './core';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './rendering';
 import { DebugView } from './rendering/debug-view';
-import { Camera, CameraType, Light, Model } from './render-scene/scene';
+import { Camera, CameraType, Light, Model, TrackingType } from './render-scene/scene';
 import type { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { LightType } from './render-scene/scene/light';
 import { IRenderSceneInfo, RenderScene } from './render-scene/core/render-scene';
@@ -38,7 +38,7 @@ import { Pipeline, PipelineRuntime } from './rendering/custom/pipeline';
 import { Batcher2D } from './2d/renderer/batcher-2d';
 import { IPipelineEvent } from './rendering/pipeline-event';
 import { localDescriptorSetLayout_ResizeMaxJoints, UBOCamera, UBOGlobal, UBOLocal, UBOShadow, UBOWorldBound } from './rendering/define';
-import { XREye } from './xr/xr-enums';
+import { XREye, XRPoseType } from './xr/xr-enums';
 
 /**
  * @en Initialization information for the Root
@@ -700,15 +700,38 @@ export class Root {
             xr.webXRWindowMap = new Map<RenderWindow, number>();
         }
 
+        let allcameras: Camera[] = [];
+        const webxrHmdPoseInfos = xr.webxrHmdPoseInfos;
         for (let xrEye = 0; xrEye < viewCount; xrEye++) {
-            this._frameMoveBegin();
-
-            for (let i = 0; i < windows.length; i++) {
-                const window = windows[i];
+            for (const window of windows) {
+                allcameras = allcameras.concat(window.cameras);
                 if (window.swapchain) {
                     xr.webXRWindowMap.set(window, xrEye);
                 }
             }
+
+            if (webxrHmdPoseInfos) {
+                const cameraPosition: number[] = [];
+                for (let i = 0; i < webxrHmdPoseInfos.length; i++) {
+                    const info = webxrHmdPoseInfos[i];
+                    if ((info.code === XRPoseType.VIEW_LEFT && xrEye === XREye.LEFT)
+                    || (info.code === XRPoseType.VIEW_RIGHT && xrEye === XREye.RIGHT)) {
+                        cameraPosition[0] = info.position.x;
+                        cameraPosition[1] = info.position.y;
+                        cameraPosition[2] = info.position.z;
+                        break;
+                    }
+                }
+
+                for (const cam of allcameras) {
+                    if (cam.trackingType !== TrackingType.NO_TRACKING && cam.node) {
+                        cam.node.setPosition(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+                    }
+                }
+            }
+            allcameras.length = 0;
+
+            this._frameMoveBegin();
 
             this._frameMoveProcess();
 
