@@ -5348,6 +5348,94 @@ static bool js_cc_render_Pipeline_addShadingRateTexture__SWIG_0(se::State& s)
     return true;
 }
 
+static bool js_cc_render_Pipeline_addCustomBuffer(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    gfx::BufferInfo *arg3 = 0 ;
+    std::string *arg4 = 0 ;
+    ccstd::string temp2 ;
+    gfx::BufferInfo temp3 ;
+    std::string temp4 ;
+    uint32_t result;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg3 = &temp3;
+    
+    
+    ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg4 = &temp4;
+    
+    result = (arg1)->addCustomBuffer((ccstd::string const &)*arg2,(gfx::BufferInfo const &)*arg3,(std::string const &)*arg4);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_addCustomBuffer) 
+
+static bool js_cc_render_Pipeline_addCustomTexture(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    gfx::TextureInfo *arg3 = 0 ;
+    std::string *arg4 = 0 ;
+    ccstd::string temp2 ;
+    gfx::TextureInfo temp3 ;
+    std::string temp4 ;
+    uint32_t result;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg3 = &temp3;
+    
+    
+    ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg4 = &temp4;
+    
+    result = (arg1)->addCustomTexture((ccstd::string const &)*arg2,(gfx::TextureInfo const &)*arg3,(std::string const &)*arg4);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_addCustomTexture) 
+
 static bool js_cc_render_Pipeline_updateStorageBuffer__SWIG_0(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -6344,6 +6432,8 @@ bool js_register_cc_render_Pipeline(se::Object* obj) {
     cls->defineFunction("addRenderTexture", _SE(js_cc_render_Pipeline_addRenderTexture)); 
     cls->defineFunction("addRenderWindow", _SE(js_cc_render_Pipeline_addRenderWindow)); 
     cls->defineFunction("updateRenderWindow", _SE(js_cc_render_Pipeline_updateRenderWindow)); 
+    cls->defineFunction("addCustomBuffer", _SE(js_cc_render_Pipeline_addCustomBuffer)); 
+    cls->defineFunction("addCustomTexture", _SE(js_cc_render_Pipeline_addCustomTexture)); 
     cls->defineFunction("updateShadingRateTexture", _SE(js_cc_render_Pipeline_updateShadingRateTexture)); 
     cls->defineFunction("beginFrame", _SE(js_cc_render_Pipeline_beginFrame)); 
     cls->defineFunction("endFrame", _SE(js_cc_render_Pipeline_endFrame)); 
