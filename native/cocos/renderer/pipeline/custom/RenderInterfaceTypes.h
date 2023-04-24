@@ -205,6 +205,10 @@ public:
     virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) = 0;
     virtual bool getShowStatistics() const = 0;
     virtual void setShowStatistics(bool enable) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
         addRenderTarget(name, accessType, slotName, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, {});
     }
@@ -275,6 +279,10 @@ public:
      */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     ComputeQueueBuilder *addQueue() {
         return addQueue("");
     }
@@ -319,6 +327,10 @@ public:
     virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
     virtual bool getShowStatistics() const = 0;
     virtual void setShowStatistics(bool enable) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) {
         addRenderTarget(name, slotName, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, {});
     }
@@ -378,6 +390,10 @@ public:
      */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     ComputeQueueBuilder *addQueue() {
         return addQueue("");
     }

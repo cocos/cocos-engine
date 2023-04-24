@@ -173,7 +173,8 @@ void addRenderTargetImpl(
             loadOp,
             storeOp,
             gfx::ClearFlagBit::COLOR,
-            color));
+            color,
+            gfx::ShaderStageFlagBit::NONE));
     CC_ENSURES(res.second);
     res.first->second.slotID = slotID;
 }
@@ -207,7 +208,8 @@ void addDepthStencilImpl(
             loadOp,
             storeOp,
             clearFlags,
-            gfx::Color{depth, static_cast<float>(stencil), 0, 0}));
+            gfx::Color{depth, static_cast<float>(stencil), 0, 0},
+            gfx::ShaderStageFlagBit::NONE));
     CC_ENSURES(res.second);
     res.first->second.slotID = slotID;
 }
@@ -262,6 +264,7 @@ void NativeRasterPassBuilder::addTexture(const ccstd::string &name, const ccstd:
             gfx::ClearFlagBit::NONE,
             gfx::Color{},
             ClearValueType::FLOAT_TYPE,
+            gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
@@ -274,6 +277,7 @@ void NativeRasterPassBuilder::addStorageBuffer(const ccstd::string &name, Access
             gfx::ClearFlagBit::NONE,
             gfx::Color{},
             ClearValueType::FLOAT_TYPE,
+            gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
@@ -286,7 +290,28 @@ void NativeRasterPassBuilder::addStorageImage(const ccstd::string &name, AccessT
             gfx::ClearFlagBit::NONE,
             gfx::Color{},
             ClearValueType::FLOAT_TYPE,
+            gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+}
+
+void NativeRasterPassBuilder::setCustomShaderStages(
+    const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) {
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    {
+        auto iter = pass.rasterViews.find(std::string_view{name});
+        if (iter != pass.rasterViews.end()) {
+            auto &view = iter->second;
+            view.shaderStageFlags = stageFlags;
+        }
+    }
+    {
+        auto iter = pass.computeViews.find(std::string_view{name});
+        if (iter != pass.computeViews.end()) {
+            for (auto &view : iter->second) {
+                view.shaderStageFlags = stageFlags;
+            }
+        }
+    }
 }
 
 void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
@@ -361,7 +386,8 @@ void addRasterViewImpl(
                 loadOp,
                 storeOp,
                 clearFlags,
-                clearColor));
+                clearColor,
+                gfx::ShaderStageFlagBit::NONE));
         CC_ENSURES(res.second);
         res.first->second.slotID = slotID;
     }
@@ -376,7 +402,8 @@ void addRasterViewImpl(
                 loadOp,
                 storeOp,
                 clearFlags,
-                clearColor));
+                clearColor,
+                gfx::ShaderStageFlagBit::NONE));
         CC_ENSURES(res.second);
         res.first->second.slotID = slotID;
     }
@@ -477,6 +504,7 @@ void NativeRasterSubpassBuilder::addTexture(const ccstd::string &name, const ccs
             gfx::ClearFlagBit::NONE,
             gfx::Color{},
             ClearValueType::FLOAT_TYPE,
+            gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
@@ -489,6 +517,7 @@ void NativeRasterSubpassBuilder::addStorageBuffer(const ccstd::string &name, Acc
             gfx::ClearFlagBit::NONE,
             gfx::Color{},
             ClearValueType::FLOAT_TYPE,
+            gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
@@ -501,7 +530,63 @@ void NativeRasterSubpassBuilder::addStorageImage(const ccstd::string &name, Acce
             gfx::ClearFlagBit::NONE,
             gfx::Color{},
             ClearValueType::FLOAT_TYPE,
+            gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+}
+
+namespace {
+
+template <class Tag>
+void setSubpassResourceShaderStages(
+    RenderGraph &rg,
+    RenderGraph::vertex_descriptor subpassID,
+    std::string_view name,
+    gfx::ShaderStageFlagBit stageFlags) {
+    auto &subpass = get(Tag{}, subpassID, rg);
+    const auto passID = parent(subpassID, rg);
+    CC_EXPECTS(passID != RenderGraph::null_vertex());
+    CC_EXPECTS(holds<RasterPassTag>(passID, rg));
+    auto &pass = get(RasterPassTag{}, passID, rg);
+    CC_EXPECTS(subpass.subpassID < num_vertices(pass.subpassGraph));
+    auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
+    CC_EXPECTS(subpass.rasterViews.size() == subpassData.rasterViews.size());
+    {
+        auto iter = subpassData.rasterViews.find(name);
+        if (iter != subpassData.rasterViews.end()) {
+            auto &view = iter->second;
+            view.shaderStageFlags = stageFlags;
+        }
+    }
+    {
+        auto iter = subpassData.computeViews.find(name);
+        if (iter != subpassData.computeViews.end()) {
+            for (auto &view : iter->second) {
+                view.shaderStageFlags = stageFlags;
+            }
+        }
+    }
+    {
+        auto iter = subpass.rasterViews.find(name);
+        if (iter != subpass.rasterViews.end()) {
+            auto &view = iter->second;
+            view.shaderStageFlags = stageFlags;
+        }
+    }
+    {
+        auto iter = subpass.computeViews.find(name);
+        if (iter != subpass.computeViews.end()) {
+            for (auto &view : iter->second) {
+                view.shaderStageFlags = stageFlags;
+            }
+        }
+    }
+}
+
+} // namespace
+
+void NativeRasterSubpassBuilder::setCustomShaderStages(
+    const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) {
+    setSubpassResourceShaderStages<RasterSubpassTag>(*renderGraph, nodeID, name, stageFlags);
 }
 
 void NativeRasterSubpassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
@@ -569,6 +654,7 @@ void NativeComputeSubpassBuilder::addTexture(const ccstd::string &name, const cc
             gfx::ClearFlagBit::NONE,
             gfx::Color{},
             ClearValueType::FLOAT_TYPE,
+            gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
@@ -581,6 +667,7 @@ void NativeComputeSubpassBuilder::addStorageBuffer(const ccstd::string &name, Ac
             gfx::ClearFlagBit::NONE,
             gfx::Color{},
             ClearValueType::FLOAT_TYPE,
+            gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
@@ -593,7 +680,13 @@ void NativeComputeSubpassBuilder::addStorageImage(const ccstd::string &name, Acc
             gfx::ClearFlagBit::NONE,
             gfx::Color{},
             ClearValueType::FLOAT_TYPE,
+            gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+}
+
+void NativeComputeSubpassBuilder::setCustomShaderStages(
+    const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) {
+    setSubpassResourceShaderStages<ComputeSubpassTag>(*renderGraph, nodeID, name, stageFlags);
 }
 
 void NativeComputeSubpassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
@@ -1343,6 +1436,7 @@ void NativeComputePassBuilder::addTexture(const ccstd::string &name, const ccstd
             gfx::ClearFlagBit::NONE,
             gfx::Color{},
             ClearValueType::FLOAT_TYPE,
+            gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
@@ -1355,6 +1449,7 @@ void NativeComputePassBuilder::addStorageBuffer(const ccstd::string &name, Acces
             gfx::ClearFlagBit::NONE,
             gfx::Color{},
             ClearValueType::FLOAT_TYPE,
+            gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
@@ -1367,7 +1462,21 @@ void NativeComputePassBuilder::addStorageImage(const ccstd::string &name, Access
             gfx::ClearFlagBit::NONE,
             gfx::Color{},
             ClearValueType::FLOAT_TYPE,
+            gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+}
+
+void NativeComputePassBuilder::setCustomShaderStages(
+    const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) {
+    auto &pass = get(ComputeTag{}, nodeID, *renderGraph);
+    {
+        auto iter = pass.computeViews.find(std::string_view{name});
+        if (iter != pass.computeViews.end()) {
+            for (auto &view : iter->second) {
+                view.shaderStageFlags = stageFlags;
+            }
+        }
+    }
 }
 
 void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {

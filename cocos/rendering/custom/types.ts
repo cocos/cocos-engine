@@ -268,6 +268,7 @@ export class RasterView {
         storeOp: StoreOp = StoreOp.STORE,
         clearFlags: ClearFlagBit = ClearFlagBit.ALL,
         clearColor: Color = new Color(),
+        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
     ) {
         this.slotName = slotName;
         this.accessType = accessType;
@@ -276,6 +277,7 @@ export class RasterView {
         this.storeOp = storeOp;
         this.clearFlags = clearFlags;
         this.clearColor = clearColor;
+        this.shaderStageFlags = shaderStageFlags;
     }
     slotName: string;
     accessType: AccessType;
@@ -285,6 +287,7 @@ export class RasterView {
     clearFlags: ClearFlagBit;
     readonly clearColor: Color;
     slotID = 0;
+    shaderStageFlags: ShaderStageFlagBit;
 }
 
 export enum ClearValueType {
@@ -310,18 +313,21 @@ export class ComputeView {
         clearFlags: ClearFlagBit = ClearFlagBit.NONE,
         clearColor: Color = new Color(),
         clearValueType: ClearValueType = ClearValueType.FLOAT_TYPE,
+        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
     ) {
         this.name = name;
         this.accessType = accessType;
         this.clearFlags = clearFlags;
         this.clearColor = clearColor;
         this.clearValueType = clearValueType;
+        this.shaderStageFlags = shaderStageFlags;
     }
     name: string;
     accessType: AccessType;
     clearFlags: ClearFlagBit;
     readonly clearColor: Color;
     clearValueType: ClearValueType;
+    shaderStageFlags: ShaderStageFlagBit;
 }
 
 export class LightInfo {
@@ -493,6 +499,7 @@ export function saveRasterView (ar: OutputArchive, v: RasterView) {
     ar.writeNumber(v.clearFlags);
     saveColor(ar, v.clearColor);
     ar.writeNumber(v.slotID);
+    ar.writeNumber(v.shaderStageFlags);
 }
 
 export function loadRasterView (ar: InputArchive, v: RasterView) {
@@ -504,6 +511,7 @@ export function loadRasterView (ar: InputArchive, v: RasterView) {
     v.clearFlags = ar.readNumber();
     loadColor(ar, v.clearColor);
     v.slotID = ar.readNumber();
+    v.shaderStageFlags = ar.readNumber();
 }
 
 export function saveComputeView (ar: OutputArchive, v: ComputeView) {
@@ -512,6 +520,7 @@ export function saveComputeView (ar: OutputArchive, v: ComputeView) {
     ar.writeNumber(v.clearFlags);
     saveColor(ar, v.clearColor);
     ar.writeNumber(v.clearValueType);
+    ar.writeNumber(v.shaderStageFlags);
 }
 
 export function loadComputeView (ar: InputArchive, v: ComputeView) {
@@ -520,6 +529,7 @@ export function loadComputeView (ar: InputArchive, v: ComputeView) {
     v.clearFlags = ar.readNumber();
     loadColor(ar, v.clearColor);
     v.clearValueType = ar.readNumber();
+    v.shaderStageFlags = ar.readNumber();
 }
 
 export function saveLightInfo (ar: OutputArchive, v: LightInfo) {

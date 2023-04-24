@@ -219,6 +219,7 @@ public:
     RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) override;
     bool getShowStatistics() const override;
     void setShowStatistics(bool enable) override;
+    void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
 };
 
 class NativeComputeSubpassBuilder final : public ComputeSubpassBuilder, public NativeSetter {
@@ -279,6 +280,7 @@ public:
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
+    void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
 };
 
 class NativeRasterPassBuilder final : public RasterPassBuilder, public NativeSetter {
@@ -347,6 +349,7 @@ public:
     void setVersion(const ccstd::string &name, uint64_t version) override;
     bool getShowStatistics() const override;
     void setShowStatistics(bool enable) override;
+    void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
 };
 
 class NativeComputeQueueBuilder final : public ComputeQueueBuilder, public NativeSetter {
@@ -461,6 +464,7 @@ public:
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
+    void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
 };
 
 class NativeMovePassBuilder final : public MovePassBuilder, public NativeRenderNode {
