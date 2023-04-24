@@ -120,6 +120,8 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     }
 
     public animate (p: Particle, dt: number) {
+        this.renderMode = p.particleSystem.processor.getInfo().renderMode;
+
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
 

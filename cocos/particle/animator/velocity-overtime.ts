@@ -263,6 +263,8 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
 
         const speedMod = this.speedModifier.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!;
 
+        this.hasOrbital = this.offsetX.getMaxAbs() > 0 || this.offsetY.getMaxAbs() > 0 || this.offsetZ.getMaxAbs() > 0
+            || this.orbitX.getMaxAbs() > 0 || this.orbitY.getMaxAbs() > 0 || this.orbitZ.getMaxAbs() > 0;
         if (this.hasOrbital) {
             this.calculateOrbital(p, dt, normalizedTime, speedMod);
         }

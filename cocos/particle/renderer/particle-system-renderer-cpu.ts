@@ -446,9 +446,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             Mat4.invert(_tempWorldInv, _tempWorldTrans);
         }
 
-        for (const key in this._updateList) {
-            this._updateList[key].update(ps, ps._simulationSpace, _tempWorldTrans);
-        }
+        // for (const key in this._updateList) {
+        //     this._updateList[key].update(ps, ps._simulationSpace, _tempWorldTrans);
+        // }
 
         const trailModule = ps._trailModule;
         const trailEnable = trailModule && trailModule.enable;

@@ -243,15 +243,17 @@ export class NoiseModule extends ParticleModuleBase {
     }
 
     public update (ps: ParticleSystem, space: number, worldTransform: Mat4) {
-        this.noise.setTime(ps.time);
+
+    }
+
+    public animate (particle: Particle, dt: number) {
+        this.noise.setTime(particle.particleSystem.time);
         this.noise.setSpeed(this.noiseSpeedX, this.noiseSpeedY, this.noiseSpeedZ);
         this.noise.setFrequency(this.noiseFrequency);
         this.noise.setAbs(this.remapX, this.remapY, this.remapZ);
         this.noise.setAmplititude(this.strengthX, this.strengthY, this.strengthZ);
         this.noise.setOctaves(this.octaves, this.octaveMultiplier, this.octaveScale);
-    }
 
-    public animate (particle: Particle, dt: number) {
         this.samplePosition.set(particle.position);
         this.noise.setSamplePoint(this.samplePosition);
         this.noise.getNoiseParticle();
