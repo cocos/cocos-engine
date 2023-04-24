@@ -1120,6 +1120,7 @@ module.exports = {
         showProbe: 'The switch of showing light probe.',
         showWireframe: 'The switch of showing connection of light probe.',
         showConvex: 'The switch of showing convex of light probe.',
+        lightProbeSphereVolume: 'The value of all light probe sphere display size',
     },
     light_probe_group: {
         method: 'The automatic generation algorithm of light probe.',
