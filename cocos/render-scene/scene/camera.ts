@@ -1001,9 +1001,6 @@ export class Camera {
             const x = xr.webXRMatProjs ? 1 / xr.webXRMatProjs.length : 1;
             const wndXREye = xr.webXRWindowMap.get(this._window);
             this.setViewportInOrientedSpace(new Rect(x * wndXREye, 0, x, 1));
-            if (x === 1) {
-                xr.updateViewport = false;
-            }
         }
         // view matrix
         if (this._node.hasChangedFlags || forceUpdate) {
