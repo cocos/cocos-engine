@@ -25,7 +25,7 @@
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
 import { DEBUG } from 'internal:constants';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit } from '../../gfx';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
 import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
@@ -1274,6 +1274,12 @@ function isManaged (residency: ResourceResidency): boolean {
 export class WebPipeline implements Pipeline {
     constructor (layoutGraph: LayoutGraphData) {
         this._layoutGraph = layoutGraph;
+    }
+    addCustomBuffer (name: string, info: BufferInfo, type: string): number {
+        throw new Error('Method not implemented.');
+    }
+    addCustomTexture (name: string, info: TextureInfo, type: string): number {
+        throw new Error('Method not implemented.');
     }
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
         return this.addRenderWindow(name, format, width, height, renderWindow);

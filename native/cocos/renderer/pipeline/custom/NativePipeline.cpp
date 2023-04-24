@@ -288,6 +288,70 @@ uint32_t NativePipeline::addShadingRateTexture(const ccstd::string &name, uint32
         resourceGraph);
 }
 
+uint32_t NativePipeline::addCustomBuffer(
+    const ccstd::string &name,
+    const gfx::BufferInfo &info, const std::string &type) {
+    if (!custom.currentContext) {
+        return ResourceGraph::null_vertex();
+    }
+    auto &ctx = *custom.currentContext;
+
+    ResourceDesc desc{};
+    desc.dimension = ResourceDimension::BUFFER;
+    desc.width = info.size;
+    desc.height = 1;
+    desc.depthOrArraySize = 1;
+    desc.mipLevels = 1;
+    desc.format = gfx::Format::UNKNOWN;
+    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.textureFlags = gfx::TextureFlagBit::NONE;
+    desc.flags = ResourceFlags::NONE;
+
+    auto ptr = ctx.createCustomBuffer(type, info);
+
+    return addVertex(
+        PersistentBufferTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(ptr)),
+        resourceGraph);
+}
+
+uint32_t NativePipeline::addCustomTexture(
+    const ccstd::string &name,
+    const gfx::TextureInfo &info, const std::string &type) {
+    if (!custom.currentContext) {
+        return ResourceGraph::null_vertex();
+    }
+    auto &ctx = *custom.currentContext;
+
+    ResourceDesc desc{};
+    desc.dimension = ResourceDimension::TEXTURE2D;
+    desc.width = info.width;
+    desc.height = info.height;
+    desc.depthOrArraySize = info.layerCount;
+    desc.mipLevels = info.levelCount;
+    desc.format = info.format;
+    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.textureFlags = info.flags;
+    desc.flags = ResourceFlags::NONE;
+
+    auto ptr = ctx.createCustomTexture(type, info);
+
+    return addVertex(
+        PersistentTextureTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(ptr)),
+        resourceGraph);
+}
+
 void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) {
     auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
     if (resID == ResourceGraph::null_vertex()) {

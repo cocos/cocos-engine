@@ -53,6 +53,8 @@ class CustomPipelineContext : public Customization {
 public:
     CustomPipelineContext() noexcept = default;
 
+    virtual IntrusivePtr<gfx::Buffer> createCustomBuffer(std::string_view type, const gfx::BufferInfo &info) = 0;
+    virtual IntrusivePtr<gfx::Texture> createCustomTexture(std::string_view type, const gfx::TextureInfo &info) = 0;
     virtual void destroy() noexcept = 0;
 };
 
