@@ -1,20 +1,22 @@
-globalThis.__wxRequire = require;  // FIX: require cannot work in separate engine 
+globalThis.__wxRequire = require;
 var GameGlobal = getApp().GameGlobal;
 Page({
     onReady() {
+        GameGlobal.indexThis = this;
         const query = wx.createSelectorQuery()
-        query.select('#myCanvas').node().exec((res) => {
-            // require('./miniapp-adapter');
+        query.select('#myCanvas').node().exec(async (res) => {
             const canvas = res[0].node;
             let width = canvas.width;
             let height = canvas.height;
-    
             const adapter = require('./miniapp-adapter');
             adapter.adapt(canvas, width, height);
             require('./web-adapter');
-
             const firstScreen = require('./first-screen'); 
             <%- include(cocosTemplate, {}) %>
+            const loader = require('load-module.js');
+            await loader.loadModules();
+
+            require('./application.js');
             // Adjust initial canvas size
             if (canvas && GameGlobal.devicePixelRatio >= 2) {
                 canvas.width *= 2; canvas.height *= 2;
@@ -25,17 +27,17 @@ Page({
             System.warmup({
                 importMap,
                 importMapUrl: '<%= importMapFile%>',
-                defaultHandler: (urlNoSchema) => {
-                    require('.' + urlNoSchema);
-                },
-                handlers: {
-                    'plugin:': (urlNoSchema) => {
-                        requirePlugin(urlNoSchema);
-                    },
-                    'project:': (urlNoSchema) => {
-                        require(urlNoSchema);
-                    },
-                },
+                // defaultHandler: (urlNoSchema) => {
+                //     require('.' + urlNoSchema);
+                // },
+                // handlers: {
+                //     'plugin:': (urlNoSchema) => {
+                //         requirePlugin(urlNoSchema);
+                //     },
+                //     'project:': (urlNoSchema) => {
+                //         require(urlNoSchema);
+                //     },
+                // },
             });
 
             firstScreen.start('<%= alpha %>', '<%= antialias %>', '<%= useWebgl2 %>').then(() => {
@@ -64,6 +66,20 @@ Page({
             }
 
         })
+    },
+
+    onKeyboardInput: function (event) {
+        GameGlobal._onKeyboardInput && GameGlobal._onKeyboardInput(event);
+    },
+
+    onKeyboardConfirm: function (event) {
+        console.log(event.detail.value);
+        GameGlobal._onKeyboardConfirm && GameGlobal._onKeyboardConfirm(event);
+    },
+
+    onKeyboardComplete: function (event) {
+        console.log(event.detail.value);
+        GameGlobal._onKeyboardComplete && GameGlobal._onKeyboardComplete(event);
     },
 
     touchStart(event) {

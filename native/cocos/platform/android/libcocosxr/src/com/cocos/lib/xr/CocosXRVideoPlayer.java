@@ -30,8 +30,10 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
@@ -135,6 +137,11 @@ public class CocosXRVideoPlayer {
         }
         this.videoSourceType = data.videoSourceType;
         this.videoSourceUrl = data.videoSourceUrl;
+        if(TextUtils.isEmpty(this.videoSourceUrl)) {
+            Log.w(TAG, "prepare failed, because video source is empty !!!");
+            return;
+        }
+
         try {
             if (data.videoSourceType == CocosXRVideoManager.VIDEO_SOURCE_TYPE_LOCAL) {
                 AssetFileDescriptor afd = atyWeakReference.get().getResources().getAssets().openFd(data.videoSourceUrl);

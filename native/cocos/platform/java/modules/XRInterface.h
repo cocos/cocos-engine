@@ -100,6 +100,7 @@ public:
     void bindXREyeWithRenderWindow(void *window, xr::XREye eye) override;
     void handleAppCommand(int appCmd) override;
     void adaptOrthographicMatrix(cc::scene::Camera *camera, const ccstd::array<float, 4> &preTransform, Mat4 &proj, Mat4 &view) override;
+
 private:
     void loadImageTrackingData(const std::string &imageInfo);
     void asyncLoadAssetsImage(const std::string &imagePath);
@@ -133,6 +134,7 @@ private:
 #endif
     LegacyThreadPool *_gThreadPool{nullptr};
     bool _isFlipPixelY{false};
+    bool _isEnabledEyeRenderJsCallback{false};
 };
 
 } // namespace cc

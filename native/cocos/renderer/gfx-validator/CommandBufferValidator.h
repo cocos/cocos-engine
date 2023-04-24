@@ -57,6 +57,7 @@ public:
     void updateBuffer(Buffer *buff, const void *data, uint32_t size) override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) override;
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
+    void copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override;
     void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
@@ -64,6 +65,7 @@ public:
     void endQuery(QueryPool *queryPool, uint32_t id) override;
     void resetQueryPool(QueryPool *queryPool) override;
     void completeQueryPool(QueryPool *queryPool) override;
+    void customCommand(CustomCommand &&cmd) override;
 
     uint32_t getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
     uint32_t getNumInstances() const override { return _actor->getNumInstances(); }

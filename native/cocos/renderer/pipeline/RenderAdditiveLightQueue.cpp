@@ -39,12 +39,12 @@
 #include "scene/DirectionalLight.h"
 #include "scene/Light.h"
 #include "scene/Pass.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
-#include "scene/PointLight.h"
-#include "scene/RangedDirectionalLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -139,6 +139,8 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
             const auto lightPassIdx = lightPassIndices[i];
             if (lightPassIdx == UINT_MAX) continue;
             auto *pass = subModel->getPass(lightPassIdx);
+            if (pass == nullptr) continue;
+
             const bool isTransparent = subModel->getPass(0)->getBlendState()->targets[0].blend;
             if (isTransparent) {
                 continue;
@@ -539,10 +541,10 @@ void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
                 isCulled = cullSpotLight(static_cast<const scene::SpotLight *>(light), model);
                 break;
             case scene::LightType::POINT:
-                   isCulled = cullSphereLight(static_cast<const scene::SphereLight *>(light), model);
+                isCulled = cullSphereLight(static_cast<const scene::SphereLight *>(light), model);
                 break;
             case scene::LightType::RANGED_DIRECTIONAL:
-                   isCulled = cullRangedDirLight(static_cast<const scene::RangedDirectionalLight *>(light), model);
+                isCulled = cullRangedDirLight(static_cast<const scene::RangedDirectionalLight *>(light), model);
                 break;
             default:
                 isCulled = false;

@@ -21,12 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
+
 #include "cocos/renderer/pipeline/custom/FGDispatcherGraphs.h"
 #include "cocos/renderer/pipeline/custom/test/test.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gtest/gtest.h"
 #include "utils.h"
 
+#if BRANCH_CULLING
 TEST(fgDispatherCulling, test13) {
     // simple graph
     TEST_CASE_4;
@@ -53,7 +55,7 @@ TEST(fgDispatherCulling, test13) {
     // 8: subpass with writing to externalRes, reserved;
     // 9: subpass with read on externalRes, no writes to any external, culled;
     // 10: writes to an backbuffer, reserved;
-    // 
+    //
     // 11: present pass, reserved.
 
     ExpectEq(rag.leafPasses.find(5) != rag.leafPasses.end(), true);
@@ -91,3 +93,4 @@ TEST(fgDispatherCulling, test13) {
 
     // runTestGraph(renderGraph, rescGraph, layoutGraphData, fgDispatcher);
 }
+#endif

@@ -80,3 +80,45 @@ export enum XRConfigKey {
      */
     SPLIT_AR_GLASSES = 42
 }
+
+/**
+ * @en XR Pose Type Enum.
+ * @zh XR姿态类型枚举。
+ */
+export enum XRPoseType {
+    /**
+     * @en The pose for left eye.
+     * @zh 左眼姿态。
+     */
+    VIEW_LEFT = 0,
+    /**
+     * @en The pose for left controller.
+     * @zh 左手柄姿态。
+     */
+    HAND_LEFT = 1,
+    /**
+     * @en The pose for left controller's aim.
+     * @zh 左手柄瞄准方向姿态。
+     */
+    AIM_LEFT = 2,
+    /**
+     * @en The pose for right eye.
+     * @zh 右眼姿态。
+     */
+    VIEW_RIGHT = 3,
+    /**
+     * @en The pose for right controller.
+     * @zh 右手柄姿态。
+     */
+    HAND_RIGHT = 4,
+    /**
+     * @en The pose for right controller's aim.
+     * @zh 右手柄瞄准方向姿态。
+     */
+    AIM_RIGHT = 5,
+    /**
+     * @en The pose for head.
+     * @zh 头部姿态。
+     */
+    HEAD_MIDDLE = 6,
+}

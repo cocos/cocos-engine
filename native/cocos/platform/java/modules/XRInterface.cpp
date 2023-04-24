@@ -27,20 +27,20 @@
 #include <unistd.h>
 #include <functional>
 #include <unordered_map>
-#include "cocos-version.h"
 #include "android/AndroidPlatform.h"
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "base/StringUtil.h"
 #include "bindings/event/EventDispatcher.h"
+#include "cocos-version.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
+#include "core/scene-graph/Node.h"
 #include "java/jni/JniHelper.h"
-#include "renderer/GFXDeviceManager.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "renderer/GFXDeviceManager.h"
 #include "scene/Camera.h"
 #include "scene/RenderWindow.h"
-#include "core/scene-graph/Node.h"
 #ifdef CC_USE_VULKAN
     #include "gfx-vulkan/VKDevice.h"
 #endif
@@ -472,7 +472,7 @@ void XRInterface::initialize(void *javaVM, void *activity) {
                 _gThreadPool = LegacyThreadPool::newSingleThreadPool();
             }
             _gThreadPool->pushTask([imagePath, this](int /*tid*/) {
-              this->asyncLoadAssetsImage(imagePath);
+                this->asyncLoadAssetsImage(imagePath);
             });
         } else if (key == xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE && value.isInt()) {
             _isFlipPixelY = value.getInt() == static_cast<int>(gfx::API::GLES3);
@@ -801,6 +801,7 @@ bool XRInterface::platformLoopStart() {
 bool XRInterface::beginRenderFrame() {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] beginRenderFrame.%d", _committedFrame);
+    _isEnabledEyeRenderJsCallback = xr::XrEntry::getInstance()->getXRConfig(xr::XRConfigKey::EYE_RENDER_JS_CALLBACK).getBool();
     if (gfx::DeviceAgent::getInstance()) {
         static uint64_t frameId = 0;
         frameId++;
@@ -846,6 +847,11 @@ bool XRInterface::isRenderAllowable() {
 bool XRInterface::beginRenderEyeFrame(uint32_t eye) {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] beginRenderEyeFrame %d", eye);
+    if (_isEnabledEyeRenderJsCallback) {
+        se::ValueArray args;
+        args.emplace_back(se::Value(eye));
+        EventDispatcher::doDispatchJsEvent("onXREyeRenderBegin", args);
+    }
     if (gfx::DeviceAgent::getInstance()) {
         ENQUEUE_MESSAGE_1(gfx::DeviceAgent::getInstance()->getMessageQueue(),
                           BeginRenderEyeFrame, eye, eye,
@@ -865,6 +871,11 @@ bool XRInterface::beginRenderEyeFrame(uint32_t eye) {
 bool XRInterface::endRenderEyeFrame(uint32_t eye) {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] endRenderEyeFrame %d", eye);
+    if (_isEnabledEyeRenderJsCallback) {
+        se::ValueArray args;
+        args.emplace_back(se::Value(eye));
+        EventDispatcher::doDispatchJsEvent("onXREyeRenderEnd", args);
+    }
     if (gfx::DeviceAgent::getInstance()) {
         ENQUEUE_MESSAGE_1(gfx::DeviceAgent::getInstance()->getMessageQueue(),
                           EndRenderEyeFrame, eye, eye,
@@ -1143,7 +1154,7 @@ void XRInterface::asyncLoadAssetsImage(const std::string &imagePath) {
         }
     } else {
         buffer = new uint8_t[bufferSize];
-        if(_isFlipPixelY) {
+        if (_isFlipPixelY) {
             for (uint32_t y = 0; y < imageHeight; y++) {
                 for (uint32_t x = 0; x < imageWidth; x++) {
                     const unsigned int pixel = x + y * imageWidth;
@@ -1168,28 +1179,28 @@ void XRInterface::asyncLoadAssetsImage(const std::string &imagePath) {
     auto engine = app->getEngine();
     CC_ASSERT_NOT_NULL(engine);
     engine->getScheduler()->performFunctionInCocosThread([=]() {
-      auto *imageData = new xr::XRTrackingImageData();
-      imageData->friendlyName = imagePath;
-      imageData->bufferSize = bufferSize;
-      imageData->buffer = buffer;
-      imageData->pixelSizeWidth = imageWidth;
-      imageData->pixelSizeHeight = imageHeight;
-      if (!this->getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer()) {
-          auto *imagesMapPtr = new std::unordered_map<std::string, void *>();
-          (*imagesMapPtr).emplace(std::make_pair(imagePath, static_cast<void *>(imageData)));
-          this->setXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS, static_cast<void *>(imagesMapPtr));
-      } else {
-          auto *imagesMapPtr = static_cast<std::unordered_map<std::string,
-                                                              void *> *>(getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer());
-          (*imagesMapPtr).emplace(std::make_pair(imagePath, static_cast<void *>(imageData)));
-      }
+        auto *imageData = new xr::XRTrackingImageData();
+        imageData->friendlyName = imagePath;
+        imageData->bufferSize = bufferSize;
+        imageData->buffer = buffer;
+        imageData->pixelSizeWidth = imageWidth;
+        imageData->pixelSizeHeight = imageHeight;
+        if (!this->getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer()) {
+            auto *imagesMapPtr = new std::unordered_map<std::string, void *>();
+            (*imagesMapPtr).emplace(std::make_pair(imagePath, static_cast<void *>(imageData)));
+            this->setXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS, static_cast<void *>(imagesMapPtr));
+        } else {
+            auto *imagesMapPtr = static_cast<std::unordered_map<std::string,
+                                                                void *> *>(getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer());
+            (*imagesMapPtr).emplace(std::make_pair(imagePath, static_cast<void *>(imageData)));
+        }
     });
     assetsImage->release();
 }
 
 #if CC_USE_XR
 
-extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onAdbCmd(JNIEnv * /*env*/, jobject  /*thiz*/, jstring key, jstring value) {
+extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onAdbCmd(JNIEnv * /*env*/, jobject /*thiz*/, jstring key, jstring value) {
     auto cmdKey = cc::JniHelper::jstring2string(key);
     auto cmdValue = cc::JniHelper::jstring2string(value);
     if (IS_ENABLE_XR_LOG) {
@@ -1198,7 +1209,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onAdbCmd(JNIE
     cc::xr::XrEntry::getInstance()->setXRConfig(cc::xr::XRConfigKey::ADB_COMMAND, cmdKey.append(":").append(cmdValue));
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onActivityLifecycleCallback(JNIEnv * /*env*/, jobject  /*thiz*/, jint type, jstring activityClassName) {
+extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onActivityLifecycleCallback(JNIEnv * /*env*/, jobject /*thiz*/, jint type, jstring activityClassName) {
     auto name = cc::JniHelper::jstring2string(activityClassName);
     if (IS_ENABLE_XR_LOG) {
         CC_LOG_INFO("CocosXRApi_onActivityLifecycleCallback_%d_%s", type, name.c_str());

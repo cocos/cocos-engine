@@ -82,6 +82,8 @@ public class CocosActivity extends GameActivity {
         setImmersiveMode();
 
         Utils.hideVirtualButton();
+
+        mSurfaceView.setOnTouchListener((v, event) -> onTouchEventNative(getGameActivityNativeHandle(), event));
     }
 
     private void setImmersiveMode() {

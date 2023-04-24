@@ -44,6 +44,7 @@ void GLES3PipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
     _gpuPipelineLayout = ccnew GLES3GPUPipelineLayout;
 
     uint32_t offset = 0U;
+    auto &hash = _gpuPipelineLayout->hash;
     _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());
     for (uint32_t i = 0U; i < _setLayouts.size(); i++) {
         DescriptorSetLayout *setLayout = _setLayouts[i];
@@ -59,6 +60,8 @@ void GLES3PipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
         _gpuPipelineLayout->dynamicOffsetOffsets.push_back(static_cast<uint32_t>(offset));
         _gpuPipelineLayout->setLayouts.push_back(gpuSetLayout);
         offset += dynamicCount;
+
+        ccstd::hash_combine(hash, gpuSetLayout->hash);
     }
     _gpuPipelineLayout->dynamicOffsetOffsets.push_back(static_cast<uint32_t>(offset));
     _gpuPipelineLayout->dynamicOffsetCount = static_cast<uint32_t>(offset);
