@@ -23,6 +23,11 @@ App({
     _touchMove: undefined,
     _touchEnd: undefined,
     _touchCancel: undefined,
+    showInput: false,
+    indexThis: undefined,
+    _onKeyboardInput: undefined,
+    _onKeyboardConfirm: undefined,
+    _onKeyboardComplete: undefined,
   },
   onLaunch() {
   },

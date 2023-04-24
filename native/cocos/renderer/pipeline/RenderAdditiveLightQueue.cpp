@@ -39,12 +39,12 @@
 #include "scene/DirectionalLight.h"
 #include "scene/Light.h"
 #include "scene/Pass.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
-#include "scene/PointLight.h"
-#include "scene/RangedDirectionalLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -139,6 +139,8 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
             const auto lightPassIdx = lightPassIndices[i];
             if (lightPassIdx == UINT_MAX) continue;
             auto *pass = subModel->getPass(lightPassIdx);
+            if (pass == nullptr) continue;
+
             const bool isTransparent = subModel->getPass(0)->getBlendState()->targets[0].blend;
             if (isTransparent) {
                 continue;
@@ -429,7 +431,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 float shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, 1.0F, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(float) * 4);
 
-                float shadowLPNNInfos[4] = {2.0F, packing, 0.0F, 0.0F};
+                float shadowLPNNInfos[4] = {static_cast<float>(scene::LightType::SPHERE), packing, 0.0F, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
             } break;
             case scene::LightType::SPOT: {
@@ -461,7 +463,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 float shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, spotLight->getShadowPcf(), spotLight->getShadowBias()};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
 
-                float shadowLPNNInfos[4] = {1.0F, packing, spotLight->getShadowNormalBias(), 0.0F};
+                float shadowLPNNInfos[4] = {static_cast<float>(scene::LightType::SPOT), packing, spotLight->getShadowNormalBias(), 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
 
                 float shadowInvProjDepthInfos[4] = {matShadowInvProj.m[10], matShadowInvProj.m[14], matShadowInvProj.m[11], matShadowInvProj.m[15]};
@@ -493,7 +495,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 float shadowWHPBInfos[4] = {shadowSize.x, shadowSize.y, 1.0F, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(float) * 4);
 
-                float shadowLPNNInfos[4] = {2.0F, packing, 0.0F, 0.0F};
+                float shadowLPNNInfos[4] = {static_cast<float>(scene::LightType::POINT), packing, 0.0F, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
             } break;
             default:
@@ -539,10 +541,10 @@ void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
                 isCulled = cullSpotLight(static_cast<const scene::SpotLight *>(light), model);
                 break;
             case scene::LightType::POINT:
-                   isCulled = cullSphereLight(static_cast<const scene::SphereLight *>(light), model);
+                isCulled = cullSphereLight(static_cast<const scene::SphereLight *>(light), model);
                 break;
             case scene::LightType::RANGED_DIRECTIONAL:
-                   isCulled = cullRangedDirLight(static_cast<const scene::RangedDirectionalLight *>(light), model);
+                isCulled = cullRangedDirLight(static_cast<const scene::RangedDirectionalLight *>(light), model);
                 break;
             default:
                 isCulled = false;

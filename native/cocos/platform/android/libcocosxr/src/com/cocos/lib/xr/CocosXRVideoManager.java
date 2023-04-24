@@ -42,6 +42,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -156,9 +157,9 @@ public class CocosXRVideoManager {
     final String XR_VIDEO_EVENT_TAG = "xr-event";
 
     HashMap<String, CocosXRVideoPlayer> xrVideoPlayerHashMap = new HashMap<>();
+    HashMap<String, ArrayList<String>> cachedScriptEventHashMap = new HashMap<>();
     CocosXRVideoGLThread videoGLThread = null;
     boolean isPaused = false;
-
     public void onCreate(Activity activity) {
         activityWeakReference = new WeakReference<>(activity);
         for (int i = 0; i < MAX_COUNT; i++) {
@@ -180,6 +181,16 @@ public class CocosXRVideoManager {
         if(videoGLThread != null) {
             videoGLThread.onResume();
         }
+        Set<Map.Entry<String, ArrayList<String>>> entrySets = cachedScriptEventHashMap.entrySet();
+        for (Map.Entry<String, ArrayList<String>> entrySet : entrySets) {
+            if (entrySet.getKey() != null && entrySet.getValue() != null) {
+                for (String data : entrySet.getValue()) {
+                    Log.d(TAG, "onResume.dispatchEventToScript:" + entrySet.getKey() + ":" + data);
+                    JsbBridgeWrapper.getInstance().dispatchEventToScript(entrySet.getKey(), data);
+                }
+            }
+        }
+        cachedScriptEventHashMap.clear();
     }
 
     public void onPause() {
@@ -211,7 +222,11 @@ public class CocosXRVideoManager {
 
         if(videoGLThread == null) return;
         if(isPaused) {
-            Log.e(TAG, "sendVideoEvent failed, because is paused !!!");
+            Log.e(TAG, "sendVideoEvent failed, because is paused !!! [" + data + "]");
+            if (!cachedScriptEventHashMap.containsKey(eventName)) {
+                cachedScriptEventHashMap.put(eventName, new ArrayList<>());
+            }
+            Objects.requireNonNull(cachedScriptEventHashMap.get(eventName)).add(data.toString());
             return;
         }
         JsbBridgeWrapper.getInstance().dispatchEventToScript(eventName, data.toString());
@@ -234,41 +249,41 @@ public class CocosXRVideoManager {
                 videoGLThread.start();
             }
         } else if (videoEventData.eventId == VIDEO_EVENT_PLAY) {
-            xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).play();
+            Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).play();
         } else if (videoEventData.eventId == VIDEO_EVENT_PAUSE) {
-            xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).pause();
+            Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).pause();
         } else if (videoEventData.eventId == VIDEO_EVENT_STOP) {
-            xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).stop();
+            Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).stop();
         } else if (videoEventData.eventId == VIDEO_EVENT_RESET) {
-            xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).reset();
+            Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).reset();
         } else if (videoEventData.eventId == VIDEO_EVENT_DESTROY) {
-            xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).release();
+            Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).release();
             videoGLThread.queueEvent(() -> {
-                xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).onGLDestroy();
+                Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).onGLDestroy();
                 xrVideoPlayerHashMap.remove(videoEventData.videoPlayerHandleKey);
             });
         } else if (videoEventData.eventId == VIDEO_EVENT_GET_POSITION) {
-            int position = xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).getCurrentPosition();
+            int position = Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).getCurrentPosition();
             sendVideoEvent(videoEventData, String.valueOf(position));
         } else if (videoEventData.eventId == VIDEO_EVENT_GET_DURATION) {
-            int duration = xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).getDuration();
+            int duration = Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).getDuration();
             sendVideoEvent(videoEventData, String.valueOf(duration));
         } else if (videoEventData.eventId == VIDEO_EVENT_GET_IS_PALYING) {
-            boolean isPlaying = xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).isPlaying();
+            boolean isPlaying = Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).isPlaying();
             sendVideoEvent(videoEventData, String.valueOf(isPlaying));
         } else if (videoEventData.eventId == VIDEO_EVENT_GET_IS_LOOPING) {
-            boolean isLooping = xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).isLooping();
+            boolean isLooping = Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).isLooping();
             sendVideoEvent(videoEventData, String.valueOf(isLooping));
         } else if (videoEventData.eventId == VIDEO_EVENT_SET_LOOP) {
-            xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).setLooping(videoEventData.isLoop);
+            Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).setLooping(videoEventData.isLoop);
         } else if (videoEventData.eventId == VIDEO_EVENT_SEEK_TO) {
-            xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).seekTo(videoEventData.seekToMsec);
+            Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).seekTo(videoEventData.seekToMsec);
         } else if(videoEventData.eventId == VIDEO_EVENT_SET_VOLUME) {
-            xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).setVolume(videoEventData.volume);
+            Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).setVolume(videoEventData.volume);
         } else if(videoEventData.eventId == VIDEO_EVENT_SET_TEXTURE_INFO) {
-            xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).setTextureInfo(videoEventData.videoWidth, videoEventData.videoHeight, videoEventData.videoTextureId);
+            Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).setTextureInfo(videoEventData.videoWidth, videoEventData.videoHeight, videoEventData.videoTextureId);
         } else if(videoEventData.eventId == VIDEO_EVENT_SET_SPEED) {
-            xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).setPlaybackSpeed(videoEventData.playbackSpeed);
+            Objects.requireNonNull(xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey)).setPlaybackSpeed(videoEventData.playbackSpeed);
         }
     }
 
@@ -288,6 +303,7 @@ public class CocosXRVideoManager {
             entrySet.getValue().release();
         }
         xrVideoPlayerHashMap.clear();
+        cachedScriptEventHashMap.clear();
     }
 
     class CocosXRVideoGLThread extends Thread {

@@ -120,7 +120,7 @@ export function getExtensions (gl: WebGL2RenderingContext) {
 export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext | null {
     let context: WebGL2RenderingContext | null = null;
     try {
-        if (globalThis.__globalXR.webxrCompatible) {
+        if (globalThis.__globalXR?.webxrCompatible) {
             const glAttribs = {
                 alpha: macro.ENABLE_TRANSPARENT_CANVAS,
                 antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,

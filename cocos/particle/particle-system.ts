@@ -1041,7 +1041,11 @@ export class ParticleSystem extends ModelRenderer {
      * @zh 获取当前粒子数量。
      */
     public getParticleCount () {
-        return this.processor.getParticleCount();
+        if (this.processor) {
+            return this.processor.getParticleCount();
+        } else {
+            return 0;
+        }
     }
 
     /**

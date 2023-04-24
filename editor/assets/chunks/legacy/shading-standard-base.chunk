@@ -157,11 +157,11 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #endif
     #if CC_USE_LIGHTMAP == LIGHT_MAP_TYPE_INDIRECT_OCCLUSION
       shadow *= s.lightmap.a; // apply baked shadows for real-time lighting
-      s.occlusion *= s.lightmap_test;
       finalColor += diffuse * lightmap.rgb;
     #else
       finalColor += diffuse * lightmap.rgb * shadow; // apply real-time shadows for baked color
     #endif
+    s.occlusion *= s.lightmap_test;
   #endif
   
   #if !CC_DISABLE_DIRECTIONAL_LIGHT
