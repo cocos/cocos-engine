@@ -7,7 +7,7 @@ import {
     EmptyState,
     SubStateMachine,
 } from "../../../cocos/animation/marionette/animation-graph";
-import { MotionState } from "../../../cocos/animation/marionette/motion-state";
+import { MotionState } from "../../../cocos/animation/marionette/state-machine/motion-state";
 import { assertIsTrue } from "../../../cocos/core/data/utils/asserts";
 
 function copyTransitionConditions(lhs: Transition, rhs: Transition) {
