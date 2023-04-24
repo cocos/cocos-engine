@@ -60,11 +60,25 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
 
     public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>) {
         if (this._isInRenderPass) {
+            const info = 'drawInfo' in infoOrAssembler ? infoOrAssembler.drawInfo : infoOrAssembler;
+            if (WebGL2DeviceManager.instance.stateCache.drawInfo.firstIndex !== info.firstIndex
+                || WebGL2DeviceManager.instance.stateCache.drawInfo.indexCount !== info.indexCount
+                || WebGL2DeviceManager.instance.stateCache.drawInfo.firstInstance !== info.firstInstance
+                || WebGL2DeviceManager.instance.stateCache.drawInfo.instanceCount !== info.instanceCount
+                || WebGL2DeviceManager.instance.stateCache.drawInfo.vertexCount !== info.vertexCount
+                || WebGL2DeviceManager.instance.stateCache.drawInfo.firstVertex !== info.firstVertex
+                || WebGL2DeviceManager.instance.stateCache.drawInfo.vertexOffset !== info.vertexOffset) {
+                WebGL2DeviceManager.instance.stateCache.drawInfo.firstIndex = info.firstIndex;
+                WebGL2DeviceManager.instance.stateCache.drawInfo.indexCount = info.indexCount;
+                WebGL2DeviceManager.instance.stateCache.drawInfo.firstInstance = info.firstInstance;
+                WebGL2DeviceManager.instance.stateCache.drawInfo.instanceCount = info.instanceCount;
+                WebGL2DeviceManager.instance.stateCache.drawInfo.vertexCount = info.vertexCount;
+                WebGL2DeviceManager.instance.stateCache.drawInfo.firstVertex = info.firstVertex;
+                WebGL2DeviceManager.instance.stateCache.drawInfo.vertexOffset = info.vertexOffset;
+            }
             if (this._isStateInvalied) {
                 this.bindStates();
             }
-
-            const info = 'drawInfo' in infoOrAssembler ? infoOrAssembler.drawInfo : infoOrAssembler;
 
             WebGL2CmdFuncDraw(WebGL2DeviceManager.instance, info as DrawInfo);
 
