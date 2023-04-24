@@ -515,11 +515,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     value.animate(p, dt);
                 });
 
-                if (!p.firstAct) {
-                    Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
-                }
+                Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
 
-                if (trailEnable) {
+                if (trailEnable && !p.firstAct) {
                     trailModule.animate(p, dt);
                 }
 

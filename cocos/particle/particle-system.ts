@@ -1980,6 +1980,10 @@ export class ParticleSystem extends ModelRenderer {
                     value.animate(particle, i * dd);
                 });
             }
+
+            if (this._trailModule && this._trailModule.enable) {
+                this._trailModule.animate(particle, i * dd);
+            }
         } // end of particles forLoop.
     }
 
