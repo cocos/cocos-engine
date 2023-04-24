@@ -38,6 +38,7 @@ class SimulatorApp {
 public:
     static SimulatorApp *getInstance();
     virtual ~SimulatorApp();
+    int initialize();
     int run();
 
     virtual void quit();
