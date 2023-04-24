@@ -1868,6 +1868,9 @@ export class ParticleSystem extends ModelRenderer {
             Quat.invert(_inv_rol, _temp_rol);
         }
 
+        const cpuPro: ParticleSystemRendererCPU = this.processor as ParticleSystemRendererCPU;
+        cpuPro.updateForce();
+
         const dd = dt / count;
         for (let i = 0; i < count; ++i) {
             const particle = this.processor.getFreeParticle();
@@ -1974,7 +1977,6 @@ export class ParticleSystem extends ModelRenderer {
             this.processor.setNewParticle(particle);
 
             if (parentParticle) {
-                const cpuPro: ParticleSystemRendererCPU = this.processor as ParticleSystemRendererCPU;
                 // @ts-expect-error private property access
                 cpuPro._runAnimateList.forEach((value) => {
                     value.animate(particle, i * dd);

@@ -431,41 +431,53 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
+    public updateForce () {
+        const ps = this._particleSystem;
+        if (ps) {
+            ps.node.getWorldMatrix(_tempWorldTrans);
+            const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
+            this.doUpdateScale(mat);
+            this.doUpdateRotation(mat);
+
+            const forceFields = forceFieldManager.forceFields;
+            if (forceFields.length > 0) {
+                Mat4.invert(_tempWorldInv, _tempWorldTrans);
+            }
+
+            for (const key in this._updateList) {
+                this._updateList[key].update(ps, ps._simulationSpace, _tempWorldTrans);
+            }
+
+            const trailModule = ps._trailModule;
+            const trailEnable = trailModule && trailModule.enable;
+            if (trailEnable) {
+                trailModule.update();
+            }
+
+            const useGravity = !approx(ps.gravityModifier.getMaxAbs(), 0.0, EPSILON);
+            if (useGravity) {
+                if (ps.simulationSpace === Space.Local) {
+                    Mat4.invert(this._localMat, _tempWorldTrans);
+                    this._localMat.m12 = 0;
+                    this._localMat.m13 = 0;
+                    this._localMat.m14 = 0;
+                    this._localMat.m15 = 1;
+                }
+            }
+        }
+    }
+
     public updateParticles (dt: number) {
         const ps = this._particleSystem;
         if (!ps) {
             return this._particles!.length;
         }
-        ps.node.getWorldMatrix(_tempWorldTrans);
-        const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
-        this.doUpdateScale(mat);
-        this.doUpdateRotation(mat);
 
-        const forceFields = forceFieldManager.forceFields;
-        if (forceFields.length > 0) {
-            Mat4.invert(_tempWorldInv, _tempWorldTrans);
-        }
-
-        for (const key in this._updateList) {
-            this._updateList[key].update(ps, ps._simulationSpace, _tempWorldTrans);
-        }
-
-        const trailModule = ps._trailModule;
-        const trailEnable = trailModule && trailModule.enable;
-        if (trailEnable) {
-            trailModule.update();
-        }
+        this.updateForce();
 
         const useGravity = !approx(ps.gravityModifier.getMaxAbs(), 0.0, EPSILON);
-        if (useGravity) {
-            if (ps.simulationSpace === Space.Local) {
-                Mat4.invert(this._localMat, _tempWorldTrans);
-                this._localMat.m12 = 0;
-                this._localMat.m13 = 0;
-                this._localMat.m14 = 0;
-                this._localMat.m15 = 1;
-            }
-        }
+        const trailModule = ps._trailModule;
+        const trailEnable = trailModule && trailModule.enable;
 
         for (let i = this._particles!.length; i >= 0; --i) {
             const p: Particle = this._particles!.data[i];
