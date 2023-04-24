@@ -80,9 +80,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     }
 
     set skinningRoot (value) {
+        if (value === this._skinningRoot) { return; }
         this._skinningRoot = value;
         this._tryBindAnimation();
-        if (value === this._skinningRoot) { return; }
         this._update();
     }
 

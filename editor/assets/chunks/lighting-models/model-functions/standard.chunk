@@ -113,6 +113,7 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 
   void CCSurfacesLightingCalculateDirectTransmitDiffuse(out vec3 transmitDiffuse, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity, float shadow)
   {
+  #if !CC_SURFACES_LIGHTING_DISABLE_DIFFUSE
     float distance = lightingData.transmitScatteringParams.w;
     if (!DONOT_USE_SHADOWMAP_DISTANCE)
     {
@@ -123,10 +124,14 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
     vec3 backIrradiance = CalculateDirectDiffuse(lightingData, lightSourceColorAndIntensity);
     backIrradiance *= shadow * transmitMask;
     transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
+  #else
+    transmitDiffuse = vec3(0.0);
+  #endif
   }
   // depend on dir-light shadow direction, if there are some occluders in front of the light source, env transmit will dark
   void CCSurfacesLightingCalculateEnvironmentTransmitDiffuse(out vec3 transmitDiffuse, in LightingIntermediateData lightingData, float lightIntensity, float ao, vec3 shadowLightDirection)
   {
+  #if !CC_SURFACES_LIGHTING_DISABLE_DIFFUSE
     float distance = lightingData.transmitScatteringParams.w;
     if (!DONOT_USE_SHADOWMAP_DISTANCE)
     {
@@ -141,6 +146,9 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
     backIrradiance *= ao * transmitMask;
     transmitDiffuse = CalculateScattering(backIrradiance, distance, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.x, lightingData.transmitScatteringParams.y, lightingData.inScatteringColor.rgb, lightingData.outScatteringColor.rgb);
     transmitDiffuse *= envTransmitScale;
+  #else
+    transmitDiffuse = vec3(0.0);
+  #endif
   }
 
   #undef objectThickness
@@ -151,38 +159,48 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
   #undef SHADOWMAP_DISTANCE
 #endif
 
-#if CC_SURFACES_LIGHTING_TRT
+#if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
   // this surface function used for adjust TRT color with brdf lighting, input are lighting result and surface data
   // the default function can only be defined here
-  #ifndef CC_SURFACES_FRAGMENT_MODIFY_TRT_SPECULAR_COLOR
-    vec3 SurfacesLightingGetTRTSpecularColor(float specBRDF, bool isSaturated)
+  #ifndef CC_SURFACES_FRAGMENT_MODIFY_2ND_SPECULAR_COLOR
+    vec3 SurfacesLightingGet2ndSpecularColor(float specBRDF, bool isSaturated)
     {
-      return vec3(specBRDF);
+      return vec3(saturate(specBRDF));
     }
   #endif
   
-  void CCSurfacesLightingCalculateDirectTRT(out vec3 TRTLighting, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity, in vec3 originalSpecular)
+  void CCSurfacesLightingCalculateDirect2ndSpecular(out vec3 specularLighting, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity, float intensitySpecular, in vec3 originalSpecular)
   {
+  #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
     vec3 unused;
     // light color has less influence
-    CCSurfacesLightingCalculateDirect(unused, TRTLighting, lightingData, vec4(1.0));
-    float brdf = TRTLighting.x;
-    vec3 Color = SurfacesLightingGetTRTSpecularColor(brdf, true);
+    CCSurfacesLightingCalculateDirect(unused, specularLighting, lightingData, lightSourceColorAndIntensity);
+    // float brdf = specularLighting.x;
+    // vec3 Color = SurfacesLightingGet2ndSpecularColor(brdf, true);
     // todo: modify Color to add some light color influence
-    TRTLighting *= Color * lightSourceColorAndIntensity.w;
-    // TRTLighting -= originalSpecular;
+    // specularLighting *= Color * lightSourceColorAndIntensity.w;
+    specularLighting *= intensitySpecular;
+    // specularLighting -= originalSpecular;
+  #else
+    specularLighting = vec3(0.0);
+  #endif
   }
 
-  void CCSurfacesLightingCalculateEnvironmentTRT(out vec3 TRTLighting, in LightingIntermediateData lightingData, float lightIntensity, in vec3 originalSpecular)
+  void CCSurfacesLightingCalculateEnvironment2ndSpecular(out vec3 specularLighting, in LightingIntermediateData lightingData, float lightIntensity, float intensitySpecular, in vec3 originalSpecular)
   {
+  #if !CC_SURFACES_LIGHTING_DISABLE_SPECULAR
     vec3 unused;
     // light color has less influence
-    TRTLighting = CalculateEnvironmentSpecular(lightingData, 1.0);
-    float brdf = length(TRTLighting);
-    vec3 Color = SurfacesLightingGetTRTSpecularColor(brdf, false);
+    specularLighting = CalculateEnvironmentSpecular(lightingData, lightIntensity);
+    // float brdf = length(specularLighting);
+    // vec3 Color = SurfacesLightingGet2ndSpecularColor(brdf, false);
     // todo: modify Color to add some light color influence
-    TRTLighting *= Color * lightIntensity;
-    // TRTLighting -= originalSpecular;
+    // specularLighting *= Color * lightIntensity;
+    specularLighting *= intensitySpecular;
+    // specularLighting -= originalSpecular;
+  #else
+    specularLighting = vec3(0.0);
+  #endif
   }
 #endif
 

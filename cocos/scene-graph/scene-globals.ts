@@ -565,6 +565,27 @@ export class SkyboxInfo {
         this._resource.setRotationAngle(this._rotationAngle);
         this._resource.activate(); // update global DS first
     }
+
+    /**
+     * @en When the environment map changed will call this function to update scene.
+     * @zh 环境贴图发生变化时，会调用此函数更新场景。
+     * @param val environment map
+     */
+    public updateEnvMap (val: TextureCube) {
+        if (!val) {
+            this.applyDiffuseMap = false;
+            this.useIBL = false;
+            this.envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
+            warnID(15001);
+        }
+        if (this._resource) {
+            this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
+            this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+            this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
+            this._resource.useDiffuseMap = this.applyDiffuseMap;
+            this._resource.envmap = val;
+        }
+    }
 }
 legacyCC.SkyboxInfo = SkyboxInfo;
 

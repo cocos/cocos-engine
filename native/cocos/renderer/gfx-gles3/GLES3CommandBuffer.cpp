@@ -299,6 +299,10 @@ void GLES3CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t s
     }
 }
 
+void GLES3CommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    // should not copy texture in a secondary command buffer
+}
+
 void GLES3CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     GLES3CmdBlitTexture *cmd = _cmdAllocator->blitTextureCmdPool.alloc();
     if (srcTexture) cmd->gpuTextureSrc = static_cast<GLES3Texture *>(srcTexture)->gpuTexture();

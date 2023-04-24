@@ -488,6 +488,7 @@ struct ResourceGraph {
     void mount(gfx::Device* device, vertex_descriptor vertID);
     void unmount(uint64_t completedFenceValue);
     gfx::Texture* getTexture(vertex_descriptor resID);
+    gfx::Buffer* getBuffer(vertex_descriptor resID);
     void invalidatePersistentRenderPassAndFramebuffer(gfx::Texture* pTexture);
 
     // ContinuousContainer
@@ -727,6 +728,7 @@ struct RenderData {
     PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Buffer>> buffers;
     PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Texture>> textures;
     PmrUnorderedMap<uint32_t, ObserverPtr<gfx::Sampler>> samplers;
+    ccstd::pmr::string custom;
 };
 
 struct RenderGraph {

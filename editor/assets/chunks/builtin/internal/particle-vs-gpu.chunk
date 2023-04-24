@@ -380,7 +380,8 @@ vec4 gpvs_main () {
       frameInfo = mix(frameInfo0, frameInfo1, factor_t);
     }
     startFrame = frameInfo.x / u_anim_info.y;
-    frameIndex = repeat(u_anim_info.z * (frameInfo.y + startFrame), 1.);
+    float EPSILON = 1e-6;
+    frameIndex = repeat(u_anim_info.z * (frameInfo.y + startFrame), 1. + EPSILON);
   #endif
   uv = computeUV(frameIndex, vertIdx, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
 

@@ -23,11 +23,13 @@
 #pragma once
 
 #include <algorithm>
+#include <unordered_map>
 
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
+#include "gfx-base/GFXDeviceObject.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 
 #include "GLES3Std.h"
@@ -279,6 +281,7 @@ struct GLES3GPUShader {
 
     GLES3GPUShaderStageList gpuStages;
     GLuint glProgram = 0;
+    ccstd::hash_t hash = INVALID_SHADER_HASH;
     GLES3GPUInputList glInputs;
     GLES3GPUUniformBufferList glBuffers;
     GLES3GPUUniformSamplerTextureList glSamplerTextures;
@@ -396,6 +399,7 @@ struct GLES3GPUDescriptorSetLayout {
     ccstd::vector<uint32_t> bindingIndices;
     ccstd::vector<uint32_t> descriptorIndices;
     uint32_t descriptorCount = 0U;
+    ccstd::hash_t hash = 0U;
 };
 using GLES3GPUDescriptorSetLayoutList = ccstd::vector<GLES3GPUDescriptorSetLayout *>;
 
@@ -406,7 +410,8 @@ struct GLES3GPUPipelineLayout {
     ccstd::vector<ccstd::vector<int>> dynamicOffsetIndices;
     ccstd::vector<uint32_t> dynamicOffsetOffsets;
     ccstd::vector<uint32_t> dynamicOffsets;
-    uint32_t dynamicOffsetCount;
+    uint32_t dynamicOffsetCount = 0U;
+    ccstd::hash_t hash = 0U;
 };
 
 struct GLES3GPUPipelineState {
@@ -671,6 +676,13 @@ public:
 
 private:
     ccstd::unordered_map<GLES3GPUTexture *, ccstd::vector<GLES3GPUFramebuffer *>> _framebuffers;
+};
+
+struct GLES3GPUProgramBinary : public GFXDeviceObject<DefaultDeleter> {
+    ccstd::string name;
+    ccstd::hash_t hash = 0;
+    GLenum format;
+    std::vector<char> data;
 };
 
 } // namespace gfx

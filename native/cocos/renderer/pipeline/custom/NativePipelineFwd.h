@@ -32,12 +32,13 @@
 #include "cocos/base/std/variant.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/custom/NativeFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
 
 namespace cc {
 
 namespace render {
 
+class NativeRenderNode;
+class NativeSetter;
 class NativeRasterQueueBuilder;
 class NativeRasterSubpassBuilder;
 class NativeComputeSubpassBuilder;
@@ -62,10 +63,10 @@ struct LayoutGraphNodeResource;
 struct QuadResource;
 struct NativeRenderContext;
 class NativeProgramLibrary;
+struct PipelineCustomization;
 class NativePipeline;
 class NativeProgramProxy;
 class NativeRenderingModule;
-class NativeSetter;
 
 } // namespace render
 

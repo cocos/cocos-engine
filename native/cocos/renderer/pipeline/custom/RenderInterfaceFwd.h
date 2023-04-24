@@ -33,8 +33,7 @@
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/core/PassUtils.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
-#include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
-#include "cocos/scene/Camera.h"
+#include "cocos/renderer/pipeline/custom/CustomFwd.h"
 
 namespace cc {
 
