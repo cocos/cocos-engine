@@ -48,7 +48,7 @@ import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
-import { Particle, PARTICLE_MODULE_PROPERTY } from './particle';
+import { Particle, PARTICLE_MODULE_NAME, PARTICLE_MODULE_PROPERTY } from './particle';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
@@ -1986,11 +1986,9 @@ export class ParticleSystem extends ModelRenderer {
             }
 
             if (parentParticle) {
-                const cpuPro: ParticleSystemRendererCPU = this.processor as ParticleSystemRendererCPU;
-                // @ts-expect-error private property access
-                cpuPro._runAnimateList.forEach((value) => {
-                    value.animate(particle, i * dd);
-                });
+                if (this._colorOverLifetimeModule && this._colorOverLifetimeModule.enable) {
+                    this._colorOverLifetimeModule.animate(particle);
+                }
             }
         } // end of particles forLoop.
     }
