@@ -386,6 +386,7 @@
       "_reduceRinging": 0,
       "_showProbe": true,
       "_showWireframe": true,
+      "_lightProbeSphereVolume":1,
       "_showConvex": false,
       "_data": null,
       "_lightProbeGroups": []
