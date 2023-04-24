@@ -109,6 +109,9 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
 
     public update (ps, space, worldTransform) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
+        this.x.bake();
+        this.y.bake();
+        this.z.bake();
     }
 
     public animate (p, dt) {

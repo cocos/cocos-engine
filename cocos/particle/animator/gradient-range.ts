@@ -48,6 +48,8 @@ const Mode = Enum({
     RandomColor: 4,
 });
 
+const outColor = new Color();
+
 @ccclass('cc.GradientRange')
 export default class GradientRange {
     /**
@@ -118,6 +120,70 @@ export default class GradientRange {
 
     private _color = Color.WHITE.clone();
 
+    private preSample = true && !EDITOR;
+    private sampleCount = 64;
+    private interval = 1.0 / (this.sampleCount - 1.0);
+
+    private minBuff: Color[] | null = null;
+    private maxBuff: Color[] | null = null;
+
+    private createBuff () {
+        if (this.mode === Mode.Gradient) {
+            this.maxBuff = new Array(0);
+            for (let i = 0; i < this.sampleCount; ++i) {
+                this.maxBuff.push(new Color());
+                const time = i * this.interval;
+                const value = this.gradient.evaluate(time);
+                this.maxBuff[i].set(value);
+            }
+        } else if (this.mode === Mode.TwoGradients) {
+            this.minBuff = new Array(0);
+            this.maxBuff = new Array(0);
+            for (let i = 0; i < this.sampleCount; ++i) {
+                this.minBuff.push(new Color());
+                this.maxBuff.push(new Color());
+                const time = i * this.interval;
+                const valueMin = this.gradientMin.evaluate(time);
+                const valueMax = this.gradientMax.evaluate(time);
+                this.minBuff[i].set(valueMin);
+                this.maxBuff[i].set(valueMax);
+            }
+        }
+    }
+
+    public bake () {
+        if (this.preSample) {
+            if (this.mode === Mode.Gradient && this.maxBuff === null) {
+                this.createBuff();
+            } else if (this.mode === Mode.TwoGradients && (this.maxBuff === null || this.minBuff === null)) {
+                this.createBuff();
+            }
+        }
+    }
+
+    private sample (buff: Color[] | null, time: number): Color {
+        const sampleCoord = time * (this.sampleCount - 1);
+        const prev = Math.floor(sampleCoord);
+        const next = Math.ceil(sampleCoord);
+        if (buff) {
+            if (prev === next) {
+                outColor.set(buff[prev]);
+                return outColor;
+            } else {
+                const ratio = sampleCoord - prev;
+                const invRat = 1.0 - ratio;
+                outColor.r = buff[prev].r * invRat + buff[next].r * ratio;
+                outColor.g = buff[prev].g * invRat + buff[next].g * ratio;
+                outColor.b = buff[prev].b * invRat + buff[next].b * ratio;
+                outColor.a = buff[prev].a * invRat + buff[next].a * ratio;
+                return outColor;
+            }
+        } else {
+            outColor.set(Color.WHITE);
+            return outColor;
+        }
+    }
+
     public evaluate (time: number, rndRatio: number) {
         switch (this._mode) {
         case Mode.Color:
@@ -128,9 +194,17 @@ export default class GradientRange {
         case Mode.RandomColor:
             return this.gradient.randomColor();
         case Mode.Gradient:
-            return this.gradient.evaluate(time);
+            if (this.preSample) {
+                return this.sample(this.maxBuff, time);
+            } else {
+                return this.gradient.evaluate(time);
+            }
         case Mode.TwoGradients:
-            Color.lerp(this._color, this.gradientMin.evaluate(time), this.gradientMax.evaluate(time), rndRatio);
+            if (this.preSample) {
+                Color.lerp(this._color, this.sample(this.minBuff, time), this.sample(this.maxBuff, time), rndRatio);
+            } else {
+                Color.lerp(this._color, this.gradientMin.evaluate(time), this.gradientMax.evaluate(time), rndRatio);
+            }
             return this._color;
         default:
             return this.color;
@@ -147,9 +221,17 @@ export default class GradientRange {
         case Mode.RandomColor:
             return this.gradient.randomColor();
         case Mode.Gradient:
-            return this.gradient.evaluate(time);
+            if (this.preSample) {
+                return this.sample(this.maxBuff, time);
+            } else {
+                return this.gradient.evaluate(time);
+            }
         case Mode.TwoGradients:
-            this._color.set(this.gradientMax.evaluate(time));
+            if (this.preSample) {
+                this._color.set(this.sample(this.maxBuff, time));
+            } else {
+                this._color.set(this.gradientMax.evaluate(time));
+            }
             return this._color;
         default:
             return this.color;

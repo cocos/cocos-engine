@@ -214,6 +214,31 @@ export default class ForceField {
         return Vec3.distance(pointA, pointB) <= radius;
     }
 
+    public updateFirst () {
+        this._multiplier.bake();
+        if (this._directionCacheX) {
+            this._directionCacheX.bake();
+        }
+        if (this._directionCacheY) {
+            this._directionCacheY.bake();
+        }
+        if (this._directionCacheZ) {
+            this._directionCacheZ.bake();
+        }
+        if (this._gravityCache) {
+            this._gravityCache.bake();
+        }
+        if (this._rotationSpeedCache) {
+            this._rotationSpeedCache.bake();
+        }
+        if (this._rotationAttractionCache) {
+            this._rotationAttractionCache.bake();
+        }
+        if (this._dragCache) {
+            this._dragCache.bake();
+        }
+    }
+
     private apply (p: Particle, dt: number, worldToLocal: Mat4, localToWorld: Mat4, multiplier: CurveRange) {
         if (this._endRange === 0.0) {
             return;

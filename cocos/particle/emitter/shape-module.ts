@@ -35,7 +35,7 @@ import { ParticleSystem } from '../particle-system';
 const _intermediVec = new Vec3(0, 0, 0);
 const _intermediArr: number[] = [];
 const _unitBoxExtent = new Vec3(0.5, 0.5, 0.5);
-function getShapeTypeEnumName(enumValue: number): keyof typeof ShapeType {
+function getShapeTypeEnumName (enumValue: number): keyof typeof ShapeType {
     let enumName = '';
     for (const key in ShapeType) {
         if (ShapeType[key] === enumValue) {
@@ -97,7 +97,7 @@ export default class ShapeModule {
         const enumName = getShapeTypeEnumName(this.shapeType);
         return subset.includes(enumName);
     })
-    get arc() {
+    get arc () {
         return toDegree(this._arc);
     }
 
@@ -116,7 +116,7 @@ export default class ShapeModule {
         const enumName = getShapeTypeEnumName(this.shapeType);
         return subset.includes(enumName);
     })
-    get angle() {
+    get angle () {
         return Math.round(toDegree(this._angle) * 100) / 100;
     }
 
@@ -402,6 +402,7 @@ export default class ShapeModule {
         if (this.arcMode === ArcMode.Random) {
             return randomRange(0, this._arc);
         }
+        this.arcSpeed.bake();
         let angle = this.totalAngle + 2 * Math.PI * this.arcSpeed.evaluate(this.particleSystem._time, 1)! * (this.particleSystem._time - this.lastTime);
         this.totalAngle = angle;
         if (this.arcSpread !== 0) {
