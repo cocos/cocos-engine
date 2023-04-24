@@ -1868,6 +1868,10 @@ export class ParticleSystem extends ModelRenderer {
             Quat.invert(_inv_rol, _temp_rol);
         }
 
+        if (this._trailModule && this._trailModule.enable) {
+            this._trailModule.update();
+        }
+
         const dd = dt / count;
         for (let i = 0; i < count; ++i) {
             const particle = this.processor.getFreeParticle();
@@ -1984,10 +1988,6 @@ export class ParticleSystem extends ModelRenderer {
             this._trigged = true;
             this.processor.setNewParticle(particle);
 
-            if (!this.processor.getModel()?.scene) {
-                this.processor.attachToScene();
-                this.processor.updateRenderData();
-            }
             if (this._trailModule && this._trailModule.enable) {
                 this._trailModule.animate(particle, i * dd);
                 if (!this._trailModule.getModel()?.scene) {
