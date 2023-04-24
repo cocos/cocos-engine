@@ -762,6 +762,8 @@ export default class ParticleBatchModel extends scene.Model {
             if (this._useInstance) {
                 this._subMeshData.vertexBuffers[1].destroy();
                 this._subMeshData.indexBuffer?.destroy();
+                this._insBuffers.length = 0;
+                this._insIndices = null;
             } else {
                 this._subMeshData.destroy();
             }
