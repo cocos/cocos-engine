@@ -198,15 +198,15 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     }
 
     public update (ps: ParticleSystem, space: number, worldTransform: Mat4) {
-        this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
+        // this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
         this.hasOrbital = this.offsetX.getMaxAbs() > 0 || this.offsetY.getMaxAbs() > 0 || this.offsetZ.getMaxAbs() > 0
             || this.orbitX.getMaxAbs() > 0 || this.orbitY.getMaxAbs() > 0 || this.orbitZ.getMaxAbs() > 0;
-        if (this.needTransform) {
-            if (this.hasOrbital) {
-                Mat3.fromMat4(this.localToWorld, worldTransform);
-                Mat3.invert(this.worldToLocal, this.localToWorld);
-            }
-        }
+        // if (this.needTransform) {
+        //     if (this.hasOrbital) {
+        //         Mat3.fromMat4(this.localToWorld, worldTransform);
+        //         Mat3.invert(this.worldToLocal, this.localToWorld);
+        //     }
+        // }
         this.offsetX.bake();
         this.offsetY.bake();
         this.offsetZ.bake();
@@ -263,8 +263,6 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
 
         const speedMod = this.speedModifier.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!;
 
-        this.hasOrbital = this.offsetX.getMaxAbs() > 0 || this.offsetY.getMaxAbs() > 0 || this.offsetZ.getMaxAbs() > 0
-            || this.orbitX.getMaxAbs() > 0 || this.orbitY.getMaxAbs() > 0 || this.orbitZ.getMaxAbs() > 0;
         if (this.hasOrbital) {
             this.calculateOrbital(p, dt, normalizedTime, speedMod);
         }
