@@ -40,6 +40,8 @@
 #include "scene/LODGroup.h"
 #include "scene/Model.h"
 #include "scene/Octree.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
 
@@ -166,8 +168,14 @@ void RenderScene::update(uint32_t stamp) {
     for (const auto &light : _sphereLights) {
         light->update();
     }
-    for (const auto &spotLight : _spotLights) {
-        spotLight->update();
+    for (const auto &light : _spotLights) {
+        light->update();
+    }
+    for (const auto &light : _pointLights) {
+        light->update();
+    }
+    for (const auto &light : _rangedDirLights) {
+        light->update();
     }
     for (const auto &model : _models) {
         if (model->isEnabled()) {
@@ -188,6 +196,7 @@ void RenderScene::destroy() {
     removeCameras();
     removeSphereLights();
     removeSpotLights();
+    removePointLights();
     removeLODGroups();
     removeModels();
     _lodStateCache->clearCache();
@@ -288,6 +297,46 @@ void RenderScene::removeSpotLights() {
         spotLight->detachFromScene();
     }
     _spotLights.clear();
+}
+
+void RenderScene::addPointLight(PointLight *light) {
+    _pointLights.emplace_back(light);
+}
+
+void RenderScene::removePointLight(PointLight *pointLight) {
+    auto iter = std::find(_pointLights.begin(), _pointLights.end(), pointLight);
+    if (iter != _pointLights.end()) {
+        _pointLights.erase(iter);
+    } else {
+        CC_LOG_WARNING("Try to remove invalid point light.");
+    }
+}
+
+void RenderScene::removePointLights() {
+    for (const auto &pointLight : _pointLights) {
+        pointLight->detachFromScene();
+    }
+    _pointLights.clear();
+}
+
+void RenderScene::addRangedDirlLight(RangedDirectionalLight *rangedDirLight) {
+    _rangedDirLights.emplace_back(rangedDirLight);
+}
+
+void RenderScene::removeRangedDirLight(RangedDirectionalLight *rangedDirLight) {
+    const auto iter = std::find(_rangedDirLights.begin(), _rangedDirLights.end(), rangedDirLight);
+    if (iter != _rangedDirLights.end()) {
+        _rangedDirLights.erase(iter);
+    } else {
+        CC_LOG_WARNING("Try to remove invalid ranged directional light.");
+    }
+}
+
+void RenderScene::removeRangedDirLights() {
+    for (const auto &rangedDirLight : _rangedDirLights) {
+        rangedDirLight->detachFromScene();
+    }
+    _rangedDirLights.clear();
 }
 
 void RenderScene::addModel(Model *model) {

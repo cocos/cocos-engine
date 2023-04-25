@@ -33,9 +33,11 @@ import { legacyCC } from '../global-exports';
 
 /**
  * @en
- * A 2D rectangle defined by x, y position and width, height.
+ * A 2D rectangle defined by x, y position at the bottom-left corner and width, height.
+ * All points inside the rectangle are greater than or equal to the minimum point and less than or equal to the maximum point.
+ * The width is defined as xMax - xMin and the height is defined as yMax - yMin.
  * @zh
- * 轴对齐矩形。
+ * 该类表示一个二维矩形，由其左下角的 x、y 坐标以及宽度和高度组成。
  * 矩形内的所有点都大于等于矩形的最小点 (xMin, yMin) 并且小于等于矩形的最大点 (xMax, yMax)。
  * 矩形的宽度定义为 xMax - xMin；高度定义为 yMax - yMin。
  */
@@ -127,6 +129,20 @@ export class Rect extends ValueType {
         out.height = Math.max(y + h, by + bh) - out.y;
 
         return out;
+    }
+
+    /**
+     * @en Retures whether rect a is equal to rect b.
+     * @zh 判断两个矩形是否相等。
+     * @param a The first rect to be compared.
+     * @param b The second rect to be compared.
+     * @returns Returns `true' when the minimum and maximum values of both rectangles are equal, respectively; otherwise, returns `false'.
+     */
+    public static equals <InType extends IRectLike> (a: InType, b: InType) {
+        return a.x === b.x
+                && a.y === b.y
+                && a.width === b.width
+                && a.height === b.height;
     }
 
     /**
@@ -268,11 +284,11 @@ export class Rect extends ValueType {
 
     constructor (x?: Rect | number, y?: number, width?: number, height?: number) {
         super();
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
+            this.x = x.x;
             this.y = x.y;
             this.width = x.width;
             this.height = x.height;
-            this.x = x.x;
         } else {
             this.x = x || 0;
             this.y = y || 0;
@@ -309,11 +325,11 @@ export class Rect extends ValueType {
     public set (x?: number, y?: number, width?: number, height?: number);
 
     public set (x?: Rect | number, y?: number, width?: number, height?: number) {
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
+            this.x = x.x;
             this.y = x.y;
             this.width = x.width;
             this.height = x.height;
-            this.x = x.x;
         } else {
             this.x = x || 0;
             this.y = y || 0;

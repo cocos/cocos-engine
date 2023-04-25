@@ -393,6 +393,11 @@ export class ReflectionProbe {
         return false;
     }
 
+    public isRGBE (): boolean  {
+        //todo: realtime do not use rgbe
+        return true;
+    }
+
     private _syncCameraParams (camera: Camera) {
         this.camera.projectionType = camera.projectionType;
         this.camera.orthoHeight = camera.orthoHeight;

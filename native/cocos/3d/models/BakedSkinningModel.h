@@ -29,8 +29,8 @@
 #include "3d/assets/Skeleton.h"
 #include "3d/models/MorphModel.h"
 #include "3d/skeletal-animation/SkeletalAnimationUtils.h"
-#include "gfx-base/GFXDef-common.h"
 #include "core/event/EventTarget.h"
+#include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 

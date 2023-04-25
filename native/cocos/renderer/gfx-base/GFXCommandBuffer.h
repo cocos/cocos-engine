@@ -70,7 +70,7 @@ public:
     virtual void resetQueryPool(QueryPool *queryPool) = 0;
     virtual void completeQueryPool(QueryPool *queryPool) {}
 
-    using CustomCommand = std::function<void(void*)>;
+    using CustomCommand = std::function<void(void *)>;
     virtual void customCommand(CustomCommand &&cmd) {}
 
     // barrier: excutionBarrier

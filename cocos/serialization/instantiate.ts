@@ -239,8 +239,8 @@ function instantiateObj (obj, parent) {
     if (ArrayBuffer.isView(obj)) {
         const len = (obj as any).length;
         clone = new ((obj as any).constructor)(len);
-        // @ts-expect-error: unknown
-        obj._iN$t = clone;
+        // NOTE: unknown  injected property `_iN$t`
+        (obj as any)._iN$t = clone;
         objsToClearTmpVar.push(obj);
         for (let i = 0; i < len; ++i) {
             clone[i] = obj[i];
@@ -251,8 +251,8 @@ function instantiateObj (obj, parent) {
     if (Array.isArray(obj)) {
         const len = obj.length;
         clone = new Array(len);
-        // @ts-expect-error: unknown
-        obj._iN$t = clone;
+        // NOTE: unknown  injected property `_iN$t`
+        (obj as any)._iN$t = clone;
         objsToClearTmpVar.push(obj);
         for (let i = 0; i < len; ++i) {
             const value = obj[i];

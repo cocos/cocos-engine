@@ -58,7 +58,7 @@ public:
      @brief enable/disable(lock) the cursor, default is enabled
      */
     void setCursorEnabled(bool value) override;
-  
+
 private:
     SDL_Window* getSDLWindow() const { return _window; }
 

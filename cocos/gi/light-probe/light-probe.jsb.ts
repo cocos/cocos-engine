@@ -22,21 +22,18 @@
  THE SOFTWARE.
 */
 import { _decorator } from '../../core';
+import { patch_cc_LightProbesData } from '../../native-binding/decorators';
 import { Tetrahedron, Vertex } from './delaunay';
+import type { LightProbes as JsbLightProbes, LightProbesData as JsbLightProbesData } from './light-probe';
 
-const { ccclass, serializable, type } = _decorator;
+declare const jsb: any;
+export const LightProbes: typeof JsbLightProbes = jsb.LightProbes;
+export type LightProbes = JsbLightProbes;
+_decorator.ccclass('cc.LightProbes')(LightProbes);
+// patch_cc_LightProbes({LightProbes}); // not exists
 
-export const LightProbes = jsb.LightProbes;
-ccclass('cc.LightProbes')(LightProbes);
+export const LightProbesData: typeof JsbLightProbesData = jsb.LightProbesData;
+export type LightProbesData = JsbLightProbesData;
 
-export const LightProbesData = jsb.LightProbesData;
-const LightProbesDataProto = LightProbesData.prototype;
+patch_cc_LightProbesData({LightProbesData, Vertex, Tetrahedron});
 
-// @ts-expect-error
-type([Vertex])(LightProbesDataProto, '_probes', () => []);
-serializable(LightProbesDataProto, '_probes', () => []);
-
-// @ts-expect-error
-type([Tetrahedron])(LightProbesDataProto, '_tetrahedrons', () => []);
-serializable(LightProbesDataProto, '_tetrahedrons', () => []);
-ccclass('cc.LightProbesData')(LightProbesData);

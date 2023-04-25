@@ -31,8 +31,8 @@
 #include "gfx-base/GFXUtil.h"
 
 namespace {
-const char* fileName = "/pipeline_cache_vk.bin";
-const uint32_t MAGIC   = 0x4343564B; // "CCVK"
+const char *fileName = "/pipeline_cache_vk.bin";
+const uint32_t MAGIC = 0x4343564B; // "CCVK"
 const uint32_t VERSION = 1;
 
 void loadData(const ccstd::string &path, ccstd::vector<char> &data) {

@@ -39,7 +39,7 @@ import packManager from './pack-manager';
 import parser, { Parser } from './parser';
 import { Pipeline } from './pipeline';
 import preprocess from './preprocess';
-import releaseManager from './release-manager';
+import { releaseManager } from './release-manager';
 import RequestItem from './request-item';
 import {
     presets,

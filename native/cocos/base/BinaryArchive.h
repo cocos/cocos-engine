@@ -22,7 +22,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-
 #pragma once
 
 #include <iostream>
@@ -50,7 +49,7 @@ public:
      */
     template <typename T, typename = std::enable_if<std::is_arithmetic_v<T>>>
     bool load(T &val) {
-        return load(reinterpret_cast<char*>(std::addressof(val)), sizeof(T));
+        return load(reinterpret_cast<char *>(std::addressof(val)), sizeof(T));
     }
 
     /**
@@ -76,7 +75,7 @@ public:
      * @param data Pointer to data address to write.
      * @param size Length of the data.
      */
-    void save(const char* data, uint32_t size);
+    void save(const char *data, uint32_t size);
 
     /**
      * Write arithmetic data to stream.
@@ -84,7 +83,7 @@ public:
      */
     template <typename T, typename = std::enable_if<std::is_arithmetic_v<T>>>
     void save(const T &v) {
-        save(reinterpret_cast<const char*>(std::addressof(v)), sizeof(T));
+        save(reinterpret_cast<const char *>(std::addressof(v)), sizeof(T));
     }
 
 private:

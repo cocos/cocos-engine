@@ -25,7 +25,7 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { RealCurve, Size } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
-import { Channel, RealChannel, RuntimeBinding, Track } from './track';
+import { Channel, RealChannel, RuntimeBinding, Track, TrackEval } from './track';
 import { maskIfEmpty } from './utils';
 
 const CHANNEL_NAMES: ReadonlyArray<string> = ['Width', 'Height'];
@@ -72,7 +72,7 @@ export class SizeTrack extends Track {
     private _channels: [RealChannel, RealChannel];
 }
 
-export class SizeTrackEval {
+export class SizeTrackEval implements TrackEval<Size> {
     constructor (
         private _width: RealCurve | undefined,
         private _height: RealCurve | undefined,
@@ -80,11 +80,14 @@ export class SizeTrackEval {
 
     }
 
-    public evaluate (time: number, runtimeBinding: RuntimeBinding) {
-        if ((!this._width || !this._height) && runtimeBinding.getValue) {
-            const size = runtimeBinding.getValue() as Size;
-            this._result.x = size.x;
-            this._result.y = size.y;
+    public get requiresDefault () {
+        return !this._width || !this._height;
+    }
+
+    public evaluate (time: number, defaultValue?: Readonly<Size>) {
+        if (defaultValue) {
+            this._result.x = defaultValue.x;
+            this._result.y = defaultValue.y;
         }
 
         if (this._width) {

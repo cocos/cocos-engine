@@ -42,7 +42,6 @@ import java.util.concurrent.FutureTask;
 public class CocosWebViewHelper {
     private static final String TAG = CocosWebViewHelper.class.getSimpleName();
     private static Handler sHandler;
-    private static CocosActivity sCocos2Activity;
     private static PopupWindow sPopUp;
     private static FrameLayout sLayout;
 
@@ -54,7 +53,6 @@ public class CocosWebViewHelper {
         CocosWebViewHelper.sLayout = layout;
         CocosWebViewHelper.sHandler = new Handler(Looper.myLooper());
 
-        CocosWebViewHelper.sCocos2Activity = (CocosActivity) GlobalObject.getActivity();
         CocosWebViewHelper.webViews = new SparseArray<CocosWebView>();
     }
 
@@ -70,10 +68,10 @@ public class CocosWebViewHelper {
 
     public static int createWebView() {
         final int index = viewTag;
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                CocosWebView webView = new CocosWebView(sCocos2Activity, index);
+                CocosWebView webView = new CocosWebView(GlobalObject.getContext(), index);
                 FrameLayout.LayoutParams lParams = new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.WRAP_CONTENT,
                         FrameLayout.LayoutParams.WRAP_CONTENT);
@@ -86,7 +84,7 @@ public class CocosWebViewHelper {
     }
 
     public static void removeWebView(final int index) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -101,7 +99,7 @@ public class CocosWebViewHelper {
     }
 
     public static void setVisible(final int index, final boolean visible) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -113,7 +111,7 @@ public class CocosWebViewHelper {
     }
 
     public static void setWebViewRect(final int index, final int left, final int top, final int maxWidth, final int maxHeight) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -125,7 +123,7 @@ public class CocosWebViewHelper {
     }
 
     public static void setBackgroundTransparent(final int index, final boolean isTransparent) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -138,7 +136,7 @@ public class CocosWebViewHelper {
     }
 
     public static void setJavascriptInterfaceScheme(final int index, final String scheme) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -150,7 +148,7 @@ public class CocosWebViewHelper {
     }
 
     public static void loadData(final int index, final String data, final String mimeType, final String encoding, final String baseURL) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -162,7 +160,7 @@ public class CocosWebViewHelper {
     }
 
     public static void loadHTMLString(final int index, final String data, final String baseUrl) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -174,7 +172,7 @@ public class CocosWebViewHelper {
     }
 
     public static void loadUrl(final int index, final String url) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -186,7 +184,7 @@ public class CocosWebViewHelper {
     }
 
     public static void loadFile(final int index, final String filePath) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -198,7 +196,7 @@ public class CocosWebViewHelper {
     }
 
     public static void stopLoading(final int index) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -211,7 +209,7 @@ public class CocosWebViewHelper {
     }
 
     public static void reload(final int index) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -263,7 +261,7 @@ public class CocosWebViewHelper {
     }
 
     public static void goBack(final int index) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -275,7 +273,7 @@ public class CocosWebViewHelper {
     }
 
     public static void goForward(final int index) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -287,7 +285,7 @@ public class CocosWebViewHelper {
     }
 
     public static void evaluateJS(final int index, final String js) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);
@@ -299,7 +297,7 @@ public class CocosWebViewHelper {
     }
 
     public static void setScalesPageToFit(final int index, final boolean scalesPageToFit) {
-        sCocos2Activity.runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 CocosWebView webView = webViews.get(index);

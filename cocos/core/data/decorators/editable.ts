@@ -364,7 +364,8 @@ function setPropertyStashWithImplicitI18n<TKey extends keyof PropertyStash> (
         const prefix = 'i18n:';
         if (value.startsWith(prefix)) {
             const extensionPrefix = 'ENGINE.';
-            propertyStash[key] = `${prefix}${extensionPrefix}${value.substring(prefix.length)}`;
+            // TODO: 'i18n:XXX' is a dynamic property inject, which is not defined in interface PropertyStash.
+            (propertyStash[key] as string) = `${prefix}${extensionPrefix}${value.substring(prefix.length)}`;
         } else {
             propertyStash[key] = value;
         }

@@ -65,9 +65,11 @@ public class CocosActivity extends GameActivity {
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
 
-        GlobalObject.setActivity(this);
+        // GlobalObject.init should be initialized at first.
+        GlobalObject.init(this, this);
+
         CocosHelper.registerBatteryLevelReceiver(this);
-        CocosHelper.init(this);
+        CocosHelper.init();
         CocosAudioFocusManager.registerAudioFocusListener(this);
         CanvasRenderingContext2DImpl.init(this);
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -81,7 +83,7 @@ public class CocosActivity extends GameActivity {
 
         Utils.hideVirtualButton();
 
-        mSurfaceView.setOnTouchListener((v, event) -> onTouchEventNative(getGameActivityNativeHandle(), event));
+        mSurfaceView.setOnTouchListener((v, event) -> processMotionEvent(event));
     }
 
     private void setImmersiveMode() {
@@ -131,6 +133,7 @@ public class CocosActivity extends GameActivity {
         CocosHelper.unregisterBatteryLevelReceiver(this);
         CocosAudioFocusManager.unregisterAudioFocusListener(this);
         CanvasRenderingContext2DImpl.destroy();
+        GlobalObject.destroy();
     }
 
     @Override

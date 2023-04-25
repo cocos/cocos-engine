@@ -25,11 +25,12 @@
 
 import { Light } from './light-component';
 import { scene } from '../../render-scene';
-import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings, override } from '../../core';
+import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings, CCInteger } from '../../core';
 import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
 import { Root } from '../../root';
 import { MeshRenderer } from '../framework';
 import { director } from '../../game/director';
+import { rangeMin } from '../../core/data/decorators';
 
 const { ccclass, menu, executeInEditMode, property, serializable, formerlySerializedAs, tooltip, help, visible, type, editable, slide, range } = _decorator;
 
@@ -95,6 +96,10 @@ export class DirectionalLight extends Light {
      * @zh 光源强度。
      */
     @tooltip('i18n:lights.illuminance')
+    @editable
+    @rangeMin(0)
+    @slide
+    @type(CCInteger)
     get illuminance () {
         const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {

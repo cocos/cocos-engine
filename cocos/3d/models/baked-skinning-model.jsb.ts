@@ -28,8 +28,12 @@ import { Mesh } from '../assets/mesh';
 import { Node } from '../../scene-graph/node'
 import { AnimationClip } from "../../animation";
 import { IJointTextureHandle } from '../skeletal-animation/skeletal-animation-utils';
+import type { BakedSkinningModel as JsbBakedSkinningModel } from './baked-skinning-model';
 
-export const BakedSkinningModel = jsb.BakedSkinningModel;
+declare const jsb: any;
+
+export const BakedSkinningModel: typeof JsbBakedSkinningModel = jsb.BakedSkinningModel;
+export type BakedSkinningModel = JsbBakedSkinningModel;
 cclegacy.BakedSkinningModel = jsb.BakedSkinningModel;
 const MorphModel = jsb.MorphModel;
 

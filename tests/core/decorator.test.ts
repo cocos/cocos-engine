@@ -13,6 +13,8 @@ import { CCClass } from '../../cocos/core/data/class';
 import { property } from '../../cocos/core/data/decorators/property';
 import { getClassByName, unregisterClass } from '../../cocos/core/utils/js-typed';
 import { LegacyPropertyDecorator } from '../../cocos/core/data/decorators/utils';
+import { CCBoolean, CCFloat, CCInteger, CCString } from '../../exports/base';
+import { PrimitiveType } from '../../cocos/core/data/utils/attribute';
 
 test('Decorators signature', () => {
     class Foo {}
@@ -264,6 +266,72 @@ describe(`Decorators`, () => {
         }
 
         expect(CCClass.Attr.attr(Tooltip, 'boo').tooltip).toBe('i18n:ENGINE.model.shadow_normal_bias');
+    });
+
+    describe('@property', () => {
+        describe(`Type and default value specification`, () => {
+            test.each([
+                ['@property explicitly specifying CCString', CCString, '123'],
+                ['@property explicitly specifying CCInteger', CCInteger, 123],
+                ['@property explicitly specifying CCFloat', CCFloat, 1.23],
+                ['@property explicitly specifying CCBoolean', CCBoolean, true],
+            ] as [tile: string, type: PrimitiveType<any>, initializer: any][])(`%s`, (
+                _title: string, type: PrimitiveType<any>, initializer: any,
+            ) => {
+                const arrayInitializer = [];
+
+                @ccclass('Foo')
+                class Foo {
+                    // Having initializer.
+                    @property(type)
+                    public shorthand_form = initializer;
+                    public static readonly shorthand_form_EXPECTED = { type, default: initializer };
+
+                    @property({ type: type })
+                    public full_form = initializer;
+                    public static readonly full_form_EXPECTED = { type, default: initializer };
+
+                    // Having no initializer.
+                    @property(type)
+                    public no_initializer_shorthand_form;
+                    public static readonly no_initializer_shorthand_form_EXPECTED = { type };
+
+                    @property({ type: type })
+                    public no_initializer_full_form;
+                    public static readonly no_initializer_full_form_EXPECTED = { type };
+
+                    // Having array initializer.
+                    @property(type)
+                    public array_initializer_shorthand_form: string[] = arrayInitializer;
+                    public static readonly array_initializer_shorthand_form_EXPECTED = { type, default: arrayInitializer };
+
+                    @property({ type })
+                    public array_initializer_full_form: string[] = arrayInitializer;
+                    public static readonly array_initializer_full_form_EXPECTED = { type, default: arrayInitializer };
+                }
+
+                for (const propertyName of [
+                    'shorthand_form', 'full_form',
+                    'no_initializer_shorthand_form', 'no_initializer_full_form',
+                    'array_initializer_shorthand_form', 'array_initializer_full_form',
+                ]) {
+                    const expectedAttributes = Foo[`${propertyName}_EXPECTED`];
+
+                    const attrs = CCClass.Attr.attr(Foo, propertyName);
+                    expect(Object.keys(attrs)).toHaveLength(Object.keys(expectedAttributes).length);
+    
+                    for (const [attributeName, expectedAttributeValue] of Object.entries(expectedAttributes)) {
+                        const actualAttributeValue = attrs[attributeName];
+                        if (attributeName === 'default' && typeof actualAttributeValue === 'function') {
+                            expect(actualAttributeValue()).toBe(expectedAttributeValue);
+                        } else {
+                            expect(actualAttributeValue).toBe(expectedAttributeValue);
+                        }
+                    }
+                }
+            });
+            
+        });
     });
 });
 

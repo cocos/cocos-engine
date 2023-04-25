@@ -25,6 +25,7 @@
 #include "HelperMacros.h"
 #include "../State.h"
 #include "../ValueArrayPool.h"
+#include "Class.h"
 #include "Object.h"
 #include "ScriptEngine.h"
 #include "Utils.h"
@@ -128,7 +129,23 @@ SE_HOT void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8a
         SE_LOGE("[ERROR] Failed to invoke %s\n", funcName);
     }
     se::Value property;
-    if (thisObject->getProperty("_ctor", &property)) {
+    bool foundCtor = false;
+    if (!cls->_getCtor().has_value()) {
+        foundCtor = thisObject->getProperty("_ctor", &property, true);
+        if (foundCtor) {
+            cls->_setCtor(property.toObject());
+        } else {
+            cls->_setCtor(nullptr);
+        }
+    } else {
+        auto *ctorObj = cls->_getCtor().value();
+        if (ctorObj != nullptr) {
+            property.setObject(ctorObj);
+            foundCtor = true;
+        }
+    }
+
+    if (foundCtor) {
         property.toObject()->call(args, thisObject);
     }
 }

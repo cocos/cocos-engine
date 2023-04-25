@@ -344,7 +344,10 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
             if (!unit || !unit.mesh || !unit.mesh.data) { continue; }
             const newMesh = this._createUnitMesh(i, unit.mesh);
             const dataView = new DataView(newMesh.data.buffer);
-            Mat4.inverseTranspose(m4_local, unit._localTransform);
+
+            Mat4.invert(m4_local, unit._localTransform);
+            Mat4.transpose(m4_local, m4_local);
+
             const { offset } = unit;
             const { size } = unit;
             for (let b = 0; b < newMesh.struct.vertexBundles.length; b++) {

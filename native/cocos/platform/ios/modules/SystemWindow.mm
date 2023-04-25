@@ -26,6 +26,7 @@
 #include "platform/ios/modules/SystemWindow.h"
 #import <UIKit/UIKit.h>
 #include "platform/BasePlatform.h"
+#include "platform/ios/IOSPlatform.h"
 #include "platform/interfaces/modules/IScreen.h"
 
 namespace cc {
@@ -42,9 +43,10 @@ void SystemWindow::setCursorEnabled(bool value) {
 
 void SystemWindow::closeWindow() {
     // Force quit as there's no API to exit UIApplication
-    cc::events::Close::broadcast();
-    exit(0);
+    IOSPlatform* platform = dynamic_cast<IOSPlatform*>(BasePlatform::getPlatform());
+    platform->requestExit();
 }
+
 uintptr_t SystemWindow::getWindowHandle() const {
     return reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
 }

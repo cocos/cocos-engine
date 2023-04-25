@@ -27,20 +27,20 @@
 #include <unistd.h>
 #include <functional>
 #include <unordered_map>
-#include "cocos-version.h"
 #include "android/AndroidPlatform.h"
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "base/StringUtil.h"
 #include "bindings/event/EventDispatcher.h"
+#include "cocos-version.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
+#include "core/scene-graph/Node.h"
 #include "java/jni/JniHelper.h"
-#include "renderer/GFXDeviceManager.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "renderer/GFXDeviceManager.h"
 #include "scene/Camera.h"
 #include "scene/RenderWindow.h"
-#include "core/scene-graph/Node.h"
 #ifdef CC_USE_VULKAN
     #include "gfx-vulkan/VKDevice.h"
 #endif
@@ -460,8 +460,22 @@ void XRInterface::initialize(void *javaVM, void *activity) {
 
             std::string imageInfo = value.getString();
             _gThreadPool->pushTask([imageInfo, this](int /*tid*/) {
-                this->loadAssetsImage(imageInfo);
+                this->loadImageTrackingData(imageInfo);
             });
+        } else if (key == xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE && value.isString()) {
+            std::string imagePath = value.getString();
+            if (imagePath.length() == 0) {
+                return;
+            }
+
+            if (!_gThreadPool) {
+                _gThreadPool = LegacyThreadPool::newSingleThreadPool();
+            }
+            _gThreadPool->pushTask([imagePath, this](int /*tid*/) {
+                this->asyncLoadAssetsImage(imagePath);
+            });
+        } else if (key == xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE && value.isInt()) {
+            _isFlipPixelY = value.getInt() == static_cast<int>(gfx::API::GLES3);
         }
     });
     #if XR_OEM_PICO
@@ -975,7 +989,7 @@ void XRInterface::bindXREyeWithRenderWindow(void *window, xr::XREye eye) {
     }
 }
 
-void XRInterface::loadAssetsImage(const std::string &imageInfo) {
+void XRInterface::loadImageTrackingData(const std::string &imageInfo) {
     // name|@assets/TrackingImage_SpacesTown.png|0.18|0.26
     ccstd::vector<ccstd::string> segments = StringUtil::split(imageInfo, "|");
     std::string imageName = segments.at(0);
@@ -986,7 +1000,7 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
     spaceTownImage->addRef();
     bool res = spaceTownImage->initWithImageFile(imagePath);
     if (!res) {
-        CC_LOG_ERROR("[XRInterface] loadAssetsImage init failed, %s!!!", imageInfo.c_str());
+        CC_LOG_ERROR("[XRInterface] loadImageTrackingData init failed, %s!!!", imageInfo.c_str());
         return;
     }
     uint32_t imageWidth = spaceTownImage->getWidth();
@@ -1009,7 +1023,7 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
 
     auto app = CC_CURRENT_APPLICATION();
     if (!app) {
-        CC_LOG_ERROR("[XRInterface] loadAssetsImage callback failed, application not exist!!!");
+        CC_LOG_ERROR("[XRInterface] loadImageTrackingData callback failed, application not exist!!!");
         return;
     }
     auto engine = app->getEngine();
@@ -1104,10 +1118,89 @@ void XRInterface::adaptOrthographicMatrix(cc::scene::Camera *camera, const ccstd
 #endif
 }
 
+void XRInterface::asyncLoadAssetsImage(const std::string &imagePath) {
+    auto *assetsImage = new Image();
+    assetsImage->addRef();
+    bool res = assetsImage->initWithImageFile(imagePath);
+    if (!res) {
+        CC_LOG_ERROR("[XRInterface] async load assets image init failed, %s!!!", imagePath.c_str());
+        assetsImage->release();
+        return;
+    }
+    uint32_t imageWidth = assetsImage->getWidth();
+    uint32_t imageHeight = assetsImage->getHeight();
+    uint32_t bufferSize = assetsImage->getDataLen();
+    uint8_t *buffer = nullptr;
+    if (assetsImage->getRenderFormat() == gfx::Format::RGB8) {
+        // convert to rgba8
+        bufferSize = imageWidth * imageHeight * 4;
+        buffer = new uint8_t[bufferSize];
+        for (uint32_t y = 0; y < imageHeight; y++) {
+            for (uint32_t x = 0; x < imageWidth; x++) {
+                const unsigned int pixel = x + y * imageWidth;
+                const unsigned int pixelFlip = x + (imageHeight - y - 1) * imageWidth;
+                const uint8_t *originalPixel = &assetsImage->getData()[static_cast<size_t>(pixel * 3)];
+                uint8_t *convertedPixel = nullptr;
+                if (_isFlipPixelY) {
+                    convertedPixel = &buffer[static_cast<size_t>(pixelFlip * 4)];
+                } else {
+                    convertedPixel = &buffer[static_cast<size_t>(pixel * 4)];
+                }
+                convertedPixel[0] = originalPixel[0];
+                convertedPixel[1] = originalPixel[1];
+                convertedPixel[2] = originalPixel[2];
+                convertedPixel[3] = 255.0F;
+            }
+        }
+    } else {
+        buffer = new uint8_t[bufferSize];
+        if (_isFlipPixelY) {
+            for (uint32_t y = 0; y < imageHeight; y++) {
+                for (uint32_t x = 0; x < imageWidth; x++) {
+                    const unsigned int pixel = x + y * imageWidth;
+                    const unsigned int pixelFlip = x + (imageHeight - y - 1) * imageWidth;
+                    const uint8_t *originalPixel = &assetsImage->getData()[static_cast<size_t>(pixel * 4)];
+                    uint8_t *convertedPixel = &buffer[static_cast<size_t>(pixelFlip * 4)];
+                    convertedPixel[0] = originalPixel[0];
+                    convertedPixel[1] = originalPixel[1];
+                    convertedPixel[2] = originalPixel[2];
+                    convertedPixel[3] = originalPixel[3];
+                }
+            }
+        } else {
+            memcpy(buffer, assetsImage->getData(), bufferSize);
+        }
+    }
+    auto app = CC_CURRENT_APPLICATION();
+    if (!app) {
+        CC_LOG_ERROR("[XRInterface] loadAssetsImage callback failed, application not exist!!!");
+        return;
+    }
+    auto engine = app->getEngine();
+    CC_ASSERT_NOT_NULL(engine);
+    engine->getScheduler()->performFunctionInCocosThread([=]() {
+        auto *imageData = new xr::XRTrackingImageData();
+        imageData->friendlyName = imagePath;
+        imageData->bufferSize = bufferSize;
+        imageData->buffer = buffer;
+        imageData->pixelSizeWidth = imageWidth;
+        imageData->pixelSizeHeight = imageHeight;
+        if (!this->getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer()) {
+            auto *imagesMapPtr = new std::unordered_map<std::string, void *>();
+            (*imagesMapPtr).emplace(std::make_pair(imagePath, static_cast<void *>(imageData)));
+            this->setXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS, static_cast<void *>(imagesMapPtr));
+        } else {
+            auto *imagesMapPtr = static_cast<std::unordered_map<std::string,
+                                                                void *> *>(getXRConfig(xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE_RESULTS).getPointer());
+            (*imagesMapPtr).emplace(std::make_pair(imagePath, static_cast<void *>(imageData)));
+        }
+    });
+    assetsImage->release();
+}
 
 #if CC_USE_XR
 
-extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onAdbCmd(JNIEnv * /*env*/, jobject  /*thiz*/, jstring key, jstring value) {
+extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onAdbCmd(JNIEnv * /*env*/, jobject /*thiz*/, jstring key, jstring value) {
     auto cmdKey = cc::JniHelper::jstring2string(key);
     auto cmdValue = cc::JniHelper::jstring2string(value);
     if (IS_ENABLE_XR_LOG) {
@@ -1116,7 +1209,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onAdbCmd(JNIE
     cc::xr::XrEntry::getInstance()->setXRConfig(cc::xr::XRConfigKey::ADB_COMMAND, cmdKey.append(":").append(cmdValue));
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onActivityLifecycleCallback(JNIEnv * /*env*/, jobject  /*thiz*/, jint type, jstring activityClassName) {
+extern "C" JNIEXPORT void JNICALL Java_com_cocos_lib_xr_CocosXRApi_onActivityLifecycleCallback(JNIEnv * /*env*/, jobject /*thiz*/, jint type, jstring activityClassName) {
     auto name = cc::JniHelper::jstring2string(activityClassName);
     if (IS_ENABLE_XR_LOG) {
         CC_LOG_INFO("CocosXRApi_onActivityLifecycleCallback_%d_%s", type, name.c_str());

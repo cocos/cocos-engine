@@ -77,7 +77,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
 
     add_vertex(layoutGraphData, RenderPhaseTag{}, "");
     auto &layout = layoutGraphData.layouts.back();
-    auto& descPair = layout.descriptorSets.emplace(UpdateFrequency::PER_PASS, DescriptorSetData{renderGraph.get_allocator()});
+    auto &descPair = layout.descriptorSets.emplace(UpdateFrequency::PER_PASS, DescriptorSetData{renderGraph.get_allocator()});
     auto &descData = (*descPair.first).second.descriptorSetLayoutData;
     for (size_t i = 0; i < layoutInfo.size(); ++i) {
         const ccstd::string passName = "pass" + std::to_string(i);
@@ -93,7 +93,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
             stages[i].descriptorVisibility.emplace(NameLocalID{nameID}, shaderStage);
             auto &block = descData.descriptorBlocks.emplace_back();
             block.visibility = shaderStage;
-            auto& desc = block.descriptors.emplace_back();
+            auto &desc = block.descriptors.emplace_back();
             desc.count = 1;
             desc.descriptorID = {nameID};
         }
@@ -626,39 +626,39 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
         {"22",                                                                                                                                                               \
          {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::BACKBUFFER},                                                                                                                                      \
+         {ResourceResidency::BACKBUFFER},                                                                                                                                    \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
     };
 
-#define TEST_CASE_1                                                      \
-    TEST_CASE_DEFINE                                                     \
-                                                                         \
-    ViewInfo rasterData = {                                              \
-        {                                                                \
-            PassType::RASTER,                                            \
-            {                                                            \
-                {{}, {"0", "1", "2"}},                                   \
-                {{"0", "1", "2"}, {"3"}},                                \
-            },                                                           \
-        },                                                               \
-        {                                                                \
-            PassType::RASTER,                                            \
-            {                                                            \
-                {{"3"}, {"22"}},                                         \
-            },                                                           \
-        },                                                               \
-    };                                                                   \
-                                                                         \
-    LayoutInfo layoutInfo = {                                            \
-        {                                                                \
-            {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
-            {"1", 1, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
-            {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
-            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
-        },                                                               \
-        {                                                                \
-            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
-            {"22", 22, cc::gfx::ShaderStageFlagBit::FRAGMENT},           \
+#define TEST_CASE_1                                            \
+    TEST_CASE_DEFINE                                           \
+                                                               \
+    ViewInfo rasterData = {                                    \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{}, {"0", "1", "2"}},                         \
+                {{"0", "1", "2"}, {"3"}},                      \
+            },                                                 \
+        },                                                     \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"3"}, {"22"}},                               \
+            },                                                 \
+        },                                                     \
+    };                                                         \
+                                                               \
+    LayoutInfo layoutInfo = {                                  \
+        {                                                      \
+            {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"1", 1, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+        },                                                     \
+        {                                                      \
+            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"22", 22, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
         }};
 
 #define TEST_CASE_2                                            \

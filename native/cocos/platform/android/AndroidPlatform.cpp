@@ -35,7 +35,6 @@
 #include "platform/BasePlatform.h"
 #include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniImp.h"
-#include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/Accelerometer.h"
 #include "platform/java/modules/Battery.h"
 #include "platform/java/modules/Network.h"
@@ -78,7 +77,6 @@ namespace cc {
 
 struct cc::TouchEvent touchEvent;
 struct cc::KeyboardEvent keyboardEvent;
-static uint32_t prevButtonsDown = 0;
 
 struct InputAction {
     uint32_t buttonMask{0};
@@ -86,12 +84,44 @@ struct InputAction {
 };
 
 static const InputAction PADDLEBOAT_ACTIONS[INPUT_ACTION_COUNT] = {
-    {PADDLEBOAT_BUTTON_A, static_cast<int>(KeyCode::ENTER)},
-    {PADDLEBOAT_BUTTON_B, static_cast<int>(KeyCode::ESCAPE)},
     {PADDLEBOAT_BUTTON_DPAD_UP, static_cast<int>(KeyCode::DPAD_UP)},
     {PADDLEBOAT_BUTTON_DPAD_LEFT, static_cast<int>(KeyCode::DPAD_LEFT)},
     {PADDLEBOAT_BUTTON_DPAD_DOWN, static_cast<int>(KeyCode::DPAD_DOWN)},
-    {PADDLEBOAT_BUTTON_DPAD_RIGHT, static_cast<int>(KeyCode::DPAD_RIGHT)}};
+    {PADDLEBOAT_BUTTON_DPAD_RIGHT, static_cast<int>(KeyCode::DPAD_RIGHT)},
+};
+
+struct ControllerKeyRemap {
+    Paddleboat_Buttons buttonMask;
+    StickKeyCode actionCode{StickKeyCode::UNDEFINE};
+    const char *name;
+};
+
+#define REMAP_WITH_NAME(btn, key) \
+    { btn, key, #btn }
+
+static const ControllerKeyRemap PADDLEBOAT_MAPKEY[] = {
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_A, StickKeyCode::A),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_B, StickKeyCode::B),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_X, StickKeyCode::X),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_Y, StickKeyCode::Y),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_L1, StickKeyCode::L1),
+    // REMAP_WITH_NAME(PADDLEBOAT_BUTTON_L2, StickKeyCode::TRIGGER_LEFT),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_L3, StickKeyCode::L3),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_R1, StickKeyCode::R1),
+    // REMAP_WITH_NAME(PADDLEBOAT_BUTTON_R2, StickKeyCode::TRIGGER_RIGHT),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_R3, StickKeyCode::R3),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_SELECT, StickKeyCode::MINUS),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_START, StickKeyCode::PLUS),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_SYSTEM, StickKeyCode::MENU),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_TOUCHPAD, StickKeyCode::UNDEFINE),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_AUX1, StickKeyCode::UNDEFINE),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_AUX2, StickKeyCode::UNDEFINE),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_AUX3, StickKeyCode::UNDEFINE),
+    REMAP_WITH_NAME(PADDLEBOAT_BUTTON_AUX4, StickKeyCode::UNDEFINE),
+};
+#undef REMAP_WITH_NAME
+
+const int INPUT_ACTION_REMAP_COUNT = sizeof(PADDLEBOAT_MAPKEY) / sizeof(ControllerKeyRemap);
 
 static const InputAction INPUT_KEY_ACTIONS[] = {
     {AKEYCODE_BACK, static_cast<int>(KeyCode::MOBILE_BACK)},
@@ -146,8 +176,27 @@ public:
             _jniEnv = nullptr;
         }
     }
+    void checkForNewAxis() {
+        // Tell GameActivity about any new axis ids so it reports
+        // their events
+        const uint64_t activeAxisIds = Paddleboat_getActiveAxisMask();
+        uint64_t newAxisIds = activeAxisIds ^ _activeAxisIds;
+        if (newAxisIds != 0) {
+            _activeAxisIds = activeAxisIds;
+            int32_t currentAxisId = 0;
+            while (newAxisIds != 0) {
+                if ((newAxisIds & 1) != 0) {
+                    CC_LOG_INFO("Enable Axis: %d", currentAxisId);
+                    GameActivityPointerAxes_enableAxis(currentAxisId);
+                }
+                ++currentAxisId;
+                newAxisIds >>= 1;
+            }
+        }
+    }
 
     void handleInput() {
+        checkForNewAxis();
         Paddleboat_update(_jniEnv);
         // If we get any key or motion events that were handled by a game controller,
         // read controller data and cook it into an event
@@ -191,28 +240,106 @@ public:
         }
     }
 
+    struct ButtonState {
+        uint32_t buttonsDown;
+        uint32_t &prevState;
+#define DEF_ATTR(name, code)                                                                      \
+    bool name##Pressed() const { return buttonsDown & PADDLEBOAT_BUTTON_##code; }                 \
+    bool name##Rel() const { return !name##Pressed() && (prevState & PADDLEBOAT_BUTTON_##code); } \
+    bool name() const { return name##Pressed() || name##Rel(); }
+
+        DEF_ATTR(dpadLeft, DPAD_LEFT)
+        DEF_ATTR(dpadRight, DPAD_RIGHT)
+        DEF_ATTR(dpadUp, DPAD_UP)
+        DEF_ATTR(dpadDown, DPAD_DOWN)
+
+        DEF_ATTR(l2, L2)
+        DEF_ATTR(r2, R2)
+
+#undef DEF_ATTR
+    };
+
     bool cookGameControllerEvent(const int32_t gameControllerIndex) {
-        int addedControllerEvent = 0;
+        static std::vector<uint32_t> prevStates{4};
+        bool addedControllerEvent = false;
+        cc::ControllerInfo info;
         if (gameControllerIndex >= 0) {
+            if (gameControllerIndex >= prevStates.size()) {
+                prevStates.resize(gameControllerIndex * 2 + 1);
+            }
+            uint32_t &prevButtonsDown = prevStates[gameControllerIndex];
+
+            info.napdId = gameControllerIndex;
             Paddleboat_Controller_Data controllerData;
             if (Paddleboat_getControllerData(gameControllerIndex, &controllerData) ==
                 PADDLEBOAT_NO_ERROR) {
+                addedControllerEvent = true;
                 // Generate events from buttons
                 for (auto inputAction : PADDLEBOAT_ACTIONS) {
                     if (controllerData.buttonsDown & inputAction.buttonMask) {
                         reportKeyState(inputAction.actionCode, true);
-                        addedControllerEvent = 1;
                     } else if (prevButtonsDown & inputAction.buttonMask) {
                         reportKeyState(inputAction.actionCode, false);
-                        addedControllerEvent = 1;
                     }
                 }
+                for (auto remap : PADDLEBOAT_MAPKEY) {
+                    auto code = remap.actionCode;
+                    if (controllerData.buttonsDown & remap.buttonMask) {
+                        if (code == StickKeyCode::UNDEFINE) {
+                            CC_LOG_ERROR("key \"%s\" is unhandled", remap.name);
+                        }
+                        cc::ControllerInfo::ButtonInfo buttonInfo{code, true};
+                        info.buttonInfos.emplace_back(buttonInfo);
+                    } else if (prevButtonsDown & remap.buttonMask) {
+                        cc::ControllerInfo::ButtonInfo buttonInfo{code, false};
+                        buttonInfo.key = code;
+                        buttonInfo.isPress = false;
+                        info.buttonInfos.emplace_back(buttonInfo);
+                    }
+                }
+                const ButtonState bts{controllerData.buttonsDown, prevButtonsDown};
+                if (bts.dpadLeft() || bts.dpadRight()) {
+                    float dLeft = bts.dpadLeftRel() ? 0.0F : (bts.dpadLeftPressed() ? -1.0F : 0.0F);
+                    float dRight = bts.dpadRightRel() ? 0.0F : (bts.dpadRightPressed() ? 1.0F : 0.0F);
+                    const ControllerInfo::AxisInfo axisInfo(StickAxisCode::X, dLeft + dRight);
+                    info.axisInfos.emplace_back(axisInfo);
+                }
+                if (bts.dpadUp() || bts.dpadDown()) {
+                    float dUp = bts.dpadUpRel() ? 0.0F : (bts.dpadUp() ? 1.0F : 0.0F);
+                    float dDown = bts.dpadDownRel() ? 0.0F : (bts.dpadDown() ? -1.0F : 0.0F);
+                    const ControllerInfo::AxisInfo axisInfo(StickAxisCode::Y, dUp + dDown);
+                    info.axisInfos.emplace_back(axisInfo);
+                }
+                if (bts.l2()) {
+                    const ControllerInfo::AxisInfo axisInfo(StickAxisCode::L2, bts.l2Rel() ? 0.0F : (bts.l2Pressed() ? controllerData.triggerL2 : 0.0F));
+                    info.axisInfos.emplace_back(axisInfo);
+                }
+                if (bts.r2()) {
+                    const ControllerInfo::AxisInfo axisInfo(StickAxisCode::R2, bts.r2Rel() ? 0.0F : (bts.r2Pressed() ? controllerData.triggerR2 : 0.0F));
+                    info.axisInfos.emplace_back(axisInfo);
+                }
 
-                // Update our prev variable so we can detect delta changes from down to up
+                auto lx = controllerData.leftStick.stickX;
+                auto ly = controllerData.leftStick.stickY;
+                auto rx = controllerData.rightStick.stickX;
+                auto ry = controllerData.rightStick.stickY;
+
+                info.axisInfos.emplace_back(StickAxisCode::LEFT_STICK_X, lx);
+                info.axisInfos.emplace_back(StickAxisCode::LEFT_STICK_Y, ly);
+                info.axisInfos.emplace_back(StickAxisCode::RIGHT_STICK_X, rx);
+                info.axisInfos.emplace_back(StickAxisCode::RIGHT_STICK_Y, ry);
+
+                ControllerEvent controllerEvent;
+                controllerEvent.type = ControllerEvent::Type::GAMEPAD;
+                controllerEvent.controllerInfos.emplace_back(std::make_unique<ControllerInfo>(std::move(info)));
+                events::Controller::broadcast(controllerEvent);
+
+                // Update our prev variable so we can det
+                // ect delta changes from down to up
                 prevButtonsDown = controllerData.buttonsDown;
             }
         }
-        return (addedControllerEvent != 0);
+        return addedControllerEvent;
     }
 
     // NOLINTNEXTLINE
@@ -255,7 +382,6 @@ public:
                     addTouchEvent(i, motionEvent);
                 }
             }
-
             events::Touch::broadcast(touchEvent);
             touchEvent.touches.clear();
             return true;
@@ -383,7 +509,6 @@ public:
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::CLOSE;
                 events::WindowEvent::broadcast(ev);
-                _androidPlatform->onDestroy();
                 break;
             }
             case APP_CMD_STOP: {
@@ -477,7 +602,8 @@ private:
 
     AppEventCallback _eventCallback{nullptr};
     AndroidPlatform *_androidPlatform{nullptr};
-    JNIEnv *_jniEnv{nullptr};         // JNI environment
+    JNIEnv *_jniEnv{nullptr}; // JNI environment
+    uint64_t _activeAxisIds{0};
     int32_t _gameControllerIndex{-1}; // Most recently connected game controller index
     bool _launched{false};
     bool _isVisible{false};
@@ -516,6 +642,13 @@ void gameControllerStatusCallback(const int32_t controllerIndex,
                 inputProxy->setActiveGameControllerIndex(newControllerIndex);
             }
         }
+        ControllerChangeEvent event;
+        for (int32_t i = 0; i < PADDLEBOAT_MAX_CONTROLLERS; ++i) {
+            if (Paddleboat_getControllerStatus(i) == PADDLEBOAT_CONTROLLER_ACTIVE) {
+                event.controllerIds.emplace_back(i);
+            }
+        }
+        events::ControllerChange::broadcast(event);
     }
 }
 
@@ -588,6 +721,10 @@ int32_t AndroidPlatform::run(int /*argc*/, const char ** /*argv*/) {
     return 0;
 }
 
+void AndroidPlatform::exit() {
+    _app->destroyRequested = 1;
+}
+
 int32_t AndroidPlatform::loop() {
     IXRInterface *xr = CC_GET_XR_INTERFACE();
     while (true) {
@@ -604,10 +741,13 @@ int32_t AndroidPlatform::loop() {
 
             // Exit the game loop when the Activity is destroyed
             if (_app->destroyRequested) {
-                return 0;
+                break;
             }
         }
-
+        // Exit the game loop when the Activity is destroyed
+        if (_app->destroyRequested) {
+            break;
+        }
         if (xr && !xr->platformLoopStart()) continue;
         _inputProxy->handleInput();
         if (_inputProxy->isAnimating() && (xr ? xr->getXRConfig(xr::XRConfigKey::SESSION_RUNNING).getBool() : true)) {
@@ -631,6 +771,8 @@ int32_t AndroidPlatform::loop() {
 #endif
         if (xr) xr->platformLoopEnd();
     }
+    onDestroy();
+    return 0;
 }
 
 void AndroidPlatform::pollEvent() {

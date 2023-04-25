@@ -55,13 +55,18 @@
 #define REFLECTION_PROBE_TYPE_NONE 0
 #define REFLECTION_PROBE_TYPE_CUBE 1
 #define REFLECTION_PROBE_TYPE_PLANAR 2
+#define REFLECTION_PROBE_TYPE_BLEND 3
+#define REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX 4
+#pragma define IS_REFLECTION_PROBE_USE_RGBE(mipcount) mipcount > 1000.0
+#pragma define RESTORE_REFLECTION_PROBE_MIP_COUNT(mipcount) if (mipcount > 1000.0) mipcount -= 1000.0
 
 // Light Type
 #define LIGHT_TYPE_DIRECTIONAL 0.0
-#define LIGHT_TYPE_POINT 1.0
+#define LIGHT_TYPE_SPHERE 1.0
 #define LIGHT_TYPE_SPOT 2.0
-#define LIGHT_TYPE_SPHERE 3.0
+#define LIGHT_TYPE_POINT 3.0
 #define LIGHT_TYPE_RANGED_DIRECTIONAL 4.0
+
 #define IS_DIRECTIONAL_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_DIRECTIONAL)
 #define IS_SPHERE_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_SPHERE)
 #define IS_SPOT_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_SPOT)

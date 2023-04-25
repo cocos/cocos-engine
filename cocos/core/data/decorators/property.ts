@@ -199,8 +199,7 @@ function mergePropertyOptions (
     if (options) {
         fullOptions = getFullFormOfProperty(options, isGetset);
     }
-    // @ts-expect-error enum PropertyStashInternalFlag is used as number
-    const propertyRecord: PropertyStash = mixin(propertyStash, fullOptions || options || {});
+    const propertyRecord: PropertyStash = mixin(propertyStash, fullOptions || options || {}) as PropertyStash;
 
     if (isGetset) {
         // typescript or babel
@@ -211,11 +210,11 @@ function mergePropertyOptions (
                 warnID(3655, propertyKey, getClassName(ctor), propertyKey, propertyKey);
             }
         }
-        if ((<BabelPropertyDecoratorDescriptor>descriptorOrInitializer).get) {
-            propertyRecord.get = (<BabelPropertyDecoratorDescriptor>descriptorOrInitializer).get;
+        if ((descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get) {
+            propertyRecord.get = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get;
         }
-        if ((<BabelPropertyDecoratorDescriptor>descriptorOrInitializer).set) {
-            propertyRecord.set = (<BabelPropertyDecoratorDescriptor>descriptorOrInitializer).set;
+        if ((descriptorOrInitializer as BabelPropertyDecoratorDescriptor).set) {
+            propertyRecord.set = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor).set;
         }
     } else { // Target property is non-accessor
         if (DEV && (propertyRecord.get || propertyRecord.set)) {

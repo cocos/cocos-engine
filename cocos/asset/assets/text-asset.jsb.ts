@@ -21,8 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, editable, serializable } from 'cc.decorator';
 import { cclegacy } from '../../core';
+import { patch_cc_TextAsset } from '../../native-binding/decorators';
 import './asset';
 
 const textAssetProto: any = jsb.TextAsset.prototype;
@@ -39,7 +39,4 @@ textAssetProto._ctor = function () {
 cclegacy.TextAsset = jsb.TextAsset;
 
 // handle meta data, it is generated automatically
-const TextAssetProto = TextAsset.prototype;
-editable(TextAssetProto, 'text', () => '');
-serializable(TextAssetProto, 'text', () => '');
-ccclass('cc.TextAsset')(TextAsset);
+patch_cc_TextAsset({TextAsset});

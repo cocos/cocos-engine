@@ -514,10 +514,9 @@ void CCVKCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, co
     VkImage srcImage = VK_NULL_HANDLE;
     VkImage dstImage = VK_NULL_HANDLE;
 
-    auto getImage = [](Texture *texture) -> auto{
+    auto getImage = [](Texture * texture) -> auto {
         CCVKGPUTexture *gpuTexture = static_cast<CCVKTexture *>(texture)->gpuTexture();
-        return gpuTexture->swapchain ? std::pair{gpuTexture->aspectMask, gpuTexture->swapchainVkImages[gpuTexture->swapchain->curImageIndex]} :
-            std::pair{gpuTexture->aspectMask, gpuTexture->vkImage};
+        return gpuTexture->swapchain ? std::pair{gpuTexture->aspectMask, gpuTexture->swapchainVkImages[gpuTexture->swapchain->curImageIndex]} : std::pair{gpuTexture->aspectMask, gpuTexture->vkImage};
     };
 
     std::tie(srcAspectMask, srcImage) = getImage(srcTexture);
@@ -889,7 +888,7 @@ void CCVKCommandBuffer::resetQueryPool(QueryPool *queryPool) {
 }
 
 void CCVKCommandBuffer::customCommand(CustomCommand &&cmd) {
-    cmd(reinterpret_cast<void*>(_gpuCommandBuffer->vkCommandBuffer));
+    cmd(reinterpret_cast<void *>(_gpuCommandBuffer->vkCommandBuffer));
 }
 
 } // namespace gfx

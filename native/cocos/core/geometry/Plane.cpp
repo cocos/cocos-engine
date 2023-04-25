@@ -80,10 +80,10 @@ Plane::Plane(float nx, float ny, float nz, float d) : Plane() {
 void Plane::transform(const Mat4 &mat) {
     Mat4 tempMat = mat.getInversed();
     tempMat.transpose();
-    Vec4 tempVec4 = {n.x, n.y, n.z, d};
+    Vec4 tempVec4 = {n.x, n.y, n.z, -d};
     tempMat.transformVector(&tempVec4);
     n.set(tempVec4.x, tempVec4.y, tempVec4.z);
-    d = tempVec4.w;
+    d = -tempVec4.w;
 }
 
 // Define from 3 vertices.
@@ -92,7 +92,7 @@ void Plane::define(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2) {
     const Vec3 dist2 = v2 - v0;
 
     Vec3 dist;
-    Vec3::crossProduct(dist1, dist2, &dist);
+    Vec3::cross(dist1, dist2, &dist);
     define(dist, v0);
 }
 // Define from a normal vector and a point on the plane.

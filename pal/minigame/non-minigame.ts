@@ -22,8 +22,5 @@
  THE SOFTWARE.
 */
 
-import { IMiniGame } from 'pal/minigame';
-
-// @ts-expect-error can't init minigame when it's declared
-const minigame: IMiniGame = {};
+const minigame: any = {};
 export { minigame };

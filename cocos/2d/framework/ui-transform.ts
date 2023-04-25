@@ -71,16 +71,12 @@ export class UITransform extends Component {
             return;
         }
 
-        let clone: Size;
         if (EDITOR) {
-            clone = new Size(this._contentSize);
-        }
-
-        this._contentSize.set(value);
-        if (EDITOR) {
-            // @ts-expect-error EDITOR condition
+            const clone = new Size(this._contentSize);
+            this._contentSize.set(value);
             this.node.emit(NodeEventType.SIZE_CHANGED, clone);
         } else {
+            this._contentSize.set(value);
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
         this._markRenderDataDirty();
@@ -101,16 +97,12 @@ export class UITransform extends Component {
             return;
         }
 
-        let clone: Size;
         if (EDITOR) {
-            clone = new Size(this._contentSize);
-        }
-
-        this._contentSize.width = value;
-        if (EDITOR) {
-            // @ts-expect-error EDITOR condition
+            const clone = new Size(this._contentSize);
+            this._contentSize.width = value;
             this.node.emit(NodeEventType.SIZE_CHANGED, clone);
         } else {
+            this._contentSize.width = value;
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
         this._markRenderDataDirty();
@@ -131,16 +123,12 @@ export class UITransform extends Component {
             return;
         }
 
-        let clone: Size;
         if (EDITOR) {
-            clone = new Size(this._contentSize);
-        }
-
-        this._contentSize.height = value;
-        if (EDITOR) {
-            // @ts-expect-error EDITOR condition
+            const clone = new Size(this._contentSize);
+            this._contentSize.height = value;
             this.node.emit(NodeEventType.SIZE_CHANGED, clone);
         } else {
+            this._contentSize.height = value;
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
         this._markRenderDataDirty();
@@ -327,37 +315,32 @@ export class UITransform extends Component {
 
     public setContentSize (size: Size | number, height?: number) {
         const locContentSize = this._contentSize;
-        let clone: Size;
+        let locWidth: number;
+        let locHeight: number;
         if (height === undefined) {
             size = size as Size;
             if (approx(size.width, locContentSize.width, EPSILON) && approx(size.height, locContentSize.height, EPSILON)) {
                 return;
             }
-
-            if (EDITOR) {
-                clone = new Size(this._contentSize);
-            }
-
-            locContentSize.width = size.width;
-            locContentSize.height = size.height;
+            locWidth = size.width;
+            locHeight = size.height;
         } else {
             size = size as number;
             if (approx(size, locContentSize.width, EPSILON) && approx(height, locContentSize.height, EPSILON)) {
                 return;
             }
-
-            if (EDITOR) {
-                clone = new Size(this._contentSize);
-            }
-
-            locContentSize.width = size;
-            locContentSize.height = height;
+            locWidth = size;
+            locHeight = height;
         }
 
         if (EDITOR) {
-            // @ts-expect-error EDITOR condition
+            const clone = new Size(this._contentSize);
+            locContentSize.width = locWidth;
+            locContentSize.height = locHeight;
             this.node.emit(NodeEventType.SIZE_CHANGED, clone);
         } else {
+            locContentSize.width = locWidth;
+            locContentSize.height = locHeight;
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
 
