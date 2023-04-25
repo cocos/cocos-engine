@@ -137,6 +137,9 @@ class DynamicVBO {
     }
 }
 
+let globalBillboardVB: Buffer | null = null;
+let globalBillboardIB: Buffer | null = null;
+
 export default class ParticleBatchModel extends scene.Model {
     private _capacity: number;
     private _vertAttrs: Attribute[] | null;
@@ -341,23 +344,54 @@ export default class ParticleBatchModel extends scene.Model {
         // return vBuffer;
     }
 
-    private createSubMeshDataInsStatic () {
+    private createOrGetBillboardBuffers () {
         this._vertCount = 4;
         this._indexCount = 6;
+        if (!globalBillboardVB) {
+            globalBillboardVB = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                this._vertAttribSizeStatic * this._vertCount,
+                this._vertAttribSizeStatic,
+            ));
+            const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSizeStatic * this._vertCount);
+            const vbFloatArray = new Float32Array(vBuffer);
+            for (let i = 0; i < _uvs_ins.length; ++i) {
+                vbFloatArray[i] = _uvs_ins[i];
+            }
+            globalBillboardVB.update(vBuffer);
+        }
+        if (!globalBillboardIB) {
+            globalBillboardIB = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
+                Uint16Array.BYTES_PER_ELEMENT,
+            ));
+            const indices: Uint16Array = new Uint16Array(this._indexCount);
+            indices[0] = 0;
+            indices[1] = 1;
+            indices[2] = 2;
+            indices[3] = 3;
+            indices[4] = 2;
+            indices[5] = 1;
+            globalBillboardIB.update(indices);
+        }
+    }
+
+    private createSubMeshDataInsStatic () {
         if (this._mesh) {
             this._vertCount = this._mesh.struct.vertexBundles[this._mesh.struct.primitives[0].vertexBundelIndices[0]].view.count;
             this._indexCount = this._mesh.struct.primitives[0].indexView!.count;
-        }
 
-        const vertexBuffer = this._device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._vertAttribSizeStatic * this._vertCount,
-            this._vertAttribSizeStatic,
-        ));
+            const vertexBuffer = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                this._vertAttribSizeStatic * this._vertCount,
+                this._vertAttribSizeStatic,
+            ));
 
-        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSizeStatic * this._vertCount);
-        if (this._mesh) {
+            const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSizeStatic * this._vertCount);
             let vIdx = this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD); // find ATTR_TEX_COORD index
             let vOffset = (this._vertAttrs![vIdx] as any).offset; // find ATTR_TEX_COORD offset
             this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh uv to ATTR_TEX_COORD
@@ -373,40 +407,34 @@ export default class ParticleBatchModel extends scene.Model {
                     vb[iVertex * this._vertStaticAttrsFloatCount + vOffset / 4] = Color.WHITE._val;
                 }
             }
+            vertexBuffer.update(vBuffer);
+
+            const indices: Uint16Array = new Uint16Array(this._indexCount);
+            this._mesh.copyIndices(0, indices);
+
+            const indexBuffer: Buffer = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
+                Uint16Array.BYTES_PER_ELEMENT,
+            ));
+
+            indexBuffer.update(indices);
+            this._insIndices = indexBuffer;
+
+            this._insBuffers.push(vertexBuffer);
         } else {
-            const vbFloatArray = new Float32Array(vBuffer);
-            for (let i = 0; i < _uvs_ins.length; ++i) {
-                vbFloatArray[i] = _uvs_ins[i];
+            this.createOrGetBillboardBuffers();
+            if (globalBillboardVB) {
+                this._insBuffers.push(globalBillboardVB);
+            }
+            if (globalBillboardIB) {
+                this._insIndices = globalBillboardIB;
             }
         }
-        vertexBuffer.update(vBuffer);
-
-        const indices: Uint16Array = new Uint16Array(this._indexCount);
-        if (this._mesh) {
-            this._mesh.copyIndices(0, indices);
-        } else {
-            indices[0] = 0;
-            indices[1] = 1;
-            indices[2] = 2;
-            indices[3] = 3;
-            indices[4] = 2;
-            indices[5] = 1;
-        }
-
-        const indexBuffer: Buffer = this._device.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
-            Uint16Array.BYTES_PER_ELEMENT,
-        ));
-
-        indexBuffer.update(indices);
-        this._insIndices = indexBuffer;
 
         this._iaVertCount = this._vertCount;
         this._iaIndexCount = this._indexCount;
-
-        this._insBuffers.push(vertexBuffer);
     }
 
     private createInsSubmesh () {
@@ -757,8 +785,10 @@ export default class ParticleBatchModel extends scene.Model {
     private destroySubMeshData () {
         if (this._subMeshData) {
             if (this._useInstance) {
-                this._subMeshData.vertexBuffers[1].destroy();
-                this._subMeshData.indexBuffer?.destroy();
+                if (this._mesh) {
+                    this._subMeshData.vertexBuffers[1].destroy();
+                    this._subMeshData.indexBuffer?.destroy();
+                }
                 this._insBuffers.length = 0;
                 this._insIndices = null;
             } else {
