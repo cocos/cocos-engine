@@ -26,7 +26,6 @@ import { EDITOR } from 'internal:constants';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
 
 export class Pacer {
-    private _rafHandle = 0;
     private _stHandle = 0;
     private _onTick: (() => void) | null = null;
     private _targetFrameRate = 60;
@@ -101,9 +100,8 @@ export class Pacer {
 
     stop (): void {
         if (!this._isPlaying) return;
-        this._cAF.call(window, this._rafHandle);
         this._ctTime(this._stHandle);
-        this._rafHandle = this._stHandle = 0;
+        this._stHandle = 0;
         this._isPlaying = false;
     }
 
