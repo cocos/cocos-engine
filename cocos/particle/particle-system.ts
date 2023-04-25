@@ -1868,10 +1868,6 @@ export class ParticleSystem extends ModelRenderer {
             Quat.invert(_inv_rol, _temp_rol);
         }
 
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule.update();
-        }
-
         const dd = dt / count;
         for (let i = 0; i < count; ++i) {
             const particle = this.processor.getFreeParticle();
