@@ -236,6 +236,6 @@ export function clearTimeoutRAF (id) {
     if (EDITOR || caf === undefined || globalThis.__globalXR?.isWebXR) {
         clearTimeout(id);
     } else {
-        cancelAnimationFrame(id);
+        caf(id);
     }
 }
