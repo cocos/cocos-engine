@@ -27,7 +27,7 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { lerp, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
+import { VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from '../expressions';

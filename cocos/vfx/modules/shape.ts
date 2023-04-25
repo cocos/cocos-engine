@@ -30,6 +30,8 @@ import { VFXModule } from '../vfx-module';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
 import { RandomStream } from '../random-stream';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const _intermediVec = new Vec3(0, 0, 0);
 const tmpPosition = new Vec3();
@@ -143,11 +145,6 @@ export class ShapeModule extends VFXModule {
     private _mat = new Mat4();
     private _quat = new Quat();
     private _isTransformDirty = true;
-    protected _rand = new RandomStream();
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
-    }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (this._isTransformDirty) {

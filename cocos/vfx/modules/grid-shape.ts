@@ -25,7 +25,7 @@
 
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { CCInteger } from '../../core';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../base';
 import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { ShapeModule } from './shape';

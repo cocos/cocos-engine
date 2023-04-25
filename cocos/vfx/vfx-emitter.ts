@@ -159,11 +159,11 @@ export class VFXEmitter extends Component {
     @type(Enum(Space))
     @tooltip('i18n:particle_system.simulationSpace')
     public get simulationSpace () {
-        return this._params.simulationSpace;
+        return this._simulationSpace;
     }
 
     public set simulationSpace (val) {
-        this._params.simulationSpace = val;
+        this._simulationSpace = val;
     }
 
     /**
@@ -182,31 +182,31 @@ export class VFXEmitter extends Component {
     @visible(true)
     @rangeMin(0.001)
     public get maxDeltaTime () {
-        return this._params.maxDeltaTime;
+        return this._maxDeltaTime;
     }
 
     public set maxDeltaTime (val) {
-        this._params.maxDeltaTime = Math.max(val, 0.001);
+        this._maxDeltaTime = Math.max(val, 0.001);
     }
 
     @type(Enum(ScalingMode))
     @tooltip('i18n:particle_system.scalingMode')
     public get scalingMode () {
-        return this._params.scalingMode;
+        return this._scalingMode;
     }
 
     public set scalingMode (val) {
-        this._params.scalingMode = val;
+        this._scalingMode = val;
     }
 
     @visible(true)
     @type(Enum(CapacityMode))
     public get capacityMode () {
-        return this._params.capacityMode;
+        return this._capacityMode;
     }
 
     public set capacityMode (val) {
-        this._params.capacityMode = val;
+        this._capacityMode = val;
     }
 
     /**
@@ -217,11 +217,11 @@ export class VFXEmitter extends Component {
     @visible(function (this: VFXEmitter) { return this.capacityMode === CapacityMode.FIXED; })
     @rangeMin(0)
     public get capacity () {
-        return this._params.capacity;
+        return this._capacity;
     }
 
     public set capacity (val) {
-        this._params.capacity = Math.floor(val > 0 ? val : 0);
+        this._capacity = Math.floor(val > 0 ? val : 0);
     }
 
     /**
@@ -239,52 +239,52 @@ export class VFXEmitter extends Component {
     @type(CCBoolean)
     @visible(true)
     public get useAutoRandomSeed () {
-        return this._params.useAutoRandomSeed;
+        return this._useAutoRandomSeed;
     }
 
     public set useAutoRandomSeed (val) {
-        this._params.useAutoRandomSeed = val;
+        this._useAutoRandomSeed = val;
     }
 
     @type(CCInteger)
     @rangeMin(0)
     @visible(function (this: VFXEmitter) { return !this.useAutoRandomSeed; })
     public get randomSeed () {
-        return this._params.randomSeed;
+        return this._randomSeed;
     }
 
     public set randomSeed (val) {
-        this._params.randomSeed = val >>> 0;
+        this._randomSeed = val >>> 0;
     }
 
     @visible(true)
     @type(Enum(BoundsMode))
     public get boundsMode () {
-        return this._params.boundsMode;
+        return this._boundsMode;
     }
 
     public set boundsMode (val) {
-        this._params.boundsMode = val;
+        this._boundsMode = val;
     }
 
     @type(Vec3)
     @visible(function (this: VFXEmitter) { return this.boundsMode === BoundsMode.FIXED; })
     public get fixedBoundsMin () {
-        return this._params.fixedBoundsMin as Readonly<Vec3>;
+        return this._fixedBoundsMin as Readonly<Vec3>;
     }
 
     public set fixedBoundsMin (val) {
-        this._params.fixedBoundsMin.set(val);
+        this._fixedBoundsMin.set(val);
     }
 
     @type(Vec3)
     @visible(function (this: VFXEmitter) { return this.boundsMode === BoundsMode.FIXED; })
     public get fixedBoundsMax () {
-        return this._params.fixedBoundsMax as Readonly<Vec3>;
+        return this._fixedBoundsMax as Readonly<Vec3>;
     }
 
     public set fixedBoundsMax (val) {
-        this._params.fixedBoundsMax.set(val);
+        this._fixedBoundsMax.set(val);
     }
 
     /**
@@ -294,21 +294,21 @@ export class VFXEmitter extends Component {
     @type(Enum(CullingMode))
     @tooltip('i18n:particle_system.cullingMode')
     public get cullingMode () {
-        return this._params.cullingMode;
+        return this._cullingMode;
     }
 
     public set cullingMode (val) {
-        this._params.cullingMode = val;
+        this._cullingMode = val;
     }
 
     @visible(true)
     @type(Enum(FinishAction))
     public get finishAction () {
-        return this._params.finishAction;
+        return this._finishAction;
     }
 
     public set finishAction (val) {
-        this._params.finishAction = val;
+        this._finishAction = val;
     }
 
     public get particles () {
@@ -401,6 +401,30 @@ export class VFXEmitter extends Component {
     private _rendererCount = 0;
     @serializable
     private _params = new VFXEmitterParams();
+    @serializable
+    private _boundsMode = BoundsMode.AUTO;
+    @serializable
+    private _fixedBoundsMin = new Vec3(-100, -100, -100);
+    @serializable
+    private _fixedBoundsMax = new Vec3(100, 100, 100);
+    @serializable
+    private _cullingMode = CullingMode.ALWAYS_SIMULATE;
+    @serializable
+    private _capacityMode = CapacityMode.AUTO;
+    @serializable
+    private _capacity = 100;
+    @serializable
+    private _useAutoRandomSeed = true;
+    @serializable
+    private _randomSeed = 0;
+    @serializable
+    private _finishAction = FinishAction.NONE;
+    @serializable
+    private _maxDeltaTime = 0.05;
+    @serializable
+    private _simulationSpace = Space.LOCAL;
+    @serializable
+    private _scalingMode = ScalingMode.LOCAL;
     private _state = new VFXEmitterState();
     private _particleDataSet = new ParticleDataSet();
     private _emitterDataSet = new EmitterDataSet();
@@ -593,7 +617,12 @@ export class VFXEmitter extends Component {
         this.updateEmitterTransform(particles, emitter, user, context);
     }
 
-    private updateEmitterTime (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    /**
+     * only for test
+     * @internal
+     * @engineInternal
+     */
+    public updateEmitterTime (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const params = this._params;
         const deltaTime = context.deltaTime;
         if (DEBUG) {

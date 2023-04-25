@@ -23,10 +23,10 @@
  THE SOFTWARE.
  */
 
-import { ccclass, range, serializable, tooltip, type } from 'cc.decorator';
+import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
+import { ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { Vec3 } from '../../core';
 import { ConstantFloatExpression } from '../expressions';

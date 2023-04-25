@@ -29,6 +29,7 @@ import { ccclass, serializable, type, visible } from '../core/data/decorators';
 import { assertIsTrue, CCBoolean, CCString, Enum } from '../core';
 import { EmitterDataSet } from './emitter-data-set';
 import { UserDataSet } from './user-data-set';
+import { RandomStream } from './random-stream';
 
 export enum ModuleExecStage {
     UNKNOWN = -1,
@@ -165,9 +166,14 @@ export abstract class VFXModule {
         return this._randomSeed;
     }
 
+    public get randomStream () {
+        return this._randomStream;
+    }
+
     @serializable
     private _enabled = true;
     private _randomSeed = 0;
+    private _randomStream = new RandomStream(0);
 
     protected needsFilterSerialization () {
         return false;
@@ -203,6 +209,7 @@ export abstract class VFXModule {
      */
     public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
         this._randomSeed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
+        this._randomStream.seed = this._randomSeed;
     }
     /**
      * @engineInternal

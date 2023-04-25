@@ -24,10 +24,9 @@
  */
 import { Color, Gradient, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/decorators';
-import { ModuleExecContext, VFXEmitterParams } from '../base';
+import { ModuleExecContext } from '../base';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStage } from '../vfx-module';
-import { RandomStream } from '../random-stream';
 import { ColorExpression } from './color';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';

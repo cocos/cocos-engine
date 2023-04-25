@@ -24,7 +24,7 @@
  */
 import { lerp, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';

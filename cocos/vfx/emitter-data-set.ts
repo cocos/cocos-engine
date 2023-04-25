@@ -33,7 +33,6 @@ export class EmitterDataSet {
     public isWorldSpace = false;
     public spawnFraction = 0;
     public currentDelay = 0;
-    // emitter range
     public age = 0;
     public loopAge = 0;
     public prevLoopAge = 0;

@@ -22,9 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { CCFloat, Vec3, serializable } from '../../core';
+import { Vec3, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/class-decorator';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';

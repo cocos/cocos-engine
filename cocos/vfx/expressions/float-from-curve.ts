@@ -24,7 +24,7 @@
  */
 import { RealCurve } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../base';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStage } from '../vfx-module';
 import { RandomStream } from '../random-stream';
@@ -32,7 +32,6 @@ import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
-import { BindingFloatExpression } from '../../../exports/vfx';
 
 @ccclass('cc.FloatFromCurveExpression')
 export class FloatFromCurveExpression extends FloatExpression {

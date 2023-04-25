@@ -1,4 +1,4 @@
-import { VFXEventInfo, VFXEvents } from '../../cocos/vfx/particle-base';
+import { VFXEventInfo, VFXEvents } from '../../cocos/vfx/base';
 import { RandomStream } from '../../cocos/vfx/random-stream';
 
 describe('VFXEvents', () => {

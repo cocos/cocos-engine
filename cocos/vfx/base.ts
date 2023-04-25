@@ -118,8 +118,8 @@ export class VFXEvents {
     }
 }
 
-@ccclass('cc.VFXEmitterParams')
-export class VFXEmitterParams {
+@ccclass('cc.VFXEmitterLifeCycleParams')
+export class VFXEmitterLifeCycleParams {
     @serializable
     public loopMode = LoopMode.INFINITE;
     @serializable
@@ -133,37 +133,13 @@ export class VFXEmitterParams {
     @serializable
     public prewarmTimeStep = 0.03;
     @serializable
-    public simulationSpace = Space.LOCAL;
-    @serializable
-    public scalingMode = ScalingMode.LOCAL;
-    @serializable
     public simulationSpeed = 1.0;
-    @serializable
-    public maxDeltaTime = 0.05;
     @serializable
     public playOnAwake = true;
     @serializable
     public delayMode = DelayMode.NONE;
     @serializable
     public delayRange = new Vec2(0, 0);
-    @serializable
-    public boundsMode = BoundsMode.AUTO;
-    @serializable
-    public fixedBoundsMin = new Vec3(-100, -100, -100);
-    @serializable
-    public fixedBoundsMax = new Vec3(100, 100, 100);
-    @serializable
-    public cullingMode = CullingMode.ALWAYS_SIMULATE;
-    @serializable
-    public capacityMode = CapacityMode.AUTO;
-    @serializable
-    public capacity = 100;
-    @serializable
-    public useAutoRandomSeed = true;
-    @serializable
-    public randomSeed = 0;
-    @serializable
-    public finishAction = FinishAction.NONE;
 }
 
 export class VFXEmitterState {

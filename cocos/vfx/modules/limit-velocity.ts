@@ -29,9 +29,11 @@ import { lerp, Vec3, approx, assertIsTrue } from '../../core';
 import { Space } from '../enum';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const randomOffset = 721883;
 
@@ -147,10 +149,7 @@ export class LimitVelocityModule extends VFXModule {
     @serializable
     private _z: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
-        if (this.separateAxes && DEBUG) {
-            assertIsTrue(this.limitX.mode === this.limitY.mode && this.limitY.mode === this.limitZ.mode, 'The curve of limitX, limitY, limitZ must have same mode!');
-        }
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameters(requiredParameters);
         if (this.limitX.mode === FloatExpression.Mode.CURVE || this.limitX.mode === FloatExpression.Mode.TWO_CURVES) {
             particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);

@@ -24,10 +24,9 @@
  */
 import { RealCurve, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../base';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStage } from '../vfx-module';
-import { RandomStream } from '../random-stream';
 import { ConstantVec3Expression } from './constant-vec3';
 import { Vec3Expression } from './vec3';
 import { EmitterDataSet } from '../emitter-data-set';

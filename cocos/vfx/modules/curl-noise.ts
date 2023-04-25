@@ -23,19 +23,17 @@
  THE SOFTWARE.
  */
 
-import { ccclass, type, serializable, range, rangeMin, visible } from 'cc.decorator';
-import { DEBUG } from 'internal:constants';
-import { assertIsTrue, CCFloat, Enum, approx, clamp, lerp, Vec2, Vec3, RealCurve, CCBoolean } from '../../core';
+import { ccclass, type, serializable, rangeMin, visible } from 'cc.decorator';
+import { CCFloat, Enum, clamp, lerp, Vec2, Vec3, RealCurve, CCBoolean } from '../../core';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 import { Vec3ArrayParameter } from '../vfx-parameter';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { EmitLocation } from '../../particle/enum';
 
 export class PerlinNoise1DCache {
     i0 = 0;
