@@ -428,6 +428,91 @@ export function buildBloomPass (camera: Camera,
     return { rtName: bloomPassCombineRTName, dsName: bloomPassCombineDSName };
 }
 
+////////////////
+class ColorLookupData {
+    declare fxaaMaterial: Material;
+    private _updateFxaaPass () {
+        if (!this.fxaaMaterial) return;
+
+        const combinePass = this.fxaaMaterial.passes[0];
+        combinePass.beginChangeStatesSilently();
+        combinePass.tryCompile();
+        combinePass.endChangeStatesSilently();
+    }
+    private _init () {
+        if (this.fxaaMaterial) return;
+        this.fxaaMaterial = new Material();
+        this.fxaaMaterial._uuid = 'builtin-color-lookup-material';
+        this.fxaaMaterial.initialize({ effectName: 'pipeline/color-lookup' });
+        for (let i = 0; i < this.fxaaMaterial.passes.length; ++i) {
+            this.fxaaMaterial.passes[i].tryCompile();
+        }
+        this._updateFxaaPass();
+    }
+    constructor () {
+        this._init();
+    }
+}
+
+let colorLookup: ColorLookupData | null = null;
+export function buildColorLookupPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string,
+    inputDS: string) {
+    if (!colorLookup) {
+        colorLookup = new ColorLookupData();
+    }
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    let width = camera.window.width;
+    let height = camera.window.height;
+    const area = getRenderArea(camera, width, height);
+    width = area.width;
+    height = area.height;
+    // Start
+    const clearColor = new Color(0, 0, 0, 1);
+    if (camera.clearFlag & ClearFlagBit.COLOR) {
+        clearColor.x = camera.clearColor.x;
+        clearColor.y = camera.clearColor.y;
+        clearColor.z = camera.clearColor.z;
+    }
+    clearColor.w = camera.clearColor.w;
+
+    const fxaaPassRTName = `dsFxaaPassColor${cameraName}`;
+    const fxaaPassDSName = `dsFxaaPassDS${cameraName}`;
+
+    // ppl.updateRenderWindow(inputRT, camera.window);
+    if (!ppl.containsResource(fxaaPassRTName)) {
+        ppl.addRenderTarget(fxaaPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(fxaaPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderTarget(fxaaPassRTName, width, height);
+    ppl.updateDepthStencil(fxaaPassDSName, width, height);
+    const fxaaPassIdx = 0;
+    const fxaaPass = ppl.addRasterPass(width, height, 'fxaa');
+    fxaaPass.name = `CameraFxaaPass${cameraID}`;
+    fxaaPass.setViewport(new Viewport(area.x, area.y, width, height));
+    if (ppl.containsResource(inputRT)) {
+        const computeView = new ComputeView();
+        computeView.name = 'sceneColorMap';
+        fxaaPass.addComputeView(inputRT, computeView);
+    }
+    const fxaaPassView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        LoadOp.CLEAR, StoreOp.STORE,
+        camera.clearFlag,
+        clearColor);
+    fxaaPass.addRasterView(fxaaPassRTName, fxaaPassView);
+    colorLookup.fxaaMaterial.setProperty('texSize', new Vec4(width, height, 1.0 / width, 1.0 / height), fxaaPassIdx);
+    fxaaPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+        camera, colorLookup.fxaaMaterial, fxaaPassIdx,
+        SceneFlags.NONE,
+    );
+    return { rtName: fxaaPassRTName, dsName: fxaaPassDSName };
+}
+
+///////////////
+
 class PostInfo {
     declare postMaterial: Material;
     antiAliasing: AntiAliasing = AntiAliasing.NONE;
