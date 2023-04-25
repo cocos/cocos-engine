@@ -27,9 +27,9 @@
       "./@types/editor-extends",
       "./@types/webGL.extras",
       "./@types/webGL2.extras",
-      "./@types/url",
+      "./@types/external",
+      "./@types/bullet",
       "./node_modules/@cocos/cannon/CANNON",
-      "./node_modules/@cocos/bullet/bullet",
       "./node_modules/@cocos/physx/PhysX",
       "./node_modules/@types/jest/index",
 

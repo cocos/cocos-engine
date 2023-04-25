@@ -22,18 +22,13 @@
  THE SOFTWARE.
 */
 
-// eslint-disable-next-line import/no-extraneous-dependencies
-import bulletModule, { bulletType } from '@cocos/bullet';
-import { WECHAT, RUNTIME_BASED, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { instantiateWasm } from 'pal/wasm';
+import { WASM_SUPPORT_MODE } from 'internal:constants';
+import bulletWasmUrl from 'external:///emscripten/bullet/bullet.wasm';
+import asmFactory from 'external:///emscripten/bullet/bullet.asm.js';
 import { game } from '../../game';
 import { sys } from '../../core';
 import { pageSize, pageCount, importFunc } from './bullet-env';
-
-let bulletLibs: any = bulletModule;
-if (globalThis.BULLET) {
-    console.log('[Physics][Bullet]: Using the external Bullet libs.');
-    bulletLibs = globalThis.BULLET;
-}
 
 //corresponds to bulletType in bullet-compile
 export enum EBulletType{
@@ -70,74 +65,46 @@ export const bt: instanceExt = {} as any;
 globalThis.Bullet = bt;
 bt.BODY_CACHE_NAME = 'body';
 
-export function waitForAmmoInstantiation () {
-    // refer https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
-    const supported = (() => {
-        // iOS 15.4 has some wasm memory issue, can not use wasm for bullet
-        const isiOS15_4 = (sys.os === sys.OS.IOS || sys.os === sys.OS.OSX) && sys.isBrowser
-        && /(OS 15_4)|(Version\/15.4)/.test(window.navigator.userAgent);
-        if (isiOS15_4) {
-            return false;
-        }
-        try {
-            if (typeof WebAssembly === 'object'
-                && typeof WebAssembly.instantiate === 'function') {
-                const module = new WebAssembly.Module(new Uint8Array([0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]));
-                if (module instanceof WebAssembly.Module) {
-                    return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
-                }
-            }
-        } catch (e) {
-            return false;
-        }
-        return false;
-    })();
-    return Promise.resolve().then(() => {
-        if (bulletType === 'fallback') {
-            return (bulletModule as any)(supported) as string | typeof bulletModule;
-        }
-        return bulletLibs as string | typeof bulletModule;
-    }).then((module) => {
-        if (typeof module === 'string') {
-            console.info('[Physics][Bullet]: Using wasm Bullet libs.');
-            const infoReport = (msg: any) => { console.info(msg); };
-            const errorReport = (msg: any) => { console.error(msg); };
-            const memory = new WebAssembly.Memory({ initial: pageCount });
-            const importObject = {
-                cc: importFunc,
-                wasi_snapshot_preview1: { fd_close: infoReport, fd_seek: infoReport, fd_write: infoReport },
-                env: { memory },
-            };
-            return new Promise<void>((resolve, reject) => {
-                function instantiateWasm (buff: any) {
-                    WebAssembly.instantiate(buff, importObject).then((results) => {
-                        const btInstance = results.instance.exports as unknown as Bullet.instance;
-                        Object.assign(bt, btInstance);
-                        resolve();
-                    }, errorReport);
-                }
+function initWasm (wasmUrl: string) {
+    console.info('[Physics][Bullet]: Using wasm Bullet libs.');
+    const infoReport = (msg: any) => { console.info(msg); };
+    const memory = new WebAssembly.Memory({ initial: pageCount });
+    const importObject = {
+        cc: importFunc,
+        wasi_snapshot_preview1: { fd_close: infoReport, fd_seek: infoReport, fd_write: infoReport },
+        env: { memory },
+    };
 
-                if (WECHAT || WECHAT_MINI_PROGRAM || RUNTIME_BASED) {
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                    const wasmFilePath = `cocos-js/${module}` as any;
-                    instantiateWasm(wasmFilePath);
-                } else {
-                    fetch(module).then((response) => {
-                        response.arrayBuffer().then((buff) => {
-                            instantiateWasm(buff);
-                        }, errorReport);
-                    }, errorReport);
-                }
-            });
+    return instantiateWasm(wasmUrl, importObject).then((results) => {
+        const btInstance = results.instance.exports as Bullet.instance;
+        Object.assign(bt, btInstance);
+    });
+}
+
+function initAsm (resolve) {
+    console.info('[Physics][Bullet]: Using asmjs Bullet libs.');
+    const env: any = importFunc;
+    const wasmMemory: any = {};
+    wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);
+    env.memory = wasmMemory;
+    const btInstance = asmFactory(env, wasmMemory);
+    Object.assign(bt, btInstance);
+    resolve();
+}
+
+export function waitForAmmoInstantiation () {
+    return new Promise<void>((resolve) => {
+        const errorReport = (msg: any) => { console.error(msg); };
+        if (WASM_SUPPORT_MODE === 2) {
+            if (sys.hasFeature(sys.Feature.WASM)) {
+                initWasm(bulletWasmUrl).then(resolve).catch(errorReport);
+            } else {
+                initAsm(resolve);
+            }
+        } else if (WASM_SUPPORT_MODE === 1) {
+            initWasm(bulletWasmUrl).then(resolve).catch(errorReport);
         } else {
-            console.info('[Physics][Bullet]: Using asmjs Bullet libs.');
-            const env: any = importFunc;
-            const wasmMemory: any = {};
-            wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);
-            env.memory = wasmMemory;
-            const btInstance = module(env, wasmMemory);
-            Object.assign(bt, btInstance);
-            return new Promise<void>((resolve, reject) => { resolve(); });
+            initAsm(resolve);
         }
     });
 }
