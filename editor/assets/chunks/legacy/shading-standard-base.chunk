@@ -215,6 +215,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #endif
   #endif
 
+  float lightIntensity = cc_ambientSky.w;
   #if CC_USE_REFLECTION_PROBE
     vec4 probe = vec4(0.0);
     vec3 R = normalize(reflect(-V, N));
@@ -226,7 +227,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
         float mipCount;
         GetCubeReflectionProbeData(centerPos, boxHalfSize, mipCount, s.reflectionProbeId);
         vec4 fixedR = CalculateBoxProjectedDirection(R, position, centerPos, boxHalfSize);
-        env = mix(SampleReflectionProbe(cc_environment, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE),
+        env = mix(SampleReflectionProbe(cc_environment, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE) * lightIntensity,
           SampleReflectionProbe(cc_reflectionProbeCubemap, fixedR.xyz, s.roughness, mipCount, isReflectProbeUsingRGBE(s.reflectionProbeId)), fixedR.w);
       }
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
@@ -254,9 +255,12 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
         env = SampleReflectionProbe(cc_reflectionProbeCubemap, fixedR.xyz, s.roughness, mipCount, isReflectProbeUsingRGBE(s.reflectionProbeId));
         if (s.reflectionProbeBlendId < 0.0) {
+          vec3 skyBoxEnv = SampleReflectionProbe(cc_environment, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE) * lightIntensity;
           #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
-            vec3 skyBoxEnv = SampleReflectionProbe(cc_environment, R, s.roughness, cc_ambientGround.w, CC_USE_IBL == IBL_RGBE);
+            //blend with skybox
             env = mix(env, skyBoxEnv, s.reflectionProbeBlendFactor);
+          #else
+            env = mix(skyBoxEnv, env, fixedR.w);
           #endif
         } else {
           vec3 centerPosBlend, boxHalfSizeBlend;
@@ -270,7 +274,12 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #endif
   #endif
 
-  finalColor += env * cc_ambientSky.w * specular * s.occlusion;
+  #if CC_USE_REFLECTION_PROBE
+    //If using reflection probe, no need to multiply by the ambient light intensity.
+    lightIntensity = s.reflectionProbeId < 0.0 ? lightIntensity : 1.0;
+  #endif
+
+  finalColor += env * lightIntensity * specular * s.occlusion;
 
 
 #if CC_USE_LIGHT_PROBE
