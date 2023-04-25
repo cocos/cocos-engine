@@ -17,7 +17,7 @@
     // update lighting data for diffuse calculations
     LightingIntermediateData lightingData3S = lightingData;
     lightingData3S.N = normalize(FSInput_worldNormal);
-    lightingData3S.NoL = dot(lightingData3S.N, -miscData.lightDir);
+    lightingData3S.NoL = dot(lightingData3S.N, lightingData.L);
     lightingData3S.NoL = mix(lightingData.NoL, lightingData3S.NoL, sssIntensity);
     lightingData3S.NoLSat = saturate(lightingData3S.NoL);
 
