@@ -48,7 +48,7 @@ import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
-import { Particle, PARTICLE_MODULE_NAME, PARTICLE_MODULE_PROPERTY } from './particle';
+import { Particle, PARTICLE_MODULE_PROPERTY } from './particle';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
@@ -62,7 +62,6 @@ import { RotationSpeedModule } from './animator/rotation-speed';
 import { SizeSpeedModule } from './animator/size-speed';
 import { ColorSpeedModule } from './animator/color-speed';
 import { CCBoolean, CCFloat, CCInteger, CCObject, Node } from '../core';
-import ParticleSystemRendererCPU from './renderer/particle-system-renderer-cpu';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();

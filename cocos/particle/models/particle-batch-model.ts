@@ -616,9 +616,6 @@ export default class ParticleBatchModel extends scene.Model {
         this._vdataF32 = null;
         this._vdataUint32 = null;
 
-        this._insBuffers = [];
-        this._insIndices = null;
-
         this._vertAttrs = null;
         this._material = null;
         this._mesh = null;
