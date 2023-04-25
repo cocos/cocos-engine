@@ -141,6 +141,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                                                               gfx::StoreOp::STORE,
                                                               gfx::ClearFlagBit::ALL,
                                                               gfx::Color({1.0, 0.0, 0.0, 1.0}),
+                                                              gfx::ShaderStageFlagBit::NONE,
                                                           });
                 }
                 isOutput = true;
