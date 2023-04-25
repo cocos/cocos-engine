@@ -461,6 +461,7 @@ export default class TrailModule {
     }
 
     public update () {
+        this.lifeTime.bake();
         this._trailLifetime = this.lifeTime.evaluateOne(this._particleSystem._time, 1)!;
         if (this.space === Space.World && this._particleSystem._simulationSpace === Space.Local) {
             this._needTransform = true;
@@ -512,6 +513,7 @@ export default class TrailModule {
 
         Vec3.copy(lastSeg.position, _temp_vec3);
         lastSeg.lifetime = 0;
+        this.widthRatio.bake();
         if (this.widthFromParticle) {
             lastSeg.width = p.size.x * this.widthRatio.evaluateOne(0, 1)!;
         } else {
@@ -537,6 +539,7 @@ export default class TrailModule {
         if (this.colorFromParticle) {
             lastSeg.color.set(p.color);
         } else {
+            this.colorOvertime.bake();
             lastSeg.color.set(this.colorOvertime.evaluateOne(0, 1));
         }
     }
@@ -553,6 +556,8 @@ export default class TrailModule {
     public updateRenderData () {
         this.vbOffset = 0;
         this.ibOffset = 0;
+        this.colorOverTrail.bake();
+        this.widthRatio.bake();
         for (const p of this._particleTrail.keys()) {
             const trailSeg = this._particleTrail.get(p)!;
             if (trailSeg.start === -1) {
@@ -701,6 +706,8 @@ export default class TrailModule {
 
     private _updateTrailElement (module: any, trailEle: ITrailElement, p: Particle, dt: number): boolean {
         trailEle.lifetime += dt;
+        module.colorOvertime.bake();
+        module.widthRatio.bake();
         if (module.colorFromParticle) {
             trailEle.color.set(p.color);
             trailEle.color.multiply(module.colorOvertime.evaluateOne(1.0 - p.remainingLifetime / p.startLifetime, 1));
