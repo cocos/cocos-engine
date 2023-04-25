@@ -198,6 +198,26 @@ class SystemInfo extends EventTarget {
         const supportMouse = document.documentElement.onmouseup !== undefined || EDITOR;
         // NOTE: xr is not totally supported on web
         const supportXR = typeof (navigator as any).xr !== 'undefined';
+        // refer https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
+        const supportWasm = (() => {
+            // iOS 15.4 has some wasm memory issue, can not use wasm for bullet
+            const isiOS15_4 = (this.os === OS.IOS || this.os === OS.OSX) && /(OS 15_4)|(Version\/15.4)/.test(window.navigator.userAgent);
+            if (isiOS15_4) {
+                return false;
+            }
+            try {
+                if (typeof WebAssembly === 'object'
+                    && typeof WebAssembly.instantiate === 'function') {
+                    const module = new WebAssembly.Module(new Uint8Array([0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]));
+                    if (module instanceof WebAssembly.Module) {
+                        return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+                    }
+                }
+            } catch (e) {
+                return false;
+            }
+            return false;
+        })();
         this._featureMap = {
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BITMAP]: false,      // Initialize in Promise
@@ -215,7 +235,8 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_GAMEPAD]: (navigator.getGamepads !== undefined || (navigator as any).webkitGetGamepads !== undefined || supportXR),
             [Feature.EVENT_HANDLE]: EDITOR || PREVIEW,
             [Feature.EVENT_HMD]: supportXR,
-	    [Feature.EVENT_HANDHELD]: supportXR,
+            [Feature.EVENT_HANDHELD]: supportXR,
+            [Feature.WASM]: supportWasm,
         };
 
         this._initPromise = [];

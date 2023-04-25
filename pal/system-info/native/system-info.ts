@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { OPEN_HARMONY } from 'internal:constants';
 import { EventTarget } from '../../../cocos/core/event';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
@@ -131,6 +132,7 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_HANDLE]: this.isXR,
             [Feature.EVENT_HMD]: this.isXR,
             [Feature.EVENT_HANDHELD]: (typeof xr !== 'undefined' && typeof xr.ARModule !== 'undefined'),
+            [Feature.WASM]: !OPEN_HARMONY,
         };
 
         this._initPromise = [];
