@@ -1044,7 +1044,8 @@ export class Game extends EventTarget {
         } else {
             const dt = this._calculateDT();
             const maxDt = 1.0 / 60.0;
-            director.tick(dt > maxDt ? maxDt : dt);
+            director.tick(dt);
+            // director.tick(dt > maxDt ? maxDt : dt);
         }
     }
 

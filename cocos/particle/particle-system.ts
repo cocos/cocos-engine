@@ -62,7 +62,6 @@ import { RotationSpeedModule } from './animator/rotation-speed';
 import { SizeSpeedModule } from './animator/size-speed';
 import { ColorSpeedModule } from './animator/color-speed';
 import { CCBoolean, CCFloat, CCInteger, CCObject, Node } from '../core';
-import ParticleSystemRendererCPU from './renderer/particle-system-renderer-cpu';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -1718,14 +1717,14 @@ export class ParticleSystem extends ModelRenderer {
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
 
-            if (!this._parentEmitter) {
-                // Execute emission
-                this._emit(scaledDeltaTime);
-            }
-
             // simulation, update particles.
             if (this.processor.updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
                 this.stop();
+            }
+
+            if (!this._parentEmitter) {
+                // Execute emission
+                this._emit(scaledDeltaTime);
             }
         } else {
             const mat: Material | null = this.getMaterialInstance(0) || this.processor.getDefaultMaterial();
@@ -1971,7 +1970,7 @@ export class ParticleSystem extends ModelRenderer {
 
             // apply startLifetime.
             this.startLifetime.bake();
-            particle.startLifetime = this.startLifetime.evaluate(loopDelta, rand)! + dt;
+            particle.startLifetime = this.startLifetime.evaluate(loopDelta, rand)!;
             particle.remainingLifetime = particle.startLifetime;
 
             particle.randomSeed = randomRangeInt(0, 233280);
@@ -1985,11 +1984,9 @@ export class ParticleSystem extends ModelRenderer {
             this.processor.setNewParticle(particle);
 
             if (parentParticle) {
-                const cpuPro: ParticleSystemRendererCPU = this.processor as ParticleSystemRendererCPU;
-                // @ts-expect-error private property access
-                cpuPro._runAnimateList.forEach((value) => {
-                    value.animate(particle, i * dd);
-                });
+                if (this._colorOverLifetimeModule && this._colorOverLifetimeModule.enable) {
+                    this._colorOverLifetimeModule.animate(particle);
+                }
             }
         } // end of particles forLoop.
     }
