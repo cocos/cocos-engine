@@ -313,7 +313,7 @@ export class ReflectionProbeManager {
         if (!probe || !probe.previewSphere) return;
         const meshRender = probe.previewSphere.getComponent(MeshRenderer);
         if (meshRender) {
-            meshRender.updateProbeCubemap(probe.cubemap, !probe.cubemap);
+            meshRender.updateProbeCubemap(probe.cubemap);
             meshRender.updateReflectionProbeId(probe.getProbeId());
         }
     }
@@ -407,10 +407,6 @@ export class ReflectionProbeManager {
                 const meshRender = models[j].node.getComponent(MeshRenderer);
                 if (meshRender) {
                     meshRender.updateReflectionProbeDataMap(this._dataTexture);
-                    meshRender.updateReflectionProbeId(probe.getProbeId());
-                    if (this._isUsedBlending(models[j])) {
-                        this._updateBlendProbeInfo(models[j], probe);
-                    }
                 }
             }
         }
@@ -534,7 +530,7 @@ export class ReflectionProbeManager {
         }
 
         meshRender.updateProbeCubemap(probe ? probe.cubemap : null);
-        meshRender.updateReflectionProbeId(probe ? probe.getProbeId() : -1);
+        meshRender.updateReflectionProbeId(probe && probe.cubemap ? probe.getProbeId() : -1);
 
         if (probe) {
             meshRender.updateReflectionProbeDataMap(this._dataTexture);

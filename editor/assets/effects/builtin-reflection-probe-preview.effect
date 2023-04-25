@@ -123,7 +123,6 @@ CCProgram unlit-fs %{
     vec4 probe = fragTextureLod(cc_reflectionProbeCubemap, R, 0.0);
     vec4 finalColor = vec4(1.0);
     finalColor.rgb = unpackRGBE(probe);
-    finalColor.rgb *= cc_ambientSky.w;
     return CCFragOutput(finalColor);
   }
 }%
