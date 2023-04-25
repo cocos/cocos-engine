@@ -393,7 +393,11 @@ exports.methods = {
         if (JSON.stringify(value) === JSON.stringify(defaultValue)) {
             delete this.cacheData[name][passIndex];
         } else {
-            this.cacheData[name][passIndex] = JSON.parse(JSON.stringify({ type, value }));
+            const cacheData = this.cacheData;
+            if (!cacheData.name) {
+                cacheData[name] = {};
+            }
+            cacheData[name][passIndex] = JSON.parse(JSON.stringify({ type, value }));
         }
     },
 
