@@ -24,6 +24,7 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
+import { DEBUG } from 'internal:constants';
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { director } from '../../core/director';
@@ -568,10 +569,10 @@ export default class TrailModule {
                 continue;
             }
             const end = trail.start >= trail.end ? trail.end + trail.trailElements.length : trail.end;
-            this._curTrailNum += end - trail.start;
+            this._curTrailNum += (end - trail.start) + 2;
         }
         this._indexOffset = vbo.usedCount;
-        vbo.usedCount += (this._curTrailNum + 1) * 2;
+        vbo.usedCount += this._curTrailNum * 2;
         vbo.markDirty();
         this._vbF32 = vbo.floatDataView.subarray(this._indexOffset * this._vertSize / 4, vbo.usedCount * this._vertSize / 4);
         this._vbUint32 = vbo.uintDataView.subarray(this._indexOffset * this._vertSize / 4, vbo.usedCount * this._vertSize / 4);
@@ -664,6 +665,10 @@ export default class TrailModule {
         if (this._trailModel) {
             this._trailModel.enabled = this.ibOffset > 0;
         }
+        if (DEBUG) {
+            assertIsTrue(this.vbOffset <= this._vbF32!.length, 'vbOffset should not exceed the length of vbF32');
+            assertIsTrue(this.ibOffset <= this._iBuffer!.length, 'ibOffset should not exceed the length of iBuffer');
+        }
     }
 
     public updateIA (count: number) {
@@ -675,7 +680,7 @@ export default class TrailModule {
             subModel.inputAssembler.firstIndex = this._firstIndex;
             subModel.inputAssembler.indexCount = count;
             subModel.inputAssembler.firstVertex = this._indexOffset;
-            subModel.inputAssembler.vertexCount = (this._curTrailNum + 1) * 2;
+            subModel.inputAssembler.vertexCount = this._curTrailNum * 2;
         }
     }
 
