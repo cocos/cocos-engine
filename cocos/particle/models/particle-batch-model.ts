@@ -137,8 +137,8 @@ class DynamicVBO {
     }
 }
 
-const globalBillboardVB: Record<string, Buffer> = {};
-const globalBillboardIB: Record<string, Buffer> = {};
+let globalBillboardVB: Buffer | null = null;
+let globalBillboardIB: Buffer | null = null;
 
 export default class ParticleBatchModel extends scene.Model {
     private _capacity: number;
@@ -347,8 +347,8 @@ export default class ParticleBatchModel extends scene.Model {
     private createOrGetBillboardBuffers () {
         this._vertCount = 4;
         this._indexCount = 6;
-        if (!globalBillboardVB[this._vertexAttributeHash]) {
-            globalBillboardVB[this._vertexAttributeHash] = this._device.createBuffer(new BufferInfo(
+        if (!globalBillboardVB) {
+            globalBillboardVB = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 this._vertAttribSizeStatic * this._vertCount,
@@ -359,10 +359,10 @@ export default class ParticleBatchModel extends scene.Model {
             for (let i = 0; i < _uvs_ins.length; ++i) {
                 vbFloatArray[i] = _uvs_ins[i];
             }
-            globalBillboardVB[this._vertexAttributeHash].update(vBuffer);
+            globalBillboardVB.update(vBuffer);
         }
-        if (!globalBillboardIB[this._vertexAttributeHash]) {
-            globalBillboardIB[this._vertexAttributeHash] = this._device.createBuffer(new BufferInfo(
+        if (!globalBillboardIB) {
+            globalBillboardIB = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.DEVICE,
                 this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
@@ -375,7 +375,7 @@ export default class ParticleBatchModel extends scene.Model {
             indices[3] = 3;
             indices[4] = 2;
             indices[5] = 1;
-            globalBillboardIB[this._vertexAttributeHash].update(indices);
+            globalBillboardIB.update(indices);
         }
     }
 
@@ -425,11 +425,11 @@ export default class ParticleBatchModel extends scene.Model {
             this._insBuffers.push(vertexBuffer);
         } else {
             this.createOrGetBillboardBuffers();
-            if (globalBillboardVB[this._vertexAttributeHash]) {
-                this._insBuffers.push(globalBillboardVB[this._vertexAttributeHash]);
+            if (globalBillboardVB) {
+                this._insBuffers.push(globalBillboardVB);
             }
-            if (globalBillboardIB[this._vertexAttributeHash]) {
-                this._insIndices = globalBillboardIB[this._vertexAttributeHash];
+            if (globalBillboardIB) {
+                this._insIndices = globalBillboardIB;
             }
         }
 
@@ -785,9 +785,10 @@ export default class ParticleBatchModel extends scene.Model {
     private destroySubMeshData () {
         if (this._subMeshData) {
             if (this._useInstance) {
-                // this._subMeshData.vertexBuffers[0].destroy();
-                // this._subMeshData.vertexBuffers[1].destroy();
-                // this._subMeshData.indexBuffer?.destroy();
+                if (this._mesh) {
+                    this._subMeshData.vertexBuffers[1].destroy();
+                    this._subMeshData.indexBuffer?.destroy();
+                }
                 this._insBuffers.length = 0;
                 this._insIndices = null;
             } else {
