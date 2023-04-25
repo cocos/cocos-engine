@@ -1,6 +1,6 @@
 import { PostProcess } from '../components/post-process';
 
-export const passSettings = {
+export const passContext = {
     renderProfiler: false,
     passPathName: '',
     passVersion: 0,

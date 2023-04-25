@@ -6,7 +6,7 @@ import { Camera } from '../../../render-scene/scene';
 import { Pipeline, ResourceResidency } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { TAA } from '../components/taa';
-import { passSettings } from '../utils/pass-settings';
+import { passContext } from '../utils/pass-context';
 import { passUtils } from '../utils/pass-utils';
 import { getSetting, SettingPass } from './setting-pass';
 
@@ -175,7 +175,7 @@ export class TAAPass extends SettingPass {
         }
 
         const slot0 = this.slotName(camera, 0);
-        const depthTex = passSettings.forwardPass.slotName(camera, 1);
+        const depthTex = passContext.forwardPass.slotName(camera, 1);
 
         const layoutName = `DeferredTAA${this.taaTextureIndex < 0 ? -1 : (this.taaTextureIndex % 2)}`;
         passUtils.addRasterPass(width, height, layoutName, `CameraTAAPass${cameraID}`)

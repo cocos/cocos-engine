@@ -1,11 +1,11 @@
 import { Camera } from '../../../render-scene/scene';
 import { PostProcessSetting } from '../components/post-process-setting';
-import { passSettings } from '../utils/pass-settings';
+import { passContext } from '../utils/pass-context';
 import { BasePass } from './base-pass';
 
 export function getSetting<T extends PostProcessSetting> (settingClass: new () => T) {
     const cls: typeof PostProcessSetting = settingClass as any;
-    let setting = passSettings.postProcess && passSettings.postProcess.getSetting(cls) as T;
+    let setting = passContext.postProcess && passContext.postProcess.getSetting(cls) as T;
     if (!setting) {
         setting = cls.default as T;
     }

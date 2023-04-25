@@ -5,7 +5,7 @@ import { ClearFlagBit, Color, Format, LoadOp, StoreOp, Viewport } from '../../..
 import { Pipeline, RasterPassBuilder } from '../../custom/pipeline';
 import { Camera } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
-import { passSettings } from './pass-settings';
+import { passContext } from './pass-context';
 
 class PassUtils {
     clearFlag: ClearFlagBit = ClearFlagBit.COLOR;
@@ -21,8 +21,8 @@ class PassUtils {
 
     version () {
         if (!EDITOR) {
-            passSettings.passPathName += `_${this.pass!.name}_${this.layoutName}`;
-            this.pass!.setVersion(passSettings.passPathName, passSettings.passVersion);
+            passContext.passPathName += `_${this.pass!.name}_${this.layoutName}`;
+            this.pass!.setVersion(passContext.passPathName, passContext.passVersion);
         }
         return this;
     }

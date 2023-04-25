@@ -9,7 +9,7 @@ import { Camera } from '../../../render-scene/scene';
 import { getCameraUniqueID, getRenderArea } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { PostProcessSetting } from '../components/post-process-setting';
-import { passSettings } from '../utils/pass-settings';
+import { passContext } from '../utils/pass-context';
 import { passUtils } from '../utils/pass-utils';
 
 let _BasePassID = 0;
@@ -69,8 +69,8 @@ export class BasePass {
 
     finalShadingScale () {
         let shadingScale = this.shadingScale;
-        if (passSettings.postProcess) {
-            shadingScale *= passSettings.postProcess.shadingScale;
+        if (passContext.postProcess) {
+            shadingScale *= passContext.postProcess.shadingScale;
         }
         return shadingScale;
     }
@@ -87,9 +87,9 @@ export class BasePass {
     }
 
     renderProfiler (camera) {
-        if (passSettings.renderProfiler && !EDITOR) {
+        if (passContext.renderProfiler && !EDITOR) {
             passUtils.pass!.showStatistics = true;
-            passSettings.renderProfiler = false;
+            passContext.renderProfiler = false;
         }
     }
 

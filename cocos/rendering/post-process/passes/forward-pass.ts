@@ -7,7 +7,7 @@ import { Camera } from '../../../render-scene/scene';
 import { AccessType, LightInfo, QueueHint, ResourceResidency, SceneFlags } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
-import { passSettings } from '../utils/pass-settings';
+import { passContext } from '../utils/pass-context';
 import { passUtils } from '../utils/pass-utils';
 import { BasePass } from './base-pass';
 
@@ -67,6 +67,6 @@ export class ForwardPass extends BasePass {
                 new LightInfo(),
                 SceneFlags.UI | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
 
-        passSettings.forwardPass = this;
+        passContext.forwardPass = this;
     }
 }

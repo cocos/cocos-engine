@@ -4,7 +4,7 @@ import { Camera } from '../../render-scene/scene';
 import { PipelineBuilder, Pipeline } from '../custom/pipeline';
 
 import { passUtils } from './utils/pass-utils';
-import { passSettings } from './utils/pass-settings';
+import { passContext } from './utils/pass-context';
 import { ForwardFinalPass } from './passes/forward-final-pass';
 import { getCameraUniqueID } from '../custom/define';
 
@@ -78,7 +78,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
             this.initEditor();
         }
 
-        passSettings.renderProfiler = false;
+        passContext.renderProfiler = false;
         passUtils.ppl = ppl;
 
         let globalPP: PostProcess | undefined;
@@ -96,10 +96,10 @@ export class PostProcessBuilder implements PipelineBuilder  {
             }
 
             if (i === (cameras.length - 1)) {
-                passSettings.isFinalCamera = true;
+                passContext.isFinalCamera = true;
             }
 
-            passSettings.postProcess = camera.postProcess || globalPP;
+            passContext.postProcess = camera.postProcess || globalPP;
 
             passUtils.camera = camera;
             this.renderCamera(camera, ppl);
@@ -111,7 +111,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         //     return;
         // }
 
-        passSettings.passPathName = `${getCameraUniqueID(camera)}`;
+        passContext.passPathName = `${getCameraUniqueID(camera)}`;
 
         const passes = this.passes;
 
@@ -129,7 +129,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
             }
 
             if (i === (passes.length - 1)) {
-                passSettings.isFinalPass = true;
+                passContext.isFinalPass = true;
             }
 
             pass.lastPass = lastPass;
