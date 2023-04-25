@@ -38,7 +38,7 @@ class SimulatorApp {
 public:
     static SimulatorApp *getInstance();
     virtual ~SimulatorApp();
-    int initialize();
+    int init();
     int run();
 
     virtual void quit();

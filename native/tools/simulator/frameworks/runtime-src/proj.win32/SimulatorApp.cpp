@@ -226,7 +226,7 @@ int SimulatorApp::getPositionY() {
     GetWindowRect(_hwnd, &rect);
     return rect.top;
 }
-int SimulatorApp::initialize() {
+int SimulatorApp::init() {
     createFileUtils();
     INITCOMMONCONTROLSEX InitCtrls;
     InitCtrls.dwSize = sizeof(InitCtrls);
