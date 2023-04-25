@@ -24,7 +24,6 @@
 
 import { EDITOR } from 'internal:constants';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
-import { clearTimeoutRAF, setTimeoutRAF } from '../utils';
 
 export class Pacer {
     private _rafHandle = 0;
@@ -130,7 +129,6 @@ export class Pacer {
     }
 
     private _ctTime (id: number | undefined) {
-        clearTimeoutRAF(id);
         if (EDITOR || this._cAF === undefined || globalThis.__globalXR?.isWebXR) {
             clearTimeout(id);
         } else if (id) {
