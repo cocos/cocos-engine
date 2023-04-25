@@ -29,6 +29,8 @@ import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-
 import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { AngleBasedShapeModule } from './angle-based-shape';
 import { Vec3ArrayParameter } from '../vfx-parameter';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const temp = new Vec3();
 

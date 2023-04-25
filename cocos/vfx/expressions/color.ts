@@ -34,6 +34,6 @@ export abstract  class ColorExpression extends Expression {
     public get type () {
         return ExpressionType.COLOR;
     }
-    abstract evaluateSingle (time: number, randomStream: RandomStream, out: Color): Color;
+    abstract evaluateSingle (out: Color): Color;
     abstract evaluate (index: number, out: Color): Color;
 }

@@ -169,6 +169,7 @@ export class VFXEmitterParams {
 export class VFXEmitterState {
     public accumulatedTime = 0;
     public playingState = PlayingState.STOPPED;
+    public needRestart = false;
     public isSimulating = true;
     public isEmitting = true;
     public lastSimulateFrame = 0;

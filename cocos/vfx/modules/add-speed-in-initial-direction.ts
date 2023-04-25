@@ -39,13 +39,8 @@ const requiredParameter = BuiltinParticleParameterFlags.POSITION | BuiltinPartic
 @ccclass('cc.AddSpeedInInitialDirectionModule')
 @VFXModule.register('AddSpeedInInitialDirection', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [ParameterName.VELOCITY], [ParameterName.INITIAL_DIR])
 export class AddSpeedInInitialDirectionModule extends VFXModule {
-    /**
-      * @zh 粒子初始速度。
-      */
     @type(FloatExpression)
     @serializable
-    @range([-1, 1])
-    @tooltip('i18n:particle_system.startSpeed')
     public speed: FloatExpression = new ConstantFloatExpression(5);
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {

@@ -33,6 +33,6 @@ export abstract class Vec3Expression extends Expression {
     public get type () {
         return ExpressionType.VEC3;
     }
-    public abstract evaluateSingle (time: number, randomStream: RandomStream, out: Vec3): Vec3;
+    public abstract evaluateSingle (out: Vec3): Vec3;
     public abstract evaluate (index: number, out: Vec3): Vec3;
 }

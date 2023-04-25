@@ -39,7 +39,6 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
        * @zh 粒子发射器在一个扇形范围内发射。
        */
     @displayOrder(6)
-    @tooltip('i18n:shapeModule.arc')
     public get arc () {
         return toDegree(this._arc);
     }
@@ -53,7 +52,6 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
       */
     @type(Enum(DistributionMode))
     @serializable
-    @tooltip('i18n:shapeModule.arcMode')
     public distributionMode = DistributionMode.RANDOM;
 
     @type(Enum(MoveWarpMode))
@@ -69,7 +67,6 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
     @type(FloatExpression)
     @range([0, 1])
     @serializable
-    @tooltip('i18n:shapeModule.arcSpeed')
     @visible(function (this: AngleBasedShapeModule) {
         return this.distributionMode === DistributionMode.MOVE;
     })
@@ -79,7 +76,6 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
       * @zh 控制可能产生粒子的弧周围的离散间隔。
       */
     @serializable
-    @tooltip('i18n:shapeModule.arcSpread')
     public spread = 0;
 
     @serializable

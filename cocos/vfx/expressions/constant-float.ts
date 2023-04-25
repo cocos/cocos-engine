@@ -53,7 +53,7 @@ export class ConstantFloatExpression extends FloatExpression {
         return this.value;
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream): number {
+    public evaluateSingle (): number {
         return this.value;
     }
 }

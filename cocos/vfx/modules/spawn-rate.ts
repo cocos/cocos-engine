@@ -51,14 +51,8 @@ export class SpawnRateModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext)  {
-        const { deltaTime, normalizedLoopAge: normalizedT, previousTime, currentTime } = emitter;
-        let deltaTime = emitterDeltaTime;
-        if (previousTime > currentTime) {
-            const seed = this._rand.seed;
-            context.spawnContinuousCount += this.rate.evaluateSingle(1, this._rand, context) * (params.duration - previousTime);
-            deltaTime = currentTime;
-            this._rand.seed = seed;
-        }
-        context.spawnContinuousCount += this.rate.evaluateSingle(normalizedT, this._rand, context) * deltaTime;
+        const { deltaTime } = emitter;
+        this.rate.bind(particles, emitter, user, context);
+        emitter.spawnContinuousCount += this.rate.evaluateSingle() * deltaTime;
     }
 }

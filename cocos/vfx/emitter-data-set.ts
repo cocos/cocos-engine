@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 import { assertIsTrue, Mat3, Mat4, Quat, Vec3 } from '../core';
+import { Node } from '../scene-graph';
+
+export class SpawnInfo {
+
+}
 
 export class EmitterDataSet {
     public isWorldSpace = false;
@@ -50,12 +55,5 @@ export class EmitterDataSet {
     public localRotation = new Quat();
     public worldRotation = new Quat();
     public renderScale = new Vec3();
-
-    getFloatParameter (id: number) {
-        return 0;
-    }
-
-    getVec3Parameter (id: number) {
-        return new Vec3();
-    }
+    public declare transform: Node;
 }

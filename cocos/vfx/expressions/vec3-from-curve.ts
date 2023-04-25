@@ -92,8 +92,8 @@ export class Vec3FromCurveExpression extends Vec3Expression {
         return out;
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream, out: Vec3): Vec3 {
-        this.scale.evaluateSingle(time, randomStream, out);
+    public evaluateSingle (out: Vec3): Vec3 {
+        this.scale.evaluateSingle(ratio);
         out.x = this.x.evaluate(time) * ratio.x;
         out.y = this.y.evaluate(time) * ratio.y;
         out.z = this.z.evaluate(time) * ratio.z;

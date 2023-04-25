@@ -43,13 +43,10 @@ const transform = new Mat3();
 export class AddVelocityModule extends VFXModule {
     @type(Enum(Space))
     @serializable
-    @tooltip('i18n:velocityOvertimeModule.space')
     public space = Space.LOCAL;
 
     @type(Vec3Expression)
     @serializable
-    @range([-1, 1])
-    @tooltip('i18n:velocityOvertimeModule.x')
     public velocity: Vec3Expression = new ConstantVec3Expression();
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {

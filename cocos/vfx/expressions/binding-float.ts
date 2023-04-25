@@ -48,7 +48,7 @@ export class BindingFloatExpression extends FloatExpression {
         }
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream): number {
+    public evaluateSingle (): number {
         return this._getFloat(0);
     }
 

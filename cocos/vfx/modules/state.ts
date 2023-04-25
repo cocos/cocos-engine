@@ -27,6 +27,8 @@ import { Enum } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
 import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet } from '../emitter-data-set';
 
 export enum LifetimeElapsedOperation {
     KILL = 0,
@@ -42,7 +44,7 @@ export class StateModule extends VFXModule {
     @serializable
     public lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
 
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
         particles.markRequiredParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
     }

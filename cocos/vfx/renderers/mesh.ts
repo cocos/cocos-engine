@@ -74,13 +74,6 @@ export class MeshParticleRenderer extends ParticleRenderer {
     private declare _dynamicBuffer: Float32Array;
     private declare _dynamicBufferUintView: Uint32Array;
     private _vertexStreamSize = 0;
-    private _iaInfo = new IndirectBuffer([new DrawInfo()]);
-    private _iaInfoBuffer = deviceManager.gfxDevice.createBuffer(new BufferInfo(
-        BufferUsageBit.INDIRECT,
-        MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-        DRAW_INFO_SIZE,
-        DRAW_INFO_SIZE,
-    ));
 
     public render (particles: ParticleDataSet, emitter: EmitterDataSet) {
         const material = this.material;
@@ -282,11 +275,8 @@ export class MeshParticleRenderer extends ParticleRenderer {
             this._dynamicBufferUintView = new Uint32Array(this._dynamicBuffer.buffer);
             this._insBuffers.push(vertexBuffer);
             this._insBuffers.push(dynamicBuffer);
-            this._iaInfo.drawInfos[0].vertexCount = vertCount;
-            this._iaInfo.drawInfos[0].indexCount = indexCount;
-            this._iaInfoBuffer.update(this._iaInfo);
             this._renderingSubMesh = new RenderingSubMesh(this._insBuffers, this._vertexStreamAttributes,
-                PrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
+                PrimitiveMode.TRIANGLE_LIST, indexBuffer);
         }
         if (this._dynamicBuffer.byteLength !== particles.capacity * this._vertexStreamSize) {
             this._dynamicBuffer = new Float32Array(new ArrayBuffer(particles.capacity * this._vertexStreamSize));

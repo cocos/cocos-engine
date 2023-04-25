@@ -66,7 +66,7 @@ export class ConstantVec3Expression extends Vec3Expression {
         return out;
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream, out: Vec3) {
+    public evaluateSingle (out: Vec3) {
         out.x = this.x;
         out.y = this.y;
         out.z = this.z;

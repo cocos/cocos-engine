@@ -369,6 +369,10 @@ export class VFXEmitter extends Component {
         return this._eventHandlerCount;
     }
 
+    public get rendererCount () {
+        return this._rendererCount;
+    }
+
     public get lastSimulateFrame () {
         return this._state.lastSimulateFrame;
     }
@@ -381,8 +385,6 @@ export class VFXEmitter extends Component {
         return this._state.boundsMax as Readonly<Vec3>;
     }
 
-    @serializable
-    private _userParameters: any[] = [];
     @serializable
     private _emitterStage = new VFXModuleStage(ModuleExecStage.EMITTER);
     @serializable
@@ -419,14 +421,13 @@ export class VFXEmitter extends Component {
         if (this._state.playingState === PlayingState.STOPPED) {
             this._state.randomStream.seed = this.useAutoRandomSeed ? randomRangeInt(0, INT_MAX) : this.randomSeed;
             this._emitterDataSet.currentDelay = Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.randomStream.getFloat()), 0);
-            if (this.particles.count === 0) {
-                this._emitterStage.onPlay(this._params, this._state);
-                this._spawnStage.onPlay(this._params, this._state);
-                this._updateStage.onPlay(this._params, this._state);
-                if (this._eventHandlerCount > 0) {
-                    for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
-                        this._eventHandlers[i].onPlay(this._params, this._state);
-                    }
+            this._emitterDataSet.transform = this.node;
+            this._emitterStage.onPlay(this._params, this._state);
+            this._spawnStage.onPlay(this._params, this._state);
+            this._updateStage.onPlay(this._params, this._state);
+            if (this._eventHandlerCount > 0) {
+                for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
+                    this._eventHandlers[i].onPlay(this._params, this._state);
                 }
             }
             if (this.prewarm) {
@@ -499,6 +500,13 @@ export class VFXEmitter extends Component {
         this._eventHandlerCount--;
     }
 
+    public addRenderer<T extends ParticleRenderer> (Type: Constructor<T>): T {
+        const renderer = new Type();
+        this._renderers.push(renderer);
+        this._rendererCount++;
+        return renderer;
+    }
+
     /**
      * @internal
      * @engineInternal
@@ -558,15 +566,9 @@ export class VFXEmitter extends Component {
         const state = this._state;
         context.reset();
         context.deltaTime = deltaTime;
-        this.updateEmitterState(deltaTime);
         this.preTick(particles, emitter, user, context);
 
-        if (emitter.loopAge + deltaTime > emitter.currentDuration) {
-            this.updateEmitterTime(emitter.currentDuration - emitter.loopAge);
-            this._emitterStage.execute(particles, emitter, user, context);
-            deltaTime -= emitter.deltaTime;
-        }
-        this.updateEmitterTime(deltaTime);
+        this.updateEmitterState(particles, emitter, user, context);
         this._emitterStage.execute(particles, emitter, user, context);
         const particleCount = particles.count;
         if (particleCount > 0) {
@@ -585,15 +587,15 @@ export class VFXEmitter extends Component {
         this.updateBounds();
     }
 
-    private updateEmitterState (dt: number) {
-        const emitterDataSet = this._emitterDataSet;
-        emitterDataSet.burstCount = emitterDataSet.spawnContinuousCount = 0;
-        this.updateEmitterTransform(this.node, dt);
+    private updateEmitterState (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        emitter.burstCount = emitter.spawnContinuousCount = 0;
+        this.updateEmitterTime(particles, emitter, user, context);
+        this.updateEmitterTransform(particles, emitter, user, context);
     }
 
-    private updateEmitterTime (deltaTime: number) {
+    private updateEmitterTime (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const params = this._params;
-        const emitter = this._emitterDataSet;
+        const deltaTime = context.deltaTime;
         if (DEBUG) {
             assertIsTrue(deltaTime < params.duration,
                 'The delta time should not exceed the duration of the particle system. please adjust the duration of the particle system.');
@@ -648,30 +650,30 @@ export class VFXEmitter extends Component {
         emitter.normalizedPrevLoopAge = prevTime * invDuration;
     }
 
-    private updateEmitterTransform (node: Node, dt: number) {
-        const emitterDataSet = this._emitterDataSet;
-        emitterDataSet.isWorldSpace = this._params.simulationSpace === Space.WORLD;
-        Vec3.copy(emitterDataSet.prevWorldPosition, emitterDataSet.worldPosition);
-        Vec3.copy(emitterDataSet.worldPosition, node.worldPosition);
-        if (node.flagChangedVersion !== this._state.lastTransformChangedVersion) {
+    private updateEmitterTransform (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        emitter.isWorldSpace = this._params.simulationSpace === Space.WORLD;
+        const { transform } = emitter;
+        Vec3.copy(emitter.prevWorldPosition, emitter.worldPosition);
+        Vec3.copy(emitter.worldPosition, transform.worldPosition);
+        if (transform.flagChangedVersion !== this._state.lastTransformChangedVersion) {
             switch (this._params.scalingMode) {
             case ScalingMode.LOCAL:
-                Vec3.copy(emitterDataSet.renderScale, node.scale);
+                Vec3.copy(emitter.renderScale, transform.scale);
                 break;
             case ScalingMode.HIERARCHY:
-                Vec3.copy(emitterDataSet.renderScale, node.worldScale);
+                Vec3.copy(emitter.renderScale, transform.worldScale);
                 break;
             default:
-                Vec3.copy(emitterDataSet.renderScale, Vec3.ONE);
+                Vec3.copy(emitter.renderScale, Vec3.ONE);
                 break;
             }
-            Mat4.copy(emitterDataSet.localToWorld, node.worldMatrix);
-            Mat4.invert(emitterDataSet.worldToLocal, emitterDataSet.localToWorld);
-            Mat3.fromMat4(emitterDataSet.worldToLocalRS, emitterDataSet.worldToLocal);
-            this._state.lastTransformChangedVersion = node.flagChangedVersion;
+            Mat4.copy(emitter.localToWorld, transform.worldMatrix);
+            Mat4.invert(emitter.worldToLocal, emitter.localToWorld);
+            Mat3.fromMat4(emitter.worldToLocalRS, emitter.worldToLocal);
+            this._state.lastTransformChangedVersion = transform.flagChangedVersion;
         }
-        Vec3.subtract(emitterDataSet.velocity, emitterDataSet.worldPosition, emitterDataSet.prevWorldPosition);
-        Vec3.multiplyScalar(emitterDataSet.velocity, emitterDataSet.velocity, 1 / dt);
+        Vec3.subtract(emitter.velocity, emitter.worldPosition, emitter.prevWorldPosition);
+        Vec3.multiplyScalar(emitter.velocity, emitter.velocity, 1 / context.deltaTime);
     }
 
     /**

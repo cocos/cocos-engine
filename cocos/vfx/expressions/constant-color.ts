@@ -54,7 +54,7 @@ export class ConstantColorExpression extends ColorExpression {
         return out;
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream, out: Color) {
+    public evaluateSingle (out: Color) {
         out.set(this.color);
         return out;
     }

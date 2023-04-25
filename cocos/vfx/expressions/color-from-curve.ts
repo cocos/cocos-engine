@@ -56,12 +56,12 @@ export class ColorFromCurveExpression extends ColorExpression {
         this._time = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
     }
 
-    evaluateSingle (time: number, randomStream: RandomStream, out: Color) {
+    public evaluateSingle (out: Color) {
         this.curve.evaluate(out, time);
         return out;
     }
 
-    evaluate (index: number, out: Color) {
+    public evaluate (index: number, out: Color) {
         this.curve.evaluate(out, this._time[index]);
         return out;
     }

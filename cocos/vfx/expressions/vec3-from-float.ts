@@ -61,8 +61,8 @@ export class Vec3FromFloatExpression extends Vec3Expression {
         return out;
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream, out: Vec3): Vec3 {
-        const val = this.value.evaluateSingle(time, randomStream);
+    public evaluateSingle (out: Vec3): Vec3 {
+        const val = this.value.evaluateSingle();
         out.x = val;
         out.y = val;
         out.z = val;
