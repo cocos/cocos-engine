@@ -1563,8 +1563,8 @@ auto mapTextureFlags(ResourceFlags flags) {
 
 auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visibility, const ResourceGraph &resourceGraph, bool rasterized) {
     ResourceUsage usage;
-    gfx::ShaderStageFlags vis;
-    vis = visibility;
+    gfx::ShaderStageFlags vis{gfx::ShaderStageFlags::NONE};
+    vis |= visibility;
     gfx::AccessFlags accesFlag;
     auto vertex = resourceGraph.valueIndex.at(name);
     const auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, vertex);
@@ -1601,7 +1601,7 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
         gfx::TextureUsage texUsage = gfx::TextureUsage::NONE;
 
         // TODO(Zeqiang): visbility of slot name "_" not found
-        bool isAttachment = (visibility == gfx::ShaderStageFlags::NONE || visibility == gfx::ShaderStageFlags::FRAGMENT) && rasterized;
+        bool isAttachment = (visibility == gfx::ShaderStageFlags::NONE || gfx::hasFlag(visibility, gfx::ShaderStageFlags::FRAGMENT)) && rasterized;
         if (isAttachment) {
             vis = gfx::ShaderStageFlags::FRAGMENT;
             bool outColorFlag = (desc.flags & ResourceFlags::COLOR_ATTACHMENT) != ResourceFlags::NONE;
@@ -1618,7 +1618,7 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
         } else {
             if (memAccess == gfx::MemoryAccess::READ_ONLY) {
                 if ((desc.flags & ResourceFlags::INPUT_ATTACHMENT) != ResourceFlags::NONE) {
-                    texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT));
+                    texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::INPUT_ATTACHMENT));
                 } else {
                     texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::SAMPLED | gfx::TextureUsage::STORAGE | gfx::TextureUsage::SHADING_RATE));
                 }
@@ -1626,7 +1626,6 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
                 texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::STORAGE));
             }
 
-            vis = visibility;
             CC_ASSERT(vis != gfx::ShaderStageFlags::NONE);
         }
         usage = texUsage;
@@ -1794,6 +1793,7 @@ bool checkRasterViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, Pa
         const auto &rasterView = pair.second;
         auto access = toGfxAccess(rasterView.accessType);
         gfx::ShaderStageFlagBit tryGotVis = getVisibilityByDescName(renderGraph, layoutGraphData, passID, pair.second.slotName);
+        tryGotVis |= pair.second.shaderStageFlags;
         const auto &[vis, usage, accessFlag] = getResourceStatus(passType, pair.first, access, tryGotVis, resourceGraph, true);
         ViewStatus viewStatus{pair.first, passType, vis, access, accessFlag, usage};
         addAccessStatus(resourceAccessGraph, resourceGraph, node, viewStatus);
@@ -1822,6 +1822,7 @@ bool checkComputeViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, P
             gfx::ShaderStageFlagBit tryGotVis = gfx::ShaderStageFlagBit::NONE;
             for (const auto &view : pair.second) {
                 tryGotVis |= getVisibilityByDescName(renderGraph, layoutGraphData, passID, view.name);
+                tryGotVis |= view.shaderStageFlags;
             }
             const auto &[vis, usage, accessFlag] = getResourceStatus(passType, pair.first, access, tryGotVis, resourceGraph, false);
             ViewStatus viewStatus{pair.first, passType, vis, access, accessFlag, usage};
