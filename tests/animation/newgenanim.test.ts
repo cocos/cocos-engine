@@ -5523,6 +5523,8 @@ function createAnimationGraphEval (animationGraph: AnimationGraph | AnimationGra
         (animationGraph instanceof AnimationGraph) ? animationGraph : animationGraph.original!,
         node,
         newGenAnim,
+        // @ts-expect-error HACK here
+        newGenAnim._customEventTarget,
         (animationGraph instanceof AnimationGraph) ? null : animationGraph.clipOverrides,
     );
     // @ts-expect-error HACK
@@ -5536,6 +5538,8 @@ function createAnimationGraphEval2 (animationGraph: AnimationGraph | AnimationGr
         (animationGraph instanceof AnimationGraph) ? animationGraph : animationGraph.original!,
         node,
         newGenAnim,
+        // @ts-expect-error HACK here
+        newGenAnim._customEventTarget,
         (animationGraph instanceof AnimationGraph) ? null : animationGraph.clipOverrides,
     );
     // @ts-expect-error HACK

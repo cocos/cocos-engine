@@ -25,7 +25,7 @@
 import { Component } from '../../scene-graph/component';
 import { AnimationGraph } from './animation-graph';
 import type { AnimationGraphRunTime } from './animation-graph';
-import { _decorator, assertIsNonNullable, assertIsTrue } from '../../core';
+import { EventTarget, _decorator, assertIsNonNullable, assertIsTrue } from '../../core';
 import { AnimationGraphEval } from './graph-eval';
 import type { MotionStateStatus, TransitionStatus, ClipStatus } from './state-machine/state-machine-eval';
 import { Value } from './variable';
@@ -101,7 +101,13 @@ export class AnimationController extends Component {
                 assertIsTrue(graph instanceof AnimationGraph);
                 originalGraph = graph;
             }
-            const graphEval = new AnimationGraphEval(originalGraph, this.node, this, clipOverrides);
+            const graphEval = new AnimationGraphEval(
+                originalGraph,
+                this.node,
+                this,
+                this._customEventTarget,
+                clipOverrides,
+            );
             this._graphEval = graphEval;
         }
     }
@@ -294,4 +300,42 @@ export class AnimationController extends Component {
         }
         return graphEval.getAuxiliaryCurveValue(curveName);
     }
+
+    /**
+     * @zh 监听自定义事件。
+     * @en Listens to the custom event.
+     *
+     * @param eventName @zh 要监听的自定义事件名。 @en Name of the custom event to listen.
+     *
+     * @param callback @zh 回调函数。当指定自定义事件触发时被调用。 @en Callback function. Called when the custom event is triggered.
+     *
+     * @param thisArg @zh 传给 `callback` 函数 的 `this` 参数。 @en `this` argument that will be passed to `callback` function.
+     * @experimental
+     */
+    public onCustomEvent_experimental<TThisArg = never> (eventName: string, callback: (this: TThisArg) => void, thisArg?: TThisArg) {
+        this._customEventTarget.on(eventName, callback, thisArg);
+    }
+
+    /**
+     * @zh 取消对自定义事件的监听。
+     * @en Cancels the listening(s) to specified custom event.
+     *
+     * @param eventName @zh 要移除监听的自定义事件名。 @en Name of the custom event to which the listening would be cancelled.
+     *
+     * @param callback @zh 当初监听指定的回调函数。若未指定，则会取消该自定义事件上的所有监听。
+     *                 @en Callback function that were originally specified to listen the custom event.
+     *                     If not specified, all listenings to that custom event will be cancelled.
+     *
+     * @param thisArg @zh 当初监听指定的回调函数的 `this` 参数。若未指定，则会取消该自定义事件上所有指定了 `callback` 回调、但未指定 `this` 参数的监听。
+     *                @en `this` argument that were originally specified to listen the custom event.
+     *                     If not specified, all listenings to that custom event
+     *                     on which the `callback` was specified but `this` argument was not specified
+     *                     will be cancelled.
+     * @experimental
+     */
+    public offCustomEvent_experimental<TThisArg = never> (eventName: string, callback?: (this: TThisArg) => void, thisArg?: TThisArg) {
+        this._customEventTarget.off(eventName, callback, thisArg);
+    }
+
+    private _customEventTarget = new EventTarget();
 }
