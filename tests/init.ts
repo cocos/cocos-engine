@@ -56,6 +56,12 @@ jest.mock(
     { virtual: true, },
 );
 
+jest.mock(
+    'pal/wasm',
+    () => jest.requireActual('../pal/wasm/wasm-web.ts'),
+    { virtual: true, },
+);
+
 jest.mock('../cocos/core/platform/debug', () => {
     const result = {
         __esModule: true, // Use it when dealing with esModules
