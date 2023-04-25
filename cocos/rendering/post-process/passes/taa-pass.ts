@@ -8,7 +8,7 @@ import { getCameraUniqueID } from '../../custom/define';
 import { TAA } from '../components/taa';
 import { passSettings } from '../utils/pass-settings';
 import { passUtils } from '../utils/pass-utils';
-import { SettingPass } from './setting-pass';
+import { getSetting, SettingPass } from './setting-pass';
 
 const tempVec4 = new Vec4();
 
@@ -78,15 +78,12 @@ const SampleOffsets = {
     halton8,
 };
 
-const defaultTAASetting = {
-    sampleScale: 1,
-    feedback: 0.95,
-};
+export class TAAPass extends SettingPass {
+    get setting () { return getSetting(TAA); }
 
-export class TAAPass extends SettingPass<TAA> {
-    SettingClass = TAA
     name = 'TAAPass'
     effectName = 'post-process/taa';
+    outputNames = ['TAA_First', 'TAA_Second'];
 
     prevMatViewProj = new Mat4();
     taaTextureIndex = -2;
@@ -96,8 +93,6 @@ export class TAAPass extends SettingPass<TAA> {
 
     forceRender = true;
     dirty = false;
-
-    outputNames = ['TAA_First', 'TAA_Second'];
 
     slotName (camera: Camera, index = 0) {
         if (!this.checkEnable(camera)) {
@@ -136,7 +131,7 @@ export class TAAPass extends SettingPass<TAA> {
             offset = Vec2.ZERO;
         }
 
-        const setting = this.getSetting() || defaultTAASetting;
+        const setting = this.setting;
 
         this.sampleOffset.x = offset.x * setting.sampleScale / game.canvas!.width;
         this.sampleOffset.y = offset.y * setting.sampleScale / game.canvas!.height;
@@ -164,7 +159,7 @@ export class TAAPass extends SettingPass<TAA> {
             this.firstRender = false;
         }
 
-        const setting = this.getSetting() || defaultTAASetting;
+        const setting = this.setting;
 
         this.material.setProperty('taaParams1', tempVec4.set(this.sampleOffset.x, this.sampleOffset.y, setting.feedback, 0));
         this.material.setProperty('taaTextureSize', tempVec4.set(1 / width, 1 / height, 1 / width, 1 / height));

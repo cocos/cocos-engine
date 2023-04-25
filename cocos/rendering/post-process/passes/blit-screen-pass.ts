@@ -6,15 +6,14 @@ import { Camera } from '../../../render-scene/scene';
 import { Pipeline } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { passUtils } from '../utils/pass-utils';
-import { SettingPass } from './setting-pass';
+import { getSetting, SettingPass } from './setting-pass';
 
 import { BlitScreen } from '../components/blit-screen';
-import { Material } from '../../../asset/assets';
 
 const outputNames = ['BlitScreenColor0', 'BlitScreenColor1'];
 
-export class BlitScreenPass extends SettingPass<BlitScreen> {
-    SettingClass = BlitScreen
+export class BlitScreenPass extends SettingPass {
+    get setting () { return getSetting(BlitScreen); }
 
     name = 'BlitScreenPass'
     effectName = 'post-process/blit-screen';
@@ -27,7 +26,7 @@ export class BlitScreenPass extends SettingPass<BlitScreen> {
 
     checkEnable (camera: Camera) {
         const enable = super.checkEnable(camera);
-        const setting = this.getSetting();
+        const setting = this.setting;
         return enable && (setting.materials.length > 0);
     }
 
@@ -47,8 +46,7 @@ export class BlitScreenPass extends SettingPass<BlitScreen> {
         let input0 = this.lastPass!.slotName(camera, 0);
 
         let slotIdx = 0;
-        const setting = this.getSetting();
-        const materials = setting.materials;
+        const materials = this.setting.materials;
         for (let i = 0; i < materials.length; i++) {
             const material = materials[i];
             passUtils.material = material;

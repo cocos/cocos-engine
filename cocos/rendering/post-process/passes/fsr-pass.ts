@@ -7,17 +7,18 @@ import { getCameraUniqueID } from '../../custom/define';
 import { passUtils } from '../utils/pass-utils';
 
 import { FSR } from '../components/fsr';
-import { SettingPass } from './setting-pass';
+import { getSetting, SettingPass } from './setting-pass';
 
-export class FSRPass extends SettingPass<FSR> {
-    SettingClass = FSR
+export class FSRPass extends SettingPass {
+    get setting () { return getSetting(FSR); }
+
     name = 'FSRPass'
     effectName = 'post-process/fsr';
     outputNames = ['FSRColor']
 
     checkEnable (camera: Camera) {
         const enable = super.checkEnable(camera);
-        const setting = this.getSetting();
+        const setting = this.setting;
         return enable && !!setting && setting.enabledInHierarchy;
     }
 
@@ -36,7 +37,7 @@ export class FSRPass extends SettingPass<FSR> {
 
         passUtils.material = this.material;
 
-        const setting = this.getSetting();
+        const setting = this.setting;
         this.material.setProperty('fsrParams', new Vec4(setting.sharpness, 0, 0, 0));
         this.material.setProperty('texSize',
             new Vec4(
