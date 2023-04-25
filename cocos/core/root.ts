@@ -505,6 +505,7 @@ export class Root {
             }
 
             legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
+            legacyCC.director.emit(legacyCC.Director.EVENT_UPLOAD_DYNAMIC_VBO);
             cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
 
             for (let i = 0; i < cameraList.length; ++i) {

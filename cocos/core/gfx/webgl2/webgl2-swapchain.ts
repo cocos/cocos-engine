@@ -103,7 +103,7 @@ export function getExtensions (gl: WebGL2RenderingContext) {
         OES_texture_half_float_linear: getExtension(gl, 'OES_texture_half_float_linear'),
         OES_texture_float_linear: getExtension(gl, 'OES_texture_float_linear'),
         WEBGL_multi_draw: null,
-        useVAO: true,
+        useVAO: false,
     };
 
     // platform-specific extension hacks

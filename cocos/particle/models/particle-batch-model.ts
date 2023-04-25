@@ -27,12 +27,13 @@
 import { JSB } from 'internal:constants';
 import { Mesh } from '../../3d/assets/mesh';
 import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMode,
-    Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo, Feature, deviceManager } from '../../core/gfx';
+    Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo, Feature, deviceManager, Device } from '../../core/gfx';
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Particle } from '../particle';
 import { Material, RenderingSubMesh } from '../../core/assets';
 import { legacyCC } from '../../core/global-exports';
+import { assertIsTrue } from '../../core/data/utils/asserts';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -47,6 +48,94 @@ const _uvs_ins = [
     0, 1, 0, // top-left
     1, 1, 0, // top-right
 ];
+
+const globalDynamicVBOMap: Record<string, DynamicVBO> = {};
+
+class DynamicVBO {
+    get vbo () {
+        return this._vbo;
+    }
+
+    get floatDataView () {
+        return this._floatDataView;
+    }
+
+    get uintDataView () {
+        return this._uint32DataView;
+    }
+
+    get usedCount () {
+        return this._usedCount;
+    }
+
+    set usedCount (val) {
+        this.reserve(val);
+        this._usedCount = val;
+    }
+
+    public markDirty () {
+        this._dirty = true;
+    }
+
+    private _dirty = false;
+    private declare _vbo: Buffer;
+    private declare _data: ArrayBuffer;
+    private declare _floatDataView: Float32Array;
+    private declare _uint32DataView: Uint32Array;
+    private _usedCount = 0;
+    private _vertAttribSize = 0;
+    private _capacity = 0;
+
+    constructor (device: Device, vertAttribSize: number) {
+        const capacity = 1024;
+        const vertexBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            vertAttribSize * capacity,
+            vertAttribSize,
+        ));
+
+        const vBuffer: ArrayBuffer = new ArrayBuffer(vertAttribSize * capacity);
+        this._vertAttribSize = vertAttribSize;
+        this._capacity = capacity;
+        this._vbo = vertexBuffer;
+        this._data = vBuffer;
+        this._floatDataView = new Float32Array(vBuffer);
+        this._uint32DataView = new Uint32Array(vBuffer);
+        // vertexBuffer.update(vBuffer);
+    }
+
+    private reserve (count: number) {
+        if (count <= this._capacity) { return; }
+        let newCapacity = this._capacity;
+        while (count > newCapacity) {
+            newCapacity *= 2;
+        }
+
+        this._capacity = newCapacity;
+        this._vbo.resize(newCapacity * this._vertAttribSize);
+        this._data = new ArrayBuffer(this._vertAttribSize * newCapacity);
+        const oldFloatDataView = this._floatDataView;
+        this._floatDataView = new Float32Array(this._data);
+        this._uint32DataView = new Uint32Array(this._data);
+        this._floatDataView.set(oldFloatDataView);
+    }
+
+    update () {
+        if (this._dirty) {
+            this._vbo.update(this._data);
+            this._dirty = false;
+        }
+    }
+
+    reset () {
+        this._usedCount = 0;
+    }
+
+    destroy () {
+        this._vbo.destroy();
+    }
+}
 
 export default class ParticleBatchModel extends scene.Model {
     private _capacity: number;
@@ -69,6 +158,8 @@ export default class ParticleBatchModel extends scene.Model {
     private _insBuffers: Buffer[];
     private _insIndices: Buffer | null;
     private _useInstance: boolean;
+    private _firstInstance = 0;
+    private _vertexAttributeHash = '';
 
     private _iaVertCount = 0;
     private _iaIndexCount = 0;
@@ -137,12 +228,14 @@ export default class ParticleBatchModel extends scene.Model {
         }
         this._mesh = mesh;
         this._vertAttrs = attrs;
+        this._vertexAttributeHash = '';
         this._vertAttribSize = 0;
         this._vertAttribSizeStatic = 0;
         for (const a of this._vertAttrs) {
             if (a.stream === 0) {
                 (a as any).offset = this._vertAttribSize;
                 this._vertAttribSize += FormatInfos[a.format].size;
+                this._vertexAttributeHash += `n${a.name}f${a.format}n${a.isNormalized}l${a.location}`;
             } else if (a.stream === 1) {
                 (a as any).offset = this._vertAttribSizeStatic;
                 this._vertAttribSizeStatic += FormatInfos[a.format].size;
@@ -230,22 +323,22 @@ export default class ParticleBatchModel extends scene.Model {
         return vBuffer;
     }
 
-    private createSubMeshDataInsDynamic (): ArrayBuffer {
+    private createSubMeshDataInsDynamic ()/*: ArrayBuffer*/ {
         this.destroySubMeshData();
+        const vertexBuffer = this.getOrCreateDynamicVBO();
+        // const vertexBuffer = this._device.createBuffer(new BufferInfo(
+        //     BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+        //     MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+        //     this._vertAttribSize * this._capacity,
+        //     this._vertAttribSize,
+        // ));
 
-        const vertexBuffer = this._device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._vertAttribSize * this._capacity,
-            this._vertAttribSize,
-        ));
-
-        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._capacity);
-        vertexBuffer.update(vBuffer);
+        // const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._capacity);
+        // vertexBuffer.update(vBuffer);
 
         this._insBuffers.push(vertexBuffer);
 
-        return vBuffer;
+        // return vBuffer;
     }
 
     private createSubMeshDataInsStatic () {
@@ -582,12 +675,31 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
+    private getOrCreateDynamicVBO () {
+        if (!globalDynamicVBOMap[this._vertexAttributeHash]) {
+            globalDynamicVBOMap[this._vertexAttributeHash] = new DynamicVBO(this._device, this._vertAttribSize);
+        }
+        return globalDynamicVBOMap[this._vertexAttributeHash].vbo;
+    }
+
+    public ensureVBO (count: number) {
+        if (!this._useInstance) { return; }
+        assertIsTrue(globalDynamicVBOMap[this._vertexAttributeHash]);
+        const dynamicVBO = globalDynamicVBOMap[this._vertexAttributeHash];
+        dynamicVBO.markDirty();
+        this._firstInstance = dynamicVBO.usedCount;
+        dynamicVBO.usedCount += count;
+        this._vdataF32 = dynamicVBO.floatDataView.subarray(this._firstInstance * this._vertAttrsFloatCount, dynamicVBO.usedCount * this._vertAttrsFloatCount);
+        this._vdataUint32 = dynamicVBO.uintDataView.subarray(this._firstInstance * this._vertAttrsFloatCount, dynamicVBO.usedCount * this._vertAttrsFloatCount);
+    }
+
     private updateIAIns (count: number) {
         if (count <= 0) {
             return;
         }
         const ia = this._subModels[0].inputAssembler;
-        ia.vertexBuffers[0].update(this._vdataF32!); // update dynamic buffer
+        // ia.vertexBuffers[0].update(this._vdataF32!); // update dynamic buffer
+        ia.firstInstance = this._firstInstance;
         ia.instanceCount = count;
         ia.firstIndex = 0;
         ia.indexCount = this._indexCount;
@@ -636,9 +748,9 @@ export default class ParticleBatchModel extends scene.Model {
     }
 
     private rebuildIns () {
-        this._vBuffer = this.createSubMeshDataInsDynamic();
-        this._vdataF32 = new Float32Array(this._vBuffer);
-        this._vdataUint32 = new Uint32Array(this._vBuffer);
+        /*this._vBuffer =*/ this.createSubMeshDataInsDynamic();
+        // this._vdataF32 = new Float32Array(this._vBuffer, );
+        // this._vdataUint32 = new Uint32Array(this._vBuffer);
 
         this.createSubMeshDataInsStatic();
 
@@ -647,7 +759,15 @@ export default class ParticleBatchModel extends scene.Model {
 
     private destroySubMeshData () {
         if (this._subMeshData) {
-            this._subMeshData.destroy();
+            if (this._useInstance) {
+                this._subMeshData.vertexBuffers[1].destroy();
+                this._subMeshData.indexBuffer?.destroy();
+                this._insBuffers.length = 0;
+                this._insIndices = null;
+            } else {
+                this._subMeshData.destroy();
+            }
+
             this._subMeshData = null;
         }
     }
@@ -662,3 +782,11 @@ export default class ParticleBatchModel extends scene.Model {
         return this._useInstance;
     }
 }
+
+legacyCC.director.on(legacyCC.Director.EVENT_UPLOAD_DYNAMIC_VBO, () => {
+    for (const key in globalDynamicVBOMap) {
+        const dynamicVBO = globalDynamicVBOMap[key];
+        dynamicVBO.update();
+        dynamicVBO.reset();
+    }
+});
