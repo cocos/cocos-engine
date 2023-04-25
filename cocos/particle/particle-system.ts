@@ -1718,14 +1718,14 @@ export class ParticleSystem extends ModelRenderer {
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
 
-            if (!this._parentEmitter) {
-                // Execute emission
-                this._emit(scaledDeltaTime);
-            }
-
             // simulation, update particles.
             if (this.processor.updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
                 this.stop();
+            }
+
+            if (!this._parentEmitter) {
+                // Execute emission
+                this._emit(scaledDeltaTime);
             }
         } else {
             const mat: Material | null = this.getMaterialInstance(0) || this.processor.getDefaultMaterial();
@@ -1975,7 +1975,7 @@ export class ParticleSystem extends ModelRenderer {
 
             // apply startLifetime.
             this.startLifetime.bake();
-            particle.startLifetime = this.startLifetime.evaluate(loopDelta, rand)! + dt;
+            particle.startLifetime = this.startLifetime.evaluate(loopDelta, rand)!;
             particle.remainingLifetime = particle.startLifetime;
 
             particle.randomSeed = randomRangeInt(0, 233280);
@@ -1987,14 +1987,6 @@ export class ParticleSystem extends ModelRenderer {
             particle.active = true;
             this._trigged = true;
             this.processor.setNewParticle(particle);
-
-            if (this._trailModule && this._trailModule.enable) {
-                this._trailModule.animate(particle, i * dd);
-                if (!this._trailModule.getModel()?.scene) {
-                    this._trailModule._attachToScene();
-                    this._trailModule.updateRenderData();
-                }
-            }
 
             if (parentParticle) {
                 if (this._colorOverLifetimeModule && this._colorOverLifetimeModule.enable) {
