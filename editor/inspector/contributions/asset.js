@@ -515,8 +515,6 @@ exports.methods = {
             return;
         }
 
-        panel.readyToUpdate = false;
-
         // 有些资源在内部的 apply 保存数据后，会自动重导资源，自动更新 meta 数据，所以 meta 不需要再额外更新
         let continueSaveMeta = true;
 
@@ -533,7 +531,6 @@ exports.methods = {
                  * return; 是保存成功，且向上冒泡继续保存 meta
                  */
                 if (saveState === false) {
-                    panel.readyToUpdate = true;
                     return;
                 } else if (saveState === true) {
                     continueSaveMeta = false;
@@ -543,7 +540,6 @@ exports.methods = {
         panel.$.header.removeAttribute('dirty');
 
         if (continueSaveMeta === false) {
-            panel.readyToUpdate = true;
             return;
 
         }
@@ -556,8 +552,6 @@ exports.methods = {
             panel.metaListOrigin[index] = content;
             Editor.Message.request('asset-db', 'save-asset-meta', uuid, content);
         });
-
-        panel.readyToUpdate = true;
     },
     async abort() {
         const panel = this;
