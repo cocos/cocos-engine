@@ -21,16 +21,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-import { Buffer, Framebuffer, Texture, Viewport } from '../../gfx';
-import { assert } from '../../core';
+import { DEBUG } from 'internal:constants';
+import { Buffer, Framebuffer, LoadOp, StoreOp, Texture, Viewport } from '../../gfx';
+import { assert, warn } from '../../core';
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor,
-    RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
-import { AccessType, RasterView, ResourceResidency } from './types';
+    RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphObject, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
+import { AccessType, RasterView, ComputeView, ResourceResidency } from './types';
 
 class PassVisitor implements RenderGraphVisitor {
     public queueID = 0xFFFFFFFF;
@@ -55,8 +56,50 @@ class PassVisitor implements RenderGraphVisitor {
     protected _isBlit (u: number): boolean {
         return !!this.context.renderGraph.tryGetBlit(u);
     }
+
+    private _useResourceInfo (input: string, raster: RasterView) {
+        if (!DEBUG) {
+            return;
+        }
+        const resContext = this.context.resourceContext;
+        const useContext = resContext.get(input);
+        const resGraph = this.context.resourceGraph;
+        // There are resources being used
+        if (useContext) {
+            const rasters = useContext.rasters;
+            const computes = useContext.computes;
+            if (rasters.length > 0 || computes) {
+                assert(raster.storeOp === StoreOp.STORE, `The resource ${input} is being used, so storeOp needs to be set to 'store'`);
+                const currRaster = rasters[rasters.length - 1];
+                if (currRaster) {
+                    assert(currRaster.loadOp === LoadOp.LOAD,
+                        `The resource with name ${input} is being used, and the pass that uses this resource must have loadOp set to 'load'`);
+                }
+            }
+            rasters.push(raster);
+        } else { // No resources are being used.
+            const resId = resGraph.vertex(input);
+            const trait = resGraph.getTraits(resId);
+            switch (trait.residency) {
+            case ResourceResidency.PERSISTENT:
+                assert(raster.storeOp === StoreOp.STORE, `Persistent resources must have storeOp set to 'store'.`);
+                break;
+            case ResourceResidency.MANAGED:
+                assert(raster.storeOp === StoreOp.DISCARD, `MANAGED resources that are not being used must be set to 'discard'.`);
+                break;
+            default:
+                break;
+            }
+            const useContext = new ResourceUseContext();
+            resContext.set(input, useContext);
+            useContext.rasters.push(raster);
+        }
+    }
+
     private _fetchValidPass () {
         const rg = this.context.renderGraph;
+        const resGraph = this.context.resourceGraph;
+        const resContext = this.context.resourceContext;
         if (rg.getValid(this.sceneID)) {
             return;
         }
@@ -69,7 +112,10 @@ class PassVisitor implements RenderGraphVisitor {
             // find the pass
             if (readName === outputName
                 && raster.accessType !== AccessType.READ) {
-                assert(!rg.getValid(this.sceneID), 'The same pass cannot output multiple resources with the same name at the same time');
+                if (DEBUG) {
+                    assert(!rg.getValid(this.sceneID), 'The same pass cannot output multiple resources with the same name at the same time');
+                    this._useResourceInfo(readName, raster);
+                }
                 rg.setValid(this.passID, true);
                 rg.setValid(this.queueID, true);
                 rg.setValid(this.sceneID, true);
@@ -93,6 +139,18 @@ class PassVisitor implements RenderGraphVisitor {
                 }
             }
             for (const [computeName, cViews] of pass.computeViews) {
+                if (DEBUG) {
+                    let resUseContext = resContext.get(computeName);
+                    if (!resUseContext) {
+                        resUseContext = new ResourceUseContext();
+                    }
+                    const computes = resUseContext.computes;
+                    if (!computes) {
+                        resUseContext.computes = [cViews];
+                    } else {
+                        computes.push(cViews);
+                    }
+                }
                 resVisitor = new ResourceVisitor(this.context);
                 resourceGraph = this.context.resourceGraph;
                 vertID = resourceGraph.find(computeName);
@@ -193,8 +251,13 @@ class ResourceVisitor implements ResourceGraphVisitor {
         this.dependency();
     }
 }
+
+class ResourceUseContext {
+    readonly rasters: RasterView[] = [];
+    computes: [ComputeView[]] | null = null;
+}
 class CompilerContext {
-    constructor (pipeline: Pipeline,
+    set (pipeline: Pipeline,
         resGraph: ResourceGraph,
         renderGraph: RenderGraph,
         layoutGraph: LayoutGraphData) {
@@ -202,11 +265,16 @@ class CompilerContext {
         this.resourceGraph = resGraph;
         this.renderGraph = renderGraph;
         this.layoutGraph = layoutGraph;
+        if (!this.resourceContext) {
+            this.resourceContext = new Map<string, ResourceUseContext>();
+        }
+        this.resourceContext.clear();
     }
-    readonly resourceGraph: ResourceGraph;
-    readonly pipeline: Pipeline;
-    readonly renderGraph: RenderGraph;
-    readonly layoutGraph: LayoutGraphData;
+    resourceGraph!: ResourceGraph;
+    pipeline!: Pipeline;
+    renderGraph!: RenderGraph;
+    layoutGraph!: LayoutGraphData;
+    resourceContext!: Map<string, ResourceUseContext>;
 }
 
 export class Compiler {
@@ -221,17 +289,31 @@ export class Compiler {
         this._layoutGraph = layoutGraph;
     }
     compile (rg: RenderGraph) {
-        const context = new CompilerContext(
-            this._pipeline,
-            this._resourceGraph,
-            rg,
-            this._layoutGraph,
-        );
+        context.set(this._pipeline, this._resourceGraph, rg, this._layoutGraph);
         const visitor = new ResourceManagerVisitor(context);
         depthFirstSearch(this._resourceGraph, visitor, visitor.colorMap);
+        if (DEBUG) {
+            const useContext = context.resourceContext;
+            for (const [name, use] of useContext) {
+                const resId = this._resourceGraph.vertex(name);
+                const trait = this._resourceGraph.getTraits(resId);
+                const lastRaster = use.rasters[use.rasters.length - 1];
+                switch (trait.residency) {
+                case ResourceResidency.PERSISTENT:
+                    assert(lastRaster.loadOp !== LoadOp.DISCARD,
+                        `The loadOp for persistent resources in the top-level pass cannot be set to 'discard'.`);
+                    break;
+                case ResourceResidency.MANAGED:
+                    assert(lastRaster.loadOp === LoadOp.CLEAR, `The loadOp for Managed resources in the top-level pass can only be set to 'clear'.`);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
     }
 }
-
+const context = new CompilerContext();
 export class ResourceManagerVisitor extends DefaultVisitor {
     private _colorMap: VectorGraphColorMap;
     private _resourceGraph: ResourceGraph;
