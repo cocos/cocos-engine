@@ -844,7 +844,7 @@ export function buildToneMapPass (camera: Camera,
     ppl: Pipeline,
     inputRT: string,
     inputDS: string) {
-    if (!ppl.pipelineSceneData.isHDR || !macro.ENABLE_FLOAT_OUTPUT) return { rtName: inputRT, dsName: inputDS };
+    if (!ppl.pipelineSceneData.isHDR || !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) return { rtName: inputRT, dsName: inputDS };
     if (!toneMappingInfo) {
         toneMappingInfo = new ToneMappingInfo();
     }
