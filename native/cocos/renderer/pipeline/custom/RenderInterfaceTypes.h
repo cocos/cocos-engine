@@ -29,13 +29,13 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/core/ArrayBuffer.h"
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/core/PassUtils.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
-#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
+#include "cocos/renderer/pipeline/custom/CustomTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
-#include "cocos/scene/Camera.h"
 
 namespace cc {
 
@@ -118,6 +118,10 @@ public:
 
     virtual ccstd::string getName() const = 0;
     virtual void setName(const ccstd::string &name) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void setCustomBehavior(const ccstd::string &name) = 0;
 };
 
 class Setter : public RenderNode {
@@ -130,6 +134,7 @@ public:
     virtual void setVec4(const ccstd::string &name, const Vec4 &vec) = 0;
     virtual void setVec2(const ccstd::string &name, const Vec2 &vec) = 0;
     virtual void setFloat(const ccstd::string &name, float v) = 0;
+    virtual void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) = 0;
     virtual void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) = 0;
     virtual void setTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
     virtual void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) = 0;
@@ -147,6 +152,10 @@ public:
     virtual void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addCustomCommand(std::string_view customBehavior) = 0;
     void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
         addSceneOfCamera(camera, std::move(light), SceneFlags::NONE);
     }
@@ -168,12 +177,58 @@ class RasterSubpassBuilder : public Setter {
 public:
     RasterSubpassBuilder() noexcept = default;
 
-    virtual void addRasterView(const ccstd::string &name, const RasterView &view) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) = 0;
     virtual bool getShowStatistics() const = 0;
     virtual void setShowStatistics(bool enable) = 0;
+    void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+        addRenderTarget(name, accessType, slotName, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, {});
+    }
+    void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp) {
+        addRenderTarget(name, accessType, slotName, loadOp, gfx::StoreOp::STORE, {});
+    }
+    void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
+        addRenderTarget(name, accessType, slotName, loadOp, storeOp, {});
+    }
+    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+        addDepthStencil(name, accessType, slotName, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp) {
+        addDepthStencil(name, accessType, slotName, loadOp, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
+        addDepthStencil(name, accessType, slotName, loadOp, storeOp, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth) {
+        addDepthStencil(name, accessType, slotName, loadOp, storeOp, depth, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil) {
+        addDepthStencil(name, accessType, slotName, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
     RasterQueueBuilder *addQueue() {
         return addQueue(QueueHint::NONE, "");
     }
@@ -199,7 +254,25 @@ class ComputeSubpassBuilder : public Setter {
 public:
     ComputeSubpassBuilder() noexcept = default;
 
-    virtual void addRasterView(const ccstd::string &name, const RasterView &view) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) = 0;
     ComputeQueueBuilder *addQueue() {
@@ -211,7 +284,33 @@ class RasterPassBuilder : public Setter {
 public:
     RasterPassBuilder() noexcept = default;
 
+    /**
+     * @beta method's name might change
+     */
+    virtual void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual void addRasterView(const ccstd::string &name, const RasterView &view) = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) = 0;
     virtual RasterSubpassBuilder *addRasterSubpass(const ccstd::string &layoutName) = 0;
@@ -220,6 +319,30 @@ public:
     virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
     virtual bool getShowStatistics() const = 0;
     virtual void setShowStatistics(bool enable) = 0;
+    void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) {
+        addRenderTarget(name, slotName, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, {});
+    }
+    void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp) {
+        addRenderTarget(name, slotName, loadOp, gfx::StoreOp::STORE, {});
+    }
+    void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
+        addRenderTarget(name, slotName, loadOp, storeOp, {});
+    }
+    void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName) {
+        addDepthStencil(name, slotName, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp) {
+        addDepthStencil(name, slotName, loadOp, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
+        addDepthStencil(name, slotName, loadOp, storeOp, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth) {
+        addDepthStencil(name, slotName, loadOp, storeOp, depth, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil) {
+        addDepthStencil(name, slotName, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
     RasterQueueBuilder *addQueue() {
         return addQueue(QueueHint::NONE, "");
     }
@@ -238,6 +361,21 @@ class ComputePassBuilder : public Setter {
 public:
     ComputePassBuilder() noexcept = default;
 
+    /**
+     * @beta method's name might change
+     */
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @beta method's name might change
+     */
+    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) = 0;
     ComputeQueueBuilder *addQueue() {
@@ -312,7 +450,11 @@ public:
     virtual void beginSetup() = 0;
     virtual void endSetup() = 0;
     virtual bool containsResource(const ccstd::string &name) const = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual uint32_t addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
+    virtual uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
     virtual void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) = 0;
     virtual uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size, ResourceResidency residency) = 0;
     virtual uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
@@ -330,6 +472,9 @@ public:
     virtual ComputePassBuilder *addComputePass(const ccstd::string &layoutName) = 0;
     virtual MovePassBuilder *addMovePass() = 0;
     virtual CopyPassBuilder *addCopyPass() = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
     uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size) {

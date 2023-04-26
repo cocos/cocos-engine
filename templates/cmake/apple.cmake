@@ -90,6 +90,7 @@ macro(cc_ios_after_target _target_name)
         IOS_INSTALL_COMBINED YES
         XCODE_ATTRIBUTE_SKIP_INSTALL NO
         XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
+        XCODE_GENERATE_SCHEME ON
     )
 
     cc_apple_set_launch_type(${CC_EXECUTABLE_NAME})
@@ -186,6 +187,7 @@ macro(cc_mac_after_target _target_name)
             MACOSX_BUNDLE_INFO_PLIST "${CC_PROJECT_DIR}/Info.plist"
             XCODE_ATTRIBUTE_SKIP_INSTALL NO
             XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
+            XCODE_GENERATE_SCHEME ON
         )
 
         cc_apple_set_launch_type(${CC_EXECUTABLE_NAME})

@@ -32,7 +32,7 @@ import {
 } from '../gfx';
 import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
-import { ccwindow } from '../core/global-exports';
+import { ccwindow, legacyCC } from '../core/global-exports';
 import { XREye } from '../xr/xr-enums';
 
 const v2_0 = new Vec2();
@@ -502,7 +502,7 @@ export class SplashScreen {
                 device.flushCommands([cmdBuff]);
                 device.queue.submit([cmdBuff]);
                 device.present();
-                device.enableAutoBarrier(false);
+                device.enableAutoBarrier(!legacyCC.rendering);
 
                 if (sys.isXR) {
                     xr.entry.renderLoopEnd(xrEye);

@@ -10,14 +10,14 @@
   {
   #if CC_SURFACES_LIGHTING_SSS
     float sssIntensity = surfaceData.sssParams.x;
+    // curvature needs pre-generating in vertex or texture data, otherwise disable pre-integrated skin
     float sssCurvature = surfaceData.sssParams.y;
     float sssColoration = surfaceData.sssParams.z;
-    float cavity = surfaceData.sssParams.w;
 
     // update lighting data for diffuse calculations
     LightingIntermediateData lightingData3S = lightingData;
-    lightingData3S.N = FSInput_worldNormal;
-    lightingData3S.NoL = dot(lightingData3S.N, -miscData.lightDir);
+    lightingData3S.N = normalize(FSInput_worldNormal);
+    lightingData3S.NoL = dot(lightingData3S.N, lightingData.L);
     lightingData3S.NoL = mix(lightingData.NoL, lightingData3S.NoL, sssIntensity);
     lightingData3S.NoLSat = saturate(lightingData3S.NoL);
 
@@ -31,11 +31,8 @@
       result.directDiffuse = CalculateDirectDiffuse(lightingData3S, miscData.lightColorAndIntensity) * multiplier;
     #endif
 
-    result.directSpecular *= cavity;
-
     #if !CC_FORWARD_ADD
       result.environmentDiffuse = CalculateEnvironmentDiffuse(lightingData3S, cc_ambientSky.w);
-      result.environmentSpecular *= cavity;
     #endif
   #endif
   }

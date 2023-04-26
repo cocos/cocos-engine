@@ -69,7 +69,7 @@ export class Line extends ModelRenderer {
     @tooltip('i18n:line.material')
     @displayName('Material')
     get lineMaterial () {
-        return this.getMaterial(0);
+        return this.getSharedMaterial(0);
     }
 
     set lineMaterial (val) {

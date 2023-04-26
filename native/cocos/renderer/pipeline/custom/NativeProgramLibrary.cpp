@@ -1122,6 +1122,14 @@ void populatePipelineLayoutInfo(
     }
 }
 
+template <typename T>
+static ccstd::hash_t getShaderHash(ccstd::hash_t src, const T &val) {
+    if (src != gfx::INVALID_SHADER_HASH) {
+        ccstd::hash_combine(src, val);
+    }
+    return src;
+}
+
 } // namespace
 
 void NativeProgramLibrary::init(gfx::Device *deviceIn) {
@@ -1492,6 +1500,7 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     info.shaderInfo.attributes = getActiveAttributes(programInfo, info.attributes, defines);
 
     info.shaderInfo.name = getShaderInstanceName(name, macroArray);
+    info.shaderInfo.hash = getShaderHash(programInfo.hash, prefix);
 
     IntrusivePtr<gfx::Shader> shader = device->createShader(info.shaderInfo);
     auto res = phase.programProxies.emplace(

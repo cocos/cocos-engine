@@ -135,6 +135,7 @@
 
 .node .layer-content > .layer-select {
     flex: 1;
+    margin-top: 0;
 }
 
 .node .layer-content > .layer-edit {

@@ -39,7 +39,6 @@ const { ccclass } = _decorator;
  * DragonBones factory
  * @class CCFactory
  * @extends BaseFactory
- * @engineInternal
  * @en Usually only one global factory instance is needed. The factory creates
  * Armature object by parsing DragonBonesData and TextureAtlasData instances,
  * and is responsible for global updating the Dragonbones component animation

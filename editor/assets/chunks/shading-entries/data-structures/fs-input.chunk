@@ -17,7 +17,7 @@ void CCSurfacesGetFragmentInput(out SurfacesStandardFragmentInput fsInput)
 
 // Use macros instead of structure to avoid structure precision issues
 #define FSInput_worldPos v_worldPos
-#define FSInput_worldNormal v_normal.xyz
+#define FSInput_worldNormal v_normal.xyz // unnormalized
 #define FSInput_faceSideSign v_normal.w // physical face side, has no relation to USE_TWO_SIDED
 #define FSInput_texcoord v_uv
 
@@ -28,7 +28,7 @@ void CCSurfacesGetFragmentInput(out SurfacesStandardFragmentInput fsInput)
 #endif
 
 #if CC_SURFACES_USE_TANGENT_SPACE
-  #define FSInput_worldTangent v_tangent.xyz
+  #define FSInput_worldTangent v_tangent.xyz // unnormalized
   #define FSInput_mirrorNormal v_tangent.w
 #else
   #define FSInput_worldTangent vec3(0.0, 0.0, 0.0)

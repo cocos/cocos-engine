@@ -101,6 +101,10 @@ exports.methods = {
         await Editor.Message.request('scene', 'apply-animation-mask', this.asset.uuid);
     },
 
+    abort() {
+        this.reset();
+    },
+
     reset() {
         this.dirtyData.uuid = '';
     },
@@ -282,6 +286,7 @@ exports.ready = function() {
             ],
             listeners: {
                 async confirm(detail) {
+                    if (!detail) return;
                     const info = await Editor.Message.request('asset-db', 'query-asset-info', detail.value);
                     if (!info || !info.redirect || info.redirect.type !== 'cc.Prefab') {
                         console.error(Editor.I18n.t('ENGINE.assets.animationMask.illegalFbx') + ` {asset(${detail.value})}`);

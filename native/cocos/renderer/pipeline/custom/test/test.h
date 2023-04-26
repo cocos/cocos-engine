@@ -75,23 +75,30 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
     auto &stages = layoutGraphData.stages;
     stages.resize(layoutInfo.size());
 
+    add_vertex(layoutGraphData, RenderPhaseTag{}, "");
+    auto &layout = layoutGraphData.layouts.back();
+    auto &descPair = layout.descriptorSets.emplace(UpdateFrequency::PER_PASS, DescriptorSetData{renderGraph.get_allocator()});
+    auto &descData = (*descPair.first).second.descriptorSetLayoutData;
     for (size_t i = 0; i < layoutInfo.size(); ++i) {
         const ccstd::string passName = "pass" + std::to_string(i);
         auto layoutVtxID = add_vertex(layoutGraphData, RenderStageTag{}, passName.c_str());
-
-        for (size_t j = 0; j < layoutInfo[i].size(); ++j) {
-            const auto &renderStageInfo = layoutInfo[i];
-            for (const auto &layoutUnit : renderStageInfo) {
-                const auto &rescName = std::get<0>(layoutUnit);
-                const auto &nameID = std::get<1>(layoutUnit);
-                const auto &shaderStage = std::get<2>(layoutUnit);
-                if (layoutGraphData.attributeIndex.find(rescName) == layoutGraphData.attributeIndex.end()) {
-                    layoutGraphData.attributeIndex.emplace(std::make_pair<string, NameLocalID>(rescName.c_str(), NameLocalID{nameID}));
-                }
-                stages[i].descriptorVisibility.emplace(NameLocalID{nameID}, shaderStage);
+        const auto &renderStageInfo = layoutInfo[i];
+        for (const auto &layoutUnit : renderStageInfo) {
+            const auto &rescName = std::get<0>(layoutUnit);
+            const auto &nameID = std::get<1>(layoutUnit);
+            const auto &shaderStage = std::get<2>(layoutUnit);
+            if (layoutGraphData.attributeIndex.find(rescName) == layoutGraphData.attributeIndex.end()) {
+                layoutGraphData.attributeIndex.emplace(std::make_pair<string, NameLocalID>(rescName.c_str(), NameLocalID{nameID}));
             }
+            stages[i].descriptorVisibility.emplace(NameLocalID{nameID}, shaderStage);
+            auto &block = descData.descriptorBlocks.emplace_back();
+            block.visibility = shaderStage;
+            auto &desc = block.descriptors.emplace_back();
+            desc.count = 1;
+            desc.descriptorID = {nameID};
         }
     }
+    renderGraph.layoutNodes.emplace_back("");
 
     std::set<ccstd::string> nameSet;
     auto addRasterNode = [&](const vector<vector<vector<string>>> &subpasses, uint32_t count, uint32_t passID) {
@@ -618,39 +625,39 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
         {"22",                                                                                                                                                               \
          {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::BACKBUFFER},                                                                                                                                      \
+         {ResourceResidency::BACKBUFFER},                                                                                                                                    \
          {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
     };
 
-#define TEST_CASE_1                                                      \
-    TEST_CASE_DEFINE                                                     \
-                                                                         \
-    ViewInfo rasterData = {                                              \
-        {                                                                \
-            PassType::RASTER,                                            \
-            {                                                            \
-                {{}, {"0", "1", "2"}},                                   \
-                {{"0", "1", "2"}, {"3"}},                                \
-            },                                                           \
-        },                                                               \
-        {                                                                \
-            PassType::RASTER,                                            \
-            {                                                            \
-                {{"3"}, {"22"}},                                         \
-            },                                                           \
-        },                                                               \
-    };                                                                   \
-                                                                         \
-    LayoutInfo layoutInfo = {                                            \
-        {                                                                \
-            {"0", 0, cc::gfx::ShaderStageFlagBit::VERTEX},               \
-            {"1", 1, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
-            {"2", 2, cc::gfx::ShaderStageFlagBit::VERTEX},               \
-            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
-        },                                                               \
-        {                                                                \
-            {"3", 3, cc::gfx::ShaderStageFlagBit::VERTEX},               \
-            {"22", 22, cc::gfx::ShaderStageFlagBit::VERTEX},             \
+#define TEST_CASE_1                                            \
+    TEST_CASE_DEFINE                                           \
+                                                               \
+    ViewInfo rasterData = {                                    \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{}, {"0", "1", "2"}},                         \
+                {{"0", "1", "2"}, {"3"}},                      \
+            },                                                 \
+        },                                                     \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"3"}, {"22"}},                               \
+            },                                                 \
+        },                                                     \
+    };                                                         \
+                                                               \
+    LayoutInfo layoutInfo = {                                  \
+        {                                                      \
+            {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"1", 1, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+        },                                                     \
+        {                                                      \
+            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"22", 22, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
         }};
 
 #define TEST_CASE_2                                            \
@@ -987,7 +994,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
                                                                \
     LayoutInfo layoutInfo = {                                  \
         {                                                      \
-            {"0", 0, cc::gfx::ShaderStageFlagBit::VERTEX},     \
+            {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
         },                                                     \
         {                                                      \
             {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
