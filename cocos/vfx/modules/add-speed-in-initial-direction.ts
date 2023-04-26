@@ -25,7 +25,7 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BASE_VELOCITY, INITIAL_DIR, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { Vec3 } from '../../core';
@@ -34,27 +34,29 @@ import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
 const tempVelocity = new Vec3();
-const requiredParameter = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.INITIAL_DIR;
 
 @ccclass('cc.AddSpeedInInitialDirectionModule')
-@VFXModule.register('AddSpeedInInitialDirection', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [ParameterName.VELOCITY], [ParameterName.INITIAL_DIR])
+@VFXModule.register('AddSpeedInInitialDirection', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [VELOCITY.name], [INITIAL_DIR.name])
 export class AddSpeedInInitialDirectionModule extends VFXModule {
     @type(FloatExpression)
     @serializable
     public speed: FloatExpression = new ConstantFloatExpression(5);
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameters(requiredParameter);
+        particles.markRequiredParameter(POSITION);
+        particles.markRequiredParameter(VELOCITY);
+        particles.markRequiredParameter(INITIAL_DIR);
+
         this.speed.tick(particles, emitter, user, context);
         if (context.executionStage !== ModuleExecStage.UPDATE) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
+            particles.markRequiredParameter(BASE_VELOCITY);
         }
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const velocity = context.executionStage === ModuleExecStage.SPAWN ? particles.baseVelocity : particles.velocity;
-        const { initialDir } = particles;
+        const velocity = particles.getVec3Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_VELOCITY : VELOCITY);
+        const initialDir = particles.getVec3Parameter(INITIAL_DIR);
         const speed = this.speed;
         speed.bind(particles, emitter, user, context);
         if (speed.isConstant) {

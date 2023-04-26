@@ -51,7 +51,7 @@ export class SetLifeTimeModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const invStartLifeTime = particles.invStartLifeTime;
+        const invStartLifeTime = particles.getFloatParameter(INV_START_LIFETIME);
         const { fromIndex, toIndex } = context;
         this.lifetime.bind(particles, emitter, user, context);
         if (this.lifetime.isConstant) {

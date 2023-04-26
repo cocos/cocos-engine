@@ -23,6 +23,9 @@
  THE SOFTWARE.
  */
 
+export type ParticleHandle = number;
+export const INVALID_HANDLE = -1;
+
 export enum VFXParameterType {
     FLOAT,
     BOOL,
@@ -31,6 +34,7 @@ export enum VFXParameterType {
     VEC4,
     QUAT,
     COLOR,
+    INT32,
     UINT32,
     UINT8,
 }

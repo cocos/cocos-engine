@@ -231,21 +231,21 @@ export class SubUVAnimationModule extends VFXModule {
                         subUVIndex[i] = frame;
                     }
                 } else if (this.frameOverTime.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                    const randomSeed = particles.randomSeed.data;
+                    const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                     const { constantMin, constantMax } = this.frameOverTime;
                     for (let i = fromIndex; i < toIndex; i++) {
                         subUVIndex[i] = repeat(cycleCount * (lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) + startFrame) * invRange, 1);
                     }
                 } else if (this.frameOverTime.mode === FloatExpression.Mode.CURVE) {
                     const { spline, multiplier } = this.frameOverTime;
-                    const normalizedAge = particles.normalizedAge.data;
+                    const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         subUVIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAge[i]) * multiplier + startFrame) * invRange, 1);
                     }
                 } else {
-                    const randomSeed = particles.randomSeed.data;
+                    const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                     const { splineMin, splineMax, multiplier } = this.frameOverTime;
-                    const normalizedAge = particles.normalizedAge.data;
+                    const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const time = normalizedAge[i];
                         subUVIndex[i] = repeat(cycleCount * (lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) * multiplier + startFrame) * invRange, 1);
@@ -253,7 +253,7 @@ export class SubUVAnimationModule extends VFXModule {
                 }
             } else if (this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS) {
                 const { constantMin, constantMax } = this.startFrame;
-                const randomSeed = particles.randomSeed.data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 if (this.frameOverTime.mode === FloatExpression.Mode.CONSTANT) {
                     const frame = this.frameOverTime.constant;
                     for (let i = fromIndex; i < toIndex; i++) {
@@ -268,14 +268,14 @@ export class SubUVAnimationModule extends VFXModule {
                     }
                 } else if (this.frameOverTime.mode === FloatExpression.Mode.CURVE) {
                     const { spline, multiplier } = this.frameOverTime;
-                    const normalizedAge = particles.normalizedAge.data;
+                    const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const startFrame = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
                         subUVIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAge[i]) * multiplier + startFrame) * invRange, 1);
                     }
                 } else {
                     const { splineMin, splineMax, multiplier } = this.frameOverTime;
-                    const normalizedAge = particles.normalizedAge.data;
+                    const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const startFrame = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
                         const time = normalizedAge[i];
@@ -288,7 +288,7 @@ export class SubUVAnimationModule extends VFXModule {
                 const rowLength = 1 / this.numTilesY;
                 if (this.randomRow) {
                     const rows = this.numTilesY;
-                    const randomSeed = particles.randomSeed.data;
+                    const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const startRow = Math.floor(RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET) * rows);
                         const from = startRow * rowLength;
@@ -305,8 +305,8 @@ export class SubUVAnimationModule extends VFXModule {
             }
         } else {
             const invRange = 1 / (this.animation === Animation.WHOLE_SHEET ? (this._numTilesX * this._numTilesY) : this._numTilesX);
-            const normalizedAge = particles.normalizedAge.data;
-            const invStartLifeTime = particles.invStartLifeTime.data;
+            const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
+            const invStartLifeTime = particles.getFloatParameter(INV_START_LIFETIME).data;
             // use subUVIndex to cache lerp ratio
             if (this.startFrame.mode === FloatExpression.Mode.CONSTANT) {
                 const startFrame = this.startFrame.constant;
@@ -314,7 +314,7 @@ export class SubUVAnimationModule extends VFXModule {
                     subUVIndex[i] = repeat((normalizedAge[i] / invStartLifeTime[i] * this._fps + startFrame) * invRange, 1);
                 }
             } else if (this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const randomSeed = particles.randomSeed.data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 const { constantMin, constantMax } = this.startFrame;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const startFrame = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
@@ -325,7 +325,7 @@ export class SubUVAnimationModule extends VFXModule {
             if (this.animation === Animation.SINGLE_ROW) {
                 const rowLength = 1 / this.numTilesY;
                 if (this.randomRow) {
-                    const randomSeed = particles.randomSeed.data;
+                    const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                     const rows = this.numTilesY;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const startRow = Math.floor(RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET) * rows);

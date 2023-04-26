@@ -29,7 +29,7 @@ import { FloatExpression } from './expressions/float';
 import { ColorExpression } from './expressions/color';
 import './vfx-manager';
 import { VFXRenderer } from './vfx-renderer';
-import { Expression } from './expression';
+import { VFXExpression } from './vfx-expression';
 
 export {
     VFXEmitter,
@@ -37,7 +37,7 @@ export {
     FloatExpression,
     ColorExpression,
     EventHandler,
-    Expression,
+    VFXExpression,
 };
 
 export * from './particle-renderer';
@@ -45,5 +45,6 @@ export * from './vfx-parameter';
 export * from './modules';
 export * from './expressions';
 export * from './renderers';
+export * from './parameters';
 export * from './emitter-data-set';
 export * from './user-data-set';

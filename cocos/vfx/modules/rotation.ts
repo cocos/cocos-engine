@@ -151,20 +151,20 @@ export class RotationModule extends VFXModule {
                 }
             } else if (this.z.mode === FloatExpression.Mode.CURVE) {
                 const { spline, multiplier } = this.z;
-                const normalizedAge = particles.normalizedAge.data;
+                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     angularVelocity.addZAt(spline.evaluate(normalizedAge[i]) * multiplier, i);
                 }
             } else if (this.z.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const randomSeed = particles.randomSeed.data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 const { constantMin, constantMax } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
                     angularVelocity.addZAt(lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)), i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.z;
-                const normalizedAge = particles.normalizedAge.data;
-                const randomSeed = particles.randomSeed.data;
+                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const time = normalizedAge[i];
                     angularVelocity.addZAt(lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * multiplier, i);
@@ -183,7 +183,7 @@ export class RotationModule extends VFXModule {
                 const { spline: splineX, multiplier: xMultiplier } = this.x;
                 const { spline: splineY, multiplier: yMultiplier } = this.y;
                 const { spline: splineZ, multiplier: zMultiplier } = this.z;
-                const normalizedAge = particles.normalizedAge.data;
+                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const time = normalizedAge[i];
                     angularVelocity.add3fAt(splineX.evaluate(time) * xMultiplier,
@@ -194,7 +194,7 @@ export class RotationModule extends VFXModule {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
-                const randomSeed = particles.randomSeed.data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const ratio = RandomStream.get3Float(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET, seed);
                     angularVelocity.add3fAt(lerp(xMin, xMax, ratio.x),
@@ -205,8 +205,8 @@ export class RotationModule extends VFXModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                const normalizedAge = particles.normalizedAge.data;
-                const randomSeed = particles.randomSeed.data;
+                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const time = normalizedAge[i];
                     const seed = randomSeed[i];

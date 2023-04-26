@@ -26,7 +26,7 @@
 import { ccclass, tooltip, displayOrder, range, type, serializable, visible, rangeMin } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { lerp, Vec3, approx, assertIsTrue } from '../../core';
-import { Space } from '../enum';
+import { Space } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
 import { VFXEmitterParams, ModuleExecContext } from '../base';
@@ -187,7 +187,7 @@ export class LimitVelocityModule extends VFXModule {
                     const { spline: splineX, multiplier: xMultiplier } = this.limitX;
                     const { spline: splineY, multiplier: yMultiplier } = this.limitY;
                     const { spline: splineZ, multiplier: zMultiplier } = this.limitZ;
-                    const normalizedAge = particles.normalizedAge.data;
+                    const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const normalizedTime = normalizedAge[i];
                         Vec3.set(_temp_v3_1, splineX.evaluate(normalizedTime) * xMultiplier,
@@ -206,7 +206,7 @@ export class LimitVelocityModule extends VFXModule {
                     const { constantMin: xMin, constantMax: xMax } = this.limitX;
                     const { constantMin: yMin, constantMax: yMax } = this.limitY;
                     const { constantMin: zMin, constantMax: zMax } = this.limitZ;
-                    const randomSeed = particles.randomSeed.data;
+                    const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                         Vec3.set(_temp_v3_1, lerp(xMin, xMax, ratio.x),
@@ -225,8 +225,8 @@ export class LimitVelocityModule extends VFXModule {
                     const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.limitX;
                     const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.limitY;
                     const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.limitZ;
-                    const normalizedAge = particles.normalizedAge.data;
-                    const randomSeed = particles.randomSeed.data;
+                    const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
+                    const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                         const normalizedTime = normalizedAge[i];
@@ -260,7 +260,7 @@ export class LimitVelocityModule extends VFXModule {
                     const { spline: splineX, multiplier: xMultiplier } = this.limitX;
                     const { spline: splineY, multiplier: yMultiplier } = this.limitY;
                     const { spline: splineZ, multiplier: zMultiplier } = this.limitZ;
-                    const normalizedAge = particles.normalizedAge.data;
+                    const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const normalizedTime = normalizedAge[i];
                         Vec3.set(_temp_v3_1, splineX.evaluate(normalizedTime) * xMultiplier,
@@ -278,7 +278,7 @@ export class LimitVelocityModule extends VFXModule {
                     const { constantMin: xMin, constantMax: xMax } = this.limitX;
                     const { constantMin: yMin, constantMax: yMax } = this.limitY;
                     const { constantMin: zMin, constantMax: zMax } = this.limitZ;
-                    const randomSeed = particles.randomSeed.data;
+                    const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const seed = randomSeed[i];
                         Vec3.set(_temp_v3_1, lerp(xMin, xMax, RandomStream.getFloat(seed + randomOffset)),
@@ -296,8 +296,8 @@ export class LimitVelocityModule extends VFXModule {
                     const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.limitX;
                     const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.limitY;
                     const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.limitZ;
-                    const normalizedAge = particles.normalizedAge.data;
-                    const randomSeed = particles.randomSeed.data;
+                    const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
+                    const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const seed = randomSeed[i];
                         const normalizedTime = normalizedAge[i];
@@ -328,7 +328,7 @@ export class LimitVelocityModule extends VFXModule {
                 }
             } else if (this.limitX.mode === FloatExpression.Mode.CURVE) {
                 const { spline, multiplier } = this.limit;
-                const normalizedAge = particles.normalizedAge.data;
+                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.getVec3At(tempVelocity, i);
                     const length = tempVelocity.length();
@@ -339,7 +339,7 @@ export class LimitVelocityModule extends VFXModule {
                 }
             } else if (this.limitX.mode === FloatExpression.Mode.TWO_CONSTANTS) {
                 const { constantMin, constantMax } = this.limit;
-                const randomSeed = particles.randomSeed.data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i];
                     velocity.getVec3At(tempVelocity, i);
@@ -351,8 +351,8 @@ export class LimitVelocityModule extends VFXModule {
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.limit;
-                const normalizedAge = particles.normalizedAge.data;
-                const randomSeed = particles.randomSeed.data;
+                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const seed = randomSeed[i];
                     const normalizedTime = normalizedAge[i];

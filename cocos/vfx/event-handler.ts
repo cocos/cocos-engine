@@ -26,7 +26,7 @@ import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { BitMask, Enum, assertIsTrue, CCFloat } from '../core';
 import { VFXEmitter } from './vfx-emitter';
 import { ModuleExecStage, VFXModuleStage } from './vfx-module';
-import { InheritedProperty, VFXEventType } from './enum';
+import { InheritedProperty, VFXEventType } from './define';
 
 @ccclass('cc.EventHandler')
 export class EventHandler extends VFXModuleStage {

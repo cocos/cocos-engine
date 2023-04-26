@@ -25,11 +25,9 @@
 
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
-import { ArrayParameter, BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, VFXParameterIdentity, Uint32ArrayParameter, Vec3ArrayParameter } from './vfx-parameter';
-import { ParameterNameSpace, VFXParameterType } from './enum';
-
-export type ParticleHandle = number;
-export const INVALID_HANDLE = -1;
+import { ArrayParameter, VFXParameterIdentity } from './vfx-parameter';
+import { ParameterNameSpace, ParticleHandle, VFXParameterType } from './define';
+import { BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, Int32ArrayParameter, QuatArrayParameter, Uint32ArrayParameter, Uint8ArrayParameter, Vec2ArrayParameter, Vec3ArrayParameter, Vec4ArrayParameter } from './parameters';
 
 let builtinParameterId = 0;
 export const ID = new VFXParameterIdentity(builtinParameterId++, 'id', VFXParameterType.UINT32, ParameterNameSpace.PARTICLE);
@@ -105,98 +103,6 @@ export class ParticleDataSet {
         return this._count;
     }
 
-    public get id () {
-        return this.getParameterUnsafe<Uint32ArrayParameter>(ID);
-    }
-
-    public get position () {
-        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.POSITION);
-    }
-
-    public get randomSeed () {
-        return this.getParameterUnsafe<Uint32ArrayParameter>(BuiltinParticleParameter.RANDOM_SEED);
-    }
-
-    public get invStartLifeTime () {
-        return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.INV_START_LIFETIME);
-    }
-
-    public get normalizedAge () {
-        return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.NORMALIZED_AGE);
-    }
-
-    public get isDead () {
-        return this.getParameterUnsafe<BoolArrayParameter>(BuiltinParticleParameter.IS_DEAD);
-    }
-
-    public get subUVIndex () {
-        return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.SUB_UV_INDEX);
-    }
-
-    public get physicsForce () {
-        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.PHYSICS_FORCE);
-    }
-
-    public get baseVelocity () {
-        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.BASE_VELOCITY);
-    }
-
-    public get velocity () {
-        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.VELOCITY);
-    }
-
-    public get initialDir () {
-        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.INITIAL_DIR);
-    }
-
-    public get rotation () {
-        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.ROTATION);
-    }
-
-    public get angularVelocity () {
-        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.ANGULAR_VELOCITY);
-    }
-
-    public get baseSpriteSize () {
-        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.BASE_SPRITE_SIZE);
-    }
-
-    public get spriteSize () {
-        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.SPRITE_SIZE);
-    }
-
-    public get baseScale () {
-        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.BASE_SCALE);
-    }
-
-    public get scale () {
-        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.SCALE);
-    }
-
-    public get baseColor () {
-        return this.getParameterUnsafe<ColorArrayParameter>(BuiltinParticleParameter.BASE_COLOR);
-    }
-
-    public get color () {
-        return this.getParameterUnsafe<ColorArrayParameter>(BuiltinParticleParameter.COLOR);
-    }
-
-    public get spawnTimeRatio () {
-        return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.SPAWN_TIME_RATIO);
-    }
-
-    public get spawnNormalizedTime () {
-        return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
-    }
-
-    public get vec3Register () {
-        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.VEC3_REGISTER);
-    }
-
-    public get floatRegister () {
-        return this.getParameterUnsafe<FloatArrayParameter>(BuiltinParticleParameter.FLOAT_REGISTER);
-    }
-
     public get parameterCount () {
         return this._parameterCount;
     }
@@ -204,7 +110,6 @@ export class ParticleDataSet {
     private _count = 0;
     private _capacity = 16;
     private _parameterCount = 0;
-    private _requiredParameterFlags = 0;
     private _parameters: ArrayParameter[] = [];
     private _parameterMap: Record<number, ArrayParameter | null> = {};
 
@@ -213,6 +118,48 @@ export class ParticleDataSet {
             return null;
         }
         return this.getParameterUnsafe<T>(identity);
+    }
+
+    public getFloatParameter (identity: VFXParameterIdentity) {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.FLOAT);
+        }
+        return this.getParameterUnsafe<FloatArrayParameter>(identity);
+    }
+
+    public getVec2Parameter (identity: VFXParameterIdentity) {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.VEC2);
+        }
+        return this.getParameterUnsafe<Vec2ArrayParameter>(identity);
+    }
+
+    public getVec3Parameter (identity: VFXParameterIdentity) {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.VEC3);
+        }
+        return this.getParameterUnsafe<Vec3ArrayParameter>(identity);
+    }
+
+    public getVec4Parameter (identity: VFXParameterIdentity) {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.VEC4);
+        }
+        return this.getParameterUnsafe<Vec4ArrayParameter>(identity);
+    }
+
+    public getColorParameter (identity: VFXParameterIdentity) {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.COLOR);
+        }
+        return this.getParameterUnsafe<ColorArrayParameter>(identity);
+    }
+
+    public getUint32Parameter (identity: VFXParameterIdentity) {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.UINT32);
+        }
+        return this.getParameterUnsafe<Uint32ArrayParameter>(identity);
     }
 
     public getParameterUnsafe<T extends ArrayParameter> (identity: VFXParameterIdentity) {
@@ -227,6 +174,9 @@ export class ParticleDataSet {
     }
 
     public addParameter (identity: VFXParameterIdentity) {
+        if (DEBUG) {
+            assertIsTrue(identity.namespace === ParameterNameSpace.PARTICLE);
+        }
         if (this.hasParameter(identity)) {
             throw new Error('Already exist a particle parameter with same id!');
         }
@@ -245,6 +195,21 @@ export class ParticleDataSet {
             break;
         case VFXParameterType.BOOL:
             this.addParameter_internal(identity.id, new BoolArrayParameter());
+            break;
+        case VFXParameterType.VEC2:
+            this.addParameter_internal(identity.id, new Vec2ArrayParameter());
+            break;
+        case VFXParameterType.VEC4:
+            this.addParameter_internal(identity.id, new Vec4ArrayParameter());
+            break;
+        case VFXParameterType.INT32:
+            this.addParameter_internal(identity.id, new Int32ArrayParameter());
+            break;
+        case VFXParameterType.UINT8:
+            this.addParameter_internal(identity.id, new Uint8ArrayParameter());
+            break;
+        case VFXParameterType.QUAT:
+            this.addParameter_internal(identity.id, new QuatArrayParameter());
             break;
         default:
             throw new Error('Unknown particle parameter type!');
@@ -300,19 +265,6 @@ export class ParticleDataSet {
         }
     }
 
-    public ensureParameters (parameterIdentities: VFXParameterIdentity[]) {
-        if (this._requiredParameterFlags !== this._parameterFlags) {
-            for (let i = 0; i < parameterIdentities.length; i++) {
-                const { id, type } = parameterIdentities[i];
-                if ((this._requiredParameterFlags & 1 << id) && !this.hasParameter(id)) {
-                    this.addParameter(id, type);
-                } else if (!(this._requiredParameterFlags & 1 << id) && this.hasParameter(id)) {
-                    this.removeParameter(id);
-                }
-            }
-        }
-    }
-
     public clear () {
         this._count = 0;
     }
@@ -324,19 +276,16 @@ export class ParticleDataSet {
         this._parameterCount = 0;
     }
 
-    public markRequiredParameters (flags: number) {
-        this._requiredParameterFlags |= flags;
-    }
-
-    public clearRequiredParameters () {
-        this._requiredParameterFlags = 0;
+    public markRequiredParameter (identity: VFXParameterIdentity) {
+        if (!this.hasParameter(identity)) {
+            this.addParameter(identity);
+        }
     }
 
     private addParameter_internal (id: number, parameter: ArrayParameter) {
         this._parameterCount++;
         this._parameters.push(parameter);
         this._parameterMap[id] = parameter;
-        this._parameterFlags |= (1 << id);
         parameter.reserve(this._capacity);
     }
 }

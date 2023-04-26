@@ -25,12 +25,12 @@
 import { ccclass } from '../core/data/decorators';
 import { ModuleExecContext } from './base';
 import { EmitterDataSet } from './emitter-data-set';
-import { VFXParameterType } from './enum';
+import { VFXParameterType } from './define';
 import { ParticleDataSet } from './particle-data-set';
 import { UserDataSet } from './user-data-set';
 
-@ccclass('cc.Expression')
-export abstract class Expression {
+@ccclass('cc.VFXExpression')
+export abstract class VFXExpression {
     public abstract get valueType (): VFXParameterType;
     public abstract get isConstant (): boolean;
     public abstract tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext);

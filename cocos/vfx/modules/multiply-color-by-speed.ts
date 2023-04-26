@@ -82,7 +82,7 @@ export class MultiplyColorBySpeedModule extends VFXModule {
             }
         } else if (this.color.mode === ColorExpression.Mode.TWO_GRADIENTS) {
             const { gradientMin, gradientMax } = this.color;
-            const randomSeed = particles.randomSeed.data;
+            const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
             for (let i = fromIndex; i < toIndex; i++) {
                 velocity.getVec3At(tempVelocity, i);
                 const ratio = math.clamp01(tempVelocity.length() * scale + offset);

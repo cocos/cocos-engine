@@ -136,7 +136,7 @@ export class SetRotationModule extends VFXModule {
                 const { spline: xCurve, multiplier: xMultiplier } = this.x;
                 const { spline: yCurve, multiplier: yMultiplier } = this.y;
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
-                const spawnTime = particles.spawnNormalizedTime.data;
+                const spawnTime = particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const time = spawnTime[i];
                     rotation.set3fAt(xCurve.evaluate(time) * xMultiplier,
@@ -147,7 +147,7 @@ export class SetRotationModule extends VFXModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                const spawnTime = particles.spawnNormalizedTime.data;
+                const spawnTime = particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const time = spawnTime[i];
                     rotation.set3fAt(lerp(xMin.evaluate(time), xMax.evaluate(time), rand.getFloat()) * xMultiplier,
@@ -169,13 +169,13 @@ export class SetRotationModule extends VFXModule {
                 }
             } else if (this.z.mode === FloatExpression.Mode.CURVE) {
                 const { spline: zCurve, multiplier: zMultiplier } = this.z;
-                const spawnTime = particles.spawnNormalizedTime.data;
+                const spawnTime = particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     rotation.setZAt(zCurve.evaluate(spawnTime[i]) * zMultiplier, i);
                 }
             } else {
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                const spawnTime = particles.spawnNormalizedTime.data;
+                const spawnTime = particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const time = spawnTime[i];
                     rotation.setZAt(lerp(zMin.evaluate(time), zMax.evaluate(time), rand.getFloat()) * zMultiplier, i);

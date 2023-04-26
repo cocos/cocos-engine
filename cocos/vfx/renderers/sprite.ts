@@ -27,7 +27,7 @@ import { Material, RenderingSubMesh } from '../../asset/assets';
 import { Enum, Quat, Vec3, Vec4 } from '../../core';
 import { Buffer, BufferInfo, BufferUsageBit, deviceManager, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../gfx';
 import { MacroRecord, MaterialInstance } from '../../render-scene';
-import { AlignmentSpace, ScalingMode, Space } from '../enum';
+import { AlignmentSpace, ScalingMode, Space } from '../define';
 import { VFXEmitterParams, ModuleExecContext, VFXEmitterState } from '../base';
 import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
 import { CC_PARTICLE_COLOR, CC_PARTICLE_FRAME_INDEX, CC_PARTICLE_POSITION, CC_PARTICLE_ROTATION, CC_PARTICLE_SIZE, CC_PARTICLE_VELOCITY, CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, ROTATION_OVER_TIME_MODULE_ENABLE, ParticleRenderer } from '../particle-renderer';
@@ -140,7 +140,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         let offset = 0;
         const define = this._defines;
         if (define[CC_PARTICLE_POSITION]) {
-            particles.position.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getVec3Parameter(POSITION).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         if (define[CC_PARTICLE_ROTATION]) {
@@ -148,11 +148,11 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             offset += 3;
         }
         if (define[CC_PARTICLE_SIZE]) {
-            particles.scale.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getVec3Parameter(SCALE).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         if (define[CC_PARTICLE_COLOR]) {
-            particles.color.copyToTypedArray(dynamicBufferUintView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getColorParameter(COLOR).copyToTypedArray(dynamicBufferUintView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_PARTICLE_FRAME_INDEX]) {
@@ -160,7 +160,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             offset += 1;
         }
         if (define[CC_PARTICLE_VELOCITY]) {
-            particles.velocity.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getVec3Parameter(VELOCITY).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         this._dynamicBuffer.update(dynamicBufferFloatView); // update dynamic buffer

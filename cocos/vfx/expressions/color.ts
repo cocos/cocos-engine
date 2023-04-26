@@ -25,11 +25,11 @@
 
 import { ccclass } from 'cc.decorator';
 import { Color } from '../../core';
-import { VFXParameterType } from '../enum';
-import { Expression } from '../expression';
+import { VFXParameterType } from '../define';
+import { VFXExpression } from '../vfx-expression';
 
 @ccclass('cc.ColorExpression')
-export abstract  class ColorExpression extends Expression {
+export abstract  class ColorExpression extends VFXExpression {
     public get valueType () {
         return VFXParameterType.COLOR;
     }

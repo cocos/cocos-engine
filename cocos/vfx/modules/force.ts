@@ -23,32 +23,26 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
-import { DEBUG } from 'internal:constants';
-import { lerp, Vec3, assertIsTrue, Enum } from '../../core';
-import { Space } from '../enum';
-import { FloatExpression } from '../expressions/float';
+import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { lerp, Vec3, Enum } from '../../core';
+import { Space } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { VFXEmitterState, ModuleExecContext } from '../base';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { RandomStream } from '../random-stream';
+import { ModuleExecContext } from '../base';
+import { BASE_VELOCITY, NORMALIZED_AGE, PHYSICS_FORCE, POSITION, ParticleDataSet, RANDOM_SEED, VELOCITY } from '../particle-data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { UserDataSet } from '../user-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 
-const seed = new Vec3();
-
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.ForceModule')
-@VFXModule.register('Force', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY])
+@VFXModule.register('Force', ModuleExecStageFlags.UPDATE, [VELOCITY.name])
 export class ForceModule extends VFXModule {
     /**
      * @zh X 轴方向上的加速度分量。
      */
     @type(Vec3Expression)
     @serializable
-    @range([-1, 1])
     @displayOrder(2)
     @tooltip('i18n:forceOvertimeModule.x')
     public force: Vec3Expression = new ConstantVec3Expression();
@@ -62,144 +56,41 @@ export class ForceModule extends VFXModule {
     @tooltip('i18n:forceOvertimeModule.space')
     public space = Space.LOCAL;
 
-    // TODO:currently not supported
-    public randomized = false;
-
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.VELOCITY);
+        particles.markRequiredParameter(POSITION);
+        particles.markRequiredParameter(BASE_VELOCITY);
+        particles.markRequiredParameter(VELOCITY);
+        particles.markRequiredParameter(PHYSICS_FORCE);
         this.force.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { velocity, baseVelocity } = particles;
-        const { fromIndex, toIndex, deltaTime } = context;
+        const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
+        const { fromIndex, toIndex } = context;
         const needTransform = (this.space === Space.WORLD) !== emitter.isWorldSpace;
-        const randomOffset = this.randomSeed;
-        const rotation = context.rotationIfNeedTransform;
+        const exp = this.force;
+        exp.bind(particles, emitter, user, context);
         if (needTransform) {
-            if (this.x.mode === FloatExpression.Mode.CONSTANT) {
-                const force = Vec3.set(_temp_v3,
-                    this.x.constant,
-                    this.y.constant,
-                    this.z.constant);
-                Vec3.transformQuat(force, force, rotation);
-                Vec3.multiplyScalar(force, force, deltaTime);
+            const transform = this.space === Space.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
+            if (exp.isConstant) {
+                const force = Vec3.transformMat3(_temp_v3, exp.evaluate(0, _temp_v3), transform);
                 for (let i = fromIndex; i < toIndex; i++) {
-                    velocity.addVec3At(force, i);
-                    baseVelocity.addVec3At(force, i);
-                }
-            } else if (this.x.mode === FloatExpression.Mode.CURVE) {
-                const normalizedAge = particles.normalizedAge.data;
-                const { spline: xCurve, multiplier: xMultiplier } = this.x;
-                const { spline: yCurve, multiplier: yMultiplier } = this.y;
-                const { spline: zCurve, multiplier: zMultiplier } = this.z;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const normalizedTime = normalizedAge[i];
-                    const force = Vec3.set(_temp_v3,
-                        xCurve.evaluate(normalizedTime) * xMultiplier,
-                        yCurve.evaluate(normalizedTime) * yMultiplier,
-                        zCurve.evaluate(normalizedTime) * zMultiplier);
-                    Vec3.transformQuat(force, force, rotation);
-                    Vec3.multiplyScalar(force, force, deltaTime);
-                    velocity.addVec3At(force, i);
-                    baseVelocity.addVec3At(force, i);
-                }
-            } else if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const { constantMin: xMin, constantMax: xMax } = this.x;
-                const { constantMin: yMin, constantMax: yMax } = this.y;
-                const { constantMin: zMin, constantMax: zMax } = this.z;
-                const randomSeed = particles.randomSeed.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
-                    const force = Vec3.set(_temp_v3,
-                        lerp(xMin, xMax, ratio.x),
-                        lerp(yMin, yMax, ratio.y),
-                        lerp(zMin, zMax, ratio.z));
-                    Vec3.transformQuat(force, force, rotation);
-                    Vec3.multiplyScalar(force, force, deltaTime);
-                    velocity.addVec3At(force, i);
-                    baseVelocity.addVec3At(force, i);
+                    physicsForce.addVec3At(force, i);
                 }
             } else {
-                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
-                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
-                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                const normalizedAge = particles.normalizedAge.data;
-                const randomSeed = particles.randomSeed.data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const normalizedTime = normalizedAge[i];
-                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
-                    const force = Vec3.set(_temp_v3,
-                        lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x)  * xMultiplier,
-                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y)  * yMultiplier,
-                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), ratio.z)  * zMultiplier);
-                    Vec3.transformQuat(force, force, rotation);
-                    Vec3.multiplyScalar(force, force, deltaTime);
-                    velocity.addVec3At(force, i);
-                    baseVelocity.addVec3At(force, i);
+                    const force = Vec3.transformMat3(_temp_v3, exp.evaluate(i, _temp_v3), transform);
+                    physicsForce.addVec3At(force, i);
                 }
             }
+        } else if (exp.isConstant) {
+            const force = exp.evaluate(0, _temp_v3);
+            for (let i = fromIndex; i < toIndex; i++) {
+                physicsForce.addVec3At(force, i);
+            }
         } else {
-            // eslint-disable-next-line no-lonely-if
-            if (this.x.mode === FloatExpression.Mode.CONSTANT) {
-                const force = Vec3.set(_temp_v3,
-                    this.x.constant,
-                    this.y.constant,
-                    this.z.constant);
-                Vec3.multiplyScalar(force, force, deltaTime);
-                for (let i = fromIndex; i < toIndex; i++) {
-                    velocity.addVec3At(force, i);
-                    baseVelocity.addVec3At(force, i);
-                }
-            } else if (this.x.mode === FloatExpression.Mode.CURVE) {
-                const normalizedAge = particles.normalizedAge.data;
-                const { spline: xCurve, multiplier: xMultiplier } = this.x;
-                const { spline: yCurve, multiplier: yMultiplier } = this.y;
-                const { spline: zCurve, multiplier: zMultiplier } = this.z;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const normalizedTime = normalizedAge[i];
-                    const force = Vec3.set(_temp_v3,
-                        xCurve.evaluate(normalizedTime) * xMultiplier,
-                        yCurve.evaluate(normalizedTime) * yMultiplier,
-                        zCurve.evaluate(normalizedTime) * zMultiplier);
-                    Vec3.multiplyScalar(force, force, deltaTime);
-                    velocity.addVec3At(force, i);
-                    baseVelocity.addVec3At(force, i);
-                }
-            } else if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const { constantMin: xMin, constantMax: xMax } = this.x;
-                const { constantMin: yMin, constantMax: yMax } = this.y;
-                const { constantMin: zMin, constantMax: zMax } = this.z;
-                const randomSeed = particles.randomSeed.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
-                    const force = Vec3.set(_temp_v3,
-                        lerp(xMin, xMax, ratio.x),
-                        lerp(yMin, yMax, ratio.y),
-                        lerp(zMin, zMax, ratio.z));
-                    Vec3.multiplyScalar(force, force, deltaTime);
-                    velocity.addVec3At(force, i);
-                    baseVelocity.addVec3At(force, i);
-                }
-            } else {
-                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
-                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
-                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                const randomSeed = particles.randomSeed.data;
-                const normalizedAge = particles.normalizedAge.data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const normalizedTime = normalizedAge[i];
-                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
-                    const force = Vec3.set(_temp_v3,
-                        lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x)  * xMultiplier,
-                        lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y)  * yMultiplier,
-                        lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), ratio.z)  * zMultiplier);
-                    Vec3.multiplyScalar(force, force, deltaTime);
-                    velocity.addVec3At(force, i);
-                    baseVelocity.addVec3At(force, i);
-                }
+            for (let i = fromIndex; i < toIndex; i++) {
+                physicsForce.addVec3At(exp.evaluate(i, _temp_v3), i);
             }
         }
     }

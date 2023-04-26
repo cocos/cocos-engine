@@ -25,24 +25,21 @@
 
 import { ccclass } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { Vec3ArrayParameter } from '../vfx-parameter';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
 @ccclass('cc.SolveForcesAndVelocityModule')
-@VFXModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [ParameterName.POSITION, ParameterName.ROTATION], [ParameterName.VELOCITY, ParameterName.ANGULAR_VELOCITY])
+@VFXModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [POSITION.name], [VELOCITY.name])
 export class SolveForceAndVelocityModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex, deltaTime } = context;
-        if (particles.hasParameter(BuiltinParticleParameter.VELOCITY) && particles.hasParameter(BuiltinParticleParameter.POSITION)) {
-            const { position, velocity } = particles;
+        if (particles.hasParameter(VELOCITY) && particles.hasParameter(POSITION)) {
+            const position = particles.getVec3Parameter(POSITION);
+            const velocity = particles.getVec3Parameter(VELOCITY);
             Vec3ArrayParameter.scaleAndAdd(position, position, velocity, deltaTime, fromIndex, toIndex);
-        }
-        if (particles.hasParameter(BuiltinParticleParameter.ROTATION) && particles.hasParameter(BuiltinParticleParameter.ANGULAR_VELOCITY)) {
-            const { angularVelocity, rotation } = particles;
-            Vec3ArrayParameter.scaleAndAdd(rotation, rotation, angularVelocity, deltaTime, fromIndex, toIndex);
         }
     }
 }

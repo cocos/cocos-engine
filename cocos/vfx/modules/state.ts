@@ -50,8 +50,8 @@ export class StateModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const normalizedAge = particles.normalizedAge.data;
-        const invStartLifeTime = particles.invStartLifeTime.data;
+        const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
+        const invStartLifeTime = particles.getFloatParameter(INV_START_LIFETIME).data;
         const { fromIndex, toIndex, deltaTime } = context;
         if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.LOOP_LIFETIME) {
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
@@ -69,7 +69,7 @@ export class StateModule extends VFXModule {
             }
             // if has isDead parameter, deferred to remove particle until rendering.
         } else if (particles.hasParameter(BuiltinParticleParameter.IS_DEAD)) {
-            const isDead = particles.isDead.data;
+            const isDead = particles.getFloatParameter(IS_DEAD).data;
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
                 normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
                 if (normalizedAge[particleHandle] > 1) {

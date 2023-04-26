@@ -65,7 +65,7 @@ export class FloatFromCurveExpression extends FloatExpression {
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        this._time = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
+        this._time = context.executionStage === ModuleExecStage.UPDATE ? particles.getFloatParameter(NORMALIZED_AGE).data : particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
         this.scale.bind(particles, emitter, user, context);
     }
 

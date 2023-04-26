@@ -68,20 +68,20 @@ export class ScaleSpeedModule extends VFXModule {
             }
         } else if (this.scalar.mode === FloatExpression.Mode.CURVE) {
             const { spline, multiplier } = this.scalar;
-            const normalizedAge = particles.normalizedAge.data;
+            const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
             for (let i = fromIndex; i < toIndex; i++) {
                 velocity.multiply1fAt(spline.evaluate(normalizedAge[i]) * multiplier, i);
             }
         } else if (this.scalar.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-            const randomSeed = particles.randomSeed.data;
+            const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
             const { constantMin, constantMax } = this.scalar;
             for (let i = fromIndex; i < toIndex; i++) {
                 velocity.multiply1fAt(lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET)), i);
             }
         } else {
             const { splineMin, splineMax, multiplier } = this.scalar;
-            const randomSeed = particles.randomSeed.data;
-            const normalizedAge = particles.normalizedAge.data;
+            const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
+            const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
             for (let i = fromIndex; i < toIndex; i++) {
                 const normalizedTime = normalizedAge[i];
                 velocity.multiply1fAt(lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(randomSeed[i] + SPEED_MODIFIER_RAND_OFFSET)) * multiplier, i);

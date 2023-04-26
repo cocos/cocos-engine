@@ -56,7 +56,7 @@ export class SetColorModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const color = context.executionStage === ModuleExecStage.SPAWN ? particles.baseColor : particles.color;
+        const color = context.executionStage === ModuleExecStage.SPAWN ? particles.baseColor : particles.getColorParameter(COLOR);
         const { fromIndex, toIndex } = context;
         this.color.bind(particles, emitter, user, context);
         if (this.color.isConstant) {

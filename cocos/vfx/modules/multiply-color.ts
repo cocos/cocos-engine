@@ -56,7 +56,7 @@ export class MultiplyColorModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const dest = context.executionStage === ModuleExecStage.UPDATE ? particles.color : particles.baseColor;
+        const dest = context.executionStage === ModuleExecStage.UPDATE ? particles.getColorParameter(COLOR) : particles.baseColor;
         this.color.bind(particles, emitter, user, context);
         if (this.color.isConstant) {
             const colorVal = this.color.evaluate(0, tempColor);

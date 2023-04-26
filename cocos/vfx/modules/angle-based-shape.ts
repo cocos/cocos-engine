@@ -25,7 +25,7 @@
 import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from 'cc.decorator';
 import { DistributionMode, MoveWarpMode, ShapeModule } from './shape';
 import { Enum, lerp, toDegree, toRadian } from '../../core';
-import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, ParticleDataSet, SPAWN_TIME_RATIO } from '../particle-data-set';
 import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { Vec3ArrayParameter } from '../vfx-parameter';
@@ -95,7 +95,7 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         super.tick(particles, emitter, user, context);
         if (this.distributionMode === DistributionMode.MOVE) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_TIME_RATIO);
+            particles.markRequiredParameter(SPAWN_TIME_RATIO);
         }
         this._arcTimePrev = this._arcTimer;
         let deltaTime = emitter.deltaTime;
@@ -131,7 +131,7 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
             }
         } else if (this.distributionMode === DistributionMode.MOVE) {
             if (this.moveWrapMode === MoveWarpMode.LOOP) {
-                const spawnTimeRatio = particles.spawnTimeRatio.data;
+                const spawnTimeRatio = particles.getFloatParameter(SPAWN_TIME_RATIO).data;
                 if (this.spread > 0) {
                     for (let i = fromIndex; i < toIndex; ++i) {
                         let angle = lerp(arcTimer, arcTimePrev, spawnTimeRatio[i]);
@@ -153,7 +153,7 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
                     }
                 }
             } else {
-                const spawnTimeRatio = particles.spawnTimeRatio.data;
+                const spawnTimeRatio = particles.getFloatParameter(SPAWN_TIME_RATIO).data;
                 if (this.spread > 0) {
                     for (let i = fromIndex; i < toIndex; ++i) {
                         let angle = lerp(arcTimer, arcTimePrev, spawnTimeRatio[i]);

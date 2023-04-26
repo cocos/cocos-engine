@@ -134,7 +134,7 @@ export class LineShapeModule extends ShapeModule {
             }
         } else if (this.distributionMode === DistributionMode.MOVE) {
             if (this.moveWrapMode === MoveWarpMode.LOOP) {
-                const spawnTimeRatio = particles.spawnTimeRatio.data;
+                const spawnTimeRatio = particles.getFloatParameter(SPAWN_TIME_RATIO).data;
                 if (this.spread > 0) {
                     for (let i = fromIndex; i < toIndex; ++i) {
                         let len = lerp(lengthTimer, lengthTimerPrev, spawnTimeRatio[i]);
@@ -158,7 +158,7 @@ export class LineShapeModule extends ShapeModule {
                     }
                 }
             } else {
-                const spawnTimeRatio = particles.spawnTimeRatio.data;
+                const spawnTimeRatio = particles.getFloatParameter(SPAWN_TIME_RATIO).data;
                 if (this.spread > 0) {
                     for (let i = fromIndex; i < toIndex; ++i) {
                         let len = lerp(lengthTimer, lengthTimerPrev, spawnTimeRatio[i]);

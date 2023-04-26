@@ -27,95 +27,62 @@ import { ccclass, tooltip, displayOrder, type, serializable, range, visible } fr
 import { lerp, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
+import { BASE_SCALE, BuiltinParticleParameterFlags, NORMALIZED_AGE, ParticleDataSet, RANDOM_SEED, SCALE, SPAWN_NORMALIZED_TIME } from '../particle-data-set';
+import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { ScaleMeshSizeModule } from './scale-sprite-size';
+import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 
 const seed = new Vec3();
 
-@ccclass('cc.MultiplySizeModule')
-@VFXModule.register('MultiplySize', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.SCALE], [BuiltinParticleParameterName.NORMALIZED_AGE])
-export class MultiplySizeModule extends VFXModule {
+@ccclass('cc.ScaleMeshSizeModule')
+@VFXModule.register('ScaleMeshSize', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [SCALE.name], [NORMALIZED_AGE.name])
+export class ScaleMeshSizeModule extends VFXModule {
     /**
-     * @zh 决定是否在每个轴上独立控制粒子大小。
-     */
+      * @zh 决定是否在每个轴上独立控制粒子大小。
+      */
     @serializable
     @displayOrder(1)
     @tooltip('i18n:sizeOvertimeModule.separateAxes')
     public separateAxes = false;
 
     /**
-     * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
-     */
+      * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
+      */
     @type(FloatExpression)
-    @range([0, 1])
-    @displayOrder(2)
     @tooltip('i18n:sizeOvertimeModule.scale')
-    @visible(function (this: MultiplySizeModule): boolean { return !this.separateAxes; })
+    @visible(function (this: ScaleMeshSizeModule): boolean { return !this.separateAxes; })
+    public get uniformScalar () {
+        if (!this._uniformScalar) {
+            this._uniformScalar = new ConstantFloatExpression(1);
+        }
+        return this._uniformScalar;
+    }
+
+    public set uniformScalar (val) {
+        this._uniformScalar = val;
+    }
+
+    @type(Vec3Expression)
+    @tooltip('i18n:sizeOvertimeModule.scale')
+    @visible(function (this: ScaleMeshSizeModule): boolean { return this.separateAxes; })
     public get scalar () {
-        return this.x;
+        if (!this._scalar) {
+            this._scalar = new ConstantVec3Expression(Vec3.ONE);
+        }
+        return this._scalar;
     }
 
     public set scalar (val) {
-        this.x = val;
-    }
-
-    /**
-     * @zh 定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化。
-     */
-    @type(FloatExpression)
-    @serializable
-    @range([0, 1])
-    @displayOrder(3)
-    @tooltip('i18n:sizeOvertimeModule.x')
-    @visible(function (this: MultiplySizeModule): boolean { return this.separateAxes; })
-    public x = new FloatExpression(1);
-
-    /**
-     * @zh 定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化。
-     */
-    @type(FloatExpression)
-    @range([0, 1])
-    @displayOrder(4)
-    @tooltip('i18n:sizeOvertimeModule.y')
-    @visible(function (this: MultiplySizeModule): boolean { return this.separateAxes; })
-    public get y () {
-        if (!this._y) {
-            this._y = new FloatExpression(1);
-        }
-        return this._y;
-    }
-
-    public set y (val) {
-        this._y = val;
-    }
-
-    /**
-     * @zh 定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化。
-     */
-    @type(FloatExpression)
-    @range([0, 1])
-    @displayOrder(5)
-    @tooltip('i18n:sizeOvertimeModule.z')
-    @visible(function (this: MultiplySizeModule): boolean { return this.separateAxes; })
-    public get z () {
-        if (!this._z) {
-            this._z = new FloatExpression(1);
-        }
-        return this._z;
-    }
-
-    public set z (val) {
-        this._z = val;
+        this._scalar = val;
     }
 
     @serializable
-    private _y: FloatExpression | null = null;
+    private _uniformScalar: FloatExpression | null = null;
     @serializable
-    private _z: FloatExpression | null = null;
-
+    private _scalar: Vec3Expression | null = null;
 
     public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         particles.markRequiredParameters(BuiltinParticleParameterFlags.SCALE);
@@ -135,7 +102,7 @@ export class MultiplySizeModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.baseScale : particles.scale;
+        const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.getVec3Parameter(BASE_SCALE) : particles.getVec3Parameter(SCALE);
         const randomOffset = this._randomOffset;
         const { fromIndex, toIndex } = context;
         if (!this.separateAxes) {
@@ -146,20 +113,20 @@ export class MultiplySizeModule extends VFXModule {
                 }
             } else if (this.scalar.mode === FloatExpression.Mode.CURVE) {
                 const { spline, multiplier } = this.scalar;
-                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
+                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.getFloatParameter(NORMALIZED_AGE).data : particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     scale.multiply1fAt(spline.evaluate(normalizedTime[i]) * multiplier, i);
                 }
             } else if (this.scalar.mode === FloatExpression.Mode.TWO_CONSTANTS) {
                 const { constantMin, constantMax } = this.scalar;
-                const randomSeed = particles.randomSeed.data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     scale.multiply1fAt(lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffset)), i);
                 }
             } else {
                 const { splineMin, splineMax, multiplier } = this.scalar;
-                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
-                const randomSeed = particles.randomSeed.data;
+                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.getFloatParameter(NORMALIZED_AGE).data : particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const currentLife = normalizedTime[i];
                     scale.multiply1fAt(lerp(splineMin.evaluate(currentLife),
@@ -180,7 +147,7 @@ export class MultiplySizeModule extends VFXModule {
                 const { spline: splineX, multiplier: xMultiplier } = this.x;
                 const { spline: splineY, multiplier: yMultiplier } = this.y;
                 const { spline: splineZ, multiplier: zMultiplier } = this.z;
-                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
+                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.getFloatParameter(NORMALIZED_AGE).data : particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const currentLife = normalizedTime[i];
                     scale.multiply3fAt(splineX.evaluate(currentLife) * xMultiplier,
@@ -191,7 +158,7 @@ export class MultiplySizeModule extends VFXModule {
                 const { constantMin: xMin, constantMax: xMax } = this.x;
                 const { constantMin: yMin, constantMax: yMax } = this.y;
                 const { constantMin: zMin, constantMax: zMax } = this.z;
-                const randomSeed = particles.randomSeed.data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     scale.multiply3fAt(lerp(xMin, xMax, ratio.x),
@@ -202,8 +169,8 @@ export class MultiplySizeModule extends VFXModule {
                 const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
                 const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
                 const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.normalizedAge.data : particles.spawnNormalizedTime.data;
-                const randomSeed = particles.randomSeed.data;
+                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.getFloatParameter(NORMALIZED_AGE).data : particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const currentLife = normalizedTime[i];
                     const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);

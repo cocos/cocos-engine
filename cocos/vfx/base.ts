@@ -25,7 +25,7 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, PlayingState, ScalingMode, Space, VFXEventType } from './enum';
+import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, PlayingState, ScalingMode, Space, VFXEventType } from './define';
 import { Color, Vec3, Vec2, assertIsTrue } from '../core';
 import { ModuleExecStage } from './vfx-module';
 import { RandomStream } from './random-stream';

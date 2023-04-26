@@ -23,23 +23,20 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, range, type, serializable } from 'cc.decorator';
+import { ccclass, type, serializable } from 'cc.decorator';
 import { Enum, Mat3, Vec3 } from '../../core';
-import { Space } from '../enum';
+import { Space } from '../define';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BASE_VELOCITY, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 
 const tempVelocity = new Vec3();
-const seed = new Vec3();
-const requiredParameter = BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.POSITION;
-const transform = new Mat3();
 
 @ccclass('cc.AddVelocityModule')
-@VFXModule.register('AddVelocity', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.VELOCITY])
+@VFXModule.register('AddVelocity', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [VELOCITY.name])
 export class AddVelocityModule extends VFXModule {
     @type(Enum(Space))
     @serializable
@@ -51,34 +48,31 @@ export class AddVelocityModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this.velocity.tick(particles, emitter, user, context);
-        particles.markRequiredParameters(requiredParameter);
+
+        particles.markRequiredParameter(VELOCITY);
+        particles.markRequiredParameter(POSITION);
         if (context.executionStage !== ModuleExecStage.UPDATE) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
+            particles.markRequiredParameter(BASE_VELOCITY);
         }
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const needTransform = (this.space !== Space.WORLD) !== emitter.isWorldSpace;
-        const dest = context.executionStage === ModuleExecStage.UPDATE ? particles.velocity : particles.baseVelocity;
+        const dest = particles.getVec3Parameter(context.executionStage === ModuleExecStage.UPDATE ? VELOCITY : BASE_VELOCITY);
         const { fromIndex, toIndex } = context;
         const velocity = this.velocity;
 
-        if (needTransform) {
-            if (this.space === Space.LOCAL) {
-                Mat3.fromMat4(transform, emitter.localToWorld);
-            } else {
-                Mat3.fromMat4(transform, emitter.worldToLocal);
-            }
-        }
         if (velocity.isConstant) {
             velocity.evaluate(0, tempVelocity);
             if (needTransform) {
+                const transform = this.space === Space.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
                 Vec3.transformMat3(tempVelocity, tempVelocity, transform);
             }
             for (let i = fromIndex; i < toIndex; i++) {
                 dest.addVec3At(tempVelocity, i);
             }
         } else if (needTransform) {
+            const transform = this.space === Space.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
             for (let i = fromIndex; i < toIndex; i++) {
                 velocity.evaluate(i, tempVelocity);
                 Vec3.transformMat3(tempVelocity, tempVelocity, transform);

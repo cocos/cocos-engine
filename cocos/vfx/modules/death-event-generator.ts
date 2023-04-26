@@ -25,7 +25,7 @@
 
 import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, EPSILON, Vec3 } from '../../core';
-import { VFXEventType, Space } from '../enum';
+import { VFXEventType, Space } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { ColorArrayParameter, Vec3ArrayParameter } from '../vfx-parameter';
@@ -50,9 +50,9 @@ export class DeathEventGeneratorModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const randomSeed = particles.randomSeed.data;
+        const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
         const id = particles.id.data;
-        const isDead = particles.isDead.data;
+        const isDead = particles.getFloatParameter(IS_DEAD).data;
         const { fromIndex, toIndex, events } = context;
         const { localToWorld } = emitter;
         const { isWorldSpace } = emitter;
@@ -69,19 +69,19 @@ export class DeathEventGeneratorModule extends VFXModule {
         let color: ColorArrayParameter | null = null;
         let position: Vec3ArrayParameter | null = null;
         if (hasVelocity) {
-            velocity = particles.velocity;
+            velocity = particles.getVec3Parameter(VELOCITY);
         }
         if (hasRotation) {
             rotation = particles.rotation;
         }
         if (hasSize) {
-            scale = particles.scale;
+            scale = particles.getVec3Parameter(SCALE);
         }
         if (hasColor) {
-            color = particles.color;
+            color = particles.getColorParameter(COLOR);
         }
         if (hasPosition) {
-            position = particles.position;
+            position = particles.getVec3Parameter(POSITION);
         }
         if (!approx(probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {

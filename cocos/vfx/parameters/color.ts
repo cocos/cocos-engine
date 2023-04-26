@@ -1,0 +1,105 @@
+import { DEBUG } from 'internal:constants';
+import { Color, assertIsTrue } from '../../core';
+import { ParticleHandle, VFXParameterType } from '../define';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD } from '../vfx-parameter';
+
+const tempColor = new Color();
+
+export class ColorArrayParameter extends ArrayParameter {
+    get data () {
+        return this._data;
+    }
+
+    get type () {
+        return VFXParameterType.COLOR;
+    }
+
+    get stride (): number {
+        return 1;
+    }
+
+    private _data = new Uint32Array(this._capacity);
+
+    reserve (capacity: number) {
+        if (capacity <= this._capacity) return;
+        this._capacity = capacity;
+        const oldData = this._data;
+        this._data = new Uint32Array(capacity);
+        this._data.set(oldData);
+    }
+
+    move (a: ParticleHandle, b: ParticleHandle) {
+        this._data[b] = this._data[a];
+    }
+
+    getColorAt (out: Color, handle: ParticleHandle) {
+        Color.fromUint32(out, this._data[handle]);
+        return out;
+    }
+
+    setColorAt (color: Color, handle: ParticleHandle) {
+        this._data[handle] = Color.toUint32(color);
+    }
+
+    setUint32At (val: number, handle: ParticleHandle) {
+        this._data[handle] = val;
+    }
+
+    getUint32At (handle: ParticleHandle) {
+        return this._data[handle];
+    }
+
+    multiplyColorAt (color: Color, handle: ParticleHandle) {
+        Color.fromUint32(tempColor, this._data[handle]);
+        tempColor.multiply(color);
+        this._data[handle] = Color.toUint32(tempColor);
+    }
+
+    fillUint32 (val: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
+            this._data.fill(val, fromIndex, toIndex);
+        } else {
+            const data = this._data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                data[i] = val;
+            }
+        }
+    }
+
+    fill (color: Color, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        const val = Color.toUint32(color);
+        this.fillUint32(val, fromIndex, toIndex);
+    }
+
+    copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+            assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
+            assertIsTrue(strideOffset + this.stride <= stride);
+            assertIsTrue(dest.length >= (toIndex - fromIndex) * stride + destOffset * stride);
+        }
+
+        if (stride === this.stride && strideOffset === 0 && (toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
+            const source = (fromIndex === 0 && toIndex === this._capacity) ? this._data : this._data.subarray(fromIndex, toIndex);
+            dest.set(source, destOffset * stride);
+            return;
+        }
+
+        const data = this._data;
+        for (let offset = fromIndex * stride + strideOffset, i = fromIndex; i < toIndex; offset += stride, i++) {
+            dest[offset] = data[i];
+        }
+    }
+
+    copyFrom (src: ColorArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
+            this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
+        } else {
+            const destData = this._data;
+            const srcData = src._data;
+            for (let i = fromIndex; i < toIndex; i++) {
+                destData[i] = srcData[i];
+            }
+        }
+    }
+}

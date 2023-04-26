@@ -24,11 +24,11 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { VFXParameterType } from '../enum';
-import { Expression } from '../expression';
+import { VFXParameterType } from '../define';
+import { VFXExpression } from '../vfx-expression';
 
 @ccclass('cc.FloatExpression')
-export abstract class FloatExpression extends Expression {
+export abstract class FloatExpression extends VFXExpression {
     public get valueType () {
         return VFXParameterType.FLOAT;
     }

@@ -24,21 +24,25 @@
  */
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
-import { lerp, Vec3, CCBoolean } from '../../core';
+import { lerp, Vec3, CCBoolean, Enum } from '../../core';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { VFXEmitterState, ModuleExecContext } from '../base';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { ModuleExecContext } from '../base';
+import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from '../expressions';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
 const _temp_v3 = new Vec3();
-const requiredParameters = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.BASE_VELOCITY | BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.FLOAT_REGISTER;
 
+export enum RadiusSource {
+    SPRITE_SIZE,
+    MESH_SCALE,
+    CUSTOM,
+}
 @ccclass('cc.DragModule')
-@VFXModule.register('Drag', ModuleExecStageFlags.UPDATE, [ParameterName.VELOCITY], [ParameterName.VELOCITY, ParameterName.SCALE])
+@VFXModule.register('Drag', ModuleExecStageFlags.UPDATE, [VELOCITY.name], [VELOCITY.name, SCALE.name, SPRITE_SIZE.name])
 export class DragModule extends VFXModule {
     @type(FloatExpression)
     @visible(true)
@@ -47,24 +51,42 @@ export class DragModule extends VFXModule {
 
     @type(CCBoolean)
     @serializable
-    public multiplyBySize = true;
+    public multiplyByRadius = true;
+
+    @type(Enum(RadiusSource))
+    @visible(function (this: DragModule) { return this.multiplyByRadius; })
+    @serializable
+    public radiusSource = RadiusSource.SPRITE_SIZE;
+
+    @type(FloatExpression)
+    @visible(function (this: DragModule) { return this.multiplyByRadius && this.radiusSource === RadiusSource.CUSTOM; })
+    @serializable
+    public radius: FloatExpression = new ConstantFloatExpression(1);
+
     @type(CCBoolean)
     @serializable
     public multiplyBySpeed = true;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameters(requiredParameters);
+        particles.markRequiredParameter(POSITION);
+        particles.markRequiredParameter(BASE_VELOCITY);
+        particles.markRequiredParameter(VELOCITY);
+        particles.markRequiredParameter(PHYSICS_FORCE);
         this.drag.tick(particles, emitter, user, context);
-        if (this.multiplyBySize) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.SCALE);
-        }
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { velocity, baseVelocity } = particles;
-        const { fromIndex, toIndex, deltaTime } = context;
-        const floatRegister = particles.floatRegister.data;
-        const randomOffset = this._randomOffset;
+        const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
+        const { fromIndex, toIndex } = context;
+        const exp = this.drag;
+        exp.bind(particles, emitter, user, context);
+
+        if (exp.isConstant) {
+            const drag = exp.evaluate(0);
+            for (let i = fromIndex; i < toIndex; i++) {
+                floatRegister[i] = drag;
+            }
+        }
         // eslint-disable-next-line no-lonely-if
         if (this.drag.mode === FloatExpression.Mode.CONSTANT) {
             const drag = this.drag.constant;
@@ -72,7 +94,7 @@ export class DragModule extends VFXModule {
                 floatRegister[i] = drag;
             }
         } else if (this.drag.mode === FloatExpression.Mode.CURVE) {
-            const normalizedAge = particles.normalizedAge.data;
+            const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
             const { spline, multiplier } = this.drag;
             for (let i = fromIndex; i < toIndex; i++) {
                 const normalizedTime = normalizedAge[i];
@@ -80,21 +102,21 @@ export class DragModule extends VFXModule {
             }
         } else if (this.drag.mode === FloatExpression.Mode.TWO_CONSTANTS) {
             const { constantMin, constantMax } = this.drag;
-            const randomSeed = particles.randomSeed.data;
+            const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
             for (let i = fromIndex; i < toIndex; i++) {
                 floatRegister[i] = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffset));
             }
         } else {
             const { splineMin, splineMax, multiplier } = this.drag;
-            const randomSeed = particles.randomSeed.data;
-            const normalizedAge = particles.normalizedAge.data;
+            const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
+            const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
             for (let i = fromIndex; i < toIndex; i++) {
                 const normalizedTime = normalizedAge[i];
                 floatRegister[i] = lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(randomSeed[i] + randomOffset))  * multiplier;
             }
         }
         if (this.multiplyBySize) {
-            const scale = particles.scale;
+            const scale = particles.getVec3Parameter(SCALE);
             for (let i = fromIndex; i < toIndex; i++) {
                 scale.getVec3At(_temp_v3, i);
                 const maxDimension = Math.max(_temp_v3.x, _temp_v3.y, _temp_v3.z) * 0.5;

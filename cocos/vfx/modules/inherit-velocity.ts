@@ -55,7 +55,7 @@ export class InheritVelocityModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
         const initialVelocity = emitter.velocity;
-        const velocity = context.executionStage === ModuleExecStage.SPAWN ? particles.baseVelocity : particles.velocity;
+        const velocity = context.executionStage === ModuleExecStage.SPAWN ? particles.getVec3Parameter(BASE_VELOCITY) : particles.getVec3Parameter(VELOCITY);
         if (!emitter.isWorldSpace) { return; }
         this.scale.bind(particles, emitter, user, context);
         if (this.scale.isConstant) {

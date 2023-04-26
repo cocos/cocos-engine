@@ -25,7 +25,7 @@
 
 import { ccclass, range, serializable, tooltip, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BASE_SCALE, BuiltinParticleParameterFlags, NORMALIZED_AGE, BuiltinParticleParameterName as ParameterName, ParticleDataSet, SCALE } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { lerp, Vec3 } from '../../core';
@@ -35,9 +35,8 @@ import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 
 const tempScale = new Vec3();
-
 @ccclass('cc.SetMeshScaleModule')
-@VFXModule.register('SetMeshScale', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [ParameterName.SCALE], [ParameterName.NORMALIZED_AGE])
+@VFXModule.register('SetMeshScale', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [SCALE.name], [NORMALIZED_AGE.name])
 export class SetMeshScaleModule extends VFXModule {
     @serializable
     @tooltip('i18n:particle_system.startSize3D')
@@ -76,10 +75,10 @@ export class SetMeshScaleModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_SCALE);
+            particles.markRequiredParameter(BuiltinParticleParameterFlags.BASE_SCALE);
         }
 
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.SCALE);
+        particles.markRequiredParameter(BuiltinParticleParameterFlags.SCALE);
         if (this.separateAxes) {
             this.scale.tick(particles, emitter, user, context);
         } else {
@@ -88,7 +87,7 @@ export class SetMeshScaleModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.baseScale : particles.scale;
+        const scale = particles.getVec3Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_SCALE : SCALE);
         const { fromIndex, toIndex } = context;
         if (this.separateAxes) {
             const exp = this.scale;

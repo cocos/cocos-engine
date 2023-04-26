@@ -1,7 +1,7 @@
 import { ccclass } from '../../core/data/decorators';
 import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
-import { ParameterNameSpace } from '../enum';
+import { ParameterNameSpace } from '../define';
 import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 import { UserDataSet } from '../user-data-set';
@@ -35,7 +35,7 @@ export class BindingFloatExpression extends FloatExpression {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (this._bindParameterNameSpace === ParameterNameSpace.PARTICLE) {
-            particles.markRequiredParameters(this._bindParameterId);
+            particles.markRequiredParameter(this._bindParameterId);
         }
     }
 

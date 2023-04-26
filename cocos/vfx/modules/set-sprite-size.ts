@@ -88,7 +88,7 @@ export class SetSpriteSizeModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.baseSpriteSize : particles.spriteSize;
+        const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.getVec2Parameter(BASE_SPRITE_SIZE) : particles.getVec2Parameter(SPRITE_SIZE);
         const { fromIndex, toIndex } = context;
         if (this.separateAxes) {
             const exp = this.size;

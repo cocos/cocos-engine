@@ -546,7 +546,7 @@ export class CurlNoiseModule extends VFXModule {
         const frequency = this.frequency;
         const offset = this._offset;
         const randomOffset = this.randomSeed;
-        const samplePosition = particles.position;
+        const samplePosition = particles.getVec3Parameter(POSITION);
         const panNoiseField = this.panNoiseField;
 
         // eslint-disable-next-line no-lonely-if
@@ -623,7 +623,7 @@ export class CurlNoiseModule extends VFXModule {
                 const multiplierX = this.strengthX.multiplier * amplitudeScale;
                 const multiplierY = this.strengthY.multiplier * amplitudeScale;
                 const multiplierZ = this.strengthZ.multiplier * amplitudeScale;
-                const normalizedAge = particles.normalizedAge.data;
+                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAge[i];
                     vec3Register.multiply3fAt(splineX.evaluate(life) * multiplierX,
@@ -637,7 +637,7 @@ export class CurlNoiseModule extends VFXModule {
                 const yMin = this.strengthY.constantMin * amplitudeScale;
                 const zMax = this.strengthZ.constantMax * amplitudeScale;
                 const zMin = this.strengthZ.constantMin * amplitudeScale;
-                const randomSeed = particles.randomSeed.data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
                     vec3Register.multiply3fAt(lerp(xMin, xMax, ratio.x),
@@ -651,8 +651,8 @@ export class CurlNoiseModule extends VFXModule {
                 const xMultiplier = this.strengthX.multiplier * amplitudeScale;
                 const yMultiplier = this.strengthY.multiplier * amplitudeScale;
                 const zMultiplier = this.strengthZ.multiplier * amplitudeScale;
-                const normalizedAge = particles.normalizedAge.data;
-                const randomSeed = particles.randomSeed.data;
+                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAge[i];
                     const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
@@ -673,7 +673,7 @@ export class CurlNoiseModule extends VFXModule {
             } else if (this.strengthX.mode === FloatExpression.Mode.CURVE) {
                 const { spline } = this.strengthX;
                 const multiplier = this.strengthX.multiplier * amplitudeScale;
-                const normalizedAge = particles.normalizedAge.data;
+                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const amplitude = spline.evaluate(normalizedAge[i]) * multiplier;
                     vec3Register.multiply1fAt(amplitude, i);
@@ -681,7 +681,7 @@ export class CurlNoiseModule extends VFXModule {
             } else if (this.strengthX.mode === FloatExpression.Mode.TWO_CONSTANTS) {
                 const constantMax = this.strengthX.constantMax * amplitudeScale;
                 const constantMin = this.strengthX.constantMin * amplitudeScale;
-                const randomSeed = particles.randomSeed.data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const amplitude = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffset));
                     vec3Register.multiply1fAt(amplitude, i);
@@ -689,8 +689,8 @@ export class CurlNoiseModule extends VFXModule {
             } else {
                 const { splineMin, splineMax } = this.strengthX;
                 const multiplier = this.strengthX.multiplier * amplitudeScale;
-                const normalizedAge = particles.normalizedAge.data;
-                const randomSeed = particles.randomSeed.data;
+                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
+                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const life = normalizedAge[i];
                     const amplitude = lerp(splineMin.evaluate(life),
@@ -699,7 +699,7 @@ export class CurlNoiseModule extends VFXModule {
                 }
             }
         }
-        const velocity = particles.velocity;
+        const velocity = particles.getVec3Parameter(VELOCITY);
         Vec3ArrayParameter.add(velocity, velocity, vec3Register, fromIndex, toIndex);
     }
 

@@ -24,12 +24,12 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { Expression } from '../expression';
+import { VFXExpression } from '../vfx-expression';
 import { Vec3 } from '../../core';
-import { VFXParameterType } from '../enum';
+import { VFXParameterType } from '../define';
 
 @ccclass('cc.Vec3Expression')
-export abstract class Vec3Expression extends Expression {
+export abstract class Vec3Expression extends VFXExpression {
     public get valueType (): VFXParameterType {
         return VFXParameterType.VEC2;
     }

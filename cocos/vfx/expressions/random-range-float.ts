@@ -59,7 +59,7 @@ export class RandomRangeFloatExpression extends FloatExpression {
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this.maximum.bind(particles, emitter, user, context);
         this.minimum.bind(particles, emitter, user, context);
-        this._seed = particles.randomSeed.data;
+        this._seed = particles.getUint32Parameter(RANDOM_SEED).data;
         this._randomOffset = context.moduleRandomSeed;
     }
 
