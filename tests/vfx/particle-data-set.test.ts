@@ -2,7 +2,7 @@
 import { VFXParameterType } from '../../cocos/vfx/enum';
 import { BuiltinParticleParameter, builtinParticleParameterIdentities } from '../../cocos/vfx/particle-data-set';
 import { ParticleDataSet } from '../../cocos/vfx/particle-data-set';
-import { BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, VFXParameterIdentity, Uint32ArrayParameter, Vec3ArrayParameter } from '../../cocos/vfx/particle-parameter';
+import { BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, VFXParameterIdentity, Uint32ArrayParameter, Vec3ArrayParameter } from '../../cocos/vfx/vfx-parameter';
 
 describe('particle-data-set', () => {
     
@@ -180,7 +180,8 @@ describe('particle-data-set', () => {
         ];
         expect(particles.parameterCount).toBe(0);
         let requiredParameters = 1 << 31 | 1 << 29 | 1 << 27;
-        particles.ensureParameters(requiredParameters, identities);
+        particles.markRequiredParameters(requiredParameters);
+        particles.ensureParameters(identities);
         expect(particles.parameterCount).toBe(3);
         expect(particles.hasParameter(31)).toBeTruthy();
         expect(particles.hasParameter(29)).toBeTruthy();
@@ -194,8 +195,10 @@ describe('particle-data-set', () => {
         expect(parameter2).toBeInstanceOf(ColorArrayParameter);
         expect(parameter3).toBeInstanceOf(Uint32ArrayParameter);
 
+        particles.clearRequiredParameters();
         requiredParameters = 1 << 31 | 1 << 30 | 1 << 28;
-        particles.ensureParameters(requiredParameters, identities);
+        particles.markRequiredParameters(requiredParameters);
+        particles.ensureParameters(identities);
         expect(particles.parameterCount).toBe(3);
         expect(particles.hasParameter(31)).toBeTruthy();
         expect(particles.hasParameter(30)).toBeTruthy();
@@ -208,7 +211,8 @@ describe('particle-data-set', () => {
         expect(particles.getParameter(29)).toBeFalsy();
         expect(particles.getParameter(27)).toBeFalsy();
 
-        particles.ensureParameters(0, identities);
+        particles.clearRequiredParameters();
+        particles.ensureParameters(identities);
         expect(particles.parameterCount).toBe(0);
         expect(particles.hasParameter(31)).toBeFalsy();
         expect(particles.hasParameter(30)).toBeFalsy();
@@ -217,7 +221,8 @@ describe('particle-data-set', () => {
         expect(particles.hasParameter(27)).toBeFalsy();
 
         let requiredParameters2 = 1 << 1 | 1 << 2 | 1 << 3;
-        particles.ensureParameters(requiredParameters2, identities);
+        particles.markRequiredParameters(requiredParameters2);
+        particles.ensureParameters(identities);
         expect(particles.parameterCount).toBe(0);
         expect(particles.hasParameter(31)).toBeFalsy();
         expect(particles.hasParameter(30)).toBeFalsy();
@@ -237,15 +242,15 @@ describe('particle-data-set', () => {
         expect(() => particles.id).toThrowError();
         expect(() => particles.randomSeed).toThrowError();
         expect(() => particles.color).toThrowError();
-        expect(() => particles.size).toThrowError();
+        expect(() => particles.scale).toThrowError();
         expect(() => particles.rotation).toThrowError();
         expect(() => particles.normalizedAge).toThrowError();
         expect(() => particles.invStartLifeTime).toThrowError();
         expect(() => particles.baseColor).toThrowError();
-        expect(() => particles.baseSize).toThrowError();
+        expect(() => particles.baseScale).toThrowError();
         expect(() => particles.baseVelocity).toThrowError();
-        expect(() => particles.startDir).toThrowError();
-        expect(() => particles.frameIndex).toThrowError();
+        expect(() => particles.initialDir).toThrowError();
+        expect(() => particles.subUVIndex).toThrowError();
         expect(() => particles.isDead).toThrowError();
         expect(() => particles.angularVelocity).toThrowError();
         expect(() => particles.spawnTimeRatio).toThrowError();
@@ -254,22 +259,23 @@ describe('particle-data-set', () => {
         expect(() => particles.floatRegister).toThrowError();
 
         const requiredParameters = 0xffffffff;
-        particles.ensureParameters(requiredParameters, builtinParticleParameterIdentities);
+        particles.markRequiredParameters(requiredParameters);
+        particles.ensureParameters(builtinParticleParameterIdentities);
         expect(particles.parameterCount).toBe(BuiltinParticleParameter.COUNT);
         expect(particles.position).toBeInstanceOf(Vec3ArrayParameter);
         expect(particles.velocity).toBeInstanceOf(Vec3ArrayParameter);
         expect(particles.id).toBeInstanceOf(Uint32ArrayParameter);
         expect(particles.randomSeed).toBeInstanceOf(Uint32ArrayParameter);
         expect(particles.color).toBeInstanceOf(ColorArrayParameter);
-        expect(particles.size).toBeInstanceOf(Vec3ArrayParameter);
+        expect(particles.scale).toBeInstanceOf(Vec3ArrayParameter);
         expect(particles.rotation).toBeInstanceOf(Vec3ArrayParameter);
         expect(particles.normalizedAge).toBeInstanceOf(FloatArrayParameter);
         expect(particles.invStartLifeTime).toBeInstanceOf(FloatArrayParameter);
         expect(particles.baseColor).toBeInstanceOf(ColorArrayParameter);
-        expect(particles.baseSize).toBeInstanceOf(Vec3ArrayParameter);
+        expect(particles.baseScale).toBeInstanceOf(Vec3ArrayParameter);
         expect(particles.baseVelocity).toBeInstanceOf(Vec3ArrayParameter);
-        expect(particles.startDir).toBeInstanceOf(Vec3ArrayParameter);
-        expect(particles.frameIndex).toBeInstanceOf(FloatArrayParameter);
+        expect(particles.initialDir).toBeInstanceOf(Vec3ArrayParameter);
+        expect(particles.subUVIndex).toBeInstanceOf(FloatArrayParameter);
         expect(particles.isDead).toBeInstanceOf(BoolArrayParameter);
         expect(particles.angularVelocity).toBeInstanceOf(Vec3ArrayParameter);
         expect(particles.spawnTimeRatio).toBeInstanceOf(FloatArrayParameter);

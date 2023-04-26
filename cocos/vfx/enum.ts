@@ -36,9 +36,8 @@ export enum VFXParameterType {
 }
 
 export enum ParameterNameSpace {
-    UNKNOWN,
-    PARTICLE,
     EMITTER,
+    PARTICLE,
     USER,
 }
 

@@ -24,10 +24,12 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../base';
 import { Vec3ArrayParameter } from '../vfx-parameter';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 @ccclass('cc.SolveForcesAndVelocityModule')
 @VFXModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [ParameterName.POSITION, ParameterName.ROTATION], [ParameterName.VELOCITY, ParameterName.ANGULAR_VELOCITY])

@@ -23,11 +23,11 @@
  THE SOFTWARE.
  */
 import { DEBUG } from 'internal:constants';
-import { Color, Enum, Vec3 } from '../core';
-import { ccclass, serializable, type, visible } from '../core/data/decorators';
+import { Color, Vec3 } from '../core';
+import { ccclass, serializable, visible } from '../core/data/decorators';
 import { ParticleHandle } from './particle-data-set';
 import { assertIsTrue } from '../core/data/utils/asserts';
-import { VFXParameterType } from './enum';
+import { ParameterNameSpace, VFXParameterType } from './enum';
 
 const DEFAULT_CAPACITY = 16;
 const tempColor = new Color();
@@ -41,6 +41,14 @@ export class VFXParameterIdentity {
         return this._id;
     }
 
+    public get type () {
+        return this._type;
+    }
+
+    public get namespace () {
+        return this._namespace;
+    }
+
     @visible(true)
     public get name () {
         return this._name;
@@ -50,27 +58,20 @@ export class VFXParameterIdentity {
         this._name = val;
     }
 
-    @visible(true)
-    @type(Enum(VFXParameterType))
-    public get type () {
-        return this._type;
-    }
-
-    public set type (val) {
-        this._type = val;
-    }
-
     @serializable
     private _id = 0;
     @serializable
     private _name = '';
     @serializable
     private _type: VFXParameterType = VFXParameterType.FLOAT;
+    @serializable
+    private _namespace: ParameterNameSpace = ParameterNameSpace.USER;
 
-    constructor (id: number, name: string, type: VFXParameterType) {
+    constructor (id: number, name: string, type: VFXParameterType, namespace: ParameterNameSpace) {
         this._id = id;
         this._name = name;
         this._type = type;
+        this._namespace = namespace;
     }
 }
 

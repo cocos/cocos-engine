@@ -22,17 +22,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass } from '../core/data/decorators';
-import { ModuleExecContext } from './base';
-import { EmitterDataSet } from './emitter-data-set';
-import { VFXParameterType } from './enum';
-import { ParticleDataSet } from './particle-data-set';
-import { UserDataSet } from './user-data-set';
 
-@ccclass('cc.Expression')
-export abstract class Expression {
-    public abstract get valueType (): VFXParameterType;
-    public abstract get isConstant (): boolean;
-    public abstract tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext);
-    public abstract bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext);
+import { ccclass } from 'cc.decorator';
+import { Expression } from '../expression';
+import { Vec2 } from '../../core';
+import { VFXParameterType } from '../enum';
+
+@ccclass('cc.Vec2Expression')
+export abstract class Vec2Expression extends Expression {
+    public get valueType () {
+        return VFXParameterType.VEC2;
+    }
+    public abstract evaluateSingle (out: Vec2): Vec2;
+    public abstract evaluate (index: number, out: Vec2): Vec2;
 }

@@ -86,8 +86,8 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
     private _arcTimer = 0;
     private _arcTimePrev = 0;
 
-    public onPlay (params: VFXEmitterParams, states: VFXEmitterState) {
-        super.onPlay(params, states);
+    public onPlay (states: VFXEmitterState) {
+        super.onPlay(states);
         this._arcTimer = 0;
         this._arcTimePrev = 0;
     }

@@ -29,6 +29,7 @@ import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
 import { approx, assertIsTrue, Color, math, Vec3, Vec2 } from '../../core';
 import { RandomStream } from '../random-stream';
+import { UserDataSet } from '../user-data-set';
 
 const tempVelocity = new Vec3();
 const tempColor = new Color();

@@ -104,12 +104,6 @@ export class SetRotationModule extends VFXModule {
     @serializable
     private _y: FloatExpression | null = null;
 
-    private _rand = new RandomStream();
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._rand.seed = state.randomStream.getUInt32();
-    }
-
     public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
         particles.markRequiredParameters(BuiltinParticleParameterFlags.ROTATION);
         if (this.x.mode === FloatExpression.Mode.CURVE || this.x.mode === FloatExpression.Mode.TWO_CURVES) {

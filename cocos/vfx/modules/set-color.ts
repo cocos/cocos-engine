@@ -26,19 +26,14 @@
 import { ccclass, displayOrder, serializable, tooltip, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
+import { ModuleExecContext } from '../base';
 import { ColorExpression } from '../expressions/color';
 import { Color } from '../../core';
-import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantColorExpression } from '../expressions';
 
 const tempColor = new Color();
-const tempColor2 = new Color();
-const tempColor3 = new Color();
-
-const COLOR_RAND_SEED = 1767123;
 
 @ccclass('cc.SetColorModule')
 @VFXModule.register('SetColor', ModuleExecStageFlags.SPAWN, [ParameterName.COLOR], [ParameterName.NORMALIZED_AGE])
@@ -61,18 +56,16 @@ export class SetColorModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const color = context.executionStage === ModuleExecStage.SPAWN ? particles.baseColor.data : particles.color.data;
+        const color = context.executionStage === ModuleExecStage.SPAWN ? particles.baseColor : particles.color;
         const { fromIndex, toIndex } = context;
         this.color.bind(particles, emitter, user, context);
         if (this.color.isConstant) {
-            const colorNum = Color.toUint32(this.color.evaluate(0, tempColor));
-            for (let i = fromIndex; i < toIndex; i++) {
-                color[i] = colorNum;
-            }
+            color.fill(this.color.evaluate(0, tempColor), fromIndex, toIndex);
         } else {
+            const dest = color.data;
+            const exp = this.color;
             for (let i = fromIndex; i < toIndex; i++) {
-                const colorNum = Color.toUint32(this.color.evaluate(i, tempColor));
-                color[i] = colorNum;
+                dest[i] = Color.toUint32(exp.evaluate(i, tempColor));
             }
         }
     }

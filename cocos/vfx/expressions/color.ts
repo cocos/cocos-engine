@@ -25,14 +25,13 @@
 
 import { ccclass } from 'cc.decorator';
 import { Color } from '../../core';
-import { Expression, ExpressionType } from '../expression';
-import { ModuleExecContext } from '../base';
-import { RandomStream } from '../random-stream';
+import { VFXParameterType } from '../enum';
+import { Expression } from '../expression';
 
 @ccclass('cc.ColorExpression')
 export abstract  class ColorExpression extends Expression {
-    public get type () {
-        return ExpressionType.COLOR;
+    public get valueType () {
+        return VFXParameterType.COLOR;
     }
     abstract evaluateSingle (out: Color): Color;
     abstract evaluate (index: number, out: Color): Color;

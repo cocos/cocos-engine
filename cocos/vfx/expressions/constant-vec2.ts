@@ -22,17 +22,46 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { CCFloat, Vec3, serializable, Vec2 } from '../../core';
+import { ccclass, type } from '../../core/data/class-decorator';
+import { ModuleExecContext } from '../base';
+import { EmitterDataSet } from '../emitter-data-set';
+import { ParticleDataSet } from '../particle-data-set';
+import { UserDataSet } from '../user-data-set';
+import { Vec2Expression } from './vec2';
 
-import { ccclass } from 'cc.decorator';
-import { VFXParameterType } from '../enum';
-import { Expression } from '../expression';
+@ccclass('cc.ConstantVec2Expression')
+export class ConstantVec2Expression extends Vec2Expression {
+    @type(CCFloat)
+    @serializable
+    public x = 0;
 
-@ccclass('cc.FloatExpression')
-export abstract class FloatExpression extends Expression {
-    public get valueType () {
-        return VFXParameterType.FLOAT;
+    @type(CCFloat)
+    @serializable
+    public y = 0;
+
+    public get isConstant (): boolean {
+        return true;
     }
 
-    public abstract evaluateSingle (): number;
-    public abstract evaluate (index: number): number;
+    constructor (val: Vec2 = Vec2.ZERO) {
+        super();
+        this.x = val.x;
+        this.y = val.y;
+    }
+
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {}
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {}
+
+    public evaluate (index: number, out: Vec2) {
+        out.x = this.x;
+        out.y = this.y;
+        return out;
+    }
+
+    public evaluateSingle (out: Vec2) {
+        out.x = this.x;
+        out.y = this.y;
+        return out;
+    }
 }

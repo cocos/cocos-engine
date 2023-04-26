@@ -10,7 +10,7 @@ import { FloatExpression } from './float';
 @ccclass('cc.BindingFloatExpression')
 export class BindingFloatExpression extends FloatExpression {
     private _bindParameterId = -1;
-    private _bindParameterNameSpace = ParameterNameSpace.UNKNOWN;
+    private _bindParameterNameSpace = ParameterNameSpace.EMITTER;
     private declare _data: Float32Array;
     private _constant = 0;
     private _getFloat = this._getConstant;

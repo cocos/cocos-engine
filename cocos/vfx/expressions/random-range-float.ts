@@ -48,6 +48,7 @@ export class RandomRangeFloatExpression extends FloatExpression {
 
     private declare _seed: Uint32Array;
     private _randomOffset = 0;
+    private declare _randomStream: RandomStream;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this.maximum.tick(particles, emitter, user, context);
@@ -66,9 +67,9 @@ export class RandomRangeFloatExpression extends FloatExpression {
         return lerp(this.minimum.evaluate(index), this.maximum.evaluate(index), RandomStream.getFloat(this._seed[index] + this._randomOffset));
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream): number {
-        const min = this.minimum.evaluateSingle(time, randomStream);
-        const max = this.maximum.evaluateSingle(time, randomStream);
-        return lerp(min, max, randomStream.getFloat());
+    public evaluateSingle (): number {
+        const min = this.minimum.evaluateSingle();
+        const max = this.maximum.evaluateSingle();
+        return lerp(min, max, this._randomStream.getFloat());
     }
 }

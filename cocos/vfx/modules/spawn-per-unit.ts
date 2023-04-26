@@ -46,13 +46,6 @@ export class SpawnPerUnitModule extends VFXModule {
     @tooltip('i18n:particle_system.rateOverDistance')
     public rate: FloatExpression = new ConstantFloatExpression();
 
-    private _rand = new RandomStream();
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        super.onPlay(params, state);
-        this._rand.seed = this.randomSeed;
-    }
-
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { emitterVelocity, normalizedLoopAge: normalizeT, emitterDeltaTime, previousTime, currentTime } = context;
         let deltaTime = emitterDeltaTime;

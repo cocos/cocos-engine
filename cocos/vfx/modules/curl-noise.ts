@@ -517,8 +517,8 @@ export class CurlNoiseModule extends VFXModule {
     private _offset = new Vec3();
     private _amplitudeScale = 1;
 
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        super.onPlay(params, state);
+    public onPlay (state: VFXEmitterState) {
+        super.onPlay(state);
         RandomStream.get3Float(this.randomSeed, this._offset);
         this._offset.multiplyScalar(100);
     }

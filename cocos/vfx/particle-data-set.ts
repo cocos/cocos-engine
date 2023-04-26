@@ -26,61 +26,61 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
 import { ArrayParameter, BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, VFXParameterIdentity, Uint32ArrayParameter, Vec3ArrayParameter } from './vfx-parameter';
-import { VFXParameterType } from './enum';
+import { ParameterNameSpace, VFXParameterType } from './enum';
 
 export type ParticleHandle = number;
 export const INVALID_HANDLE = -1;
-export const MAX_PARAMETER_COUNT = 32;
 
-export enum BuiltinParticleParameterName {
-    ID = 'id',
-    RANDOM_SEED = 'random-seed',
-    INV_START_LIFETIME = 'inv-start-lifetime',
-    NORMALIZED_AGE = 'normalized-alive-time',
-    IS_DEAD = 'is-dead',
-    POSITION = 'position',
-    INITIAL_DIR = 'start-dir',
-    PHYSICS_FORCE = 'physics-force',
-    BASE_VELOCITY = 'base-velocity',
-    VELOCITY = 'velocity',
-    ROTATION = 'rotation',
-    MESH_ORIENTATION = 'mesh-orientation',
-    ANGULAR_VELOCITY = 'angular-velocity',
-    SUB_UV_INDEX = 'frame-index',
-    RIBBON_ID = 'ribbon-id',
-    RIBBON_LINK_ORDER = 'ribbon-link-order',
-    BASE_RIBBON_WIDTH = 'base-ribbon-width',
-    RIBBON_WIDTH = 'ribbon-width',
-    BASE_SPRITE_SIZE = 'base-sprite-scale',
-    SPRITE_SIZE = 'sprite-scale',
-    BASE_SCALE = 'base-scale',
-    SCALE = 'scale',
-    BASE_COLOR = 'base-color',
-    COLOR = 'color',
-    SPAWN_TIME_RATIO = 'spawn-time-ratio',
-    SPAWN_NORMALIZED_TIME = 'spawn-normalized-time',
-    VISIBILITY_TAG = 'visibility-tag',
-    VEC3_REGISTER = 'vec3-register',
-    FLOAT_REGISTER = 'float-register'
-}
-/**
- * Keep same with BuiltinParticleParameterName.
- */
-export enum BuiltinParticleParameter {
+let builtinParameterId = 0;
+export const ID = new VFXParameterIdentity(builtinParameterId++, 'id', VFXParameterType.UINT32, ParameterNameSpace.PARTICLE);
+export const RANDOM_SEED = new VFXParameterIdentity(builtinParameterId++, 'random-seed', VFXParameterType.UINT32, ParameterNameSpace.PARTICLE);
+export const INV_START_LIFETIME = new VFXParameterIdentity(builtinParameterId++, 'inv-start-lifetime', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
+export const NORMALIZED_AGE = new VFXParameterIdentity(builtinParameterId++, 'normalized-age', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
+export const IS_DEAD = new VFXParameterIdentity(builtinParameterId++, 'is-dead', VFXParameterType.BOOL, ParameterNameSpace.PARTICLE);
+export const HAS_COLLIDED = new VFXParameterIdentity(builtinParameterId++, 'has-collided', VFXParameterType.BOOL, ParameterNameSpace.PARTICLE);
+export const POSITION = new VFXParameterIdentity(builtinParameterId++, 'position', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
+export const INITIAL_DIR = new VFXParameterIdentity(builtinParameterId++, 'initial-dir', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
+export const PHYSICS_FORCE = new VFXParameterIdentity(builtinParameterId++, 'physics-force', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
+export const BASE_VELOCITY = new VFXParameterIdentity(builtinParameterId++, 'base-velocity', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
+export const VELOCITY = new VFXParameterIdentity(builtinParameterId++, 'velocity', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
+export const SPRITE_ROTATION = new VFXParameterIdentity(builtinParameterId++, 'sprite-rotation', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
+export const MESH_ORIENTATION = new VFXParameterIdentity(builtinParameterId++, 'mesh-orientation', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
+export const SUB_UV_INDEX = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
+export const SUB_UV_INDEX2 = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index2', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
+export const SUB_UV_INDEX3 = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index3', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
+export const SUB_UV_INDEX4 = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index4', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
+export const RIBBON_ID = new VFXParameterIdentity(builtinParameterId++, 'ribbon-id', VFXParameterType.UINT32, ParameterNameSpace.PARTICLE);
+export const RIBBON_LINK_ORDER = new VFXParameterIdentity(builtinParameterId++, 'ribbon-link-order', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
+export const BASE_RIBBON_WIDTH = new VFXParameterIdentity(builtinParameterId++, 'base-ribbon-width', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
+export const RIBBON_WIDTH = new VFXParameterIdentity(builtinParameterId++, 'ribbon-width', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
+export const BASE_SPRITE_SIZE = new VFXParameterIdentity(builtinParameterId++, 'base-sprite-size', VFXParameterType.VEC2, ParameterNameSpace.PARTICLE);
+export const SPRITE_SIZE = new VFXParameterIdentity(builtinParameterId++, 'sprite-size', VFXParameterType.VEC2, ParameterNameSpace.PARTICLE);
+export const BASE_SCALE = new VFXParameterIdentity(builtinParameterId++, 'base-scale', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
+export const SCALE = new VFXParameterIdentity(builtinParameterId++, 'scale', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
+export const BASE_COLOR = new VFXParameterIdentity(builtinParameterId++, 'base-color', VFXParameterType.COLOR, ParameterNameSpace.PARTICLE);
+export const COLOR = new VFXParameterIdentity(builtinParameterId++, 'color', VFXParameterType.COLOR, ParameterNameSpace.PARTICLE);
+export const SPAWN_TIME_RATIO = new VFXParameterIdentity(builtinParameterId++, 'spawn-time-ratio', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
+export const SPAWN_NORMALIZED_TIME = new VFXParameterIdentity(builtinParameterId++, 'spawn-normalized-time', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
+export const VISIBILITY_TAG = new VFXParameterIdentity(builtinParameterId++, 'visibility-tag', VFXParameterType.UINT32, ParameterNameSpace.PARTICLE);
+
+export const builtinParticleParameterIdentities = [
     ID,
     RANDOM_SEED,
     INV_START_LIFETIME,
     NORMALIZED_AGE,
     IS_DEAD,
+    HAS_COLLIDED,
     POSITION,
     INITIAL_DIR,
     PHYSICS_FORCE,
     BASE_VELOCITY,
     VELOCITY,
-    ROTATION,
+    SPRITE_ROTATION,
     MESH_ORIENTATION,
-    ANGULAR_VELOCITY,
     SUB_UV_INDEX,
+    SUB_UV_INDEX2,
+    SUB_UV_INDEX3,
+    SUB_UV_INDEX4,
     RIBBON_ID,
     RIBBON_LINK_ORDER,
     BASE_RIBBON_WIDTH,
@@ -94,65 +94,6 @@ export enum BuiltinParticleParameter {
     SPAWN_TIME_RATIO,
     SPAWN_NORMALIZED_TIME,
     VISIBILITY_TAG,
-    VEC3_REGISTER,
-    FLOAT_REGISTER,
-    COUNT,
-}
-
-export enum BuiltinParticleParameterFlags {
-    ID = 1 << BuiltinParticleParameter.ID,
-    RANDOM_SEED = 1 << BuiltinParticleParameter.RANDOM_SEED,
-    INV_START_LIFETIME = 1 << BuiltinParticleParameter.INV_START_LIFETIME,
-    NORMALIZED_AGE = 1 << BuiltinParticleParameter.NORMALIZED_AGE,
-    IS_DEAD = 1 << BuiltinParticleParameter.IS_DEAD,
-    POSITION = 1 << BuiltinParticleParameter.POSITION,
-    INITIAL_DIR = 1 << BuiltinParticleParameter.INITIAL_DIR,
-    PHYSICS_FORCE = 1 << BuiltinParticleParameter.PHYSICS_FORCE,
-    BASE_VELOCITY = 1 << BuiltinParticleParameter.BASE_VELOCITY,
-    VELOCITY = 1 << BuiltinParticleParameter.VELOCITY,
-    ROTATION = 1 << BuiltinParticleParameter.ROTATION,
-    MESH_ORIENTATION = 1 << BuiltinParticleParameter.MESH_ORIENTATION,
-    ANGULAR_VELOCITY = 1 << BuiltinParticleParameter.ANGULAR_VELOCITY,
-    SUB_UV_INDEX = 1 << BuiltinParticleParameter.SUB_UV_INDEX,
-    RIBBON_ID = 1 << BuiltinParticleParameter.RIBBON_ID,
-    RIBBON_LINK_ORDER = 1 << BuiltinParticleParameter.RIBBON_LINK_ORDER,
-    BASE_RIBBON_WIDTH = 1 << BuiltinParticleParameter.BASE_RIBBON_WIDTH,
-    RIBBON_WIDTH = 1 << BuiltinParticleParameter.RIBBON_WIDTH,
-    BASE_SPRITE_SIZE = 1 << BuiltinParticleParameter.BASE_SPRITE_SIZE,
-    SPRITE_SIZE = 1 << BuiltinParticleParameter.SPRITE_SIZE,
-    BASE_SCALE = 1 << BuiltinParticleParameter.BASE_SCALE,
-    SCALE = 1 << BuiltinParticleParameter.SCALE,
-    BASE_COLOR = 1 << BuiltinParticleParameter.BASE_COLOR,
-    COLOR = 1 << BuiltinParticleParameter.COLOR,
-    SPAWN_TIME_RATIO = 1 << BuiltinParticleParameter.SPAWN_TIME_RATIO,
-    SPAWN_NORMALIZED_TIME = 1 << BuiltinParticleParameter.SPAWN_NORMALIZED_TIME,
-    VISIBILITY_TAG = 1 << BuiltinParticleParameter.VISIBILITY_TAG,
-    VEC3_REGISTER = 1 << BuiltinParticleParameter.VEC3_REGISTER,
-    FLOAT_REGISTER = 1 << BuiltinParticleParameter.FLOAT_REGISTER,
-}
-
-export const builtinParticleParameterIdentities = [
-    new VFXParameterIdentity(BuiltinParticleParameter.ID, BuiltinParticleParameterName.ID, VFXParameterType.UINT32),
-    new VFXParameterIdentity(BuiltinParticleParameter.RANDOM_SEED, BuiltinParticleParameterName.RANDOM_SEED, VFXParameterType.UINT32),
-    new VFXParameterIdentity(BuiltinParticleParameter.INV_START_LIFETIME, BuiltinParticleParameterName.INV_START_LIFETIME, VFXParameterType.FLOAT),
-    new VFXParameterIdentity(BuiltinParticleParameter.NORMALIZED_AGE, BuiltinParticleParameterName.NORMALIZED_AGE, VFXParameterType.FLOAT),
-    new VFXParameterIdentity(BuiltinParticleParameter.IS_DEAD, BuiltinParticleParameterName.IS_DEAD, VFXParameterType.BOOL),
-    new VFXParameterIdentity(BuiltinParticleParameter.POSITION, BuiltinParticleParameterName.POSITION, VFXParameterType.VEC3),
-    new VFXParameterIdentity(BuiltinParticleParameter.INITIAL_DIR, BuiltinParticleParameterName.INITIAL_DIR, VFXParameterType.VEC3),
-    new VFXParameterIdentity(BuiltinParticleParameter.BASE_VELOCITY, BuiltinParticleParameterName.BASE_VELOCITY, VFXParameterType.VEC3),
-    new VFXParameterIdentity(BuiltinParticleParameter.VELOCITY, BuiltinParticleParameterName.VELOCITY, VFXParameterType.VEC3),
-    new VFXParameterIdentity(BuiltinParticleParameter.ROTATION, BuiltinParticleParameterName.ROTATION, VFXParameterType.VEC3),
-    new VFXParameterIdentity(BuiltinParticleParameter.MESH_ORIENTATION, BuiltinParticleParameterName.MESH_ORIENTATION, VFXParameterType.QUAT),
-    new VFXParameterIdentity(BuiltinParticleParameter.ANGULAR_VELOCITY, BuiltinParticleParameterName.ANGULAR_VELOCITY, VFXParameterType.VEC3),
-    new VFXParameterIdentity(BuiltinParticleParameter.SUB_UV_INDEX, BuiltinParticleParameterName.SUB_UV_INDEX, VFXParameterType.FLOAT),
-    new VFXParameterIdentity(BuiltinParticleParameter.BASE_SCALE, BuiltinParticleParameterName.BASE_SCALE, VFXParameterType.VEC3),
-    new VFXParameterIdentity(BuiltinParticleParameter.SCALE, BuiltinParticleParameterName.SCALE, VFXParameterType.VEC3),
-    new VFXParameterIdentity(BuiltinParticleParameter.BASE_COLOR, BuiltinParticleParameterName.BASE_COLOR, VFXParameterType.COLOR),
-    new VFXParameterIdentity(BuiltinParticleParameter.COLOR, BuiltinParticleParameterName.COLOR, VFXParameterType.COLOR),
-    new VFXParameterIdentity(BuiltinParticleParameter.SPAWN_TIME_RATIO, BuiltinParticleParameterName.SPAWN_TIME_RATIO, VFXParameterType.FLOAT),
-    new VFXParameterIdentity(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME, BuiltinParticleParameterName.SPAWN_NORMALIZED_TIME, VFXParameterType.FLOAT),
-    new VFXParameterIdentity(BuiltinParticleParameter.VEC3_REGISTER, BuiltinParticleParameterName.VEC3_REGISTER, VFXParameterType.VEC3),
-    new VFXParameterIdentity(BuiltinParticleParameter.FLOAT_REGISTER, BuiltinParticleParameterName.FLOAT_REGISTER, VFXParameterType.FLOAT),
 ];
 
 export class ParticleDataSet {
@@ -165,7 +106,7 @@ export class ParticleDataSet {
     }
 
     public get id () {
-        return this.getParameterUnsafe<Uint32ArrayParameter>(BuiltinParticleParameter.ID);
+        return this.getParameterUnsafe<Uint32ArrayParameter>(ID);
     }
 
     public get position () {
@@ -216,6 +157,14 @@ export class ParticleDataSet {
         return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.ANGULAR_VELOCITY);
     }
 
+    public get baseSpriteSize () {
+        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.BASE_SPRITE_SIZE);
+    }
+
+    public get spriteSize () {
+        return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.SPRITE_SIZE);
+    }
+
     public get baseScale () {
         return this.getParameterUnsafe<Vec3ArrayParameter>(BuiltinParticleParameter.BASE_SCALE);
     }
@@ -255,77 +204,65 @@ export class ParticleDataSet {
     private _count = 0;
     private _capacity = 16;
     private _parameterCount = 0;
-    private _parameterFlags = 0;
     private _requiredParameterFlags = 0;
     private _parameters: ArrayParameter[] = [];
     private _parameterMap: Record<number, ArrayParameter | null> = {};
 
-    public getParameter<T extends ArrayParameter> (id: number) {
-        if (!this.hasParameter(id)) {
+    public getParameter<T extends ArrayParameter> (identity: VFXParameterIdentity) {
+        if (!this.hasParameter(identity)) {
             return null;
         }
-        return this.getParameterUnsafe<T>(id);
+        return this.getParameterUnsafe<T>(identity);
     }
 
-    public getParameterUnsafe<T extends ArrayParameter> (id: number) {
+    public getParameterUnsafe<T extends ArrayParameter> (identity: VFXParameterIdentity) {
         if (DEBUG) {
-            assertIsTrue(id < MAX_PARAMETER_COUNT && id >= 0);
-            assertIsTrue(this.hasParameter(id));
+            assertIsTrue(this.hasParameter(identity));
         }
-        return this._parameterMap[id] as T;
+        return this._parameterMap[identity.id] as T;
     }
 
-    public hasParameter (id: number) {
-        if (DEBUG) {
-            assertIsTrue(id < MAX_PARAMETER_COUNT && id >= 0);
-        }
-        return this._parameterFlags & (1 << id);
+    public hasParameter (identity: VFXParameterIdentity) {
+        return identity.id in this._parameterMap;
     }
 
-    public addParameter (id: number, type: VFXParameterType) {
-        if (DEBUG) {
-            assertIsTrue(id < MAX_PARAMETER_COUNT && id >= 0);
-        }
-        if (this.hasParameter(id)) {
+    public addParameter (identity: VFXParameterIdentity) {
+        if (this.hasParameter(identity)) {
             throw new Error('Already exist a particle parameter with same id!');
         }
-        switch (type) {
+        switch (identity.type) {
         case VFXParameterType.FLOAT:
-            this.addParameter_internal(id, new FloatArrayParameter());
+            this.addParameter_internal(identity.id, new FloatArrayParameter());
             break;
         case VFXParameterType.VEC3:
-            this.addParameter_internal(id, new Vec3ArrayParameter());
+            this.addParameter_internal(identity.id, new Vec3ArrayParameter());
             break;
         case VFXParameterType.COLOR:
-            this.addParameter_internal(id, new ColorArrayParameter());
+            this.addParameter_internal(identity.id, new ColorArrayParameter());
             break;
         case VFXParameterType.UINT32:
-            this.addParameter_internal(id, new Uint32ArrayParameter());
+            this.addParameter_internal(identity.id, new Uint32ArrayParameter());
             break;
         case VFXParameterType.BOOL:
-            this.addParameter_internal(id, new BoolArrayParameter());
+            this.addParameter_internal(identity.id, new BoolArrayParameter());
             break;
         default:
             throw new Error('Unknown particle parameter type!');
         }
     }
 
-    public removeParameter (id: number) {
-        if (DEBUG) {
-            assertIsTrue(id < MAX_PARAMETER_COUNT && id >= 0);
-        }
-        if (!this.hasParameter(id)) {
+    public removeParameter (identity: VFXParameterIdentity) {
+        if (!this.hasParameter(identity)) {
             return;
         }
-        const parameter = this._parameterMap[id];
+        const parameter = this._parameterMap[identity.id];
         if (DEBUG) {
             assertIsTrue(parameter);
         }
-        this._parameterMap[id] = null;
+        delete this._parameterMap[identity.id];
         const index = this._parameters.indexOf(parameter!);
         this._parameters.splice(index, 1);
         this._parameterCount--;
-        this._parameterFlags &= ~(1 << id);
     }
 
     public addParticles (count: number) {

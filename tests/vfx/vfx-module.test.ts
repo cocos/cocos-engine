@@ -242,10 +242,9 @@ describe('VFXModule', () => {
         const module = new TestModule();
         expect(module.randomSeed).toBe(0);
         expect(module.randomStream.seed).toBe(0);
-        const params = new VFXEmitterParams();
         const state = new VFXEmitterState();
         state.randomStream.seed = 123;
-        module.onPlay(params, state);
+        module.onPlay(state);
         expect(module.randomSeed).toBe(RandomStream.);
         expect(module.randomStream.seed).toBe(123);
     })

@@ -207,7 +207,7 @@ export abstract class VFXModule {
      * @engineInternal
      * @internal
      */
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
+    public onPlay (state: VFXEmitterState) {
         this._randomSeed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
         this._randomStream.seed = this._randomSeed;
     }
@@ -215,7 +215,7 @@ export abstract class VFXModule {
      * @engineInternal
      * @internal
      */
-    public onStop (params: VFXEmitterParams, state: VFXEmitterState) {}
+    public onStop (state: VFXEmitterState) {}
 }
 
 @ccclass('cc.VFXModuleStage')
@@ -310,10 +310,10 @@ export class VFXModuleStage {
      * @engineInternal
      * @internal
      */
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
+    public onPlay (state: VFXEmitterState) {
         for (let i = 0, length = this._modules.length; i < length; i++) {
             const module = this._modules[i];
-            module.onPlay(params, state);
+            module.onPlay(state);
         }
     }
 
@@ -321,10 +321,10 @@ export class VFXModuleStage {
      * @engineInternal
      * @internal
      */
-    public onStop (params: VFXEmitterParams, state: VFXEmitterState) {
+    public onStop (state: VFXEmitterState) {
         for (let i = 0, length = this._modules.length; i < length; i++) {
             const module = this._modules[i];
-            module.onStop(params, state);
+            module.onStop(state);
         }
     }
 
@@ -339,6 +339,7 @@ export class VFXModuleStage {
             const module = modules[i];
             if (module.enabled) {
                 context.setModuleRandomSeed(module.randomSeed);
+                context.setModuleRandomStream(module.randomStream);
                 module.tick(particles, emitter, user, context);
             }
         }

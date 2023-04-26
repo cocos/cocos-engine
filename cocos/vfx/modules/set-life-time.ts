@@ -26,10 +26,11 @@
 import { ccclass, displayOrder, range, serializable, tooltip, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
+import { ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
-import { lerp } from '../../core';
-import { RandomStream } from '../random-stream';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
+import { ConstantFloatExpression } from '../expressions/constant-float';
 
 @ccclass('cc.SetLifeTimeModule')
 @VFXModule.register('SetLifeTime', ModuleExecStageFlags.SPAWN)
@@ -42,48 +43,24 @@ export class SetLifeTimeModule extends VFXModule {
     @range([0, 1])
     @displayOrder(7)
     @tooltip('i18n:particle_system.startLifetime')
-    public lifetime = new FloatExpression(5);
+    public lifetime: FloatExpression = new ConstantFloatExpression(5);
 
-    private _rand = new RandomStream();
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        this._rand.seed = Math.imul(state.randomStream.getUInt32(), state.randomStream.getUInt32());
-    }
-
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
-        if (this.lifetime.mode === FloatExpression.Mode.CURVE || this.lifetime.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
-        }
+        this.lifetime.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const invStartLifeTime = particles.invStartLifeTime.data;
+        const invStartLifeTime = particles.invStartLifeTime;
         const { fromIndex, toIndex } = context;
-        if (this.lifetime.mode === FloatExpression.Mode.CONSTANT) {
-            const lifeTime = 1 / this.lifetime.constant;
-            for (let i = fromIndex; i < toIndex; ++i) {
-                invStartLifeTime[i] = lifeTime;
-            }
-        } else if (this.lifetime.mode ===  FloatExpression.Mode.TWO_CONSTANTS) {
-            const { constantMin, constantMax } = this.lifetime;
-            const rand = this._rand;
-            for (let i = fromIndex; i < toIndex; ++i) {
-                invStartLifeTime[i] = 1 / lerp(constantMin, constantMax, rand.getFloat());
-            }
-        } else if (this.lifetime.mode ===  FloatExpression.Mode.CURVE) {
-            const { spline, multiplier } = this.lifetime;
-            const spawnTime = particles.spawnNormalizedTime.data;
-            for (let i = fromIndex; i < toIndex; ++i) {
-                invStartLifeTime[i] = 1 / (spline.evaluate(spawnTime[i]) * multiplier);
-            }
+        this.lifetime.bind(particles, emitter, user, context);
+        if (this.lifetime.isConstant) {
+            const invLifeTime = 1 / this.lifetime.evaluate(0);
+            invStartLifeTime.fill(invLifeTime, fromIndex, toIndex);
         } else {
-            const { splineMin, splineMax, multiplier } = this.lifetime;
-            const spawnTime = particles.spawnNormalizedTime.data;
-            const rand = this._rand;
+            const dest = invStartLifeTime.data;
             for (let i = fromIndex; i < toIndex; ++i) {
-                const time = spawnTime[i];
-                invStartLifeTime[i] = 1 / (lerp(splineMin.evaluate(time), splineMax.evaluate(time), rand.getFloat()) * multiplier);
+                dest[i] = 1 / this.lifetime.evaluate(i);
             }
         }
     }

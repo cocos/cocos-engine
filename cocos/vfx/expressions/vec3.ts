@@ -24,14 +24,14 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { Expression, ExpressionType } from '../expression';
-import { RandomStream } from '../random-stream';
+import { Expression } from '../expression';
 import { Vec3 } from '../../core';
+import { VFXParameterType } from '../enum';
 
 @ccclass('cc.Vec3Expression')
 export abstract class Vec3Expression extends Expression {
-    public get type () {
-        return ExpressionType.VEC3;
+    public get valueType (): VFXParameterType {
+        return VFXParameterType.VEC2;
     }
     public abstract evaluateSingle (out: Vec3): Vec3;
     public abstract evaluate (index: number, out: Vec3): Vec3;

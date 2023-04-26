@@ -80,13 +80,6 @@ export class SpawnBurstModule extends VFXModule {
     @serializable
     private _time = 0;
 
-    private _rand = new RandomStream();
-
-    public onPlay (params: VFXEmitterParams, state: VFXEmitterState) {
-        super.onPlay();
-        this._rand.seed = this.randomSeed;
-    }
-
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { previousTime, currentTime, normalizedLoopAge } = context;
         let prevT = previousTime;

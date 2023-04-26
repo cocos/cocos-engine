@@ -34,6 +34,7 @@ export * from './set-color';
 export * from './set-rotation';
 export * from './set-life-time';
 export * from './set-mesh-scale';
+export * from './set-sprite-size';
 export * from './gravity';
 export * from './location-event-generator';
 export * from './death-event-generator';

@@ -180,6 +180,10 @@ export class ModuleExecContext {
         return this._moduleRandomSeed;
     }
 
+    public get moduleRandomStream () {
+        return this._moduleRandomStream;
+    }
+
     public get deltaTime () {
         return this._deltaTime;
     }
@@ -191,6 +195,7 @@ export class ModuleExecContext {
     private _fromIndex = 0;
     private _toIndex = 0;
     private _moduleRandomSeed = 0;
+    private declare _moduleRandomStream: RandomStream
     private _deltaTime = 0;
     private _executionStage = ModuleExecStage.UNKNOWN;
     private _events: VFXEvents | null = null;
@@ -216,5 +221,9 @@ export class ModuleExecContext {
 
     setModuleRandomSeed (seed: number) {
         this._moduleRandomSeed = seed;
+    }
+
+    setModuleRandomStream (stream: RandomStream) {
+        this._moduleRandomStream = stream;
     }
 }

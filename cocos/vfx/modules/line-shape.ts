@@ -83,8 +83,8 @@ export class LineShapeModule extends ShapeModule {
     private _lengthRounded = 0;
     private _halfLength = 0;
 
-    public onPlay (params: VFXEmitterParams, states: VFXEmitterState) {
-        super.onPlay(params, states);
+    public onPlay (states: VFXEmitterState) {
+        super.onPlay(states);
         this._lengthTimer = 0;
         this._lengthTimePrev = 0;
     }
