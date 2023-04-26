@@ -171,11 +171,7 @@ export default class GradientRange {
                 return outColor;
             } else {
                 const ratio = sampleCoord - prev;
-                const invRat = 1.0 - ratio;
-                outColor.r = buff[prev].r * invRat + buff[next].r * ratio;
-                outColor.g = buff[prev].g * invRat + buff[next].g * ratio;
-                outColor.b = buff[prev].b * invRat + buff[next].b * ratio;
-                outColor.a = buff[prev].a * invRat + buff[next].a * ratio;
+                Color.lerp(outColor, buff[prev], buff[next], ratio);
                 return outColor;
             }
         } else {
