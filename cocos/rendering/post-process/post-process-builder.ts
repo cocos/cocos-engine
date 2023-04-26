@@ -14,10 +14,6 @@ import { TAAPass } from './passes/taa-pass';
 import { FSRPass } from './passes/fsr-pass';
 import { BlitScreenPass } from './passes/blit-screen-pass';
 
-import './components/taa';
-import './components/fsr';
-import './components/blit-screen';
-
 import { PostProcess } from './components/post-process';
 import { Node } from '../../scene-graph';
 import { director } from '../../game';
