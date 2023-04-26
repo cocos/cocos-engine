@@ -31,7 +31,7 @@ import { Pipeline } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor,
     RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphObject, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
-import { AccessType, RasterView, ComputeView, ResourceResidency } from './types';
+import { AccessType, RasterView, ComputeView, ResourceResidency, SceneFlags } from './types';
 
 class PassVisitor implements RenderGraphVisitor {
     public queueID = 0xFFFFFFFF;
@@ -50,8 +50,18 @@ class PassVisitor implements RenderGraphVisitor {
     protected _isQueue (u: number): boolean {
         return !!this.context.renderGraph.tryGetQueue(u);
     }
+    protected _isShadowMap (u: number): boolean {
+        const sceneData = this._getSceneData(u);
+        if (sceneData) {
+            return sceneData.light && !!sceneData.light.light && (sceneData.flags & SceneFlags.SHADOW_CASTER) !== 0;
+        }
+        return false;
+    }
+    protected _getSceneData (u: number): SceneData | null {
+        return this.context.renderGraph.tryGetScene(u);
+    }
     protected _isScene (u: number): boolean {
-        return !!this.context.renderGraph.tryGetScene(u);
+        return !!this._getSceneData(u);
     }
     protected _isBlit (u: number): boolean {
         return !!this.context.renderGraph.tryGetBlit(u);
@@ -67,53 +77,65 @@ class PassVisitor implements RenderGraphVisitor {
         // There are resources being used
         if (useContext) {
             const rasters = useContext.rasters;
+            const passRaster = rasters.get(this.passID);
+            if (passRaster === raster) {
+                return;
+            }
             const computes = useContext.computes;
-            if (rasters.length > 0 || computes) {
-                assert(raster.storeOp === StoreOp.STORE, `The resource ${input} is being used, so storeOp needs to be set to 'store'`);
-                const currRaster = rasters[rasters.length - 1];
-                if (currRaster) {
-                    assert(currRaster.loadOp === LoadOp.LOAD,
-                        `The resource with name ${input} is being used, and the pass that uses this resource must have loadOp set to 'load'`);
+            let isPreRaster = false;
+            for (const [passId, currRaster] of rasters) {
+                if (passId > this.passID) {
+                    isPreRaster = true;
+                    // TODO: Shadow map is rather special, as it will be merged into one pass later, and then this determination can be removed.
+                    if (!this._isShadowMap(this.sceneID)) {
+                        assert(currRaster.loadOp === LoadOp.LOAD,
+                            `The resource with name ${input} is being used, and the pass that uses this resource must have loadOp set to 'load'`);
+                    }
                 }
             }
-            rasters.push(raster);
-        } else { // No resources are being used.
+            for (const [passId] of computes) {
+                if (passId > this.passID) {
+                    isPreRaster = true;
+                    break;
+                }
+            }
+            if (isPreRaster) {
+                assert(raster.storeOp === StoreOp.STORE, `The resource ${input} is being used, so storeOp needs to be set to 'store'`);
+            }
+            rasters.set(this.passID, raster);
+        } else {
             const resId = resGraph.vertex(input);
             const trait = resGraph.getTraits(resId);
             switch (trait.residency) {
             case ResourceResidency.PERSISTENT:
                 assert(raster.storeOp === StoreOp.STORE, `Persistent resources must have storeOp set to 'store'.`);
                 break;
-            case ResourceResidency.MANAGED:
-                assert(raster.storeOp === StoreOp.DISCARD, `MANAGED resources that are not being used must be set to 'discard'.`);
-                break;
             default:
-                break;
             }
             const useContext = new ResourceUseContext();
             resContext.set(input, useContext);
-            useContext.rasters.push(raster);
+            useContext.rasters.set(this.passID, raster);
         }
     }
 
     private _fetchValidPass () {
         const rg = this.context.renderGraph;
-        const resGraph = this.context.resourceGraph;
         const resContext = this.context.resourceContext;
-        if (rg.getValid(this.sceneID)) {
+        if (!DEBUG && rg.getValid(this.passID)) {
+            rg.setValid(this.queueID, true);
+            rg.setValid(this.sceneID, true);
             return;
         }
         const outputId = this.resID;
         const outputName = this.context.resourceGraph.vertexName(outputId);
         const readViews: Map<string, RasterView> = new Map();
         const pass = this._currPass!;
-
+        const validPass = rg.getValid(this.passID);
         for (const [readName, raster] of pass.rasterViews) {
             // find the pass
             if (readName === outputName
                 && raster.accessType !== AccessType.READ) {
                 if (DEBUG) {
-                    assert(!rg.getValid(this.sceneID), 'The same pass cannot output multiple resources with the same name at the same time');
                     this._useResourceInfo(readName, raster);
                 }
                 rg.setValid(this.passID, true);
@@ -125,7 +147,11 @@ class PassVisitor implements RenderGraphVisitor {
                 readViews.set(readName, raster);
             }
         }
+        if (DEBUG && validPass) return;
         if (rg.getValid(this.sceneID)) {
+            for (const [readName, raster] of pass.rasterViews) {
+                context.pipeline.resourceUses.push(readName);
+            }
             let resVisitor;
             let resourceGraph;
             let vertID;
@@ -143,12 +169,14 @@ class PassVisitor implements RenderGraphVisitor {
                     let resUseContext = resContext.get(computeName);
                     if (!resUseContext) {
                         resUseContext = new ResourceUseContext();
+                        resContext.set(computeName, resUseContext);
                     }
                     const computes = resUseContext.computes;
-                    if (!computes) {
-                        resUseContext.computes = [cViews];
+                    const currUseComputes = computes.get(this.passID);
+                    if (currUseComputes) {
+                        currUseComputes.push(cViews);
                     } else {
-                        computes.push(cViews);
+                        computes.set(this.passID, [cViews]);
                     }
                 }
                 resVisitor = new ResourceVisitor(this.context);
@@ -253,8 +281,10 @@ class ResourceVisitor implements ResourceGraphVisitor {
 }
 
 class ResourceUseContext {
-    readonly rasters: RasterView[] = [];
-    computes: [ComputeView[]] | null = null;
+    // <passID, pass view>
+    readonly rasters: Map<number, RasterView> = new Map<number, RasterView>();
+    // <pass Use ID, compute views>
+    computes: Map<number, [ComputeView[]]> = new Map<number, [ComputeView[]]>();
 }
 class CompilerContext {
     set (pipeline: Pipeline,
@@ -271,7 +301,7 @@ class CompilerContext {
         this.resourceContext.clear();
     }
     resourceGraph!: ResourceGraph;
-    pipeline!: Pipeline;
+    pipeline;
     renderGraph!: RenderGraph;
     layoutGraph!: LayoutGraphData;
     resourceContext!: Map<string, ResourceUseContext>;
@@ -297,17 +327,36 @@ export class Compiler {
             for (const [name, use] of useContext) {
                 const resId = this._resourceGraph.vertex(name);
                 const trait = this._resourceGraph.getTraits(resId);
-                const lastRaster = use.rasters[use.rasters.length - 1];
+                const rasterArr: number[] = Array.from(use.rasters.keys());
+
+                const min = rasterArr.reduce((prev, current) => (prev < current ? prev : current));
+                const firstRaster = use.rasters.get(min)!;
                 switch (trait.residency) {
                 case ResourceResidency.PERSISTENT:
-                    assert(lastRaster.loadOp !== LoadOp.DISCARD,
+                    assert(firstRaster.loadOp !== LoadOp.DISCARD,
                         `The loadOp for persistent resources in the top-level pass cannot be set to 'discard'.`);
                     break;
                 case ResourceResidency.MANAGED:
-                    assert(lastRaster.loadOp === LoadOp.CLEAR, `The loadOp for Managed resources in the top-level pass can only be set to 'clear'.`);
+                    assert(firstRaster.loadOp === LoadOp.CLEAR, `The loadOp for Managed resources in the top-level pass can only be set to 'clear'.`);
                     break;
                 default:
                     break;
+                }
+                const computeArr: number[] = Array.from(use.computes.keys());
+                const max = rasterArr.reduce((prev, current) => (prev > current ? prev : current));
+                let maxCompute = -1;
+                if (computeArr.length) {
+                    maxCompute = computeArr.reduce((prev, current) => (prev > current ? prev : current));
+                }
+                if (max > maxCompute) {
+                    const lastRaster = use.rasters.get(max)!;
+                    switch (trait.residency) {
+                    case ResourceResidency.MANAGED:
+                        assert(lastRaster.storeOp === StoreOp.DISCARD, `MANAGED resources that are not being used must be set to 'discard'.`);
+                        break;
+                    default:
+                        break;
+                    }
                 }
             }
         }

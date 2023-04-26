@@ -447,7 +447,7 @@ export function buildPostprocessPass (camera: Camera,
     const postprocessPassDS = `postprocessPassDS${cameraID}`;
     if (!ppl.containsResource(postprocessPassRTName)) {
         ppl.addRenderWindow(postprocessPassRTName, Format.BGRA8, width, height, camera.window);
-        ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.EXTERNAL);
     }
     ppl.updateRenderWindow(postprocessPassRTName, camera.window);
     ppl.updateDepthStencil(postprocessPassDS, width, height);
@@ -496,7 +496,7 @@ export function buildForwardPass (camera: Camera,
         if (!isOffScreen) {
             ppl.addRenderWindow(forwardPassRTName, Format.BGRA8, width, height, camera.window);
         } else {
-            ppl.addRenderTarget(forwardPassRTName, Format.RGBA16F, width, height, ResourceResidency.MANAGED);
+            ppl.addRenderTarget(forwardPassRTName, Format.RGBA16F, width, height, ResourceResidency.PERSISTENT);
         }
         ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
@@ -526,7 +526,8 @@ export function buildForwardPass (camera: Camera,
         new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
     forwardPass.addDepthStencil(forwardPassDSName, '_',
         isOffScreen ? LoadOp.CLEAR : getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
-        StoreOp.STORE,
+        // If the depth texture is used by subsequent passes, it must be set to store.
+        isOffScreen ? StoreOp.DISCARD : StoreOp.STORE,
         camera.clearDepth,
         camera.clearStencil,
         camera.clearFlag);
@@ -608,7 +609,7 @@ export function buildReflectionProbePass (camera: Camera,
 
     if (!ppl.containsResource(probePassRTName)) {
         ppl.addRenderWindow(probePassRTName, Format.RGBA8, width, height, renderWindow);
-        ppl.addDepthStencil(probePassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(probePassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.EXTERNAL);
     }
     ppl.updateRenderWindow(probePassRTName, renderWindow);
     ppl.updateDepthStencil(probePassDSName, width, height);
@@ -666,9 +667,9 @@ export function buildShadowPasses (cameraName: string, camera: Camera, ppl: Pipe
                 camera, mainLight, 0, mapWidth, mapHeight);
         } else {
             const csmLevel = pipeline.pipelineSceneData.csmSupported ? mainLight.csmLevel : 1;
+            cameraInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
             for (let i = 0; i < csmLevel; i++) {
-                cameraInfo.mainLightShadowNames[i] = `MainLightShadow${cameraName}`;
-                buildShadowPass(cameraInfo.mainLightShadowNames[i], ppl,
+                buildShadowPass(cameraInfo.mainLightShadowNames[0], ppl,
                     camera, mainLight, i, mapWidth, mapHeight);
             }
         }
@@ -852,7 +853,7 @@ export function buildUIPass (camera: Camera,
     const dsUIAndProfilerPassDSName = `dsUIAndProfilerPassDS${cameraName}`;
     if (!ppl.containsResource(dsUIAndProfilerPassRTName)) {
         ppl.addRenderWindow(dsUIAndProfilerPassRTName, Format.BGRA8, width, height, camera.window);
-        ppl.addDepthStencil(dsUIAndProfilerPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(dsUIAndProfilerPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.EXTERNAL);
     }
     ppl.updateRenderWindow(dsUIAndProfilerPassRTName, camera.window);
     ppl.updateDepthStencil(dsUIAndProfilerPassDSName, width, height);
