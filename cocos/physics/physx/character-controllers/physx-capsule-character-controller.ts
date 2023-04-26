@@ -54,8 +54,8 @@ export class PhysXCapsuleCharacterController extends PhysXCharacterController im
         const physxWorld = (PhysicsSystem.instance.physicsWorld as PhysXWorld);
 
         const controllerDesc = new PX.PxCapsuleControllerDesc();
-        controllerDesc.radius = 1;//this.component.radius;
-        controllerDesc.height = 0.5;//this.component.height;
+        controllerDesc.radius = this.component.radius;
+        controllerDesc.height = this.component.height;
         controllerDesc.climbingMode = 1;// constraint mode
         controllerDesc.density = 10.0;
         controllerDesc.scaleCoeff = 0.8;

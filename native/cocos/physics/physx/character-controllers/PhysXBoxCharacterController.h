@@ -46,6 +46,8 @@ private:
     float _mHalfForwardExtent;
     void create() override;
     void onComponentSet() override;
+    void updateScale() override;
+    void updateGeometry();
 };
 
 } // namespace physics

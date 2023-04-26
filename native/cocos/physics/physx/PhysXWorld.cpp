@@ -226,6 +226,9 @@ void PhysXWorld::syncSceneToPhysics() {
     for (auto const &sb : _mSharedBodies) {
         sb->syncSceneToPhysics();
     }
+    for (auto const &cct : _mCCTs) {
+        cct->syncSceneToPhysics();
+    }
 }
 
 uint32_t PhysXWorld::getMaskByIndex(uint32_t i) {

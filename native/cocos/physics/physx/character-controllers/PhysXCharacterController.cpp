@@ -151,6 +151,15 @@ bool PhysXCharacterController::onGround() {
     return (_pxCollisionFlags & physx::PxControllerCollisionFlag::Enum::eCOLLISION_DOWN);
 }
 
+void PhysXCharacterController::syncSceneToPhysics() {
+    uint32_t getChangedFlags = _mNode->getChangedFlags();
+    if (getChangedFlags & static_cast<uint32_t>(TransformBit::SCALE)) syncScale();
+}
+
+void PhysXCharacterController::syncScale () {
+    updateScale();
+}
+
 //move
 void PhysXCharacterController::move(float x, float y, float z, float minDist, float elapsedTime) {
     physx::PxVec3 disp{x, y, z};

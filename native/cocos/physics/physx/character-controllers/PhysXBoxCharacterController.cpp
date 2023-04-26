@@ -35,23 +35,17 @@ _mHalfHeight(0.5F), _mHalfSideExtent(0.5F), _mHalfForwardExtent(0.5F) {
 
 void PhysXBoxCharacterController::setHalfHeight(float v) {
     _mHalfHeight = v;
-    if(_impl) {
-        static_cast<physx::PxBoxController*>(_impl)->setHalfHeight(v);
-    }
+    updateScale();
 }
 
 void PhysXBoxCharacterController::setHalfSideExtent(float v) {
     _mHalfSideExtent = v;
-    if(_impl) {
-        static_cast<physx::PxBoxController*>(_impl)->setHalfSideExtent(v);
-    }
+    updateScale();
 }
 
 void PhysXBoxCharacterController::setHalfForwardExtent(float v) {
     _mHalfForwardExtent = v;
-    if (_impl) {
-        static_cast<physx::PxBoxController*>(_impl)->setHalfForwardExtent(v);
-    }
+    updateScale();
 }
 
 void PhysXBoxCharacterController::onComponentSet() {
@@ -83,8 +77,26 @@ void PhysXBoxCharacterController::create() {
     boxDesc.reportCallback = &report;
     _impl = static_cast<physx::PxBoxController*>(controllerManager.createController(boxDesc));
 
+    updateScale();
     insertToCCTMap();
     updateFilterData();
+}
+
+void PhysXBoxCharacterController::updateScale(){
+    updateGeometry();
+}
+
+void PhysXBoxCharacterController::updateGeometry(){
+    if(!_impl) return;
+
+    auto *node = _mNode;
+    node->updateWorldTransform();
+    float s = _mHalfSideExtent * physx::PxAbs(node->getWorldScale().x);
+    float h = _mHalfHeight * physx::PxAbs(node->getWorldScale().y);
+    float f = _mHalfForwardExtent * physx::PxAbs(node->getWorldScale().z);
+    static_cast<physx::PxBoxController*>(_impl)->setHalfSideExtent(physx::PxMax(s, PX_NORMALIZATION_EPSILON));
+    static_cast<physx::PxBoxController*>(_impl)->setHalfHeight(physx::PxMax(h, PX_NORMALIZATION_EPSILON));
+    static_cast<physx::PxBoxController*>(_impl)->setHalfForwardExtent(physx::PxMax(f, PX_NORMALIZATION_EPSILON));
 }
 
 } // namespace physics

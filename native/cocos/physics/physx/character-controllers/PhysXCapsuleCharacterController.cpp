@@ -35,16 +35,12 @@ _mRadius(0.5F), _mHeight(1.0F) {
 
 void PhysXCapsuleCharacterController::setRadius(float v) {
     _mRadius = v;
-    if(_impl) {
-        static_cast<physx::PxCapsuleController*>(_impl)->setRadius(v);
-    }
+    updateScale();
 }
 
 void PhysXCapsuleCharacterController::setHeight(float v) {
     _mHeight = v;
-    if(_impl) {
-        static_cast<physx::PxCapsuleController*>(_impl)->setHeight(v);
-    }
+    updateScale();
 }
 
 void PhysXCapsuleCharacterController::onComponentSet() {
@@ -76,8 +72,24 @@ void PhysXCapsuleCharacterController::create() {
     capsuleDesc.reportCallback = &report;
     _impl = static_cast<physx::PxCapsuleController*>(controllerManager.createController(capsuleDesc));
 
+    updateScale();
     insertToCCTMap();
     updateFilterData();
+}
+
+void PhysXCapsuleCharacterController::updateScale(){
+    updateGeometry();
+}
+
+void PhysXCapsuleCharacterController::updateGeometry() {
+    if(!_impl) return;
+
+    auto *node = _mNode;
+    node->updateWorldTransform();
+    float r = _mRadius * pxAbsMax(node->getWorldScale().x, node->getWorldScale().z);
+    float h = _mHeight * physx::PxAbs(node->getWorldScale().y);
+    static_cast<physx::PxCapsuleController*>(_impl)->setRadius(physx::PxMax(r, PX_NORMALIZATION_EPSILON));
+    static_cast<physx::PxCapsuleController*>(_impl)->setHeight(physx::PxMax(h, PX_NORMALIZATION_EPSILON));
 }
 
 } // namespace physics

@@ -54,6 +54,8 @@ class PhysXCharacterController : virtual public IBaseCharacterController {
 public:
     ~PhysXCharacterController() override = default;
 
+    void syncScale();
+    void syncSceneToPhysics();
     void syncPhysicsToScene();
 
     //ILifecycle
@@ -109,6 +111,7 @@ protected:
     void setSimulationFilterData(physx::PxFilterData filterData);
     virtual void create() = 0;
     virtual void onComponentSet() = 0;
+    virtual void updateScale() = 0;
     void insertToCCTMap();
     void eraseFromCCTMap();
 };

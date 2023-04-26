@@ -699,8 +699,8 @@ class CharacterController {
         this.setStepOffset(this._com.stepOffset);
         this.setSlopeLimit(this._com.slopeLimit);
         this.setContactOffset(this._com.contactOffset);
-        this.setDetectCollisions(this._com.detectCollisions);
-        this.setOverlapRecovery(this._com.enableOverlapRecovery);
+        this.setDetectCollisions(true);//this._com.detectCollisions);
+        this.setOverlapRecovery(true);//this._com.enableOverlapRecovery);
     }
     onEnable () { this._impl.onEnable(); }
     onDisable () { this._impl.onDisable(); }
