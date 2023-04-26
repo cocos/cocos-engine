@@ -357,7 +357,7 @@ exports.methods = {
                 }
 
                 if (prop[name] && typeof prop[name] === 'object') {
-                    if (!cacheData.name) {
+                    if (!cacheData[name]) {
                         cacheData[name] = {};
                     }
 
@@ -394,7 +394,7 @@ exports.methods = {
             delete this.cacheData[name][passIndex];
         } else {
             const cacheData = this.cacheData;
-            if (!cacheData.name) {
+            if (!cacheData[name]) {
                 cacheData[name] = {};
             }
             cacheData[name][passIndex] = JSON.parse(JSON.stringify({ type, value }));
