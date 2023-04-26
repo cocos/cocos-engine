@@ -23,5 +23,6 @@
 */
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
+    wasmUrl = new URL(wasmUrl, import.meta.url).href;
     return fetch(wasmUrl).then((response) => response.arrayBuffer().then((buff) => WebAssembly.instantiate(buff, importObject)));
 }
