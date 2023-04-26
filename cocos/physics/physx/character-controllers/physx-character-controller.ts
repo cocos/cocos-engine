@@ -32,8 +32,10 @@ import { EFilterDataWord3 } from '../physx-enum';
 import { PhysXWorld } from '../physx-world';
 import { PhysXShape } from '../shapes/physx-shape';
 import { degreesToRadians } from '../../../core/utils/misc';
+import { TransformBit } from '../../../scene-graph';
 
 const v3_0 = new Vec3(0, 0, 0);
+const v3_1 = new Vec3(0, 0, 0);
 export class PhysXCharacterController implements IBaseCharacterController {
     private _isEnabled = false;
     protected _impl: any = null;
@@ -63,6 +65,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     // virtual
     protected onComponentSet (): void { }
     protected create (): void { }
+    protected updateScale (): void { }
 
     initialize (comp: CharacterController): boolean {
         this._comp = comp;
@@ -163,10 +166,22 @@ export class PhysXCharacterController implements IBaseCharacterController {
         return (this._pxCollisionFlags & (1 << 2)) > 0;//PxControllerCollisionFlag::Enum::eCOLLISION_DOWN
     }
 
+    syncSceneToPhysics (): void {
+        const node = this.characterController.node;
+        if (node.hasChangedFlags) {
+            //only sync scale from scene node to physics
+            if (node.hasChangedFlags & TransformBit.SCALE) this.syncScale();
+        }
+    }
+
     syncPhysicsToScene (): void {
         this.getPosition(v3_0);
-        v3_0.subtract(this._comp.center);
+        v3_0.subtract(this._comp.scaledCenter);
         this._comp.node.setWorldPosition(v3_0);
+    }
+
+    syncScale () {
+        this.updateScale();
     }
 
     // eNONE = 0,   //!< the query should ignore this shape

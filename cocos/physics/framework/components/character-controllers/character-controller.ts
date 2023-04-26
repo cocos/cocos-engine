@@ -38,6 +38,7 @@ import { selector, createCharacterController } from '../../physics-selector';
 import { PhysicsSystem } from '../../physics-system';
 
 const v3_0 = new Vec3(0, 0, 0);
+const scaledCenter = new Vec3(0, 0, 0);
 
 /**
  * @en
@@ -194,7 +195,7 @@ export class CharacterController extends Eventify(Component) {
      * @en
      * Gets or sets the center of the character controller in local space.
      * @zh
-     * 获取或设置胶囊体的中心点在局部坐标系中的位置。
+     * 获取或设置角色控制器的中心点在局部坐标系中的位置。
      */
     @tooltip('i18n:physics3d.character_controller.center')
     @type(Vec3)
@@ -205,9 +206,10 @@ export class CharacterController extends Eventify(Component) {
     public set center (value: Vec3) {
         if (this._center === value) return;
         Vec3.copy(this._center, value);
-        if (this._cct) {
+        if (this._cct) { //update cct position
             Vec3.copy(VEC3_0, this.node.worldPosition);
-            VEC3_0.add(value);//cct world position
+            Vec3.multiply(scaledCenter, this.center, this.node.worldScale);
+            VEC3_0.add(scaledCenter);//cct world position
             this._cct.setPosition(VEC3_0);
         }
     }
@@ -510,5 +512,10 @@ export class CharacterController extends Eventify(Component) {
             }
             if (this._cct) this._cct.updateEventListener();
         }
+    }
+
+    public get scaledCenter () {
+        Vec3.multiply(scaledCenter, this.center, this.node.worldScale);
+        return scaledCenter;
     }
 }

@@ -48,14 +48,14 @@ export class PhysXBoxCharacterController extends PhysXCharacterController implem
         super.release();
 
         this.component.node.getWorldPosition(v3_0);
-        v3_0.add(this.component.center);
+        v3_0.add(this._comp.scaledCenter);
         const pxMtl = PhysXInstance.physics.createMaterial(0.5, 0.5, 0.5);//temp
         const physxWorld = (PhysicsSystem.instance.physicsWorld as PhysXWorld);
 
         const controllerDesc = new PX.PxBoxControllerDesc();
-        controllerDesc.halfHeight = this.component.halfHeight;
-        controllerDesc.halfSideExtent = this.component.halfSideExtent;
-        controllerDesc.halfForwardExtent = this.component.halfForwardExtent;
+        controllerDesc.halfHeight = 0.5;//this.component.halfHeight;
+        controllerDesc.halfSideExtent = 0.5;//this.component.halfSideExtent;
+        controllerDesc.halfForwardExtent = 0.5;//this.component.halfForwardExtent;
         controllerDesc.density = 10.0;
         controllerDesc.scaleCoeff = 0.8;
         controllerDesc.volumeGrowth = 1.5;
@@ -69,17 +69,30 @@ export class PhysXBoxCharacterController extends PhysXCharacterController implem
         this._impl = PX.createBoxCharacterController(physxWorld.controllerManager, controllerDesc);
 
         if (this._impl.$$) PX.IMPL_PTR[this._impl.$$.ptr] = this;
+
+        this.updateScale();
     }
 
     setHalfHeight (value: number): void {
-        this._impl.setHalfHeight(value);
+        this.updateScale();
     }
 
     setHalfSideExtent (value: number): void {
-        this._impl.setHalfSideExtent(value);
+        this.updateScale();
     }
 
     setHalfForwardExtent (value: number): void {
-        this._impl.setHalfForwardExtent(value);
+        this.updateScale();
+    }
+
+    updateScale (): void {
+        this.updateGeometry();
+    }
+
+    updateGeometry (): void {
+        const ws = this.component.node.worldScale;
+        this._impl.setHalfSideExtent(this.component.halfSideExtent * ws.x);
+        this._impl.setHalfHeight(this.component.halfHeight * ws.y);
+        this._impl.setHalfForwardExtent(this.component.halfForwardExtent * ws.z);
     }
 }

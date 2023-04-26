@@ -23,7 +23,7 @@
 */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Vec3 } from '../../../core';
+import { Vec3, absMax } from '../../../core';
 import { PhysicsSystem } from '../../framework';
 import { CapsuleCharacterController } from '../../framework/components/character-controllers/capsule-character-controller';
 import { ICapsuleCharacterController } from '../../spec/i-character-controller';
@@ -48,13 +48,14 @@ export class PhysXCapsuleCharacterController extends PhysXCharacterController im
         super.release();
 
         this.component.node.getWorldPosition(v3_0);
-        v3_0.add(this.component.center);
+        v3_0.add(this._comp.scaledCenter);
+
         const pxMtl = PhysXInstance.physics.createMaterial(0.5, 0.5, 0.5);//temp
         const physxWorld = (PhysicsSystem.instance.physicsWorld as PhysXWorld);
 
         const controllerDesc = new PX.PxCapsuleControllerDesc();
-        controllerDesc.radius = this.component.radius;
-        controllerDesc.height = this.component.height;
+        controllerDesc.radius = 1;//this.component.radius;
+        controllerDesc.height = 0.5;//this.component.height;
         controllerDesc.climbingMode = 1;// constraint mode
         controllerDesc.density = 10.0;
         controllerDesc.scaleCoeff = 0.8;
@@ -69,15 +70,29 @@ export class PhysXCapsuleCharacterController extends PhysXCharacterController im
         this._impl = PX.createCapsuleCharacterController(physxWorld.controllerManager, controllerDesc);
 
         if (this._impl.$$) PX.IMPL_PTR[this._impl.$$.ptr] = this;
+
+        this.updateScale();
     }
 
     setRadius (value: number): void {
         if (!this._impl) return;
-        this._impl.setRadius(value);
+        this.updateScale();
     }
 
     setHeight (value: number): void {
         if (!this._impl) return;
-        this._impl.setHeight(value);
+        this.updateScale();
+    }
+
+    updateScale (): void {
+        this.updateGeometry();
+    }
+
+    updateGeometry (): void {
+        const ws = this.component.node.worldScale;
+        const r = this.component.radius * Math.abs(absMax(ws.x, ws.z));
+        const h = this.component.height * Math.abs(ws.y);
+        this._impl.setRadius(Math.max(0.0001, r));
+        this._impl.setHeight(Math.max(0.0001, h));
     }
 }

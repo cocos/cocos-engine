@@ -34,6 +34,7 @@ import { bt, EBulletType } from '../instantiated';
 import { PhysicsGroup } from '../../framework/physics-enum';
 import { BulletShape } from '../shapes/bullet-shape';
 import { degreesToRadians } from '../../../core/utils/misc';
+import { TransformBit } from '../../../scene-graph';
 
 const v3_0 = new Vec3(0, 0, 0);
 const v3_1 = new Vec3(0, 0, 0);
@@ -44,7 +45,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     protected _comp: CharacterController = null as any;
     private _btCollisionFlags = 0;//: btControllerCollisionFlag
     protected _word3 = 0;
-    private _dirty = false;
+    protected _dirty = false;
     private _collisionFilterGroup: number = PhysicsGroup.DEFAULT;
     private _collisionFilterMask = -1;
 
@@ -57,6 +58,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
 
     // virtual
     protected onComponentSet (): void { }
+    protected updateScale (): void { }
 
     initialize (comp: CharacterController): boolean {
         this._comp = comp;
@@ -146,10 +148,22 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         return (this._btCollisionFlags & (1 << 2)) > 0;//btControllerCollisionFlag::Enum::BULLET_CONTROLLER_COLLISION_DOWN
     }
 
+    syncSceneToPhysics (): void {
+        const node = this.characterController.node;
+        if (node.hasChangedFlags) {
+            //only sync scale from scene node to physics
+            if (node.hasChangedFlags & TransformBit.SCALE) this.syncScale();
+        }
+    }
+
     syncPhysicsToScene (): void {
         this.getPosition(v3_0);
-        v3_0.subtract(this._comp.center);
+        v3_0.subtract(this._comp.scaledCenter);
         this._comp.node.setWorldPosition(v3_0);
+    }
+
+    syncScale () {
+        this.updateScale();
     }
 
     move (movement: IVec3Like, minDist: number, elapsedTime: number) {

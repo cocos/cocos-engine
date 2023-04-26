@@ -23,7 +23,7 @@
 */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Vec3 } from '../../../core';
+import { Vec3, absMax } from '../../../core';
 import { PhysicsSystem } from '../../framework';
 import { ICapsuleCharacterController } from '../../spec/i-character-controller';
 import { CapsuleCharacterController } from '../../framework/components/character-controllers/capsule-character-controller';
@@ -42,7 +42,7 @@ export class BulletCapsuleCharacterController extends BulletCharacterController 
 
     onComponentSet (): void {
         this.component.node.getWorldPosition(v3_0);
-        v3_0.add(this.component.center);
+        v3_0.add(this.component.scaledCenter);
         const pos = BulletCache.instance.BT_V3_0;
         bt.Vec3_set(pos, v3_0.x, v3_0.y, v3_0.z);
 
@@ -65,13 +65,28 @@ export class BulletCapsuleCharacterController extends BulletCharacterController 
         );
 
         this._impl = bt.CapsuleCharacterController_new(bulletWorld.impl, controllerDesc, 0/*?*/);
+
+        this.updateScale();
     }
 
     setRadius (value: number): void {
-        bt.CapsuleCharacterController_setRadius(this.impl, value);
+        this.updateScale();
     }
 
     setHeight (value: number): void {
-        bt.CapsuleCharacterController_setHeight(this.impl, value);
+        this.updateScale();
+    }
+
+    updateScale (): void {
+        this.updateGeometry();
+    }
+
+    updateGeometry (): void {
+        const ws = this.component.node.worldScale;
+        const r = this.component.radius * Math.abs(absMax(ws.x, ws.z));
+        const h = this.component.height * Math.abs(ws.y);
+        bt.CapsuleCharacterController_setRadius(this.impl, r);
+        bt.CapsuleCharacterController_setHeight(this.impl, h);
+        this._dirty = true;
     }
 }

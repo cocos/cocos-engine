@@ -104,6 +104,10 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
             const body = this.wrappedBodies[i];
             body.syncSceneToPhysics();
         }
+        for (let i = 0; i < this.ccts.length; i++) {
+            const cct = this.ccts[i];
+            cct.syncSceneToPhysics();
+        }
     }
 
     // only used in muti-thread for now

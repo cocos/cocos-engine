@@ -42,7 +42,7 @@ export class BulletBoxCharacterController extends BulletCharacterController impl
 
     onComponentSet (): void {
         this.component.node.getWorldPosition(v3_0);
-        v3_0.add(this.component.center);
+        v3_0.add(this.component.scaledCenter);
         const pos = BulletCache.instance.BT_V3_0;
         bt.Vec3_set(pos, v3_0.x, v3_0.y, v3_0.z);
 
@@ -65,17 +65,31 @@ export class BulletBoxCharacterController extends BulletCharacterController impl
             this.component.halfForwardExtent,
         );
         this._impl = bt.BoxCharacterController_new(bulletWorld.impl, controllerDesc, 0/*?*/);
+
+        this.updateScale();
     }
 
     setHalfHeight (value: number): void {
-        bt.BoxCharacterController_setHalfHeight(this.impl, value);
+        this.updateScale();
     }
 
     setHalfSideExtent (value: number): void {
-        bt.BoxCharacterController_setHalfSideExtent(this.impl, value);
+        this.updateScale();
     }
 
     setHalfForwardExtent (value: number): void {
-        bt.BoxCharacterController_setHalfForwardExtent(this.impl, value);
+        this.updateScale();
+    }
+
+    updateScale (): void {
+        this.updateGeometry();
+    }
+
+    updateGeometry (): void {
+        const ws = this.component.node.worldScale;
+        bt.BoxCharacterController_setHalfSideExtent(this.impl, this.component.halfSideExtent * ws.x);
+        bt.BoxCharacterController_setHalfHeight(this.impl, this.component.halfHeight * ws.y);
+        bt.BoxCharacterController_setHalfForwardExtent(this.impl, this.component.halfForwardExtent * ws.z);
+        this._dirty = true;
     }
 }
