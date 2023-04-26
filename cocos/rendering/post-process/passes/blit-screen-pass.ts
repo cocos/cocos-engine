@@ -27,7 +27,7 @@ export class BlitScreenPass extends SettingPass {
     checkEnable (camera: Camera) {
         const enable = super.checkEnable(camera);
         const setting = this.setting;
-        return enable && (setting.materials.length > 0);
+        return enable && (setting.activeMaterials.length > 0);
     }
 
     public render (camera: Camera, ppl: Pipeline): void {
@@ -46,7 +46,7 @@ export class BlitScreenPass extends SettingPass {
         let input0 = this.lastPass!.slotName(camera, 0);
 
         let slotIdx = 0;
-        const materials = this.setting.materials;
+        const materials = this.setting.activeMaterials;
         for (let i = 0; i < materials.length; i++) {
             const material = materials[i];
             passUtils.material = material;

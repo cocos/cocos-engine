@@ -107,10 +107,6 @@ export class PostProcessBuilder implements PipelineBuilder  {
     }
 
     renderCamera (camera: Camera, ppl: Pipeline) {
-        // if (camera.name === 'Scene Gizmo Camera') {
-        //     return;
-        // }
-
         passContext.passPathName = `${getCameraUniqueID(camera)}`;
 
         const passes = this.passes;
