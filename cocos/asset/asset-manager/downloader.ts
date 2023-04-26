@@ -129,7 +129,7 @@ const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onCompl
     let out: IConfigOption | null = null;
     let error: Error | null = null;
     downloadJson(config, options, (err, response) => {
-        error = err;
+        error = err || error;
         out = response as IConfigOption;
         if (out) { out.base = `${url}/`; }
         if (++count === 2) {
@@ -139,7 +139,7 @@ const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onCompl
 
     const jspath = `${url}/index.${version ? `${version}.` : ''}js`;
     downloadScript(jspath, options, (err) => {
-        error = err;
+        error = err || error;
         if (++count === 2) {
             onComplete(err, out);
         }
