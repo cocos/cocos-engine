@@ -1,11 +1,10 @@
-declare module 'external://*.wasm' {
+declare module 'external:emscripten/*.wasm' {
     const wasmPath: string;
     export default wasmPath;
 }
 
-declare module 'external:///emscripten/bullet/bullet.asm.js' {
+declare module 'external:emscripten/bullet/bullet.asm.js' {
     function factory (env: any, wasmMemory: ArrayBuffer): Bullet.instance;
-
     export default factory;
 }
 

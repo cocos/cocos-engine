@@ -24,8 +24,8 @@
 
 import { instantiateWasm } from 'pal/wasm';
 import { WASM_SUPPORT_MODE } from 'internal:constants';
-import bulletWasmUrl from 'external:///emscripten/bullet/bullet.wasm';
-import asmFactory from 'external:///emscripten/bullet/bullet.asm.js';
+import bulletWasmUrl from 'external:emscripten/bullet/bullet.wasm';
+import asmFactory from 'external:emscripten/bullet/bullet.asm.js';
 import { game } from '../../game';
 import { sys } from '../../core';
 import { pageSize, pageCount, importFunc } from './bullet-env';
