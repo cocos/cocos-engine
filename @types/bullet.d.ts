@@ -1,3 +1,8 @@
+declare module 'external:emscripten/bullet/bullet.asm.js' {
+    function factory (env: any, wasmMemory: ArrayBuffer): Bullet.instance;
+    export default factory;
+}
+
 declare namespace Bullet {
     type ptr = number;
     interface instance {

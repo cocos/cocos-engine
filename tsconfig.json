@@ -30,8 +30,8 @@
       "./@types/webGL2.extras",
       "./@types/external",
       "./@types/bullet",
+      "./@types/physx",
       "./node_modules/@cocos/cannon/CANNON",
-      "./node_modules/@cocos/physx/PhysX",
       "./node_modules/@types/jest/index",
 
       // pal
