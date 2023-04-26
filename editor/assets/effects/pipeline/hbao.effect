@@ -1,0 +1,47 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: hbao-vs
+      frag: hbao-fs
+      pass: hbao
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      rasterizerState:
+        cullMode: none
+}%
+
+CCProgram hbao-vs %{
+  precision highp float;
+  #include <legacy/decode-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+
+  out vec2 v_uv;
+
+  void main () {
+    StandardVertInput In;
+    CCDecode(In);
+    CC_HANDLE_GET_CLIP_FLIP(In.position.xy);
+    gl_Position = In.position;
+    gl_Position.y = gl_Position.y;
+    v_uv = a_texCoord;
+  }
+}%
+
+CCProgram hbao-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+  #include <hbao>
+
+  in vec2 v_uv;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    float ao = calculateAO(v_uv);
+  	fragColor = vec4(ao, ao, ao, 1.0); 
+  }
+}%

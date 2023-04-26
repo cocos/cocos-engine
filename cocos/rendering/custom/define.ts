@@ -29,8 +29,8 @@ import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, 
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
-import { Material } from '../../asset/assets';
+import { Vec2, Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
+import { ImageAsset, Material, Texture2D } from '../../asset/assets';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData } from './render-graph';
@@ -1202,4 +1202,200 @@ export function mergeSrcToTargetDesc (fromDesc, toDesc, isForce = false) {
         }
     }
     return extResId;
+}
+
+export const KERNEL_RADIUS = 32;//是NUM_STEPS*STEP_SIZE, 此参数可调但需要Shader支持动态循环, 改完还需要改gHalfBlurRadius
+export const INV_LN2 = 1.44269504;
+export const SQRT_LN2 = 0.8325546;
+const aoRowData: number[] = [
+    238, 91, 87, 255, 251, 44, 119, 255, 247, 64, 250, 255, 232, 5, 225, 255,
+    253, 177, 140, 255, 250, 51, 84, 255, 243, 76, 97, 255, 252, 36, 232, 255,
+    235, 100, 24, 255, 252, 36, 158, 255, 254, 20, 142, 255, 245, 135, 124, 255,
+    251, 43, 121, 255, 253, 31, 145, 255, 235, 98, 160, 255, 240, 146, 198, 255,
+];
+class HBAOInfo {
+    declare hbaoMaterial: Material;
+    declare hbaoTexture: Texture2D;
+
+    get uvDepthToEyePosParams () {
+        return this._uvDepthToEyePosParams;
+    }
+
+    get radiusParam () {
+        return this._radiusParam;
+    }
+
+    get miscParam () {
+        return this._miscParam;
+    }
+
+    get randomTexSize () {
+        return this._randomTexSize;
+    }
+
+    set uv2DepthTexResolution (val: Vec2) {
+        this._uv2DepthTexResolution.set(val);
+    }
+
+    set fSceneScale (val: number) {
+        this._fSceneScale = val;
+    }
+
+    set fCameraFov (val: number) {
+        this._fCameraFov = val;
+    }
+
+    set fRadiusScale (val: number) {
+        this._fRadiusScale = val;
+    }
+
+    set fAngleBiasDegree (val: number) {
+        this._fAngleBiasDegree = val;
+    }
+
+    set fAOStrength (val: number) {
+        this._fAOStrength = val;
+    }
+
+    set fBlurSharpness (val: number) {
+        this._fBlurSharpness = val;
+    }
+
+    private _uvDepthToEyePosParams = new Vec4();
+    private _radiusParam = new Vec4();
+    private _miscParam = new Vec4();
+    private _randomTexSize = new Vec4();
+
+    private _uv2DepthTexResolution = new Vec2(1024);
+    private _fSceneScale = 1.0;
+    private _fCameraFov = 45.0 / 57.3;
+    private _fRadiusScale = 1.0;
+    private _fAngleBiasDegree = 10.0;
+    private _fAOStrength = 1.0;
+    private _fBlurSharpness = 8;
+
+    private _init () {
+        if (this.hbaoMaterial) return;
+        this.hbaoMaterial = new Material();
+        this.hbaoMaterial._uuid = 'builtin-hbao-material';
+        this.hbaoMaterial.initialize({ effectName: 'pipeline/hbao' });
+        for (let i = 0; i < this.hbaoMaterial.passes.length; ++i) {
+            this.hbaoMaterial.passes[i].tryCompile();
+        }
+
+        const width = 4;
+        const height = 4;
+        const pixelFormat = Texture2D.PixelFormat.RGBA8888;
+        const arrayBuffer = new ArrayBuffer(width * height * 4);
+        const arrayBufferView = new DataView(arrayBuffer);
+        for (let i = 0; i < aoRowData.length; i++) {
+            arrayBufferView.setUint8(i, aoRowData[i]);
+        }
+        const image = new ImageAsset({
+            width,
+            height,
+            _data: arrayBufferView,
+            _compressed: false,
+            format: pixelFormat,
+        });
+        this.hbaoTexture = new Texture2D();
+        this.hbaoTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
+        this.hbaoTexture.setMipFilter(Texture2D.Filter.NONE);
+        this.hbaoTexture.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
+        this.hbaoTexture.image = image;
+        if (!this.hbaoTexture.getGFXTexture()) {
+            console.warn('Unexpected: failed to create ao texture?');
+        }
+        this.hbaoMaterial.setProperty('RandomTex', this.hbaoTexture, 0);
+    }
+
+    public update () {
+        const gR = this._fRadiusScale * this._fSceneScale;
+        const gR2 = gR * gR;
+        const gNegInvR2 = -1.0 / gR2;
+        const gMaxRadiusPixels = 0.1 * Math.min(this._uv2DepthTexResolution.x, this._uv2DepthTexResolution.y);
+        this._radiusParam.set(gR, gR2, gNegInvR2, gMaxRadiusPixels);
+
+        const gFocalLen = new Vec2(1.0, this._uv2DepthTexResolution.y / this._uv2DepthTexResolution.x / Math.tan(this._fCameraFov * 0.5));
+        const gTanAngleBias = Math.tan(this._fAngleBiasDegree / 57.3);
+        const gStrength = this._fAOStrength;
+        this._miscParam.set(gFocalLen.x, gFocalLen.y, gTanAngleBias, gStrength);
+
+        const gUVToViewB = new Vec2(1.0 / gFocalLen.x, -1.0 / gFocalLen.y);
+        const gUVToViewA = new Vec2(gUVToViewB.x * 2.0, gUVToViewB.y * 2.0);
+        this._uvDepthToEyePosParams.set(gUVToViewA.x, gUVToViewA.y, gUVToViewB.x, gUVToViewB.y);
+
+        const gHalfBlurRadius = KERNEL_RADIUS / 2;
+        const BlurSigma = (gHalfBlurRadius + 1.0) * 0.5;
+        const gBlurFallOff = INV_LN2 / (2.0 * BlurSigma * BlurSigma);
+        const gBlurDepthThreshold = 2.0 * SQRT_LN2 * (this._fSceneScale / this._fBlurSharpness);
+        const gInvFullResolution = new Vec2(1.0 / this._uv2DepthTexResolution.x, 1.0 / this._uv2DepthTexResolution.y);
+        this._randomTexSize.set(gBlurFallOff, gBlurDepthThreshold, gInvFullResolution.x, gInvFullResolution.y);
+    }
+
+    constructor () {
+        this._init();
+        this.update();
+    }
+}
+
+let hbaoInfo: HBAOInfo | null = null;
+
+export function buildHBAOPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string,
+    inputDS: string,
+    uv2DepthTexResolution = new Vec2(1024, 1024),
+    fSceneScale = 1.0,
+    fCameraFov = 45.0 / 57.3,
+    fRadiusScale = 1.0,
+    fAngleBiasDegree = 10.0,
+    fAOStrength = 1.0,
+    fBlurSharpness = 8) {
+    if (!hbaoInfo) hbaoInfo = new HBAOInfo();
+    hbaoInfo.uv2DepthTexResolution = uv2DepthTexResolution;
+    hbaoInfo.fSceneScale = fSceneScale;
+    hbaoInfo.fCameraFov = fCameraFov;
+    hbaoInfo.fRadiusScale = fRadiusScale;
+    hbaoInfo.fAngleBiasDegree = fAngleBiasDegree;
+    hbaoInfo.fAOStrength = fAOStrength;
+    hbaoInfo.fBlurSharpness = fBlurSharpness;
+    hbaoInfo.update();
+
+    const cameraID = getCameraUniqueID(camera);
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    const hbaoClearColor = new Color(0, 0, 0, camera.clearColor.w);
+    if (camera.clearFlag & ClearFlagBit.COLOR) {
+        hbaoClearColor.x = camera.clearColor.x;
+        hbaoClearColor.y = camera.clearColor.y;
+        hbaoClearColor.z = camera.clearColor.z;
+    }
+
+    const hbaoPassRT = `hbaoRTName${cameraID}`;
+    if (!ppl.containsResource(hbaoPassRT)) {
+        ppl.addRenderTarget(hbaoPassRT, Format.BGRA8, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderTarget(hbaoPassRT, width, height);
+    const hbaoPass = ppl.addRasterPass(width, height, 'hbao');
+    hbaoPass.name = `CameraHBAOPass${cameraID}`;
+    hbaoPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
+    if (ppl.containsResource(inputDS)) hbaoPass.addTexture(inputRT, 'DepthTex');
+    hbaoPass.addRenderTarget(
+        hbaoPassRT,
+        '_',
+        LoadOp.CLEAR,
+        StoreOp.STORE,
+        hbaoClearColor,
+    );
+    hbaoInfo.hbaoMaterial.setProperty('UVDepthToEyePosParams', hbaoInfo.uvDepthToEyePosParams, 0);
+    hbaoInfo.hbaoMaterial.setProperty('RadiusParam', hbaoInfo.radiusParam, 0);
+    hbaoInfo.hbaoMaterial.setProperty('MiscParam', hbaoInfo.miscParam, 0);
+    hbaoInfo.hbaoMaterial.setProperty('randomTexSize', hbaoInfo.randomTexSize, 0);
+    hbaoPass.addQueue(QueueHint.NONE).addFullscreenQuad(
+        hbaoInfo.hbaoMaterial, 0, SceneFlags.NONE,
+    );
+    return { rtName: hbaoPassRT, dsName: inputDS };
 }
