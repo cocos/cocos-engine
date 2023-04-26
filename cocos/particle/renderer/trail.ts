@@ -338,7 +338,7 @@ export default class TrailModule {
     private _material: Material | null = null;
     private _inited: boolean;
 
-    private _temp_xform = new Mat4();
+    private _psTransform = new Mat4();
 
     constructor () {
         this._vertAttrs = [
@@ -462,7 +462,7 @@ export default class TrailModule {
         this._trailLifetime = this.lifeTime.evaluateOne(this._particleSystem._time, 1)!;
         if (this.space === Space.World && this._particleSystem._simulationSpace === Space.Local) {
             this._needTransform = true;
-            this._particleSystem.node.getWorldMatrix(this._temp_xform);
+            this._particleSystem.node.getWorldMatrix(this._psTransform);
             this._particleSystem.node.getWorldRotation(_temp_quat);
         } else {
             this._needTransform = false;
@@ -493,7 +493,7 @@ export default class TrailModule {
         }
         let lastSeg = trail.getElement(trail.end - 1);
         if (this._needTransform) {
-            Vec3.transformMat4(_temp_vec3, p.position, this._temp_xform);
+            Vec3.transformMat4(_temp_vec3, p.position, this._psTransform);
         } else {
             Vec3.copy(_temp_vec3, p.position);
         }
@@ -574,7 +574,7 @@ export default class TrailModule {
                     indexOffset, 1 - j * textCoordSeg, j, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
             }
             if (this._needTransform) {
-                Vec3.transformMat4(_temp_trailEle.position, p.position, this._temp_xform);
+                Vec3.transformMat4(_temp_trailEle.position, p.position, this._psTransform);
             } else {
                 Vec3.copy(_temp_trailEle.position, p.position);
             }
