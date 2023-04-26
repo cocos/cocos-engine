@@ -199,7 +199,7 @@ export default class CurveRange  {
                 return buff[prev];
             } else {
                 const ratio = sampleCoord - prev;
-                return buff[prev] * (1.0 - ratio) + buff[next] * ratio;
+                return lerp(buff[prev], buff[next], ratio);
             }
         } else {
             return 0.0;

@@ -173,7 +173,7 @@ export class RotationSpeedModule extends ParticleModuleBase {
 
         Quat.multiply(pQuat, p.localQuat, pQuat);
 
-        Quat.toEuler(p.rotation, pQuat, true);
+        Quat.toEuler(p.rotation, pQuat);
         Vec3.set(p.rotation, p.rotation.x / Particle.R2D, p.rotation.y / Particle.R2D, p.rotation.z / Particle.R2D);
     }
 }
