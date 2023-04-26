@@ -7,7 +7,7 @@ import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
-import { passUtils } from '../utils/pass-utils';
+import { passContext } from '../utils/pass-context';
 import { BasePass } from './base-pass';
 
 export class ForwardFinalPass extends BasePass {
@@ -21,13 +21,13 @@ export class ForwardFinalPass extends BasePass {
             return;
         }
 
-        passUtils.clearFlag = camera.clearFlag & ClearFlagBit.COLOR;
-        Vec4.set(passUtils.clearColor, camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w);
+        passContext.clearFlag = camera.clearFlag & ClearFlagBit.COLOR;
+        Vec4.set(passContext.clearColor, camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w);
 
-        // passUtils.clearFlag = ClearFlagBit.COLOR;
-        // Vec4.set(passUtils.clearColor, 0, 0, 0, 1);
+        // passContext.clearFlag = ClearFlagBit.COLOR;
+        // Vec4.set(passContext.clearColor, 0, 0, 0, 1);
 
-        passUtils.material = this.material;
+        passContext.material = this.material;
 
         const cameraID = getCameraUniqueID(camera);
         const area = this.getRenderArea(camera);
@@ -49,7 +49,7 @@ export class ForwardFinalPass extends BasePass {
         const ct = fb && fb.colorTextures[0];
         const format = ct ? ct.format : Format.RGBA8;
 
-        passUtils.addRasterPass(width, height, 'post-process', `${this.name}${cameraID}`)
+        passContext.addRasterPass(width, height, 'post-process', `${this.name}${cameraID}`)
             .setViewport(area.x, area.y, width, height)
             .setPassInput(input0, 'inputTexture')
             .addRasterView(slot0, format, isOffScreen)

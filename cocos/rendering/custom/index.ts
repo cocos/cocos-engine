@@ -35,8 +35,6 @@ import { Device } from '../../gfx';
 import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID } from './layout-graph-utils';
 import { ProgramLibrary } from './private';
 
-import { PostProcessBuilder } from '../post-process';
-
 let _pipeline: WebPipeline | null = null;
 
 export const INVALID_ID = 0xFFFFFFFF;
@@ -65,7 +63,6 @@ export const customPipelineBuilderMap = new Map<string, PipelineBuilder>();
 export function setCustomPipeline (name: string, builder: PipelineBuilder) {
     customPipelineBuilderMap.set(name, builder);
 }
-
 export function getCustomPipeline (name: string): PipelineBuilder {
     let builder = customPipelineBuilderMap.get(name) || null;
     if (builder === null) {
@@ -79,8 +76,6 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Custom', new CustomPipelineBuilder());
     map.set('Native', new NativePipelineBuilder());
-
-    map.set('PostProcess', new PostProcessBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);

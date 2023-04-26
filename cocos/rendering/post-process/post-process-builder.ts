@@ -3,7 +3,6 @@ import { EDITOR } from 'internal:constants';
 import { Camera } from '../../render-scene/scene';
 import { PipelineBuilder, Pipeline } from '../custom/pipeline';
 
-import { passUtils } from './utils/pass-utils';
 import { passContext } from './utils/pass-context';
 import { ForwardFinalPass } from './passes/forward-final-pass';
 import { getCameraUniqueID } from '../custom/define';
@@ -18,6 +17,7 @@ import { PostProcess } from './components/post-process';
 import { Node } from '../../scene-graph';
 import { director } from '../../game';
 import { CCObject } from '../../core';
+import { setCustomPipeline } from '../custom';
 
 export class PostProcessBuilder implements PipelineBuilder  {
     passes: BasePass[] = [];
@@ -34,16 +34,6 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(new FSRPass());
         this.addPass(new BlitScreenPass());
         this.addPass(new ForwardFinalPass());
-    }
-
-    addPass (pass: BasePass) {
-        this.passes.push(pass);
-    }
-    insertPass (pass: BasePass, prePassName: string) {
-        const idx = this.passes.findIndex((p) => p.name === prePassName);
-        if (idx !== -1) {
-            this.passes.splice(idx + 1, 0, pass);
-        }
     }
 
     initEditor () {
@@ -69,13 +59,26 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.editorPostProcess = pp;
     }
 
+    getPass (passClass: typeof BasePass) {
+        return this.passes.find((p) => p instanceof passClass);
+    }
+    addPass (pass: BasePass) {
+        this.passes.push(pass);
+    }
+    insertPass (pass: BasePass, passClass: typeof BasePass) {
+        const idx = this.passes.findIndex((p) => p instanceof passClass);
+        if (idx !== -1) {
+            this.passes.splice(idx + 1, 0, pass);
+        }
+    }
+
     setup (cameras: Camera[], ppl: Pipeline) {
         if (EDITOR) {
             this.initEditor();
         }
 
+        passContext.ppl = ppl;
         passContext.renderProfiler = false;
-        passUtils.ppl = ppl;
 
         let globalPP: PostProcess | undefined;
         for (let i = 0; i < PostProcess.all.length; i++) {
@@ -96,8 +99,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
             }
 
             passContext.postProcess = camera.postProcess || globalPP;
-
-            passUtils.camera = camera;
+            passContext.camera = camera;
             this.renderCamera(camera, ppl);
         }
     }
@@ -131,3 +133,5 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
     }
 }
+
+setCustomPipeline('PostProcess', new PostProcessBuilder());

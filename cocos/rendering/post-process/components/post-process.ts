@@ -1,10 +1,10 @@
-import { js } from '../../../core';
 import { property } from '../../../core/data/class-decorator';
-import { ccclass, executeInEditMode } from '../../../core/data/decorators';
+import { ccclass, disallowMultiple, executeInEditMode } from '../../../core/data/decorators';
 import { Component } from '../../../scene-graph';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.PostProcess')
+@disallowMultiple
 @executeInEditMode
 export class PostProcess extends Component {
     static all: PostProcess[] = []

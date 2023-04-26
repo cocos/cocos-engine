@@ -8,13 +8,11 @@ import { MaterialInstance } from '../../../render-scene';
 import { Camera } from '../../../render-scene/scene';
 import { getCameraUniqueID, getRenderArea } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
-import { PostProcessSetting } from '../components/post-process-setting';
 import { passContext } from '../utils/pass-context';
-import { passUtils } from '../utils/pass-utils';
 
 let _BasePassID = 0;
 
-export class BasePass {
+export abstract class BasePass {
     name = 'BasePass';
     effectName = 'post-process/blit-screen';
 
@@ -22,6 +20,9 @@ export class BasePass {
     constructor () {
         this._id = _BasePassID++;
     }
+
+    context = passContext;
+    getCameraUniqueID = getCameraUniqueID;
 
     // private _materialMap: Map<Camera, Material> = new Map()
 
@@ -88,7 +89,7 @@ export class BasePass {
 
     renderProfiler (camera) {
         if (passContext.renderProfiler && !EDITOR) {
-            passUtils.pass!.showStatistics = true;
+            passContext.pass!.showStatistics = true;
             passContext.renderProfiler = false;
         }
     }
@@ -102,7 +103,5 @@ export class BasePass {
         return area;
     }
 
-    public render (camera: Camera, ppl: Pipeline) {
-
-    }
+    abstract render (camera: Camera, ppl: Pipeline);
 }

@@ -1,11 +1,10 @@
-import { ccclass, executeInEditMode, requireComponent, disallowMultiple } from '../../../core/data/decorators';
+import { ccclass, executeInEditMode, requireComponent } from '../../../core/data/decorators';
 import { Component } from '../../../scene-graph';
 import { PostProcess } from './post-process';
 
 @ccclass('cc.PostProcessSetting')
 @requireComponent(PostProcess)
 @executeInEditMode
-@disallowMultiple
 export class PostProcessSetting extends Component {
     static _default: PostProcessSetting | undefined
     static get default () {

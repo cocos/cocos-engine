@@ -4,7 +4,7 @@ import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
 import { Pipeline } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
-import { passUtils } from '../utils/pass-utils';
+import { passContext } from '../utils/pass-context';
 
 import { FSR } from '../components/fsr';
 import { getSetting, SettingPass } from './setting-pass';
@@ -32,10 +32,10 @@ export class FSRPass extends SettingPass {
         const outWidth = Math.floor(inputWidth / shadingScale);
         const outHeight = Math.floor(inputHeight / shadingScale);
 
-        passUtils.clearFlag = ClearFlagBit.COLOR;
-        Vec4.set(passUtils.clearColor, 0, 0, 0, 1);
+        passContext.clearFlag = ClearFlagBit.COLOR;
+        Vec4.set(passContext.clearColor, 0, 0, 0, 1);
 
-        passUtils.material = this.material;
+        passContext.material = this.material;
 
         const setting = this.setting;
         this.material.setProperty('fsrParams', new Vec4(setting.sharpness, 0, 0, 0));
@@ -47,14 +47,14 @@ export class FSRPass extends SettingPass {
 
         const input0 = this.lastPass!.slotName(camera, 0);
         const easu = 'FSR_EASU';
-        passUtils.addRasterPass(outWidth, outHeight, 'post-process', `CameraFSR_EASU_Pass${cameraID}`)
+        passContext.addRasterPass(outWidth, outHeight, 'post-process', `CameraFSR_EASU_Pass${cameraID}`)
             .setViewport(area.x, area.y, outWidth, outHeight)
             .setPassInput(input0, 'outputResultMap')
             .addRasterView(easu, Format.RGBA8)
             .blitScreen(0);
 
         const slot0 = this.slotName(camera, 0);
-        passUtils.addRasterPass(outWidth, outHeight, 'post-process', `CameraFSR_RCAS_Pass${cameraID}`)
+        passContext.addRasterPass(outWidth, outHeight, 'post-process', `CameraFSR_RCAS_Pass${cameraID}`)
             .setViewport(area.x, area.y, outWidth, outHeight)
             .setPassInput(easu, 'outputResultMap')
             .addRasterView(slot0, Format.RGBA8)

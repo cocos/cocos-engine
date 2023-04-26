@@ -1,9 +1,10 @@
 import { property } from '../../../core/data/class-decorator';
-import { ccclass, executeInEditMode, menu } from '../../../core/data/decorators';
+import { ccclass, disallowMultiple, executeInEditMode, menu } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.TAA')
 @menu('PostProcess/TAA')
+@disallowMultiple
 @executeInEditMode
 export class TAA extends PostProcessSetting {
     @property

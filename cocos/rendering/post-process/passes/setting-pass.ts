@@ -13,8 +13,8 @@ export function getSetting<T extends PostProcessSetting> (settingClass: new () =
 }
 
 export abstract class SettingPass extends BasePass {
-    _getSetting = getSetting
-    get setting () { return getSetting(PostProcessSetting); }
+    getSetting = getSetting
+    get setting () { return this.getSetting(PostProcessSetting); }
 
     checkEnable (camera: Camera) {
         const enable = super.checkEnable(camera);

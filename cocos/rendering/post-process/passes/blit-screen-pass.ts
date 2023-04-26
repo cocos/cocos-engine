@@ -5,7 +5,7 @@ import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
 import { Pipeline } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
-import { passUtils } from '../utils/pass-utils';
+import { passContext } from '../utils/pass-context';
 import { getSetting, SettingPass } from './setting-pass';
 
 import { BlitScreen } from '../components/blit-screen';
@@ -40,8 +40,8 @@ export class BlitScreenPass extends SettingPass {
         const outWidth = Math.floor(inputWidth / shadingScale);
         const outHeight = Math.floor(inputHeight / shadingScale);
 
-        passUtils.clearFlag = ClearFlagBit.COLOR;
-        Vec4.set(passUtils.clearColor, 0, 0, 0, 1);
+        passContext.clearFlag = ClearFlagBit.COLOR;
+        Vec4.set(passContext.clearColor, 0, 0, 0, 1);
 
         let input0 = this.lastPass!.slotName(camera, 0);
 
@@ -49,12 +49,12 @@ export class BlitScreenPass extends SettingPass {
         const materials = this.setting.activeMaterials;
         for (let i = 0; i < materials.length; i++) {
             const material = materials[i];
-            passUtils.material = material;
+            passContext.material = material;
 
             const slotName = outputNames[slotIdx];
             slotIdx = (++slotIdx) % 2;
 
-            passUtils.addRasterPass(outWidth, outHeight, 'post-process', `${this.name}${cameraID}`)
+            passContext.addRasterPass(outWidth, outHeight, 'post-process', `${this.name}${cameraID}`)
                 .setViewport(area.x, area.y, outWidth, outHeight)
                 .setPassInput(input0, 'inputTexture')
                 .addRasterView(slotName, Format.RGBA8)

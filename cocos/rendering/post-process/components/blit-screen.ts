@@ -1,6 +1,6 @@
 import { Material } from '../../../asset/assets';
 import { property } from '../../../core/data/class-decorator';
-import { ccclass, executeInEditMode, menu } from '../../../core/data/decorators';
+import { ccclass, disallowMultiple, executeInEditMode, menu } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.BlitScreenMaterial')
@@ -22,6 +22,7 @@ class BlitScreenMaterial {
 
 @ccclass('cc.BlitScreen')
 @menu('PostProcess/BlitScreen')
+@disallowMultiple
 @executeInEditMode
 export class BlitScreen extends PostProcessSetting {
     @property(Material)

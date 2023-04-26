@@ -8,7 +8,6 @@ import { AccessType, LightInfo, QueueHint, ResourceResidency, SceneFlags } from 
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
-import { passUtils } from '../utils/pass-utils';
 import { BasePass } from './base-pass';
 
 export class ForwardPass extends BasePass {
@@ -32,13 +31,13 @@ export class ForwardPass extends BasePass {
     }
 
     public render (camera: Camera, ppl: Pipeline) {
-        passUtils.clearFlag = ClearFlagBit.COLOR | (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL);
-        Vec4.set(passUtils.clearColor, 0, 0, 0, 0);
+        passContext.clearFlag = ClearFlagBit.COLOR | (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL);
+        Vec4.set(passContext.clearColor, 0, 0, 0, 0);
 
-        // passUtils.clearFlag = camera.clearFlag;
-        // Vec4.set(passUtils.clearColor, camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w);
+        // passContext.clearFlag = camera.clearFlag;
+        // Vec4.set(passContext.clearColor, camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w);
 
-        Vec4.set(passUtils.clearDepthColor, camera.clearDepth, camera.clearStencil, 0, 0);
+        Vec4.set(passContext.clearDepthColor, camera.clearDepth, camera.clearStencil, 0, 0);
 
         const area = this.getRenderArea(camera);
         const width = area.width;
@@ -49,13 +48,13 @@ export class ForwardPass extends BasePass {
 
         const cameraID = getCameraUniqueID(camera);
         const isOffScreen = true;
-        passUtils.addRasterPass(width, height, 'default', `${this.name}_${cameraID}`)
+        passContext.addRasterPass(width, height, 'default', `${this.name}_${cameraID}`)
             .setViewport(0, 0, width, height)
             .addRasterView(slot0, Format.RGBA16F, isOffScreen)
             .addRasterView(slot1, Format.DEPTH_STENCIL, isOffScreen)
             .version();
 
-        const pass = passUtils.pass!;
+        const pass = passContext.pass!;
         pass.addQueue(QueueHint.RENDER_OPAQUE)
             .addSceneOfCamera(camera,
                 new LightInfo(),
