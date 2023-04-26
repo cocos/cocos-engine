@@ -1,7 +1,7 @@
 'use strict';
-
 const fs = require('fs');
 const path = require('path');
+const readline = require('readline');
 
 function deleteFolderRecursive(dirPath) {
   if (fs.existsSync(dirPath)) {
@@ -15,32 +15,37 @@ function deleteFolderRecursive(dirPath) {
             }
           });
           fs.rmdirSync(dirPath);
-          console.log("正删除 "+ dirPath);
+          console.log("deleting: "+ dirPath);
     } else {
         fs.unlinkSync(dirPath);
-        console.log("正删除 "+ dirPath);
+        console.log("Deleting "+ dirPath);
     }
   } else {
-    console.log("不存在 " + dirPath);
+    console.log("not exist, skip: " + dirPath);
   }
 };
 
-let deleteDirPaths = [
-    path.join(__dirname, "../.DS_Store"),
-    path.join(__dirname, "../@types/consts.d.ts"),
-    path.join(__dirname, "../DebugInfos.json"),
-    path.join(__dirname, "../bin/"),
-    path.join(__dirname, "../platforms/runtime/local-commit.json"),
-    path.join(__dirname, "../scripts/native-pack-tool/dist/"),
-    path.join(__dirname, "../scripts/typedoc-plugin/lib/"),
-    path.join(__dirname, "../native/simulator/"),
-    path.join(__dirname, "../native/tools/.DS_Store"),
-    path.join(__dirname, "../native/build/"),
-    path.join(__dirname, "../native/compile_commands.json"),
-    path.join(__dirname, "../native/.cache/"),
-];
+const fileStream = fs.createReadStream(path.join(__dirname, "../.gitignore"));
 
-deleteDirPaths.forEach((dirPath)=>{
+const rl = readline.createInterface({
+  input: fileStream,
+  crlfDelay: Infinity
+});
+
+const gitignoreFiles = [];
+
+rl.on('line', (line) => {
+  if (line !== "" && !line.includes("node_modules") && !line.includes("native/external/") && !line.includes("!")) {
+    gitignoreFiles.push(path.join(__dirname,".." ,line));
+  }
+});
+
+rl.on('close', () => {
+  console.log("=================== ready to delete ===================");
+  console.log(gitignoreFiles);
+  console.log("=================== processing ===================");
+  gitignoreFiles.forEach((dirPath)=>{
     deleteFolderRecursive(dirPath);
-})
+});
+});
 
