@@ -711,7 +711,7 @@ export class Root {
             }
 
             if (webxrHmdPoseInfos) {
-                const cameraPosition: number[] = [];
+                let cameraPosition: number[] = [0, 0, 0];
                 for (let i = 0; i < webxrHmdPoseInfos.length; i++) {
                     const info = webxrHmdPoseInfos[i];
                     if ((info.code === XRPoseType.VIEW_LEFT && xrEye === XREye.LEFT)
@@ -724,7 +724,13 @@ export class Root {
                 }
 
                 for (const cam of allcameras) {
-                    if (cam.trackingType !== TrackingType.NO_TRACKING && cam.node) {
+                    const isTrackingPosition = cam.trackingType === TrackingType.POSITION
+                    || cam.trackingType === TrackingType.POSITION_AND_ROTATION;
+                    if (!isTrackingPosition) {
+                        cameraPosition = [0, 0, 0];
+                    }
+
+                    if (cam.node) {
                         cam.node.setPosition(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
                     }
                 }
