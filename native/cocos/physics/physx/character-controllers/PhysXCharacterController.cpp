@@ -134,6 +134,7 @@ void PhysXCharacterController::onDisable() {
 
 void PhysXCharacterController::onDestroy() {
     release();
+    PhysXWorld::getInstance().removeCCT(*this);
     PhysXWorld::getInstance().removeWrapperObject(_mObjectID);
 }
 
