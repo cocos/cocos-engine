@@ -33,12 +33,8 @@ export class BlitScreenPass extends SettingPass {
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);
         const area = this.getRenderArea(camera);
-        const inputWidth = area.width;
-        const inputHeight = area.height;
-
-        const shadingScale = this.finalShadingScale();
-        const outWidth = Math.floor(inputWidth / shadingScale);
-        const outHeight = Math.floor(inputHeight / shadingScale);
+        const width = area.width;
+        const height = area.height;
 
         passContext.clearFlag = ClearFlagBit.COLOR;
         Vec4.set(passContext.clearColor, 0, 0, 0, 1);
@@ -54,8 +50,8 @@ export class BlitScreenPass extends SettingPass {
             const slotName = outputNames[slotIdx];
             slotIdx = (++slotIdx) % 2;
 
-            passContext.addRasterPass(outWidth, outHeight, 'post-process', `${this.name}${cameraID}`)
-                .setViewport(area.x, area.y, outWidth, outHeight)
+            passContext.addRasterPass(width, height, 'post-process', `${this.name}${cameraID}`)
+                .setViewport(area.x, area.y, width, height)
                 .setPassInput(input0, 'inputTexture')
                 .addRasterView(slotName, Format.RGBA8)
                 .blitScreen(0)

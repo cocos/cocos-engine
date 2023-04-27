@@ -15,16 +15,23 @@ export class ForwardPass extends BasePass {
     outputNames = ['ForwardColor', 'ForwardDS']
 
     enableInAllEditorCamera = true;
+    depthBufferShadingScale = 1;
 
     slotName (camera: Camera, index = 0) {
         if (index === 1) {
             const cameraIdx = director.root!.cameraList.indexOf(camera);
             if (cameraIdx === 0) {
+                this.depthBufferShadingScale = this.finalShadingScale();
                 return this.outputNames[index];
             }
-            if (!(camera.clearFlag & ClearFlagBit.DEPTH_STENCIL)) {
+
+            let canUsePrevDepth = true;
+            canUsePrevDepth = !(camera.clearFlag & ClearFlagBit.DEPTH_STENCIL);
+            canUsePrevDepth = canUsePrevDepth && this.finalShadingScale() === this.depthBufferShadingScale;
+            if (canUsePrevDepth) {
                 return this.outputNames[index];
             }
+            this.depthBufferShadingScale = this.finalShadingScale();
         }
 
         return super.slotName(camera, index);

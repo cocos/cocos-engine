@@ -104,7 +104,17 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
     }
 
+    enableSceneGizmoCamera = true;
+    enableEditorUIGizmoCamera = true;
+
     renderCamera (camera: Camera, ppl: Pipeline) {
+        if (EDITOR) {
+            if ((camera.name === 'Scene Gizmo Camera' && !this.enableSceneGizmoCamera)
+            || (camera.name === 'Editor UIGizmoCamera' && !this.enableEditorUIGizmoCamera)) {
+                return;
+            }
+        }
+
         passContext.passPathName = `${getCameraUniqueID(camera)}`;
 
         const passes = this.passes;

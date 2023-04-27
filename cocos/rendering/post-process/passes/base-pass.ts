@@ -70,7 +70,7 @@ export abstract class BasePass {
 
     finalShadingScale () {
         let shadingScale = this.shadingScale;
-        if (passContext.postProcess) {
+        if (passContext.postProcess && passContext.postProcess.enableShadingScaleInEditor) {
             shadingScale *= passContext.postProcess.shadingScale;
         }
         return shadingScale;

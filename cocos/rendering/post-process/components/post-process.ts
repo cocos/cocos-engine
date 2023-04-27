@@ -1,5 +1,7 @@
+import { EDITOR } from 'internal:constants';
 import { property } from '../../../core/data/class-decorator';
 import { ccclass, disallowMultiple, executeInEditMode } from '../../../core/data/decorators';
+import { Director, director } from '../../../game';
 import { Component } from '../../../scene-graph';
 import { PostProcessSetting } from './post-process-setting';
 
@@ -11,8 +13,23 @@ export class PostProcess extends Component {
 
     @property
     global = true
+    @property
+    _shadingScale = 1
     @property({ range: [0.01, 1], step: 0.01 })
-    shadingScale = 1
+    get shadingScale () {
+        return this._shadingScale;
+    }
+    set shadingScale (v) {
+        this._shadingScale = v;
+        if (EDITOR) {
+            setTimeout(() => {
+                globalThis.cce.Engine.repaintInEditMode();
+            }, 50);
+        }
+    }
+
+    @property
+    enableShadingScaleInEditor = false;
 
     settings: Map<typeof PostProcessSetting, PostProcessSetting> = new Map()
 
