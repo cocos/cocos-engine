@@ -151,6 +151,6 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         Quat.normalize(_temp_rot, _temp_rot);
 
         Quat.toEuler(p.rotation, _temp_rot);
-        Vec3.set(p.rotation, p.rotation.x / Particle.R2D, p.rotation.y / Particle.R2D, p.rotation.z / Particle.R2D);
+        Vec3.multiplyScalar(p.rotation, p.rotation, 1.0 / Particle.R2D);
     }
 }
