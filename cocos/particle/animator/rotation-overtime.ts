@@ -133,7 +133,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
 
         // Rotation-overtime combine with start rotation
         Quat.multiply(p.localQuat, p.localQuat, p.deltaQuat); // accumulate rotation
-        Quat.normalize(p.localQuat, p.localQuat);
+        // Quat.normalize(p.localQuat, p.localQuat);
         if (!p.startRotated) {
             if (this.renderMode !== RenderMode.Mesh) {
                 if (this.renderMode === RenderMode.StrecthedBillboard) {
