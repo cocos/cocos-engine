@@ -724,13 +724,11 @@ export class Root {
                 }
 
                 for (const cam of allcameras) {
-                    const isTrackingPosition = cam.trackingType === TrackingType.POSITION
-                    || cam.trackingType === TrackingType.POSITION_AND_ROTATION;
-                    if (!isTrackingPosition) {
-                        cameraPosition = [0, 0, 0];
-                    }
-
-                    if (cam.node) {
+                    if (cam.trackingType !== TrackingType.NO_TRACKING && cam.node) {
+                        const isTrackingRotation = cam.trackingType === TrackingType.ROTATION;
+                        if (isTrackingRotation) {
+                            cameraPosition = [0, 0, 0];
+                        }
                         cam.node.setPosition(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
                     }
                 }
