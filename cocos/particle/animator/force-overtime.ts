@@ -116,7 +116,10 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
 
     public animate (p, dt) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const force = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!);
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+        const rndSeed = pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET);
+        // eslint-disable-next-line max-len
+        const force = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, rndSeed), this.y.evaluate(normalizedTime, rndSeed), this.z.evaluate(normalizedTime, rndSeed));
         if (this.needTransform) {
             Vec3.transformQuat(force, force, this.rotation);
         }
