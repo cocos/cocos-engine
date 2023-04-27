@@ -189,23 +189,10 @@ nodeProto.addComponent = function (typeOrClassName) {
 
     // check requirement
 
-<<<<<<< HEAD
-    const reqComps = constructor._requireComponent;
-    if (reqComps) {
-        const tryAdd = (c: Component) => {
-            if (!this.getComponent(c)) { this.addComponent(c); }
-        };
-        if (Array.isArray(reqComps)) {
-            reqComps.forEach((c) => tryAdd(c));
-        } else {
-            tryAdd(reqComps);
-        }
-=======
     // TODO: `_requireComponent` is injected properties
     const ReqComp = (constructor as any)._requireComponent;
     if (ReqComp && !this.getComponent(ReqComp)) {
         this.addComponent(ReqComp);
->>>>>>> develop
     }
 
     /// / check conflict
