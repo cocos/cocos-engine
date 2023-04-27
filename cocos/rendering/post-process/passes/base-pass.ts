@@ -13,7 +13,7 @@ import { passContext } from '../utils/pass-context';
 let _BasePassID = 0;
 
 export abstract class BasePass {
-    name = 'BasePass';
+    abstract name: string;
     effectName = 'post-process/blit-screen';
 
     _id = 0
