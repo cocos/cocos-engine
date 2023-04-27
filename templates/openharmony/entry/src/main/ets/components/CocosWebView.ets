@@ -38,6 +38,7 @@ export class WebViewInfo {
   public viewTag: string = ''
   // Whether to display
   public visible: boolean = true
+  
   /*
    * doc : https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/reference/arkui-ts/ts-basic-components-web.md#webcontroller
    */

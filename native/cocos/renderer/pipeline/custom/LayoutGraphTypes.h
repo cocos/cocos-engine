@@ -353,7 +353,7 @@ struct DescriptorSetLayoutData {
     }
 
     DescriptorSetLayoutData(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocksIn, PmrFlatMap<NameLocalID, uint32_t> bindingMapIn, const allocator_type& alloc) noexcept;
+    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, PmrUnorderedMap<NameLocalID, gfx::UniformBlock> uniformBlocksIn, PmrFlatMap<NameLocalID, uint32_t> bindingMapIn, const allocator_type& alloc) noexcept;
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc);
 
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs) noexcept = default;
@@ -366,7 +366,7 @@ struct DescriptorSetLayoutData {
     uint32_t uniformBlockCapacity{0};
     uint32_t samplerTextureCapacity{0};
     ccstd::pmr::vector<DescriptorBlockData> descriptorBlocks;
-    ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocks;
+    PmrUnorderedMap<NameLocalID, gfx::UniformBlock> uniformBlocks;
     PmrFlatMap<NameLocalID, uint32_t> bindingMap;
 };
 
@@ -509,7 +509,7 @@ struct RenderStageData {
     RenderStageData& operator=(RenderStageData&& rhs) = default;
     RenderStageData& operator=(RenderStageData const& rhs) = delete;
 
-    ccstd::pmr::unordered_map<NameLocalID, gfx::ShaderStageFlagBit> descriptorVisibility;
+    PmrUnorderedMap<NameLocalID, gfx::ShaderStageFlagBit> descriptorVisibility;
 };
 
 struct RenderPhaseData {

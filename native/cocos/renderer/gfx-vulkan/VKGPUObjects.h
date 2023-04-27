@@ -51,6 +51,7 @@ public:
     VkPhysicalDeviceFeatures2 physicalDeviceFeatures2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
     VkPhysicalDeviceVulkan11Features physicalDeviceVulkan11Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES};
     VkPhysicalDeviceVulkan12Features physicalDeviceVulkan12Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
+    VkPhysicalDeviceFragmentShadingRateFeaturesKHR physicalDeviceFragmentShadingRateFeatures{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR};
     VkPhysicalDeviceDepthStencilResolveProperties physicalDeviceDepthStencilResolveProperties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES};
     VkPhysicalDeviceProperties physicalDeviceProperties{};
     VkPhysicalDeviceProperties2 physicalDeviceProperties2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
@@ -128,6 +129,7 @@ public:
     ccstd::vector<VkSampleCountFlagBits> sampleCounts; // per subpass
 
     const CCVKGPUGeneralBarrier *getBarrier(size_t index, CCVKGPUDevice *gpuDevice) const;
+    bool hasShadingAttachment(uint32_t subPassId) const;
 };
 
 struct CCVKGPUSwapchain;
@@ -162,6 +164,8 @@ struct CCVKGPUTexture : public CCVKGPUDeviceObject {
     // for barrier manager
     ccstd::vector<ThsvsAccessType> renderAccessTypes; // gathered from descriptor sets
     ThsvsAccessType transferAccess = THSVS_ACCESS_NONE;
+
+    VkImage externalVKImage = VK_NULL_HANDLE;
 };
 
 struct CCVKGPUTextureView : public CCVKGPUDeviceObject {
@@ -426,7 +430,6 @@ public:
     ccstd::vector<VkLayerProperties> layers;
     ccstd::vector<VkExtensionProperties> extensions;
     VmaAllocator memoryAllocator{VK_NULL_HANDLE};
-    VkPipelineCache vkPipelineCache{VK_NULL_HANDLE};
     uint32_t minorVersion{0U};
 
     VkFormat depthFormat{VK_FORMAT_UNDEFINED};

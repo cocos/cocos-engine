@@ -29,6 +29,7 @@
 #pragma define equalf_lowp(data1, data2) (abs(float(data1) - float(data2)) < EPSILON_LOWP)
 #pragma define equalf_epsilon(data1, data2, epsilonValue) (abs(float(data1) - float(data2)) < epsilonValue)
 #pragma define clip(value) if(value < 0.0) discard;
+#pragma define lerp(value1, value2, value2Multiplier) mix(value1, value2, value2Multiplier)
 
 // runtime constants
 #pragma define-meta CC_DEVICE_SUPPORT_FLOAT_TEXTURE default(1)
@@ -71,6 +72,10 @@
 #define IS_SPOT_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_SPOT)
 #define IS_POINT_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_POINT)
 #define IS_RANGED_DIRECTIONAL_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_RANGED_DIRECTIONAL)
+
+// CC_TONE_MAPPING_TYPE Values
+#define TONE_MAPPING_ACES 0
+#define TONE_MAPPING_LINEAR 1
 
 // Material
 #define SURFACES_MAX_TRANSMIT_DEPTH_VALUE 999999.0
