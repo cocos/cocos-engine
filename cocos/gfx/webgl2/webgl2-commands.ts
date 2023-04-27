@@ -2360,7 +2360,7 @@ export function WebGL2CmdFuncBindStates (
             const gpuDescriptor = descriptorIndex >= 0 && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
             if (!gpuDescriptor || !gpuDescriptor.gpuBuffer) {
-                error(`Buffer binding '${glBlock.name}' at set ${glBlock.set} binding ${glBlock.binding} is not bounded`);
+                // error(`Buffer binding '${glBlock.name}' at set ${glBlock.set} binding ${glBlock.binding} is not bounded`);
                 continue;
             }
 
@@ -2395,7 +2395,7 @@ export function WebGL2CmdFuncBindStates (
                 const glTexUnit = cache.glTexUnits[texUnit];
 
                 if (!gpuDescriptor || !gpuDescriptor.gpuTextureView || !gpuDescriptor.gpuTextureView.gpuTexture || !gpuDescriptor.gpuSampler) {
-                    error(`Sampler binding '${glSampler.name}' at set ${glSampler.set} binding ${glSampler.binding} index ${l} is not bounded`);
+                    // error(`Sampler binding '${glSampler.name}' at set ${glSampler.set} binding ${glSampler.binding} index ${l} is not bounded`);
                     continue;
                 }
 
