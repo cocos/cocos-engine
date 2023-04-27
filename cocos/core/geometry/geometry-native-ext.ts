@@ -87,7 +87,10 @@ const defineAttrFloat = (kls: Constructor, attr: string) => {
     // __nativeFields__ is defined in jsb_geometry_manual.cpp
     const desc: FieldDesc = (kls as any).__nativeFields__[attr];
     const cacheKey = `_$_${attr}`;
-    console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
+    if (!window.oh) {
+        // openharmony does not support the console.assert interface at this time.
+        console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
+    }
     Object.defineProperty(kls.prototype, desc.fieldName, {
         configurable: true,
         enumerable: true,
@@ -117,7 +120,10 @@ const defineAttrInt = (kls: Constructor, attr: string) => {
         console.error(`attr ${attr} not defined in class ${kls.toString()}`);
     }
     const cacheKey = `_$_${attr}`;
-    console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
+    if (!window.oh) {
+        // openharmony does not support the console.assert interface at this time.
+        console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
+    }
     Object.defineProperty(kls.prototype, desc.fieldName, {
         configurable: true,
         enumerable: true,

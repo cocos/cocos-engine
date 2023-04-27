@@ -25,8 +25,9 @@
 import { ccclass, serializable, uniquelyReferenced } from 'cc.decorator';
 import { SUPPORT_JIT } from 'internal:constants';
 import type { Component } from '../../scene-graph/component';
-import type { ObjectCurve, QuatCurve, RealCurve } from '../../core';
-import { assertIsTrue, errorID, warnID, js } from '../../core';
+import { error, ObjectCurve, QuatCurve, RealCurve, errorID, warnID, js } from '../../core';
+import { assertIsTrue } from '../../core/data/utils/asserts';
+
 import { Node } from '../../scene-graph';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import type { AnimationMask } from '../marionette/animation-mask';
@@ -35,16 +36,16 @@ import { ComponentPath, HierarchyPath, isPropertyPath, TargetPath } from '../tar
 import { IValueProxyFactory } from '../value-proxy';
 import { Range } from './utils';
 
-const normalizedFollowTag = Symbol('NormalizedFollow');
+export const normalizedFollowTag = Symbol('NormalizedFollow');
 
 const parseTrsPathTag = Symbol('ConvertAsTrsPath');
 
 export const trackBindingTag = Symbol('TrackBinding');
 
-export type RuntimeBinding = {
-    setValue(value: unknown): void;
+export type RuntimeBinding<T = unknown> = {
+    setValue(value: T): void;
 
-    getValue?(): unknown;
+    getValue?(): T;
 };
 
 export type Binder = (binding: TrackBinding) => undefined | RuntimeBinding;
@@ -323,7 +324,7 @@ export class TrackBinding {
     @serializable
     public proxy: IValueProxyFactory | undefined;
 
-    private static _animationFunctions = new WeakMap<Constructor, Map<string | number, { getValue:() => any, setValue:(val: any) => void}>>();
+    private static _animationFunctions = new WeakMap<Constructor, Map<string | number, { getValue:() => any, setValue: (val: any) => void}>>();
 
     public parseTrsPath () {
         if (this.proxy) {
@@ -422,7 +423,7 @@ export class TrackBinding {
     }
 }
 
-function isTrsPropertyName (name: string | number): name is 'position' | 'rotation' | 'scale' | 'eulerAngles' {
+export function isTrsPropertyName (name: string | number): name is 'position' | 'rotation' | 'scale' | 'eulerAngles' {
     return name === 'position' || name === 'rotation' || name === 'scale' || name === 'eulerAngles';
 }
 
@@ -498,18 +499,26 @@ export abstract class Track {
     /**
      * @internal
      */
-    public abstract [createEvalSymbol] (runtimeBinding: RuntimeBinding): TrackEval;
+    public abstract [createEvalSymbol] (): TrackEval<any>;
 
     @serializable
     private _binding = new TrackBinding();
 }
 
-export interface TrackEval {
+export interface TrackEval<TValue> {
     /**
-      * Evaluates the track.
-      * @param time The time.
-      */
-    evaluate(time: number, runtimeBinding: RuntimeBinding): unknown;
+     * A flag indicating if the track requires a default value to be passed to `this.evaluate`.
+     */
+    readonly requiresDefault: boolean;
+
+    /**
+     * Evaluates the track.
+     * @param time The time.
+     * @param defaultValue A default value.
+     * This param will be passed if `this.requiresDefault === true` and
+     * the caller is able to provide such a default value.
+     */
+    evaluate(time: number, defaultValue?: TValue extends unknown ? unknown : Readonly<TValue>): TValue;
 }
 
 export type Curve = RealCurve | QuatCurve | ObjectCurve<unknown>;
@@ -580,7 +589,7 @@ export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {
     /**
      * @internal
      */
-    public [createEvalSymbol] (_runtimeBinding: RuntimeBinding): TrackEval {
+    public [createEvalSymbol] (): TrackEval<unknown> {
         const { curve } = this._channel;
         return new SingleChannelTrackEval(curve);
     }
@@ -589,8 +598,12 @@ export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {
     private _channel: Channel<TCurve>;
 }
 
-class SingleChannelTrackEval<TCurve extends Curve> implements TrackEval {
+class SingleChannelTrackEval<TCurve extends Curve> implements TrackEval<unknown> {
     constructor (private _curve: TCurve) {
+    }
+
+    public get requiresDefault () {
+        return false;
     }
 
     public evaluate (time: number) {

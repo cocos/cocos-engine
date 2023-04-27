@@ -37,9 +37,10 @@ Mat3::Mat3() {
     *this = IDENTITY;
 }
 
-Mat3::Mat3(float m11, float m12, float m13, float m21, float m22, float m23,
-           float m31, float m32, float m33) {
-    set(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+Mat3::Mat3(float m00, float m01, float m02,
+           float m03, float m04, float m05,
+           float m06, float m07, float m08) {
+    set(m00, m01, m02, m03, m04, m05, m06, m07, m08);
 }
 
 Mat3::Mat3(const float *mat) {
@@ -50,16 +51,18 @@ Mat3::Mat3(const Mat3 &copy) {
     memcpy(m, copy.m, MATRIX3_SIZE);
 }
 
-void Mat3::set(float m11, float m12, float m13, float m21, float m22, float m23, float m31, float m32, float m33) {
-    m[0] = m11;
-    m[1] = m21;
-    m[2] = m31;
-    m[3] = m12;
-    m[4] = m22;
-    m[5] = m32;
-    m[6] = m13;
-    m[7] = m23;
-    m[8] = m33;
+void Mat3::set(float m00, float m01, float m02,
+               float m03, float m04, float m05,
+               float m06, float m07, float m08) {
+    m[0] = m00;
+    m[1] = m01;
+    m[2] = m02;
+    m[3] = m03;
+    m[4] = m04;
+    m[5] = m05;
+    m[6] = m06;
+    m[7] = m07;
+    m[8] = m08;
 }
 
 void Mat3::set(const float *mat) {
@@ -150,6 +153,10 @@ void Mat3::inverse() {
 
     // Calculate the determinant
     float det = a00 * b01 + a01 * b11 + a02 * b21;
+    if (det == 0.F) {
+        set(0.F, 0.F, 0.F, 0.F, 0.F, 0.F, 0.F, 0.F, 0.F);
+        return;
+    }
 
     det = 1.0F / det;
     m[0] = b01 * det;
@@ -417,7 +424,15 @@ void Mat3::subtract(const Mat3 &a, const Mat3 &b, Mat3 *out) {
 }
 
 bool Mat3::approxEquals(const Mat3 &v, float precision /* = CC_FLOAT_CMP_PRECISION */) const {
-    return math::isEqualF(m[0], v.m[0], precision) && math::isEqualF(m[1], v.m[1], precision) && math::isEqualF(m[2], v.m[2], precision) && math::isEqualF(m[3], v.m[3], precision) && math::isEqualF(m[4], v.m[4], precision) && math::isEqualF(m[5], v.m[5], precision) && math::isEqualF(m[6], v.m[6], precision) && math::isEqualF(m[7], v.m[7], precision) && math::isEqualF(m[8], v.m[8], precision);
+    return math::isEqualF(m[0], v.m[0], precision) &&
+           math::isEqualF(m[1], v.m[1], precision) &&
+           math::isEqualF(m[2], v.m[2], precision) &&
+           math::isEqualF(m[3], v.m[3], precision) &&
+           math::isEqualF(m[4], v.m[4], precision) &&
+           math::isEqualF(m[5], v.m[5], precision) &&
+           math::isEqualF(m[6], v.m[6], precision) &&
+           math::isEqualF(m[7], v.m[7], precision) &&
+           math::isEqualF(m[8], v.m[8], precision);
 }
 
 const Mat3 Mat3::IDENTITY = Mat3(

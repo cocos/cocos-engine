@@ -22,10 +22,13 @@
  THE SOFTWARE.
 */
 import { Material } from '../../asset/assets/material';
-import { Renderer } from '../../core/components/renderer';
+import { Renderer } from '../../misc/renderer';
+import type { MaterialInstance as JsbMaterialInstance } from './material-instance';
 
-export const MaterialInstance = jsb.MaterialInstance;
-export type MaterialInstance = jsb.MaterialInstance;
+declare const jsb: any;
+
+export const MaterialInstance: typeof JsbMaterialInstance = jsb.MaterialInstance;
+export type MaterialInstance = JsbMaterialInstance;
 
 const materialInstanceProto: any = jsb.MaterialInstance.prototype;
 

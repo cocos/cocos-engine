@@ -104,7 +104,7 @@ jobs:
         shell: bash
         run: |
           set -x
-          AUTOTEST_VERSION=`echo ${{ steps.parse_pr.outputs.pr_base_ref }} | cut -b -4`
+          AUTOTEST_VERSION="v3.7"
           TEST_PROJECTS_EXTERNAL="E:/pr-test/cocos-test-projects"
           CCTEST_PLUGINS="E:/pr-test/TestPlugin"
           if [ ! -d $TEST_PROJECTS_EXTERNAL ]; then
@@ -215,7 +215,7 @@ jobs:
         shell: bash
         run: |
           set -x
-          AUTOTEST_VERSION=`echo ${{ steps.parse_pr.outputs.pr_base_ref }} | cut -b -4`
+          AUTOTEST_VERSION="v3.7"
           TEST_PROJECTS_EXTERNAL="../../cocos-test-projects"
           CCTEST_PLUGINS="../../TestPlugin"
           if [ ! -d $TEST_PROJECTS_EXTERNAL ]; then
@@ -278,7 +278,7 @@ jobs:
           scheduler cicd -p PR-TEST -v ${{ steps.parse_pr.outputs.pr_base_ref }} -g PR-TEST -r cctest.cocos.org 
           JOBID=`cat  /usr/local/lib/node_modules/@cctest/scheduler/logs/PR-TEST/nowJobId.log`
           cd ..
-          python3 -u ./python/main.py --target=job_editor --jobid=$JOBID
+          python3 -u ./python/main.py --target=job_result --jobid=$JOBID
       - name: Update Comment
         uses: peter-evans/create-or-update-comment@v1
         with:
@@ -287,8 +287,8 @@ jobs:
             @${{ steps.parse_pr.outputs.pr_author }}, Please check the result of `run test cases`:
             - Test Platform: PR-Test
             - Editor Version: ${{ steps.run_test_cases.outputs.editor }}
-            - Task Result: ${{ steps.run_test_cases.outputs.status }}
-            - Task URL: http://cctest.cocos.org/#/reportview/PR-TEST/${{ steps.run_test_cases.outputs.jobid }}/-1
+            # - Task Result: ${{ steps.run_test_cases.outputs.task }}
+            # - Task URL: ${{ steps.run_test_cases.outputs.url }}
             - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
             ## Task Details
             ${{ steps.run_test_cases.outputs.report }}

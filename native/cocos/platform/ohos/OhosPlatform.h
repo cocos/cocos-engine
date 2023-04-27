@@ -36,6 +36,7 @@ public:
     int32_t run(int argc, const char **argv) override;
     int getSdkVersion() const override;
     int32_t loop() override;
+    void exit() override;
     ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
 
 private:

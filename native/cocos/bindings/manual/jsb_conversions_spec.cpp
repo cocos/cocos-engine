@@ -42,7 +42,9 @@
 
 #include "bindings/auto/jsb_assets_auto.h"
 #include "bindings/auto/jsb_cocos_auto.h"
+#if CC_USE_PHYSICS_PHYSX
 #include "bindings/auto/jsb_physics_auto.h"
+#endif
 #include "cocos/core/geometry/Geometry.h"
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
@@ -1007,6 +1009,18 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<bool> *to, se::Objec
     for (uint32_t i = 0; i < size; i++) {
         arr->getArrayElement(i, &tmp);
         (*to)[i] = tmp.toBoolean();
+    }
+    return true;
+}
+
+// NOLINTNEXTLINE(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::string, bool> *to, se::Object * /*ctx*/) {
+    if (from.isBoolean()) {
+        *to = from.toBoolean();
+    } else if (from.isString()) {
+        *to = from.toString();
+    } else {
+        CC_ASSERT(false);
     }
     return true;
 }

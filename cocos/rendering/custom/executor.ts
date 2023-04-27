@@ -29,7 +29,7 @@
  */
 /* eslint-disable max-len */
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
-import { assert, cclegacy, RecyclePool } from '../../core';
+import { assert, cclegacy, RecyclePool, geometry } from '../../core';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
 import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, BufferViewInfo, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, DescriptorSetInfo, Device, deviceManager, Format, Framebuffer,
@@ -66,6 +66,12 @@ import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { ReflectionProbeManager } from '../reflection-probe-manager';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../../asset/assets/texture-2d';
+import { AABB } from '../../core/geometry/aabb';
+import { LightType } from '../../render-scene/scene/light';
+
+const _v3 = new Vec3();
+const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+const _tmpBoundingBox = new AABB();
 
 let context: ExecutorContext;
 class DeviceResource {
@@ -209,6 +215,8 @@ class BlitDesc {
 
         const sphereLights = camera.scene.sphereLights;
         const spotLights = camera.scene.spotLights;
+        const pointLights = camera.scene.pointLights;
+        const rangedDirLights = camera.scene.rangedDirLights;
         const _sphere = Sphere.create(0, 0, 0, 1);
         const exposure = camera.exposure;
 
@@ -223,16 +231,16 @@ class BlitDesc {
             if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 // cc_lightPos
                 Vec3.toArray(_vec4Array, light.position);
-                _vec4Array[3] = 0;
+                _vec4Array[3] = LightType.SPHERE;
                 this._lightBufferData.set(_vec4Array, idx * elementLen);
 
                 // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
-                    const tempRGB = light.colorTemperatureRGB;
-                    _vec4Array[0] *= tempRGB.x;
-                    _vec4Array[1] *= tempRGB.y;
-                    _vec4Array[2] *= tempRGB.z;
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
                 }
 
                 if (pipeline.pipelineSceneData.isHDR) {
@@ -257,16 +265,16 @@ class BlitDesc {
             if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 // cc_lightPos
                 Vec3.toArray(_vec4Array, light.position);
-                _vec4Array[3] = 1;
+                _vec4Array[3] = LightType.SPOT;
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 0);
 
                 // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
-                    const tempRGB = light.colorTemperatureRGB;
-                    _vec4Array[0] *= tempRGB.x;
-                    _vec4Array[1] *= tempRGB.y;
-                    _vec4Array[2] *= tempRGB.z;
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
                 }
                 if (pipeline.pipelineSceneData.isHDR) {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
@@ -284,6 +292,81 @@ class BlitDesc {
                 // cc_lightDir
                 Vec3.toArray(_vec4Array, light.direction);
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 3);
+            }
+        }
+
+        for (let i = 0; i < pointLights.length && idx < maxLights; i++, ++idx) {
+            const light = pointLights[i];
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                // cc_lightPos
+                Vec3.toArray(_vec4Array, light.position);
+                _vec4Array[3] = LightType.POINT;
+                this._lightBufferData.set(_vec4Array, idx * elementLen);
+
+                // cc_lightColor
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
+                }
+
+                if (pipeline.pipelineSceneData.isHDR) {
+                    _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = light.luminance;
+                }
+
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
+
+                // cc_lightSizeRangeAngle
+                _vec4Array[0] = 0.0;
+                _vec4Array[1] = light.range;
+                _vec4Array[2] = 0.0;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
+            }
+        }
+
+        for (let i = 0; i < rangedDirLights.length && idx < maxLights; i++, ++idx) {
+            const light = rangedDirLights[i];
+            AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+            if (geometry.intersect.aabbFrustum(_tmpBoundingBox, camera.frustum)) {
+                // UBOForwardLight
+                Vec3.toArray(_vec4Array, light.position);
+                _vec4Array[3] = LightType.RANGED_DIRECTIONAL;
+                this._lightBufferData.set(_vec4Array, idx * elementLen);
+
+                // cc_lightColor
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const finalColor = light.finalColor;
+                    _vec4Array[0] = finalColor.x;
+                    _vec4Array[1] = finalColor.y;
+                    _vec4Array[2] = finalColor.z;
+                }
+                if (pipeline.pipelineSceneData.isHDR) {
+                    _vec4Array[3] = light.illuminance * exposure;
+                } else {
+                    _vec4Array[3] = light.illuminance;
+                }
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
+
+                Vec3.toArray(_vec4Array, light.right);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
+
+                Vec3.toArray(_vec4Array, light.direction);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 3);
+
+                // eslint-disable-next-line no-case-declarations
+                const scale = light.scale;
+                _v3.set(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5);
+                Vec3.toArray(_vec4Array, _v3);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 4);
             }
         }
 

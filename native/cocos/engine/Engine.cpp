@@ -274,7 +274,7 @@ void Engine::tick() {
 
         // iOS/macOS use its own fps limitation algorithm.
         // Windows for Editor should not sleep,because Editor call tick function synchronously
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || (CC_PLATFORM == CC_PLATFORM_WINDOWS && !CC_EDITOR) || CC_PLATFORM == CC_PLATFORM_OHOS) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || (CC_PLATFORM == CC_PLATFORM_WINDOWS && !CC_EDITOR) || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
         if (dtNS < static_cast<double>(_prefererredNanosecondsPerFrame)) {
             CC_PROFILE(EngineSleep);
             std::this_thread::sleep_for(
@@ -340,6 +340,8 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
     } else if (ev.type == WindowEvent::Type::CLOSE) {
         emit<EngineStatusChange>(ON_CLOSE);
         events::Close::broadcast();
+        // Increase the frame rate and get the program to exit as quickly as possible
+        setPreferredFramesPerSecond(1000);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::QUIT) {
         // There is no need to process the quit message,

@@ -803,30 +803,8 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
             const auto *status = &rag.access[i];
             while (status) {
                 for (const auto &attachment : status->attachmentStatus) {
-                    AccessStatus lastStatus{
-                        static_cast<uint32_t>(i),
-                        gfx::ShaderStageFlagBit::NONE,
-                        gfx::MemoryAccessBit::NONE,
-                        gfx::PassType::RASTER,
-                        gfx::AccessFlagBit::NONE,
-                        gfx::TextureUsageBit::NONE,
-                        TextureRange{},
-                    };
-
-                    AccessStatus currStatus = attachment;
-                    currStatus.vertID = static_cast<uint32_t>(i);
-
-                    gfx::BarrierType bType = gfx::BarrierType::FULL;
-                    const auto &traits = get(ResourceGraph::TraitsTag{}, resourceGraph, attachment.vertID);
-                    if (traits.hasSideEffects()) {
-                        const auto &accessFlag = get(ResourceGraph::StatesTag{}, resourceGraph, attachment.vertID).states;
-                        if (accessFlag != gfx::AccessFlagBit::NONE) {
-                            lastStatus.accessFlag = accessFlag;
-                            bType = traits.residency == ResourceResidency::BACKBUFFER ? gfx::BarrierType::FULL : gfx::BarrierType::SPLIT_END;
-                        }
-                        if (!isTransitionStatusDependent(lastStatus, currStatus)) {
-                            continue;
-                        }
+                    if (get(ResourceGraph::TraitsTag{}, resourceGraph, attachment.vertID).hasSideEffects()) {
+                        continue;
                     }
                     if (firstMeet.find(attachment.vertID) == firstMeet.end()) {
                         firstMeet.emplace(attachment.vertID);

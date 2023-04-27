@@ -278,8 +278,10 @@ export class Input {
         this._dispatchOrPushEventTouch(eventTouch, this._eventTouchList);
     }
 
-    // TODO: public in engine
-    private _registerEventDispatcher (eventDispatcher: IEventDispatcher) {
+    /**
+     * @engineInternal
+     */
+    public _registerEventDispatcher (eventDispatcher: IEventDispatcher) {
         this._eventDispatcherList.push(eventDispatcher);
         this._eventDispatcherList.sort((a, b) => b.priority - a.priority);
     }
@@ -365,7 +367,10 @@ export class Input {
         }
     }
 
-    private _clearEvents () {
+    /**
+     * @engineInternal
+     */
+    public _clearEvents () {
         this._eventMouseList.length = 0;
         this._eventTouchList.length = 0;
         this._eventKeyboardList.length = 0;
@@ -397,7 +402,10 @@ export class Input {
         }
     }
 
-    private _frameDispatchEvents () {
+    /**
+     * @engineInternal
+     */
+    public _frameDispatchEvents () {
         const eventHMDList = this._eventHMDList;
         // TODO: culling event queue
         for (let i = 0, length = eventHMDList.length; i < length; ++i) {

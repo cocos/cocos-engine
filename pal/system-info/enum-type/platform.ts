@@ -35,6 +35,7 @@ export enum Platform {
     IOS = 'IOS',
     MACOS = 'MACOS',
     OHOS = 'OHOS',
+    OPENHARMONY = 'OPENHARMONY',
     // Minigame
     WECHAT_GAME = 'WECHAT_GAME',
     WECHAT_MINI_PROGRAM = 'WECHAT_MINI_PROGRAM',

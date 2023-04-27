@@ -21,6 +21,11 @@ export class MacPackTool extends MacOSPackTool {
     }
 
     async generate() {
+
+        if(!await this.checkIfXcodeInstalled()) {
+            throw new Error(`Please check if Xcode is installed.`);
+        }
+
         if(this.shouldSkipGenerate()) {
             return false;
         }
@@ -37,7 +42,7 @@ export class MacPackTool extends MacOSPackTool {
 
         await toolHelper.runCmake(cmakeArgs);
 
-        await this.skipUpdateXcodeProject();
+        await this.modifyXcodeProject();
         return true;
     }
 

@@ -3,6 +3,10 @@
         "type": "github",
         "owner": "cocos-creator",
         "name": "engine-native-external",
+<<<<<<< HEAD
         "checkout": "v3.7.3-1"
+=======
+        "checkout": "develop-15"
+>>>>>>> develop
     }
 }

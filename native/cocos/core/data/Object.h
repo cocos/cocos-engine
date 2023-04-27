@@ -30,6 +30,10 @@
 #include "base/RefCounted.h"
 #include "base/TypeDef.h"
 
+namespace se {
+class Object;
+}
+
 namespace cc {
 
 /**
@@ -78,9 +82,9 @@ public:
          */
         LOCKED_IN_EDITOR = 1 << 9,
         /**
-          * @en Hide the object in editor.
-          * @zh 在编辑器中隐藏该对象。
-          */
+         * @en Hide the object in editor.
+         * @zh 在编辑器中隐藏该对象。
+         */
         HIDE_IN_HIERARCHY = 1 << 10,
 
         IS_ON_ENABLE_CALLED = 1 << 11,
@@ -107,16 +111,16 @@ public:
 
         // all the hideFlags
         /**
-          * @en The object will not be saved and hide the object in editor,and lock node, when the node is locked,
-          * cannot be clicked in the scene,and The object will not be saved when building a player.
-          * @zh 该对象将不会被保存,构建项目时，该对象将不会被保存, 锁定节点，锁定后场景内不能点击, 在编辑器中隐藏该对象。
-          */
+         * @en The object will not be saved and hide the object in editor,and lock node, when the node is locked,
+         * cannot be clicked in the scene,and The object will not be saved when building a player.
+         * @zh 该对象将不会被保存,构建项目时，该对象将不会被保存, 锁定节点，锁定后场景内不能点击, 在编辑器中隐藏该对象。
+         */
         ALL_HIDE_MASKS = DONT_SAVE | EDITOR_ONLY | LOCKED_IN_EDITOR | HIDE_IN_HIERARCHY,
     };
 
     static void deferredDestroy();
 
-    //cjh    public declare [editorExtrasTag]: unknown;
+    // cjh    public declare [editorExtrasTag]: unknown;
 
     Flags _objFlags{Flags::ZERO};
     ccstd::string _name;
@@ -135,8 +139,8 @@ public:
      * obj.name = "New Obj";
      * ```
      */
-    inline const ccstd::string &getName() const { return _name; }
-    inline void setName(const ccstd::string &value) { _name = value; }
+    inline const ccstd::string& getName() const { return _name; }
+    inline void setName(const ccstd::string& value) { _name = value; }
 
     /**
      * @en After inheriting CCObject objects, control whether you need to hide, lock, serialize, and other functions.
@@ -222,11 +226,16 @@ public:
 
     virtual ccstd::string toString() const { return ""; };
 
+    inline void setScriptObject(se::Object* seObj) { _scriptObject = seObj; }
+    inline se::Object* getScriptObject() const { return _scriptObject; }
+
 protected:
     virtual bool onPreDestroy() {
         // FIXME: need reture value
         return true;
     }
+
+    se::Object* _scriptObject{nullptr}; // weak reference
 };
 
 CC_ENUM_BITWISE_OPERATORS(CCObject::Flags);
@@ -285,6 +294,6 @@ inline bool CCObject::isReplicated() const {
  * log(isValid(node));    // false, destroyed in the end of last frame
  * ```
  */
-bool isObjectValid(CCObject *value, bool strictMode = false);
+bool isObjectValid(CCObject* value, bool strictMode = false);
 
 } // namespace cc

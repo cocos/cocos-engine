@@ -1528,7 +1528,7 @@ struct BlendState {
 
     void setTarget(index_t index, const BlendTarget &target) {
         if (index >= targets.size()) {
-            targets.resize(index + 1);
+            targets.resize(static_cast<size_t>(index) + 1);
         }
         targets[index] = target;
     }

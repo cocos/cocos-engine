@@ -33,7 +33,7 @@ int SystemWindowManager::init() {
     return 0;
 }
 
-void SystemWindowManager::processEvent(bool *quit) {
+void SystemWindowManager::processEvent() {
 }
 
 ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {

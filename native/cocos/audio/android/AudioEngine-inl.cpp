@@ -28,9 +28,12 @@
 
 #include <unistd.h>
 // for native asset manager
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <android/log.h>
+#endif
+
 #include <sys/types.h>
 #include <mutex>
 #include <thread>
@@ -41,9 +44,13 @@
 #include "base/Scheduler.h"
 #include "base/UTF8.h"
 #include "base/memory/Memory.h"
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+#include "cocos/platform/openharmony/FileUtils-OpenHarmony.h"
+#endif
 
 #include "audio/android/AudioDecoder.h"
 #include "audio/android/AudioDecoderProvider.h"
@@ -60,15 +67,26 @@ using namespace cc; //NOLINT
 namespace {
 AudioEngineImpl *gAudioImpl = nullptr;
 int outputSampleRate = 44100;
-int bufferSizeInFrames = 192;
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+int              bufferSizeInFrames = 192;
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+// TODO(hack) : There is currently a bug in the opensles module,
+// so openharmony must configure a fixed size, otherwise the callback will be suspended
+int              bufferSizeInFrames = 2048;
+#endif
 
 void getAudioInfo() {
-    JNIEnv *env = JniHelper::getEnv();
-    jclass audioSystem = env->FindClass("android/media/AudioSystem");
-    jmethodID method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputSamplingRate", "()I");
-    outputSampleRate = env->CallStaticIntMethod(audioSystem, method);
-    method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputFrameCount", "()I");
-    bufferSizeInFrames = env->CallStaticIntMethod(audioSystem, method);
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    JNIEnv *  env         = JniHelper::getEnv();
+    jclass    audioSystem = env->FindClass("android/media/AudioSystem");
+    jmethodID method      = env->GetStaticMethodID(audioSystem, "getPrimaryOutputSamplingRate", "()I");
+    outputSampleRate      = env->CallStaticIntMethod(audioSystem, method);
+    method                = env->GetStaticMethodID(audioSystem, "getPrimaryOutputFrameCount", "()I");
+    bufferSizeInFrames    = env->CallStaticIntMethod(audioSystem, method);
+#else
+    // In openharmony, setting to 48K does not cause audio delays
+    outputSampleRate      = 48000;
+#endif
 }
 } // namespace
 
@@ -94,10 +112,11 @@ static CallerThreadUtils gCallerThreadUtils;
 
 static int fdGetter(const ccstd::string &url, off_t *start, off_t *length) {
     int fd = -1;
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     if (cc::FileUtilsAndroid::getObbFile() != nullptr) {
         int64_t startV;
         int64_t lenV;
-        fd = getObbAssetFileDescriptorJNI(url, &startV, &lenV);
+        fd = cc::getObbAssetFileDescriptorJNI(url, &startV, &lenV);
         *start = static_cast<off_t>(startV);
         *length = static_cast<off_t>(lenV);
     }
@@ -107,7 +126,14 @@ static int fdGetter(const ccstd::string &url, off_t *start, off_t *length) {
         fd = AAsset_openFileDescriptor(asset, start, length);
         AAsset_close(asset);
     }
-
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    FileUtilsOpenHarmony* fileUtils = dynamic_cast<FileUtilsOpenHarmony*>(FileUtils::getInstance());
+    if(fileUtils) {
+        RawFileDescriptor descriptor;
+        fileUtils->getRawFileDescriptor(url, descriptor);
+        fd = descriptor.fd;
+    }
+#endif
     if (fd <= 0) {
         ALOGE("Failed to open file descriptor for '%s'", url.c_str());
     }

@@ -37,29 +37,35 @@ export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElemen
 }
 
 export function loadJsFile (path: string): Promise<void> {
-    if (PREVIEW) {
-        // NOTE: in native preview (simulator), we need to request script with url http://x.x.x.x:xxxx/plugins/xxx.js
-        // so that the editor preview server would resolve the plugin script and return the code.
-        // here we use window.eval() function to execute the code of plugin script.
-        return new Promise((resolve, reject) => {
-            const sourceURL = window.location.href + path;
-            const xhr = new XMLHttpRequest();
-            xhr.onload = () => {
-                if (xhr.status !== 200) {
-                    reject(new Error(`load js file failed: ${sourceURL}, error status: ${xhr.status}`));
-                    return;
-                }
-                // eslint-disable-next-line no-eval
-                window.eval(`${xhr.response as string}\n//# sourceURL=${sourceURL}`);
-                resolve();
-            };
-            xhr.onerror = () => {
-                reject(new Error(`load js file failed: ${sourceURL}`));
-            };
-            xhr.open('GET', sourceURL, true);
-            xhr.send(null);
-        });
+    if (window.oh) {
+        // TODO(qgh):OpenHarmony does not currently support dynamic require expressions
+        window.oh.loadModule(path);
+        return Promise.resolve();
+    } else {
+        if (PREVIEW) {
+            // NOTE: in native preview (simulator), we need to request script with url http://x.x.x.x:xxxx/plugins/xxx.js
+            // so that the editor preview server would resolve the plugin script and return the code.
+            // here we use window.eval() function to execute the code of plugin script.
+            return new Promise((resolve, reject) => {
+                const sourceURL = window.location.href + path;
+                const xhr = new XMLHttpRequest();
+                xhr.onload = () => {
+                    if (xhr.status !== 200) {
+                        reject(new Error(`load js file failed: ${sourceURL}, error status: ${xhr.status}`));
+                        return;
+                    }
+                    // eslint-disable-next-line no-eval
+                    window.eval(`${xhr.response as string}\n//# sourceURL=${sourceURL}`);
+                    resolve();
+                };
+                xhr.onerror = () => {
+                    reject(new Error(`load js file failed: ${sourceURL}`));
+                };
+                xhr.open('GET', sourceURL, true);
+                xhr.send(null);
+            });
+        }
+        // eslint-disable-next-line import/no-dynamic-require
+        return require(`${path}`);
     }
-    // eslint-disable-next-line import/no-dynamic-require
-    return require(`${path}`);
 }
