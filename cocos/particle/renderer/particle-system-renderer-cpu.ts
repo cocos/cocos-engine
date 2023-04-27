@@ -465,6 +465,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 this._localMat.m14 = 0;
                 this._localMat.m15 = 1;
             }
+            ps.gravityModifier.bake();
         }
 
         for (let i = this._particles!.length; i >= 0; --i) {

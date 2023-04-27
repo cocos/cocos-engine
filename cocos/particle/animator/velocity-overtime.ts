@@ -221,16 +221,21 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     }
 
     private calculateOrbital (p: Particle, dt: number, normalizedTime: number, speedMod: number) {
-        const offX = this.offsetX.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!;
-        const offY = this.offsetY.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!;
-        const offZ = this.offsetZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!;
+        const rndSeedX = pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET);
+        const rndSeedY = pseudoRandom(p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET);
+        const rndSeedZ = pseudoRandom(p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET);
+        const offX = this.offsetX.evaluate(normalizedTime, rndSeedX)!;
+        const offY = this.offsetY.evaluate(normalizedTime, rndSeedY)!;
+        const offZ = this.offsetZ.evaluate(normalizedTime, rndSeedZ)!;
         const offset = Vec3.set(_temp_v3, offX, offY, offZ);
 
         const radial = this.radius.evaluate(normalizedTime, pseudoRandom(p.randomSeed)) * dt;
 
-        const avelX = this.orbitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))! * dt * Particle.R2D;
-        const avelY = this.orbitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET))! * dt * Particle.R2D;
-        const avelZ = this.orbitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET))! * dt * Particle.R2D;
+        const tod = dt * Particle.R2D;
+
+        const avelX = this.orbitX.evaluate(normalizedTime, rndSeedX)! * tod;
+        const avelY = this.orbitY.evaluate(normalizedTime, rndSeedY)! * tod;
+        const avelZ = this.orbitZ.evaluate(normalizedTime, rndSeedZ)! * tod;
         const angM = Mat3.fromQuat(_temp_mat3, Quat.fromEuler(_temp_quat, avelX, avelY, avelZ));
 
         _temp_old.set(p.position);

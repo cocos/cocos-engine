@@ -124,14 +124,16 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
 
         if ((!this._separateAxes) || (this.renderMode === RenderMode.VerticalBillboard || this.renderMode === RenderMode.HorizontalBillboard)) {
-            Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
+            const tod = dt * Particle.R2D;
+            Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * tod);
         } else {
-            Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
+            const tod = dt * Particle.R2D;
+            Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, rotationRand)! * tod, this.y.evaluate(normalizedTime, rotationRand)! * tod, this.z.evaluate(normalizedTime, rotationRand)! * tod);
         }
 
         // Rotation-overtime combine with start rotation
         Quat.multiply(p.localQuat, p.localQuat, p.deltaQuat); // accumulate rotation
-        Quat.normalize(p.localQuat, p.localQuat);
+        // Quat.normalize(p.localQuat, p.localQuat);
         if (!p.startRotated) {
             if (this.renderMode !== RenderMode.Mesh) {
                 if (this.renderMode === RenderMode.StrecthedBillboard) {
@@ -149,6 +151,6 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         Quat.normalize(_temp_rot, _temp_rot);
 
         Quat.toEuler(p.rotation, _temp_rot);
-        Vec3.set(p.rotation, p.rotation.x / Particle.R2D, p.rotation.y / Particle.R2D, p.rotation.z / Particle.R2D);
+        Vec3.multiplyScalar(p.rotation, p.rotation, 1.0 / Particle.R2D);
     }
 }

@@ -196,19 +196,20 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
         let mag = velMag - dragN * dt;
         mag = mag < 0 ? 0 : mag;
 
-        magVel.set(velNormalized.x * mag, velNormalized.y * mag, velNormalized.z * mag);
+        Vec3.multiplyScalar(magVel, velNormalized, mag);
     }
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
 
         animatedVelocity.set(p.animatedVelocity);
-        magVel.set(p.velocity.x + animatedVelocity.x, p.velocity.y + animatedVelocity.y, p.velocity.z + animatedVelocity.z);
+        Vec3.add(magVel, p.velocity, animatedVelocity);
 
         if (this.separateAxes) {
-            const limitX = this.limitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET));
-            const limitY = this.limitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET));
-            const limitZ = this.limitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET));
+            const rndSeed = pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET);
+            const limitX = this.limitX.evaluate(normalizedTime, rndSeed);
+            const limitY = this.limitY.evaluate(normalizedTime, rndSeed);
+            const limitZ = this.limitZ.evaluate(normalizedTime, rndSeed);
 
             if (this.needTransform) {
                 Vec3.transformQuat(magVel, magVel, this.rotation);
@@ -222,7 +223,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
             const velLen = magVel.length();
             this.applyDrag(p, dt, normalizedVel, velLen);
 
-            magVel.set(magVel.x - animatedVelocity.x, magVel.y - animatedVelocity.y, magVel.z - animatedVelocity.z);
+            Vec3.subtract(magVel, magVel, animatedVelocity);
 
             if (this.needTransform) {
                 Quat.invert(this.invRot, this.rotation);
@@ -234,13 +235,13 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
             Vec3.normalize(normalizedVel, magVel);
 
             const damped = dampenBeyondLimit(velLen, lmt, this.dampen);
-            magVel.set(normalizedVel.x * damped, normalizedVel.y * damped, normalizedVel.z * damped);
+            Vec3.multiplyScalar(magVel, normalizedVel, damped);
 
             Vec3.normalize(normalizedVel, magVel);
             velLen = magVel.length();
             this.applyDrag(p, dt, normalizedVel, velLen);
 
-            magVel.set(magVel.x - animatedVelocity.x, magVel.y - animatedVelocity.y, magVel.z - animatedVelocity.z);
+            Vec3.subtract(magVel, magVel, animatedVelocity);
         }
         p.velocity.set(magVel);
     }
