@@ -316,7 +316,6 @@ Audio.State = {
                 }
                 this._state = Audio.State.INITIALZING;
             }
-            return clip;
         },
         enumerable: true,
         configurable: true
@@ -493,7 +492,7 @@ let WebAudioElement = function (buffer, audio) {
             if (this._currentSource)
                 this._currentSource.loop = bool;
 
-            return this._loop = bool;
+            this._loop = bool;
         },
         enumerable: true,
         configurable: true
@@ -549,7 +548,6 @@ let WebAudioElement = function (buffer, audio) {
             } else {
                 this.playedLength = num;
             }
-            return num;
         },
         enumerable: true,
         configurable: true
