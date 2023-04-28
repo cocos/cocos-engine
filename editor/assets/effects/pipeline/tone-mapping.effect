@@ -1,0 +1,65 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: tonemap-vs
+      frag: tonemap-fs
+      pass: tone-mapping
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      rasterizerState:
+        cullMode: none
+}%
+
+CCProgram tonemap-vs %{
+  precision highp float;
+  #include <legacy/decode-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+
+  out vec2 v_uv;
+
+  void main () {
+    StandardVertInput In;
+    CCDecode(In);
+    CC_HANDLE_GET_CLIP_FLIP(In.position.xy);
+    gl_Position = In.position;
+    gl_Position.y = gl_Position.y;
+    v_uv = a_texCoord;
+  }
+}%
+
+CCProgram tonemap-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+  #include <common/color/gamma>
+  #include <common/color/aces>
+  #include <common/debug/debug-view-define>
+
+  in vec2 v_uv;
+
+  #pragma rate u_texSampler pass
+  layout(binding = 0) uniform sampler2D u_texSampler;
+
+  layout(location = 0) out vec4 fragColor;
+
+  vec4 ToLDR(vec4 color) {
+    if (!DebugViewNeedDisplayOriginalData()) {
+    #if CC_USE_FLOAT_OUTPUT
+      #if CC_USE_HDR && CC_TONE_MAPPING_TYPE == HDR_TONE_MAPPING_ACES
+        color.rgb = ACESToneMap(color.rgb);
+      #endif
+      color.rgb = LinearToSRGB(color.rgb);
+    #endif
+    }
+    return color;
+  }
+
+  void main () {
+    vec4 o = texture(u_texSampler, v_uv);
+    fragColor = ToLDR(o);
+  }
+}%

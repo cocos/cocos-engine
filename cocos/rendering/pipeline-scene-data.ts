@@ -33,6 +33,7 @@ import { Material } from '../asset/assets';
 import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
 import { cclegacy } from '../core';
+import { Skin } from '../render-scene/scene/skin';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
@@ -70,6 +71,7 @@ export class PipelineSceneData {
     public shadows: Shadows = new Shadows();
     public csmLayers: CSMLayers = new CSMLayers();
     public octree: Octree = new Octree();
+    public skin: Skin = new Skin();
     public lightProbes = cclegacy.internal.LightProbes ? new cclegacy.internal.LightProbes() : null;
 
     /**

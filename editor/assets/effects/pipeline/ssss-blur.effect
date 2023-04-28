@@ -1,0 +1,198 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: blur-vs
+      frag: copy-fs
+      pass: copy-pass
+      depthTest: false
+      depthWrite: false
+    - vert: blur-vs
+      frag: ssssBlurX-fs
+      pass: ssss-blurX
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+        stencilTestFront: true
+        stencilFuncFront: equal
+        stencilRef: 0x78 # [0~255],use 120
+    - vert: blur-vs
+      frag: ssssBlurY-fs
+      pass: ssss-blurY
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+        stencilTestFront: true
+        stencilFuncFront: equal
+        stencilRef: 0x78 # [0~255],use 120
+}%
+
+CCProgram blur-vs %{
+  precision highp float;
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+
+  out vec2 v_uv;
+
+  void main () {
+    StandardVertInput In;
+    CCVertInput(In);
+    CC_HANDLE_GET_CLIP_FLIP(In.position.xy);
+    gl_Position = In.position;
+    gl_Position.y = gl_Position.y;
+    v_uv = a_texCoord;
+  }
+}%
+
+CCProgram copy-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <common/data/packing>
+
+  #pragma rate depthRaw pass
+  uniform sampler2D depthRaw;
+
+  in vec2 v_uv;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main() {
+    float depth = texture(depthRaw, v_uv).r;
+    fragColor = packDepthToRGBA(depth);
+  }
+}%
+
+CCProgram ssssBlur %{
+  precision highp float;
+  #include <number>
+  #include <common/data/packing>
+  #include <common/color/gamma>
+  #include <common/math/coordinates>
+
+  #pragma define NUMKERNEL 25
+  #pragma define RANGE (NUMKERNEL > 20 ? 3.0 : 2.0)
+
+  uniform blurUBO {
+    highp vec4 blurInfo; // x: ssssFov; y: ssssWidth; z: boundingBox; w: scale; 
+    highp vec4 kernel[NUMKERNEL];
+  };
+  #pragma rate colorTex pass
+  uniform sampler2D colorTex;
+  #pragma rate depthTex pass
+  uniform sampler2D depthTex;
+
+  /** 
+   * @param texcoord The usual quad texture coordinates.
+   * @param dir Direction of the blur:
+   *   - First pass:   float2(1.0, 0.0)
+   *   - Second pass:  float2(0.0, 1.0)
+   */
+  vec4 blur(vec2 texcoord, vec2 dir) {
+    float ssssFov = blurInfo.x;
+    // This parameter specifies the global level of subsurface scattering
+    // or, in other words, the width of the filter. It's specified in
+    // world space units.
+    float ssssWidth = blurInfo.y;
+    float boundingBox = blurInfo.z;
+    float depthUnitScale = boundingBox * blurInfo.w;
+    // Fetch color of current pixel:
+    // Use Sample_Point_Clamp
+    vec4 colorM = texture(colorTex, texcoord);
+    #if !CC_USE_HDR
+       colorM = vec4(LinearToSRGB(colorM.rgb), colorM.a);
+    #endif
+
+    //如果出现把旁边不属于皮肤的地方也糊出来了（星星状的亮线）,请改此处,使其能得到正确的ssss强度(ssss标记)
+	  //正常情况,4s物体的像素,a通道给0-0.5表示标记,正常物体a通道会输出1
+	  //尤其要当心MSAA Resolve之后，可能会将边缘处其他像素的该值求均值，使本不该是皮肤标记的像素变成了皮肤标记，所以此处应当严格检查避免这种情况
+	  //注意这里step的第二个参数要和ssss标记相同,标记非1会导致整个finalstep都为0无法采集旁边的像素贡献,整个皮肤会变青绿,因为kernel[0]是青绿色的,只有旁边像素的kernel系数才能贡献红色散射光
+    float threshold = 0.9, rangeScale = 1.0 / 0.9;
+    // #if MSAA_ENABLE
+      // threshold = 0.0;
+      // rangeScale = 1.0;
+    // #endif
+    float SSSS_STRENGTH_SOURCE = colorM.a > threshold ? 0.0 : colorM.a * rangeScale;
+    #define SSSS_STRENGTH_SOURCE_INLOOP (color.a > threshold ? 0.0 : color.a * rangeScale)
+
+    // Fetch linear depth of current pixel:
+    // Use Sample_Point_Clamp
+    float depthHS = unpackRGBAToDepth(texture(depthTex, texcoord));
+    float depthM = -GetCameraDepthRH(depthHS, cc_matProj);
+
+    // Calculate the ssssWidth scale (1.0 for a unit plane sitting on the
+    // projection window):
+    float distanceToProjectionWindow = 1.0 / tan(0.5 * ssssFov);
+    float scale = distanceToProjectionWindow / depthM * depthUnitScale;
+
+    // Calculate the final step to fetch the surrounding pixels:
+    vec2 finalStep = vec2(ssssWidth) * vec2(scale) * dir;
+    // Modulate it using the alpha channel.
+    finalStep *= vec2(SSSS_STRENGTH_SOURCE);
+    // Divide by 3 as the kernels range from -3 to 3.
+    finalStep *= vec2(1.0 / RANGE);
+
+    // Accumulate the center sample:
+    vec4 colorBlurred = colorM;
+    colorBlurred.rgb *= kernel[0].rgb;
+
+    // Accumulate the other samples:
+    for (int i = 1; i < NUMKERNEL; i++) {
+      // Fetch color and depth for current sample:
+      vec2 offset = texcoord + vec2(kernel[i].a) * finalStep;
+      //如果有糊出来的星星状的亮线,可以尝试把这个改成point采样来修复
+      // Use Sample_Point_Clamp
+      vec4 color = texture(colorTex, offset);
+      #if !CC_USE_HDR
+         color = vec4(LinearToSRGB(color.rgb), color.a);
+      #endif
+
+      //此时要当心是否会采到无理数(场景颜色为浮点格式时),有的话就跳过,否则会糊出黑块或亮块
+		  //if (isnan(dot(color, color)) || isinf(dot(color, color))) continue;
+
+      // If the difference in depth is huge, we lerp color back to "colorM":
+      float depthHS = unpackRGBAToDepth(texture(depthTex, offset));
+      float depth = -GetCameraDepthRH(depthHS, cc_matProj);
+      float s = saturate(300.0 / depthUnitScale * distanceToProjectionWindow *
+                               ssssWidth * abs(depthM - depth));
+      color.rgb = mix(color.rgb, colorM.rgb, s);
+
+      // Accumulate:
+      //如果采到非SSSS区域,则使用中心点的颜色来代替,不能不叠加此点的贡献,这样会形成暗边
+      colorBlurred.rgb += kernel[i].rgb * mix(colorM.rgb, color.rgb, SSSS_STRENGTH_SOURCE_INLOOP);
+    }
+    #if !CC_USE_HDR
+       colorBlurred = vec4(SRGBToLinear(colorBlurred.rgb), colorBlurred.a);
+    #endif
+    return colorBlurred;
+  }
+}%
+
+CCProgram ssssBlurX-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <ssssBlur>
+
+  in vec2 v_uv;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main() {
+    fragColor = blur(v_uv, vec2(1.0, 0.0));
+  }
+}%
+
+CCProgram ssssBlurY-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <ssssBlur>
+
+  in vec2 v_uv;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main() {
+    fragColor = vec4(blur(v_uv, vec2(0.0, 1.0)).rgb, 1.0);
+  }
+}%
