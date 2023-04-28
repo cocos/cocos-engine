@@ -266,14 +266,14 @@ void setCameraUBOValues(
 
 } // namespace
 
-void NativeSetter::setCamera(const scene::Camera& camera) {
+void NativeSetter::setCamera(const scene::Camera* camera) {
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
 
     setCameraUBOValues(
-        camera,
+        *camera,
         *layoutGraph,
         *pipelineRuntime->getPipelineSceneData(),
-        camera.getScene()->getMainLight(), data);
+        camera->getScene()->getMainLight(), data);
 }
 
 namespace {

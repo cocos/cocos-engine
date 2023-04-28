@@ -78,6 +78,11 @@ extern se::Object *__jsb_cc_render_ComputeSubpassBuilder_proto; // NOLINT
 extern se::Class * __jsb_cc_render_ComputeSubpassBuilder_class; // NOLINT
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::render::BasicRenderPassBuilder);
+extern se::Object *__jsb_cc_render_BasicRenderPassBuilder_proto; // NOLINT
+extern se::Class * __jsb_cc_render_BasicRenderPassBuilder_class; // NOLINT
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::render::RasterPassBuilder);
 extern se::Object *__jsb_cc_render_RasterPassBuilder_proto; // NOLINT
 extern se::Class * __jsb_cc_render_RasterPassBuilder_class; // NOLINT
@@ -111,6 +116,11 @@ extern se::Class * __jsb_cc_render_SceneTask_class; // NOLINT
 JSB_REGISTER_OBJECT_TYPE(cc::render::SceneTransversal);
 extern se::Object *__jsb_cc_render_SceneTransversal_proto; // NOLINT
 extern se::Class * __jsb_cc_render_SceneTransversal_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::render::BasicPipeline);
+extern se::Object *__jsb_cc_render_BasicPipeline_proto; // NOLINT
+extern se::Class * __jsb_cc_render_BasicPipeline_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::render::Pipeline);

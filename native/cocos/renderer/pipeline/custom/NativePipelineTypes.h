@@ -85,7 +85,7 @@ public:
     void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) /*implements*/;
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) /*implements*/;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) /*implements*/;
-    void setCamera(const scene::Camera &camera) /*implements*/;
+    void setCamera(const scene::Camera *camera) /*implements*/;
 
     void setVec4ArraySize(const ccstd::string& name, uint32_t sz);
     void setVec4ArrayElem(const ccstd::string& name, const cc::Vec4& vec, uint32_t id);
@@ -148,7 +148,7 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera &camera) override {
+    void setCamera(const scene::Camera *camera) override {
         NativeSetter::setCamera(camera);
     }
 
@@ -212,7 +212,7 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera &camera) override {
+    void setCamera(const scene::Camera *camera) override {
         NativeSetter::setCamera(camera);
     }
 
@@ -280,7 +280,7 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera &camera) override {
+    void setCamera(const scene::Camera *camera) override {
         NativeSetter::setCamera(camera);
     }
 
@@ -344,24 +344,25 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera &camera) override {
+    void setCamera(const scene::Camera *camera) override {
         NativeSetter::setCamera(camera);
     }
 
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
     void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
-    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     void addRasterView(const ccstd::string &name, const RasterView &view) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) override;
-    RasterSubpassBuilder *addRasterSubpass(const ccstd::string &layoutName) override;
-    ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &layoutName) override;
     void setViewport(const gfx::Viewport &viewport) override;
     void setVersion(const ccstd::string &name, uint64_t version) override;
     bool getShowStatistics() const override;
     void setShowStatistics(bool enable) override;
+
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    RasterSubpassBuilder *addRasterSubpass(const ccstd::string &layoutName) override;
+    ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &layoutName) override;
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
 };
 
@@ -416,7 +417,7 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera &camera) override {
+    void setCamera(const scene::Camera *camera) override {
         NativeSetter::setCamera(camera);
     }
 
@@ -474,7 +475,7 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera &camera) override {
+    void setCamera(const scene::Camera *camera) override {
         NativeSetter::setCamera(camera);
     }
 
@@ -928,26 +929,27 @@ public:
     uint32_t addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) override;
     uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) override;
     void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) override;
-    uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size, ResourceResidency residency) override;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
     uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
-    uint32_t addStorageTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
-    uint32_t addShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height, ResourceResidency residency) override;
     uint32_t addCustomBuffer(const ccstd::string &name, const gfx::BufferInfo &info, const std::string &type) override;
     uint32_t addCustomTexture(const ccstd::string &name, const gfx::TextureInfo &info, const std::string &type) override;
-    void updateStorageBuffer(const ccstd::string &name, uint32_t size, gfx::Format format) override;
     void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
     void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
-    void updateStorageTexture(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
-    void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) override;
     void beginFrame() override;
     void endFrame() override;
     RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) override;
-    ComputePassBuilder *addComputePass(const ccstd::string &layoutName) override;
     MovePassBuilder *addMovePass() override;
     CopyPassBuilder *addCopyPass() override;
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
+
+    uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size, ResourceResidency residency) override;
+    uint32_t addStorageTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    uint32_t addShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height, ResourceResidency residency) override;
+    void updateStorageBuffer(const ccstd::string &name, uint32_t size, gfx::Format format) override;
+    void updateStorageTexture(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
+    void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) override;
+    ComputePassBuilder *addComputePass(const ccstd::string &layoutName) override;
 
     void executeRenderGraph(const RenderGraph& rg);
 

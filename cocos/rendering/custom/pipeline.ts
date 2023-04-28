@@ -90,7 +90,13 @@ export interface Setter extends RenderNode {
 }
 
 export interface RasterQueueBuilder extends Setter {
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
     addSceneOfCamera (camera: Camera, light: LightInfo/*, SceneFlags.NONE*/): void;
     addScene (scene: RenderScene, sceneFlags: SceneFlags): void;
     addScene (scene: RenderScene/*, SceneFlags.NONE*/): void;
@@ -210,7 +216,7 @@ export interface ComputeSubpassBuilder extends Setter {
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
 
-export interface RasterPassBuilder extends Setter {
+export interface BasicRenderPassBuilder extends Setter {
     /**
      * @beta method's name might change
      */
@@ -256,14 +262,6 @@ export interface RasterPassBuilder extends Setter {
      */
     addTexture (name: string, slotName: string): void;
     /**
-     * @beta method's name might change
-     */
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
-    /**
-     * @beta method's name might change
-     */
-    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
-    /**
      * @deprecated method will be removed in 3.8.0
      */
     addRasterView (name: string, view: RasterView): void;
@@ -274,13 +272,27 @@ export interface RasterPassBuilder extends Setter {
     addQueue (hint: QueueHint, layoutName: string): RasterQueueBuilder;
     addQueue (hint: QueueHint/*, ''*/): RasterQueueBuilder;
     addQueue (/*QueueHint.NONE, ''*/): RasterQueueBuilder;
+    setViewport (viewport: Viewport): void;
+    /**
+     * @beta method's name might change
+     */
+    setVersion (name: string, version: number): void;
+    showStatistics: boolean;
+}
+
+export interface RasterPassBuilder extends BasicRenderPassBuilder {
+    /**
+     * @beta method's name might change
+     */
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    /**
+     * @beta method's name might change
+     */
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     addRasterSubpass (layoutName: string): RasterSubpassBuilder;
     addRasterSubpass (/*''*/): RasterSubpassBuilder;
     addComputeSubpass (layoutName: string): ComputeSubpassBuilder;
     addComputeSubpass (/*''*/): ComputeSubpassBuilder;
-    setViewport (viewport: Viewport): void;
-    setVersion (name: string, version: number): void;
-    showStatistics: boolean;
     /**
      * @beta method's name might change
      */
@@ -343,7 +355,7 @@ export interface SceneTransversal {
     transverse (visitor: SceneVisitor): SceneTask;
 }
 
-export interface Pipeline extends PipelineRuntime {
+export interface BasicPipeline extends PipelineRuntime {
     beginSetup (): void;
     endSetup (): void;
     containsResource (name: string): boolean;
@@ -353,16 +365,10 @@ export interface Pipeline extends PipelineRuntime {
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
     updateRenderWindow (name: string, renderWindow: RenderWindow): void;
-    addStorageBuffer (name: string, format: Format, size: number, residency: ResourceResidency): number;
-    addStorageBuffer (name: string, format: Format, size: number/*, ResourceResidency.MANAGED*/): number;
     addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     addRenderTarget (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
     addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     addDepthStencil (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
-    addStorageTexture (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
-    addStorageTexture (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
-    addShadingRateTexture (name: string, width: number, height: number, residency: ResourceResidency): number;
-    addShadingRateTexture (name: string, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
     /**
      * @beta method's name might change
      */
@@ -371,20 +377,14 @@ export interface Pipeline extends PipelineRuntime {
      * @beta method's name might change
      */
     addCustomTexture (name: string, info: TextureInfo, type: string): number;
-    updateStorageBuffer (name: string, size: number, format: Format): void;
-    updateStorageBuffer (name: string, size: number/*, Format.UNKNOWN*/): void;
     updateRenderTarget (name: string, width: number, height: number, format: Format): void;
     updateRenderTarget (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
     updateDepthStencil (name: string, width: number, height: number, format: Format): void;
     updateDepthStencil (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
-    updateStorageTexture (name: string, width: number, height: number, format: Format): void;
-    updateStorageTexture (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
-    updateShadingRateTexture (name: string, width: number, height: number): void;
     beginFrame (): void;
     endFrame (): void;
     addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder;
     addRasterPass (width: number, height: number/*, 'default'*/): RasterPassBuilder;
-    addComputePass (layoutName: string): ComputePassBuilder;
     addMovePass (): MovePassBuilder;
     addCopyPass (): CopyPassBuilder;
     /**
@@ -392,6 +392,21 @@ export interface Pipeline extends PipelineRuntime {
      */
     createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
+}
+
+export interface Pipeline extends BasicPipeline {
+    addStorageBuffer (name: string, format: Format, size: number, residency: ResourceResidency): number;
+    addStorageBuffer (name: string, format: Format, size: number/*, ResourceResidency.MANAGED*/): number;
+    addStorageTexture (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    addStorageTexture (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
+    addShadingRateTexture (name: string, width: number, height: number, residency: ResourceResidency): number;
+    addShadingRateTexture (name: string, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
+    updateStorageBuffer (name: string, size: number, format: Format): void;
+    updateStorageBuffer (name: string, size: number/*, Format.UNKNOWN*/): void;
+    updateStorageTexture (name: string, width: number, height: number, format: Format): void;
+    updateStorageTexture (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
+    updateShadingRateTexture (name: string, width: number, height: number): void;
+    addComputePass (layoutName: string): ComputePassBuilder;
 }
 
 export interface PipelineBuilder {
