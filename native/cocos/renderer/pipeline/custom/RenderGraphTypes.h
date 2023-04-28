@@ -678,7 +678,7 @@ struct SceneData {
     scene::Camera* camera{nullptr};
     LightInfo light;
     SceneFlags flags{SceneFlags::NONE};
-    ccstd::pmr::vector<ccstd::pmr::string> scenes;
+    ccstd::pmr::vector<const scene::RenderScene*> scenes;
 };
 
 struct Dispatch {

@@ -104,6 +104,7 @@ jobs:
         shell: bash
         run: |
           set -x
+          AUTOTEST_VERSION=`echo ${{ steps.parse_pr.outputs.pr_base_ref }} | cut -b -4`
           TEST_PROJECTS_EXTERNAL="E:/pr-test/cocos-test-projects"
           CCTEST_PLUGINS="E:/pr-test/TestPlugin"
           if [ ! -d $TEST_PROJECTS_EXTERNAL ]; then
@@ -114,8 +115,8 @@ jobs:
           fi
           git -C $TEST_PROJECTS_EXTERNAL reset --hard
           git -C $TEST_PROJECTS_EXTERNAL fetch --all --prune
-          git -C $TEST_PROJECTS_EXTERNAL checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}
-          git -C $TEST_PROJECTS_EXTERNAL pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
+          git -C $TEST_PROJECTS_EXTERNAL checkout origin/$AUTOTEST_VERSION
+          git -C $TEST_PROJECTS_EXTERNAL pull origin $AUTOTEST_VERSION --allow-unrelated-histories
           rm -rf $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
           7z x -y $CCTEST_PLUGINS/*.zip -o$TEST_PROJECTS_EXTERNAL/extensions/automation-framework
   macOS-RunTestCases:
@@ -214,6 +215,7 @@ jobs:
         shell: bash
         run: |
           set -x
+          AUTOTEST_VERSION=`echo ${{ steps.parse_pr.outputs.pr_base_ref }} | cut -b -4`
           TEST_PROJECTS_EXTERNAL="../../cocos-test-projects"
           CCTEST_PLUGINS="../../TestPlugin"
           if [ ! -d $TEST_PROJECTS_EXTERNAL ]; then
@@ -224,8 +226,8 @@ jobs:
           fi
           git -C $TEST_PROJECTS_EXTERNAL reset --hard
           git -C $TEST_PROJECTS_EXTERNAL fetch --all --prune
-          git -C $TEST_PROJECTS_EXTERNAL checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}
-          git -C $TEST_PROJECTS_EXTERNAL pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
+          git -C $TEST_PROJECTS_EXTERNAL checkout origin/$AUTOTEST_VERSION
+          git -C $TEST_PROJECTS_EXTERNAL pull origin $AUTOTEST_VERSION --allow-unrelated-histories
           rm -rf $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
           unzip -oq $CCTEST_PLUGINS/*.zip -d $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
   Creator-PR-RunTestCases:

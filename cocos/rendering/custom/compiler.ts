@@ -21,16 +21,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-import { Buffer, Framebuffer, Texture, Viewport } from '../../gfx';
-import { assert } from '../../core';
+import { DEBUG } from 'internal:constants';
+import { Buffer, Framebuffer, LoadOp, StoreOp, Texture, Viewport } from '../../gfx';
+import { assert, warn } from '../../core';
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
 import { Pipeline } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor,
-    RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
-import { AccessType, RasterView, ResourceResidency } from './types';
+    RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphObject, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
+import { AccessType, RasterView, ComputeView, ResourceResidency, SceneFlags } from './types';
 
 class PassVisitor implements RenderGraphVisitor {
     public queueID = 0xFFFFFFFF;
@@ -49,27 +50,94 @@ class PassVisitor implements RenderGraphVisitor {
     protected _isQueue (u: number): boolean {
         return !!this.context.renderGraph.tryGetQueue(u);
     }
+    protected _isShadowMap (u: number): boolean {
+        const sceneData = this._getSceneData(u);
+        if (sceneData) {
+            return sceneData.light && !!sceneData.light.light && (sceneData.flags & SceneFlags.SHADOW_CASTER) !== 0;
+        }
+        return false;
+    }
+    protected _getSceneData (u: number): SceneData | null {
+        return this.context.renderGraph.tryGetScene(u);
+    }
     protected _isScene (u: number): boolean {
-        return !!this.context.renderGraph.tryGetScene(u);
+        return !!this._getSceneData(u);
     }
     protected _isBlit (u: number): boolean {
         return !!this.context.renderGraph.tryGetBlit(u);
     }
+
+    private _useResourceInfo (input: string, raster: RasterView) {
+        if (!DEBUG) {
+            return;
+        }
+        const resContext = this.context.resourceContext;
+        const useContext = resContext.get(input);
+        const resGraph = this.context.resourceGraph;
+        // There are resources being used
+        if (useContext) {
+            const rasters = useContext.rasters;
+            const passRaster = rasters.get(this.passID);
+            if (passRaster === raster) {
+                return;
+            }
+            const computes = useContext.computes;
+            let isPreRaster = false;
+            for (const [passId, currRaster] of rasters) {
+                if (passId > this.passID) {
+                    isPreRaster = true;
+                    // TODO: Shadow map is rather special, as it will be merged into one pass later, and then this determination can be removed.
+                    if (!this._isShadowMap(this.sceneID)) {
+                        assert(currRaster.loadOp === LoadOp.LOAD,
+                            `The resource with name ${input} is being used, and the pass that uses this resource must have loadOp set to 'load'`);
+                    }
+                }
+            }
+            for (const [passId] of computes) {
+                if (passId > this.passID) {
+                    isPreRaster = true;
+                    break;
+                }
+            }
+            if (isPreRaster) {
+                assert(raster.storeOp === StoreOp.STORE, `The resource ${input} is being used, so storeOp needs to be set to 'store'`);
+            }
+            rasters.set(this.passID, raster);
+        } else {
+            const resId = resGraph.vertex(input);
+            const trait = resGraph.getTraits(resId);
+            switch (trait.residency) {
+            case ResourceResidency.PERSISTENT:
+                assert(raster.storeOp === StoreOp.STORE, `Persistent resources must have storeOp set to 'store'.`);
+                break;
+            default:
+            }
+            const useContext = new ResourceUseContext();
+            resContext.set(input, useContext);
+            useContext.rasters.set(this.passID, raster);
+        }
+    }
+
     private _fetchValidPass () {
         const rg = this.context.renderGraph;
-        if (rg.getValid(this.sceneID)) {
+        const resContext = this.context.resourceContext;
+        if (!DEBUG && rg.getValid(this.passID)) {
+            rg.setValid(this.queueID, true);
+            rg.setValid(this.sceneID, true);
             return;
         }
         const outputId = this.resID;
         const outputName = this.context.resourceGraph.vertexName(outputId);
         const readViews: Map<string, RasterView> = new Map();
         const pass = this._currPass!;
-
+        const validPass = rg.getValid(this.passID);
         for (const [readName, raster] of pass.rasterViews) {
             // find the pass
             if (readName === outputName
                 && raster.accessType !== AccessType.READ) {
-                assert(!rg.getValid(this.sceneID), 'The same pass cannot output multiple resources with the same name at the same time');
+                if (DEBUG) {
+                    this._useResourceInfo(readName, raster);
+                }
                 rg.setValid(this.passID, true);
                 rg.setValid(this.queueID, true);
                 rg.setValid(this.sceneID, true);
@@ -79,7 +147,11 @@ class PassVisitor implements RenderGraphVisitor {
                 readViews.set(readName, raster);
             }
         }
+        if (DEBUG && validPass) return;
         if (rg.getValid(this.sceneID)) {
+            for (const [readName, raster] of pass.rasterViews) {
+                context.pipeline.resourceUses.push(readName);
+            }
             let resVisitor;
             let resourceGraph;
             let vertID;
@@ -93,6 +165,20 @@ class PassVisitor implements RenderGraphVisitor {
                 }
             }
             for (const [computeName, cViews] of pass.computeViews) {
+                if (DEBUG) {
+                    let resUseContext = resContext.get(computeName);
+                    if (!resUseContext) {
+                        resUseContext = new ResourceUseContext();
+                        resContext.set(computeName, resUseContext);
+                    }
+                    const computes = resUseContext.computes;
+                    const currUseComputes = computes.get(this.passID);
+                    if (currUseComputes) {
+                        currUseComputes.push(cViews);
+                    } else {
+                        computes.set(this.passID, [cViews]);
+                    }
+                }
                 resVisitor = new ResourceVisitor(this.context);
                 resourceGraph = this.context.resourceGraph;
                 vertID = resourceGraph.find(computeName);
@@ -193,8 +279,15 @@ class ResourceVisitor implements ResourceGraphVisitor {
         this.dependency();
     }
 }
+
+class ResourceUseContext {
+    // <passID, pass view>
+    readonly rasters: Map<number, RasterView> = new Map<number, RasterView>();
+    // <pass Use ID, compute views>
+    computes: Map<number, [ComputeView[]]> = new Map<number, [ComputeView[]]>();
+}
 class CompilerContext {
-    constructor (pipeline: Pipeline,
+    set (pipeline: Pipeline,
         resGraph: ResourceGraph,
         renderGraph: RenderGraph,
         layoutGraph: LayoutGraphData) {
@@ -202,11 +295,16 @@ class CompilerContext {
         this.resourceGraph = resGraph;
         this.renderGraph = renderGraph;
         this.layoutGraph = layoutGraph;
+        if (!this.resourceContext) {
+            this.resourceContext = new Map<string, ResourceUseContext>();
+        }
+        this.resourceContext.clear();
     }
-    readonly resourceGraph: ResourceGraph;
-    readonly pipeline: Pipeline;
-    readonly renderGraph: RenderGraph;
-    readonly layoutGraph: LayoutGraphData;
+    resourceGraph!: ResourceGraph;
+    pipeline;
+    renderGraph!: RenderGraph;
+    layoutGraph!: LayoutGraphData;
+    resourceContext!: Map<string, ResourceUseContext>;
 }
 
 export class Compiler {
@@ -221,17 +319,50 @@ export class Compiler {
         this._layoutGraph = layoutGraph;
     }
     compile (rg: RenderGraph) {
-        const context = new CompilerContext(
-            this._pipeline,
-            this._resourceGraph,
-            rg,
-            this._layoutGraph,
-        );
+        context.set(this._pipeline, this._resourceGraph, rg, this._layoutGraph);
         const visitor = new ResourceManagerVisitor(context);
         depthFirstSearch(this._resourceGraph, visitor, visitor.colorMap);
+        if (DEBUG) {
+            const useContext = context.resourceContext;
+            for (const [name, use] of useContext) {
+                const resId = this._resourceGraph.vertex(name);
+                const trait = this._resourceGraph.getTraits(resId);
+                const rasterArr: number[] = Array.from(use.rasters.keys());
+
+                const min = rasterArr.reduce((prev, current) => (prev < current ? prev : current));
+                const firstRaster = use.rasters.get(min)!;
+                switch (trait.residency) {
+                case ResourceResidency.PERSISTENT:
+                    assert(firstRaster.loadOp !== LoadOp.DISCARD,
+                        `The loadOp for persistent resources in the top-level pass cannot be set to 'discard'.`);
+                    break;
+                case ResourceResidency.MANAGED:
+                    assert(firstRaster.loadOp === LoadOp.CLEAR, `The loadOp for Managed resources in the top-level pass can only be set to 'clear'.`);
+                    break;
+                default:
+                    break;
+                }
+                const computeArr: number[] = Array.from(use.computes.keys());
+                const max = rasterArr.reduce((prev, current) => (prev > current ? prev : current));
+                let maxCompute = -1;
+                if (computeArr.length) {
+                    maxCompute = computeArr.reduce((prev, current) => (prev > current ? prev : current));
+                }
+                if (max > maxCompute) {
+                    const lastRaster = use.rasters.get(max)!;
+                    switch (trait.residency) {
+                    case ResourceResidency.MANAGED:
+                        assert(lastRaster.storeOp === StoreOp.DISCARD, `MANAGED resources that are not being used must be set to 'discard'.`);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
-
+const context = new CompilerContext();
 export class ResourceManagerVisitor extends DefaultVisitor {
     private _colorMap: VectorGraphColorMap;
     private _resourceGraph: ResourceGraph;

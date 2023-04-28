@@ -494,18 +494,20 @@ const Elements = {
             });
 
             panel._readyToUpdate = true;
-            Object.defineProperty(panel, 'readyToUpdate', {
-                enumerable: true,
-                get() {
-                    return panel._readyToUpdate;
-                },
-                set(val) {
-                    panel._readyToUpdate = val;
-                    if (val) {
-                        panel.throttleUpdate();
-                    }
-                },
-            });
+            if (panel.readyToUpdate === undefined) {
+                Object.defineProperty(panel, 'readyToUpdate', {
+                    enumerable: true,
+                    get() {
+                        return panel._readyToUpdate;
+                    },
+                    set(val) {
+                        panel._readyToUpdate = val;
+                        if (val) {
+                            panel.throttleUpdate();
+                        }
+                    },
+                });
+            }
         },
         async update() {
             const panel = this;

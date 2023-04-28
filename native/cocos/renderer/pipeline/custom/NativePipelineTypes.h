@@ -85,6 +85,7 @@ public:
     void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) /*implements*/;
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) /*implements*/;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) /*implements*/;
+    void setCamera(const scene::Camera &camera) /*implements*/;
 
     void setVec4ArraySize(const ccstd::string& name, uint32_t sz);
     void setVec4ArrayElem(const ccstd::string& name, const cc::Vec4& vec, uint32_t id);
@@ -147,9 +148,12 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
+    void setCamera(const scene::Camera &camera) override {
+        NativeSetter::setCamera(camera);
+    }
 
     void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) override;
-    void addScene(const ccstd::string &name, SceneFlags sceneFlags) override;
+    void addScene(const scene::RenderScene *scene, SceneFlags sceneFlags) override;
     void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
@@ -207,6 +211,9 @@ public:
     }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
+    }
+    void setCamera(const scene::Camera &camera) override {
+        NativeSetter::setCamera(camera);
     }
 
     void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
@@ -273,6 +280,9 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
+    void setCamera(const scene::Camera &camera) override {
+        NativeSetter::setCamera(camera);
+    }
 
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) override;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
@@ -333,6 +343,9 @@ public:
     }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
+    }
+    void setCamera(const scene::Camera &camera) override {
+        NativeSetter::setCamera(camera);
     }
 
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
@@ -403,6 +416,9 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
+    void setCamera(const scene::Camera &camera) override {
+        NativeSetter::setCamera(camera);
+    }
 
     void addDispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, Material *material, uint32_t passID) override;
 };
@@ -457,6 +473,9 @@ public:
     }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
+    }
+    void setCamera(const scene::Camera &camera) override {
+        NativeSetter::setCamera(camera);
     }
 
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;

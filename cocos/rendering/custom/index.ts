@@ -27,7 +27,7 @@ import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
-import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
+import { CustomPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { WebProgramLibrary } from './web-program-library';
@@ -76,7 +76,7 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Custom', new CustomPipelineBuilder());
-    map.set('Native', new NativePipelineBuilder());
+    map.set('Test', new TestPipelineBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);

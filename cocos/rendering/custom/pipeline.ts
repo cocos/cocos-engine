@@ -86,13 +86,14 @@ export interface Setter extends RenderNode {
     setReadWriteBuffer (name: string, buffer: Buffer): void;
     setReadWriteTexture (name: string, texture: Texture): void;
     setSampler (name: string, sampler: Sampler): void;
+    setCamera (camera: Camera): void;
 }
 
 export interface RasterQueueBuilder extends Setter {
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
     addSceneOfCamera (camera: Camera, light: LightInfo/*, SceneFlags.NONE*/): void;
-    addScene (name: string, sceneFlags: SceneFlags): void;
-    addScene (name: string/*, SceneFlags.NONE*/): void;
+    addScene (scene: RenderScene, sceneFlags: SceneFlags): void;
+    addScene (scene: RenderScene/*, SceneFlags.NONE*/): void;
     addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags): void;
     addFullscreenQuad (material: Material, passID: number/*, SceneFlags.NONE*/): void;
     addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;

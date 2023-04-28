@@ -243,6 +243,8 @@ export class WebSetter {
         const num = this._lg.attributeIndex.get(name)!;
         this._data.samplers.set(num, sampler);
     }
+    public setCamera (camera: Camera): void {
+    }
     public hasSampler (name: string): boolean {
         const id = this._lg.attributeIndex.get(name);
         if (id === undefined) {
@@ -808,10 +810,11 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         setTextureUBOView(this, camera, this._pipeline);
         initGlobalDescBinding(this._data, layoutName);
     }
-    addScene (sceneName: string, sceneFlags = SceneFlags.NONE): void {
-        const sceneData = new SceneData(sceneName, sceneFlags);
+    addScene (scene: RenderScene, sceneFlags = SceneFlags.NONE): void {
+        const sceneData = new SceneData('Scene', sceneFlags);
+        sceneData.scenes.push(scene);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), false, this._vertID,
+            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
         );
     }
     addFullscreenQuad (material: Material, passID: number, sceneFlags = SceneFlags.NONE, name = 'Quad'): void {
@@ -853,10 +856,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         );
     }
     setViewport (viewport: Viewport) {
-        this._renderGraph.addVertex<RenderGraphValue.Viewport>(
-            RenderGraphValue.Viewport, viewport,
-            'Viewport', '', new RenderData(), false, this._vertID,
-        );
+        this._queue.viewport = new Viewport().copy(viewport);
     }
     addCustomCommand (customBehavior: string): void {
         throw new Error('Method not implemented.');
@@ -1424,7 +1424,8 @@ export class WebPipeline implements Pipeline {
         this._globalDSManager = new GlobalDSManager(this._device);
         this._globalDescSetData = this.getGlobalDescriptorSetData()!;
         this._globalDescriptorSetLayout = this._globalDescSetData.descriptorSetLayout;
-        this._globalDescriptorSet = isEnableEffect() ? this._device.createDescriptorSet(new DescriptorSetInfo(this._globalDescriptorSetLayout!))
+        this._globalDescriptorSetInfo = new DescriptorSetInfo(this._globalDescriptorSetLayout!);
+        this._globalDescriptorSet = isEnableEffect() ? this._device.createDescriptorSet(this._globalDescriptorSetInfo)
             : this._globalDescSetData.descriptorSet;
         this._globalDSManager.globalDescriptorSet = this.globalDescriptorSet;
         this.setMacroBool('CC_USE_HDR', this._pipelineSceneData.isHDR);
@@ -1498,6 +1499,9 @@ export class WebPipeline implements Pipeline {
     }
     public get globalDescriptorSet (): DescriptorSet {
         return this._globalDescriptorSet!;
+    }
+    public get globalDescriptorSetInfo (): DescriptorSetInfo {
+        return this._globalDescriptorSetInfo!;
     }
     public get commandBuffers (): CommandBuffer[] {
         return [this._device.commandBuffer];
@@ -1763,6 +1767,10 @@ export class WebPipeline implements Pipeline {
         return this._layoutGraph;
     }
 
+    get resourceUses () {
+        return this._resourceUses;
+    }
+
     protected _updateRasterPassConstants (setter: WebSetter, width: number, height: number, layoutName = 'default') {
         const director = cclegacy.director;
         const root = director.root;
@@ -1813,6 +1821,7 @@ export class WebPipeline implements Pipeline {
     private _device!: Device;
     private _globalDSManager!: GlobalDSManager;
     private _globalDescriptorSet: DescriptorSet | null = null;
+    private _globalDescriptorSetInfo: DescriptorSetInfo | null = null;
     private _globalDescriptorSetLayout: DescriptorSetLayout | null = null;
     private readonly _macros: MacroRecord = {};
     private readonly _pipelineSceneData: PipelineSceneData = new PipelineSceneData();
@@ -1821,6 +1830,7 @@ export class WebPipeline implements Pipeline {
     private _profiler: Model | null = null;
     private _pipelineUBO: PipelineUBO = new PipelineUBO();
     private _cameras: Camera[] = [];
+    private _resourceUses: string[] = [];
 
     private _layoutGraph: LayoutGraphData;
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();

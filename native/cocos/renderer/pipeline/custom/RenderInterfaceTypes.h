@@ -140,6 +140,7 @@ public:
     virtual void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) = 0;
     virtual void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
     virtual void setSampler(const ccstd::string &name, gfx::Sampler *sampler) = 0;
+    virtual void setCamera(const scene::Camera &camera) = 0;
 };
 
 class RasterQueueBuilder : public Setter {
@@ -147,7 +148,7 @@ public:
     RasterQueueBuilder() noexcept = default;
 
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
-    virtual void addScene(const ccstd::string &name, SceneFlags sceneFlags) = 0;
+    virtual void addScene(const scene::RenderScene *scene, SceneFlags sceneFlags) = 0;
     virtual void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) = 0;
@@ -159,8 +160,8 @@ public:
     void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
         addSceneOfCamera(camera, std::move(light), SceneFlags::NONE);
     }
-    void addScene(const ccstd::string &name) {
-        addScene(name, SceneFlags::NONE);
+    void addScene(const scene::RenderScene *scene) {
+        addScene(scene, SceneFlags::NONE);
     }
     void addFullscreenQuad(Material *material, uint32_t passID) {
         addFullscreenQuad(material, passID, SceneFlags::NONE);
