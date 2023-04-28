@@ -33,3 +33,4 @@ export * from './ui-transform';
 export * from './deprecated';
 export * from './render-root-2d';
 export * from './sprite-renderer';
+export * from './canvas-renderer';

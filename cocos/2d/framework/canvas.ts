@@ -24,21 +24,25 @@
 */
 
 import { ccclass, help, disallowMultiple, executeInEditMode,
-    executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
+    executionOrder, menu, tooltip, type, serializable, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Camera } from '../../misc/camera-component';
 import { Widget } from '../../ui/widget';
-import { Vec3, screen, Enum, cclegacy, visibleRect } from '../../core';
+import { Vec3, screen, visibleRect, ccenum, cclegacy } from '../../core';
 import { view } from '../../ui/view';
 import { RenderRoot2D } from './render-root-2d';
 import { NodeEventType } from '../../scene-graph/node-event';
+import { CanvasRenderer } from './canvas-renderer';
 
 const _worldPos = new Vec3();
 
-const RenderMode = Enum({
-    OVERLAY: 0,
-    INTERSPERSE: 1,
-});
+export enum CanvasRenderMode {
+    LEGACY      = 0,
+    OVERLAY     = 1,
+    FIT_CAMERA  = 2,
+    WORLD_SPACE = 3,
+}
+ccenum(CanvasRenderMode);
 
 /**
  * @en
@@ -60,34 +64,31 @@ const RenderMode = Enum({
 export class Canvas extends RenderRoot2D {
     /**
      * @en
-     * The render mode of Canvas.
-     * When you choose the mode of INTERSPERSE, You can specify the rendering order of the Canvas with the camera in the scene.
-     * When you choose the mode of OVERLAY, the builtin camera of Canvas will render after all scene cameras are rendered.
-     * NOTE: The cameras in the scene (including the Canvas built-in camera) must have a ClearFlag selection of SOLID_COLOR,
-     * otherwise a splash screen may appear on the mobile device.
+     * The render mode of Canvas. // TODO
      *
      * @zh
-     * Canvas 渲染模式。
-     * intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。
-     * 注意：场景里的相机（包括 Canvas 内置的相机）必须有一个的 ClearFlag 选择 SOLID_COLOR，否则在移动端可能会出现闪屏。
-     *
-     * @deprecated since v3.0, please use [[Camera.priority]] to control overlapping between cameras.
+     * Canvas 渲染模式。// TODO
      */
-    get renderMode (): number {
+    @type(CanvasRenderMode)
+    get renderMode () {
         return this._renderMode;
     }
     set renderMode (val) {
+        if (val === this._renderMode) return;
+        this._resetRenderMode(this._renderMode);
+
         this._renderMode = val;
 
-        if (this._cameraComponent) {
-            this._cameraComponent.priority = this._getViewPriority();
-        }
+        this._switchRenderMode(val);
     }
 
     /**
      * @en The camera component that will be aligned with this canvas
      * @zh 将与此 canvas 对齐的相机组件
      */
+    @visible(function (this: Canvas) {
+        return this._renderMode !== CanvasRenderMode.OVERLAY;
+    })
     @type(Camera)
     @tooltip('i18n:canvas.camera')
     get cameraComponent (): Camera | null {
@@ -106,6 +107,9 @@ export class Canvas extends RenderRoot2D {
      * @en Align canvas with screen
      * @zh 是否使用屏幕对齐画布
      */
+    @visible(function (this: Canvas) {
+        return this._renderMode === CanvasRenderMode.LEGACY;
+    })
     @tooltip('i18n:canvas.align')
     get alignCanvasWithScreen (): boolean {
         return this._alignCanvasWithScreen;
@@ -117,17 +121,19 @@ export class Canvas extends RenderRoot2D {
         this._onResizeCamera();
     }
 
+    // 会有区别，比如 world 为 event camera
     @type(Camera)
     protected _cameraComponent: Camera | null = null;
     @serializable
     protected _alignCanvasWithScreen = true;
+    @serializable
+    private _renderMode = CanvasRenderMode.LEGACY;
 
     protected _thisOnCameraResized: () => void;
     // fit canvas node to design resolution
     protected _fitDesignResolution: (() => void) | undefined;
 
     private _pos = new Vec3();
-    private _renderMode = RenderMode.OVERLAY;
 
     constructor () {
         super();
@@ -154,36 +160,8 @@ export class Canvas extends RenderRoot2D {
         }
     }
 
-    public __preload (): void {
-        // Stretch to matched size during the scene initialization
-        const widget = this.getComponent('cc.Widget') as unknown as Widget;
-        if (widget) {
-            widget.updateAlignment();
-        } else if (EDITOR) {
-            this._fitDesignResolution!();
-        }
-
-        if (!EDITOR) {
-            if (this._cameraComponent) {
-                this._cameraComponent._createCamera();
-                this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
-            }
-        }
-
-        this._onResizeCamera();
-
-        if (EDITOR) {
-            // Constantly align canvas node in edit mode
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
-
-            // In Editor can not edit these attrs.
-            // (Position in Node, contentSize in uiTransform)
-            // (anchor in uiTransform, but it can edit, this is different from cocos creator)
-            this._objFlags |= cclegacy.Object.Flags.IsPositionLocked | cclegacy.Object.Flags.IsSizeLocked | cclegacy.Object.Flags.IsAnchorLocked;
-        } else {
-            // In Editor dont need resized camera when scene window resize
-            this.node.on(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
-        }
+    public __preload () {
+        this._switchRenderMode(this._renderMode);
     }
 
     public onEnable (): void {
@@ -227,11 +205,110 @@ export class Canvas extends RenderRoot2D {
     private _getViewPriority (): number {
         if (this._cameraComponent) {
             let priority = this.cameraComponent?.priority as number;
-            priority = this._renderMode === RenderMode.OVERLAY ? priority | 1 << 30 : priority & ~(1 << 30);
+            priority = this._renderMode === CanvasRenderMode.OVERLAY ? priority | 1 << 30 : priority & ~(1 << 30);
             return priority;
         }
 
         return 0;
+    }
+
+    protected _resetRenderMode (val: CanvasRenderMode) {
+        switch (val) {
+        case CanvasRenderMode.LEGACY: {
+            if (EDITOR) {
+                // Constantly align canvas node in edit mode
+                cclegacy.director.off(cclegacy.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
+
+                // In Editor can not edit these attrs.
+                // (Position in Node, contentSize in uiTransform)
+                // (anchor in uiTransform, but it can edit, this is different from cocos creator)
+                this._objFlags ^= (cclegacy.Object.Flags.IsPositionLocked
+                     | cclegacy.Object.Flags.IsSizeLocked | cclegacy.Object.Flags.IsAnchorLocked);
+            } else {
+                if (this._cameraComponent) {
+                    this._cameraComponent.node.off(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+                }
+                // In Editor dont need resized camera when scene window resize
+                this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
+            }
+            const widget = this.getComponent('cc.Widget') as unknown as Widget;
+            if (widget) {
+                this.node.removeComponent('cc.Widget');
+            }
+            break;
+        }
+        case CanvasRenderMode.WORLD_SPACE: {
+            const model = this.getComponent(CanvasRenderer);
+            if (model) {
+                this.node.removeComponent(CanvasRenderer);
+            }
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
+    protected _switchRenderMode (val: CanvasRenderMode) {
+        switch (val) {
+        case CanvasRenderMode.LEGACY: {
+            // preLoad part
+            // Stretch to matched size during the scene initialization
+            const widget = this.getComponent('cc.Widget') as unknown as Widget;
+            if (widget) {
+                widget.updateAlignment();
+            } else if (EDITOR) {
+                this._fitDesignResolution!();
+            }
+
+            if (!EDITOR) {
+                if (this._cameraComponent) {
+                    this._cameraComponent._createCamera();
+                    this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+                }
+            }
+
+            this._onResizeCamera();
+
+            if (EDITOR) {
+                // Constantly align canvas node in edit mode
+                cclegacy.director.on(cclegacy.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
+
+                // In Editor can not edit these attrs.
+                // (Position in Node, contentSize in uiTransform)
+                // (anchor in uiTransform, but it can edit, this is different from cocos creator)
+                this._objFlags |= cclegacy.Object.Flags.IsPositionLocked | cclegacy.Object.Flags.IsSizeLocked | cclegacy.Object.Flags.IsAnchorLocked;
+            } else {
+                // In Editor dont need resized camera when scene window resize
+                this.node.on(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
+            }
+
+            if (this._cameraComponent) {
+                this._cameraComponent.priority = this._getViewPriority();
+            }
+            break;
+        }
+        // todo
+        // case RenderMode.OVERLAY:
+        //     break;
+        // case RenderMode.FIT_CAMERA:
+        //     break;
+        case CanvasRenderMode.WORLD_SPACE: {
+            this._updateModels();
+
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
+    protected _updateModels () {
+        let model = this.getComponent(CanvasRenderer);
+        if (!model) {
+            model = this.node.addComponent(CanvasRenderer);
+        }
+        model.updateModels();
     }
 }
 

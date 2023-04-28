@@ -23,10 +23,11 @@
 */
 
 import { JSB } from 'internal:constants';
-import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../gfx';
+import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo, PrimitiveMode } from '../../gfx';
 import { getAttributeStride } from './vertex-format';
 import { sys, getError, warnID, assertIsTrue } from '../../core';
 import { NativeUIMeshBuffer } from './native-2d';
+import { RenderingSubMesh } from '../../asset/assets';
 
 interface IIARef {
     ia: InputAssembler;
@@ -183,6 +184,9 @@ export class MeshBuffer {
     private _iaInfo: InputAssemblerInfo = null!;
     private _nextFreeIAHandle = 0;
 
+    private _subMeshPool: RenderingSubMesh[] = [];
+    private _nextFreeMesh = 0;
+
     //nativeObj
     protected declare _nativeObj: NativeUIMeshBuffer;
     /**
@@ -272,6 +276,7 @@ export class MeshBuffer {
     public reset (): void {
         this._nextFreeIAHandle = 0;
         this.dirty = false;
+        this._nextFreeMesh = 0;
     }
 
     public destroy (): void {
@@ -324,6 +329,22 @@ export class MeshBuffer {
         }
         const ia = this._iaPool[this._nextFreeIAHandle++].ia;
         return ia;
+    }
+
+    public requireFreeIARef (device: Device) {
+        if (this._iaPool.length <= this._nextFreeIAHandle) {
+            this._iaPool.push(this.createNewIA(device));
+        }
+        const iaRef = this._iaPool[this._nextFreeIAHandle++];
+        return iaRef;
+    }
+
+    public requireFreeRenderSubMesh (iaRef: IIARef) {
+        if (this._subMeshPool.length <= this._nextFreeMesh) {
+            this._subMeshPool.push(this.createNewRenderSubMesh(iaRef));
+        }
+        const subMesh = this._subMeshPool[this._nextFreeMesh++];
+        return subMesh;
     }
 
     /**
@@ -445,5 +466,12 @@ export class MeshBuffer {
             vertexBuffers,
             indexBuffer,
         };
+    }
+
+    private createNewRenderSubMesh (iaRef: IIARef) {
+        // 能不能直接用现有的 ia 和各种信息？
+        const subMesh = new RenderingSubMesh(iaRef.vertexBuffers, this.attributes, PrimitiveMode.TRIANGLE_LIST, iaRef.indexBuffer); // hack
+        subMesh.initWithIA(this._iaInfo, iaRef.vertexBuffers, this.attributes, iaRef.indexBuffer);
+        return subMesh;
     }
 }

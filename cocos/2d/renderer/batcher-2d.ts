@@ -26,7 +26,7 @@ import { DEBUG, JSB } from 'internal:constants';
 import { Camera, Model } from '../../render-scene/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../asset/assets/material';
-import { RenderRoot2D, UIRenderer } from '../framework';
+import { CanvasRenderMode, RenderRoot2D, UIRenderer,  CanvasRenderer, Canvas } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
     BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../gfx';
 import { CachedArray, Pool, Mat4, cclegacy, assertIsTrue, assert, approx, EPSILON } from '../../core';
@@ -105,6 +105,9 @@ export class Batcher2D implements IBatcher {
     private _currDepthStencilStateStage: any | null = null;
     private _currIsStatic = false;
     private _currHash = 0;
+
+    //for world mode
+    private _currIsWorldMode = false;
 
     //for middleware
     private _currIsMiddleware = false;
@@ -239,10 +242,14 @@ export class Batcher2D implements IBatcher {
         const screens = this._screens;
         let offset = 0;
         for (let i = 0; i < screens.length; ++i) {
-            const screen = screens[i];
+            const screen = screens[i] as Canvas; // hack
             const scene = screen._getRenderScene();
             if (!screen.enabledInHierarchy || !scene) {
                 continue;
+            }
+
+            if (screen.renderMode === CanvasRenderMode.WORLD_SPACE) {
+                this._currIsWorldMode = true;
             }
             // Reset state and walk
             this._opacityDirty = 0;
@@ -253,22 +260,51 @@ export class Batcher2D implements IBatcher {
             this.autoMergeBatches(this._currComponent!);
             this.resetRenderStates();
 
-            let batchPriority = 0;
-            if (this._batches.length > offset) {
-                for (; offset < this._batches.length; ++offset) {
-                    const batch = this._batches.array[offset];
+            if (!this._currIsWorldMode) {
+                let batchPriority = 0;
+                if (this._batches.length > offset) {
+                    for (; offset < this._batches.length; ++offset) {
+                        const batch = this._batches.array[offset];
 
-                    if (batch.model) {
-                        const subModels = batch.model.subModels;
-                        for (let j = 0; j < subModels.length; j++) {
-                            subModels[j].priority = batchPriority++;
+                        if (batch.model) {
+                            const subModels = batch.model.subModels;
+                            for (let j = 0; j < subModels.length; j++) {
+                                subModels[j].priority = batchPriority++;
+                            }
+                        } else {
+                            batch.descriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
                         }
-                    } else {
-                        batch.descriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
+                        scene.addBatch(batch);
                     }
-                    scene.addBatch(batch);
+                }
+            } else {
+                // mask useless
+                const count = this._batches.length - offset;
+                const model = screen.node.getComponent(CanvasRenderer)?.model;
+                if (!model) continue;
+                model.enabled = false;
+                if (this._batches.length > offset) {
+                    model.destroyExtraSubModel(count); // clean subModel
+                    const subModels = model.subModels;
+                    const binding = ModelLocalBindings.SAMPLER_SPRITE;
+                    for (let j = 0; offset < this._batches.length; ++offset, j++) {
+                        const batch = this._batches.array[offset];
+                        const subMesh = batch.renderingSubMesh;
+                        if (!subMesh || !batch.material || !batch.inputAssembler) continue;// hack
+                        subMesh.subMeshIdx = j;
+                        model.initSubModelWithIA(j, subMesh, batch.material, batch.inputAssembler);
+                        // model.initSubModel(i, subMesh, batch.material);
+                        // subModels[i].inputAssembler.drawInfo.copy(batch.inputAssembler.drawInfo); // drawInfo 的加工？
+
+                        const { descriptorSet } = subModels[j];
+                        descriptorSet.bindTexture(binding, batch.texture!);
+                        descriptorSet.bindSampler(binding, batch.sampler!);
+                        descriptorSet.update();
+                    }
+                    model.enabled = true;
                 }
             }
+            this._currIsWorldMode = false;
         }
     }
 
@@ -620,11 +656,13 @@ export class Batcher2D implements IBatcher {
             this.mergeBatchesForMiddleware(renderComp!);
             return;
         }
-        const mat = this._currMaterial;
+        let mat = this._currMaterial;
         if (!mat) {
             return;
         }
         let ia;
+        let iaRef;
+        let renderMesh: RenderingSubMesh;
         const rd = this._currRenderData as MeshRenderData;
         const accessor = this._staticVBBuffer;
         // Previous batch using mesh buffer
@@ -644,12 +682,21 @@ export class Batcher2D implements IBatcher {
             if (indexCount <= 0) return;
             assertIsTrue(this._indexStart < buf.indexOffset);
             buf.setDirty();
-            // Request ia
-            ia = buf.requireFreeIA(this.device);
-            ia.firstIndex = this._indexStart;
-            ia.indexCount = indexCount;
-            // Update index tracker and bid
-            this._indexStart = buf.indexOffset;
+            if (this._currIsWorldMode) {
+                iaRef = buf.requireFreeIARef(this.device);
+                ia = iaRef.ia;
+                ia.firstIndex = this._indexStart;
+                ia.indexCount = indexCount;
+                this._indexStart = buf.indexOffset;
+                renderMesh = buf.requireFreeRenderSubMesh(iaRef);
+            } else {
+                // Request ia
+                ia = buf.requireFreeIA(this.device);
+                ia.firstIndex = this._indexStart;
+                ia.indexCount = indexCount;
+                // Update index tracker and bid
+                this._indexStart = buf.indexOffset;
+            }
         }
         this._currBID = -1;
 
@@ -674,11 +721,20 @@ export class Batcher2D implements IBatcher {
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
         curDrawBatch.inputAssembler = ia;
-        curDrawBatch.useLocalData = this._currTransform;
-        curDrawBatch.textureHash = this._currTextureHash;
-        curDrawBatch.samplerHash = this._currSamplerHash;
-        curDrawBatch.fillPasses(mat, depthStencil, dssHash, null);
-
+        if (this._currIsWorldMode) {
+            if (renderComp) {
+                if (!renderComp.customMaterial) {
+                    mat = renderComp.getMaterialAddDepth();
+                }
+            }
+            curDrawBatch.material = mat;
+            curDrawBatch.renderingSubMesh = renderMesh;
+        } else {
+            curDrawBatch.useLocalData = this._currTransform;
+            curDrawBatch.textureHash = this._currTextureHash;
+            curDrawBatch.samplerHash = this._currSamplerHash;
+            curDrawBatch.fillPasses(mat, depthStencil, dssHash, null);
+        }
         this._batches.push(curDrawBatch);
     }
 

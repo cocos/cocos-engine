@@ -148,6 +148,17 @@ export class RenderingSubMesh {
         this._isOwnerOfIndexBuffer = isOwnerOfIndexBuffer;
     }
 
+    initWithIA (iaInfo: InputAssemblerInfo, vertexBuffers: Buffer[], attributes: Attribute[],
+        indexBuffer: Buffer | null = null, primitiveMode: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST) {
+        this._attributes = attributes;
+        this._vertexBuffers = vertexBuffers;
+        this._indexBuffer = indexBuffer;
+        // this._indirectBuffer = indirectBuffer;
+        this._primitiveMode = primitiveMode;
+        this._iaInfo = iaInfo;
+        // this._isOwnerOfIndexBuffer = isOwnerOfIndexBuffer;
+    }
+
     /**
      * @en All vertex attributes used by the sub mesh.
      * @zh 所有顶点属性。
