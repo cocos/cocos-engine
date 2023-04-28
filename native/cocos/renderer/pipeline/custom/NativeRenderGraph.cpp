@@ -1187,18 +1187,18 @@ void NativeRasterQueueBuilder::addSceneOfCamera(
         data);
 }
 
-void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {
-    SceneData scene(renderGraph->get_allocator());
-    scene.name = name;
-    scene.flags = sceneFlags;
+void NativeRasterQueueBuilder::addScene(const scene::RenderScene *scene, SceneFlags sceneFlags) {
+    SceneData data(renderGraph->get_allocator());
+    data.scenes.emplace_back(scene);
+    data.flags = sceneFlags;
 
     auto sceneID = addVertex(
         SceneTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple("Scene"),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(std::move(scene)),
+        std::forward_as_tuple(std::move(data)),
         *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 }

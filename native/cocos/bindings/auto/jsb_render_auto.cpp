@@ -1279,22 +1279,19 @@ static bool js_cc_render_RasterQueueBuilder_addScene__SWIG_0(se::State& s)
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
-    ccstd::string *arg2 = 0 ;
+    cc::scene::RenderScene *arg2 = (cc::scene::RenderScene *) NULL ;
     SceneFlags arg3 ;
-    ccstd::string temp2 ;
     
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     if (nullptr == arg1) return true;
     
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg2 = &temp2;
-    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
-    (arg1)->addScene((ccstd::string const &)*arg2,arg3);
+    (arg1)->addScene((cc::scene::RenderScene const *)arg2,arg3);
     
     
     return true;
@@ -1492,17 +1489,14 @@ static bool js_cc_render_RasterQueueBuilder_addScene__SWIG_1(se::State& s)
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cc::render::RasterQueueBuilder *arg1 = (cc::render::RasterQueueBuilder *) NULL ;
-    ccstd::string *arg2 = 0 ;
-    ccstd::string temp2 ;
+    cc::scene::RenderScene *arg2 = (cc::scene::RenderScene *) NULL ;
     
     arg1 = SE_THIS_OBJECT<cc::render::RasterQueueBuilder>(s);
     if (nullptr == arg1) return true;
     
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg2 = &temp2;
-    
-    (arg1)->addScene((ccstd::string const &)*arg2);
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->addScene((cc::scene::RenderScene const *)arg2);
     
     
     return true;
