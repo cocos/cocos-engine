@@ -86,6 +86,7 @@ export interface Setter extends RenderNode {
     setReadWriteBuffer (name: string, buffer: Buffer): void;
     setReadWriteTexture (name: string, texture: Texture): void;
     setSampler (name: string, sampler: Sampler): void;
+    setCamera (camera: Camera): void;
 }
 
 export interface RasterQueueBuilder extends Setter {
