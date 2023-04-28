@@ -634,8 +634,6 @@ static bool js_scene_Node_syncChildren(se::State &s) { // NOLINT
     }
 
     se::Object *childrenObj = args[0].toObject();
-    uint32_t len;
-    childrenObj->getArrayLength(&len);
     ccstd::vector<cc::IntrusivePtr<cc::Node>> children;
     sevalue_to_native(args[0], &children, nullptr);
     cobj->_setChildren(std::move(children));
