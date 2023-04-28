@@ -92,17 +92,19 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
 
         const auto &subModels = model->getSubModels();
         for (const auto &subModel : subModels) {
-            const auto &subModelPasses = subModel->getPasses();
-            for (index_t i = 0; i < static_cast<index_t>(subModelPasses.size()); ++i) {
-                const auto subModelPass = subModelPasses[i];
-                const auto batchingScheme = subModelPass->getBatchingScheme();
-                if (batchingScheme == scene::BatchingSchemes::INSTANCING) {
-                    instancedBuffer->merge(subModel, i, subModel->getPlanarInstanceShader());
-                    _instancedQueue->add(instancedBuffer);
-                } else { // standard draw
-                    _pendingSubModels.emplace_back(subModel);
-                }
-            }
+
+            //yc TODO:planar shadow cant use instance.
+            //const auto &subModelPasses = subModel->getPasses();
+            //for (index_t i = 0; i < static_cast<index_t>(subModelPasses.size()); ++i) {
+            //    const auto subModelPass = subModelPasses[i];
+            //    const auto batchingScheme = subModelPass->getBatchingScheme();
+            //    if (batchingScheme == scene::BatchingSchemes::INSTANCING) {
+            //        instancedBuffer->merge(subModel, i, subModel->getPlanarInstanceShader());
+            //        _instancedQueue->add(instancedBuffer);
+            //    } else { // standard draw
+            _pendingSubModels.emplace_back(subModel);
+            //    }
+            //}
         }
     }
 

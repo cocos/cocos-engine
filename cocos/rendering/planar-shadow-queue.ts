@@ -80,17 +80,18 @@ export class PlanarShadowQueue {
             const subModels = model.subModels;
             for (let j = 0; j < subModels.length; j++) {
                 const subModel = subModels[j];
-                const passes = subModel.passes;
-                for (let k = 0; k < passes.length; k++) {
-                    const pass = passes[k];
-                    const batchingScheme = pass.batchingScheme;
-                    if (batchingScheme === BatchingSchemes.INSTANCING) {
-                        instancedBuffer.merge(subModel, k, subModel.planarShader);
-                        this._instancedQueue.queue.add(instancedBuffer);
-                    } else {
-                        this._pendingSubModels.push(subModel);
-                    }
-                }
+                // TODO: planar shadow cant use instance
+                // const passes = subModel.passes;
+                // for (let k = 0; k < passes.length; k++) {
+                //     const pass = passes[k];
+                //     const batchingScheme = pass.batchingScheme;
+                //     if (batchingScheme === BatchingSchemes.INSTANCING) {
+                //         instancedBuffer.merge(subModel, k, subModel.planarShader);
+                //         this._instancedQueue.queue.add(instancedBuffer);
+                //     } else {
+                this._pendingSubModels.push(subModel);
+                //     }
+                // }
             }
         }
         this._instancedQueue.uploadBuffers(cmdBuff);
