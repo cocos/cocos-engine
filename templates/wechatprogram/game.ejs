@@ -1,0 +1,100 @@
+globalThis.__wxRequire = require;
+var GameGlobal = getApp().GameGlobal;
+Page({
+    onReady() {
+        GameGlobal.indexThis = this;
+        const query = wx.createSelectorQuery()
+        query.select('#myCanvas').node().exec(async (res) => {
+            const canvas = res[0].node;
+            let width = canvas.width;
+            let height = canvas.height;
+            const adapter = require('./miniapp-adapter');
+            adapter.adapt(canvas, width, height);
+            require('./web-adapter');
+            const firstScreen = require('./first-screen'); 
+            <%- include(cocosTemplate, {}) %>
+            const loader = require('load-module.js');
+            await loader.loadModules();
+
+            require('./application.js');
+            // Adjust initial canvas size
+            if (canvas && GameGlobal.devicePixelRatio >= 2) {
+                canvas.width *= 2; canvas.height *= 2;
+            }
+
+            const importMap = require("<%= importMapFile%>").default;
+            const System = GameGlobal.System;
+            System.warmup({
+                importMap,
+                importMapUrl: '<%= importMapFile%>',
+                // defaultHandler: (urlNoSchema) => {
+                //     require('.' + urlNoSchema);
+                // },
+                // handlers: {
+                //     'plugin:': (urlNoSchema) => {
+                //         requirePlugin(urlNoSchema);
+                //     },
+                //     'project:': (urlNoSchema) => {
+                //         require(urlNoSchema);
+                //     },
+                // },
+            });
+
+            firstScreen.start('<%= alpha %>', '<%= antialias %>', '<%= useWebgl2 %>').then(() => {
+                return System.import('<%= applicationJs %>');
+            }).then((module) => {
+                return firstScreen.setProgress(0.2).then(() => Promise.resolve(module));
+            }).then(({ Application }) => {
+                return new Application();
+            }).then((application) => {
+                return firstScreen.setProgress(0.4).then(() => Promise.resolve(application));
+            }).then((application) => {
+                return onApplicationCreated(application);
+            }).catch((err) => {
+                console.error(err);
+            });
+
+            function onApplicationCreated(application) {
+                return System.import('cc').then((module) => {
+                    return firstScreen.setProgress(0.6).then(() => Promise.resolve(module));
+                }).then((cc) => {
+                    require('./engine-adapter');
+                    return application.init(cc);
+                }).then(() => {
+                    return firstScreen.end().then(() => application.start());
+                });
+            }
+
+        })
+    },
+
+    onKeyboardInput: function (event) {
+        GameGlobal._onKeyboardInput && GameGlobal._onKeyboardInput(event);
+    },
+
+    onKeyboardConfirm: function (event) {
+        console.log(event.detail.value);
+        GameGlobal._onKeyboardConfirm && GameGlobal._onKeyboardConfirm(event);
+    },
+
+    onKeyboardComplete: function (event) {
+        console.log(event.detail.value);
+        GameGlobal._onKeyboardComplete && GameGlobal._onKeyboardComplete(event);
+    },
+
+    touchStart(event) {
+        GameGlobal._touchStart && GameGlobal._touchStart(event);
+    },
+
+    touchEnd(event) {
+        GameGlobal._touchEnd && GameGlobal._touchEnd(event);
+    },
+
+    touchMove(event) {
+        GameGlobal._touchMove && GameGlobal._touchMove(event);
+    },
+
+    touchCancel(event) {
+        GameGlobal._touchCancel && GameGlobal._touchCancel(event);
+    }
+})

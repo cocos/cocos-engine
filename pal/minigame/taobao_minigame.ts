@@ -37,8 +37,7 @@ const languageMap: Record<string, Language> = {
 
 declare let my: any;
 
-// @ts-expect-error can't init minigame when it's declared
-const minigame: IMiniGame = {};
+const minigame: IMiniGame = {} as IMiniGame;
 cloneObject(minigame, my);
 
 // #region SystemInfo
@@ -75,17 +74,16 @@ Object.defineProperty(minigame, 'orientation', {
 });
 // #endregion SystemInfo
 
-// @ts-expect-error TODO: move into minigame.d.ts
-minigame.isSupportLandscape = function () {
+// eslint-disable-next-line func-names
+function detectLandscapeSupport () {
     const locSysInfo = minigame.getSystemInfoSync();
     if (typeof locSysInfo.deviceOrientation === 'string' && locSysInfo.deviceOrientation.startsWith('landscape')) {
         if (versionCompare(locSysInfo.version, '10.15.10') < 0) {
             console.warn('The current Taobao client version does not support Landscape, the minimum requirement is 10.15.10');
         }
     }
-};
-// @ts-expect-error TODO: Check whether the landscape screen is supported
-minigame.isSupportLandscape();
+}
+detectLandscapeSupport();
 
 // #region Audio
 const polyfilledCreateInnerAudio = createInnerAudioContextPolyfill(my, {
@@ -94,17 +92,19 @@ const polyfilledCreateInnerAudio = createInnerAudioContextPolyfill(my, {
     onStop: false,
     onSeek: false,
 }, true);
+// eslint-disable-next-line func-names
 minigame.createInnerAudioContext = function (): InnerAudioContext {
-    const audio: InnerAudioContext = polyfilledCreateInnerAudio();
-    // @ts-expect-error InnerAudioContext has onCanPlay
+    // NOTE: `onCanPlay` is not standard minigame interface,
+    // so here we mark audio as type of any
+    const audio: any = polyfilledCreateInnerAudio();
     audio.onCanplay = audio.onCanPlay.bind(audio);
-    // @ts-expect-error InnerAudioContext has onCanPlay
     delete audio.onCanPlay;
-    return audio;
+    return audio as InnerAudioContext;
 };
 // #region Audio
 
 // #region Font
+// eslint-disable-next-line func-names
 minigame.loadFont = function (url) {
     // my.loadFont crash when url is not in user data path
     return 'Arial';
@@ -113,6 +113,7 @@ minigame.loadFont = function (url) {
 
 // #region Accelerometer
 let _accelerometerCb: AccelerometerChangeCallback | undefined;
+// eslint-disable-next-line func-names
 minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
     minigame.offAccelerometerChange();
     // onAccelerometerChange would start accelerometer
@@ -134,12 +135,14 @@ minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
         cb(resClone);
     };
 };
+// eslint-disable-next-line func-names
 minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback) {
     if (_accelerometerCb) {
         my.offAccelerometerChange(_accelerometerCb);
         _accelerometerCb = undefined;
     }
 };
+// eslint-disable-next-line func-names
 minigame.startAccelerometer = function (res: any) {
     if (_accelerometerCb) {
         my.onAccelerometerChange(_accelerometerCb);
@@ -148,6 +151,7 @@ minigame.startAccelerometer = function (res: any) {
         console.error('minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on taobao platform');
     }
 };
+// eslint-disable-next-line func-names
 minigame.stopAccelerometer = function (res: any) {
     // my.stopAccelerometer() is not implemented.
     minigame.offAccelerometerChange();
@@ -157,8 +161,9 @@ minigame.stopAccelerometer = function (res: any) {
 // #region SafeArea
 // It should be a value that is not multiplied by dpr
 minigame.getSafeArea = function () {
-    const systemInfo = minigame.getSystemInfoSync();
+    const systemInfo = my.getWindowInfoSync();
     if (typeof systemInfo.safeArea !== 'undefined') {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return systemInfo.safeArea;
     }
     console.warn('getSafeArea is not supported on this platform');
@@ -173,12 +178,14 @@ minigame.getSafeArea = function () {
 };
 // #endregion SafeArea
 
+declare const $global: any;  // global variable on Taobao platform.
+
 // TODO: A filpY operation will be performed after ReadPixels on Taobao.
 if (!my.isIDE) {
-    // @ts-expect-error canvas defined in global
     const locCanvas = $global.screencanvas;
     if (locCanvas) {
         const originalGetContext = locCanvas.getContext.bind(locCanvas);
+        // eslint-disable-next-line func-names
         locCanvas.getContext = function (name, param) {
             if (typeof name === 'string' && typeof param === 'object' && name.startsWith('webgl')) {
                 Object.assign(param, { enable_flip_y_after_read_pixels: false });
@@ -206,6 +213,7 @@ function adapterGL (gl) {
         // Android return value: undefined.   iOS return value: {ID: -1}.
         if (my.getSystemInfoSync().platform.toLocaleLowerCase() === 'ios') {
             const originalGetUniformLocation = gl.getUniformLocation.bind(gl);
+            // eslint-disable-next-line func-names
             gl.getUniformLocation = function (program, name) {
                 const glLoc = originalGetUniformLocation(program, name);
                 if (glLoc && glLoc.ID === -1) {

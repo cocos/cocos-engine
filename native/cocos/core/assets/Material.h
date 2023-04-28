@@ -34,7 +34,7 @@
 
 namespace cc {
 
-//class RenderableComponent;
+// class RenderableComponent;
 
 namespace scene {
 class Pass;
@@ -239,7 +239,7 @@ public:
     ccstd::vector<PassOverrides> _states;
 
     /* @serializable */
-    ccstd::vector<Record<ccstd::string, MaterialPropertyVariant>> _props;
+    ccstd::vector<ccstd::unordered_map<ccstd::string, MaterialPropertyVariant>> _props;
     //
 
 protected:

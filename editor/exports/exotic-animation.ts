@@ -10,3 +10,8 @@ export {
 export {
     RealArrayTrack,
 } from '../../cocos/animation/tracks/array-track';
+
+export {
+    additiveSettingsTag,
+    AnimationClipAdditiveSettings,
+} from '../../cocos/animation/animation-clip';

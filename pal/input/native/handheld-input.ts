@@ -22,12 +22,13 @@
  THE SOFTWARE.
 */
 
-import { HandheldCallback } from 'pal/input';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventHandheld } from '../../../cocos/input/types';
 import { InputSourcePosition, InputSourceOrientation } from '../input-source';
 import { Vec3, Quat } from '../../../cocos/core/math';
+
+export type HandheldCallback = (res: EventHandheld) => void;
 
 enum Pose {
     AR_MOBILE,

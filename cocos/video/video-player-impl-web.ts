@@ -169,24 +169,21 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
     }
 
     canFullScreen (enabled: boolean) {
-        const video = this._video;
+        // NOTE: below we visited some non-standard web interfaces to complement browser compatibility
+        // we need to mark video as any type.
+        const video = this._video as any;
         if (!video || video.readyState !== READY_STATE.HAVE_ENOUGH_DATA) {
             return;
         }
 
         if (sys.os === OS.IOS && sys.isBrowser) {
             if (enabled) {
-                // @ts-expect-error only ios support
                 if (video.webkitEnterFullscreen) {
-                    // @ts-expect-error only ios support
                     video.webkitEnterFullscreen();
                 }
-                // @ts-expect-error only ios support
             } else if (video.webkitExitFullscreen) {
-                // @ts-expect-error only ios support
                 video.webkitExitFullscreen();
             }
-            // @ts-expect-error only ios support
             this._fullScreenOnAwake = video.webkitDisplayingFullscreen;
             return;
         }

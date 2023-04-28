@@ -49,14 +49,14 @@ se::PrivateObjectBase *jsb_make_private_object(ARGS &&...args) { // NOLINT(reada
 }
 
 template <typename T>
-typename std::enable_if<std::is_base_of<cc::RefCounted, T>::value, se::PrivateObjectBase *>::type
-jsb_make_private_object_with_instance(T *instance) { //NOLINT(readability-identifier-naming)
+typename std::enable_if<std::is_base_of<cc::RefCounted, T>::value, se::TypedPrivateObject<T> *>::type
+jsb_make_private_object_with_instance(T *instance) { // NOLINT(readability-identifier-naming)
     return se::ccintrusive_ptr_private_object(instance);
 }
 
 template <typename T>
-typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, se::PrivateObjectBase *>::type
-jsb_make_private_object_with_instance(T *instance) { //NOLINT(readability-identifier-naming)
+typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, se::TypedPrivateObject<T> *>::type
+jsb_make_private_object_with_instance(T *instance) { // NOLINT(readability-identifier-naming)
     return se::shared_ptr_private_object(std::shared_ptr<T>(instance));
 }
 

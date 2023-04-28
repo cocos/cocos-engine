@@ -25,7 +25,7 @@ import { screenAdapter } from 'pal/screen-adapter';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
-    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform, TextureFlagBit, TextureFlags,
 } from '../../gfx';
 import { Root } from '../../root';
 import { Camera } from '../scene';
@@ -36,6 +36,9 @@ export interface IRenderWindowInfo {
     height: number;
     renderPassInfo: RenderPassInfo;
     swapchain?: Swapchain;
+    externalResLow?: number; // for vulkan vkImage/opengl es texture created from external
+    externalResHigh?: number; // for vulkan vkImage created from external
+    externalFlag?: TextureFlags; // external texture type normal or oes
 }
 
 const orientationMap: Record<Orientation, SurfaceTransform> = {
@@ -130,13 +133,19 @@ export class RenderWindow {
             this._depthStencilTexture = info.swapchain.depthStencilTexture;
         } else {
             for (let i = 0; i < info.renderPassInfo.colorAttachments.length; i++) {
-                this._colorTextures.push(device.createTexture(new TextureInfo(
+                const textureInfo = new TextureInfo(
                     TextureType.TEX2D,
                     TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_SRC,
                     info.renderPassInfo.colorAttachments[i].format,
                     this._width,
                     this._height,
-                )));
+                );
+
+                if (info.externalFlag && (info.externalFlag & TextureFlagBit.EXTERNAL_NORMAL || info.externalFlag & TextureFlagBit.EXTERNAL_OES)) {
+                    textureInfo.flags |= info.externalFlag;
+                    textureInfo.externalRes = info.externalResLow ? info.externalResLow : 0;
+                }
+                this._colorTextures.push(device.createTexture(textureInfo));
             }
             if (info.renderPassInfo.depthStencilAttachment.format !== Format.UNKNOWN) {
                 this._depthStencilTexture = device.createTexture(new TextureInfo(

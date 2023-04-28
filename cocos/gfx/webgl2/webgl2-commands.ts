@@ -1987,7 +1987,8 @@ export function WebGL2CmdFuncBeginRenderPass (
                         gl.colorMask(true, true, true, true);
                     }
 
-                    if (!gpuFramebuffer.isOffscreen) {
+                    // We-chat mini-game, glClearBufferfv get INVALID_ENUM. MRT may not be supported. use clearColor instead.
+                    if (gpuRenderPass.colorAttachments.length === 1) {
                         const clearColor = clearColors[0];
                         gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
                         clears |= gl.COLOR_BUFFER_BIT;
@@ -2755,6 +2756,20 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2Device, cmdPackage: WebG
     } // for
 }
 
+function toUseTexImage2D (texImages: Readonly<TexImageSource[]>, regions: Readonly<BufferTextureCopy[]>) {
+    if (texImages.length > 1 || regions.length > 1) return false;
+    const isVideoElement = texImages[0] instanceof HTMLVideoElement;
+    if (isVideoElement) {
+        const videoElement = texImages[0] as HTMLVideoElement;
+        const isSameSize = regions[0].texOffset.x === 0
+        && regions[0].texOffset.y === 0
+        && regions[0].texExtent.width === videoElement.videoWidth
+        && regions[0].texExtent.height === videoElement.videoHeight;
+        return isSameSize;
+    }
+    return false;
+}
+
 export function WebGL2CmdFuncCopyTexImagesToTexture (
     device: WebGL2Device,
     texImages: Readonly<TexImageSource[]>,
@@ -2773,11 +2788,16 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
 
     switch (gpuTexture.glTarget) {
     case gl.TEXTURE_2D: {
-        for (let k = 0; k < regions.length; k++) {
-            const region = regions[k];
-            gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                region.texOffset.x, region.texOffset.y,
-                gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
+        if (toUseTexImage2D(texImages, regions)) {
+            gl.texImage2D(gl.TEXTURE_2D, regions[0].texSubres.mipLevel, gpuTexture.glInternalFmt, regions[0].texExtent.width,
+                regions[0].texExtent.height, 0, gpuTexture.glFormat, gpuTexture.glType, texImages[0]);
+        } else {
+            for (let k = 0; k < regions.length; k++) {
+                const region = regions[k];
+                gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
+                    region.texOffset.x, region.texOffset.y,
+                    gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
+            }
         }
         break;
     }

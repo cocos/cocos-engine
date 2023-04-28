@@ -5,7 +5,6 @@
         "base": {
             "modules": ["base"],
             "dependentAssets": [
-                "ff9be190-20a4-4e48-b68c-76e3c7cff085",
                 "970b0598-bcb0-4714-91fb-2e81440dccd8",
                 "bcd64cc6-2dd9-43f6-abbe-66318d332032",
                 "d930590d-bb92-4cc8-8bd1-23cd027f9edf",
@@ -125,6 +124,7 @@
         "debug-renderer": {
             "modules": [],
             "dependentAssets": [
+                "ff9be190-20a4-4e48-b68c-76e3c7cff085",
                 "0835f102-5471-47a3-9a76-01c07ac9cdb2",
                 "b5475517-23b9-4873-bc1a-968d96616081",
                 "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed",
@@ -209,14 +209,14 @@
             "overrides": {}
         },
         {
-            "test": "context.platform !== 'NATIVE'",
+            "test": "!context.buildTimeConstants.NATIVE",
             "isVirtualModule": false,
             "overrides": {
                 "cocos/2d/renderer/native-2d.ts": "cocos/2d/renderer/native-2d-empty.ts"
             }
         },
         {
-            "test": "context.platform === 'NATIVE'",
+            "test": "context.buildTimeConstants.NATIVE",
             "isVirtualModule": false,
             "overrides": {
                 "cocos/rendering/index.ts": "cocos/rendering/index.jsb.ts",
@@ -229,7 +229,6 @@
                 "cocos/render-scene/core/pass.ts": "cocos/render-scene/core/pass.jsb.ts",
                 "cocos/render-scene/core/program-lib.ts": "cocos/render-scene/core/program-lib.jsb.ts",
                 "cocos/render-scene/core/render-window.ts": "cocos/render-scene/core/render-window.jsb.ts",
-                "cocos/render-scene/core/sampler-lib.ts": "cocos/render-scene/core/sampler.jsb.ts",
                 "cocos/render-scene/scene/camera.ts": "cocos/render-scene/scene/camera.jsb.ts",
                 "cocos/render-scene/scene/model.ts": "cocos/render-scene/scene/model.jsb.ts",
                 "cocos/render-scene/core/render-scene.ts": "cocos/render-scene/core/render-scene.jsb.ts",
@@ -238,6 +237,7 @@
                 "cocos/render-scene/scene/reflection-probe.ts": "cocos/render-scene/scene/reflection-probe.jsb.ts",
                 "cocos/2d/renderer/native-2d.ts": "cocos/2d/renderer/native-2d.jsb.ts",
                 "cocos/gfx/base/pipeline-state.ts": "cocos/gfx/base/pipeline-state.jsb.ts",
+                "cocos/gfx/base/pipeline-sub-state.ts": "cocos/gfx/base/pipeline-sub-state.jsb.ts",
                 "cocos/gfx/index.ts": "cocos/gfx/index.jsb.ts",
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
@@ -257,7 +257,6 @@
                 "cocos/asset/assets/effect-asset.ts": "cocos/asset/assets/effect-asset.jsb.ts",
                 "cocos/asset/assets/image-asset.ts": "cocos/asset/assets/image-asset.jsb.ts",
                 "cocos/asset/assets/texture-base.ts": "cocos/asset/assets/texture-base.jsb.ts",
-                "cocos/asset/assets/texture-asset.ts": "cocos/asset/assets/texture-asset.jsb.ts",
                 "cocos/asset/assets/texture-2d.ts": "cocos/asset/assets/texture-2d.jsb.ts",
                 "cocos/asset/assets/texture-cube.ts": "cocos/asset/assets/texture-cube.jsb.ts",
                 "cocos/asset/assets/material.ts": "cocos/asset/assets/material.jsb.ts",
@@ -364,15 +363,70 @@
         "NATIVE": {
             "comment": "Running in native platform (mobile app, desktop app, or simulator).",
             "type": "boolean",
-            "value": false,
+            "value": "$ANDROID || $IOS || $MAC || $WINDOWS || $LINUX || $OHOS || $OPEN_HARMONY",
             "internal": false,
             "dynamic": true
+        },
+        "ANDROID": {
+            "comment": "Running in ANDROID platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "IOS": {
+            "comment": "Running in IOS platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "MAC": {
+            "comment": "Running in MAC platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "WINDOWS": {
+            "comment": "Running in WINDOWS platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "LINUX": {
+            "comment": "Running in LINUX platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },        
+        "OHOS": {
+            "comment": "Running in OHOS platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "OPEN_HARMONY": {
+            "comment": "Running in OPEN_HARMONY platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
         },
         "WECHAT": {
             "comment": "Running in the Wechat's mini game.",
             "type": "boolean",
             "value": false,
             "ccGlobal": true,
+            "internal": false
+        },
+        "WECHAT_MINI_PROGRAM": {
+            "comment": "Running in the Wechat's mini program.",
+            "type": "boolean",
+            "value": false,
             "internal": false
         },
         "BAIDU": {
@@ -517,7 +571,7 @@
         "MINIGAME": {
             "comment": "Running in mini game.",
             "type": "boolean",
-            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $TAOBAO_MINIGAME || $BYTEDANCE",
+            "value": "$WECHAT || $WECHAT_MINI_PROGRAM || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $TAOBAO_MINIGAME || $BYTEDANCE",
             "ccGlobal": true,
             "internal": false
         },
@@ -531,7 +585,7 @@
         "SUPPORT_JIT": {
             "comment": "Support JIT.",
             "type": "boolean",
-            "value": "!(($PREVIEW && !$NATIVE) || $MINIGAME || $RUNTIME_BASED)",
+            "value": "!(($PREVIEW && !$NATIVE) || $MINIGAME || $RUNTIME_BASED || $OPEN_HARMONY)",
             "ccGlobal": true,
             "internal": false
         },

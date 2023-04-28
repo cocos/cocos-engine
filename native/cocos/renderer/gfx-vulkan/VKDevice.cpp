@@ -31,6 +31,7 @@
 #include "VKFramebuffer.h"
 #include "VKGPUObjects.h"
 #include "VKInputAssembler.h"
+#include "VKPipelineCache.h"
 #include "VKPipelineLayout.h"
 #include "VKPipelineState.h"
 #include "VKQueryPool.h"
@@ -120,6 +121,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     ccstd::vector<const char *> requestedExtensions{
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     };
+    requestedExtensions.push_back(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME);
     if (_gpuDevice->minorVersion < 2) {
         requestedExtensions.push_back(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME);
     }
@@ -141,6 +143,13 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     requestedFeatures2.features.multiDrawIndirect = deviceFeatures.multiDrawIndirect;
     // requestedFeatures2.features.se
     requestedVulkan12Features.separateDepthStencilLayouts = _gpuContext->physicalDeviceVulkan12Features.separateDepthStencilLayouts;
+
+    VkPhysicalDeviceFragmentShadingRateFeaturesKHR shadingRateRequest = {};
+    shadingRateRequest.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR;
+    shadingRateRequest.attachmentFragmentShadingRate = _gpuContext->physicalDeviceFragmentShadingRateFeatures.attachmentFragmentShadingRate;
+    shadingRateRequest.pipelineFragmentShadingRate = _gpuContext->physicalDeviceFragmentShadingRateFeatures.pipelineFragmentShadingRate;
+
+    requestedVulkan12Features.pNext = &shadingRateRequest;
 
     if (_gpuContext->validationEnabled) {
         requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
@@ -325,6 +334,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     // UNASSIGNED-BestPractices-vkCreateComputePipelines-compute-work-group-size
     _caps.maxComputeWorkGroupInvocations = std::min(_caps.maxComputeWorkGroupInvocations, 64U);
 #endif // defined(VK_USE_PLATFORM_ANDROID_KHR)
+    initExtensionCapability();
 
     ///////////////////// Resource Initialization /////////////////////
 
@@ -452,8 +462,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     getAccessTypes(AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE, _gpuDevice->defaultDepthStencilBarrier.nextAccesses);
     cmdFuncCCVKCreateGeneralBarrier(this, &_gpuDevice->defaultDepthStencilBarrier);
 
-    VkPipelineCacheCreateInfo pipelineCacheInfo{VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO};
-    VK_CHECK(vkCreatePipelineCache(_gpuDevice->vkDevice, &pipelineCacheInfo, nullptr, &_gpuDevice->vkPipelineCache));
+    _pipelineCache = std::make_unique<CCVKPipelineCache>();
+    _pipelineCache->init(_gpuDevice->vkDevice);
 
     ///////////////////// Print Debug Info /////////////////////
 
@@ -536,10 +546,7 @@ void CCVKDevice::doDestroy() {
     _gpuFencePools.clear();
 
     if (_gpuDevice) {
-        if (_gpuDevice->vkPipelineCache) {
-            vkDestroyPipelineCache(_gpuDevice->vkDevice, _gpuDevice->vkPipelineCache, nullptr);
-            _gpuDevice->vkPipelineCache = VK_NULL_HANDLE;
-        }
+        _pipelineCache.reset();
 
         if (_gpuDevice->memoryAllocator != VK_NULL_HANDLE) {
             VmaStats stats;
@@ -790,7 +797,21 @@ void CCVKDevice::initFormatFeature() {
         if (properties.bufferFeatures & formatFeature) {
             _formatFeatures[i] |= FormatFeature::VERTEX_ATTRIBUTE;
         }
+        // shading reate support
+        formatFeature = VK_FORMAT_FEATURE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
+        if (properties.optimalTilingFeatures & formatFeature) {
+            _formatFeatures[i] |= FormatFeature ::SHADING_RATE;
+        }
     }
+}
+
+void CCVKDevice::initExtensionCapability() {
+    _caps.supportVariableRateShading = checkExtension(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME);
+    _caps.supportVariableRateShading &= _gpuContext->physicalDeviceFragmentShadingRateFeatures.pipelineFragmentShadingRate &&
+                                        _gpuContext->physicalDeviceFragmentShadingRateFeatures.attachmentFragmentShadingRate;
+    _caps.supportVariableRateShading &= hasFlag(_formatFeatures[static_cast<uint32_t>(Format::R8UI)], FormatFeatureBit::SHADING_RATE);
+
+    _caps.supportSubPassShading = checkExtension(VK_HUAWEI_SUBPASS_SHADING_EXTENSION_NAME);
 }
 
 CommandBuffer *CCVKDevice::createCommandBuffer(const CommandBufferInfo & /*info*/, bool /*hasAgent*/) {

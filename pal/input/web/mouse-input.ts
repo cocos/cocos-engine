@@ -39,12 +39,9 @@ export class MouseInputSource {
     private _isPressed = false;
     private _preMousePos: Vec2 = new Vec2();
 
-    // @ts-expect-error maybe not initialized
-    private _handleMouseDown: (event: MouseEvent) => void;
-    // @ts-expect-error maybe not initialized
-    private _handleMouseMove: (event: MouseEvent) => void;
-    // @ts-expect-error maybe not initialized
-    private _handleMouseUp: (event: MouseEvent) => void;
+    private _handleMouseDown!: (event: MouseEvent) => void;
+    private _handleMouseMove!: (event: MouseEvent) => void;
+    private _handleMouseUp!: (event: MouseEvent) => void;
 
     constructor () {
         if (systemInfo.hasFeature(Feature.EVENT_MOUSE)) {
@@ -114,8 +111,8 @@ export class MouseInputSource {
     private _registerPointerLockEvent () {
         const lockChangeAlert = () => {
             const canvas = this._canvas;
-            // @ts-expect-error undefined mozPointerLockElement
-            if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas) {
+            // NOTE: mozPointerLockElement is not a standard web interface
+            if (document.pointerLockElement === canvas || (document as any).mozPointerLockElement === canvas) {
                 this._pointLocked = true;
             } else {
                 this._pointLocked = false;
@@ -124,7 +121,8 @@ export class MouseInputSource {
         if ('onpointerlockchange' in document) {
             document.addEventListener('pointerlockchange', lockChangeAlert, false);
         } else if ('onmozpointerlockchange' in document) {
-            document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+            // NOTE: handle event compatibility
+            (document as any).addEventListener('mozpointerlockchange', lockChangeAlert, false);
         }
     }
 

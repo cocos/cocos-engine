@@ -92,7 +92,7 @@ export class LODGroup {
         this._device = deviceManager.gfxDevice;
     }
 
-    set localBoundaryCenter (val: Vec3) {  this._localBoundaryCenter.set(val); }
+    set localBoundaryCenter (val: Readonly<Vec3>) {  this._localBoundaryCenter.set(val); }
 
     get localBoundaryCenter (): Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
 

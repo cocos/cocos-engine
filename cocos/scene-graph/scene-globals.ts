@@ -565,6 +565,27 @@ export class SkyboxInfo {
         this._resource.setRotationAngle(this._rotationAngle);
         this._resource.activate(); // update global DS first
     }
+
+    /**
+     * @en When the environment map changed will call this function to update scene.
+     * @zh 环境贴图发生变化时，会调用此函数更新场景。
+     * @param val environment map
+     */
+    public updateEnvMap (val: TextureCube) {
+        if (!val) {
+            this.applyDiffuseMap = false;
+            this.useIBL = false;
+            this.envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
+            warnID(15001);
+        }
+        if (this._resource) {
+            this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
+            this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+            this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
+            this._resource.useDiffuseMap = this.applyDiffuseMap;
+            this._resource.envmap = val;
+        }
+    }
 }
 legacyCC.SkyboxInfo = SkyboxInfo;
 
@@ -626,7 +647,7 @@ export class FogInfo {
      */
     @editable
     @tooltip('i18n:fog.fogColor')
-    set fogColor (val: Color) {
+    set fogColor (val: Readonly<Color>) {
         this._fogColor.set(val);
         if (this._resource) { this._resource.fogColor = this._fogColor; }
     }
@@ -844,7 +865,7 @@ export class ShadowsInfo {
      */
     @tooltip('i18n:shadow.shadowColor')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
-    set shadowColor (val: Color) {
+    set shadowColor (val: Readonly<Color>) {
         this._shadowColor.set(val);
         if (this._resource) { this._resource.shadowColor = val; }
     }
@@ -858,7 +879,7 @@ export class ShadowsInfo {
      */
     @tooltip('i18n:shadow.planeDirection')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
-    set planeDirection (val: Vec3) {
+    set planeDirection (val: Readonly<Vec3>) {
         Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
     }

@@ -32,6 +32,7 @@ import { files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { IConfigOption } from './config';
 import { CCON, parseCCONJson, decodeCCONBinary } from '../../serialization/ccon';
+import { legacyCC } from '../../core/global-exports';
 
 export type DownloadHandler = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void;
 
@@ -122,7 +123,7 @@ const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onCompl
             url = `assets/${bundleName}`;
         }
     }
-    const version = options.version || downloader.bundleVers![bundleName];
+    const version = options.version || downloader.bundleVers[bundleName];
     let count = 0;
     const config = `${url}/config.${version ? `${version}.` : ''}json`;
     let out: IConfigOption | null = null;
@@ -173,7 +174,7 @@ export class Downloader {
      * @zh
      * 下载时的最大并发数。
      */
-    public maxConcurrency = 6;
+    public maxConcurrency = 15;
 
     /**
      * @en
@@ -183,7 +184,7 @@ export class Downloader {
      * 下载时每帧可以启动的最大请求数。
      *
      */
-    public maxRequestsPerFrame = 6;
+    public maxRequestsPerFrame = 15;
 
     /**
      * @en
@@ -213,12 +214,12 @@ export class Downloader {
      * You don't need to change it at runtime.
      * @internal
      */
-    public appendTimeStamp = !!EDITOR;
+    public appendTimeStamp = !!(EDITOR && !legacyCC.GAME_VIEW);
 
     /**
      * @engineInternal
      */
-    public limited = !EDITOR;
+    public limited = !(EDITOR && !legacyCC.GAME_VIEW);
 
     /**
      * @en
@@ -231,14 +232,14 @@ export class Downloader {
     public retryInterval = 2000;
 
     /**
-     * Version information of all bundles.
-     * @engineInternal
+     * @en Version information of all bundles.
+     * @zh 所有包的版本信息。
      */
-    public bundleVers: Record<string, string> | null = null;
+    public bundleVers: Record<string, string> = {};
 
     /**
-     * Remote bundle list.
-     * @engineInternal
+     * @en The names of remote bundles.
+     * @zh 远程包名列表。
      */
     public remoteBundles: ReadonlyArray<string> = [];
 

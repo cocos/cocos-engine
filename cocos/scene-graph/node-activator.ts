@@ -39,8 +39,8 @@ const IsOnLoadStarted = CCObject.Flags.IsOnLoadStarted;
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 const Deactivating = CCObject.Flags.Deactivating;
 
-const callPreloadInTryCatch = EDITOR && tryCatchFunctor_EDITOR('__preload');
-const callOnLoadInTryCatch = EDITOR && function (c) {
+const callPreloadInTryCatch: any = EDITOR && tryCatchFunctor_EDITOR('__preload');
+const callOnLoadInTryCatch: any = EDITOR && function (c) {
     try {
         c.onLoad();
     } catch (e) {
@@ -49,9 +49,9 @@ const callOnLoadInTryCatch = EDITOR && function (c) {
     c._objFlags |= IsOnLoadCalled;
     _onLoadInEditor(c);
 };
-const callOnDestroyInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onDestroy');
-const callOnFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onFocusInEditor');
-const callOnLostFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onLostFocusInEditor');
+const callOnDestroyInTryCatch: any = EDITOR && tryCatchFunctor_EDITOR('onDestroy');
+const callOnFocusInTryCatch: any = EDITOR && tryCatchFunctor_EDITOR('onFocusInEditor');
+const callOnLostFocusInTryCatch: any = EDITOR && tryCatchFunctor_EDITOR('onLostFocusInEditor');
 
 // for __preload: used internally, no sort
 class UnsortedInvoker extends LifeCycleInvoker {
@@ -131,7 +131,6 @@ function _componentCorrupted (node, comp, index) {
 
 function _onLoadInEditor (comp) {
     if (comp.onLoad && !legacyCC.GAME_VIEW) {
-        // @ts-expect-error Editor API usage
         const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
             if (comp.onFocusInEditor && callOnFocusInTryCatch) {

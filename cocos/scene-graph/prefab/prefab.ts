@@ -144,7 +144,10 @@ export class Prefab extends Asset {
     // just instantiate, will not initialize the Node, this will be called during Node's initialization.
     // @param {Node} [rootToRedirect] - specify an instantiated prefabRoot that all references to prefabRoot in prefab
     //                                  will redirect to
-    private _doInstantiate (rootToRedirect?: any) {
+    /**
+     * @engineInternal
+     */
+    public _doInstantiate (rootToRedirect?: any) {
         if (!this.data._prefab) {
             // temp guard code
             warnID(3700);

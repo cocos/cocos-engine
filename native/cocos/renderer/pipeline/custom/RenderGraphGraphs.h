@@ -1269,6 +1269,25 @@ struct property_map<cc::render::RenderGraph, T cc::render::RenderData::*> {
         T cc::render::RenderData::*>;
 };
 
+// Vertex ComponentMember(String)
+template <>
+struct property_map<cc::render::RenderGraph, ccstd::pmr::string cc::render::RenderData::*> {
+    using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
+        read_write_property_map_tag,
+        const cc::render::RenderGraph,
+        const ccstd::pmr::vector<cc::render::RenderData>,
+        std::string_view,
+        const ccstd::pmr::string&,
+        const ccstd::pmr::string cc::render::RenderData::*>;
+    using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
+        read_write_property_map_tag,
+        cc::render::RenderGraph,
+        ccstd::pmr::vector<cc::render::RenderData>,
+        std::string_view,
+        ccstd::pmr::string&,
+        ccstd::pmr::string cc::render::RenderData::*>;
+};
+
 // Vertex Component
 template <>
 struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::ValidTag> {

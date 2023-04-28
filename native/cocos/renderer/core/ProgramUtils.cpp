@@ -35,7 +35,7 @@ int32_t getBitCount(int32_t cnt) {
 
 template <class ShaderInfoT>
 ccstd::unordered_map<ccstd::string, uint32_t> genHandlesImpl(const ShaderInfoT &tmpl) {
-    Record<ccstd::string, uint32_t> handleMap{};
+    ccstd::unordered_map<ccstd::string, uint32_t> handleMap{};
     // block member handles
     for (const auto &block : tmpl.blocks) {
         const auto members = block.members;

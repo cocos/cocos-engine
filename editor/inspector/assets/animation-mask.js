@@ -101,6 +101,10 @@ exports.methods = {
         await Editor.Message.request('scene', 'apply-animation-mask', this.asset.uuid);
     },
 
+    abort() {
+        this.reset();
+    },
+
     reset() {
         this.dirtyData.uuid = '';
     },
@@ -270,19 +274,22 @@ exports.ready = function() {
 
     panel.$.import.addEventListener('change', (event) => {
         const rawTimestamp = Date.now();
-        Editor.Panel._kitControl.open({
-            $kit: event.target,
-            name: 'ui-kit.searcher',
-            timestamp: rawTimestamp,
-            type: 'asset',
-            assetFilter: {
-                importer: ['fbx', 'gltf'],
-            },
-            events: {
-                async confirm(uuid) {
-                    const info = await Editor.Message.request('asset-db', 'query-asset-info', uuid);
+        Editor.Panel.__protected__.openKit('ui-kit.searcher', {
+            elem: event.target,
+            params: [
+                {
+                    type: 'asset',
+                    assetFilter: {
+                        importer: ['fbx', 'gltf'],
+                    },
+                },
+            ],
+            listeners: {
+                async confirm(detail) {
+                    if (!detail) return;
+                    const info = await Editor.Message.request('asset-db', 'query-asset-info', detail.value);
                     if (!info || !info.redirect || info.redirect.type !== 'cc.Prefab') {
-                        console.error(Editor.I18n.t('ENGINE.assets.animationMask.illegalFbx') + ` {asset(${uuid})}`);
+                        console.error(Editor.I18n.t('ENGINE.assets.animationMask.illegalFbx') + ` {asset(${detail.value})}`);
                         return;
                     }
 

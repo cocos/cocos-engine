@@ -31,15 +31,13 @@
 using uint = std::uint32_t;
 using ushort = std::uint16_t;
 
-#if (CC_PLATFORM != CC_PLATFORM_LINUX && CC_PLATFORM != CC_PLATFORM_QNX && CC_PLATFORM != CC_PLATFORM_EMSCRIPTEN) // linux has typedef ulong
+#if (CC_PLATFORM != CC_PLATFORM_LINUX && CC_PLATFORM != CC_PLATFORM_QNX && CC_PLATFORM != CC_PLATFORM_EMSCRIPTEN && CC_PLATFORM != CC_PLATFORM_OPENHARMONY) // linux and openharmony has typedef ulong
 using ulong = std::uint32_t;
 #endif
 using FlagBits = std::uint32_t;
 
 using index_t = int32_t;
 #define CC_INVALID_INDEX (-1)
-
-#define Record ccstd::unordered_map // NOLINT(readability-identifier-naming)
 
 #define CC_ENUM_CONVERSION_OPERATOR(T) \
     inline std::underlying_type<T>::type toNumber(const T v) { return static_cast<std::underlying_type<T>::type>(v); }

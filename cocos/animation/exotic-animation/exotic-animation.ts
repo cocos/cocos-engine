@@ -23,7 +23,11 @@
 */
 
 import { EDITOR, TEST } from 'internal:constants';
-import { binarySearchEpsilon, clamp, lerp, Quat, Vec3, assertIsTrue, _decorator } from '../../core';
+import { binarySearchEpsilon, clamp, lerp, Quat, Vec3, _decorator } from '../../core';
+import { assertIsTrue } from '../../core/data/utils/asserts';
+import { AnimationClipGraphBindingContext } from '../marionette/animation-graph-animation-clip-binding';
+import { TransformHandle } from '../core/animation-handle';
+import { Pose } from '../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { Binder, RuntimeBinding, TrackBinding, TrackPath } from '../tracks/track';
 
@@ -47,6 +51,10 @@ function throwIfSplitMethodIsNotValid (): never {
 export class ExoticAnimation {
     public createEvaluator (binder: Binder) {
         return new ExoticTrsAnimationEvaluator(this._nodeAnimations, binder);
+    }
+
+    public createEvaluatorForAnimationGraph (context: AnimationClipGraphBindingContext) {
+        return new ExoticTrsAGEvaluation(this._nodeAnimations, context);
     }
 
     public addNodeAnimation (path: string) {
@@ -110,6 +118,19 @@ class ExoticNodeAnimation {
         );
     }
 
+    public createEvaluatorForAnimationGraph (context: AnimationClipGraphBindingContext) {
+        const transformHandle = context.bindTransform(this._path);
+        if (!transformHandle) {
+            return null;
+        }
+        return new ExoticNodeAnimationAGEvaluation(
+            transformHandle,
+            this._position,
+            this._rotation,
+            this._scale,
+        );
+    }
+
     public split (from: number, to: number, splitInfoCache: SplitInfo) {
         if (!SPLIT_METHOD_ENABLED) {
             return throwIfSplitMethodIsNotValid();
@@ -160,14 +181,13 @@ class ExoticNodeAnimation {
     private _scale: ExoticVec3Track | null = null;
 }
 
-function floatToHashString (value: number) {
+function floatToHashString (value: number): string {
     // Note: referenced to `Skeleton.prototype.hash`
     return value.toPrecision(2);
 }
 
 function floatArrayToHashString (values: FloatArray) {
-    // @ts-expect-error Complex typing
-    return (values).map(floatToHashString).join(' ');
+    return (values).map((v: number) => Number.parseFloat(floatToHashString(v))).join(' ');
 }
 
 interface ExoticTrackValues<TValue> {
@@ -434,7 +454,7 @@ function split<TValue> (
             nextValue,
             resultValue,
         );
-        newTimes[outputIndex] = splitInfo.transformTime(lerp(times[iPrevious], times[iNext], ratio));
+        newTimes[outputIndex] = lerp(times[iPrevious], times[iNext], ratio) - from;
         ValueConstructor.toArray(newValues, resultValue, components * outputIndex);
     };
 
@@ -445,7 +465,7 @@ function split<TValue> (
     }
     for (let index = directKeyframesBegin; index < directKeyframesEnd; ++index, ++iKeyframe) {
         values.get(index, resultValue);
-        newTimes[iKeyframe] = splitInfo.transformTime(times[index]);
+        newTimes[iKeyframe] = times[index] - from;
         ValueConstructor.toArray(newValues, resultValue, components * iKeyframe);
     }
     if (postLerpIndex >= 0) {
@@ -485,12 +505,12 @@ class SplitInfo {
             + (postLerpIndex < 0 ? 0 : 1);
     }
 
-    public transformTime (input: number) {
-        return input - this._timeOffset;
-    }
-
     public calculate (times: ArrayLike<number>, from: number, to: number) {
         this._reset();
+
+        if (from > to) {
+            return;
+        }
 
         const nKeyframes = times.length;
         if (!nKeyframes) {
@@ -499,17 +519,29 @@ class SplitInfo {
 
         const firstTime = times[0];
         const lastTime = times[nKeyframes - 1];
-        const fromClamped = clamp(from, firstTime, lastTime);
-        const toClamped = clamp(to, firstTime, lastTime);
 
-        this._timeOffset = fromClamped;
+        let fromIndex = 0;
+        let fromRatio = 0.0;
+        if (from < firstTime) {
+            // Leave as-is.
+        } else if (from >= lastTime) {
+            fromIndex = nKeyframes - 1;
+            fromRatio = 0.0;
+        } else {
+            ({ index: fromIndex, ratio: fromRatio } = binarySearchRatio(times, from));
+        }
 
-        const {
-            fromIndex,
-            fromRatio,
-            toIndex,
-            toRatio,
-        } = searchRange(times, fromClamped, toClamped);
+        let toIndex = 0;
+        let toRatio = 0.0;
+        if (to < firstTime) {
+            // Leave as-is.
+        } else if (to >= lastTime) {
+            toIndex = nKeyframes - 1;
+            toRatio = 0.0;
+        } else {
+            ({ index: toIndex, ratio: toRatio } = binarySearchRatio(times, to));
+        }
+
         assertIsTrue(toIndex >= fromIndex);
 
         const fromJust = !fromRatio;
@@ -541,8 +573,6 @@ class SplitInfo {
         }
     }
 
-    private declare _timeOffset: number;
-
     private _reset () {
         this.preLerpIndex = -1;
         this.preLerpRatio = 0.0;
@@ -550,22 +580,7 @@ class SplitInfo {
         this.directKeyframesEnd = 0;
         this.postLerpIndex = -1;
         this.postLerpRatio = 0.0;
-        this._timeOffset = 0.0;
     }
-}
-
-function searchRange (values: ArrayLike<number>, from: number, to: number) {
-    const nValues = values.length;
-    assertIsTrue(nValues !== 0);
-    assertIsTrue(to >= from && from >= values[0] && to <= values[nValues - 1]);
-    const { index: fromIndex, ratio: fromRatio } = binarySearchRatio(values, from);
-    const { index: toIndex, ratio: toRatio } = binarySearchRatio(values, to);
-    return {
-        fromIndex,
-        fromRatio,
-        toIndex,
-        toRatio,
-    };
 }
 
 function binarySearchRatio (values: ArrayLike<number>, value: number) {
@@ -702,6 +717,90 @@ class ExoticTrackEvaluator<TValue> {
 interface ExoticTrackEvaluationRecord<TValue> {
     runtimeBinding: RuntimeBinding;
     evaluator: ExoticTrackEvaluator<TValue>;
+}
+
+/**
+ * Exotic TRS animation graph evaluator.
+ */
+export class ExoticTrsAGEvaluation {
+    constructor (nodeAnimations: ExoticNodeAnimation[], context: AnimationClipGraphBindingContext) {
+        this._nodeEvaluations = nodeAnimations.map(
+            (nodeAnimation) => nodeAnimation.createEvaluatorForAnimationGraph(context),
+        ).filter((x) => !!x) as ExoticNodeAnimationAGEvaluation[];
+    }
+
+    public destroy () {
+        const { _nodeEvaluations: nodeEvaluations } = this;
+        const nNodeEvaluations = nodeEvaluations.length;
+        for (let iNodeEvaluation = 0; iNodeEvaluation < nNodeEvaluations; ++iNodeEvaluation) {
+            nodeEvaluations[iNodeEvaluation].destroy();
+        }
+    }
+
+    public evaluate (time: number, pose: Pose) {
+        const { _nodeEvaluations: nodeEvaluations } = this;
+        const nNodeEvaluations = nodeEvaluations.length;
+        for (let iNodeEvaluation = 0; iNodeEvaluation < nNodeEvaluations; ++iNodeEvaluation) {
+            nodeEvaluations[iNodeEvaluation].evaluate(time, pose);
+        }
+    }
+
+    private _nodeEvaluations: ExoticNodeAnimationAGEvaluation[];
+}
+
+class ExoticNodeAnimationAGEvaluation {
+    constructor (
+        transformHandle: TransformHandle,
+        position: ExoticVec3Track | null,
+        rotation: ExoticQuatTrack | null,
+        scale: ExoticVec3Track | null,
+    ) {
+        this._transformHandle = transformHandle;
+        if (position) {
+            this._position = new ExoticTrackEvaluator(position.times, position.values, Vec3);
+        }
+        if (rotation) {
+            this._rotation = new ExoticTrackEvaluator(rotation.times, rotation.values, Quat);
+        }
+        if (scale) {
+            this._scale = new ExoticTrackEvaluator(scale.times, scale.values, Vec3);
+        }
+    }
+
+    public destroy () {
+        this._transformHandle.destroy();
+    }
+
+    public evaluate (time: number, pose: Pose) {
+        const {
+            _transformHandle: {
+                index: transformIndex,
+            },
+            _position: position,
+            _rotation: rotation,
+            _scale: scale,
+        } = this;
+        const {
+            transforms: poseTransforms,
+        } = pose;
+        if (position) {
+            const value = position.evaluate(time);
+            poseTransforms.setPosition(transformIndex, value);
+        }
+        if (rotation) {
+            const rotationAbs = rotation.evaluate(time);
+            poseTransforms.setRotation(transformIndex, rotationAbs);
+        }
+        if (scale) {
+            const value = scale.evaluate(time);
+            poseTransforms.setScale(transformIndex, value);
+        }
+    }
+
+    private _position: ExoticTrackEvaluator<Vec3> | null = null;
+    private _rotation: ExoticTrackEvaluator<Quat> | null = null;
+    private _scale: ExoticTrackEvaluator<Vec3> | null = null;
+    private _transformHandle: TransformHandle;
 }
 
 interface InputSampleResult {

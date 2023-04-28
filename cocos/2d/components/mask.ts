@@ -379,7 +379,6 @@ export class Mask extends Component {
             sprite.sizeMode = 0;
         }
         this._sprite!.stencilStage = this.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
-        // @ts-expect-error Mask hack
         this._sprite!.updateMaterial();
     }
 
@@ -442,7 +441,6 @@ export class Mask extends Component {
     protected _disableRender () {
         if (this.subComp) {
             this.subComp.stencilStage = Stage.DISABLED;
-            // @ts-expect-error Mask hack
             this.subComp.updateMaterial();
             if (this.node.activeInHierarchy) {
                 this.subComp.enabled = false;
@@ -620,7 +618,7 @@ export class Mask extends Component {
     public getMaterial (idx: number): any {
         warnID(9007);
         if (this.subComp) {
-            return this.subComp.getMaterial(idx);
+            return this.subComp.getSharedMaterial(idx);
         }
         return null;
     }

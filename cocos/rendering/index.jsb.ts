@@ -25,33 +25,71 @@
 declare const nr: any;
 declare const jsb: any;
 
-import { getPhaseID } from './pass-phase';
 import { ccenum, CCString, js } from '../core';
 import * as pipeline from './define';
-import { ccclass, serializable, editable, type, visible } from '../core/data/class-decorator';
+import { ccclass, serializable, editable, type } from '../core/data/class-decorator';
 import { legacyCC } from '../core/global-exports';
+import * as decors from '../native-binding/decorators';
+import { RenderTexture } from '../asset/assets/render-texture';
+import type { 
+    RenderPipeline as NrRenderPipeline,
+    RenderFlow as NrRenderFlow,
+    RenderStage as NrRenderStage,
+    InstancedBuffer as NrInstancedBuffer,
+    PipelineStateManager as NrPipelineStateManager,
+    ForwardPipeline as NrForwardPipeline,
+    ForwardFlow as NrForwardFlow,
+    ShadowFlow as NrShadowFlow,
+    ForwardStage as NrForwardStage,
+    ShadowStage as NrShadowStage,
+    DeferredPipeline as NrDeferredPipeline,
+    MainFlow as NrMainFlow,
+    LightingStage as NrLightingStage,
+    PostProcessStage as NrPostProcessStage,
+    GbufferStage as NrGbufferStage,
+    BloomStage as NrBloomStage,
+    ReflectionProbeFlow as NrReflectionProbeFlow,
+    ReflectionProbeStage as NrReflectionProbeStage,
+} from './index';
+
 export { pipeline };
-
-nr.getPhaseID = getPhaseID;
-
-export const RenderPipeline = nr.RenderPipeline;
-export const RenderFlow = nr.RenderFlow;
-export const RenderStage = nr.RenderStage;
-export const InstancedBuffer = nr.InstancedBuffer;
-export const PipelineStateManager = nr.PipelineStateManager;
-export const ForwardPipeline = nr.ForwardPipeline;
-export const ForwardFlow = nr.ForwardFlow;
-export const ShadowFlow = nr.ShadowFlow;
-export const ForwardStage = nr.ForwardStage;
-export const ShadowStage = nr.ShadowStage;
-export const DeferredPipeline = nr.DeferredPipeline;
-export const MainFlow = nr.MainFlow;
-export const LightingStage = nr.LightingStage;
-export const PostProcessStage = nr.PostProcessStage;
-export const GbufferStage = nr.GbufferStage;
-export const BloomStage = nr.BloomStage;
-export const ReflectionProbeFlow = nr.ReflectionProbeFlow;
-export const ReflectionProbeStage = nr.ReflectionProbeStage;
+export * from './pass-phase';
+export const RenderPipeline: typeof NrRenderPipeline = nr.RenderPipeline;
+export type RenderPipeline = NrRenderPipeline;
+export const RenderFlow: typeof NrRenderFlow = nr.RenderFlow;
+export type RenderFlow = NrRenderFlow;
+export const RenderStage: typeof NrRenderStage = nr.RenderStage;
+export type RenderStage = NrRenderStage;
+export const InstancedBuffer: typeof NrInstancedBuffer = nr.InstancedBuffer;
+export type InstancedBuffer = NrInstancedBuffer;
+export const PipelineStateManager: typeof NrPipelineStateManager = nr.PipelineStateManager;
+export type PipelineStateManager = NrPipelineStateManager;
+export const ForwardPipeline: typeof NrForwardPipeline = nr.ForwardPipeline;
+export type ForwardPipeline = NrForwardPipeline;
+export const ForwardFlow: typeof NrForwardFlow = nr.ForwardFlow;
+export type ForwardFlow = NrForwardFlow;
+export const ShadowFlow: typeof NrShadowFlow = nr.ShadowFlow;
+export type ShadowFlow = NrShadowFlow;
+export const ForwardStage: typeof NrForwardStage = nr.ForwardStage;
+export type ForwardStage = NrForwardStage;
+export const ShadowStage: typeof NrShadowStage = nr.ShadowStage;
+export type ShadowStage = NrShadowStage;
+export const DeferredPipeline: typeof NrDeferredPipeline = nr.DeferredPipeline;
+export type DeferredPipeline = NrDeferredPipeline;
+export const MainFlow: typeof NrMainFlow = nr.MainFlow;
+export type MainFlow = NrMainFlow;
+export const LightingStage: typeof NrLightingStage = nr.LightingStage;
+export type LightingStage = NrLightingStage;
+export const PostProcessStage: typeof NrPostProcessStage = nr.PostProcessStage;
+export type PostProcessStage = NrPostProcessStage;
+export const GbufferStage: typeof NrGbufferStage = nr.GbufferStage;
+export type GbufferStage = NrGbufferStage;
+export const BloomStage: typeof NrBloomStage = nr.BloomStage;
+export type BloomStage = NrBloomStage;
+export const ReflectionProbeFlow: typeof NrReflectionProbeFlow = nr.ReflectionProbeFlow;
+export type ReflectionProbeFlow = NrReflectionProbeFlow;
+export const ReflectionProbeStage: typeof NrReflectionProbeStage = nr.ReflectionProbeStage;
+export type ReflectionProbeStage = NrReflectionProbeStage;
 export { PipelineEventType } from './pipeline-event';
 
 interface IRenderFlowInfo {
@@ -78,7 +116,8 @@ nr.PipelineStateManager.getOrCreatePipelineState = function (device, pass, shade
 };
 
 // ForwardPipeline
-const forwardPipelineProto = ForwardPipeline.prototype;
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const forwardPipelineProto: any = ForwardPipeline.prototype;
 forwardPipelineProto._ctor = function () {
     this._tag = 0;
     this._flows = [];
@@ -103,7 +142,8 @@ forwardPipelineProto.onLoaded = function () {
     this.initialize(info);
 }
 
-const forwardFlowProto = ForwardFlow.prototype;
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const forwardFlowProto: any = ForwardFlow.prototype;
 forwardFlowProto._ctor = function () {
     this._name = 0;
     this._priority = 0;
@@ -118,7 +158,8 @@ forwardFlowProto.init = function (pipeline) {
     this.initialize(info);
 }
 
-const shadowFlowProto = ShadowFlow.prototype;
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const shadowFlowProto: any = ShadowFlow.prototype;
 shadowFlowProto._ctor = function () {
     this._name = 0;
     this._priority = 0;
@@ -133,7 +174,9 @@ shadowFlowProto.init = function (pipeline) {
     this.initialize(info);
 }
 
-const reflectionProbeFlowProto = ReflectionProbeFlow.prototype;
+
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const reflectionProbeFlowProto: any = ReflectionProbeFlow.prototype;
 reflectionProbeFlowProto._ctor = function () {
     this._name = 0;
     this._priority = 0;
@@ -148,7 +191,9 @@ reflectionProbeFlowProto.init = function (pipeline) {
     this.initialize(info);
 }
 
-const forwardStageProto = ForwardStage.prototype;
+
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const forwardStageProto: any = ForwardStage.prototype;
 forwardStageProto._ctor = function () {
     this._name = 0;
     this._priority = 0;
@@ -165,14 +210,17 @@ forwardStageProto.init = function (pipeline) {
     this.initialize(info);
 }
 
-const shadowStageProto = ShadowStage.prototype;
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const shadowStageProto: any = ShadowStage.prototype;
 shadowStageProto._ctor = function () {
     this._name = 0;
     this._priority = 0;
     this._tag = 0;
 }
 
-const reflectionProbeStage = ReflectionProbeStage.prototype;
+
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const reflectionProbeStage: any = ReflectionProbeStage.prototype;
 reflectionProbeStage._ctor = function () {
     this._name = 0;
     this._priority = 0;
@@ -234,7 +282,8 @@ export class RenderQueueDesc {
     }
 }
 
-const deferredPipelineProto = DeferredPipeline.prototype;
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const deferredPipelineProto: any = DeferredPipeline.prototype;
 deferredPipelineProto._ctor = function () {
     this._tag = 0;
     this._flows = [];
@@ -254,7 +303,9 @@ deferredPipelineProto.onLoaded = function () {
     this.initialize(info);
 }
 
-const mainFlowProto = MainFlow.prototype;
+
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const mainFlowProto: any = MainFlow.prototype;
 mainFlowProto._ctor = function () {
     this._name = 0;
     this._priority = 0;
@@ -269,7 +320,8 @@ mainFlowProto.init = function (pipeline) {
     this.initialize(info);
 }
 
-const gbufferStageProto = GbufferStage.prototype;
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const gbufferStageProto: any = GbufferStage.prototype;
 gbufferStageProto._ctor = function () {
     this._name = 0;
     this._priority = 0;
@@ -286,8 +338,8 @@ gbufferStageProto.init = function (pipeline) {
     this.initialize(info);
 }
 
-
-const lightingStageProto = LightingStage.prototype;
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const lightingStageProto: any = LightingStage.prototype;
 lightingStageProto._ctor = function () {
     this._name = 0;
     this._priority = 0;
@@ -306,7 +358,8 @@ lightingStageProto.init = function (pipeline) {
     this.initialize(info);
 }
 
-const bloomStageProto = BloomStage.prototype;
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const bloomStageProto: any = BloomStage.prototype;
 bloomStageProto._ctor = function () {
     this._name = 0;
     this._priority = 0;
@@ -325,7 +378,9 @@ bloomStageProto.init = function (pipeline) {
     this.initialize(info);
 }
 
-const postProcessStageProto = PostProcessStage.prototype;
+
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const postProcessStageProto: any = PostProcessStage.prototype;
 postProcessStageProto._ctor = function () {
     this._name = 0;
     this._priority = 0;
@@ -349,8 +404,6 @@ legacyCC.RenderFlow = RenderFlow;
 legacyCC.RenderStage = RenderStage;
 legacyCC.RenderPipeline = RenderPipeline;
 
-
-const RenderTexture: any = jsb.RenderTexture;
 @ccclass('RenderTextureConfig')
 class RenderTextureConfig {
     @serializable
@@ -389,98 +442,36 @@ function proxyArrayAttributeImpl(proto: any, attr: string) {
     });
 }
 
-function declType(proto: any, attrType: any, attr: string, dft: () => any) {
-    (type(attrType) as any)(proto, attr, dft);
-}
-
-
-
-
 
 let proxyArrayAttribute = proxyArrayAttributeImpl;
 
-editable(RenderStage.prototype, '_name', () => '');
-editable(RenderStage.prototype, '_tag', () => 0);
-editable(RenderStage.prototype, '_priority', () => 0);
-serializable(RenderStage.prototype, '_tag', () => 0);
-serializable(RenderStage.prototype, '_priority', () => 0);
-
-editable(RenderFlow.prototype, '_name', () => '');
-editable(RenderFlow.prototype, '_priority', () => 0);
-editable(RenderFlow.prototype, '_tag', () => 0);
-editable(RenderFlow.prototype, '_stages', () => []);
-declType(RenderFlow.prototype, [RenderStage], '_stages', () => []);
 proxyArrayAttribute(RenderFlow.prototype, '_stages');
-serializable(RenderFlow.prototype, '_name', () => '');
-serializable(RenderFlow.prototype, '_priority', () => 0);
-serializable(RenderFlow.prototype, '_tag', () => 0);
-serializable(RenderFlow.prototype, '_stages', () => []);
 
-editable(RenderPipeline.prototype, '_tag', () => 0);
-editable(RenderPipeline.prototype, '_name', () => []);
-serializable(RenderPipeline.prototype, '_tag', () => 0);
-serializable(RenderPipeline.prototype, '_name', () => '');
-
-editable(RenderPipeline.prototype, '_flows', () => []);
-declType(RenderPipeline.prototype, [RenderFlow], '_flows', () => []);
 proxyArrayAttribute(RenderPipeline.prototype, '_flows');
-serializable(RenderPipeline.prototype, '_flows', () => []);
-
-editable(DeferredPipeline.prototype, 'renderTextures', () => []);
-declType(DeferredPipeline.prototype, [RenderTextureConfig], "renderTextures", () => []);
-serializable(DeferredPipeline.prototype, 'renderTextures', () => []);
-editable(DeferredPipeline.prototype, 'renderTextures', () => []);
-
-
-editable(ForwardPipeline.prototype, 'renderTextures', () => []);
-declType(ForwardPipeline.prototype, [RenderTextureConfig], "renderTextures", () => []);
-serializable(ForwardPipeline.prototype, 'renderTextures', () => []);
-
-declType(GbufferStage.prototype, [RenderQueueDesc], 'renderQueues', () => []);
-serializable(GbufferStage.prototype, 'renderQueues', () => []);
-editable(GbufferStage.prototype, 'renderQueues', () => []);
-
-
-editable(LightingStage.prototype, '_deferredMaterial', () => null);
-declType(LightingStage.prototype, jsb.Material, '_deferredMaterial', () => null);
-declType(LightingStage.prototype, [RenderQueueDesc], 'renderQueues', () => []);
-serializable(LightingStage.prototype, '_deferredMaterial', () => null);
-serializable(LightingStage.prototype, 'renderQueue', () => []);
-editable(LightingStage.prototype, 'renderQueue', () => []);
-
-editable(BloomStage.prototype, '_bloomMaterial', () => null);
-declType(BloomStage.prototype, jsb.Material, '_bloomMaterial', () => []);
-serializable(BloomStage.prototype, '_bloomMaterial', () => null);
-
-
-declType(PostProcessStage.prototype, [RenderQueueDesc], 'renderQueues', () => []);
-editable(PostProcessStage.prototype, '_postProcessMaterial', () => null);
-declType(PostProcessStage.prototype, jsb.Material, '_postProcessMaterial', () => null);
-serializable(PostProcessStage.prototype, 'renderQueues', () => []);
-editable(PostProcessStage.prototype, 'renderQueues', () => []);
-serializable(PostProcessStage.prototype, '_postProcessMaterial', () => null);
-
-declType(ForwardStage.prototype, [RenderQueueDesc], 'renderQueues', () => []);
-serializable(ForwardStage.prototype, 'renderQueues', () => []);
-editable(ForwardStage.prototype, 'renderQueues', () => []);
 
 //-------------------- register types -------------------- 
-ccclass('RenderQueueDesc')(RenderQueueDesc);
-ccclass('RenderStage')(RenderStage)
-ccclass('ReflectionProbeStage')(ReflectionProbeStage);
-ccclass('GbufferStage')(GbufferStage);
-ccclass('LightingStage')(LightingStage);
-ccclass('BloomStage')(BloomStage);
-ccclass('PostProcessStage')(PostProcessStage);
-ccclass('ForwardStage')(ForwardStage);
-ccclass('ShadowStage')(ShadowStage);
 
-ccclass('RenderFlow')(RenderFlow)
-ccclass('MainFlow')(MainFlow);
-ccclass('ForwardFlow')(ForwardFlow);
-ccclass('ShadowFlow')(ShadowFlow);
-ccclass('ReflectionProbeFlow')(ReflectionProbeFlow);
+const Material = jsb.Material;
 
-ccclass('cc.RenderPipeline')(RenderPipeline);
-ccclass('ForwardPipeline')(ForwardPipeline);
-ccclass('DeferredPipeline')(DeferredPipeline);
+decors.patch_RenderQueueDesc({RenderQueueDesc, RenderQueueSortMode, CCString});
+decors.patch_RenderStage({RenderStage});
+decors.patch_ReflectionProbeStage({ReflectionProbeStage});
+decors.patch_GbufferStage({GbufferStage, RenderQueueDesc});
+decors.patch_LightingStage({LightingStage, RenderQueueDesc, Material});
+decors.patch_BloomStage({BloomStage, Material});
+decors.patch_PostProcessStage({PostProcessStage, Material, RenderQueueDesc});
+decors.patch_ForwardStage({ForwardStage, RenderQueueDesc});
+decors.patch_ShadowStage({ShadowStage});
+
+decors.patch_RenderFlow({RenderFlow, RenderStage});
+decors.patch_MainFlow({MainFlow});
+decors.patch_ForwardFlow({ForwardFlow});
+decors.patch_ShadowFlow({ShadowFlow});
+decors.patch_ReflectionProbeFlow({ReflectionProbeFlow});
+
+decors.patch_cc_RenderPipeline({RenderPipeline, RenderFlow});
+decors.patch_ForwardPipeline({ForwardPipeline, RenderTextureConfig});
+decors.patch_DeferredPipeline({DeferredPipeline, RenderTextureConfig});
+
+
+

@@ -147,6 +147,7 @@ export enum ModelLocalBindings {
     SAMPLER_REFLECTION_PROBE_CUBE,
     SAMPLER_REFLECTION_PROBE_PLANAR,
     SAMPLER_REFLECTION_PROBE_DATA_MAP,
+    SAMPLER_REFLECTION_PROBE_BLEND_CUBE,
 
     COUNT,
 }
@@ -376,7 +377,9 @@ export class UBOLocal {
     public static readonly LOCAL_SHADOW_BIAS = UBOLocal.LIGHTINGMAP_UVPARAM + 4;
     public static readonly REFLECTION_PROBE_DATA1 = UBOLocal.LOCAL_SHADOW_BIAS + 4;
     public static readonly REFLECTION_PROBE_DATA2 = UBOLocal.REFLECTION_PROBE_DATA1 + 4;
-    public static readonly COUNT = UBOLocal.REFLECTION_PROBE_DATA2 + 4;
+    public static readonly REFLECTION_PROBE_BLEND_DATA1 = UBOLocal.REFLECTION_PROBE_DATA2 + 4;
+    public static readonly REFLECTION_PROBE_BLEND_DATA2 = UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 4;
+    public static readonly COUNT = UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 4;
     public static readonly SIZE = UBOLocal.COUNT * 4;
 
     public static readonly NAME = 'CCLocal';
@@ -389,6 +392,8 @@ export class UBOLocal {
         new Uniform('cc_localShadowBias', Type.FLOAT4, 1),
         new Uniform('cc_reflectionProbeData1', Type.FLOAT4, 1),
         new Uniform('cc_reflectionProbeData2', Type.FLOAT4, 1),
+        new Uniform('cc_reflectionProbeBlendData1', Type.FLOAT4, 1),
+        new Uniform('cc_reflectionProbeBlendData2', Type.FLOAT4, 1),
     ], 1);
 }
 localDescriptorSetLayout.layouts[UBOLocal.NAME] = UBOLocal.LAYOUT;
@@ -445,7 +450,8 @@ export class UBOForwardLight {
     public static readonly LIGHT_COLOR_OFFSET = UBOForwardLight.LIGHT_POS_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
     public static readonly LIGHT_SIZE_RANGE_ANGLE_OFFSET = UBOForwardLight.LIGHT_COLOR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
     public static readonly LIGHT_DIR_OFFSET = UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
-    public static readonly COUNT = UBOForwardLight.LIGHT_DIR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static readonly LIGHT_BOUNDING_SIZE_VS_OFFSET = UBOForwardLight.LIGHT_DIR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static readonly COUNT = UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
     public static readonly SIZE = UBOForwardLight.COUNT * 4;
 
     public static readonly NAME = 'CCForwardLight';
@@ -456,6 +462,7 @@ export class UBOForwardLight {
         new Uniform('cc_lightColor', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
         new Uniform('cc_lightSizeRangeAngle', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
         new Uniform('cc_lightDir', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
+        new Uniform('cc_lightBoundingSizeVS', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
     ], 1);
 }
 localDescriptorSetLayout.layouts[UBOForwardLight.NAME] = UBOForwardLight.LAYOUT;
@@ -741,6 +748,18 @@ const UNIFORM_REFLECTION_PROBE_DATA_MAP_LAYOUT = new UniformSamplerTexture(SetIn
     UNIFORM_REFLECTION_PROBE_DATA_MAP_NAME, Type.SAMPLER2D, 1);
 localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_DATA_MAP_NAME] = UNIFORM_REFLECTION_PROBE_DATA_MAP_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING] = UNIFORM_REFLECTION_PROBE_DATA_MAP_DESCRIPTOR;
+
+/**
+ * @en The sampler for reflection probe cubemap for blend.
+ * @zh 用于blend的反射探针立方体贴图纹理采样器。
+ */
+const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME = 'cc_reflectionProbeBlendCubemap';
+export const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING = ModelLocalBindings.SAMPLER_REFLECTION_PROBE_BLEND_CUBE;
+const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING,
+    UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME, Type.SAMPLER_CUBE, 1);
+localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME] = UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING] = UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_DESCRIPTOR;
 
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);

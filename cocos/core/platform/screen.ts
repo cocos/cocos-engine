@@ -150,17 +150,15 @@ class Screen {
      * @return {Promise}
      */
     public requestFullScreen (): Promise<void>;
-    public requestFullScreen (element?: HTMLElement, onFullScreenChange?: (this: Document, ev: any) => any, onFullScreenError?: (this: Document, ev: any) => any): Promise<any> {
+    public requestFullScreen (element?: HTMLElement, onFullScreenChange?: (this: Document, ev?: any) => any, onFullScreenError?: (this: Document, ev?: any) => any): Promise<any> {
         if (arguments.length > 0) {
             warnID(1400, 'screen.requestFullScreen(element, onFullScreenChange?, onFullScreenError?)', 'screen.requestFullScreen(): Promise');
         }
         return screenAdapter.requestFullScreen().then(() => {
-            // @ts-expect-error no parameter passed
-            onFullScreenChange?.();
+            onFullScreenChange?.call(document);  // this case is only used on Web platforms, which is deprecated since v3.3.0
         }).catch((err) => {
             console.error(err);
-            // @ts-expect-error no parameter passed
-            onFullScreenError?.();
+            onFullScreenError?.call(document);  // this case is only used on Web platforms, which is deprecated since v3.3.0
         });
     }
 

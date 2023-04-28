@@ -25,7 +25,7 @@
 import { ccclass } from 'cc.decorator';
 import { QuatCurve, Quat } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
-import { SingleChannelTrack } from './track';
+import { SingleChannelTrack, TrackEval } from './track';
 
 /**
  * @en
@@ -50,9 +50,13 @@ export class QuatTrack extends SingleChannelTrack<QuatCurve> {
     }
 }
 
-export class QuatTrackEval {
+export class QuatTrackEval implements TrackEval<Quat> {
     constructor (private _curve: QuatCurve) {
 
+    }
+
+    public get requiresDefault () {
+        return false;
     }
 
     public evaluate (time: number) {

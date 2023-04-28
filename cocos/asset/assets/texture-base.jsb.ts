@@ -21,12 +21,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, serializable } from 'cc.decorator';
+
 import { TEST, EDITOR } from 'internal:constants';
 import { deviceManager } from '../../gfx';
 import { cclegacy } from '../../core';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './asset';
+import { patch_cc_TextureBase } from '../../native-binding/decorators';
+import type { TextureBase as JsbTextureBase } from './texture-base';
+
+declare const jsb: any;
 
 const textureBaseProto: any = jsb.TextureBase.prototype;
 
@@ -78,8 +82,8 @@ textureBaseProto._getGFXPixelFormat = function (format) {
 
 textureBaseProto.createNode = null!;
 
-export type TextureBase = jsb.TextureBase;
-export const TextureBase: any = jsb.TextureBase;
+export type TextureBase = JsbTextureBase;
+export const TextureBase: typeof JsbTextureBase = jsb.TextureBase;
 
 TextureBase.Filter = Filter;
 TextureBase.PixelFormat = PixelFormat;
@@ -136,13 +140,4 @@ textureBaseProto._onGFXSamplerUpdated = function (gfxSampler, samplerInfo) {
 cclegacy.TextureBase = jsb.TextureBase;
 
 // handle meta data, it is generated automatically
-const TextureBaseProto = TextureBase.prototype;
-serializable(TextureBaseProto, '_format', () => PixelFormat.RGBA8888);
-serializable(TextureBaseProto, '_minFilter', () => Filter.LINEAR);
-serializable(TextureBaseProto, '_magFilter', () => Filter.LINEAR);
-serializable(TextureBaseProto, '_mipFilter', () => Filter.NONE);
-serializable(TextureBaseProto, '_wrapS', () => WrapMode.REPEAT);
-serializable(TextureBaseProto, '_wrapT', () => WrapMode.REPEAT);
-serializable(TextureBaseProto, '_wrapR', () => WrapMode.REPEAT);
-serializable(TextureBaseProto, '_anisotropy', () => 0);
-ccclass('cc.TextureBase')(TextureBase);
+patch_cc_TextureBase({TextureBase, Filter, WrapMode, PixelFormat});

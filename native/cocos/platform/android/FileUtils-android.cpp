@@ -218,6 +218,9 @@ FileUtils::Status FileUtilsAndroid::getContents(const ccstd::string &filename, R
 }
 
 ccstd::string FileUtilsAndroid::getWritablePath() const {
+    if (!_writablePath.empty()) {
+        return _writablePath;
+    }
     // Fix for Nexus 10 (Android 4.2 multi-user environment)
     // the path is retrieved through Java Context.getCacheDir() method
     ccstd::string dir;
