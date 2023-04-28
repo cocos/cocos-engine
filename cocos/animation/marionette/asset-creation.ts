@@ -40,5 +40,9 @@ export { VariableType } from './parametric';
 export { BindableNumber, BindableBoolean } from './parametric';
 export { AnimationMask } from './animation-mask';
 export { AnimationGraphVariant } from './animation-graph-variant';
+
 export type { PoseGraph } from './pose-graph/pose-graph';
-export type { PoseNode } from './pose-graph/pose-node';
+
+export * from './pose-graph/op/index'
+export type { EnterNodeInfo } from './pose-graph/foundation/authoring/enter-node-info';
+

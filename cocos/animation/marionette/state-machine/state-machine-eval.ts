@@ -1706,7 +1706,7 @@ class PoseStateEval extends StateEval {
 
     public constructor (state: PoseState, context: AnimationGraphBindingContext) {
         super(state);
-        const poseEval = instantiatePoseGraph(state.graph);
+        const poseEval = instantiatePoseGraph(state.graph, context);
         if (poseEval) {
             poseEval.bind(context);
             this._rootPoseNodeEval = poseEval;

@@ -1,26 +1,30 @@
-import { EditorExtendable, js, warn } from '../../../core';
+import { EditorExtendable, assertIsTrue, error, js, warn } from '../../../core';
 import { ccclass, serializable } from '../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../define';
-import { PoseNode } from './pose-node';
+import { PoseGraphNodeShell } from './foundation/node-shell';
+import { PoseGraphNode, shellTag } from './foundation/pose-graph-node';
+import { AddNonFreestandingNodeError } from './foundation/errors';
+import { PoseGraphOutputNode } from './graph-output-node';
 
+/**
+ * @zh
+ * 姿势图。
+ * @en
+ * Pose graph.
+ */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseGraph`)
 export class PoseGraph extends EditorExtendable {
-    /**
-     * @zh
-     * 连接到该姿势图根输出结点的结点。
-     * @en
-     * The node connected to the root output node of pose graph.
-     */
-    public get main () {
-        return this._main;
+    constructor () {
+        super();
+        this.addNode(this._outputNode);
     }
 
-    public set main (value) {
-        if (value && !this._nodes.includes(value)) {
-            warn(`Specified pose expr is not within container.`);
-            return;
-        }
-        this._main = value;
+    /**
+     * @zh 姿势图的输出结点。
+     * @en The pose graph's output node.
+     */
+    public get outputNode () {
+        return this._outputNode;
     }
 
     /**
@@ -28,41 +32,87 @@ export class PoseGraph extends EditorExtendable {
      * @internal
      */
     public __callOnAfterDeserializeRecursive () {
-        for (const node of this._nodes) {
-            if ('__callOnAfterDeserializeRecursive' in node) {
-                (node as unknown as {
-                    __callOnAfterDeserializeRecursive(): void;
-                }).__callOnAfterDeserializeRecursive();
-            }
+        assertIsTrue(this._nodes.length === this._shells.length);
+        for (let iNode = 0; iNode < this._nodes.length; ++iNode) {
+            const node = this._nodes[iNode];
+            const shell = this._shells[iNode];
+            node._emplaceShell(shell);
+            node.__callOnAfterDeserializeRecursive?.();
         }
     }
 
-    public nodes () {
+    /**
+     * @zh 获取所有结点。
+     * @en Gets all nodes.
+     * @returns @zh 用于遍历所有结点的迭代器。 @en The iterator to iterate all nodes.
+     */
+    public nodes (): IterableIterator<PoseGraphNode> {
         return this._nodes.values();
     }
 
-    public addNode (node: PoseNode) {
+    /**
+     * @zh 添加一个结点到图中。
+     * @en Adds a node into graph.
+     * @param node @zh 要添加的结点。 @en Node to add.
+     * @returns `node`
+     *
+     * @note
+     * @zh 注意，要添加的结点必须是“独立”的，也就是说它不能已经在任何图中。否则会抛出异常。
+     * @en Note, the node to add should be "freestanding",
+     * means it should not been already in any graph. Otherwise, an exception would be thrown.
+     */
+    public addNode<TNode extends PoseGraphNode> (node: TNode) {
+        if (node[shellTag]) {
+            throw new AddNonFreestandingNodeError(node);
+        }
+        const shell = new PoseGraphNodeShell();
+        node._emplaceShell(shell);
+        this._shells.push(shell);
         this._nodes.push(node);
+        return node;
     }
 
-    public removeNode (node: PoseNode) {
-        // Disconnect from others.
-        for (const node of this._nodes) {
-            // TODO before merging:
+    /**
+     * @zh 将指定的结点从图中移除。
+     * @en Removes specified node from the graph.
+     * @param removal @zh 要移除的结点。 @en The node to remove.
+     *
+     * @note
+     * @zh 如果要移除的结点不在图中或该结点是图的输出结点，则此方法不会生效。
+     * @en If the removal node is not within graph or is the output node of graph,
+     * this method takes no effect.
+     */
+    public removeNode (removal: PoseGraphNode) {
+        if (removal === this._outputNode) {
+            error(`Can not remove the output node.`);
+            return;
         }
 
-        // Disconnect from output.
-        if (node === this._main) {
-            this._main = null;
+        const nodeIndex = this._nodes.indexOf(removal);
+        if (nodeIndex < 0) {
+            return;
+        }
+
+        // This should be true.
+        assertIsTrue(removal[shellTag] === this._shells[nodeIndex]);
+
+        // Disconnect from others.
+        for (const shell of this._shells) {
+            shell.deleteBindingTo(removal);
         }
 
         // Remove from graph.
-        js.array.remove(this._nodes, node);
+        removal._dropShell();
+        js.array.removeAt(this._shells, nodeIndex);
+        js.array.removeAt(this._nodes, nodeIndex);
     }
 
     @serializable
-    private _nodes: PoseNode[] = [];
+    private _outputNode = new PoseGraphOutputNode();
 
     @serializable
-    private _main: PoseNode | null = null;
+    private _nodes: PoseGraphNode[] = [];
+
+    @serializable
+    private _shells: PoseGraphNodeShell[] = [];
 }
