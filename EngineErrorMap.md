@@ -1845,6 +1845,22 @@ Previous error occurred when instantiating animation clip %s on node %s.
 
 '%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'.
 
+### 3940
+
+Error when animation attempted to bind material uniform target: target %s is not a material.
+
+### 3941
+
+Error when animation attempted to bind material uniform target: material %s has no recorded pass %s.
+
+### 3942
+
+Error when animation attempted to bind material uniform target: material %s at pass %s has no recorded uniform %s.
+
+### 3943
+
+Error when animation attempted to bind material uniform target: material %s at pass %s's uniform %s has no recorded channel %s.
+
 ### 4000
 
 <!-- DEPRECATED -->
