@@ -547,6 +547,7 @@ export function buildForwardPass (camera: Camera,
     return { rtName: forwardPassRTName, dsName: forwardPassDSName };
 }
 
+let shadowPass;
 export function buildShadowPass (passName: Readonly<string>,
     ppl: Pipeline,
     camera: Camera, light: Light, level: number,
@@ -565,15 +566,18 @@ export function buildShadowPass (passName: Readonly<string>,
     }
     ppl.updateRenderTarget(shadowMapName, fboW, fboH);
     ppl.updateDepthStencil(`${shadowMapName}Depth`, fboW, fboH);
-    const pass = ppl.addRasterPass(width, height, 'default');
-    pass.name = passName;
-    pass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
-    pass.addRenderTarget(shadowMapName, '_', LoadOp.CLEAR, StoreOp.STORE, new Color(1, 1, 1, camera.clearColor.w));
-    pass.addDepthStencil(`${shadowMapName}Depth`, '_', LoadOp.CLEAR, StoreOp.DISCARD,
-        camera.clearDepth, camera.clearStencil, ClearFlagBit.DEPTH_STENCIL);
-    const queue = pass.addQueue(QueueHint.RENDER_OPAQUE);
+    if (!level) {
+        shadowPass = ppl.addRasterPass(width, height, 'default');
+        shadowPass.name = passName;
+        shadowPass.setViewport(new Viewport(0, 0, fboW, fboH));
+        shadowPass.addRenderTarget(shadowMapName, '_', LoadOp.CLEAR, StoreOp.STORE, new Color(1, 1, 1, camera.clearColor.w));
+        shadowPass.addDepthStencil(`${shadowMapName}Depth`, '_', LoadOp.CLEAR, StoreOp.DISCARD,
+            camera.clearDepth, camera.clearStencil, ClearFlagBit.DEPTH_STENCIL);
+    }
+    const queue = shadowPass.addQueue(QueueHint.RENDER_OPAQUE);
     queue.addSceneOfCamera(camera, new LightInfo(light, level),
         SceneFlags.SHADOW_CASTER);
+    queue.setViewport(new Viewport(area.x, area.y, area.width, area.height));
 }
 
 export function buildReflectionProbePasss (camera: Camera,

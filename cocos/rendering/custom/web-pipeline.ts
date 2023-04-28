@@ -1421,7 +1421,8 @@ export class WebPipeline implements Pipeline {
         this._globalDSManager = new GlobalDSManager(this._device);
         this._globalDescSetData = this.getGlobalDescriptorSetData()!;
         this._globalDescriptorSetLayout = this._globalDescSetData.descriptorSetLayout;
-        this._globalDescriptorSet = isEnableEffect() ? this._device.createDescriptorSet(new DescriptorSetInfo(this._globalDescriptorSetLayout!))
+        this._globalDescriptorSetInfo = new DescriptorSetInfo(this._globalDescriptorSetLayout!);
+        this._globalDescriptorSet = isEnableEffect() ? this._device.createDescriptorSet(this._globalDescriptorSetInfo)
             : this._globalDescSetData.descriptorSet;
         this._globalDSManager.globalDescriptorSet = this.globalDescriptorSet;
         this.setMacroBool('CC_USE_HDR', this._pipelineSceneData.isHDR);
@@ -1495,6 +1496,9 @@ export class WebPipeline implements Pipeline {
     }
     public get globalDescriptorSet (): DescriptorSet {
         return this._globalDescriptorSet!;
+    }
+    public get globalDescriptorSetInfo (): DescriptorSetInfo {
+        return this._globalDescriptorSetInfo!;
     }
     public get commandBuffers (): CommandBuffer[] {
         return [this._device.commandBuffer];
@@ -1814,6 +1818,7 @@ export class WebPipeline implements Pipeline {
     private _device!: Device;
     private _globalDSManager!: GlobalDSManager;
     private _globalDescriptorSet: DescriptorSet | null = null;
+    private _globalDescriptorSetInfo: DescriptorSetInfo | null = null;
     private _globalDescriptorSetLayout: DescriptorSetLayout | null = null;
     private readonly _macros: MacroRecord = {};
     private readonly _pipelineSceneData: PipelineSceneData = new PipelineSceneData();
