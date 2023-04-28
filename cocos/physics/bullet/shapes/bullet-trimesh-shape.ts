@@ -42,28 +42,30 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
         if (!this._isInitialized) return;
 
         if (this._impl && BulletCache.isNotEmptyShape(this._impl)) {
-            // TODO: change the mesh after initialization
-            warnID(9620);
-        } else {
-            const mesh = v;
-            if (mesh && mesh.renderingSubMeshes.length > 0) {
-                if (this.collider.convex) {
-                    const btTriangleMesh = this._getBtTriangleMesh(mesh);
-                    this._impl = bt.ConvexTriangleMeshShape_new(btTriangleMesh);
-                } else {
-                    this.btBVHMeshShape = BulletBvhTriangleMeshShape.getBulletBvhTriangleMeshShape(mesh.hash, mesh);
-                    this._impl = bt.ScaledBvhTriangleMeshShape_new(this.btBVHMeshShape.bulletBvhTriangleMeshShapePtr, 1, 1, 1);
-                }
-                const bt_v3 = BulletCache.instance.BT_V3_0;
-                cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
-                bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
-                bt.CollisionShape_setMargin(this._impl, 0.01);
-                this.setCompound(this._compound);
-                this.updateByReAdd();
-                this.setWrapper();
+            if (this._compound) { bt.CompoundShape_removeChildShape(this._compound, this._impl); }
+            bt._safe_delete(this._impl, EBulletType.EBulletTypeCollisionShape);
+            BulletCache.delWrapper(this._impl, BulletShape.TYPE);
+            this._impl = 0;
+        }
+
+        const mesh = v;
+        if (mesh && mesh.renderingSubMeshes.length > 0) {
+            if (this.collider.convex) {
+                const btTriangleMesh = this._getBtTriangleMesh(mesh);
+                this._impl = bt.ConvexTriangleMeshShape_new(btTriangleMesh);
             } else {
-                this._impl = bt.EmptyShape_static();
+                this.btBVHMeshShape = BulletBvhTriangleMeshShape.getBulletBvhTriangleMeshShape(mesh.hash, mesh);
+                this._impl = bt.ScaledBvhTriangleMeshShape_new(this.btBVHMeshShape.bulletBvhTriangleMeshShapePtr, 1, 1, 1);
             }
+            const bt_v3 = BulletCache.instance.BT_V3_0;
+            cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
+            bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
+            bt.CollisionShape_setMargin(this._impl, 0.01);
+            this.setCompound(this._compound);
+            this.updateByReAdd();
+            this.setWrapper();
+        } else {
+            this._impl = bt.EmptyShape_static();
         }
     }
 
