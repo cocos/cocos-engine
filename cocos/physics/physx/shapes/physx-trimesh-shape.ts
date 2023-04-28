@@ -27,7 +27,7 @@ import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { Mesh } from '../../../3d/assets';
 import { MeshCollider, PhysicsMaterial } from '../../framework';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
-import { createConvexMesh, createMeshGeometryFlags, createTriangleMesh, PX, _trans, removeReference } from '../physx-adapter';
+import { addReference, createConvexMesh, createMeshGeometryFlags, createTriangleMesh, PX, _trans, removeReference } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 import { AttributeName } from '../../../gfx';
 import { PhysXInstance } from '../physx-instance';
@@ -42,6 +42,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
     setMesh (v: Mesh | null): void {
         if (v && v.renderingSubMeshes.length > 0) {
             if (this._impl != null) {
+                this.removeFromBody();
                 removeReference(this, this._impl);
                 this._impl.release();
                 this._impl = null;
@@ -49,7 +50,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
 
             const physics = PhysXInstance.physics;
             const collider = this.collider;
-            const pxmat = this.getSharedMaterial(collider.sharedMaterial!);
+            const pxmat = this.getSharedMaterial(collider.sharedMaterial);
             const meshScale = PhysXShape.MESH_SCALE;
             meshScale.setScale(Vec3.ONE);
             meshScale.setRotation(Quat.IDENTITY);
@@ -73,7 +74,8 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
             }
             this.updateGeometry();
             this._impl = physics.createShape(this.geometry, pxmat, true, this._flags);
-            this.updateByReAdd();
+            this.addToBody();
+            addReference(this, this._impl);//in case setMesh is called after initialization
         }
     }
 
