@@ -30,14 +30,14 @@ import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
-import { Material, Texture2D } from '../../asset/assets';
+import { ImageAsset, Material, Texture2D } from '../../asset/assets';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
 import { AABB } from '../../core/geometry';
-import { assetManager, builtinResMgr, loader, resources } from '../../asset/asset-manager';
+import { resources } from '../../asset/asset-manager';
 
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 const _tmpBoundingBox = new AABB();
@@ -271,7 +271,7 @@ class ColorGradingData {
 }
 
 let colorLookup: ColorGradingData | null = null;
-export function buildColorLookupPass (camera: Camera,
+export function buildColorGradingPass (camera: Camera,
     ppl: Pipeline,
     inputRT: string,
     inputDS: string) {
@@ -303,33 +303,33 @@ export function buildColorLookupPass (camera: Camera,
     }
     ppl.updateRenderTarget(colorGradingPassRTName, width, height);
     ppl.updateDepthStencil(colorGradingPassDSName, width, height);
-    const fxaaPassIdx = 0;
-    const fxaaPass = ppl.addRasterPass(width, height, 'lut');
-    fxaaPass.name = `CameraLutPass${cameraID}`;
-    fxaaPass.setViewport(new Viewport(area.x, area.y, width, height));
+    const colorGradingPassIdx = 0;
+    const colorGradingPass = ppl.addRasterPass(width, height, 'color-grading');
+    colorGradingPass.name = `CameraLutPass${cameraID}`;
+    colorGradingPass.setViewport(new Viewport(area.x, area.y, width, height));
     if (ppl.containsResource(inputRT)) {
         const computeView = new ComputeView();
         computeView.name = 'sceneColorMap';
-        fxaaPass.addComputeView(inputRT, computeView);
+        colorGradingPass.addComputeView(inputRT, computeView);
     }
-    const fxaaPassView = new RasterView('_',
+    const colorGradingPassView = new RasterView('_',
         AccessType.WRITE, AttachmentType.RENDER_TARGET,
         LoadOp.CLEAR, StoreOp.STORE,
         camera.clearFlag,
         clearColor);
-    fxaaPass.addRasterView(colorGradingPassRTName, fxaaPassView);
+    colorGradingPass.addRasterView(colorGradingPassRTName, colorGradingPassView);
 
-    //set property for material
-    assetManager.loadAny('lut_test.png', Texture2D, (err, spriteFrame) => {
-        if (err) {
-            console.log(err);
+    colorLookup.colorGradingMaterial.setProperty('texSize', new Vec4(width, height, 1.0 / width, 1.0 / height), colorGradingPassIdx);
+    resources.load('pps/lut_test_custom', ImageAsset, (err: any, imageAsset: ImageAsset) => {
+        if (!err) {
+            const blackTexture = new Texture2D();
+            blackTexture.image = imageAsset;
+            colorLookup!.colorGradingMaterial.setProperty('colorGradingMap', blackTexture);
         }
     });
 
-    //colorLookup.colorGradingMaterial.setProperty('texSize', new Vec4(width, height, 1.0 / width, 1.0 / height), fxaaPassIdx);
-
-    fxaaPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-        camera, colorLookup.colorGradingMaterial, fxaaPassIdx,
+    colorGradingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+        camera, colorLookup.colorGradingMaterial, colorGradingPassIdx,
         SceneFlags.NONE,
     );
     return { rtName: colorGradingPassRTName, dsName: colorGradingPassDSName };
