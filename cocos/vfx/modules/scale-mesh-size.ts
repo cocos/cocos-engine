@@ -27,12 +27,11 @@ import { ccclass, tooltip, displayOrder, type, serializable, range, visible } fr
 import { lerp, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { BASE_SCALE, BuiltinParticleParameterFlags, NORMALIZED_AGE, ParticleDataSet, RANDOM_SEED, SCALE, SPAWN_NORMALIZED_TIME } from '../particle-data-set';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, RANDOM_SEED, SCALE, SPAWN_NORMALIZED_TIME } from '../particle-data-set';
+import { ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
-import { ScaleMeshSizeModule } from './scale-sprite-size';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 
 const seed = new Vec3();
@@ -84,20 +83,15 @@ export class ScaleMeshSizeModule extends VFXModule {
     @serializable
     private _scalar: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.SCALE);
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        particles.markRequiredParameter(SCALE);
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_SCALE);
+            particles.markRequiredParameter(BASE_SCALE);
         }
-        if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
-        }
-        if (this.x.mode === FloatExpression.Mode.CURVE || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            if (context.executionStage === ModuleExecStage.SPAWN) {
-                particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
-            } else {
-                particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
-            }
+        if (this.separateAxes) {
+            this.scalar.tick(particles, emitter, user, context);
+        } else {
+            this.uniformScalar.tick(particles, emitter, user, context);
         }
     }
 

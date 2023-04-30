@@ -33,6 +33,6 @@ import { UserDataSet } from './user-data-set';
 export abstract class VFXExpression {
     public abstract get valueType (): VFXParameterType;
     public abstract get isConstant (): boolean;
-    public abstract tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext);
-    public abstract bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext);
+    public abstract tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext): void;
+    public abstract bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext): void;
 }

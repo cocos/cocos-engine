@@ -45,6 +45,7 @@ export * from './add-velocity';
 export * from './box-shape';
 export * from './multiply-color-by-speed';
 export * from './scale-mesh-size';
+export * from './scale-sprite-size';
 export * from './scale-mesh-size-by-speed';
 export * from './inherit-velocity';
 export * from './cone-shape';

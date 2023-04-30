@@ -58,6 +58,18 @@ export class Vec2ArrayParameter extends ArrayParameter {
         }
     }
 
+    static multiplyScalar (out: Vec2ArrayParameter, a: Vec2ArrayParameter, scale: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(out._capacity === a._capacity
+                && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+        }
+        const aData = a.data;
+        const outData = out.data;
+        for (let i = fromIndex * 2, length = toIndex * 2; i < length; i++) {
+            outData[i] = aData[i] * scale;
+        }
+    }
+
     reserve (capacity: number) {
         if (capacity <= this._capacity) return;
         this._capacity = capacity;

@@ -25,7 +25,7 @@
 
 import { ccclass, range, serializable, tooltip, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_SCALE, BuiltinParticleParameterFlags, NORMALIZED_AGE, BuiltinParticleParameterName as ParameterName, ParticleDataSet, SCALE } from '../particle-data-set';
+import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, SCALE } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { lerp, Vec3 } from '../../core';
@@ -75,10 +75,10 @@ export class SetMeshScaleModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(BuiltinParticleParameterFlags.BASE_SCALE);
+            particles.markRequiredParameter(BASE_SCALE);
         }
 
-        particles.markRequiredParameter(BuiltinParticleParameterFlags.SCALE);
+        particles.markRequiredParameter(SCALE);
         if (this.separateAxes) {
             this.scale.tick(particles, emitter, user, context);
         } else {
