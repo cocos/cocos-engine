@@ -97,7 +97,6 @@ export class ScaleMeshSizeModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.getVec3Parameter(BASE_SCALE) : particles.getVec3Parameter(SCALE);
-        const randomOffset = this._randomOffset;
         const { fromIndex, toIndex } = context;
         if (!this.separateAxes) {
             if (this.scalar.mode === FloatExpression.Mode.CONSTANT) {
