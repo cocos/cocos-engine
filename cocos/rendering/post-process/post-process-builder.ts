@@ -19,6 +19,7 @@ import { Node } from '../../scene-graph';
 import { director } from '../../game';
 import { CCObject } from '../../core';
 import { setCustomPipeline } from '../custom';
+
 export class PostProcessBuilder implements PipelineBuilder  {
     passes: BasePass[] = [];
 

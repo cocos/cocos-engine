@@ -30,14 +30,13 @@ import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
-import { ImageAsset, Material, Texture2D } from '../../asset/assets';
+import { Material } from '../../asset/assets';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
 import { AABB } from '../../core/geometry';
-import { resources } from '../../asset/asset-manager';
 
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 const _tmpBoundingBox = new AABB();
@@ -245,95 +244,6 @@ export function buildFxaaPass (camera: Camera,
     );
     return { rtName: fxaaPassRTName, dsName: fxaaPassDSName };
 }
-class ColorGradingData {
-    declare colorGradingMaterial: Material;
-    private _updateColorGradingPass () {
-        if (!this.colorGradingMaterial) return;
-
-        const combinePass = this.colorGradingMaterial.passes[0];
-        combinePass.beginChangeStatesSilently();
-        combinePass.tryCompile();
-        combinePass.endChangeStatesSilently();
-    }
-    private _init () {
-        if (this.colorGradingMaterial) return;
-        this.colorGradingMaterial = new Material();
-        this.colorGradingMaterial._uuid = 'builtin-color-grading-material';
-        this.colorGradingMaterial.initialize({ effectName: 'pipeline/post-process/color-grading' });
-        for (let i = 0; i < this.colorGradingMaterial.passes.length; ++i) {
-            this.colorGradingMaterial.passes[i].tryCompile();
-        }
-        this._updateColorGradingPass();
-    }
-    constructor () {
-        this._init();
-    }
-}
-
-let colorLookup: ColorGradingData | null = null;
-export function buildColorGradingPass (camera: Camera,
-    ppl: Pipeline,
-    inputRT: string,
-    inputDS: string) {
-    if (!colorLookup) {
-        colorLookup = new ColorGradingData();
-    }
-    const cameraID = getCameraUniqueID(camera);
-    const cameraName = `Camera${cameraID}`;
-    let width = camera.window.width;
-    let height = camera.window.height;
-    const area = getRenderArea(camera, width, height);
-    width = area.width;
-    height = area.height;
-    // Start
-    const clearColor = new Color(0, 0, 0, 1);
-    if (camera.clearFlag & ClearFlagBit.COLOR) {
-        clearColor.x = camera.clearColor.x;
-        clearColor.y = camera.clearColor.y;
-        clearColor.z = camera.clearColor.z;
-    }
-    clearColor.w = camera.clearColor.w;
-
-    const colorGradingPassRTName = `dsLutPassColor${cameraName}`;
-    const colorGradingPassDSName = `dsLutPassDS${cameraName}`;
-
-    if (!ppl.containsResource(colorGradingPassRTName)) {
-        ppl.addRenderTarget(colorGradingPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(colorGradingPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-    }
-    ppl.updateRenderTarget(colorGradingPassRTName, width, height);
-    ppl.updateDepthStencil(colorGradingPassDSName, width, height);
-    const colorGradingPassIdx = 0;
-    const colorGradingPass = ppl.addRasterPass(width, height, 'color-grading');
-    colorGradingPass.name = `CameraLutPass${cameraID}`;
-    colorGradingPass.setViewport(new Viewport(area.x, area.y, width, height));
-    if (ppl.containsResource(inputRT)) {
-        const computeView = new ComputeView();
-        computeView.name = 'sceneColorMap';
-        colorGradingPass.addComputeView(inputRT, computeView);
-    }
-    const colorGradingPassView = new RasterView('_',
-        AccessType.WRITE, AttachmentType.RENDER_TARGET,
-        LoadOp.CLEAR, StoreOp.STORE,
-        camera.clearFlag,
-        clearColor);
-    colorGradingPass.addRasterView(colorGradingPassRTName, colorGradingPassView);
-
-    colorLookup.colorGradingMaterial.setProperty('texSize', new Vec4(width, height, 1.0 / width, 1.0 / height), colorGradingPassIdx);
-    resources.load('pps/lut_test_custom', ImageAsset, (err: any, imageAsset: ImageAsset) => {
-        if (!err) {
-            const blackTexture = new Texture2D();
-            blackTexture.image = imageAsset;
-            colorLookup!.colorGradingMaterial.setProperty('colorGradingMap', blackTexture);
-        }
-    });
-
-    colorGradingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
-        camera, colorLookup.colorGradingMaterial, colorGradingPassIdx,
-        SceneFlags.NONE,
-    );
-    return { rtName: colorGradingPassRTName, dsName: colorGradingPassDSName };
-}
 
 export const MAX_BLOOM_FILTER_PASS_NUM = 6;
 export const BLOOM_PREFILTERPASS_INDEX = 0;
@@ -517,6 +427,7 @@ export function buildBloomPass (camera: Camera,
     );
     return { rtName: bloomPassCombineRTName, dsName: bloomPassCombineDSName };
 }
+
 class PostInfo {
     declare postMaterial: Material;
     antiAliasing: AntiAliasing = AntiAliasing.NONE;
