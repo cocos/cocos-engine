@@ -24,7 +24,6 @@
 #include "renderer/pipeline/deferred/BloomStage.h"
 #include "renderer/pipeline/deferred/PostProcessStage.h"
 #include "renderer/pipeline/PipelineSceneData.h"
-#include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/GeometryRenderer.h"
 #include "renderer/pipeline/DebugView.h"
 #include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"
@@ -245,7 +244,6 @@ using namespace cc;
 %include "renderer/pipeline/deferred/BloomStage.h"
 %include "renderer/pipeline/deferred/PostProcessStage.h"
 %include "renderer/pipeline/PipelineSceneData.h"
-%include "renderer/pipeline/BatchedBuffer.h"
 %include "renderer/pipeline/GeometryRenderer.h"
 
 %include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"
