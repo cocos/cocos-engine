@@ -80,8 +80,14 @@ NodeCls.TransformBit = TransformBit;
 const TRANSFORMBIT_TRS = TransformBit.TRS;
 
 const nodeProto: any = jsb.Node.prototype;
-export const TRANSFORM_ON = 1 << 0;
+
+
+
 const Destroying = CCObject.Flags.Destroying;
+const DontDestroy = CCObject.Flags.DontDestroy;
+const Deactivating = CCObject.Flags.Deactivating;
+
+export const TRANSFORM_ON = 1 << 0;
 
 // TODO: `_setTempFloatArray` is only implemented on Native platforms. @dumganhar
 // issue: https://github.com/cocos/cocos-engine/issues/14644
@@ -1017,10 +1023,10 @@ Object.defineProperty(nodeProto, 'siblingIndex', {
     configurable: true,
     enumerable: true,
     get() {
-        return this.getSiblingIndex();
+        return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
     },
     set(v) {
-        this.setSiblingIndex(v);
+        this._sharedInt32Arr[0] = v; // Int32, 0: siblingIndex
     },
 });
 
@@ -1028,8 +1034,39 @@ nodeProto.getSiblingIndex = function getSiblingIndex() {
     return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
 };
 
-nodeProto.setSiblingIndex = function setSiblingIndex(val: number) {
-    this._sharedInt32Arr[0] = val; // Int32, 0: siblingIndex
+nodeProto.setSiblingIndex = function setSiblingIndex(index: number) {
+    if (!this._parent) {
+        return;
+    }
+    if (this._parent._objFlags & Deactivating) {
+        errorID(3821);
+        return;
+    }
+    const siblings = this._parent._children;
+    index = index !== -1 ? index : siblings.length - 1;
+    const oldIndex = siblings.indexOf(this);
+    if (index !== oldIndex) {
+        siblings.splice(oldIndex, 1);
+        if (index < siblings.length) {
+            siblings.splice(index, 0, this);
+        } else {
+            siblings.push(this);
+        }
+        this._parent._updateSiblingIndex();
+        this._eventProcessor.onUpdatingSiblingIndex();
+        this._parent._syncChildren(siblings);
+    }
+}
+
+/**
+ * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+ */
+nodeProto._updateSiblingIndex = function(){
+    for (let i = 0; i < this._children.length; ++i) {
+        this._children[i]._sharedInt32Arr[0] = i;
+    }
+
+    this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
 }
 
 Object.defineProperty(nodeProto, '_transformFlags', {
