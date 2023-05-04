@@ -68,10 +68,10 @@ export class BoxShapeModule extends ShapeModule {
         const initialDir = particles.getVec3Parameter(INITIAL_DIR);
         const position = particles.getVec3Parameter(POSITION);
         const rand = this.randomStream;
-        Vec3.set(dir, 0, 0, 1);
         switch (this.locationMode) {
         case LocationMode.VOLUME:
             for (let i = fromIndex; i < toIndex; ++i) {
+                Vec3.set(dir, 0, 0, 1);
                 Vec3.set(pos, rand.getFloat() - 0.5, rand.getFloat() - 0.5, rand.getFloat() - 0.5);
                 this.storePositionAndDirection(i, dir, pos, initialDir, position);
             }
@@ -89,6 +89,7 @@ export class BoxShapeModule extends ShapeModule {
                 tempPosition.x *= rand.getFloatFromRange(thicknessPercent.x, 1);
                 tempPosition.y *= rand.getFloatFromRange(thicknessPercent.y, 1);
                 tempPosition.z *= rand.getFloatFromRange(thicknessPercent.z, 1);
+                Vec3.set(dir, 0, 0, 1);
                 Vec3.set(pos, tempPosition.x - 0.5, tempPosition.y - 0.5, tempPosition.z - 0.5);
                 this.storePositionAndDirection(i, dir, pos, initialDir, position);
             }
@@ -106,6 +107,7 @@ export class BoxShapeModule extends ShapeModule {
                 tempPosition.x *= rand.getFloatFromRange(thicknessPercent.x, 1);
                 tempPosition.y *= rand.getFloatFromRange(thicknessPercent.y, 1);
                 tempPosition.z *= rand.getFloatFromRange(thicknessPercent.z, 1);
+                Vec3.set(dir, 0, 0, 1);
                 Vec3.set(pos, tempPosition.x - 0.5, tempPosition.y - 0.5, tempPosition.z - 0.5);
                 this.storePositionAndDirection(i, dir, pos, initialDir, position);
             }

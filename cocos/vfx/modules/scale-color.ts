@@ -43,28 +43,29 @@ export class ScaleColorModule extends VFXModule {
      */
     @type(ColorExpression)
     @serializable
-    public color: ColorExpression = new ConstantColorExpression();
+    public scalar: ColorExpression = new ConstantColorExpression();
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.markRequiredParameter(BASE_COLOR);
         }
         particles.markRequiredParameter(COLOR);
-        this.color.tick(particles, emitter, user, context);
+        this.scalar.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
         const dest = particles.getColorParameter(context.executionStage === ModuleExecStage.UPDATE ? COLOR : BASE_COLOR);
-        this.color.bind(particles, emitter, user, context);
-        if (this.color.isConstant) {
-            const colorVal = this.color.evaluate(0, tempColor);
+        const exp = this.scalar;
+        exp.bind(particles, emitter, user, context);
+        if (exp.isConstant) {
+            const colorVal = exp.evaluate(0, tempColor);
             for (let i = fromIndex; i < toIndex; i++) {
                 dest.multiplyColorAt(colorVal, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                const colorVal = this.color.evaluate(0, tempColor);
+                const colorVal = exp.evaluate(0, tempColor);
                 dest.multiplyColorAt(colorVal, i);
             }
         }

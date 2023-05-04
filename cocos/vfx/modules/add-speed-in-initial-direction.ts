@@ -39,8 +39,19 @@ const tempVelocity = new Vec3();
 @VFXModule.register('AddSpeedInInitialDirection', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [VELOCITY.name], [INITIAL_DIR.name])
 export class AddSpeedInInitialDirectionModule extends VFXModule {
     @type(FloatExpression)
+    public get speed () {
+        if (!this._speed) {
+            this._speed = new ConstantFloatExpression(5);
+        }
+        return this._speed;
+    }
+
+    public set speed (val) {
+        this._speed = val;
+    }
+
     @serializable
-    public speed: FloatExpression = new ConstantFloatExpression(5);
+    private _speed: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameter(POSITION);
@@ -57,10 +68,10 @@ export class AddSpeedInInitialDirectionModule extends VFXModule {
         const { fromIndex, toIndex } = context;
         const velocity = particles.getVec3Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_VELOCITY : VELOCITY);
         const initialDir = particles.getVec3Parameter(INITIAL_DIR);
-        const speed = this.speed;
-        speed.bind(particles, emitter, user, context);
-        if (speed.isConstant) {
-            const curveStartSpeed = speed.evaluate(fromIndex);
+        const exp = this._speed as FloatExpression;
+        exp.bind(particles, emitter, user, context);
+        if (exp.isConstant) {
+            const curveStartSpeed = exp.evaluate(fromIndex);
             for (let i = fromIndex; i < toIndex; ++i) {
                 initialDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
@@ -68,7 +79,7 @@ export class AddSpeedInInitialDirectionModule extends VFXModule {
             }
         } else {
             for (let i = fromIndex; i < toIndex; ++i) {
-                const curveStartSpeed = speed.evaluate(i);
+                const curveStartSpeed = exp.evaluate(i);
                 initialDir.getVec3At(tempVelocity, i);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, curveStartSpeed);
                 velocity.addVec3At(tempVelocity, i);

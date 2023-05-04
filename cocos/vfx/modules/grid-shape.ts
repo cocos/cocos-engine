@@ -83,7 +83,6 @@ export class GridShape extends ShapeModule {
         const heightPerCell = this._heightPerCell;
         const initialDir = particles.getVec3Parameter(INITIAL_DIR);
         const position = particles.getVec3Parameter(POSITION);
-        Vec3.set(dir, 0, 0, 1);
         for (let i = fromIndex, index = 0; i < toIndex; i++, index++) {
             const zIndex = Math.floor(index / xyCellNum) % numInZ;
             const cellIndex = index % xyCellNum;
@@ -92,6 +91,7 @@ export class GridShape extends ShapeModule {
             const x = (xIndex + 0.5) * lengthPerCell;
             const y = (yIndex + 0.5) * widthPerCell;
             const z = (zIndex + 0.5) * heightPerCell;
+            Vec3.set(dir, 0, 0, 1);
             Vec3.set(pos, x, y, z);
             this.storePositionAndDirection(i, dir, pos, initialDir, position);
         }

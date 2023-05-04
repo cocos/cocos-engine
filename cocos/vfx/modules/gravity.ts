@@ -34,16 +34,22 @@ import { UserDataSet } from '../user-data-set';
 
 const gravity = new Vec3();
 @ccclass('cc.GravityModule')
-@VFXModule.register('Gravity', ModuleExecStageFlags.UPDATE, [VELOCITY.name])
+@VFXModule.register('Gravity', ModuleExecStageFlags.UPDATE, [PHYSICS_FORCE.name])
 export class GravityModule extends VFXModule {
-    /**
-     * @zh 粒子
-     */
     @type(Vec3Expression)
+    public get gravity () {
+        if (!this._gravity) {
+            this._gravity = new ConstantVec3Expression();
+        }
+        return this._gravity;
+    }
+
+    public set gravity (val) {
+        this._gravity = val;
+    }
+
     @serializable
-    @displayOrder(13)
-    @tooltip('i18n:particle_system.gravityModifier')
-    public gravity: Vec3Expression = new ConstantVec3Expression();
+    private _gravity: Vec3Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameter(POSITION);
@@ -57,7 +63,7 @@ export class GravityModule extends VFXModule {
         const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
         const { fromIndex, toIndex } = context;
         const needTransform = !emitter.isWorldSpace;
-        const exp = this.gravity;
+        const exp = this._gravity as Vec3Expression;
         exp.bind(particles, emitter, user, context);
         if (needTransform) {
             const transform = emitter.worldToLocalRS;

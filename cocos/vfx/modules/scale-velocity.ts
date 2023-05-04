@@ -55,6 +55,7 @@ export class ScaleVelocityModule extends VFXModule {
      * @zh 速度修正系数。
      */
     @type(Vec3Expression)
+    @visible(function (this: ScaleVelocityModule): boolean { return this.separateAxes; })
     public get scalar () {
         if (!this._scalar) {
             this._scalar = new ConstantVec3Expression(Vec3.ONE);
@@ -66,6 +67,7 @@ export class ScaleVelocityModule extends VFXModule {
         this._scalar = val;
     }
 
+    @type(FloatExpression)
     @visible(function (this: ScaleVelocityModule): boolean { return !this.separateAxes; })
     public get uniformScalar () {
         if (!this._uniformScalar) {

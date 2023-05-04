@@ -41,11 +41,6 @@ enum LocationMode {
 export class ConeShapeModule extends AngleBasedShapeModule {
     static LocationMode = LocationMode;
 
-    /**
-     * @zh 圆锥的轴与母线的夹角<bg>。
-     * 决定圆锥发射器的开合程度。
-     */
-    @tooltip('i18n:shapeModule.angle')
     get angle () {
         return Math.round(toDegree(this._angle) * 100) / 100;
     }

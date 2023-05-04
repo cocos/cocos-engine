@@ -27,13 +27,16 @@ import { ccclass, tooltip, displayOrder, type, serializable, range, visible, ran
 import { approx, lerp, Vec2, assertIsTrue } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { NORMALIZED_AGE, ParticleDataSet, RANDOM_SEED, SCALE, VELOCITY } from '../particle-data-set';
+import { ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
+import { Vec3Expression } from '../expressions';
 
 const SCALE_SIZE_RAND = 2818312;
-@ccclass('cc.ScaleSizeBySpeedModule')
-@VFXModule.register('ScaleSizeBySpeed', ModuleExecStageFlags.UPDATE, [ParameterName.SCALE], [ParameterName.SCALE, ParameterName.VELOCITY])
+@ccclass('cc.ScaleMeshSizeBySpeedModule')
+@VFXModule.register('ScaleMeshSizeBySpeed', ModuleExecStageFlags.UPDATE, [SCALE.name], [SCALE.name, VELOCITY.name])
 export class ScaleMeshSizeBySpeedModule extends VFXModule {
     /**
       * @zh 决定是否在每个轴上独立控制粒子大小。
@@ -50,12 +53,12 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     @range([0, 1])
     @displayOrder(2)
     @tooltip('i18n:sizeOvertimeModule.scale')
-    @visible(function (this: ScaleSizeBySpeedModule): boolean { return !this.separateAxes; })
-    public get scalar () {
+    @visible(function (this: ScaleMeshSizeBySpeedModule): boolean { return !this.separateAxes; })
+    public get uniformScalar () {
         return this.x;
     }
 
-    public set scalar (val) {
+    public set uniformScalar (val) {
         this.x = val;
     }
 
@@ -67,7 +70,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     @range([0, 1])
     @displayOrder(3)
     @tooltip('i18n:sizeOvertimeModule.x')
-    @visible(function (this: ScaleSizeBySpeedModule): boolean { return this.separateAxes; })
+    @visible(function (this: ScaleMeshSizeBySpeedModule): boolean { return this.separateAxes; })
     public x = new FloatExpression(1);
 
     /**
@@ -77,7 +80,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     @range([0, 1])
     @displayOrder(4)
     @tooltip('i18n:sizeOvertimeModule.y')
-    @visible(function (this: ScaleSizeBySpeedModule): boolean { return this.separateAxes; })
+    @visible(function (this: ScaleMeshSizeBySpeedModule): boolean { return this.separateAxes; })
     public get y () {
         if (!this._y) {
             this._y = new FloatExpression(1);
@@ -94,9 +97,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
       */
     @type(FloatExpression)
     @range([0, 1])
-    @displayOrder(5)
-    @tooltip('i18n:sizeOvertimeModule.z')
-    @visible(function (this: ScaleSizeBySpeedModule): boolean { return this.separateAxes; })
+    @visible(function (this: ScaleMeshSizeBySpeedModule): boolean { return this.separateAxes; })
     public get z () {
         if (!this._z) {
             this._z = new FloatExpression(1);
@@ -114,19 +115,12 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     public speedRange = new Vec2(0, 1);
 
     @serializable
-    private _y: FloatExpression | null = null;
+    private _uniformScalar: FloatExpression | null = null;
     @serializable
-    private _z: FloatExpression | null = null;
+    private _scalar: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
-        assertIsTrue(!approx(this.speedRange.x, this.speedRange.y), 'Speed Range X is so closed to Speed Range Y');
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.SCALE);
-        if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
-        }
-        if (this.x.mode === FloatExpression.Mode.CURVE || this.x.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
-        }
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        particles.markRequiredParameter(SCALE);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {

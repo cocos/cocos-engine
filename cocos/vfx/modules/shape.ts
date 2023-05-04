@@ -154,7 +154,7 @@ export abstract class ShapeModule extends VFXModule {
         particles.markRequiredParameter(INITIAL_DIR);
     }
 
-    public storePositionAndDirection (index: number, dir: Vec3, pos: Vec3, initialDir: Vec3ArrayParameter, position: Vec3ArrayParameter) {
+    protected storePositionAndDirection (index: number, dir: Vec3, pos: Vec3, initialDir: Vec3ArrayParameter, position: Vec3ArrayParameter) {
         const randomPositionAmount = this.randomPositionAmount;
         if (randomPositionAmount > 0) {
             pos.add3f(randomRange(-randomPositionAmount, randomPositionAmount),

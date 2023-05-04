@@ -1,5 +1,5 @@
 import { ConstantFloatExpression } from "../../../cocos/vfx/expressions/constant-float";
-import { VFXEmitterParams, ModuleExecContext } from "../../../cocos/vfx/particle-base";
+import { ModuleExecContext } from "../../../cocos/vfx/base";
 import { ParticleDataSet } from "../../../cocos/vfx/particle-data-set";
 import { RandomStream } from "../../../cocos/vfx/random-stream";
 

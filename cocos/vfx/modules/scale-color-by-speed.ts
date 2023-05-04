@@ -24,13 +24,14 @@
  */
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { ColorExpression } from '../expressions/color';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../base';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, COLOR, ParticleDataSet, VELOCITY } from '../particle-data-set';
+import { COLOR, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { approx, assertIsTrue, Color, math, Vec3, Vec2 } from '../../core';
 import { RandomStream } from '../random-stream';
 import { UserDataSet } from '../user-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
+import { ConstantColorExpression, ConstantFloatExpression, FloatExpression } from '../expressions';
 
 const tempVelocity = new Vec3();
 const tempColor = new Color();
@@ -38,55 +39,62 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 const MULTIPLY_COLOR_BY_SPEED_RAND_OFFSET = 27382;
 
-@ccclass('cc.MultiplyColorBySpeed')
+@ccclass('cc.ScaleColorBySpeedModule')
 @VFXModule.register('ScaleColorBySpeed', ModuleExecStageFlags.UPDATE, [COLOR.name], [VELOCITY.name])
 export class ScaleColorBySpeedModule extends VFXModule {
-    /**
-     * @zh 颜色随速度变化的参数，各个 key 之间线性差值变化。
-     */
     @type(ColorExpression)
     @serializable
-    public color = new ColorExpression();
+    public minScalar: ColorExpression = new ConstantColorExpression(Color.TRANSPARENT);
 
-    @type(Vec2)
+    @type(ColorExpression)
+    @serializable
+    public maxScalar: ColorExpression = new ConstantColorExpression(Color.WHITE);
+
+    @type(FloatExpression)
     @serializable
     @rangeMin(0)
-    public speedRange = new Vec2(0, 1);
+    public minSpeedThreshold: FloatExpression = new ConstantFloatExpression();
 
-    private _speedScale = 0;
-    private _speedOffset = 0;
+    @type(FloatExpression)
+    @serializable
+    @rangeMin(0)
+    public maxSpeedThreshold: FloatExpression = new ConstantFloatExpression(1);
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        assertIsTrue(!approx(this.speedRange.x, this.speedRange.y), 'Speed Range X is so closed to Speed Range Y');
         particles.markRequiredParameter(COLOR);
-        this._speedScale = 1 / Math.abs(this.speedRange.x - this.speedRange.y);
-        this._speedOffset = -this.speedRange.x * this._speedScale;
+        this.maxScalar.tick(particles, emitter, user, context);
+        this.minScalar.tick(particles, emitter, user, context);
+        this.minSpeedThreshold.tick(particles, emitter, user, context);
+        this.maxSpeedThreshold.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
+        const hasVelocity = particles.hasParameter(VELOCITY);
         if (!hasVelocity) { return; }
-        const scale = this._speedScale;
-        const offset = this._speedOffset;
-        const { color, velocity } = particles;
-        if (this.color.mode === ColorExpression.Mode.GRADIENT) {
-            const gradient = this.color.gradient;
+        const minSpeedThreshold = this.minSpeedThreshold;
+        const maxSpeedThreshold = this.maxSpeedThreshold;
+        const minScalar = this.minScalar;
+        const maxScalar = this.maxScalar;
+        const velocity = particles.getVec3Parameter(VELOCITY);
+        const color = particles.getColorParameter(COLOR);
+        if (minSpeedThreshold.isConstant && maxSpeedThreshold.isConstant) {
+            const min = minSpeedThreshold.evaluate(0);
+            const speedScale = 1 / Math.abs(min - maxSpeedThreshold.evaluate(0));
+            const speedOffset = -min * speedScale;
             for (let i = fromIndex; i < toIndex; i++) {
                 velocity.getVec3At(tempVelocity, i);
-                const ratio = math.clamp01(tempVelocity.length() * scale + offset);
-                color.multiplyColorAt(gradient.evaluate(tempColor, ratio), i);
+                const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
+                color.multiplyColorAt(Color.lerp(tempColor3, minScalar.evaluate(i, tempColor), maxScalar.evaluate(i, tempColor2), ratio), i);
             }
-        } else if (this.color.mode === ColorExpression.Mode.TWO_GRADIENTS) {
-            const { gradientMin, gradientMax } = this.color;
-            const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
+        } else {
             for (let i = fromIndex; i < toIndex; i++) {
+                const min = minSpeedThreshold.evaluate(i);
+                const speedScale = 1 / Math.abs(min - maxSpeedThreshold.evaluate(i));
+                const speedOffset = -min * speedScale;
                 velocity.getVec3At(tempVelocity, i);
-                const ratio = math.clamp01(tempVelocity.length() * scale + offset);
-                color.multiplyColorAt(Color.lerp(tempColor,
-                    gradientMin.evaluate(tempColor2, ratio),
-                    gradientMax.evaluate(tempColor3, ratio),
-                    RandomStream.getFloat(randomSeed[i] + MULTIPLY_COLOR_BY_SPEED_RAND_OFFSET)), i);
+                const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
+                color.multiplyColorAt(Color.lerp(tempColor3, minScalar.evaluate(i, tempColor), maxScalar.evaluate(i, tempColor2), ratio), i);
             }
         }
     }

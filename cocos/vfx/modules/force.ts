@@ -50,10 +50,19 @@ export class ForceModule extends VFXModule {
      * @zh X 轴方向上的加速度分量。
      */
     @type(Vec3Expression)
+    public get force () {
+        if (!this._force) {
+            this._force = new ConstantVec3Expression();
+        }
+        return this._force;
+    }
+
+    public set force (val) {
+        this._force = val;
+    }
+
     @serializable
-    @displayOrder(2)
-    @tooltip('i18n:forceOvertimeModule.x')
-    public force: Vec3Expression = new ConstantVec3Expression();
+    private _force: Vec3Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameter(POSITION);
@@ -67,7 +76,7 @@ export class ForceModule extends VFXModule {
         const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
         const { fromIndex, toIndex } = context;
         const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace === CoordinateSpace.WORLD) !== emitter.isWorldSpace;
-        const exp = this.force;
+        const exp = this._force as Vec3Expression;
         exp.bind(particles, emitter, user, context);
         if (needTransform) {
             const transform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;

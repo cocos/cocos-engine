@@ -24,48 +24,58 @@
  */
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
-import { lerp, Vec3 } from '../../core';
+import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { VFXEmitterState, ModuleExecContext } from '../base';
+import { BASE_VELOCITY, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
+import { ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
-import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from '../expressions';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
 const tempVelocity = new Vec3();
-const requiredParameters = BuiltinParticleParameterFlags.POSITION | BuiltinParticleParameterFlags.VELOCITY;
 @ccclass('cc.InheritVelocityModule')
-@VFXModule.register('InheritVelocity', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.VELOCITY])
+@VFXModule.register('InheritVelocity', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [VELOCITY.name])
 export class InheritVelocityModule extends VFXModule {
     @type(FloatExpression)
     @visible(true)
+    public get scale () {
+        if (!this._scale) { this._scale = new ConstantFloatExpression(1); }
+        return this._scale;
+    }
+
+    public set scale (val) {
+        this._scale = val;
+    }
+
     @serializable
-    public scale: FloatExpression = new ConstantFloatExpression(1);
+    private _scale: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        if (!emitter.isWorldSpace) { return; }
         this.scale.tick(particles, emitter, user, context);
-        particles.markRequiredParameter(requiredParameters);
+        particles.markRequiredParameter(POSITION);
+        particles.markRequiredParameter(VELOCITY);
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(BuiltinParticleParameterFlags.BASE_VELOCITY);
+            particles.markRequiredParameter(BASE_VELOCITY);
         }
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
         const initialVelocity = emitter.velocity;
-        const velocity = context.executionStage === ModuleExecStage.SPAWN ? particles.getVec3Parameter(BASE_VELOCITY) : particles.getVec3Parameter(VELOCITY);
         if (!emitter.isWorldSpace) { return; }
-        this.scale.bind(particles, emitter, user, context);
-        if (this.scale.isConstant) {
-            Vec3.multiplyScalar(tempVelocity, initialVelocity, this.scale.evaluate(0));
+        const velocity = particles.getVec3Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_VELOCITY : VELOCITY);
+        const exp = this._scale as FloatExpression;
+        exp.bind(particles, emitter, user, context);
+        if (exp.isConstant) {
+            Vec3.multiplyScalar(tempVelocity, initialVelocity, exp.evaluate(0));
             for (let i = fromIndex; i < toIndex; i++) {
                 velocity.addVec3At(tempVelocity, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                Vec3.multiplyScalar(tempVelocity, initialVelocity, this.scale.evaluate(i));
+                Vec3.multiplyScalar(tempVelocity, initialVelocity, exp.evaluate(i));
                 velocity.addVec3At(tempVelocity, i);
             }
         }

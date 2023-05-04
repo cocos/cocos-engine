@@ -42,7 +42,7 @@ export class ConstantColorExpression extends ColorExpression {
 
     constructor (val: Color = Color.WHITE.clone()) {
         super();
-        this.color.set(val);
+        Color.copy(this.color, val);
     }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {}

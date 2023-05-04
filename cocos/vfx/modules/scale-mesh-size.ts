@@ -42,15 +42,12 @@ export class ScaleMeshSizeModule extends VFXModule {
       * @zh 决定是否在每个轴上独立控制粒子大小。
       */
     @serializable
-    @displayOrder(1)
-    @tooltip('i18n:sizeOvertimeModule.separateAxes')
     public separateAxes = false;
 
     /**
       * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
       */
     @type(FloatExpression)
-    @tooltip('i18n:sizeOvertimeModule.scale')
     @visible(function (this: ScaleMeshSizeModule): boolean { return !this.separateAxes; })
     public get uniformScalar () {
         if (!this._uniformScalar) {
@@ -64,7 +61,6 @@ export class ScaleMeshSizeModule extends VFXModule {
     }
 
     @type(Vec3Expression)
-    @tooltip('i18n:sizeOvertimeModule.scale')
     @visible(function (this: ScaleMeshSizeModule): boolean { return this.separateAxes; })
     public get scalar () {
         if (!this._scalar) {

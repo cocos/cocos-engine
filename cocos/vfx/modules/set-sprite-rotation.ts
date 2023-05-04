@@ -58,7 +58,7 @@ export class SetSpriteRotationModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const spriteRotation = particles.getFloatParameter(SPRITE_ROTATION);
         const { fromIndex, toIndex } = context;
-        const exp = this.rotation;
+        const exp = this._rotation as FloatExpression;
         exp.bind(particles, emitter, user, context);
 
         if (exp.isConstant) {

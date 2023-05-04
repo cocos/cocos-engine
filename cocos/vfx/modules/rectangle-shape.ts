@@ -25,7 +25,7 @@
 import { ccclass } from 'cc.decorator';
 import { ShapeModule } from './shape';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { INITIAL_DIR, POSITION, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -38,11 +38,13 @@ const pos = new Vec3();
 export class RectangleShapeModule extends ShapeModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const { vec3Register, initialDir } = particles;
-        const rand = this._rand;
+        const position = particles.getVec3Parameter(POSITION);
+        const initialDir = particles.getVec3Parameter(INITIAL_DIR);
+        const rand = this.randomStream;
         for (let i = fromIndex; i < toIndex; i++) {
-            vec3Register.set3fAt(rand.getFloatFromRange(-0.5, 0.5), rand.getFloatFromRange(-0.5, 0.5), 0, i);
-            initialDir.set3fAt(0, 0, 1, i);
+            Vec3.set(dir, 0, 0, 1);
+            Vec3.set(pos, rand.getFloatFromRange(-0.5, 0.5), rand.getFloatFromRange(-0.5, 0.5), 0);
+            this.storePositionAndDirection(i, dir, pos, initialDir, position);
         }
     }
 }
