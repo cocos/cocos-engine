@@ -38,12 +38,7 @@ export class ColorGradingPass extends SettingPass {
 
         const setting = this.setting;
         this.material.setProperty('colorGradingMap', setting.colorGradingMap);
-        this.material.setProperty('texSize',
-            new Vec4(
-                inputWidth, inputHeight,
-                outWidth, outHeight,
-            ));
-
+        this.material.setProperty('contribute', setting.contribute);
         
         const input = this.lastPass!.slotName(camera, 0);
         const slot = this.slotName(camera, 0);

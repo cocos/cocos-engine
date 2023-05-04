@@ -33,8 +33,8 @@ CCProgram color-grading-fs %{
   precision highp float;
   #include <common/color/gamma>
 
-  uniform fxaaUBO {
-    vec4 texSize;
+  uniform ColorGradingUBO {
+    float contribute;
   };
 
   in vec2 v_uv;
@@ -45,8 +45,6 @@ CCProgram color-grading-fs %{
   #define COLORS 32.0
   #define COLOR_GRADING_SCALE  vec3((COLORS - 1.0) / (COLORS * COLORS), (COLORS - 1.0) / COLORS, 1.0 / COLORS)
   #define COLOR_GRADING_OFFSET vec2(1.0 / (2.0 * COLORS * COLORS), 1.0 / (2.0 * COLORS))
-
-  #define CONTRIBUTE 1.0
 
   vec3 ColorGrading(sampler2D lutTexture, vec3 color) {
     vec2 uv = vec2(color.r, 1.0 - color.g) * COLOR_GRADING_SCALE.xy + COLOR_GRADING_OFFSET;
@@ -62,6 +60,6 @@ CCProgram color-grading-fs %{
   vec4 frag () {
     vec4 sceneColor = texture(sceneColorMap, v_uv);
     vec3 gradeColor = ColorGrading(colorGradingMap, sceneColor.rgb);
-    return mix(sceneColor, vec4(gradeColor, 1.0), CONTRIBUTE);
+    return mix(sceneColor, vec4(gradeColor, 1.0), contribute);
   }
 }%
