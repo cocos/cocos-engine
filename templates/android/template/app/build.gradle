@@ -106,6 +106,6 @@ dependencies {
     implementation project(':libservice')
     implementation project(':libcocos')
     if (Boolean.parseBoolean(PROP_ENABLE_INPUTSDK)) {
-        implementation 'com.google.android.libraries.play.games:inputmapping:1.0.0-beta'
+        implementation 'com.google.android.libraries.play.games:inputmapping:1.1.0-beta'
     }
 }
