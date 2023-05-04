@@ -15,7 +15,6 @@ import { getClassByName, unregisterClass } from '../../cocos/core/utils/js-typed
 import { LegacyPropertyDecorator } from '../../cocos/core/data/decorators/utils';
 import { CCBoolean, CCFloat, CCInteger, CCString, js } from '../../exports/base';
 import { PrimitiveType } from '../../cocos/core/data/utils/attribute';
-import { transferCCClass } from '../../cocos/core/data/decorators/ccclass';
 
 test('Decorators signature', () => {
     class Foo {}
@@ -335,7 +334,7 @@ describe(`Decorators`, () => {
         });
     });
 
-    describe('Combine with non-ccclass decorators returning new class', () => {
+    describe('@ccclass.forward', () => {
         /**
          * This decorator is taken from issue:
          * cocos/cocos-engine#14959
@@ -351,15 +350,23 @@ describe(`Decorators`, () => {
                     return new func();
                 };
                 newConstructorFunction.prototype = constructorFunction.prototype;
-                transferCCClass(constructorFunction, newConstructorFunction);
                 return newConstructorFunction as unknown as TFunction;
             };
         };
 
+        @ccclass('SomeBaseClass')
+        class SomeBaseClass {
+            @property public someBaseProp = 456;
+        }
+
+        afterAll(() => {
+            unregisterClass(SomeBaseClass);
+        });
+
         test('Applied after @ccclass', () => {
-            @deco()
+            @ccclass.forward(deco())
             @ccclass('SomeClass')
-            class SomeClass {
+            class SomeClass extends SomeBaseClass {
                 @property
                 public someProp = '123';
             }
@@ -372,14 +379,18 @@ describe(`Decorators`, () => {
             expect(CCClass.Attr.attr(SomeClass, 'someProp')).toStrictEqual(expect.objectContaining({
                 default: '123',
             }));
+            // Checks if base properties are transferred.
+            expect(CCClass.Attr.attr(SomeClass, 'someBaseProp')).toStrictEqual(expect.objectContaining({
+                default: 456,
+            }));
 
             js.unregisterClass(SomeClass);
         });
 
         test('Applied before @ccclass', () => {
             @ccclass('SomeClass')
-            @deco()
-            class SomeClass {
+            @ccclass.forward(deco())
+            class SomeClass extends SomeBaseClass {
                 @property
                 public someProp = '123';
             }
@@ -391,6 +402,10 @@ describe(`Decorators`, () => {
             // Checks if the properties are transferred.
             expect(CCClass.Attr.attr(SomeClass, 'someProp')).toStrictEqual(expect.objectContaining({
                 default: '123',
+            }));
+            // Checks if base properties are transferred.
+            expect(CCClass.Attr.attr(SomeClass, 'someBaseProp')).toStrictEqual(expect.objectContaining({
+                default: 456,
             }));
 
             js.unregisterClass(SomeClass);
