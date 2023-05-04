@@ -22,7 +22,21 @@
  THE SOFTWARE.
 */
 
+import { EDITOR, PREVIEW } from "internal:constants";
+
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
+    // NOTE: when it's in EDITOR or PREVIEW, wasmUrl is an absolute file path of wasm.
+    if (EDITOR) {
+        // IDEA: it's better we implement another PAL for nodejs platform.
+        const fs = require('fs');
+        const arrayBuffer = fs.readFileSync(wasmUrl);
+        return WebAssembly.instantiate(arrayBuffer, importObject);
+    } else if (PREVIEW) {
+        // NOTE: we resolve '/engine_external/' in in editor preview server.
+        return fetch(`/engine_external/?path=${wasmUrl}`)
+            .then((response) => response.arrayBuffer().then((buff) => WebAssembly.instantiate(buff, importObject)));
+    }
+    // here is in the BUILD mode
     wasmUrl = new URL(wasmUrl, import.meta.url).href;
     return fetch(wasmUrl).then((response) => response.arrayBuffer().then((buff) => WebAssembly.instantiate(buff, importObject)));
 }
