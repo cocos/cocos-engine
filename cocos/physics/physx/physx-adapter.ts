@@ -555,7 +555,6 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
     return false;
 }
 
-
 export function sweepClosest (world: PhysXWorld, worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
     options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {
     const maxDistance = options.maxDistance;
@@ -570,8 +569,8 @@ export function sweepClosest (world: PhysXWorld, worldRay: geometry.Ray, geometr
     const queryFilterCB = PhysXInstance.queryFilterCB;
 
     const block = PhysXInstance.singleSweepResult;
-    const r = world.scene.sweep(geometry, getTempTransform(worldRay.o, geometryRotation), worldRay.d, maxDistance,
-        block, flags, queryfilterData, queryFilterCB, null, 0);
+    const r = world.scene.sweepSingle(geometry, getTempTransform(worldRay.o, geometryRotation), worldRay.d, maxDistance,
+        flags, block, queryfilterData, queryFilterCB, null, inflation);
     if (r) {
         const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
         result._assign(block.position, block.distance, collider, block.normal);

@@ -204,6 +204,7 @@ const ENTIRE_WORLD: IPhysicsWorld = {
     syncSceneToPhysics: FUNC,
     raycast: FUNC,
     raycastClosest: FUNC,
+    sweepBoxClosest: FUNC,
     emitEvents: FUNC,
     destroy: FUNC,
 };

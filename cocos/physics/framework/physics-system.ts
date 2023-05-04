@@ -212,7 +212,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 设置默认物理材质。
      */
-    public setDefaultPhysicsMaterial (material : PhysicsMaterial) {
+    public setDefaultPhysicsMaterial (material: PhysicsMaterial) {
         this._material = material;
         this.physicsWorld.setDefaultMaterial(this._material);
         this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
@@ -288,6 +288,22 @@ export class PhysicsSystem extends System implements IWorldInitData {
     * 获取 lineStripCast 的检测结果。
     */
     public lineStripCastResults: PhysicsLineStripCastResult[] = [];
+
+    /**
+     * @en
+     * Gets the sweepCastClosest test result.
+     * @zh
+     * 获取 sweepCastClosest 的检测结果。
+     */
+    public readonly sweepCastClosestResult = new PhysicsRayResult();
+
+    /**
+        * @en
+        * Gets the sweepCast test results.
+        * @zh
+        * 获取 sweepCast 的检测结果。
+        */
+    public readonly sweepCastResults: PhysicsRayResult[] = [];
 
     /**
     * @en
@@ -593,7 +609,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
         return this.physicsWorld.sweepBoxClosest(worldRay, halfExtent, orientation,
-            this.raycastOptions, inflation, this.raycastClosestResult);
+            this.raycastOptions, inflation, this.sweepCastClosestResult);
     }
 
     private _updateMaterial () {
