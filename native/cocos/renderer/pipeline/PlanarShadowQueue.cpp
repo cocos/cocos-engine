@@ -95,7 +95,7 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
                 _passArray.emplace_back((*shadowInfo->getMaterial()->getPasses())[0]);
                 continue;
             }
-            const auto pass = subModel->getPass(shadowPassIdx);
+            auto *const pass = subModel->getPass(shadowPassIdx);
             const auto batchingScheme = pass->getBatchingScheme();
             if (batchingScheme == scene::BatchingSchemes::INSTANCING) {
                 auto *instancedBuffer = pass->getInstancedBuffer();
