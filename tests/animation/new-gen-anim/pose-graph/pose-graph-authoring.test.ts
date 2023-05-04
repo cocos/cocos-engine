@@ -728,4 +728,21 @@ describe(`Input value assignment`, () => {
     test.todo(`Assign quat input`);
 });
 
+test(`Input/output query`, () => {
+    const poseGraph = createPoseGraph();
+
+    // Query on the unique output node.
+    {
+        // Root output node does not has any output.
+        expect(poseGraphOp.getOutputKeys(poseGraph.outputNode)).toStrictEqual([]);
+
+        // Root output node has a pose input.
+        const inputKeys = poseGraphOp.getInputKeys(poseGraph.outputNode);
+        expect(inputKeys).toHaveLength(1);
+        expect(poseGraphOp.getInputMetadata(poseGraph.outputNode, inputKeys[0])).toStrictEqual(expect.objectContaining({
+            type: PoseGraphType.POSE,
+        }));
+    }
+});
+
 test.todo(`Disallow connect a pose node to multiple inputs`);
