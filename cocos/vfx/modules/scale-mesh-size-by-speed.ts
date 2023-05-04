@@ -115,7 +115,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     public speedRange = new Vec2(0, 1);
 
     @serializable
-    private _uniformScalar: FloatExpression | null = null;
+    private _uniformScalarMin: FloatExpression | null = null;
     @serializable
     private _scalar: Vec3Expression | null = null;
 

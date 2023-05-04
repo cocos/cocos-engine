@@ -37,7 +37,6 @@ const tempVelocity = new Vec3();
 const tempColor = new Color();
 const tempColor2 = new Color();
 const tempColor3 = new Color();
-const MULTIPLY_COLOR_BY_SPEED_RAND_OFFSET = 27382;
 
 @ccclass('cc.ScaleColorBySpeedModule')
 @VFXModule.register('ScaleColorBySpeed', ModuleExecStageFlags.UPDATE, [COLOR.name], [VELOCITY.name])

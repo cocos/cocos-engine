@@ -85,14 +85,17 @@ export class DragModule extends VFXModule {
         if (exp.isConstant) {
             const drag = exp.evaluate(0);
             for (let i = fromIndex; i < toIndex; i++) {
+                let finalDrag = drag;
                 if (this.multiplyByRadius) {
-
+                    if (this.radiusSource === RadiusSource.SPRITE_SIZE) {
+                        spriteSize;
+                        const maxDimension = Math.max(_temp_v3.x, _temp_v3.y, _temp_v3.z) * 0.5;
+                        finalDrag *= maxDimension ** 2 * Math.PI;
+                    }
                 }
             }
         } else {
-            for (let i = fromIndex; i < toIndex; i++) {
-                const drag = exp.evaluate(i);
-            }
+
         }
         if (this.multiplyBySize) {
             const scale = particles.getVec3Parameter(SCALE);
@@ -121,5 +124,9 @@ export class DragModule extends VFXModule {
                 velocity.subVec3At(_temp_v3, i);
             }
         }
+    }
+
+    private _scaleDragBySize () {
+
     }
 }

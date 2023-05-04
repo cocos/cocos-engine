@@ -63,8 +63,6 @@ export class LocationEventGeneratorModule extends VFXModule {
         const { localToWorld } = context;
         const { simulationSpace } = params;
         const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
-        const hasRotation = particles.hasParameter(BuiltinParticleParameter.ROTATION);
-        const hasSize = particles.hasParameter(BuiltinParticleParameter.SCALE);
         const hasColor = particles.hasParameter(BuiltinParticleParameter.COLOR);
         const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
         let velocity: Vec3ArrayParameter | null = null;

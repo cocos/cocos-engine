@@ -151,12 +151,6 @@ export class LimitVelocityModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameters(requiredParameters);
-        if (this.limitX.mode === FloatExpression.Mode.CURVE || this.limitX.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
-        }
-        if (this.limitX.mode === FloatExpression.Mode.TWO_CONSTANTS || this.limitX.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
-        }
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
