@@ -555,6 +555,41 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
     return false;
 }
 
+export function sweepAll (world: PhysXWorld, worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
+    options: IRaycastOptions, inflation: number, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    const maxDistance = options.maxDistance;
+    const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
+    const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER);
+    const queryFlags = PxQueryFlag.eSTATIC | PxQueryFlag.eDYNAMIC | PxQueryFlag.ePREFILTER | PxQueryFlag.eNO_BLOCK;
+    const queryfilterData = PhysXInstance.queryfilterData;
+    const queryFilterCB = PhysXInstance.queryFilterCB;//?
+    const mutipleResults = PhysXInstance.mutipleSweepResults;
+    const mutipleResultSize = PhysXInstance.mutipleResultSize;
+
+    queryfilterData.setWords(options.mask >>> 0, 0);
+    queryfilterData.setWords(word3, 3);
+    queryfilterData.setFlags(queryFlags);
+    const blocks = mutipleResults;
+    const r = world.scene.sweepMultiple(geometry, getTempTransform(worldRay.o, geometryRotation), worldRay.d, maxDistance, flags,
+        blocks, blocks.size(), queryfilterData, queryFilterCB, null, inflation);
+
+    if (r > 0) {
+        for (let i = 0; i < r; i++) {
+            const block = blocks.get(i);
+            const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+            const result = pool.add();
+            result._assign(block.position, block.distance, collider, block.normal);
+            results.push(result);
+        }
+        return true;
+    } if (r === -1) {
+        // eslint-disable-next-line no-console
+        console.error('not enough memory.');
+    }
+
+    return false;
+}
+
 export function sweepClosest (world: PhysXWorld, worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
     options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {
     const maxDistance = options.maxDistance;
@@ -632,6 +667,8 @@ export function initializeWorld (world: PhysXWorld) {
             PhysXInstance.simulationCB = PX.PxSimulationEventCallback.implement(world.callback.eventCallback);
             PhysXInstance.queryFilterCB = PX.PxQueryFilterCallback.implement(world.callback.queryCallback);
             PhysXInstance.singleSweepResult = new PX.PxSweepHit();
+            PhysXInstance.mutipleSweepResults = new PX.PxSweepHitVector();
+            PhysXInstance.mutipleSweepResults.resize(PhysXInstance.mutipleResultSize, PhysXInstance.singleSweepResult);
         }
 
         const sceneDesc = PX.getDefaultSceneDesc(PhysXInstance.physics.getTolerancesScale(), 0, PhysXInstance.simulationCB);

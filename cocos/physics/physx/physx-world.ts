@@ -30,7 +30,7 @@ import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import {
     addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest, sweepClosest,
-    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset,
+    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll,
 } from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { TupleDictionary } from '../utils/tuple-dictionary';
@@ -182,6 +182,15 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     //     options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {
     //     return sweepClosest(this, worldRay, geometry, geometryRotation, options, inflation, result);
     // }
+
+    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, inflation: number, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        if (!PhysXWorld._sweepBoxGeometry) {
+            PhysXWorld._sweepBoxGeometry = new PX.BoxGeometry(halfExtent);
+        }
+        PhysXWorld._sweepBoxGeometry.setHalfExtents(halfExtent);
+        return sweepAll(this, worldRay, PhysXWorld._sweepBoxGeometry, orientation, options, inflation, pool, results);
+    }
 
     sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
         options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {

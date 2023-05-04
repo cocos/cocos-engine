@@ -43,6 +43,8 @@ export interface IPhysicsWorld {
     raycastClosest (worldRay: geometry.Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
     // sweepClosest (worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
     //     options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean;
+    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, inflation: number, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean;
     sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
         options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean;
     emitEvents (): void;
