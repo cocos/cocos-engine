@@ -44,7 +44,6 @@ class Root;
 struct IProgramInfo;
 namespace pipeline {
 class InstancedBuffer;
-class BatchedBuffer;
 } // namespace pipeline
 namespace scene {
 struct IMacroPatch;
@@ -58,7 +57,6 @@ using IPassDynamics = ccstd::unordered_map<uint32_t, PassDynamicsValue>;
 enum class BatchingSchemes {
     NONE = 0,
     INSTANCING = 1,
-    VB_MERGING = 2,
 };
 
 struct IBlockRef {
@@ -208,7 +206,6 @@ public:
     void update();
 
     pipeline::InstancedBuffer *getInstancedBuffer(int32_t extraKey = 0);
-    pipeline::BatchedBuffer *getBatchedBuffer(int32_t extraKey = 0);
 
     /**
      * @en Destroy the current pass.
@@ -355,7 +352,6 @@ protected:
     BatchingSchemes _batchingScheme{BatchingSchemes::NONE};
     gfx::DynamicStateFlagBit _dynamicStates{gfx::DynamicStateFlagBit::NONE};
     ccstd::unordered_map<int32_t, IntrusivePtr<pipeline::InstancedBuffer>> _instancedBuffers;
-    ccstd::unordered_map<int32_t, IntrusivePtr<pipeline::BatchedBuffer>> _batchedBuffers;
 
     ccstd::hash_t _hash{0U};
     // external references
