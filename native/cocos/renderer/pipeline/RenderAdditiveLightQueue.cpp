@@ -23,14 +23,12 @@
 ****************************************************************************/
 
 #include "RenderAdditiveLightQueue.h"
-#include "BatchedBuffer.h"
 #include "Define.h"
 #include "GlobalDescriptorSetManager.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
 #include "PipelineUBO.h"
-#include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "base/Utils.h"
 #include "forward/ForwardPipeline.h"
@@ -74,13 +72,6 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::C
         _dynamicOffsets[0] = _instancedLightPass.dynamicOffsets[i];
         auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
         _instancedQueues[i]->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
-    }
-
-    for (size_t i = 0; i < _batchedQueues.size(); ++i) {
-        const auto *light = _batchedLightPass.lights[i];
-        _dynamicOffsets[0] = _batchedLightPass.dynamicOffsets[i];
-        auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
-        _batchedQueues[i]->recordCommandBuffer(device, renderPass, cmdBuffer, globalDescriptorSet, offset, &_dynamicOffsets);
     }
 
     const bool enableOcclusionQuery = _pipeline->isOcclusionQueryEnabled();
@@ -160,14 +151,9 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
         const auto *light = _validPunctualLights[l];
         _instancedLightPass.lights.emplace_back(light);
         _instancedLightPass.dynamicOffsets.emplace_back(_lightBufferStride * l);
-        _batchedLightPass.lights.emplace_back(light);
-        _batchedLightPass.dynamicOffsets.emplace_back(_lightBufferStride * l);
     }
     for (const auto &instancedQueue : _instancedQueues) {
         instancedQueue->uploadBuffers(cmdBuffer);
-    }
-    for (const auto &batchedQueue : _batchedQueues) {
-        batchedQueue->uploadBuffers(cmdBuffer);
     }
 }
 
@@ -176,10 +162,6 @@ void RenderAdditiveLightQueue::clear() {
         instancedQueue->clear();
     }
     _instancedQueues.clear();
-    for (const auto &batchedQueue : _batchedQueues) {
-        batchedQueue->clear();
-    }
-    _batchedQueues.clear();
 
     for (auto lightPass : _lightPasses) {
         lightPass.dynamicOffsets.clear();
@@ -189,9 +171,6 @@ void RenderAdditiveLightQueue::clear() {
 
     _instancedLightPass.dynamicOffsets.clear();
     _instancedLightPass.lights.clear();
-
-    _batchedLightPass.dynamicOffsets.clear();
-    _batchedLightPass.lights.clear();
 }
 
 bool RenderAdditiveLightQueue::cullSphereLight(const scene::SphereLight *light, const scene::Model *model) {
@@ -239,15 +218,6 @@ void RenderAdditiveLightQueue::addRenderQueue(scene::SubModel *subModel, const s
                         _instancedQueues.emplace_back(ccnew RenderInstancedQueue());
                     }
                     _instancedQueues[i]->add(buffer);
-                } break;
-                case scene::BatchingSchemes::VB_MERGING: {
-                    auto *buffer = pass->getBatchedBuffer(i);
-                    buffer->merge(subModel, lightPassIdx, model);
-                    buffer->setDynamicOffset(0, _lightBufferStride);
-                    if (i >= _batchedQueues.size()) {
-                        _batchedQueues.emplace_back(ccnew RenderBatchedQueue());
-                    }
-                    _batchedQueues[i]->add(buffer);
                 } break;
                 case scene::BatchingSchemes::NONE: {
                     lightPass.lights.emplace_back(light);
