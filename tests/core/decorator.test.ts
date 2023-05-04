@@ -13,8 +13,9 @@ import { CCClass } from '../../cocos/core/data/class';
 import { property } from '../../cocos/core/data/decorators/property';
 import { getClassByName, unregisterClass } from '../../cocos/core/utils/js-typed';
 import { LegacyPropertyDecorator } from '../../cocos/core/data/decorators/utils';
-import { CCBoolean, CCFloat, CCInteger, CCString } from '../../exports/base';
+import { CCBoolean, CCFloat, CCInteger, CCString, js } from '../../exports/base';
 import { PrimitiveType } from '../../cocos/core/data/utils/attribute';
+import { transferCCClass } from '../../cocos/core/data/decorators/ccclass';
 
 test('Decorators signature', () => {
     class Foo {}
@@ -331,6 +332,68 @@ describe(`Decorators`, () => {
                 }
             });
             
+        });
+    });
+
+    describe('Combine with non-ccclass decorators returning new class', () => {
+        /**
+         * This decorator is taken from issue:
+         * cocos/cocos-engine#14959
+         * with some modifications.
+         */
+        const deco = (): ClassDecorator => {
+            return <TFunction extends Function>(constructorFunction: TFunction) => {
+                const newConstructorFunction = function (...args: unknown[]) {
+                    let func: any = function () {
+                        return new (constructorFunction as unknown as { new(...constructorArgs: any[]) })(...args);
+                    };
+                    func.prototype = constructorFunction.prototype;
+                    return new func();
+                };
+                newConstructorFunction.prototype = constructorFunction.prototype;
+                transferCCClass(constructorFunction, newConstructorFunction);
+                return newConstructorFunction as unknown as TFunction;
+            };
+        };
+
+        test('Applied after @ccclass', () => {
+            @deco()
+            @ccclass('SomeClass')
+            class SomeClass {
+                @property
+                public someProp = '123';
+            }
+
+            // Checks if the class is correctly registered.
+            expect(CCClass._isCCClass(SomeClass)).toBe(true);
+            expect(js.getClassByName('SomeClass')).toBe(SomeClass);
+
+            // Checks if the properties are transferred.
+            expect(CCClass.Attr.attr(SomeClass, 'someProp')).toStrictEqual(expect.objectContaining({
+                default: '123',
+            }));
+
+            js.unregisterClass(SomeClass);
+        });
+
+        test('Applied before @ccclass', () => {
+            @ccclass('SomeClass')
+            @deco()
+            class SomeClass {
+                @property
+                public someProp = '123';
+            }
+
+            // Checks if the class is correctly registered.
+            expect(CCClass._isCCClass(SomeClass)).toBe(true);
+            expect(js.getClassByName('SomeClass')).toBe(SomeClass);
+
+            // Checks if the properties are transferred.
+            expect(CCClass.Attr.attr(SomeClass, 'someProp')).toStrictEqual(expect.objectContaining({
+                default: '123',
+            }));
+
+            js.unregisterClass(SomeClass);
         });
     });
 });

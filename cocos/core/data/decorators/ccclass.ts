@@ -23,7 +23,7 @@
 */
 
 import { DEV } from 'internal:constants';
-import { getSuper, mixin, getClassName } from '../../utils/js-typed';
+import { getSuper, mixin, getClassName, transferCCClassIdAndName } from '../../utils/js-typed';
 import { CCClass } from '../class';
 import { doValidateMethodWithProps_DEV } from '../utils/preprocess-class';
 import { CACHE_KEY, makeSmartClassDecorator } from './utils';
@@ -90,3 +90,92 @@ export const ccclass: ((name?: string) => ClassDecorator) & ClassDecorator = mak
 
     return res;
 });
+
+/**
+ * @zh
+ * 将指定构造函数上关联的所有 cc-class 相关的信息转移到新的构造函数上。
+ *
+ * 当你的类装饰器会返回新的类时，你需要调用此方法来转移所有 cc-class 相关的信息。
+ *
+ * @en
+ * Transfers all cc-class information that was originally associated to specified constructor
+ * instead to new constructor.
+ *
+ * If your class decorator is going to return a new class.
+ * You have to invoke this methods to transfer all cc-class information to the new class.
+ *
+ * @param originalConstructor @zh 原始构造函数。 @en The original constructor.
+ *
+ * @param newConstructor @zh 新的接收 cc 属性构造函数。 @en The new constructor which accepts the properties.
+ *
+ * @example
+ *
+ * @zh
+ * ```ts
+ * const someClassDecorator: ClassDecorator = (constructor) => {
+ *      class NewClass {}
+ *      // 如果你缺少了下面的语句，得到的类不能再作为正常的 cc 类来用，
+ *      // 比如，它不能再被序列化或展示在编辑器中。
+ *      transferCCClass(constructor, NewClass);
+ *      return NewClass;
+ * };
+ *
+ * \@ccclass('SomeClass')
+ * class SomeClass {
+ *   \@property someProperty = '';
+ * }
+ * ```
+ *
+ * @en
+ *
+ * ```ts
+ * const someClassDecorator: ClassDecorator = (constructor) => {
+ *      class NewClass {}
+ *      // If you missed the following statement,
+ *      // the result class will not be able to used as a normal cc-class,
+ *      // for example, will not be able to be serialized or be shown in editor.
+ *      transferCCClass(constructor, NewClass);
+ *      return NewClass;
+ * };
+ *
+ * \@ccclass('SomeClass')
+ * class SomeClass {
+ *   \@property someProperty = '';
+ * }
+ * ```
+ */
+export function transferCCClass (
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    originalConstructor: Function,
+
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    newConstructor: Function,
+) {
+    // Transfer id and name in case of `@ccclass()` has already been applied on `originalConstructor`.
+    transferCCClassIdAndName(originalConstructor, newConstructor);
+
+    // These properties are injected before `@ccclass` is called.
+    tryTransferConstructorProperty(originalConstructor, newConstructor, CACHE_KEY);
+
+    // These properties are injected after `@ccclass` is called.
+    tryTransferConstructorProperty(originalConstructor, newConstructor, '__props__');
+    tryTransferConstructorProperty(originalConstructor, newConstructor, '__attrs__');
+    tryTransferConstructorProperty(originalConstructor, newConstructor, '__values__');
+    tryTransferConstructorProperty(originalConstructor, newConstructor, '__ctors__');
+    tryTransferConstructorProperty(originalConstructor, newConstructor, '_sealed');
+}
+
+function tryTransferConstructorProperty (
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    originalConstructor: Function,
+
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    newConstructor: Function,
+
+    propertyKey: typeof CACHE_KEY | '__props__' | '__attrs__' | '__values__' | '__ctors__' | '_sealed',
+) {
+    if (propertyKey in originalConstructor) {
+        newConstructor[propertyKey] = originalConstructor[propertyKey];
+        delete originalConstructor[propertyKey];
+    }
+}
