@@ -231,6 +231,7 @@ export function createMap (forceDictMode?: boolean): any {
 
 /**
  * @internal
+ * @engineInternal
  */
 export function transferCCClassIdAndName (
     // eslint-disable-next-line @typescript-eslint/ban-types
