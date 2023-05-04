@@ -21,8 +21,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { native } from '../../cocos/native-binding/index';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
-    wasmUrl = new URL(wasmUrl, import.meta.url).href;
-    return fetch(wasmUrl).then((response) => response.arrayBuffer().then((buff) => WebAssembly.instantiate(buff, importObject)));
+    wasmUrl = `/src/cocos-js/${wasmUrl}`;
+    const arrayBuffer = native.fileUtils.getDataFromFile(wasmUrl);
+    return WebAssembly.instantiate(arrayBuffer, importObject);
 }
