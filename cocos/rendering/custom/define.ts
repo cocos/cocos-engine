@@ -127,8 +127,8 @@ export function getLoadOpOfClearFlag (clearFlag: ClearFlagBit, attachment: Attac
     return loadOp;
 }
 
-export function getRenderArea (camera: Camera, width: number, height: number, light: Light | null = null, level = 0): Rect {
-    const out = new Rect();
+export function getRenderArea (camera: Camera, width: number, height: number, light: Light | null = null, level = 0, out?: Rect): Rect {
+    out = out || new Rect();
     const vp = camera ? camera.viewport : new Rect(0, 0, 1, 1);
     const w = width;
     const h = height;
