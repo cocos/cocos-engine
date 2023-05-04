@@ -383,11 +383,18 @@ export class ReflectionProbe {
     }
 
     public hasFrameBuffer (framebuffer: Framebuffer) {
-        if (this.bakedCubeTextures.length === 0) return false;
-        for (let i = 0; i < this.bakedCubeTextures.length; i++) {
-            const rt = this.bakedCubeTextures[i];
-            if (rt.window?.framebuffer === framebuffer) {
+        if (this.probeType === ProbeType.PLANAR) {
+            if (!this.realtimePlanarTexture) return false;
+            if (this.realtimePlanarTexture.window?.framebuffer === framebuffer) {
                 return true;
+            }
+        } else {
+            if (this.bakedCubeTextures.length === 0) return false;
+            for (let i = 0; i < this.bakedCubeTextures.length; i++) {
+                const rt = this.bakedCubeTextures[i];
+                if (rt.window?.framebuffer === framebuffer) {
+                    return true;
+                }
             }
         }
         return false;

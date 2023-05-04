@@ -25,7 +25,7 @@
 import { EDITOR } from 'internal:constants';
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
     Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit } from '../../gfx';
-import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
+import { Camera, CSMLevel, DirectionalLight, Light, LightType, ProbeType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
@@ -582,13 +582,20 @@ export function buildReflectionProbePasss (camera: Camera,
     if (probes.length === 0) {
         return;
     }
+
     for (let i = 0; i < probes.length; i++) {
         const probe = probes[i];
+
         if (probe.needRender) {
-            for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
-                buildReflectionProbePass(camera, ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
+            if (probes[i].probeType === ProbeType.PLANAR) {
+                buildReflectionProbePass(camera, ppl, probe, probe.realtimePlanarTexture.window!, 0);
+            } else if (EDITOR) {
+                for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
+                    probe.updateCameraDir(faceIdx);
+                    buildReflectionProbePass(camera, ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
+                }
+                probe.needRender = false;
             }
-            probe.needRender = false;
         }
     }
 }
@@ -603,8 +610,6 @@ export function buildReflectionProbePass (camera: Camera,
 
     const probePassRTName = `reflectionProbePassColor${cameraName}`;
     const probePassDSName = `reflectionProbePassDS${cameraName}`;
-
-    probe.updateCameraDir(faceIdx);
 
     if (!ppl.containsResource(probePassRTName)) {
         ppl.addRenderWindow(probePassRTName, Format.RGBA8, width, height, renderWindow);

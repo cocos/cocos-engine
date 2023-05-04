@@ -25,7 +25,7 @@
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { buildFxaaPass, buildBloomPass as buildBloomPasses, buildForwardPass,
     buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass,
-    AntiAliasing, buildUIPass } from './define';
+    AntiAliasing, buildUIPass, buildReflectionProbePasss } from './define';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { isUICamera } from './utils';
 
@@ -41,10 +41,12 @@ export class CustomPipelineBuilder implements PipelineBuilder {
             if (!isGameView) {
                 // forward pass
                 buildForwardPass(camera, ppl, isGameView);
+                buildReflectionProbePasss(camera, ppl, isGameView);
                 continue;
             }
             // TODO: There is currently no effective way to judge the ui camera. Let’s do this first.
             if (!isUICamera(camera)) {
+                buildReflectionProbePasss(camera, ppl, isGameView);
                 // forward pass
                 const forwardInfo = buildForwardPass(camera, ppl, isGameView);
                 // fxaa pass
