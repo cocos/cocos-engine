@@ -383,8 +383,8 @@ export interface BasicPipeline extends PipelineRuntime {
     updateDepthStencil (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
     beginFrame (): void;
     endFrame (): void;
-    addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder;
-    addRasterPass (width: number, height: number/*, 'default'*/): RasterPassBuilder;
+    addRasterPass (width: number, height: number, layoutName: string): BasicRenderPassBuilder;
+    addRasterPass (width: number, height: number/*, 'default'*/): BasicRenderPassBuilder;
     addMovePass (): MovePassBuilder;
     addCopyPass (): CopyPassBuilder;
     /**
@@ -406,6 +406,8 @@ export interface Pipeline extends BasicPipeline {
     updateStorageTexture (name: string, width: number, height: number, format: Format): void;
     updateStorageTexture (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
     updateShadingRateTexture (name: string, width: number, height: number): void;
+    addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder;
+    addRasterPass (width: number, height: number/*, 'default'*/): RasterPassBuilder;
     addComputePass (layoutName: string): ComputePassBuilder;
 }
 

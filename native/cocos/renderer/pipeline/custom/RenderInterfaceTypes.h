@@ -499,7 +499,7 @@ public:
     virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
     virtual void beginFrame() = 0;
     virtual void endFrame() = 0;
-    virtual RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) = 0;
+    virtual BasicRenderPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) = 0;
     virtual MovePassBuilder *addMovePass() = 0;
     virtual CopyPassBuilder *addCopyPass() = 0;
     /**
@@ -519,7 +519,7 @@ public:
     void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height) {
         updateDepthStencil(name, width, height, gfx::Format::UNKNOWN);
     }
-    RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height) {
+    BasicRenderPassBuilder *addRasterPass(uint32_t width, uint32_t height) {
         return addRasterPass(width, height, "default");
     }
 };
@@ -534,6 +534,7 @@ public:
     virtual void updateStorageBuffer(const ccstd::string &name, uint32_t size, gfx::Format format) = 0;
     virtual void updateStorageTexture(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
     virtual void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) = 0;
+    RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) override = 0 /* covariant */;
     virtual ComputePassBuilder *addComputePass(const ccstd::string &layoutName) = 0;
     uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size) {
         return addStorageBuffer(name, format, size, ResourceResidency::MANAGED);

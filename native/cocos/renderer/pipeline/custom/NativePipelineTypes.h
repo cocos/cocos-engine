@@ -937,7 +937,6 @@ public:
     void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
     void beginFrame() override;
     void endFrame() override;
-    RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) override;
     MovePassBuilder *addMovePass() override;
     CopyPassBuilder *addCopyPass() override;
     SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) override;
@@ -949,6 +948,7 @@ public:
     void updateStorageBuffer(const ccstd::string &name, uint32_t size, gfx::Format format) override;
     void updateStorageTexture(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
     void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) override;
+    RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) override;
     ComputePassBuilder *addComputePass(const ccstd::string &layoutName) override;
 
     void executeRenderGraph(const RenderGraph& rg);
