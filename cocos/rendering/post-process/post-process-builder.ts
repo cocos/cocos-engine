@@ -18,6 +18,7 @@ import { Node } from '../../scene-graph';
 import { director } from '../../game';
 import { CCObject } from '../../core';
 import { setCustomPipeline } from '../custom';
+import { ColorGradingPass } from './passes';
 
 export class PostProcessBuilder implements PipelineBuilder  {
     passes: BasePass[] = [];
@@ -32,6 +33,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(new ForwardPass());
         this.addPass(new TAAPass());
         this.addPass(new FSRPass());
+        this.addPass(new ColorGradingPass());
         this.addPass(new BlitScreenPass());
         this.addPass(new ForwardFinalPass());
     }
