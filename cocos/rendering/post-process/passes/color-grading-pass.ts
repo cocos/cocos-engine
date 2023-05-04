@@ -11,9 +11,9 @@ import { ColorGrading } from '../components';
 export class ColorGradingPass extends SettingPass {
     get setting () { return getSetting(ColorGrading); }
 
-    name = 'ColorGrading'
+    name = 'ColorGradingPass'
     effectName = 'post-process/color-grading';
-    outputNames = ['ColorGradingColor']
+    outputNames = ['ColorGrading']
 
     checkEnable (camera: Camera) {
         const enable = super.checkEnable(camera);
@@ -45,12 +45,12 @@ export class ColorGradingPass extends SettingPass {
             ));
 
         
-        const input0 = this.lastPass!.slotName(camera, 0);
-        const easu = 'COLOR-GRADING_EASU';
+        const input = this.lastPass!.slotName(camera, 0);
+        const slot = this.slotName(camera, 0);
         passContext.addRasterPass(outWidth, outHeight, 'color-grading', `color-grading${cameraID}`)
             .setViewport(area.x, area.y, outWidth, outHeight)
-            .setPassInput(input0, 'sceneColorMap')
-            .addRasterView(easu, Format.RGBA8)
+            .setPassInput(input, 'sceneColorMap')
+            .addRasterView(slot, Format.RGBA8)
             .blitScreen(0)
             .version();
     }
