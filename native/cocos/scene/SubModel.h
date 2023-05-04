@@ -57,8 +57,6 @@ public:
     inline void setInputAssembler(gfx::InputAssembler *ia) { _inputAssembler = ia; }
     inline void setShaders(const ccstd::vector<IntrusivePtr<gfx::Shader>> &shaders) { _shaders = shaders; }
     void setPasses(const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &passes);
-    inline void setPlanarInstanceShader(gfx::Shader *shader) { _planarInstanceShader = shader; }
-    inline void setPlanarShader(gfx::Shader *shader) { _planarShader = shader; }
     inline void setPriority(pipeline::RenderPriority priority) { _priority = priority; }
     inline void setOwner(Model *model) { _owner = model; }
     void setSubMesh(RenderingSubMesh *subMesh);
@@ -72,8 +70,6 @@ public:
     inline const ccstd::vector<IntrusivePtr<gfx::Shader>> &getShaders() const { return _shaders; }
     inline const ccstd::vector<IntrusivePtr<Pass>> &getPasses() const { return *_passes; }
     inline const ccstd::vector<IMacroPatch> &getPatches() const { return _patches; }
-    inline gfx::Shader *getPlanarInstanceShader() const { return _planarInstanceShader; }
-    inline gfx::Shader *getPlanarShader() const { return _planarShader; }
     inline pipeline::RenderPriority getPriority() const { return _priority; }
     inline RenderingSubMesh *getSubMesh() const { return _subMesh; }
     inline Model *getOwner() const { return _owner; }
@@ -84,8 +80,6 @@ public:
     int32_t getInstancedAttributeIndex(const ccstd::string &name) const;
 
     void initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &passes, const ccstd::vector<IMacroPatch> &patches);
-    void initPlanarShadowShader();
-    void initPlanarShadowInstanceShader();
     void destroy();
     void onPipelineStateChanged();
     void onMacroPatchesStateChanged(const ccstd::vector<IMacroPatch> &patches);
@@ -113,8 +107,6 @@ protected:
     IntrusivePtr<gfx::DescriptorSet> _descriptorSet;
     IntrusivePtr<gfx::DescriptorSet> _worldBoundDescriptorSet;
     IntrusivePtr<gfx::Texture> _reflectionTex;
-    IntrusivePtr<gfx::Shader> _planarShader;
-    IntrusivePtr<gfx::Shader> _planarInstanceShader;
     IntrusivePtr<RenderingSubMesh> _subMesh;
 
     InstancedAttributeBlock _instancedAttributeBlock{};
