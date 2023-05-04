@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, range, serializable, tooltip, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
+import { INV_START_LIFETIME, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { EmitterDataSet } from '../emitter-data-set';
@@ -46,21 +46,22 @@ export class SetLifeTimeModule extends VFXModule {
     public lifetime: FloatExpression = new ConstantFloatExpression(5);
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
+        particles.markRequiredParameter(INV_START_LIFETIME);
         this.lifetime.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const invStartLifeTime = particles.getFloatParameter(INV_START_LIFETIME);
         const { fromIndex, toIndex } = context;
-        this.lifetime.bind(particles, emitter, user, context);
-        if (this.lifetime.isConstant) {
-            const invLifeTime = 1 / this.lifetime.evaluate(0);
+        const exp = this.lifetime;
+        exp.bind(particles, emitter, user, context);
+        if (exp.isConstant) {
+            const invLifeTime = 1 / exp.evaluate(0);
             invStartLifeTime.fill(invLifeTime, fromIndex, toIndex);
         } else {
             const dest = invStartLifeTime.data;
             for (let i = fromIndex; i < toIndex; ++i) {
-                dest[i] = 1 / this.lifetime.evaluate(i);
+                dest[i] = 1 / exp.evaluate(i);
             }
         }
     }

@@ -77,6 +77,7 @@ export class DragModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
+        const scale = particles.getVec3Parameter(SCALE);
         const { fromIndex, toIndex } = context;
         const exp = this.drag;
         exp.bind(particles, emitter, user, context);
@@ -84,35 +85,13 @@ export class DragModule extends VFXModule {
         if (exp.isConstant) {
             const drag = exp.evaluate(0);
             for (let i = fromIndex; i < toIndex; i++) {
-                floatRegister[i] = drag;
-            }
-        }
-        // eslint-disable-next-line no-lonely-if
-        if (this.drag.mode === FloatExpression.Mode.CONSTANT) {
-            const drag = this.drag.constant;
-            for (let i = fromIndex; i < toIndex; i++) {
-                floatRegister[i] = drag;
-            }
-        } else if (this.drag.mode === FloatExpression.Mode.CURVE) {
-            const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-            const { spline, multiplier } = this.drag;
-            for (let i = fromIndex; i < toIndex; i++) {
-                const normalizedTime = normalizedAge[i];
-                floatRegister[i] = spline.evaluate(normalizedTime) * multiplier;
-            }
-        } else if (this.drag.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-            const { constantMin, constantMax } = this.drag;
-            const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-            for (let i = fromIndex; i < toIndex; i++) {
-                floatRegister[i] = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffset));
+                if (this.multiplyByRadius) {
+
+                }
             }
         } else {
-            const { splineMin, splineMax, multiplier } = this.drag;
-            const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-            const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
             for (let i = fromIndex; i < toIndex; i++) {
-                const normalizedTime = normalizedAge[i];
-                floatRegister[i] = lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(randomSeed[i] + randomOffset))  * multiplier;
+                const drag = exp.evaluate(i);
             }
         }
         if (this.multiplyBySize) {

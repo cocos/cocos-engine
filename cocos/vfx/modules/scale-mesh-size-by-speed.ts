@@ -34,7 +34,7 @@ import { RandomStream } from '../random-stream';
 const SCALE_SIZE_RAND = 2818312;
 @ccclass('cc.ScaleSizeBySpeedModule')
 @VFXModule.register('ScaleSizeBySpeed', ModuleExecStageFlags.UPDATE, [ParameterName.SCALE], [ParameterName.SCALE, ParameterName.VELOCITY])
-export class ScaleSizeBySpeedModule extends VFXModule {
+export class ScaleMeshSizeBySpeedModule extends VFXModule {
     /**
       * @zh 决定是否在每个轴上独立控制粒子大小。
       */

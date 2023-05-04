@@ -22,16 +22,18 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, displayOrder, range, serializable, tooltip, type, visible } from 'cc.decorator';
+import { ccclass, displayOrder, range, serializable, type, visible } from 'cc.decorator';
 import { DistributionMode, MoveWarpMode, ShapeModule } from './shape';
-import { Enum, lerp, toDegree, toRadian } from '../../core';
-import { BuiltinParticleParameterFlags, ParticleDataSet, SPAWN_TIME_RATIO } from '../particle-data-set';
-import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
+import { Enum, lerp, toDegree, toRadian, Vec3 } from '../../core';
+import { INITIAL_DIR, ParticleDataSet, POSITION, SPAWN_TIME_RATIO } from '../particle-data-set';
+import { VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
-import { Vec3ArrayParameter } from '../vfx-parameter';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression } from '../expressions';
+
+const dir = new Vec3();
+const pos = new Vec3();
 
 @ccclass('cc.AngleBasedShapeModule')
 export abstract class AngleBasedShapeModule extends ShapeModule {
@@ -111,22 +113,25 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const rand = this._rand;
+        const rand = this.randomStream;
         const arcRounded = this._arcRounded;
         const spreadStep = this._spreadStep;
         const arcTimer = this._arcTimer;
         const arcTimePrev = this._arcTimePrev;
         const arc = this._arc;
         const invArc = this._invArc;
-        const { initialDir, vec3Register } = particles;
+        const initialDir = particles.getVec3Parameter(INITIAL_DIR);
+        const position = particles.getVec3Parameter(POSITION);
         if (this.distributionMode === DistributionMode.RANDOM) {
             if (this.spread > 0) {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    this.generatePosAndDir(i, arc * rand.getFloat(), initialDir, vec3Register);
+                    this.generatePosAndDir(i, arc * rand.getFloat(), dir, pos);
+                    this.storePositionAndDirection(i, dir, pos, initialDir, position);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    this.generatePosAndDir(i, Math.floor((arcRounded * rand.getFloat()) / spreadStep) * spreadStep, initialDir, vec3Register);
+                    this.generatePosAndDir(i, Math.floor((arcRounded * rand.getFloat()) / spreadStep) * spreadStep, dir, pos);
+                    this.storePositionAndDirection(i, dir, pos, initialDir, position);
                 }
             }
         } else if (this.distributionMode === DistributionMode.MOVE) {
@@ -140,7 +145,8 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
                         if (angle < 0) {
                             angle += arc;
                         }
-                        this.generatePosAndDir(i, angle, initialDir, vec3Register);
+                        this.generatePosAndDir(i, angle, dir, pos);
+                        this.storePositionAndDirection(i, dir, pos, initialDir, position);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; ++i) {
@@ -149,7 +155,8 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
                         if (angle < 0) {
                             angle += arc;
                         }
-                        this.generatePosAndDir(i, angle, initialDir, vec3Register);
+                        this.generatePosAndDir(i, angle, dir, pos);
+                        this.storePositionAndDirection(i, dir, pos, initialDir, position);
                     }
                 }
             } else {
@@ -164,7 +171,8 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
                         if (angle >= 1.0) {
                             angle = 2 - angle;
                         }
-                        this.generatePosAndDir(i, angle * arc, initialDir, vec3Register);
+                        this.generatePosAndDir(i, angle * arc, dir, pos);
+                        this.storePositionAndDirection(i, dir, pos, initialDir, position);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; ++i) {
@@ -175,7 +183,8 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
                         if (angle >= 1.0) {
                             angle = 2 - angle;
                         }
-                        this.generatePosAndDir(i, angle * arc, initialDir, vec3Register);
+                        this.generatePosAndDir(i, angle * arc, dir, pos);
+                        this.storePositionAndDirection(i, dir, pos, initialDir, position);
                     }
                 }
             }
@@ -185,16 +194,17 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
                 for (let i = fromIndex; i < toIndex; ++i) {
                     let angle = i * invTotal * arc;
                     angle = Math.floor(angle / spreadStep) * spreadStep;
-                    this.generatePosAndDir(i, angle, initialDir, vec3Register);
+                    this.generatePosAndDir(i, angle, dir, pos);
+                    this.storePositionAndDirection(i, dir, pos, initialDir, position);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    this.generatePosAndDir(i, i * invTotal * arc, initialDir, vec3Register);
+                    this.generatePosAndDir(i, i * invTotal * arc, dir, pos);
+                    this.storePositionAndDirection(i, dir, pos, initialDir, position);
                 }
             }
         }
-        super.execute(particles, emitter, user, context);
     }
 
-    protected abstract generatePosAndDir (index: number, angle: number, initialDir: Vec3ArrayParameter, vec3Register: Vec3ArrayParameter);
+    protected abstract generatePosAndDir (index: number, angle: number, dir: Vec3, pos: Vec3);
 }

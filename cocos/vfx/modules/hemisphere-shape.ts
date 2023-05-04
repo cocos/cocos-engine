@@ -25,14 +25,14 @@
 import { ccclass, serializable, tooltip } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Vec3 } from '../../core';
-import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { INITIAL_DIR, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { AngleBasedShapeModule } from './angle-based-shape';
-import { Vec3ArrayParameter } from '../vfx-parameter';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '..';
 
-const temp = new Vec3();
 @ccclass('cc.HemisphereShapeModule')
-@VFXModule.register('HemisphereShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])
+@VFXModule.register('HemisphereShape', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
 export class HemisphereShapeModule extends AngleBasedShapeModule {
     /**
       * @zh 粒子发射器半径。
@@ -58,17 +58,13 @@ export class HemisphereShapeModule extends AngleBasedShapeModule {
         this._innerRadius = (1 - this.radiusThickness) ** 3;
     }
 
-    protected generatePosAndDir (index: number, angle: number, initialDir: Vec3ArrayParameter, vec3Register: Vec3ArrayParameter) {
+    protected generatePosAndDir (index: number, angle: number, dir: Vec3, pos: Vec3) {
         const innerRadius = this._innerRadius;
         const radius = this.radius;
-        const rand = this._rand;
+        const rand = this.randomStream;
         const z = rand.getFloatFromRange(0, 1);
         const r = Math.sqrt(1 - z * z);
-        temp.x = r * Math.cos(angle);
-        temp.y = r * Math.sin(angle);
-        temp.z = z;
-        initialDir.setVec3At(temp, index);
-        Vec3.multiplyScalar(temp, temp, rand.getFloatFromRange(innerRadius, 1.0) ** 0.3333 * radius);
-        vec3Register.setVec3At(temp, index);
+        Vec3.set(dir, r * Math.cos(angle), r * Math.sin(angle), z);
+        Vec3.multiplyScalar(pos, dir, rand.getFloatFromRange(innerRadius, 1.0) ** 0.3333 * radius);
     }
 }

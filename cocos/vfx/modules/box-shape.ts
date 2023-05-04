@@ -26,31 +26,33 @@ import { ccclass, displayOrder, serializable, tooltip, type, visible } from 'cc.
 import { ShapeModule } from './shape';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, Vec3 } from '../../core';
-import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { INITIAL_DIR, ParticleDataSet, POSITION } from '../particle-data-set';
+import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
-enum EmitFrom {
+enum LocationMode {
     VOLUME,
     EDGE,
     SHELL,
 }
 
 const tempPosition = new Vec3();
+const dir = new Vec3();
+const pos = new Vec3();
 @ccclass('cc.BoxShapeModule')
-@VFXModule.register('BoxShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])
+@VFXModule.register('BoxShape', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
 export class BoxShapeModule extends ShapeModule {
-    static EmitFrom = EmitFrom;
+    static LocationMode = LocationMode;
 
-    @type(Enum(EmitFrom))
+    @type(Enum(LocationMode))
     @serializable
-    public emitFrom = EmitFrom.VOLUME;
+    public locationMode = LocationMode.VOLUME;
 
     @serializable
     @displayOrder(12)
     @tooltip('i18n:shapeModule.boxThickness')
-    @visible(function (this: BoxShapeModule) { return this.emitFrom !== EmitFrom.VOLUME; })
+    @visible(function (this: BoxShapeModule) { return this.locationMode !== LocationMode.VOLUME; })
     public boxThickness = new Vec3(0, 0, 0);
 
     private _thicknessPercent = new Vec3(0, 0, 0);
@@ -63,16 +65,18 @@ export class BoxShapeModule extends ShapeModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const thicknessPercent = this._thicknessPercent;
         const { fromIndex, toIndex } = context;
-        const { initialDir, vec3Register } = particles;
-        const rand = this._rand;
-        switch (this.emitFrom) {
-        case EmitFrom.VOLUME:
+        const initialDir = particles.getVec3Parameter(INITIAL_DIR);
+        const position = particles.getVec3Parameter(POSITION);
+        const rand = this.randomStream;
+        Vec3.set(dir, 0, 0, 1);
+        switch (this.locationMode) {
+        case LocationMode.VOLUME:
             for (let i = fromIndex; i < toIndex; ++i) {
-                vec3Register.set3fAt(rand.getFloat() - 0.5, rand.getFloat() - 0.5, rand.getFloat() - 0.5, i);
-                initialDir.set3fAt(0, 0, 1, i);
+                Vec3.set(pos, rand.getFloat() - 0.5, rand.getFloat() - 0.5, rand.getFloat() - 0.5);
+                this.storePositionAndDirection(i, dir, pos, initialDir, position);
             }
             break;
-        case EmitFrom.SHELL:
+        case LocationMode.SHELL:
             for (let i = fromIndex; i < toIndex; ++i) {
                 const x = rand.getFloat();
                 const y = rand.getFloat();
@@ -85,11 +89,11 @@ export class BoxShapeModule extends ShapeModule {
                 tempPosition.x *= rand.getFloatFromRange(thicknessPercent.x, 1);
                 tempPosition.y *= rand.getFloatFromRange(thicknessPercent.y, 1);
                 tempPosition.z *= rand.getFloatFromRange(thicknessPercent.z, 1);
-                vec3Register.set3fAt(tempPosition.x - 0.5, tempPosition.y - 0.5, tempPosition.z - 0.5, i);
-                initialDir.set3fAt(0, 0, 1, i);
+                Vec3.set(pos, tempPosition.x - 0.5, tempPosition.y - 0.5, tempPosition.z - 0.5);
+                this.storePositionAndDirection(i, dir, pos, initialDir, position);
             }
             break;
-        case EmitFrom.EDGE:
+        case LocationMode.EDGE:
             for (let i = fromIndex; i < toIndex; ++i) {
                 const x = rand.getFloat();
                 const y = rand.getFloat();
@@ -102,12 +106,11 @@ export class BoxShapeModule extends ShapeModule {
                 tempPosition.x *= rand.getFloatFromRange(thicknessPercent.x, 1);
                 tempPosition.y *= rand.getFloatFromRange(thicknessPercent.y, 1);
                 tempPosition.z *= rand.getFloatFromRange(thicknessPercent.z, 1);
-                vec3Register.set3fAt(tempPosition.x - 0.5, tempPosition.y - 0.5, tempPosition.z - 0.5, i);
-                initialDir.set3fAt(0, 0, 1, i);
+                Vec3.set(pos, tempPosition.x - 0.5, tempPosition.y - 0.5, tempPosition.z - 0.5);
+                this.storePositionAndDirection(i, dir, pos, initialDir, position);
             }
             break;
         default:
         }
-        super.execute(particles, emitter, user, context);
     }
 }

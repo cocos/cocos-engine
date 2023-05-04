@@ -25,7 +25,7 @@
 
 import { ccclass, displayOrder, serializable, tooltip, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BASE_COLOR, COLOR, NORMALIZED_AGE, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { ColorExpression } from '../expressions/color';
 import { Color } from '../../core';
@@ -36,7 +36,7 @@ import { ConstantColorExpression } from '../expressions';
 const tempColor = new Color();
 
 @ccclass('cc.SetColorModule')
-@VFXModule.register('SetColor', ModuleExecStageFlags.SPAWN, [ParameterName.COLOR], [ParameterName.NORMALIZED_AGE])
+@VFXModule.register('SetColor', ModuleExecStageFlags.SPAWN, [COLOR.name], [NORMALIZED_AGE.name])
 export class SetColorModule extends VFXModule {
     /**
       * @zh 粒子初始颜色。
@@ -48,15 +48,15 @@ export class SetColorModule extends VFXModule {
     public color: ColorExpression = new ConstantColorExpression();
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.COLOR);
+        particles.markRequiredParameter(COLOR);
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_COLOR);
+            particles.markRequiredParameter(BASE_COLOR);
         }
         this.color.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const color = context.executionStage === ModuleExecStage.SPAWN ? particles.baseColor : particles.getColorParameter(COLOR);
+        const color = particles.getColorParameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_COLOR : COLOR);
         const { fromIndex, toIndex } = context;
         this.color.bind(particles, emitter, user, context);
         if (this.color.isConstant) {

@@ -26,9 +26,8 @@
 import { ccclass, displayOrder, serializable, tooltip, type, range } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
+import { ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
-import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from '../expressions';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';

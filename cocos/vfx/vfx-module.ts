@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from './base';
+import { ModuleExecContext, VFXEmitterState } from './base';
 import { ParticleDataSet } from './particle-data-set';
 import { ccclass, serializable, type, visible } from '../core/data/decorators';
 import { assertIsTrue, CCBoolean, CCString, Enum } from '../core';
@@ -356,6 +356,8 @@ export class VFXModuleStage {
         for (let i = 0, length = modules.length; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
+                context.setModuleRandomSeed(module.randomSeed);
+                context.setModuleRandomStream(module.randomStream);
                 module.execute(particles, emitter, user, context);
             }
         }

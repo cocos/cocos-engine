@@ -23,18 +23,17 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
-import { lerp, Vec3 } from '../../core';
+import { ccclass, tooltip, displayOrder, type, serializable, visible } from 'cc.decorator';
+import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, RANDOM_SEED, SCALE, SPAWN_NORMALIZED_TIME } from '../particle-data-set';
+import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, SCALE } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
-import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 
-const seed = new Vec3();
+const tempScalar = new Vec3();
 
 @ccclass('cc.ScaleMeshSizeModule')
 @VFXModule.register('ScaleMeshSize', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [SCALE.name], [NORMALIZED_AGE.name])
@@ -96,82 +95,34 @@ export class ScaleMeshSizeModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.getVec3Parameter(BASE_SCALE) : particles.getVec3Parameter(SCALE);
+        const scale = particles.getVec3Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_SCALE : SCALE);
         const { fromIndex, toIndex } = context;
         if (!this.separateAxes) {
-            if (this.scalar.mode === FloatExpression.Mode.CONSTANT) {
-                const constant = this.scalar.constant;
+            const exp = this.uniformScalar;
+            exp.bind(particles, emitter, user, context);
+            if (exp.isConstant) {
+                const scalar = exp.evaluate(0);
                 for (let i = fromIndex; i < toIndex; i++) {
-                    scale.multiply1fAt(constant, i);
-                }
-            } else if (this.scalar.mode === FloatExpression.Mode.CURVE) {
-                const { spline, multiplier } = this.scalar;
-                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.getFloatParameter(NORMALIZED_AGE).data : particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    scale.multiply1fAt(spline.evaluate(normalizedTime[i]) * multiplier, i);
-                }
-            } else if (this.scalar.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const { constantMin, constantMax } = this.scalar;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    scale.multiply1fAt(lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffset)), i);
+                    scale.multiply1fAt(scalar, i);
                 }
             } else {
-                const { splineMin, splineMax, multiplier } = this.scalar;
-                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.getFloatParameter(NORMALIZED_AGE).data : particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const currentLife = normalizedTime[i];
-                    scale.multiply1fAt(lerp(splineMin.evaluate(currentLife),
-                        splineMax.evaluate(currentLife),
-                        RandomStream.getFloat(randomSeed[i] + randomOffset)) * multiplier, i);
+                    const scalar = exp.evaluate(i);
+                    scale.multiply1fAt(scalar, i);
                 }
             }
         } else {
-            // eslint-disable-next-line no-lonely-if
-            if (this.scalar.mode === FloatExpression.Mode.CONSTANT) {
-                const { constant: constantX } = this.x;
-                const { constant: constantY } = this.y;
-                const { constant: constantZ } = this.z;
+            const exp = this.scalar;
+            exp.bind(particles, emitter, user, context);
+            if (exp.isConstant) {
+                const scalar = exp.evaluate(0, tempScalar);
                 for (let i = fromIndex; i < toIndex; i++) {
-                    scale.multiply3fAt(constantX, constantY, constantZ, i);
-                }
-            } else if (this.scalar.mode === FloatExpression.Mode.CURVE) {
-                const { spline: splineX, multiplier: xMultiplier } = this.x;
-                const { spline: splineY, multiplier: yMultiplier } = this.y;
-                const { spline: splineZ, multiplier: zMultiplier } = this.z;
-                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.getFloatParameter(NORMALIZED_AGE).data : particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const currentLife = normalizedTime[i];
-                    scale.multiply3fAt(splineX.evaluate(currentLife) * xMultiplier,
-                        splineY.evaluate(currentLife) * yMultiplier,
-                        splineZ.evaluate(currentLife) * zMultiplier, i);
-                }
-            } else if (this.scalar.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const { constantMin: xMin, constantMax: xMax } = this.x;
-                const { constantMin: yMin, constantMax: yMax } = this.y;
-                const { constantMin: zMin, constantMax: zMax } = this.z;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
-                    scale.multiply3fAt(lerp(xMin, xMax, ratio.x),
-                        lerp(yMin, yMax, ratio.y),
-                        lerp(zMin, zMax, ratio.z), i);
+                    scale.multiplyVec3At(scalar, i);
                 }
             } else {
-                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
-                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
-                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                const normalizedTime = context.executionStage === ModuleExecStage.UPDATE ? particles.getFloatParameter(NORMALIZED_AGE).data : particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const currentLife = normalizedTime[i];
-                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
-                    scale.multiply3fAt(
-                        lerp(xMin.evaluate(currentLife), xMax.evaluate(currentLife), ratio.x) * xMultiplier,
-                        lerp(yMin.evaluate(currentLife), yMax.evaluate(currentLife), ratio.y) * yMultiplier,
-                        lerp(zMin.evaluate(currentLife), zMax.evaluate(currentLife), ratio.z) * zMultiplier, i,
-                    );
+                    const scalar = exp.evaluate(i, tempScalar);
+                    scale.multiplyVec3At(scalar, i);
                 }
             }
         }

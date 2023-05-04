@@ -25,7 +25,7 @@
 
 import { ccclass, type, serializable } from 'cc.decorator';
 import { Enum, Mat3, Vec3 } from '../../core';
-import { Space } from '../define';
+import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BASE_VELOCITY, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
@@ -38,9 +38,9 @@ const tempVelocity = new Vec3();
 @ccclass('cc.AddVelocityModule')
 @VFXModule.register('AddVelocity', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [VELOCITY.name])
 export class AddVelocityModule extends VFXModule {
-    @type(Enum(Space))
+    @type(Enum(CoordinateSpace))
     @serializable
-    public space = Space.LOCAL;
+    public coordinateSpace = CoordinateSpace.LOCAL;
 
     @type(Vec3Expression)
     @serializable
@@ -57,7 +57,7 @@ export class AddVelocityModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const needTransform = (this.space !== Space.WORLD) !== emitter.isWorldSpace;
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.isWorldSpace;
         const dest = particles.getVec3Parameter(context.executionStage === ModuleExecStage.UPDATE ? VELOCITY : BASE_VELOCITY);
         const { fromIndex, toIndex } = context;
         const velocity = this.velocity;
@@ -65,14 +65,14 @@ export class AddVelocityModule extends VFXModule {
         if (velocity.isConstant) {
             velocity.evaluate(0, tempVelocity);
             if (needTransform) {
-                const transform = this.space === Space.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
+                const transform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
                 Vec3.transformMat3(tempVelocity, tempVelocity, transform);
             }
             for (let i = fromIndex; i < toIndex; i++) {
                 dest.addVec3At(tempVelocity, i);
             }
         } else if (needTransform) {
-            const transform = this.space === Space.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
+            const transform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
             for (let i = fromIndex; i < toIndex; i++) {
                 velocity.evaluate(i, tempVelocity);
                 Vec3.transformMat3(tempVelocity, tempVelocity, transform);

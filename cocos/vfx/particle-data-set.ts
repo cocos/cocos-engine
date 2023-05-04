@@ -162,6 +162,20 @@ export class ParticleDataSet {
         return this.getParameterUnsafe<Uint32ArrayParameter>(identity);
     }
 
+    public getBoolParameter (identity: VFXParameterIdentity) {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.BOOL);
+        }
+        return this.getParameterUnsafe<BoolArrayParameter>(identity);
+    }
+
+    public getUint8Parameter (identity: VFXParameterIdentity) {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.UINT8);
+        }
+        return this.getParameterUnsafe<Uint8ArrayParameter>(identity);
+    }
+
     public getParameterUnsafe<T extends ArrayParameter> (identity: VFXParameterIdentity) {
         if (DEBUG) {
             assertIsTrue(this.hasParameter(identity));

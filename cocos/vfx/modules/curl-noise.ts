@@ -27,7 +27,7 @@ import { ccclass, type, serializable, rangeMin, visible } from 'cc.decorator';
 import { CCFloat, Enum, clamp, lerp, Vec2, Vec3, RealCurve, CCBoolean } from '../../core';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet, POSITION, VELOCITY } from '../particle-data-set';
 import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 import { Vec3ArrayParameter } from '../vfx-parameter';
@@ -420,10 +420,6 @@ export class CurlNoiseModule extends VFXModule {
         this._frequency = value;
     }
 
-    @type(CCBoolean)
-    @visible(true)
-    public panNoiseField = false;
-
     @type(Vec3Expression)
     public get panSpeed () {
         if (!this._panSpeed) {
@@ -526,60 +522,53 @@ export class CurlNoiseModule extends VFXModule {
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this.frequency = Math.max(this.frequency, 0.0001);
         this._amplitudeScale = this.damping ? (1 / this.frequency) : 1;
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.VEC3_REGISTER);
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.VELOCITY);
+        particles.markRequiredParameter(POSITION);
+        particles.markRequiredParameter(VELOCITY);
         if (this.separateAxes) {
             this.strength.tick(particles, emitter, user, context);
         } else {
             this.uniformStrength.tick(particles, emitter, user, context);
         }
-        if (this.panNoiseField) {
-            this.panSpeed.tick(particles, emitter, user, context);
-        }
+        this.panSpeed.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { vec3Register } = particles;
         const { fromIndex, toIndex } = context;
         const amplitudeScale = this._amplitudeScale;
         const frequency = this.frequency;
         const offset = this._offset;
         const randomOffset = this.randomSeed;
         const samplePosition = particles.getVec3Parameter(POSITION);
-        const panNoiseField = this.panNoiseField;
 
         // eslint-disable-next-line no-lonely-if
         if (this.quality === Quality.HIGH) {
-            if (panNoiseField) {
-                if (this.panSpeed.isConstant) {
-                    const panOffset = this.panSpeed.evaluate(0, tempPanOffset);
-                }
-            }
             for (let i = fromIndex; i < toIndex; i++) {
+                this.panSpeed.evaluate(0, tempPanOffset);
                 samplePosition.getVec3At(pos, i);
                 pos.add(offset);
-                perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + scrollOffset), frequency, noiseXCache3D);
-                perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + scrollOffset), frequency, noiseYCache3D);
-                perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + scrollOffset), frequency, noiseZCache3D);
+                perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + tempPanOffset.x), frequency, noiseXCache3D);
+                perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + tempPanOffset.y), frequency, noiseYCache3D);
+                perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + tempPanOffset.z), frequency, noiseZCache3D);
                 vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
             }
         } else if (this.quality === Quality.MIDDLE) {
             for (let i = fromIndex; i < toIndex; i++) {
+                this.panSpeed.evaluate(0, tempPanOffset);
                 samplePosition.getVec3At(pos, i);
                 pos.add(offset);
-                perlin2D(sampleX, Vec2.set(point2D, pos.z, pos.y + scrollOffset), frequency, noiseXCache2D);
-                perlin2D(sampleY, Vec2.set(point2D, pos.x + 100, pos.z + scrollOffset), frequency, noiseYCache2D);
-                perlin2D(sampleZ, Vec2.set(point2D, pos.y, pos.x + 100 + scrollOffset), frequency, noiseZCache2D);
+                perlin2D(sampleX, Vec2.set(point2D, pos.z, pos.y + tempPanOffset.x), frequency, noiseXCache2D);
+                perlin2D(sampleY, Vec2.set(point2D, pos.x + 100, pos.z + tempPanOffset.y), frequency, noiseYCache2D);
+                perlin2D(sampleZ, Vec2.set(point2D, pos.y, pos.x + 100 + tempPanOffset.z), frequency, noiseZCache2D);
                 vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
+                this.panSpeed.evaluate(0, tempPanOffset);
                 samplePosition.getVec3At(pos, i);
                 pos.add(offset);
-                perlin1D(sampleX, pos.z + scrollOffset, frequency, noiseXCache1D);
-                perlin1D(sampleY, pos.x + 100 + scrollOffset, frequency, noiseYCache1D);
-                perlin1D(sampleZ, pos.y + scrollOffset, frequency, noiseZCache1D);
+                perlin1D(sampleX, pos.z + tempPanOffset.x, frequency, noiseXCache1D);
+                perlin1D(sampleY, pos.x + 100 + tempPanOffset.y, frequency, noiseYCache1D);
+                perlin1D(sampleZ, pos.y + tempPanOffset.z, frequency, noiseZCache1D);
                 vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
             }
         }

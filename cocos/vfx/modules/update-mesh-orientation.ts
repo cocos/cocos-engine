@@ -36,9 +36,9 @@ import { RandomStream } from '../random-stream';
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 const seed = new Vec3();
 
-@ccclass('cc.RotationModule')
-@VFXModule.register('Rotation', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.ANGULAR_VELOCITY], [])
-export class RotationModule extends VFXModule {
+@ccclass('cc.UpdateMeshOrientationModule')
+@VFXModule.register('UpdateMeshOrientation', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.ANGULAR_VELOCITY], [])
+export class UpdateMeshOrientationModule extends VFXModule {
     /**
      * @zh 是否三个轴分开设定旋转。
      */

@@ -24,14 +24,19 @@
  */
 
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
-import { CCInteger } from '../../core';
+import { CCInteger, Vec3 } from '../../core';
 import { ModuleExecContext } from '../base';
-import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { EmitterDataSet } from '../emitter-data-set';
+import { INITIAL_DIR, ParticleDataSet, POSITION } from '../particle-data-set';
+import { UserDataSet } from '../user-data-set';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { ShapeModule } from './shape';
 
+const dir = new Vec3();
+const pos = new Vec3();
+
 @ccclass('cc.GridShapeModule')
-@VFXModule.register('GridShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])
+@VFXModule.register('GridShape', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
 export class GridShape extends ShapeModule {
     @serializable
     public length = 1;
@@ -70,15 +75,16 @@ export class GridShape extends ShapeModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const { initialDir, vec3Register } = particles;
         const xyCellNum = this._xyCellNum;
         const numInX = this.numInX;
         const numInZ = this.numInZ;
         const lengthPerCell = this._lengthPerCell;
         const widthPerCell = this._widthPerCell;
         const heightPerCell = this._heightPerCell;
+        const initialDir = particles.getVec3Parameter(INITIAL_DIR);
+        const position = particles.getVec3Parameter(POSITION);
+        Vec3.set(dir, 0, 0, 1);
         for (let i = fromIndex, index = 0; i < toIndex; i++, index++) {
-            initialDir.set3fAt(0, 0, 1, index);
             const zIndex = Math.floor(index / xyCellNum) % numInZ;
             const cellIndex = index % xyCellNum;
             const xIndex =  cellIndex % numInX;
@@ -86,9 +92,8 @@ export class GridShape extends ShapeModule {
             const x = (xIndex + 0.5) * lengthPerCell;
             const y = (yIndex + 0.5) * widthPerCell;
             const z = (zIndex + 0.5) * heightPerCell;
-
-            vec3Register.set3fAt(x, y, z, i);
+            Vec3.set(pos, x, y, z);
+            this.storePositionAndDirection(i, dir, pos, initialDir, position);
         }
-        super.execute(particles, params, context);
     }
 }

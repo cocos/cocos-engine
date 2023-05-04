@@ -23,22 +23,27 @@
  THE SOFTWARE.
  */
 
-import { ccclass, type, serializable, visible } from 'cc.decorator';
-import { CCBoolean, Vec2 } from '../../core';
-import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
+import { ccclass, serializable, type, visible } from 'cc.decorator';
+import { CCBoolean, Enum, lerp, Vec3 } from '../../core';
 import { FloatExpression } from '../expressions/float';
-import { BASE_SPRITE_SIZE, NORMALIZED_AGE, ParticleDataSet, SPRITE_SIZE } from '../particle-data-set';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
+import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
-import { ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
-import { Vec2ArrayParameter } from '../parameters/vec2';
+import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { CoordinateSpace } from '../define';
 
-const tempVec2 = new Vec2();
+const tempScalar = new Vec3();
 
-@ccclass('cc.ScaleSpriteSizeModule')
-@VFXModule.register('ScaleSpriteSize', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [SPRITE_SIZE.name], [NORMALIZED_AGE.name])
-export class ScaleSpriteSizeModule extends VFXModule {
+@ccclass('cc.ScaleVelocityModule')
+@VFXModule.register('ScaleVelocity', ModuleExecStageFlags.UPDATE, [VELOCITY.name], [VELOCITY.name])
+export class ScaleVelocityModule extends VFXModule {
+    @type(Enum(CoordinateSpace))
+    @serializable
+    public coordinateSpace = CoordinateSpace.LOCAL;
+
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。
      */
@@ -47,10 +52,21 @@ export class ScaleSpriteSizeModule extends VFXModule {
     public separateAxes = false;
 
     /**
-     * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
+     * @zh 速度修正系数。
      */
-    @type(FloatExpression)
-    @visible(function (this: ScaleSpriteSizeModule): boolean { return !this.separateAxes; })
+    @type(Vec3Expression)
+    public get scalar () {
+        if (!this._scalar) {
+            this._scalar = new ConstantVec3Expression(Vec3.ONE);
+        }
+        return this._scalar;
+    }
+
+    public set scalar (val) {
+        this._scalar = val;
+    }
+
+    @visible(function (this: ScaleVelocityModule): boolean { return !this.separateAxes; })
     public get uniformScalar () {
         if (!this._uniformScalar) {
             this._uniformScalar = new ConstantFloatExpression(1);
@@ -62,77 +78,51 @@ export class ScaleSpriteSizeModule extends VFXModule {
         this._uniformScalar = val;
     }
 
-    @type(Vec2Expression)
-    @visible(function (this: ScaleSpriteSizeModule): boolean { return this.separateAxes; })
-    public get scalar () {
-        if (!this._scalar) {
-            this._scalar = new ConstantVec2Expression(Vec2.ONE);
-        }
-        return this._scalar;
-    }
-
-    public set scalar (val) {
-        this._scalar = val;
-    }
-
+    @serializable
+    private _scalar: Vec3Expression | null = null;
     @serializable
     private _uniformScalar: FloatExpression | null = null;
-    @serializable
-    private _scalar: Vec2Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameter(SPRITE_SIZE);
-        if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(BASE_SPRITE_SIZE);
-        }
-        if (!this.separateAxes) {
-            this.uniformScalar.tick(particles, emitter, user, context);
-        } else {
+        particles.markRequiredParameter(VELOCITY);
+        if (this.separateAxes) {
             this.scalar.tick(particles, emitter, user, context);
+        } else {
+            this.uniformScalar.tick(particles, emitter, user, context);
         }
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const spriteSize = particles.getVec2Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_SPRITE_SIZE : SPRITE_SIZE);
+        const velocity  = particles.getVec3Parameter(VELOCITY);
         const { fromIndex, toIndex } = context;
-        if (!this.separateAxes) {
+        if (this.separateAxes) {
+            const exp = this.scalar;
+            exp.bind(particles, emitter, user, context);
+            if (exp.isConstant) {
+                const scalar = exp.evaluate(0, tempScalar);
+                for (let i = fromIndex; i < toIndex; i++) {
+                    velocity.multiplyVec3At(scalar, i);
+                }
+            } else {
+                for (let i = fromIndex; i < toIndex; i++) {
+                    const scalar = exp.evaluate(i, tempScalar);
+                    velocity.multiplyVec3At(scalar, i);
+                }
+            }
+        } else {
             const exp = this.uniformScalar;
             exp.bind(particles, emitter, user, context);
             if (exp.isConstant) {
                 const scalar = exp.evaluate(0);
-                Vec2ArrayParameter.multiplyScalar(spriteSize, spriteSize, scalar, fromIndex, toIndex);
+                for (let i = fromIndex; i < toIndex; i++) {
+                    velocity.multiply1fAt(scalar, i);
+                }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
                     const scalar = exp.evaluate(i);
-                    spriteSize.multiply1fAt(scalar, i);
+                    velocity.multiply1fAt(scalar, i);
                 }
             }
-        } else {
-            const exp = this.scalar;
-            exp.bind(particles, emitter, user, context);
-            if (exp.isConstant) {
-                const scalar = exp.evaluate(0, tempVec2);
-                for (let i = fromIndex; i < toIndex; i++) {
-                    spriteSize.multiplyVec2At(scalar, i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const scalar = exp.evaluate(i, tempVec2);
-                    spriteSize.multiplyVec2At(scalar, i);
-                }
-            }
-        }
-    }
-
-    protected needsFilterSerialization () {
-        return true;
-    }
-
-    protected getSerializedProps () {
-        if (!this.separateAxes) {
-            return ['separateAxes', '_scalar'];
-        } else {
-            return ['separateAxes', '_uniformScalar'];
         }
     }
 }

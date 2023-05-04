@@ -27,36 +27,35 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Color } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { ColorExpression } from '../expressions/color';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
-import { RandomStream } from '../random-stream';
+import { BASE_COLOR, COLOR, NORMALIZED_AGE, ParticleDataSet } from '../particle-data-set';
+import { ModuleExecContext } from '../base';
 import { ConstantColorExpression } from '../expressions';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
 const tempColor = new Color();
-const tempColor2 = new Color();
-const tempColor3 = new Color();
 
-@ccclass('cc.MultiplyColor')
-@VFXModule.register('MultiplyColor', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], [BuiltinParticleParameterName.NORMALIZED_AGE])
-export class MultiplyColorModule extends VFXModule {
+@ccclass('cc.ScaleColor')
+@VFXModule.register('MultiplyColor', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], [NORMALIZED_AGE.name])
+export class ScaleColorModule extends VFXModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
      */
     @type(ColorExpression)
     @serializable
-    @displayOrder(1)
     public color: ColorExpression = new ConstantColorExpression();
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.COLOR);
+        if (context.executionStage === ModuleExecStage.SPAWN) {
+            particles.markRequiredParameter(BASE_COLOR);
+        }
+        particles.markRequiredParameter(COLOR);
         this.color.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const dest = context.executionStage === ModuleExecStage.UPDATE ? particles.getColorParameter(COLOR) : particles.baseColor;
+        const dest = particles.getColorParameter(context.executionStage === ModuleExecStage.UPDATE ? COLOR : BASE_COLOR);
         this.color.bind(particles, emitter, user, context);
         if (this.color.isConstant) {
             const colorVal = this.color.evaluate(0, tempColor);

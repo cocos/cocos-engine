@@ -27,25 +27,30 @@ import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, Vec3 } from '../../core';
 import { ParticleEventType, Space } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, COLOR, ID, INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, SCALE, VELOCITY } from '../particle-data-set';
 import { ColorArrayParameter, Vec3ArrayParameter } from '../vfx-parameter';
 import { ModuleExecContext, VFXEmitterParams, VFXEventInfo, VFXEmitterState } from '../base';
 import { RandomStream } from '../random-stream';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const eventInfo = new VFXEventInfo();
 const requiredParameters = BuiltinParticleParameterFlags.INV_START_LIFETIME | BuiltinParticleParameterFlags.RANDOM_SEED
 | BuiltinParticleParameterFlags.NORMALIZED_AGE | BuiltinParticleParameterFlags.ID;
 
 @ccclass('cc.LocationEventGeneratorModule')
-@VFXModule.register('LocationEventGenerator', ModuleExecStageFlags.UPDATE, [], [ParameterName.POSITION, ParameterName.VELOCITY, ParameterName.COLOR])
+@VFXModule.register('LocationEventGenerator', ModuleExecStageFlags.UPDATE, [], [POSITION.name, VELOCITY.name, COLOR.name])
 export class LocationEventGeneratorModule extends VFXModule {
     @type(CCFloat)
     @range([0, 1])
     @serializable
     public probability = 1;
 
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
-        particles.markRequiredParameters(requiredParameters);
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        particles.markRequiredParameter(INV_START_LIFETIME);
+        particles.markRequiredParameter(RANDOM_SEED);
+        particles.markRequiredParameter(NORMALIZED_AGE);
+        particles.markRequiredParameter(ID);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
@@ -63,18 +68,10 @@ export class LocationEventGeneratorModule extends VFXModule {
         const hasColor = particles.hasParameter(BuiltinParticleParameter.COLOR);
         const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
         let velocity: Vec3ArrayParameter | null = null;
-        let rotation: Vec3ArrayParameter | null = null;
-        let scale: Vec3ArrayParameter | null = null;
         let color: ColorArrayParameter | null = null;
         let position: Vec3ArrayParameter | null = null;
         if (hasVelocity) {
             velocity = particles.getVec3Parameter(VELOCITY);
-        }
-        if (hasRotation) {
-            rotation = particles.rotation;
-        }
-        if (hasSize) {
-            scale = particles.getVec3Parameter(SCALE);
         }
         if (hasColor) {
             color = particles.getColorParameter(COLOR);
@@ -99,15 +96,15 @@ export class LocationEventGeneratorModule extends VFXModule {
                     (velocity as Vec3ArrayParameter).getVec3At(eventInfo.velocity, i);
                 }
                 if (hasRotation) {
-                    (rotation as Vec3ArrayParameter).getVec3At(eventInfo.rotation, i);
+                    (rotation).getVec3At(eventInfo.rotation, i);
                 }
                 if (hasSize) {
-                    (scale as Vec3ArrayParameter).getVec3At(eventInfo.scale, i);
+                    (scale).getVec3At(eventInfo.scale, i);
                 }
                 if (hasColor) {
                     (color as ColorArrayParameter).getColorAt(eventInfo.color, i);
                 }
-                if (simulationSpace === Space.LOCAL) {
+                if (!emitter.isWorldSpace) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);
                     Vec3.transformMat4(eventInfo.velocity, eventInfo.velocity, localToWorld);
                 }

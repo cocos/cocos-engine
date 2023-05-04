@@ -23,15 +23,15 @@
  THE SOFTWARE.
  */
 
-export * from './multiply-color';
-export * from './scale-speed';
+export * from './scale-color';
+export * from './scale-velocity';
 export * from './shape';
 export * from './spawn-rate';
 export * from './spawn-per-unit';
 export * from './spawn-burst';
 export * from './add-speed-in-initial-direction';
 export * from './set-color';
-export * from './set-rotation';
+export * from './set-sprite-rotation';
 export * from './set-life-time';
 export * from './set-mesh-scale';
 export * from './set-sprite-size';
@@ -43,7 +43,7 @@ export * from './state';
 export * from './sub-uv-animation';
 export * from './add-velocity';
 export * from './box-shape';
-export * from './multiply-color-by-speed';
+export * from './scale-color-by-speed';
 export * from './scale-mesh-size';
 export * from './scale-sprite-size';
 export * from './scale-mesh-size-by-speed';
@@ -59,6 +59,6 @@ export * from './drag';
 export * from './grid-shape';
 export * from './limit-velocity';
 export * from './force';
-export * from './multiply-scale';
 export * from './curl-noise';
-export * from './rotation';
+export * from './sprite-rotation-rate';
+export * from './update-mesh-orientation';

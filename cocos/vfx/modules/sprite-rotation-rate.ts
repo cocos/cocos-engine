@@ -23,28 +23,54 @@
  THE SOFTWARE.
  */
 
-import { ccclass } from 'cc.decorator';
+import { ccclass, tooltip, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { POSITION, ParticleDataSet, VELOCITY, PHYSICS_FORCE } from '../particle-data-set';
+import { FloatExpression } from '../expressions/float';
 import { ModuleExecContext } from '../base';
+import { ParticleDataSet, SPRITE_ROTATION } from '../particle-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
-import { Vec3ArrayParameter } from '../parameters';
+import { ConstantFloatExpression } from '../expressions';
 
-@ccclass('cc.SolveForcesAndVelocityModule')
-@VFXModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [POSITION.name], [VELOCITY.name])
-export class SolveForceAndVelocityModule extends VFXModule {
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { fromIndex, toIndex, deltaTime } = context;
-        if (particles.hasParameter(PHYSICS_FORCE) && particles.hasParameter(VELOCITY)) {
-            const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
-            const velocity = particles.getVec3Parameter(VELOCITY);
-            Vec3ArrayParameter.scaleAndAdd(velocity, velocity, physicsForce, deltaTime, fromIndex, toIndex);
+@ccclass('cc.SpriteRotationRateModule')
+@VFXModule.register('SpriteRotationRate', ModuleExecStageFlags.UPDATE, [SPRITE_ROTATION.name], [])
+export class SpriteRotationRateModule extends VFXModule {
+    @type(FloatExpression)
+    @tooltip('i18n:rotationOvertimeModule.z')
+    public get rate () {
+        if (!this._rate) {
+            this._rate = new ConstantFloatExpression(0);
         }
-        if (particles.hasParameter(VELOCITY) && particles.hasParameter(POSITION)) {
-            const position = particles.getVec3Parameter(POSITION);
-            const velocity = particles.getVec3Parameter(VELOCITY);
-            Vec3ArrayParameter.scaleAndAdd(position, position, velocity, deltaTime, fromIndex, toIndex);
+        return this._rate;
+    }
+
+    public set rate (val) {
+        this._rate = val;
+    }
+
+    @serializable
+    private _rate: FloatExpression | null = null;
+
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        particles.markRequiredParameter(SPRITE_ROTATION);
+        this.rate.tick(particles, emitter, user, context);
+    }
+
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        const spriteRotation = particles.getFloatParameter(SPRITE_ROTATION);
+        const { fromIndex, toIndex, deltaTime } = context;
+        const exp = this.rate;
+        exp.bind(particles, emitter, user, context);
+        if (exp.isConstant) {
+            const rate = exp.evaluate(0);
+            for (let i = fromIndex; i < toIndex; i++) {
+                spriteRotation.addFloatAt(rate * deltaTime, i);
+            }
+        } else {
+            for (let i = fromIndex; i < toIndex; i++) {
+                const rate = exp.evaluate(0);
+                spriteRotation.addFloatAt(rate * deltaTime, i);
+            }
         }
     }
 }

@@ -46,9 +46,9 @@ export class InheritVelocityModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this.scale.tick(particles, emitter, user, context);
-        particles.markRequiredParameters(requiredParameters);
+        particles.markRequiredParameter(requiredParameters);
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_VELOCITY);
+            particles.markRequiredParameter(BuiltinParticleParameterFlags.BASE_VELOCITY);
         }
     }
 

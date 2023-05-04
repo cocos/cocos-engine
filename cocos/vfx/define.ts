@@ -45,9 +45,10 @@ export enum ParameterNameSpace {
     USER,
 }
 
-export enum Space {
+export enum CoordinateSpace {
     WORLD,
     LOCAL,
+    SIMULATION
 }
 
 export enum ScalingMode {

@@ -25,9 +25,8 @@
 import { DEBUG } from 'internal:constants';
 import { Color, Vec3 } from '../core';
 import { ccclass, serializable, visible } from '../core/data/decorators';
-import { ParticleHandle } from './particle-data-set';
 import { assertIsTrue } from '../core/data/utils/asserts';
-import { ParameterNameSpace, VFXParameterType } from './define';
+import { ParameterNameSpace, ParticleHandle, VFXParameterType } from './define';
 
 const DEFAULT_CAPACITY = 16;
 export const BATCH_OPERATION_THRESHOLD_VEC3 = 330;

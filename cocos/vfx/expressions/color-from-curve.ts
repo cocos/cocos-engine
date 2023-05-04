@@ -25,7 +25,7 @@
 import { Color, Gradient, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/decorators';
 import { ModuleExecContext } from '../base';
-import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, NORMALIZED_AGE, ParticleDataSet, SPAWN_NORMALIZED_TIME } from '../particle-data-set';
 import { ModuleExecStage } from '../vfx-module';
 import { ColorExpression } from './color';
 import { EmitterDataSet } from '../emitter-data-set';
@@ -45,9 +45,9 @@ export class ColorFromCurveExpression extends ColorExpression {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+            particles.markRequiredParameter(SPAWN_NORMALIZED_TIME);
         } else {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
+            particles.markRequiredParameter(NORMALIZED_AGE);
         }
     }
 

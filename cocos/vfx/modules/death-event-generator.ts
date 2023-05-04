@@ -25,20 +25,18 @@
 
 import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, EPSILON, Vec3 } from '../../core';
-import { VFXEventType, Space } from '../define';
+import { VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { ColorArrayParameter, Vec3ArrayParameter } from '../vfx-parameter';
-import { VFXEmitterState, VFXEventInfo, ModuleExecContext } from '../base';
+import { COLOR, ID, IS_DEAD, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, SCALE, VELOCITY } from '../particle-data-set';
+import { VFXEventInfo, ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { Vec3ArrayParameter, ColorArrayParameter } from '../parameters';
 
 const eventInfo = new VFXEventInfo();
-const requiredParameters =  BuiltinParticleParameterFlags.RANDOM_SEED
-| BuiltinParticleParameterFlags.ID | BuiltinParticleParameterFlags.IS_DEAD;
 @ccclass('cc.DeathEventGeneratorModule')
-@VFXModule.register('DeathEventGenerator', ModuleExecStageFlags.UPDATE, [], [ParameterName.POSITION, ParameterName.SCALE, ParameterName.ROTATION, ParameterName.VELOCITY, ParameterName.NORMALIZED_AGE, ParameterName.COLOR])
+@VFXModule.register('DeathEventGenerator', ModuleExecStageFlags.UPDATE, [], [POSITION.name, VELOCITY.name, NORMALIZED_AGE.name, COLOR.name])
 export class DeathEventGeneratorModule extends VFXModule {
     @type(CCFloat)
     @range([0, 1])
@@ -46,36 +44,28 @@ export class DeathEventGeneratorModule extends VFXModule {
     public probability = 1;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameters(requiredParameters);
+        particles.markRequiredParameter(RANDOM_SEED);
+        particles.markRequiredParameter(ID);
+        particles.markRequiredParameter(IS_DEAD);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-        const id = particles.id.data;
-        const isDead = particles.getFloatParameter(IS_DEAD).data;
+        const id = particles.getUint32Parameter(ID).data;
+        const isDead = particles.getBoolParameter(IS_DEAD).data;
         const { fromIndex, toIndex, events } = context;
         const { localToWorld } = emitter;
         const { isWorldSpace } = emitter;
         const randomOffset = this.randomSeed;
-        const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
-        const hasRotation = particles.hasParameter(BuiltinParticleParameter.ROTATION);
-        const hasSize = particles.hasParameter(BuiltinParticleParameter.SCALE);
-        const hasColor = particles.hasParameter(BuiltinParticleParameter.COLOR);
-        const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
+        const hasVelocity = particles.hasParameter(VELOCITY);
+        const hasColor = particles.hasParameter(COLOR);
+        const hasPosition = particles.hasParameter(POSITION);
         const probability = this.probability;
         let velocity: Vec3ArrayParameter | null = null;
-        let rotation: Vec3ArrayParameter | null = null;
-        let scale: Vec3ArrayParameter | null = null;
         let color: ColorArrayParameter | null = null;
         let position: Vec3ArrayParameter | null = null;
         if (hasVelocity) {
             velocity = particles.getVec3Parameter(VELOCITY);
-        }
-        if (hasRotation) {
-            rotation = particles.rotation;
-        }
-        if (hasSize) {
-            scale = particles.getVec3Parameter(SCALE);
         }
         if (hasColor) {
             color = particles.getColorParameter(COLOR);
@@ -102,12 +92,6 @@ export class DeathEventGeneratorModule extends VFXModule {
                 }
                 if (hasVelocity) {
                     (velocity as Vec3ArrayParameter).getVec3At(eventInfo.velocity, i);
-                }
-                if (hasRotation) {
-                    (rotation as Vec3ArrayParameter).getVec3At(eventInfo.rotation, i);
-                }
-                if (hasSize) {
-                    (scale as Vec3ArrayParameter).getVec3At(eventInfo.scale, i);
                 }
                 if (hasColor) {
                     (color as ColorArrayParameter).getColorAt(eventInfo.color, i);

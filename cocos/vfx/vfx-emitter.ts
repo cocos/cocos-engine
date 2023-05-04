@@ -29,11 +29,11 @@ import { DEBUG, EDITOR } from 'internal:constants';
 import { approx, clamp01, Color, lerp, Mat4, Quat, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { VFXEmitterState, VFXEventInfo, ModuleExecContext, VFXEmitterLifeCycleParams } from './base';
-import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, PlayingState, ScalingMode, Space } from './define';
+import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, PlayingState, ScalingMode } from './define';
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component, Node } from '../scene-graph';
-import { ParticleDataSet, BuiltinParticleParameter, BuiltinParticleParameterFlags, builtinParticleParameterIdentities, POSITION } from './particle-data-set';
+import { ParticleDataSet, BuiltinParticleParameter, BuiltinParticleParameterFlags, builtinParticleParameterIdentities, POSITION, IS_DEAD, VELOCITY, BASE_VELOCITY, SCALE, BASE_SCALE, COLOR, BASE_COLOR, SPRITE_SIZE, BASE_SPRITE_SIZE, SPAWN_TIME_RATIO, SPAWN_NORMALIZED_TIME, INV_START_LIFETIME, NORMALIZED_AGE, RANDOM_SEED, INITIAL_DIR } from './particle-data-set';
 import { VFXModuleStage, ModuleExecStage } from './vfx-module';
 import { vfxManager } from './vfx-manager';
 import { RandomStream } from './random-stream';
@@ -156,14 +156,14 @@ export class VFXEmitter extends Component {
     /**
      * @zh 选择粒子系统所在的坐标系[[Space]]。<br>
      */
-    @type(Enum(Space))
+    @type(CCBoolean)
     @tooltip('i18n:particle_system.simulationSpace')
-    public get simulationSpace () {
-        return this._simulationSpace;
+    public get localSpace () {
+        return this._localSpace;
     }
 
-    public set simulationSpace (val) {
-        this._simulationSpace = val;
+    public set localSpace (val) {
+        this._localSpace = val;
     }
 
     /**
@@ -422,7 +422,7 @@ export class VFXEmitter extends Component {
     @serializable
     private _maxDeltaTime = 0.05;
     @serializable
-    private _simulationSpace = Space.LOCAL;
+    private _localSpace = true;
     @serializable
     private _scalingMode = ScalingMode.LOCAL;
     private _state = new VFXEmitterState();
@@ -680,7 +680,7 @@ export class VFXEmitter extends Component {
     }
 
     private updateEmitterTransform (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        emitter.isWorldSpace = this._simulationSpace === Space.WORLD;
+        emitter.isWorldSpace = !this._localSpace;
         const { transform } = emitter;
         Vec3.copy(emitter.prevWorldPosition, emitter.worldPosition);
         Vec3.copy(emitter.worldPosition, transform.worldPosition);
@@ -739,7 +739,7 @@ export class VFXEmitter extends Component {
 
     private removeDeadParticles (particles: ParticleDataSet) {
         if (particles.hasParameter(BuiltinParticleParameter.IS_DEAD)) {
-            const isDead = particles.getFloatParameter(IS_DEAD).data;
+            const isDead = particles.getBoolParameter(IS_DEAD).data;
             for (let i = particles.count - 1; i >= 0; i--) {
                 if (isDead[i]) {
                     particles.removeParticle(i);
@@ -786,26 +786,30 @@ export class VFXEmitter extends Component {
      * @engineInternal
      */
     public resetAnimatedState (particles: ParticleDataSet, fromIndex: number, toIndex: number) {
-        if (particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
-            if (particles.hasParameter(BuiltinParticleParameter.BASE_VELOCITY)) {
+        if (particles.hasParameter(VELOCITY)) {
+            if (particles.hasParameter(BASE_VELOCITY)) {
                 particles.getVec3Parameter(VELOCITY).copyFrom(particles.getVec3Parameter(BASE_VELOCITY), fromIndex, toIndex);
             } else {
                 particles.getVec3Parameter(VELOCITY).fill1f(0, fromIndex, toIndex);
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.SCALE)) {
-            if (particles.hasParameter(BuiltinParticleParameter.BASE_SCALE)) {
+        if (particles.hasParameter(SCALE)) {
+            if (particles.hasParameter(BASE_SCALE)) {
                 particles.getVec3Parameter(SCALE).copyFrom(particles.getVec3Parameter(BASE_SCALE), fromIndex, toIndex);
             } else {
                 particles.getVec3Parameter(SCALE).fill1f(1, fromIndex, toIndex);
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.ANGULAR_VELOCITY)) {
-            particles.angularVelocity.fill1f(0, fromIndex, toIndex);
+        if (particles.hasParameter(SPRITE_SIZE)) {
+            if (particles.hasParameter(BASE_SPRITE_SIZE)) {
+                particles.getVec3Parameter(SPRITE_SIZE).copyFrom(particles.getVec3Parameter(BASE_SPRITE_SIZE), fromIndex, toIndex);
+            } else {
+                particles.getVec3Parameter(SPRITE_SIZE).fill1f(1, fromIndex, toIndex);
+            }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.COLOR)) {
-            if (particles.hasParameter(BuiltinParticleParameter.BASE_COLOR)) {
-                particles.getColorParameter(COLOR).copyFrom(particles.baseColor, fromIndex, toIndex);
+        if (particles.hasParameter(COLOR)) {
+            if (particles.hasParameter(BASE_COLOR)) {
+                particles.getColorParameter(COLOR).copyFrom(particles.getColorParameter(BASE_COLOR), fromIndex, toIndex);
             } else {
                 particles.getColorParameter(COLOR).fill(Color.WHITE, fromIndex, toIndex);
             }
@@ -906,7 +910,7 @@ export class VFXEmitter extends Component {
             }
         }
         if (particles.hasParameter(BuiltinParticleParameter.INITIAL_DIR)) {
-            const { initialDir } = particles;
+            const initialDir = particles.getVec3Parameter(INITIAL_DIR);
             const initialDirVal = Vec3.set(tempDir, initialTransform.m02, initialTransform.m06, initialTransform.m10);
             initialDir.fill(initialDirVal, fromIndex, toIndex);
         }

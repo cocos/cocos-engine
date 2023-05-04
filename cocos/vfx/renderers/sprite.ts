@@ -27,9 +27,8 @@ import { Material, RenderingSubMesh } from '../../asset/assets';
 import { Enum, Quat, Vec3, Vec4 } from '../../core';
 import { Buffer, BufferInfo, BufferUsageBit, deviceManager, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../gfx';
 import { MacroRecord, MaterialInstance } from '../../render-scene';
-import { AlignmentSpace, ScalingMode, Space } from '../define';
-import { VFXEmitterParams, ModuleExecContext, VFXEmitterState } from '../base';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { AlignmentSpace, ScalingMode } from '../define';
+import { COLOR, ParticleDataSet, POSITION, SCALE, SUB_UV_INDEX, VELOCITY } from '../particle-data-set';
 import { CC_PARTICLE_COLOR, CC_PARTICLE_FRAME_INDEX, CC_PARTICLE_POSITION, CC_PARTICLE_ROTATION, CC_PARTICLE_SIZE, CC_PARTICLE_VELOCITY, CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, ROTATION_OVER_TIME_MODULE_ENABLE, ParticleRenderer } from '../particle-renderer';
 import { EmitterDataSet } from '../emitter-data-set';
 
@@ -156,7 +155,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             offset += 1;
         }
         if (define[CC_PARTICLE_FRAME_INDEX]) {
-            particles.subUVIndex.copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getFloatParameter(SUB_UV_INDEX).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_PARTICLE_VELOCITY]) {
@@ -216,37 +215,37 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             needRecompile = true;
         }
 
-        const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
+        const hasPosition = particles.hasParameter(POSITION);
         if (define[CC_PARTICLE_POSITION] !== hasPosition) {
             define[CC_PARTICLE_POSITION] = hasPosition;
             needRecompile = true;
         }
 
-        const hasRotation = particles.hasParameter(BuiltinParticleParameter.ROTATION);
+        const hasRotation = particles.hasParameter(ROTATION);
         if (define[CC_PARTICLE_ROTATION] !== hasRotation) {
             define[CC_PARTICLE_ROTATION] = hasRotation;
             needRecompile = true;
         }
 
-        const hasSize = particles.hasParameter(BuiltinParticleParameter.SCALE);
+        const hasSize = particles.hasParameter(SCALE);
         if (define[CC_PARTICLE_SIZE] !== hasSize) {
             define[CC_PARTICLE_SIZE] = hasSize;
             needRecompile = true;
         }
 
-        const hasColor = particles.hasParameter(BuiltinParticleParameter.COLOR);
+        const hasColor = particles.hasParameter(COLOR);
         if (define[CC_PARTICLE_COLOR] !== hasColor) {
             define[CC_PARTICLE_COLOR] = hasColor;
             needRecompile = true;
         }
 
-        const hasFrameIndex = particles.hasParameter(BuiltinParticleParameter.SUB_UV_INDEX);
+        const hasFrameIndex = particles.hasParameter(SUB_UV_INDEX);
         if (define[CC_PARTICLE_FRAME_INDEX] !== hasFrameIndex) {
             define[CC_PARTICLE_FRAME_INDEX] = hasFrameIndex;
             needRecompile = true;
         }
 
-        const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
+        const hasVelocity = particles.hasParameter(VELOCITY);
         if (define[CC_PARTICLE_VELOCITY] !== hasVelocity) {
             define[CC_PARTICLE_VELOCITY] = hasVelocity;
             needRecompile = true;

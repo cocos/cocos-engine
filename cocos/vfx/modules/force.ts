@@ -25,7 +25,7 @@
 
 import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { lerp, Vec3, Enum } from '../../core';
-import { Space } from '../define';
+import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ModuleExecContext } from '../base';
 import { BASE_VELOCITY, NORMALIZED_AGE, PHYSICS_FORCE, POSITION, ParticleDataSet, RANDOM_SEED, VELOCITY } from '../particle-data-set';
@@ -39,6 +39,14 @@ const _temp_v3 = new Vec3();
 @VFXModule.register('Force', ModuleExecStageFlags.UPDATE, [VELOCITY.name])
 export class ForceModule extends VFXModule {
     /**
+     * @zh 加速度计算时采用的坐标系 [[Space]]。
+     */
+    @type(Enum(CoordinateSpace))
+    @serializable
+    @tooltip('i18n:forceOvertimeModule.space')
+    public coordinateSpace = CoordinateSpace.LOCAL;
+
+    /**
      * @zh X 轴方向上的加速度分量。
      */
     @type(Vec3Expression)
@@ -46,15 +54,6 @@ export class ForceModule extends VFXModule {
     @displayOrder(2)
     @tooltip('i18n:forceOvertimeModule.x')
     public force: Vec3Expression = new ConstantVec3Expression();
-
-    /**
-     * @zh 加速度计算时采用的坐标系 [[Space]]。
-     */
-    @type(Enum(Space))
-    @serializable
-    @displayOrder(1)
-    @tooltip('i18n:forceOvertimeModule.space')
-    public space = Space.LOCAL;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameter(POSITION);
@@ -67,11 +66,11 @@ export class ForceModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
         const { fromIndex, toIndex } = context;
-        const needTransform = (this.space === Space.WORLD) !== emitter.isWorldSpace;
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace === CoordinateSpace.WORLD) !== emitter.isWorldSpace;
         const exp = this.force;
         exp.bind(particles, emitter, user, context);
         if (needTransform) {
-            const transform = this.space === Space.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
+            const transform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
             if (exp.isConstant) {
                 const force = Vec3.transformMat3(_temp_v3, exp.evaluate(0, _temp_v3), transform);
                 for (let i = fromIndex; i < toIndex; i++) {

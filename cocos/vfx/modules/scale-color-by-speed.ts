@@ -26,10 +26,11 @@ import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { ColorExpression } from '../expressions/color';
 import { VFXEmitterParams, ModuleExecContext } from '../base';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, COLOR, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { approx, assertIsTrue, Color, math, Vec3, Vec2 } from '../../core';
 import { RandomStream } from '../random-stream';
 import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet } from '../emitter-data-set';
 
 const tempVelocity = new Vec3();
 const tempColor = new Color();
@@ -38,8 +39,8 @@ const tempColor3 = new Color();
 const MULTIPLY_COLOR_BY_SPEED_RAND_OFFSET = 27382;
 
 @ccclass('cc.MultiplyColorBySpeed')
-@VFXModule.register('MultiplyColorBySpeed', ModuleExecStageFlags.UPDATE, [ParameterName.COLOR], [ParameterName.VELOCITY])
-export class MultiplyColorBySpeedModule extends VFXModule {
+@VFXModule.register('ScaleColorBySpeed', ModuleExecStageFlags.UPDATE, [COLOR.name], [VELOCITY.name])
+export class ScaleColorBySpeedModule extends VFXModule {
     /**
      * @zh 颜色随速度变化的参数，各个 key 之间线性差值变化。
      */
@@ -55,13 +56,9 @@ export class MultiplyColorBySpeedModule extends VFXModule {
     private _speedScale = 0;
     private _speedOffset = 0;
 
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         assertIsTrue(!approx(this.speedRange.x, this.speedRange.y), 'Speed Range X is so closed to Speed Range Y');
-        assertIsTrue(this.color.mode === ColorExpression.Mode.GRADIENT || this.color.mode === ColorExpression.Mode.TWO_GRADIENTS, 'Color mode must be Gradient or TwoGradients');
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.COLOR);
-        if (this.color.mode === ColorExpression.Mode.TWO_GRADIENTS) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
-        }
+        particles.markRequiredParameter(COLOR);
         this._speedScale = 1 / Math.abs(this.speedRange.x - this.speedRange.y);
         this._speedOffset = -this.speedRange.x * this._speedScale;
     }

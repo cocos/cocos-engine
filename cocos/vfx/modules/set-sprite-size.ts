@@ -23,21 +23,20 @@
  THE SOFTWARE.
  */
 
-import { ccclass, range, serializable, tooltip, type, visible } from 'cc.decorator';
+import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
+import { BASE_SPRITE_SIZE, NORMALIZED_AGE, ParticleDataSet, SPRITE_SIZE } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
-import { lerp, Vec2, Vec3 } from '../../core';
-import { RandomStream } from '../random-stream';
+import { Vec2 } from '../../core';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
-import { ConstantFloatExpression, ConstantVec2Expression, ConstantVec3Expression, Vec2Expression, Vec3Expression } from '../expressions';
+import { ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
 
-const tempScale = new Vec3();
+const tempSize = new Vec2();
 
 @ccclass('cc.SetSpriteSizeModule')
-@VFXModule.register('SetSpriteSize', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [ParameterName.SPRITE_SIZE], [ParameterName.NORMALIZED_AGE])
+@VFXModule.register('SetSpriteSize', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [SPRITE_SIZE.name], [NORMALIZED_AGE.name])
 export class SetSpriteSizeModule extends VFXModule {
     @serializable
     @tooltip('i18n:particle_system.startSize3D')
@@ -76,10 +75,10 @@ export class SetSpriteSizeModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.BASE_SCALE);
+            particles.markRequiredParameter(BASE_SPRITE_SIZE);
         }
 
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.SCALE);
+        particles.markRequiredParameter(SPRITE_SIZE);
         if (this.separateAxes) {
             this.size.tick(particles, emitter, user, context);
         } else {
@@ -94,12 +93,12 @@ export class SetSpriteSizeModule extends VFXModule {
             const exp = this.size;
             exp.bind(particles, emitter, user, context);
             if (exp.isConstant) {
-                const srcScale = exp.evaluate(0, tempScale);
+                const srcScale = exp.evaluate(0, tempSize);
                 scale.fill(srcScale, fromIndex, toIndex);
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    exp.evaluate(i, tempScale);
-                    scale.setVec3At(tempScale, i);
+                    exp.evaluate(i, tempSize);
+                    scale.setVec2At(tempSize, i);
                 }
             }
         } else {
@@ -123,9 +122,9 @@ export class SetSpriteSizeModule extends VFXModule {
 
     protected getSerializedProps () {
         if (!this.separateAxes) {
-            return ['separateAxes', 'scale'];
+            return ['separateAxes', 'size'];
         } else {
-            return ['separateAxes', 'uniformScale'];
+            return ['separateAxes', 'uniformSize'];
         }
     }
 }

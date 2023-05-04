@@ -25,23 +25,21 @@
 import { ccclass, serializable, tooltip, type } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, toDegree, toRadian, Vec3 } from '../../core';
-import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { INITIAL_DIR, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { AngleBasedShapeModule } from './angle-based-shape';
-import { Vec3ArrayParameter } from '../vfx-parameter';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
-enum EmitFrom {
+enum LocationMode {
     BASE = 0,
     VOLUME = 1,
 }
 
-const temp = new Vec3();
 @ccclass('cc.ConeShapeModule')
-@VFXModule.register('ConeShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])
+@VFXModule.register('ConeShape', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
 export class ConeShapeModule extends AngleBasedShapeModule {
-    static EmitFrom = EmitFrom;
+    static LocationMode = LocationMode;
 
     /**
      * @zh 圆锥的轴与母线的夹角<bg>。
@@ -76,9 +74,9 @@ export class ConeShapeModule extends AngleBasedShapeModule {
     @tooltip('i18n:shapeModule.radiusThickness')
     public radiusThickness = 1;
 
-    @type(Enum(EmitFrom))
+    @type(Enum(LocationMode))
     @serializable
-    public emitFrom = EmitFrom.BASE;
+    public locationMode = LocationMode.BASE;
 
     @serializable
     private _angle = toRadian(25);
@@ -93,27 +91,26 @@ export class ConeShapeModule extends AngleBasedShapeModule {
         this._innerRadius = (1 - this.radiusThickness) ** 2;
     }
 
-    protected generatePosAndDir (index: number, angle: number, initialDir: Vec3ArrayParameter, vec3Register: Vec3ArrayParameter) {
-        const rand = this._rand;
+    protected generatePosAndDir (index: number, angle: number, dir: Vec3, pos: Vec3) {
+        const rand = this.randomStream;
         const innerRadius = this._innerRadius;
         const radius = this.radius;
         const sinAngle = this._sinAngle;
         const cosAngle = this._cosAngle;
         const length = this.length;
-        if (this.emitFrom === EmitFrom.BASE) {
+        if (this.locationMode === LocationMode.BASE) {
             const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
             const x = Math.cos(angle);
             const y = Math.sin(angle);
-            initialDir.set3fAt(x * sinAngle, y * sinAngle, cosAngle, index);
-            vec3Register.set3fAt(x * r, y * r, 0, index);
+            Vec3.set(dir, x * sinAngle, y * sinAngle, cosAngle);
+            Vec3.set(pos, x * r, y * r, 0);
         } else {
             const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
             const x = Math.cos(angle);
             const y = Math.sin(angle);
-            Vec3.set(temp, x * sinAngle, y * sinAngle, cosAngle);
-            initialDir.setVec3At(temp, index);
-            vec3Register.set3fAt(x * r, y * r, 0, index);
-            vec3Register.addVec3At(Vec3.multiplyScalar(temp, temp, rand.getFloat() * length), index);
+            Vec3.set(dir, x * sinAngle, y * sinAngle, cosAngle);
+            Vec3.set(pos, x * r, y * r, 0);
+            Vec3.scaleAndAdd(pos, pos, dir, rand.getFloat() * length);
         }
     }
 }

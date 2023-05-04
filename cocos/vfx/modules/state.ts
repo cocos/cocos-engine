@@ -25,8 +25,8 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { Enum } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { INV_START_LIFETIME, IS_DEAD, NORMALIZED_AGE, ParticleDataSet } from '../particle-data-set';
+import { ModuleExecContext } from '../base';
 import { UserDataSet } from '../user-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 
@@ -37,7 +37,7 @@ export enum LifetimeElapsedOperation {
 }
 
 @ccclass('cc.StateModule')
-@VFXModule.register('State', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.NORMALIZED_AGE])
+@VFXModule.register('State', ModuleExecStageFlags.UPDATE, [NORMALIZED_AGE.name])
 export class StateModule extends VFXModule {
     @type(Enum(LifetimeElapsedOperation))
     @visible(true)
@@ -45,8 +45,8 @@ export class StateModule extends VFXModule {
     public lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
+        particles.markRequiredParameter(NORMALIZED_AGE);
+        particles.markRequiredParameter(INV_START_LIFETIME);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
@@ -68,8 +68,8 @@ export class StateModule extends VFXModule {
                 }
             }
             // if has isDead parameter, deferred to remove particle until rendering.
-        } else if (particles.hasParameter(BuiltinParticleParameter.IS_DEAD)) {
-            const isDead = particles.getFloatParameter(IS_DEAD).data;
+        } else if (particles.hasParameter(IS_DEAD)) {
+            const isDead = particles.getBoolParameter(IS_DEAD).data;
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
                 normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
                 if (normalizedAge[particleHandle] > 1) {

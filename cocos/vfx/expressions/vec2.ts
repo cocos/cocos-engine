@@ -24,9 +24,9 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { VFXExpression } from '../vfx-expression';
 import { Vec2 } from '../../core';
 import { VFXParameterType } from '../define';
+import { VFXExpression } from '../vfx-expression';
 
 @ccclass('cc.Vec2Expression')
 export abstract class Vec2Expression extends VFXExpression {

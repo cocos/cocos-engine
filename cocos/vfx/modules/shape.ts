@@ -27,15 +27,13 @@
 import { ccclass, tooltip, displayOrder, serializable } from 'cc.decorator';
 import { Mat4, Quat, Vec3, randomRange } from '../../core';
 import { VFXModule } from '../vfx-module';
-import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
-import { RandomStream } from '../random-stream';
+import { INITIAL_DIR, ParticleDataSet, POSITION } from '../particle-data-set';
+import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { Vec3ArrayParameter } from '../parameters';
 
 const _intermediVec = new Vec3(0, 0, 0);
-const tmpPosition = new Vec3();
-const tmpDir = new Vec3();
 
 /**
  * 粒子在发射形状上的分布方式
@@ -70,7 +68,7 @@ export enum MoveWarpMode {
 }
 
 @ccclass('cc.ShapeModule')
-export class ShapeModule extends VFXModule {
+export abstract class ShapeModule extends VFXModule {
     /**
      * @zh 粒子发射器位置。
      */
@@ -152,43 +150,25 @@ export class ShapeModule extends VFXModule {
             Mat4.fromRTS(this._mat, this._quat, this._position, this._scale);
             this._isTransformDirty = false;
         }
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.POSITION);
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.INITIAL_DIR);
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.VEC3_REGISTER);
+        particles.markRequiredParameter(POSITION);
+        particles.markRequiredParameter(INITIAL_DIR);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { fromIndex, toIndex } = context;
-        const { position, initialDir, vec3Register } = particles;
+    public storePositionAndDirection (index: number, dir: Vec3, pos: Vec3, initialDir: Vec3ArrayParameter, position: Vec3ArrayParameter) {
         const randomPositionAmount = this.randomPositionAmount;
         if (randomPositionAmount > 0) {
-            for (let i = fromIndex; i < toIndex; ++i) {
-                vec3Register.getVec3At(tmpPosition, i);
-                tmpPosition.add3f(randomRange(-randomPositionAmount, randomPositionAmount),
-                    randomRange(-randomPositionAmount, randomPositionAmount),
-                    randomRange(-randomPositionAmount, randomPositionAmount));
-                vec3Register.setVec3At(tmpPosition, i);
-            }
+            pos.add3f(randomRange(-randomPositionAmount, randomPositionAmount),
+                randomRange(-randomPositionAmount, randomPositionAmount),
+                randomRange(-randomPositionAmount, randomPositionAmount));
         }
 
-        if (this.sphericalDirectionAmount > 0) {
-            for (let i = fromIndex; i < toIndex; ++i) {
-                vec3Register.getVec3At(tmpPosition, i);
-                initialDir.getVec3At(tmpDir, i);
-                const sphericalVel = Vec3.normalize(_intermediVec, tmpPosition);
-                Vec3.lerp(tmpDir, tmpDir, sphericalVel, this.sphericalDirectionAmount);
-                initialDir.setVec3At(tmpDir, i);
-            }
+        const sphericalDirectionAmount = this.sphericalDirectionAmount;
+        if (sphericalDirectionAmount > 0) {
+            const sphericalVel = Vec3.normalize(_intermediVec, pos);
+            Vec3.lerp(dir, dir, sphericalVel, sphericalDirectionAmount);
         }
 
-        for (let i = fromIndex; i < toIndex; ++i) {
-            vec3Register.getVec3At(tmpPosition, i);
-            position.addVec3At(Vec3.transformMat4(tmpPosition, tmpPosition, this._mat), i);
-        }
-
-        for (let i = fromIndex; i < toIndex; ++i) {
-            initialDir.getVec3At(tmpDir, i);
-            initialDir.setVec3At(Vec3.transformQuat(tmpDir, tmpDir, this._quat), i);
-        }
+        position.addVec3At(Vec3.transformMat4(pos, pos, this._mat), index);
+        initialDir.setVec3At(Vec3.transformQuat(dir, dir, this._quat), index);
     }
 }

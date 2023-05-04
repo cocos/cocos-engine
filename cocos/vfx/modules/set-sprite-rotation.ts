@@ -22,27 +22,52 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass } from 'cc.decorator';
-import { ShapeModule } from './shape';
-import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+
+import { ccclass, serializable, type } from 'cc.decorator';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { ParticleDataSet, SPRITE_ROTATION } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
+import { FloatExpression } from '../expressions/float';
+import { ConstantFloatExpression } from '../expressions';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
-import { Vec3 } from '../../core';
 
-const dir = new Vec3();
-const pos = new Vec3();
-@ccclass('cc.RectangleShapeModule')
-@VFXModule.register('RectangleShape', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
-export class RectangleShapeModule extends ShapeModule {
+@ccclass('cc.SetSpriteRotationModule')
+@VFXModule.register('SetSpriteRotation', ModuleExecStageFlags.SPAWN)
+export class SetSpriteRotationModule extends VFXModule {
+    @type(FloatExpression)
+    public get rotation () {
+        if (!this._rotation) {
+            this._rotation = new ConstantFloatExpression(0);
+        }
+        return this._rotation;
+    }
+
+    public set rotation (val) {
+        this._rotation = val;
+    }
+
+    @serializable
+    private _rotation: FloatExpression | null = null;
+
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        particles.markRequiredParameter(SPRITE_ROTATION);
+        this.rotation.tick(particles, emitter, user, context);
+    }
+
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        const spriteRotation = particles.getFloatParameter(SPRITE_ROTATION);
         const { fromIndex, toIndex } = context;
-        const { vec3Register, initialDir } = particles;
-        const rand = this._rand;
-        for (let i = fromIndex; i < toIndex; i++) {
-            vec3Register.set3fAt(rand.getFloatFromRange(-0.5, 0.5), rand.getFloatFromRange(-0.5, 0.5), 0, i);
-            initialDir.set3fAt(0, 0, 1, i);
+        const exp = this.rotation;
+        exp.bind(particles, emitter, user, context);
+
+        if (exp.isConstant) {
+            const rotation = exp.evaluate(0);
+            spriteRotation.fill(rotation, fromIndex, toIndex);
+        } else {
+            for (let i = fromIndex; i < toIndex; ++i) {
+                spriteRotation.setFloatAt(exp.evaluate(i), i);
+            }
         }
     }
 }

@@ -26,7 +26,7 @@ import { ccclass, range, rangeMin, serializable, tooltip, type, visible } from '
 import { ShapeModule, DistributionMode, MoveWarpMode } from './shape';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, lerp } from '../../core';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet, SPAWN_TIME_RATIO } from '../particle-data-set';
 import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { EmitterDataSet } from '../emitter-data-set';
@@ -205,6 +205,5 @@ export class LineShapeModule extends ShapeModule {
                 }
             }
         }
-        super.execute(particles, params, context);
     }
 }

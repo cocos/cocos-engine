@@ -301,18 +301,16 @@ export class Vec2ArrayParameter extends ArrayParameter {
         }
     }
 
-    fill (val: Vec3, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    fill (val: Vec2, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }
         const data = this._data;
         const x = val.x;
         const y = val.y;
-        const z = val.z;
         for (let i = fromIndex * 2, length = toIndex * 2; i < length; i += 2) {
             data[i] = x;
             data[i + 1] = y;
-            data[i + 2] = z;
         }
     }
 }
