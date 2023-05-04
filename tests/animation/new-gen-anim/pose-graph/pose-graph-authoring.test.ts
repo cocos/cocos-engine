@@ -745,4 +745,19 @@ test(`Input/output query`, () => {
     }
 });
 
+test(`isWellFormedInputKey()`, () => {
+    expect(poseGraphOp.isWellFormedInputKey(['a'])).toBe(true);
+    expect(poseGraphOp.isWellFormedInputKey(['a', 0])).toBe(true);
+    expect(poseGraphOp.isWellFormedInputKey(['a', 1])).toBe(true);
+
+    expect(poseGraphOp.isWellFormedInputKey('a')).toBe(false);
+    expect(poseGraphOp.isWellFormedInputKey(0)).toBe(false);
+    expect(poseGraphOp.isWellFormedInputKey(1)).toBe(false);
+    expect(poseGraphOp.isWellFormedInputKey([1, 'a'])).toBe(false);
+    expect(poseGraphOp.isWellFormedInputKey(['a', -1])).toBe(false);
+    expect(poseGraphOp.isWellFormedInputKey(['a', -Infinity])).toBe(false);
+    expect(poseGraphOp.isWellFormedInputKey(['a', Infinity])).toBe(false);
+    expect(poseGraphOp.isWellFormedInputKey(['a', Number.NaN])).toBe(false);
+})
+
 test.todo(`Disallow connect a pose node to multiple inputs`);

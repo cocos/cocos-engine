@@ -194,7 +194,7 @@ export function isWellFormedInputKey(test: unknown): test is PoseGraphInputKey {
     if (!Array.isArray(test)) {
         return false;
     }
-    if (test.length >= 2) {
+    if (test.length > 2) {
         return false;
     }
     if (typeof test[0] !== 'string') {
@@ -202,7 +202,7 @@ export function isWellFormedInputKey(test: unknown): test is PoseGraphInputKey {
     }
     if (test.length > 1) {
         const e1 = test[1];
-        if (typeof e1 !== 'number' || e1 < 0) {
+        if (typeof e1 !== 'number' || e1 < 0 || !Number.isFinite(e1)) {
             return false;
         }
     }
