@@ -620,27 +620,6 @@ static bool js_scene_Node_inverseTransformPoint(void *nativeObject) // NOLINT(re
 }
 SE_BIND_FUNC_FAST(js_scene_Node_inverseTransformPoint)
 
-static bool js_scene_Node_syncChildren(se::State &s) { // NOLINT
-    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
-    const auto &args = s.args();
-    const auto argc = args.size();
-    if (args.size() != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    if (!args[0].isObject() || !args[0].toObject()->isArray()) {
-        SE_REPORT_ERROR("wrong argument type, array expected");
-        return false;
-    }
-
-    se::Object *childrenObj = args[0].toObject();
-    ccstd::vector<cc::IntrusivePtr<cc::Node>> children;
-    sevalue_to_native(args[0], &children, nullptr);
-    cobj->_setChildren(std::move(children));
-    return true;
-}
-SE_BIND_FUNC(js_scene_Node_syncChildren)
-
 static bool js_scene_Pass_blocks_getter(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
@@ -923,7 +902,6 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
 
     __jsb_cc_Node_proto->defineFunction("_setRTS", _SE(js_scene_Node_setRTS));
     __jsb_cc_Node_proto->defineFunction("_inverseTransformPoint", _SE(js_scene_Node_inverseTransformPoint));
-    __jsb_cc_Node_proto->defineFunction("_syncChildren", _SE(js_scene_Node_syncChildren));
 
     __jsb_cc_scene_Pass_proto->defineProperty("blocks", _SE(js_scene_Pass_blocks_getter), nullptr);
 
