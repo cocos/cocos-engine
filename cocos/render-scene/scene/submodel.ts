@@ -86,9 +86,6 @@ export class SubModel {
         }
         this._passes = passes;
         this._flushPassInfo();
-        if (this._passes[0].batchingScheme === BatchingSchemes.VB_MERGING) {
-            this.subMesh.genFlatBuffers();
-        }
 
         // DS layout might change too
         if (this._descriptorSet) {
@@ -117,7 +114,6 @@ export class SubModel {
     set subMesh (subMesh) {
         this._inputAssembler!.destroy();
         this._inputAssembler = this._device!.createInputAssembler(subMesh.iaInfo);
-        if (this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
         this._subMesh = subMesh;
     }
 
@@ -256,9 +252,6 @@ export class SubModel {
         this._passes = passes;
 
         this._flushPassInfo();
-        if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) {
-            this.subMesh.genFlatBuffers();
-        }
 
         this.priority = RenderPriority.DEFAULT;
         const r = cclegacy.rendering;

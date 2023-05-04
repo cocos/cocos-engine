@@ -42,7 +42,6 @@ namespace pipeline {
 struct RenderObject;
 class RenderPipeline;
 class RenderInstancedQueue;
-class RenderBatchedQueue;
 class ForwardPipeline;
 
 struct AdditiveLightPass {
@@ -88,7 +87,6 @@ private:
     float _lightMeterScale{10000.0F};
 
     AdditiveLightPass _instancedLightPass;
-    AdditiveLightPass _batchedLightPass;
 
     ccstd::vector<uint32_t> _dynamicOffsets;
     ccstd::vector<uint32_t> _lightIndices;
@@ -100,8 +98,6 @@ private:
     ccstd::vector<const scene::Light *> _validPunctualLights;
 
     ccstd::vector<IntrusivePtr<RenderInstancedQueue>> _instancedQueues;
-
-    ccstd::vector<IntrusivePtr<RenderBatchedQueue>> _batchedQueues;
 
     ccstd::vector<AdditiveLightPass> _lightPasses;
 

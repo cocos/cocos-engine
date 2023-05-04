@@ -1316,8 +1316,6 @@ cocos_source_files(
                  cocos/renderer/gfx-empty/EmptyTexture.h
                  cocos/renderer/gfx-empty/EmptyTexture.cpp
 
-                 cocos/renderer/pipeline/BatchedBuffer.cpp
-                 cocos/renderer/pipeline/BatchedBuffer.h
                  cocos/renderer/pipeline/ClusterLightCulling.cpp
                  cocos/renderer/pipeline/ClusterLightCulling.h
                  cocos/renderer/pipeline/Define.h
@@ -1330,8 +1328,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/PipelineStateManager.h
                  cocos/renderer/pipeline/RenderAdditiveLightQueue.cpp
                  cocos/renderer/pipeline/RenderAdditiveLightQueue.h
-                 cocos/renderer/pipeline/RenderBatchedQueue.cpp
-                 cocos/renderer/pipeline/RenderBatchedQueue.h
                  cocos/renderer/pipeline/RenderFlow.cpp
                  cocos/renderer/pipeline/RenderFlow.h
                  cocos/renderer/pipeline/RenderInstancedQueue.cpp
