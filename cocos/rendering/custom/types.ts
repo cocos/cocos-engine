@@ -291,12 +291,15 @@ export class RasterView {
 }
 
 export enum ClearValueType {
+    NONE,
     FLOAT_TYPE,
     INT_TYPE,
 }
 
 export function getClearValueTypeName (e: ClearValueType): string {
     switch (e) {
+    case ClearValueType.NONE:
+        return 'NONE';
     case ClearValueType.FLOAT_TYPE:
         return 'FLOAT_TYPE';
     case ClearValueType.INT_TYPE:
@@ -312,7 +315,7 @@ export class ComputeView {
         accessType: AccessType = AccessType.READ,
         clearFlags: ClearFlagBit = ClearFlagBit.NONE,
         clearColor: Color = new Color(),
-        clearValueType: ClearValueType = ClearValueType.FLOAT_TYPE,
+        clearValueType: ClearValueType = ClearValueType.NONE,
         shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
     ) {
         this.name = name;

@@ -230,6 +230,7 @@ inline bool operator!=(const RasterView& lhs, const RasterView& rhs) noexcept {
 }
 
 enum class ClearValueType {
+    NONE,
     FLOAT_TYPE,
     INT_TYPE,
 };
@@ -261,7 +262,7 @@ struct ComputeView {
     AccessType accessType{AccessType::READ};
     gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::NONE};
     gfx::Color clearColor;
-    ClearValueType clearValueType{ClearValueType::FLOAT_TYPE};
+    ClearValueType clearValueType{ClearValueType::NONE};
     gfx::ShaderStageFlagBit shaderStageFlags{gfx::ShaderStageFlagBit::NONE};
 };
 

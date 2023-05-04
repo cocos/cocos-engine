@@ -127,6 +127,7 @@ inline const char* getName(AccessType e) noexcept {
 inline const char* getName(const RasterView& /*v*/) noexcept { return "RasterView"; }
 inline const char* getName(ClearValueType e) noexcept {
     switch (e) {
+        case ClearValueType::NONE: return "NONE";
         case ClearValueType::FLOAT_TYPE: return "FLOAT_TYPE";
         case ClearValueType::INT_TYPE: return "INT_TYPE";
     }
