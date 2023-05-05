@@ -29,7 +29,7 @@ import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeat
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
 import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, RasterSubpassBuilder, SceneTransversal } from './pipeline';
+import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, CopyPassBuilder, MovePassBuilder, BasicPipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, RasterSubpassBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
@@ -1271,7 +1271,7 @@ function isManaged (residency: ResourceResidency): boolean {
     || residency === ResourceResidency.MEMORYLESS;
 }
 
-export class WebPipeline implements Pipeline {
+export class WebPipeline implements BasicPipeline {
     constructor (layoutGraph: LayoutGraphData) {
         this._layoutGraph = layoutGraph;
     }

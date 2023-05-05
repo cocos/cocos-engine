@@ -27,7 +27,7 @@ import { assert, warn } from '../../core';
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
-import { Pipeline } from './pipeline';
+import { BasicPipeline } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor,
     RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphObject, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
@@ -287,7 +287,7 @@ class ResourceUseContext {
     computes: Map<number, [ComputeView[]]> = new Map<number, [ComputeView[]]>();
 }
 class CompilerContext {
-    set (pipeline: Pipeline,
+    set (pipeline: BasicPipeline,
         resGraph: ResourceGraph,
         renderGraph: RenderGraph,
         layoutGraph: LayoutGraphData) {
@@ -309,9 +309,9 @@ class CompilerContext {
 
 export class Compiler {
     private _resourceGraph: ResourceGraph;
-    private _pipeline: Pipeline;
+    private _pipeline: BasicPipeline;
     private _layoutGraph: LayoutGraphData;
-    constructor (pipeline: Pipeline,
+    constructor (pipeline: BasicPipeline,
         resGraph: ResourceGraph,
         layoutGraph: LayoutGraphData) {
         this._pipeline = pipeline;

@@ -47,7 +47,7 @@ import { IRenderPass, isEnableEffect, SetIndex, UBODeferredLight, UBOForwardLigh
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
 import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
-import { Pipeline, SceneVisitor } from './pipeline';
+import { BasicPipeline, SceneVisitor } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
     ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
@@ -1726,7 +1726,7 @@ class BlitInfo {
 }
 
 class ExecutorContext {
-    constructor (pipeline: Pipeline,
+    constructor (pipeline: BasicPipeline,
         ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,
@@ -1764,7 +1764,7 @@ class ExecutorContext {
         this.blit.resize(width, height);
     }
     readonly device: Device;
-    readonly pipeline: Pipeline;
+    readonly pipeline: BasicPipeline;
     readonly commandBuffer: CommandBuffer;
     readonly pipelineSceneData: PipelineSceneData;
     readonly resourceGraph: ResourceGraph;
@@ -1816,7 +1816,7 @@ class ResourceVisitor implements ResourceGraphVisitor {
 }
 
 export class Executor {
-    constructor (pipeline: Pipeline,
+    constructor (pipeline: BasicPipeline,
         ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,

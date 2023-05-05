@@ -552,7 +552,7 @@ public:
     PipelineBuilder& operator=(PipelineBuilder const& rhs) = delete;
     virtual ~PipelineBuilder() noexcept = default;
 
-    virtual void setup(const ccstd::vector<scene::Camera*> &cameras, Pipeline *pipeline) = 0;
+    virtual void setup(const ccstd::vector<scene::Camera*> &cameras, BasicPipeline *pipeline) = 0;
 };
 
 class RenderingModule {

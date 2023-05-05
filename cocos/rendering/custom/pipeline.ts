@@ -322,7 +322,7 @@ export interface Pipeline extends BasicPipeline {
 }
 
 export interface PipelineBuilder {
-    setup (cameras: Camera[], pipeline: Pipeline): void;
+    setup (cameras: Camera[], pipeline: BasicPipeline): void;
 }
 
 export interface RenderingModule {

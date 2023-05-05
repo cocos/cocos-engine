@@ -27,13 +27,13 @@ import { Camera, CameraUsage } from '../../render-scene/scene';
 import { buildFxaaPass, buildBloomPass as buildBloomPasses, buildForwardPass,
     buildPostprocessPass,
     AntiAliasing, buildUIPass } from './define';
-import { Pipeline, PipelineBuilder } from './pipeline';
+import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { LightInfo, QueueHint, SceneFlags } from './types';
 import { isUICamera } from './utils';
 import { RenderWindow } from '../../render-scene/core/render-window';
 
 export class CustomPipelineBuilder implements PipelineBuilder {
-    public setup (cameras: Camera[], ppl: Pipeline): void {
+    public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene === null) {
@@ -78,7 +78,7 @@ class CameraInfo {
 }
 
 export class TestPipelineBuilder implements PipelineBuilder {
-    public setup (cameras: Camera[], ppl: Pipeline): void {
+    public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene === null) {
@@ -100,7 +100,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
         }
         return windowID;
     }
-    private prepareGameCamera (ppl: Pipeline, camera: Camera): CameraInfo {
+    private prepareGameCamera (ppl: BasicPipeline, camera: Camera): CameraInfo {
         let info = this._cameras.get(camera);
         if (info !== undefined) {
             let width = camera.window.width;
@@ -129,15 +129,15 @@ export class TestPipelineBuilder implements PipelineBuilder {
         this._cameras.set(camera, info);
         return info;
     }
-    private initGameCamera (ppl: Pipeline, camera: Camera, id: number, windowID: number, width: number, height: number) {
+    private initGameCamera (ppl: BasicPipeline, camera: Camera, id: number, windowID: number, width: number, height: number) {
         ppl.addRenderWindow(`Color${windowID}`, Format.BGRA8, width, height, camera.window);
         ppl.addDepthStencil(`DepthStencil${id}`, Format.DEPTH_STENCIL, width, height);
     }
-    private updateGameCamera (ppl: Pipeline, camera: Camera, id: number, windowID: number, width: number, height: number) {
+    private updateGameCamera (ppl: BasicPipeline, camera: Camera, id: number, windowID: number, width: number, height: number) {
         ppl.updateRenderWindow(`Color${windowID}`, camera.window);
         ppl.updateDepthStencil(`DepthStencil${id}`, width, height);
     }
-    private buildForward (ppl: Pipeline, camera: Camera, id: number, width: number, height: number) {
+    private buildForward (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number) {
         const scene = camera.scene;
         const pass = ppl.addRasterPass(width, height, 'default');
 

@@ -34,7 +34,7 @@ import { SphereLight } from './render-scene/scene/sphere-light';
 import { SpotLight } from './render-scene/scene/spot-light';
 import { RenderWindow, IRenderWindowInfo } from './render-scene/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager, LegacyRenderMode } from './gfx';
-import { Pipeline, PipelineRuntime } from './rendering/custom/pipeline';
+import { BasicPipeline, PipelineRuntime } from './rendering/custom/pipeline';
 import { Batcher2D } from './2d/renderer/batcher-2d';
 import { IPipelineEvent } from './rendering/pipeline-event';
 import { localDescriptorSetLayout_ResizeMaxJoints, UBOCamera, UBOGlobal, UBOLocal, UBOShadow, UBOWorldBound } from './rendering/define';
@@ -130,7 +130,7 @@ export class Root {
      * @en The custom render pipeline
      * @zh 自定义渲染管线
      */
-    public get customPipeline (): Pipeline {
+    public get customPipeline (): BasicPipeline {
         return this._customPipeline!;
     }
 
@@ -252,7 +252,7 @@ export class Root {
     private _pipeline: PipelineRuntime | null = null;
     private _pipelineEvent: IPipelineEvent | null = null;
     private _classicPipeline: RenderPipeline | null = null;
-    private _customPipeline: Pipeline | null = null;
+    private _customPipeline: BasicPipeline | null = null;
     private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
