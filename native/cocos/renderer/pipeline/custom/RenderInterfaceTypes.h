@@ -119,7 +119,7 @@ public:
     virtual ccstd::string getName() const = 0;
     virtual void setName(const ccstd::string &name) = 0;
     /**
-     * @beta method's name might change
+     * @beta function signature might change
      */
     virtual void setCustomBehavior(const ccstd::string &name) = 0;
 };
@@ -157,7 +157,7 @@ public:
     virtual void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
     /**
-     * @beta method's name might change
+     * @beta function signature might change
      */
     virtual void addCustomCommand(std::string_view customBehavior) = 0;
     void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
@@ -195,7 +195,7 @@ public:
     virtual bool getShowStatistics() const = 0;
     virtual void setShowStatistics(bool enable) = 0;
     /**
-     * @beta method's name might change
+     * @beta function signature might change
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
@@ -269,7 +269,7 @@ public:
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) = 0;
     /**
-     * @beta method's name might change
+     * @beta function signature might change
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
@@ -350,7 +350,7 @@ public:
     virtual RasterSubpassBuilder *addRasterSubpass(const ccstd::string &layoutName) = 0;
     virtual ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &layoutName) = 0;
     /**
-     * @beta method's name might change
+     * @beta function signature might change
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
@@ -386,7 +386,7 @@ public:
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) = 0;
     /**
-     * @beta method's name might change
+     * @beta function signature might change
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
@@ -481,14 +481,6 @@ public:
     virtual void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) = 0;
     virtual uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     virtual uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
-    /**
-     * @beta method's name might change
-     */
-    virtual uint32_t addCustomBuffer(const ccstd::string &name, const gfx::BufferInfo &info, const std::string &type) = 0;
-    /**
-     * @beta method's name might change
-     */
-    virtual uint32_t addCustomTexture(const ccstd::string &name, const gfx::TextureInfo &info, const std::string &type) = 0;
     virtual void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
     virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
     virtual void beginFrame() = 0;
@@ -496,10 +488,6 @@ public:
     virtual BasicRenderPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) = 0;
     virtual MovePassBuilder *addMovePass() = 0;
     virtual CopyPassBuilder *addCopyPass() = 0;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
-    virtual SceneTransversal *createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) = 0;
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
         return addRenderTarget(name, format, width, height, ResourceResidency::MANAGED);
@@ -530,6 +518,14 @@ public:
     virtual void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) = 0;
     RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) override = 0 /* covariant */;
     virtual ComputePassBuilder *addComputePass(const ccstd::string &layoutName) = 0;
+    /**
+     * @beta function signature might change
+     */
+    virtual uint32_t addCustomBuffer(const ccstd::string &name, const gfx::BufferInfo &info, const std::string &type) = 0;
+    /**
+     * @beta function signature might change
+     */
+    virtual uint32_t addCustomTexture(const ccstd::string &name, const gfx::TextureInfo &info, const std::string &type) = 0;
     uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size) {
         return addStorageBuffer(name, format, size, ResourceResidency::MANAGED);
     }

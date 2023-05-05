@@ -1372,9 +1372,6 @@ export class WebPipeline implements Pipeline {
     public addCopyPass (): CopyPassBuilder {
         throw new Error('Method not implemented.');
     }
-    public createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
-        throw new Error('Method not implemented.');
-    }
     protected _generateConstantMacros (clusterEnabled: boolean) {
         let str = '';
         str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this._device.getFormatFeatures(Format.RGBA32F)

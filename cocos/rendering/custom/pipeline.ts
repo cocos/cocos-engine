@@ -68,7 +68,7 @@ export interface PipelineRuntime {
 export interface RenderNode {
     name: string;
     /**
-     * @beta method's name might change
+     * @beta function signature might change
      */
     setCustomBehavior (name: string): void;
 }
@@ -108,7 +108,7 @@ export interface RasterQueueBuilder extends Setter {
     clearRenderTarget (name: string/*, new Color()*/): void;
     setViewport (viewport: Viewport): void;
     /**
-     * @beta method's name might change
+     * @beta function signature might change
      */
     addCustomCommand (customBehavior: string): void;
 }
@@ -141,7 +141,7 @@ export interface RasterSubpassBuilder extends Setter {
     addQueue (/*QueueHint.NONE, ''*/): RasterQueueBuilder;
     showStatistics: boolean;
     /**
-     * @beta method's name might change
+     * @beta function signature might change
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
@@ -168,7 +168,7 @@ export interface ComputeSubpassBuilder extends Setter {
     addQueue (layoutName: string): ComputeQueueBuilder;
     addQueue (/*''*/): ComputeQueueBuilder;
     /**
-     * @beta method's name might change
+     * @beta function signature might change
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
@@ -213,7 +213,7 @@ export interface RasterPassBuilder extends BasicRenderPassBuilder {
     addComputeSubpass (layoutName: string): ComputeSubpassBuilder;
     addComputeSubpass (/*''*/): ComputeSubpassBuilder;
     /**
-     * @beta method's name might change
+     * @beta function signature might change
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
@@ -233,7 +233,7 @@ export interface ComputePassBuilder extends Setter {
     addQueue (layoutName: string): ComputeQueueBuilder;
     addQueue (/*''*/): ComputeQueueBuilder;
     /**
-     * @beta method's name might change
+     * @beta function signature might change
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
@@ -283,14 +283,6 @@ export interface BasicPipeline extends PipelineRuntime {
     addRenderTarget (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
     addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     addDepthStencil (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
-    /**
-     * @beta method's name might change
-     */
-    addCustomBuffer (name: string, info: BufferInfo, type: string): number;
-    /**
-     * @beta method's name might change
-     */
-    addCustomTexture (name: string, info: TextureInfo, type: string): number;
     updateRenderTarget (name: string, width: number, height: number, format: Format): void;
     updateRenderTarget (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
     updateDepthStencil (name: string, width: number, height: number, format: Format): void;
@@ -301,10 +293,6 @@ export interface BasicPipeline extends PipelineRuntime {
     addRasterPass (width: number, height: number/*, 'default'*/): BasicRenderPassBuilder;
     addMovePass (): MovePassBuilder;
     addCopyPass (): CopyPassBuilder;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
-    createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
 
@@ -323,6 +311,14 @@ export interface Pipeline extends BasicPipeline {
     addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder;
     addRasterPass (width: number, height: number/*, 'default'*/): RasterPassBuilder;
     addComputePass (layoutName: string): ComputePassBuilder;
+    /**
+     * @beta function signature might change
+     */
+    addCustomBuffer (name: string, info: BufferInfo, type: string): number;
+    /**
+     * @beta function signature might change
+     */
+    addCustomTexture (name: string, info: TextureInfo, type: string): number;
 }
 
 export interface PipelineBuilder {

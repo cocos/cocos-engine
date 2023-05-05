@@ -581,11 +581,6 @@ CopyPassBuilder *NativePipeline::addCopyPass() {
     return ccnew NativeCopyPassBuilder(this, &renderGraph, passID);
 }
 
-// NOLINTNEXTLINE
-SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) {
-    return ccnew NativeSceneTransversal(camera, scene);
-}
-
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {
     const auto &lg = programLibrary->layoutGraph;
     auto iter = lg.shaderLayoutIndex.find(std::string_view{shaderName});
