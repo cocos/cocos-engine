@@ -54,6 +54,9 @@ class CopyPassBuilder;
 class SceneVisitor;
 class SceneTask;
 class SceneTransversal;
+
+enum class PipelineType;
+
 class BasicPipeline;
 class Pipeline;
 class PipelineBuilder;

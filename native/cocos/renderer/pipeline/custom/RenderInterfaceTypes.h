@@ -466,10 +466,16 @@ public:
     virtual SceneTask *transverse(SceneVisitor *visitor) const = 0;
 };
 
+enum class PipelineType {
+    BASIC,
+    STANDARD,
+};
+
 class BasicPipeline : public PipelineRuntime {
 public:
     BasicPipeline() noexcept = default;
 
+    virtual PipelineType getPipelineType() const = 0;
     virtual void beginSetup() = 0;
     virtual void endSetup() = 0;
     virtual bool containsResource(const ccstd::string &name) const = 0;

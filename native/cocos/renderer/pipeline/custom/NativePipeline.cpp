@@ -90,6 +90,10 @@ gfx::Device *NativePipeline::getDevice() const {
     return device;
 }
 
+PipelineType NativePipeline::getPipelineType() const {
+    return PipelineType::STANDARD;
+}
+
 void NativePipeline::beginSetup() {
     renderGraph = RenderGraph(get_allocator());
 }

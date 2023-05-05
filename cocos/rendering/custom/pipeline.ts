@@ -269,7 +269,24 @@ export interface SceneTransversal {
     transverse (visitor: SceneVisitor): SceneTask;
 }
 
+export enum PipelineType {
+    BASIC,
+    STANDARD,
+}
+
+export function getPipelineTypeName (e: PipelineType): string {
+    switch (e) {
+    case PipelineType.BASIC:
+        return 'BASIC';
+    case PipelineType.STANDARD:
+        return 'STANDARD';
+    default:
+        return '';
+    }
+}
+
 export interface BasicPipeline extends PipelineRuntime {
+    readonly pipelineType: PipelineType;
     beginSetup (): void;
     endSetup (): void;
     containsResource (name: string): boolean;

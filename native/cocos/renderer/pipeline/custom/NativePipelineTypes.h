@@ -923,6 +923,7 @@ public:
     void resetRenderQueue(bool reset) override;
     bool isRenderQueueReset() const override;
 
+    PipelineType getPipelineType() const override;
     void beginSetup() override;
     void endSetup() override;
     bool containsResource(const ccstd::string &name) const override;

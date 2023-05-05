@@ -120,6 +120,9 @@ using namespace cc::render;
 #define cc_render_SceneTask_taskType_get(self_) self_->getTaskType()
   
 
+#define cc_render_BasicPipeline_pipelineType_get(self_) self_->getPipelineType()
+  
+
 
 se::Class* __jsb_cc_render_PipelineRuntime_class = nullptr;
 se::Object* __jsb_cc_render_PipelineRuntime_proto = nullptr;
@@ -6654,6 +6657,26 @@ static bool js_cc_render_BasicPipeline_addRasterPass(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_BasicPipeline_addRasterPass) 
 
+static bool js_cc_render_BasicPipeline_pipelineType_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::render::BasicPipeline *arg1 = (cc::render::BasicPipeline *) NULL ;
+    cc::render::PipelineType result;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::BasicPipeline>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::render::PipelineType)cc_render_BasicPipeline_pipelineType_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_render_BasicPipeline_pipelineType_get) 
+
 static bool js_delete_cc_render_BasicPipeline(se::State& s)
 {
     return true;
@@ -6664,6 +6687,7 @@ bool js_register_cc_render_BasicPipeline(se::Object* obj) {
     auto* cls = se::Class::create("BasicPipeline", obj, __jsb_cc_render_PipelineRuntime_proto, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    cls->defineProperty("pipelineType", _SE(js_cc_render_BasicPipeline_pipelineType_get), nullptr); 
     
     cls->defineFunction("beginSetup", _SE(js_cc_render_BasicPipeline_beginSetup)); 
     cls->defineFunction("endSetup", _SE(js_cc_render_BasicPipeline_endSetup)); 
@@ -7430,7 +7454,7 @@ static bool js_cc_render_PipelineBuilder_setup(se::State& s)
     size_t argc = args.size();
     cc::render::PipelineBuilder *arg1 = (cc::render::PipelineBuilder *) NULL ;
     ccstd::vector< cc::scene::Camera * > *arg2 = 0 ;
-    cc::render::Pipeline *arg3 = (cc::render::Pipeline *) NULL ;
+    cc::render::BasicPipeline *arg3 = (cc::render::BasicPipeline *) NULL ;
     ccstd::vector< cc::scene::Camera * > temp2 ;
     
     if(argc != 2) {
