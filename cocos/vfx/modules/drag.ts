@@ -88,7 +88,6 @@ export class DragModule extends VFXModule {
                 let finalDrag = drag;
                 if (this.multiplyByRadius) {
                     if (this.radiusSource === RadiusSource.SPRITE_SIZE) {
-                        spriteSize;
                         const maxDimension = Math.max(_temp_v3.x, _temp_v3.y, _temp_v3.z) * 0.5;
                         finalDrag *= maxDimension ** 2 * Math.PI;
                     }
@@ -124,9 +123,5 @@ export class DragModule extends VFXModule {
                 velocity.subVec3At(_temp_v3, i);
             }
         }
-    }
-
-    private _scaleDragBySize () {
-
     }
 }

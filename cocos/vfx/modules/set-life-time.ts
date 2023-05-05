@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, range, serializable, tooltip, type } from 'cc.decorator';
+import { ccclass, displayOrder, range, rangeMin, serializable, tooltip, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { INV_START_LIFETIME, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
@@ -40,9 +40,7 @@ export class SetLifeTimeModule extends VFXModule {
       */
     @type(FloatExpression)
     @serializable
-    @range([0, 1])
-    @displayOrder(7)
-    @tooltip('i18n:particle_system.startLifetime')
+    @rangeMin(0)
     public lifetime: FloatExpression = new ConstantFloatExpression(5);
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {

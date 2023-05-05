@@ -90,7 +90,7 @@ export class SetMeshScaleModule extends VFXModule {
         const scale = particles.getVec3Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_SCALE : SCALE);
         const { fromIndex, toIndex } = context;
         if (this.separateAxes) {
-            const exp = this.scale;
+            const exp = this._scale as Vec3Expression;
             exp.bind(particles, emitter, user, context);
             if (exp.isConstant) {
                 const srcScale = exp.evaluate(0, tempScale);
@@ -102,7 +102,7 @@ export class SetMeshScaleModule extends VFXModule {
                 }
             }
         } else {
-            const exp = this.uniformScale;
+            const exp = this._uniformScale as FloatExpression;
             exp.bind(particles, emitter, user, context);
             if (exp.isConstant) {
                 const srcScale = exp.evaluate(0);

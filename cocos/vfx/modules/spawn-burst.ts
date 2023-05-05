@@ -23,13 +23,11 @@
  THE SOFTWARE.
  */
 
-import { ccclass, serializable, type, range, editable } from 'cc.decorator';
-import { lerp } from '../../core';
+import { ccclass, serializable, type, range, editable, rangeMin } from 'cc.decorator';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
-import { RandomStream } from '../random-stream';
+import { ModuleExecContext } from '../base';
 import { ConstantFloatExpression } from '../expressions';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -42,7 +40,7 @@ export class SpawnBurstModule extends VFXModule {
       */
     @type(FloatExpression)
     @serializable
-    @range([0, 1])
+    @rangeMin(0)
     public count: FloatExpression = new ConstantFloatExpression(0);
 
     /**
@@ -81,20 +79,20 @@ export class SpawnBurstModule extends VFXModule {
     private _time = 0;
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { previousTime, currentTime, normalizedLoopAge } = context;
-        let prevT = previousTime;
+        const { prevLoopAge, loopAge, normalizedLoopAge } = emitter;
+        let prevT = prevLoopAge;
         // handle loop.
-        if (prevT > currentTime) {
-            const seed = this._rand.seed;
+        if (prevT > loopAge) {
+            const seed = this.randomStream.seed;
             this._accumulateBurst(prevT, emitter.currentDuration, 1, context);
             prevT = 0;
-            this._rand.seed = seed;
+            this.randomStream.seed = seed;
         }
-        this._accumulateBurst(prevT, currentTime, normalizedLoopAge, context);
+        this._accumulateBurst(prevT, loopAge, normalizedLoopAge, context);
     }
 
     private _accumulateBurst (prevT: number, currT: number, normalizeT: number, context: ModuleExecContext) {
-        const rand = this._rand;
+        const rand = this.randomStream;
         if ((prevT <= this.time && currT > this.time) || (prevT > this.time && this.repeatCount > 1)) {
             const preEmitTime = Math.max(Math.floor((prevT - this.time) / this.repeatInterval), 0);
             if (preEmitTime < this.repeatCount) {
@@ -102,7 +100,7 @@ export class SpawnBurstModule extends VFXModule {
                 const toEmitTime = currentEmitTime - preEmitTime;
                 if (toEmitTime === 0) { return; }
                 for (let j = 0; j < toEmitTime; j++) {
-                    context.burstCount += this.count.evaluateSingle(normalizeT, rand, context);
+                    context.burstCount += this.count.evaluateSingle();
                 }
             }
         }

@@ -29,15 +29,15 @@ import { DEBUG } from 'internal:constants';
 import { Vec3, lerp, assertIsTrue, CCBoolean } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { ModuleExecContext } from '../base';
+import { MESH_ORIENTATION, ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 const seed = new Vec3();
 
 @ccclass('cc.UpdateMeshOrientationModule')
-@VFXModule.register('UpdateMeshOrientation', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.ANGULAR_VELOCITY], [])
+@VFXModule.register('UpdateMeshOrientation', ModuleExecStageFlags.UPDATE, [MESH_ORIENTATION.name], [])
 export class UpdateMeshOrientationModule extends VFXModule {
     /**
      * @zh 是否三个轴分开设定旋转。

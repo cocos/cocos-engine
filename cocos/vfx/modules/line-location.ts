@@ -25,12 +25,15 @@
 import { ccclass, range, rangeMin, serializable, tooltip, type, visible } from 'cc.decorator';
 import { DistributionMode, MoveWarpMode, ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { Enum, lerp } from '../../core';
-import { INITIAL_DIR, ParticleDataSet, SPAWN_TIME_RATIO } from '../particle-data-set';
+import { Enum, Vec3, lerp } from '../../core';
+import { INITIAL_DIR, POSITION, ParticleDataSet, SPAWN_TIME_RATIO } from '../particle-data-set';
 import { VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+
+const dir = new Vec3();
+const pos = new Vec3();
 
 @ccclass('cc.LineLocationModule')
 @VFXModule.register('LineLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
@@ -68,7 +71,7 @@ export class LineLocationModule extends ShapeLocationModule {
     @visible(function (this: LineLocationModule) {
         return this.distributionMode === DistributionMode.MOVE;
     })
-    public moveSpeed = new FloatExpression();
+    public moveSpeed = 0;
 
     /**
       * @zh 控制可能产生粒子的弧周围的离散间隔。
@@ -96,12 +99,12 @@ export class LineLocationModule extends ShapeLocationModule {
             particles.markRequiredParameter(SPAWN_TIME_RATIO);
         }
         this._lengthTimePrev = this._lengthTimer;
-        let deltaTime = context.emitterDeltaTime;
-        if (context.normalizedLoopAge < context.normalizedPrevLoopAge) {
-            this._lengthTimer += (this.moveSpeed.evaluate(1, 1) * (params.duration - context.previousTime));
-            deltaTime = context.currentTime;
+        let deltaTime = emitter.deltaTime;
+        if (emitter.normalizedLoopAge < emitter.normalizedPrevLoopAge) {
+            this._lengthTimer += (this.moveSpeed * (emitter.currentDuration - emitter.prevLoopAge));
+            deltaTime = emitter.loopAge;
         }
-        this._lengthTimer += this.moveSpeed.evaluate(context.normalizedLoopAge, 1) * deltaTime;
+        this._lengthTimer += this.moveSpeed * deltaTime;
         this._invLength = 1 / this.length;
         this._spreadStep = this.spread * this._invLength;
         this._lengthRounded = Math.ceil(this.length / this._spreadStep) * this._spreadStep;
@@ -110,8 +113,9 @@ export class LineLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const { vec3Register, initialDir } = particles;
-        const rand = this._rand;
+        const initialDir = particles.getVec3Parameter(INITIAL_DIR);
+        const position = particles.getVec3Parameter(POSITION);
+        const rand = this.randomStream;
         const spreadStep = this._spreadStep;
         const lengthTimer = this._lengthTimer;
         const lengthTimerPrev = this._lengthTimePrev;
@@ -123,14 +127,16 @@ export class LineLocationModule extends ShapeLocationModule {
             if (this.spread > 0) {
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const len = length * rand.getFloat();
-                    vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                    initialDir.set3fAt(0, 1, 0, i);
+                    Vec3.set(pos, len - halfLength, 0, 0);
+                    Vec3.set(dir, 0, 1, 0);
+                    this.storePositionAndDirection(i, dir, pos, initialDir, position);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const len = Math.floor((lengthRounded * rand.getFloat()) / spreadStep) * spreadStep;
-                    vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                    initialDir.set3fAt(0, 1, 0, i);
+                    Vec3.set(pos, len - halfLength, 0, 0);
+                    Vec3.set(dir, 0, 1, 0);
+                    this.storePositionAndDirection(i, dir, pos, initialDir, position);
                 }
             }
         } else if (this.distributionMode === DistributionMode.MOVE) {
@@ -144,8 +150,9 @@ export class LineLocationModule extends ShapeLocationModule {
                         if (len < 0) {
                             len += length;
                         }
-                        vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                        initialDir.set3fAt(0, 1, 0, i);
+                        Vec3.set(pos, len - halfLength, 0, 0);
+                        Vec3.set(dir, 0, 1, 0);
+                        this.storePositionAndDirection(i, dir, pos, initialDir, position);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; ++i) {
@@ -154,8 +161,9 @@ export class LineLocationModule extends ShapeLocationModule {
                         if (len < 0) {
                             len += length;
                         }
-                        vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                        initialDir.set3fAt(0, 1, 0, i);
+                        Vec3.set(pos, len - halfLength, 0, 0);
+                        Vec3.set(dir, 0, 1, 0);
+                        this.storePositionAndDirection(i, dir, pos, initialDir, position);
                     }
                 }
             } else {
@@ -171,8 +179,9 @@ export class LineLocationModule extends ShapeLocationModule {
                             len = 2 - len;
                         }
                         len *= length;
-                        vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                        initialDir.set3fAt(0, 1, 0, i);
+                        Vec3.set(pos, len - halfLength, 0, 0);
+                        Vec3.set(dir, 0, 1, 0);
+                        this.storePositionAndDirection(i, dir, pos, initialDir, position);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; ++i) {
@@ -184,8 +193,9 @@ export class LineLocationModule extends ShapeLocationModule {
                             len = 2 - len;
                         }
                         len *= length;
-                        vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                        initialDir.set3fAt(0, 1, 0, i);
+                        Vec3.set(pos, len - halfLength, 0, 0);
+                        Vec3.set(dir, 0, 1, 0);
+                        this.storePositionAndDirection(i, dir, pos, initialDir, position);
                     }
                 }
             }
@@ -195,14 +205,16 @@ export class LineLocationModule extends ShapeLocationModule {
                 for (let i = fromIndex; i < toIndex; ++i) {
                     let len = i * invTotal * length;
                     len = Math.floor(len / spreadStep) * spreadStep;
-                    vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                    initialDir.set3fAt(0, 1, 0, i);
+                    Vec3.set(pos, len - halfLength, 0, 0);
+                    Vec3.set(dir, 0, 1, 0);
+                    this.storePositionAndDirection(i, dir, pos, initialDir, position);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const len = i * invTotal * length;
-                    vec3Register.set3fAt(len - halfLength, 0, 0, i);
-                    initialDir.set3fAt(0, 1, 0, i);
+                    Vec3.set(pos, len - halfLength, 0, 0);
+                    Vec3.set(dir, 0, 1, 0);
+                    this.storePositionAndDirection(i, dir, pos, initialDir, position);
                 }
             }
         }

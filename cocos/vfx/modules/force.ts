@@ -23,12 +23,12 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
-import { lerp, Vec3, Enum } from '../../core';
+import { ccclass, tooltip, type, serializable } from 'cc.decorator';
+import { Vec3, Enum } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ModuleExecContext } from '../base';
-import { BASE_VELOCITY, NORMALIZED_AGE, PHYSICS_FORCE, POSITION, ParticleDataSet, RANDOM_SEED, VELOCITY } from '../particle-data-set';
+import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { UserDataSet } from '../user-data-set';
 import { EmitterDataSet } from '../emitter-data-set';

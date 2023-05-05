@@ -23,18 +23,20 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable, range, visible, rangeMin } from 'cc.decorator';
-import { approx, lerp, Vec2, assertIsTrue } from '../../core';
+import { ccclass, type, serializable, range, visible, rangeMin } from 'cc.decorator';
+import { lerp, math, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { NORMALIZED_AGE, ParticleDataSet, RANDOM_SEED, SCALE, VELOCITY } from '../particle-data-set';
+import { ParticleDataSet, SCALE, VELOCITY } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
-import { Vec3Expression } from '../expressions';
+import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 
-const SCALE_SIZE_RAND = 2818312;
+const tempVelocity = new Vec3();
+const tempScalar = new Vec3();
+const tempScalar2 = new Vec3();
 @ccclass('cc.ScaleMeshSizeBySpeedModule')
 @VFXModule.register('ScaleMeshSizeBySpeed', ModuleExecStageFlags.UPDATE, [SCALE.name], [SCALE.name, VELOCITY.name])
 export class ScaleMeshSizeBySpeedModule extends VFXModule {
@@ -42,8 +44,6 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
       * @zh 决定是否在每个轴上独立控制粒子大小。
       */
     @serializable
-    @displayOrder(1)
-    @tooltip('i18n:sizeOvertimeModule.separateAxes')
     public separateAxes = false;
 
     /**
@@ -51,147 +51,146 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
       */
     @type(FloatExpression)
     @range([0, 1])
-    @displayOrder(2)
-    @tooltip('i18n:sizeOvertimeModule.scale')
     @visible(function (this: ScaleMeshSizeBySpeedModule): boolean { return !this.separateAxes; })
-    public get uniformScalar () {
-        return this.x;
-    }
-
-    public set uniformScalar (val) {
-        this.x = val;
-    }
-
-    /**
-      * @zh 定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化。
-      */
-    @type(FloatExpression)
-    @serializable
-    @range([0, 1])
-    @displayOrder(3)
-    @tooltip('i18n:sizeOvertimeModule.x')
-    @visible(function (this: ScaleMeshSizeBySpeedModule): boolean { return this.separateAxes; })
-    public x = new FloatExpression(1);
-
-    /**
-      * @zh 定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化。
-      */
-    @type(FloatExpression)
-    @range([0, 1])
-    @displayOrder(4)
-    @tooltip('i18n:sizeOvertimeModule.y')
-    @visible(function (this: ScaleMeshSizeBySpeedModule): boolean { return this.separateAxes; })
-    public get y () {
-        if (!this._y) {
-            this._y = new FloatExpression(1);
+    public get uniformMinScalar () {
+        if (!this._uniformMinScalar) {
+            this._uniformMinScalar = new ConstantFloatExpression();
         }
-        return this._y;
+        return this._uniformMinScalar;
     }
 
-    public set y (val) {
-        this._y = val;
+    public set uniformMinScalar (val) {
+        this._uniformMinScalar = val;
     }
 
-    /**
-      * @zh 定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化。
-      */
     @type(FloatExpression)
     @range([0, 1])
-    @visible(function (this: ScaleMeshSizeBySpeedModule): boolean { return this.separateAxes; })
-    public get z () {
-        if (!this._z) {
-            this._z = new FloatExpression(1);
+    @visible(function (this: ScaleMeshSizeBySpeedModule): boolean { return !this.separateAxes; })
+    public get uniformMaxScalar () {
+        if (!this._uniformMaxScalar) {
+            this._uniformMaxScalar = new ConstantFloatExpression(1);
         }
-        return this._z;
+        return this._uniformMaxScalar;
     }
 
-    public set z (val) {
-        this._z = val;
+    public set uniformMaxScalar (val) {
+        this._uniformMaxScalar = val;
     }
 
-    @type(Vec2)
+    @type(Vec3Expression)
+    @visible(function (this: ScaleMeshSizeBySpeedModule): boolean { return this.separateAxes; })
+    public get minScalar () {
+        if (!this._minScalar) {
+            this._minScalar = new ConstantVec3Expression();
+        }
+        return this._minScalar;
+    }
+
+    public set minScalar (val) {
+        this._minScalar = val;
+    }
+
+    @type(Vec3Expression)
+    @visible(function (this: ScaleMeshSizeBySpeedModule): boolean { return this.separateAxes; })
+    public get maxScalar () {
+        if (!this._maxScalar) {
+            this._maxScalar = new ConstantVec3Expression(Vec3.ONE);
+        }
+        return this._maxScalar;
+    }
+
+    public set maxScalar (val) {
+        this._maxScalar = val;
+    }
+
+    @type(FloatExpression)
     @serializable
     @rangeMin(0)
-    public speedRange = new Vec2(0, 1);
+    public minSpeedThreshold: FloatExpression = new ConstantFloatExpression();
+
+    @type(FloatExpression)
+    @serializable
+    @rangeMin(0)
+    public maxSpeedThreshold: FloatExpression = new ConstantFloatExpression(1);
 
     @serializable
-    private _uniformScalarMin: FloatExpression | null = null;
+    private _uniformMinScalar: FloatExpression | null = null;
     @serializable
-    private _scalar: Vec3Expression | null = null;
+    private _uniformMaxScalar: FloatExpression | null = null;
+    @serializable
+    private _minScalar: Vec3Expression | null = null;
+    @serializable
+    private _maxScalar: Vec3Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameter(SCALE);
+        if (this.separateAxes) {
+            this.maxScalar.tick(particles, emitter, user, context);
+            this.minScalar.tick(particles, emitter, user, context);
+        } else {
+            this.uniformMaxScalar.tick(particles, emitter, user, context);
+            this.uniformMinScalar.tick(particles, emitter, user, context);
+        }
+        this.minSpeedThreshold.tick(particles, emitter, user, context);
+        this.maxSpeedThreshold.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { scale } = particles;
-        const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-        const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
         const { fromIndex, toIndex } = context;
+        const hasVelocity = particles.hasParameter(VELOCITY);
+        if (!hasVelocity) { return; }
+        const scale = particles.getVec3Parameter(SCALE);
+        const velocity = particles.getVec3Parameter(VELOCITY);
+        const minSpeedThreshold = this.minSpeedThreshold;
+        const maxSpeedThreshold = this.maxSpeedThreshold;
+        minSpeedThreshold.bind(particles, emitter, user, context);
+        maxSpeedThreshold.bind(particles, emitter, user, context);
         if (!this.separateAxes) {
-            if (this.x.mode === FloatExpression.Mode.CONSTANT) {
-                const constant = this.x.constant;
+            const uniformMinScalar = this.uniformMinScalar;
+            const uniformMaxScalar = this.uniformMaxScalar;
+            uniformMinScalar.bind(particles, emitter, user, context);
+            uniformMaxScalar.bind(particles, emitter, user, context);
+            if (minSpeedThreshold.isConstant && maxSpeedThreshold.isConstant) {
+                const min = minSpeedThreshold.evaluate(0);
+                const speedScale = 1 / Math.abs(min - maxSpeedThreshold.evaluate(0));
+                const speedOffset = -min * speedScale;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    scale.multiply1fAt(constant, i);
-                }
-            } else if (this.x.mode === FloatExpression.Mode.CURVE) {
-                const { spline, multiplier } = this.x;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    scale.multiply1fAt(spline.evaluate(normalizedAge[i]) * multiplier, i);
-                }
-            } else if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const { constantMin, constantMax } = this.x;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    scale.multiply1fAt(lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)), i);
+                    velocity.getVec3At(tempVelocity, i);
+                    const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
+                    scale.multiply1fAt(lerp(uniformMinScalar.evaluate(i), uniformMaxScalar.evaluate(i), ratio), i);
                 }
             } else {
-                const { splineMin, splineMax, multiplier } = this.x;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const currentLife = normalizedAge[i];
-                    scale.multiply1fAt(lerp(splineMin.evaluate(currentLife),
-                        splineMax.evaluate(currentLife),
-                        RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * multiplier, i);
+                    const min = minSpeedThreshold.evaluate(i);
+                    const speedScale = 1 / Math.abs(min - maxSpeedThreshold.evaluate(0));
+                    const speedOffset = -min * speedScale;
+                    velocity.getVec3At(tempVelocity, i);
+                    const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
+                    scale.multiply1fAt(lerp(uniformMinScalar.evaluate(i), uniformMaxScalar.evaluate(i), ratio), i);
                 }
             }
         } else {
-            // eslint-disable-next-line no-lonely-if
-            if (this.x.mode === FloatExpression.Mode.CONSTANT) {
-                const { constant: constantX } = this.x;
-                const { constant: constantY } = this.y;
-                const { constant: constantZ } = this.z;
+            const minScalar = this.minScalar;
+            const maxScalar = this.maxScalar;
+            minScalar.bind(particles, emitter, user, context);
+            maxScalar.bind(particles, emitter, user, context);
+            if (minSpeedThreshold.isConstant && maxSpeedThreshold.isConstant) {
+                const min = minSpeedThreshold.evaluate(0);
+                const speedScale = 1 / Math.abs(min - maxSpeedThreshold.evaluate(0));
+                const speedOffset = -min * speedScale;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    scale.multiply3fAt(constantX, constantY, constantZ, i);
-                }
-            } else if (this.x.mode === FloatExpression.Mode.CURVE) {
-                const { spline: splineX, multiplier: xMultiplier } = this.x;
-                const { spline: splineY, multiplier: yMultiplier } = this.y;
-                const { spline: splineZ, multiplier: zMultiplier } = this.z;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const currentLife = normalizedAge[i];
-                    scale.multiply3fAt(splineX.evaluate(currentLife) * xMultiplier,
-                        splineY.evaluate(currentLife) * yMultiplier,
-                        splineZ.evaluate(currentLife) * zMultiplier, i);
-                }
-            } else if (this.x.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const { constantMin: xMin, constantMax: xMax } = this.x;
-                const { constantMin: yMin, constantMax: yMax } = this.y;
-                const { constantMin: zMin, constantMax: zMax } = this.z;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    scale.multiply3fAt(lerp(xMin, xMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)),
-                        lerp(yMin, yMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)),
-                        lerp(zMin, zMax, RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)), i);
+                    velocity.getVec3At(tempVelocity, i);
+                    const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
+                    scale.multiplyVec3At(Vec3.lerp(tempScalar, minScalar.evaluate(i, tempScalar), maxScalar.evaluate(i, tempScalar2), ratio), i);
                 }
             } else {
-                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
-                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
-                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const currentLife = normalizedAge[i];
-                    scale.multiply3fAt(
-                        lerp(xMin.evaluate(currentLife), xMax.evaluate(currentLife), RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * xMultiplier,
-                        lerp(yMin.evaluate(currentLife), yMax.evaluate(currentLife), RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * yMultiplier,
-                        lerp(zMin.evaluate(currentLife), zMax.evaluate(currentLife), RandomStream.getFloat(randomSeed[i] + SCALE_SIZE_RAND)) * zMultiplier, i,
-                    );
+                    const min = minSpeedThreshold.evaluate(0);
+                    const speedScale = 1 / Math.abs(min - maxSpeedThreshold.evaluate(0));
+                    const speedOffset = -min * speedScale;
+                    velocity.getVec3At(tempVelocity, i);
+                    const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
+                    scale.multiplyVec3At(Vec3.lerp(tempScalar, minScalar.evaluate(i, tempScalar), maxScalar.evaluate(i, tempScalar2), ratio), i);
                 }
             }
         }

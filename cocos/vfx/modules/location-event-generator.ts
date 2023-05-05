@@ -25,18 +25,16 @@
 
 import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, Vec3 } from '../../core';
-import { ParticleEventType, Space } from '../define';
+import { VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameter, BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, COLOR, ID, INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, SCALE, VELOCITY } from '../particle-data-set';
-import { ColorArrayParameter, Vec3ArrayParameter } from '../vfx-parameter';
-import { ModuleExecContext, VFXEmitterParams, VFXEventInfo, VFXEmitterState } from '../base';
+import { COLOR, ID, INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY } from '../particle-data-set';
+import { ModuleExecContext, VFXEventInfo } from '../base';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { ColorArrayParameter, Vec3ArrayParameter } from '../parameters';
 
 const eventInfo = new VFXEventInfo();
-const requiredParameters = INV_START_LIFETIME | RANDOM_SEED
-| NORMALIZED_AGE | ID;
 
 @ccclass('cc.LocationEventGeneratorModule')
 @VFXModule.register('LocationEventGenerator', ModuleExecStageFlags.UPDATE, [], [POSITION.name, VELOCITY.name, COLOR.name])
@@ -57,14 +55,13 @@ export class LocationEventGeneratorModule extends VFXModule {
         const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
         const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
         const invStartLifeTime = particles.getFloatParameter(INV_START_LIFETIME).data;
-        const id = particles.id.data;
-        const randomOffset = this._randomOffset;
+        const id = particles.getUint32Parameter(ID).data;
+        const randomOffset = this.randomSeed;
         const { fromIndex, toIndex, deltaTime, events } = context;
-        const { localToWorld } = context;
-        const { simulationSpace } = params;
-        const hasVelocity = particles.hasParameter(BuiltinParticleParameter.VELOCITY);
-        const hasColor = particles.hasParameter(BuiltinParticleParameter.COLOR);
-        const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
+        const { localToWorld } = emitter;
+        const hasVelocity = particles.hasParameter(VELOCITY);
+        const hasColor = particles.hasParameter(COLOR);
+        const hasPosition = particles.hasParameter(POSITION);
         let velocity: Vec3ArrayParameter | null = null;
         let color: ColorArrayParameter | null = null;
         let position: Vec3ArrayParameter | null = null;
@@ -93,12 +90,6 @@ export class LocationEventGeneratorModule extends VFXModule {
                 if (hasVelocity) {
                     (velocity as Vec3ArrayParameter).getVec3At(eventInfo.velocity, i);
                 }
-                if (hasRotation) {
-                    (rotation).getVec3At(eventInfo.rotation, i);
-                }
-                if (hasSize) {
-                    (scale).getVec3At(eventInfo.scale, i);
-                }
                 if (hasColor) {
                     (color as ColorArrayParameter).getColorAt(eventInfo.color, i);
                 }
@@ -110,7 +101,7 @@ export class LocationEventGeneratorModule extends VFXModule {
                 eventInfo.currentTime = 1 / invStartLifeTime[i] * normalizedAge[i];
                 eventInfo.prevTime = eventInfo.currentTime - deltaTime;
                 eventInfo.randomSeed = randomSeed[i];
-                eventInfo.type = ParticleEventType.LOCATION;
+                eventInfo.type = VFXEventType.LOCATION;
                 events.dispatch(eventInfo);
             }
         }

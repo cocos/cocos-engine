@@ -41,7 +41,7 @@ export class BindingFloatExpression extends FloatExpression {
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (this._bindParameterNameSpace === ParameterNameSpace.PARTICLE) {
-            this._data = particles.getParameterUnsafe(this._bindParameterId).data as Float32Array;
+            this._data = particles.getFloatParameter(this._bindParameterId).data;
             this._getFloat = this._getFloatAt;
         } else {
             this._getFloat = this._getConstant;

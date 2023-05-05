@@ -36,7 +36,6 @@ import { ConstantFloatExpression } from '../expressions';
 @VFXModule.register('SpriteRotationRate', ModuleExecStageFlags.UPDATE, [SPRITE_ROTATION.name], [])
 export class SpriteRotationRateModule extends VFXModule {
     @type(FloatExpression)
-    @tooltip('i18n:rotationOvertimeModule.z')
     public get rate () {
         if (!this._rate) {
             this._rate = new ConstantFloatExpression(0);
@@ -59,7 +58,7 @@ export class SpriteRotationRateModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const spriteRotation = particles.getFloatParameter(SPRITE_ROTATION);
         const { fromIndex, toIndex, deltaTime } = context;
-        const exp = this.rate;
+        const exp = this._rate as FloatExpression;
         exp.bind(particles, emitter, user, context);
         if (exp.isConstant) {
             const rate = exp.evaluate(0);
@@ -68,7 +67,7 @@ export class SpriteRotationRateModule extends VFXModule {
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                const rate = exp.evaluate(0);
+                const rate = exp.evaluate(i);
                 spriteRotation.addFloatAt(rate * deltaTime, i);
             }
         }

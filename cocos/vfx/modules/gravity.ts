@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, serializable, tooltip, type } from 'cc.decorator';
+import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { ModuleExecContext } from '../base';

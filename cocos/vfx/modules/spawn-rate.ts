@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, serializable, tooltip, type, range } from 'cc.decorator';
+import { ccclass, serializable, type, rangeMin } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
@@ -40,9 +40,7 @@ export class SpawnRateModule extends VFXModule {
      */
     @type(FloatExpression)
     @serializable
-    @range([0, 1])
-    @displayOrder(14)
-    @tooltip('i18n:particle_system.rateOverTime')
+    @rangeMin(0)
     public rate: FloatExpression = new ConstantFloatExpression(10);
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {

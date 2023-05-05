@@ -55,18 +55,18 @@ export class ScaleColorModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const dest = particles.getColorParameter(context.executionStage === ModuleExecStage.UPDATE ? COLOR : BASE_COLOR);
+        const color = particles.getColorParameter(context.executionStage === ModuleExecStage.UPDATE ? COLOR : BASE_COLOR);
         const exp = this.scalar;
         exp.bind(particles, emitter, user, context);
         if (exp.isConstant) {
             const colorVal = exp.evaluate(0, tempColor);
             for (let i = fromIndex; i < toIndex; i++) {
-                dest.multiplyColorAt(colorVal, i);
+                color.multiplyColorAt(colorVal, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
                 const colorVal = exp.evaluate(0, tempColor);
-                dest.multiplyColorAt(colorVal, i);
+                color.multiplyColorAt(colorVal, i);
             }
         }
     }

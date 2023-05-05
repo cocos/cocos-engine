@@ -24,13 +24,12 @@
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable, visible, rangeMin } from 'cc.decorator';
-import { DEBUG } from 'internal:constants';
-import { lerp, Vec3, approx, assertIsTrue } from '../../core';
-import { Space } from '../define';
+import { lerp, Vec3, approx } from '../../core';
+import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet } from '../particle-data-set';
+import { ModuleExecContext } from '../base';
+import { BASE_VELOCITY, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -40,19 +39,28 @@ const randomOffset = 721883;
 const _temp_v3_1 = new Vec3();
 const tempVelocity = new Vec3();
 const seed = new Vec3();
-const requiredParameters = VELOCITY | BASE_VELOCITY;
 
 @ccclass('cc.LimitVelocity')
-@VFXModule.register('LimitVelocity', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
+@VFXModule.register('LimitVelocity', ModuleExecStageFlags.UPDATE, [VELOCITY.name], [VELOCITY.name])
 export class LimitVelocityModule extends VFXModule {
+    /**
+     * @zh 是否三个轴分开限制。
+     */
+    @serializable
+    public separateAxes = false;
+
+    /**
+     * @zh 计算速度下限时采用的坐标系 [[Space]]。
+     */
+    @type(CoordinateSpace)
+    @serializable
+    public coordinateSpace = CoordinateSpace.LOCAL;
     /**
      * @zh X 轴方向上的速度下限。
      */
     @type(FloatExpression)
     @serializable
     @range([0, 1])
-    @displayOrder(4)
-    @tooltip('i18n:limitVelocityOvertimeModule.limitX')
     @visible(function (this: LimitVelocityModule): boolean {
         return this.separateAxes;
     })
@@ -63,8 +71,6 @@ export class LimitVelocityModule extends VFXModule {
      */
     @type(FloatExpression)
     @range([0, 1])
-    @displayOrder(5)
-    @tooltip('i18n:limitVelocityOvertimeModule.limitY')
     @visible(function (this: LimitVelocityModule): boolean {
         return this.separateAxes;
     })
@@ -84,8 +90,6 @@ export class LimitVelocityModule extends VFXModule {
      */
     @type(FloatExpression)
     @range([0, 1])
-    @displayOrder(6)
-    @tooltip('i18n:limitVelocityOvertimeModule.limitZ')
     @visible(function (this: LimitVelocityModule): boolean {
         return this.separateAxes;
     })
@@ -105,8 +109,6 @@ export class LimitVelocityModule extends VFXModule {
      */
     @type(FloatExpression)
     @range([0, 1])
-    @displayOrder(3)
-    @tooltip('i18n:limitVelocityOvertimeModule.limit')
     @visible(function (this: LimitVelocityModule): boolean {
         return !this.separateAxes;
     })
@@ -122,27 +124,8 @@ export class LimitVelocityModule extends VFXModule {
      * @zh 当前速度与速度下限的插值。
      */
     @serializable
-    @displayOrder(7)
-    @tooltip('i18n:limitVelocityOvertimeModule.dampen')
     @rangeMin(0)
     public dampen = 3;
-
-    /**
-     * @zh 是否三个轴分开限制。
-     */
-    @serializable
-    @displayOrder(2)
-    @tooltip('i18n:limitVelocityOvertimeModule.separateAxes')
-    public separateAxes = false;
-
-    /**
-     * @zh 计算速度下限时采用的坐标系 [[Space]]。
-     */
-    @type(Space)
-    @serializable
-    @displayOrder(1)
-    @tooltip('i18n:limitVelocityOvertimeModule.space')
-    public space = Space.LOCAL;
 
     @serializable
     private _y: FloatExpression | null = null;
@@ -150,7 +133,8 @@ export class LimitVelocityModule extends VFXModule {
     private _z: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameter(requiredParameters);
+        particles.markRequiredParameter(VELOCITY);
+        particles.markRequiredParameter(BASE_VELOCITY);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
