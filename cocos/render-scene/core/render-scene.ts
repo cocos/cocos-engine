@@ -33,7 +33,6 @@ import { RangedDirectionalLight } from '../scene/ranged-directional-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../2d/renderer/draw-batch';
 import { LODGroup } from '../scene/lod-group';
-import { ModelRenderer } from '../../misc/model-renderer';
 
 export interface IRenderSceneInfo {
     name: string;
