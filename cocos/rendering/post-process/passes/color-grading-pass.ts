@@ -42,12 +42,14 @@ export class ColorGradingPass extends SettingPass {
 
         const input = this.lastPass!.slotName(camera, 0);
         const slot = this.slotName(camera, 0);
-        const passName = setting.isSquareMap ? 'color-grading-32' : 'color-grading-8x8';
+        const isSquareMap = setting.colorGradingMap && setting.colorGradingMap.width === setting.colorGradingMap.height;
+        const passName = isSquareMap ? 'color-grading-8x8' : 'color-grading-32';
+        const passIndx = isSquareMap ? 1 : 0;
         passContext.addRasterPass(outWidth, outHeight, passName, `color-grading${cameraID}`)
             .setViewport(area.x, area.y, outWidth, outHeight)
             .setPassInput(input, 'sceneColorMap')
             .addRasterView(slot, Format.RGBA8)
-            .blitScreen(0)
+            .blitScreen(passIndx)
             .version();
     }
 }

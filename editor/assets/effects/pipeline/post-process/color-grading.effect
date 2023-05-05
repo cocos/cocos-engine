@@ -1,52 +1,47 @@
 // Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 CCEffect %{
+
   techniques:
-  - name: color-grading
-    passes:
-    - vert: color-grading-vs:vert
-      frag: color-grading-32-fs:frag
+  - passes:
+    - vert: color-grading-vs
+      frag: color-grading-32-fs
       pass: color-grading-32
-      depthStencilState:
+      rasterizerState: &rasterizerState
+        cullMode: none
+      blendState: &blendState
+        targets:
+          - blend: false
+            blendSrc: one
+            blendDst: zero
+      depthStencilState: &depthStencilState
         depthTest: false
         depthWrite: false
-      rasterizerState:
-        cullMode: none
-    - vert: color-grading-vs:vert
-      frag: color-grading-8x8-fs:frag
+    - vert: color-grading-vs
+      frag: color-grading-8x8-fs
       pass: color-grading-8x8
-      depthStencilState:
-        depthTest: false
-        depthWrite: false
-      rasterizerState:
-        cullMode: none
+      rasterizerState: *rasterizerState
+      depthStencilState: *depthStencilState
+      blendState: *blendState
 }%
+
+CCProgram ubo %{
+    uniform ColorGradingUBO {
+        float contribute;
+    };
+    #pragma rate sceneColorMap pass
+    uniform sampler2D sceneColorMap;
+    uniform sampler2D colorGradingMap;
+}%
+
 
 CCProgram color-grading-vs %{
-  precision highp float;
-  #include <builtin/uniforms/cc-global>
-
-  in vec2 a_position;
-  in vec2 a_texCoord;
-  out vec2 v_uv;
-
-  vec4 vert () {
-    vec4 pos = vec4(a_position, 0.0, 1.0);
-    v_uv = a_texCoord;
-    return pos;
-  }
+  #include <./chunks/vs>
 }%
-
 
 CCProgram color-grading-32-fs %{
   precision highp float;
-  uniform ColorGradingUBO {
-    float contribute;
-  };
-
+  #include <ubo>
   in vec2 v_uv;
-  #pragma rate sceneColorMap pass
-  uniform sampler2D sceneColorMap;
-  uniform sampler2D colorGradingMap;
 
   #define COLORS 32.0
   #define COLOR_GRADING_SCALE  vec3((COLORS - 1.0) / (COLORS * COLORS), (COLORS - 1.0) / COLORS, 1.0 / COLORS)
@@ -63,41 +58,35 @@ CCProgram color-grading-32-fs %{
     return mix(left, right, lerp);
   }
 
-  vec4 frag () {
+  layout(location = 0) out vec4 fragColor;
+  void main () {
     vec4 sceneColor = texture(sceneColorMap, v_uv);
     vec3 gradeColor = ColorGrading(colorGradingMap, sceneColor.rgb);
-    return mix(sceneColor, vec4(gradeColor, 1.0), contribute);
+    fragColor = mix(sceneColor, vec4(gradeColor, 1.0), contribute);
   }
 }%
 
 CCProgram color-grading-8x8-fs %{
   precision highp float;
-  uniform ColorGradingUBO {
-    float contribute;
-  };
-
+  #include <ubo>
   in vec2 v_uv;
-  #pragma rate sceneColorMap pass
-  uniform sampler2D sceneColorMap;
-  uniform sampler2D colorGradingMap;
-
-
-  vec4 frag () {
-    float EPS = 0.000001;
-    float pxSize = 512.0;
+  #define EPS 0.000001
+  #define TOTAL 64.0
+  #define SIZE 512.0
+  layout(location = 0) out vec4 fragColor;
+  void main () {
     vec3 orgColor = texture(sceneColorMap, v_uv).rgb;
     float bValue = (orgColor.b * 255.0) / 4.0;
     vec2 mulB = clamp(floor(bValue) + vec2(0.0, 1.0), 0.0, 63.0);
     vec2 row = floor(mulB / 8.0 + EPS);
     vec4 row_col = vec4(row, mulB - row * 8.0);
-    vec4 lookup = orgColor.ggrr * (63.0/pxSize) + row_col * (64.0/pxSize) + (0.5/pxSize);
+    vec4 lookup = orgColor.ggrr * (63.0 / SIZE) + row_col * (TOTAL / SIZE) + (0.5 / SIZE);
  
     float b1w = bValue - mulB.x;
  
     vec3 sampled1 = texture(colorGradingMap, lookup.zx).rgb;
     vec3 sampled2 = texture(colorGradingMap, lookup.wy).rgb;
- 
-    vec4 o = vec4(mix(sampled1, sampled2, b1w),1.0);
-    return o;
+
+    fragColor = vec4(mix(orgColor, mix(sampled1, sampled2, b1w), contribute), 1.0);
   }
 }%
