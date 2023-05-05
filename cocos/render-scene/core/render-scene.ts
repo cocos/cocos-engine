@@ -153,25 +153,6 @@ export class RenderScene {
      */
     get lodGroups (): readonly LODGroup[] { return this._lodGroups; }
 
-    /**
-     * @engineInternal
-     * @en Get the Separable-SSS skin standard model.
-     * @zh 获取全局的4s标准模型
-     * @returns The model id
-     */
-    get standardSkinModel  () { return this._standardSkinModel; }
-
-    /**
-     * @engineInternal
-     * @en Set the Separable-SSS skin standard model.
-     * @zh 设置一个全局的4s标准模型
-     * @returns The model id
-     */
-    set standardSkinModel (val: ModelRenderer | null) {
-        if (this._standardSkinModel && this._standardSkinModel !== val) this._standardSkinModel.closedStandardSkin();
-        this._standardSkinModel = val;
-    }
-
     private _root: Root;
     private _name = '';
     private _cameras: Camera[] = [];
@@ -186,7 +167,6 @@ export class RenderScene {
     private _mainLight: DirectionalLight | null = null;
     private _modelId = 0;
     private _lodStateCache: LodStateCache = null!;
-    private _standardSkinModel: ModelRenderer | null = null;
 
     /**
      * Register the creation function of the render scene to root.

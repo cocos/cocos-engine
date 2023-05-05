@@ -28,7 +28,7 @@ import {
 import { scene } from '../render-scene';
 import { Layers } from '../scene-graph/layers';
 import { Renderer } from './renderer';
-import { CCBoolean, _decorator } from '../core';
+import { CCBoolean, cclegacy, _decorator } from '../core';
 
 /**
  * @en Base class for all rendering components containing model.
@@ -75,7 +75,7 @@ export class ModelRenderer extends Renderer {
     }
 
     set isGlobalStandardSkinObject (val) {
-        this._getRenderScene().standardSkinModel = val ? this : null;
+        cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel = val ? this : null;
         this._enabledStandardSkin = val;
     }
 
@@ -128,7 +128,7 @@ export class ModelRenderer extends Renderer {
 
     protected _updateStandardSkin () {
         if (this._enabledStandardSkin) {
-            this._getRenderScene().standardSkinModel = this;
+            cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel = this;
         }
     }
 }

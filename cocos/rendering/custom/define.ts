@@ -1390,14 +1390,14 @@ export function buildSSSSBlurPass (camera: Camera,
     inputDS: string) {
     const sceneData = ppl.pipelineSceneData;
     const skin = sceneData.skin;
-    if (!skin.enabled && camera.scene!.standardSkinModel) return { rtName: inputRT, dsName: inputDS };
+    const standardSkinModel = ppl.pipelineSceneData.standardSkinModel;
+    if (!skin.enabled && standardSkinModel) return { rtName: inputRT, dsName: inputDS };
 
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
     ssssBlurData.ssssFov = camera.fov;
     ssssBlurData.ssssWidth = skin.width;
-    const scene = camera.scene!;
-    if (scene.standardSkinModel && (scene.standardSkinModel as MeshRenderer).model) {
-        const halfExtents = (scene.standardSkinModel as MeshRenderer).model!.worldBounds.halfExtents;
+    if (standardSkinModel && (standardSkinModel as MeshRenderer).model) {
+        const halfExtents = (standardSkinModel as MeshRenderer).model!.worldBounds.halfExtents;
         ssssBlurData.boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
     }
     ssssBlurData.ssssScale = skin.scale;

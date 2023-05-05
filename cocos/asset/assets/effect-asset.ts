@@ -201,7 +201,6 @@ const legacyBuiltinEffectNames = [
     'geometry-renderer',
     'debug-renderer',
     'ssss-blur',
-    'builtin-ssss-skip',
     'tone-mapping',
 ];
 

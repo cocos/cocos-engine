@@ -1093,6 +1093,9 @@ export class SkinInfo {
     set enabled (val: boolean) {
         if (this._enabled === val) return;
         this._enabled = val;
+        if (val && val !== cclegacy.director.root.pipeline.macros.ENABLE_FLOAT_OUTPUT) {
+            console.warn('Separable-SSS skin filter need float output, please open ENABLE_FLOAT_OUTPUT define...');
+        }
         if (this._resource) {
             this._resource.enabled = val;
         }
@@ -1111,6 +1114,10 @@ export class SkinInfo {
     @type(CCFloat)
     @tooltip('i18n:skin.width')
     set width (val: number) {
+        if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
+            console.warn('Separable-SSS skin filter need set standard model, please check the  isGlobalStandardSkinObject option in the MeshRender component.');
+            return;
+        }
         this._width = val;
         if (this._resource) { this._resource.width = val; }
     }
@@ -1128,6 +1135,10 @@ export class SkinInfo {
     @type(CCFloat)
     @tooltip('i18n:skin.scale')
     set scale (val: number) {
+        if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
+            console.warn('Separable-SSS skin filter need set standard model, please check the  isGlobalStandardSkinObject option in the MeshRender component.');
+            return;
+        }
         this._scale = val;
         if (this._resource) { this._resource.scale = val; }
     }

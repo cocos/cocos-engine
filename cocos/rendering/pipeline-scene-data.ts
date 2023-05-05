@@ -34,6 +34,7 @@ import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
 import { cclegacy } from '../core';
 import { Skin } from '../render-scene/scene/skin';
+import { ModelRenderer } from '../misc/model-renderer';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
@@ -63,6 +64,25 @@ export class PipelineSceneData {
     }
     public set csmSupported (val: boolean) {
         this._csmSupported = val;
+    }
+
+    /**
+     * @engineInternal
+     * @en Get the Separable-SSS skin standard model.
+     * @zh 获取全局的4s标准模型
+     * @returns The model id
+     */
+    get standardSkinModel  () { return this._standardSkinModel; }
+
+    /**
+     * @engineInternal
+     * @en Set the Separable-SSS skin standard model.
+     * @zh 设置一个全局的4s标准模型
+     * @returns The model id
+     */
+    set standardSkinModel (val: ModelRenderer | null) {
+        if (this._standardSkinModel && this._standardSkinModel !== val) this._standardSkinModel.closedStandardSkin();
+        this._standardSkinModel = val;
     }
 
     public fog: Fog = new Fog();
@@ -98,6 +118,7 @@ export class PipelineSceneData {
     protected _isHDR = true;
     protected _shadingScale = 1.0;
     protected _csmSupported = true;
+    private _standardSkinModel: ModelRenderer | null = null;
 
     constructor () {
         this._shadingScale = 1.0;
