@@ -23,17 +23,18 @@
  THE SOFTWARE.
  */
 import { ccclass, range, rangeMin, serializable, tooltip, type, visible } from 'cc.decorator';
-import { ShapeModule, DistributionMode, MoveWarpMode } from './shape';
+import { DistributionMode, MoveWarpMode, ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, lerp } from '../../core';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet, SPAWN_TIME_RATIO } from '../particle-data-set';
-import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
+import { INITIAL_DIR, ParticleDataSet, SPAWN_TIME_RATIO } from '../particle-data-set';
+import { VFXEmitterState, ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
-@ccclass('cc.LineShapeModule')
-@VFXModule.register('LineShape', ModuleExecStageFlags.SPAWN, [BuiltinParticleParameterName.INITIAL_DIR])
-export class LineShapeModule extends ShapeModule {
+@ccclass('cc.LineLocationModule')
+@VFXModule.register('LineLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
+export class LineLocationModule extends ShapeLocationModule {
     /**
      * @zh 粒子发射器半径。
      */
@@ -52,7 +53,7 @@ export class LineShapeModule extends ShapeModule {
 
     @type(Enum(MoveWarpMode))
     @serializable
-    @visible(function (this: LineShapeModule) {
+    @visible(function (this: LineLocationModule) {
         return this.distributionMode === DistributionMode.MOVE;
     })
     public moveWrapMode = MoveWarpMode.LOOP;
@@ -64,7 +65,7 @@ export class LineShapeModule extends ShapeModule {
     @range([0, 1])
     @serializable
     @tooltip('i18n:shapeModule.arcSpeed')
-    @visible(function (this: LineShapeModule) {
+    @visible(function (this: LineLocationModule) {
         return this.distributionMode === DistributionMode.MOVE;
     })
     public moveSpeed = new FloatExpression();
@@ -92,7 +93,7 @@ export class LineShapeModule extends ShapeModule {
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         super.tick(particles, emitter, user, context);
         if (this.distributionMode === DistributionMode.MOVE) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.SPAWN_TIME_RATIO);
+            particles.markRequiredParameter(SPAWN_TIME_RATIO);
         }
         this._lengthTimePrev = this._lengthTimer;
         let deltaTime = context.emitterDeltaTime;

@@ -35,8 +35,8 @@ import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
 const eventInfo = new VFXEventInfo();
-const requiredParameters = BuiltinParticleParameterFlags.INV_START_LIFETIME | BuiltinParticleParameterFlags.RANDOM_SEED
-| BuiltinParticleParameterFlags.NORMALIZED_AGE | BuiltinParticleParameterFlags.ID;
+const requiredParameters = INV_START_LIFETIME | RANDOM_SEED
+| NORMALIZED_AGE | ID;
 
 @ccclass('cc.LocationEventGeneratorModule')
 @VFXModule.register('LocationEventGenerator', ModuleExecStageFlags.UPDATE, [], [POSITION.name, VELOCITY.name, COLOR.name])

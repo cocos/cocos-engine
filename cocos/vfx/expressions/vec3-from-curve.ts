@@ -72,8 +72,8 @@ export class Vec3FromCurveExpression extends Vec3Expression {
     }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameters(context.executionStage === ModuleExecStage.UPDATE
-            ? BuiltinParticleParameterFlags.NORMALIZED_AGE : BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+        particles.markRequiredParameter(context.executionStage === ModuleExecStage.UPDATE
+            ? NORMALIZED_AGE : SPAWN_NORMALIZED_TIME);
         this.scale.tick(particles, emitter, user, context);
     }
 

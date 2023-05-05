@@ -180,7 +180,7 @@ describe('particle-data-set', () => {
         ];
         expect(particles.parameterCount).toBe(0);
         let requiredParameters = 1 << 31 | 1 << 29 | 1 << 27;
-        particles.markRequiredParameters(requiredParameters);
+        particles.markRequiredParameter(requiredParameters);
         particles.ensureParameters(identities);
         expect(particles.parameterCount).toBe(3);
         expect(particles.hasParameter(31)).toBeTruthy();
@@ -197,7 +197,7 @@ describe('particle-data-set', () => {
 
         particles.clearRequiredParameters();
         requiredParameters = 1 << 31 | 1 << 30 | 1 << 28;
-        particles.markRequiredParameters(requiredParameters);
+        particles.markRequiredParameter(requiredParameters);
         particles.ensureParameters(identities);
         expect(particles.parameterCount).toBe(3);
         expect(particles.hasParameter(31)).toBeTruthy();
@@ -221,7 +221,7 @@ describe('particle-data-set', () => {
         expect(particles.hasParameter(27)).toBeFalsy();
 
         let requiredParameters2 = 1 << 1 | 1 << 2 | 1 << 3;
-        particles.markRequiredParameters(requiredParameters2);
+        particles.markRequiredParameter(requiredParameters2);
         particles.ensureParameters(identities);
         expect(particles.parameterCount).toBe(0);
         expect(particles.hasParameter(31)).toBeFalsy();
@@ -259,7 +259,7 @@ describe('particle-data-set', () => {
         expect(() => particles.floatRegister).toThrowError();
 
         const requiredParameters = 0xffffffff;
-        particles.markRequiredParameters(requiredParameters);
+        particles.markRequiredParameter(requiredParameters);
         particles.ensureParameters(builtinParticleParameterIdentities);
         expect(particles.parameterCount).toBe(BuiltinParticleParameter.COUNT);
         expect(particles.getVec3Parameter(POSITION)).toBeInstanceOf(Vec3ArrayParameter);

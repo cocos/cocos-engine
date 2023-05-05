@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, displayOrder, serializable, tooltip, type, visible } from 'cc.decorator';
-import { ShapeModule } from './shape';
+import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, Vec3 } from '../../core';
 import { INITIAL_DIR, ParticleDataSet, POSITION } from '../particle-data-set';
@@ -40,9 +40,9 @@ enum LocationMode {
 const tempPosition = new Vec3();
 const dir = new Vec3();
 const pos = new Vec3();
-@ccclass('cc.BoxShapeModule')
-@VFXModule.register('BoxShape', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
-export class BoxShapeModule extends ShapeModule {
+@ccclass('cc.BoxLocationModule')
+@VFXModule.register('BoxLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
+export class BoxLocationModule extends ShapeLocationModule {
     static LocationMode = LocationMode;
 
     @type(Enum(LocationMode))
@@ -52,7 +52,7 @@ export class BoxShapeModule extends ShapeModule {
     @serializable
     @displayOrder(12)
     @tooltip('i18n:shapeModule.boxThickness')
-    @visible(function (this: BoxShapeModule) { return this.locationMode !== LocationMode.VOLUME; })
+    @visible(function (this: BoxLocationModule) { return this.locationMode !== LocationMode.VOLUME; })
     public boxThickness = new Vec3(0, 0, 0);
 
     private _thicknessPercent = new Vec3(0, 0, 0);

@@ -54,7 +54,7 @@ export class RandomRangeColorExpression extends ColorExpression {
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this.maximum.tick(particles, emitter, user, context);
         this.minimum.tick(particles, emitter, user, context);
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+        particles.markRequiredParameter(RANDOM_SEED);
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {

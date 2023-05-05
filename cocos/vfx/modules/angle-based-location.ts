@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, displayOrder, range, serializable, type, visible } from 'cc.decorator';
-import { DistributionMode, MoveWarpMode, ShapeModule } from './shape';
+import { DistributionMode, MoveWarpMode, ShapeLocationModule } from './shape-location';
 import { Enum, lerp, toDegree, toRadian, Vec3 } from '../../core';
 import { INITIAL_DIR, ParticleDataSet, POSITION, SPAWN_TIME_RATIO } from '../particle-data-set';
 import { VFXEmitterState, ModuleExecContext } from '../base';
@@ -35,8 +35,8 @@ import { ConstantFloatExpression } from '../expressions';
 const dir = new Vec3();
 const pos = new Vec3();
 
-@ccclass('cc.AngleBasedShapeModule')
-export abstract class AngleBasedShapeModule extends ShapeModule {
+@ccclass('cc.AngleBasedLocationModule')
+export abstract class AngleBasedLocationModule extends ShapeLocationModule {
     /**
        * @zh 粒子发射器在一个扇形范围内发射。
        */
@@ -58,7 +58,7 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
 
     @type(Enum(MoveWarpMode))
     @serializable
-    @visible(function (this: AngleBasedShapeModule) {
+    @visible(function (this: AngleBasedLocationModule) {
         return this.distributionMode === DistributionMode.MOVE;
     })
     public moveWrapMode = MoveWarpMode.LOOP;
@@ -69,7 +69,7 @@ export abstract class AngleBasedShapeModule extends ShapeModule {
     @type(FloatExpression)
     @range([0, 1])
     @serializable
-    @visible(function (this: AngleBasedShapeModule) {
+    @visible(function (this: AngleBasedLocationModule) {
         return this.distributionMode === DistributionMode.MOVE;
     })
     public moveSpeed: FloatExpression = new ConstantFloatExpression();

@@ -2,7 +2,7 @@ import { RealCurve, serializable } from '../../core';
 import { type } from '../../core/data/decorators';
 import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
-import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
+import { NORMALIZED_AGE, ParticleDataSet, SPAWN_NORMALIZED_TIME } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 import { UserDataSet } from '../user-data-set';
 import { ModuleExecStage } from '../vfx-module';
@@ -32,13 +32,13 @@ export class LegacyCurveExpression extends FloatExpression {
     }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameters(context.executionStage === ModuleExecStage.UPDATE
-            ? BuiltinParticleParameterFlags.NORMALIZED_AGE : BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+        particles.markRequiredParameter(context.executionStage === ModuleExecStage.UPDATE
+            ? NORMALIZED_AGE : SPAWN_NORMALIZED_TIME);
         this.scale.tick(particles, emitter, user, context);
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        this._time = context.executionStage === ModuleExecStage.UPDATE ? particles.getFloatParameter(NORMALIZED_AGE).data : particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
+        this._time = particles.getFloatParameter(context.executionStage === ModuleExecStage.UPDATE ? NORMALIZED_AGE : SPAWN_NORMALIZED_TIME).data;
         this.scale.bind(particles, emitter, user, context);
     }
 
@@ -46,7 +46,7 @@ export class LegacyCurveExpression extends FloatExpression {
         return this.curve.evaluate(this._time[index]) * this.scale.evaluate(index);
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream): number {
-        return this.curve.evaluate(time) * this.scale.evaluateSingle(time, randomStream);
+    public evaluateSingle (): number {
+        return this.curve.evaluate(time) * this.scale.evaluateSingle();
     }
 }

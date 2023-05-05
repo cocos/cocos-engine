@@ -1,5 +1,5 @@
 export class UserDataSet {
-    markRequiredParameters (parameterId: number) {
+    markRequiredParameter (parameterId: number) {
         throw new Error('Method not implemented.');
     }
 }

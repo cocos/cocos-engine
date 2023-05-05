@@ -27,7 +27,7 @@ import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, toDegree, toRadian, Vec3 } from '../../core';
 import { INITIAL_DIR, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
-import { AngleBasedShapeModule } from './angle-based-shape';
+import { AngleBasedLocationModule } from './angle-based-location';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
@@ -36,9 +36,9 @@ enum LocationMode {
     VOLUME = 1,
 }
 
-@ccclass('cc.ConeShapeModule')
-@VFXModule.register('ConeShape', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
-export class ConeShapeModule extends AngleBasedShapeModule {
+@ccclass('cc.ConeLocationModule')
+@VFXModule.register('ConeLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
+export class ConeLocationModule extends AngleBasedLocationModule {
     static LocationMode = LocationMode;
 
     get angle () {

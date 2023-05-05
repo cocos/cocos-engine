@@ -25,7 +25,7 @@
 import { RealCurve } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { ModuleExecContext } from '../base';
-import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
+import { BuiltinParticleParameterFlags, NORMALIZED_AGE, ParticleDataSet, SPAWN_NORMALIZED_TIME } from '../particle-data-set';
 import { ModuleExecStage } from '../vfx-module';
 import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from './constant-float';
@@ -59,8 +59,8 @@ export class FloatFromCurveExpression extends FloatExpression {
     }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameters(context.executionStage === ModuleExecStage.UPDATE
-            ? BuiltinParticleParameterFlags.NORMALIZED_AGE : BuiltinParticleParameterFlags.SPAWN_NORMALIZED_TIME);
+        particles.markRequiredParameter(context.executionStage === ModuleExecStage.UPDATE
+            ? NORMALIZED_AGE : SPAWN_NORMALIZED_TIME);
         this.scale.tick(particles, emitter, user, context);
     }
 
@@ -73,7 +73,7 @@ export class FloatFromCurveExpression extends FloatExpression {
         return this.curve.evaluate(this._time[index]) * this.scale.evaluate(index);
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream): number {
-        return this.curve.evaluate(time) * this.scale.evaluateSingle(time, randomStream);
+    public evaluateSingle (): number {
+        return this.curve.evaluate(time) * this.scale.evaluateSingle();
     }
 }

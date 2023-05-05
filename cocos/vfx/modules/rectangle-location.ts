@@ -22,45 +22,29 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, serializable, tooltip } from 'cc.decorator';
+import { ccclass } from 'cc.decorator';
+import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { Vec3 } from '../../core';
-import { INITIAL_DIR, ParticleDataSet } from '../particle-data-set';
+import { INITIAL_DIR, POSITION, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
-import { AngleBasedShapeModule } from './angle-based-shape';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { Vec3 } from '../../core';
 
-@ccclass('cc.CircleShapeModule')
-@VFXModule.register('CircleShape', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
-export class CircleShapeModule extends AngleBasedShapeModule {
-    /**
-      * @zh 粒子发射器半径。
-      */
-    @serializable
-    @tooltip('i18n:shapeModule.radius')
-    public radius = 1;
-
-    /**
-       * @zh 发射区域的半径厚度，范围为 0 ~ 1。
-       */
-    @serializable
-    @tooltip('i18n:shapeModule.radiusThickness')
-    public radiusThickness = 1;
-
-    private _innerRadius = 0;
-
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        super.tick(particles, emitter, user, context);
-        this._innerRadius = (1 - this.radiusThickness) ** 2;
-    }
-
-    protected generatePosAndDir (index: number, angle: number, dir: Vec3, pos: Vec3) {
-        const radiusRandom = Math.sqrt(this.randomStream.getFloatFromRange(this._innerRadius, 1.0));
-        const r = radiusRandom * this.radius;
-        dir.x = Math.cos(angle);
-        dir.y = Math.sin(angle);
-        dir.z = 0;
-        Vec3.multiplyScalar(pos, dir, r);
+const dir = new Vec3();
+const pos = new Vec3();
+@ccclass('cc.RectangleLocationModule')
+@VFXModule.register('RectangleLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
+export class RectangleLocationModule extends ShapeLocationModule {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        const { fromIndex, toIndex } = context;
+        const position = particles.getVec3Parameter(POSITION);
+        const initialDir = particles.getVec3Parameter(INITIAL_DIR);
+        const rand = this.randomStream;
+        for (let i = fromIndex; i < toIndex; i++) {
+            Vec3.set(dir, 0, 0, 1);
+            Vec3.set(pos, rand.getFloatFromRange(-0.5, 0.5), rand.getFloatFromRange(-0.5, 0.5), 0);
+            this.storePositionAndDirection(i, dir, pos, initialDir, position);
+        }
     }
 }

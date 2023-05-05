@@ -27,13 +27,13 @@ import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Vec3 } from '../../core';
 import { INITIAL_DIR, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
-import { AngleBasedShapeModule } from './angle-based-shape';
+import { AngleBasedLocationModule } from './angle-based-location';
 import { EmitterDataSet } from '../emitter-data-set';
-import { UserDataSet } from '..';
+import { UserDataSet } from '../user-data-set';
 
-@ccclass('cc.HemisphereShapeModule')
-@VFXModule.register('HemisphereShape', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
-export class HemisphereShapeModule extends AngleBasedShapeModule {
+@ccclass('cc.CircleLocationModule')
+@VFXModule.register('CircleLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
+export class CircleLocationModule extends AngleBasedLocationModule {
     /**
       * @zh 粒子发射器半径。
       */
@@ -42,11 +42,8 @@ export class HemisphereShapeModule extends AngleBasedShapeModule {
     public radius = 1;
 
     /**
-        * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
-        * - 0 表示从表面发射；
-        * - 1 表示从中心发射；
-        * - 0 ~ 1 之间表示在中心到表面之间发射。
-        */
+       * @zh 发射区域的半径厚度，范围为 0 ~ 1。
+       */
     @serializable
     @tooltip('i18n:shapeModule.radiusThickness')
     public radiusThickness = 1;
@@ -55,16 +52,15 @@ export class HemisphereShapeModule extends AngleBasedShapeModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         super.tick(particles, emitter, user, context);
-        this._innerRadius = (1 - this.radiusThickness) ** 3;
+        this._innerRadius = (1 - this.radiusThickness) ** 2;
     }
 
     protected generatePosAndDir (index: number, angle: number, dir: Vec3, pos: Vec3) {
-        const innerRadius = this._innerRadius;
-        const radius = this.radius;
-        const rand = this.randomStream;
-        const z = rand.getFloatFromRange(0, 1);
-        const r = Math.sqrt(1 - z * z);
-        Vec3.set(dir, r * Math.cos(angle), r * Math.sin(angle), z);
-        Vec3.multiplyScalar(pos, dir, rand.getFloatFromRange(innerRadius, 1.0) ** 0.3333 * radius);
+        const radiusRandom = Math.sqrt(this.randomStream.getFloatFromRange(this._innerRadius, 1.0));
+        const r = radiusRandom * this.radius;
+        dir.x = Math.cos(angle);
+        dir.y = Math.sin(angle);
+        dir.z = 0;
+        Vec3.multiplyScalar(pos, dir, r);
     }
 }

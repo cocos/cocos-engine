@@ -40,7 +40,7 @@ const randomOffset = 721883;
 const _temp_v3_1 = new Vec3();
 const tempVelocity = new Vec3();
 const seed = new Vec3();
-const requiredParameters = BuiltinParticleParameterFlags.VELOCITY | BuiltinParticleParameterFlags.BASE_VELOCITY;
+const requiredParameters = VELOCITY | BASE_VELOCITY;
 
 @ccclass('cc.LimitVelocity')
 @VFXModule.register('LimitVelocity', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY], [BuiltinParticleParameterName.VELOCITY])
@@ -150,7 +150,7 @@ export class LimitVelocityModule extends VFXModule {
     private _z: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameters(requiredParameters);
+        particles.markRequiredParameter(requiredParameters);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {

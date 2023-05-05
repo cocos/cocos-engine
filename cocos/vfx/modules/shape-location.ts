@@ -67,8 +67,8 @@ export enum MoveWarpMode {
     PING_PONG,
 }
 
-@ccclass('cc.ShapeModule')
-export abstract class ShapeModule extends VFXModule {
+@ccclass('cc.ShapeLocationModule')
+export abstract class ShapeLocationModule extends VFXModule {
     /**
      * @zh 粒子发射器位置。
      */
@@ -124,14 +124,6 @@ export abstract class ShapeModule extends VFXModule {
     @tooltip('i18n:shapeModule.sphericalDirectionAmount')
     public sphericalDirectionAmount = 0;
 
-    /**
-     * @zh 粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）。
-     */
-    @serializable
-    @displayOrder(19)
-    @tooltip('i18n:shapeModule.randomPositionAmount')
-    public randomPositionAmount = 0;
-
     @serializable
     private _position = new Vec3(0, 0, 0);
 
@@ -155,13 +147,6 @@ export abstract class ShapeModule extends VFXModule {
     }
 
     protected storePositionAndDirection (index: number, dir: Vec3, pos: Vec3, initialDir: Vec3ArrayParameter, position: Vec3ArrayParameter) {
-        const randomPositionAmount = this.randomPositionAmount;
-        if (randomPositionAmount > 0) {
-            pos.add3f(randomRange(-randomPositionAmount, randomPositionAmount),
-                randomRange(-randomPositionAmount, randomPositionAmount),
-                randomRange(-randomPositionAmount, randomPositionAmount));
-        }
-
         const sphericalDirectionAmount = this.sphericalDirectionAmount;
         if (sphericalDirectionAmount > 0) {
             const sphericalVel = Vec3.normalize(_intermediVec, pos);

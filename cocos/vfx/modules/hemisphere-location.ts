@@ -29,28 +29,24 @@ import { INITIAL_DIR, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { AngleBasedLocationModule } from './angle-based-location';
 import { EmitterDataSet } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { UserDataSet } from '..';
 
-const temp = new Vec3();
-
-@ccclass('cc.SphereShapeModule')
-@VFXModule.register('SphereShape', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
-export class SphereShapeModule extends AngleBasedLocationModule {
+@ccclass('cc.HemisphereLocationModule')
+@VFXModule.register('HemisphereLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
+export class HemisphereLocationModule extends AngleBasedLocationModule {
     /**
       * @zh 粒子发射器半径。
       */
     @serializable
-    @tooltip('i18n:shapeModule.radius')
     public radius = 1;
 
     /**
-       * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
-       * - 0 表示从表面发射；
-       * - 1 表示从中心发射；
-       * - 0 ~ 1 之间表示在中心到表面之间发射。
-       */
+        * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
+        * - 0 表示从表面发射；
+        * - 1 表示从中心发射；
+        * - 0 ~ 1 之间表示在中心到表面之间发射。
+        */
     @serializable
-    @tooltip('i18n:shapeModule.radiusThickness')
     public radiusThickness = 1;
 
     private _innerRadius = 0;
@@ -64,7 +60,7 @@ export class SphereShapeModule extends AngleBasedLocationModule {
         const innerRadius = this._innerRadius;
         const radius = this.radius;
         const rand = this.randomStream;
-        const z = rand.getFloatFromRange(-1, 1);
+        const z = rand.getFloatFromRange(0, 1);
         const r = Math.sqrt(1 - z * z);
         Vec3.set(dir, r * Math.cos(angle), r * Math.sin(angle), z);
         Vec3.multiplyScalar(pos, dir, rand.getFloatFromRange(innerRadius, 1.0) ** 0.3333 * radius);

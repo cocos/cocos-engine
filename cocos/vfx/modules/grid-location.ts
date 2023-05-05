@@ -30,14 +30,14 @@ import { EmitterDataSet } from '../emitter-data-set';
 import { INITIAL_DIR, ParticleDataSet, POSITION } from '../particle-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { ShapeModule } from './shape';
+import { ShapeLocationModule } from './shape-location';
 
 const dir = new Vec3();
 const pos = new Vec3();
 
-@ccclass('cc.GridShapeModule')
-@VFXModule.register('GridShape', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
-export class GridShape extends ShapeModule {
+@ccclass('cc.GridLocationModule')
+@VFXModule.register('GridLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
+export class GridLocationModule extends ShapeLocationModule {
     @serializable
     public length = 1;
     @serializable

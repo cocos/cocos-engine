@@ -27,10 +27,12 @@ import { ccclass, tooltip, type, serializable, range, visible } from 'cc.decorat
 import { DEBUG } from 'internal:constants';
 import { lerp, repeat, Enum, assertIsTrue, CCFloat, CCInteger } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { createRealCurve, FloatExpression } from '../expressions/float';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName as ParameterName, ParticleDataSet } from '../particle-data-set';
-import { VFXEmitterParams, ModuleExecContext } from '../base';
+import { FloatExpression } from '../expressions/float';
+import { INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, RANDOM_SEED, SUB_UV_INDEX } from '../particle-data-set';
+import { ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
 
@@ -56,7 +58,7 @@ export enum Animation {
 }
 
 @ccclass('cc.SubUVAnimationModule')
-@VFXModule.register('SubUVAnimation', ModuleExecStageFlags.UPDATE, [], [ParameterName.VELOCITY, ParameterName.NORMALIZED_AGE])
+@VFXModule.register('SubUVAnimation', ModuleExecStageFlags.UPDATE, [], [VELOCITY.name, NORMALIZED_AGE.name])
 export class SubUVAnimationModule extends VFXModule {
     /**
      * @zh X 方向动画帧数。
@@ -197,21 +199,21 @@ export class SubUVAnimationModule extends VFXModule {
             assertIsTrue(this.startFrame.mode === FloatExpression.Mode.CONSTANT || this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS,
                 'The mode of startFrame in texture-animation module can not be Curve and TwoCurve!');
         }
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.SUB_UV_INDEX);
+        particles.markRequiredParameter(SUB_UV_INDEX);
         if (this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS || (this.animation === Animation.SINGLE_ROW && this.randomRow)) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameter(RANDOM_SEED);
         }
         if (this._timeMode === TimeMode.LIFETIME && (this.frameOverTime.mode === FloatExpression.Mode.TWO_CONSTANTS
             || this.frameOverTime.mode === FloatExpression.Mode.TWO_CURVES)) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameter(RANDOM_SEED);
         }
         if (this._timeMode === TimeMode.LIFETIME && (this.frameOverTime.mode === FloatExpression.Mode.TWO_CURVES
             || this.frameOverTime.mode === FloatExpression.Mode.CURVE)) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
+            particles.markRequiredParameter(NORMALIZED_AGE);
         }
         if (this._timeMode === TimeMode.FPS) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.INV_START_LIFETIME);
+            particles.markRequiredParameter(NORMALIZED_AGE);
+            particles.markRequiredParameter(INV_START_LIFETIME);
         }
     }
 

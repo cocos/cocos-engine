@@ -130,13 +130,13 @@ export class UpdateMeshOrientationModule extends VFXModule {
         if (this.separateAxes && DEBUG) {
             assertIsTrue(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
         }
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.ANGULAR_VELOCITY);
-        particles.markRequiredParameters(BuiltinParticleParameterFlags.ROTATION);
+        particles.markRequiredParameter(ANGULAR_VELOCITY);
+        particles.markRequiredParameter(ROTATION);
         if (this.z.mode === FloatExpression.Mode.CURVE || this.z.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.NORMALIZED_AGE);
+            particles.markRequiredParameter(NORMALIZED_AGE);
         }
         if (this.z.mode === FloatExpression.Mode.TWO_CONSTANTS || this.z.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameters(BuiltinParticleParameterFlags.RANDOM_SEED);
+            particles.markRequiredParameter(RANDOM_SEED);
         }
     }
 
