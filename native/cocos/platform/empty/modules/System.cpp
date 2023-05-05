@@ -58,4 +58,9 @@ System::LanguageType System::getLanguageTypeByISO2(const char *code) const {
     LanguageType ret = LanguageType::ENGLISH;
     return ret;
 }
+
+void System::copyTextToClipboard(const ccstd::string &text) {
+    // TODO
+}
+
 } // namespace cc

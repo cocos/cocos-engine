@@ -114,7 +114,7 @@ export class PassInstance extends Pass {
     }
 
     protected _syncBatchingScheme () {
-        this._defines.USE_BATCHING = this._defines.USE_INSTANCING = false;
+        this._defines.USE_INSTANCING = false;
         this._batchingScheme = BatchingSchemes.NONE;
     }
 

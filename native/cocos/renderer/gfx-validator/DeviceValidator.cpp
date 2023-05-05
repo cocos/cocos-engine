@@ -295,6 +295,10 @@ TextureBarrier *DeviceValidator::getTextureBarrier(const TextureBarrierInfo &inf
     return _actor->getTextureBarrier(info);
 }
 
+BufferBarrier *DeviceValidator::getBufferBarrier(const BufferBarrierInfo &info) {
+    return _actor->getBufferBarrier(info);
+}
+
 void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
     auto *textureValidator = static_cast<TextureValidator *>(dst);
     textureValidator->sanityCheck();

@@ -28,10 +28,15 @@ const commonJSModuleMap: Record<string, Function> = {
 <% if (chunkBundleUrl) { %>
     '/src/chunks/<%= chunkBundleUrl%>'() { return import('./src/chunks/<%= chunkBundleUrl%>') },
 <% }  %> 
+<% if (useAotOptimization) {%>
+    '/src/<%= systemCCUrl%>' () { return import('./src/<%= systemCCUrl%>'); },
+<%} else {%>
+<% for (var i = 0; i < ccUrls.length; i++) {%> 
+    '/src/cocos-js/<%=ccUrls[i]%>' () { return import('./src/cocos-js/<%=ccUrls[i]%>'); },
+<% }} %>
 <% for (var j = 0; j < bundleJsList.length; j++) {%> 
     'assets/<%=bundleJsList[j]%>' () { return import('./assets/<%=bundleJsList[j]%>'); },
 <% } %>
-    '/src/<%= systemCCUrl%>' () { return import('./src/<%= systemCCUrl%>'); },
     '/src/settings.js' () { return import('./src/settings.js'); },
 }
 export function loadModule (name: string) {

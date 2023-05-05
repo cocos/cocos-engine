@@ -140,6 +140,9 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     if (any(desc.flags & ResourceFlags::STORAGE)) {
         usage |= TextureUsage::STORAGE;
     }
+    if (any(desc.flags & ResourceFlags::SHADING_RATE)) {
+        usage |= TextureUsage::SHADING_RATE;
+    }
 
     return {
         type,
@@ -247,6 +250,25 @@ void ResourceGraph::unmount(uint64_t completedFenceValue) {
     }
 }
 
+gfx::Buffer* ResourceGraph::getBuffer(vertex_descriptor resID) {
+    gfx::Buffer* buffer = nullptr;
+    visitObject(
+        resID, *this,
+        [&](const ManagedBuffer& res) {
+            buffer = res.buffer.get();
+        },
+        [&](const IntrusivePtr<gfx::Buffer>& buf) {
+            buffer = buf.get();
+        },
+        [&](const auto& buffer) {
+            std::ignore = buffer;
+            CC_EXPECTS(false);
+        });
+    CC_ENSURES(buffer);
+
+    return buffer;
+}
+
 gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
     gfx::Texture* texture = nullptr;
     visitObject(
@@ -258,8 +280,9 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
             texture = tex.get();
         },
         [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
-            std::ignore = fb;
-            CC_EXPECTS(false);
+            CC_EXPECTS(fb->getColorTextures().size() == 1);
+            CC_EXPECTS(fb->getColorTextures().at(0));
+            texture = fb->getColorTextures()[0];
         },
         [&](const RenderSwapchain& sc) {
             texture = sc.swapchain->getColorTexture();

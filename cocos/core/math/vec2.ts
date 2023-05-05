@@ -762,7 +762,7 @@ export class Vec2 extends ValueType {
 
     /**
      * @en Calculates radian angle between two vectors, returns zero if either vector is a zero vector.
-     * @zh 获取当前向量和指定向量之间的角度，任意一个向量是零向量则返回零。
+     * @zh 获取当前向量和指定向量之间的弧度，任意一个向量是零向量则返回零。
      * @param other specified vector.
      * @return The angle between the current vector and the specified vector.
      */
@@ -782,8 +782,8 @@ export class Vec2 extends ValueType {
 
     /**
      * @en Get angle in radian between this and vector with direction.
-     * @zh 获取当前向量和指定向量之间的有符号角度。<br/>
-     * 有符号角度的取值范围为 (-180, 180]，当前向量可以通过逆时针旋转有符号角度与指定向量同向。<br/>
+     * @zh 获取当前向量和指定向量之间的有符号弧度。<br/>
+     * 有符号弧度的取值范围为 (-PI, PI]，当前向量可以通过逆时针旋转有符号角度与指定向量同向。<br/>
      * @param other specified vector
      * @return The signed angle between the current vector and the specified vector (in radians); if there is a zero vector in the current vector and the specified vector, 0 is returned.
      */

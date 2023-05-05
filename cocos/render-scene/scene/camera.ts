@@ -29,6 +29,7 @@ import { Node } from '../../scene-graph';
 import { RenderScene } from '../core/render-scene';
 import { RenderWindow } from '../core/render-window';
 import { GeometryRenderer } from '../../rendering/geometry-renderer';
+import { PostProcess } from '../../rendering/post-process/components/post-process';
 
 /**
  * @en The enumeration type for the fixed axis of the camera.
@@ -805,6 +806,8 @@ export class Camera {
      */
     public screenScale: number;
 
+    public postProcess: PostProcess | null = null;
+
     private _device: Device;
     private _scene: RenderScene | null = null;
     private _node: Node | null = null;
@@ -996,6 +999,12 @@ export class Camera {
         if (!this._node) return;
 
         let viewProjDirty = false;
+        const xr = globalThis.__globalXR;
+        if (xr && xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs) {
+            const wndXREye = xr.webXRWindowMap.get(this._window);
+            const x = 1 / xr.webXRMatProjs.length;
+            this.setViewportInOrientedSpace(new Rect(x * wndXREye, 0, x, 1));
+        }
         // view matrix
         if (this._node.hasChangedFlags || forceUpdate) {
             Mat4.invert(this._matView, this._node.worldMatrix);
@@ -1016,8 +1025,13 @@ export class Camera {
             const projectionSignY = this._device.capabilities.clipSpaceSignY;
             // Only for rendertexture processing
             if (this._proj === CameraProjection.PERSPECTIVE) {
-                Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
-                    this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
+                if (xr && xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs && xr.webXRMatProjs.length === 2) {
+                    const wndXREye = xr.webXRWindowMap.get(this._window);
+                    this._matProj.set(xr.webXRMatProjs[wndXREye]);
+                } else {
+                    Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
+                        this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
+                }
             } else {
                 const x = this._orthoHeight * this._aspect;
                 const y = this._orthoHeight;

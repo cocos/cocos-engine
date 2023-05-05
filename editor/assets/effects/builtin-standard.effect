@@ -21,6 +21,7 @@ CCEffect %{
         anisotropyIntensity:              { value: 1.0, target: anisotropyParam.x, editor: { parent: IS_ANISOTROPY, slide : true, range : [0.0, 1.0] , step : 0.0001 } }
         anisotropyRotation:               { value: 0.0, target: anisotropyParam.y, editor: { parent: IS_ANISOTROPY, slide : true, range : [0, 1.0] , step : 0.0001 } }
         anisotropyMapResolutionHeight:    { value: 0.0, target: anisotropyParam.w, editor: { parent: FIX_ANISOTROPIC_ROTATION_MAP } }
+        addOnShadowBias:                  { value: 0.0, target: anisotropyParam.z }
         mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:                        { value: normal }
         pbrMap:                           { value: grey }
@@ -117,6 +118,12 @@ CCProgram macro-remapping %{
 }%
 
 CCProgram surface-vertex %{
+  #define CC_SURFACES_VERTEX_MODIFY_SHADOW_BIAS
+  vec2 SurfacesVertexModifyShadowBias(in SurfacesStandardVertexIntermediate In, vec2 originShadowBias)
+  {
+    return originShadowBias + vec2(anisotropyParam.z, 0.0);
+  }
+
   /*#define CC_SURFACES_VERTEX_MODIFY_WORLD_POS
   vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
   {
@@ -236,7 +243,7 @@ CCProgram surface-fragment %{
     vec3 normal = FSInput_worldNormal;
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
-      normal = CalculateNormalFromTangentSpace(nmmp, emissiveScaleParam.w, normal.xyz, FSInput_worldTangent, FSInput_mirrorNormal);
+      normal = CalculateNormalFromTangentSpace(nmmp, emissiveScaleParam.w, normalize(normal.xyz), normalize(FSInput_worldTangent), FSInput_mirrorNormal);
     #endif
 
     return normalize(normal);

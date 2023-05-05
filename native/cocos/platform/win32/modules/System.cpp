@@ -24,8 +24,8 @@
 
 #include "platform/win32/modules/System.h"
 #include <Windows.h>
+#include "SDL2/SDL_clipboard.h"
 #include "base/memory/Memory.h"
-
 namespace cc {
 using OSType = System::OSType;
 
@@ -147,4 +147,9 @@ bool System::openURL(const ccstd::string &url) {
     delete[] temp;
     return (size_t)r > 32;
 }
+
+void System::copyTextToClipboard(const ccstd::string &text) {
+    SDL_SetClipboardText(text.c_str());
+}
+
 } // namespace cc

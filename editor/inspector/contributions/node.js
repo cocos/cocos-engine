@@ -1,6 +1,8 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+module.paths.push(path.join(Editor.App.path, 'node_modules'));
+const { throttle } = require('lodash');
 const utils = require('./utils');
 const { trackEventWithTimer } = require('../utils/metrics');
 
@@ -25,8 +27,6 @@ exports.listeners = {
 
         let setChildrenLayer = false;
         if (dump.path === 'layer') {
-            const newValue = Number(panel.$.nodeLayerSelect.value);
-
             if (panel.dumps && panel.dumps.some((perdump) => perdump.children && perdump.children.length > 0)) {
                 // 只修改自身节点
                 let choose = 1;
@@ -47,24 +47,21 @@ exports.listeners = {
 
                 // 取消，需要还原数值
                 if (choose === 2) {
+                    dump.value = panel.$.nodeLayerSelect.prevValues[0];
+                    if (dump.values) {
+                        dump.values = panel.$.nodeLayerSelect.prevValues;
+                    }
                     Elements.layer.update.call(panel);
                     return;
                 } else {
                     setChildrenLayer = choose === 0 ? true : false;
-
-                    dump.value = newValue;
-                    if (setChildrenLayer && 'values' in dump) {
-                        dump.values.forEach((val, index) => {
-                            dump.values[index] = newValue;
-                        });
-                    }
                 }
-            } else {
-                dump.value = newValue;
             }
         }
 
         try {
+            panel.readyToUpdate = false;
+
             for (let i = 0; i < panel.uuidList.length; i++) {
                 const uuid = panel.uuidList[i];
                 const { path, type, isArray } = dump;
@@ -97,15 +94,17 @@ exports.listeners = {
             }
         } catch (error) {
             console.error(error);
+        } finally {
+            if (!panel.snapshotLock) {
+                Editor.Message.send('scene', 'snapshot');
+            }
+            panel.readyToUpdate = true;
         }
     },
     'confirm-dump'() {
         const panel = this;
 
         panel.snapshotLock = false;
-
-        // In combination with change-dump, snapshot only generated once after ui-elements continuously changed.
-        Editor.Message.send('scene', 'snapshot');
     },
     async 'create-dump'(event) {
         const panel = this;
@@ -329,10 +328,10 @@ exports.template = /* html*/`
         <ui-prop class="rotation" type="dump"></ui-prop>
         <ui-prop class="scale" type="dump"></ui-prop>
         <ui-prop class="mobility" type="dump"></ui-prop>
-        <ui-prop class="layer" type="dump" html="false">
+        <ui-prop class="layer">
             <ui-label slot="label" value="Layer"></ui-label>
             <div class="layer-content" slot="content">
-                <ui-select class="layer-select"></ui-select>
+                <ui-prop class="layer-select" type="dump" no-label></ui-prop>
                 <ui-button class="layer-edit">Edit</ui-button>
             </div>
         </ui-prop>
@@ -395,7 +394,6 @@ exports.$ = {
     nodeRotation: '.node > .rotation',
     nodeScale: '.node > .scale',
     nodeMobility: '.node > .mobility',
-    nodeLayer: '.node > .layer',
     nodeLayerSelect: '.node > .layer .layer-select',
     nodeLayerButton: '.node > .layer .layer-edit',
 
@@ -411,22 +409,22 @@ const Elements = {
     panel: {
         ready() {
             const panel = this;
-            panel.__nodeChangedHandle__ = undefined;
+
+            panel.throttleUpdate = throttle(async () => {
+                if (!panel.readyToUpdate) {
+                    return;
+                }
+                for (const prop in Elements) {
+                    const element = Elements[prop];
+                    if (element.update) {
+                        await element.update.call(panel);
+                    }
+                }
+            }, 100, { leading: false, trailing: true });
 
             panel.__nodeChanged__ = (uuid) => {
                 if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
-                    window.cancelAnimationFrame(panel.__nodeChangedHandle__);
-                    panel.__nodeChangedHandle__ = window.requestAnimationFrame(async () => {
-                        for (const prop in Elements) {
-                            if (!panel.ready) {
-                                return;
-                            }
-                            const element = Elements[prop];
-                            if (element.update) {
-                                await element.update.call(panel);
-                            }
-                        }
-                    });
+                    panel.throttleUpdate();
                 }
             };
 
@@ -494,6 +492,20 @@ const Elements = {
 
                 Editor.Message.send('scene', 'snapshot');
             });
+
+            panel._readyToUpdate = true;
+            Object.defineProperty(panel, 'readyToUpdate', {
+                enumerable: true,
+                get() {
+                    return panel._readyToUpdate;
+                },
+                set(val) {
+                    panel._readyToUpdate = val;
+                    if (val) {
+                        panel.throttleUpdate();
+                    }
+                },
+            });
         },
         async update() {
             const panel = this;
@@ -540,10 +552,8 @@ const Elements = {
         close() {
             const panel = this;
 
-            if (panel.__nodeChangedHandle__) {
-                window.cancelAnimationFrame(panel.__nodeChangedHandle__);
-                panel.__nodeChangedHandle__ = undefined;
-            }
+            panel.throttleUpdate.cancel();
+            panel.throttleUpdate = undefined;
 
             Editor.Message.removeBroadcastListener('scene:change-node', panel.__nodeChanged__);
             Editor.Message.removeBroadcastListener('scene:animation-time-change', panel.__animationTimeChange__);
@@ -561,7 +571,6 @@ const Elements = {
                     return;
                 }
 
-                Editor.Message.send('scene', 'snapshot');
 
                 const role = button.getAttribute('role');
 
@@ -569,8 +578,18 @@ const Elements = {
                     const prefab = dump.__prefab__;
 
                     switch (role) {
+                        case 'edit': {
+                            const assetId = prefab.prefabStateInfo?.assetUuid;
+                            if (!assetId) {
+                                return;
+                            }
+                            Editor.Message.request('asset-db', 'open-asset', assetId);
+                            break;
+                        }
                         case 'unlink': {
+                            Editor.Message.send('scene', 'snapshot');
                             await Editor.Message.request('scene', 'unlink-prefab', prefab.rootUuid, false);
+                            Editor.Message.send('scene', 'snapshot');
                             break;
                         }
                         case 'local': {
@@ -578,25 +597,19 @@ const Elements = {
                             break;
                         }
                         case 'reset': {
+                            Editor.Message.send('scene', 'snapshot');
                             await Editor.Message.request('scene', 'restore-prefab', prefab.rootUuid, prefab.uuid);
+                            Editor.Message.send('scene', 'snapshot');
                             break;
                         }
                         case 'save': {
+                            Editor.Message.send('scene', 'snapshot');
                             await Editor.Message.request('scene', 'apply-prefab', prefab.rootUuid);
+                            Editor.Message.send('scene', 'snapshot');
                             break;
                         }
                     }
                 }
-
-                Editor.Message.send('scene', 'snapshot');
-            });
-
-            panel.$.prefabEdit.addEventListener('click', () => {
-                const assetId = panel.dump?.__prefab__?.prefabStateInfo?.assetUuid;
-                if (!assetId) {
-                    return;
-                }
-                Editor.Message.request('asset-db', 'open-asset', assetId);
             });
         },
         async update() {
@@ -668,7 +681,7 @@ const Elements = {
                 panel.$.active.dispatch('change-dump');
             });
             panel.$.active.addEventListener('confirm', () => {
-                panel.snapshotLock = false;
+                panel.$.active.dispatch('confirm-dump');
             });
 
             panel.$.name.addEventListener('change', (event) => {
@@ -685,7 +698,7 @@ const Elements = {
                 panel.$.name.dispatch('change-dump');
             });
             panel.$.name.addEventListener('confirm', () => {
-                panel.snapshotLock = false;
+                panel.$.active.dispatch('confirm-dump');
             });
         },
         update() {
@@ -892,7 +905,12 @@ const Elements = {
                 });
             }
         },
-        async setReflectionConvolutionMap(uuid) {
+        async setEnvMapAndConvolutionMap(uuid) {
+            await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'inspector',
+                method: 'setSkyboxEnvMap',
+                args: [uuid],
+            });
             if (uuid) {
                 await Editor.Message.request('scene', 'execute-scene-script', {
                     name: 'inspector',
@@ -982,7 +1000,7 @@ const Elements = {
 
             const $prop = useHDR ? panel.$.sceneSkyboxEnvmapHDR : panel.$.sceneSkyboxEnvmapLDR;
             const uuid = $prop.dump.value.uuid;
-            Elements.scene.setReflectionConvolutionMap.call(panel, uuid);
+            Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
         },
         skyboxEnvmapChange(useHDR, event) {
             const panel = this;
@@ -993,7 +1011,7 @@ const Elements = {
 
             const $prop = event.currentTarget;
             const uuid = $prop.dump.value.uuid;
-            Elements.scene.setReflectionConvolutionMap.call(panel, uuid);
+            Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
         },
     },
     node: {
@@ -1029,7 +1047,6 @@ const Elements = {
             panel.$.nodeRotation.render(panel.dump.rotation);
             panel.$.nodeScale.render(panel.dump.scale);
             panel.$.nodeMobility.render(panel.dump.mobility);
-            panel.$.nodeLayer.render(panel.dump.layer);
 
             // 查找需要渲染的 component 列表
             const componentList = [];
@@ -1360,31 +1377,20 @@ const Elements = {
                 Editor.Message.send('project', 'open-settings', 'project', 'layer');
             });
         },
-        async update() {
+        update() {
             const panel = this;
 
             if (!panel.dump || panel.dump.isScene) {
                 return;
             }
 
-            const layerDump = panel.dump.layer;
-            const enumList = layerDump.enumList || [];
+            panel.$.nodeLayerSelect.render(panel.dump.layer);
 
-            let optionHtml = '';
-            if (enumList) {
-                for (const item of enumList) {
-                    optionHtml += `<option value="${item.value}">${item.name}</option>`;
-                }
+            let prevValues = [panel.dump.layer.value];
+            if (panel.dump.layer.values) {
+                prevValues = panel.dump.layer.values.slice();
             }
-            panel.$.nodeLayerSelect.innerHTML = optionHtml;
-            panel.$.nodeLayerSelect.value = layerDump.value;
-
-            if (layerDump.values && layerDump.values.some((value) => value !== layerDump.value)) {
-                panel.$.nodeLayerSelect.invalid = true;
-            } else {
-                panel.$.nodeLayerSelect.invalid = false;
-            }
-            panel.$.nodeLayer.setReadonly(layerDump, panel.$.nodeLayerSelect);
+            panel.$.nodeLayerSelect.prevValues = prevValues;
         },
     },
     footer: {
@@ -1401,6 +1407,7 @@ const Elements = {
                     ],
                     listeners: {
                         async confirm(detail/* info */) {
+                            if (!detail) return;
                             Editor.Message.send('scene', 'snapshot');
 
                             for (const uuid of panel.uuidList) {
@@ -2021,7 +2028,6 @@ exports.ready = async function ready() {
 
     // 为了避免把 ui-num-input, ui-color 的连续 change 进行 snapshot
     panel.snapshotLock = false;
-    panel.ready = true;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -2038,7 +2044,6 @@ exports.ready = async function ready() {
 
 exports.close = async function close() {
     const panel = this;
-    panel.ready = false;
 
     for (const prop in Elements) {
         const element = Elements[prop];

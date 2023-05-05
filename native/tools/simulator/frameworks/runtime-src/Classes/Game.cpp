@@ -56,6 +56,7 @@ Game::~Game() {
 int Game::init() {
     
     cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
+    SimulatorApp::getInstance()->init();
     cc::ISystemWindowInfo info;
     info.width= SimulatorApp::getInstance()->getWidth();
     info.height = SimulatorApp::getInstance()->getHeight();

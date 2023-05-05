@@ -48,7 +48,7 @@
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
     #include <hilog/log.h>
 #elif (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
-   #include <Hilog/log.h>
+    #include <hilog/log.h>
 #endif
 
 namespace cc {
