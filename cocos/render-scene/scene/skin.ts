@@ -47,32 +47,32 @@ export class Skin {
      * @en Getter/Setter sampler width.
      * @zh 设置或者获取采样宽度。
      */
-    set width (val: number) {
-        this._width = val;
+    set blurRadius (val: number) {
+        this._blurRadius = val;
     }
-    get width (): number {
-        return this._width;
+    get blurRadius (): number {
+        return this._blurRadius;
     }
 
     /**
      * @en Getter/Setter depth unit scale.
      * @zh 设置或者获取深度单位比例。
      */
-    set scale (val: number) {
-        this._scale = val;
+    set sssIntensity (val: number) {
+        this._sssIntensity = val;
     }
-    get scale (): number {
-        return this._scale;
+    get sssIntensity (): number {
+        return this._sssIntensity;
     }
 
     protected _enabled = false;
-    protected _width = 0.01;
-    protected _scale = 5.0;
+    protected _blurRadius = 0.01;
+    protected _sssIntensity = 5.0;
 
     public initialize (skinInfo: SkinInfo) {
         this._enabled = skinInfo.enabled;
-        this._width = skinInfo.width;
-        this._scale = skinInfo.scale;
+        this._blurRadius = skinInfo.blurRadius;
+        this._sssIntensity = skinInfo.sssIntensity;
     }
 }
 

@@ -39,9 +39,10 @@ import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
-import { cclegacy } from '../core';
+import { cclegacy, macro } from '../core';
 import { Scene } from './scene';
 import { NodeEventType } from './node-event';
+import { property } from '../core/data/class-decorator';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -1093,7 +1094,8 @@ export class SkinInfo {
     set enabled (val: boolean) {
         if (this._enabled === val) return;
         this._enabled = val;
-        if (val && val !== cclegacy.director.root.pipeline.macros.ENABLE_FLOAT_OUTPUT) {
+        if (val && !macro.ENABLE_FLOAT_OUTPUT) {
+            console.warn('ENABLE_FLOAT_OUTPUT : ', macro.ENABLE_FLOAT_OUTPUT);
             console.warn('Separable-SSS skin filter need float output, please open ENABLE_FLOAT_OUTPUT define...');
         }
         if (this._resource) {
@@ -1108,21 +1110,22 @@ export class SkinInfo {
      * @en Getter/Setter sampler width.
      * @zh 设置或者获取采样宽度。
      */
+    @visible(false)
     @editable
     @range([0.0, 0.1, 0.001])
     @slide
     @type(CCFloat)
-    @tooltip('i18n:skin.width')
-    set width (val: number) {
+    @tooltip('i18n:skin.blurRadius')
+    set blurRadius (val: number) {
         if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
-            console.warn('Separable-SSS skin filter need set standard model, please check the  isGlobalStandardSkinObject option in the MeshRender component.');
+            console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
             return;
         }
-        this._width = val;
-        if (this._resource) { this._resource.width = val; }
+        this._blurRadius = val;
+        if (this._resource) { this._resource.blurRadius = val; }
     }
-    get width () {
-        return this._width;
+    get blurRadius () {
+        return this._blurRadius;
     }
 
     /**
@@ -1133,25 +1136,25 @@ export class SkinInfo {
     @range([0.0, 10.0, 0.1])
     @slide
     @type(CCFloat)
-    @tooltip('i18n:skin.scale')
-    set scale (val: number) {
+    @tooltip('i18n:skin.sssIntensity')
+    set sssIntensity (val: number) {
         if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
-            console.warn('Separable-SSS skin filter need set standard model, please check the  isGlobalStandardSkinObject option in the MeshRender component.');
+            console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
             return;
         }
-        this._scale = val;
-        if (this._resource) { this._resource.scale = val; }
+        this._sssIntensity = val;
+        if (this._resource) { this._resource.sssIntensity = val; }
     }
-    get scale () {
-        return this._scale;
+    get sssIntensity () {
+        return this._sssIntensity;
     }
 
     @serializable
     protected _enabled = false;
     @serializable
-    protected _width = 0.01;
+    protected _blurRadius = 0.01;
     @serializable
-    protected _scale = 5.0;
+    protected _sssIntensity = 5.0;
 
     protected _resource: Skin | null = null;
 

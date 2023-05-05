@@ -1395,12 +1395,12 @@ export function buildSSSSBlurPass (camera: Camera,
 
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
     ssssBlurData.ssssFov = camera.fov;
-    ssssBlurData.ssssWidth = skin.width;
+    ssssBlurData.ssssWidth = skin.blurRadius;
     if (standardSkinModel && (standardSkinModel as MeshRenderer).model) {
         const halfExtents = (standardSkinModel as MeshRenderer).model!.worldBounds.halfExtents;
         ssssBlurData.boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
     }
-    ssssBlurData.ssssScale = skin.scale;
+    ssssBlurData.ssssScale = skin.sssIntensity;
 
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
