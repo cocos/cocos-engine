@@ -14,7 +14,7 @@ let _BasePassID = 0;
 
 export abstract class BasePass {
     abstract name: string;
-    effectName = 'post-process/blit-screen';
+    effectName = 'pipeline/post-process/blit-screen';
 
     _id = 0
     constructor () {
