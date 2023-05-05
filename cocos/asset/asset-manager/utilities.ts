@@ -32,6 +32,7 @@ import { isScene } from './helper';
 import RequestItem from './request-item';
 import { assets, references } from './shared';
 import Task from './task';
+import assetManager from './asset-manager';
 
 let defaultProgressCallback: ((finished: number, total: number, item: RequestItem) => void) | null = null;
 
@@ -132,6 +133,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                 } else {
                     error(`The asset ${depend.uuid} is missing!`);
                 }
+                cclegacy.assetManager.dispatchAssetMissing(asset, depend.owner, depend.prop, depend.uuid);
                 if (depend.type && depend.type !== Asset) {
                     // eslint-disable-next-line new-cap
                     const placeHolder = new depend.type();

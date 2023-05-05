@@ -25,7 +25,7 @@
 
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { error, sys, Settings, settings, path, cclegacy } from '../../core';
+import { error, sys, Settings, settings, path, cclegacy, AsyncDelegate, EventTarget } from '../../core';
 import Bundle from './bundle';
 import Cache, { ICache } from './cache';
 import CacheManager from './cache-manager';
@@ -51,6 +51,7 @@ import { combine, parse, replaceOverrideAsset } from './url-transformer';
 import { asyncify, parseParameters } from './utilities';
 import { IAddressableInfo, IAssetInfo, IPackInfo, ISceneInfo } from './config';
 
+const EVENT_ASSET_MISSING = 'asset-missing';
 /**
  * @zh
  * AssetManager 配置。
@@ -304,6 +305,7 @@ export class AssetManager {
     private _parsePipeline = BUILD ? null : new Pipeline('parse existing json', [this.loadPipe]);
     private _projectBundles: string[] = [];
     private static _instance: AssetManager;
+    private _eventTarget = new EventTarget();
 
     /**
      * @en
@@ -342,6 +344,36 @@ export class AssetManager {
      */
     public get resources (): Bundle | null {
         return bundles.get(BuiltinBundleName.RESOURCES) || null;
+    }
+
+    /**
+     * @en
+     * Add a delegate which will be invoked when asset is missing.
+     *
+     * @zh
+     * 添加当资源丢失时调用的委托。
+     *
+     * @param func - @en The missing asset delegate. @zh 资源丢失委托。
+     * @param target - @en The target of the missing asset delegate, can be null. @zh 资源丢失委托的目标对象，可以为空。
+     * @internal
+     * @engineInternal
+     */
+    public onAssetMissing (func: (asset: Asset, owner: any, propName: string, uuid: string) => void, target?: any) {
+        this._eventTarget.on(EVENT_ASSET_MISSING, func, target);
+    }
+
+    /**
+     * @en
+     * Remove the delegate when asset is missing.
+     * @zh
+     * 移除资源丢失时调用的委托。
+     * @param func - @en The missing asset delegate. @zh 资源丢失委托。
+     * @param target - @en The target of the missing asset delegate, can be null. @zh 资源丢失委托的目标对象，可以为空。
+     * @internal
+     * @engineInternal
+     */
+    public offAssetMissing (func: (asset: Asset, owner: any, propName: string, uuid: string) => void, target?: any) {
+        this._eventTarget.off(EVENT_ASSET_MISSING, func, target);
     }
 
     /**
