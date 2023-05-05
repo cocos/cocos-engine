@@ -13,7 +13,7 @@ export class FSRPass extends SettingPass {
     get setting () { return getSetting(FSR); }
 
     name = 'FSRPass'
-    effectName = 'post-process/fsr';
+    effectName = 'pipeline/post-process/fsr';
     outputNames = ['FSRColor']
 
     checkEnable (camera: Camera) {

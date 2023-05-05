@@ -12,7 +12,7 @@ export class ColorGradingPass extends SettingPass {
     get setting () { return getSetting(ColorGrading); }
 
     name = 'ColorGradingPass'
-    effectName = 'post-process/color-grading';
+    effectName = 'pipeline/post-process/color-grading';
     outputNames = ['ColorGrading']
 
     checkEnable (camera: Camera) {
