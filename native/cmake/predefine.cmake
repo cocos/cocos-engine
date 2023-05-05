@@ -157,11 +157,15 @@ if(ANDROID)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsigned-char -ffunction-sections -fdata-sections -fstrict-aliasing")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsigned-char -ffunction-sections -fdata-sections -fstrict-aliasing -frtti -fexceptions")
 
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fvisibility=default -fno-omit-frame-pointer")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fvisibility=default -fno-omit-frame-pointer")
-    if(NOT DEFINED HIDE_SYMBOLS OR HIDE_SYMBOLS) # hidden by default
-        set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fvisibility=hidden")
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fvisibility=hidden -fvisibility-inlines-hidden")
+    
+    if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=default -fno-omit-frame-pointer")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default -fno-omit-frame-pointer")
+    else()
+        if(NOT DEFINED HIDE_SYMBOLS OR HIDE_SYMBOLS) # hidden by default
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
+        endif()
     endif()
 endif()
 
