@@ -266,7 +266,7 @@ void setCameraUBOValues(
 
 } // namespace
 
-void NativeSetter::setCamera(const scene::Camera* camera) {
+void NativeSetter::setCamera(const scene::Camera *camera) {
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
 
     setCameraUBOValues(
@@ -394,34 +394,38 @@ void NativeRasterPassBuilder::addTexture(const ccstd::string &name, const ccstd:
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             AccessType::READ,
             gfx::ClearFlagBit::NONE,
-            gfx::Color{},
-            ClearValueType::FLOAT_TYPE,
+            ClearValueType::NONE,
+            ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
-void NativeRasterPassBuilder::addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+void NativeRasterPassBuilder::addStorageBuffer(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            gfx::Color{},
-            ClearValueType::FLOAT_TYPE,
+            clearType,
+            clearValue,
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
-void NativeRasterPassBuilder::addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+void NativeRasterPassBuilder::addStorageImage(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            gfx::Color{},
-            ClearValueType::FLOAT_TYPE,
+            clearType,
+            clearValue,
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
@@ -634,34 +638,38 @@ void NativeRasterSubpassBuilder::addTexture(const ccstd::string &name, const ccs
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             AccessType::READ,
             gfx::ClearFlagBit::NONE,
-            gfx::Color{},
-            ClearValueType::FLOAT_TYPE,
+            ClearValueType::NONE,
+            ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
-void NativeRasterSubpassBuilder::addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+void NativeRasterSubpassBuilder::addStorageBuffer(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            gfx::Color{},
-            ClearValueType::FLOAT_TYPE,
+            clearType,
+            clearValue,
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
-void NativeRasterSubpassBuilder::addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+void NativeRasterSubpassBuilder::addStorageImage(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            gfx::Color{},
-            ClearValueType::FLOAT_TYPE,
+            clearType,
+            clearValue,
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
@@ -784,34 +792,38 @@ void NativeComputeSubpassBuilder::addTexture(const ccstd::string &name, const cc
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             AccessType::READ,
             gfx::ClearFlagBit::NONE,
-            gfx::Color{},
-            ClearValueType::FLOAT_TYPE,
+            ClearValueType::NONE,
+            ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
-void NativeComputeSubpassBuilder::addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+void NativeComputeSubpassBuilder::addStorageBuffer(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            gfx::Color{},
-            ClearValueType::FLOAT_TYPE,
+            clearType,
+            clearValue,
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
-void NativeComputeSubpassBuilder::addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+void NativeComputeSubpassBuilder::addStorageImage(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            gfx::Color{},
-            ClearValueType::FLOAT_TYPE,
+            clearType,
+            clearValue,
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
@@ -1448,34 +1460,38 @@ void NativeComputePassBuilder::addTexture(const ccstd::string &name, const ccstd
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             AccessType::READ,
             gfx::ClearFlagBit::NONE,
-            gfx::Color{},
-            ClearValueType::FLOAT_TYPE,
+            ClearValueType::NONE,
+            ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
-void NativeComputePassBuilder::addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+void NativeComputePassBuilder::addStorageBuffer(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            gfx::Color{},
-            ClearValueType::FLOAT_TYPE,
+            clearType,
+            clearValue,
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
-void NativeComputePassBuilder::addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+void NativeComputePassBuilder::addStorageImage(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            gfx::Color{},
-            ClearValueType::FLOAT_TYPE,
+            clearType,
+            clearValue,
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
@@ -1636,7 +1652,7 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                                 INDENT();
                                 OSS << "accessType: " << getName(computeView.accessType) << ";\n";
                                 OSS << "clearFlags: " << getName(computeView.clearFlags) << ";\n";
-                                const auto &c = computeView.clearColor;
+                                const auto &c = computeView.clearValue;
                                 if (hasAnyFlags(computeView.clearFlags, gfx::ClearFlagBit::COLOR)) {
                                     OSS << "clearColor: [" << c.x << ", " << c.y << ", " << c.z << ", " << c.z << "];\n";
                                 } else if (hasAnyFlags(computeView.clearFlags, gfx::ClearFlagBit::DEPTH_STENCIL)) {
@@ -1668,7 +1684,7 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                                 INDENT();
                                 OSS << "accessType: " << getName(computeView.accessType) << ";\n";
                                 OSS << "clearFlags: " << getName(computeView.clearFlags) << ";\n";
-                                const auto &c = computeView.clearColor;
+                                const auto &c = computeView.clearValue;
                                 if (hasAnyFlags(computeView.clearFlags, gfx::ClearFlagBit::COLOR)) {
                                     OSS << "clearColor: [" << c.x << ", " << c.y << ", " << c.z << ", " << c.z << "];\n";
                                 } else if (hasAnyFlags(computeView.clearFlags, gfx::ClearFlagBit::DEPTH_STENCIL)) {

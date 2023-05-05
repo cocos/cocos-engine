@@ -181,26 +181,11 @@ class RasterSubpassBuilder : public Setter {
 public:
     RasterSubpassBuilder() noexcept = default;
 
-    /**
-     * @beta method's name might change
-     */
     virtual void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
-    /**
-     * @beta method's name might change
-     */
     virtual void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
-    /**
-     * @beta method's name might change
-     */
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
-    /**
-     * @beta method's name might change
-     */
-    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
-    /**
-     * @beta method's name might change
-     */
-    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
+    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -237,6 +222,18 @@ public:
     void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil) {
         addDepthStencil(name, accessType, slotName, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+        addStorageBuffer(name, accessType, slotName, ClearValueType::NONE, {});
+    }
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType) {
+        addStorageBuffer(name, accessType, slotName, clearType, {});
+    }
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+        addStorageImage(name, accessType, slotName, ClearValueType::NONE, {});
+    }
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType) {
+        addStorageImage(name, accessType, slotName, clearType, {});
+    }
     RasterQueueBuilder *addQueue() {
         return addQueue(QueueHint::NONE, "");
     }
@@ -262,22 +259,10 @@ class ComputeSubpassBuilder : public Setter {
 public:
     ComputeSubpassBuilder() noexcept = default;
 
-    /**
-     * @beta method's name might change
-     */
     virtual void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) = 0;
-    /**
-     * @beta method's name might change
-     */
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
-    /**
-     * @beta method's name might change
-     */
-    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
-    /**
-     * @beta method's name might change
-     */
-    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
+    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -287,6 +272,18 @@ public:
      * @beta method's name might change
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+        addStorageBuffer(name, accessType, slotName, ClearValueType::NONE, {});
+    }
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType) {
+        addStorageBuffer(name, accessType, slotName, clearType, {});
+    }
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+        addStorageImage(name, accessType, slotName, ClearValueType::NONE, {});
+    }
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType) {
+        addStorageImage(name, accessType, slotName, clearType, {});
+    }
     ComputeQueueBuilder *addQueue() {
         return addQueue("");
     }
@@ -296,17 +293,8 @@ class BasicRenderPassBuilder : public Setter {
 public:
     BasicRenderPassBuilder() noexcept = default;
 
-    /**
-     * @beta method's name might change
-     */
     virtual void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
-    /**
-     * @beta method's name might change
-     */
     virtual void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
-    /**
-     * @beta method's name might change
-     */
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
     /**
      * @deprecated method will be removed in 3.8.0
@@ -318,9 +306,6 @@ public:
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
-    /**
-     * @beta method's name might change
-     */
     virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
     virtual bool getShowStatistics() const = 0;
     virtual void setShowStatistics(bool enable) = 0;
@@ -360,20 +345,26 @@ class RasterPassBuilder : public BasicRenderPassBuilder {
 public:
     RasterPassBuilder() noexcept = default;
 
-    /**
-     * @beta method's name might change
-     */
-    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
-    /**
-     * @beta method's name might change
-     */
-    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
+    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     virtual RasterSubpassBuilder *addRasterSubpass(const ccstd::string &layoutName) = 0;
     virtual ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &layoutName) = 0;
     /**
      * @beta method's name might change
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+        addStorageBuffer(name, accessType, slotName, ClearValueType::NONE, {});
+    }
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType) {
+        addStorageBuffer(name, accessType, slotName, clearType, {});
+    }
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+        addStorageImage(name, accessType, slotName, ClearValueType::NONE, {});
+    }
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType) {
+        addStorageImage(name, accessType, slotName, clearType, {});
+    }
     RasterSubpassBuilder *addRasterSubpass() {
         return addRasterSubpass("");
     }
@@ -386,18 +377,9 @@ class ComputePassBuilder : public Setter {
 public:
     ComputePassBuilder() noexcept = default;
 
-    /**
-     * @beta method's name might change
-     */
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
-    /**
-     * @beta method's name might change
-     */
-    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
-    /**
-     * @beta method's name might change
-     */
-    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
+    virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -407,6 +389,18 @@ public:
      * @beta method's name might change
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+        addStorageBuffer(name, accessType, slotName, ClearValueType::NONE, {});
+    }
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType) {
+        addStorageBuffer(name, accessType, slotName, clearType, {});
+    }
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
+        addStorageImage(name, accessType, slotName, ClearValueType::NONE, {});
+    }
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType) {
+        addStorageImage(name, accessType, slotName, clearType, {});
+    }
     ComputeQueueBuilder *addQueue() {
         return addQueue("");
     }

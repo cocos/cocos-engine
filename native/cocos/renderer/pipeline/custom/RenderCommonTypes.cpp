@@ -72,28 +72,28 @@ RasterView::RasterView(RasterView const& rhs, const allocator_type& alloc)
 ComputeView::ComputeView(const allocator_type& alloc) noexcept
 : name(alloc) {}
 
-ComputeView::ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, ClearValueType clearValueTypeIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept
+ComputeView::ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept
 : name(std::move(nameIn), alloc),
   accessType(accessTypeIn),
   clearFlags(clearFlagsIn),
-  clearColor(clearColorIn),
   clearValueType(clearValueTypeIn),
+  clearValue(std::move(clearValueIn)),
   shaderStageFlags(shaderStageFlagsIn) {}
 
 ComputeView::ComputeView(ComputeView&& rhs, const allocator_type& alloc)
 : name(std::move(rhs.name), alloc),
   accessType(rhs.accessType),
   clearFlags(rhs.clearFlags),
-  clearColor(rhs.clearColor),
   clearValueType(rhs.clearValueType),
+  clearValue(std::move(rhs.clearValue)),
   shaderStageFlags(rhs.shaderStageFlags) {}
 
 ComputeView::ComputeView(ComputeView const& rhs, const allocator_type& alloc)
 : name(rhs.name, alloc),
   accessType(rhs.accessType),
   clearFlags(rhs.clearFlags),
-  clearColor(rhs.clearColor),
   clearValueType(rhs.clearValueType),
+  clearValue(rhs.clearValue),
   shaderStageFlags(rhs.shaderStageFlags) {}
 
 CopyPair::CopyPair(const allocator_type& alloc) noexcept

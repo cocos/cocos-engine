@@ -36,7 +36,7 @@ import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { AccessType, ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
+import { AccessType, ClearValue, ClearValueType, ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
@@ -114,58 +114,23 @@ export interface RasterQueueBuilder extends Setter {
 }
 
 export interface RasterSubpassBuilder extends Setter {
-    /**
-     * @beta method's name might change
-     */
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, color: Color): void;
-    /**
-     * @beta method's name might change
-     */
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, new Color()*/): void;
-    /**
-     * @beta method's name might change
-     */
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, new Color()*/): void;
-    /**
-     * @beta method's name might change
-     */
     addRenderTarget (name: string, accessType: AccessType, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, new Color()*/): void;
-    /**
-     * @beta method's name might change
-     */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number, clearFlags: ClearFlagBit): void;
-    /**
-     * @beta method's name might change
-     */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number/*, ClearFlagBit.DEPTH_STENCIL*/): void;
-    /**
-     * @beta method's name might change
-     */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number/*, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
-    /**
-     * @beta method's name might change
-     */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
-    /**
-     * @beta method's name might change
-     */
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
-    /**
-     * @beta method's name might change
-     */
     addDepthStencil (name: string, accessType: AccessType, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
-    /**
-     * @beta method's name might change
-     */
     addTexture (name: string, slotName: string): void;
-    /**
-     * @beta method's name might change
-     */
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
-    /**
-     * @beta method's name might change
-     */
-    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -188,22 +153,14 @@ export interface ComputeQueueBuilder extends Setter {
 }
 
 export interface ComputeSubpassBuilder extends Setter {
-    /**
-     * @beta method's name might change
-     */
     addRenderTarget (name: string, slotName: string): void;
-    /**
-     * @beta method's name might change
-     */
     addTexture (name: string, slotName: string): void;
-    /**
-     * @beta method's name might change
-     */
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
-    /**
-     * @beta method's name might change
-     */
-    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -217,49 +174,16 @@ export interface ComputeSubpassBuilder extends Setter {
 }
 
 export interface BasicRenderPassBuilder extends Setter {
-    /**
-     * @beta method's name might change
-     */
     addRenderTarget (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, color: Color): void;
-    /**
-     * @beta method's name might change
-     */
     addRenderTarget (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, new Color()*/): void;
-    /**
-     * @beta method's name might change
-     */
     addRenderTarget (name: string, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, new Color()*/): void;
-    /**
-     * @beta method's name might change
-     */
     addRenderTarget (name: string, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, new Color()*/): void;
-    /**
-     * @beta method's name might change
-     */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number, clearFlags: ClearFlagBit): void;
-    /**
-     * @beta method's name might change
-     */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number, stencil: number/*, ClearFlagBit.DEPTH_STENCIL*/): void;
-    /**
-     * @beta method's name might change
-     */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp, depth: number/*, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
-    /**
-     * @beta method's name might change
-     */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
-    /**
-     * @beta method's name might change
-     */
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
-    /**
-     * @beta method's name might change
-     */
     addDepthStencil (name: string, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
-    /**
-     * @beta method's name might change
-     */
     addTexture (name: string, slotName: string): void;
     /**
      * @deprecated method will be removed in 3.8.0
@@ -273,22 +197,17 @@ export interface BasicRenderPassBuilder extends Setter {
     addQueue (hint: QueueHint/*, ''*/): RasterQueueBuilder;
     addQueue (/*QueueHint.NONE, ''*/): RasterQueueBuilder;
     setViewport (viewport: Viewport): void;
-    /**
-     * @beta method's name might change
-     */
     setVersion (name: string, version: number): void;
     showStatistics: boolean;
 }
 
 export interface RasterPassBuilder extends BasicRenderPassBuilder {
-    /**
-     * @beta method's name might change
-     */
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
-    /**
-     * @beta method's name might change
-     */
-    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
     addRasterSubpass (layoutName: string): RasterSubpassBuilder;
     addRasterSubpass (/*''*/): RasterSubpassBuilder;
     addComputeSubpass (layoutName: string): ComputeSubpassBuilder;
@@ -300,18 +219,13 @@ export interface RasterPassBuilder extends BasicRenderPassBuilder {
 }
 
 export interface ComputePassBuilder extends Setter {
-    /**
-     * @beta method's name might change
-     */
     addTexture (name: string, slotName: string): void;
-    /**
-     * @beta method's name might change
-     */
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
-    /**
-     * @beta method's name might change
-     */
-    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */

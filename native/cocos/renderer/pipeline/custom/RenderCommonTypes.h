@@ -235,6 +235,29 @@ enum class ClearValueType {
     INT_TYPE,
 };
 
+struct ClearValue {
+    ClearValue() = default;
+    ClearValue(double xIn, double yIn, double zIn, double wIn) noexcept // NOLINT
+    : x(xIn),
+      y(yIn),
+      z(zIn),
+      w(wIn) {}
+
+    double x{0};
+    double y{0};
+    double z{0};
+    double w{0};
+};
+
+inline bool operator==(const ClearValue& lhs, const ClearValue& rhs) noexcept {
+    return std::forward_as_tuple(lhs.x, lhs.y, lhs.z, lhs.w) ==
+           std::forward_as_tuple(rhs.x, rhs.y, rhs.z, rhs.w);
+}
+
+inline bool operator!=(const ClearValue& lhs, const ClearValue& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
 struct ComputeView {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -242,7 +265,7 @@ struct ComputeView {
     }
 
     ComputeView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, ClearValueType clearValueTypeIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     ComputeView(ComputeView&& rhs, const allocator_type& alloc);
     ComputeView(ComputeView const& rhs, const allocator_type& alloc);
 
@@ -261,8 +284,8 @@ struct ComputeView {
     ccstd::pmr::string name;
     AccessType accessType{AccessType::READ};
     gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::NONE};
-    gfx::Color clearColor;
     ClearValueType clearValueType{ClearValueType::NONE};
+    ClearValue clearValue;
     gfx::ShaderStageFlagBit shaderStageFlags{gfx::ShaderStageFlagBit::NONE};
 };
 
@@ -423,6 +446,15 @@ inline hash_t hash<cc::render::RasterView>::operator()(const cc::render::RasterV
     hash_combine(seed, val.storeOp);
     hash_combine(seed, val.clearFlags);
     hash_combine(seed, val.shaderStageFlags);
+    return seed;
+}
+
+inline hash_t hash<cc::render::ClearValue>::operator()(const cc::render::ClearValue& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.x);
+    hash_combine(seed, val.y);
+    hash_combine(seed, val.z);
+    hash_combine(seed, val.w);
     return seed;
 }
 

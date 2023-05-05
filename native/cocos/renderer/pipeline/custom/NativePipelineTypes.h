@@ -219,8 +219,8 @@ public:
     void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
     void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
-    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     void setViewport(const gfx::Viewport &viewport) override;
     RasterQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) override;
@@ -286,8 +286,8 @@ public:
 
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) override;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
-    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
@@ -359,8 +359,8 @@ public:
     bool getShowStatistics() const override;
     void setShowStatistics(bool enable) override;
 
-    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
     RasterSubpassBuilder *addRasterSubpass(const ccstd::string &layoutName) override;
     ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &layoutName) override;
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
@@ -480,8 +480,8 @@ public:
     }
 
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
-    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
+    void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     ComputeQueueBuilder *addQueue(const ccstd::string &layoutName) override;
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;

@@ -61,12 +61,26 @@ inline void load(InputArchive& ar, RasterView& v) {
     load(ar, v.shaderStageFlags);
 }
 
+inline void save(OutputArchive& ar, const ClearValue& v) {
+    save(ar, v.x);
+    save(ar, v.y);
+    save(ar, v.z);
+    save(ar, v.w);
+}
+
+inline void load(InputArchive& ar, ClearValue& v) {
+    load(ar, v.x);
+    load(ar, v.y);
+    load(ar, v.z);
+    load(ar, v.w);
+}
+
 inline void save(OutputArchive& ar, const ComputeView& v) {
     save(ar, v.name);
     save(ar, v.accessType);
     save(ar, v.clearFlags);
-    save(ar, v.clearColor);
     save(ar, v.clearValueType);
+    save(ar, v.clearValue);
     save(ar, v.shaderStageFlags);
 }
 
@@ -74,8 +88,8 @@ inline void load(InputArchive& ar, ComputeView& v) {
     load(ar, v.name);
     load(ar, v.accessType);
     load(ar, v.clearFlags);
-    load(ar, v.clearColor);
     load(ar, v.clearValueType);
+    load(ar, v.clearValue);
     load(ar, v.shaderStageFlags);
 }
 
