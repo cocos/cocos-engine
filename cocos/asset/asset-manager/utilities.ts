@@ -32,7 +32,6 @@ import { isScene } from './helper';
 import RequestItem from './request-item';
 import { assets, references } from './shared';
 import Task from './task';
-import assetManager from './asset-manager';
 
 let defaultProgressCallback: ((finished: number, total: number, item: RequestItem) => void) | null = null;
 

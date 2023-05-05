@@ -25,7 +25,7 @@
 
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { error, sys, Settings, settings, path, cclegacy, AsyncDelegate, EventTarget } from '../../core';
+import { error, sys, Settings, settings, path, cclegacy, EventTarget } from '../../core';
 import Bundle from './bundle';
 import Cache, { ICache } from './cache';
 import CacheManager from './cache-manager';
@@ -358,7 +358,7 @@ export class AssetManager {
      * @internal
      * @engineInternal
      */
-    public onAssetMissing (func: (asset: Asset, owner: any, propName: string, uuid: string) => void, target?: any) {
+    public onAssetMissing (func: (parentAsset: Asset, owner: any, propName: string, uuid: string) => void, target?: any) {
         this._eventTarget.on(EVENT_ASSET_MISSING, func, target);
     }
 
@@ -372,8 +372,24 @@ export class AssetManager {
      * @internal
      * @engineInternal
      */
-    public offAssetMissing (func: (asset: Asset, owner: any, propName: string, uuid: string) => void, target?: any) {
+    public offAssetMissing (func: (parentAsset: Asset, owner: any, propName: string, uuid: string) => void, target?: any) {
         this._eventTarget.off(EVENT_ASSET_MISSING, func, target);
+    }
+
+    /**
+     * @en
+     * Dispatch event when asset is missing.
+     * @zh
+     * 触发资源丢失时事件。
+     * @param parentAsset - @en The parent asset of the missing asset. @zh 丢失的资源的父资源。
+     * @param owner - @en The owner of the missing asset. @zh 丢失的资源的拥有者。
+     * @param propName - @en The property name of the missing asset. @zh 丢失的资源的属性名称。
+     * @param uuid - @en The uuid of the missing asset. @zh 丢失的资源的 uuid。
+     * @internal
+     * @engineInternal
+     */
+    public dispatchAssetMissing (parentAsset: Asset, owner: any, propName: string, uuid: string) {
+        this._eventTarget.emit(EVENT_ASSET_MISSING, parentAsset, owner, propName, uuid);
     }
 
     /**
