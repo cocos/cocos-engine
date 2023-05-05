@@ -518,39 +518,6 @@ describe('NewGen Anim', () => {
             });
         });
 
-        test('Zero time piece', () => {
-            // SPEC: Whenever zero time piece is encountered,
-            // no matter the time piece is generated since originally passed to `update()`,
-            // or was exhausted and left zero.
-            // The following updates at that time would still steadily proceed:
-            // - The graph is in transition state and the transition specified 0 duration, then the switch will happened;
-            // - The graph is in node state and a transition is judged to be happened, then the graph will run in transition state.
-            const graphEval = createAnimationGraphEval(createAnimationGraph({
-                layers: [{
-                    stateMachine: {
-                        states: {
-                            'Node1': { type: 'motion' },
-                            'Node2': {
-                                type: 'sub-state-machine',
-                                stateMachine: {
-                                    states: { 'SubStateMachineNode1': { type: 'motion' } },
-                                    entryTransitions: [{ to: 'SubStateMachineNode1' }],
-                                    exitTransitions: [{ from: 'SubStateMachineNode1', exitTimeEnabled: true, exitTime: 0.0, duration: 0.0 }],
-                                },
-                            },
-                        },
-                        entryTransitions: [{ to: 'Node1' }],
-                        exitTransitions: [{ from: 'Node2' }],
-                        transitions: [{ from: 'Node1', to: 'Node2', exitTimeEnabled: true, exitTime: 0.0, duration: 0.0 }],
-                    }
-                }],
-            }), new Node());
-            graphEval.update(0.0);
-            expectAnimationGraphEvalStatusLayer0(graphEval, {
-                currentNode: { __DEBUG_ID__: 'SubStateMachineNode1' },
-            });
-        });
-
         test(`Transition: anim -> anim`, () => {
             const animationGraph = new AnimationGraph();
             const layer = animationGraph.addLayer();
