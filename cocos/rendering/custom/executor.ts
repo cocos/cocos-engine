@@ -572,7 +572,10 @@ class RasterPassInfo {
                 computeView.name = currComputeView.name;
                 computeView.accessType = currComputeView.accessType;
                 computeView.clearFlags = currComputeView.clearFlags;
-                computeView.clearColor.copy(currComputeView.clearColor);
+                computeView.clearValue.x = currComputeView.clearValue.x;
+                computeView.clearValue.y = currComputeView.clearValue.y;
+                computeView.clearValue.z = currComputeView.clearValue.z;
+                computeView.clearValue.w = currComputeView.clearValue.w;
                 computeView.clearValueType = currComputeView.clearValueType;
                 computeViews[idx] = computeView;
                 idx++;
