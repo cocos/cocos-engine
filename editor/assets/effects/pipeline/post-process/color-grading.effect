@@ -4,8 +4,16 @@ CCEffect %{
   - name: color-grading
     passes:
     - vert: color-grading-vs:vert
-      frag: color-grading-fs:frag
-      pass: color-grading
+      frag: color-grading-32-fs:frag
+      pass: color-grading-32
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      rasterizerState:
+        cullMode: none
+    - vert: color-grading-vs:vert
+      frag: color-grading-8x8-fs:frag
+      pass: color-grading-8x8
       depthStencilState:
         depthTest: false
         depthWrite: false
@@ -29,10 +37,8 @@ CCProgram color-grading-vs %{
 }%
 
 
-CCProgram color-grading-fs %{
+CCProgram color-grading-32-fs %{
   precision highp float;
-  #include <common/color/gamma>
-
   uniform ColorGradingUBO {
     float contribute;
   };
@@ -61,5 +67,37 @@ CCProgram color-grading-fs %{
     vec4 sceneColor = texture(sceneColorMap, v_uv);
     vec3 gradeColor = ColorGrading(colorGradingMap, sceneColor.rgb);
     return mix(sceneColor, vec4(gradeColor, 1.0), contribute);
+  }
+}%
+
+CCProgram color-grading-8x8-fs %{
+  precision highp float;
+  uniform ColorGradingUBO {
+    float contribute;
+  };
+
+  in vec2 v_uv;
+  #pragma rate sceneColorMap pass
+  uniform sampler2D sceneColorMap;
+  uniform sampler2D colorGradingMap;
+
+
+  vec4 frag () {
+    float EPS = 0.000001;
+    float pxSize = 512.0;
+    vec3 orgColor = texture(sceneColorMap, v_uv).rgb;
+    float bValue = (orgColor.b * 255.0) / 4.0;
+    vec2 mulB = clamp(floor(bValue) + vec2(0.0, 1.0), 0.0, 63.0);
+    vec2 row = floor(mulB / 8.0 + EPS);
+    vec4 row_col = vec4(row, mulB - row * 8.0);
+    vec4 lookup = orgColor.ggrr * (63.0/pxSize) + row_col * (64.0/pxSize) + (0.5/pxSize);
+ 
+    float b1w = bValue - mulB.x;
+ 
+    vec3 sampled1 = texture(colorGradingMap, lookup.zx).rgb;
+    vec3 sampled2 = texture(colorGradingMap, lookup.wy).rgb;
+ 
+    vec4 o = vec4(mix(sampled1, sampled2, b1w),1.0);
+    return o;
   }
 }%
