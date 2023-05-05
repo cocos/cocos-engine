@@ -77,7 +77,7 @@ ComputeView::ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx
   accessType(accessTypeIn),
   clearFlags(clearFlagsIn),
   clearValueType(clearValueTypeIn),
-  clearValue(std::move(clearValueIn)),
+  clearValue(clearValueIn),
   shaderStageFlags(shaderStageFlagsIn) {}
 
 ComputeView::ComputeView(ComputeView&& rhs, const allocator_type& alloc)
@@ -85,7 +85,7 @@ ComputeView::ComputeView(ComputeView&& rhs, const allocator_type& alloc)
   accessType(rhs.accessType),
   clearFlags(rhs.clearFlags),
   clearValueType(rhs.clearValueType),
-  clearValue(std::move(rhs.clearValue)),
+  clearValue(rhs.clearValue),
   shaderStageFlags(rhs.shaderStageFlags) {}
 
 ComputeView::ComputeView(ComputeView const& rhs, const allocator_type& alloc)
