@@ -1095,7 +1095,6 @@ export class SkinInfo {
         if (this._enabled === val) return;
         this._enabled = val;
         if (val && !macro.ENABLE_FLOAT_OUTPUT) {
-            console.warn('ENABLE_FLOAT_OUTPUT : ', macro.ENABLE_FLOAT_OUTPUT);
             console.warn('Separable-SSS skin filter need float output, please open ENABLE_FLOAT_OUTPUT define...');
         }
         if (this._resource) {
