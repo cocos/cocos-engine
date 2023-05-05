@@ -107,7 +107,6 @@ describe('Animation graph asset', () => {
             t1.exitCondition = 0.2;
             t1.destinationStart = 0.3;
             t1.relativeDestinationStart = true;
-            t1.interruptible = true;
             const t2 = mainLayer.stateMachine.connect(m1, m2);
             // @ts-expect-error Type mismatch
             t1.copyTo(t2);
