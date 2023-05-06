@@ -1,4 +1,3 @@
-
 jest.mock(
     'internal:constants',
     () => jest.requireActual('./constants-for-test'),
@@ -58,8 +57,51 @@ jest.mock(
 
 jest.mock(
     'pal/wasm',
-    () => jest.requireActual('../pal/wasm/wasm-web.ts'),
+    () => jest.requireActual('../pal/wasm/wasm-native'),  // NOTE: fix CI, we used import.meta in wasm-web.ts
     { virtual: true, },
+);
+
+// Mock external wasm module here
+[
+    'external:emscripten/bullet/bullet.wasm',
+    'external:emscripten/webgpu/webgpu_wasm.wasm',
+    'external:emscripten/webgpu/glslang.wasm',
+].forEach(moduleId => {
+    jest.mock(moduleId, 
+        () => ({
+            __esModule: true,
+            default: 'this should be a wasm url',
+        }),
+        { virtual: true, },
+    );
+});
+
+
+// Mock external wasm js module here
+[
+    'external:emscripten/webgpu/webgpu_wasm.js',
+    'external:emscripten/webgpu/glslang.js',
+].forEach(moduleId => {
+    jest.mock(moduleId, 
+        () => ({
+            __esModule: true,
+            default: function factory () { return Promise.resolve({}); },
+        }),
+        { virtual: true, },
+    );
+});
+
+jest.mock(
+    'external:emscripten/physx/physx.release.asm.js', 
+    () => jest.requireActual('@cocos/physx'),
+    { virtual: true },
+);
+
+
+jest.mock(
+    'external:emscripten/bullet/bullet.asm.js', 
+    () => jest.requireActual('@cocos/bullet'),
+    { virtual: true },
 );
 
 jest.mock('../cocos/core/platform/debug', () => {
