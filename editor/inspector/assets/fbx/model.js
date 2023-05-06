@@ -791,26 +791,26 @@ const Elements = {
         ready() {
             const panel = this;
 
-            // 监听 LODS 的开启和关闭
+            // Listening lod on and off
             panel.$.lodsCheckbox.addEventListener('change', panel.setProp.bind(panel, 'lods.enable', 'boolean'));
             panel.$.lodsCheckbox.addEventListener('confirm', () => {
                 panel.dispatch('snapshot');
             });
-            // 自定义监听 screenRatio 和 faceCount 变化
+            // listening for screenRatio and faceCount changes
             panel.$.lodItems.addEventListener('change', (event) => {
                 const path = event.target.getAttribute('path');
                 const index = Number(event.target.getAttribute('key'));
                 const value = Editor.Utils.Math.divide(event.target.value, 100);
                 switch (path) {
                     case 'screenRatio':
-                        // TODO: 补充各层级 LOD 的 screenRatio 的 min/max
+                        // TODO: Min/max of the screenRatio for each level of LOD
                         panel.metaList.forEach((meta) => {
                             meta.userData.lods.options[index].screenRatio = value;
                         });
                         panel.dispatch('change');
                         break;
                     case 'faceCount':
-                        // TODO: 补充各层级 LOD 的 faceCount 的 min/max
+                        // TODO: Min/max of the faceCount for each level of LOD
                         panel.metaList.forEach((meta) => {
                             meta.userData.lods.options[index].faceCount = value;
                         });
@@ -818,7 +818,7 @@ const Elements = {
                         break;
                 }
             });
-            // 监听新增删除 lod 层级
+            // Listening to the addition and removal of the lod hierarchy
             panel.$.lodItems.addEventListener('click', (event) => {
                 event.stopPropagation();
                 event.preventDefault();
@@ -838,12 +838,12 @@ const Elements = {
                         triangleCount: 0,
                         faceCount: (preFaceCount + nextFaceCount) / 2,
                     };
-                    // 插入指定 lod 层级
+                    // Insert the specified lod level
                     for (let key = Object.keys(panel.meta.userData.lods.options).length - 1; key > index; key--) {
                         panel.meta.userData.lods.options[parseInt(key) + 1] = panel.meta.userData.lods.options[key];
                     }
                     panel.meta.userData.lods.options[index + 1] = option;
-                    // 更新面板
+                    // update panel
                     panel.$.lodItems.innerHTML = getLodItemHTML(panel.meta.userData.lods.options, panel.meta.userData.lods.isBuiltin);
                     panel.dispatch('change');
                 } else if (path === 'deleteLod') {
@@ -851,12 +851,12 @@ const Elements = {
                         console.warn('At least one LOD, Can\'t delete any more');
                         return;
                     }
-                    // 删除指定 lod 层级
+                    // Delete the specified lod level
                     for (let key = index; key < Object.keys(panel.meta.userData.lods.options).length; key++) {
                         panel.meta.userData.lods.options[key] = panel.meta.userData.lods.options[key + 1];
                     }
                     delete panel.meta.userData.lods.options[Object.keys(panel.meta.userData.lods.options).length - 1];
-                    // 更新面板
+                    // update panel
                     panel.$.lodItems.innerHTML = getLodItemHTML(panel.meta.userData.lods.options, panel.meta.userData.lods.isBuiltin);
                     panel.dispatch('change');
                 }
