@@ -25,7 +25,7 @@
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { buildFxaaPass, buildBloomPass as buildBloomPasses, buildForwardPass,
     buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass,
-    AntiAliasing, buildUIPass, buildSSSSBlurPass, buildSpecularPass, buildToneMapPass, buildAlphaPass } from './define';
+    AntiAliasing, buildUIPass, buildSSSSBlurPass, buildSpecularPass, buildToneMappingPass, buildAlphaPass } from './define';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { isUICamera } from './utils';
 
@@ -51,8 +51,10 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName);
                 // bloom passes
                 const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
+                // tone map pass
+                const toneMappingInfo =  buildToneMappingPass(camera, ppl, bloomInfo.rtName, bloomInfo.dsName);
                 // Present Pass
-                buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
+                buildPostprocessPass(camera, ppl, toneMappingInfo.rtName, AntiAliasing.NONE);
                 continue;
             }
             // render ui
@@ -87,9 +89,9 @@ export class SkinPipelineBuilder implements PipelineBuilder {
                 // alpha pass
                 const postAlphaInfo = buildAlphaPass(camera, ppl, specularInfo.rtName, specularInfo.dsName, postAlpha);
                 // tone map pass
-                const toneMapInfo =  buildToneMapPass(camera, ppl, postAlphaInfo.rtName, postAlphaInfo.dsName);
+                const toneMappingInfo =  buildToneMappingPass(camera, ppl, postAlphaInfo.rtName, postAlphaInfo.dsName);
                 // Present Pass
-                buildPostprocessPass(camera, ppl, toneMapInfo.rtName, AntiAliasing.NONE);
+                buildPostprocessPass(camera, ppl, toneMappingInfo.rtName, AntiAliasing.NONE);
                 continue;
             }
             // render ui

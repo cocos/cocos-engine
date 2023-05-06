@@ -1570,7 +1570,7 @@ class ToneMappingInfo {
 }
 
 let toneMappingInfo: ToneMappingInfo | null = null;
-export function buildToneMapPass (camera: Camera,
+export function buildToneMappingPass (camera: Camera,
     ppl: Pipeline,
     inputRT: string,
     inputDS: string) {
