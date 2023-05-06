@@ -25,7 +25,7 @@
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { buildFxaaPass, buildBloomPass as buildBloomPasses, buildForwardPass,
     buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass,
-    AntiAliasing, buildUIPass } from './define';
+    AntiAliasing, buildUIPass, buildSSSSBlurPass, buildSpecularPass, buildToneMapPass, buildAlphaPass } from './define';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { isUICamera } from './utils';
 
@@ -53,6 +53,43 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
                 // Present Pass
                 buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
+                continue;
+            }
+            // render ui
+            buildUIPass(camera, ppl);
+        }
+    }
+}
+
+export class SkinPipelineBuilder implements PipelineBuilder {
+    public setup (cameras: Camera[], ppl: Pipeline): void {
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (camera.scene === null) {
+                continue;
+            }
+            const isGameView = camera.cameraUsage === CameraUsage.GAME
+                || camera.cameraUsage === CameraUsage.GAME_VIEW;
+            if (!isGameView) {
+                // forward pass
+                buildForwardPass(camera, ppl, isGameView);
+                continue;
+            }
+            // TODO: There is currently no effective way to judge the ui camera. Let’s do this first.
+            if (!isUICamera(camera)) {
+                const postAlpha = true;
+                // forward pass
+                const forwardInfo = buildForwardPass(camera, ppl, isGameView, !postAlpha);
+                // blur pass
+                const blurInfo = buildSSSSBlurPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
+                // specular pass
+                const specularInfo = buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
+                // alpha pass
+                const postAlphaInfo = buildAlphaPass(camera, ppl, specularInfo.rtName, specularInfo.dsName, postAlpha);
+                // tone map pass
+                const toneMapInfo =  buildToneMapPass(camera, ppl, postAlphaInfo.rtName, postAlphaInfo.dsName);
+                // Present Pass
+                buildPostprocessPass(camera, ppl, toneMapInfo.rtName, AntiAliasing.NONE);
                 continue;
             }
             // render ui
