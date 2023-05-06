@@ -419,7 +419,7 @@ export class Game extends EventTarget {
      * @zh 获取上一帧的增量时间，以秒为单位。
      */
     public get deltaTime (): number {
-        return this._useFixedDeltaTime ? this.frameTime / 1000 : this._deltaTime;
+        return this._deltaTime;
     }
 
     /**
@@ -460,7 +460,6 @@ export class Game extends EventTarget {
     private _initTime = 0;
     private _startTime = 0;
     private _deltaTime = 0.0;
-    private _useFixedDeltaTime = false;
     private _shouldLoadLaunchScene = true;
 
     /**
@@ -987,17 +986,16 @@ export class Game extends EventTarget {
     // @Methods
 
     private _calculateDT (useFixedDeltaTime: boolean) {
-        this._useFixedDeltaTime = useFixedDeltaTime;
-
         if (useFixedDeltaTime) {
             this._startTime = performance.now();
-            return this.frameTime / 1000;
+            this._deltaTime = this.frameTime;
+            return this.frameTime;
         }
 
         const now = performance.now();
         this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
         if (this._deltaTime > Game.DEBUG_DT_THRESHOLD) {
-            this._deltaTime = this.frameTime / 1000;
+            this._deltaTime = this.frameTime;
         }
         this._startTime = now;
         return this._deltaTime;
