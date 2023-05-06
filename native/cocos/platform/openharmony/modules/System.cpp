@@ -103,4 +103,8 @@ bool System::openURL(const std::string& url) {
     return false;
 }
 
+void System::copyTextToClipboard(const std::string& text) {
+    //copyTextToClipboardJNI(text);
+}
+
 } // namespace cc
