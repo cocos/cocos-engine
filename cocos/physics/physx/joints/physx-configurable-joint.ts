@@ -196,7 +196,7 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         const linearVelocity = this.constraint.linearDriverSettings.targetVelocity;
         const angularVelocity = this.constraint.angularDriverSettings.targetVelocity;
         const lv = new Vec3(-linearVelocity.x, -linearVelocity.y, -linearVelocity.z);
-        const av = new Vec3(toRadian(-angularVelocity.x), toRadian(-angularVelocity.y), toRadian(-angularVelocity.z));
+        const av = new Vec3(toRadian(angularVelocity.x), toRadian(angularVelocity.y), toRadian(angularVelocity.z));
         this._impl.setDriveVelocity(lv, av, true);
     }
 

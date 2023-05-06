@@ -25,6 +25,6 @@
 /**
  * export PhysX from internal module
  */
-import PhysX from '@cocos/physx';
+// import PhysX from '@cocos/physx';
 
-export { PhysX };
+// export { PhysX };

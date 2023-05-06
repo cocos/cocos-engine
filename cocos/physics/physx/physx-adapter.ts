@@ -30,9 +30,9 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable import/order */
 
-import { PhysX } from './physx.asmjs';
+import PhysX from '@cocos/physx';
 import { BYTEDANCE, DEBUG, EDITOR, TEST } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings } from '../../core';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem } from '../framework';
@@ -42,6 +42,7 @@ import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
 import { Node } from '../../scene-graph';
 import { Director, director, game } from '../../game';
+import { Socket } from '../../3d/skeletal-animation';
 
 export const PX = {} as any;
 const globalThis = cclegacy._global;
@@ -61,23 +62,64 @@ export function InitPhysXLibs () {
         _pxtrans.setQuaternion = PX.Transform.prototype.setQuaternion.bind(_pxtrans);
         initConfigAndCacheObject(PX);
     } else {
-        if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
+        console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
         return initPhysXWithJsModule();
     }
 }
 
+const physxWasmUrl = 'http://10.109.61.62:8080/physx.release.wasm.wasm';
+
 function initPhysXWithJsModule () {
     // If external PHYSX not given, then try to use internal PhysX libs.
     globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : PhysX;
+    const supported = (() => {
+        // iOS 15.4 has some wasm memory issue, can not use wasm for bullet
+        const isiOS15_4 = (sys.os === sys.OS.IOS || sys.os === sys.OS.OSX) && sys.isBrowser
+        && /(OS 15_4)|(Version\/15.4)/.test(window.navigator.userAgent);
+        if (isiOS15_4) {
+            return false;
+        }
+        try {
+            if (typeof WebAssembly === 'object'
+                && typeof WebAssembly.instantiate === 'function') {
+                const module = new WebAssembly.Module(new Uint8Array([0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]));
+                if (module instanceof WebAssembly.Module) {
+                    return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+                }
+            }
+        } catch (e) {
+            return false;
+        }
+        return false;
+    })();
+
+    if (!supported) {
+        return new Promise<void>((resolve, reject) => { resolve(); console.log(`WebAssembly is not supported by current platform`); });
+    }
     if (globalThis.PhysX != null) {
-        return globalThis.PhysX().then((Instance: any) => {
-            if (!EDITOR && !TEST) console.info('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX libs loaded.`);
+        const physxWasmUrl = 'http://10.109.61.62:8080/physx.release.wasm.wasm';
+        return globalThis.PhysX(
+            {
+                locateFile: (file: string) => {
+                    if (file.endsWith('.wasm')) {
+                        console.log('locateFile', file);
+                        return physxWasmUrl;
+                    }
+                    return file;
+                },
+                onRuntimeInitialized: () => {
+                    console.log('onRuntimeInitialized');
+                },
+            },
+        ).then((Instance: any) => {
+            console.info('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
             Object.assign(PX, Instance);
         }, (reason: any) => { console.error('[PHYSICS]:', `PhysX load failed: ${reason}`); });
+        // return new Promise<void>((resolve, reject) => { resolve(); console.log(`test physx js wasm`); });
     } else {
-        if (!EDITOR) console.error('[PHYSICS]:', 'Not Found PhysX js or wasm Libs.');
+        console.error('[PHYSICS]:', 'Not Found PhysX js or wasm Libs.');
     }
 }
 
@@ -92,6 +134,11 @@ function initConfigAndCacheObject (PX: any) {
     PX.MESH_STATIC = {};
     PX.TERRAIN_STATIC = {};
 }
+
+let socket: WebSocket | null = null;
+const queue: Uint8Array[] = [];
+let transport: any = null!;
+let connected = false;
 
 function initAdaptWrapper (obj: any) {
     obj.VECTOR_MAT = new obj.PxMaterialVector();
@@ -116,6 +163,8 @@ function initAdaptWrapper (obj: any) {
     obj.TriangleMeshGeometry = obj.PxTriangleMeshGeometry;
     obj.RigidDynamicLockFlag = obj.PxRigidDynamicLockFlag;
     obj.TolerancesScale = obj.PxTolerancesScale;
+    obj.PvdInstrumentationFlag = obj.PxPvdInstrumentationFlag;
+    obj.DefaultPvdSocketTransportCreate = obj.PxDefaultPvdSocketTransportCreate;
     obj.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => obj.PxRevoluteJointCreate(PX.physics, a, b, c, d);
     obj.createFixedConstraint = (a: any, b: any, c: any, d: any): any => obj.PxFixedJointCreate(PX.physics, a, b, c, d);
     obj.createSphericalJoint = (a: any, b: any, c: any, d: any): any => obj.PxSphericalJointCreate(PX.physics, a, b, c, d);
@@ -596,8 +645,48 @@ export function initializeWorld (world: any) {
             const allocator = new PX.PxDefaultAllocator();
             const defaultErrorCallback = new PX.PxDefaultErrorCallback();
             const foundation = PhysXInstance.foundation = PX.PxCreateFoundation(version, allocator, defaultErrorCallback);
-            if (DEBUG) {
+            if (DEBUG && !EDITOR) {
                 PhysXInstance.pvd = PX.PxCreatePvd(foundation);
+                transport = PX.PxPvdTransport.implement({
+                    connect (): boolean {
+                        socket = new WebSocket('ws://127.0.0.1:5426', ['binary']);
+                        socket.onopen = () => {
+                            connected = true;
+                            console.log('Socket connected');
+                            queue.forEach((data) => socket!.send(data));
+                            queue.length = 0;
+                        };
+                        socket.onclose = () => {
+                            connected = false;
+                            console.log('Socket closed');
+                        };
+                        socket.onerror = (err) => {
+                            console.log('Socket error', err);
+                        };
+                        return true;
+                    },
+                    disconnect (): void {
+                        console.log('Socket disconnect');
+                    },
+                    isConnected (): boolean {
+                        return connected;
+                    },
+                    write (inBytes: number, inLength: number): boolean {
+                        const data = PX.HEAPU8.slice(inBytes, inBytes + inLength);
+                        if (socket?.readyState === WebSocket.OPEN) {
+                            console.log('Socket send');
+                            if (queue.length) {
+                                queue.forEach((data) => socket!.send(data));
+                                queue.length = 0;
+                            }
+                            socket?.send(data);
+                        } else {
+                            queue.push(data);
+                        }
+                        return true;
+                    },
+                });
+                PhysXInstance.pvd.connect(transport, new PX.PxPvdInstrumentationFlags(7));
             } else {
                 PhysXInstance.pvd = null;
             }
