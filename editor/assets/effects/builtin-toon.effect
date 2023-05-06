@@ -416,6 +416,7 @@ CCProgram planar-shadow-vs %{
   #include <surfaces/includes/common-vs>
   #include <shared-ubos>
   #include <surface-vertex>
+  #include <common/lighting/functions>
   #include <shading-entries/main-functions/render-to-planarshadow/vs>
 }%
 

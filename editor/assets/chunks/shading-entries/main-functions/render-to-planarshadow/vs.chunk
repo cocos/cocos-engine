@@ -12,22 +12,10 @@ void main()
   CCSurfacesVertexAnimation(In);
   In.position.xyz = SurfacesVertexModifyLocalPos(In);
   SurfacesVertexModifyLocalSharedData(In);
-  vec4 position = In.position;
 
   // World Space
-  mat4 matWorld, matWorldIT;
-  CCGetWorldMatrixFull(matWorld, matWorldIT); 
-  vec3 P = (matWorld * position).xyz;
-  vec3 L = cc_mainLitDir.xyz;
-  vec3 N = cc_planarNDInfo.xyz;
-  float d = cc_planarNDInfo.w + 0.001;
-  float dist = (-d - dot(P, N)) / (dot(L, N) + 0.0001);
-  vec3 shadowPos = P + L * dist;
-  // avoid z-fighting with shadow plane
-  vec3 view = normalize(cc_cameraPos.xyz - shadowPos);
-  float viewLength = length(cc_cameraPos.xyz - shadowPos);
-  shadowPos += view * min(1.0, 0.005 * viewLength);
-  In.worldPos = shadowPos;
+  vec4 shadowPos = CalculatePlanarShadowWorldPos(In.position);
+  In.worldPos = shadowPos.xyz;
 
   // Clip Space
   In.clipPos = cc_matProj * cc_matView * vec4(In.worldPos, 1.0);
@@ -43,5 +31,5 @@ void main()
   CCSurfacesVertexOutput(In);
 
   // Depth
-  v_dist = dist;
+  v_dist = shadowPos.w;
 }

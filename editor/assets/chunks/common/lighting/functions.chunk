@@ -80,3 +80,23 @@ vec4 CalculateBoxProjectedDirection(vec3 R, vec3 worldPos, vec3 cubeCenterPos, v
   float weight = len < 0.0 ? 0.0 : 1.0;
   return vec4(P, weight);
 }
+
+// calculate planar world pos
+vec4 CalculatePlanarShadowWorldPos(vec4 localPosition) {
+  mat4 matWorld, matWorldIT;
+  CCGetWorldMatrixFull(matWorld, matWorldIT); 
+
+  vec3 P = (matWorld * localPosition).xyz;
+  vec3 L = cc_mainLitDir.xyz;
+  vec3 N = cc_planarNDInfo.xyz;
+  float d = cc_planarNDInfo.w + 0.001;
+  float dist = (-d - dot(P, N)) / (dot(L, N) + 0.0001);
+  vec3 shadowPos = P + L * dist;
+
+  // avoid z-fighting with shadow plane
+  vec3 view = normalize(cc_cameraPos.xyz - shadowPos);
+  float viewLength = length(cc_cameraPos.xyz - shadowPos);
+  shadowPos += view * min(1.0, 0.005 * viewLength);
+
+  return vec4(shadowPos, dist);
+}
