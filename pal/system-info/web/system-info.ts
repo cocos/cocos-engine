@@ -200,9 +200,9 @@ class SystemInfo extends EventTarget {
         const supportXR = typeof (navigator as any).xr !== 'undefined';
         // refer https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
         const supportWasm = (() => {
-            // iOS 15.4 has some wasm memory issue, can not use wasm for bullet
-            const isiOS15_4 = (this.os === OS.IOS || this.os === OS.OSX) && /(OS 15_4)|(Version\/15.4)/.test(window.navigator.userAgent);
-            if (isiOS15_4) {
+            // safari iOS 15.4 has some wasm memory issue, can not use wasm for bullet
+            const isSafari_15_4 = (this.os === OS.IOS || this.os === OS.OSX) && /(OS 15_4)|(Version\/15.4)/.test(window.navigator.userAgent);
+            if (isSafari_15_4) {
                 return false;
             }
             try {
