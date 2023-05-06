@@ -24,13 +24,12 @@
  */
 
 import { ccclass, type, serializable, rangeMin, visible } from 'cc.decorator';
-import { CCFloat, Enum, clamp, lerp, Vec2, Vec3, RealCurve, CCBoolean } from '../../core';
+import { CCFloat, Enum, clamp, lerp, Vec2, Vec3, RealCurve } from '../../core';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { BuiltinParticleParameterFlags, BuiltinParticleParameterName, ParticleDataSet, POSITION, VELOCITY } from '../particle-data-set';
-import { VFXEmitterParams, VFXEmitterState, ModuleExecContext } from '../base';
+import { ParticleDataSet, POSITION, VELOCITY } from '../particle-data-set';
+import { VFXEmitterState, ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
-import { Vec3ArrayParameter } from '../vfx-parameter';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
@@ -379,7 +378,7 @@ export enum Quality {
 }
 
 @ccclass('cc.CurlNoiseModule')
-@VFXModule.register('CurlNoise', ModuleExecStageFlags.UPDATE, [BuiltinParticleParameterName.VELOCITY], [])
+@VFXModule.register('CurlNoise', ModuleExecStageFlags.UPDATE, [VELOCITY.name], [])
 export class CurlNoiseModule extends VFXModule {
     @serializable
     @visible(true)

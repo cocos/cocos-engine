@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, serializable, tooltip } from 'cc.decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Vec3 } from '../../core';
 import { INITIAL_DIR, ParticleDataSet } from '../particle-data-set';
@@ -38,14 +38,12 @@ export class CircleLocationModule extends AngleBasedLocationModule {
       * @zh 粒子发射器半径。
       */
     @serializable
-    @tooltip('i18n:shapeModule.radius')
     public radius = 1;
 
     /**
-       * @zh 发射区域的半径厚度，范围为 0 ~ 1。
-       */
+      * @zh 发射区域的半径厚度，范围为 0 ~ 1。
+      */
     @serializable
-    @tooltip('i18n:shapeModule.radiusThickness')
     public radiusThickness = 1;
 
     private _innerRadius = 0;

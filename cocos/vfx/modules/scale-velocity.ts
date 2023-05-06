@@ -24,12 +24,11 @@
  */
 
 import { ccclass, serializable, type, visible } from 'cc.decorator';
-import { CCBoolean, Enum, lerp, Vec3 } from '../../core';
+import { CCBoolean, Enum, Vec3 } from '../../core';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
-import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
@@ -96,19 +95,22 @@ export class ScaleVelocityModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const velocity  = particles.getVec3Parameter(VELOCITY);
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.isWorldSpace;
         const { fromIndex, toIndex } = context;
         if (this.separateAxes) {
             const exp = this.scalar;
             exp.bind(particles, emitter, user, context);
-            if (exp.isConstant) {
-                const scalar = exp.evaluate(0, tempScalar);
-                for (let i = fromIndex; i < toIndex; i++) {
-                    velocity.multiplyVec3At(scalar, i);
-                }
-            } else {
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const scalar = exp.evaluate(i, tempScalar);
-                    velocity.multiplyVec3At(scalar, i);
+            if (needTransform) {
+                if (exp.isConstant) {
+                    const scalar = exp.evaluate(0, tempScalar);
+                    for (let i = fromIndex; i < toIndex; i++) {
+                        velocity.multiplyVec3At(scalar, i);
+                    }
+                } else {
+                    for (let i = fromIndex; i < toIndex; i++) {
+                        const scalar = exp.evaluate(i, tempScalar);
+                        velocity.multiplyVec3At(scalar, i);
+                    }
                 }
             }
         } else {

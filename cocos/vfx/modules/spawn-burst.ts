@@ -55,26 +55,6 @@ export class SpawnBurstModule extends VFXModule {
         this._time = val;
     }
 
-    /**
-      * @zh Burst 的触发次数。
-      */
-    @editable
-    public get repeatCount () {
-        return this._repeatCount;
-    }
-
-    public set repeatCount (val) {
-        this._repeatCount = val;
-    }
-
-    /**
-      * @zh 每次触发的间隔时间。
-      */
-    @serializable
-    @editable
-    public repeatInterval = 1;
-    @serializable
-    private _repeatCount = 1;
     @serializable
     private _time = 0;
 

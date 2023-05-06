@@ -23,13 +23,12 @@
  THE SOFTWARE.
  */
 
-import { ccclass, range, serializable, tooltip, type, visible } from 'cc.decorator';
+import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, SCALE } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
-import { lerp, Vec3 } from '../../core';
-import { RandomStream } from '../random-stream';
+import { Vec3 } from '../../core';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';

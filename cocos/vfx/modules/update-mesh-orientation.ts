@@ -24,209 +24,62 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
-import { DEBUG } from 'internal:constants';
-import { Vec3, lerp, assertIsTrue, CCBoolean } from '../../core';
+import { ccclass, type, serializable } from 'cc.decorator';
+import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { FloatExpression } from '../expressions/float';
 import { ModuleExecContext } from '../base';
 import { MESH_ORIENTATION, ParticleDataSet } from '../particle-data-set';
-import { RandomStream } from '../random-stream';
+import { Vec3Expression } from '../expressions/vec3';
+import { ConstantVec3Expression } from '../expressions';
+import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../user-data-set';
 
-const ROTATION_OVERTIME_RAND_OFFSET = 125292;
-const seed = new Vec3();
+const eulerAngle = new Vec3();
 
 @ccclass('cc.UpdateMeshOrientationModule')
 @VFXModule.register('UpdateMeshOrientation', ModuleExecStageFlags.UPDATE, [MESH_ORIENTATION.name], [])
 export class UpdateMeshOrientationModule extends VFXModule {
     /**
-     * @zh 是否三个轴分开设定旋转。
-     */
-    @type(CCBoolean)
-    @displayOrder(1)
-    @tooltip('i18n:rotationOvertimeModule.separateAxes')
-    get separateAxes () {
-        return this._separateAxes;
-    }
-
-    set separateAxes (val) {
-        this._separateAxes = val;
-    }
-
-    /**
      * @zh 绕 X 轴设定旋转。
      */
-    @type(FloatExpression)
-    @range([-1, 1])
-    @radian
-    @displayOrder(2)
-    @tooltip('i18n:rotationOvertimeModule.x')
-    @visible(function (this: RotationModule): boolean { return this.separateAxes; })
-    public get x () {
-        if (!this._x) {
-            this._x = new FloatExpression();
+    @type(Vec3Expression)
+    public get rotationRate () {
+        if (!this._rotationRate) {
+            this._rotationRate = new ConstantVec3Expression();
         }
-        return this._x;
+        return this._rotationRate;
     }
 
-    public set x (val) {
-        this._x = val;
-    }
-
-    /**
-     * @zh 绕 Y 轴设定旋转。
-     */
-    @type(FloatExpression)
-    @range([-1, 1])
-    @radian
-    @displayOrder(3)
-    @tooltip('i18n:rotationOvertimeModule.y')
-    @visible(function (this: RotationModule): boolean { return this.separateAxes; })
-    public get y () {
-        if (!this._y) {
-            this._y = new FloatExpression();
-        }
-        return this._y;
-    }
-
-    public set y (val) {
-        this._y = val;
-    }
-
-    /**
-     * @zh 绕 Z 轴设定旋转。
-     */
-    @type(FloatExpression)
-    @serializable
-    @range([-1, 1])
-    @radian
-    @displayOrder(4)
-    @tooltip('i18n:rotationOvertimeModule.z')
-    @visible(function (this: RotationModule): boolean { return this.separateAxes; })
-    public z = new FloatExpression();
-
-    @type(FloatExpression)
-    @range([-1, 1])
-    @radian
-    @displayOrder(4)
-    @tooltip('i18n:rotationOvertimeModule.z')
-    @visible(function (this: RotationModule): boolean { return !this.separateAxes; })
-    public get angularVelocity () {
-        return this.z;
-    }
-
-    public set angularVelocity (val) {
-        this.z = val;
+    public set rotationRate (val) {
+        this._rotationRate = val;
     }
 
     @serializable
-    private _separateAxes = false;
-    @serializable
-    private _y: FloatExpression | null = null;
-    @serializable
-    private _x: FloatExpression | null = null;
+    private _rotationRate: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
-        if (this.separateAxes && DEBUG) {
-            assertIsTrue(this.x.mode === this.y.mode && this.y.mode === this.z.mode, 'The curve of x, y, z must have same mode!');
-        }
-        particles.markRequiredParameter(ANGULAR_VELOCITY);
-        particles.markRequiredParameter(ROTATION);
-        if (this.z.mode === FloatExpression.Mode.CURVE || this.z.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameter(NORMALIZED_AGE);
-        }
-        if (this.z.mode === FloatExpression.Mode.TWO_CONSTANTS || this.z.mode === FloatExpression.Mode.TWO_CURVES) {
-            particles.markRequiredParameter(RANDOM_SEED);
-        }
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        particles.markRequiredParameter(MESH_ORIENTATION);
+        this.rotationRate.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { angularVelocity } = particles;
+        const meshOrientation = particles.getVec3Parameter(MESH_ORIENTATION);
         const { fromIndex, toIndex } = context;
-        if (!this._separateAxes) {
-            if (this.z.mode === FloatExpression.Mode.CONSTANT) {
-                const constant = this.z.constant;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocity.addZAt(constant, i);
-                }
-            } else if (this.z.mode === FloatExpression.Mode.CURVE) {
-                const { spline, multiplier } = this.z;
-                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocity.addZAt(spline.evaluate(normalizedAge[i]) * multiplier, i);
-                }
-            } else if (this.z.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                const { constantMin, constantMax } = this.z;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocity.addZAt(lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)), i);
-                }
-            } else {
-                const { splineMin, splineMax, multiplier } = this.z;
-                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const time = normalizedAge[i];
-                    angularVelocity.addZAt(lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET)) * multiplier, i);
-                }
+
+        const exp = this._rotationRate as Vec3Expression;
+        exp.bind(particles, emitter, user, context);
+        const { deltaTime } = context;
+
+        if (exp.isConstant) {
+            const rate = exp.evaluate(0, eulerAngle);
+            for (let i = fromIndex; i < toIndex; i++) {
+                meshOrientation.add3fAt(rate.x * deltaTime, rate.y * deltaTime, rate.z * deltaTime, i);
             }
         } else {
-            // eslint-disable-next-line no-lonely-if
-            if (this.z.mode === FloatExpression.Mode.CONSTANT) {
-                const constantX = this.x.constant;
-                const constantY = this.y.constant;
-                const constantZ = this.z.constant;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    angularVelocity.add3fAt(constantX, constantY, constantZ, i);
-                }
-            } else if (this.z.mode === FloatExpression.Mode.CURVE) {
-                const { spline: splineX, multiplier: xMultiplier } = this.x;
-                const { spline: splineY, multiplier: yMultiplier } = this.y;
-                const { spline: splineZ, multiplier: zMultiplier } = this.z;
-                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const time = normalizedAge[i];
-                    angularVelocity.add3fAt(splineX.evaluate(time) * xMultiplier,
-                        splineY.evaluate(time) * yMultiplier,
-                        splineZ.evaluate(time) * zMultiplier, i);
-                }
-            } else if (this.z.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const { constantMin: xMin, constantMax: xMax } = this.x;
-                const { constantMin: yMin, constantMax: yMax } = this.y;
-                const { constantMin: zMin, constantMax: zMax } = this.z;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandomStream.get3Float(randomSeed[i] + ROTATION_OVERTIME_RAND_OFFSET, seed);
-                    angularVelocity.add3fAt(lerp(xMin, xMax, ratio.x),
-                        lerp(yMin, yMax, ratio.y),
-                        lerp(zMin, zMax, ratio.z), i);
-                }
-            } else {
-                const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.x;
-                const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.y;
-                const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.z;
-                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const time = normalizedAge[i];
-                    const seed = randomSeed[i];
-                    angularVelocity.add3fAt(lerp(xMin.evaluate(time), xMax.evaluate(time), RandomStream.getFloat(seed + ROTATION_OVERTIME_RAND_OFFSET)) * xMultiplier,
-                        lerp(yMin.evaluate(time), yMax.evaluate(time), RandomStream.getFloat(seed + ROTATION_OVERTIME_RAND_OFFSET)) * yMultiplier,
-                        lerp(zMin.evaluate(time), zMax.evaluate(time), RandomStream.getFloat(seed + ROTATION_OVERTIME_RAND_OFFSET)) * zMultiplier, i);
-                }
+            for (let i = fromIndex; i < toIndex; i++) {
+                const rate = exp.evaluate(i, eulerAngle);
+                meshOrientation.add3fAt(rate.x * deltaTime, rate.y * deltaTime, rate.z * deltaTime, i);
             }
-        }
-    }
-
-    protected needsFilterSerialization () {
-        return true;
-    }
-
-    protected getSerializedProps () {
-        if (!this.separateAxes) {
-            return ['separateAxes', 'z'];
-        } else {
-            return ['separateAxes', '_x', '_y', 'z'];
         }
     }
 }

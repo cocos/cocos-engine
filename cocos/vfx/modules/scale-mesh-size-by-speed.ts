@@ -29,7 +29,6 @@ import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
 import { ParticleDataSet, SCALE, VELOCITY } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
-import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
