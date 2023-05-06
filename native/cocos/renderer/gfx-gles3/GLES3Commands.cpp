@@ -1458,7 +1458,6 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
                   gpuRenderPass->statistics[i].storeSubpass != SUBPASS_EXTERNAL);
     }
 
-    ccstd::unordered_map<GFXObject *, std::pair<GLbitfield, GLbitfield>> resRecord;
     // if barrier deduce enabled: should deduce this from subpass & attachment access infos
     if constexpr (ENABLE_GRAPH_AUTO_BARRIER) {
         gpuRenderPass->subpassBarriers.resize(gpuRenderPass->dependencies.size());
@@ -1472,39 +1471,16 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
                 completeBarrier(&gpuRenderPass->blockBarrier);
             }
 
-            if (dependency.bufferBarrierCount) {
-                for (size_t index = 0; index < dependency.bufferBarrierCount; ++index) {
-                    barrier.prevAccesses = dependency.bufferBarriers[index]->getInfo().prevAccesses;
-                    barrier.nextAccesses = dependency.bufferBarriers[index]->getInfo().nextAccesses;
-                    completeBarrier(&barrier);
-                    auto iter = resRecord.find(dependency.buffers[index]);
-                    if (iter == resRecord.end()) {
-                        resRecord.insert({dependency.buffers[index], std::pair<GLbitfield, GLbitfield>(barrier.glBarriers, barrier.glBarriersByRegion)});
-                    } else {
-                        iter->second = std::pair<GLbitfield, GLbitfield>(barrier.glBarriers, barrier.glBarriersByRegion);
-                    }
-                }
-            }
+            CC_ASSERT(dependency.prevAccesses.size() == dependency.nextAccesses.size());
 
-            if (dependency.textureBarrierCount) {
-                for (size_t index = 0; index < dependency.textureBarrierCount; ++index) {
-                    barrier.prevAccesses = dependency.textureBarriers[index]->getInfo().prevAccesses;
-                    barrier.nextAccesses = dependency.textureBarriers[index]->getInfo().nextAccesses;
-                    completeBarrier(&barrier);
-                    auto iter = resRecord.find(dependency.textures[index]);
-                    if (iter == resRecord.end()) {
-                        resRecord.insert({dependency.textures[index], std::pair<GLbitfield, GLbitfield>(barrier.glBarriers, barrier.glBarriersByRegion)});
-                    } else {
-                        iter->second = std::pair<GLbitfield, GLbitfield>(barrier.glBarriers, barrier.glBarriersByRegion);
-                    }
-                }
-            }
-        }
+            for (size_t index = 0; index < dependency.prevAccesses.size(); ++index) {
+                barrier.prevAccesses = dependency.prevAccesses[i];
+                barrier.nextAccesses = dependency.nextAccesses[i];
+                completeBarrier(&barrier);
 
-        for (const auto &pair : resRecord) {
-            const auto &barrier = pair.second;
-            gpuRenderPass->blockBarrier.glBarriers |= barrier.first;
-            gpuRenderPass->blockBarrier.glBarriersByRegion |= barrier.second;
+                gpuRenderPass->blockBarrier.glBarriers |= barrier.glBarriers;
+                gpuRenderPass->blockBarrier.glBarriersByRegion |= barrier.glBarriersByRegion;
+            }
         }
     } else {
         gpuRenderPass->subpassBarriers.resize(gpuRenderPass->subpasses.size() + 1);

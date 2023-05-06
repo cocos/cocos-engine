@@ -328,6 +328,9 @@ export class Compiler {
                 const resId = this._resourceGraph.vertex(name);
                 const trait = this._resourceGraph.getTraits(resId);
                 const rasterArr: number[] = Array.from(use.rasters.keys());
+                if (!rasterArr.length) {
+                    continue;
+                }
 
                 const min = rasterArr.reduce((prev, current) => (prev < current ? prev : current));
                 const firstRaster = use.rasters.get(min)!;

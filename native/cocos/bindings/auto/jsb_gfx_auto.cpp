@@ -13739,7 +13739,7 @@ static bool js_cc_gfx_SubpassDependency_generalBarrier_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_SubpassDependency_generalBarrier_get) 
 
-static bool js_cc_gfx_SubpassDependency_bufferBarriers_set(se::State& s)
+static bool js_cc_gfx_SubpassDependency_prevAccesses_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -13749,15 +13749,16 @@ static bool js_cc_gfx_SubpassDependency_bufferBarriers_set(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
     if (nullptr == arg1) return true;
     
-    ok &= sevalue_to_native(args[0], &arg1->bufferBarriers, s.thisObject());
+    ok &= sevalue_to_native(args[0], &arg1->prevAccesses, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
+    
     return true;
 }
-SE_BIND_PROP_SET(js_cc_gfx_SubpassDependency_bufferBarriers_set) 
+SE_BIND_PROP_SET(js_cc_gfx_SubpassDependency_prevAccesses_set) 
 
-static bool js_cc_gfx_SubpassDependency_bufferBarriers_get(se::State& s)
+static bool js_cc_gfx_SubpassDependency_prevAccesses_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
     cc::gfx::SubpassDependency *arg1 = (cc::gfx::SubpassDependency *) NULL ;
@@ -13765,16 +13766,17 @@ static bool js_cc_gfx_SubpassDependency_bufferBarriers_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->bufferBarriers, s.rval(), s.thisObject());
+    ok &= nativevalue_to_se(arg1->prevAccesses, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->bufferBarriers, s.thisObject(), s.rval()); 
+    SE_HOLD_RETURN_VALUE(arg1->prevAccesses, s.thisObject(), s.rval());
+    
     
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_gfx_SubpassDependency_bufferBarriers_get) 
+SE_BIND_PROP_GET(js_cc_gfx_SubpassDependency_prevAccesses_get) 
 
-static bool js_cc_gfx_SubpassDependency_buffers_set(se::State& s)
+static bool js_cc_gfx_SubpassDependency_nextAccesses_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -13784,15 +13786,16 @@ static bool js_cc_gfx_SubpassDependency_buffers_set(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
     if (nullptr == arg1) return true;
     
-    ok &= sevalue_to_native(args[0], &arg1->buffers, s.thisObject());
+    ok &= sevalue_to_native(args[0], &arg1->nextAccesses, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
+    
     return true;
 }
-SE_BIND_PROP_SET(js_cc_gfx_SubpassDependency_buffers_set) 
+SE_BIND_PROP_SET(js_cc_gfx_SubpassDependency_nextAccesses_set) 
 
-static bool js_cc_gfx_SubpassDependency_buffers_get(se::State& s)
+static bool js_cc_gfx_SubpassDependency_nextAccesses_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
     cc::gfx::SubpassDependency *arg1 = (cc::gfx::SubpassDependency *) NULL ;
@@ -13800,152 +13803,15 @@ static bool js_cc_gfx_SubpassDependency_buffers_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->buffers, s.rval(), s.thisObject());
+    ok &= nativevalue_to_se(arg1->nextAccesses, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->buffers, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gfx_SubpassDependency_buffers_get) 
-
-static bool js_cc_gfx_SubpassDependency_bufferBarrierCount_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gfx::SubpassDependency *arg1 = (cc::gfx::SubpassDependency *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg1->bufferBarrierCount, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->nextAccesses, s.thisObject(), s.rval());
     
     
     
     return true;
 }
-SE_BIND_PROP_SET(js_cc_gfx_SubpassDependency_bufferBarrierCount_set) 
-
-static bool js_cc_gfx_SubpassDependency_bufferBarrierCount_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gfx::SubpassDependency *arg1 = (cc::gfx::SubpassDependency *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= nativevalue_to_se(arg1->bufferBarrierCount, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gfx_SubpassDependency_bufferBarrierCount_get) 
-
-static bool js_cc_gfx_SubpassDependency_textureBarriers_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gfx::SubpassDependency *arg1 = (cc::gfx::SubpassDependency *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg1->textureBarriers, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_gfx_SubpassDependency_textureBarriers_set) 
-
-static bool js_cc_gfx_SubpassDependency_textureBarriers_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gfx::SubpassDependency *arg1 = (cc::gfx::SubpassDependency *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= nativevalue_to_se(arg1->textureBarriers, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->textureBarriers, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gfx_SubpassDependency_textureBarriers_get) 
-
-static bool js_cc_gfx_SubpassDependency_textures_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gfx::SubpassDependency *arg1 = (cc::gfx::SubpassDependency *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg1->textures, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_gfx_SubpassDependency_textures_set) 
-
-static bool js_cc_gfx_SubpassDependency_textures_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gfx::SubpassDependency *arg1 = (cc::gfx::SubpassDependency *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= nativevalue_to_se(arg1->textures, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->textures, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gfx_SubpassDependency_textures_get) 
-
-static bool js_cc_gfx_SubpassDependency_textureBarrierCount_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gfx::SubpassDependency *arg1 = (cc::gfx::SubpassDependency *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg1->textureBarrierCount, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_gfx_SubpassDependency_textureBarrierCount_set) 
-
-static bool js_cc_gfx_SubpassDependency_textureBarrierCount_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gfx::SubpassDependency *arg1 = (cc::gfx::SubpassDependency *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= nativevalue_to_se(arg1->textureBarrierCount, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gfx_SubpassDependency_textureBarrierCount_get) 
+SE_BIND_PROP_GET(js_cc_gfx_SubpassDependency_nextAccesses_get) 
 
 static bool js_cc_gfx_SubpassDependency_copy(se::State& s)
 {
@@ -14032,39 +13898,15 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SubpassDependency * to, s
     }
     
     
-    json->getProperty("bufferBarriers", &field, true);
+    json->getProperty("prevAccesses", &field, true);
     if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->bufferBarriers), ctx);
+        ok &= sevalue_to_native(field, &(to->prevAccesses), ctx);
     }
     
     
-    json->getProperty("buffers", &field, true);
+    json->getProperty("nextAccesses", &field, true);
     if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->buffers), ctx);
-    }
-    
-    
-    json->getProperty("bufferBarrierCount", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->bufferBarrierCount), ctx);
-    }
-    
-    
-    json->getProperty("textureBarriers", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->textureBarriers), ctx);
-    }
-    
-    
-    json->getProperty("textures", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->textures), ctx);
-    }
-    
-    
-    json->getProperty("textureBarrierCount", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->textureBarrierCount), ctx);
+        ok &= sevalue_to_native(field, &(to->nextAccesses), ctx);
     }
     
     
@@ -14079,12 +13921,8 @@ bool js_register_cc_gfx_SubpassDependency(se::Object* obj) {
     cls->defineProperty("srcSubpass", _SE(js_cc_gfx_SubpassDependency_srcSubpass_get), _SE(js_cc_gfx_SubpassDependency_srcSubpass_set)); 
     cls->defineProperty("dstSubpass", _SE(js_cc_gfx_SubpassDependency_dstSubpass_get), _SE(js_cc_gfx_SubpassDependency_dstSubpass_set)); 
     cls->defineProperty("generalBarrier", _SE(js_cc_gfx_SubpassDependency_generalBarrier_get), _SE(js_cc_gfx_SubpassDependency_generalBarrier_set)); 
-    cls->defineProperty("bufferBarriers", _SE(js_cc_gfx_SubpassDependency_bufferBarriers_get), _SE(js_cc_gfx_SubpassDependency_bufferBarriers_set)); 
-    cls->defineProperty("buffers", _SE(js_cc_gfx_SubpassDependency_buffers_get), _SE(js_cc_gfx_SubpassDependency_buffers_set)); 
-    cls->defineProperty("bufferBarrierCount", _SE(js_cc_gfx_SubpassDependency_bufferBarrierCount_get), _SE(js_cc_gfx_SubpassDependency_bufferBarrierCount_set)); 
-    cls->defineProperty("textureBarriers", _SE(js_cc_gfx_SubpassDependency_textureBarriers_get), _SE(js_cc_gfx_SubpassDependency_textureBarriers_set)); 
-    cls->defineProperty("textures", _SE(js_cc_gfx_SubpassDependency_textures_get), _SE(js_cc_gfx_SubpassDependency_textures_set)); 
-    cls->defineProperty("textureBarrierCount", _SE(js_cc_gfx_SubpassDependency_textureBarrierCount_get), _SE(js_cc_gfx_SubpassDependency_textureBarrierCount_set)); 
+    cls->defineProperty("prevAccesses", _SE(js_cc_gfx_SubpassDependency_prevAccesses_get), _SE(js_cc_gfx_SubpassDependency_prevAccesses_set)); 
+    cls->defineProperty("nextAccesses", _SE(js_cc_gfx_SubpassDependency_nextAccesses_get), _SE(js_cc_gfx_SubpassDependency_nextAccesses_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_SubpassDependency_copy)); 
     
