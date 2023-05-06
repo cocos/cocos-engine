@@ -1116,21 +1116,15 @@ export class Model {
         }
 
         const attributes: Attribute[] = [];
-        const checkAttr = function (attrName: string) {
-            for (let i = 0; i < attributes.length; i++) {
-                if (attrName === attributes[i].name) {
-                    return true;
+        const attributeSet = new Set<string>();
+        for (const pass of subModel.passes) {
+            const shader = pass.getShaderVariant(subModel.patches)!;
+            for (const attr of shader.attributes) {
+                if (!attributeSet.has(attr.name)) {
+                    attributes.push(attr);
+                    attributeSet.add(attr.name);
                 }
             }
-            return false;
-        };
-        for (let i = 0; i < subModel.passes.length; i++) {
-            const shader = subModel.passes[i].getShaderVariant(subModel.patches)!;
-            shader.attributes.forEach((attr) => {
-                if (!checkAttr(attr.name)) {
-                    attributes.push(attr);
-                }
-            });
         }
         this._updateInstancedAttributes(attributes, subModel);
     }
