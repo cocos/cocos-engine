@@ -79,7 +79,10 @@ function initStates (gl: WebGLRenderingContext) {
 }
 
 function getExtension (gl: WebGLRenderingContext, ext: string): any {
-    const prefixes = ['', 'WEBKIT_', 'MOZ_'];
+    const prefixes = [''];
+    if (systemInfo.os === OS.IOS) {
+        prefixes.push('WEBKIT_');
+    }
     for (let i = 0; i < prefixes.length; ++i) {
         const _ext = gl.getExtension(prefixes[i] + ext);
         if (_ext) {
@@ -102,18 +105,18 @@ export function getExtensions (gl: WebGLRenderingContext) {
         WEBGL_compressed_texture_etc1: getExtension(gl, 'WEBGL_compressed_texture_etc1'),
         WEBGL_compressed_texture_etc: getExtension(gl, 'WEBGL_compressed_texture_etc'),
         WEBGL_compressed_texture_pvrtc: getExtension(gl, 'WEBGL_compressed_texture_pvrtc'),
-        WEBGL_compressed_texture_s3tc: getExtension(gl, 'WEBGL_compressed_texture_s3tc'),
-        WEBGL_compressed_texture_s3tc_srgb: getExtension(gl, 'WEBGL_compressed_texture_s3tc_srgb'),
-        WEBGL_debug_shaders: getExtension(gl, 'WEBGL_debug_shaders'),
+        WEBGL_compressed_texture_s3tc: null, /*getExtension(gl, 'WEBGL_compressed_texture_s3tc'),*/
+        WEBGL_compressed_texture_s3tc_srgb: null, /*getExtension(gl, 'WEBGL_compressed_texture_s3tc_srgb'),*/
+        WEBGL_debug_shaders: null, /*getExtension(gl, 'WEBGL_debug_shaders'),*/
         WEBGL_draw_buffers: getExtension(gl, 'WEBGL_draw_buffers'),
-        WEBGL_lose_context: getExtension(gl, 'WEBGL_lose_context'),
+        WEBGL_lose_context: null, /*getExtension(gl, 'WEBGL_lose_context'),*/
         WEBGL_depth_texture: getExtension(gl, 'WEBGL_depth_texture'),
         OES_texture_half_float: getExtension(gl, 'OES_texture_half_float'),
         OES_texture_half_float_linear: getExtension(gl, 'OES_texture_half_float_linear'),
         OES_texture_float: getExtension(gl, 'OES_texture_float'),
         OES_texture_float_linear: getExtension(gl, 'OES_texture_float_linear'),
-        OES_standard_derivatives: getExtension(gl, 'OES_standard_derivatives'),
-        OES_element_index_uint: getExtension(gl, 'OES_element_index_uint'),
+        OES_standard_derivatives: null, /*getExtension(gl, 'OES_standard_derivatives'),*/
+        OES_element_index_uint: null, /*getExtension(gl, 'OES_element_index_uint'),*/
         ANGLE_instanced_arrays: getExtension(gl, 'ANGLE_instanced_arrays'),
         WEBGL_debug_renderer_info: getExtension(gl, 'WEBGL_debug_renderer_info'),
         WEBGL_multi_draw: null,
