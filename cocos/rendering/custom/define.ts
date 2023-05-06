@@ -1286,7 +1286,7 @@ class HBAOParams {
         if (this.hbaoMaterial) return;
         this.hbaoMaterial = new Material();
         this.hbaoMaterial.name = 'builtin-hbao-material';
-        this.hbaoMaterial.initialize({ effectName: 'pipeline/post-process/ao/hbao' });
+        this.hbaoMaterial.initialize({ effectName: 'pipeline/post-process/hbao' });
         for (let i = 0; i < this.hbaoMaterial.passes.length; ++i) {
             this.hbaoMaterial.passes[i].tryCompile();
         }

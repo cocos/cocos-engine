@@ -63,7 +63,7 @@ CCProgram hbao-vs %{
 
 CCProgram hbao-fs %{
   precision highp float;
-  #include <hbao>
+  #include <chunks/hbao>
   #include <common/common-define>
 
   in vec2 v_uv;
@@ -78,7 +78,7 @@ CCProgram hbao-fs %{
 
 CCProgram blurx-fs %{
   precision highp float;
-  #include <hbao>
+  #include <chunks/hbao>
   #include <common/common-define>
 
   in vec2 v_uv;
@@ -93,7 +93,7 @@ CCProgram blurx-fs %{
 
 CCProgram blury-fs %{
   precision highp float;
-  #include <hbao>
+  #include <chunks/hbao>
   #include <common/common-define>
 
   in vec2 v_uv;
@@ -108,7 +108,7 @@ CCProgram blury-fs %{
 
 CCProgram combine-fs %{
   precision highp float;
-  #include <hbao>
+  #include <chunks/hbao>
   #include <common/common-define>
 
   in vec2 v_uv;
