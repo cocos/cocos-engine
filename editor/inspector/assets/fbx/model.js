@@ -132,6 +132,9 @@ exports.template = /* html */`
         </div>
         <div class="lod-items"></div>
         <div class="no-lod-label" hidden>There is no LOD(Level of Details) group can be detected in this model.LOD levels can be automatically generated with above settings.</div>
+        <div class="load-mask">
+            <ui-loading></ui-loading>
+        </div>
     </ui-section>
 </div>
 `;
@@ -242,6 +245,20 @@ ui-section {
 .lods .no-lod-label[hidden] {
     display: none;
 }
+.lods .load-mask {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    text-align: center;
+    background-color: #1b1d1db0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
 `;
 
 exports.$ = {
@@ -278,6 +295,7 @@ exports.$ = {
     lodsCheckbox: '.lods-checkbox',
     lodItems: '.lod-items',
     noLodLabel: '.no-lod-label',
+    loadMask: '.load-mask',
 };
 
 const Elements = {
@@ -773,7 +791,6 @@ const Elements = {
         ready() {
             const panel = this;
 
-            // TODO: 启用 lods 使用减面算法自动生成
             // 监听 LODS 的开启和关闭
             panel.$.lodsCheckbox.addEventListener('change', panel.setProp.bind(panel, 'lods.enable', 'boolean'));
             panel.$.lodsCheckbox.addEventListener('confirm', () => {
@@ -856,6 +873,9 @@ const Elements = {
             const isBuiltin = panel.meta.userData.lods.isBuiltin;
             panel.$.lodItems.innerHTML = getLodItemHTML(lodItems, isBuiltin);
             isBuiltin ? panel.$.noLodLabel.setAttribute('hidden', '') : panel.$.noLodLabel.removeAttribute('hidden');
+            if (panel.$.loadMask.style.display === 'flex' && this.asset.imported) {
+                panel.$.loadMask.style.display = 'none';
+            }
 
             updateElementInvalid.call(panel, panel.$.lodsCheckbox, 'lods.enable');
             updateElementReadonly.call(panel, panel.$.lodsCheckbox, isBuiltin);
@@ -874,9 +894,14 @@ exports.methods = {
         this.dispatch('change');
         this.dispatch('track', { tab: 'model', prop, value: event.target.value });
     },
+    apply() {
+        this.$.loadMask.style.display = 'flex';
+    }
 };
 
 exports.ready = function() {
+    Editor.Message.addBroadcastListener('fbx-inspector:apply', this.apply.bind(this));
+
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -900,6 +925,8 @@ exports.update = function(assetList, metaList) {
 };
 
 exports.close = function() {
+    Editor.Message.removeBroadcastListener('fbx-inspector:apply', this.apply.bind(this));
+
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
