@@ -16,7 +16,7 @@ export class BlitScreenPass extends SettingPass {
     get setting () { return getSetting(BlitScreen); }
 
     name = 'BlitScreenPass'
-    effectName = 'post-process/blit-screen';
+    effectName = 'pipeline/post-process/blit-screen';
 
     outputName = outputNames[0]
 

@@ -1,4 +1,3 @@
-import { EDITOR } from 'internal:constants';
 import { Vec4 } from '../../../core';
 import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
@@ -6,15 +5,15 @@ import { Pipeline } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 
-import { FSR } from '../components/fsr';
 import { getSetting, SettingPass } from './setting-pass';
+import { ColorGrading } from '../components';
 
-export class FSRPass extends SettingPass {
-    get setting () { return getSetting(FSR); }
+export class ColorGradingPass extends SettingPass {
+    get setting () { return getSetting(ColorGrading); }
 
-    name = 'FSRPass'
-    effectName = 'pipeline/post-process/fsr';
-    outputNames = ['FSRColor']
+    name = 'ColorGradingPass'
+    effectName = 'pipeline/post-process/color-grading';
+    outputNames = ['ColorGrading']
 
     checkEnable (camera: Camera) {
         const enable = super.checkEnable(camera);
@@ -38,26 +37,19 @@ export class FSRPass extends SettingPass {
         passContext.material = this.material;
 
         const setting = this.setting;
-        this.material.setProperty('fsrParams', new Vec4(setting.sharpness, 0, 0, 0));
-        this.material.setProperty('texSize',
-            new Vec4(
-                inputWidth, inputHeight,
-                outWidth, outHeight,
-            ));
+        this.material.setProperty('colorGradingMap', setting.colorGradingMap);
+        this.material.setProperty('contribute', setting.contribute);
 
-        const input0 = this.lastPass!.slotName(camera, 0);
-        const easu = 'FSR_EASU';
-        passContext.addRasterPass(outWidth, outHeight, 'post-process', `CameraFSR_EASU_Pass${cameraID}`)
+        const input = this.lastPass!.slotName(camera, 0);
+        const slot = this.slotName(camera, 0);
+        const isSquareMap = setting.colorGradingMap && setting.colorGradingMap.width === setting.colorGradingMap.height;
+        const passName = isSquareMap ? 'color-grading-8x8' : 'color-grading-32';
+        const passIndx = isSquareMap ? 1 : 0;
+        passContext.addRasterPass(outWidth, outHeight, passName, `color-grading${cameraID}`)
             .setViewport(area.x, area.y, outWidth, outHeight)
-            .setPassInput(input0, 'outputResultMap')
-            .addRasterView(easu, Format.RGBA8)
-            .blitScreen(0);
-
-        const slot0 = this.slotName(camera, 0);
-        passContext.addRasterPass(outWidth, outHeight, 'post-process', `CameraFSR_RCAS_Pass${cameraID}`)
-            .setViewport(area.x, area.y, outWidth, outHeight)
-            .setPassInput(easu, 'outputResultMap')
-            .addRasterView(slot0, Format.RGBA8)
-            .blitScreen(1);
+            .setPassInput(input, 'sceneColorMap')
+            .addRasterView(slot, Format.RGBA8)
+            .blitScreen(passIndx)
+            .version();
     }
 }

@@ -4,4 +4,5 @@ export * from './forward-pass';
 export * from './taa-pass';
 export * from './fsr-pass';
 export * from './blit-screen-pass';
+export * from './color-grading-pass';
 export * from './forward-final-pass';
