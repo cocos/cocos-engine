@@ -1,5 +1,3 @@
-import {} from 'internal:constants';
-
 /**
  * An enum type for WASM_SUPPORT_MODE constant, making the support mode more readable.
  */
