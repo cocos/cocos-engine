@@ -51,7 +51,7 @@ public:
      @brief enable/disable(lock) the cursor, default is enabled
      */
     void               setCursorEnabled(bool value) override;
-    void               copyTextToClipboard(const std::string& text) override;
+
 private:
     void* _windowHandle{nullptr};
     uint32_t _windowId{0};

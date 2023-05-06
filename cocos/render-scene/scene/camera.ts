@@ -29,6 +29,7 @@ import { Node } from '../../scene-graph';
 import { RenderScene } from '../core/render-scene';
 import { RenderWindow } from '../core/render-window';
 import { GeometryRenderer } from '../../rendering/geometry-renderer';
+import { PostProcess } from '../../rendering/post-process/components/post-process';
 
 /**
  * @en The enumeration type for the fixed axis of the camera.
@@ -804,6 +805,8 @@ export class Camera {
      * @zh 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同。
      */
     public screenScale: number;
+
+    public postProcess: PostProcess | null = null;
 
     private _device: Device;
     private _scene: RenderScene | null = null;

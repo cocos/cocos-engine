@@ -29,7 +29,6 @@ import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass, BatchingSchemes } from '../render-scene/core/pass';
 import { RenderInstancedQueue } from './render-instanced-queue';
-import { RenderBatchedQueue } from './render-batched-queue';
 import { ShadowType } from '../render-scene/scene/shadows';
 import { Light, LightType } from '../render-scene/scene/light';
 import { cclegacy, geometry } from '../core';
@@ -62,12 +61,10 @@ export class RenderShadowMapBatchedQueue {
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
     private _instancedQueue: RenderInstancedQueue;
-    private _batchedQueue: RenderBatchedQueue;
 
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
         this._instancedQueue = new RenderInstancedQueue();
-        this._batchedQueue = new RenderBatchedQueue();
     }
 
     public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer, level = 0) {
@@ -120,7 +117,6 @@ export class RenderShadowMapBatchedQueue {
             }
 
             this._instancedQueue.uploadBuffers(cmdBuff);
-            this._batchedQueue.uploadBuffers(cmdBuff);
         }
     }
 
@@ -133,7 +129,6 @@ export class RenderShadowMapBatchedQueue {
         this._shaderArray.length = 0;
         this._passArray.length = 0;
         this._instancedQueue.clear();
-        this._batchedQueue.clear();
     }
 
     public add (model: Model) {
@@ -149,10 +144,6 @@ export class RenderShadowMapBatchedQueue {
                 const buffer = pass.getInstancedBuffer();
                 buffer.merge(subModel, shadowPassIdx);
                 this._instancedQueue.queue.add(buffer);
-            } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
-                const buffer = pass.getBatchedBuffer();
-                buffer.merge(subModel, shadowPassIdx, model);
-                this._batchedQueue.queue.add(buffer);
             } else {
                 const shader = subModel.shaders[shadowPassIdx];
                 this._subModelsArray.push(subModel);
@@ -168,7 +159,6 @@ export class RenderShadowMapBatchedQueue {
      */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         for (let i = 0; i < this._subModelsArray.length; ++i) {
             const subModel = this._subModelsArray[i];

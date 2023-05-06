@@ -39,7 +39,6 @@ import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, get
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../rendering/define';
 import { InstancedBuffer } from '../../rendering/instanced-buffer';
-import { BatchedBuffer } from '../../rendering/batched-buffer';
 import { ProgramLibrary } from '../../rendering/custom/private';
 
 export interface IPassInfoFull extends EffectAsset.IPassInfo {
@@ -76,7 +75,6 @@ const _materialSet = 1;
 export enum BatchingSchemes {
     NONE = 0,
     INSTANCING = 1,
-    VB_MERGING = 2,
 }
 
 export declare namespace Pass {
@@ -197,7 +195,6 @@ export class Pass {
     protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
     protected _dynamicStates: DynamicStateFlagBit = DynamicStateFlagBit.NONE;
     protected _instancedBuffers: Record<number, InstancedBuffer> = {};
-    protected _batchedBuffers: Record<number, BatchedBuffer> = {};
     protected _hash = 0;
     // external references
     protected _root: Root;
@@ -374,10 +371,6 @@ export class Pass {
         return this._instancedBuffers[extraKey] || (this._instancedBuffers[extraKey] = new InstancedBuffer(this));
     }
 
-    public getBatchedBuffer (extraKey = 0) {
-        return this._batchedBuffers[extraKey] || (this._batchedBuffers[extraKey] = new BatchedBuffer(this));
-    }
-
     /**
      * @en Destroy the current pass.
      * @zh 销毁当前 pass。
@@ -396,10 +389,6 @@ export class Pass {
 
         for (const ib in this._instancedBuffers) {
             this._instancedBuffers[ib].destroy();
-        }
-
-        for (const bb in this._batchedBuffers) {
-            this._batchedBuffers[bb].destroy();
         }
 
         this._descriptorSet.destroy();
@@ -754,8 +743,6 @@ export class Pass {
                 this._defines.USE_INSTANCING = false;
                 this._batchingScheme = BatchingSchemes.NONE;
             }
-        } else if (this._defines.USE_BATCHING) {
-            this._batchingScheme = BatchingSchemes.VB_MERGING;
         } else {
             this._batchingScheme = BatchingSchemes.NONE;
         }
