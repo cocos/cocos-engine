@@ -24,7 +24,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
-    Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit } from '../../gfx';
+    Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address } from '../../gfx';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
@@ -37,6 +37,7 @@ import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
 import { AABB } from '../../core/geometry';
+import { DebugViewCompositeType, DebugViewSingleType } from '../debug-view';
 
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 const _tmpBoundingBox = new AABB();
@@ -1204,18 +1205,9 @@ export function mergeSrcToTargetDesc (fromDesc, toDesc, isForce = false) {
     return extResId;
 }
 
-export const KERNEL_RADIUS = 32;//是NUM_STEPS*STEP_SIZE, 此参数可调但需要Shader支持动态循环, 改完还需要改gHalfBlurRadius
-export const INV_LN2 = 1.44269504;
-export const SQRT_LN2 = 0.8325546;
-const aoRowData: number[] = [
-    238, 91, 87, 255, 251, 44, 119, 255, 247, 64, 250, 255, 232, 5, 225, 255,
-    253, 177, 140, 255, 250, 51, 84, 255, 243, 76, 97, 255, 252, 36, 232, 255,
-    235, 100, 24, 255, 252, 36, 158, 255, 254, 20, 142, 255, 245, 135, 124, 255,
-    251, 43, 121, 255, 253, 31, 145, 255, 235, 98, 160, 255, 240, 146, 198, 255,
-];
-class HBAOInfo {
+class HBAOParams {
     declare hbaoMaterial: Material;
-    declare hbaoTexture: Texture2D;
+    declare randomTexture: Texture2D;
 
     get uvDepthToEyePosParams () {
         return this._uvDepthToEyePosParams;
@@ -1229,56 +1221,72 @@ class HBAOInfo {
         return this._miscParam;
     }
 
-    get randomTexSize () {
-        return this._randomTexSize;
+    get blurParam () {
+        return this._blurParam;
     }
 
-    set uv2DepthTexResolution (val: Vec2) {
-        this._uv2DepthTexResolution.set(val);
+    set depthTexFullResolution (val: Vec2) {
+        this._depthTexFullResolution.set(val);
     }
 
-    set fSceneScale (val: number) {
-        this._fSceneScale = val;
+    set depthTexResolution (val: Vec2) {
+        this._depthTexResolution.set(val);
     }
 
-    set fCameraFov (val: number) {
-        this._fCameraFov = val;
+    set sceneScale (val: number) {
+        this._sceneScale = val;
     }
 
-    set fRadiusScale (val: number) {
-        this._fRadiusScale = val;
+    set cameraFov (val: number) {
+        this._cameraFov = val;
     }
 
-    set fAngleBiasDegree (val: number) {
-        this._fAngleBiasDegree = val;
+    set radiusScale (val: number) {
+        this._radiusScale = val;
     }
 
-    set fAOStrength (val: number) {
-        this._fAOStrength = val;
+    set angleBiasDegree (val: number) {
+        this._angleBiasDegree = val;
     }
 
-    set fBlurSharpness (val: number) {
-        this._fBlurSharpness = val;
+    set aoStrength (val: number) {
+        this._aoStrength = val;
+    }
+
+    set blurSharpness (val: number) {
+        this._blurSharpness = val;
+    }
+
+    set aoSaturation (val: number) {
+        this._aoSaturation = val;
     }
 
     private _uvDepthToEyePosParams = new Vec4();
     private _radiusParam = new Vec4();
     private _miscParam = new Vec4();
-    private _randomTexSize = new Vec4();
+    private _blurParam = new Vec4();
 
-    private _uv2DepthTexResolution = new Vec2(1024);
-    private _fSceneScale = 1.0;
-    private _fCameraFov = 45.0 / 57.3;
-    private _fRadiusScale = 1.0;
-    private _fAngleBiasDegree = 10.0;
-    private _fAOStrength = 1.0;
-    private _fBlurSharpness = 8;
+    private _depthTexFullResolution = new Vec2(1024);
+    private _depthTexResolution = new Vec2(1024);
+    private _sceneScale = 1.0;
+    private _cameraFov = toRadian(45.0);
+    private _radiusScale = 1.0;
+    private _angleBiasDegree = 10.0;
+    private _aoStrength = 1.0;
+    private _blurSharpness = 8;
+    private _aoSaturation = 1.0;
 
+    private _randomDirAndJitter: number[] = [
+        238, 91, 87, 255, 251, 44, 119, 255, 247, 64, 250, 255, 232, 5, 225, 255,
+        253, 177, 140, 255, 250, 51, 84, 255, 243, 76, 97, 255, 252, 36, 232, 255,
+        235, 100, 24, 255, 252, 36, 158, 255, 254, 20, 142, 255, 245, 135, 124, 255,
+        251, 43, 121, 255, 253, 31, 145, 255, 235, 98, 160, 255, 240, 146, 198, 255,
+    ];
     private _init () {
         if (this.hbaoMaterial) return;
         this.hbaoMaterial = new Material();
-        this.hbaoMaterial._uuid = 'builtin-hbao-material';
-        this.hbaoMaterial.initialize({ effectName: 'pipeline/hbao' });
+        this.hbaoMaterial.name = 'builtin-hbao-material';
+        this.hbaoMaterial.initialize({ effectName: 'pipeline/post-process/ao/hbao' });
         for (let i = 0; i < this.hbaoMaterial.passes.length; ++i) {
             this.hbaoMaterial.passes[i].tryCompile();
         }
@@ -1288,8 +1296,8 @@ class HBAOInfo {
         const pixelFormat = Texture2D.PixelFormat.RGBA8888;
         const arrayBuffer = new ArrayBuffer(width * height * 4);
         const arrayBufferView = new DataView(arrayBuffer);
-        for (let i = 0; i < aoRowData.length; i++) {
-            arrayBufferView.setUint8(i, aoRowData[i]);
+        for (let i = 0; i < this._randomDirAndJitter.length; i++) {
+            arrayBufferView.setUint8(i, this._randomDirAndJitter[i]);
         }
         const image = new ImageAsset({
             width,
@@ -1298,39 +1306,43 @@ class HBAOInfo {
             _compressed: false,
             format: pixelFormat,
         });
-        this.hbaoTexture = new Texture2D();
-        this.hbaoTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
-        this.hbaoTexture.setMipFilter(Texture2D.Filter.NONE);
-        this.hbaoTexture.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
-        this.hbaoTexture.image = image;
-        if (!this.hbaoTexture.getGFXTexture()) {
+        this.randomTexture = new Texture2D();
+        this.randomTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
+        this.randomTexture.setMipFilter(Texture2D.Filter.NONE);
+        this.randomTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
+        this.randomTexture.image = image;
+        if (!this.randomTexture.getGFXTexture()) {
             console.warn('Unexpected: failed to create ao texture?');
         }
-        this.hbaoMaterial.setProperty('RandomTex', this.hbaoTexture, 0);
+        this.hbaoMaterial.setProperty('RandomTex', this.randomTexture, 0);
     }
 
     public update () {
-        const gR = this._fRadiusScale * this._fSceneScale;
+        // should be same value as shader
+        const HALF_KERNEL_RADIUS = 4;
+        const INV_LN2 = 1.44269504;
+        const SQRT_LN2 = 0.8325546;
+
+        const gR = this._radiusScale * this._sceneScale;
         const gR2 = gR * gR;
         const gNegInvR2 = -1.0 / gR2;
-        const gMaxRadiusPixels = 0.1 * Math.min(this._uv2DepthTexResolution.x, this._uv2DepthTexResolution.y);
+        const gMaxRadiusPixels = 0.1 * Math.min(this._depthTexFullResolution.x, this._depthTexFullResolution.y);
         this._radiusParam.set(gR, gR2, gNegInvR2, gMaxRadiusPixels);
 
-        const gFocalLen = new Vec2(1.0, this._uv2DepthTexResolution.y / this._uv2DepthTexResolution.x / Math.tan(this._fCameraFov * 0.5));
-        const gTanAngleBias = Math.tan(this._fAngleBiasDegree / 57.3);
-        const gStrength = this._fAOStrength;
+        const vec2 = new Vec2(this._depthTexResolution.y / this._depthTexResolution.x, 1.0);
+        const gFocalLen = new Vec2(vec2.x / Math.tan(this._cameraFov * 0.5), vec2.y / Math.tan(this._cameraFov * 0.5));
+        const gTanAngleBias = Math.tan(toRadian(this._angleBiasDegree));
+        const gStrength = this._aoStrength;
         this._miscParam.set(gFocalLen.x, gFocalLen.y, gTanAngleBias, gStrength);
 
-        const gUVToViewB = new Vec2(1.0 / gFocalLen.x, -1.0 / gFocalLen.y);
-        const gUVToViewA = new Vec2(gUVToViewB.x * 2.0, gUVToViewB.y * 2.0);
+        const gUVToViewA = new Vec2(2.0 / gFocalLen.x, -2.0 / gFocalLen.y);
+        const gUVToViewB = new Vec2(-1.0 / gFocalLen.x, 1.0 / gFocalLen.y);
         this._uvDepthToEyePosParams.set(gUVToViewA.x, gUVToViewA.y, gUVToViewB.x, gUVToViewB.y);
 
-        const gHalfBlurRadius = KERNEL_RADIUS / 2;
-        const BlurSigma = (gHalfBlurRadius + 1.0) * 0.5;
+        const BlurSigma = (HALF_KERNEL_RADIUS + 1.0) * 0.5;
         const gBlurFallOff = INV_LN2 / (2.0 * BlurSigma * BlurSigma);
-        const gBlurDepthThreshold = 2.0 * SQRT_LN2 * (this._fSceneScale / this._fBlurSharpness);
-        const gInvFullResolution = new Vec2(1.0 / this._uv2DepthTexResolution.x, 1.0 / this._uv2DepthTexResolution.y);
-        this._randomTexSize.set(gBlurFallOff, gBlurDepthThreshold, gInvFullResolution.x, gInvFullResolution.y);
+        const gBlurDepthThreshold = 2.0 * SQRT_LN2 * (this._sceneScale / this._blurSharpness);
+        this._blurParam.set(gBlurFallOff, gBlurDepthThreshold, this._blurSharpness / 8.0, this._aoSaturation);
     }
 
     constructor () {
@@ -1339,28 +1351,13 @@ class HBAOInfo {
     }
 }
 
-let hbaoInfo: HBAOInfo | null = null;
-
-export function buildHBAOPass (camera: Camera,
+let _hbaoParams: HBAOParams | null = null;
+const vec2 = new Vec2();
+function _buildHBAOPass (camera: Camera,
     ppl: Pipeline,
     inputRT: string,
-    inputDS: string,
-    uv2DepthTexResolution = new Vec2(1024, 1024),
-    fSceneScale = 1.0,
-    fCameraFov = 45.0 / 57.3,
-    fRadiusScale = 1.0,
-    fAngleBiasDegree = 10.0,
-    fAOStrength = 1.0,
-    fBlurSharpness = 8) {
-    if (!hbaoInfo) hbaoInfo = new HBAOInfo();
-    hbaoInfo.uv2DepthTexResolution = uv2DepthTexResolution;
-    hbaoInfo.fSceneScale = fSceneScale;
-    hbaoInfo.fCameraFov = fCameraFov;
-    hbaoInfo.fRadiusScale = fRadiusScale;
-    hbaoInfo.fAngleBiasDegree = fAngleBiasDegree;
-    hbaoInfo.fAOStrength = fAOStrength;
-    hbaoInfo.fBlurSharpness = fBlurSharpness;
-    hbaoInfo.update();
+    inputDS: string) {
+    if (!_hbaoParams) return { rtName: inputRT, dsName: inputDS };
 
     const cameraID = getCameraUniqueID(camera);
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
@@ -1368,34 +1365,224 @@ export function buildHBAOPass (camera: Camera,
     const height = area.height;
 
     const hbaoClearColor = new Color(0, 0, 0, camera.clearColor.w);
-    if (camera.clearFlag & ClearFlagBit.COLOR) {
-        hbaoClearColor.x = camera.clearColor.x;
-        hbaoClearColor.y = camera.clearColor.y;
-        hbaoClearColor.z = camera.clearColor.z;
-    }
 
-    const hbaoPassRT = `hbaoRTName${cameraID}`;
-    if (!ppl.containsResource(hbaoPassRT)) {
-        ppl.addRenderTarget(hbaoPassRT, Format.BGRA8, width, height, ResourceResidency.MANAGED);
+    const hbaoRTName = `hbaoRTName${cameraID}`;
+    if (!ppl.containsResource(hbaoRTName)) {
+        ppl.addRenderTarget(hbaoRTName, Format.BGRA8, width, height, ResourceResidency.MANAGED);
     }
-    ppl.updateRenderTarget(hbaoPassRT, width, height);
-    const hbaoPass = ppl.addRasterPass(width, height, 'hbao');
+    ppl.updateRenderTarget(hbaoRTName, width, height);
+    const hbaoPass = ppl.addRasterPass(width, height, 'hbao-pass');
     hbaoPass.name = `CameraHBAOPass${cameraID}`;
     hbaoPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
-    if (ppl.containsResource(inputDS)) hbaoPass.addTexture(inputRT, 'DepthTex');
+    if (ppl.containsResource(inputDS)) {
+        const webPipeline = (ppl as WebPipeline);
+        const verId = webPipeline.resourceGraph.vertex(inputDS);
+        const sampler = webPipeline.resourceGraph.getSampler(verId);
+        sampler.minFilter = sampler.magFilter = Filter.POINT;
+        sampler.mipFilter = Filter.NONE;
+        sampler.addressU = sampler.addressV = Address.CLAMP;
+        const computeView = new ComputeView();
+        computeView.name = 'DepthTex';
+        hbaoPass.addComputeView(inputDS, computeView);
+    }
     hbaoPass.addRenderTarget(
-        hbaoPassRT,
+        hbaoRTName,
         '_',
-        LoadOp.CLEAR,
+        LoadOp.LOAD,
         StoreOp.STORE,
         hbaoClearColor,
     );
-    hbaoInfo.hbaoMaterial.setProperty('UVDepthToEyePosParams', hbaoInfo.uvDepthToEyePosParams, 0);
-    hbaoInfo.hbaoMaterial.setProperty('RadiusParam', hbaoInfo.radiusParam, 0);
-    hbaoInfo.hbaoMaterial.setProperty('MiscParam', hbaoInfo.miscParam, 0);
-    hbaoInfo.hbaoMaterial.setProperty('randomTexSize', hbaoInfo.randomTexSize, 0);
-    hbaoPass.addQueue(QueueHint.NONE).addFullscreenQuad(
-        hbaoInfo.hbaoMaterial, 0, SceneFlags.NONE,
+    const passIdx = 0;
+    _hbaoParams.hbaoMaterial.setProperty('uvDepthToEyePosParams', _hbaoParams.uvDepthToEyePosParams, passIdx);
+    _hbaoParams.hbaoMaterial.setProperty('radiusParam', _hbaoParams.radiusParam, passIdx);
+    _hbaoParams.hbaoMaterial.setProperty('miscParam', _hbaoParams.miscParam, passIdx);
+    // eslint-disable-next-line max-len
+    _hbaoParams.hbaoMaterial.setProperty('randomTexSize', new Vec4(_hbaoParams.randomTexture.width, _hbaoParams.randomTexture.height, 1.0 / _hbaoParams.randomTexture.width, 1.0 / _hbaoParams.randomTexture.height), passIdx);
+    _hbaoParams.hbaoMaterial.setProperty('blurParam', _hbaoParams.blurParam, passIdx);
+    hbaoPass.addQueue(QueueHint.RENDER_TRANSPARENT | QueueHint.RENDER_OPAQUE).addCameraQuad(
+        camera, _hbaoParams.hbaoMaterial, passIdx,
+        SceneFlags.NONE,
     );
-    return { rtName: hbaoPassRT, dsName: inputDS };
+    return { rtName: hbaoRTName, dsName: inputDS };
+}
+
+function _buildHBAOBlurPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string,
+    inputDS: string,
+    isYPass: boolean) {
+    if (!_hbaoParams) return { rtName: inputRT, dsName: inputDS };
+
+    const cameraID = getCameraUniqueID(camera);
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    const hbaoClearColor = new Color(0, 0, 0, camera.clearColor.w);
+
+    let inputRTName = `hbaoRTName${cameraID}`;
+    let outputRTName = `hbaoBluredRTName${cameraID}`;
+    let shaderPassName = 'blurx-pass';
+    let blurPassName = `CameraHBAOBluredXPass${cameraID}`;
+    if (isYPass) {
+        outputRTName = `hbaoRTName${cameraID}`;
+        inputRTName = `hbaoBluredRTName${cameraID}`;
+        shaderPassName = 'blury-pass';
+        blurPassName = `CameraHBAOBluredYPass${cameraID}`;
+    }
+
+    if (!ppl.containsResource(outputRTName)) {
+        ppl.addRenderTarget(outputRTName, Format.BGRA8, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderTarget(outputRTName, width, height);
+    const blurPass = ppl.addRasterPass(width, height, shaderPassName);
+    blurPass.name = blurPassName;
+    blurPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
+    if (ppl.containsResource(inputDS)) {
+        const webPipeline = (ppl as WebPipeline);
+        const verId = webPipeline.resourceGraph.vertex(inputDS);
+        const sampler = webPipeline.resourceGraph.getSampler(verId);
+        sampler.minFilter = sampler.magFilter = Filter.POINT;
+        sampler.mipFilter = Filter.NONE;
+        sampler.addressU = sampler.addressV = Address.CLAMP;
+        const computeView = new ComputeView();
+        computeView.name = 'DepthTex';
+        blurPass.addComputeView(inputDS, computeView);
+    }
+    if (ppl.containsResource(inputRTName)) {
+        const webPipeline = (ppl as WebPipeline);
+        const verId = webPipeline.resourceGraph.vertex(inputRTName);
+        const sampler = webPipeline.resourceGraph.getSampler(verId);
+        sampler.minFilter = sampler.magFilter = Filter.LINEAR;
+        sampler.mipFilter = Filter.NONE;
+        sampler.addressU = sampler.addressV = Address.CLAMP;
+        const computeView = new ComputeView();
+        computeView.name = 'AOTexNearest';
+        blurPass.addComputeView(inputRTName, computeView);
+    }
+    blurPass.addRenderTarget(
+        outputRTName,
+        '_',
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        hbaoClearColor,
+    );
+    const passIdx = isYPass ? 2 : 1;
+    _hbaoParams.hbaoMaterial.setProperty('uvDepthToEyePosParams', _hbaoParams.uvDepthToEyePosParams, passIdx);
+    _hbaoParams.hbaoMaterial.setProperty('radiusParam', _hbaoParams.radiusParam, passIdx);
+    _hbaoParams.hbaoMaterial.setProperty('miscParam', _hbaoParams.miscParam, passIdx);
+    _hbaoParams.hbaoMaterial.setProperty('blurParam', _hbaoParams.blurParam, passIdx);
+    blurPass.addQueue(QueueHint.RENDER_TRANSPARENT | QueueHint.RENDER_OPAQUE).addCameraQuad(
+        camera, _hbaoParams.hbaoMaterial, passIdx,
+        SceneFlags.NONE,
+    );
+    return { rtName: outputRTName, dsName: inputDS };
+}
+
+function _buildHBAOCombinedPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string,
+    inputDS: string,
+    outputRT: string) {
+    if (!_hbaoParams) return { rtName: inputRT, dsName: inputDS };
+
+    const cameraID = getCameraUniqueID(camera);
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    const hbaoClearColor = new Color(0, 0, 0, camera.clearColor.w);
+
+    const outputRTName = outputRT;
+    if (!ppl.containsResource(outputRTName)) {
+        ppl.addRenderTarget(outputRTName, Format.BGRA8, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderTarget(outputRTName, width, height);
+    const hbaoPass = ppl.addRasterPass(width, height, 'combine-pass');
+    hbaoPass.name = `CameraHBAOCombinedPass${cameraID}`;
+    hbaoPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
+
+    const inputRTName = inputRT;
+    if (ppl.containsResource(inputRTName)) {
+        const webPipeline = (ppl as WebPipeline);
+        const verId = webPipeline.resourceGraph.vertex(inputRTName);
+        const sampler = webPipeline.resourceGraph.getSampler(verId);
+        sampler.minFilter = sampler.magFilter = Filter.LINEAR;
+        sampler.mipFilter = Filter.NONE;
+        sampler.addressU = sampler.addressV = Address.CLAMP;
+        const computeView = new ComputeView();
+        computeView.name = 'AOTexNearest';
+        hbaoPass.addComputeView(inputRTName, computeView);
+    }
+
+    hbaoPass.addRenderTarget(
+        outputRTName,
+        '_',
+        LoadOp.LOAD,
+        StoreOp.STORE,
+        hbaoClearColor,
+    );
+    const passIdx = 3;
+    _hbaoParams.hbaoMaterial.setProperty('uvDepthToEyePosParams', _hbaoParams.uvDepthToEyePosParams, passIdx);
+    _hbaoParams.hbaoMaterial.setProperty('radiusParam', _hbaoParams.radiusParam, passIdx);
+    _hbaoParams.hbaoMaterial.setProperty('miscParam', _hbaoParams.miscParam, passIdx);
+    _hbaoParams.hbaoMaterial.setProperty('blurParam', _hbaoParams.blurParam, passIdx);
+    hbaoPass.addQueue(QueueHint.RENDER_TRANSPARENT | QueueHint.RENDER_OPAQUE).addCameraQuad(
+        camera, _hbaoParams.hbaoMaterial, passIdx,
+        SceneFlags.NONE,
+    );
+    return { rtName: outputRTName, dsName: inputDS };
+}
+
+export function buildHBAOPasses (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string,
+    inputDS: string,
+    radiusScale = 1.0,
+    angleBiasDegree = 10.0,
+    blurSharpness = 3,
+    aoSaturation = 1.0,
+    needBlur = true) {
+    const area = getRenderArea(camera, camera.window.width, camera.window.height);
+    const width = area.width;
+    const height = area.height;
+
+    // params
+    if (!_hbaoParams) _hbaoParams = new HBAOParams();
+    const aoStrength = 1.0;
+    // todo: nearest object distance from camera
+    const sceneScale = camera.nearClip;
+    // todo: Half Res Depth Tex
+    _hbaoParams.depthTexFullResolution = vec2.set(width, height);
+    _hbaoParams.depthTexResolution = vec2.set(width, height);
+    _hbaoParams.sceneScale = sceneScale;
+    _hbaoParams.cameraFov = camera.fov;
+    _hbaoParams.radiusScale = radiusScale;
+    _hbaoParams.angleBiasDegree = angleBiasDegree;
+    _hbaoParams.aoStrength = aoStrength;
+    _hbaoParams.blurSharpness = blurSharpness;
+    _hbaoParams.aoSaturation = aoSaturation;
+    _hbaoParams.update();
+
+    // debug view
+    const director = cclegacy.director;
+    const root = director.root;
+    if (root.debugView) {
+        if (root.debugView.isEnabled()
+            && (root.debugView.singleMode !== DebugViewSingleType.NONE && root.debugView.singleMode !== DebugViewSingleType.AO
+            || !root.debugView.isCompositeModeEnabled(DebugViewCompositeType.AO))) {
+            return { rtName: inputRT, dsName: inputDS };
+        }
+    }
+
+    // passes
+    const hbaoInfo = _buildHBAOPass(camera, ppl, inputRT, inputDS);
+    let hbaoCombinedInputRTName = hbaoInfo.rtName;
+    if (needBlur) {
+        const haboBlurInfoX = _buildHBAOBlurPass(camera, ppl, hbaoInfo.rtName, inputDS, false);
+        const haboBlurInfoY = _buildHBAOBlurPass(camera, ppl, haboBlurInfoX.rtName, inputDS, true);
+        hbaoCombinedInputRTName = haboBlurInfoY.rtName;
+    }
+    const haboCombined = _buildHBAOCombinedPass(camera, ppl, hbaoCombinedInputRTName, inputDS, inputRT);
+    return { rtName: haboCombined.rtName, dsName: inputDS };
 }
