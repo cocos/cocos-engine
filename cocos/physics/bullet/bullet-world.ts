@@ -238,6 +238,26 @@ export class BulletWorld implements IPhysicsWorld {
 
     sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
         options: IRaycastOptions, inflation: number, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        // cast shape
+        const hf = BulletCache.instance.BT_V3_0;
+        cocos2BulletVec3(hf, halfExtent);
+        const boxShape = bt.BoxShape_new(hf);//todo reuse
+
+        return this.sweep(worldRay, boxShape, orientation, options, inflation, pool, results);
+    }
+
+    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {
+        // cast shape
+        const hf = BulletCache.instance.BT_V3_0;
+        cocos2BulletVec3(hf, halfExtent);
+        const boxShape = bt.BoxShape_new(hf);//todo reuse
+
+        return this.sweepClosest(worldRay, boxShape, orientation, options, inflation, result);
+    }
+
+    sweep (worldRay: geometry.Ray, btShapePtr: any, orientation: IQuatLike,
+        options: IRaycastOptions, inflation: number, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         const BT_fromTransform = BulletCache.instance.BT_TRANSFORM_0;
         const BT_toTransform = BulletCache.instance.BT_TRANSFORM_1;
         const BT_orientation = BulletCache.instance.BT_QUAT_0;
@@ -253,14 +273,9 @@ export class BulletWorld implements IPhysicsWorld {
         cocos2BulletQuat(BT_orientation, orientation);
         bt.Transform_setRotation(BT_toTransform, BT_orientation);
 
-        // cast shape
-        const hf = BulletCache.instance.BT_V3_0;
-        cocos2BulletVec3(hf, halfExtent);
-        const boxShape = bt.BoxShape_new(hf);//todo reuse
-
         const allHitsCB = bt.ccAllConvexCallback_static();
         bt.ccAllConvexCallback_reset(allHitsCB, BT_fromTransform, BT_toTransform, options.mask, options.queryTrigger);
-        bt.CollisionWorld_convexSweepTest(this._world, boxShape, BT_fromTransform, BT_toTransform, allHitsCB, 0);
+        bt.CollisionWorld_convexSweepTest(this._world, btShapePtr, BT_fromTransform, BT_toTransform, allHitsCB, 0);
         if (bt.ConvexCallback_hasHit(allHitsCB)) {
             const posArray = bt.ccAllConvexCallback_getHitPointWorld(allHitsCB);
             const normalArray = bt.ccAllConvexCallback_getHitNormalWorld(allHitsCB);
@@ -277,7 +292,7 @@ export class BulletWorld implements IPhysicsWorld {
         return false;
     }
 
-    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+    sweepClosest (worldRay: geometry.Ray, btShapePtr: any, orientation: IQuatLike,
         options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {
         const BT_fromTransform = BulletCache.instance.BT_TRANSFORM_0;
         const BT_toTransform = BulletCache.instance.BT_TRANSFORM_1;
@@ -294,14 +309,9 @@ export class BulletWorld implements IPhysicsWorld {
         cocos2BulletQuat(BT_orientation, orientation);
         bt.Transform_setRotation(BT_toTransform, BT_orientation);
 
-        // cast shape
-        const hf = BulletCache.instance.BT_V3_0;
-        cocos2BulletVec3(hf, halfExtent);
-        const boxShape = bt.BoxShape_new(hf);//todo reuse
-
         const closeHitCB = bt.ccClosestConvexCallback_static();
         bt.ccClosestConvexCallback_reset(closeHitCB, BT_fromTransform, BT_toTransform, options.mask, options.queryTrigger);
-        bt.CollisionWorld_convexSweepTest(this._world, boxShape, BT_fromTransform, BT_toTransform, closeHitCB, 0);
+        bt.CollisionWorld_convexSweepTest(this._world, btShapePtr, BT_fromTransform, BT_toTransform, closeHitCB, 0);
         if (bt.ConvexCallback_hasHit(closeHitCB)) {
             bullet2CocosVec3(v3_0, bt.ccClosestConvexCallback_getHitPointWorld(closeHitCB));
             bullet2CocosVec3(v3_1, bt.ccClosestConvexCallback_getHitNormalWorld(closeHitCB));
