@@ -33,6 +33,7 @@ import glslangUrl from 'external:emscripten/webgpu/glslang.wasm';
 import wasmDevice from 'external:emscripten/webgpu/webgpu_wasm.js';
 import glslangLoader from 'external:emscripten/webgpu/glslang.js';
 import { legacyCC } from '../core/global-exports';
+import { WebAssemblySupportMode } from '../misc/webassembly-support';
 
 export const glslalgWasmModule: any = {
     glslang: null,
@@ -49,7 +50,7 @@ export const webgpuAdapter: any = {
 };
 
 export const promiseForWebGPUInstantiation = (() => {
-    if (WEBGPU && WASM_SUPPORT_MODE !== 0) {
+    if (WEBGPU && WASM_SUPPORT_MODE !== WebAssemblySupportMode.NONE) {
         // TODO: we need to support AsmJS fallback option
         return Promise.all([
             glslangLoader(new URL(glslangUrl, import.meta.url).href).then((res) => {
@@ -81,7 +82,7 @@ export const promiseForWebGPUInstantiation = (() => {
     return Promise.resolve();
 })();
 
-if (WEBGPU && WASM_SUPPORT_MODE !== 0) {
+if (WEBGPU && WASM_SUPPORT_MODE !== WebAssemblySupportMode.NONE) {
     const intervalId = setInterval(() => {
         if (legacyCC.game) {
             legacyCC.game.onPreInfrastructureInitDelegate.add(() => promiseForWebGPUInstantiation);

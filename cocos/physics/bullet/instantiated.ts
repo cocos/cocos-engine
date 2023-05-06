@@ -29,6 +29,7 @@ import asmFactory from 'external:emscripten/bullet/bullet.asm.js';
 import { game } from '../../game';
 import { sys } from '../../core';
 import { pageSize, pageCount, importFunc } from './bullet-env';
+import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 //corresponds to bulletType in bullet-compile
 export enum EBulletType{
@@ -95,13 +96,13 @@ function initAsm (resolve) {
 export function waitForAmmoInstantiation () {
     return new Promise<void>((resolve) => {
         const errorReport = (msg: any) => { console.error(msg); };
-        if (WASM_SUPPORT_MODE === 2) {
+        if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
             if (sys.hasFeature(sys.Feature.WASM)) {
                 initWasm(bulletWasmUrl).then(resolve).catch(errorReport);
             } else {
                 initAsm(resolve);
             }
-        } else if (WASM_SUPPORT_MODE === 1) {
+        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
             initWasm(bulletWasmUrl).then(resolve).catch(errorReport);
         } else {
             initAsm(resolve);
