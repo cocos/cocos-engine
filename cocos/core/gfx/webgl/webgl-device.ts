@@ -153,13 +153,13 @@ export class WebGLDevice extends Device {
         // the guaranteed minimum number of available bindings in WebGL2
         this._caps.maxUniformBufferBindings = 16;
 
-        const extensions = gl.getSupportedExtensions();
-        let extStr = '';
-        if (extensions) {
-            for (const ext of extensions) {
-                extStr += `${ext} `;
-            }
-        }
+        // const extensions = gl.getSupportedExtensions();
+        // let extStr = '';
+        // if (extensions) {
+        //     for (const ext of extensions) {
+        //         extStr += `${ext} `;
+        //     }
+        // }
 
         const exts = getExtensions(gl);
 
@@ -220,7 +220,7 @@ export class WebGLDevice extends Device {
         debug(`VENDOR: ${this._vendor}`);
         debug(`VERSION: ${version}`);
         debug(`COMPRESSED_FORMAT: ${compressedFormat}`);
-        debug(`EXTENSIONS: ${extStr}`);
+        // debug(`EXTENSIONS: ${extStr}`);
 
         return true;
     }
