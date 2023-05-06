@@ -202,6 +202,41 @@ class PhysicsWorld {
         return isHit;
     }
 
+    sweepBox (worldRay, halfExtent, orientation, options, inflation, pool, results) {
+        raycastOptions.origin = worldRay.o;
+        raycastOptions.unitDir = worldRay.d;
+        raycastOptions.mask = options.mask >>> 0;
+        raycastOptions.distance = options.maxDistance;
+        raycastOptions.queryTrigger = !!options.queryTrigger;
+        const isHit = this._impl.sweepBox(raycastOptions, halfExtent.x, halfExtent.y, halfExtent.z,
+            orientation.w, orientation.x, orientation.y, orientation.z);
+        if (isHit) {
+            const hits = this._impl.sweepResult();
+            for (let i = 0; i < hits.length; i++) {
+                const hit = hits[i];
+                const out = pool.add();
+                out._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
+                results.push(out);
+            }
+        }
+        return isHit;
+    }
+
+    sweepBoxClosest (worldRay, halfExtent, orientation, options, inflation, result) {
+        raycastOptions.origin = worldRay.o;
+        raycastOptions.unitDir = worldRay.d;
+        raycastOptions.mask = options.mask >>> 0;
+        raycastOptions.distance = options.maxDistance;
+        raycastOptions.queryTrigger = !!options.queryTrigger;
+        const isHit = this._impl.sweepBoxClosest(raycastOptions, halfExtent.x, halfExtent.y, halfExtent.z,
+            orientation.w, orientation.x, orientation.y, orientation.z);
+        if (isHit) {
+            const hit = this._impl.sweepClosestResult();
+            result._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
+        }
+        return isHit;
+    }
+
     emitEvents () {
         this.emitTriggerEvent();
         this.emitCollisionEvent();

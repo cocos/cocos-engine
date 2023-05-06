@@ -58,6 +58,16 @@ public:
     bool raycastClosest(RaycastOptions &opt) override;
     ccstd::vector<RaycastResult> &raycastResult() override;
     RaycastResult &raycastClosestResult() override;
+
+    bool sweepClosest(RaycastOptions &opt, const physx::PxGeometry &geometry, const physx::PxQuat &orientation);
+    bool sweep(RaycastOptions &opt, const physx::PxGeometry &geometry, const physx::PxQuat &orientation);
+    bool sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
+        float &orientationW, float &orientationX, float &orientationY, float &orientationZ) override;
+    bool sweepBoxClosest(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
+        float &orientationW, float &orientationX, float &orientationY, float &orientationZ) override;
+    ccstd::vector<RaycastResult> &sweepResult() override;
+    RaycastResult &sweepClosestResult() override;
+
     uint32_t createConvex(ConvexDesc &desc) override;
     uint32_t createTrimesh(TrimeshDesc &desc) override;
     uint32_t createHeightField(HeightFieldDesc &desc) override;

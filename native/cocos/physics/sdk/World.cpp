@@ -114,5 +114,24 @@ RaycastResult &World::raycastClosestResult() {
     return _impl->raycastClosestResult();
 }
 
+bool World::sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
+        float &orientationW, float &orientationX, float &orientationY, float &orientationZ){
+    return _impl->sweepBox(opt, halfExtentX, halfExtentY, halfExtentZ, orientationW, orientationX, orientationY, orientationZ);
+}
+
+bool World::sweepBoxClosest(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
+        float &orientationW, float &orientationX, float &orientationY, float &orientationZ){
+    return _impl->sweepBoxClosest(opt, halfExtentX, halfExtentY, halfExtentZ, orientationW, orientationX, orientationY, orientationZ);
+}
+
+RaycastResult &World::sweepClosestResult() {
+    return _impl->sweepClosestResult();
+}
+
+ccstd::vector<RaycastResult> &World::sweepResult() {
+    return _impl->sweepResult();
+}
+
+
 } // namespace physics
 } // namespace cc
