@@ -1115,8 +1115,24 @@ export class Model {
             this._updateWorldBoundDescriptors(subModelIndex, subModel.worldBoundDescriptorSet);
         }
 
-        const shader = subModel.passes[0].getShaderVariant(subModel.patches)!;
-        this._updateInstancedAttributes(shader.attributes, subModel);
+        const attributes: Attribute[] = [];
+        const checkAttr = function (attrName: string) {
+            for (let i = 0; i < attributes.length; i++) {
+                if (attrName === attributes[i].name) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        for (let i = 0; i < subModel.passes.length; i++) {
+            const shader = subModel.passes[i].getShaderVariant(subModel.patches)!;
+            shader.attributes.forEach((attr) => {
+                if (!checkAttr(attr.name)) {
+                    attributes.push(attr);
+                }
+            });
+        }
+        this._updateInstancedAttributes(attributes, subModel);
     }
 
     // sub-classes can override the following functions if needed
