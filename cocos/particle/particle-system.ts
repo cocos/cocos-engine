@@ -1244,13 +1244,6 @@ export class ParticleSystem extends ModelRenderer {
             this.processor.updateRotation(pass);
             this.processor.updateScale(pass);
         }
-        // update render data
-        this.processor.updateRenderData();
-
-        // update trail
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule.updateRenderData();
-        }
 
         if (this._needAttach) { // Check whether this particle model should be reattached
             if (this.getParticleCount() > 0) {
@@ -1293,10 +1286,14 @@ export class ParticleSystem extends ModelRenderer {
             this._needAttach = true;
         }
 
-        if (!this._isPlaying) return;
+        if (!this._isPlaying || !this.processor.getModel()?.scene) return;
 
+        // update render data
+        this.processor.updateRenderData();
         this.processor.beforeRender();
+        // update trail
         if (this._trailModule && this._trailModule.enable) {
+            this._trailModule.updateRenderData();
             this._trailModule.beforeRender();
         }
     }
