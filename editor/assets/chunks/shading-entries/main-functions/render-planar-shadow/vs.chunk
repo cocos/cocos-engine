@@ -1,5 +1,6 @@
 #include <surfaces/default-functions/common-vs>
 #include <surfaces/module-functions/common-vs>
+#include <common/lighting/functions>
 
 out highp float v_dist;
 
@@ -14,10 +15,9 @@ void main()
   SurfacesVertexModifyLocalSharedData(In);
 
   // World Space
-  mat4 matWorld, matWorldIT;
-  CCGetWorldMatrixFull(matWorld, matWorldIT);
-  vec3 worldPos = (matWorld * In.position).xyz;
-  vec4 shadowPos = CalculatePlanarShadowPos(worldPos, cc_cameraPos.xyz, cc_mainLitDir.xyz, cc_planarNDInfo);
+  CCSurfacesVertexWorldTransform(In);
+  In.worldPos = SurfacesVertexModifyWorldPos(In);
+  vec4 shadowPos = CalculatePlanarShadowPos(In.worldPos, cc_cameraPos.xyz, cc_mainLitDir.xyz, cc_planarNDInfo);
   In.worldPos = shadowPos.xyz;
 
   // Clip Space

@@ -323,6 +323,14 @@ CCProgram shadow-caster-fs %{
   #include <shading-entries/main-functions/render-to-shadowmap/fs>
 }%
 
+CCProgram planar-shadow-vs %{
+  precision highp float;
+  #include <surfaces/effect-macros/render-planar-shadow>
+  #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/render-planar-shadow/vs>
+}%
 
 
 
@@ -410,24 +418,11 @@ CCProgram silhouette-edge-fs %{
   #include <shading-entries/main-functions/misc/silhouette-edge-fs>
 }%
 
-CCProgram planar-shadow-vs %{
-  precision highp float;
-  #include <surfaces/effect-macros/render-to-shadowmap>
-  #include <surfaces/includes/common-vs>
-  #include <shared-ubos>
-  #include <surface-vertex>
-  #include <common/lighting/functions>
-  #include <shading-entries/main-functions/render-to-planarshadow/vs>
-}%
-
 CCProgram planar-shadow-fs %{
   precision highp float;
-  #include <macro-remapping>
-  #include <surfaces/effect-macros/common-macros>
+  #include <surfaces/effect-macros/render-planar-shadow>
   #include <surfaces/includes/common-fs>
   #include <shared-ubos>
   #include <surface-fragment>
-  #include <lighting-models/includes/standard>
-  #include <surfaces/includes/standard-fs>
-  #include <shading-entries/main-functions/render-to-planarshadow/fs>
+  #include <shading-entries/main-functions/render-planar-shadow/fs>
 }%
