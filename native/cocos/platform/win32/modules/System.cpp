@@ -24,8 +24,8 @@
 
 #include "platform/win32/modules/System.h"
 #include <Windows.h>
-#include "base/memory/Memory.h"
 #include "SDL2/SDL_clipboard.h"
+#include "base/memory/Memory.h"
 namespace cc {
 using OSType = System::OSType;
 

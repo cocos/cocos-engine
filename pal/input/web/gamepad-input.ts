@@ -428,10 +428,9 @@ export class GamepadInputDevice {
     private static _getWebGamePads (): (WebGamepad | null)[] {
         if (typeof navigator.getGamepads === 'function') {
             return navigator.getGamepads();
-            // @ts-expect-error Property 'webkitGetGamepads' does not exist on type 'Navigator'
-        } else if (typeof navigator.webkitGetGamepads === 'function') {
-            // @ts-expect-error Property 'webkitGetGamepads' does not exist on type 'Navigator'
-            return navigator.webkitGetGamepads() as (Gamepad | null)[];
+        } else if (typeof (navigator as any).webkitGetGamepads === 'function') {
+            // NOTE: 'webkitGetGamepads' is not a standard web interface
+            return (navigator as any).webkitGetGamepads() as (Gamepad | null)[];
         }
         return [];
     }

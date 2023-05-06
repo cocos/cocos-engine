@@ -102,9 +102,6 @@ void SubModel::setPasses(const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>
     flushPassInfo();
 
     const auto &passes = *_passes;
-    if (passes[0]->getBatchingScheme() == BatchingSchemes::VB_MERGING) {
-        _subMesh->genFlatBuffers();
-    }
     // DS layout might change too
     if (_descriptorSet) {
         _descriptorSet->destroy();
@@ -154,9 +151,6 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd
     flushPassInfo();
 
     const auto &passes = *_passes;
-    if (passes[0]->getBatchingScheme() == BatchingSchemes::VB_MERGING) {
-        subMesh->genFlatBuffers();
-    }
     _priority = pipeline::RenderPriority::DEFAULT;
 
     // initialize resources for reflection material
@@ -365,9 +359,6 @@ void SubModel::setSubMesh(RenderingSubMesh *subMesh) {
     const auto &passes = *_passes;
     _inputAssembler->destroy();
     _inputAssembler->initialize(subMesh->getIaInfo());
-    if (passes[0]->getBatchingScheme() == BatchingSchemes::VB_MERGING) {
-        subMesh->genFlatBuffers();
-    }
     _subMesh = subMesh;
 }
 

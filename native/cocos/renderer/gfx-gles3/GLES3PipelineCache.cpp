@@ -28,17 +28,17 @@
 
 #include "base/BinaryArchive.h"
 
-#include "gfx-base/GFXUtil.h"
 #include "GLES3GPUObjects.h"
+#include "gfx-base/GFXUtil.h"
 
 namespace cc::gfx {
 
 //#define PIPELINE_CACHE_FORCE_INCREMENTAL
 
 #if defined(_WIN32) && !defined(PIPELINE_CACHE_FORCE_INCREMENTAL)
-#define PIPELINE_CACHE_FULL
+    #define PIPELINE_CACHE_FULL
 #else
-#define PIPELINE_CACHE_INCREMENTAL
+    #define PIPELINE_CACHE_INCREMENTAL
 #endif
 
 namespace {

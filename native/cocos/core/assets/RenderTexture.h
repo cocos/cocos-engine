@@ -34,9 +34,9 @@ struct IRenderTextureCreateInfo {
     uint32_t width;
     uint32_t height;
     ccstd::optional<gfx::RenderPassInfo> passInfo;
-    ccstd::optional<uint32_t> externalResLow;  // for vulkan vkImage/opengl es texture created from external
-    ccstd::optional<uint32_t> externalResHigh; // for vulkan vkImage created from external
-    ccstd::optional<gfx::TextureFlags> externalFlag;// external texture type normal or oes
+    ccstd::optional<uint32_t> externalResLow;        // for vulkan vkImage/opengl es texture created from external
+    ccstd::optional<uint32_t> externalResHigh;       // for vulkan vkImage created from external
+    ccstd::optional<gfx::TextureFlags> externalFlag; // external texture type normal or oes
 };
 namespace scene {
 class RenderWindow;

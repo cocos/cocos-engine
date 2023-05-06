@@ -597,8 +597,8 @@ export class SpriteFrame extends Asset {
     protected _capInsets = [0, 0, 0, 0];
 
     protected _atlasUuid = '';
-    // @ts-expect-error not set value at there
-    protected _texture: TextureBase;
+    // TODO: not initialized in constructor
+    protected _texture!: TextureBase;
 
     protected _isFlipUVY = false;
 
@@ -1587,14 +1587,13 @@ export class SpriteFrame extends Asset {
     protected _updateMeshVertices () {
         // Start generating the Geometry information to generate the mesh
         temp_matrix.identity();
-
         const units = 1 / this._pixelsToUnit;
-        const temp_vec3 = new Vec3(units, units, 1);
-        temp_matrix.scale(temp_vec3);
         const PosX = -(this._pivot.x - 0.5) * this.rect.width * units;
         const PosY = -(this._pivot.y - 0.5) * this.rect.height * units;
-        temp_vec3.set(PosX, PosY, 0);
-        temp_matrix.translate(temp_vec3);
+        const temp_vec3 = new Vec3(PosX, PosY, 0);
+        temp_matrix.transform(temp_vec3);
+        temp_vec3.set(units, units, 1);
+        temp_matrix.scale(temp_vec3);
         const vertices = this.vertices!;
 
         for (let i = 0; i < vertices.rawPosition.length; i++) {

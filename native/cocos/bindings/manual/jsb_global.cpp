@@ -92,11 +92,13 @@ static cc::network::Downloader *localDownloader() {
 }
 
 static void localDownloaderCreateTask(const ccstd::string &url, const std::function<void(const ccstd::string &, unsigned char *, int)> &callback) {
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY // TODO(qgh):May be removed later
     std::stringstream ss;
     ss << "jsb_loadimage_" << (gLocalDownloaderTaskId++);
     ccstd::string key = ss.str();
     auto task = localDownloader()->createDataTask(url, key);
     gLocalDownloaderHandlers.emplace(task->identifier, callback);
+#endif
 }
 
 bool jsb_set_extend_property(const char *ns, const char *clsName) { // NOLINT
@@ -339,6 +341,8 @@ static bool JSBCore_os(se::State &s) { // NOLINT
     os.setString("OS X");
 #elif (CC_PLATFORM == CC_PLATFORM_OHOS)
     os.setString("OHOS");
+#elif (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    os.setString("OpenHarmony");
 #endif
 
     s.rval() = os;
@@ -373,6 +377,16 @@ static bool JSB_getOSVersion(se::State &s) { // NOLINT
 }
 SE_BIND_FUNC(JSB_getOSVersion)
 
+static bool JSB_supportHPE(se::State &s) { // NOLINT
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    s.rval().setBoolean(getSupportHPE());
+#else
+    s.rval().setBoolean(false);
+#endif
+    return true;
+}
+SE_BIND_FUNC(JSB_supportHPE)
+
 static bool JSB_core_restartVM(se::State &s) { // NOLINT
     // REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
     CC_CURRENT_APPLICATION()->restart();
@@ -385,6 +399,12 @@ static bool JSB_closeWindow(se::State &s) {
     return true;
 }
 SE_BIND_FUNC(JSB_closeWindow)
+
+static bool JSB_exit(se::State &s) {
+    BasePlatform::getPlatform()->exit();
+    return true;
+}
+SE_BIND_FUNC(JSB_exit);
 
 static bool JSB_isObjectValid(se::State &s) { // NOLINT
     const auto &args = s.args();
@@ -1426,11 +1446,13 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
     global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
+    global->defineFunction("__supportHPE", _SE(JSB_supportHPE));
     global->defineFunction("__getCurrentLanguage", _SE(JSBCore_getCurrentLanguage));
     global->defineFunction("__getCurrentLanguageCode", _SE(JSBCore_getCurrentLanguageCode));
     global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
     global->defineFunction("__close", _SE(JSB_closeWindow));
     global->defineFunction("__isObjectValid", _SE(JSB_isObjectValid));
+    global->defineFunction("__exit", _SE(JSB_exit));
 
     se::HandleObject performanceObj(se::Object::createPlainObject());
     performanceObj->defineFunction("now", _SE(js_performance_now));

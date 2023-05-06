@@ -99,7 +99,7 @@ export class Color extends ValueType {
      * color.toVec4();
      * ```
      */
-    public static toVec4 (color:Color, out?: Vec4): Vec4 {
+    public static toVec4 (color: Color, out?: Vec4): Vec4 {
         out = out !== undefined ?  out : new Vec4();
         out.x = color.r * toFloat;
         out.y = color.g * toFloat;
@@ -256,7 +256,8 @@ export class Color extends ValueType {
      * @zh 排除浮点数误差的颜色近似等价判断
      */
     public static equals<Out extends IColorLike> (a: Out, b: Out, epsilon = EPSILON) {
-        return (Math.abs(a.r - b.r) <= epsilon * Math.max(1.0, Math.abs(a.r), Math.abs(b.r))
+        const hasInf = Math.abs(a.r) === Infinity || Math.abs(a.g) === Infinity || Math.abs(a.b) === Infinity || Math.abs(a.a) === Infinity;
+        return !hasInf && (Math.abs(a.r - b.r) <= epsilon * Math.max(1.0, Math.abs(a.r), Math.abs(b.r))
             && Math.abs(a.g - b.g) <= epsilon * Math.max(1.0, Math.abs(a.g), Math.abs(b.g))
             && Math.abs(a.b - b.b) <= epsilon * Math.max(1.0, Math.abs(a.b), Math.abs(b.b))
             && Math.abs(a.a - b.a) <= epsilon * Math.max(1.0, Math.abs(a.a), Math.abs(b.a)));

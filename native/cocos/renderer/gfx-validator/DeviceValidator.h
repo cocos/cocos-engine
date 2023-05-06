@@ -39,6 +39,7 @@ public:
 
     using Device::copyBuffersToTexture;
     using Device::createBuffer;
+    using Device::createBufferBarrier;
     using Device::createCommandBuffer;
     using Device::createDescriptorSet;
     using Device::createDescriptorSetLayout;
@@ -54,7 +55,6 @@ public:
     using Device::createShader;
     using Device::createTexture;
     using Device::createTextureBarrier;
-    using Device::createBufferBarrier;
 
     void frameSync() override;
     void acquire(Swapchain *const *swapchains, uint32_t count) override;

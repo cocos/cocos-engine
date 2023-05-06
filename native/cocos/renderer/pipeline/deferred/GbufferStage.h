@@ -34,7 +34,6 @@ class Camera;
 namespace pipeline {
 
 class RenderFlow;
-class RenderBatchedQueue;
 class RenderInstancedQueue;
 class RenderAdditiveLightQueue;
 class PlanarShadowQueue;
@@ -60,7 +59,6 @@ private:
 
     static RenderStageInfo initInfo;
     PlanarShadowQueue *_planarShadowQueue = nullptr;
-    RenderBatchedQueue *_batchedQueue = nullptr;
     RenderInstancedQueue *_instancedQueue = nullptr;
     uint32_t _phaseID = 0;
 };

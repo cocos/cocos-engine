@@ -34,5 +34,7 @@ export * from './light';
 export * from './directional-light';
 export * from './sphere-light';
 export * from './spot-light';
+export * from './point-light';
+export * from './ranged-directional-light';
 export * from './reflection-probe';
 export * from './lod-group';

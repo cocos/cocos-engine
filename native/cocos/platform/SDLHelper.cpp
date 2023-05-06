@@ -210,7 +210,7 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
     }
 }
 
-void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, bool *quit) {
+void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent) {
     cc::TouchEvent touch;
     cc::MouseEvent mouse;
     cc::KeyboardEvent keyboard;
@@ -223,9 +223,6 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
 
     switch (sdlEvent.type) {
         case SDL_QUIT: {
-            if (quit) {
-                *quit = true;
-            }
             WindowEvent ev;
             ev.type = WindowEvent::Type::QUIT;
             events::WindowEvent::broadcast(ev);

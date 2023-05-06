@@ -42,11 +42,11 @@ float random() {
     return uniformReal(rd);
 }
 
-Vec3ElementType absMaxComponent(const Vec3 &v) {
+float absMaxComponent(const Vec3 &v) {
     return absMax(absMax(v.x, v.y), v.z);
 }
 
-Vec3ElementType maxComponent(const Vec3 &v) {
+float maxComponent(const Vec3 &v) {
     return std::max(std::max(v.x, v.y), v.z);
 }
 

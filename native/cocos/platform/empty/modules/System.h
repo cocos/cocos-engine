@@ -59,7 +59,8 @@ public:
      @return True if the resource located by the URL was successfully opened; otherwise false.
      */
     bool openURL(const ccstd::string &url) override;
-    void copyTextToClipboard(const ccstd::string& text) override;
+    void copyTextToClipboard(const ccstd::string &text) override;
+
 private:
     LanguageType getLanguageTypeByISO2(const char *code) const;
 };

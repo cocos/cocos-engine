@@ -32,13 +32,16 @@ import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
 
+declare const my: any;
+
 // HACK: In some platform like CocosPlay or Alipay iOS end
 // the windowSize need to rotate when init screenAdapter if it's landscape
 let rotateLandscape = false;
 try {
     if (ALIPAY) {
         if (systemInfo.os === OS.IOS && !minigame.isDevTool) {
-            // @ts-expect-error TODO: use pal/fs
+            // TODO: use pal/fs
+            // issue: https://github.com/cocos/cocos-engine/issues/14647
             const fs = my.getFileSystemManager();
             const screenOrientation = JSON.parse(fs.readFileSync({
                 filePath: 'game.json',

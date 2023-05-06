@@ -22,4 +22,5 @@
         "iterator": "cpp"
     },
     "cmake.configureOnOpen": false,
+    "cmake.sourceDirectory": "G:/projects/cocos/cocos-engine/native/build",
 }

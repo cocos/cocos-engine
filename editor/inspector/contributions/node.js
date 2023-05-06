@@ -683,7 +683,7 @@ const Elements = {
                 panel.$.active.dispatch('change-dump');
             });
             panel.$.active.addEventListener('confirm', () => {
-                panel.snapshotLock = false;
+                panel.$.active.dispatch('confirm-dump');
             });
 
             panel.$.name.addEventListener('change', (event) => {
@@ -700,7 +700,7 @@ const Elements = {
                 panel.$.name.dispatch('change-dump');
             });
             panel.$.name.addEventListener('confirm', () => {
-                panel.snapshotLock = false;
+                panel.$.active.dispatch('confirm-dump');
             });
         },
         update() {
@@ -1400,24 +1400,26 @@ const Elements = {
             const panel = this;
 
             panel.$.componentAdd.addEventListener('click', () => {
-                const rawTimestamp = Date.now();
-                Editor.Panel._kitControl.open({
-                    $kit: panel.$.componentAdd,
-                    name: 'ui-kit.searcher',
-                    timestamp: rawTimestamp,
-                    type: 'add-component',
-                    events: {
-                        async confirm(name, data) {
+                Editor.Panel.__protected__.openKit('ui-kit.searcher', {
+                    elem: panel.$.componentAdd,
+                    params: [
+                        {
+                            type: 'add-component',
+                        },
+                    ],
+                    listeners: {
+                        async confirm(detail/* info */) {
+                            if (!detail) return;
                             Editor.Message.send('scene', 'snapshot');
 
                             for (const uuid of panel.uuidList) {
                                 await Editor.Message.request('scene', 'create-component', {
                                     uuid,
-                                    component: data.cid,
+                                    component: detail.info.cid,
                                 });
                             }
-                            if (data.name) {
-                                trackEventWithTimer('laber', `A100000_${data.name}`);
+                            if (detail.info.name) {
+                                trackEventWithTimer('laber', `A100000_${detail.info.name}`);
                             }
 
                             Editor.Message.send('scene', 'snapshot');

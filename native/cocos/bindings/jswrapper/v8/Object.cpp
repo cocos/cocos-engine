@@ -1101,16 +1101,9 @@ bool Object::detachObject(Object *obj) {
 }
 
 ccstd::string Object::toString() const {
-    ccstd::string ret;
-    if (isFunction() || isArray() || isTypedArray()) {
-        v8::String::Utf8Value utf8(__isolate, const_cast<Object *>(this)->_obj.handle(__isolate));
-        ret = *utf8;
-    } else if (isArrayBuffer()) {
-        ret = "[object ArrayBuffer]";
-    } else {
-        ret = "[object Object]";
-    }
-    return ret;
+    v8::Local<v8::Object> v8Obj = const_cast<Object *>(this)->_obj.handle(__isolate);
+    v8::String::Utf8Value utf8(__isolate, v8Obj);
+    return *utf8;
 }
 
 ccstd::string Object::toStringExt() const {

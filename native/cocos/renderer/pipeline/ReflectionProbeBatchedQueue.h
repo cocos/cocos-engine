@@ -35,7 +35,6 @@ class ReflectionProbe;
 namespace pipeline {
 struct RenderObject;
 class RenderInstancedQueue;
-class RenderBatchedQueue;
 class RenderPipeline;
 
 //const uint32_t phaseID(PassPhase::getPhaseID("shadow-caster"));
@@ -69,8 +68,6 @@ private:
     ccstd::vector<gfx::Shader *> _shaders;
     // manage memory manually
     RenderInstancedQueue *_instancedQueue{nullptr};
-    // manage memory manually
-    RenderBatchedQueue *_batchedQueue{nullptr};
     uint32_t _phaseID{0};
     uint32_t _phaseReflectMapID{0};
     ccstd::vector<const scene::SubModel *> _rgbeSubModels;

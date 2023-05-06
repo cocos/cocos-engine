@@ -481,9 +481,9 @@ CC_ENUM_BITWISE_OPERATORS(TextureUsageBit);
 
 enum class TextureFlagBit : uint32_t {
     NONE = 0,
-    GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
-    GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
-    EXTERNAL_OES = 0x4, // External oes texture
+    GEN_MIPMAP = 0x1,      // Generate mipmaps using bilinear filter
+    GENERAL_LAYOUT = 0x2,  // For inout framebuffer attachments
+    EXTERNAL_OES = 0x4,    // External oes texture
     EXTERNAL_NORMAL = 0x8, // External normal texture
 };
 using TextureFlags = TextureFlagBit;
@@ -1526,7 +1526,7 @@ struct BlendState {
 
     void setTarget(index_t index, const BlendTarget &target) {
         if (index >= targets.size()) {
-            targets.resize(index + 1);
+            targets.resize(static_cast<size_t>(index) + 1);
         }
         targets[index] = target;
     }

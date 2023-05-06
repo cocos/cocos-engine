@@ -25,11 +25,11 @@
 #include "GLES3Std.h"
 
 #include "GLES3Commands.h"
+#include "GLES3Device.h"
 #include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
 #include "GLES3RenderPass.h"
 #include "GLES3Shader.h"
-#include "GLES3Device.h"
 
 namespace cc {
 namespace gfx {

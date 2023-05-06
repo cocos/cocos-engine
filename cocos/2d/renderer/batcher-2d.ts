@@ -790,8 +790,7 @@ export class Batcher2D implements IBatcher {
         const selfOpacity = render && render.color ? render.color.a / 255 : 1;
         this._pOpacity = opacity *= selfOpacity * uiProps.localOpacity;
         // TODO Set opacity to ui property's opacity before remove it
-        // @ts-expect-error temporary force set, will be removed with ui property's opacity
-        uiProps._opacity = opacity;
+        uiProps.setOpacity(opacity);
         if (!approx(opacity, 0, EPSILON)) {
             if (uiProps.colorDirty) {
             // Cascade color dirty state
@@ -1025,7 +1024,10 @@ class LocalDescriptorSet  {
         if (this._transformUpdate) {
             const worldMatrix = node.worldMatrix;
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-            Mat4.inverseTranspose(m4_1, worldMatrix);
+
+            Mat4.invert(m4_1, worldMatrix);
+            Mat4.transpose(m4_1, m4_1);
+
             if (!JSB) {
                 // fix precision lost of webGL on android device
                 // scale worldIT mat to around 1.0 by product its sqrt of determinant.

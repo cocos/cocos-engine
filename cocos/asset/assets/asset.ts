@@ -161,15 +161,7 @@ export class Asset extends Eventify(CCObject) {
     }
 
     /**
-     * @en
-     * The underlying native asset of this asset if one is available.<br>
-     * This property can be used to access additional details or functionality related to the asset.<br>
-     * This property will be initialized by the loader if `_native` is available.
-     * @zh
-     * 此资源的基础资源（如果有）。 此属性可用于访问与资源相关的其他详细信息或功能。<br>
-     * 如果`_native`可用，则此属性将由加载器初始化。
-     * @default null
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future, please use `nativeAsset` instead.
      */
     @property
     get _nativeAsset () {
@@ -178,6 +170,20 @@ export class Asset extends Eventify(CCObject) {
     }
     set _nativeAsset (obj) {
         this._file = obj;
+    }
+
+    /**
+     * @en
+     * The underlying native asset of this asset if one is available.<br>
+     * This property can be used to access additional details or functionality related to the asset.<br>
+     * This property will be initialized by the loader if `_native` is available.
+     * @zh
+     * 此资源的基础资源（如果有）。 此属性可用于访问与资源相关的其他详细信息或功能。<br>
+     * 如果`_native`可用，则此属性将由加载器初始化。
+     */
+    public get nativeAsset () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return this._file;
     }
 
     constructor (...args: ConstructorParameters<typeof CCObject>) {

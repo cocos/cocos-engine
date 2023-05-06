@@ -40,8 +40,8 @@ struct IRenderWindowInfo {
     uint32_t height{0};
     gfx::RenderPassInfo renderPassInfo;
     gfx::Swapchain *swapchain{nullptr};
-    ccstd::optional<uint32_t> externalResLow{0};  // for vulkan vkImage/opengl es texture created from external
-    ccstd::optional<uint32_t> externalResHigh{0}; // for vulkan vkImage created from external
+    ccstd::optional<uint32_t> externalResLow{0};                              // for vulkan vkImage/opengl es texture created from external
+    ccstd::optional<uint32_t> externalResHigh{0};                             // for vulkan vkImage created from external
     ccstd::optional<gfx::TextureFlags> externalFlag{gfx::TextureFlags::NONE}; // external texture type normal or oes
 };
 

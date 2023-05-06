@@ -213,14 +213,14 @@ export abstract class NativePackTool {
                 return false;
             }
 
-            if(!fs.existsSync(srcFile)) {
+            if (!fs.existsSync(srcFile)) {
                 console.warn(`${f} not exists in ${commonSrc}`);
                 return false;
             }
 
-            if(!compFile(srcFile, dstFile)) {
+            if (!compFile(srcFile, dstFile)) {
                 console.log(`File ${dstFile} differs from ${srcFile}`);
-                return false;   
+                return false;
             }
         }
         return true;
@@ -440,6 +440,9 @@ export abstract class NativePackTool {
         args.push(`-DRES_DIR="${cchelper.fixPath(this.paths.buildDir)}"`);
         args.push(`-DAPP_NAME="${this.params.projectName}"`);
         args.push(`-DLAUNCH_TYPE="${this.buildType}"`);
+        if (this.params.platformParams?.skipUpdateXcodeProject) {
+            args.push(`-DCMAKE_SUPPRESS_REGENERATION=ON`);
+        }
     }
 
 

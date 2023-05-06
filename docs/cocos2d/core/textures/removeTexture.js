@@ -1,2 +1,0 @@
------
-cc.textureCache.removeTexture(texture);

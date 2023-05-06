@@ -51,6 +51,10 @@ TEST(mathVec3Test, test2) {
     ExpectEq(IsEqualF(vec3.angle(cc::Vec3(2, 0, 0), cc::Vec3(-2, 0, 0)), M_PI), true);
     ExpectEq(IsEqualF(vec3.angle(cc::Vec3(2, 0, 0), cc::Vec3(0, 2, 0)), M_PI * 0.5f), true);
     ExpectEq(IsEqualF(vec3.angle(cc::Vec3(2, 0, 0), cc::Vec3(0, -2, 0)), M_PI * 0.5f), true);
+    // transformInverseRTS
+    logLabel = "test the vec3 transformInverseRTS function";
+    cc::Vec3::transformInverseRTS(cc::Vec3(-2, 4, 7), cc::Quaternion(0, 0, sin(M_PI / 4), cos(M_PI / 4)), cc::Vec3(1, 2, 3), cc::Vec3(2, 3, 4), &vec3);
+    ExpectEq(vec3.approxEquals(cc::Vec3(1, 1, 1)), true);
     // add
     logLabel = "test the vec3 add function";
     vec3.set(3.9, 1.3, 0);
@@ -95,11 +99,23 @@ TEST(mathVec3Test, test2) {
     matTranslate.m[14] = 2;
     vec3.transformMat4(cc::Vec3(1, 1, 2), matTranslate);
     ExpectEq(vec3 == cc::Vec3(3, 2, 4), true);
+    // transformMat4Normal
+    logLabel = "test the vec3 transformMat4Normal function";
+    cc::Mat4 matTransfromNormal;
+    matTransfromNormal.m[0] = 2;
+    matTransfromNormal.m[5] = 4;
+    matTransfromNormal.m[10] = 8;
+    matTransfromNormal.m[12] = 2;
+    matTransfromNormal.m[13] = 1;
+    matTransfromNormal.m[14] = 2;
+    cc::Vec3::transformMat4Normal(cc::Vec3(1, 1, 2), matTransfromNormal, &vec3);
+    ExpectEq(vec3 == cc::Vec3(2, 4, 16), true);
     // transformQuat
     logLabel = "test the vec3 transformQuat function";
-    cc::Quaternion quaternion(10, 0, 0, 0);
+    vec3.set(3, 2, 4);
+    cc::Quaternion quaternion(sin(M_PI / 4), 0, 0, cos(M_PI / 4));
     vec3.transformQuat(quaternion);
-    ExpectEq(vec3 == cc::Vec3(300, -200, -400), true);
+    ExpectEq(vec3.approxEquals(cc::Vec3(3, -4, 2)), true);
     // distance
     logLabel = "test the vec3 distance function";
     vec3.set(7, 2, 0);
@@ -159,4 +175,9 @@ TEST(mathVec3Test, test2) {
     cc::Vec3 a{0.123456F, 1.234567F, 2.345678F};
     cc::Vec3 b{0.123455F, 1.234568F, 2.345679F};
     ExpectEq(a.approxEquals(b), true);
+    //moveTowards
+    cc::Vec3 from(1, 1, 0);
+    cc::Vec3 to(5, 1, 0);
+    cc::Vec3::moveTowards(from, to, 2, &vec3);
+    ExpectEq(vec3 == cc::Vec3(3, 1, 0), true);
 }

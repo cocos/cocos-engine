@@ -60,7 +60,8 @@ public:
      */
     bool openURL(const ccstd::string &url) override;
 
-    void copyTextToClipboard(const std::string& text) override;
+    void copyTextToClipboard(const std::string &text) override;
+
 private:
     LanguageType getLanguageTypeByISO2(const char *code) const;
 };

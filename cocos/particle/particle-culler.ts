@@ -28,7 +28,7 @@ import { TransformBit } from '../scene-graph/node-enum';
 import { RenderMode, Space } from './enum';
 import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4, geometry, bits } from '../core';
 import { isCurveTwoValues, particleEmitZAxis } from './particle-general-function';
-import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
+import { ParticleSystemRendererBase } from './renderer/particle-system-renderer-base';
 import { Mesh } from '../3d';
 import type { ParticleSystem } from './particle-system';
 import { Mode } from './animator/curve-range';
@@ -50,7 +50,7 @@ const _anim_module = [
 
 export class ParticleCuller {
     private _particleSystem: ParticleSystem;
-    private _processor: IParticleSystemRenderer;
+    private _processor: ParticleSystemRendererBase;
     private _node: Node;
     private _particlesAll: Particle[];
     private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();

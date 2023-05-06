@@ -27,9 +27,9 @@
 #include <boost/container/pmr/flat_map.hpp>
 #include <map>
 #include <unordered_map>
+#include "cocos/base/std/container/unordered_map.h"
 #include "cocos/renderer/pipeline/custom/details/Pmr.h"
 #include "cocos/renderer/pipeline/custom/details/Utility.h"
-#include "cocos/base/std/container/unordered_map.h"
 
 // for std::less<> the transparent comparator
 // see https://stackoverflow.com/questions/20317413/what-are-transparent-comparators
@@ -112,7 +112,7 @@ namespace ccstd {
 
 template <class Key, class T, class Compare, class AllocatorOrContainer>
 struct hash<boost::container::flat_map<Key, T, Compare, AllocatorOrContainer>> {
-    hash_t operator()(const boost::container::flat_map<Key, T, Compare, AllocatorOrContainer> &val) const noexcept {
+    hash_t operator()(const boost::container::flat_map<Key, T, Compare, AllocatorOrContainer>& val) const noexcept {
         hash_t seed = 0;
         for (const auto& pair : val) {
             hash_combine(seed, pair);

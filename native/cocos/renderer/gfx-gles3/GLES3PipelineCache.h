@@ -22,15 +22,14 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-
 #pragma once
 
-#include "base/std/container/vector.h"
-#include "base/std/container/unordered_map.h"
-#include "base/std/container/string.h"
+#include "GLES3GPUObjects.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
-#include "GLES3GPUObjects.h"
+#include "base/std/container/string.h"
+#include "base/std/container/unordered_map.h"
+#include "base/std/container/vector.h"
 
 namespace cc {
 class BinaryOutputArchive;

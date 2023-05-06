@@ -55,9 +55,9 @@ export const string = type(CCString);
  * @zh 标记该属性的类型。
  * @param type
  */
-export function type (type: Function | [Function] | any): PropertyDecorator;
+export function type (type: Function | [Function] | any): LegacyPropertyDecorator;
 
-export function type<T> (type: PrimitiveType<T> | [PrimitiveType<T>]): PropertyDecorator;
+export function type<T> (type: PrimitiveType<T> | [PrimitiveType<T>]): LegacyPropertyDecorator;
 
 export function type<T> (type: PrimitiveType<T> | Function | [PrimitiveType<T>] | [Function]): LegacyPropertyDecorator {
     return property({

@@ -121,7 +121,7 @@ protected:
 
     std::bitset<MAX_COLORATTACHMENTS> _colorAppearedBefore;
 
-    CCMTLSemaphore* _inFlightSem{nullptr};
+    CCMTLSemaphore *_inFlightSem{nullptr};
 
     int32_t _currentFbWidth = 0;
     int32_t _currentFbHeight = 0;

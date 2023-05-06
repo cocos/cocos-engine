@@ -32,6 +32,8 @@ import { IRenderSceneInfo, RenderScene } from './render-scene/core/render-scene'
 import { DirectionalLight } from './render-scene/scene/directional-light';
 import { SphereLight } from './render-scene/scene/sphere-light';
 import { SpotLight } from './render-scene/scene/spot-light';
+import { PointLight } from './render-scene/scene/point-light';
+import { RangedDirectionalLight } from './render-scene/scene/ranged-directional-light';
 import { RenderWindow, IRenderWindowInfo } from './render-scene/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager, LegacyRenderMode } from './gfx';
 import { BasicPipeline, PipelineRuntime } from './rendering/custom/pipeline';
@@ -653,6 +655,12 @@ export class Root {
             case LightType.SPOT:
                 l.scene.removeSpotLight(l as SpotLight);
                 break;
+            case LightType.POINT:
+                l.scene.removePointLight(l as PointLight);
+                break;
+            case LightType.RANGED_DIRECTIONAL:
+                l.scene.removeRangedDirLight(l as RangedDirectionalLight);
+                break;
             default:
                 break;
             }
@@ -679,6 +687,12 @@ export class Root {
                     break;
                 case LightType.SPOT:
                     l.scene.removeSpotLight(l as SpotLight);
+                    break;
+                case LightType.POINT:
+                    l.scene.removePointLight(l as PointLight);
+                    break;
+                case LightType.RANGED_DIRECTIONAL:
+                    l.scene.removeRangedDirLight(l as RangedDirectionalLight);
                     break;
                 default:
                     break;
