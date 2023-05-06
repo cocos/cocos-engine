@@ -48,8 +48,5 @@
       "exports/**/*.ts",
       "typedoc-index.ts",
       "pal/**/*.ts"
-  ],
-  "exclude": [
-    "pal/wasm/wasm-web.ts",  // NOTE: fix CI, we used require and import.meta in this module
   ]
 }

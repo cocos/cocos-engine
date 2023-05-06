@@ -24,10 +24,13 @@
 
 import { EDITOR, PREVIEW } from "internal:constants";
 
+declare const require: any;
+
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     // NOTE: when it's in EDITOR or PREVIEW, wasmUrl is an absolute file path of wasm.
     if (EDITOR) {
         // IDEA: it's better we implement another PAL for nodejs platform.
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const fs = require('fs');
         const arrayBuffer = fs.readFileSync(wasmUrl);
         return WebAssembly.instantiate(arrayBuffer, importObject);
@@ -37,6 +40,8 @@ export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Impo
             .then((response) => response.arrayBuffer().then((buff) => WebAssembly.instantiate(buff, importObject)));
     }
     // here is in the BUILD mode
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore NOTE: we need to use 'import.meta' here, but the tsc won't allow this, so we need to force ignoring this error here.
     wasmUrl = new URL(wasmUrl, import.meta.url).href;
     return fetch(wasmUrl).then((response) => response.arrayBuffer().then((buff) => WebAssembly.instantiate(buff, importObject)));
 }
