@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.25",
+  "ver": "1.0.26",
   "importer": "image",
   "imported": true,
   "uuid": "191b676f-175b-41fa-8283-ac539875bfd8",
@@ -27,7 +27,7 @@
         "anisotropy": 0,
         "isUuid": true,
         "imageUuidOrDatabaseUri": "191b676f-175b-41fa-8283-ac539875bfd8",
-        "visible": true
+        "visible": false
       },
       "displayName": "spot-light",
       "id": "6c48a",

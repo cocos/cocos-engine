@@ -184,7 +184,8 @@
             "dependentAssets": [
                 "15049ccd-4dd7-451e-a8ae-af66735c929e",
                 "4c3ce6de-e6d1-47f7-aa36-36b9b58f72d3",
-                "4361db28-3f24-44cc-8e51-32ee5fd651ac"
+                "4361db28-3f24-44cc-8e51-32ee5fd651ac",
+                "cafd95c9-c558-46f9-9812-1224b65c09ee"
             ]
         },
         "websocket": {

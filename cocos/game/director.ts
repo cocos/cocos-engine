@@ -66,10 +66,6 @@ export class Director extends EventTarget {
      * @zh Director 单例初始化时触发的事件
      * @event Director.EVENT_INIT
      */
-    /**
-     * @en The event which will be triggered when the singleton of Director initialized.
-     * @zh Director 单例初始化时触发的事件
-     */
     public static readonly EVENT_INIT = 'director_init';
 
     /**
@@ -77,21 +73,12 @@ export class Director extends EventTarget {
      * @zh Director 单例重置时触发的事件
      * @event Director.EVENT_RESET
      */
-    /**
-     * @en The event which will be triggered when the singleton of Director reset.
-     * @zh Director 单例重置时触发的事件
-     */
     public static readonly EVENT_RESET = 'director_reset';
 
     /**
      * @en The event which will be triggered before loading a new scene.
      * @zh 加载新场景之前所触发的事件。
      * @event Director.EVENT_BEFORE_SCENE_LOADING
-     * @param {String} sceneName - The loading scene name
-     */
-    /**
-     * @en The event which will be triggered before loading a new scene.
-     * @zh 加载新场景之前所触发的事件。
      */
     public static readonly EVENT_BEFORE_SCENE_LOADING = 'director_before_scene_loading';
 
@@ -99,11 +86,6 @@ export class Director extends EventTarget {
      * @en The event which will be triggered before launching a new scene.
      * @zh 运行新场景之前所触发的事件。
      * @event Director.EVENT_BEFORE_SCENE_LAUNCH
-     * @param {String} sceneName - New scene which will be launched
-     */
-    /**
-     * @en The event which will be triggered before launching a new scene.
-     * @zh 运行新场景之前所触发的事件。
      */
     public static readonly EVENT_BEFORE_SCENE_LAUNCH = 'director_before_scene_launch';
 
@@ -111,11 +93,6 @@ export class Director extends EventTarget {
      * @en The event which will be triggered after launching a new scene.
      * @zh 运行新场景之后所触发的事件。
      * @event Director.EVENT_AFTER_SCENE_LAUNCH
-     * @param {String} sceneName - New scene which is launched
-     */
-    /**
-     * @en The event which will be triggered after launching a new scene.
-     * @zh 运行新场景之后所触发的事件。
      */
     public static readonly EVENT_AFTER_SCENE_LAUNCH = 'director_after_scene_launch';
 
@@ -124,20 +101,12 @@ export class Director extends EventTarget {
      * @zh 每个帧的开始时所触发的事件。
      * @event Director.EVENT_BEFORE_UPDATE
      */
-    /**
-     * @en The event which will be triggered at the beginning of every frame.
-     * @zh 每个帧的开始时所触发的事件。
-     */
     public static readonly EVENT_BEFORE_UPDATE = 'director_before_update';
 
     /**
      * @en The event which will be triggered after engine and components update logic.
      * @zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
      * @event Director.EVENT_AFTER_UPDATE
-     */
-    /**
-     * @en The event which will be triggered after engine and components update logic.
-     * @zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
      */
     public static readonly EVENT_AFTER_UPDATE = 'director_after_update';
 

@@ -81,7 +81,7 @@ export class TAAPass extends SettingPass {
     get setting () { return getSetting(TAA); }
 
     name = 'TAAPass'
-    effectName = 'post-process/taa';
+    effectName = 'pipeline/post-process/taa';
     outputNames = ['TAA_First', 'TAA_Second'];
 
     prevMatViewProj = new Mat4();
