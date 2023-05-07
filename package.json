@@ -22,7 +22,7 @@
     "fetch-ral": "node ./scripts/fetch-ral.js",
     "bundle-adapter": "node ./scripts/bundle-adapter.js",
     "build-const": "node ./scripts/build-consts.js",
-    "clear": "git clean -xfd",
+    "clear": "node ./scripts/clear-cache.js",
     "clear-platform": "node ./native/utils/clear-platform.js && node ./scripts/clear-file.js",
     "update:native-external": "node ./native/utils/update-external.js",
     "test": "gulp test",

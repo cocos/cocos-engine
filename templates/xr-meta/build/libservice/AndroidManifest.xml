@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.cocos.service">
     <!-- Volume Control -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-	<!-- Tell the system this app requires OpenGL ES 3.1. -->
-	<uses-feature android:glEsVersion="0x00030001" android:required="true"/>
+    <!-- Tell the system this app requires OpenGL ES 3.1. -->
+    <uses-feature android:glEsVersion="0x00030001" android:required="true"/>
     <uses-feature android:name="android.hardware.vr.headtracking" android:required="true" />
     <!-- Tell the system this app uses experimental extensions -->
     <uses-feature android:name="com.oculus.experimental.enabled" android:required="true" />

@@ -1113,4 +1113,7 @@ module.exports = {
     reflection_probe: {
         fastBake: '勾选则不会对生成的cubemap进行GGX卷积，烘焙速度非常快。',
     },
+    color_grading: {
+        originalMap: '内置lut贴图路径internal/dependencies/textures/lut/。',
+    },
 };

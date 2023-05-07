@@ -1132,4 +1132,7 @@ module.exports = {
     reflection_probe: {
         fastBake: 'If checked, generating progress will ignore GGX convolution for cubemap, very fast generation.',
     },
+    color_grading: {
+        originalMap: 'The builtin lut texture path is internal/dependencies/textures/lut/.',
+    },
 };

@@ -25,7 +25,6 @@
 #include "cocos/renderer/core/PassInstance.h"
 #include "cocos/renderer/core/MaterialInstance.h"
 #include "cocos/renderer/core/ProgramLib.h"
-#include "cocos/renderer/pipeline/BatchedBuffer.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/custom/RenderingModule.h"
 
@@ -105,7 +104,6 @@ void PassInstance::endChangeStatesSilently() {
 
 void PassInstance::syncBatchingScheme() {
     _defines["USE_INSTANCING"] = false;
-    _defines["USE_BATCHING"] = false;
     _batchingScheme = scene::BatchingSchemes::NONE;
 }
 
