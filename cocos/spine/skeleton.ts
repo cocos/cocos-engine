@@ -207,7 +207,10 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
-    protected updateMaterial () {
+    /**
+     * @engineInternal
+     */
+    public updateMaterial () {
         let mat;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
@@ -277,9 +280,8 @@ export class Skeleton extends UIRenderer {
         if (value) {
             this.setAnimation(0, value, this.loop);
             this.markForUpdateRenderData();
-        } else if (!this.isAnimationCached()) {
-            this.clearTrack(0);
-            this.setToSetupPose();
+        } else {
+            this.clearAnimation();
         }
     }
 
@@ -734,7 +736,7 @@ export class Skeleton extends UIRenderer {
      */
     public setSkeletonData (skeletonData: spine.SkeletonData) {
         const uiTrans = this.node._uiProps.uiTransformComp!;
-        uiTrans.setContentSize(skeletonData.width, skeletonData.height);
+        if (skeletonData.width && skeletonData.height) uiTrans.setContentSize(skeletonData.width, skeletonData.height);
         if (skeletonData.width !== 0) uiTrans.anchorX = Math.abs(skeletonData.x) / skeletonData.width;
         if (skeletonData.height !== 0) uiTrans.anchorY = Math.abs(skeletonData.y) / skeletonData.height;
 
@@ -871,7 +873,7 @@ export class Skeleton extends UIRenderer {
                     if (frameCache && frameCache.isInvalid()) {
                         frameCache.updateToFrame();
                         const frames = frameCache.frames;
-                        this._curFrame = frames[frames.length - 1];
+                        this._curFrame = frames[frames.length - 1]!;
                     }
                     return;
                 }
@@ -1118,7 +1120,6 @@ export class Skeleton extends UIRenderer {
      */
     public setAnimation (trackIndex: number, name: string, loop: boolean) {
         this._playTimes = loop ? 0 : 1;
-        this._animationName = name;
 
         if (this.isAnimationCached()) {
             if (trackIndex !== 0) {
@@ -1130,6 +1131,7 @@ export class Skeleton extends UIRenderer {
                 cache = this._skeletonCache.initAnimationCache(this._skeletonData!._uuid, name);
             }
             if (cache) {
+                this._animationName = name;
                 this._isAniComplete = false;
                 this._accTime = 0;
                 this._playCount = 0;
@@ -1138,7 +1140,7 @@ export class Skeleton extends UIRenderer {
                     this._frameCache.enableCacheAttachedInfo();
                 }
                 this._frameCache.updateToFrame(0);
-                this._curFrame = this._frameCache.frames[0];
+                this._curFrame = this._frameCache.frames[0]!;
             }
         } else if (this._skeleton) {
             const animation = this._skeleton.data.findAnimation(name);
@@ -1146,6 +1148,7 @@ export class Skeleton extends UIRenderer {
                 logID(7509, name);
                 return null;
             }
+            this._animationName = name;
             const res = this._state!.setAnimationWith(trackIndex, animation, loop);
             this._state!.apply(this._skeleton);
             return res;
@@ -1195,6 +1198,17 @@ export class Skeleton extends UIRenderer {
             return this._skeleton.data.findAnimation(name);
         }
         return null;
+    }
+
+    /**
+     * @en Clear animation and set to setup pose.
+     * @zh 清除动画并还原到初始姿势。
+     */
+    public clearAnimation () {
+        if (!this.isAnimationCached()) {
+            this.clearTrack(0);
+            this.setToSetupPose();
+        }
     }
 
     /**
@@ -1606,7 +1620,7 @@ export class Skeleton extends UIRenderer {
             this._playCount++;
             if (this._playTimes > 0 && this._playCount >= this._playTimes) {
                 // set frame to end frame.
-                this._curFrame = frames[frames.length - 1];
+                this._curFrame = frames[frames.length - 1]!;
                 this._accTime = 0;
                 this._playCount = 0;
                 this._isAniComplete = true;
@@ -1617,7 +1631,7 @@ export class Skeleton extends UIRenderer {
             frameIdx = 0;
             this._emitCacheCompleteEvent();
         }
-        this._curFrame = frames[frameIdx];
+        this._curFrame = frames[frameIdx]!;
     }
 
     protected _updateRealtime (dt: number) {

@@ -22,8 +22,17 @@
  THE SOFTWARE.
 */
 
+import type {
+    NativeBufferPool as JsbNativeBufferPool,
+    NativeObjectPool as JsbNativeObjectPool,
+    NativeBufferAllocator as JsbNativeBufferAllocator,
+} from './native-pools';
+
 declare const jsb: any;
 
-export const NativeBufferPool = jsb.NativeBufferPool;
-export const NativeObjectPool = jsb.NativeObjectPool;
-export const NativeBufferAllocator = jsb.NativeBufferAllocator;
+export const NativeBufferPool: typeof JsbNativeBufferPool = jsb.NativeBufferPool;
+export type NativeBufferPool = JsbNativeBufferPool;
+export const NativeObjectPool: typeof JsbNativeObjectPool = jsb.NativeObjectPool;
+export type NativeObjectPool<T> = JsbNativeObjectPool<T>;
+export const NativeBufferAllocator: typeof JsbNativeBufferAllocator = jsb.NativeBufferAllocator;
+export type NativeBufferAllocator = JsbNativeBufferAllocator;

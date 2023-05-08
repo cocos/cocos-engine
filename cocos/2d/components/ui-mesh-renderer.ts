@@ -36,6 +36,7 @@ import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
 import { assert, cclegacy } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
+import type { UIRenderer } from '../framework/ui-renderer';
 
 /**
  * @en
@@ -132,7 +133,6 @@ export class UIMeshRenderer extends Component {
     public _render (render: IBatcher) {
         if (this._modelComponent) {
             const models = this._modelComponent._collectModels();
-            // @ts-expect-error: UIMeshRenderer do not attachToScene
             this._modelComponent._detachFromScene();
             for (let i = 0; i < models.length; i++) {
                 if (models[i].enabled) {
@@ -163,7 +163,6 @@ export class UIMeshRenderer extends Component {
             this.renderEntity.enabled = this._canRender();
             if (this._modelComponent) {
                 const models = this._modelComponent._collectModels();
-                // @ts-expect-error: UIMeshRenderer do not attachToScene
                 this._modelComponent._detachFromScene(); // JSB
                 // clear models
                 this._UIModelNativeProxy.clearModels();
@@ -180,11 +179,15 @@ export class UIMeshRenderer extends Component {
     private _uploadRenderData (index) {
         if (JSB) {
             const renderData = MeshRenderData.add();
-            // @ts-expect-error temporary no care
-            renderData.initRenderDrawInfo(this, RenderDrawInfoType.MODEL);
-            // @ts-expect-error temporary no care
-            this._renderData = renderData;
-            this._renderData!.material = this._modelComponent!.getMaterialInstance(index);
+            // TODO: here we weirdly use UIMeshRenderer as UIRenderer
+            // please fix the type @holycanvas
+            // issue: https://github.com/cocos/cocos-engine/issues/14637
+            renderData.initRenderDrawInfo(this as unknown as UIRenderer, RenderDrawInfoType.MODEL);
+            // TODO: MeshRenderData and RenderData are both sub class of BaseRenderData, here we weirdly use MeshRenderData as RenderData
+            // please fix the type @holycanvas
+            // issue: https://github.com/cocos/cocos-engine/issues/14637
+            this._renderData = renderData as unknown as RenderData;
+            this._renderData.material = this._modelComponent!.getMaterialInstance(index);
         }
     }
 
@@ -222,8 +225,7 @@ export class UIMeshRenderer extends Component {
             const passNum = passes.length;
             for (let j = 0; j < passNum; j++) {
                 const pass = passes[j];
-                // @ts-expect-error private property access
-                pass._priority = RenderPriority.MAX - 11;
+                pass.setPriority(RenderPriority.MAX - 11);
                 // Because the deferred pipeline cannot perform lighting processing on the uimodel,
                 // it may even cause the uimodel to crash in the metal backend,
                 // so force rendering uimodel in forward pipeline

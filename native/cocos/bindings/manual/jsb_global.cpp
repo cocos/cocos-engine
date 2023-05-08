@@ -92,11 +92,13 @@ static cc::network::Downloader *localDownloader() {
 }
 
 static void localDownloaderCreateTask(const ccstd::string &url, const std::function<void(const ccstd::string &, unsigned char *, int)> &callback) {
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY // TODO(qgh):May be removed later
     std::stringstream ss;
     ss << "jsb_loadimage_" << (gLocalDownloaderTaskId++);
     ccstd::string key = ss.str();
     auto task = localDownloader()->createDataTask(url, key);
     gLocalDownloaderHandlers.emplace(task->identifier, callback);
+#endif
 }
 
 bool jsb_set_extend_property(const char *ns, const char *clsName) { // NOLINT
@@ -339,6 +341,8 @@ static bool JSBCore_os(se::State &s) { // NOLINT
     os.setString("OS X");
 #elif (CC_PLATFORM == CC_PLATFORM_OHOS)
     os.setString("OHOS");
+#elif (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    os.setString("OpenHarmony");
 #endif
 
     s.rval() = os;
@@ -372,6 +376,16 @@ static bool JSB_getOSVersion(se::State &s) { // NOLINT
     return true;
 }
 SE_BIND_FUNC(JSB_getOSVersion)
+
+static bool JSB_supportHPE(se::State &s) { // NOLINT
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    s.rval().setBoolean(getSupportHPE());
+#else
+    s.rval().setBoolean(false);
+#endif
+    return true;
+}
+SE_BIND_FUNC(JSB_supportHPE)
 
 static bool JSB_core_restartVM(se::State &s) { // NOLINT
     // REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
@@ -775,9 +789,9 @@ static bool JSB_copyTextToClipboard(se::State &s) { // NOLINT
         ccstd::string text;
         ok = sevalue_to_native(args[0], &text);
         SE_PRECONDITION2(ok, false, "text is invalid!");
-        ISystemWindow *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-        CC_ASSERT_NOT_NULL(systemWindowIntf);
-        systemWindowIntf->copyTextToClipboard(text);
+        ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
+        CC_ASSERT_NOT_NULL(systemIntf);
+        systemIntf->copyTextToClipboard(text);
         return true;
     }
 
@@ -1432,6 +1446,7 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
     global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
+    global->defineFunction("__supportHPE", _SE(JSB_supportHPE));
     global->defineFunction("__getCurrentLanguage", _SE(JSBCore_getCurrentLanguage));
     global->defineFunction("__getCurrentLanguageCode", _SE(JSBCore_getCurrentLanguageCode));
     global->defineFunction("__restartVM", _SE(JSB_core_restartVM));

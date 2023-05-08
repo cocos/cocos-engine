@@ -22,7 +22,7 @@
     "fetch-ral": "node ./scripts/fetch-ral.js",
     "bundle-adapter": "node ./scripts/bundle-adapter.js",
     "build-const": "node ./scripts/build-consts.js",
-    "clear": "git clean -xfd",
+    "clear": "node ./scripts/clear-cache.js",
     "clear-platform": "node ./native/utils/clear-platform.js && node ./scripts/clear-file.js",
     "update:native-external": "node ./native/utils/update-external.js",
     "test": "gulp test",
@@ -89,6 +89,7 @@
     "@cocos/box2d": "1.0.1",
     "@cocos/bullet": "1.0.8-exp.2",
     "@cocos/cannon": "1.2.8",
+    "@cocos/ccbuild": "^1.0.0-alpha.7",
     "@cocos/dragonbones-js": "^1.0.1",
     "@cocos/physx": "1.0.9-beta.d6joint.4"
   }

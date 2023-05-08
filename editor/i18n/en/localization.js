@@ -1190,6 +1190,7 @@ module.exports = {
         showProbe: 'The switch of showing light probe.',
         showWireframe: 'The switch of showing connection of light probe.',
         showConvex: 'The switch of showing convex of light probe.',
+        lightProbeSphereVolume: 'The value of all light probe sphere display size',
     },
     light_probe_group: {
         method: 'The automatic generation algorithm of light probe.',
@@ -1201,5 +1202,8 @@ module.exports = {
     },
     reflection_probe: {
         fastBake: 'If checked, generating progress will ignore GGX convolution for cubemap, very fast generation.',
+    },
+    color_grading: {
+        originalMap: 'The builtin lut texture path is internal/dependencies/textures/lut/.',
     },
 };

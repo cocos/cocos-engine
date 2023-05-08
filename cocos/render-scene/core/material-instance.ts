@@ -97,7 +97,6 @@ export class MaterialInstance extends Material {
     public onPassStateChange (dontNotify: boolean) {
         this._hash = Material.getHash(this);
         if (!dontNotify && this._owner) {
-            // @ts-expect-error calling protected method here
             this._owner._onRebuildPSO(this._subModelIdx, this);
         }
     }

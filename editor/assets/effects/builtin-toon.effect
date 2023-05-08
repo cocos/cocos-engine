@@ -80,6 +80,26 @@ CCEffect %{
         emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleAndStrenth.xyz }
         normalStrenth:  { value: 1.0, target: emissiveScaleAndStrenth.w, editor: { parent: USE_NORMAL_MAP } }
         mainTexture:    { value: white, target: baseColorMap, editor: { displayName: BaseColorMap } }
+    - &planar-shadow
+      vert: planar-shadow-vs
+      frag: planar-shadow-fs
+      phase: planar-shadow
+      propertyIndex: 0
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        stencilTestFront: true
+        stencilFuncFront: not_equal
+        stencilPassOpFront: replace
+        stencilRef: 0x80 # only use the leftmost bit
+        stencilReadMask: 0x80
+        stencilWriteMask: 0x80
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
 }%
 
 CCProgram shared-ubos %{
@@ -194,7 +214,7 @@ CCProgram surface-fragment %{
     vec3 normal = FSInput_worldNormal;
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, FSInput_texcoord).xyz - vec3(0.5);
-      normal = CalculateNormalFromTangentSpace(nmmp, emissiveScaleAndStrenth.w, normal.xyz, FSInput_worldTangent, FSInput_mirrorNormal);
+      normal = CalculateNormalFromTangentSpace(nmmp, emissiveScaleAndStrenth.w, normalize(normal.xyz), normalize(FSInput_worldTangent), FSInput_mirrorNormal);
     #endif
 
     return normalize(normal);
@@ -303,6 +323,14 @@ CCProgram shadow-caster-fs %{
   #include <shading-entries/main-functions/render-to-shadowmap/fs>
 }%
 
+CCProgram planar-shadow-vs %{
+  precision highp float;
+  #include <surfaces/effect-macros/render-planar-shadow>
+  #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/render-planar-shadow/vs>
+}%
 
 
 
@@ -388,4 +416,13 @@ CCProgram silhouette-edge-fs %{
   #include <surfaces/includes/common-fs>
   #include <surface-fragment-silhouette-edge>
   #include <shading-entries/main-functions/misc/silhouette-edge-fs>
+}%
+
+CCProgram planar-shadow-fs %{
+  precision highp float;
+  #include <surfaces/effect-macros/render-planar-shadow>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/render-planar-shadow/fs>
 }%

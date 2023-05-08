@@ -26,7 +26,7 @@ import { RenderWindow } from '../core/render-window';
 import { ClearFlagBit } from '../../gfx';
 import { _tempFloatArray, fillMat4WithTempFloatArray } from '../../scene-graph/utils.jsb';
 import { Mat4, Vec3 } from '../../core';
-
+import type { Camera as JsbCamera } from './camera';
 
 declare const jsb: any;
 
@@ -125,15 +125,17 @@ export interface ICameraInfo {
 
 export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;
 
-export const Camera = jsb.Camera;
+export const Camera: typeof JsbCamera = jsb.Camera;
+export type Camera = JsbCamera;
 const cameraProto: any = jsb.Camera.prototype;
 
 Object.defineProperty(Camera, "standardExposureValue", {
     configurable: true,
     enumerable: true,
     get () {
-        // @ts-expect-error Property 'getStandardExposureValue' does not exist on type 'typeof Camera'.
-        return Camera.getStandardExposureValue();
+        // TODO: `getStandardExposureValue` only implemented on native platforms. @dumganhar
+        // issue: https://github.com/cocos/cocos-engine/issues/14644
+        return (Camera as any).getStandardExposureValue();
     },
 });
 
@@ -141,8 +143,9 @@ Object.defineProperty(Camera, "standardLightMeterScale", {
     configurable: true,
     enumerable: true,
     get () {
-        // @ts-expect-error Property 'getStandardLightMeterScale' does not exist on type 'typeof Camera'.
-        return Camera.getStandardLightMeterScale();
+        // TODO: `getStandardLightMeterScale` only implemented on native platforms. @dumganhar
+        // issue: https://github.com/cocos/cocos-engine/issues/14644
+        return (Camera as any).getStandardLightMeterScale();
     },
 });
 
@@ -198,7 +201,7 @@ Object.defineProperty(cameraProto, 'matViewProjInv', {
 
 const oldInitialize = cameraProto.initialize;
 
-cameraProto.initialize = function initialize () {
+cameraProto.initialize = function initialize() {
     oldInitialize.apply(this, arguments);
     this._matView = new Mat4();
     this._matProj = new Mat4();

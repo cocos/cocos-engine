@@ -34,7 +34,6 @@ import { getPhaseID } from '../pass-phase';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { ClearFlagBit, Color, Rect } from '../../gfx';
 import { SRGBToLinear } from '../pipeline-funcs';
-import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from '../enum';
@@ -76,13 +75,11 @@ export class GbufferStage extends RenderStage {
     protected _renderQueues: RenderQueue[] = [];
 
     private _renderArea = new Rect();
-    private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('default');
 
     constructor () {
         super();
-        this._batchedQueue = new RenderBatchedQueue();
         this._instancedQueue = new RenderInstancedQueue();
     }
 
@@ -106,7 +103,6 @@ export class GbufferStage extends RenderStage {
 
     public render (camera: Camera) {
         this._instancedQueue.clear();
-        this._batchedQueue.clear();
         const pipeline = this._pipeline as DeferredPipeline;
         const device = pipeline.device;
         this._renderQueues.forEach(renderQueueClearFunc);
@@ -131,10 +127,6 @@ export class GbufferStage extends RenderStage {
                         const instancedBuffer = pass.getInstancedBuffer();
                         instancedBuffer.merge(subModel, p);
                         this._instancedQueue.queue.add(instancedBuffer);
-                    } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
-                        const batchedBuffer = pass.getBatchedBuffer();
-                        batchedBuffer.merge(subModel, p, ro.model);
-                        this._batchedQueue.queue.add(batchedBuffer);
                     } else {
                         for (k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
@@ -148,7 +140,6 @@ export class GbufferStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
 
         this._instancedQueue.uploadBuffers(cmdBuff);
-        this._batchedQueue.uploadBuffers(cmdBuff);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (pipeline.pipelineSceneData.isHDR) {
@@ -175,7 +166,6 @@ export class GbufferStage extends RenderStage {
             this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
         }
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
     }

@@ -29,6 +29,7 @@ import { PassOverrides, MacroRecord, MaterialProperty } from '../../render-scene
 import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4, cclegacy } from '../../core';
 import './asset';
 import { patch_cc_Material } from '../../native-binding/decorators';
+import type { Material as JsbMaterial } from './material';
 
 /**
  * @en The basic infos for material initialization.
@@ -254,9 +255,8 @@ matProto.getProperty = function (name: string, passIdx?: number) {
     return ret || val;
 };
 
-// @ts-ignore
-export type Material = jsb.Material;
-export const Material = jsb.Material;
+export type Material = JsbMaterial;
+export const Material: typeof JsbMaterial = jsb.Material;
 cclegacy.Material = Material;
 
 const materialProto: any = Material.prototype;

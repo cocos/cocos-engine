@@ -108,11 +108,8 @@ private:
     bool redirectWindowEvent(const WindowEvent &ev);
     void doRestart();
 
-    bool _close{false};
-    bool _pause{false};
-    bool _resune{false};
     SchedulerPtr _scheduler{nullptr};
-    int64_t _prefererredNanosecondsPerFrame{NANOSECONDS_60FPS};
+    int64_t _preferredNanosecondsPerFrame{NANOSECONDS_60FPS};
     uint _totalFrames{0};
     cc::Vec2 _viewLogicalSize{0, 0};
     bool _needRestart{false};

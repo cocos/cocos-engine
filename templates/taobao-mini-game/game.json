@@ -3,6 +3,7 @@
   "window": {
     "allowsBounceVertical": "NO",
     "transparentTitle": "always",
-    "enableAudioAlign": true
+    "enableAudioAlign": true,
+    "enableMultiAudio": true
   }
 }

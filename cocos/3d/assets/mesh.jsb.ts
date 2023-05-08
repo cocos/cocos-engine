@@ -23,6 +23,7 @@
 */
 import { cclegacy, Vec3 } from '../../core';
 import { patch_cc_Mesh } from '../../native-binding/decorators';
+import type { Mesh as JsbMesh } from './mesh';
 
 declare const jsb: any;
 
@@ -33,15 +34,15 @@ export declare namespace Mesh {
         count: number;
         stride: number;
     }
-    export type IVertexBundle = jsb.Mesh.IVertexBundle;
-    export type ISubMesh = jsb.Mesh.ISubMesh;
-    export type IDynamicInfo = jsb.Mesh.IDynamicInfo;
-    export type IDynamicStruct = jsb.Mesh.IDynamicStruct;
-    export type IStruct = jsb.Mesh.IStruct;
-    export type ICreateInfo = jsb.Mesh.ICreateInfo;
+    export type IVertexBundle = JsbMesh.IVertexBundle;
+    export type ISubMesh = JsbMesh.ISubMesh;
+    export type IDynamicInfo = JsbMesh.IDynamicInfo;
+    export type IDynamicStruct = JsbMesh.IDynamicStruct;
+    export type IStruct = JsbMesh.IStruct;
+    export type ICreateInfo = JsbMesh.ICreateInfo;
 }
-export type Mesh = jsb.Mesh;
-export const Mesh = jsb.Mesh;
+export type Mesh = JsbMesh;
+export const Mesh: typeof JsbMesh = jsb.Mesh;
 
 const IStructProto: any = jsb.Mesh.IStruct.prototype;
 

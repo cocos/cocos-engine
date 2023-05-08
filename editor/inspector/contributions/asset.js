@@ -14,9 +14,6 @@ exports.template = `
         <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
         <ui-label class="name"></ui-label>
-        <ui-link value="" class="help" tooltip="i18n:ENGINE.menu.help_url">
-            <ui-icon value="help"></ui-icon>
-        </ui-link>
         <ui-button class="save tiny green transparent" tooltip="i18n:ENGINE.assets.save">
             <ui-icon value="check"></ui-icon>
         </ui-button>
@@ -26,6 +23,9 @@ exports.template = `
         <ui-button type="icon" class="copy transparent" tooltip="i18n:ENGINE.inspector.cloneToEdit">
             <ui-icon value="copy"></ui-icon>
         </ui-button>
+        <ui-link value="" class="help" tooltip="i18n:ENGINE.menu.help_url">
+            <ui-icon value="help"></ui-icon>
+        </ui-link>
     </header>
     <section class="content">
         <section class="content-header"></section>

@@ -268,8 +268,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected static _findComponent<T extends Component> (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>): T | null {
         const cls = constructor;
         const comps = node._components;
-        // @ts-expect-error internal rtti property
-        if (cls._sealed) {
+        // NOTE: internal rtti property
+        if ((cls as any)._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
                 if (comp.constructor === constructor) {
@@ -290,8 +290,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected static _findComponents<T extends Component> (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>, components: Component[]) {
         const cls = constructor;
         const comps = node._components;
-        // @ts-expect-error internal rtti property
-        if (cls._sealed) {
+        // NOTE: internal rtti property
+        if ((cls as any)._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
                 if (comp.constructor === constructor) {
@@ -345,10 +345,18 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     @serializable
     protected _active = true;
 
+    /**
+     * NOTE: components getter is typeof ReadonlyArray
+     * @engineInternal
+     */
+    public getWritableComponents () { return this._components; }
     @serializable
     protected _components: Component[] = [];
 
-    // The PrefabInfo object
+    /**
+     * TODO(PP_Pro): this property should be exported to editor only, we should support editorOnly tag.
+     * Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+     */
     @serializable
     protected _prefab: PrefabInfo | null = null;
 
@@ -356,6 +364,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     protected _activeInHierarchy = false;
 
+    /**
+     * @engineInternal
+     */
+    public set id (v: string) { this._id = v; }
     protected _id: string = idGenerator.getNewId();
 
     protected _name: string;
@@ -364,6 +376,14 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected _eventMask = 0;
 
     protected _siblingIndex = 0;
+    /**
+     * @engineInternal
+     */
+    public get siblingIndex (): number { return this._siblingIndex; }
+    /**
+     * @engineInternal
+     */
+    public set siblingIndex (val: number) { this._siblingIndex = val; }
 
     /**
      * @en
@@ -411,6 +431,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public getParent () {
         return this._parent;
+    }
+
+    /**
+     * As there are setter and setParent(), and both of them not just modify _parent, but have
+     * other logic. So add a new function that only modify _parent value.
+     * @engineInternal
+     */
+    public modifyParent (parent: this | null) {
+        this._parent = parent;
     }
 
     /**
@@ -1313,12 +1342,14 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
             if (!inCurrentSceneBefore && inCurrentSceneNow) {
                 // attached
-                // @ts-expect-error Polyfilled functions in node-dev.ts
-                this._registerIfAttached!(true);
+                // TODO: `_registerIfAttached` is injected property
+                // issue: https://github.com/cocos/cocos-engine/issues/14643
+                (this as any)._registerIfAttached!(true);
             } else if (inCurrentSceneBefore && !inCurrentSceneNow) {
                 // detached
-                // @ts-expect-error Polyfilled functions in node-dev.ts
-                this._registerIfAttached!(false);
+                // TODO: `_registerIfAttached` is injected property
+                // issue: https://github.com/cocos/cocos-engine/issues/14643
+                (this as any)._registerIfAttached!(false);
             }
 
             // conflict detection
@@ -1339,8 +1370,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const parent = this._parent;
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
         if (!destroyByParent && EDITOR) {
-            // @ts-expect-error Polyfilled functions in node-dev.ts
-            this._registerIfAttached!(false);
+            // TODO: `_registerIfAttached` is injected property
+            // issue: https://github.com/cocos/cocos-engine/issues/14643
+            (this as any)._registerIfAttached!(false);
         }
 
         // remove from persist
@@ -1446,15 +1478,22 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _static = false;
-
-    // world transform, don't access this directly
-    protected declare _pos: Vec3;
-
-    protected declare _rot: Quat;
-
-    protected declare _scale: Vec3;
-
-    protected declare _mat: Mat4;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _pos: Vec3;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _rot: Quat;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _scale: Vec3;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _mat: Mat4;
 
     // local transform
     @serializable

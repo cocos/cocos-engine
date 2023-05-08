@@ -369,7 +369,6 @@ export class MeshBuffer {
         }
 
         // On iOS14, different IAs can not share same GPU buffer, so must submit the same date to different buffers
-        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
         const iOS14 = sys.__isWebIOS14OrIPadOS14Env;
         const submitCount = iOS14 ? this._nextFreeIAHandle : 1;
         if (iOS14 && (submitCount / this._iaPool.length < IA_POOL_USED_SCALE)) {
@@ -416,7 +415,6 @@ export class MeshBuffer {
         let indexBuffer;
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
-        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
         if (sys.__isWebIOS14OrIPadOS14Env || !this._iaPool[0]) {
             const vbStride = this._vertexFormatBytes = this._floatsPerVertex * Float32Array.BYTES_PER_ELEMENT;
             const ibStride = Uint16Array.BYTES_PER_ELEMENT;

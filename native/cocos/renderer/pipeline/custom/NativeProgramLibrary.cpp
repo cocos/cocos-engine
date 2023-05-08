@@ -1122,6 +1122,14 @@ void populatePipelineLayoutInfo(
     }
 }
 
+template <typename T>
+static ccstd::hash_t getShaderHash(ccstd::hash_t src, const T &val) {
+    if (src != gfx::INVALID_SHADER_HASH) {
+        ccstd::hash_combine(src, val);
+    }
+    return src;
+}
+
 } // namespace
 
 void NativeProgramLibrary::init(gfx::Device *deviceIn) {
@@ -1492,6 +1500,7 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     info.shaderInfo.attributes = getActiveAttributes(programInfo, info.attributes, defines);
 
     info.shaderInfo.name = getShaderInstanceName(name, macroArray);
+    info.shaderInfo.hash = getShaderHash(programInfo.hash, prefix);
 
     IntrusivePtr<gfx::Shader> shader = device->createShader(info.shaderInfo);
     auto res = phase.programProxies.emplace(
@@ -1502,7 +1511,7 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     return res.first->second.get();
 }
 
-gfx::PipelineState* NativeProgramLibrary::getComputePipelineState(
+gfx::PipelineState *NativeProgramLibrary::getComputePipelineState(
     gfx::Device *device, uint32_t phaseID, const ccstd::string &name,
     MacroRecord &defines, const ccstd::pmr::string *key) {
     auto *program = getProgramVariant(device, phaseID, name, defines, key);
@@ -1543,7 +1552,7 @@ const ccstd::vector<int32_t> &NativeProgramLibrary::getBlockSizes(
     throw std::invalid_argument("program not found");
 }
 
-const Record<ccstd::string, uint32_t> &NativeProgramLibrary::getHandleMap(
+const ccstd::unordered_map<ccstd::string, uint32_t> &NativeProgramLibrary::getHandleMap(
     uint32_t phaseID, const ccstd::string &programName) const {
     CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
     const auto &group = phases.at(phaseID);

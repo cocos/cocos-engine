@@ -335,6 +335,17 @@ export class LightProbes {
         return this._data;
     }
 
+    /**
+     * @en The value of all light probe sphere display size
+     * @zh 光照探针全局显示大小
+     */
+    set lightProbeSphereVolume (val: number) {
+        this._lightProbeSphereVolume = val;
+    }
+    get lightProbeSphereVolume (): number {
+        return this._lightProbeSphereVolume;
+    }
+
     protected _giScale = 1.0;
     protected _giSamples = 1024;
     protected _bounces = 2;
@@ -343,6 +354,7 @@ export class LightProbes {
     protected _showWireframe = true;
     protected _showConvex = false;
     protected _data: LightProbesData | null = null;
+    protected _lightProbeSphereVolume = 1.0;
 
     public initialize (info: LightProbeInfo) {
         this._giScale = info.giScale;
@@ -353,6 +365,7 @@ export class LightProbes {
         this._showWireframe = info.showWireframe;
         this._showConvex = info.showConvex;
         this._data = info.data;
+        this._lightProbeSphereVolume = info.lightProbeSphereVolume;
     }
 
     public empty () {

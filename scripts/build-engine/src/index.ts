@@ -170,6 +170,11 @@ namespace build {
          * Generate cocos/native-binding/decorators.ts for native platforms
          */
         generateDecoratorsForJSB?: boolean;
+
+        /**
+         * Whether force SUPPORT_JIT to the specified value.
+         */
+        forceJitValue?: boolean,
     }
 
     export interface Result {
@@ -270,6 +275,9 @@ async function doBuild({
         ...intrinsicFlags,
         ...options.buildTimeConstants,
     };
+    if (typeof options.forceJitValue !== undefined) {
+        buildTimeConstants['SUPPORT_JIT'] = options.forceJitValue as boolean;
+    }
 
     const moduleOverrides = Object.entries(statsQuery.evaluateModuleOverrides({
         mode: options.mode,
@@ -284,8 +292,10 @@ async function doBuild({
 
     // HACK: get platform, mode, flags from build time constants
     const flags: Record<string, any> = {};
-    ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE', 'WEBGPU'].forEach((key) => {
-        flags[key] = buildTimeConstants[key];
+    ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE', 'WEBGPU', 'SUPPORT_JIT'].forEach((key) => {
+        if (key !== 'SUPPORT_JIT' || typeof buildTimeConstants['SUPPORT_JIT'] !== 'undefined') {
+            flags[key] = buildTimeConstants[key];
+        }
     });
     // Wether use webgpu
     const useWebGPU = flags['WEBGPU'];
@@ -316,6 +326,7 @@ async function doBuild({
         platform,
         mode,
         flags,
+        forceJitValue: options.forceJitValue,
     });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
@@ -413,6 +424,9 @@ async function doBuild({
     };
     
     if (options.generateDecoratorsForJSB) {
+        if (!process.env.ENGINE_PATH) {
+            throw new Error('ENGINE_PATH environment variable not set');
+        }
         babelOptions.presets?.push([() => ({ plugins: [[decoratorRecorder]] })]);
     }
 

@@ -103,14 +103,19 @@ if(NOT USE_SOCKET)
     set(USE_WEBSOCKET_SERVER OFF)
 endif()
 
-if(OHOS)
+if(OPENHARMONY AND OHOS)
     set(CC_USE_GLES2 OFF)
 endif()
 
 ## disable videoplay on non-mobile platforms
-if(NOT ANDROID AND NOT IOS AND NOT OHOS)
+if(NOT ANDROID AND NOT IOS AND NOT OHOS AND NOT OPENHARMONY)
     set(USE_VIDEO OFF)
     set(USE_WEBVIEW OFF)
+endif()
+
+if(OPENHARMONY)
+    set(USE_SE_V8 OFF)
+    set(USE_SE_NAPI ON)
 endif()
 
 ## disable middleware when dragonbones and spine are disabled
@@ -183,6 +188,9 @@ if(NOT EXISTS ${EXTERNAL_ROOT}/CMakeLists.txt)
         message(FATAL_ERROR "Please download external libraries! File ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt not exist!")
     endif()
 endif()
+
+include_directories(${EXTERNAL_ROOT}/sources)
+
 ################################# list all option values ##############################
 
 cc_inspect_values(
@@ -282,7 +290,7 @@ NO_WERROR   cocos/audio/common/utils/primitives.cpp
             cocos/audio/oalsoft/AudioPlayer.cpp
             cocos/audio/oalsoft/AudioPlayer.h
         )
-    elseif(ANDROID)
+    elseif(ANDROID OR OPENHARMONY)
         cocos_source_files(
             cocos/audio/common/utils/include/primitives.h
             cocos/audio/common/utils/include/format.h
@@ -451,6 +459,8 @@ cocos_source_files(
     cocos/base/ThreadPool.cpp
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
+    cocos/base/BinaryArchive.cpp
+    cocos/base/BinaryArchive.h
     cocos/base/std/any.h
     cocos/base/std/optional.h
     cocos/base/std/variant.h
@@ -538,6 +548,16 @@ elseif(ANDROID)
         cocos/platform/android/AndroidPlatform.cpp
         cocos/platform/android/AndroidPlatform.h
     )
+elseif(OPENHARMONY)
+    cocos_source_files(
+        cocos/platform/openharmony/napi/NapiHelper.cpp
+        cocos/platform/openharmony/napi/NapiHelper.h
+
+        cocos/platform/openharmony/WorkerMessageQueue.cpp
+        cocos/platform/openharmony/WorkerMessageQueue.h
+        cocos/platform/openharmony/OpenHarmonyPlatform.cpp
+        cocos/platform/openharmony/OpenHarmonyPlatform.h
+    )
 elseif(OHOS)
     cocos_source_files(
         cocos/platform/ohos/OhosPlatform.cpp
@@ -567,6 +587,7 @@ cocos_source_files(
 )
 
 ############ platform : Interface definition
+if(NOT OPENHARMONY)
 cocos_source_files(
     cocos/platform/interfaces/modules/Device.cpp
     cocos/platform/interfaces/modules/Device.h
@@ -582,6 +603,16 @@ cocos_source_files(
     cocos/platform/interfaces/modules/XRCommon.h
     cocos/platform/interfaces/modules/IXRInterface.h
 )
+elseif(OPENHARMONY)
+    cocos_source_files(
+        cocos/platform/interfaces/modules/ISystem.h
+        cocos/platform/interfaces/modules/ISystem.cpp
+        cocos/platform/interfaces/modules/ISystemWindow.h
+        cocos/platform/interfaces/modules/Device.cpp
+        cocos/platform/interfaces/modules/Device.h
+        cocos/platform/interfaces/modules/IScreen.h
+    )
+endif()
 
 cocos_source_files(
     cocos/platform/interfaces/modules/canvas/CanvasRenderingContext2D.cpp
@@ -597,6 +628,11 @@ elseif(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/modules/CanvasRenderingContext2DDelegate.cpp
         cocos/platform/win32/modules/CanvasRenderingContext2DDelegate.h
+    )
+elseif(OPENHARMONY)
+    cocos_source_files(
+        cocos/platform/openharmony/modules/CanvasRenderingContext2DDelegate.cpp
+        cocos/platform/openharmony/modules/CanvasRenderingContext2DDelegate.h
     )
 elseif(ANDROID OR OHOS)
     cocos_source_files(
@@ -649,6 +685,27 @@ if(WINDOWS)
             cocos/platform/win32/modules/SystemWindowManager.h
         )
     endif()
+elseif(OPENHARMONY)
+    cocos_source_files(
+        cocos/platform/openharmony/modules/System.cpp
+        cocos/platform/openharmony/modules/System.h
+        cocos/platform/openharmony/modules/SystemWindow.cpp
+        cocos/platform/openharmony/modules/SystemWindow.h
+        cocos/platform/openharmony/modules/Screen.cpp
+        cocos/platform/openharmony/modules/Screen.h
+        cocos/platform/openharmony/modules/Accelerometer.cpp
+        cocos/platform/openharmony/modules/Accelerometer.h
+        cocos/platform/openharmony/modules/Battery.cpp
+        cocos/platform/openharmony/modules/Battery.h
+        cocos/platform/openharmony/modules/System.cpp
+        cocos/platform/openharmony/modules/SystemWindow.cpp
+        cocos/platform/openharmony/modules/SystemWindowManager.h
+        cocos/platform/openharmony/modules/SystemWindowManager.cpp
+        cocos/platform/empty/modules/Network.cpp
+        cocos/platform/empty/modules/Network.h
+        cocos/platform/empty/modules/Vibrator.cpp
+        cocos/platform/empty/modules/Vibrator.h
+    )
 elseif(ANDROID OR OHOS)
     cocos_source_files(
         cocos/platform/java/modules/Accelerometer.cpp
@@ -679,6 +736,8 @@ if(ANDROID)
         cocos/platform/android/modules/System.cpp
         cocos/platform/android/modules/System.h
     )
+elseif(OPENHARMONY)
+    # Because there will be a definition of OHOS in harmonyos, it is necessary to define the macro of OPENHARMONY.
 elseif(OHOS)
     cocos_source_files(
         cocos/platform/ohos/modules/Screen.cpp
@@ -892,6 +951,9 @@ cocos_source_files(
                  cocos/network/Downloader.cpp
                  cocos/network/Downloader.h
                  cocos/network/DownloaderImpl.h
+)
+# The xmlhttprequest module of OpenHarmony is implemented in the ts layer
+cocos_source_files(
                  cocos/network/HttpClient.h
                  cocos/network/HttpCookie.cpp
                  cocos/network/HttpCookie.h
@@ -934,7 +996,7 @@ if(APPLE)
     endif()
 endif()
 
-if(ANDROID OR OHOS)
+if(ANDROID OR (NOT OPENHARMONY AND OHOS))
     cocos_source_files(
         cocos/network/Downloader-java.cpp
         cocos/network/Downloader-java.h
@@ -954,18 +1016,22 @@ if(NOT APPLE AND USE_SOCKET)
     endif()
 endif()
 
-if(WINDOWS OR LINUX OR QNX)
+if(WINDOWS OR LINUX OR QNX OR OPENHARMONY)
     cocos_source_files(
         NO_WERROR    cocos/network/Downloader-curl.cpp
                      cocos/network/Downloader-curl.h
     )
 endif()
 
-if(WINDOWS OR MACOSX OR LINUX OR QNX)
+if(WINDOWS OR MACOSX OR LINUX OR QNX OR OPENHARMONY)
     cocos_source_files(
         NO_WERROR   NO_UBUILD   cocos/network/HttpClient.cpp
     )
 endif()
+
+set(SWIG_OUTPUT_ROOT ${CMAKE_CURRENT_BINARY_DIR}/generated)
+set(SWIG_OUTPUT ${SWIG_OUTPUT_ROOT}/cocos/bindings/auto)
+cc_gen_swig_files(${CMAKE_CURRENT_LIST_DIR}/tools/swig-config ${SWIG_OUTPUT})
 
 
 ##### platform
@@ -1029,6 +1095,12 @@ elseif(ANDROID)
     cocos_source_files(MODULE ccfilesystem
         cocos/platform/android/FileUtils-android.cpp
         cocos/platform/android/FileUtils-android.h
+    )
+elseif(OPENHARMONY)
+    # Because there will be a definition of OHOS in harmonyos, it is necessary to define the macro of OPENHARMONY.
+    cocos_source_files(MODULE ccfilesystem
+        cocos/platform/openharmony/FileUtils-OpenHarmony.cpp
+        cocos/platform/openharmony/FileUtils-OpenHarmony.h
     )
 elseif(OHOS)
     set(CC_JNI_SRC_FILES
@@ -1138,6 +1210,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXTexture.cpp
                  cocos/renderer/gfx-base/GFXTexture.h
                  cocos/renderer/gfx-base/GFXDeviceObject.h
+                 cocos/renderer/gfx-base/GFXUtil.cpp
+                 cocos/renderer/gfx-base/GFXUtil.h
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.cpp
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.h
                  cocos/renderer/gfx-base/states/GFXSampler.cpp
@@ -1242,8 +1316,6 @@ cocos_source_files(
                  cocos/renderer/gfx-empty/EmptyTexture.h
                  cocos/renderer/gfx-empty/EmptyTexture.cpp
 
-                 cocos/renderer/pipeline/BatchedBuffer.cpp
-                 cocos/renderer/pipeline/BatchedBuffer.h
                  cocos/renderer/pipeline/ClusterLightCulling.cpp
                  cocos/renderer/pipeline/ClusterLightCulling.h
                  cocos/renderer/pipeline/Define.h
@@ -1256,8 +1328,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/PipelineStateManager.h
                  cocos/renderer/pipeline/RenderAdditiveLightQueue.cpp
                  cocos/renderer/pipeline/RenderAdditiveLightQueue.h
-                 cocos/renderer/pipeline/RenderBatchedQueue.cpp
-                 cocos/renderer/pipeline/RenderBatchedQueue.h
                  cocos/renderer/pipeline/RenderFlow.cpp
                  cocos/renderer/pipeline/RenderFlow.h
                  cocos/renderer/pipeline/RenderInstancedQueue.cpp
@@ -1328,6 +1398,9 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/ArchiveFwd.h
                  cocos/renderer/pipeline/custom/ArchiveTypes.cpp
                  cocos/renderer/pipeline/custom/ArchiveTypes.h
+                 cocos/renderer/pipeline/custom/CustomFwd.h
+                 cocos/renderer/pipeline/custom/CustomTypes.cpp
+                 cocos/renderer/pipeline/custom/CustomTypes.h
                  cocos/renderer/pipeline/custom/FGDispatcherGraphs.h
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h
@@ -1615,6 +1688,8 @@ if(CC_USE_GLES3)
                      cocos/renderer/gfx-gles3/GLES3Texture.h
                      cocos/renderer/gfx-gles3/GLES3Wrangler.cpp
                      cocos/renderer/gfx-gles3/GLES3Wrangler.h
+                     cocos/renderer/gfx-gles3/GLES3PipelineCache.cpp
+                     cocos/renderer/gfx-gles3/GLES3PipelineCache.h
                      cocos/renderer/gfx-gles3/states/GLES3GeneralBarrier.cpp
                      cocos/renderer/gfx-gles3/states/GLES3GeneralBarrier.h
                      cocos/renderer/gfx-gles3/states/GLES3Sampler.cpp
@@ -1712,6 +1787,8 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/volk.c
                      cocos/renderer/gfx-vulkan/volk.h
                      cocos/renderer/gfx-vulkan/VKGPURecycleBin.cpp
+                     cocos/renderer/gfx-vulkan/VKPipelineCache.cpp
+                     cocos/renderer/gfx-vulkan/VKPipelineCache.h
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.cpp
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.h
                      cocos/renderer/gfx-vulkan/states/VKSampler.cpp
@@ -1826,8 +1903,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXGenericJoint.cpp
     )
     cocos_source_files(
-        NO_WERROR NO_UBUILD cocos/bindings/auto/jsb_physics_auto.cpp
-                            cocos/bindings/auto/jsb_physics_auto.h
+        NO_WERROR NO_UBUILD ${SWIG_OUTPUT}/jsb_physics_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_physics_auto.h
     )
 endif()
 
@@ -2025,48 +2102,49 @@ cocos_source_files(
 
 ######## auto
 cocos_source_files(
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_cocos_auto.cpp
-                            cocos/bindings/auto/jsb_cocos_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_extension_auto.cpp
-                            cocos/bindings/auto/jsb_extension_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_gfx_auto.cpp
-                            cocos/bindings/auto/jsb_gfx_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_network_auto.cpp
-                            cocos/bindings/auto/jsb_network_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_pipeline_auto.cpp
-                            cocos/bindings/auto/jsb_pipeline_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_scene_auto.cpp
-                            cocos/bindings/auto/jsb_scene_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_gi_auto.cpp
-                            cocos/bindings/auto/jsb_gi_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_assets_auto.cpp
-                            cocos/bindings/auto/jsb_assets_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_geometry_auto.cpp
-                            cocos/bindings/auto/jsb_geometry_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_render_auto.cpp
-                            cocos/bindings/auto/jsb_render_auto.h
-    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_2d_auto.cpp
-                            cocos/bindings/auto/jsb_2d_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_network_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_network_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_cocos_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_cocos_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_extension_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_extension_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_gfx_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_gfx_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_pipeline_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_pipeline_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_scene_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_scene_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_gi_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_gi_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_assets_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_assets_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_geometry_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_geometry_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_render_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_render_auto.h
+    NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_2d_auto.cpp
+                            ${SWIG_OUTPUT}/jsb_2d_auto.h
 )
+
 
 if(USE_AUDIO)
     cocos_source_files(
-        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_audio_auto.cpp
-                                cocos/bindings/auto/jsb_audio_auto.h
+        NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_audio_auto.cpp
+                                ${SWIG_OUTPUT}/jsb_audio_auto.h
     )
 endif()
 
 if(USE_VIDEO)
     cocos_source_files(
-        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_video_auto.cpp
-                                cocos/bindings/auto/jsb_video_auto.h
+        NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_video_auto.cpp
+                                ${SWIG_OUTPUT}/jsb_video_auto.h
     )
 endif()
 
 if(USE_WEBVIEW)
     cocos_source_files(
-        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_webview_auto.cpp
-                                cocos/bindings/auto/jsb_webview_auto.h
+        NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_webview_auto.cpp
+                                ${SWIG_OUTPUT}/jsb_webview_auto.h
     )
 endif()
 
@@ -2097,8 +2175,8 @@ if(USE_MIDDLEWARE)
     )
 
     cocos_source_files(
-        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_editor_support_auto.cpp
-                                cocos/bindings/auto/jsb_editor_support_auto.h
+        NO_WERROR   NO_UBUILD   ${SWIG_OUTPUT}/jsb_editor_support_auto.cpp
+                                ${SWIG_OUTPUT}/jsb_editor_support_auto.h
     )
 
     if(USE_SPINE)
@@ -2268,8 +2346,8 @@ if(USE_MIDDLEWARE)
 
         )
         cocos_source_files(
-        NO_WERROR       cocos/bindings/auto/jsb_spine_auto.cpp
-                        cocos/bindings/auto/jsb_spine_auto.h
+        NO_WERROR       ${SWIG_OUTPUT}/jsb_spine_auto.cpp
+                        ${SWIG_OUTPUT}/jsb_spine_auto.h
         NO_WERROR       cocos/bindings/manual/jsb_spine_manual.cpp
                         cocos/bindings/manual/jsb_spine_manual.h
         )
@@ -2364,8 +2442,8 @@ if(USE_MIDDLEWARE)
 
         )
         cocos_source_files(
-            NO_WERROR    cocos/bindings/auto/jsb_dragonbones_auto.cpp
-                         cocos/bindings/auto/jsb_dragonbones_auto.h
+            NO_WERROR    ${SWIG_OUTPUT}/jsb_dragonbones_auto.cpp
+                         ${SWIG_OUTPUT}/jsb_dragonbones_auto.h
             NO_WERROR    cocos/bindings/manual/jsb_dragonbones_manual.cpp
                          cocos/bindings/manual/jsb_dragonbones_manual.h
         )
@@ -2373,6 +2451,14 @@ if(USE_MIDDLEWARE)
 endif()
 
 ######## manual
+cocos_source_files(
+    NO_WERROR    cocos/bindings/manual/jsb_network_manual.cpp
+                cocos/bindings/manual/jsb_network_manual.h
+    NO_WERROR    cocos/bindings/manual/jsb_xmlhttprequest.cpp
+                cocos/bindings/manual/jsb_xmlhttprequest.h
+
+)
+
 cocos_source_files(
             cocos/bindings/manual/jsb_classtype.cpp
             cocos/bindings/manual/jsb_classtype.h
@@ -2430,6 +2516,10 @@ if(ANDROID)
                     cocos/bindings/manual/jsb_platform_android.cpp
                     cocos/bindings/manual/JavaScriptJavaBridge.cpp
                     cocos/bindings/manual/JavaScriptJavaBridge.h
+    )
+elseif(OPENHARMONY)
+    cocos_source_files(
+        cocos/bindings/manual/jsb_platform_openharmony.cpp
     )
 elseif(OHOS)
     cocos_source_files(
@@ -2533,6 +2623,23 @@ if(USE_SE_SM)
     )
 endif()
 
+if(USE_SE_NAPI)
+    cocos_source_files(MODULE ccbindings
+                     cocos/bindings/jswrapper/napi/Class.cpp
+                     cocos/bindings/jswrapper/napi/Class.h
+                     cocos/bindings/jswrapper/napi/CommonHeader.h
+                     cocos/bindings/jswrapper/napi/HelperMacros.h
+                     cocos/bindings/jswrapper/napi/HelperMacros.cpp
+                     cocos/bindings/jswrapper/napi/Object.cpp
+                     cocos/bindings/jswrapper/napi/Object.h
+        NO_WERROR    cocos/bindings/jswrapper/napi/ScriptEngine.cpp
+                     cocos/bindings/jswrapper/napi/ScriptEngine.h
+                     cocos/bindings/jswrapper/napi/SeApi.h
+        NO_WERROR    cocos/bindings/jswrapper/napi/Utils.cpp
+                     cocos/bindings/jswrapper/napi/Utils.h
+    )
+endif()
+
 cocos_source_files(MODULE ccbindings
                  cocos/bindings/jswrapper/config.h
                  cocos/bindings/jswrapper/config.cpp
@@ -2581,7 +2688,7 @@ if(USE_EDIT_BOX)
     )
 endif()
 
-if(ANDROID OR IOS OR OHOS)
+if(NOT OPENHARMONY AND (ANDROID OR IOS OR OHOS))
     if(USE_VIDEO)
         cocos_source_files(
                          cocos/ui/videoplayer/VideoPlayer.h
@@ -2610,6 +2717,20 @@ if(ANDROID)
         cocos_source_files(
                          cocos/ui/webview/WebViewImpl-java.h
                          cocos/ui/webview/WebViewImpl-android.cpp
+        )
+    endif()
+elseif(OPENHARMONY)
+    if(USE_EDIT_BOX)
+        cocos_source_files(
+                        cocos/ui/edit-box/EditBox-openharmony.h
+                        cocos/ui/edit-box/EditBox-openharmony.cpp
+    )
+    endif()
+    if(USE_WEBVIEW)
+        cocos_source_files(
+            cocos/ui/webview/WebViewImpl-java.h
+            cocos/ui/webview/WebViewImpl-openharmony.h
+            cocos/ui/webview/WebViewImpl-openharmony.cpp
         )
     endif()
 elseif(OHOS)
@@ -2702,7 +2823,7 @@ list(APPEND COCOS_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
 
 ### generate source files
 
-set(CC_GENERATED_FILES
+set(COCOS_DEBUGINFO_SRC
     ${CWD}/cocos/core/builtin/DebugInfos.cpp
 )
 
@@ -2719,7 +2840,7 @@ add_custom_target(builtin-res
 set_target_properties(builtin-res PROPERTIES FOLDER Utils)
 
 
-list(APPEND COCOS_SOURCE_LIST ${CC_GENERATED_FILES})
+list(APPEND COCOS_SOURCE_LIST ${COCOS_DEBUGINFO_SRC})
 
 if(USE_MODULES)
     add_library(ccmath ${ccmath_SOURCE_LIST})
@@ -2787,6 +2908,8 @@ if(USE_MODULES)
         target_link_libraries(ccfilesystem PUBLIC
             cocos_jni
         )
+    elseif(OPENHARMONY)
+
     elseif(OHOS)
         target_link_libraries(cclog PUBLIC
             hilog_ndk.z
@@ -2825,6 +2948,11 @@ endif()
 
 add_library(${ENGINE_NAME} ${COCOS_SOURCE_LIST})
 
+if(CMAKE_GENERATOR STREQUAL "Xcode")
+    add_dependencies(${ENGINE_NAME} genbindings)
+endif()
+
+
 if(USE_MODULES)
     target_link_libraries(${ENGINE_NAME} PUBLIC
         ccmath
@@ -2837,7 +2965,7 @@ if(USE_MODULES)
 endif()
 
 
-if(ANDROID OR OHOS)
+if(ANDROID OR (NOT OPENHARMONY AND OHOS))
     cc_enable_werror("${CC_JNI_SRC_FILES}")
     add_library(cocos_jni STATIC ${CC_JNI_SRC_FILES})
     target_include_directories(cocos_jni PUBLIC
@@ -2984,6 +3112,8 @@ target_include_directories(${ENGINE_NAME}
         ${CWD}/cocos/platform
         ${CWD}/cocos/renderer/core
         ${CWD}/cocos/editor-support
+        ${SWIG_OUTPUT_ROOT}
+        ${SWIG_OUTPUT_ROOT}/cocos
         $<$<BOOL:USE_SE_V8>:${CWD}/cocos/bindings/jswrapper>
     PRIVATE
         ${CC_EXTERNAL_PRIVATE_INCLUDES}
@@ -3046,7 +3176,7 @@ if(ANDROID)
     )
 endif()
 
-if(OHOS)
+if(NOT OPENHARMONY AND OHOS)
     target_link_libraries(${ENGINE_NAME} PUBLIC
         EGL
         GLESv3
@@ -3056,6 +3186,30 @@ if(OHOS)
         z
         OpenSLES
         hilog_ndk.z
+        ${CC_EXTERNAL_LIBS}
+    )
+endif()
+
+if(OPENHARMONY)
+    find_library( # Sets the name of the path variable.
+                EGL-lib
+                # Specifies the name of the NDK library that
+                # you want CMake to locate.
+                EGL )
+    find_library( # Sets the name of the path variable.
+                GLESv3-lib
+                # Specifies the name of the NDK library that
+                # you want CMake to locate.
+                GLESv3)
+
+    find_library( hilog-lib
+                hilog_ndk.z )
+
+    find_library( libace-lib
+                libace_ndk.z )
+
+    target_link_libraries(${ENGINE_NAME} PUBLIC
+        ${EGL-lib} ${GLESv3-lib} ${hilog-lib} libace_napi.z.so libace_ndk.z.so libz.so libuv.so libnative_drawing.so librawfile.z.so libOpenSLES.so
         ${CC_EXTERNAL_LIBS}
     )
 endif()
@@ -3135,8 +3289,26 @@ elseif(LINUX)
     )
 endif()
 
+### set source_group for generated files
+set(COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${COCOS_SOURCE_LIST})
+set(COCOS_GENERATED_LIST)
+foreach(src IN LISTS COCOS_SOURCE_LIST_EXCLUDE_GENRATED)
+    get_source_file_property(IS_GENERATED ${src} GENERATED)
+    if(IS_GENERATED) 
+        list(REMOVE_ITEM COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${src})
+        list(APPEND COCOS_GENERATED_LIST ${src})
+    endif()
+endforeach()
+
+source_group(TREE ${SWIG_OUTPUT_ROOT} PREFIX "Source Files/generated" FILES ${COCOS_GENERATED_LIST})
+
+add_custom_target(genbindings
+    DEPENDS ${COCOS_GENERATED_LIST}
+)
+set_target_properties(genbindings PROPERTIES FOLDER Utils)
+
 if(USE_BUILTIN_EXTERNAL)
-    set(EXCLUDE_EXTERANL_LIST ${COCOS_SOURCE_LIST})
+    set(EXCLUDE_EXTERANL_LIST ${COCOS_SOURCE_LIST_EXCLUDE_GENRATED})
     foreach(x IN LISTS CC_EXTERNAL_SOURCES)
         list(REMOVE_ITEM EXCLUDE_EXTERANL_LIST ${x})
     endforeach()
@@ -3152,13 +3324,13 @@ if(USE_BUILTIN_EXTERNAL)
     endif()
 else()
     if(USE_XR OR USE_AR_MODULE)
-        set(EXCLUDE_XR_LIST ${COCOS_SOURCE_LIST})
+        set(EXCLUDE_XR_LIST ${COCOS_SOURCE_LIST_EXCLUDE_GENRATED})
         foreach(x IN LISTS XR_COMMON_SOURCES)
             list(REMOVE_ITEM EXCLUDE_XR_LIST ${x})
         endforeach()
         source_group(TREE ${CWD} PREFIX "Source Files" FILES ${EXCLUDE_XR_LIST})
         source_group(TREE ${XR_COMMON_PATH} PREFIX "Source Files/common" FILES ${XR_COMMON_SOURCES})
     else()
-        source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST})
+        source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS_SOURCE_LIST_EXCLUDE_GENRATED})
     endif()
 endif()

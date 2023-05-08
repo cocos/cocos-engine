@@ -26,9 +26,12 @@ import { CCString, cclegacy, Mat4 } from '../../core';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { Asset } from '../../asset/assets/asset';
 import { patch_cc_Skeleton } from '../../native-binding/decorators';
+import type { Skeleton as JsbSkeleton } from './skeleton';
 
-export const Skeleton = jsb.Skeleton;
-export type Skeleton = jsb.Skeleton;
+declare const jsb: any;
+
+export const Skeleton: typeof JsbSkeleton = jsb.Skeleton;
+export type Skeleton = JsbSkeleton;
 cclegacy.Skeleton = Skeleton;
 const skeletonProto: any = Skeleton.prototype;
 

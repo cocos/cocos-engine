@@ -24,7 +24,7 @@ export function patch_BloomStage(ctx: BloomStage_Context_Args, apply = defaultEx
   const { BloomStage, Material } = { ...ctx };
   apply(() => { $.displayOrder(3)(BloomStage.prototype, '_bloomMaterial',  () => { return null; }); }, 'displayOrder', '_bloomMaterial');
   apply(() => { $.serializable(BloomStage.prototype, '_bloomMaterial',  () => { return null; }); }, 'serializable', '_bloomMaterial');
-  apply(() => { $.type(Material)(BloomStage.prototype, '_bloomMaterial'); }, 'type', '_bloomMaterial');
+  apply(() => { $.type(Material)(BloomStage.prototype, '_bloomMaterial',  () => { return null; }); }, 'type', '_bloomMaterial');
   apply(() => { $.ccclass('BloomStage')(BloomStage); }, 'ccclass', null);
 } // end of patch_BloomStage
 
@@ -46,6 +46,7 @@ export function patch_cc_AmbientInfo(ctx: cc_AmbientInfo_Context_Args, apply = d
   apply(() => { $.visible(() => {
   const scene = legacyCC.director.getScene();
   const skybox = scene.globals.skybox;
+
   if (skybox.useIBL && skybox.applyDiffuseMap) {
     return false;
   } else {
@@ -53,13 +54,14 @@ export function patch_cc_AmbientInfo(ctx: cc_AmbientInfo_Context_Args, apply = d
   }
 })(AmbientInfo.prototype, 'skyLightingColor',  skyLightingColorDescriptor); }, 'visible', 'skyLightingColor');
   apply(() => { $.tooltip('i18n:ambient.skyIllum')(AmbientInfo.prototype, 'skyIllum',  skyIllumDescriptor); }, 'tooltip', 'skyIllum');
-  apply(() => { $.type(CCFloat)(AmbientInfo.prototype, 'skyIllum'); }, 'type', 'skyIllum');
+  apply(() => { $.type(CCFloat)(AmbientInfo.prototype, 'skyIllum',  skyIllumDescriptor); }, 'type', 'skyIllum');
   apply(() => { $.editable(AmbientInfo.prototype, 'skyIllum',  skyIllumDescriptor); }, 'editable', 'skyIllum');
   apply(() => { $.tooltip('i18n:ambient.groundLightingColor')(AmbientInfo.prototype, 'groundLightingColor',  groundLightingColorDescriptor); }, 'tooltip', 'groundLightingColor');
   apply(() => { $.editable(AmbientInfo.prototype, 'groundLightingColor',  groundLightingColorDescriptor); }, 'editable', 'groundLightingColor');
   apply(() => { $.visible(() => {
   const scene = legacyCC.director.getScene();
   const skybox = scene.globals.skybox;
+
   if (skybox.useIBL && skybox.applyDiffuseMap) {
     return false;
   } else {
@@ -169,12 +171,12 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   apply(() => { $.serializable(DirectionalLight.prototype, '_shadowNear',  () => { return 0.1; }); }, 'serializable', '_shadowNear');
   apply(() => { $.serializable(DirectionalLight.prototype, '_shadowFar',  () => { return 10.0; }); }, 'serializable', '_shadowFar');
   apply(() => { $.serializable(DirectionalLight.prototype, '_shadowOrthoSize',  () => { return 5; }); }, 'serializable', '_shadowOrthoSize');
-  apply(() => { $.type(CCInteger)(DirectionalLight.prototype, 'illuminance'); }, 'type', 'illuminance');
+  apply(() => { $.type(CCInteger)(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'type', 'illuminance');
   apply(() => { $.slide(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'slide', 'illuminance');
   apply(() => { $$.rangeMin(0)(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'rangeMin', 'illuminance');
   apply(() => { $.editable(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'editable', 'illuminance');
   apply(() => { $.tooltip('i18n:lights.illuminance')(DirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'tooltip', 'illuminance');
-  apply(() => { $.type(CCBoolean)(DirectionalLight.prototype, 'shadowEnabled'); }, 'type', 'shadowEnabled');
+  apply(() => { $.type(CCBoolean)(DirectionalLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'type', 'shadowEnabled');
   apply(() => { $.editable(DirectionalLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'editable', 'shadowEnabled');
   apply(() => { $.property({
   group: {
@@ -184,7 +186,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
 })(DirectionalLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'property', 'shadowEnabled');
   apply(() => { $.visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)(DirectionalLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'visible', 'shadowEnabled');
   apply(() => { $.tooltip('i18n:lights.shadowEnabled')(DirectionalLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'tooltip', 'shadowEnabled');
-  apply(() => { $.type(PCFType)(DirectionalLight.prototype, 'shadowPcf'); }, 'type', 'shadowPcf');
+  apply(() => { $.type(PCFType)(DirectionalLight.prototype, 'shadowPcf',  shadowPcfDescriptor); }, 'type', 'shadowPcf');
   apply(() => { $.editable(DirectionalLight.prototype, 'shadowPcf',  shadowPcfDescriptor); }, 'editable', 'shadowPcf');
   apply(() => { $.property({
   group: {
@@ -194,7 +196,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
 })(DirectionalLight.prototype, 'shadowPcf',  shadowPcfDescriptor); }, 'property', 'shadowPcf');
   apply(() => { $.visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)(DirectionalLight.prototype, 'shadowPcf',  shadowPcfDescriptor); }, 'visible', 'shadowPcf');
   apply(() => { $.tooltip('i18n:lights.shadowPcf')(DirectionalLight.prototype, 'shadowPcf',  shadowPcfDescriptor); }, 'tooltip', 'shadowPcf');
-  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowBias'); }, 'type', 'shadowBias');
+  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowBias',  shadowBiasDescriptor); }, 'type', 'shadowBias');
   apply(() => { $.editable(DirectionalLight.prototype, 'shadowBias',  shadowBiasDescriptor); }, 'editable', 'shadowBias');
   apply(() => { $.property({
   group: {
@@ -204,7 +206,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
 })(DirectionalLight.prototype, 'shadowBias',  shadowBiasDescriptor); }, 'property', 'shadowBias');
   apply(() => { $.visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)(DirectionalLight.prototype, 'shadowBias',  shadowBiasDescriptor); }, 'visible', 'shadowBias');
   apply(() => { $.tooltip('i18n:lights.shadowBias')(DirectionalLight.prototype, 'shadowBias',  shadowBiasDescriptor); }, 'tooltip', 'shadowBias');
-  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowNormalBias'); }, 'type', 'shadowNormalBias');
+  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowNormalBias',  shadowNormalBiasDescriptor); }, 'type', 'shadowNormalBias');
   apply(() => { $.editable(DirectionalLight.prototype, 'shadowNormalBias',  shadowNormalBiasDescriptor); }, 'editable', 'shadowNormalBias');
   apply(() => { $.property({
   group: {
@@ -214,7 +216,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
 })(DirectionalLight.prototype, 'shadowNormalBias',  shadowNormalBiasDescriptor); }, 'property', 'shadowNormalBias');
   apply(() => { $.visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)(DirectionalLight.prototype, 'shadowNormalBias',  shadowNormalBiasDescriptor); }, 'visible', 'shadowNormalBias');
   apply(() => { $.tooltip('i18n:lights.shadowNormalBias')(DirectionalLight.prototype, 'shadowNormalBias',  shadowNormalBiasDescriptor); }, 'tooltip', 'shadowNormalBias');
-  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowSaturation'); }, 'type', 'shadowSaturation');
+  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowSaturation',  shadowSaturationDescriptor); }, 'type', 'shadowSaturation');
   apply(() => { $.slide(DirectionalLight.prototype, 'shadowSaturation',  shadowSaturationDescriptor); }, 'slide', 'shadowSaturation');
   apply(() => { $.range([0.0, 1.0, 0.01])(DirectionalLight.prototype, 'shadowSaturation',  shadowSaturationDescriptor); }, 'range', 'shadowSaturation');
   apply(() => { $.editable(DirectionalLight.prototype, 'shadowSaturation',  shadowSaturationDescriptor); }, 'editable', 'shadowSaturation');
@@ -226,7 +228,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
 })(DirectionalLight.prototype, 'shadowSaturation',  shadowSaturationDescriptor); }, 'property', 'shadowSaturation');
   apply(() => { $.visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)(DirectionalLight.prototype, 'shadowSaturation',  shadowSaturationDescriptor); }, 'visible', 'shadowSaturation');
   apply(() => { $.tooltip('i18n:lights.shadowSaturation')(DirectionalLight.prototype, 'shadowSaturation',  shadowSaturationDescriptor); }, 'tooltip', 'shadowSaturation');
-  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowDistance'); }, 'type', 'shadowDistance');
+  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowDistance',  shadowDistanceDescriptor); }, 'type', 'shadowDistance');
   apply(() => { $.slide(DirectionalLight.prototype, 'shadowDistance',  shadowDistanceDescriptor); }, 'slide', 'shadowDistance');
   apply(() => { $.range([0.0, 2000.0, 0.1])(DirectionalLight.prototype, 'shadowDistance',  shadowDistanceDescriptor); }, 'range', 'shadowDistance');
   apply(() => { $.tooltip('shadow visible distance: shadow quality is inversely proportional of the magnitude of this value')(DirectionalLight.prototype, 'shadowDistance',  shadowDistanceDescriptor); }, 'tooltip', 'shadowDistance');
@@ -241,7 +243,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._shadowFixedArea === false;
 })(DirectionalLight.prototype, 'shadowDistance',  shadowDistanceDescriptor); }, 'visible', 'shadowDistance');
   apply(() => { $.tooltip('i18n:lights.shadowDistance')(DirectionalLight.prototype, 'shadowDistance',  shadowDistanceDescriptor); }, 'tooltip', 'shadowDistance');
-  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowInvisibleOcclusionRange'); }, 'type', 'shadowInvisibleOcclusionRange');
+  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowInvisibleOcclusionRange',  shadowInvisibleOcclusionRangeDescriptor); }, 'type', 'shadowInvisibleOcclusionRange');
   apply(() => { $.slide(DirectionalLight.prototype, 'shadowInvisibleOcclusionRange',  shadowInvisibleOcclusionRangeDescriptor); }, 'slide', 'shadowInvisibleOcclusionRange');
   apply(() => { $.range([0.0, 2000.0, 1.0])(DirectionalLight.prototype, 'shadowInvisibleOcclusionRange',  shadowInvisibleOcclusionRangeDescriptor); }, 'range', 'shadowInvisibleOcclusionRange');
   apply(() => { $.tooltip('if shadow has been culled, increase this value to fix it')(DirectionalLight.prototype, 'shadowInvisibleOcclusionRange',  shadowInvisibleOcclusionRangeDescriptor); }, 'tooltip', 'shadowInvisibleOcclusionRange');
@@ -256,7 +258,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._shadowFixedArea === false && this._csmAdvancedOptions;
 })(DirectionalLight.prototype, 'shadowInvisibleOcclusionRange',  shadowInvisibleOcclusionRangeDescriptor); }, 'visible', 'shadowInvisibleOcclusionRange');
   apply(() => { $.tooltip('i18n:lights.shadowInvisibleOcclusionRange')(DirectionalLight.prototype, 'shadowInvisibleOcclusionRange',  shadowInvisibleOcclusionRangeDescriptor); }, 'tooltip', 'shadowInvisibleOcclusionRange');
-  apply(() => { $.type(CSMLevel)(DirectionalLight.prototype, 'csmLevel'); }, 'type', 'csmLevel');
+  apply(() => { $.type(CSMLevel)(DirectionalLight.prototype, 'csmLevel',  csmLevelDescriptor); }, 'type', 'csmLevel');
   apply(() => { $.slide(DirectionalLight.prototype, 'csmLevel',  csmLevelDescriptor); }, 'slide', 'csmLevel');
   apply(() => { $.tooltip('CSM Level')(DirectionalLight.prototype, 'csmLevel',  csmLevelDescriptor); }, 'tooltip', 'csmLevel');
   apply(() => { $.editable(DirectionalLight.prototype, 'csmLevel',  csmLevelDescriptor); }, 'editable', 'csmLevel');
@@ -267,7 +269,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   }
 })(DirectionalLight.prototype, 'csmLevel',  csmLevelDescriptor); }, 'property', 'csmLevel');
   apply(() => { $.visible(false)(DirectionalLight.prototype, 'csmLevel',  csmLevelDescriptor); }, 'visible', 'csmLevel');
-  apply(() => { $.type(CCBoolean)(DirectionalLight.prototype, 'enableCSM'); }, 'type', 'enableCSM');
+  apply(() => { $.type(CCBoolean)(DirectionalLight.prototype, 'enableCSM',  enableCSMDescriptor); }, 'type', 'enableCSM');
   apply(() => { $.slide(DirectionalLight.prototype, 'enableCSM',  enableCSMDescriptor); }, 'slide', 'enableCSM');
   apply(() => { $.tooltip('enable CSM')(DirectionalLight.prototype, 'enableCSM',  enableCSMDescriptor); }, 'tooltip', 'enableCSM');
   apply(() => { $.editable(DirectionalLight.prototype, 'enableCSM',  enableCSMDescriptor); }, 'editable', 'enableCSM');
@@ -281,7 +283,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._shadowFixedArea === false;
 })(DirectionalLight.prototype, 'enableCSM',  enableCSMDescriptor); }, 'visible', 'enableCSM');
   apply(() => { $.tooltip('i18n:lights.enableCSM')(DirectionalLight.prototype, 'enableCSM',  enableCSMDescriptor); }, 'tooltip', 'enableCSM');
-  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'csmLayerLambda'); }, 'type', 'csmLayerLambda');
+  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'csmLayerLambda',  csmLayerLambdaDescriptor); }, 'type', 'csmLayerLambda');
   apply(() => { $.slide(DirectionalLight.prototype, 'csmLayerLambda',  csmLayerLambdaDescriptor); }, 'slide', 'csmLayerLambda');
   apply(() => { $.range([0.0, 1.0, 0.01])(DirectionalLight.prototype, 'csmLayerLambda',  csmLayerLambdaDescriptor); }, 'range', 'csmLayerLambda');
   apply(() => { $.tooltip('CSM Level ratio')(DirectionalLight.prototype, 'csmLayerLambda',  csmLayerLambdaDescriptor); }, 'tooltip', 'csmLayerLambda');
@@ -293,7 +295,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   }
 })(DirectionalLight.prototype, 'csmLayerLambda',  csmLayerLambdaDescriptor); }, 'property', 'csmLayerLambda');
   apply(() => { $.visible(false)(DirectionalLight.prototype, 'csmLayerLambda',  csmLayerLambdaDescriptor); }, 'visible', 'csmLayerLambda');
-  apply(() => { $.type(CSMOptimizationMode)(DirectionalLight.prototype, 'csmOptimizationMode'); }, 'type', 'csmOptimizationMode');
+  apply(() => { $.type(CSMOptimizationMode)(DirectionalLight.prototype, 'csmOptimizationMode',  csmOptimizationModeDescriptor); }, 'type', 'csmOptimizationMode');
   apply(() => { $.slide(DirectionalLight.prototype, 'csmOptimizationMode',  csmOptimizationModeDescriptor); }, 'slide', 'csmOptimizationMode');
   apply(() => { $.tooltip('CSM Performance Optimization Mode')(DirectionalLight.prototype, 'csmOptimizationMode',  csmOptimizationModeDescriptor); }, 'tooltip', 'csmOptimizationMode');
   apply(() => { $.editable(DirectionalLight.prototype, 'csmOptimizationMode',  csmOptimizationModeDescriptor); }, 'editable', 'csmOptimizationMode');
@@ -304,7 +306,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   }
 })(DirectionalLight.prototype, 'csmOptimizationMode',  csmOptimizationModeDescriptor); }, 'property', 'csmOptimizationMode');
   apply(() => { $.visible(false)(DirectionalLight.prototype, 'csmOptimizationMode',  csmOptimizationModeDescriptor); }, 'visible', 'csmOptimizationMode');
-  apply(() => { $.type(CCBoolean)(DirectionalLight.prototype, 'shadowFixedArea'); }, 'type', 'shadowFixedArea');
+  apply(() => { $.type(CCBoolean)(DirectionalLight.prototype, 'shadowFixedArea',  shadowFixedAreaDescriptor); }, 'type', 'shadowFixedArea');
   apply(() => { $.editable(DirectionalLight.prototype, 'shadowFixedArea',  shadowFixedAreaDescriptor); }, 'editable', 'shadowFixedArea');
   apply(() => { $.property({
   group: {
@@ -314,7 +316,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
 })(DirectionalLight.prototype, 'shadowFixedArea',  shadowFixedAreaDescriptor); }, 'property', 'shadowFixedArea');
   apply(() => { $.visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)(DirectionalLight.prototype, 'shadowFixedArea',  shadowFixedAreaDescriptor); }, 'visible', 'shadowFixedArea');
   apply(() => { $.tooltip('i18n:lights.shadowFixedArea')(DirectionalLight.prototype, 'shadowFixedArea',  shadowFixedAreaDescriptor); }, 'tooltip', 'shadowFixedArea');
-  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowNear'); }, 'type', 'shadowNear');
+  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowNear',  shadowNearDescriptor); }, 'type', 'shadowNear');
   apply(() => { $.editable(DirectionalLight.prototype, 'shadowNear',  shadowNearDescriptor); }, 'editable', 'shadowNear');
   apply(() => { $.property({
   group: {
@@ -326,7 +328,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._shadowFixedArea === true;
 })(DirectionalLight.prototype, 'shadowNear',  shadowNearDescriptor); }, 'visible', 'shadowNear');
   apply(() => { $.tooltip('i18n:lights.shadowNear')(DirectionalLight.prototype, 'shadowNear',  shadowNearDescriptor); }, 'tooltip', 'shadowNear');
-  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowFar'); }, 'type', 'shadowFar');
+  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowFar',  shadowFarDescriptor); }, 'type', 'shadowFar');
   apply(() => { $.editable(DirectionalLight.prototype, 'shadowFar',  shadowFarDescriptor); }, 'editable', 'shadowFar');
   apply(() => { $.property({
   group: {
@@ -338,7 +340,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._shadowFixedArea === true;
 })(DirectionalLight.prototype, 'shadowFar',  shadowFarDescriptor); }, 'visible', 'shadowFar');
   apply(() => { $.tooltip('i18n:lights.shadowFar')(DirectionalLight.prototype, 'shadowFar',  shadowFarDescriptor); }, 'tooltip', 'shadowFar');
-  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowOrthoSize'); }, 'type', 'shadowOrthoSize');
+  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'shadowOrthoSize',  shadowOrthoSizeDescriptor); }, 'type', 'shadowOrthoSize');
   apply(() => { $.property({
   group: {
     name: 'DynamicShadowSettings',
@@ -349,7 +351,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._shadowFixedArea === true;
 })(DirectionalLight.prototype, 'shadowOrthoSize',  shadowOrthoSizeDescriptor); }, 'visible', 'shadowOrthoSize');
   apply(() => { $.tooltip('i18n:lights.shadowOrthoSize')(DirectionalLight.prototype, 'shadowOrthoSize',  shadowOrthoSizeDescriptor); }, 'tooltip', 'shadowOrthoSize');
-  apply(() => { $.type(CCBoolean)(DirectionalLight.prototype, 'csmAdvancedOptions'); }, 'type', 'csmAdvancedOptions');
+  apply(() => { $.type(CCBoolean)(DirectionalLight.prototype, 'csmAdvancedOptions',  csmAdvancedOptionsDescriptor); }, 'type', 'csmAdvancedOptions');
   apply(() => { $.editable(DirectionalLight.prototype, 'csmAdvancedOptions',  csmAdvancedOptionsDescriptor); }, 'editable', 'csmAdvancedOptions');
   apply(() => { $.property({
   group: {
@@ -361,7 +363,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._csmLevel > CSMLevel.LEVEL_1;
 })(DirectionalLight.prototype, 'csmAdvancedOptions',  csmAdvancedOptionsDescriptor); }, 'visible', 'csmAdvancedOptions');
   apply(() => { $.tooltip('i18n:lights.shadowAdvancedOptions')(DirectionalLight.prototype, 'csmAdvancedOptions',  csmAdvancedOptionsDescriptor); }, 'tooltip', 'csmAdvancedOptions');
-  apply(() => { $.type(CCBoolean)(DirectionalLight.prototype, 'csmLayersTransition'); }, 'type', 'csmLayersTransition');
+  apply(() => { $.type(CCBoolean)(DirectionalLight.prototype, 'csmLayersTransition',  csmLayersTransitionDescriptor); }, 'type', 'csmLayersTransition');
   apply(() => { $.editable(DirectionalLight.prototype, 'csmLayersTransition',  csmLayersTransitionDescriptor); }, 'editable', 'csmLayersTransition');
   apply(() => { $.property({
   group: {
@@ -373,7 +375,7 @@ export function patch_cc_DirectionalLight(ctx: cc_DirectionalLight_Context_Args,
   return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap && this._csmLevel > CSMLevel.LEVEL_1 && this._csmAdvancedOptions;
 })(DirectionalLight.prototype, 'csmLayersTransition',  csmLayersTransitionDescriptor); }, 'visible', 'csmLayersTransition');
   apply(() => { $.tooltip('i18n:lights.csmLayersTransition')(DirectionalLight.prototype, 'csmLayersTransition',  csmLayersTransitionDescriptor); }, 'tooltip', 'csmLayersTransition');
-  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'csmTransitionRange'); }, 'type', 'csmTransitionRange');
+  apply(() => { $.type(CCFloat)(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'type', 'csmTransitionRange');
   apply(() => { $.slide(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'slide', 'csmTransitionRange');
   apply(() => { $.range([0.0, 0.1, 0.01])(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'range', 'csmTransitionRange');
   apply(() => { $.editable(DirectionalLight.prototype, 'csmTransitionRange',  csmTransitionRangeDescriptor); }, 'editable', 'csmTransitionRange');
@@ -440,43 +442,43 @@ export function patch_cc_FogInfo(ctx: cc_FogInfo_Context_Args, apply = defaultEx
   apply(() => { $.editable(FogInfo.prototype, 'fogColor',  fogColorDescriptor); }, 'editable', 'fogColor');
   apply(() => { $.tooltip('i18n:fog.type')(FogInfo.prototype, 'type',  typeDescriptor); }, 'tooltip', 'type');
   apply(() => { $.displayOrder(1)(FogInfo.prototype, 'type',  typeDescriptor); }, 'displayOrder', 'type');
-  apply(() => { $.type(FogType)(FogInfo.prototype, 'type'); }, 'type', 'type');
+  apply(() => { $.type(FogType)(FogInfo.prototype, 'type',  typeDescriptor); }, 'type', 'type');
   apply(() => { $.editable(FogInfo.prototype, 'type',  typeDescriptor); }, 'editable', 'type');
   apply(() => { $.tooltip('i18n:fog.fogDensity')(FogInfo.prototype, 'fogDensity',  fogDensityDescriptor); }, 'tooltip', 'fogDensity');
   apply(() => { $.slide(FogInfo.prototype, 'fogDensity',  fogDensityDescriptor); }, 'slide', 'fogDensity');
   apply(() => { $.range([0, 1, 0.01])(FogInfo.prototype, 'fogDensity',  fogDensityDescriptor); }, 'range', 'fogDensity');
-  apply(() => { $.type(CCFloat)(FogInfo.prototype, 'fogDensity'); }, 'type', 'fogDensity');
+  apply(() => { $.type(CCFloat)(FogInfo.prototype, 'fogDensity',  fogDensityDescriptor); }, 'type', 'fogDensity');
   apply(() => { $.visible(function (this: FogInfo) {
   return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
 })(FogInfo.prototype, 'fogDensity',  fogDensityDescriptor); }, 'visible', 'fogDensity');
   apply(() => { $.tooltip('i18n:fog.fogStart')(FogInfo.prototype, 'fogStart',  fogStartDescriptor); }, 'tooltip', 'fogStart');
   apply(() => { $.rangeStep(0.01)(FogInfo.prototype, 'fogStart',  fogStartDescriptor); }, 'rangeStep', 'fogStart');
-  apply(() => { $.type(CCFloat)(FogInfo.prototype, 'fogStart'); }, 'type', 'fogStart');
+  apply(() => { $.type(CCFloat)(FogInfo.prototype, 'fogStart',  fogStartDescriptor); }, 'type', 'fogStart');
   apply(() => { $.visible(function (this: FogInfo) {
   return this._type !== FogType.LAYERED;
 })(FogInfo.prototype, 'fogStart',  fogStartDescriptor); }, 'visible', 'fogStart');
   apply(() => { $.tooltip('i18n:fog.fogEnd')(FogInfo.prototype, 'fogEnd',  fogEndDescriptor); }, 'tooltip', 'fogEnd');
   apply(() => { $.rangeStep(0.01)(FogInfo.prototype, 'fogEnd',  fogEndDescriptor); }, 'rangeStep', 'fogEnd');
-  apply(() => { $.type(CCFloat)(FogInfo.prototype, 'fogEnd'); }, 'type', 'fogEnd');
+  apply(() => { $.type(CCFloat)(FogInfo.prototype, 'fogEnd',  fogEndDescriptor); }, 'type', 'fogEnd');
   apply(() => { $.visible(function (this: FogInfo) {
   return this._type === FogType.LINEAR;
 })(FogInfo.prototype, 'fogEnd',  fogEndDescriptor); }, 'visible', 'fogEnd');
   apply(() => { $.tooltip('i18n:fog.fogAtten')(FogInfo.prototype, 'fogAtten',  fogAttenDescriptor); }, 'tooltip', 'fogAtten');
   apply(() => { $.rangeStep(0.01)(FogInfo.prototype, 'fogAtten',  fogAttenDescriptor); }, 'rangeStep', 'fogAtten');
   apply(() => { $$.rangeMin(0.01)(FogInfo.prototype, 'fogAtten',  fogAttenDescriptor); }, 'rangeMin', 'fogAtten');
-  apply(() => { $.type(CCFloat)(FogInfo.prototype, 'fogAtten'); }, 'type', 'fogAtten');
+  apply(() => { $.type(CCFloat)(FogInfo.prototype, 'fogAtten',  fogAttenDescriptor); }, 'type', 'fogAtten');
   apply(() => { $.visible(function (this: FogInfo) {
   return this._type !== FogType.LINEAR;
 })(FogInfo.prototype, 'fogAtten',  fogAttenDescriptor); }, 'visible', 'fogAtten');
   apply(() => { $.tooltip('i18n:fog.fogTop')(FogInfo.prototype, 'fogTop',  fogTopDescriptor); }, 'tooltip', 'fogTop');
   apply(() => { $.rangeStep(0.01)(FogInfo.prototype, 'fogTop',  fogTopDescriptor); }, 'rangeStep', 'fogTop');
-  apply(() => { $.type(CCFloat)(FogInfo.prototype, 'fogTop'); }, 'type', 'fogTop');
+  apply(() => { $.type(CCFloat)(FogInfo.prototype, 'fogTop',  fogTopDescriptor); }, 'type', 'fogTop');
   apply(() => { $.visible(function (this: FogInfo) {
   return this._type === FogType.LAYERED;
 })(FogInfo.prototype, 'fogTop',  fogTopDescriptor); }, 'visible', 'fogTop');
   apply(() => { $.tooltip('i18n:fog.fogRange')(FogInfo.prototype, 'fogRange',  fogRangeDescriptor); }, 'tooltip', 'fogRange');
   apply(() => { $.rangeStep(0.01)(FogInfo.prototype, 'fogRange',  fogRangeDescriptor); }, 'rangeStep', 'fogRange');
-  apply(() => { $.type(CCFloat)(FogInfo.prototype, 'fogRange'); }, 'type', 'fogRange');
+  apply(() => { $.type(CCFloat)(FogInfo.prototype, 'fogRange',  fogRangeDescriptor); }, 'type', 'fogRange');
   apply(() => { $.visible(function (this: FogInfo) {
   return this._type === FogType.LAYERED;
 })(FogInfo.prototype, 'fogRange',  fogRangeDescriptor); }, 'visible', 'fogRange');
@@ -519,22 +521,23 @@ export function patch_cc_LightProbeInfo(ctx: cc_LightProbeInfo_Context_Args, app
   const showProbeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'showProbe');
   const showWireframeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'showWireframe');
   const showConvexDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'showConvex');
+  const lightProbeSphereVolumeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'lightProbeSphereVolume');
   apply(() => { $.displayName('GIScale')(LightProbeInfo.prototype, 'giScale',  giScaleDescriptor); }, 'displayName', 'giScale');
   apply(() => { $.tooltip('i18n:light_probe.giScale')(LightProbeInfo.prototype, 'giScale',  giScaleDescriptor); }, 'tooltip', 'giScale');
-  apply(() => { $.type(CCFloat)(LightProbeInfo.prototype, 'giScale'); }, 'type', 'giScale');
+  apply(() => { $.type(CCFloat)(LightProbeInfo.prototype, 'giScale',  giScaleDescriptor); }, 'type', 'giScale');
   apply(() => { $.range([0, 100, 1])(LightProbeInfo.prototype, 'giScale',  giScaleDescriptor); }, 'range', 'giScale');
   apply(() => { $.editable(LightProbeInfo.prototype, 'giScale',  giScaleDescriptor); }, 'editable', 'giScale');
   apply(() => { $.displayName('GISamples')(LightProbeInfo.prototype, 'giSamples',  giSamplesDescriptor); }, 'displayName', 'giSamples');
   apply(() => { $.tooltip('i18n:light_probe.giSamples')(LightProbeInfo.prototype, 'giSamples',  giSamplesDescriptor); }, 'tooltip', 'giSamples');
-  apply(() => { $.type(CCInteger)(LightProbeInfo.prototype, 'giSamples'); }, 'type', 'giSamples');
+  apply(() => { $.type(CCInteger)(LightProbeInfo.prototype, 'giSamples',  giSamplesDescriptor); }, 'type', 'giSamples');
   apply(() => { $.range([64, 65535, 1])(LightProbeInfo.prototype, 'giSamples',  giSamplesDescriptor); }, 'range', 'giSamples');
   apply(() => { $.editable(LightProbeInfo.prototype, 'giSamples',  giSamplesDescriptor); }, 'editable', 'giSamples');
   apply(() => { $.tooltip('i18n:light_probe.bounces')(LightProbeInfo.prototype, 'bounces',  bouncesDescriptor); }, 'tooltip', 'bounces');
-  apply(() => { $.type(CCInteger)(LightProbeInfo.prototype, 'bounces'); }, 'type', 'bounces');
+  apply(() => { $.type(CCInteger)(LightProbeInfo.prototype, 'bounces',  bouncesDescriptor); }, 'type', 'bounces');
   apply(() => { $.range([1, 4, 1])(LightProbeInfo.prototype, 'bounces',  bouncesDescriptor); }, 'range', 'bounces');
   apply(() => { $.editable(LightProbeInfo.prototype, 'bounces',  bouncesDescriptor); }, 'editable', 'bounces');
   apply(() => { $.tooltip('i18n:light_probe.reduceRinging')(LightProbeInfo.prototype, 'reduceRinging',  reduceRingingDescriptor); }, 'tooltip', 'reduceRinging');
-  apply(() => { $.type(CCFloat)(LightProbeInfo.prototype, 'reduceRinging'); }, 'type', 'reduceRinging');
+  apply(() => { $.type(CCFloat)(LightProbeInfo.prototype, 'reduceRinging',  reduceRingingDescriptor); }, 'type', 'reduceRinging');
   apply(() => { $.slide(LightProbeInfo.prototype, 'reduceRinging',  reduceRingingDescriptor); }, 'slide', 'reduceRinging');
   apply(() => { $.range([0.0, 0.05, 0.001])(LightProbeInfo.prototype, 'reduceRinging',  reduceRingingDescriptor); }, 'range', 'reduceRinging');
   apply(() => { $.editable(LightProbeInfo.prototype, 'reduceRinging',  reduceRingingDescriptor); }, 'editable', 'reduceRinging');
@@ -543,6 +546,8 @@ export function patch_cc_LightProbeInfo(ctx: cc_LightProbeInfo_Context_Args, app
   apply(() => { $.tooltip('i18n:light_probe.showWireframe')(LightProbeInfo.prototype, 'showWireframe',  showWireframeDescriptor); }, 'tooltip', 'showWireframe');
   apply(() => { $.editable(LightProbeInfo.prototype, 'showWireframe',  showWireframeDescriptor); }, 'editable', 'showWireframe');
   apply(() => { $.tooltip('i18n:light_probe.showConvex')(LightProbeInfo.prototype, 'showConvex',  showConvexDescriptor); }, 'tooltip', 'showConvex');
+  apply(() => { $.tooltip('i18n:light_probe.lightProbeSphereVolume')(LightProbeInfo.prototype, 'lightProbeSphereVolume',  lightProbeSphereVolumeDescriptor); }, 'tooltip', 'lightProbeSphereVolume');
+  apply(() => { $.editable(LightProbeInfo.prototype, 'lightProbeSphereVolume',  lightProbeSphereVolumeDescriptor); }, 'editable', 'lightProbeSphereVolume');
   apply(() => { $.editable(LightProbeInfo.prototype, 'showConvex',  showConvexDescriptor); }, 'editable', 'showConvex');
   apply(() => { $.serializable(LightProbeInfo.prototype, '_giScale',  () => { return 1.0; }); }, 'serializable', '_giScale');
   apply(() => { $.serializable(LightProbeInfo.prototype, '_giSamples',  () => { return 1024; }); }, 'serializable', '_giSamples');
@@ -552,6 +557,7 @@ export function patch_cc_LightProbeInfo(ctx: cc_LightProbeInfo_Context_Args, app
   apply(() => { $.serializable(LightProbeInfo.prototype, '_showWireframe',  () => { return true; }); }, 'serializable', '_showWireframe');
   apply(() => { $.serializable(LightProbeInfo.prototype, '_showConvex',  () => { return false; }); }, 'serializable', '_showConvex');
   apply(() => { $.serializable(LightProbeInfo.prototype, '_data',  () => { return null; }); }, 'serializable', '_data');
+  apply(() => { $.serializable(LightProbeInfo.prototype, '_lightProbeSphereVolume',  () => { return 1.0; }); }, 'serializable', '_lightProbeSphereVolume');
   apply(() => { $.ccclass('cc.LightProbeInfo')(LightProbeInfo); }, 'ccclass', null);
 } // end of patch_cc_LightProbeInfo
 
@@ -563,9 +569,9 @@ interface cc_LightProbesData_Context_Args {
 }
 export function patch_cc_LightProbesData(ctx: cc_LightProbesData_Context_Args, apply = defaultExec) {
   const { LightProbesData, Vertex, Tetrahedron } = { ...ctx };
-  apply(() => { $.type([Vertex])(LightProbesData.prototype, '_probes'); }, 'type', '_probes');
+  apply(() => { $.type([Vertex])(LightProbesData.prototype, '_probes',  () => { return []; }); }, 'type', '_probes');
   apply(() => { $.serializable(LightProbesData.prototype, '_probes',  () => { return []; }); }, 'serializable', '_probes');
-  apply(() => { $.type([Tetrahedron])(LightProbesData.prototype, '_tetrahedrons'); }, 'type', '_tetrahedrons');
+  apply(() => { $.type([Tetrahedron])(LightProbesData.prototype, '_tetrahedrons',  () => { return []; }); }, 'type', '_tetrahedrons');
   apply(() => { $.serializable(LightProbesData.prototype, '_tetrahedrons',  () => { return []; }); }, 'serializable', '_tetrahedrons');
   apply(() => { $.ccclass('cc.LightProbesData')(LightProbesData); }, 'ccclass', null);
 } // end of patch_cc_LightProbesData
@@ -591,42 +597,42 @@ export function patch_cc_Line(ctx: cc_Line_Context_Args, apply = defaultExec) {
   const colorDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'color');
   const tileDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'tile');
   const offsetDescriptor = Object.getOwnPropertyDescriptor(Line.prototype, 'offset');
-  apply(() => { $.type(Texture2D)(Line.prototype, '_texture'); }, 'type', '_texture');
+  apply(() => { $.type(Texture2D)(Line.prototype, '_texture',  () => { return null; }); }, 'type', '_texture');
   apply(() => { $.tooltip('i18n:line.texture')(Line.prototype, 'texture',  textureDescriptor); }, 'tooltip', 'texture');
   apply(() => { $.displayOrder(0)(Line.prototype, 'texture',  textureDescriptor); }, 'displayOrder', 'texture');
-  apply(() => { $.type(Texture2D)(Line.prototype, 'texture'); }, 'type', 'texture');
+  apply(() => { $.type(Texture2D)(Line.prototype, 'texture',  textureDescriptor); }, 'type', 'texture');
   apply(() => { $.serializable(Line.prototype, '_material',  () => { return null; }); }, 'serializable', '_material');
   apply(() => { $.displayName('Material')(Line.prototype, 'lineMaterial',  lineMaterialDescriptor); }, 'displayName', 'lineMaterial');
   apply(() => { $.tooltip('i18n:line.material')(Line.prototype, 'lineMaterial',  lineMaterialDescriptor); }, 'tooltip', 'lineMaterial');
   apply(() => { $.displayOrder(1)(Line.prototype, 'lineMaterial',  lineMaterialDescriptor); }, 'displayOrder', 'lineMaterial');
-  apply(() => { $.type(Material)(Line.prototype, 'lineMaterial'); }, 'type', 'lineMaterial');
+  apply(() => { $.type(Material)(Line.prototype, 'lineMaterial',  lineMaterialDescriptor); }, 'type', 'lineMaterial');
   apply(() => { $.serializable(Line.prototype, 'sharedMaterials',  sharedMaterialsDescriptor); }, 'serializable', 'sharedMaterials');
   apply(() => { $.visible(false)(Line.prototype, 'sharedMaterials',  sharedMaterialsDescriptor); }, 'visible', 'sharedMaterials');
   apply(() => { $.override(Line.prototype, 'sharedMaterials',  sharedMaterialsDescriptor); }, 'override', 'sharedMaterials');
   apply(() => { $.serializable(Line.prototype, '_worldSpace',  () => { return false; }); }, 'serializable', '_worldSpace');
   apply(() => { $.tooltip('i18n:line.worldSpace')(Line.prototype, 'worldSpace',  worldSpaceDescriptor); }, 'tooltip', 'worldSpace');
   apply(() => { $.displayOrder(1)(Line.prototype, 'worldSpace',  worldSpaceDescriptor); }, 'displayOrder', 'worldSpace');
-  apply(() => { $.type([Vec3])(Line.prototype, '_positions'); }, 'type', '_positions');
+  apply(() => { $.type([Vec3])(Line.prototype, '_positions',  () => { return []; }); }, 'type', '_positions');
   apply(() => { $.tooltip('i18n:line.positions')(Line.prototype, 'positions',  positionsDescriptor); }, 'tooltip', 'positions');
   apply(() => { $.displayOrder(2)(Line.prototype, 'positions',  positionsDescriptor); }, 'displayOrder', 'positions');
-  apply(() => { $.type([Vec3])(Line.prototype, 'positions'); }, 'type', 'positions');
+  apply(() => { $.type([Vec3])(Line.prototype, 'positions',  positionsDescriptor); }, 'type', 'positions');
   apply(() => { $.tooltip('i18n:line.width')(Line.prototype, 'width',  widthDescriptor); }, 'tooltip', 'width');
   apply(() => { $.displayOrder(3)(Line.prototype, 'width',  widthDescriptor); }, 'displayOrder', 'width');
   apply(() => { $.range([0, 1])(Line.prototype, 'width',  widthDescriptor); }, 'range', 'width');
-  apply(() => { $.type(CurveRange)(Line.prototype, 'width'); }, 'type', 'width');
+  apply(() => { $.type(CurveRange)(Line.prototype, 'width',  widthDescriptor); }, 'type', 'width');
   apply(() => { $.serializable(Line.prototype, '_width',  () => { return new CurveRange(); }); }, 'serializable', '_width');
   apply(() => { $.tooltip('i18n:line.color')(Line.prototype, 'color',  colorDescriptor); }, 'tooltip', 'color');
   apply(() => { $.displayOrder(6)(Line.prototype, 'color',  colorDescriptor); }, 'displayOrder', 'color');
-  apply(() => { $.type(GradientRange)(Line.prototype, 'color'); }, 'type', 'color');
+  apply(() => { $.type(GradientRange)(Line.prototype, 'color',  colorDescriptor); }, 'type', 'color');
   apply(() => { $.serializable(Line.prototype, '_color',  () => { return new GradientRange(); }); }, 'serializable', '_color');
   apply(() => { $.serializable(Line.prototype, '_tile',  () => { return new Vec2(1, 1); }); }, 'serializable', '_tile');
   apply(() => { $.tooltip('i18n:line.tile')(Line.prototype, 'tile',  tileDescriptor); }, 'tooltip', 'tile');
   apply(() => { $.displayOrder(4)(Line.prototype, 'tile',  tileDescriptor); }, 'displayOrder', 'tile');
-  apply(() => { $.type(Vec2)(Line.prototype, 'tile'); }, 'type', 'tile');
+  apply(() => { $.type(Vec2)(Line.prototype, 'tile',  tileDescriptor); }, 'type', 'tile');
   apply(() => { $.serializable(Line.prototype, '_offset',  () => { return new Vec2(0, 0); }); }, 'serializable', '_offset');
   apply(() => { $.tooltip('i18n:line.offset')(Line.prototype, 'offset',  offsetDescriptor); }, 'tooltip', 'offset');
   apply(() => { $.displayOrder(5)(Line.prototype, 'offset',  offsetDescriptor); }, 'displayOrder', 'offset');
-  apply(() => { $.type(Vec2)(Line.prototype, 'offset'); }, 'type', 'offset');
+  apply(() => { $.type(Vec2)(Line.prototype, 'offset',  offsetDescriptor); }, 'type', 'offset');
   apply(() => { $.executeInEditMode(Line); }, 'executeInEditMode', null);
   apply(() => { $.menu('Effects/Line')(Line); }, 'menu', null);
   apply(() => { $.help('i18n:cc.Line')(Line); }, 'help', null);
@@ -640,7 +646,7 @@ interface cc_Material_Context_Args {
 }
 export function patch_cc_Material(ctx: cc_Material_Context_Args, apply = defaultExec) {
   const { Material, EffectAsset } = { ...ctx };
-  apply(() => { $.type(EffectAsset)(Material.prototype, '_effectAsset'); }, 'type', '_effectAsset');
+  apply(() => { $.type(EffectAsset)(Material.prototype, '_effectAsset',  () => { return null; }); }, 'type', '_effectAsset');
   apply(() => { $.serializable(Material.prototype, '_techIdx',  () => { return 0; }); }, 'serializable', '_techIdx');
   apply(() => { $.serializable(Material.prototype, '_defines',  () => { return []; }); }, 'serializable', '_defines');
   apply(() => { $.serializable(Material.prototype, '_states',  () => { return []; }); }, 'serializable', '_states');
@@ -679,6 +685,7 @@ export function patch_cc_Node(ctx: cc_Node_Context_Args, apply = defaultExec) {
   const activeDescriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'active');
   const activeInHierarchyDescriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'activeInHierarchy');
   const parentDescriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'parent');
+  const eulerAnglesDescriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'eulerAngles');
   const angleDescriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'angle');
   const mobilityDescriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'mobility');
   const layerDescriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'layer');
@@ -699,9 +706,9 @@ export function patch_cc_Node(ctx: cc_Node_Context_Args, apply = defaultExec) {
   apply(() => { $.serializable(Node.prototype, '_mobility',  () => { return MobilityMode.Static; }); }, 'serializable', '_mobility');
   apply(() => { $.serializable(Node.prototype, '_layer',  () => { return Layers.Enum.DEFAULT; }); }, 'serializable', '_layer');
   apply(() => { $.serializable(Node.prototype, '_euler',  () => { return new Vec3(); }); }, 'serializable', '_euler');
-  apply(() => { $.type(Vec3)(Node.prototype, 'eulerAngles'); }, 'type', 'eulerAngles');
+  apply(() => { $.type(Vec3)(Node.prototype, 'eulerAngles',  eulerAnglesDescriptor); }, 'type', 'eulerAngles');
   apply(() => { $.editable(Node.prototype, 'angle',  angleDescriptor); }, 'editable', 'angle');
-  apply(() => { $.type(MobilityMode)(Node.prototype, 'mobility'); }, 'type', 'mobility');
+  apply(() => { $.type(MobilityMode)(Node.prototype, 'mobility',  mobilityDescriptor); }, 'type', 'mobility');
   apply(() => { $.editable(Node.prototype, 'mobility',  mobilityDescriptor); }, 'editable', 'mobility');
   apply(() => { $.editable(Node.prototype, 'layer',  layerDescriptor); }, 'editable', 'layer');
   apply(() => { $.ccclass('cc.Node')(Node); }, 'ccclass', null);
@@ -731,7 +738,7 @@ export function patch_cc_OctreeInfo(ctx: cc_OctreeInfo_Context_Args, apply = def
   apply(() => { $.tooltip('i18n:octree_culling.maxPos')(OctreeInfo.prototype, 'maxPos',  maxPosDescriptor); }, 'tooltip', 'maxPos');
   apply(() => { $.editable(OctreeInfo.prototype, 'maxPos',  maxPosDescriptor); }, 'editable', 'maxPos');
   apply(() => { $.tooltip('i18n:octree_culling.depth')(OctreeInfo.prototype, 'depth',  depthDescriptor); }, 'tooltip', 'depth');
-  apply(() => { $.type(CCInteger)(OctreeInfo.prototype, 'depth'); }, 'type', 'depth');
+  apply(() => { $.type(CCInteger)(OctreeInfo.prototype, 'depth',  depthDescriptor); }, 'type', 'depth');
   apply(() => { $.slide(OctreeInfo.prototype, 'depth',  depthDescriptor); }, 'slide', 'depth');
   apply(() => { $.range([4, 12, 1])(OctreeInfo.prototype, 'depth',  depthDescriptor); }, 'range', 'depth');
   apply(() => { $.editable(OctreeInfo.prototype, 'depth',  depthDescriptor); }, 'editable', 'depth');
@@ -762,26 +769,26 @@ export function patch_cc_PointLight(ctx: cc_PointLight_Context_Args, apply = def
   apply(() => { $.serializable(PointLight.prototype, '_luminanceLDR',  () => { return 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale; }); }, 'serializable', '_luminanceLDR');
   apply(() => { $.serializable(PointLight.prototype, '_term',  () => { return PhotometricTerm.LUMINOUS_FLUX; }); }, 'serializable', '_term');
   apply(() => { $.serializable(PointLight.prototype, '_range',  () => { return 1; }); }, 'serializable', '_range');
-  apply(() => { $.type(CCInteger)(PointLight.prototype, 'luminousFlux'); }, 'type', 'luminousFlux');
+  apply(() => { $.type(CCInteger)(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'type', 'luminousFlux');
   apply(() => { $.slide(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'slide', 'luminousFlux');
   apply(() => { $$.rangeMin(0)(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'rangeMin', 'luminousFlux');
   apply(() => { $.editable(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'editable', 'luminousFlux');
   apply(() => { $.tooltip('i18n:lights.luminous_flux')(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'tooltip', 'luminousFlux');
   apply(() => { $.displayOrder(-1)(PointLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'displayOrder', 'luminousFlux');
-  apply(() => { $.type(CCInteger)(PointLight.prototype, 'luminance'); }, 'type', 'luminance');
+  apply(() => { $.type(CCInteger)(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'type', 'luminance');
   apply(() => { $.slide(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'slide', 'luminance');
   apply(() => { $$.rangeMin(0)(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'rangeMin', 'luminance');
   apply(() => { $.editable(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'editable', 'luminance');
   apply(() => { $.tooltip('i18n:lights.luminance')(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'tooltip', 'luminance');
   apply(() => { $.displayOrder(-1)(PointLight.prototype, 'luminance',  luminanceDescriptor); }, 'displayOrder', 'luminance');
-  apply(() => { $.type(CCInteger)(PointLight.prototype, 'term'); }, 'type', 'term');
+  apply(() => { $.type(CCInteger)(PointLight.prototype, 'term',  termDescriptor); }, 'type', 'term');
   apply(() => { $.slide(PointLight.prototype, 'term',  termDescriptor); }, 'slide', 'term');
   apply(() => { $$.rangeMin(0)(PointLight.prototype, 'term',  termDescriptor); }, 'rangeMin', 'term');
   apply(() => { $.editable(PointLight.prototype, 'term',  termDescriptor); }, 'editable', 'term');
   apply(() => { $.tooltip('i18n:lights.term')(PointLight.prototype, 'term',  termDescriptor); }, 'tooltip', 'term');
   apply(() => { $.displayOrder(-2)(PointLight.prototype, 'term',  termDescriptor); }, 'displayOrder', 'term');
-  apply(() => { $.type(PhotometricTerm)(PointLight.prototype, 'term'); }, 'type', 'term');
-  apply(() => { $.type(CCFloat)(PointLight.prototype, 'range'); }, 'type', 'range');
+  apply(() => { $.type(PhotometricTerm)(PointLight.prototype, 'term',  termDescriptor); }, 'type', 'term');
+  apply(() => { $.type(CCFloat)(PointLight.prototype, 'range',  rangeDescriptor); }, 'type', 'range');
   apply(() => { $.slide(PointLight.prototype, 'range',  rangeDescriptor); }, 'slide', 'range');
   apply(() => { $$.rangeMin(0)(PointLight.prototype, 'range',  rangeDescriptor); }, 'rangeMin', 'range');
   apply(() => { $.editable(PointLight.prototype, 'range',  rangeDescriptor); }, 'editable', 'range');
@@ -804,7 +811,7 @@ export function patch_cc_RangedDirectionalLight(ctx: cc_RangedDirectionalLight_C
   apply(() => { $.formerlySerializedAs('_illuminance')(RangedDirectionalLight.prototype, '_illuminanceHDR',  () => { return 65000; }); }, 'formerlySerializedAs', '_illuminanceHDR');
   apply(() => { $.property(RangedDirectionalLight.prototype, '_illuminanceHDR',  () => { return 65000; }); }, 'property', '_illuminanceHDR');
   apply(() => { $.serializable(RangedDirectionalLight.prototype, '_illuminanceLDR',  () => { return 65000 * Camera.standardExposureValue; }); }, 'serializable', '_illuminanceLDR');
-  apply(() => { $.type(CCInteger)(RangedDirectionalLight.prototype, 'illuminance'); }, 'type', 'illuminance');
+  apply(() => { $.type(CCInteger)(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'type', 'illuminance');
   apply(() => { $.slide(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'slide', 'illuminance');
   apply(() => { $$.rangeMin(0)(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'rangeMin', 'illuminance');
   apply(() => { $.editable(RangedDirectionalLight.prototype, 'illuminance',  illuminanceDescriptor); }, 'editable', 'illuminance');
@@ -825,7 +832,7 @@ export function patch_cc_RenderPipeline(ctx: cc_RenderPipeline_Context_Args, app
   apply(() => { $.serializable(RenderPipeline.prototype, '_tag',  () => { return 0; }); }, 'serializable', '_tag');
   apply(() => { $.displayOrder(0)(RenderPipeline.prototype, '_tag',  () => { return 0; }); }, 'displayOrder', '_tag');
   apply(() => { $.serializable(RenderPipeline.prototype, '_flows',  () => { return []; }); }, 'serializable', '_flows');
-  apply(() => { $.type([RenderFlow])(RenderPipeline.prototype, '_flows'); }, 'type', '_flows');
+  apply(() => { $.type([RenderFlow])(RenderPipeline.prototype, '_flows',  () => { return []; }); }, 'type', '_flows');
   apply(() => { $.displayOrder(1)(RenderPipeline.prototype, '_flows',  () => { return []; }); }, 'displayOrder', '_flows');
   apply(() => { $.ccclass('cc.RenderPipeline')(RenderPipeline); }, 'ccclass', null);
 } // end of patch_cc_RenderPipeline
@@ -885,7 +892,7 @@ export function patch_cc_SceneGlobals(ctx: cc_SceneGlobals_Context_Args, apply =
   apply(() => { $.serializable(SceneGlobals.prototype, '_skybox',  () => { return new SkyboxInfo(); }); }, 'serializable', '_skybox');
   apply(() => { $.serializable(SceneGlobals.prototype, 'fog',  () => { return new FogInfo(); }); }, 'serializable', 'fog');
   apply(() => { $.editable(SceneGlobals.prototype, 'fog',  () => { return new FogInfo(); }); }, 'editable', 'fog');
-  apply(() => { $.type(SkyboxInfo)(SceneGlobals.prototype, 'skybox'); }, 'type', 'skybox');
+  apply(() => { $.type(SkyboxInfo)(SceneGlobals.prototype, 'skybox',  skyboxDescriptor); }, 'type', 'skybox');
   apply(() => { $.editable(SceneGlobals.prototype, 'skybox',  skyboxDescriptor); }, 'editable', 'skybox');
   apply(() => { $.serializable(SceneGlobals.prototype, 'octree',  () => { return new OctreeInfo(); }); }, 'serializable', 'octree');
   apply(() => { $.editable(SceneGlobals.prototype, 'octree',  () => { return new OctreeInfo(); }); }, 'editable', 'octree');
@@ -921,7 +928,7 @@ export function patch_cc_ShadowsInfo(ctx: cc_ShadowsInfo_Context_Args, apply = d
   const shadowMapSizeDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfo.prototype, 'shadowMapSize');
   apply(() => { $.tooltip('i18n:shadow.enabled')(ShadowsInfo.prototype, 'enabled',  enabledDescriptor); }, 'tooltip', 'enabled');
   apply(() => { $.editable(ShadowsInfo.prototype, 'enabled',  enabledDescriptor); }, 'editable', 'enabled');
-  apply(() => { $.type(ShadowType)(ShadowsInfo.prototype, 'type'); }, 'type', 'type');
+  apply(() => { $.type(ShadowType)(ShadowsInfo.prototype, 'type',  typeDescriptor); }, 'type', 'type');
   apply(() => { $.editable(ShadowsInfo.prototype, 'type',  typeDescriptor); }, 'editable', 'type');
   apply(() => { $.tooltip('i18n:shadow.type')(ShadowsInfo.prototype, 'type',  typeDescriptor); }, 'tooltip', 'type');
   apply(() => { $.visible(function (this: ShadowsInfo) {
@@ -935,18 +942,18 @@ export function patch_cc_ShadowsInfo(ctx: cc_ShadowsInfo_Context_Args, apply = d
   apply(() => { $.visible(function (this: ShadowsInfo) {
   return this._type === ShadowType.Planar;
 })(ShadowsInfo.prototype, 'planeHeight',  planeHeightDescriptor); }, 'visible', 'planeHeight');
-  apply(() => { $.type(CCFloat)(ShadowsInfo.prototype, 'planeHeight'); }, 'type', 'planeHeight');
+  apply(() => { $.type(CCFloat)(ShadowsInfo.prototype, 'planeHeight',  planeHeightDescriptor); }, 'type', 'planeHeight');
   apply(() => { $.editable(ShadowsInfo.prototype, 'planeHeight',  planeHeightDescriptor); }, 'editable', 'planeHeight');
   apply(() => { $.tooltip('i18n:shadow.planeHeight')(ShadowsInfo.prototype, 'planeHeight',  planeHeightDescriptor); }, 'tooltip', 'planeHeight');
   apply(() => { $.visible(function (this: ShadowsInfo) {
   return this._type === ShadowType.ShadowMap;
 })(ShadowsInfo.prototype, 'maxReceived',  maxReceivedDescriptor); }, 'visible', 'maxReceived');
-  apply(() => { $.type(CCInteger)(ShadowsInfo.prototype, 'maxReceived'); }, 'type', 'maxReceived');
+  apply(() => { $.type(CCInteger)(ShadowsInfo.prototype, 'maxReceived',  maxReceivedDescriptor); }, 'type', 'maxReceived');
   apply(() => { $.tooltip('i18n:shadow.maxReceived')(ShadowsInfo.prototype, 'maxReceived',  maxReceivedDescriptor); }, 'tooltip', 'maxReceived');
   apply(() => { $.visible(function (this: ShadowsInfo) {
   return this._type === ShadowType.ShadowMap;
 })(ShadowsInfo.prototype, 'shadowMapSize',  shadowMapSizeDescriptor); }, 'visible', 'shadowMapSize');
-  apply(() => { $.type(ShadowSize)(ShadowsInfo.prototype, 'shadowMapSize'); }, 'type', 'shadowMapSize');
+  apply(() => { $.type(ShadowSize)(ShadowsInfo.prototype, 'shadowMapSize',  shadowMapSizeDescriptor); }, 'type', 'shadowMapSize');
   apply(() => { $.tooltip('i18n:shadow.shadowMapSize')(ShadowsInfo.prototype, 'shadowMapSize',  shadowMapSizeDescriptor); }, 'tooltip', 'shadowMapSize');
   apply(() => { $.serializable(ShadowsInfo.prototype, '_enabled',  () => { return false; }); }, 'serializable', '_enabled');
   apply(() => { $.serializable(ShadowsInfo.prototype, '_type',  () => { return ShadowType.Planar; }); }, 'serializable', '_type');
@@ -975,8 +982,8 @@ interface cc_Skeleton_Context_Args {
 }
 export function patch_cc_Skeleton(ctx: cc_Skeleton_Context_Args, apply = defaultExec) {
   const { Skeleton, CCString, Mat4 } = { ...ctx };
-  apply(() => { $.type([CCString])(Skeleton.prototype, '_joints'); }, 'type', '_joints');
-  apply(() => { $.type([Mat4])(Skeleton.prototype, '_bindposes'); }, 'type', '_bindposes');
+  apply(() => { $.type([CCString])(Skeleton.prototype, '_joints',  () => { return []; }); }, 'type', '_joints');
+  apply(() => { $.type([Mat4])(Skeleton.prototype, '_bindposes',  () => { return []; }); }, 'type', '_bindposes');
   apply(() => { $.serializable(Skeleton.prototype, '_hash',  () => { return 0; }); }, 'serializable', '_hash');
   apply(() => { $.ccclass('cc.Skeleton')(Skeleton); }, 'ccclass', null);
 } // end of patch_cc_Skeleton
@@ -1003,57 +1010,59 @@ export function patch_cc_SkyboxInfo(ctx: cc_SkyboxInfo_Context_Args, apply = def
   apply(() => { $.tooltip('i18n:skybox.enabled')(SkyboxInfo.prototype, 'enabled',  enabledDescriptor); }, 'tooltip', 'enabled');
   apply(() => { $.editable(SkyboxInfo.prototype, 'enabled',  enabledDescriptor); }, 'editable', 'enabled');
   apply(() => { $.tooltip('i18n:skybox.EnvironmentLightingType')(SkyboxInfo.prototype, 'envLightingType',  envLightingTypeDescriptor); }, 'tooltip', 'envLightingType');
-  apply(() => { $.type(EnvironmentLightingType)(SkyboxInfo.prototype, 'envLightingType'); }, 'type', 'envLightingType');
+  apply(() => { $.type(EnvironmentLightingType)(SkyboxInfo.prototype, 'envLightingType',  envLightingTypeDescriptor); }, 'type', 'envLightingType');
   apply(() => { $.editable(SkyboxInfo.prototype, 'envLightingType',  envLightingTypeDescriptor); }, 'editable', 'envLightingType');
   apply(() => { $.tooltip('i18n:skybox.useHDR')(SkyboxInfo.prototype, 'useHDR',  useHDRDescriptor); }, 'tooltip', 'useHDR');
   apply(() => { $.editable(SkyboxInfo.prototype, 'useHDR',  useHDRDescriptor); }, 'editable', 'useHDR');
   apply(() => { $.tooltip('i18n:skybox.envmap')(SkyboxInfo.prototype, 'envmap',  envmapDescriptor); }, 'tooltip', 'envmap');
-  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, 'envmap'); }, 'type', 'envmap');
+  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, 'envmap',  envmapDescriptor); }, 'type', 'envmap');
   apply(() => { $.editable(SkyboxInfo.prototype, 'envmap',  envmapDescriptor); }, 'editable', 'envmap');
   apply(() => { $.tooltip('i18n:skybox.rotationAngle')(SkyboxInfo.prototype, 'rotationAngle',  rotationAngleDescriptor); }, 'tooltip', 'rotationAngle');
   apply(() => { $.slide(SkyboxInfo.prototype, 'rotationAngle',  rotationAngleDescriptor); }, 'slide', 'rotationAngle');
   apply(() => { $.range([0, 360, 1])(SkyboxInfo.prototype, 'rotationAngle',  rotationAngleDescriptor); }, 'range', 'rotationAngle');
-  apply(() => { $.type(CCFloat)(SkyboxInfo.prototype, 'rotationAngle'); }, 'type', 'rotationAngle');
+  apply(() => { $.type(CCFloat)(SkyboxInfo.prototype, 'rotationAngle',  rotationAngleDescriptor); }, 'type', 'rotationAngle');
   apply(() => { $.displayOrder(100)(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'displayOrder', 'diffuseMap');
-  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, 'diffuseMap'); }, 'type', 'diffuseMap');
+  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'type', 'diffuseMap');
   apply(() => { $$.readOnly(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'readOnly', 'diffuseMap');
   apply(() => { $.editable(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'editable', 'diffuseMap');
   apply(() => { $.visible(function (this: SkyboxInfo) {
   if (this.useIBL && this.applyDiffuseMap) {
     return true;
   }
+
   return false;
 })(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'visible', 'diffuseMap');
   apply(() => { $.displayOrder(100)(SkyboxInfo.prototype, 'reflectionMap',  reflectionMapDescriptor); }, 'displayOrder', 'reflectionMap');
-  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, 'reflectionMap'); }, 'type', 'reflectionMap');
+  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, 'reflectionMap',  reflectionMapDescriptor); }, 'type', 'reflectionMap');
   apply(() => { $$.readOnly(SkyboxInfo.prototype, 'reflectionMap',  reflectionMapDescriptor); }, 'readOnly', 'reflectionMap');
   apply(() => { $.editable(SkyboxInfo.prototype, 'reflectionMap',  reflectionMapDescriptor); }, 'editable', 'reflectionMap');
   apply(() => { $.visible(function (this: SkyboxInfo) {
   if (this._resource?.reflectionMap) {
     return true;
   }
+
   return false;
 })(SkyboxInfo.prototype, 'reflectionMap',  reflectionMapDescriptor); }, 'visible', 'reflectionMap');
   apply(() => { $.tooltip('i18n:skybox.material')(SkyboxInfo.prototype, 'skyboxMaterial',  skyboxMaterialDescriptor); }, 'tooltip', 'skyboxMaterial');
-  apply(() => { $.type(Material)(SkyboxInfo.prototype, 'skyboxMaterial'); }, 'type', 'skyboxMaterial');
+  apply(() => { $.type(Material)(SkyboxInfo.prototype, 'skyboxMaterial',  skyboxMaterialDescriptor); }, 'type', 'skyboxMaterial');
   apply(() => { $.editable(SkyboxInfo.prototype, 'skyboxMaterial',  skyboxMaterialDescriptor); }, 'editable', 'skyboxMaterial');
   apply(() => { $.serializable(SkyboxInfo.prototype, '_envLightingType',  () => { return EnvironmentLightingType.HEMISPHERE_DIFFUSE; }); }, 'serializable', '_envLightingType');
   apply(() => { $.formerlySerializedAs('_envmap')(SkyboxInfo.prototype, '_envmapHDR',  () => { return null; }); }, 'formerlySerializedAs', '_envmapHDR');
-  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, '_envmapHDR'); }, 'type', '_envmapHDR');
+  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, '_envmapHDR',  () => { return null; }); }, 'type', '_envmapHDR');
   apply(() => { $.serializable(SkyboxInfo.prototype, '_envmapHDR',  () => { return null; }); }, 'serializable', '_envmapHDR');
-  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, '_envmapLDR'); }, 'type', '_envmapLDR');
+  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, '_envmapLDR',  () => { return null; }); }, 'type', '_envmapLDR');
   apply(() => { $.serializable(SkyboxInfo.prototype, '_envmapLDR',  () => { return null; }); }, 'serializable', '_envmapLDR');
-  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, '_diffuseMapHDR'); }, 'type', '_diffuseMapHDR');
+  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, '_diffuseMapHDR',  () => { return null; }); }, 'type', '_diffuseMapHDR');
   apply(() => { $.serializable(SkyboxInfo.prototype, '_diffuseMapHDR',  () => { return null; }); }, 'serializable', '_diffuseMapHDR');
-  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, '_diffuseMapLDR'); }, 'type', '_diffuseMapLDR');
+  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, '_diffuseMapLDR',  () => { return null; }); }, 'type', '_diffuseMapLDR');
   apply(() => { $.serializable(SkyboxInfo.prototype, '_diffuseMapLDR',  () => { return null; }); }, 'serializable', '_diffuseMapLDR');
   apply(() => { $.serializable(SkyboxInfo.prototype, '_enabled',  () => { return false; }); }, 'serializable', '_enabled');
   apply(() => { $.serializable(SkyboxInfo.prototype, '_useHDR',  () => { return true; }); }, 'serializable', '_useHDR');
-  apply(() => { $.type(Material)(SkyboxInfo.prototype, '_editableMaterial'); }, 'type', '_editableMaterial');
+  apply(() => { $.type(Material)(SkyboxInfo.prototype, '_editableMaterial',  () => { return null; }); }, 'type', '_editableMaterial');
   apply(() => { $.serializable(SkyboxInfo.prototype, '_editableMaterial',  () => { return null; }); }, 'serializable', '_editableMaterial');
-  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, '_reflectionHDR'); }, 'type', '_reflectionHDR');
+  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, '_reflectionHDR',  () => { return null; }); }, 'type', '_reflectionHDR');
   apply(() => { $.serializable(SkyboxInfo.prototype, '_reflectionHDR',  () => { return null; }); }, 'serializable', '_reflectionHDR');
-  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, '_reflectionLDR'); }, 'type', '_reflectionLDR');
+  apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, '_reflectionLDR',  () => { return null; }); }, 'type', '_reflectionLDR');
   apply(() => { $.serializable(SkyboxInfo.prototype, '_reflectionLDR',  () => { return null; }); }, 'serializable', '_reflectionLDR');
   apply(() => { $.serializable(SkyboxInfo.prototype, '_rotationAngle',  () => { return 0; }); }, 'serializable', '_rotationAngle');
   apply(() => { $.ccclass('cc.SkyboxInfo')(SkyboxInfo); }, 'ccclass', null);
@@ -1081,31 +1090,31 @@ export function patch_cc_SphereLight(ctx: cc_SphereLight_Context_Args, apply = d
   apply(() => { $.serializable(SphereLight.prototype, '_luminanceLDR',  () => { return 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale; }); }, 'serializable', '_luminanceLDR');
   apply(() => { $.serializable(SphereLight.prototype, '_term',  () => { return PhotometricTerm.LUMINOUS_FLUX; }); }, 'serializable', '_term');
   apply(() => { $.serializable(SphereLight.prototype, '_range',  () => { return 1; }); }, 'serializable', '_range');
-  apply(() => { $.type(CCInteger)(SphereLight.prototype, 'luminousFlux'); }, 'type', 'luminousFlux');
+  apply(() => { $.type(CCInteger)(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'type', 'luminousFlux');
   apply(() => { $.slide(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'slide', 'luminousFlux');
   apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'rangeMin', 'luminousFlux');
   apply(() => { $.editable(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'editable', 'luminousFlux');
   apply(() => { $.tooltip('i18n:lights.luminous_flux')(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'tooltip', 'luminousFlux');
   apply(() => { $.displayOrder(-1)(SphereLight.prototype, 'luminousFlux',  luminousFluxDescriptor); }, 'displayOrder', 'luminousFlux');
-  apply(() => { $.type(CCInteger)(SphereLight.prototype, 'luminance'); }, 'type', 'luminance');
+  apply(() => { $.type(CCInteger)(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'type', 'luminance');
   apply(() => { $.slide(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'slide', 'luminance');
   apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'rangeMin', 'luminance');
   apply(() => { $.editable(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'editable', 'luminance');
   apply(() => { $.tooltip('i18n:lights.luminance')(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'tooltip', 'luminance');
   apply(() => { $.displayOrder(-1)(SphereLight.prototype, 'luminance',  luminanceDescriptor); }, 'displayOrder', 'luminance');
-  apply(() => { $.type(CCInteger)(SphereLight.prototype, 'term'); }, 'type', 'term');
+  apply(() => { $.type(CCInteger)(SphereLight.prototype, 'term',  termDescriptor); }, 'type', 'term');
   apply(() => { $.slide(SphereLight.prototype, 'term',  termDescriptor); }, 'slide', 'term');
   apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'term',  termDescriptor); }, 'rangeMin', 'term');
   apply(() => { $.editable(SphereLight.prototype, 'term',  termDescriptor); }, 'editable', 'term');
   apply(() => { $.tooltip('i18n:lights.term')(SphereLight.prototype, 'term',  termDescriptor); }, 'tooltip', 'term');
   apply(() => { $.displayOrder(-2)(SphereLight.prototype, 'term',  termDescriptor); }, 'displayOrder', 'term');
-  apply(() => { $.type(PhotometricTerm)(SphereLight.prototype, 'term'); }, 'type', 'term');
-  apply(() => { $.type(CCFloat)(SphereLight.prototype, 'size'); }, 'type', 'size');
+  apply(() => { $.type(PhotometricTerm)(SphereLight.prototype, 'term',  termDescriptor); }, 'type', 'term');
+  apply(() => { $.type(CCFloat)(SphereLight.prototype, 'size',  sizeDescriptor); }, 'type', 'size');
   apply(() => { $.slide(SphereLight.prototype, 'size',  sizeDescriptor); }, 'slide', 'size');
   apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'size',  sizeDescriptor); }, 'rangeMin', 'size');
   apply(() => { $.editable(SphereLight.prototype, 'size',  sizeDescriptor); }, 'editable', 'size');
   apply(() => { $.tooltip('i18n:lights.size')(SphereLight.prototype, 'size',  sizeDescriptor); }, 'tooltip', 'size');
-  apply(() => { $.type(CCFloat)(SphereLight.prototype, 'range'); }, 'type', 'range');
+  apply(() => { $.type(CCFloat)(SphereLight.prototype, 'range',  rangeDescriptor); }, 'type', 'range');
   apply(() => { $.slide(SphereLight.prototype, 'range',  rangeDescriptor); }, 'slide', 'range');
   apply(() => { $$.rangeMin(0)(SphereLight.prototype, 'range',  rangeDescriptor); }, 'rangeMin', 'range');
   apply(() => { $.editable(SphereLight.prototype, 'range',  rangeDescriptor); }, 'editable', 'range');
@@ -1158,13 +1167,13 @@ export function patch_cc_SpotLight(ctx: cc_SpotLight_Context_Args, apply = defau
   apply(() => { $.tooltip('i18n:lights.luminance')(SpotLight.prototype, 'luminance',  luminanceDescriptor); }, 'tooltip', 'luminance');
   apply(() => { $.tooltip('i18n:lights.term')(SpotLight.prototype, 'term',  termDescriptor); }, 'tooltip', 'term');
   apply(() => { $.displayOrder(-2)(SpotLight.prototype, 'term',  termDescriptor); }, 'displayOrder', 'term');
-  apply(() => { $.type(PhotometricTerm)(SpotLight.prototype, 'term'); }, 'type', 'term');
+  apply(() => { $.type(PhotometricTerm)(SpotLight.prototype, 'term',  termDescriptor); }, 'type', 'term');
   apply(() => { $.tooltip('i18n:lights.size')(SpotLight.prototype, 'size',  sizeDescriptor); }, 'tooltip', 'size');
   apply(() => { $.tooltip('i18n:lights.range')(SpotLight.prototype, 'range',  rangeDescriptor); }, 'tooltip', 'range');
   apply(() => { $.tooltip('The spot light cone angle')(SpotLight.prototype, 'spotAngle',  spotAngleDescriptor); }, 'tooltip', 'spotAngle');
   apply(() => { $.range([2, 180, 1])(SpotLight.prototype, 'spotAngle',  spotAngleDescriptor); }, 'range', 'spotAngle');
   apply(() => { $.slide(SpotLight.prototype, 'spotAngle',  spotAngleDescriptor); }, 'slide', 'spotAngle');
-  apply(() => { $.type(CCBoolean)(SpotLight.prototype, 'shadowEnabled'); }, 'type', 'shadowEnabled');
+  apply(() => { $.type(CCBoolean)(SpotLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'type', 'shadowEnabled');
   apply(() => { $.editable(SpotLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'editable', 'shadowEnabled');
   apply(() => { $.property({
   group: {
@@ -1174,7 +1183,7 @@ export function patch_cc_SpotLight(ctx: cc_SpotLight_Context_Args, apply = defau
 })(SpotLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'property', 'shadowEnabled');
   apply(() => { $.visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)(SpotLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'visible', 'shadowEnabled');
   apply(() => { $.tooltip('i18n:lights.shadowEnabled')(SpotLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'tooltip', 'shadowEnabled');
-  apply(() => { $.type(PCFType)(SpotLight.prototype, 'shadowPcf'); }, 'type', 'shadowPcf');
+  apply(() => { $.type(PCFType)(SpotLight.prototype, 'shadowPcf',  shadowPcfDescriptor); }, 'type', 'shadowPcf');
   apply(() => { $.editable(SpotLight.prototype, 'shadowPcf',  shadowPcfDescriptor); }, 'editable', 'shadowPcf');
   apply(() => { $.property({
   group: {
@@ -1184,7 +1193,7 @@ export function patch_cc_SpotLight(ctx: cc_SpotLight_Context_Args, apply = defau
 })(SpotLight.prototype, 'shadowPcf',  shadowPcfDescriptor); }, 'property', 'shadowPcf');
   apply(() => { $.visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)(SpotLight.prototype, 'shadowPcf',  shadowPcfDescriptor); }, 'visible', 'shadowPcf');
   apply(() => { $.tooltip('i18n:lights.shadowPcf')(SpotLight.prototype, 'shadowPcf',  shadowPcfDescriptor); }, 'tooltip', 'shadowPcf');
-  apply(() => { $.type(CCFloat)(SpotLight.prototype, 'shadowBias'); }, 'type', 'shadowBias');
+  apply(() => { $.type(CCFloat)(SpotLight.prototype, 'shadowBias',  shadowBiasDescriptor); }, 'type', 'shadowBias');
   apply(() => { $.editable(SpotLight.prototype, 'shadowBias',  shadowBiasDescriptor); }, 'editable', 'shadowBias');
   apply(() => { $.property({
   group: {
@@ -1194,7 +1203,7 @@ export function patch_cc_SpotLight(ctx: cc_SpotLight_Context_Args, apply = defau
 })(SpotLight.prototype, 'shadowBias',  shadowBiasDescriptor); }, 'property', 'shadowBias');
   apply(() => { $.visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)(SpotLight.prototype, 'shadowBias',  shadowBiasDescriptor); }, 'visible', 'shadowBias');
   apply(() => { $.tooltip('i18n:lights.shadowBias')(SpotLight.prototype, 'shadowBias',  shadowBiasDescriptor); }, 'tooltip', 'shadowBias');
-  apply(() => { $.type(CCFloat)(SpotLight.prototype, 'shadowNormalBias'); }, 'type', 'shadowNormalBias');
+  apply(() => { $.type(CCFloat)(SpotLight.prototype, 'shadowNormalBias',  shadowNormalBiasDescriptor); }, 'type', 'shadowNormalBias');
   apply(() => { $.editable(SpotLight.prototype, 'shadowNormalBias',  shadowNormalBiasDescriptor); }, 'editable', 'shadowNormalBias');
   apply(() => { $.property({
   group: {
@@ -1258,7 +1267,7 @@ interface cc_Texture2D_Context_Args {
 }
 export function patch_cc_Texture2D(ctx: cc_Texture2D_Context_Args, apply = defaultExec) {
   const { Texture2D, ImageAsset } = { ...ctx };
-  apply(() => { $.type([ImageAsset])(Texture2D.prototype, '_mipmaps'); }, 'type', '_mipmaps');
+  apply(() => { $.type([ImageAsset])(Texture2D.prototype, '_mipmaps',  () => { return []; }); }, 'type', '_mipmaps');
   apply(() => { $.ccclass('cc.Texture2D')(Texture2D); }, 'ccclass', null);
 } // end of patch_cc_Texture2D
 
@@ -1318,7 +1327,7 @@ export function patch_DeferredPipeline(ctx: DeferredPipeline_Context_Args, apply
   const { DeferredPipeline, RenderTextureConfig } = { ...ctx };
   apply(() => { $.displayOrder(2)(DeferredPipeline.prototype, 'renderTextures',  () => { return []; }); }, 'displayOrder', 'renderTextures');
   apply(() => { $.serializable(DeferredPipeline.prototype, 'renderTextures',  () => { return []; }); }, 'serializable', 'renderTextures');
-  apply(() => { $.type([RenderTextureConfig])(DeferredPipeline.prototype, 'renderTextures'); }, 'type', 'renderTextures');
+  apply(() => { $.type([RenderTextureConfig])(DeferredPipeline.prototype, 'renderTextures',  () => { return []; }); }, 'type', 'renderTextures');
   apply(() => { $.ccclass('DeferredPipeline')(DeferredPipeline); }, 'ccclass', null);
 } // end of patch_DeferredPipeline
 
@@ -1340,7 +1349,7 @@ export function patch_ForwardPipeline(ctx: ForwardPipeline_Context_Args, apply =
   const { ForwardPipeline, RenderTextureConfig } = { ...ctx };
   apply(() => { $.displayOrder(2)(ForwardPipeline.prototype, 'renderTextures',  () => { return []; }); }, 'displayOrder', 'renderTextures');
   apply(() => { $.serializable(ForwardPipeline.prototype, 'renderTextures',  () => { return []; }); }, 'serializable', 'renderTextures');
-  apply(() => { $.type([RenderTextureConfig])(ForwardPipeline.prototype, 'renderTextures'); }, 'type', 'renderTextures');
+  apply(() => { $.type([RenderTextureConfig])(ForwardPipeline.prototype, 'renderTextures',  () => { return []; }); }, 'type', 'renderTextures');
   apply(() => { $.ccclass('ForwardPipeline')(ForwardPipeline); }, 'ccclass', null);
 } // end of patch_ForwardPipeline
 
@@ -1353,7 +1362,7 @@ export function patch_ForwardStage(ctx: ForwardStage_Context_Args, apply = defau
   const { ForwardStage, RenderQueueDesc } = { ...ctx };
   apply(() => { $.displayOrder(2)(ForwardStage.prototype, 'renderQueues',  () => { return []; }); }, 'displayOrder', 'renderQueues');
   apply(() => { $.serializable(ForwardStage.prototype, 'renderQueues',  () => { return []; }); }, 'serializable', 'renderQueues');
-  apply(() => { $.type([RenderQueueDesc])(ForwardStage.prototype, 'renderQueues'); }, 'type', 'renderQueues');
+  apply(() => { $.type([RenderQueueDesc])(ForwardStage.prototype, 'renderQueues',  () => { return []; }); }, 'type', 'renderQueues');
   apply(() => { $.ccclass('ForwardStage')(ForwardStage); }, 'ccclass', null);
 } // end of patch_ForwardStage
 
@@ -1369,10 +1378,10 @@ export function patch_FrameBufferDesc(ctx: FrameBufferDesc_Context_Args, apply =
   apply(() => { $.serializable(FrameBufferDesc.prototype, 'name',  () => { return ''; }); }, 'serializable', 'name');
   apply(() => { $.editable(FrameBufferDesc.prototype, 'renderPass',  () => { return 0; }); }, 'editable', 'renderPass');
   apply(() => { $.serializable(FrameBufferDesc.prototype, 'renderPass',  () => { return 0; }); }, 'serializable', 'renderPass');
-  apply(() => { $.type([CCString])(FrameBufferDesc.prototype, 'colorTextures'); }, 'type', 'colorTextures');
+  apply(() => { $.type([CCString])(FrameBufferDesc.prototype, 'colorTextures',  () => { return []; }); }, 'type', 'colorTextures');
   apply(() => { $.editable(FrameBufferDesc.prototype, 'depthStencilTexture',  () => { return ''; }); }, 'editable', 'depthStencilTexture');
   apply(() => { $.serializable(FrameBufferDesc.prototype, 'depthStencilTexture',  () => { return ''; }); }, 'serializable', 'depthStencilTexture');
-  apply(() => { $.type(RenderTexture)(FrameBufferDesc.prototype, 'texture'); }, 'type', 'texture');
+  apply(() => { $.type(RenderTexture)(FrameBufferDesc.prototype, 'texture',  () => { return null; }); }, 'type', 'texture');
   apply(() => { $.ccclass('FrameBufferDesc')(FrameBufferDesc); }, 'ccclass', null);
 } // end of patch_FrameBufferDesc
 
@@ -1385,7 +1394,7 @@ export function patch_GbufferStage(ctx: GbufferStage_Context_Args, apply = defau
   const { GbufferStage, RenderQueueDesc } = { ...ctx };
   apply(() => { $.displayOrder(2)(GbufferStage.prototype, 'renderQueues',  () => { return []; }); }, 'displayOrder', 'renderQueues');
   apply(() => { $.serializable(GbufferStage.prototype, 'renderQueues',  () => { return []; }); }, 'serializable', 'renderQueues');
-  apply(() => { $.type([RenderQueueDesc])(GbufferStage.prototype, 'renderQueues'); }, 'type', 'renderQueues');
+  apply(() => { $.type([RenderQueueDesc])(GbufferStage.prototype, 'renderQueues',  () => { return []; }); }, 'type', 'renderQueues');
   apply(() => { $.ccclass('GbufferStage')(GbufferStage); }, 'ccclass', null);
 } // end of patch_GbufferStage
 
@@ -1399,10 +1408,10 @@ export function patch_LightingStage(ctx: LightingStage_Context_Args, apply = def
   const { LightingStage, Material, RenderQueueDesc } = { ...ctx };
   apply(() => { $.displayOrder(3)(LightingStage.prototype, '_deferredMaterial',  () => { return null; }); }, 'displayOrder', '_deferredMaterial');
   apply(() => { $.serializable(LightingStage.prototype, '_deferredMaterial',  () => { return null; }); }, 'serializable', '_deferredMaterial');
-  apply(() => { $.type(Material)(LightingStage.prototype, '_deferredMaterial'); }, 'type', '_deferredMaterial');
+  apply(() => { $.type(Material)(LightingStage.prototype, '_deferredMaterial',  () => { return null; }); }, 'type', '_deferredMaterial');
   apply(() => { $.displayOrder(2)(LightingStage.prototype, 'renderQueues',  () => { return []; }); }, 'displayOrder', 'renderQueues');
   apply(() => { $.serializable(LightingStage.prototype, 'renderQueues',  () => { return []; }); }, 'serializable', 'renderQueues');
-  apply(() => { $.type([RenderQueueDesc])(LightingStage.prototype, 'renderQueues'); }, 'type', 'renderQueues');
+  apply(() => { $.type([RenderQueueDesc])(LightingStage.prototype, 'renderQueues',  () => { return []; }); }, 'type', 'renderQueues');
   apply(() => { $.ccclass('LightingStage')(LightingStage); }, 'ccclass', null);
 } // end of patch_LightingStage
 
@@ -1425,10 +1434,10 @@ export function patch_PostProcessStage(ctx: PostProcessStage_Context_Args, apply
   const { PostProcessStage, Material, RenderQueueDesc } = { ...ctx };
   apply(() => { $.displayOrder(3)(PostProcessStage.prototype, '_postProcessMaterial',  () => { return null; }); }, 'displayOrder', '_postProcessMaterial');
   apply(() => { $.serializable(PostProcessStage.prototype, '_postProcessMaterial',  () => { return null; }); }, 'serializable', '_postProcessMaterial');
-  apply(() => { $.type(Material)(PostProcessStage.prototype, '_postProcessMaterial'); }, 'type', '_postProcessMaterial');
+  apply(() => { $.type(Material)(PostProcessStage.prototype, '_postProcessMaterial',  () => { return null; }); }, 'type', '_postProcessMaterial');
   apply(() => { $.displayOrder(2)(PostProcessStage.prototype, 'renderQueues',  () => { return []; }); }, 'displayOrder', 'renderQueues');
   apply(() => { $.serializable(PostProcessStage.prototype, 'renderQueues',  () => { return []; }); }, 'serializable', 'renderQueues');
-  apply(() => { $.type([RenderQueueDesc])(PostProcessStage.prototype, 'renderQueues'); }, 'type', 'renderQueues');
+  apply(() => { $.type([RenderQueueDesc])(PostProcessStage.prototype, 'renderQueues',  () => { return []; }); }, 'type', 'renderQueues');
   apply(() => { $.ccclass('PostProcessStage')(PostProcessStage); }, 'ccclass', null);
 } // end of patch_PostProcessStage
 
@@ -1464,7 +1473,7 @@ export function patch_RenderFlow(ctx: RenderFlow_Context_Args, apply = defaultEx
   apply(() => { $.serializable(RenderFlow.prototype, '_tag',  () => { return 0; }); }, 'serializable', '_tag');
   apply(() => { $.displayOrder(2)(RenderFlow.prototype, '_tag',  () => { return 0; }); }, 'displayOrder', '_tag');
   apply(() => { $.serializable(RenderFlow.prototype, '_stages',  () => { return []; }); }, 'serializable', '_stages');
-  apply(() => { $.type([RenderStage])(RenderFlow.prototype, '_stages'); }, 'type', '_stages');
+  apply(() => { $.type([RenderStage])(RenderFlow.prototype, '_stages',  () => { return []; }); }, 'type', '_stages');
   apply(() => { $.displayOrder(3)(RenderFlow.prototype, '_stages',  () => { return []; }); }, 'displayOrder', '_stages');
   apply(() => { $.ccclass('RenderFlow')(RenderFlow); }, 'ccclass', null);
 } // end of patch_RenderFlow
@@ -1479,8 +1488,8 @@ export function patch_RenderPassDesc(ctx: RenderPassDesc_Context_Args, apply = d
   const { RenderPassDesc, ColorDesc, DepthStencilDesc } = { ...ctx };
   apply(() => { $.editable(RenderPassDesc.prototype, 'index',  () => { return -1; }); }, 'editable', 'index');
   apply(() => { $.serializable(RenderPassDesc.prototype, 'index',  () => { return -1; }); }, 'serializable', 'index');
-  apply(() => { $.type([ColorDesc])(RenderPassDesc.prototype, 'colorAttachments'); }, 'type', 'colorAttachments');
-  apply(() => { $.type(DepthStencilDesc)(RenderPassDesc.prototype, 'depthStencilAttachment'); }, 'type', 'depthStencilAttachment');
+  apply(() => { $.type([ColorDesc])(RenderPassDesc.prototype, 'colorAttachments',  () => { return []; }); }, 'type', 'colorAttachments');
+  apply(() => { $.type(DepthStencilDesc)(RenderPassDesc.prototype, 'depthStencilAttachment',  () => { return new DepthStencilDesc(); }); }, 'type', 'depthStencilAttachment');
   apply(() => { $.ccclass('RenderPassDesc')(RenderPassDesc); }, 'ccclass', null);
 } // end of patch_RenderPassDesc
 
@@ -1494,8 +1503,8 @@ export function patch_RenderQueueDesc(ctx: RenderQueueDesc_Context_Args, apply =
   const { RenderQueueDesc, RenderQueueSortMode, CCString } = { ...ctx };
   apply(() => { $.editable(RenderQueueDesc.prototype, 'isTransparent',  () => { return false; }); }, 'editable', 'isTransparent');
   apply(() => { $.serializable(RenderQueueDesc.prototype, 'isTransparent',  () => { return false; }); }, 'serializable', 'isTransparent');
-  apply(() => { $.type(RenderQueueSortMode)(RenderQueueDesc.prototype, 'sortMode'); }, 'type', 'sortMode');
-  apply(() => { $.type([CCString])(RenderQueueDesc.prototype, 'stages'); }, 'type', 'stages');
+  apply(() => { $.type(RenderQueueSortMode)(RenderQueueDesc.prototype, 'sortMode',  () => { return RenderQueueSortMode.FRONT_TO_BACK; }); }, 'type', 'sortMode');
+  apply(() => { $.type([CCString])(RenderQueueDesc.prototype, 'stages',  () => { return []; }); }, 'type', 'stages');
   apply(() => { $.ccclass('RenderQueueDesc')(RenderQueueDesc); }, 'ccclass', null);
 } // end of patch_RenderQueueDesc
 
@@ -1525,9 +1534,9 @@ export function patch_RenderTextureDesc(ctx: RenderTextureDesc_Context_Args, app
   const { RenderTextureDesc, TextureType, TextureUsageBit, Format } = { ...ctx };
   apply(() => { $.editable(RenderTextureDesc.prototype, 'name',  () => { return ''; }); }, 'editable', 'name');
   apply(() => { $.serializable(RenderTextureDesc.prototype, 'name',  () => { return ''; }); }, 'serializable', 'name');
-  apply(() => { $.type(TextureType)(RenderTextureDesc.prototype, 'type'); }, 'type', 'type');
-  apply(() => { $.type(TextureUsageBit)(RenderTextureDesc.prototype, 'usage'); }, 'type', 'usage');
-  apply(() => { $.type(Format)(RenderTextureDesc.prototype, 'format'); }, 'type', 'format');
+  apply(() => { $.type(TextureType)(RenderTextureDesc.prototype, 'type',  () => { return TextureType.TEX2D; }); }, 'type', 'type');
+  apply(() => { $.type(TextureUsageBit)(RenderTextureDesc.prototype, 'usage',  () => { return TextureUsageBit.COLOR_ATTACHMENT; }); }, 'type', 'usage');
+  apply(() => { $.type(Format)(RenderTextureDesc.prototype, 'format',  () => { return Format.UNKNOWN; }); }, 'type', 'format');
   apply(() => { $.editable(RenderTextureDesc.prototype, 'width',  () => { return -1; }); }, 'editable', 'width');
   apply(() => { $.serializable(RenderTextureDesc.prototype, 'width',  () => { return -1; }); }, 'serializable', 'width');
   apply(() => { $.editable(RenderTextureDesc.prototype, 'height',  () => { return -1; }); }, 'editable', 'height');

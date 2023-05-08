@@ -277,7 +277,7 @@ export class cchelper {
         await cpRAsync(srcRoot, from, copyTo);
     }
 
-    static async replaceInFile(patterns: { reg: string, text: string }[], filepath: string) {
+    static async replaceInFile(patterns: { reg: string | RegExp, text: string }[], filepath: string) {
         filepath = this.replaceEnvVariables(filepath);
         if (!fs.existsSync(filepath)) {
             console.log(`While replace template content, file ${filepath}`);
@@ -427,8 +427,29 @@ export const toolHelper = {
         }
     },
 
+    async runCommand(cmd:string, args:string[], cb?:(code:number, stdout:string, stderr:string)=>void): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            const cp = spawn(cmd, args);
+            const stdErr:Buffer[] = [];
+            const stdOut:Buffer[] = [];
+            cp.stderr.on('data', (d)=>stdErr.push(d));
+            cp.stdout.on('data', (d)=>stdOut.push(d));
+            cp.on('close', (code, signal)=>{
+                if(cb) {
+                    cb(code as any, Buffer.concat(stdOut).toString('utf8'), Buffer.concat(stdErr).toString('utf8'));
+                }
+                resolve(code === 0);
+            });
+        });
+    },
+
     runCmake(args: string[]) {
-        const cmakePath = Paths.cmakePath;
+        let cmakePath = Paths.cmakePath;
+        if (process.platform === 'win32' && cmakePath.indexOf(' ') > -1) {
+            cmakePath = `"${cmakePath}"`;
+        } else {
+            cmakePath = cmakePath.replace(/ /g, '\\ ');
+        }
         // Delete environment variables start with `npm_`, which may cause compile error on windows
         const newEnv: any = {};
         Object.assign(newEnv, process.env);

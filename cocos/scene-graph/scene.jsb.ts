@@ -28,9 +28,12 @@ import { assert } from "../core/platform/debug";
 import { updateChildrenForDeserialize } from '../core/utils/jsb-utils';
 import { SceneGlobals } from './scene-globals';
 import { patch_cc_Scene } from '../native-binding/decorators';
+import type { Scene as JsbScene } from './scene';
 
-export const Scene = jsb.Scene;
-export type Scene = jsb.Scene;
+declare const jsb: any;
+
+export const Scene: typeof JsbScene = jsb.Scene;
+export type Scene = JsbScene;
 legacyCC.Scene = Scene;
 
 const sceneProto: any = Scene.prototype;
@@ -78,8 +81,9 @@ Object.defineProperty(sceneProto, 'renderScene', {
 });
 
 sceneProto._ctor = function () {
-    // @ts-expect-error TODO: Property '_ctor' does not exist on type 'Node'.
-    Node.prototype._ctor.apply(this, arguments);
+    // TODO: Property '_ctor' does not exist on type 'Node'.
+    // issue: https://github.com/cocos/cocos-engine/issues/14644
+    (Node.prototype as any)._ctor.apply(this, arguments);
     this._inited = false;
     this._renderSceneInternal = null;
     this._globalRef = null;

@@ -53,10 +53,8 @@ const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
 
 /**
- * @en
- * UI render flow
- * @zh
- * UI 渲染流程
+ * @en UI rendering process
+ * @zh UI 渲染流程
  */
 export class Batcher2D implements IBatcher {
     protected declare _nativeObj: NativeBatcher2d;
@@ -792,8 +790,7 @@ export class Batcher2D implements IBatcher {
         const selfOpacity = render && render.color ? render.color.a / 255 : 1;
         this._pOpacity = opacity *= selfOpacity * uiProps.localOpacity;
         // TODO Set opacity to ui property's opacity before remove it
-        // @ts-expect-error temporary force set, will be removed with ui property's opacity
-        uiProps._opacity = opacity;
+        uiProps.setOpacity(opacity);
         if (!approx(opacity, 0, EPSILON)) {
             if (uiProps.colorDirty) {
             // Cascade color dirty state

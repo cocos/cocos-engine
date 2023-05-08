@@ -84,7 +84,7 @@ vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData ligh
     return envSpec;
 }
 
-vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData lightingData, float mipCount, vec3 worldPos, vec3 cubeCenterPos, vec3 boxHalfSize)
+vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData lightingData, float mipCount, vec3 worldPos, vec3 cubeCenterPos, vec3 boxHalfSize, bool isRGBE)
 {
     vec3 envSpec = vec3(0.0);
     float roughness = lightingData.specularParam;
@@ -97,15 +97,20 @@ vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData ligh
     vec4 fixedR = CalculateBoxProjectedDirection(R, worldPos, cubeCenterPos, boxHalfSize);
     R = fixedR.xyz;
 
-    vec3 envmap = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w).xyz;
+    vec3 envmap = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w).xyz * cc_ambientSky.w;
     #if CC_SURFACES_LIGHTING_ANISOTROPIC && CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
       envSpec = EnvAnisotropicReflection(tex, fixedR.xyz, roughness, mipCount, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
-      envSpec = mix(envmap, envSpec, fixedR.w);
+      #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
+        envSpec = mix(envmap, envSpec, fixedR.w);
+      #endif
     #else
       #if CC_SURFACES_USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
         envSpec = EnvReflectionWithMipFiltering(normalize(R), roughness, mipCount, 0.6);
       #else
-        envSpec = mix(envmap, EnvReflection(tex, R, roughness, mipCount), fixedR.w);
+        envSpec = EnvReflectionOfReflectionProbe(tex, R, roughness, mipCount, isRGBE);
+        #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
+          envSpec = mix(envmap, envSpec, fixedR.w);
+        #endif
       #endif
     #endif
     return envSpec;
@@ -152,12 +157,12 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
 
   #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
     if(FSInput_reflectionProbeId < 0.0){
-        envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w);
+        envSpec = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w);
     }else{
       vec3 centerPos, boxHalfSize;
       float mipCount;
       GetCubeReflectionProbeData(centerPos, boxHalfSize, mipCount, FSInput_reflectionProbeId);
-      envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, mipCount, worldPos, centerPos, boxHalfSize);
+      envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, mipCount, worldPos, centerPos, boxHalfSize, isReflectProbeUsingRGBE(FSInput_reflectionProbeId));
     }
   #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
     vec3 R = normalize(CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV));
@@ -171,11 +176,51 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
         vec3 worldPosOffset = CalculatePlanarReflectPositionOnPlane(lightingData.N, lightingData.V, worldPos, plane, cc_cameraPos.xyz, planarReflectionDepthScale);
         vec2 screenUV = GetPlanarReflectScreenUV(worldPosOffset, cc_matViewProj, cc_cameraPos.w, lightingData.V, R);
         envSpec = unpackRGBE(fragTextureLod(cc_reflectionProbePlanarMap, screenUV, mipCount)).xyz;
-    } 
+    }
+  #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+    if(FSInput_reflectionProbeId < 0.0){
+        envSpec = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w);
+    }else{
+      vec3 centerPos, boxHalfSize;
+      float mipCount;
+      GetCubeReflectionProbeData(centerPos, boxHalfSize, mipCount, FSInput_reflectionProbeId);
+      envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, mipCount, worldPos, centerPos, boxHalfSize, isReflectProbeUsingRGBE(FSInput_reflectionProbeId));
+
+      float blendFactor = 0.0;
+      #if USE_INSTANCING
+        blendFactor = FSInput_reflectionProbeData.x;
+      #else
+        blendFactor = cc_reflectionProbeBlendData1.w;
+      #endif
+
+      if(FSInput_reflectionProbeBlendId < 0.0)
+      {
+        vec3 skyBoxEnv = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w).rgb * lightIntensity;
+        #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+          //blend with skybox
+          envSpec = mix(envSpec, skyBoxEnv, blendFactor);
+        #else
+          vec3 R = normalize(CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV));
+          vec4 fixedR = CalculateBoxProjectedDirection(R, worldPos, centerPos, boxHalfSize);
+          envSpec = mix(skyBoxEnv, envSpec, fixedR.w);
+        #endif 
+      }else{
+        vec3 centerPosBlend, boxHalfSizeBlend;
+        float mipCountBlend;
+        GetBlendCubeReflectionProbeData(centerPosBlend, boxHalfSizeBlend, mipCountBlend, FSInput_reflectionProbeBlendId);
+        vec3 probeBlend = SampleEnvironmentSpecular(cc_reflectionProbeBlendCubemap, lightingData, mipCountBlend, worldPos, centerPosBlend, boxHalfSizeBlend, isBlendReflectProbeUsingRGBE(FSInput_reflectionProbeBlendId));
+        envSpec = mix(envSpec, probeBlend, blendFactor);
+      }     
+    }
   #endif
 #elif CC_USE_IBL
     envSpec = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w);
 #endif
+
+  #if CC_USE_REFLECTION_PROBE
+    //If using reflection probe, no need to multiply by the ambient light intensity.
+    lightIntensity = FSInput_reflectionProbeId < 0.0 ? lightIntensity : 1.0;
+  #endif
 
   return envSpec * lightIntensity;
 }

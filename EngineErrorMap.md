@@ -367,6 +367,10 @@ cc.Scheduler: updateFunc parameter is deprecated in scheduleUpdate function, and
 
 cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you should do Scheduler.enableForTarget(target) before all scheduler API usage on target
 
+### 1514
+
+since v3.8.0, `Scheduler.schedule(target, callback, interval)` is deprecated, please use `Scheduler.schedule(callback, target, interval)` instead.
+
 ### 1600
 
 <!-- DEPRECATED -->
@@ -1845,6 +1849,22 @@ Previous error occurred when instantiating animation clip %s on node %s.
 
 '%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'.
 
+### 3940
+
+Error when animation attempted to bind material uniform target: target %s is not a material.
+
+### 3941
+
+Error when animation attempted to bind material uniform target: material %s has no recorded pass %s.
+
+### 3942
+
+Error when animation attempted to bind material uniform target: material %s at pass %s has no recorded uniform %s.
+
+### 3943
+
+Error when animation attempted to bind material uniform target: material %s at pass %s's uniform %s has no recorded channel %s.
+
 ### 4000
 
 <!-- DEPRECATED -->
@@ -3165,6 +3185,10 @@ Can't getGFXSampler with out device
 ### 9620
 
 [Physics][Ammo]: changing the mesh is not supported after the initialization is completed
+
+### 9630
+
+[Physics]: A dynamic rigid body can not have the following collider shapes: Terrain, Plane and Non-convex Mesh. Node name: %s
 
 ### 10001
 

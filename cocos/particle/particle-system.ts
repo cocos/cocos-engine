@@ -45,7 +45,7 @@ import { CullingMode, Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
-import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
+import { ParticleSystemRendererBase } from './renderer/particle-system-renderer-base';
 import { PARTICLE_MODULE_PROPERTY } from './particle';
 import { TransformBit } from '../scene-graph/node-enum';
 import { Camera } from '../render-scene/scene';
@@ -86,10 +86,8 @@ export class ParticleSystem extends ModelRenderer {
 
     public set capacity (val) {
         this._capacity = Math.floor(val > 0 ? val : 0);
-        // @ts-expect-error private property access
-        if (this.processor && this.processor._model) {
-            // @ts-expect-error private property access
-            this.processor._model.setCapacity(this._capacity);
+        if (this.processor && this.processor.model) {
+            this.processor.model.setCapacity(this._capacity);
         }
     }
 
@@ -182,7 +180,6 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([-2 * Math.PI, 2 * Math.PI])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationX')
@@ -195,7 +192,6 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([-2 * Math.PI, 2 * Math.PI])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationY')
@@ -208,7 +204,6 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @formerlySerializedAs('startRotation')
-    @range([-2 * Math.PI, 2 * Math.PI])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationZ')
@@ -812,7 +807,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Particle update processor (update every particle).
      * @zh 粒子更新器（负责更新每个粒子）。
      */
-    public processor: IParticleSystemRenderer = null!;
+    public processor: ParticleSystemRendererBase = null!;
 
     constructor () {
         super();
@@ -901,7 +896,10 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    protected _detachFromScene () {
+    /**
+     * @engineInternal
+     */
+    public _detachFromScene () {
         this.processor.detachFromScene();
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule._detachFromScene();
@@ -1043,7 +1041,11 @@ export class ParticleSystem extends ModelRenderer {
      * @zh 获取当前粒子数量。
      */
     public getParticleCount () {
-        return this.processor.getParticleCount();
+        if (this.processor) {
+            return this.processor.getParticleCount();
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -1267,8 +1269,7 @@ export class ParticleSystem extends ModelRenderer {
         }
 
         if (!this.renderer.useGPU && this._trailModule && this._trailModule.enable) {
-            // @ts-expect-error private property access
-            if (!this._trailModule._inited) {
+            if (!this._trailModule.inited) {
                 this._trailModule.clear();
                 this._trailModule.destroy();
                 this._trailModule.onInit(this);
@@ -1301,10 +1302,8 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     protected _onVisibilityChange (val) {
-        // @ts-expect-error private property access
-        if (this.processor._model) {
-            // @ts-expect-error private property access
-            this.processor._model.visFlags = val;
+        if (this.processor.model) {
+            this.processor.model.visFlags = val;
         }
     }
 

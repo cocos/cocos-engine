@@ -47,12 +47,11 @@
 #endif
 #define JNI_AUDIO(FUNC) JNI_METHOD1(COM_AUDIOFOCUS_CLASS_NAME, FUNC)
 
-using namespace cc; //NOLINT
 
 /***********************************************************
  * Functions invoke from cpp to Java.
  ***********************************************************/
-
+namespace cc {
 ccstd::string getObbFilePathJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getObbFilePath");
 }
@@ -138,12 +137,12 @@ float getBatteryLevelJNI() {
 }
 
 void flushTasksOnGameThreadJNI() {
-    cc::JniHelper::callStaticVoidMethod(JCLS_HELPER,
+    JniHelper::callStaticVoidMethod(JCLS_HELPER,
                                         "flushTasksOnGameThread");
 }
 
 void flushTasksOnGameThreadAtForegroundJNI() {
-    cc::JniHelper::callStaticVoidMethod(JCLS_HELPER,
+    JniHelper::callStaticVoidMethod(JCLS_HELPER,
                                         "flushTasksOnGameThreadAtForeground");
 }
 
@@ -159,10 +158,15 @@ float *getDeviceMotionValueJNI() {
     return JniHelper::callStaticFloatArrayMethod(JCLS_SENSOR, "getDeviceMotionValue");
 }
 
+bool getSupportHPE() {
+    return JniHelper::callStaticBooleanMethod(JCLS_HELPER, "supportHPE");
+}
+
+} // namespace cc
 extern "C" {
 JNIEXPORT void JNICALL JNI_AUDIO(nativeSetAudioVolumeFactor)(JNIEnv * /*env*/, jclass /* thiz*/, jfloat volumeFactor) {
 #if CC_USE_AUDIO
-    AudioEngine::setVolumeFactor(volumeFactor);
+    cc::AudioEngine::setVolumeFactor(volumeFactor);
 #endif
 }
 }

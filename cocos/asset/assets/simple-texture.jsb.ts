@@ -26,12 +26,12 @@ import dependUtil from '../asset-manager/depend-util';
 import { js, macro, cclegacy } from '../../core';
 import './texture-base';
 import { patch_cc_SimpleTexture } from '../../native-binding/decorators';
+import type { SimpleTexture as JsbSimpleTexture } from './simple-texture';
 
 declare const jsb: any;
 
-// @ts-ignore
-export type SimpleTexture = jsb.SimpleTexture;
-export const SimpleTexture: any = jsb.SimpleTexture;
+export type SimpleTexture = JsbSimpleTexture;
+export const SimpleTexture: typeof JsbSimpleTexture = jsb.SimpleTexture;
 
 const jsbWindow = jsb.window;
 

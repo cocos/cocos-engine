@@ -23,6 +23,8 @@
 */
 import { ClearFlagBit } from '../../gfx';
 import { SKYBOX_FLAG } from './camera';
+import type { ReflectionProbe as JsbReflectionProbe } from './reflection-probe';
+
 declare const jsb: any;
  
 export enum ProbeClearFlag {
@@ -35,7 +37,8 @@ export enum ProbeType {
     PLANAR = 1,
 }
 
-export const ReflectionProbe = jsb.ReflectionProbe;
+export const ReflectionProbe: typeof JsbReflectionProbe = jsb.ReflectionProbe;
+export type ReflectionProbe = JsbReflectionProbe;
 const reflectionProbeProto: any = jsb.ReflectionProbe.prototype;
 reflectionProbeProto._ctor = function (id:number) {
     this._probeId = id;

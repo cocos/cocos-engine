@@ -120,7 +120,7 @@ export function getExtensions (gl: WebGL2RenderingContext) {
 export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext | null {
     let context: WebGL2RenderingContext | null = null;
     try {
-        if (globalThis.__globalXR.webxrCompatible) {
+        if (globalThis.__globalXR?.webxrCompatible) {
             const glAttribs = {
                 alpha: macro.ENABLE_TRANSPARENT_CANVAS,
                 antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
@@ -202,7 +202,6 @@ export class WebGL2Swapchain extends Swapchain {
         else if (depthBits) depthStencilFmt = Format.DEPTH;
 
         this._colorTexture = new WebGL2Texture();
-        // @ts-expect-error(2445) private initializer
         this._colorTexture.initAsSwapchainTexture({
             swapchain: this,
             format: colorFmt,
@@ -211,7 +210,6 @@ export class WebGL2Swapchain extends Swapchain {
         });
 
         this._depthStencilTexture = new WebGL2Texture();
-        // @ts-expect-error(2445) private initializer
         this._depthStencilTexture.initAsSwapchainTexture({
             swapchain: this,
             format: depthStencilFmt,

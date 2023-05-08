@@ -28,7 +28,6 @@ import { PipelineStateManager } from './pipeline-state-manager';
 import { Vec3, nextPow2, Mat4, Color, Pool, geometry, cclegacy } from '../core';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
     BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
-import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../render-scene/scene/sphere-light';
 import { SpotLight } from '../render-scene/scene/spot-light';
@@ -86,10 +85,10 @@ function cullRangedDirLight (light: RangedDirectionalLight, model: Model) {
 const phaseName = 'forward-add';
 let _phaseID = getPhaseID(phaseName);
 const _lightPassIndices: number[] = [];
-function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[]) {
+function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[], passLayout = 'default') {
     const r = cclegacy.rendering;
     if (isEnableEffect()) {
-        _phaseID = r.getPhaseID(r.getPassID('default'), phaseName);
+        _phaseID = r.getPhaseID(r.getPassID(passLayout), phaseName);
     }
     lightPassIndices.length = 0;
     let hasValidLightPass = false;
@@ -117,7 +116,6 @@ export class RenderAdditiveLightQueue {
     private _device: Device;
     private _lightPasses: IAdditiveLightPass[] = [];
     private _instancedLightPassPool = _lightPassPool.alloc();
-    private _batchedLightPassPool = _lightPassPool.alloc();
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
     private _lightBufferStride: number;
@@ -126,7 +124,6 @@ export class RenderAdditiveLightQueue {
     private _firstLightBufferView: Buffer;
     private _lightBufferData: Float32Array;
     private _instancedQueues: RenderInstancedQueue[] = [];
-    private _batchedQueues: RenderBatchedQueue[] = [];
     private _lightMeterScale = 10000.0;
 
     constructor (pipeline: PipelineRuntime) {
@@ -154,10 +151,6 @@ export class RenderAdditiveLightQueue {
             instancedQueue.clear();
         });
         this._instancedQueues.length = 0;
-        this._batchedQueues.forEach((batchedQueue) => {
-            batchedQueue.clear();
-        });
-        this._batchedQueues.length = 0;
 
         for (let i = 0; i < this._lightPasses.length; i++) {
             const lp = this._lightPasses[i];
@@ -169,8 +162,6 @@ export class RenderAdditiveLightQueue {
 
         this._instancedLightPassPool.dynamicOffsets.length = 0;
         this._instancedLightPassPool.lights.length = 0;
-        this._batchedLightPassPool.dynamicOffsets.length = 0;
-        this._batchedLightPassPool.lights.length = 0;
     }
 
     public destroy () {
@@ -191,26 +182,19 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer) {
-        this.clear();
-
-        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
-        if (!validPunctualLights.length) { return; }
-
-        this._updateUBOs(camera, cmdBuff);
-        this._updateLightDescriptorSet(camera, cmdBuff);
+    private _bindForwardAddLight (validPunctualLights, passLayout = 'default') {
         const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         for (let i = 0; i < renderObjects.length; i++) {
             const ro = renderObjects[i];
             const { model } = ro;
             const { subModels } = model;
-            if (!getLightPassIndices(subModels, _lightPassIndices)) { continue; }
+            if (!getLightPassIndices(subModels, _lightPassIndices, passLayout)) { continue; }
 
             _lightIndices.length = 0;
 
             this._lightCulling(model, validPunctualLights);
 
-            if (!_lightIndices.length) { continue; }
+            if (!_lightIndices.length && validPunctualLights.length > 0) { continue; }
 
             for (let j = 0; j < subModels.length; j++) {
                 const lightPassIdx = _lightPassIndices[j];
@@ -229,21 +213,29 @@ export class RenderAdditiveLightQueue {
                 this._addRenderQueue(pass, subModel, model, lightPassIdx);
             }
         }
+    }
 
+    public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer, passLayout = 'default') {
+        this.clear();
+
+        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
+        if (!validPunctualLights.length) {
+            this._bindForwardAddLight(validPunctualLights, passLayout);
+            return;
+        }
+
+        this._updateUBOs(camera, cmdBuff);
+        this._updateLightDescriptorSet(camera, cmdBuff);
+        this._bindForwardAddLight(validPunctualLights, passLayout);
         // only for instanced and batched, no light culling applied
         for (let l = 0; l < validPunctualLights.length; l++) {
             const light = validPunctualLights[l];
             this._instancedLightPassPool.lights.push(light);
             this._instancedLightPassPool.dynamicOffsets.push(this._lightBufferStride * l);
-            this._batchedLightPassPool.lights.push(light);
-            this._batchedLightPassPool.dynamicOffsets.push(this._lightBufferStride * l);
         }
 
         this._instancedQueues.forEach((instancedQueue) => {
             instancedQueue.uploadBuffers(cmdBuff);
-        });
-        this._batchedQueues.forEach((batchedQueue) => {
-            batchedQueue.uploadBuffers(cmdBuff);
         });
     }
 
@@ -254,13 +246,6 @@ export class RenderAdditiveLightQueue {
             _dynamicOffsets[0] = this._instancedLightPassPool.dynamicOffsets[j];
             const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
             this._instancedQueues[j].recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet, _dynamicOffsets);
-        }
-
-        for (let j = 0; j < this._batchedQueues.length; ++j) {
-            const light = this._batchedLightPassPool.lights[j];
-            _dynamicOffsets[0] = this._batchedLightPassPool.dynamicOffsets[j];
-            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light);
-            this._batchedQueues[j].recordCommandBuffer(device, renderPass, cmdBuff, descriptorSet, _dynamicOffsets);
         }
 
         for (let i = 0; i < this._lightPasses.length; i++) {
@@ -338,13 +323,6 @@ export class RenderAdditiveLightQueue {
                     if (!this._instancedQueues[l]) { this._instancedQueues[l] = new RenderInstancedQueue(); }
                     this._instancedQueues[l].queue.add(buffer);
                 } break;
-                case BatchingSchemes.VB_MERGING: {
-                    const buffer = pass.getBatchedBuffer(l);
-                    buffer.merge(subModel, lightPassIdx, model);
-                    buffer.dynamicOffsets[0] = this._lightBufferStride;
-                    if (!this._batchedQueues[l]) { this._batchedQueues[l] = new RenderBatchedQueue(); }
-                    this._batchedQueues[l].queue.add(buffer);
-                } break;
                 default:
                     lp!.lights.push(light);
                     lp!.dynamicOffsets.push(this._lightBufferStride * lightIdx);
@@ -387,7 +365,7 @@ export class RenderAdditiveLightQueue {
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = 1.0;
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = 0.0;
 
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 2.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = LightType.SPHERE;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = 0.0;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
@@ -429,7 +407,7 @@ export class RenderAdditiveLightQueue {
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = spotLight.shadowPcf;
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = spotLight.shadowBias;
 
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 1.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = LightType.SPOT;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = spotLight.shadowNormalBias;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
@@ -471,7 +449,7 @@ export class RenderAdditiveLightQueue {
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = 1.0;
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = 0.0;
 
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 2.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = LightType.POINT;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = 0.0;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;

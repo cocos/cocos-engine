@@ -39,7 +39,6 @@ import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, get
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../rendering/define';
 import { InstancedBuffer } from '../../rendering/instanced-buffer';
-import { BatchedBuffer } from '../../rendering/batched-buffer';
 import { ProgramLibrary } from '../../rendering/custom/private';
 
 export interface IPassInfoFull extends EffectAsset.IPassInfo {
@@ -76,7 +75,6 @@ const _materialSet = 1;
 export enum BatchingSchemes {
     NONE = 0,
     INSTANCING = 1,
-    VB_MERGING = 2,
 }
 
 export declare namespace Pass {
@@ -197,13 +195,11 @@ export class Pass {
     protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
     protected _dynamicStates: DynamicStateFlagBit = DynamicStateFlagBit.NONE;
     protected _instancedBuffers: Record<number, InstancedBuffer> = {};
-    protected _batchedBuffers: Record<number, BatchedBuffer> = {};
     protected _hash = 0;
     // external references
     protected _root: Root;
     protected _device: Device;
-
-    protected  _rootBufferDirty = false;
+    protected _rootBufferDirty = false;
 
     constructor (root: Root) {
         this._root = root;
@@ -354,10 +350,6 @@ export class Pass {
         console.warn('base pass cannot override states, please use pass instance instead.');
     }
 
-    public _setRootBufferDirty (val: boolean) {
-        this._rootBufferDirty = val;
-    }
-
     /**
      * @en Update the current uniforms data.
      * @zh 更新当前 Uniform 数据。
@@ -379,10 +371,6 @@ export class Pass {
         return this._instancedBuffers[extraKey] || (this._instancedBuffers[extraKey] = new InstancedBuffer(this));
     }
 
-    public getBatchedBuffer (extraKey = 0) {
-        return this._batchedBuffers[extraKey] || (this._batchedBuffers[extraKey] = new BatchedBuffer(this));
-    }
-
     /**
      * @en Destroy the current pass.
      * @zh 销毁当前 pass。
@@ -401,10 +389,6 @@ export class Pass {
 
         for (const ib in this._instancedBuffers) {
             this._instancedBuffers[ib].destroy();
-        }
-
-        for (const bb in this._batchedBuffers) {
-            this._batchedBuffers[bb].destroy();
         }
 
         this._descriptorSet.destroy();
@@ -759,8 +743,6 @@ export class Pass {
                 this._defines.USE_INSTANCING = false;
                 this._batchingScheme = BatchingSchemes.NONE;
             }
-        } else if (this._defines.USE_BATCHING) {
-            this._batchingScheme = BatchingSchemes.VB_MERGING;
         } else {
             this._batchingScheme = BatchingSchemes.NONE;
         }
@@ -770,8 +752,11 @@ export class Pass {
         return type < Type.FLOAT ? this._blocksInt[binding] : this._blocks[binding];
     }
 
-    // Only for UI
-    private _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number) {
+    /**
+     * @engineInternal
+     * Only for UI
+     */
+    public _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number) {
         this._priority = target.priority;
         this._stage = target.stage;
         this._phase = target.phase;
@@ -807,7 +792,10 @@ export class Pass {
     }
 
     // Only for UI
-    private _updatePassHash () {
+    /**
+     * @engineInternal
+     */
+    public _updatePassHash () {
         this._hash = Pass.getPassHash(this);
     }
 
@@ -833,8 +821,18 @@ export class Pass {
     get blocks (): Float32Array[] { return this._blocks; }
     get blocksInt (): Int32Array[] { return this._blocksInt; }
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
+    /**
+     * @engineInternal
+     * Currently, can not just mark setter as engine internal, so change to a function.
+     */
+    setRootBufferDirty (val: boolean) { this._rootBufferDirty = val; }
     // states
     get priority (): RenderPriority { return this._priority; }
+    /**
+     * @engineInternal
+     * Currently, can not just mark setter as engine internal, so change to a function.
+     */
+    setPriority (val: RenderPriority) { this._priority = val; }
     get primitive (): PrimitiveMode { return this._primitive; }
     get stage (): RenderPassStage { return this._stage; }
     get phase (): number { return this._phase; }

@@ -24,13 +24,16 @@
 import { _decorator } from '../../core';
 import { patch_cc_LightProbesData } from '../../native-binding/decorators';
 import { Tetrahedron, Vertex } from './delaunay';
+import type { LightProbes as JsbLightProbes, LightProbesData as JsbLightProbesData } from './light-probe';
 
-
-export const LightProbes = jsb.LightProbes;
+declare const jsb: any;
+export const LightProbes: typeof JsbLightProbes = jsb.LightProbes;
+export type LightProbes = JsbLightProbes;
 _decorator.ccclass('cc.LightProbes')(LightProbes);
 // patch_cc_LightProbes({LightProbes}); // not exists
 
-export const LightProbesData = jsb.LightProbesData;
+export const LightProbesData: typeof JsbLightProbesData = jsb.LightProbesData;
+export type LightProbesData = JsbLightProbesData;
 
 patch_cc_LightProbesData({LightProbesData, Vertex, Tetrahedron});
 

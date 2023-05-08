@@ -47,12 +47,10 @@ export const webgpuAdapter: any = {
 export const promiseForWebGPUInstantiation = (() => {
     if (WEBGPU) {
         return Promise.all([
-            // @ts-expect-error The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', or 'nodenext'.
             glslangLoader(new URL(glslangUrl, import.meta.url).href).then((res) => {
                 glslalgWasmModule.glslang = res;
             }),
             new Promise<void>((resolve) => {
-                // @ts-expect-error The 'import.meta' meta-property is only allowed when the '--module' option is 'es2020', 'es2022', 'esnext', 'system', 'node16', or 'nodenext'.
                 fetch(new URL(webgpuUrl, import.meta.url).href).then((response) => {
                     response.arrayBuffer().then((buffer) => {
                         gfx.wasmBinary = buffer;

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME } from 'internal:constants';
+import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
@@ -32,6 +32,8 @@ import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../en
 let currentPlatform: Platform;
 if (WECHAT) {
     currentPlatform = Platform.WECHAT_GAME;
+} else if (WECHAT_MINI_PROGRAM) {
+    currentPlatform = Platform.WECHAT_MINI_PROGRAM;
 } else if (BAIDU) {
     currentPlatform = Platform.BAIDU_MINI_GAME;
 } else if (XIAOMI) {
@@ -130,8 +132,9 @@ class SystemInfo extends EventTarget {
             [Feature.WEBP]: false,      // Initialize in Promise,
             [Feature.IMAGE_BITMAP]: false,
             [Feature.WEB_VIEW]: false,
-            [Feature.VIDEO_PLAYER]: WECHAT || OPPO,
-            [Feature.SAFE_AREA]: WECHAT || BYTEDANCE,
+            [Feature.VIDEO_PLAYER]: WECHAT || WECHAT_MINI_PROGRAM || OPPO,
+            [Feature.SAFE_AREA]: WECHAT || WECHAT_MINI_PROGRAM || BYTEDANCE,
+            [Feature.HPE]: false,
 
             [Feature.INPUT_TOUCH]: !isPCWechat,
             [Feature.EVENT_KEYBOARD]: isPCWechat,
@@ -161,6 +164,10 @@ class SystemInfo extends EventTarget {
 
     private _supportsWebp (): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
+            if (WECHAT_MINI_PROGRAM) {
+                resolve(true);
+                return;
+            }
             // HACK: webp base64 doesn't support on Wechat Android, which reports some internal error log.
             if (WECHAT && this.os === OS.ANDROID) {
                 resolve(false);

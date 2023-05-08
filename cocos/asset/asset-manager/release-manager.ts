@@ -277,4 +277,4 @@ class ReleaseManager {
     }
 }
 
-export default new ReleaseManager();
+export const releaseManager =  new ReleaseManager();
