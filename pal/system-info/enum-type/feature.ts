@@ -106,4 +106,10 @@ export enum Feature {
      * @zh 是否支持派发 EventHandheld
      */
     EVENT_HANDHELD = 'EVENT_HANDHELD',
+    /**
+     * @en Check whether Webassembly is supported at runtime. Generally, it needs to be checked when the constant `WASM_SUPPORT_MODE` is 2.
+     * If it is not supported, you need to fallback to the Asm solution.
+     * @zh 运行时检测是否支持 Webassembly，一般在宏 `WASM_SUPPORT_MODE` 为 2 时需要检测，如果不支持，需要回滚到 Asm 方案
+     */
+    WASM = 'WASM',
 }
