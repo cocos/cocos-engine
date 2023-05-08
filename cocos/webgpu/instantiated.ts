@@ -1,6 +1,6 @@
 /// <reference path="../../@types/consts.d.ts"/>
-/// <reference path="../../@types/external.d.ts"/>
-/// <reference path="../../@types/webgpu.d.ts"/>
+/// <reference path="../../native/external/emscripten/external-wasm.d.ts"/>
+/// <reference path="../../native/external/emscripten/webgpu/webgpu.d.ts"/>
 
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable no-void */

@@ -27,11 +27,14 @@
       "./@types/editor-extends",
       "./@types/webGL.extras",
       "./@types/webGL2.extras",
-      "./@types/external",
-      "./@types/bullet",
-      "./@types/physx",
       "./node_modules/@cocos/cannon/CANNON",
       "./node_modules/@types/jest/index",
+
+      // external types
+      "./native/external/emscripten/external-wasm",
+      "./native/external/emscripten/bullet/bullet",
+      "./native/external/emscripten/physx/physx",
+      "./native/external/emscripten/webgpu/webgpu",
 
       // pal
       "./@types/pal/system-info",
