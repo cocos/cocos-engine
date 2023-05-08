@@ -190,7 +190,7 @@ class TopLevelStateMachineEvaluation {
         const lastActivatedTransition = activatedTransitions[activatedTransitions.length - 1];
         const baseDurationState = activatedTransitions.length === 1
             ? this._currentNode
-            : activatedTransitions[activatedTransitions.length - 2].destination;
+            : activatedTransitions[activatedTransitions.length - 2].destination; // Else, the previous transition's destination state.
         const absoluteDuration = lastActivatedTransition.getAbsoluteDuration(baseDurationState);
         transitionStatus.duration = absoluteDuration;
         transitionStatus.time = lastActivatedTransition.normalizedElapsedTime * absoluteDuration;
@@ -589,7 +589,6 @@ class TopLevelStateMachineEvaluation {
     /**
      * Searches for a transition which should be performed.
      * @param sourceState The transition source state.
-     * @param useFromPort See `this._matchTransition`.
      * @returns
      */
     private _matchNextTransition (sourceState: NodeEval): TransitionEval | null {
@@ -612,10 +611,9 @@ class TopLevelStateMachineEvaluation {
     }
 
     /**
-     * Notes the real node is used:
+     * @param realNode Is used:
      * - to determinate the starting state machine from where the any states are matched;
      * - so we can solve transitions' relative durations.
-     * @param useFromPort See `_matchTransition`.
      */
     private _matchAnyScoped (realNode: VMSMInternalState) {
         for (let ancestor: StateMachineInfo | null = realNode.stateMachine;
@@ -802,7 +800,7 @@ class TopLevelStateMachineEvaluation {
         } = this;
         assertIsTrue(lastTransitionIndex >= 0 && lastTransitionIndex < activatedTransition.length);
 
-        const lenSubpath = (lastTransitionIndex - 0) + 1;
+        const lenSubpath = lastTransitionIndex + 1;
 
         const newCurrentState = activatedTransition[lastTransitionIndex].destination;
 
