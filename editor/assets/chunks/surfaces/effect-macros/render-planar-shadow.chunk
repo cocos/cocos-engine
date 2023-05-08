@@ -1,0 +1,11 @@
+// Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+
+// Rename some user macros to surface internal macros
+
+#define CC_SURFACES_USE_TANGENT_SPACE 0
+#define CC_SURFACES_USE_VERTEX_COLOR 0
+#define CC_SURFACES_USE_SECOND_UV 0
+#define CC_SURFACES_USE_LIGHT_MAP 0
+#define CC_SURFACES_TRANSFER_LOCAL_POS 0
+
+#include <surfaces/effect-macros/common-macros>

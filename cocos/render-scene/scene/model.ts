@@ -861,11 +861,6 @@ export class Model {
         }
         this._subModels[idx].initialize(subMeshData, mat.passes, this.getMacroPatches(idx));
 
-        // This is a temporary solution
-        // It should not be written in a fixed way, or modified by the user
-        this._subModels[idx].initPlanarShadowShader();
-        this._subModels[idx].initPlanarShadowInstanceShader();
-
         this._updateAttributesAndBinding(idx);
     }
 
