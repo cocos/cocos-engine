@@ -362,15 +362,39 @@ RaycastResult &PhysXWorld::raycastClosestResult() {
 }
 
 bool PhysXWorld::sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
-        float &orientationW, float &orientationX, float &orientationY, float &orientationZ) {
+        float orientationW, float orientationX, float orientationY, float orientationZ) {
     return sweep(opt, physx::PxBoxGeometry{ halfExtentX, halfExtentY, halfExtentZ}, 
         physx::PxQuat(orientationX, orientationY, orientationZ, orientationW));
 }
 
 bool PhysXWorld::sweepBoxClosest(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
-        float &orientationW, float &orientationX, float &orientationY, float &orientationZ) {
+        float orientationW, float orientationX, float orientationY, float orientationZ) {
     return sweepClosest(opt, physx::PxBoxGeometry{ halfExtentX, halfExtentY, halfExtentZ}, 
         physx::PxQuat(orientationX, orientationY, orientationZ, orientationW));
+}
+
+bool PhysXWorld::sweepSphere(RaycastOptions &opt, float radius) {
+    return sweep(opt, physx::PxSphereGeometry{ radius }, physx::PxQuat(0, 0, 0, 1));
+}
+
+bool PhysXWorld::sweepSphereClosest(RaycastOptions &opt, float radius) {
+    return sweepClosest(opt, physx::PxSphereGeometry{ radius }, physx::PxQuat(0, 0, 0, 1));
+}
+
+bool PhysXWorld::sweepCapsule(RaycastOptions &opt, float radius, float height,
+        float orientationW, float orientationX, float orientationY, float orientationZ) {
+    //add an extra 90 degree rotation to PxCapsuleGeometry whose axis is originally along the X axis
+    physx::PxQuat finalOrientation = physx::PxQuat(physx::PxPiDivTwo, physx::PxVec3{0.F, 0.F, 1.F});
+    finalOrientation = physx::PxQuat(orientationX, orientationY, orientationZ, orientationW) * finalOrientation;
+    return sweep(opt, physx::PxCapsuleGeometry{ radius, height/2.f }, finalOrientation);
+}
+
+bool PhysXWorld::sweepCapsuleClosest(RaycastOptions &opt, float radius, float height,
+        float orientationW, float orientationX, float orientationY, float orientationZ) {
+    //add an extra 90 degree rotation to PxCapsuleGeometry whose axis is originally along the X axis
+    physx::PxQuat finalOrientation = physx::PxQuat(physx::PxPiDivTwo, physx::PxVec3{0.F, 0.F, 1.F});
+    finalOrientation = physx::PxQuat(orientationX, orientationY, orientationZ, orientationW) * finalOrientation;
+    return sweepClosest(opt, physx::PxCapsuleGeometry{ radius, height/2.f }, finalOrientation);
 }
 
 bool PhysXWorld::sweep(RaycastOptions &opt, const physx::PxGeometry &geometry, const physx::PxQuat &orientation) {

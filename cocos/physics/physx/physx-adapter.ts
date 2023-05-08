@@ -556,7 +556,7 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
 }
 
 export function sweepAll (world: PhysXWorld, worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
-    options: IRaycastOptions, inflation: number, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
     const maxDistance = options.maxDistance;
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER);
@@ -571,7 +571,7 @@ export function sweepAll (world: PhysXWorld, worldRay: geometry.Ray, geometry: a
     queryfilterData.setFlags(queryFlags);
     const blocks = mutipleResults;
     const r = world.scene.sweepMultiple(geometry, getTempTransform(worldRay.o, geometryRotation), worldRay.d, maxDistance, flags,
-        blocks, blocks.size(), queryfilterData, queryFilterCB, null, inflation);
+        blocks, blocks.size(), queryfilterData, queryFilterCB, null, 0);
 
     if (r > 0) {
         for (let i = 0; i < r; i++) {
@@ -591,7 +591,7 @@ export function sweepAll (world: PhysXWorld, worldRay: geometry.Ray, geometry: a
 }
 
 export function sweepClosest (world: PhysXWorld, worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
-    options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {
+    options: IRaycastOptions, result: PhysicsRayResult): boolean {
     const maxDistance = options.maxDistance;
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER)
@@ -605,7 +605,7 @@ export function sweepClosest (world: PhysXWorld, worldRay: geometry.Ray, geometr
 
     const block = PhysXInstance.singleSweepResult;
     const r = world.scene.sweepSingle(geometry, getTempTransform(worldRay.o, geometryRotation), worldRay.d, maxDistance,
-        flags, block, queryfilterData, queryFilterCB, null, inflation);
+        flags, block, queryfilterData, queryFilterCB, null, 0);
     if (r) {
         const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
         result._assign(block.position, block.distance, collider, block.normal);

@@ -143,9 +143,15 @@ public:
     virtual ccstd::vector<RaycastResult> &raycastResult() = 0;
     virtual RaycastResult &raycastClosestResult() = 0;
     virtual bool sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
-        float &orientationW, float &orientationX, float &orientationY, float &orientationZ) = 0;
+        float orientationW, float orientationX, float orientationY, float orientationZ) = 0;
     virtual bool sweepBoxClosest(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
-        float &orientationW, float &orientationX, float &orientationY, float &orientationZ) = 0;
+        float orientationW, float orientationX, float orientationY, float orientationZ) = 0;
+    virtual bool sweepSphere(RaycastOptions &opt, float radius) = 0;
+    virtual bool sweepSphereClosest(RaycastOptions &opt, float radius) = 0;
+    virtual bool sweepCapsule(RaycastOptions &opt, float radius, float height,
+        float orientationW, float orientationX, float orientationY, float orientationZ) = 0;
+    virtual bool sweepCapsuleClosest(RaycastOptions &opt, float radius, float height,
+        float orientationW, float orientationX, float orientationY, float orientationZ) = 0;
     virtual RaycastResult &sweepClosestResult() = 0;
     virtual ccstd::vector<RaycastResult> &sweepResult() = 0;
     virtual uint32_t createConvex(ConvexDesc &desc) = 0;

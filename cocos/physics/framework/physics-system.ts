@@ -604,7 +604,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
     // }
 
     sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true, inflation = 0): boolean {
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         if (!this.physicsWorld) return false;
         this.sweepResultPool.reset();
         this.sweepCastResults.length = 0;
@@ -612,17 +612,61 @@ export class PhysicsSystem extends System implements IWorldInitData {
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
         return this.physicsWorld.sweepBox(worldRay, halfExtent, orientation,
-            this.raycastOptions, inflation, this.sweepResultPool, this.sweepCastResults);
+            this.raycastOptions, this.sweepResultPool, this.sweepCastResults);
     }
 
     sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true, inflation = 0): boolean {
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         if (!this.physicsWorld) return false;
         this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
         return this.physicsWorld.sweepBoxClosest(worldRay, halfExtent, orientation,
-            this.raycastOptions, inflation, this.sweepCastClosestResult);
+            this.raycastOptions, this.sweepCastClosestResult);
+    }
+
+    sweepSphere (worldRay: geometry.Ray, radius: number,
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (!this.physicsWorld) return false;
+        this.sweepResultPool.reset();
+        this.sweepCastResults.length = 0;
+        this.raycastOptions.mask = mask >>> 0;
+        this.raycastOptions.maxDistance = maxDistance;
+        this.raycastOptions.queryTrigger = queryTrigger;
+        return this.physicsWorld.sweepSphere(worldRay, radius,
+            this.raycastOptions, this.sweepResultPool, this.sweepCastResults);
+    }
+
+    sweepSphereClosest (worldRay: geometry.Ray, radius: number,
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (!this.physicsWorld) return false;
+        this.raycastOptions.mask = mask >>> 0;
+        this.raycastOptions.maxDistance = maxDistance;
+        this.raycastOptions.queryTrigger = queryTrigger;
+        return this.physicsWorld.sweepSphereClosest(worldRay, radius,
+            this.raycastOptions, this.sweepCastClosestResult);
+    }
+
+    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (!this.physicsWorld) return false;
+        this.sweepResultPool.reset();
+        this.sweepCastResults.length = 0;
+        this.raycastOptions.mask = mask >>> 0;
+        this.raycastOptions.maxDistance = maxDistance;
+        this.raycastOptions.queryTrigger = queryTrigger;
+        return this.physicsWorld.sweepCapsule(worldRay, radius, height, orientation,
+            this.raycastOptions, this.sweepResultPool, this.sweepCastResults);
+    }
+
+    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (!this.physicsWorld) return false;
+        this.raycastOptions.mask = mask >>> 0;
+        this.raycastOptions.maxDistance = maxDistance;
+        this.raycastOptions.queryTrigger = queryTrigger;
+        return this.physicsWorld.sweepCapsuleClosest(worldRay, radius, height, orientation,
+            this.raycastOptions, this.sweepCastClosestResult);
     }
 
     private _updateMaterial () {

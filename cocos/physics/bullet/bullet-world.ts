@@ -32,7 +32,7 @@ import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, CC_V3_2, Bu
 import { bullet2CocosVec3, cocos2BulletQuat, cocos2BulletVec3 } from './bullet-utils';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicsMaterial, CharacterControllerContact } from '../framework';
-import { error, RecyclePool, Vec3, js, IVec3Like, geometry, IQuatLike } from '../../core';
+import { error, RecyclePool, Vec3, js, IVec3Like, geometry, IQuatLike, Quat } from '../../core';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
 import { BulletCharacterController } from './character-controllers/bullet-character-controller';
@@ -127,6 +127,10 @@ export class BulletWorld implements IPhysicsWorld {
     readonly contactsDic = new TupleDictionary();
     readonly oldContactsDic = new TupleDictionary();
     readonly cctShapeEventDic = new TupleDictionary();
+
+    private static _sweepBoxGeometry: any;
+    private static _sweepSphereGeometry: any;
+    private static _sweepCapsuleGeometry: any;
 
     constructor () {
         this._broadphase = bt.DbvtBroadphase_new();
@@ -237,27 +241,75 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, inflation: number, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         // cast shape
         const hf = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(hf, halfExtent);
-        const boxShape = bt.BoxShape_new(hf);//todo reuse
+        if (!BulletWorld._sweepBoxGeometry) {
+            BulletWorld._sweepBoxGeometry =  bt.BoxShape_new(hf);
+        }
+        bt.BoxShape_setUnscaledHalfExtents(BulletWorld._sweepBoxGeometry, hf);
 
-        return this.sweep(worldRay, boxShape, orientation, options, inflation, pool, results);
+        return this.sweep(worldRay, BulletWorld._sweepBoxGeometry, orientation, options, pool, results);
     }
 
     sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
         // cast shape
         const hf = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(hf, halfExtent);
-        const boxShape = bt.BoxShape_new(hf);//todo reuse
+        if (!BulletWorld._sweepBoxGeometry) {
+            BulletWorld._sweepBoxGeometry =  bt.BoxShape_new(hf);
+        }
+        bt.BoxShape_setUnscaledHalfExtents(BulletWorld._sweepBoxGeometry, hf);
 
-        return this.sweepClosest(worldRay, boxShape, orientation, options, inflation, result);
+        return this.sweepClosest(worldRay, BulletWorld._sweepBoxGeometry, orientation, options, result);
+    }
+
+    sweepSphere (worldRay: geometry.Ray, radius: number,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        // cast shape
+        if (!BulletWorld._sweepSphereGeometry) {
+            BulletWorld._sweepSphereGeometry =  bt.SphereShape_new(radius);
+        }
+        bt.SphereShape_setUnscaledRadius(BulletWorld._sweepSphereGeometry, radius);
+        return this.sweep(worldRay, BulletWorld._sweepSphereGeometry, Quat.IDENTITY, options, pool, results);
+    }
+
+    sweepSphereClosest (worldRay: geometry.Ray, radius: number,
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        // cast shape
+        if (!BulletWorld._sweepSphereGeometry) {
+            BulletWorld._sweepSphereGeometry =  bt.SphereShape_new(radius);
+        }
+        bt.SphereShape_setUnscaledRadius(BulletWorld._sweepSphereGeometry, radius);
+
+        return this.sweepClosest(worldRay, BulletWorld._sweepSphereGeometry, Quat.IDENTITY, options, result);
+    }
+
+    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        // cast shape
+        if (!BulletWorld._sweepCapsuleGeometry) {
+            BulletWorld._sweepCapsuleGeometry =  bt.CapsuleShape_new(radius, height);
+        }
+        bt.CapsuleShape_updateProp(BulletWorld._sweepCapsuleGeometry, radius, height * 0.5, 1);
+        return this.sweep(worldRay, BulletWorld._sweepCapsuleGeometry, orientation, options, pool, results);
+    }
+
+    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        // cast shape
+        if (!BulletWorld._sweepCapsuleGeometry) {
+            BulletWorld._sweepCapsuleGeometry =  bt.CapsuleShape_new(radius, height);
+        }
+        bt.CapsuleShape_updateProp(BulletWorld._sweepCapsuleGeometry, radius, height * 0.5, 1);
+
+        return this.sweepClosest(worldRay, BulletWorld._sweepCapsuleGeometry, orientation, options, result);
     }
 
     sweep (worldRay: geometry.Ray, btShapePtr: any, orientation: IQuatLike,
-        options: IRaycastOptions, inflation: number, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         const BT_fromTransform = BulletCache.instance.BT_TRANSFORM_0;
         const BT_toTransform = BulletCache.instance.BT_TRANSFORM_1;
         const BT_orientation = BulletCache.instance.BT_QUAT_0;
@@ -293,7 +345,7 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     sweepClosest (worldRay: geometry.Ray, btShapePtr: any, orientation: IQuatLike,
-        options: IRaycastOptions, inflation: number, result: PhysicsRayResult): boolean {
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
         const BT_fromTransform = BulletCache.instance.BT_TRANSFORM_0;
         const BT_toTransform = BulletCache.instance.BT_TRANSFORM_1;
         const BT_orientation = BulletCache.instance.BT_QUAT_0;
