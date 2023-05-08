@@ -66,6 +66,7 @@ jest.mock(
     'external:emscripten/bullet/bullet.wasm',
     'external:emscripten/webgpu/webgpu_wasm.wasm',
     'external:emscripten/webgpu/glslang.wasm',
+    'external:emscripten/physx/physx.release.wasm.wasm',
 ].forEach(moduleId => {
     jest.mock(moduleId, 
         () => ({
@@ -81,6 +82,7 @@ jest.mock(
 [
     'external:emscripten/webgpu/webgpu_wasm.js',
     'external:emscripten/webgpu/glslang.js',
+    'external:emscripten/physx/physx.release.wasm.js',
 ].forEach(moduleId => {
     jest.mock(moduleId, 
         () => ({

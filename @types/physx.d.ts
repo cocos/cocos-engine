@@ -4,8 +4,12 @@ declare module 'external:emscripten/physx/physx.release.asm.js' {
   export default PhysX;
 }
 
+declare module 'external:emscripten/physx/physx.release.wasm.js' {
+  export default PhysX;
+}
+
 // tslint:disable
-declare function PhysX (): Promise<void>;
+declare function PhysX (moduleOptions?: any): Promise<void>;
 
 declare namespace PhysX {
   type Constructor<T = {}> = new (...args: any[]) => T;
