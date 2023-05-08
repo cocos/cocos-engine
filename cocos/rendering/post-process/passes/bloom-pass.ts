@@ -47,7 +47,7 @@ export class BloomPass extends SettingPass {
 
         const input = this.lastPass!.slotName(camera, 0);
         const output = 'BLOOM_PREFILTER_COLOR';
-        // Bloom prefilter
+        // prefilter pass
         outWidth >>= 1;
         outHeight >>= 1;
         passContext.material.setProperty('texSize', new Vec4(0, 0, setting.threshold, 0), 0);
@@ -58,7 +58,7 @@ export class BloomPass extends SettingPass {
             .blitScreen(0)
             .version();
 
-        // Bloom downSampler
+        // downSampler pass
         for (let i = 0; i < setting.iterations; ++i) {
             const texSize = new Vec4(outWidth, outHeight, 0, 0);
             outWidth >>= 1;
@@ -74,7 +74,7 @@ export class BloomPass extends SettingPass {
                 .version();
         }
 
-        // Bloom upSampler
+        // upSampler pass
         for (let i = 0; i < setting.iterations; ++i) {
             const texSize = new Vec4(outWidth, outHeight, 0, 0);
             outWidth <<= 1;
@@ -91,7 +91,7 @@ export class BloomPass extends SettingPass {
                 .version();
         }
 
-        // === Bloom Combine Pass ===
+        // combine Pass
         outWidth = width;
         outHeight = height;
         passContext.material.setProperty('texSize', new Vec4(0, 0, 0, setting.intensity), BLOOM_COMBINEPASS_INDEX);
