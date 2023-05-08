@@ -1,5 +1,5 @@
-import { property } from '../../../core/data/class-decorator';
-import { ccclass, disallowMultiple, executeInEditMode, menu, range, slide, tooltip, type } from '../../../core/data/decorators';
+import { ccclass, disallowMultiple, executeInEditMode, menu, range, rangeMin, serializable, slide, tooltip, type } from '../../../core/data/decorators';
+import { CCFloat, CCInteger } from '../../../core/data/utils/attribute';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.Bloom')
@@ -7,10 +7,38 @@ import { PostProcessSetting } from './post-process-setting';
 @disallowMultiple
 @executeInEditMode
 export class Bloom extends PostProcessSetting {
-    @property
-    threshold = 0.1;
-    @property
-    iterations = 2;
-    @property
-    intensity = 0.8;
+    @serializable
+    protected _threshold = 0.2;
+    @serializable
+    protected _iterations = 3;
+    @serializable
+    protected _intensity = 0.3;
+
+    @rangeMin(0)
+    @type(CCFloat)
+    set threshold (value: number) {
+        this._threshold = value;
+    }
+    get threshold () {
+        return this._threshold;
+    }
+
+    @slide
+    @range([1, 6, 1])
+    @type(CCInteger)
+    set iterations (value: number) {
+        this._iterations = value;
+    }
+    get iterations () {
+        return this._iterations;
+    }
+
+    @rangeMin(0)
+    @type(CCFloat)
+    set intensity (value: number) {
+        this._intensity = value;
+    }
+    get intensity () {
+        return this._intensity;
+    }
 }
