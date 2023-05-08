@@ -49,16 +49,24 @@ public:
     void gatherShadowPasses(scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *, uint32_t subpassID = 0);
     void destroy();
+    int getShadowPassIndex(const scene::SubModel *subModel) const;
 
 private:
     // weak reference
     RenderPipeline *_pipeline{nullptr};
     // manage memory manually
     RenderInstancedQueue *_instancedQueue{nullptr};
+
+    uint32_t _phaseID = 0;
+
     // weak reference
     ccstd::vector<const scene::Model *> _castModels;
     // weak reference
-    ccstd::vector<const scene::SubModel *> _pendingSubModels;
+    ccstd::vector<const scene::SubModel *> _subModelArray;
+    // weak reference
+    ccstd::vector<const scene::Pass *> _passArray;
+    // weak reference
+    ccstd::vector<gfx::Shader *> _shaderArray;
 };
 } // namespace pipeline
 } // namespace cc

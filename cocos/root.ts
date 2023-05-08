@@ -703,13 +703,13 @@ export class Root {
 
     private _doWebXRFrameMove () {
         const xr = globalThis.__globalXR;
-        if (!xr || !xr.webXRMatProjs) {
+        if (!xr) {
             return;
         }
 
         const windows = this._windows;
         const cameraList = this._cameraList;
-        const viewCount = xr.webXRMatProjs.length;
+        const viewCount = xr.webXRMatProjs ? xr.webXRMatProjs.length : 1;
         if (!xr.webXRWindowMap) {
             xr.webXRWindowMap = new Map<RenderWindow, number>();
         }
@@ -725,7 +725,7 @@ export class Root {
             }
 
             if (webxrHmdPoseInfos) {
-                const cameraPosition: number[] = [];
+                let cameraPosition: number[] = [0, 0, 0];
                 for (let i = 0; i < webxrHmdPoseInfos.length; i++) {
                     const info = webxrHmdPoseInfos[i];
                     if ((info.code === XRPoseType.VIEW_LEFT && xrEye === XREye.LEFT)
@@ -739,6 +739,10 @@ export class Root {
 
                 for (const cam of allcameras) {
                     if (cam.trackingType !== TrackingType.NO_TRACKING && cam.node) {
+                        const isTrackingRotation = cam.trackingType === TrackingType.ROTATION;
+                        if (isTrackingRotation) {
+                            cameraPosition = [0, 0, 0];
+                        }
                         cam.node.setPosition(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
                     }
                 }

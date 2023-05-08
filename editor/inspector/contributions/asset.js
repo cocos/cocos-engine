@@ -1,8 +1,6 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-module.paths.push(path.join(Editor.App.path, 'node_modules'));
-const { throttle } = require('lodash');
 const History = require('./asset-history/index');
 
 const showImage = ['image', 'texture', 'sprite-frame', 'gltf-mesh'];
@@ -58,37 +56,20 @@ const Elements = {
     panel: {
         ready() {
             const panel = this;
-
-            panel.throttleUpdate = throttle(() => {
-                if (!panel.readyToUpdate) {
-                    return;
-                }
-                panel.reset();
-            }, 100, { leading: false, trailing: true });
+            panel.__assetChangedHandle__ = undefined;
 
             panel.__assetChanged__ = (uuid) => {
                 if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
-                    panel.throttleUpdate();
+                    window.cancelAnimationFrame(panel.__assetChangedHandle__);
+                    panel.__assetChangedHandle__ = window.requestAnimationFrame(async () => {
+                        await panel.reset();
+                    });
                 }
             };
 
             Editor.Message.addBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
             panel.history = new History();
-
-            panel._readyToUpdate = true;
-            Object.defineProperty(panel, 'readyToUpdate', {
-                enumerable: true,
-                get() {
-                    return panel._readyToUpdate;
-                },
-                set(val) {
-                    panel._readyToUpdate = val;
-                    if (val) {
-                        panel.throttleUpdate();
-                    }
-                },
-            });
         },
         async update() {
             const panel = this;
@@ -169,8 +150,10 @@ const Elements = {
         close() {
             const panel = this;
 
-            panel.throttleUpdate.cancel();
-            panel.throttleUpdate = undefined;
+            if (panel.__assetChangedHandle__) {
+                window.cancelAnimationFrame(panel.__assetChangedHandle__);
+                panel.__assetChangedHandle__ = undefined;
+            }
 
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
@@ -515,8 +498,6 @@ exports.methods = {
             return;
         }
 
-        panel.readyToUpdate = false;
-
         // 有些资源在内部的 apply 保存数据后，会自动重导资源，自动更新 meta 数据，所以 meta 不需要再额外更新
         let continueSaveMeta = true;
 
@@ -533,7 +514,6 @@ exports.methods = {
                  * return; 是保存成功，且向上冒泡继续保存 meta
                  */
                 if (saveState === false) {
-                    panel.readyToUpdate = true;
                     return;
                 } else if (saveState === true) {
                     continueSaveMeta = false;
@@ -543,7 +523,6 @@ exports.methods = {
         panel.$.header.removeAttribute('dirty');
 
         if (continueSaveMeta === false) {
-            panel.readyToUpdate = true;
             return;
 
         }
@@ -556,8 +535,6 @@ exports.methods = {
             panel.metaListOrigin[index] = content;
             Editor.Message.request('asset-db', 'save-asset-meta', uuid, content);
         });
-
-        panel.readyToUpdate = true;
     },
     async abort() {
         const panel = this;
@@ -581,6 +558,10 @@ exports.methods = {
             for (let i = 0; i < contentRender.__panels__.length; i++) {
                 await contentRender.__panels__[i].callMethod('reset');
             }
+        }
+
+        if (panel.ready !== true) {
+            return;
         }
 
         panel.$this.update(panel.uuidList, panel.renderMap);
@@ -624,6 +605,7 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
 
 exports.ready = function ready() {
     const panel = this;
+    panel.ready = true;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -692,6 +674,7 @@ exports.beforeClose = async function beforeClose() {
 
 exports.close = async function close() {
     const panel = this;
+    panel.ready = false;
 
     for (const prop in Elements) {
         const element = Elements[prop];

@@ -58,8 +58,6 @@ export class SubModel {
     protected _inputAssembler: InputAssembler | null = null;
     protected _descriptorSet: DescriptorSet | null = null;
     protected _worldBoundDescriptorSet: DescriptorSet | null = null;
-    protected _planarInstanceShader: Shader | null = null;
-    protected _planarShader: Shader | null = null;
     protected _reflectionTex: Texture | null = null;
     protected _reflectionSampler: Sampler | null = null;
     protected _instancedAttributeBlock: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
@@ -163,22 +161,6 @@ export class SubModel {
      */
     get patches (): IMacroPatch[] | null {
         return this._patches;
-    }
-
-    /**
-     * @en The shader for rendering the planar shadow, instancing draw version.
-     * @zh 用于渲染平面阴影的着色器，适用于实例化渲染（instancing draw）
-     */
-    get planarInstanceShader (): Shader | null {
-        return this._planarInstanceShader;
-    }
-
-    /**
-     * @en The shader for rendering the planar shadow.
-     * @zh 用于渲染平面阴影的着色器。
-     */
-    get planarShader (): Shader | null {
-        return this._planarShader;
     }
 
     /**
@@ -291,33 +273,6 @@ export class SubModel {
             this.descriptorSet.bindSampler(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionSampler);
             this.descriptorSet.bindTexture(UNIFORM_REFLECTION_STORAGE_BINDING, this._reflectionTex);
         }
-    }
-
-    /**
-     * @en
-     * init planar shadow's shader
-     * @zh
-     * 平面阴影着色器初始化
-     */
-    public initPlanarShadowShader () {
-        const pipeline = (cclegacy.director.root as Root).pipeline;
-        const shadowInfo = pipeline.pipelineSceneData.shadows;
-        this._planarShader = shadowInfo.getPlanarShader(this._patches);
-    }
-
-    /**
-     * @en
-     * init planar shadow's instance shader
-     * @zh
-     * 平面阴影实例着色器初始化
-     */
-    /**
-     * @internal
-     */
-    public initPlanarShadowInstanceShader () {
-        const pipeline = (cclegacy.director.root as Root).pipeline;
-        const shadowInfo = pipeline.pipelineSceneData.shadows;
-        this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
     }
 
     /**

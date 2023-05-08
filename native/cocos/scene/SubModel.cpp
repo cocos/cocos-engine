@@ -189,32 +189,6 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd
     }
 }
 
-// TODO():
-// This is a temporary solution
-// It should not be written in a fixed way, or modified by the user
-void SubModel::initPlanarShadowShader() {
-    const auto *pipeline = Root::getInstance()->getPipeline();
-    Shadows *shadowInfo = pipeline->getPipelineSceneData()->getShadows();
-    if (shadowInfo != nullptr) {
-        _planarShader = shadowInfo->getPlanarShader(_patches);
-    } else {
-        _planarShader = nullptr;
-    }
-}
-
-// TODO():
-// This is a temporary solution
-// It should not be written in a fixed way, or modified by the user
-void SubModel::initPlanarShadowInstanceShader() {
-    const auto *pipeline = Root::getInstance()->getPipeline();
-    Shadows *shadowInfo = pipeline->getPipelineSceneData()->getShadows();
-    if (shadowInfo != nullptr) {
-        _planarInstanceShader = shadowInfo->getPlanarInstanceShader(_patches);
-    } else {
-        _planarInstanceShader = nullptr;
-    }
-}
-
 void SubModel::destroy() {
     CC_SAFE_DESTROY_NULL(_descriptorSet);
     CC_SAFE_DESTROY_NULL(_inputAssembler);

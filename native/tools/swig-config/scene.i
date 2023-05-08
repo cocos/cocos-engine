@@ -484,8 +484,6 @@ using namespace cc;
 %attribute(cc::scene::SubModel, cc::gfx::InputAssembler *, inputAssembler, getInputAssembler, setInputAssembler);
 %attribute(cc::scene::SubModel, cc::gfx::DescriptorSet *, descriptorSet, getDescriptorSet, setDescriptorSet);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::scene::IMacroPatch> &, patches, getPatches);
-%attribute(cc::scene::SubModel, cc::gfx::Shader*, planarInstanceShader, getPlanarInstanceShader, setPlanarInstanceShader);
-%attribute(cc::scene::SubModel, cc::gfx::Shader*, planarShader, getPlanarShader, setPlanarShader);
 
 %attribute(cc::scene::ShadowsInfo, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::scene::ShadowsInfo, cc::scene::ShadowType, type, getType, setType);
