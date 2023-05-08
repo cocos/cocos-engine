@@ -71,6 +71,8 @@ export function InitPhysXLibs () {
                 return initASM();
             }
         } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+            return initWASM();
+        } else {
             return initASM();
         }
     }
