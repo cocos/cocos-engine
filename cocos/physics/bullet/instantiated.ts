@@ -67,7 +67,7 @@ globalThis.Bullet = bt;
 bt.BODY_CACHE_NAME = 'body';
 
 function initWasm (wasmUrl: string) {
-    console.info('[Physics][Bullet]: Using wasm Bullet libs.');
+    console.debug('[Physics][Bullet]: Using wasm Bullet libs.');
     const infoReport = (msg: any) => { console.info(msg); };
     const memory = new WebAssembly.Memory({ initial: pageCount });
     const importObject = {
@@ -83,7 +83,7 @@ function initWasm (wasmUrl: string) {
 }
 
 function initAsm (resolve) {
-    console.info('[Physics][Bullet]: Using asmjs Bullet libs.');
+    console.debug('[Physics][Bullet]: Using asmjs Bullet libs.');
     const env: any = importFunc;
     const wasmMemory: any = {};
     wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);

@@ -57,7 +57,7 @@ game.onPostInfrastructureInitDelegate.add(InitPhysXLibs);
 
 export function InitPhysXLibs () {
     if (USE_BYTEDANCE) {
-        if (!EDITOR && !TEST) console.info('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
+        if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
         Object.assign(PX, globalThis.nativePhysX);
         Object.assign(_pxtrans, new PX.Transform(_v3, _v4));
         _pxtrans.setPosition = PX.Transform.prototype.setPosition.bind(_pxtrans);
@@ -82,7 +82,7 @@ function initASM () {
     globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : asmFactory;
     if (globalThis.PhysX != null) {
         return globalThis.PhysX().then((Instance: any) => {
-            if (!EDITOR && !TEST) console.info('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX asm libs loaded.`);
+            if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX asm libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
             Object.assign(PX, Instance);
@@ -106,7 +106,7 @@ function initWASM () {
                 });
             },
         }).then((Instance: any) => {
-            if (!EDITOR && !TEST) console.info('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX wasm libs loaded.`);
+            if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX wasm libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
             Object.assign(PX, Instance);
