@@ -106,9 +106,14 @@ struct ResourceAccessNode {
     struct ResourceAccessNode* nextSubpass{nullptr};
 };
 
+struct LayoutAccess {
+    gfx::AccessFlagBit prevAccess{gfx::AccessFlagBit::NONE};
+    gfx::AccessFlagBit nextAccess{gfx::AccessFlagBit::NONE};
+};
+
 struct FGRenderPassInfo {
-    std::vector<std::pair<gfx::AccessFlags/*prev*/,gfx::AccessFlags/*next*/>> colorAccesses;
-    std::pair<gfx::AccessFlags/*prev*/,gfx::AccessFlags/*next*/> dsAccess;
+    std::vector<LayoutAccess> colorAccesses;
+    LayoutAccess dsAccess;
     gfx::RenderPassInfo rpInfo;
 };
 

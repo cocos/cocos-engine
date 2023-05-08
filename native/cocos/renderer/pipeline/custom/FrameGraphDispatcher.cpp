@@ -1149,12 +1149,12 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
             auto &colorAttachments = fgRenderpassInfo.rpInfo.colorAttachments;
             for (uint32_t i = 0; i < colorAttachments.size(); ++i) {
                 const auto &colorAccess = fgRenderpassInfo.colorAccesses[i];
-                colorAttachments[i].barrier = getGeneralBarrier(cc::gfx::Device::getInstance(), colorAccess.first, colorAccess.second);
+                colorAttachments[i].barrier = getGeneralBarrier(cc::gfx::Device::getInstance(), colorAccess.prevAccess, colorAccess.nextAccess);
             }
             auto &dsAttachment = fgRenderpassInfo.rpInfo.depthStencilAttachment;
             if (dsAttachment.format != gfx::Format::UNKNOWN) {
                 const auto &dsAccess = fgRenderpassInfo.dsAccess;
-                dsAttachment.barrier = getGeneralBarrier(cc::gfx::Device::getInstance(), dsAccess.first, dsAccess.second);
+                dsAttachment.barrier = getGeneralBarrier(cc::gfx::Device::getInstance(), dsAccess.prevAccess, dsAccess.nextAccess);
             }
         }
     }
@@ -2112,12 +2112,12 @@ void processRasterPass(const Graphs &graphs, uint32_t passID, const RasterPass &
                         subpassInfo.inputs.emplace_back(index);
                     }
                 }
-                fgRenderpassInfo.colorAccesses[index].first = prevAccess;
-                fgRenderpassInfo.colorAccesses[index].second = nextAccess;
+                fgRenderpassInfo.colorAccesses[index].prevAccess = prevAccess;
+                fgRenderpassInfo.colorAccesses[index].nextAccess = nextAccess;
             } else {
                 subpassInfo.depthStencil = pass.rasterViews.size() - 1;
-                fgRenderpassInfo.dsAccess.first = prevAccess;
-                fgRenderpassInfo.dsAccess.second = nextAccess;
+                fgRenderpassInfo.dsAccess.prevAccess = prevAccess;
+                fgRenderpassInfo.dsAccess.nextAccess = nextAccess;
             }
             fillRenderPassInfo(view, rpInfo, index, viewDesc);
         }
@@ -2219,10 +2219,10 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
                     subpassInfo.inputs.emplace_back(slot);
                 }
             }
-            fgRenderpassInfo.colorAccesses[slot].second = nextAccess;
+            fgRenderpassInfo.colorAccesses[slot].nextAccess = nextAccess;
         } else {
             dsIndex = slotID;
-            fgRenderpassInfo.dsAccess.second = nextAccess;
+            fgRenderpassInfo.dsAccess.nextAccess = nextAccess;
             subpassInfo.depthStencil = rpInfo.colorAttachments.size();
         }
 
@@ -2236,9 +2236,9 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
             auto nextAccess = head->attachmentStatus[slot].accessFlag;
 
             if (view.attachmentType == AttachmentType::DEPTH_STENCIL) {
-                fgRenderpassInfo.dsAccess.first = prevAccess;
+                fgRenderpassInfo.dsAccess.prevAccess = prevAccess;
             } else {
-                fgRenderpassInfo.colorAccesses[slot].first = prevAccess;
+                fgRenderpassInfo.colorAccesses[slot].prevAccess = prevAccess;
             }
             fillRenderPassInfo(view, rpInfo, slot, viewDesc);
         }
