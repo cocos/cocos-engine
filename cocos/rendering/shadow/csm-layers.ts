@@ -403,8 +403,5 @@ export class CSMLayers {
         const rotation = cameraNode.getWorldRotation();
 
         Mat4.fromRT(out, rotation, position);
-        out.m08 *= -1.0;
-        out.m09 *= -1.0;
-        out.m10 *= -1.0;
     }
 }

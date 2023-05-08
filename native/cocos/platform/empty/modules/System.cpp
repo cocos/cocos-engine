@@ -59,7 +59,7 @@ System::LanguageType System::getLanguageTypeByISO2(const char *code) const {
     return ret;
 }
 
-void System::copyTextToClipboard(const ccstd::string& text) {
+void System::copyTextToClipboard(const ccstd::string &text) {
     // TODO
 }
 

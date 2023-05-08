@@ -24,7 +24,7 @@
 
 import { _decorator, RealCurve } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
-import { Channel, RealChannel, RuntimeBinding, Track } from './track';
+import { Channel, RealChannel, RuntimeBinding, Track, TrackEval } from './track';
 
 const { ccclass, serializable } = _decorator;
 
@@ -81,14 +81,18 @@ export class RealArrayTrack extends Track {
     private _channels: RealChannel[] = [];
 }
 
-export class RealArrayTrackEval {
+export class RealArrayTrackEval implements TrackEval<readonly number[]> {
     constructor (
         private _curves: RealCurve[],
     ) {
         this._result = new Array(_curves.length).fill(0.0);
     }
 
-    public evaluate (time: number, _runtimeBinding: RuntimeBinding) {
+    public get requiresDefault () {
+        return false;
+    }
+
+    public evaluate (time: number) {
         const {
             _result: result,
         } = this;

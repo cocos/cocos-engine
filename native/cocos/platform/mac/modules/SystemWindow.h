@@ -56,9 +56,10 @@ public:
      @brief enable/disable(lock) the cursor, default is enabled
      */
     void setCursorEnabled(bool value) override;
-    
+
     bool isPointerLock() const;
     void setLastMousePos(float x, float y);
+
 private:
     bool _pointerLock{false};
     float _lastMousePosX{0.0F};

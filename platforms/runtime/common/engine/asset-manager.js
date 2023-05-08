@@ -1,5 +1,6 @@
 const cacheManager = require('./cache-manager');
 const { downloadFile, readText, readArrayBuffer, readJson, loadSubpackage, getUserDataPath, _subpackagesPath } = require('./fs-utils');
+
 cc.assetManager.fsUtils = ral.fsUtils;
 
 const REGEX = /^https?:\/\/.*/;
@@ -7,15 +8,15 @@ const REGEX = /^https?:\/\/.*/;
 const downloader = cc.assetManager.downloader;
 const parser = cc.assetManager.parser;
 const presets = cc.assetManager.presets;
-downloader.maxConcurrency = 8;
+downloader.maxConcurrency = 12;
 downloader.maxRequestsPerFrame = 64;
-presets['scene'].maxConcurrency = 10;
-presets['scene'].maxRequestsPerFrame = 64;
+presets.scene.maxConcurrency = 12;
+presets.scene.maxRequestsPerFrame = 64;
 
-let subpackages = {};
+const subpackages = {};
 const loadedScripts = {};
 
-function downloadScript(url, options, onComplete) {
+function downloadScript (url, options, onComplete) {
     if (REGEX.test(url)) {
         onComplete && onComplete(new Error('Can not load remote scripts'));
         return;
@@ -28,28 +29,26 @@ function downloadScript(url, options, onComplete) {
     onComplete && onComplete(null);
 }
 
-function handleZip(url, options, onComplete) {
-    let cachedUnzip = cacheManager.cachedFiles.get(url);
+function handleZip (url, options, onComplete) {
+    const cachedUnzip = cacheManager.cachedFiles.get(url);
     if (cachedUnzip) {
         cacheManager.updateLastTime(url);
         onComplete && onComplete(null, cachedUnzip.url);
-    }
-    else if (REGEX.test(url)) {
-        downloadFile(url, null, options.header, options.onFileProgress, function (err, downloadedZipPath) {
+    } else if (REGEX.test(url)) {
+        downloadFile(url, null, options.header, options.onFileProgress, (err, downloadedZipPath) => {
             if (err) {
                 onComplete && onComplete(err);
                 return;
             }
             cacheManager.unzipAndCacheBundle(url, downloadedZipPath, options.__cacheBundleRoot__, onComplete);
         });
-    }
-    else {
+    } else {
         cacheManager.unzipAndCacheBundle(url, url, options.__cacheBundleRoot__, onComplete);
     }
 }
 
 function loadAudioPlayer (url, options, onComplete) {
-    cc.AudioPlayer.load(url).then(player => {
+    cc.AudioPlayer.load(url).then((player) => {
         const audioMeta = {
             player,
             url,
@@ -57,32 +56,30 @@ function loadAudioPlayer (url, options, onComplete) {
             type: player.type,
         };
         onComplete(null, audioMeta);
-    }).catch(err => {
+    }).catch((err) => {
         onComplete(err);
     });
 }
 
-function download(url, func, options, onFileProgress, onComplete) {
-    var result = transformUrl(url, options);
+function download (url, func, options, onFileProgress, onComplete) {
+    const result = transformUrl(url, options);
     if (result.inLocal) {
         func(result.url, options, onComplete);
-    }
-    else if (result.inCache) {
+    } else if (result.inCache) {
         cacheManager.updateLastTime(url);
-        func(result.url, options, function (err, data) {
+        func(result.url, options, (err, data) => {
             if (err) {
                 cacheManager.removeCache(url);
             }
             onComplete(err, data);
         });
-    }
-    else {
-        downloadFile(url, null, options.header, onFileProgress, function (err, path) {
+    } else {
+        downloadFile(url, null, options.header, onFileProgress, (err, path) => {
             if (err) {
                 onComplete(err, null);
                 return;
             }
-            func(path, options, function (err, data) {
+            func(path, options, (err, data) => {
                 if (!err) {
                     cacheManager.tempFiles.add(url, path);
                     cacheManager.cacheFile(url, path, options.cacheEnabled, options.__cacheBundleRoot__, true);
@@ -93,100 +90,95 @@ function download(url, func, options, onFileProgress, onComplete) {
     }
 }
 
-function parseArrayBuffer(url, options, onComplete) {
+function parseArrayBuffer (url, options, onComplete) {
     readArrayBuffer(url, onComplete);
 }
 
-function parseText(url, options, onComplete) {
+function parseText (url, options, onComplete) {
     readText(url, onComplete);
 }
 
-function parseJson(url, options, onComplete) {
+function parseJson (url, options, onComplete) {
     readJson(url, onComplete);
 }
 
-function downloadText(url, options, onComplete) {
+function downloadText (url, options, onComplete) {
     download(url, parseText, options, options.onFileProgress, onComplete);
 }
 
-function downloadJson(url, options, onComplete) {
+function downloadJson (url, options, onComplete) {
     download(url, parseJson, options, options.onFileProgress, onComplete);
 }
 
-function loadFont(url, options, onComplete) {
-    let fontFamilyName = _getFontFamily(url);
+function loadFont (url, options, onComplete) {
+    const fontFamilyName = _getFontFamily(url);
 
-    let fontFace = new FontFace(fontFamilyName, "url('" + url + "')");
+    const fontFace = new FontFace(fontFamilyName, `url('${url}')`);
     document.fonts.add(fontFace);
 
     fontFace.load();
-    fontFace.loaded.then(function () {
+    fontFace.loaded.then(() => {
         onComplete(null, fontFamilyName);
-    }, function () {
+    }, () => {
         cc.warnID(4933, fontFamilyName);
         onComplete(null, fontFamilyName);
     });
 }
 
-function _getFontFamily(fontHandle) {
-    var ttfIndex = fontHandle.lastIndexOf(".ttf");
+function _getFontFamily (fontHandle) {
+    let ttfIndex = fontHandle.lastIndexOf('.ttf');
     if (ttfIndex === -1) {
-        ttfIndex = fontHandle.lastIndexOf(".tmp");
+        ttfIndex = fontHandle.lastIndexOf('.tmp');
     }
     if (ttfIndex === -1) return fontHandle;
 
-    var slashPos = fontHandle.lastIndexOf("/");
-    var fontFamilyName;
+    const slashPos = fontHandle.lastIndexOf('/');
+    let fontFamilyName;
     if (slashPos === -1) {
-        fontFamilyName = fontHandle.substring(0, ttfIndex) + "_LABEL";
+        fontFamilyName = `${fontHandle.substring(0, ttfIndex)}_LABEL`;
     } else {
-        fontFamilyName = fontHandle.substring(slashPos + 1, ttfIndex) + "_LABEL";
+        fontFamilyName = `${fontHandle.substring(slashPos + 1, ttfIndex)}_LABEL`;
     }
     return fontFamilyName;
 }
 
-function doNothing(content, options, onComplete) { onComplete(null, content); }
+function doNothing (content, options, onComplete) { onComplete(null, content); }
 
-function downloadAsset(url, options, onComplete) {
+function downloadAsset (url, options, onComplete) {
     download(url, doNothing, options, options.onFileProgress, onComplete);
 }
 
-function downloadBundle(nameOrUrl, options, onComplete) {
-    let bundleName = cc.path.basename(nameOrUrl);
-    var version = options.version || cc.assetManager.downloader.bundleVers[bundleName];
-    let suffix = version ? version + '.' : '';
+function downloadBundle (nameOrUrl, options, onComplete) {
+    const bundleName = cc.path.basename(nameOrUrl);
+    const version = options.version || cc.assetManager.downloader.bundleVers[bundleName];
+    const suffix = version ? `${version}.` : '';
 
     if (subpackages[bundleName]) {
         var config = `${_subpackagesPath}${bundleName}/config.${suffix}json`;
-        loadSubpackage(bundleName, options.onFileProgress, function (err) {
+        loadSubpackage(bundleName, options.onFileProgress, (err) => {
             if (err) {
                 onComplete(err, null);
                 return;
             }
-            downloadJson(config, options, function (err, data) {
+            downloadJson(config, options, (err, data) => {
                 data && (data.base = `${_subpackagesPath}${bundleName}/`);
                 onComplete(err, data);
             });
         });
-    }
-    else {
-        let js, url;
+    } else {
+        let js; let url;
         if (REGEX.test(nameOrUrl) || nameOrUrl.startsWith(getUserDataPath())) {
             url = nameOrUrl;
             js = `src/bundle-scripts/${bundleName}/index.${suffix}js`;
             cacheManager.makeBundleFolder(bundleName);
-        }
-        else {
-            if (downloader.remoteBundles.indexOf(bundleName) !== -1) {
+        } else if (downloader.remoteBundles.indexOf(bundleName) !== -1) {
                 url = `${downloader.remoteServerAddress}remote/${bundleName}`;
                 js = `src/bundle-scripts/${bundleName}/index.${suffix}js`;
                 cacheManager.makeBundleFolder(bundleName);
-            }
-            else {
+            } else {
                 url = `assets/${bundleName}`;
                 js = `assets/${bundleName}/index.${suffix}js`;
             }
-        }
 
         if (!loadedScripts[js]) {
             require(js);
@@ -195,30 +187,29 @@ function downloadBundle(nameOrUrl, options, onComplete) {
 
         options.__cacheBundleRoot__ = bundleName;
         var config = `${url}/config.${suffix}json`;
-        downloadJson(config, options, function (err, data) {
+        downloadJson(config, options, (err, data) => {
             if (err) {
                 onComplete && onComplete(err);
                 return;
             }
             if (data.isZip) {
-                let zipVersion = data.zipVersion;
-                let zipUrl = `${url}/res.${zipVersion ? zipVersion + '.' : ''}zip`;
-                handleZip(zipUrl, options, function (err, unzipPath) {
+                const zipVersion = data.zipVersion;
+                const zipUrl = `${url}/res.${zipVersion ? `${zipVersion}.` : ''}zip`;
+                handleZip(zipUrl, options, (err, unzipPath) => {
                     if (err) {
                         onComplete && onComplete(err);
                         return;
                     }
-                    data.base = unzipPath + '/res/';
+                    data.base = `${unzipPath}/res/`;
                     onComplete && onComplete(null, data);
                 });
-            }
-            else {
-                data.base = url + '/';
+            } else {
+                data.base = `${url}/`;
                 onComplete && onComplete(null, data);
             }
         });
     }
-};
+}
 
 const downloadCCON = (url, options, onComplete) => {
     downloadJson(url, options, (err, json) => {
@@ -265,32 +256,32 @@ function downloadArrayBuffer (url, options, onComplete) {
 }
 
 const originParsePVRTex = parser.parsePVRTex;
-let parsePVRTex = function (file, options, onComplete) {
-    readArrayBuffer(file, function (err, data) {
+const parsePVRTex = function (file, options, onComplete) {
+    readArrayBuffer(file, (err, data) => {
         if (err) return onComplete(err);
         originParsePVRTex(data, options, onComplete);
     });
 };
 
 const originParsePKMTex = parser.parsePKMTex;
-let parsePKMTex = function (file, options, onComplete) {
-    readArrayBuffer(file, function (err, data) {
+const parsePKMTex = function (file, options, onComplete) {
+    readArrayBuffer(file, (err, data) => {
         if (err) return onComplete(err);
         originParsePKMTex(data, options, onComplete);
     });
 };
 
 const originParseASTCTex = parser.parseASTCTex;
-let parseASTCTex = function (file, options, onComplete) {
-    readArrayBuffer(file, function (err, data) {
+const parseASTCTex = function (file, options, onComplete) {
+    readArrayBuffer(file, (err, data) => {
         if (err) return onComplete(err);
         originParseASTCTex(data, options, onComplete);
     });
 };
 
 const originParsePlist = parser.parsePlist;
-let parsePlist = function (url, options, onComplete) {
-    readText(url, function (err, file) {
+const parsePlist = function (url, options, onComplete) {
+    readText(url, (err, file) => {
         if (err) return onComplete(err);
         originParsePlist(file, options, onComplete);
     });
@@ -363,9 +354,9 @@ downloader.register({
     '.rm': downloadAsset,
     '.rmvb': downloadAsset,
 
-    'bundle': downloadBundle,
+    bundle: downloadBundle,
 
-    'default': downloadText,
+    default: downloadText,
 });
 
 parser.register({
@@ -416,44 +407,40 @@ parser.register({
 });
 
 var transformUrl = function (url, options) {
-    var inLocal = false;
-    var inCache = false;
-    var isInUserDataPath = url.startsWith(getUserDataPath());
+    let inLocal = false;
+    let inCache = false;
+    const isInUserDataPath = url.startsWith(getUserDataPath());
     if (isInUserDataPath) {
         inLocal = true;
-    }
-    else if (REGEX.test(url)) {
+    } else if (REGEX.test(url)) {
         if (!options.reload) {
-            var cache = cacheManager.cachedFiles.get(url);
+            const cache = cacheManager.cachedFiles.get(url);
             if (cache) {
                 inCache = true;
                 url = cache.url;
-            }
-            else {
-                var tempUrl = cacheManager.tempFiles.get(url);
+            } else {
+                const tempUrl = cacheManager.tempFiles.get(url);
                 if (tempUrl) {
                     inLocal = true;
                     url = tempUrl;
                 }
             }
         }
-    }
-    else {
+    } else {
         inLocal = true;
     }
     return { url, inLocal, inCache };
-}
+};
 
-cc.assetManager.transformPipeline.append(function (task) {
-    var input = task.output = task.input;
-    for (var i = 0, l = input.length; i < l; i++) {
-        var item = input[i];
-        var options = item.options;
+cc.assetManager.transformPipeline.append((task) => {
+    const input = task.output = task.input;
+    for (let i = 0, l = input.length; i < l; i++) {
+        const item = input[i];
+        const options = item.options;
         if (!item.config) {
             if (item.ext === 'bundle') continue;
             options.cacheEnabled = options.cacheEnabled !== undefined ? options.cacheEnabled : false;
-        }
-        else {
+        } else {
             options.__cacheBundleRoot__ = item.config.name;
         }
         if (item.ext === '.cconb') {
@@ -464,10 +451,10 @@ cc.assetManager.transformPipeline.append(function (task) {
     }
 });
 
-var originInit = cc.assetManager.init;
+const originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
     originInit.call(cc.assetManager, options);
     const subpacks = cc.settings.querySettings('assets', 'subpackages');
-    subpacks && subpacks.forEach(x => subpackages[x] = `${_subpackagesPath}` + x);
+    subpacks && subpacks.forEach((x) => subpackages[x] = `${_subpackagesPath}${x}`);
     cacheManager.init();
 };

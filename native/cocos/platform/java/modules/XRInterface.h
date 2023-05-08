@@ -100,8 +100,10 @@ public:
     void bindXREyeWithRenderWindow(void *window, xr::XREye eye) override;
     void handleAppCommand(int appCmd) override;
     void adaptOrthographicMatrix(cc::scene::Camera *camera, const ccstd::array<float, 4> &preTransform, Mat4 &proj, Mat4 &view) override;
+
 private:
-    void loadAssetsImage(const std::string &imageInfo);
+    void loadImageTrackingData(const std::string &imageInfo);
+    void asyncLoadAssetsImage(const std::string &imagePath);
     void dispatchGamepadEventInternal(const xr::XRControllerEvent &xrControllerEvent);
     void dispatchHandleEventInternal(const xr::XRControllerEvent &xrControllerEvent);
     void dispatchHMDEventInternal(const xr::XRControllerEvent &xrControllerEvent);
@@ -131,6 +133,7 @@ private:
     cc::IntrusivePtr<XRRemotePreviewManager> _xrRemotePreviewManager{nullptr};
 #endif
     LegacyThreadPool *_gThreadPool{nullptr};
+    bool _isFlipPixelY{false};
     bool _isEnabledEyeRenderJsCallback{false};
 };
 

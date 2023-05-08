@@ -35,12 +35,13 @@ class Pass;
 class Light;
 class SpotLight;
 class SphereLight;
+class PointLight;
+class RangedDirectionalLight;
 } // namespace scene
 namespace pipeline {
 struct RenderObject;
 class RenderPipeline;
 class RenderInstancedQueue;
-class RenderBatchedQueue;
 class ForwardPipeline;
 
 struct AdditiveLightPass {
@@ -62,6 +63,8 @@ public:
 private:
     static bool cullSphereLight(const scene::SphereLight *light, const scene::Model *model);
     static bool cullSpotLight(const scene::SpotLight *light, const scene::Model *model);
+    static bool cullPointLight(const scene::PointLight *light, const scene::Model *model);
+    static bool cullRangedDirLight(const scene::RangedDirectionalLight *light, const scene::Model *model);
 
     void clear();
     void addRenderQueue(scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx);
@@ -84,7 +87,6 @@ private:
     float _lightMeterScale{10000.0F};
 
     AdditiveLightPass _instancedLightPass;
-    AdditiveLightPass _batchedLightPass;
 
     ccstd::vector<uint32_t> _dynamicOffsets;
     ccstd::vector<uint32_t> _lightIndices;
@@ -96,8 +98,6 @@ private:
     ccstd::vector<const scene::Light *> _validPunctualLights;
 
     ccstd::vector<IntrusivePtr<RenderInstancedQueue>> _instancedQueues;
-
-    ccstd::vector<IntrusivePtr<RenderBatchedQueue>> _batchedQueues;
 
     ccstd::vector<AdditiveLightPass> _lightPasses;
 

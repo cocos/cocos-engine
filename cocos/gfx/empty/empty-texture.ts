@@ -59,5 +59,8 @@ export class EmptyTexture extends Texture {
         this._info.width = width;
         this._info.height = height;
     }
-    protected initAsSwapchainTexture (info: ISwapchainTextureInfo) {}
+    /**
+     * @engineInternal
+     */
+    public initAsSwapchainTexture (info: ISwapchainTextureInfo) {}
 }

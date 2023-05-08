@@ -21,8 +21,10 @@
  THE SOFTWARE.
 */
 
-import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep,
-    editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
+import {
+    ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep,
+    editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName,
+} from 'cc.decorator';
 import { BAIDU } from 'internal:constants';
 import { TextureCube } from '../asset/assets/texture-cube';
 import { CCFloat, CCInteger } from '../core/data/utils/attribute';
@@ -647,7 +649,7 @@ export class FogInfo {
      */
     @editable
     @tooltip('i18n:fog.fogColor')
-    set fogColor (val: Color) {
+    set fogColor (val: Readonly<Color>) {
         this._fogColor.set(val);
         if (this._resource) { this._resource.fogColor = this._fogColor; }
     }
@@ -865,7 +867,7 @@ export class ShadowsInfo {
      */
     @tooltip('i18n:shadow.shadowColor')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
-    set shadowColor (val: Color) {
+    set shadowColor (val: Readonly<Color>) {
         this._shadowColor.set(val);
         if (this._resource) { this._resource.shadowColor = val; }
     }
@@ -879,7 +881,7 @@ export class ShadowsInfo {
      */
     @tooltip('i18n:shadow.planeDirection')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
-    set planeDirection (val: Vec3) {
+    set planeDirection (val: Readonly<Vec3>) {
         Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
     }
@@ -1233,6 +1235,25 @@ export class LightProbeInfo {
         return this._data;
     }
 
+    /**
+     * @en The value of all light probe sphere display size
+     * @zh 光照探针全局显示大小
+     */
+    @editable
+    @range([0, 100, 1])
+    @type(CCFloat)
+    @tooltip('i18n:light_probe.lightProbeSphereVolume')
+    set lightProbeSphereVolume (val: number) {
+        if (this._lightProbeSphereVolume === val) return;
+        this._lightProbeSphereVolume = val;
+        if (this._resource) {
+            this._resource.lightProbeSphereVolume = val;
+        }
+    }
+    get lightProbeSphereVolume (): number {
+        return this._lightProbeSphereVolume;
+    }
+
     @serializable
     protected _giScale = 1.0;
     @serializable
@@ -1249,6 +1270,8 @@ export class LightProbeInfo {
     protected _showConvex = false;
     @serializable
     protected _data: LightProbesData | null = null;
+    @serializable
+    protected _lightProbeSphereVolume = 1.0;
 
     protected _nodes: ILightProbeNode[] = [];
     protected _scene: Scene | null = null;
@@ -1486,13 +1509,13 @@ export class SceneGlobals {
     @serializable
     public bakedWithStationaryMainLight = false;
 
-     /**
-     * @en bake lightmap with highp mode
-     * @zh 是否使用高精度模式烘培光照图
-     */
-     @editable
-     @serializable
-     public bakedWithHighpLightmap = false;
+    /**
+    * @en bake lightmap with highp mode
+    * @zh 是否使用高精度模式烘培光照图
+    */
+    @editable
+    @serializable
+    public bakedWithHighpLightmap = false;
 
     /**
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.

@@ -1020,5 +1020,5 @@ public:
 // clang-format on
 
 #ifdef _MSC_VER
-#pragma warning(pop)
+    #pragma warning(pop)
 #endif

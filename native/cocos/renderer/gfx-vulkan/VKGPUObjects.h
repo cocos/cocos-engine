@@ -775,9 +775,10 @@ private:
  */
 class CCVKGPUStagingBufferPool final {
 public:
-    static constexpr size_t CHUNK_SIZE = 16 * 1024 * 1024; // 16M per block by default
+    static constexpr VkDeviceSize CHUNK_SIZE = 16 * 1024 * 1024; // 16M per block by default
 
     explicit CCVKGPUStagingBufferPool(CCVKGPUDevice *device)
+
     : _device(device) {
     }
 
@@ -796,7 +797,7 @@ public:
         for (size_t idx = 0U; idx < bufferCount; idx++) {
             Buffer *cur = &_pool[idx];
             offset = roundUp(cur->curOffset, alignment);
-            if (CHUNK_SIZE - offset >= size) {
+            if (size + offset <= CHUNK_SIZE) {
                 buffer = cur;
                 break;
             }

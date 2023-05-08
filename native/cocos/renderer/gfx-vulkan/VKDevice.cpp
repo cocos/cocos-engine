@@ -31,6 +31,7 @@
 #include "VKFramebuffer.h"
 #include "VKGPUObjects.h"
 #include "VKInputAssembler.h"
+#include "VKPipelineCache.h"
 #include "VKPipelineLayout.h"
 #include "VKPipelineState.h"
 #include "VKQueryPool.h"
@@ -39,7 +40,6 @@
 #include "VKShader.h"
 #include "VKSwapchain.h"
 #include "VKTexture.h"
-#include "VKPipelineCache.h"
 #include "VKUtils.h"
 #include "base/Utils.h"
 #include "gfx-base/GFXDef-common.h"
@@ -805,8 +805,7 @@ void CCVKDevice::initFormatFeature() {
     }
 }
 
-void CCVKDevice::initExtensionCapability()
-{
+void CCVKDevice::initExtensionCapability() {
     _caps.supportVariableRateShading = checkExtension(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME);
     _caps.supportVariableRateShading &= _gpuContext->physicalDeviceFragmentShadingRateFeatures.pipelineFragmentShadingRate &&
                                         _gpuContext->physicalDeviceFragmentShadingRateFeatures.attachmentFragmentShadingRate;

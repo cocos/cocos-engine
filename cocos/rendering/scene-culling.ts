@@ -30,9 +30,12 @@ import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
+import { AABB } from '../core/geometry';
 
 const _tempVec3 = new Vec3();
 const _sphere = geometry.Sphere.create(0, 0, 0, 1);
+const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+const _tmpBoundingBox = new AABB();
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 
@@ -77,9 +80,31 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
             validPunctualLights.push(light);
         }
     }
+
+    const { pointLights } = camera.scene!;
+    for (let i = 0; i < pointLights.length; i++) {
+        const light = pointLights[i];
+        if (light.baked) {
+            continue;
+        }
+        geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
+
+    const { rangedDirLights } = camera.scene!;
+    for (let i = 0; i < rangedDirLights.length; i++) {
+        const light = rangedDirLights[i];
+        AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+        if (geometry.intersect.aabbFrustum(_tmpBoundingBox, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
     // in jsb, std::vector is not synchronized, so we need to assign it manually
     sceneData.validPunctualLights = validPunctualLights;
 }
+
 export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
     const scene = camera.scene!;
     const mainLight = scene.mainLight!;

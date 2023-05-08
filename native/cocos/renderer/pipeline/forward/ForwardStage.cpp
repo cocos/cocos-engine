@@ -23,7 +23,6 @@
 ****************************************************************************/
 
 #include "ForwardStage.h"
-#include "../BatchedBuffer.h"
 #if CC_USE_GEOMETRY_RENDERER
     #include "../GeometryRenderer.h"
 #endif
@@ -32,7 +31,6 @@
 #include "../PipelineUBO.h"
 #include "../PlanarShadowQueue.h"
 #include "../RenderAdditiveLightQueue.h"
-#include "../RenderBatchedQueue.h"
 #include "../RenderInstancedQueue.h"
 #include "../RenderQueue.h"
 #include "../helper/Utils.h"
@@ -56,7 +54,6 @@ RenderStageInfo ForwardStage::initInfo = {
 const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::initInfo; }
 
 ForwardStage::ForwardStage() {
-    _batchedQueue = ccnew RenderBatchedQueue;
     _instancedQueue = ccnew RenderInstancedQueue;
     _uiPhase = ccnew UIPhase;
 }
@@ -86,7 +83,6 @@ void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 }
 
 void ForwardStage::destroy() {
-    CC_SAFE_DELETE(_batchedQueue);
     CC_SAFE_DELETE(_instancedQueue);
     CC_SAFE_DELETE(_additiveLightQueue);
     CC_SAFE_DESTROY_AND_DELETE(_planarShadowQueue);
@@ -98,7 +94,6 @@ void ForwardStage::dispenseRenderObject2Queues() {
     if (!_pipeline->isRenderQueueReset()) return;
 
     _instancedQueue->clear();
-    _batchedQueue->clear();
 
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto &renderObjects = sceneData->getRenderObjects();
@@ -122,10 +117,6 @@ void ForwardStage::dispenseRenderObject2Queues() {
                     auto *instancedBuffer = pass->getInstancedBuffer();
                     instancedBuffer->merge(subModel, passIdx);
                     _instancedQueue->add(instancedBuffer);
-                } else if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
-                    auto *batchedBuffer = pass->getBatchedBuffer();
-                    batchedBuffer->merge(subModel, passIdx, model);
-                    _batchedQueue->add(batchedBuffer);
                 } else {
                     for (auto *renderQueue : _renderQueues) {
                         renderQueue->insertRenderPass(ro, subModelIdx, passIdx);
@@ -159,7 +150,6 @@ void ForwardStage::render(scene::Camera *camera) {
     pipeline->getPipelineUBO()->updateShadowUBO(camera);
 
     _instancedQueue->uploadBuffers(cmdBuff);
-    _batchedQueue->uploadBuffers(cmdBuff);
     _additiveLightQueue->gatherLightPasses(camera, cmdBuff);
     _planarShadowQueue->gatherShadowPasses(camera, cmdBuff);
     auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
@@ -263,8 +253,6 @@ void ForwardStage::render(scene::Camera *camera) {
         if (!_pipeline->getPipelineSceneData()->getRenderObjects().empty()) {
             _renderQueues[0]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
             _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-            _batchedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-
             _additiveLightQueue->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
 
             cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), 1, &offset);

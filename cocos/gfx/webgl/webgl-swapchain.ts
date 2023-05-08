@@ -265,7 +265,6 @@ export class WebGLSwapchain extends Swapchain {
         else if (depthBits) depthStencilFmt = Format.DEPTH;
 
         this._colorTexture = new WebGLTexture();
-        // @ts-expect-error(2445) private initializer
         this._colorTexture.initAsSwapchainTexture({
             swapchain: this,
             format: colorFmt,
@@ -274,7 +273,6 @@ export class WebGLSwapchain extends Swapchain {
         });
 
         this._depthStencilTexture = new WebGLTexture();
-        // @ts-expect-error(2445) private initializer
         this._depthStencilTexture.initAsSwapchainTexture({
             swapchain: this,
             format: depthStencilFmt,

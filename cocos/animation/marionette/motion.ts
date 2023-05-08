@@ -29,6 +29,11 @@ import type { BindContext } from './parametric';
 import type { BlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import type { ReadonlyClipOverrideMap, ClipStatus } from './graph-eval';
 import type { RuntimeID } from './graph-debug';
+import { AnimationGraphEvaluationContext, AnimationGraphLayerWideBindingContext } from './animation-graph-context';
+import { Pose } from '../core/pose';
+import { EditorExtendable } from '../../core';
+import { ccclass } from '../../core/data/decorators';
+import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 export interface CreateClipEvalContext {
     node: Node;
@@ -48,17 +53,28 @@ export interface MotionEval {
      */
     readonly runtimeId?: RuntimeID;
 
+    /**
+     * The duration of this motion. If it's a clip motion.
+     * It should be $duration_{clip} / speed_{clip}$.
+     */
     readonly duration: number;
-    sample(progress: number, baseWeight: number): void;
+
     getClipStatuses(baseWeight: number): Iterator<ClipStatus>;
 
-    overrideClips(overrides: ReadonlyClipOverrideMap, context: OverrideClipContext): void;
+    overrideClips(clipOverrides: ReadonlyClipOverrideMap, context: AnimationGraphLayerWideBindingContext): void;
+
+    createPort(): MotionPort;
 }
 
-export type OverrideClipContext = CreateClipEvalContext;
+// Note: the ccclass name mismatch
+// since we ever made a historical mistaken: take a look at `MotionState`'s class name...
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}MotionBase`)
+export abstract class Motion extends EditorExtendable {
+    abstract [createEval] (context: AnimationGraphLayerWideBindingContext, clipOverrides: ReadonlyClipOverrideMap | null): MotionEval | null;
 
-export interface Motion {
-    [createEval] (context: MotionEvalContext): MotionEval | null;
+    abstract clone(): Motion;
+}
 
-    clone(): Motion;
+export interface MotionPort {
+    evaluate(progress: number, context: AnimationGraphEvaluationContext): Pose;
 }

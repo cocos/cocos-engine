@@ -207,7 +207,10 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
-    protected updateMaterial () {
+    /**
+     * @engineInternal
+     */
+    public updateMaterial () {
         let mat;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
@@ -870,7 +873,7 @@ export class Skeleton extends UIRenderer {
                     if (frameCache && frameCache.isInvalid()) {
                         frameCache.updateToFrame();
                         const frames = frameCache.frames;
-                        this._curFrame = frames[frames.length - 1];
+                        this._curFrame = frames[frames.length - 1]!;
                     }
                     return;
                 }
@@ -1137,7 +1140,7 @@ export class Skeleton extends UIRenderer {
                     this._frameCache.enableCacheAttachedInfo();
                 }
                 this._frameCache.updateToFrame(0);
-                this._curFrame = this._frameCache.frames[0];
+                this._curFrame = this._frameCache.frames[0]!;
             }
         } else if (this._skeleton) {
             const animation = this._skeleton.data.findAnimation(name);
@@ -1617,7 +1620,7 @@ export class Skeleton extends UIRenderer {
             this._playCount++;
             if (this._playTimes > 0 && this._playCount >= this._playTimes) {
                 // set frame to end frame.
-                this._curFrame = frames[frames.length - 1];
+                this._curFrame = frames[frames.length - 1]!;
                 this._accTime = 0;
                 this._playCount = 0;
                 this._isAniComplete = true;
@@ -1628,7 +1631,7 @@ export class Skeleton extends UIRenderer {
             frameIdx = 0;
             this._emitCacheCompleteEvent();
         }
-        this._curFrame = frames[frameIdx];
+        this._curFrame = frames[frameIdx]!;
     }
 
     protected _updateRealtime (dt: number) {

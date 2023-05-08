@@ -181,7 +181,10 @@ export class WebGL2Texture extends Texture {
 
     // ======================= Swapchain Specific ======================= //
 
-    protected initAsSwapchainTexture (info: Readonly<ISwapchainTextureInfo>) {
+    /**
+     * @engineInternal
+     */
+    public initAsSwapchainTexture (info: Readonly<ISwapchainTextureInfo>) {
         const texInfo = new TextureInfo();
         texInfo.format = info.format;
         texInfo.usage = FormatInfos[info.format].hasDepth ? TextureUsageBit.DEPTH_STENCIL_ATTACHMENT : TextureUsageBit.COLOR_ATTACHMENT;

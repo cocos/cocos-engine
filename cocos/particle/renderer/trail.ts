@@ -335,6 +335,12 @@ export default class TrailModule {
     private _iBuffer: Uint16Array | null = null;
     private _needTransform = false;
     private _material: Material | null = null;
+    /**
+     * @engineInternal
+     */
+    public get inited () {
+        return this._inited;
+    }
     private _inited: boolean;
 
     constructor () {

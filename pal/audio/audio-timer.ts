@@ -44,8 +44,8 @@ export default class AudioTimer {
     }
 
     public destroy () {
-        // @ts-expect-error Type 'undefined' is not assignable to type 'IDuration'
-        this._nativeAudio = undefined;
+        // NOTE: 'undefined' is not assignable to type 'IDuration'
+        this._nativeAudio = undefined as any;
     }
 
     get duration () {

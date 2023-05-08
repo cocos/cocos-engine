@@ -51,8 +51,7 @@ function createAudioClip (id: string,
     const out = new AudioClip();
     out._nativeUrl = id;
     out._nativeAsset = data;
-    // @ts-expect-error assignment to private field
-    out._duration = data.duration;
+    out.duration = data.duration;
     onComplete(null, out);
 }
 

@@ -24,8 +24,8 @@
 
 #include "GLES3Commands.h"
 #include "GLES3Device.h"
-#include "GLES3QueryPool.h"
 #include "GLES3PipelineCache.h"
+#include "GLES3QueryPool.h"
 #include "GLES3Std.h"
 #include "base/StringUtil.h"
 #include "gfx-base/GFXDef-common.h"
@@ -1163,7 +1163,6 @@ bool cmdFuncGLES3CreateProgramBySource(GLES3Device *device, GLES3GPUShader *gpuS
 
 // NOLINTNEXTLINE(google-readability-function-size, readability-function-size)
 void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader, GLES3GPUPipelineLayout *pipelineLayout) {
-
     if (!cmdFuncGLES3CreateProgramByBinary(device, gpuShader, pipelineLayout)) {
         if (!cmdFuncGLES3CreateProgramBySource(device, gpuShader, pipelineLayout)) {
             return;
@@ -2542,7 +2541,7 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
             for (size_t u = 0; u < glSamplerTexture.units.size(); u++, gpuDescriptor++) {
                 auto unit = static_cast<uint32_t>(glSamplerTexture.units[u]);
 
-                auto *sampler = gpuDescriptor->gpuSampler ? gpuDescriptor->gpuSampler : static_cast<GLES3Sampler*>(device->getSampler({}))->gpuSampler();
+                auto *sampler = gpuDescriptor->gpuSampler ? gpuDescriptor->gpuSampler : static_cast<GLES3Sampler *>(device->getSampler({}))->gpuSampler();
                 if (!gpuDescriptor->gpuTextureView || !gpuDescriptor->gpuTextureView->gpuTexture || !sampler) {
                     // CC_LOG_ERROR("Sampler texture '%s' at binding %d set %d index %d is not bounded",
                     //              glSamplerTexture.name.c_str(), glSamplerTexture.set, glSamplerTexture.binding, u);

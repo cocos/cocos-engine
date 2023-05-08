@@ -191,8 +191,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
             }
         }
         gpuTexture->memoryless = true;
-    } else if (hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_OES)
-        || hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_NORMAL)) {
+    } else if (hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_OES) || hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_NORMAL)) {
         gpuTexture->vkImage = gpuTexture->externalVKImage;
     } else {
         createFn(&gpuTexture->vkImage, &gpuTexture->vmaAllocation);
@@ -1266,7 +1265,7 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     }
 
     // upload buffer by chunks
-    uint32_t chunkSize = std::min(sizeToUpload, CCVKGPUStagingBufferPool::CHUNK_SIZE);
+    uint32_t chunkSize = std::min(static_cast<VkDeviceSize>(sizeToUpload), CCVKGPUStagingBufferPool::CHUNK_SIZE);
 
     uint32_t chunkOffset = 0U;
     while (sizeToUpload) {
@@ -1598,10 +1597,9 @@ const CCVKGPUGeneralBarrier *CCVKGPURenderPass::getBarrier(size_t index, CCVKGPU
     return depthStencilAttachment.barrier ? static_cast<CCVKGeneralBarrier *>(depthStencilAttachment.barrier)->gpuBarrier() : &gpuDevice->defaultDepthStencilBarrier;
 }
 
-bool CCVKGPURenderPass::hasShadingAttachment(uint32_t subPassId) const
-{
-        CC_ASSERT(subPassId < subpasses.size());
-        return subpasses[subPassId].shadingRate != INVALID_BINDING;
+bool CCVKGPURenderPass::hasShadingAttachment(uint32_t subPassId) const {
+    CC_ASSERT(subPassId < subpasses.size());
+    return subpasses[subPassId].shadingRate != INVALID_BINDING;
 }
 
 VkSampleCountFlagBits CCVKGPUContext::getSampleCountForAttachments(Format format, VkFormat vkFormat, SampleCount sampleCount) const {

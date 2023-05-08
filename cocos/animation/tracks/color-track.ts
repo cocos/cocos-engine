@@ -25,7 +25,7 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { RealCurve, Color } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
-import { Channel, RealChannel, RuntimeBinding, Track } from './track';
+import { Channel, RealChannel, RuntimeBinding, Track, TrackEval } from './track';
 import { maskIfEmpty } from './utils';
 
 const CHANNEL_NAMES: ReadonlyArray<string> = ['Red', 'Green', 'Blue', 'Alpha'];
@@ -74,7 +74,7 @@ export class ColorTrack extends Track {
     private _channels: [RealChannel, RealChannel, RealChannel, RealChannel];
 }
 
-export class ColorTrackEval {
+export class ColorTrackEval implements TrackEval<Color> {
     constructor (
         private _x: RealCurve | undefined,
         private _y: RealCurve | undefined,
@@ -84,9 +84,13 @@ export class ColorTrackEval {
 
     }
 
-    public evaluate (time: number, runtimeBinding: RuntimeBinding) {
-        if ((!this._x || !this._y || !this._z || !this._w) && runtimeBinding.getValue) {
-            Color.copy(this._result, runtimeBinding.getValue() as Color);
+    public get requiresDefault () {
+        return !this._x || !this._y || !this._z || !this._w;
+    }
+
+    public evaluate (time: number, defaultValue?: Color) {
+        if (defaultValue) {
+            Color.copy(this._result, defaultValue);
         }
 
         if (this._x) {

@@ -282,7 +282,10 @@ export class Line extends ModelRenderer {
         }
     }
 
-    protected _detachFromScene () {
+    /**
+     * @engineInternal
+     */
+    public _detachFromScene () {
         super._detachFromScene();
         if (this._models.length > 0 && this._models[0]) {
             const lineModel = this._models[0];

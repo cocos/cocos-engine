@@ -3,7 +3,7 @@ package com.cocos.lib.websocket;
 import android.os.Build;
 import android.util.Log;
 
-import com.cocos.lib.CocosHelper;
+import com.cocos.lib.GlobalObject;
 
 import org.cocos2dx.okhttp3.CipherSuite;
 import org.cocos2dx.okhttp3.Dispatcher;
@@ -18,12 +18,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collections;
 import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -180,7 +180,7 @@ public class CocosWebSocket extends WebSocketListener {
                 InputStream caInput = null;
 
                 if (caFilePath.startsWith("assets/")) {
-                    caInput = CocosHelper.getActivity().getResources().getAssets().open(caFilePath);
+                    caInput = GlobalObject.getContext().getResources().getAssets().open(caFilePath);
                 } else {
                     caInput = new FileInputStream(caFilePath);
                 }

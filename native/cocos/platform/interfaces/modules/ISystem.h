@@ -56,14 +56,15 @@ public:
         HINDI
     };
     enum class OSType {
-        WINDOWS,   /**< Windows */
-        LINUX,     /**< Linux */
-        MAC,       /**< Mac OS X*/
-        ANDROIDOS, /**< Android, because ANDROID is a macro, so use ANDROIDOS instead */
-        IPHONE,    /**< iPhone */
-        IPAD,      /**< iPad */
-        OHOS,      /**< Open Harmony OS> */
-        QNX,       /**< QNX */
+        WINDOWS,     /**< Windows */
+        LINUX,       /**< Linux */
+        MAC,         /**< Mac OS X*/
+        ANDROIDOS,   /**< Android, because ANDROID is a macro, so use ANDROIDOS instead */
+        IPHONE,      /**< iPhone */
+        IPAD,        /**< iPad */
+        OHOS,        /**< HarmonyOS> */
+        OPENHARMONY, /**< OpenHarmony> */
+        QNX,         /**< QNX */
     };
     /**
      @brief Get target system type.
@@ -77,7 +78,7 @@ public:
     virtual ccstd::string getSystemVersion() const = 0;
 
     virtual ccstd::string getCurrentLanguageToString();
-    
+
     virtual void copyTextToClipboard(const ccstd::string& text) = 0;
     /**
      @brief Open url in default browser.

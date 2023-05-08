@@ -36,7 +36,10 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData } from './layout-graph';
-import { legacyCC } from '../../core/global-exports';
+import { AABB } from '../../core/geometry';
+
+const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+const _tmpBoundingBox = new AABB();
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -74,6 +77,27 @@ export function validPunctualLightsCulling (pipeline: BasicPipeline, camera: Cam
             validPunctualLights.push(light);
         }
     }
+
+    const { pointLights } = camera.scene!;
+    for (let i = 0; i < pointLights.length; i++) {
+        const light = pointLights[i];
+        if (light.baked) {
+            continue;
+        }
+        geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
+
+    const { rangedDirLights } = camera.scene!;
+    for (let i = 0; i < rangedDirLights.length; i++) {
+        const light = rangedDirLights[i];
+        AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+        if (geometry.intersect.aabbFrustum(_tmpBoundingBox, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
 }
 
 const _cameras: Camera[] = [];
@@ -103,8 +127,8 @@ export function getLoadOpOfClearFlag (clearFlag: ClearFlagBit, attachment: Attac
     return loadOp;
 }
 
-export function getRenderArea (camera: Camera, width: number, height: number, light: Light | null = null, level = 0): Rect {
-    const out = new Rect();
+export function getRenderArea (camera: Camera, width: number, height: number, light: Light | null = null, level = 0, out?: Rect): Rect {
+    out = out || new Rect();
     const vp = camera ? camera.viewport : new Rect(0, 0, 1, 1);
     const w = width;
     const h = height;

@@ -44,7 +44,6 @@ class Root;
 struct IProgramInfo;
 namespace pipeline {
 class InstancedBuffer;
-class BatchedBuffer;
 } // namespace pipeline
 namespace scene {
 struct IMacroPatch;
@@ -58,7 +57,6 @@ using IPassDynamics = ccstd::unordered_map<uint32_t, PassDynamicsValue>;
 enum class BatchingSchemes {
     NONE = 0,
     INSTANCING = 1,
-    VB_MERGING = 2,
 };
 
 struct IBlockRef {
@@ -208,7 +206,6 @@ public:
     void update();
 
     pipeline::InstancedBuffer *getInstancedBuffer(int32_t extraKey = 0);
-    pipeline::BatchedBuffer *getBatchedBuffer(int32_t extraKey = 0);
 
     /**
      * @en Destroy the current pass.
@@ -266,7 +263,7 @@ public:
     inline const IProgramInfo *getShaderInfo() const { return _shaderInfo; }
     const gfx::DescriptorSetLayout *getLocalSetLayout() const;
     inline const ccstd::string &getProgram() const { return _programName; }
-    inline const ccstd::unordered_map<ccstd::string, IPropertyInfo> &getProperties() const { return _properties; }
+    inline const PassPropertyInfoMap &getProperties() const { return _properties; }
     inline const MacroRecord &getDefines() const { return _defines; }
     inline MacroRecord &getDefines() { return _defines; }
     inline index_t getPassIndex() const { return _passIndex; }
@@ -276,13 +273,11 @@ public:
     inline const ccstd::vector<IBlockRef> &getBlocks() const { return _blocks; }
     inline ArrayBuffer *getRootBlock() { return _rootBlock; }
     inline bool isRootBufferDirty() const { return _rootBufferDirty; }
-    // NOTE: _setRootBufferDirty must contain a _ prefix to make bindings-generator work correctly.
-    //  In ts engine, Pass has rootBufferDirty getter and without setter, but it contains a protected function named _setRootBufferDirty.
-    //  If we remove _ prefix in C++, bindings-generator doesn't support to bind rootBufferDirty property as getter and ignore to bind setRootBufferDirty as setter at the same time.
-    //  So let's keep the _ prefix temporarily.
-    inline void _setRootBufferDirty(bool val) { _rootBufferDirty = val; } // NOLINT(readability-identifier-naming)
+    inline void setRootBufferDirty(bool val) { _rootBufferDirty = val; }
     // states
     inline pipeline::RenderPriority getPriority() const { return _priority; }
+    // It is added for internal use by the engine.
+    inline void setPriority(pipeline::RenderPriority priority) { _priority = priority; }
     inline gfx::PrimitiveMode getPrimitive() const { return _primitive; }
     inline pipeline::RenderPassStage getStage() const { return _stage; }
     inline uint32_t getPhase() const { return _phase; }
@@ -342,7 +337,7 @@ protected:
 
     const IProgramInfo *_shaderInfo; // weakref to template of ProgramLib
     MacroRecord _defines;
-    ccstd::unordered_map<ccstd::string, IPropertyInfo> _properties;
+    PassPropertyInfoMap _properties;
     IntrusivePtr<gfx::Shader> _shader;
     gfx::BlendState _blendState{};
     gfx::DepthStencilState _depthStencilState{};
@@ -357,7 +352,6 @@ protected:
     BatchingSchemes _batchingScheme{BatchingSchemes::NONE};
     gfx::DynamicStateFlagBit _dynamicStates{gfx::DynamicStateFlagBit::NONE};
     ccstd::unordered_map<int32_t, IntrusivePtr<pipeline::InstancedBuffer>> _instancedBuffers;
-    ccstd::unordered_map<int32_t, IntrusivePtr<pipeline::BatchedBuffer>> _batchedBuffers;
 
     ccstd::hash_t _hash{0U};
     // external references

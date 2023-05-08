@@ -36,6 +36,8 @@
 #include "scene/RenderScene.h"
 #include "scene/RenderWindow.h"
 #include "scene/SphereLight.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 
 namespace cc {
 class IXRInterface;
