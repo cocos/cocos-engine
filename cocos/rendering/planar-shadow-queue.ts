@@ -62,8 +62,10 @@ export class PlanarShadowQueue {
     }
 
     /**
+     * @en
+     * clear planar-shadow queue
      * @zh
-     * clear light-Batched-Queue
+     * 清除 planar-shadow 渲染队列数据
      */
     public clear () {
         this._subModelArray.length = 0;
@@ -91,7 +93,10 @@ export class PlanarShadowQueue {
             if (scene.isCulledByLod(camera, model)) {
                 continue;
             }
-            if (model.enabled && model.node && model.castShadow && (model.node && ((visibility & model.node.layer) === model.node.layer))) { this._castModels.push(model); }
+            if (model.enabled && model.node && model.castShadow
+                && (model.node && ((visibility & model.node.layer) === model.node.layer))) {
+                this._castModels.push(model);
+            }
         }
 
         for (let i = 0; i < this._castModels.length; i++) {

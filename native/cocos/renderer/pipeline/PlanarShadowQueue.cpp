@@ -40,8 +40,8 @@ namespace cc {
 namespace pipeline {
 
 PlanarShadowQueue::PlanarShadowQueue(RenderPipeline *pipeline)
-: _phaseID(getPhaseID("planar-shadow")) {
-    _pipeline = pipeline;
+: _pipeline(pipeline),
+  _phaseID(getPhaseID("planar-shadow")) {
     _instancedQueue = ccnew RenderInstancedQueue;
 }
 
