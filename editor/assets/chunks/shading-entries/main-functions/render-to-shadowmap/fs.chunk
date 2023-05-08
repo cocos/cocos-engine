@@ -6,7 +6,7 @@ void main () {
   // better performance than SurfacesFragmentModifyBaseColorAndTransparency
 #ifdef CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
   SurfacesFragmentAlphaClipOnly();
-#endif  
+#endif
 
   highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
   // spot use linear
