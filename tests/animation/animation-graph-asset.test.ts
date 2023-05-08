@@ -220,7 +220,6 @@ describe('Animation graph asset', () => {
             expect(lhs.exitCondition).toBe(rhs.exitCondition);
             expect(lhs.destinationStart).toBe(rhs.destinationStart);
             expect(lhs.relativeDestinationStart).toBe(rhs.relativeDestinationStart);
-            expect(lhs.interruptible).toBe(rhs.interruptible);
         }
 
         function assertsEqualEmptyStateTransition(lhs: EmptyStateTransition, rhs: EmptyStateTransition) {

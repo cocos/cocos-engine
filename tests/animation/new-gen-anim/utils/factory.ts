@@ -192,11 +192,6 @@ function fillTransition(transition: Transition, params: TransitionAttributes) {
         assertsIsEmptyOrAnimationTransition(transition);
         transition.relativeDestinationStart = params.relativeDestinationStart;
     }
-
-    if (typeof params.interruptible !== 'undefined') {
-        assertsIsMotionTransition(transition);
-        transition.interruptible = params.interruptible;
-    }
 }
 
 export function createTCBinding(params: TCBindingParams) {
@@ -311,20 +306,20 @@ export type StateParams = ({
     name?: string;
 };
 
-type TransitionParams = {
+export type TransitionParams = {
     from: string;
     to: string;
 } & TransitionAttributes;
 
-interface EntryTransitionParams extends TransitionAttributes {
+export interface EntryTransitionParams extends TransitionAttributes {
     to: string;
 }
 
-interface AnyTransitionParams extends TransitionAttributes {
+export interface AnyTransitionParams extends TransitionAttributes {
     to: string;
 }
 
-interface ExitTransitionParams extends TransitionAttributes {
+export interface ExitTransitionParams extends TransitionAttributes {
     from: string;
 }
 
@@ -336,7 +331,6 @@ interface TransitionAttributes {
     relativeDuration?: boolean;
     destinationStart?: number;
     relativeDestinationStart?: boolean;
-    interruptible?: boolean;
 }
 
 type TransitionConditionParams = {

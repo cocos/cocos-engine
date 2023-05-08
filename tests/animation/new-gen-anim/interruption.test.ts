@@ -39,7 +39,6 @@ describe(`Interruption matching`, () => {
                     entryTransitions: [{ to: 'motion_1' }],
                     transitions: [{
                         from: 'motion_1', to: 'motion_2', exitTimeEnabled: false, duration: originalTransitionDuration,
-                        interruptible: true,
                         conditions: [{ type: 'unary', operator: 'to-be-true', operand: { type: 'variable', name: 'original_transition_activated' } }],
                     }, {
                         from: 'motion_2', to: 'motion_3',
