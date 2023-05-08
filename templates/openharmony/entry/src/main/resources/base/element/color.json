@@ -3,6 +3,10 @@
     {
       "name": "white",
       "value": "#FFFFFF"
+    },
+    {
+      "name": "black",
+      "value": "#000000"
     }
   ]
 }

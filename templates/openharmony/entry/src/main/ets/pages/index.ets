@@ -275,11 +275,11 @@ struct Index {
         })
 
         ForEach(this.webViewArray, (item: WebViewInfo, index: number) => {
-            CocosWebView({ viewInfo: this.webViewArray[index], workPort: this.workPort})
+            CocosWebView({ viewInfo: item, workPort: this.workPort})
         }, item => item.viewTag)
 
         ForEach(this.videoArray, (item: VideoInfo, index: number) => {
-          CocosVideoPlayer({ videoInfo: this.videoArray[index], workPort: this.workPort})
+          CocosVideoPlayer({ videoInfo: item, workPort: this.workPort})
         }, item => item.viewTag)
     }
     .width('100%')
