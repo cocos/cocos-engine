@@ -1101,6 +1101,7 @@ module.exports = {
         showProbe: '是否显示光照探针',
         showWireframe: '是否显示光照探针连线',
         showConvex: '是否显示光照探针凸包',
+        lightProbeSphereVolume:'光照探针全局显示大小',
     },
     light_probe_group: {
         method: '光照探针的自动生成算法',

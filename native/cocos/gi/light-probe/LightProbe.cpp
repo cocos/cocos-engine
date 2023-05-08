@@ -196,6 +196,7 @@ void LightProbes::initialize(LightProbeInfo *info) {
     _reduceRinging = info->getReduceRinging();
     _showProbe = info->isShowProbe();
     _showWireframe = info->isShowWireframe();
+    _lightProbeSphereVolume = info->getLightProbeSphereVolume();
     _showConvex = info->isShowConvex();
     _data = info->getData();
 }
