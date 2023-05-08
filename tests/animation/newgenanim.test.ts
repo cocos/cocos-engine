@@ -1,7 +1,7 @@
 
 import { lerp, Vec3, warnID } from '../../cocos/core';
 import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType, AnimationMask, AnimationGraphVariant } from '../../cocos/animation/marionette/asset-creation';
-import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource, State, Layer } from '../../cocos/animation/marionette/animation-graph';
+import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, State, Layer } from '../../cocos/animation/marionette/animation-graph';
 import { VariableTypeMismatchedError } from '../../cocos/animation/marionette/errors';
 import { AnimationGraphEval } from '../../cocos/animation/marionette/graph-eval';
 import { MotionStateStatus, ClipStatus } from '../../cocos/animation/marionette/state-machine/state-machine-eval';
@@ -23,6 +23,29 @@ import { AnimationBlend1DFixture, LinearRealValueAnimationFixture, ConstantRealV
 import { NodeTransformValueObserver } from './new-gen-anim/utils/node-transform-value-observer';
 import { SingleRealValueObserver } from './new-gen-anim/utils/single-real-value-observer';
 import { createAnimationGraph } from './new-gen-anim/utils/factory';
+
+/**
+ * Notable changes
+ * 
+ * #notable-change-3.8-exit-condition
+ * 
+ * 3.8 change how does state machine work with exit condition.
+ * Before, the exit condition is implemented steadily.
+ * Say there is a state `A` and a transition from `A` to `B` requiring the condition exit condition `e`.
+ * If in some tick, `A`'s normalized time is `e - d_t / 2`, where `d_t` is the tick's delta time.
+ * Then, `A --> B` will be triggered in this tick,
+ * and `A` will be updated `d_t` time but `B` will be updated `d_t / 2` time.
+ * In other words, prior to 3.8:
+ * if an exit condition requires no more than tick's delta time to hold,
+ * the exit condition will hold and the required time will be subtracted from the tick's delta time.
+ * 
+ * Even the behavior is steady, it makes the implementation much complex.
+ * 
+ * This behavior is changed in 3.8.
+ * 
+ * In above case, in this tick, no transition will be triggered:
+ * if an exit condition does not hold before tick, that exit condition won't hold.
+ */
 
 const DEFAULT_AROUND_NUM_DIGITS = 5;
 
@@ -74,8 +97,6 @@ describe('NewGen Anim', () => {
         expect(animTransition.exitCondition).toBe(1.0);
         expect(animTransition.destinationStart).toBe(0.0);
         expect(animTransition.relativeDestinationStart).toBe(false);
-        expect(animTransition.interruptionSource).toBe(TransitionInterruptionSource.NONE);
-        expect(animTransition.interruptible).toBe(false);
 
         const emptyState = layerGraph.addEmpty();
         const emptyTransition = layerGraph.connect(emptyState, animState);
@@ -487,8 +508,7 @@ describe('NewGen Anim', () => {
 
         test('Zero time piece', () => {
             // SPEC: Whenever zero time piece is encountered,
-            // no matter the time piece is generated since originally passed to `update()`,
-            // or was exhausted and left zero.
+            // since originally passed to `update()`.
             // The following updates at that time would still steadily proceed:
             // - The graph is in transition state and the transition specified 0 duration, then the switch will happened;
             // - The graph is in node state and a transition is judged to be happened, then the graph will run in transition state.
@@ -655,7 +675,8 @@ describe('NewGen Anim', () => {
             });
             expect(node.position.x).toBeCloseTo(0.3 + (1.4 - 0.3) * 0.7);
 
-            graphEval.update(0.25);
+            graphEval.update(0.2 + 1e-6); // Past the exit condition
+            graphEval.update(0.05);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 current: {
                     clip,
@@ -738,8 +759,19 @@ describe('NewGen Anim', () => {
             node1To2.exitCondition = 1.0;
 
             {
+                // See #notable-change-3.8-exit-condition
+
                 const graphEval = createAnimationGraphEval(animationGraph, new Node());
+
                 graphEval.update(animState1Clip.clip!.duration);
+                expectAnimationGraphEvalStatusLayer0(graphEval, {
+                    current: {
+                        clip: animState1Clip.clip!,
+                        weight: 1.0,
+                    },
+                });
+
+                graphEval.update(animState1Clip.clip!.duration * 0.01);
                 expectAnimationGraphEvalStatusLayer0(graphEval, {
                     current: {
                         clip: animState2Clip.clip!,
@@ -749,8 +781,18 @@ describe('NewGen Anim', () => {
             }
 
             {
+                // See #notable-change-3.8-exit-condition
+
                 const graphEval = createAnimationGraphEval(animationGraph, new Node());
                 graphEval.update(animState1Clip.clip!.duration + 0.1);
+                expectAnimationGraphEvalStatusLayer0(graphEval, {
+                    current: {
+                        clip: animState1Clip.clip!,
+                        weight: 1.0,
+                    },
+                });
+
+                graphEval.update(animState1Clip.clip!.duration * 0.01);
                 expectAnimationGraphEvalStatusLayer0(graphEval, {
                     current: {
                         clip: animState2Clip.clip!,
@@ -788,17 +830,27 @@ describe('NewGen Anim', () => {
                 },
             });
 
-            graphEval.update(animState1Clip.clip!.duration * 1.8);
+            // See #notable-change-3.8-exit-condition
+            graphEval.update(animState1Clip.clip!.duration * 1.71);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 current: {
                     clip: animState1Clip.clip!,
-                    weight: 0.333333,
+                    weight: 1.0,
+                },
+            });
+
+            graphEval.update(animState1Clip.clip!.duration * 0.01);
+            const lastTickDeltaTime = animState1Clip.clip!.duration * 0.01;
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                current: {
+                    clip: animState1Clip.clip!,
+                    weight: lerp(1.0, 0.0, lastTickDeltaTime / 0.3),
                 },
                 transition: {
-                    time: 0.2,
+                    time: lastTickDeltaTime,
                     next: {
                         clip: animState2Clip.clip!,
-                        weight: 0.666667,
+                        weight: lerp(0.0, 1.0, lastTickDeltaTime / 0.3),
                     },
                 },
             });
@@ -860,7 +912,8 @@ describe('NewGen Anim', () => {
                 },
             });
 
-            graphEval.update(subStateMachineAnimStateClip.clip!.duration - 0.3 + 0.1);
+            graphEval.update(subStateMachineAnimStateClip.clip!.duration - 0.3); // Past the exit condition
+            graphEval.update(0.1);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 current: {
                     clip: subStateMachineAnimStateClip.clip!,
@@ -914,10 +967,8 @@ describe('NewGen Anim', () => {
 
             const graphEval = createAnimationGraphEval(animationGraph, new Node());
 
-            graphEval.update(
-                // exit condition + duration
-                subStateMachineAnimStateClip.clip!.duration + 0.2,
-            );
+            graphEval.update(subStateMachineAnimStateClip.clip!.duration); // Past the exit condition
+            graphEval.update(0.2);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 current: {
                     clip: subStateMachineAnimStateClip.clip!,
@@ -983,10 +1034,8 @@ describe('NewGen Anim', () => {
 
             const graphEval = createAnimationGraphEval(animationGraph, new Node());
 
-            graphEval.update(
-                // exit condition + duration
-                subgraph1AnimStateClip.clip!.duration + 0.2,
-            );
+            graphEval.update(subgraph1AnimStateClip.clip!.duration); // Past the exit condition
+            graphEval.update(0.2);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 current: {
                     clip: subgraph1AnimStateClip.clip!,
@@ -1398,7 +1447,8 @@ describe('NewGen Anim', () => {
                     const graphEval = createAnimationGraphEval(animationGraph, new Node());
                     graphEval.setValue('switch1', true);
                     graphEval.setValue('switch2', true);
-                    graphEval.update(0.9);
+                    graphEval.update(0.8); // Past the exit condition
+                    graphEval.update(0.1);
                     expectAnimationGraphEvalStatusLayer0(graphEval, {
                         currentNode: { __DEBUG_ID__: 'Node1' },
                         transition: {
@@ -1414,7 +1464,8 @@ describe('NewGen Anim', () => {
                     const graphEval = createAnimationGraphEval(animationGraph, new Node());
                     graphEval.setValue('switch1', false);
                     graphEval.setValue('switch2', true);
-                    graphEval.update(0.9);
+                    graphEval.update(0.8); // Past the exit condition
+                    graphEval.update(0.1);
                     expectAnimationGraphEvalStatusLayer0(graphEval, {
                         currentNode: { __DEBUG_ID__: 'Node1' },
                         transition: {
@@ -1505,7 +1556,8 @@ describe('NewGen Anim', () => {
 
             const graphEval = createAnimationGraphEval(animationGraph, new Node());
 
-            graphEval.update(0.1 * animState1Clip.duration + 0.1);
+            graphEval.update(0.1 * animState1Clip.duration); // Past the exit condition
+            graphEval.update(0.1);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 current: {
                     clip: animState1Clip!,
@@ -1542,7 +1594,8 @@ describe('NewGen Anim', () => {
             const graphEval = createAnimationGraphEval(animationGraph, new Node());
 
             const animState1Duration = animState1Clip.duration;
-            graphEval.update(0.1 * animState1Duration + 0.1 * animState1Duration);
+            graphEval.update(0.1 * animState1Duration); // Past the exit condition
+            graphEval.update(0.1 * animState1Duration);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 current: {
                     clip: animState1Clip!,
@@ -1599,7 +1652,8 @@ describe('NewGen Anim', () => {
             const graphEval = createAnimationGraphEval(animationGraph, node);
 
             const graphUpdater = new GraphUpdater(graphEval);
-            graphUpdater.goto(4.0 * 0.1 + 0.2);
+            graphUpdater.goto(4.0 * 0.1);  // Past the exit condition
+            graphUpdater.step(0.2);
 
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 currentNode: {
@@ -1681,7 +1735,8 @@ describe('NewGen Anim', () => {
             const graphEval = createAnimationGraphEval(animationGraph, node);
 
             const graphUpdater = new GraphUpdater(graphEval);
-            graphUpdater.goto(4.0 * 0.1 + 0.2);
+            graphUpdater.goto(4.0 * 0.1); // Past the exit condition
+            graphUpdater.step(0.2);
 
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 currentNode: {
@@ -1986,7 +2041,8 @@ describe('NewGen Anim', () => {
             graph.addTrigger('trigger', true);
 
             const graphEval = createAnimationGraphEval(graph, new Node());
-            graphEval.update(0.2);
+            graphEval.update(0.1); // Past the exit condition
+            graphEval.update(0.1);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 current: {
                     clip: subStateMachineAnimStateClip.clip!,
@@ -2094,7 +2150,8 @@ describe('NewGen Anim', () => {
             expect(node.position.x).toBeCloseTo(MOTION_SAMPLE_RESULT_AT(EMPTY_TO_MOTION_DURATION + 0.02));
 
             // Start Motion -> Empty
-            updater.goto(FIRST_TIME_EMPTY_REST_TIME + MOTION_EXIT_CONDITION + 0.15);
+            updater.goto(FIRST_TIME_EMPTY_REST_TIME + MOTION_EXIT_CONDITION + 1e-6); // Past the exit condition
+            updater.step(0.15);
             expectAnimationGraphEvalStatus(graphEval, [
                 { current: { clip: clipMotion!.clip, weight: 1.0 - 0.15 / MOTION_TO_EMPTY_DURATION }, transition: {} },
             ]);
@@ -2160,7 +2217,8 @@ describe('NewGen Anim', () => {
             ]);
             expect(node.position.x).toBeCloseTo(1.3);
 
-            updater.goto(0.3 * 1.0 + 0.12);
+            updater.goto(0.3 * 1.0); // Past the exit condition
+            updater.step(0.12);
             expectAnimationGraphEvalStatus(graphEval, [
                 { current: { clip: layer0Clip!.clip, weight: 1.0 } },
                 { current: { clip: layer1Clip.clip, weight: 1.0 - 0.12 / 0.5 }, transition: {} },
@@ -2269,6 +2327,15 @@ describe('NewGen Anim', () => {
             }
         }
 
+        const fixture = {
+            anim_state_1: {
+                duration: 0.4,
+            },
+            anim_state_2: {
+                duration: 1.0,
+            },
+        } as const;
+
         const graph = new AnimationGraph();
         const layer = graph.addLayer();
         const layerGraph = layer.stateMachine;
@@ -2276,12 +2343,12 @@ describe('NewGen Anim', () => {
         const animState = layerGraph.addMotion();
         const animStateStats = animState.addComponent(StatsComponent);
         animStateStats.id = 'AnimState';
-        animState.motion = createClipMotionPositionX(0.4, 0.5, 'AnimStateClip');
+        animState.motion = createClipMotionPositionX(fixture.anim_state_1.duration, 0.5, 'AnimStateClip');
 
         const animState2 = layerGraph.addMotion();
         const animState2Stats = animState2.addComponent(StatsComponent);
         animState2Stats.id = 'AnimState2';
-        animState2.motion = createClipMotionPositionX(1.0, 0.5, 'AnimState2Clip');
+        animState2.motion = createClipMotionPositionX(fixture.anim_state_2.duration, 0.5, 'AnimState2Clip');
 
         const animState2_1 = layerGraph.addMotion();
         {
@@ -2365,8 +2432,10 @@ describe('NewGen Anim', () => {
         const recorder = node.addComponent(Recorder) as Recorder;
         const { graphEval, newGenAnim } = createAnimationGraphEval2(graph, node);
 
+        const graphUpdater = new GraphUpdater(graphEval);
+
         // Goto the AnimState, but does not trigger the transition
-        graphEval.update(0.1);
+        graphUpdater.step(0.1);
         expectMotionStateRecordCalls([
             {
                 kind: 'onMotionStateEnter',
@@ -2376,13 +2445,27 @@ describe('NewGen Anim', () => {
             {
                 kind: 'onMotionStateUpdate',
                 id: 'AnimState',
-                status: { progress: 0.1 / 0.4, },
+                status: { progress: 0.1 / fixture.anim_state_1.duration, },
             }
         ]);
         recorder.clear();
 
-        // Trigger AnimState -> AnimState2, and step the transition for (0.1 + 0.31 - 0.4 * 0.7) = 0.13
-        graphEval.update(0.31);
+        // Case: delta time is big than current requirement of exit condition.
+        // See #notable-change-3.8-exit-condition
+        graphUpdater.step(0.31);
+        expectMotionStateRecordCalls([
+            {
+                kind: 'onMotionStateUpdate',
+                id: 'AnimState',
+                status: { progress: calculateExpectedMotionStatusProgress(graphUpdater.current, fixture.anim_state_1.duration) },
+            },
+        ]);
+        recorder.clear();
+
+        // Next tick, the exit condition is satisfied. Even the delta time is small.
+        // Transition begins.
+        const TIME_MARK_ANIM_STATE2_ENTER = graphUpdater.current;
+        graphUpdater.step(1e-2);
         expectMotionStateRecordCalls([
             {
                 kind: 'onMotionStateEnter',
@@ -2392,25 +2475,28 @@ describe('NewGen Anim', () => {
             {
                 kind: 'onMotionStateUpdate',
                 id: 'AnimState',
-                status: { progress: 0.01 / 0.4, },
+                status: { progress: calculateExpectedMotionStatusProgress(graphUpdater.current, fixture.anim_state_1.duration) },
             },
             {
                 kind: 'onMotionStateUpdate',
                 id: 'AnimState2',
-                status: { progress: 0.13 / 1.0, },
+                status: { progress: calculateExpectedMotionStatusProgress((graphUpdater.current - TIME_MARK_ANIM_STATE2_ENTER), fixture.anim_state_2.duration) },
             },
         ]);
         recorder.clear();
 
-        graphEval.update(
-            (0.3 - 0.13) + // Finish the transition
+        // AnimState1 will exit in this tick.
+        // When it trigger the exit hook, the "progress" would be the progress before tick start.
+        const ANIM_STATE_1_ACTUAL_EXIT_TIME = graphUpdater.current;
+        graphUpdater.step(
+            (0.3 - (graphUpdater.current - TIME_MARK_ANIM_STATE2_ENTER)) + // Finish the transition
             0.1, // Update the AnimState2, but do not trigger next transition
         );
         expectMotionStateRecordCalls([
             {
                 kind: 'onMotionStateExit',
                 id: 'AnimState',
-                status: { progress: getPositionFromLoopedIterations((0.4 * 0.7 + 0.3) / 0.4), },
+                status: { progress: calculateExpectedMotionStatusProgress(ANIM_STATE_1_ACTUAL_EXIT_TIME, fixture.anim_state_1.duration), },
             },
             {
                 kind: 'onMotionStateUpdate',
@@ -2420,41 +2506,70 @@ describe('NewGen Anim', () => {
         ]);
         recorder.clear();
 
-        // Now let's test an edge case: delta time is so big, the transition is directly passed.
-        graphEval.update(
-            (1.0 * 0.7 - 0.4) + // AnimState2 reaches its exit condition
-            0.3 + // Submerges the transition [AnimState2 -> AnimState2_1]
-            0.1, // To avoid precision problem, also step the AnimState2_1 for a little while
-        );
+        // Edge case: delta time is big than requirement of exit condition + transition duration.
+        graphUpdater.goto(TIME_MARK_ANIM_STATE2_ENTER + 1.0 * 0.7 + 0.3 + 1e-2);
+        // Still: no transition is triggered.
+        expectMotionStateRecordCalls([
+            {
+                kind: 'onMotionStateUpdate',
+                id: 'AnimState2',
+                status: { progress: calculateExpectedMotionStatusProgress(graphUpdater.current - TIME_MARK_ANIM_STATE2_ENTER, 1.0) },
+            },
+        ]);
+        recorder.clear();
+
+        // In next tick, the transition is triggered, but it won't be die until duration arrived.
+        const TIME_MARK_ANIM_STATE2_1_ENTER = graphUpdater.current;
+        graphUpdater.step(0.1);
         expectMotionStateRecordCalls([
             {
                 kind: 'onMotionStateEnter',
                 id: 'AnimState2_1',
-                status: { progress: 0.0, },
+                status: { progress: 0.0 },
             },
             {
-                kind: 'onMotionStateExit',
+                kind: 'onMotionStateUpdate',
                 id: 'AnimState2',
-                status: { progress: getPositionFromLoopedIterations((1.0 * 0.7 + 0.3) / 1.0), },
+                status: { progress: calculateExpectedMotionStatusProgress(graphUpdater.current - TIME_MARK_ANIM_STATE2_ENTER, 1.0), },
             },
             {
                 kind: 'onMotionStateUpdate',
                 id: 'AnimState2_1',
-                status: { progress: (0.3 + 0.1) / 1.0, },
-            },
+                status: { progress: calculateExpectedMotionStatusProgress(graphUpdater.current - TIME_MARK_ANIM_STATE2_1_ENTER, 1.0) },
+            }
         ]);
         recorder.clear();
 
-        const animState2_1CurrentProgress = graphEval.getCurrentStateStatus(0)!.progress;
-        // Another edge case: delta time is so big, the motion is directly passed.
-        graphEval.update(
-            (1.0 * 0.7 - animState2_1CurrentProgress * 1.0) + // AnimState2_1 reaches its exit condition
-            0.3 + // Submerges the transition [AnimState2_1 -> AnimState2_2]
-            (1.0 * 0.7 - 0.3) + // AnimState2_2 reaches its exit condition
-            0.3 + // Submerges the transition [AnimState2_2 -> AnimState2_3]
-            0.1, // To avoid precision problem, also step the AnimState2_3 for a little while
-        );
+        // Goto the transition's complete point.
+        const TIME_MARK_ANIM_STATE2_EXIT = graphUpdater.current;
+        graphUpdater.goto(TIME_MARK_ANIM_STATE2_1_ENTER + 0.3 + 0.01);
         expectMotionStateRecordCalls([
+            {
+                kind: 'onMotionStateExit',
+                id: 'AnimState2',
+                status: { progress: calculateExpectedMotionStatusProgress(TIME_MARK_ANIM_STATE2_EXIT - TIME_MARK_ANIM_STATE2_ENTER, 1.0) },
+            },
+            {
+                kind: 'onMotionStateUpdate',
+                id: 'AnimState2_1',
+                status: { progress: calculateExpectedMotionStatusProgress(graphUpdater.current - TIME_MARK_ANIM_STATE2_1_ENTER, 1.0) },
+            }
+        ]);
+        recorder.clear();
+
+        graphUpdater.goto(TIME_MARK_ANIM_STATE2_1_ENTER + 1.0 * 0.7 + 1e-6); // Past exit condition of AnimState2_1
+        const TIME_MARK_ANIM_STATE2_2_ENTER = graphUpdater.current;
+        graphUpdater.step(0.3 + 1e-6); // Finish AnimState2_1 -> AnimState2_2.
+        graphUpdater.goto(TIME_MARK_ANIM_STATE2_2_ENTER + 1.0 * 0.7 + 1e-2); // Past exit condition of AnimState2_2
+        const TIME_MARK_ANIM_STATE2_3_ENTER = graphUpdater.current;
+        graphUpdater.step(0.3 + 1e-1); // Finish AnimState2_2 -> AnimState2_3
+        expectMotionStateRecordCalls([
+            // -----
+            {
+                kind: 'onMotionStateUpdate',
+                id: 'AnimState2_1',
+            },
+            // ------
             {
                 kind: 'onMotionStateEnter',
                 id: 'AnimState2_2',
@@ -2465,6 +2580,16 @@ describe('NewGen Anim', () => {
                 id: 'AnimState2_1',
                 status: { },
             },
+            {
+                kind: 'onMotionStateUpdate',
+                id: 'AnimState2_2',
+            },
+            // ------
+            {
+                kind: 'onMotionStateUpdate',
+                id: 'AnimState2_2',
+            },
+            // ------
             {
                 kind: 'onMotionStateEnter',
                 id: 'AnimState2_3',
@@ -2484,11 +2609,10 @@ describe('NewGen Anim', () => {
         recorder.clear();
 
         // Test state machine start events
-        const animState2_3CurrentProgress = graphEval.getCurrentStateStatus(0)!.progress;
-        graphEval.update(
-            (1.0 * 0.7 - animState2_3CurrentProgress * 1.0) + // AnimState2_3 reaches its exit condition
-            + 0.1 // To avoid precision problem, also step the [AnimState2_3 -> SubSMAnimState] for a little while
-        );
+        graphUpdater.goto(TIME_MARK_ANIM_STATE2_3_ENTER + 1.0 * 0.7 + 1e-6); // Past exit condition of AnimState2_3
+        recorder.clear();
+        const TIME_MARK_SUB_SM_ANIM_STATE_ENTER = graphUpdater.current;
+        graphUpdater.step(0.1); // Trigger AnimState2_3 -> SubSMAnimState and step for a little while, but don't finish the transition
         expectMotionStateRecordCalls([
             {
                 kind: 'onStateMachineEnter',
@@ -2502,21 +2626,19 @@ describe('NewGen Anim', () => {
             {
                 kind: 'onMotionStateUpdate',
                 id: 'AnimState2_3',
-                status: { progress: (1.0 * 0.7 + 0.1) / 1.0 },
+                status: { progress: calculateExpectedMotionStatusProgress(graphUpdater.current - TIME_MARK_ANIM_STATE2_3_ENTER, 1.0) },
             },
             {
                 kind: 'onMotionStateUpdate',
                 id: 'SubSMAnimState',
-                status: { progress: 0.1 },
+                status: { progress: calculateExpectedMotionStatusProgress(graphUpdater.current - TIME_MARK_SUB_SM_ANIM_STATE_ENTER, 1.0) },
             },
         ]);
         recorder.clear();
 
         // Prepare for testing state machine exit events
-        graphEval.update(
-            0.2 + // Finish [AnimState2_3 -> SubSMAnimState]
-            0.1 // To avoid precision problem, also step the SubSMAnimState for a little while
-        );
+        // Finish [AnimState2_3 -> SubSMAnimState], also step the SubSMAnimState for a little while
+        graphUpdater.goto(TIME_MARK_SUB_SM_ANIM_STATE_ENTER + 0.3 + 1e-1);
         expectMotionStateRecordCalls([
             {
                 kind: 'onMotionStateExit',
@@ -2525,18 +2647,16 @@ describe('NewGen Anim', () => {
             {
                 kind: 'onMotionStateUpdate',
                 id: 'SubSMAnimState',
-                status: { progress: (0.1 + 0.3) / 1.0, },
+                status: { progress: calculateExpectedMotionStatusProgress(graphUpdater.current - TIME_MARK_SUB_SM_ANIM_STATE_ENTER, 1.0) },
             },
         ]);
         recorder.clear();
 
         // Test state machine exit events
-        const subSMAnimStateCurrentProgress = graphEval.getCurrentStateStatus(0)!.progress;
-        graphEval.update(
-            (1.0 * 0.7 - subSMAnimStateCurrentProgress * 1.0) + // SubSMAnimState reaches its exit condition
-            0.3 + // Submerges the [SubSMAnimState -> Exit -> AnimState3]
-            + 0.1 // To avoid precision problem, also step the AnimState3 for a little while
-        );
+        graphUpdater.goto(TIME_MARK_SUB_SM_ANIM_STATE_ENTER + 1.0 * 0.7 + 1e-2); // SubSMAnimState reaches its exit condition
+        recorder.clear();
+        const TIME_MARK_ANIM_STATE3_ENTER = graphUpdater.current;
+        graphUpdater.step(0.3 + 0.1); // Trigger [SubSMAnimState -> Exit -> AnimState3], and finish it.
         expectMotionStateRecordCalls([
             {
                 kind: 'onMotionStateEnter',
@@ -2555,7 +2675,7 @@ describe('NewGen Anim', () => {
             {
                 kind: 'onMotionStateUpdate',
                 id: 'AnimState3',
-                status: { progress: 0.4 / 1.0 },
+                status: { progress: calculateExpectedMotionStatusProgress(graphUpdater.current - TIME_MARK_ANIM_STATE3_ENTER, 1.0) },
             },
         ]);
         recorder.clear();
@@ -3184,522 +3304,6 @@ describe('NewGen Anim', () => {
         });
     });
 
-    describe('Interruption', () => {
-        test('Interruptible', () => {
-            const animationGraph = new AnimationGraph();
-            const stateMachine = animationGraph.addLayer().stateMachine;
-            const m1 = stateMachine.addMotion();
-            const m2 = stateMachine.addMotion();
-            const t = stateMachine.connect(m1, m2);
-            t.interruptible = true;
-            expect(t.interruptionSource).toBe(TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE);
-            t.interruptible = false;
-            expect(t.interruptionSource).toBe(TransitionInterruptionSource.NONE);
-        });
-
-        test.each([
-            ['Interrupted by transition from current state', 'interrupted-by-source'],
-            ['Interrupted by transition from destination state', 'interrupted-by-destination'],
-            ['Interrupted by transition from "any" state', 'interrupted-by-any'],
-        ] as const)(`%s`, (_title, kind) => {
-            const M0_MOTION_CLIP_DURATION = 0.8;
-            const M0_MOTION_CLIP_FROM = 0.1;
-            const M0_MOTION_CLIP_TO = 0.2;
-            const M1_MOTION_CLIP_DURATION = 0.9;
-            const M1_MOTION_CLIP_FROM = 0.3;
-            const M1_MOTION_CLIP_TO = 0.4;
-            const M2_MOTION_CLIP_DURATION = 1.2;
-            const M2_MOTION_CLIP_FROM = 0.5;
-            const M2_MOTION_CLIP_TO = 0.6;
-            const ORIGINAL_TRANSITION_DURATION = 0.2;
-            const ORIGINAL_TRANSITION_EXIT_CONDITION = 0.7;
-            const INTERRUPTING_TRANSITION_DURATION = 0.3;
-            const INTERRUPTION_HAPPEN_TIME_FROM_ORIGINAL_TRANSITION_START = 0.03;
-
-            const animationGraph = new AnimationGraph();
-            const { stateMachine } = animationGraph.addLayer();
-            const m0 = stateMachine.addMotion();
-            m0.name = 'm0';
-            const m0Motion = m0.motion = createClipMotionPositionXLinear(
-                M0_MOTION_CLIP_DURATION, M0_MOTION_CLIP_FROM, M0_MOTION_CLIP_TO);
-            const m1 = stateMachine.addMotion();
-            m1.name = 'm1';
-            m1.motion = createClipMotionPositionXLinear(
-                M1_MOTION_CLIP_DURATION, M1_MOTION_CLIP_FROM, M1_MOTION_CLIP_TO);
-            const m2 = stateMachine.addMotion();
-            m2.name = 'm2';
-            m2.motion = createClipMotionPositionXLinear(
-                M2_MOTION_CLIP_DURATION, M2_MOTION_CLIP_FROM, M2_MOTION_CLIP_TO);
-            stateMachine.connect(stateMachine.entryState, m0);
-            const t0 = stateMachine.connect(m0, m1);
-            t0.duration = ORIGINAL_TRANSITION_DURATION;
-            if (kind === 'interrupted-by-source') {
-                t0.interruptionSource = TransitionInterruptionSource.CURRENT_STATE;
-            } else {
-                t0.interruptionSource = TransitionInterruptionSource.NEXT_STATE;
-            }
-            t0.exitConditionEnabled = true;
-            t0.exitCondition = ORIGINAL_TRANSITION_EXIT_CONDITION;
-            const t1 = stateMachine.connect(
-                kind === 'interrupted-by-source'
-                    ? m0
-                    : kind === 'interrupted-by-destination'
-                        ? m1
-                        : stateMachine.anyState, 
-                m2,
-            ) as AnimationTransition;
-            // Using relative duration is intentional.
-            // If not, we can not tell the correctness
-            // from "interrupted by source" and "interrupted by destination":
-            // For A->B, either B->C or A->C that interrupts it
-            // yields same (A->B)->C if B->C and A->C have same duration.
-            if (kind === 'interrupted-by-source') {
-                t1.duration = INTERRUPTING_TRANSITION_DURATION / M0_MOTION_CLIP_DURATION;
-                t1.relativeDuration = true;
-            } else if (kind === 'interrupted-by-destination') {
-                t1.duration = INTERRUPTING_TRANSITION_DURATION;
-                t1.relativeDuration = false; // TODO!!: use relative duration too
-            } else {
-                t1.duration = INTERRUPTING_TRANSITION_DURATION;
-                t1.relativeDuration = false;
-            }
-            t1.exitConditionEnabled = false;
-            const [t1Condition] = t1.conditions = [new TriggerCondition()];
-            t1Condition.trigger = 't';
-            animationGraph.addTrigger('t');
-
-            const node = new Node();
-            const graphEval = createAnimationGraphEval(animationGraph, node);
-            const graphUpdater = new GraphUpdater(graphEval);
-            
-            graphUpdater.goto(
-                M0_MOTION_CLIP_DURATION * ORIGINAL_TRANSITION_EXIT_CONDITION
-                + INTERRUPTION_HAPPEN_TIME_FROM_ORIGINAL_TRANSITION_START
-            );
-            expectAnimationGraphEvalStatusLayer0(graphEval, {
-                currentNode: {
-                    __DEBUG_ID__: m0.name,
-                },
-                transition: {
-                    time: INTERRUPTION_HAPPEN_TIME_FROM_ORIGINAL_TRANSITION_START,
-                    duration: ORIGINAL_TRANSITION_DURATION,
-                    nextNode: {
-                        __DEBUG_ID__: m1.name,
-                    },
-                },
-            });
-
-            const INTERRUPTION_REMAIN = 0.2;
-            graphEval.setValue('t', true);
-            graphUpdater.step(INTERRUPTION_REMAIN);
-            expectAnimationGraphEvalStatusLayer0(graphEval, {
-                currentNode: {
-                    __DEBUG_ID__: m0.name,
-                },
-                current: {
-                    clip: m0Motion.clip!,
-                    weight: 1.0 - INTERRUPTION_REMAIN / INTERRUPTING_TRANSITION_DURATION,
-                },
-                transition: {
-                    time: INTERRUPTION_REMAIN,
-                    duration: INTERRUPTING_TRANSITION_DURATION,
-                    nextNode: {
-                        __DEBUG_ID__: m2.name,
-                    },
-                },
-            });
-            expect(node.position.x).toBeCloseTo(
-                lerp(
-                    lerp(
-                        lerp(
-                            M0_MOTION_CLIP_FROM,
-                            M0_MOTION_CLIP_TO,
-                            ORIGINAL_TRANSITION_EXIT_CONDITION + INTERRUPTION_HAPPEN_TIME_FROM_ORIGINAL_TRANSITION_START / M0_MOTION_CLIP_DURATION,
-                        ),
-                        lerp(
-                            M1_MOTION_CLIP_FROM,
-                            M1_MOTION_CLIP_TO,
-                            INTERRUPTION_HAPPEN_TIME_FROM_ORIGINAL_TRANSITION_START / M1_MOTION_CLIP_DURATION,
-                        ),
-                        INTERRUPTION_HAPPEN_TIME_FROM_ORIGINAL_TRANSITION_START / ORIGINAL_TRANSITION_DURATION,
-                    ),
-                    lerp(M2_MOTION_CLIP_FROM, M2_MOTION_CLIP_TO, INTERRUPTION_REMAIN / M2_MOTION_CLIP_DURATION),
-                    INTERRUPTION_REMAIN / INTERRUPTING_TRANSITION_DURATION,
-                ),
-            );
-        });
-
-        describe('Nested interruption', () => {
-            const motionConstants: Record<'A' | 'B' | 'C' | 'D', {
-                duration: number;
-                from: number;
-                to: number;
-            }> = {
-                A: { duration: 0.8, from: -0.1, to: 1.2 },
-                B: { duration: 0.7, from: 0.3, to: 2.1 },
-                C: { duration: 0.6, from: 0.618, to: 0.13 },
-                D: { duration: 0.5, from: 0.512, to: -0.77 },
-            };
-
-            type MotionName = keyof typeof motionConstants;
-
-            const animationGraph = new AnimationGraph();
-            const { stateMachine } = animationGraph.addLayer();
-            const motionStates = (Object.keys(motionConstants) as MotionName[])
-                .reduce((result, name) => {
-                    const motionState = stateMachine.addMotion();
-                    motionState.name = name;
-                    motionState.motion = createClipMotionPositionXLinear(
-                        motionConstants[name].duration,
-                        motionConstants[name].from,
-                        motionConstants[name].to,
-                    );
-                    result[name] = motionState;
-                    return result;
-                }, {} as Record<MotionName, MotionState>);
-
-            enum TransitionId {
-                AB,
-                AC,
-                AD,
-                BC,
-                BD,
-                CD,
-            }
-
-            const MIN_TRANSITION_DURATION_REQUIRED_FOR_TEST = 0.5;
-
-            const transitionConstants: Record<TransitionId, {
-                duration: number;
-            }> = {
-                [TransitionId.AB]: { duration: MIN_TRANSITION_DURATION_REQUIRED_FOR_TEST + 0.35 },
-                [TransitionId.AC]: { duration: MIN_TRANSITION_DURATION_REQUIRED_FOR_TEST + 0.45 },
-                [TransitionId.AD]: { duration: MIN_TRANSITION_DURATION_REQUIRED_FOR_TEST + 0.55 },
-                [TransitionId.BC]: { duration: MIN_TRANSITION_DURATION_REQUIRED_FOR_TEST + 0.32 },
-                [TransitionId.BD]: { duration: MIN_TRANSITION_DURATION_REQUIRED_FOR_TEST + 0.4 },
-                [TransitionId.CD]: { duration: MIN_TRANSITION_DURATION_REQUIRED_FOR_TEST + 0.37 },
-            };
-
-            stateMachine.connect(stateMachine.entryState, motionStates.A);
-
-            const transitions = Object.keys(transitionConstants)
-                .map((k) => Number(k) as TransitionId)
-                .reduce((result, transitionId) => {
-                    const transitionName = TransitionId[transitionId];
-                    const triggerName = transitionName;
-                    const [fromMotionName, toMotionName] = transitionName;
-                    const transition = stateMachine.connect(motionStates[fromMotionName], motionStates[toMotionName]);
-
-                    const [triggerCondition] = transition.conditions = [new TriggerCondition()];
-                    triggerCondition.trigger = triggerName;
-                    animationGraph.addTrigger(triggerName);
-                    transition.exitConditionEnabled = false;
-
-                    transition.duration = transitionConstants[transitionId].duration;
-
-                    // All transitions can be interrupted
-                    transition.interruptionSource = TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE;
-
-                    result[transitionId] = transition;
-                    return result;
-                }, {} as Record<TransitionId, Transition>);
-
-            test.each([
-                ['AB x BC x CD', TransitionId.BC, TransitionId.CD],
-                ['AB x BC x AD', TransitionId.BC, TransitionId.AD],
-                // We also tested 'AB x BC x BD' in next test
-
-                ['AB x AC x AD', TransitionId.AC, TransitionId.AD],
-                ['AB x AC x CD', TransitionId.AC, TransitionId.CD],
-            ] as const)(`%s`, (
-                _title, firstInterruption, secondInterruption
-            ) => {
-                const node = new Node();
-                const graphEval = createAnimationGraphEval(animationGraph, node);
-                const graphUpdater = new GraphUpdater(graphEval);
-
-                // A runs standalone
-                graphUpdater.goto(0.2);
-                expectAnimationGraphEvalStatusLayer0(graphEval, {
-                    currentNode: {
-                        __DEBUG_ID__: 'A',
-                    },
-                });
-
-                // The original transition
-                graphEval.setValue(TransitionId[TransitionId.AB], true);
-                graphUpdater.step(0.1);
-                expectAnimationGraphEvalStatusLayer0(graphEval, {
-                    currentNode: {
-                        __DEBUG_ID__: 'A',
-                    },
-                    transition: {
-                        nextNode: {
-                            __DEBUG_ID__: 'B',
-                        },
-                        time: 0.1,
-                    },
-                });
-                const SNAPSHOT_BEFORE_FIRST_INTERRUPTION = lerp(
-                    lerp(motionConstants['A'].from, motionConstants['A'].to, (0.1 + 0.2) / motionConstants['A'].duration),
-                    lerp(motionConstants['B'].from, motionConstants['B'].to, 0.1 / motionConstants['B'].duration),
-                    0.1 / transitionConstants[TransitionId.AB].duration,
-                );
-                expect(node.position.x).toBeCloseTo(SNAPSHOT_BEFORE_FIRST_INTERRUPTION);
-
-                const interruption1ToName = TransitionId[firstInterruption][1] as MotionName;
-                const interruption2ToName = TransitionId[secondInterruption][1] as MotionName;
-
-                // Now comes the first interruption
-                graphEval.setValue(TransitionId[firstInterruption], true);
-                graphUpdater.step(0.15);
-                expect(node.position.x).toBeCloseTo(lerp(
-                    SNAPSHOT_BEFORE_FIRST_INTERRUPTION,
-                    lerp(
-                        motionConstants[interruption1ToName].from,
-                        motionConstants[interruption1ToName].to,
-                        0.15 / motionConstants[interruption1ToName].duration,
-                    ),
-                    0.15 / transitionConstants[firstInterruption].duration,
-                ));
-
-                // Again: A and B are still
-                graphUpdater.step(0.07);
-                const SNAPSHOT_BEFORE_SECOND_INTERRUPTION = lerp(
-                    SNAPSHOT_BEFORE_FIRST_INTERRUPTION,
-                    lerp(
-                        motionConstants[interruption1ToName].from,
-                        motionConstants[interruption1ToName].to,
-                        0.22 / motionConstants[interruption1ToName].duration,
-                    ),
-                    0.22 / transitionConstants[firstInterruption].duration,
-                );
-                expect(node.position.x).toBeCloseTo(SNAPSHOT_BEFORE_SECOND_INTERRUPTION);
-
-                // Now comes the second interruption
-                graphEval.setValue(TransitionId[secondInterruption], true);
-                graphUpdater.step(0.23);
-                expect(node.position.x).toBeCloseTo(lerp(
-                    SNAPSHOT_BEFORE_SECOND_INTERRUPTION,
-                    lerp(
-                        motionConstants[interruption2ToName].from,
-                        motionConstants[interruption2ToName].to,
-                        0.23 / motionConstants[interruption2ToName].duration,
-                    ),
-                    0.23 / transitionConstants[secondInterruption].duration,
-                ));
-
-                // Again: A, B and third in-coming state are still
-                graphUpdater.step(0.02);
-                expect(node.position.x).toBeCloseTo(lerp(
-                    SNAPSHOT_BEFORE_SECOND_INTERRUPTION,
-                    lerp(
-                        motionConstants[interruption2ToName].from,
-                        motionConstants[interruption2ToName].to,
-                        0.25 / motionConstants[interruption2ToName].duration,
-                    ),
-                    0.25 / transitionConstants[secondInterruption].duration,
-                ));
-            });
-
-            test('Interruption can not be further interrupted by transitions from intermediate states(AB x BC x BD)', () => {
-                const firstInterruption = TransitionId.BC;
-                const secondInterruption = TransitionId.BD;
-
-                const node = new Node();
-                const graphEval = createAnimationGraphEval(animationGraph, node);
-                const graphUpdater = new GraphUpdater(graphEval);
-
-                // A runs standalone
-                graphUpdater.goto(0.2);
-
-                // A->B
-                graphEval.setValue(TransitionId[TransitionId.AB], true);
-                graphUpdater.step(0.1);
-                const SNAPSHOT_BEFORE_FIRST_INTERRUPTION = lerp(
-                    lerp(motionConstants['A'].from, motionConstants['A'].to, (0.1 + 0.2) / motionConstants['A'].duration),
-                    lerp(motionConstants['B'].from, motionConstants['B'].to, 0.1 / motionConstants['B'].duration),
-                    0.1 / transitionConstants[TransitionId.AB].duration,
-                );
-                expect(node.position.x).toBeCloseTo(SNAPSHOT_BEFORE_FIRST_INTERRUPTION);
-
-                const interruption1ToName = TransitionId[firstInterruption][1] as MotionName;
-
-                // Now comes the first interruption
-                graphEval.setValue(TransitionId[firstInterruption], true);
-                graphUpdater.step(0.15);
-                expect(node.position.x).toBeCloseTo(lerp(
-                    SNAPSHOT_BEFORE_FIRST_INTERRUPTION,
-                    lerp(
-                        motionConstants[interruption1ToName].from,
-                        motionConstants[interruption1ToName].to,
-                        0.15 / motionConstants[interruption1ToName].duration,
-                    ),
-                    0.15 / transitionConstants[firstInterruption].duration,
-                ));
-
-                // The second interruption is not happened
-                // since _B_ is an intermediate state.
-                graphEval.setValue(TransitionId[secondInterruption], true);
-                graphUpdater.step(0.23);
-                expect(node.position.x).toBeCloseTo(lerp(
-                    SNAPSHOT_BEFORE_FIRST_INTERRUPTION,
-                    lerp(
-                        motionConstants[interruption1ToName].from,
-                        motionConstants[interruption1ToName].to,
-                        0.38 / motionConstants[interruption1ToName].duration,
-                    ),
-                    0.38 / transitionConstants[firstInterruption].duration,
-                ));
-            });
-        });
-
-        test('Interruption chain contains motion more than once(AB x BA)', () => {
-            const M0_MOTION_CLIP_DURATION = 0.8;
-            const M0_MOTION_CLIP_FROM = 0.1;
-            const M0_MOTION_CLIP_TO = 0.2;
-            const M1_MOTION_CLIP_DURATION = 0.9;
-            const M1_MOTION_CLIP_FROM = 0.3;
-            const M1_MOTION_CLIP_TO = 0.4;
-            const ORIGINAL_TRANSITION_DURATION = 0.2;
-            const INTERRUPTING_TRANSITION_DURATION = 0.3;
-
-            const animationGraph = new AnimationGraph();
-            const { stateMachine } = animationGraph.addLayer();
-            const m0 = stateMachine.addMotion();
-            m0.name = 'm0';
-            const m0Motion = m0.motion = createClipMotionPositionXLinear(
-                M0_MOTION_CLIP_DURATION, M0_MOTION_CLIP_FROM, M0_MOTION_CLIP_TO);
-            const m1 = stateMachine.addMotion();
-            m1.name = 'm1';
-            m1.motion = createClipMotionPositionXLinear(
-                M1_MOTION_CLIP_DURATION, M1_MOTION_CLIP_FROM, M1_MOTION_CLIP_TO);
-
-            stateMachine.connect(stateMachine.entryState, m0);
-
-            const t0 = stateMachine.connect(m0, m1);
-            t0.duration = ORIGINAL_TRANSITION_DURATION;
-            t0.interruptionSource = TransitionInterruptionSource.NEXT_STATE;
-            t0.exitConditionEnabled = false;
-            const [t0Condition] = t0.conditions = [new TriggerCondition()];
-            t0Condition.trigger = 't0';
-            animationGraph.addTrigger('t0');
-
-            const t1 = stateMachine.connect(m1, m0);
-            t1.duration = INTERRUPTING_TRANSITION_DURATION;
-            t1.exitConditionEnabled = false;
-            const [t1Condition] = t1.conditions = [new TriggerCondition()];
-            t1Condition.trigger = 't1';
-            animationGraph.addTrigger('t1');
-
-            const node = new Node();
-            const graphEval = createAnimationGraphEval(animationGraph, node);
-            const graphUpdater = new GraphUpdater(graphEval);
-            
-            graphUpdater.goto(0.1);
-            
-            graphEval.setValue('t0', true);
-            graphUpdater.goto(0.24);
-
-            graphEval.setValue('t1', true);
-            graphUpdater.step(0.17);
-            expect(node.position.x).toBeCloseTo(
-                lerp(
-                    lerp(
-                        lerp(
-                            M0_MOTION_CLIP_FROM,
-                            M0_MOTION_CLIP_TO,
-                            0.24 / M0_MOTION_CLIP_DURATION,
-                        ),
-                        lerp(
-                            M1_MOTION_CLIP_FROM,
-                            M1_MOTION_CLIP_TO,
-                            (0.24 - 0.1) / M1_MOTION_CLIP_DURATION,
-                        ),
-                        (0.24 - 0.1) / ORIGINAL_TRANSITION_DURATION,
-                    ),
-                    lerp(M0_MOTION_CLIP_FROM, M0_MOTION_CLIP_TO, 0.17 / M0_MOTION_CLIP_DURATION),
-                    0.17 / INTERRUPTING_TRANSITION_DURATION,
-                ),
-            );
-        });
-
-        test(`Interruption on circular transitions`, () => {
-            const fixture = {
-                initialValue: 0.0,
-                a: new LinearRealValueAnimationFixture(1, 2, 3),
-                b: new LinearRealValueAnimationFixture(4, 5, 6),
-                aToBDuration: 0.3,
-                bToADuration: 0.4,
-            };
-
-            const observer = new SingleRealValueObserver(fixture.initialValue);
-            const graph = new AnimationGraph();
-            const layer = graph.addLayer();
-            const motionStateA = layer.stateMachine.addMotion();
-            motionStateA.name = 'A';
-            motionStateA.motion = fixture.a.createMotion(observer.getCreateMotionContext());
-            const motionStateB = layer.stateMachine.addMotion();
-            motionStateB.name = 'B';
-            motionStateB.motion = fixture.b.createMotion(observer.getCreateMotionContext());
-            {
-                const transitionAToB = layer.stateMachine.connect(motionStateA, motionStateB);
-                transitionAToB.exitConditionEnabled = false;
-                const [condition] = transitionAToB.conditions = [new UnaryCondition()];
-                condition.operator = UnaryCondition.Operator.TRUTHY;
-                condition.operand.variable = 'AToB';
-                graph.addBoolean(condition.operand.variable, true);
-                transitionAToB.duration = fixture.aToBDuration;
-                transitionAToB.interruptionSource = TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE;
-            }
-            {
-                const transitionBToA = layer.stateMachine.connect(motionStateB, motionStateA);
-                transitionBToA.exitConditionEnabled = false;
-                const [condition] = transitionBToA.conditions = [new UnaryCondition()];
-                condition.operator = UnaryCondition.Operator.TRUTHY;
-                condition.operand.variable = 'BToA';
-                graph.addBoolean(condition.operand.variable, false);
-                transitionBToA.duration = fixture.bToADuration;
-                transitionBToA.interruptionSource = TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE;
-            }
-            layer.stateMachine.connect(layer.stateMachine.entryState, motionStateA);
-
-            const graphEval = createAnimationGraphEval(graph, observer.root);
-            const graphUpdater = new GraphUpdater(graphEval);
-
-            graphUpdater.goto(0.1);
-
-            graphEval.setValue('BToA', true);
-            graphUpdater.goto(0.25);
-            expect(observer.value).toBeCloseTo(
-                lerp(
-                    lerp(
-                        fixture.a.getExpected(0.1),
-                        fixture.b.getExpected(0.1),
-                        0.1 / fixture.aToBDuration,
-                    ),
-                    fixture.a.getExpected(0.15),
-                    0.15 / fixture.bToADuration,  
-                ),
-                DEFAULT_AROUND_NUM_DIGITS
-            );
-
-            graphUpdater.goto(0.27);
-            expect(observer.value).toBeCloseTo(
-                lerp(
-                    lerp(
-                        fixture.a.getExpected(0.1),
-                        fixture.b.getExpected(0.1),
-                        0.1 / fixture.aToBDuration,
-                    ),
-                    fixture.a.getExpected(0.17),
-                    0.17 / fixture.bToADuration,  
-                ),
-                DEFAULT_AROUND_NUM_DIGITS,
-            );
-        });
-    });
-
     describe('Animation mask', () => {
         const {
             _1, _1_1, _1_1_1, _1_2,
@@ -4070,7 +3674,8 @@ describe('NewGen Anim', () => {
 
             // Go to the place where motion1 just started transition
             // to make sure the exit times property takes correctly effect.
-            graphUpdater.goto(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration + 0.03);
+            graphUpdater.goto(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration); // Past the transition duration
+            graphUpdater.step(0.03);
             expect(graphEval.getCurrentTransition(0)).not.toBeNull();
             expect(node.position.x).toBeCloseTo(
                 lerp(
@@ -4082,7 +3687,8 @@ describe('NewGen Anim', () => {
 
             // This time step further more...
             // Here we're also confirming the effective of `duration` and `destination start`.
-            graphUpdater.goto(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration + 0.2);
+            graphUpdater.goto(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration); // Past the transition duration
+            graphUpdater.step(0.2);
             expect(graphEval.getCurrentTransition(0)).not.toBeNull();
             expect(node.position.x).toBeCloseTo(
                 lerp(
@@ -4195,12 +3801,14 @@ describe('NewGen Anim', () => {
                     ),
                 );
                 // Go ahead, to the place where the motion state 1 just start the transition.
-                const AFTER_EXIT_TIME_A_LITTLE = EXIT_TIME + 0.005;
-                graphUpdater.goto(AFTER_EXIT_TIME_A_LITTLE);
+                graphUpdater.goto(EXIT_TIME + 1e-6); // Past the exit condition
+                TRACE_MOTION1_NORMALIZED_TIME += graphUpdater.lastDeltaTime / MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration;
+                graphUpdater.step(0.005);
+                TRACE_MOTION1_NORMALIZED_TIME += graphUpdater.lastDeltaTime / MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration;
                 expect(graphEval.getCurrentTransition(0)).not.toBeNull();
                 expect(node.position.x).toBeCloseTo(lerp(
                     MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.sample(
-                        TRACE_MOTION1_NORMALIZED_TIME += graphUpdater.lastDeltaTime / MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration,
+                        TRACE_MOTION1_NORMALIZED_TIME,
                     ),
                     MOTION2_FIXED_VALUE,
                     // Note here: the transition duration also respects to the new duration.
@@ -5397,7 +5005,8 @@ function createClipSheet(duration: number, from: number, to: number, name = '') 
 
 type MayBeArray<T> = T | T[];
 
-function getPositionFromLoopedIterations (iterations: number) {
+function calculateExpectedMotionStatusProgress (expectedStateTime: number, expectedStateDuration: number) {
+    const iterations = expectedStateTime / expectedStateDuration;
     return iterations - Math.trunc(iterations);
 }
 
