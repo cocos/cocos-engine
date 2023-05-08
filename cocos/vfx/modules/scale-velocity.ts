@@ -35,6 +35,7 @@ import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from 
 import { CoordinateSpace } from '../define';
 
 const tempScalar = new Vec3();
+const tempVelocity = new Vec3();
 
 @ccclass('cc.ScaleVelocityModule')
 @VFXModule.register('ScaleVelocity', ModuleExecStageFlags.UPDATE, [VELOCITY.name], [VELOCITY.name])
@@ -101,22 +102,64 @@ export class ScaleVelocityModule extends VFXModule {
             const exp = this.scalar;
             exp.bind(particles, emitter, user, context);
             if (needTransform) {
+                const transform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
+                const invTransform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.worldToLocalRS : emitter.localToWorldRS;
                 if (exp.isConstant) {
                     const scalar = exp.evaluate(0, tempScalar);
                     for (let i = fromIndex; i < toIndex; i++) {
-                        velocity.multiplyVec3At(scalar, i);
+                        velocity.getVec3At(tempVelocity, i);
+                        Vec3.transformMat3(tempVelocity, tempVelocity, transform);
+                        Vec3.multiply(tempVelocity, tempVelocity, scalar);
+                        Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
+                        velocity.setVec3At(tempVelocity, i);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; i++) {
                         const scalar = exp.evaluate(i, tempScalar);
-                        velocity.multiplyVec3At(scalar, i);
+                        velocity.getVec3At(tempVelocity, i);
+                        Vec3.transformMat3(tempVelocity, tempVelocity, transform);
+                        Vec3.multiply(tempVelocity, tempVelocity, scalar);
+                        Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
+                        velocity.setVec3At(tempVelocity, i);
                     }
+                }
+            } else if (exp.isConstant) {
+                const scalar = exp.evaluate(0, tempScalar);
+                for (let i = fromIndex; i < toIndex; i++) {
+                    velocity.multiplyVec3At(scalar, i);
+                }
+            } else {
+                for (let i = fromIndex; i < toIndex; i++) {
+                    const scalar = exp.evaluate(i, tempScalar);
+                    velocity.multiplyVec3At(scalar, i);
                 }
             }
         } else {
             const exp = this.uniformScalar;
             exp.bind(particles, emitter, user, context);
-            if (exp.isConstant) {
+            if (needTransform) {
+                const transform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
+                const invTransform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.worldToLocalRS : emitter.localToWorldRS;
+                if (exp.isConstant) {
+                    const scalar = exp.evaluate(0);
+                    for (let i = fromIndex; i < toIndex; i++) {
+                        velocity.getVec3At(tempVelocity, i);
+                        Vec3.transformMat3(tempVelocity, tempVelocity, transform);
+                        Vec3.multiplyScalar(tempVelocity, tempVelocity, scalar);
+                        Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
+                        velocity.setVec3At(tempVelocity, i);
+                    }
+                } else {
+                    for (let i = fromIndex; i < toIndex; i++) {
+                        const scalar = exp.evaluate(i);
+                        velocity.getVec3At(tempVelocity, i);
+                        Vec3.transformMat3(tempVelocity, tempVelocity, transform);
+                        Vec3.multiplyScalar(tempVelocity, tempVelocity, scalar);
+                        Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
+                        velocity.setVec3At(tempVelocity, i);
+                    }
+                }
+            } else if (exp.isConstant) {
                 const scalar = exp.evaluate(0);
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.multiply1fAt(scalar, i);
