@@ -724,7 +724,7 @@ export class TextProcessing {
                 this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
                 if (letterIndex + 1 < info.horizontalKerning.length && letterIndex < textLen - 1) {
-                    nextLetterX += info.horizontalKerning[letterIndex + 1];
+                    nextLetterX += info.horizontalKerning[letterIndex + 1] * info.bmfontScale;
                 }
 
                 nextLetterX += letterDef.xAdvance * info.bmfontScale + info.spacingX;
