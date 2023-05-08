@@ -46,12 +46,18 @@ CCProgram tonemap-fs %{
 
   layout(location = 0) out vec4 fragColor;
 
-  vec4 ToLDR(vec4 color) {
+  vec3 HDR2LDR_PostProcess(vec3 color) {
+    vec3 tempColor = color.rgb;
+    #if CC_USE_HDR && CC_TONE_MAPPING_TYPE == HDR_TONE_MAPPING_ACES
+      tempColor.rgb = ACESToneMap(color.rgb);
+    #endif
+    return tempColor.rgb;
+  }
+
+  vec4 CCFragOutput_PostProcess(vec4 color) {
     if (!DebugViewNeedDisplayOriginalData()) {
     #if CC_USE_FLOAT_OUTPUT
-      #if CC_USE_HDR && CC_TONE_MAPPING_TYPE == HDR_TONE_MAPPING_ACES
-        color.rgb = ACESToneMap(color.rgb);
-      #endif
+      color.rgb = HDR2LDR_PostProcess(color.rgb);
       color.rgb = LinearToSRGB(color.rgb);
     #endif
     }
@@ -60,6 +66,6 @@ CCProgram tonemap-fs %{
 
   void main () {
     vec4 o = texture(u_texSampler, v_uv);
-    fragColor = ToLDR(o);
+    fragColor = CCFragOutput_PostProcess(o);
   }
 }%
