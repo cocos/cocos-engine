@@ -31,6 +31,11 @@ jobs:
       run: |
         gulp build-debug-infos
         
+    - name: Download external
+      run: |
+        EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+        git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+        
     - name: run test
       run: |
         npm test

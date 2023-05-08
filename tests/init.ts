@@ -95,14 +95,14 @@ jest.mock(
 
 jest.mock(
     'external:emscripten/physx/physx.release.asm.js', 
-    () => jest.requireActual('@cocos/physx'),
+    () => jest.requireActual('../native/external/emscripten/physx/physx.release.asm.js'),
     { virtual: true },
 );
 
 
 jest.mock(
     'external:emscripten/bullet/bullet.asm.js', 
-    () => jest.requireActual('@cocos/bullet'),
+    () => jest.requireActual('../native/external/emscripten/bullet/bullet.asm.js'),
     { virtual: true },
 );
 
