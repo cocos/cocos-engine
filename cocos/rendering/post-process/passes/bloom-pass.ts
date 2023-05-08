@@ -47,7 +47,7 @@ export class BloomPass extends SettingPass {
 
         const input = this.lastPass!.slotName(camera, 0);
         const output = 'BLOOM_PREFILTER_COLOR';
-        // ==== Bloom prefilter ===
+        // Bloom prefilter
         outWidth >>= 1;
         outHeight >>= 1;
         passContext.material.setProperty('texSize', new Vec4(0, 0, setting.threshold, 0), 0);
@@ -58,7 +58,7 @@ export class BloomPass extends SettingPass {
             .blitScreen(0)
             .version();
 
-        //=== Bloom downSampler ===
+        // Bloom downSampler
         for (let i = 0; i < setting.iterations; ++i) {
             const texSize = new Vec4(outWidth, outHeight, 0, 0);
             outWidth >>= 1;
@@ -74,14 +74,14 @@ export class BloomPass extends SettingPass {
                 .version();
         }
 
-        // === Bloom upSampler ===
+        // Bloom upSampler
         for (let i = 0; i < setting.iterations; ++i) {
             const texSize = new Vec4(outWidth, outHeight, 0, 0);
             outWidth <<= 1;
             outHeight <<= 1;
             const bloomPassUpSampleRTName = `dsBloomPassUpSampleColor${cameraName}${setting.iterations - 1 - i}`;
-            // eslint-disable-next-line max-len
-            const upSamplerInput = i === 0 ? `dsBloomPassDownSampleColor${cameraName}${setting.iterations - 1}` : `dsBloomPassUpSampleColor${cameraName}${setting.iterations - i}`;
+            const upSamplerInput = i === 0 ? `dsBloomPassDownSampleColor${cameraName}${setting.iterations - 1}` : 
+            `dsBloomPassUpSampleColor${cameraName}${setting.iterations - i}`;
             passContext.material.setProperty('texSize', texSize, BLOOM_UPSAMPLEPASS_INDEX + i);
             passContext.addRasterPass(outWidth, outHeight, `bloom-downsample${i}`, `bloom-downsample${i}${cameraID}`)
                 .setViewport(area.x, area.y, outWidth, outHeight)
