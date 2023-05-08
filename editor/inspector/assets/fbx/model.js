@@ -112,10 +112,6 @@ exports.template = /* html */`
                 <ui-checkbox slot="content" class="meshOptimizer-preserveUVFoldoverEdges-checkbox"></ui-checkbox>
             </ui-prop>
             <ui-prop>
-                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.enableSmartLink.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.enableSmartLink.title"></ui-label>
-                <ui-checkbox slot="content" class="meshOptimizer-enableSmartLink-checkbox"></ui-checkbox>
-            </ui-prop>
-            <ui-prop>
                 <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.agressiveness.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.agressiveness.title"></ui-label>
                 <ui-slider slot="content" class="meshOptimizer-agressiveness-slider" min="5" max="20" step="1"></ui-slider>
             </ui-prop>
@@ -291,7 +287,6 @@ exports.$ = {
     meshOptimizerPreserveBorderEdgesCheckbox: '.meshOptimizer-preserveBorderEdges-checkbox',
     meshOptimizerPreserveUVSeamEdgesCheckbox: '.meshOptimizer-preserveUVSeamEdges-checkbox',
     meshOptimizerPreserveUVFoldoverEdgesCheckbox: '.meshOptimizer-preserveUVFoldoverEdges-checkbox',
-    meshOptimizerEnableSmartLinkCheckbox: '.meshOptimizer-enableSmartLink-checkbox',
     meshOptimizerAgressivenessSlider: '.meshOptimizer-agressiveness-slider',
     meshOptimizerMaxIterationCountSlider: '.meshOptimizer-maxIterationCount-slider',
     // lods
@@ -667,23 +662,6 @@ const Elements = {
 
             updateElementInvalid.call(panel, panel.$.meshOptimizerTargetRatioSlider, 'meshOptimizer.simplifyOptions.targetRatio');
             updateElementReadonly.call(panel, panel.$.meshOptimizerTargetRatioSlider);
-        },
-    },
-    enableSmartLink: {
-        ready() {
-            const panel = this;
-            panel.$.meshOptimizerEnableSmartLinkCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.enableSmartLink', 'boolean'));
-            panel.$.meshOptimizerEnableSmartLinkCheckbox.addEventListener('confirm', () => {
-                panel.dispatch('snapshot');
-            });
-        },
-        update() {
-            const panel = this;
-
-            panel.$.meshOptimizerEnableSmartLinkCheckbox.value = getPropValue.call(panel, panel.meta.userData, true, 'meshOptimizer.simplifyOptions.enableSmartLink');
-
-            updateElementInvalid.call(panel, panel.$.meshOptimizerEnableSmartLinkCheckbox, 'meshOptimizer.simplifyOptions.enableSmartLink');
-            updateElementReadonly.call(panel, panel.$.meshOptimizerEnableSmartLinkCheckbox);
         },
     },
     preserveSurfaceCurvature: {
