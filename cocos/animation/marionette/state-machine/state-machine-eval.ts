@@ -745,28 +745,6 @@ class TopLevelStateMachineEvaluation {
             this._resetTriggersOnTransition(transition);
         }
 
-        // Increase active reference on the state.
-        const previousActiveReferenceCount = destinationState.activeReferenceCount;
-        destinationState.increaseActiveReference();
-
-        // If this is the initial activation, reenter the state.
-        if (previousActiveReferenceCount === 0) {
-            if (destinationState.kind === NodeKind.animation) {
-                const {
-                    destinationStart,
-                    isRelativeDestinationStart,
-                } = activatedTransition;
-                const destinationStartRatio = isRelativeDestinationStart
-                    ? destinationStart
-                    : destinationState.duration === 0
-                        ? 0.0
-                        : destinationStart / destinationState.duration;
-                destinationState.reenter(destinationStartRatio);
-            } else if (destinationState.kind === NodeKind.pose) {
-                destinationState.reenter();
-            }
-        }
-
         // Call enter hooks on detailed transitions.
         for (let iDetailedTransition = 0; iDetailedTransition < activatedTransition.path.length; ++iDetailedTransition) {
             const detailedTransition = activatedTransition.path[iDetailedTransition];
@@ -1484,14 +1462,6 @@ class ActivatedTransition {
         return approx(this.normalizedElapsedTime, 1.0, 1e-6);
     }
 
-    get destinationStart () {
-        return this.path[0].destinationStart;
-    }
-
-    get isRelativeDestinationStart () {
-        return this.path[0].relativeDestinationStart;
-    }
-
     public getAbsoluteDuration (baseDurationState: NodeEval) {
         return this._getAbsoluteDurationUnscaled(baseDurationState) * this._durationMultiplier;
     }
@@ -1541,10 +1511,35 @@ class ActivatedTransition {
     ) {
         const destinationState = lastTransition.to;
         assertIsTrue(isRealState(destinationState));
+
         this.normalizedElapsedTime = 0.0;
         this.destination = destinationState;
         this.path = [...prefix, lastTransition];
+
+        // Increase active reference on the state.
+        const previousActiveReferenceCount = destinationState.activeReferenceCount;
+        destinationState.increaseActiveReference();
+
+        // If this is the initial activation, reenter the state.
+        if (previousActiveReferenceCount === 0) {
+            if (destinationState.kind === NodeKind.animation) {
+                const {
+                    destinationStart,
+                    relativeDestinationStart: isRelativeDestinationStart,
+                } = this.path[0];
+                const destinationStartRatio = isRelativeDestinationStart
+                    ? destinationStart
+                    : destinationState.duration === 0
+                        ? 0.0
+                        : destinationStart / destinationState.duration;
+                destinationState.reenter(destinationStartRatio);
+            } else if (destinationState.kind === NodeKind.pose) {
+                destinationState.reenter();
+            }
+        }
+
         // More the existing destination weight, less the transition duration.
+        assertIsTrue(destinationState.activeReferenceCount > 0);
         this._durationMultiplier = 1.0 - destinationState.absoluteWeight;
     }
 
