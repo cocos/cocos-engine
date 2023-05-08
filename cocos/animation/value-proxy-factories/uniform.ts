@@ -31,7 +31,7 @@ import { deviceManager, Type } from '../../gfx';
 import { Pass } from '../../render-scene/core/pass';
 import { getDefaultFromType, getStringFromType } from '../../render-scene/core/pass-utils';
 import { IValueProxy, IValueProxyFactory } from '../value-proxy';
-import { warn } from '../../core';
+import { warn, warnID } from '../../core';
 
 /**
  * @en
@@ -73,19 +73,38 @@ export class UniformProxyFactory implements IValueProxyFactory {
         this.uniformName = uniformName || '';
     }
 
-    public forTarget (target: Material): IValueProxy {
-        const pass = target.passes[this.passIndex];
-        const handle = pass.getHandle(this.uniformName);
-        if (!handle) {
-            throw new Error(`Material "${target.name}" has no uniform "${this.uniformName}"`);
+    public forTarget (target: unknown): IValueProxy | undefined {
+        if (!(target instanceof Material)) {
+            warnID(3940, target);
+            return undefined;
         }
+
+        const {
+            passIndex,
+            uniformName,
+            channelIndex,
+        } = this;
+
+        if (passIndex < 0 || passIndex >= target.passes.length) {
+            warnID(3941, target.name, passIndex);
+            return undefined;
+        }
+
+        const pass = target.passes[passIndex];
+        const handle = pass.getHandle(uniformName);
+        if (!handle) {
+            warnID(3942, target.name, passIndex, uniformName);
+            return undefined;
+        }
+
         const type = Pass.getTypeFromHandle(handle);
         if (type < Type.SAMPLER1D) {
-            const realHandle = this.channelIndex === undefined ? handle : pass.getHandle(this.uniformName, this.channelIndex, Type.FLOAT);
+            const realHandle = channelIndex === undefined ? handle : pass.getHandle(uniformName, channelIndex, Type.FLOAT);
             if (!realHandle) {
-                throw new Error(`Uniform "${this.uniformName} (in material ${target.name}) has no channel ${this.channelIndex!}"`);
+                warnID(3943, target.name, passIndex, uniformName, channelIndex);
+                return undefined;
             }
-            if (isUniformArray(pass, this.uniformName)) {
+            if (isUniformArray(pass, uniformName)) {
                 return {
                     set: (value: any) => {
                         pass.setUniformArray(realHandle, value);
@@ -99,7 +118,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
             };
         } else {
             const binding = Pass.getBindingFromHandle(handle);
-            const prop = pass.properties[this.uniformName];
+            const prop = pass.properties[uniformName];
             const texName = prop && prop.value ? `${prop.value as string}${getStringFromType(prop.type)}` : getDefaultFromType(prop.type) as string;
             let dftTex = builtinResMgr.get<TextureBase>(texName);
             if (!dftTex) {
