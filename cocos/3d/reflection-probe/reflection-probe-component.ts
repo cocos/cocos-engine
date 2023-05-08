@@ -265,6 +265,10 @@ export class ReflectionProbe extends Component {
         ReflectionProbeManager.probeManager.onUpdateProbes(true);
     }
 
+    get cubemap () {
+        return this._cubemap;
+    }
+
     get probe () {
         return this._probe!;
     }
