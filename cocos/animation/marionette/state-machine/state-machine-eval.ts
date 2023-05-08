@@ -443,8 +443,6 @@ class TopLevelStateMachineEvaluation {
                 break;
             }
 
-            ++iterations;
-
             const transition = this._matchNextTransition(matchingSource);
             if (!transition) {
                 break;
