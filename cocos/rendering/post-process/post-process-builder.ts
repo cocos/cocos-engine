@@ -12,13 +12,12 @@ import { ForwardPass } from './passes/forward-pass';
 import { TAAPass } from './passes/taa-pass';
 import { FSRPass } from './passes/fsr-pass';
 import { BlitScreenPass } from './passes/blit-screen-pass';
-import { ColorGradingPass } from './passes/color-grading-pass';
-
 import { PostProcess } from './components/post-process';
 import { Node } from '../../scene-graph';
 import { director } from '../../game';
 import { CCObject } from '../../core';
 import { setCustomPipeline } from '../custom';
+import { BloomPass, ColorGradingPass } from './passes';
 
 export class PostProcessBuilder implements PipelineBuilder  {
     passes: BasePass[] = [];
@@ -34,6 +33,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(new TAAPass());
         this.addPass(new FSRPass());
         this.addPass(new ColorGradingPass());
+        this.addPass(new BloomPass());
         this.addPass(new BlitScreenPass());
         this.addPass(new ForwardFinalPass());
     }
