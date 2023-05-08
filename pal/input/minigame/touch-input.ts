@@ -82,14 +82,6 @@ export class TouchInputSource {
     }
 
     private _getLocation (touch: globalThis.Touch, windowSize: Size, dpr: number): Vec2 {
-        if (ALIPAY) {
-            // HACK: on Alipay platform,
-            // the physical screen size = systemInfo.screenSize * dpr = systemInfo.windowSize * dpr * dpr
-            // the location of touch event is in systemInfo.windowSize space
-            const x = touch.clientX * dpr * dpr;
-            const y = windowSize.height - touch.clientY * dpr * dpr;
-            return new Vec2(x, y);
-        }
         const x = touch.clientX * dpr;
         const y = windowSize.height - touch.clientY * dpr;
         return new Vec2(x, y);
