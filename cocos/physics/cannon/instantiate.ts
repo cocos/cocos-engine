@@ -59,6 +59,6 @@ game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
         PointToPointConstraint: CannonPointToPointConstraint,
         HingeConstraint: CannonHingeConstraint,
         FixedConstraint: CannonLockConstraint,
-        // ConfigurableConstraint: CannonConfigurableJoint,
+        ConfigurableConstraint: CannonConfigurableJoint,
     });
 });
