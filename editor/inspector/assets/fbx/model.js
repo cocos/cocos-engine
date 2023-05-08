@@ -127,7 +127,7 @@ exports.template = /* html */`
     </ui-section>
     <ui-section class="lods config" cache-expand="fbx-mode-lods">
         <div slot="header" class="lods-header">
-            <ui-checkbox slot="content" class="lods-checkbox"></ui-checkbox>
+            <ui-checkbox class="lods-checkbox"></ui-checkbox>
             <ui-label value="LODS" tooltip="To import LODs, please make sure the LOD mesh names are ending with _LOD#"></ui-label>
         </div>
         <div class="lod-items"></div>
@@ -254,10 +254,13 @@ ui-section {
     text-align: center;
     background-color: #1b1d1db0;
     z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     display: none;
+}
+.lods .load-mask > ui-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 `;
 
@@ -824,41 +827,44 @@ const Elements = {
                 event.preventDefault();
                 const path = event.target.getAttribute('path');
                 const index = Number(event.target.getAttribute('key'));
+                const lods = panel.meta.userData.lods;
                 if (path === 'insertLod') {
-                    if (Object.keys(panel.meta.userData.lods.options).length >= 8) {
+                    if (Object.keys(lods.options).length >= 8) {
                         console.warn('Maximum 8 LOD, Can\'t add more LOD');
                         return;
                     }
-                    const preScreenRatio = panel.meta.userData.lods.options[index].screenRatio;
-                    const nextScreenRatio = panel.meta.userData.lods.options[index + 1] ? panel.meta.userData.lods.options[index + 1].screenRatio : 0;
-                    const preFaceCount = panel.meta.userData.lods.options[index].faceCount;
-                    const nextFaceCount = panel.meta.userData.lods.options[index + 1] ? panel.meta.userData.lods.options[index + 1].faceCount : 0;
+                    const preScreenRatio = lods.options[index].screenRatio;
+                    const nextScreenRatio = lods.options[index + 1] ? lods.options[index + 1].screenRatio : 0;
+                    const preFaceCount = lods.options[index].faceCount;
+                    const nextFaceCount = lods.options[index + 1] ? lods.options[index + 1].faceCount : 0;
                     const option = {
                         screenRatio: (preScreenRatio + nextScreenRatio) / 2,
                         triangleCount: 0,
                         faceCount: (preFaceCount + nextFaceCount) / 2,
                     };
                     // Insert the specified lod level
-                    for (let key = Object.keys(panel.meta.userData.lods.options).length - 1; key > index; key--) {
-                        panel.meta.userData.lods.options[parseInt(key) + 1] = panel.meta.userData.lods.options[key];
+                    for (let keyIndex = Object.keys(lods.options).length - 1; keyIndex > index; keyIndex--) {
+                        lods.options[keyIndex + 1] = lods.options[keyIndex];
                     }
-                    panel.meta.userData.lods.options[index + 1] = option;
+                    lods.options[index + 1] = option;
                     // update panel
-                    panel.$.lodItems.innerHTML = getLodItemHTML(panel.meta.userData.lods.options, panel.meta.userData.lods.isBuiltin);
+                    Elements.lods.update.call(panel);
                     panel.dispatch('change');
+                    panel.dispatch('snapshot');
                 } else if (path === 'deleteLod') {
-                    if (Object.keys(panel.meta.userData.lods.options).length <= 1) {
+                    if (Object.keys(lods.options).length <= 1) {
                         console.warn('At least one LOD, Can\'t delete any more');
                         return;
                     }
                     // Delete the specified lod level
-                    for (let key = index; key < Object.keys(panel.meta.userData.lods.options).length; key++) {
-                        panel.meta.userData.lods.options[key] = panel.meta.userData.lods.options[key + 1];
+                    for (let key = index; key < Object.keys(lods.options).length; key++) {
+                        lods.options[key] = lods.options[key + 1];
                     }
-                    delete panel.meta.userData.lods.options[Object.keys(panel.meta.userData.lods.options).length - 1];
+                    delete lods.options[Object.keys(lods.options).length - 1];
                     // update panel
-                    panel.$.lodItems.innerHTML = getLodItemHTML(panel.meta.userData.lods.options, panel.meta.userData.lods.isBuiltin);
+                    Elements.lods.update.call(panel);
                     panel.dispatch('change');
+                    panel.dispatch('snapshot');
                 }
             });
             panel.$.lodItems.addEventListener('confirm', () => {
@@ -873,7 +879,7 @@ const Elements = {
             const isBuiltin = panel.meta.userData.lods.isBuiltin;
             panel.$.lodItems.innerHTML = getLodItemHTML(lodItems, isBuiltin);
             isBuiltin ? panel.$.noLodLabel.setAttribute('hidden', '') : panel.$.noLodLabel.removeAttribute('hidden');
-            if (panel.$.loadMask.style.display === 'flex' && this.asset.imported) {
+            if (panel.$.loadMask.style.display === 'block' && this.asset.imported) {
                 panel.$.loadMask.style.display = 'none';
             }
 
@@ -895,12 +901,13 @@ exports.methods = {
         this.dispatch('track', { tab: 'model', prop, value: event.target.value });
     },
     apply() {
-        this.$.loadMask.style.display = 'flex';
+        this.$.loadMask.style.display = 'block';
     }
 };
 
 exports.ready = function() {
-    Editor.Message.addBroadcastListener('fbx-inspector:apply', this.apply.bind(this));
+    this.applyFun = this.apply.bind(this);
+    Editor.Message.addBroadcastListener('fbx-inspector:apply', this.applyFun);
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -925,7 +932,7 @@ exports.update = function(assetList, metaList) {
 };
 
 exports.close = function() {
-    Editor.Message.removeBroadcastListener('fbx-inspector:apply', this.apply.bind(this));
+    Editor.Message.removeBroadcastListener('fbx-inspector:apply', this.applyFun);
 
     for (const prop in Elements) {
         const element = Elements[prop];
