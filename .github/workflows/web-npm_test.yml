@@ -38,4 +38,5 @@ jobs:
         
     - name: run test
       run: |
+        NODE_OPTIONS=--max-old-space-size=4096
         npm test
