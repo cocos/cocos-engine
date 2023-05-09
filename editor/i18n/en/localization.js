@@ -1,3 +1,4 @@
+/* eslint-disable quote-props */
 const pkg = require('../../../package.json');
 const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
     return a;
@@ -6,6 +7,48 @@ const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
 const url = 'https://docs.cocos.com/creator';
 
 module.exports = {
+    classes: {
+        'cc': {
+            'animation': {
+                'TCVariableBinding': {
+                    menu: 'Variable Binding',
+                    tooltip: 'Use the variable\'s value as condition value.',
+                    properties: {
+                        'variableName': {
+                            label: 'Variable',
+                            tooltip: 'Variable name.',
+                        },
+                    },
+                },
+                'TCAuxiliaryCurveBinding': {
+                    menu: 'Auxiliary Curve Binding',
+                    tooltip: 'Use the auxiliary curve \'s current value as condition value.',
+                    properties: {
+                        'curveName': {
+                            label: 'Curve',
+                            tooltip: 'Auxiliary curve name.',
+                        },
+                    },
+                },
+                'TCStateWeightBinding': {
+                    menu: 'State Weight Binding',
+                    tooltip: 'Use the state \'s weight as condition value.',
+                    abbr: {
+                        label: 'State Weight',
+                        tooltip: 'The current weight of transition source state.',
+                    },
+                },
+                'TCStateMotionTimeBinding': {
+                    menu: 'Motion Time Binding',
+                    tooltip: 'Use the elapsed (normalized) time of motions in state as condition value.',
+                    abbr: {
+                        label: 'Motion Elapsed Time',
+                        tooltip: 'The elapsed (normalized) time of motions in transition source state.',
+                    },
+                },
+            },
+        },
+    },
     help: {
         cc: {
             Node: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
@@ -163,16 +206,6 @@ module.exports = {
             'Whether to bake animations. <br>Default to true, which substantially increases performance while making all animations completely fixed',
         sockets:
             'The joint sockets this animation component maintains.<br>Sockets have to be registered before attaching custom nodes to animated joints',
-
-        tc_variable_binding: {
-            menu: 'Variable Binding',
-        },
-        tc_auxiliary_curve_binding: {
-            menu: 'Auxiliary Curve Binding',
-        },
-        tc_state_weight_binding: {
-            menu: 'State Weight Binding',
-        },
     },
     audio: {
         clip: 'The default AudioClip to be played for this audio source',

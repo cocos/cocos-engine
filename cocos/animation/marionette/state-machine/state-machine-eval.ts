@@ -23,6 +23,7 @@ import {
 import { blendPoseInto, Pose } from '../../core/pose';
 import { PoseNode } from '../pose-graph/pose-node';
 import { instantiatePoseGraph } from '../pose-graph/instantiation';
+import { ConditionEvaluationContext } from './condition/condition-base';
 import { ReadonlyClipOverrideMap } from '../clip-overriding';
 
 /**
@@ -255,6 +256,7 @@ class TopLevelStateMachineEvaluation {
     private _activatedTransitionPool = ActivatedTransition.createPool(4);
     private declare _triggerReset: TriggerResetter;
     private _updateContextGenerator = new AnimationGraphUpdateContextGenerator();
+    private _conditionEvaluationContext = new ConditionEvaluationContextImpl();
     private _additive = false;
 
     private _addStateMachine (
@@ -641,6 +643,10 @@ class TopLevelStateMachineEvaluation {
         node: NodeEval, realNode: NodeEval,
     ) {
         assertIsTrue(node === realNode || node.kind === NodeKind.any);
+
+        const { _conditionEvaluationContext: conditionEvaluationContext } = this;
+        conditionEvaluationContext.set(realNode);
+
         const { outgoingTransitions } = node;
         const nTransitions = outgoingTransitions.length;
         for (let iTransition = 0; iTransition < nTransitions; ++iTransition) {
@@ -656,6 +662,9 @@ class TopLevelStateMachineEvaluation {
             if (nConditions === 0) {
                 if (node.kind === NodeKind.entry || node.kind === NodeKind.exit) {
                     // These kinds of transition is definitely chosen.
+                    if (DEBUG) {
+                        conditionEvaluationContext.unset();
+                    }
                     return transition;
                 }
                 if (!transition.exitConditionEnabled) {
@@ -675,7 +684,7 @@ class TopLevelStateMachineEvaluation {
             let satisfied = true;
             for (let iCondition = 0; iCondition < nConditions; ++iCondition) {
                 const condition = conditions[iCondition];
-                if (!condition.eval()) {
+                if (!condition.eval(this._conditionEvaluationContext)) {
                     satisfied = false;
                     break;
                 }
@@ -686,7 +695,13 @@ class TopLevelStateMachineEvaluation {
 
             // Arrive here means all conditions are satisfied,
             // and either the exit condition is disabled or the exit condition is just 0.0.
+            if (DEBUG) {
+                conditionEvaluationContext.unset();
+            }
             return transition;
+        }
+        if (DEBUG) {
+            conditionEvaluationContext.unset();
         }
         return null;
     }
@@ -1388,6 +1403,45 @@ interface TransitionEval {
      * Whether the transition is activated, if it has already been activated, it can not be activated(matched) again.
      */
     activated: boolean;
+}
+
+class ConditionEvaluationContextImpl implements ConditionEvaluationContext {
+    public set (sourceState: NodeEval) {
+        this._sourceState = sourceState;
+        if (isRealState(sourceState)) {
+            assertIsTrue(sourceState.activeReferenceCount);
+            // Cache the weight since it's cheap.
+            this.sourceStateWeight = sourceState.absoluteWeight;
+        } else {
+            this.sourceStateWeight = 0.0;
+        }
+    }
+
+    public unset () {
+        this._sourceState = undefined;
+        this.sourceStateWeight = 0.0;
+    }
+
+    public sourceStateWeight = 0.0;
+
+    public get sourceStateMotionTimeNormalized () {
+        const { _sourceState: sourceState } = this;
+        assertIsTrue(
+            sourceState && isRealState(sourceState) && sourceState.activeReferenceCount,
+            `State motion time is only defined on activated motion states, pose states and empty states.`,
+        );
+        switch (sourceState.kind) {
+        case NodeKind.animation:
+            return sourceState.time;
+        case NodeKind.pose:
+            // TODO:
+            // fallthrough
+        default:
+            return 0.0;
+        }
+    }
+
+    private _sourceState: NodeEval | undefined = undefined;
 }
 
 /**

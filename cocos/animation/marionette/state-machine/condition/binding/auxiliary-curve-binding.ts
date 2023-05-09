@@ -1,9 +1,9 @@
-import { ConditionEvalContext } from '../condition-base';
 import { _decorator } from '../../../../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../../define';
 import { TCBinding, TCBindingEvaluation, TCBindingValueType } from './binding';
-import { menu, provide } from './editor';
+import { provide } from './editor';
 import { EvaluationTimeAuxiliaryCurveView } from '../../../animation-graph-context';
+import { ConditionBindingContext } from '../condition-base';
 
 const { ccclass, serializable } = _decorator;
 
@@ -15,7 +15,6 @@ const { ccclass, serializable } = _decorator;
  * This type of binding yields float value.
  */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}TCAuxiliaryCurveBinding`)
-@menu('i18n:animation.tc_auxiliary_curve_binding.menu')
 @provide(TCBindingValueType.FLOAT)
 export class TCAuxiliaryCurveBinding extends TCBinding<TCBindingValueType.FLOAT> {
     /**
@@ -31,7 +30,7 @@ export class TCAuxiliaryCurveBinding extends TCBinding<TCBindingValueType.FLOAT>
         return TCBindingValueType.FLOAT as const;
     }
 
-    public bind (context: ConditionEvalContext): TCBindingEvaluation<number> | undefined {
+    public bind (context: ConditionBindingContext): TCBindingEvaluation<number> | undefined {
         const view = context.getEvaluationTimeAuxiliaryCurveView();
         return new TCAuxiliaryCurveBindingEvaluation(view, this.curveName);
     }
@@ -43,7 +42,7 @@ class TCAuxiliaryCurveBindingEvaluation implements TCBindingEvaluation<number> {
         private _curveName: string,
     ) { }
 
-    evaluate () {
+    public evaluate () {
         return this._view.get(this._curveName);
     }
 }

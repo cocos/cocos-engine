@@ -1,8 +1,8 @@
-import { ConditionEvalContext } from '../condition-base';
+import { ConditionBindingContext } from '../condition-base';
 import { _decorator } from '../../../../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../../define';
 import { TCBinding, TCBindingEvaluation, TCBindingValueType } from './binding';
-import { menu, provide } from './editor';
+import { provide } from './editor';
 import { VarInstance } from '../../../variable';
 import { editorOnly } from '../../../../../core/data/decorators';
 
@@ -16,7 +16,6 @@ const { ccclass, serializable } = _decorator;
  * This type of binding yields the type corresponding to the variable's type.
  */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}TCVariableBinding`)
-@menu('i18n:animation.tc_variable_binding.menu')
 @provide(TCBindingValueType.FLOAT, TCBindingValueType.INTEGER)
 export class TCVariableBinding<TValueType extends TCBindingValueType> extends TCBinding<TValueType> {
     @serializable
@@ -36,7 +35,7 @@ export class TCVariableBinding<TValueType extends TCBindingValueType> extends TC
         return this.type;
     }
 
-    public bind (context: ConditionEvalContext): TCBindingEvaluation<TValueType> | undefined {
+    public bind (context: ConditionBindingContext): TCBindingEvaluation<TValueType> | undefined {
         const varInstance = context.getVar(this.variableName);
         if (!varInstance) {
             return undefined;

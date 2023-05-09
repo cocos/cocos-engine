@@ -1,4 +1,4 @@
-import { ConditionEvalContext } from '../condition-base';
+import { ConditionBindingContext, ConditionEvaluationContext } from '../condition-base';
 
 /**
  * @zh
@@ -34,7 +34,7 @@ export abstract class TCBinding<TValueType extends TCBindingValueType> {
      */
     public abstract getValueType(): TValueType;
 
-    public abstract bind(context: ConditionEvalContext): TCBindingEvaluation<TValueType> | undefined;
+    public abstract bind(context: ConditionBindingContext): TCBindingEvaluation<TValueType> | undefined;
 }
 
 /**
@@ -42,5 +42,5 @@ export abstract class TCBinding<TValueType extends TCBindingValueType> {
  * @en The evaluation of a float binding in transition condition.
  */
 export interface TCBindingEvaluation<TValueType extends TCBindingValueType> {
-    evaluate(): TCBindingValueTypeMap[TValueType];
+    evaluate(context: ConditionEvaluationContext): TCBindingValueTypeMap[TValueType];
 }

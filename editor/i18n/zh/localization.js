@@ -1,3 +1,4 @@
+/* eslint-disable quote-props */
 const pkg = require('../../../package.json');
 const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
     return a;
@@ -6,6 +7,48 @@ const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
 const url = 'https://docs.cocos.com/creator';
 
 module.exports = {
+    classes: {
+        'cc': {
+            'animation': {
+                'TCVariableBinding': {
+                    menu: '变量绑定',
+                    tooltip: '使用变量的值作为条件值。',
+                    properties: {
+                        'variableName': {
+                            label: '变量',
+                            tooltip: '变量名称。',
+                        },
+                    },
+                },
+                'TCAuxiliaryCurveBinding': {
+                    menu: '曲线值绑定',
+                    tooltip: '使用辅助曲线当前的值作为条件值。',
+                    properties: {
+                        'curveName': {
+                            label: '曲线',
+                            tooltip: '辅助曲线名称。',
+                        },
+                    },
+                },
+                'TCStateWeightBinding': {
+                    menu: '状态权重绑定',
+                    tooltip: '使用状态的权重作为条件值。',
+                    abbr: {
+                        label: '状态权重',
+                        tooltip: '过渡源状态的当前权重。',
+                    },
+                },
+                'TCStateMotionTimeBinding': {
+                    menu: '动画流逝时间绑定',
+                    tooltip: '使用状态中动画的（标准化的）流逝时间作为条件值。',
+                    abbr: {
+                        label: '动画流逝时间',
+                        tooltip: '过渡源状态中，动画的（标准化的）流逝时间。',
+                    },
+                },
+            },
+        },
+    },
     help: {
         cc: {
             Node: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
@@ -161,15 +204,6 @@ module.exports = {
         play_on_load: '是否在运行游戏后自动播放默认动画 clip。',
         use_baked_animation: '是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，<br>但所有动画效果会被彻底固定，不支持任何形式的编辑',
         sockets: '当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点',
-        tc_variable_binding: {
-            menu: '变量绑定',
-        },
-        tc_auxiliary_curve_binding: {
-            menu: '曲线值绑定',
-        },
-        tc_state_weight_binding: {
-            menu: '状态权重绑定',
-        },
     },
     audio: {
         clip: '通过该组件播放的默认 AudioClip 引用',

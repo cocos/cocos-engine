@@ -1,18 +1,14 @@
 /*
  Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
-
  https://www.cocos.com/
-
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights to
  use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  of the Software, and to permit persons to whom the Software is furnished to do so,
  subject to the following conditions:
-
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,7 +22,7 @@ import { VariableType, BindableBoolean, bindOr } from '../../parametric';
 import { _decorator } from '../../../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { createEval } from '../../create-eval';
-import { Condition, ConditionEval, ConditionEvalContext } from './condition-base';
+import { Condition, ConditionEval, ConditionBindingContext } from './condition-base';
 
 const { ccclass, serializable } = _decorator;
 
@@ -52,7 +48,7 @@ export class UnaryCondition implements Condition {
         return that;
     }
 
-    public [createEval] (context: ConditionEvalContext) {
+    public [createEval] (context: ConditionBindingContext) {
         const { operator, operand } = this;
         const evaluation = new UnaryConditionEval(operator, false);
         const value = bindOr(
