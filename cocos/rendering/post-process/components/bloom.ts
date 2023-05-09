@@ -8,11 +8,11 @@ import { PostProcessSetting } from './post-process-setting';
 @executeInEditMode
 export class Bloom extends PostProcessSetting {
     @serializable
-    protected _threshold = 0.2;
+    protected _threshold = 0.8;
     @serializable
     protected _iterations = 3;
     @serializable
-    protected _intensity = 0.3;
+    protected _intensity = 2.3;
 
     @rangeMin(0)
     @type(CCFloat)

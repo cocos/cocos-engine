@@ -80,8 +80,8 @@ export class BloomPass extends SettingPass {
             outWidth <<= 1;
             outHeight <<= 1;
             const bloomPassUpSampleRTName = `dsBloomPassUpSampleColor${cameraName}${setting.iterations - 1 - i}`;
-            const upSamplerInput = i === 0 ? `dsBloomPassDownSampleColor${cameraName}${setting.iterations - 1}` : 
-            `dsBloomPassUpSampleColor${cameraName}${setting.iterations - i}`;
+            const upSamplerInput = i === 0 ? `dsBloomPassDownSampleColor${cameraName}${setting.iterations - 1}`
+                : `dsBloomPassUpSampleColor${cameraName}${setting.iterations - i}`;
             passContext.material.setProperty('texSize', texSize, BLOOM_UPSAMPLEPASS_INDEX + i);
             passContext.addRasterPass(outWidth, outHeight, `bloom-downsample${i}`, `bloom-downsample${i}${cameraID}`)
                 .setViewport(area.x, area.y, outWidth, outHeight)
