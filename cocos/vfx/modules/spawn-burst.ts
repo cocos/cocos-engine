@@ -73,7 +73,6 @@ export class SpawnBurstModule extends VFXModule {
     }
 
     private _accumulateBurst (prevT: number, currT: number, normalizeT: number, context: ModuleExecContext) {
-        const rand = this.randomStream;
         if ((prevT <= this.time && currT > this.time) || (prevT > this.time && this.repeatCount > 1)) {
             const preEmitTime = Math.max(Math.floor((prevT - this.time) / this.repeatInterval), 0);
             if (preEmitTime < this.repeatCount) {
