@@ -413,7 +413,7 @@ struct FrameGraphDispatcher {
 
     // how much paralell-execution weights during pass reorder,
     // eg:0.3 means 30% of effort aim to paralellize execution, other 70% aim to decrease memory using.
-    // 0 by default
+    // 0 by default 
     void setParalellWeight(float paralellExecWeight);
 
     void enableMemoryAliasing(bool enable);
