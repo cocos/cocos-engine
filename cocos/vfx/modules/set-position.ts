@@ -23,60 +23,42 @@
  THE SOFTWARE.
  */
 
-import { ccclass, type, serializable, visible } from 'cc.decorator';
-import { Vec3 } from '../../core';
-import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_VELOCITY, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
+import { ccclass, serializable, type } from 'cc.decorator';
+import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
+import { POSITION, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
-import { ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { Vec3 } from '../../core';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 
-const tempVelocity = new Vec3();
-const scale = new Vec3();
-@ccclass('cc.InheritVelocityModule')
-@VFXModule.register('InheritVelocity', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [VELOCITY.name])
-export class InheritVelocityModule extends VFXModule {
+const tempPos = new Vec3();
+
+@ccclass('cc.SetPositionModule')
+@VFXModule.register('SetPosition', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [POSITION.name], [])
+export class SetPositionModule extends VFXModule {
+    /**
+      * @zh 设置粒子颜色。
+      */
     @type(Vec3Expression)
-    @visible(true)
-    public get scale () {
-        if (!this._scale) { this._scale = new ConstantVec3Expression(Vec3.ONE); }
-        return this._scale;
-    }
-
-    public set scale (val) {
-        this._scale = val;
-    }
-
     @serializable
-    private _scale: Vec3Expression | null = null;
+    public position: Vec3Expression = new ConstantVec3Expression();
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        if (!emitter.isWorldSpace) { return; }
-        this.scale.tick(particles, emitter, user, context);
         particles.markRequiredParameter(POSITION);
-        particles.markRequiredParameter(VELOCITY);
-        if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(BASE_VELOCITY);
-        }
+        this.position.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        const position = particles.getVec3Parameter(POSITION);
         const { fromIndex, toIndex } = context;
-        const initialVelocity = emitter.velocity;
-        if (!emitter.isWorldSpace) { return; }
-        const velocity = particles.getVec3Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_VELOCITY : VELOCITY);
-        const exp = this._scale as Vec3Expression;
+        const exp = this.position;
         exp.bind(particles, emitter, user, context);
         if (exp.isConstant) {
-            Vec3.multiply(tempVelocity, initialVelocity, exp.evaluate(0, scale));
-            for (let i = fromIndex; i < toIndex; i++) {
-                velocity.addVec3At(tempVelocity, i);
-            }
+            position.fill(exp.evaluate(0, tempPos), fromIndex, toIndex);
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                Vec3.multiply(tempVelocity, initialVelocity, exp.evaluate(i, scale));
-                velocity.addVec3At(tempVelocity, i);
+                position.setVec3At(exp.evaluate(i, tempPos), i);
             }
         }
     }

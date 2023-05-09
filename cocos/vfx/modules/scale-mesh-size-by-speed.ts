@@ -194,16 +194,4 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
             }
         }
     }
-
-    protected needsFilterSerialization () {
-        return true;
-    }
-
-    protected getSerializedProps () {
-        if (!this.separateAxes) {
-            return ['separateAxes', 'x'];
-        } else {
-            return ['separateAxes', 'x', '_y', '_z'];
-        }
-    }
 }

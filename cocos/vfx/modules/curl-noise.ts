@@ -690,23 +690,4 @@ export class CurlNoiseModule extends VFXModule {
         const velocity = particles.getVec3Parameter(VELOCITY);
         Vec3ArrayParameter.add(velocity, velocity, vec3Register, fromIndex, toIndex);
     }
-
-    protected needsFilterSerialization () {
-        return true;
-    }
-
-    protected getSerializedProps () {
-        const serializedProps = ['separateAxes', '_strengthX', '_scrollSpeed', '_frequency',
-            'enableRemap', 'quality', 'damping'];
-        if (this.enableRemap) {
-            serializedProps.push('_remapX');
-        }
-        if (this.separateAxes) {
-            serializedProps.push('_strengthY, _strengthZ');
-        }
-        if (this.enableRemap && this.separateAxes) {
-            serializedProps.push('_remapY, _remapZ');
-        }
-        return serializedProps;
-    }
 }

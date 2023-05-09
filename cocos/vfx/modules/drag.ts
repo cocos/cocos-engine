@@ -82,19 +82,15 @@ export class DragModule extends VFXModule {
         const exp = this.drag;
         exp.bind(particles, emitter, user, context);
 
-        if (exp.isConstant) {
-            const drag = exp.evaluate(0);
-            for (let i = fromIndex; i < toIndex; i++) {
-                let finalDrag = drag;
-                if (this.multiplyByRadius) {
-                    if (this.radiusSource === RadiusSource.SPRITE_SIZE) {
-                        const maxDimension = Math.max(_temp_v3.x, _temp_v3.y, _temp_v3.z) * 0.5;
-                        finalDrag *= maxDimension ** 2 * Math.PI;
-                    }
+        const drag = exp.evaluate(0);
+        for (let i = fromIndex; i < toIndex; i++) {
+            let finalDrag = drag;
+            if (this.multiplyByRadius) {
+                if (this.radiusSource === RadiusSource.SPRITE_SIZE) {
+                    const maxDimension = Math.max(_temp_v3.x, _temp_v3.y, _temp_v3.z) * 0.5;
+                    finalDrag *= maxDimension ** 2 * Math.PI;
                 }
             }
-        } else {
-
         }
         if (this.multiplyBySize) {
             const scale = particles.getVec3Parameter(SCALE);

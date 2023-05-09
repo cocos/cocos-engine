@@ -55,6 +55,13 @@ export class FloatArrayParameter extends ArrayParameter {
         this._data[handle] += val;
     }
 
+    multiplyFloatAt (val: number, handle: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(handle <= this._capacity && handle >= 0);
+        }
+        this._data[handle] *= val;
+    }
+
     copyFrom (src: FloatArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);

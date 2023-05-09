@@ -115,16 +115,4 @@ export class SetSpriteSizeModule extends VFXModule {
             }
         }
     }
-
-    protected needsFilterSerialization () {
-        return true;
-    }
-
-    protected getSerializedProps () {
-        if (!this.separateAxes) {
-            return ['separateAxes', 'size'];
-        } else {
-            return ['separateAxes', 'uniformSize'];
-        }
-    }
 }

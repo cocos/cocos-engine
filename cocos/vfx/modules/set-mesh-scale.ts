@@ -114,16 +114,4 @@ export class SetMeshScaleModule extends VFXModule {
             }
         }
     }
-
-    protected needsFilterSerialization () {
-        return true;
-    }
-
-    protected getSerializedProps () {
-        if (!this.separateAxes) {
-            return ['separateAxes', 'scale'];
-        } else {
-            return ['separateAxes', 'uniformScale'];
-        }
-    }
 }

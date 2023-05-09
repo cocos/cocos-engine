@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, serializable, tooltip, type } from 'cc.decorator';
+import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BASE_COLOR, COLOR, NORMALIZED_AGE, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
@@ -39,12 +39,10 @@ const tempColor = new Color();
 @VFXModule.register('SetColor', ModuleExecStageFlags.SPAWN, [COLOR.name], [NORMALIZED_AGE.name])
 export class SetColorModule extends VFXModule {
     /**
-      * @zh 粒子初始颜色。
-      */
+       * @zh 设置粒子颜色。
+       */
     @type(ColorExpression)
     @serializable
-    @displayOrder(8)
-    @tooltip('i18n:particle_system.baseColor')
     public color: ColorExpression = new ConstantColorExpression();
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {

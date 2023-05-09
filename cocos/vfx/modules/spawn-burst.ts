@@ -46,6 +46,7 @@ export class SpawnBurstModule extends VFXModule {
     /**
      * @zh 粒子系统开始运行到触发此次 Burst 的时间。
      */
+    @type(FloatExpression)
     @editable
     public get time () {
         return this._time;
@@ -56,7 +57,7 @@ export class SpawnBurstModule extends VFXModule {
     }
 
     @serializable
-    private _time = 0;
+    private _time: FloatExpression = new ConstantFloatExpression(0);
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { prevLoopAge, loopAge, normalizedLoopAge } = emitter;

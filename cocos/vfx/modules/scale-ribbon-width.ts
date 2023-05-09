@@ -23,60 +23,59 @@
  THE SOFTWARE.
  */
 
-import { ccclass, type, serializable, visible } from 'cc.decorator';
-import { Vec3 } from '../../core';
+import { ccclass, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_VELOCITY, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
+import { FloatExpression } from '../expressions/float';
+import { BASE_RIBBON_WIDTH, NORMALIZED_AGE, ParticleDataSet, RIBBON_WIDTH, SPRITE_SIZE } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
-import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { ConstantFloatExpression } from '../expressions';
 
-const tempVelocity = new Vec3();
-const scale = new Vec3();
-@ccclass('cc.InheritVelocityModule')
-@VFXModule.register('InheritVelocity', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [VELOCITY.name])
-export class InheritVelocityModule extends VFXModule {
-    @type(Vec3Expression)
-    @visible(true)
-    public get scale () {
-        if (!this._scale) { this._scale = new ConstantVec3Expression(Vec3.ONE); }
-        return this._scale;
+@ccclass('cc.ScaleRibbonWidthModule')
+@VFXModule.register('ScaleRibbonWidth', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [SPRITE_SIZE.name], [NORMALIZED_AGE.name])
+export class ScaleRibbonWidthModule extends VFXModule {
+    /**
+      * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
+      */
+    @type(FloatExpression)
+
+    public get scalar () {
+        if (!this._scalar) {
+            this._scalar = new ConstantFloatExpression(1);
+        }
+        return this._scalar;
     }
 
-    public set scale (val) {
-        this._scale = val;
+    public set scalar (val) {
+        this._scalar = val;
     }
 
     @serializable
-    private _scale: Vec3Expression | null = null;
+    private _scalar: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        if (!emitter.isWorldSpace) { return; }
-        this.scale.tick(particles, emitter, user, context);
-        particles.markRequiredParameter(POSITION);
-        particles.markRequiredParameter(VELOCITY);
+        particles.markRequiredParameter(RIBBON_WIDTH);
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(BASE_VELOCITY);
+            particles.markRequiredParameter(BASE_RIBBON_WIDTH);
         }
+        this.scalar.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        const ribbonWidth = particles.getFloatParameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_RIBBON_WIDTH : RIBBON_WIDTH);
         const { fromIndex, toIndex } = context;
-        const initialVelocity = emitter.velocity;
-        if (!emitter.isWorldSpace) { return; }
-        const velocity = particles.getVec3Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_VELOCITY : VELOCITY);
-        const exp = this._scale as Vec3Expression;
+        const exp = this._scalar as FloatExpression;
         exp.bind(particles, emitter, user, context);
         if (exp.isConstant) {
-            Vec3.multiply(tempVelocity, initialVelocity, exp.evaluate(0, scale));
+            const scalar = exp.evaluate(0);
             for (let i = fromIndex; i < toIndex; i++) {
-                velocity.addVec3At(tempVelocity, i);
+                ribbonWidth.multiplyFloatAt(scalar, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                Vec3.multiply(tempVelocity, initialVelocity, exp.evaluate(i, scale));
-                velocity.addVec3At(tempVelocity, i);
+                const scalar = exp.evaluate(i);
+                ribbonWidth.multiplyFloatAt(scalar, i);
             }
         }
     }

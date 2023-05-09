@@ -25,7 +25,7 @@
 import { Color, Gradient, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/decorators';
 import { ModuleExecContext } from '../base';
-import { BuiltinParticleParameterFlags, NORMALIZED_AGE, ParticleDataSet, SPAWN_NORMALIZED_TIME } from '../particle-data-set';
+import { NORMALIZED_AGE, ParticleDataSet, SPAWN_NORMALIZED_TIME } from '../particle-data-set';
 import { ModuleExecStage } from '../vfx-module';
 import { ColorExpression } from './color';
 import { EmitterDataSet } from '../emitter-data-set';

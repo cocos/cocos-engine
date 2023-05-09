@@ -25,10 +25,9 @@
 
 import { ccclass, displayOrder, serializable, tooltip, type, range } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ModuleExecContext, VFXEmitterParams, VFXEmitterState } from '../base';
+import { ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';
 import { ParticleDataSet } from '../particle-data-set';
-import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from '../expressions';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -41,20 +40,15 @@ export class SpawnPerUnitModule extends VFXModule {
       */
     @type(FloatExpression)
     @serializable
-    @range([0, 1])
-    @displayOrder(15)
-    @tooltip('i18n:particle_system.rateOverDistance')
-    public rate: FloatExpression = new ConstantFloatExpression();
+    public spawnSpacing: FloatExpression = new ConstantFloatExpression(0.2);
+
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        this.spawnSpacing.tick(particles, emitter, user, context);
+    }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { emitterVelocity, normalizedLoopAge: normalizeT, emitterDeltaTime, previousTime, currentTime } = context;
-        let deltaTime = emitterDeltaTime;
-        if (previousTime > currentTime) {
-            const seed = this._rand.seed;
-            context.spawnContinuousCount += emitterVelocity.length() * this.rate.evaluateSingle(1, this._rand, context) * (params.duration - previousTime);
-            deltaTime = currentTime;
-            this._rand.seed = seed;
-        }
-        context.spawnContinuousCount += emitterVelocity.length() * this.rate.evaluateSingle(normalizeT, this._rand, context) * deltaTime;
+        const { deltaTime, velocity } = emitter;
+        this.spawnSpacing.bind(particles, emitter, user, context);
+        emitter.spawnContinuousCount += velocity.length() * (1 / this.spawnSpacing.evaluateSingle()) * deltaTime;
     }
 }

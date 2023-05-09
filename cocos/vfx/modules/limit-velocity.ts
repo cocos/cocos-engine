@@ -33,12 +33,11 @@ import { BASE_VELOCITY, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 
-const randomOffset = 721883;
-
-const _temp_v3_1 = new Vec3();
+const limit = new Vec3();
 const tempVelocity = new Vec3();
-const seed = new Vec3();
+const srcVelocity = new Vec3();
 
 @ccclass('cc.LimitVelocity')
 @VFXModule.register('LimitVelocity', ModuleExecStageFlags.UPDATE, [VELOCITY.name], [VELOCITY.name])
@@ -59,78 +58,46 @@ export class LimitVelocityModule extends VFXModule {
      * @zh X 轴方向上的速度下限。
      */
     @type(FloatExpression)
-    @serializable
-    @range([0, 1])
     @visible(function (this: LimitVelocityModule): boolean {
-        return this.separateAxes;
+        return !this.separateAxes;
     })
-    public limitX = new FloatExpression(1)
-
-    /**
-     * @zh Y 轴方向上的速度下限。
-     */
-    @type(FloatExpression)
-    @range([0, 1])
-    @visible(function (this: LimitVelocityModule): boolean {
-        return this.separateAxes;
-    })
-    public get limitY () {
-        if (!this._y) {
-            this._y = new FloatExpression(1);
+    public get uniformLimit () {
+        if (!this._uniformLimit) {
+            this._uniformLimit = new ConstantFloatExpression(1);
         }
-        return this._y;
-    }
-
-    public set limitY (val) {
-        this._y = val;
-    }
-
-    /**
-     * @zh Z 轴方向上的速度下限。
-     */
-    @type(FloatExpression)
-    @range([0, 1])
-    @visible(function (this: LimitVelocityModule): boolean {
-        return this.separateAxes;
-    })
-    public get limitZ () {
-        if (!this._z) {
-            this._z = new FloatExpression(1);
-        }
-        return this._z;
-    }
-
-    public set limitZ (val) {
-        this._z = val;
+        return this._uniformLimit;
     }
 
     /**
      * @zh 速度下限。
      */
-    @type(FloatExpression)
-    @range([0, 1])
+    @type(Vec3Expression)
     @visible(function (this: LimitVelocityModule): boolean {
-        return !this.separateAxes;
+        return this.separateAxes;
     })
     public get limit () {
-        return this.limitX;
+        if (!this._limit) {
+            this._limit = new ConstantVec3Expression(Vec3.ONE);
+        }
+        return this._limit;
     }
 
     public set limit (val) {
-        this.limitX = val;
+        this._limit = val;
     }
 
     /**
      * @zh 当前速度与速度下限的插值。
      */
+    @type(FloatExpression)
     @serializable
     @rangeMin(0)
-    public dampen = 3;
+    public dampen = new ConstantFloatExpression(0.3);
 
     @serializable
-    private _y: FloatExpression | null = null;
+    private _uniformLimit: FloatExpression | null = null;
     @serializable
-    private _z: FloatExpression | null = null;
+    private _limit: Vec3Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameter(VELOCITY);
@@ -139,221 +106,75 @@ export class LimitVelocityModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const dampen = this.dampen;
-        if (approx(dampen, 0)) {
-            return;
-        }
-        const { velocity, baseVelocity } = particles;
-        const randomOffset = this._randomOffset;
-        const rotation = context.rotationIfNeedTransform;
-        const needTransform = this.space === params.simulationSpace;
+        const velocity = particles.getVec3Parameter(VELOCITY);
+        const baseVelocity = particles.getVec3Parameter(BASE_VELOCITY);
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.isWorldSpace;
         if (this.separateAxes) {
+            const exp = this._limit as Vec3Expression;
+            exp.bind(particles, emitter, user, context);
+            const dampen = this.dampen;
+            dampen.bind(particles, emitter, user, context);
             if (needTransform) {
-                if (this.limitX.mode === FloatExpression.Mode.CONSTANT) {
-                    Vec3.set(_temp_v3_1, this.limitX.constant, this.limitY.constant, this.limitY.constant);
-                    Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        velocity.getVec3At(tempVelocity, i);
-                        Vec3.set(tempVelocity,
-                            tempVelocity.x - dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, dampen),
-                            tempVelocity.y - dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, dampen),
-                            tempVelocity.z - dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, dampen));
-                        velocity.subVec3At(tempVelocity, i);
-                        baseVelocity.subVec3At(tempVelocity, i);
-                    }
-                } else if (this.limitX.mode === FloatExpression.Mode.CURVE) {
-                    const { spline: splineX, multiplier: xMultiplier } = this.limitX;
-                    const { spline: splineY, multiplier: yMultiplier } = this.limitY;
-                    const { spline: splineZ, multiplier: zMultiplier } = this.limitZ;
-                    const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const normalizedTime = normalizedAge[i];
-                        Vec3.set(_temp_v3_1, splineX.evaluate(normalizedTime) * xMultiplier,
-                            splineY.evaluate(normalizedTime) * yMultiplier,
-                            splineZ.evaluate(normalizedTime) * zMultiplier);
-                        Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);
-                        velocity.getVec3At(tempVelocity, i);
-                        Vec3.set(tempVelocity,
-                            tempVelocity.x - dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, dampen),
-                            tempVelocity.y - dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, dampen),
-                            tempVelocity.z - dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, dampen));
-                        velocity.subVec3At(tempVelocity, i);
-                        baseVelocity.subVec3At(tempVelocity, i);
-                    }
-                } else if (this.limitX.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                    const { constantMin: xMin, constantMax: xMax } = this.limitX;
-                    const { constantMin: yMin, constantMax: yMax } = this.limitY;
-                    const { constantMin: zMin, constantMax: zMax } = this.limitZ;
-                    const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
-                        Vec3.set(_temp_v3_1, lerp(xMin, xMax, ratio.x),
-                            lerp(yMin, yMax, ratio.y),
-                            lerp(zMin, zMax, ratio.z));
-                        Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);
-                        velocity.getVec3At(tempVelocity, i);
-                        Vec3.set(tempVelocity,
-                            tempVelocity.x - dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, dampen),
-                            tempVelocity.y - dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, dampen),
-                            tempVelocity.z - dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, dampen));
-                        velocity.subVec3At(tempVelocity, i);
-                        baseVelocity.subVec3At(tempVelocity, i);
-                    }
-                } else {
-                    const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.limitX;
-                    const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.limitY;
-                    const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.limitZ;
-                    const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                    const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
-                        const normalizedTime = normalizedAge[i];
-                        Vec3.set(_temp_v3_1, lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), ratio.x) * xMultiplier,
-                            lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), ratio.y) * yMultiplier,
-                            lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), ratio.z) * zMultiplier);
-                        Vec3.transformQuat(_temp_v3_1, _temp_v3_1, rotation);
-                        velocity.getVec3At(tempVelocity, i);
-                        Vec3.set(tempVelocity,
-                            tempVelocity.x - dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, dampen),
-                            tempVelocity.y - dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, dampen),
-                            tempVelocity.z - dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, dampen));
-                        velocity.subVec3At(tempVelocity, i);
-                        baseVelocity.subVec3At(tempVelocity, i);
-                    }
+                const transform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
+                const invTransform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.worldToLocalRS : emitter.localToWorldRS;
+                for (let i = fromIndex; i < toIndex; i++) {
+                    exp.evaluate(i, limit);
+                    velocity.getVec3At(srcVelocity, i);
+                    Vec3.transformMat3(tempVelocity, srcVelocity, transform);
+                    const dampenRatio = dampen.evaluate(i);
+                    Vec3.set(tempVelocity,
+                        dampenBeyondLimit(tempVelocity.x, limit.x, dampenRatio),
+                        dampenBeyondLimit(tempVelocity.y, limit.y, dampenRatio),
+                        dampenBeyondLimit(tempVelocity.z, limit.z, dampenRatio));
+                    Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
+                    velocity.setVec3At(tempVelocity, i);
+                    baseVelocity.subVec3At(Vec3.subtract(tempVelocity, tempVelocity, srcVelocity), i);
                 }
             } else {
-                // eslint-disable-next-line no-lonely-if
-                if (this.limitX.mode === FloatExpression.Mode.CONSTANT) {
-                    Vec3.set(_temp_v3_1, this.limitX.constant, this.limitY.constant, this.limitY.constant);
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        velocity.getVec3At(tempVelocity, i);
-                        Vec3.set(tempVelocity,
-                            tempVelocity.x - dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, dampen),
-                            tempVelocity.y - dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, dampen),
-                            tempVelocity.z - dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, dampen));
-                        velocity.subVec3At(tempVelocity, i);
-                        baseVelocity.subVec3At(tempVelocity, i);
-                    }
-                } else if (this.limitX.mode === FloatExpression.Mode.CURVE) {
-                    const { spline: splineX, multiplier: xMultiplier } = this.limitX;
-                    const { spline: splineY, multiplier: yMultiplier } = this.limitY;
-                    const { spline: splineZ, multiplier: zMultiplier } = this.limitZ;
-                    const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const normalizedTime = normalizedAge[i];
-                        Vec3.set(_temp_v3_1, splineX.evaluate(normalizedTime) * xMultiplier,
-                            splineY.evaluate(normalizedTime) * yMultiplier,
-                            splineZ.evaluate(normalizedTime) * zMultiplier);
-                        velocity.getVec3At(tempVelocity, i);
-                        Vec3.set(tempVelocity,
-                            tempVelocity.x - dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, dampen),
-                            tempVelocity.y - dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, dampen),
-                            tempVelocity.z - dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, dampen));
-                        velocity.subVec3At(tempVelocity, i);
-                        baseVelocity.subVec3At(tempVelocity, i);
-                    }
-                } else if (this.limitX.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                    const { constantMin: xMin, constantMax: xMax } = this.limitX;
-                    const { constantMin: yMin, constantMax: yMax } = this.limitY;
-                    const { constantMin: zMin, constantMax: zMax } = this.limitZ;
-                    const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const seed = randomSeed[i];
-                        Vec3.set(_temp_v3_1, lerp(xMin, xMax, RandomStream.getFloat(seed + randomOffset)),
-                            lerp(yMin, yMax, RandomStream.getFloat(seed + randomOffset)),
-                            lerp(zMin, zMax, RandomStream.getFloat(seed + randomOffset)));
-                        velocity.getVec3At(tempVelocity, i);
-                        Vec3.set(tempVelocity,
-                            tempVelocity.x - dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, dampen),
-                            tempVelocity.y - dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, dampen),
-                            tempVelocity.z - dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, dampen));
-                        velocity.subVec3At(tempVelocity, i);
-                        baseVelocity.subVec3At(tempVelocity, i);
-                    }
-                } else {
-                    const { splineMin: xMin, splineMax: xMax, multiplier: xMultiplier } = this.limitX;
-                    const { splineMin: yMin, splineMax: yMax, multiplier: yMultiplier } = this.limitY;
-                    const { splineMin: zMin, splineMax: zMax, multiplier: zMultiplier } = this.limitZ;
-                    const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                    const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const seed = randomSeed[i];
-                        const normalizedTime = normalizedAge[i];
-                        Vec3.set(_temp_v3_1, lerp(xMin.evaluate(normalizedTime), xMax.evaluate(normalizedTime), RandomStream.getFloat(seed + randomOffset)) * xMultiplier,
-                            lerp(yMin.evaluate(normalizedTime), yMax.evaluate(normalizedTime), RandomStream.getFloat(seed + randomOffset)) * yMultiplier,
-                            lerp(zMin.evaluate(normalizedTime), zMax.evaluate(normalizedTime), RandomStream.getFloat(seed + randomOffset)) * zMultiplier);
-                        velocity.getVec3At(tempVelocity, i);
-                        Vec3.set(tempVelocity,
-                            tempVelocity.x - dampenBeyondLimit(tempVelocity.x, _temp_v3_1.x, dampen),
-                            tempVelocity.y - dampenBeyondLimit(tempVelocity.y, _temp_v3_1.y, dampen),
-                            tempVelocity.z - dampenBeyondLimit(tempVelocity.z, _temp_v3_1.z, dampen));
-                        velocity.subVec3At(tempVelocity, i);
-                        baseVelocity.subVec3At(tempVelocity, i);
-                    }
-                }
-            }
-        } else {
-            // eslint-disable-next-line no-lonely-if
-            if (this.limitX.mode === FloatExpression.Mode.CONSTANT) {
-                const { constant } = this.limit;
                 for (let i = fromIndex; i < toIndex; i++) {
+                    exp.evaluate(i, limit);
                     velocity.getVec3At(tempVelocity, i);
-                    const length = tempVelocity.length();
-                    Vec3.multiplyScalar(tempVelocity, tempVelocity,
-                        1 - dampenBeyondLimit(length, constant, dampen) / length);
-                    velocity.subVec3At(tempVelocity, i);
-                    baseVelocity.subVec3At(tempVelocity, i);
-                }
-            } else if (this.limitX.mode === FloatExpression.Mode.CURVE) {
-                const { spline, multiplier } = this.limit;
-                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    velocity.getVec3At(tempVelocity, i);
-                    const length = tempVelocity.length();
-                    Vec3.multiplyScalar(tempVelocity, tempVelocity,
-                        1 - dampenBeyondLimit(length, spline.evaluate(normalizedAge[i]) * multiplier, dampen) / length);
-                    velocity.subVec3At(tempVelocity, i);
-                    baseVelocity.subVec3At(tempVelocity, i);
-                }
-            } else if (this.limitX.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const { constantMin, constantMax } = this.limit;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i];
-                    velocity.getVec3At(tempVelocity, i);
-                    const length = tempVelocity.length();
-                    Vec3.multiplyScalar(tempVelocity, tempVelocity,
-                        1 - dampenBeyondLimit(length, lerp(constantMin, constantMax, RandomStream.getFloat(seed + randomOffset)), dampen) / length);
-                    velocity.subVec3At(tempVelocity, i);
-                    baseVelocity.subVec3At(tempVelocity, i);
-                }
-            } else {
-                const { splineMin, splineMax, multiplier } = this.limit;
-                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const seed = randomSeed[i];
-                    const normalizedTime = normalizedAge[i];
-                    velocity.getVec3At(tempVelocity, i);
-                    const length = tempVelocity.length();
-                    Vec3.multiplyScalar(tempVelocity, tempVelocity,
-                        1 - dampenBeyondLimit(length, lerp(splineMin.evaluate(normalizedTime), splineMax.evaluate(normalizedTime), RandomStream.getFloat(seed + randomOffset)) * multiplier, dampen) / length);
+                    const dampenRatio = dampen.evaluate(i);
+                    Vec3.set(tempVelocity,
+                        tempVelocity.x - dampenBeyondLimit(tempVelocity.x, limit.x, dampenRatio),
+                        tempVelocity.y - dampenBeyondLimit(tempVelocity.y, limit.y, dampenRatio),
+                        tempVelocity.z - dampenBeyondLimit(tempVelocity.z, limit.z, dampenRatio));
                     velocity.subVec3At(tempVelocity, i);
                     baseVelocity.subVec3At(tempVelocity, i);
                 }
             }
-        }
-    }
-
-    protected needsFilterSerialization () {
-        return true;
-    }
-
-    protected getSerializedProps () {
-        if (!this.separateAxes) {
-            return ['separateAxes', 'x'];
         } else {
-            return ['separateAxes', 'x', '_y', '_z'];
+            const exp = this._uniformLimit as FloatExpression;
+            exp.bind(particles, emitter, user, context);
+            const dampen = this.dampen;
+            dampen.bind(particles, emitter, user, context);
+            if (needTransform) {
+                const transform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
+                const invTransform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.worldToLocalRS : emitter.localToWorldRS;
+                for (let i = fromIndex; i < toIndex; i++) {
+                    const limit = exp.evaluate(i);
+                    velocity.getVec3At(srcVelocity, i);
+                    Vec3.transformMat3(tempVelocity, srcVelocity, transform);
+                    const dampenRatio = dampen.evaluate(i);
+                    const oldLength = tempVelocity.length();
+                    const newLength = dampenBeyondLimit(oldLength, limit, dampenRatio);
+                    tempVelocity.multiplyScalar(newLength / oldLength);
+                    Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
+                    velocity.setVec3At(tempVelocity, i);
+                    baseVelocity.subVec3At(Vec3.subtract(tempVelocity, tempVelocity, srcVelocity), i);
+                }
+            } else {
+                for (let i = fromIndex; i < toIndex; i++) {
+                    const limit = exp.evaluate(i);
+                    velocity.getVec3At(tempVelocity, i);
+                    const dampenRatio = dampen.evaluate(i);
+                    const oldLength = tempVelocity.length();
+                    const newLength = dampenBeyondLimit(oldLength, limit, dampenRatio);
+                    tempVelocity.multiplyScalar(newLength / oldLength);
+                    velocity.setVec3At(tempVelocity, i);
+                    baseVelocity.subVec3At(Vec3.subtract(tempVelocity, tempVelocity, srcVelocity), i);
+                }
+            }
         }
     }
 }

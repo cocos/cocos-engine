@@ -123,16 +123,4 @@ export class ScaleSpriteSizeModule extends VFXModule {
             }
         }
     }
-
-    protected needsFilterSerialization () {
-        return true;
-    }
-
-    protected getSerializedProps () {
-        if (!this.separateAxes) {
-            return ['separateAxes', '_scalar'];
-        } else {
-            return ['separateAxes', '_uniformScalar'];
-        }
-    }
 }
