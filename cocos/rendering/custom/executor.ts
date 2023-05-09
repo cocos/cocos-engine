@@ -42,7 +42,6 @@ import { BatchingSchemes, Pass } from '../../render-scene';
 import { Camera } from '../../render-scene/scene/camera';
 import { ShadowType } from '../../render-scene/scene/shadows';
 import { Root } from '../../root';
-import { BatchedBuffer } from '../batched-buffer';
 import { IRenderPass, isEnableEffect, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
@@ -458,7 +457,6 @@ class DeviceRenderQueue {
 class SubmitInfo {
     public instances = new Set<InstancedBuffer>();
     public renderInstanceQueue: InstancedBuffer[] = [];
-    public batches = new Set<BatchedBuffer>();
     public opaqueList: RenderInfo[] = [];
     public transparentList: RenderInfo[] = [];
     public planarQueue: PlanarShadowQueue | null = null;
@@ -469,7 +467,6 @@ class SubmitInfo {
     reset () {
         this.instances.clear();
         this.renderInstanceQueue.length = 0;
-        this.batches.clear();
         this.opaqueList.length = 0;
         this.transparentList.length = 0;
         this.planarQueue = null;
@@ -1042,8 +1039,7 @@ class DevicePreSceneTask extends WebSceneTask {
         // If it is not empty, it means that it has been added and will not be traversed.
         const isEmpty = !this._submitInfo.opaqueList.length
                         && !this._submitInfo.transparentList.length
-                        && !this._submitInfo.instances.size
-                        && !this._submitInfo.batches.size;
+                        && !this._submitInfo.instances.size;
         if (isEmpty) {
             for (const ro of this.sceneData.renderObjects) {
                 const subModels = ro.model.subModels;
@@ -1056,10 +1052,6 @@ class DevicePreSceneTask extends WebSceneTask {
                             const instancedBuffer = p.getInstancedBuffer();
                             instancedBuffer.merge(subModel, passes.indexOf(p));
                             this._submitInfo.instances.add(instancedBuffer);
-                        } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
-                            const batchedBuffer = p.getBatchedBuffer();
-                            batchedBuffer.merge(subModel, passes.indexOf(p), ro.model);
-                            this._submitInfo.batches.add(batchedBuffer);
                         } else {
                             this._insertRenderList(ro, subModels.indexOf(subModel), passes.indexOf(p));
                             this._insertRenderList(ro, subModels.indexOf(subModel), passes.indexOf(p), true);
@@ -1149,24 +1141,6 @@ class DevicePreSceneTask extends WebSceneTask {
         this._currentQueue.isUploadInstance = true;
     }
 
-    private _uploadBatchedBuffers () {
-        if (this._currentQueue.isUploadBatched) return;
-        const it = this._submitInfo!.batches.values(); let res = it.next();
-        while (!res.done) {
-            for (let b = 0; b < res.value.batches.length; ++b) {
-                const batch = res.value.batches[b];
-                if (!batch.mergeCount) { continue; }
-                for (let v = 0; v < batch.vbs.length; ++v) {
-                    batch.vbs[v].update(batch.vbDatas[v]);
-                }
-                this._cmdBuff.updateBuffer(batch.vbIdx, batch.vbIdxData.buffer);
-                this._cmdBuff.updateBuffer(batch.ubo, batch.uboData);
-            }
-            res = it.next();
-        }
-        this._currentQueue.isUploadBatched = true;
-    }
-
     protected _updateGlobal (data: RenderData) {
         const devicePass = this._currentQueue.devicePass;
         updateGlobalDescBinding(data, isEnableEffect() ? context.renderGraph.getLayout(devicePass.rasterPassInfo.id) : 'default');
@@ -1182,7 +1156,6 @@ class DevicePreSceneTask extends WebSceneTask {
             return;
         }
         this._uploadInstanceBuffers();
-        this._uploadBatchedBuffers();
     }
 }
 
@@ -1259,31 +1232,6 @@ class DeviceSceneTask extends WebSceneTask {
                     this.visitor.bindInputAssembler(ia);
                     this.visitor.draw(ia);
                 }
-            }
-            res = it.next();
-        }
-    }
-    protected _recordBatches () {
-        const submitMap = context.submitMap;
-        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        const it = currSubmitInfo.batches.values(); let res = it.next();
-        while (!res.done) {
-            let boundPSO = false;
-            for (let b = 0; b < res.value.batches.length; ++b) {
-                const batch = res.value.batches[b];
-                if (!batch.mergeCount) { continue; }
-                if (!boundPSO) {
-                    const shader = batch.shader!;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, batch.pass,
-                        shader, this._renderPass, batch.ia);
-                    this.visitor.bindPipelineState(pso);
-                    this.visitor.bindDescriptorSet(SetIndex.MATERIAL, batch.pass.descriptorSet);
-                    boundPSO = true;
-                }
-                const ia: any = batch.ia;
-                this.visitor.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet, res.value.dynamicOffsets);
-                this.visitor.bindInputAssembler(ia);
-                this.visitor.draw(ia);
             }
             res = it.next();
         }
@@ -1476,7 +1424,6 @@ class DeviceSceneTask extends WebSceneTask {
         if (graphSceneData.flags & SceneFlags.DRAW_INSTANCING) {
             this._recordInstences();
         }
-        // this._recordBatches();
         if (graphSceneData.flags & SceneFlags.DEFAULT_LIGHTING) {
             this._recordAdditiveLights();
         }
