@@ -918,7 +918,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Bind module to particle processor.
      * @zh 把模块绑定到粒子更新函数上。
      */
-    public bindModule () {
+    private bindModule () {
         if (this._colorOverLifetimeModule) this._colorOverLifetimeModule.bindTarget(this.processor);
         if (this._sizeOvertimeModule) this._sizeOvertimeModule.bindTarget(this.processor);
         if (this._rotationOvertimeModule) this._rotationOvertimeModule.bindTarget(this.processor);
