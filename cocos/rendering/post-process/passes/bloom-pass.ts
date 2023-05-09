@@ -58,7 +58,7 @@ export class BloomPass extends SettingPass {
             .blitScreen(0)
             .version();
 
-        // downSampler pass
+        // down sampler pass
         for (let i = 0; i < setting.iterations; ++i) {
             const texSize = new Vec4(outWidth, outHeight, 0, 0);
             outWidth >>= 1;
@@ -74,7 +74,7 @@ export class BloomPass extends SettingPass {
                 .version();
         }
 
-        // upSampler pass
+        // up sampler pass
         for (let i = 0; i < setting.iterations; ++i) {
             const texSize = new Vec4(outWidth, outHeight, 0, 0);
             outWidth <<= 1;
