@@ -1768,7 +1768,7 @@ class ExecutorContext {
     readonly commandBuffer: CommandBuffer;
     readonly pipelineSceneData: PipelineSceneData;
     readonly resourceGraph: ResourceGraph;
-    readonly devicePasses: Map<string, DeviceRenderPass> = new Map<string, DeviceRenderPass>();
+    readonly devicePasses: Map<number, DeviceRenderPass> = new Map<number, DeviceRenderPass>();
     readonly deviceTextures: Map<string, DeviceTexture> = new Map<string, DeviceTexture>();
     readonly layoutGraph: LayoutGraphData;
     readonly root: Root;
@@ -1924,29 +1924,15 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
     rasterPass (pass: RasterPass) {
         if (!this.rg.getValid(this.passID)) return;
         const devicePasses = context.devicePasses;
-        if (pass.versionName === '') {
-            const passHash = stringify(pass);
-            this.currPass = devicePasses.get(passHash);
-            if (!this.currPass) {
-                const rasterInfo = context.pools.addRasterPassInfo();
-                rasterInfo.applyInfo(this.passID, pass);
-                this.currPass = new DeviceRenderPass(rasterInfo);
-                devicePasses.set(passHash, this.currPass);
-            } else {
-                this.currPass.resetResource(this.passID, pass);
-            }
+        const passHash = pass.hashValue;
+        this.currPass = devicePasses.get(passHash);
+        if (!this.currPass) {
+            const rasterInfo = context.pools.addRasterPassInfo();
+            rasterInfo.applyInfo(this.passID, pass);
+            this.currPass = new DeviceRenderPass(rasterInfo);
+            devicePasses.set(passHash, this.currPass);
         } else {
-            const passHash = pass.versionName;
-            this.currPass = devicePasses.get(passHash);
-            const currRasterPass = this.currPass ? this.currPass.rasterPassInfo.pass : null;
-            if (!this.currPass || currRasterPass!.version !== pass.version) {
-                const rasterInfo = context.pools.addRasterPassInfo();
-                rasterInfo.applyInfo(this.passID, pass);
-                this.currPass = new DeviceRenderPass(rasterInfo);
-                devicePasses.set(passHash, this.currPass);
-            } else {
-                this.currPass.resetResource(this.passID, pass);
-            }
+            this.currPass.resetResource(this.passID, pass);
         }
     }
     rasterSubpass (value: RasterSubpass) {}
@@ -1997,9 +1983,7 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
     }
     rasterPass (pass: RasterPass) {
         const devicePasses = context.devicePasses;
-        const passHash = pass.versionName === ''
-            ? stringify(pass)
-            : pass.versionName;
+        const passHash = pass.hashValue;
         const currPass = devicePasses.get(passHash);
         if (!currPass) return;
         this.currPass = currPass;

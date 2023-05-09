@@ -1086,6 +1086,7 @@ export function getDescBindingFromName (bindingName: string) {
     return -1;
 }
 
+const uniformMap: Map<string, Float32Array> = new Map();
 function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = false) {
     const constants = data.constants;
     const samplers = data.samplers;
@@ -1096,6 +1097,7 @@ function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = fa
     for (const [key, value] of constants) {
         const bindId = getDescBinding(key, descriptorSetData);
         if (bindId === -1) { continue; }
+        const uniformKey = `${layout}${bindId}`;
         let buffer = descriptorSet.getBuffer(bindId);
         let haveBuff = true;
         if (!buffer && !isUpdate) {
@@ -1105,7 +1107,15 @@ function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = fa
                 value.length * 4));
             haveBuff = false;
         }
-        if (isUpdate) buffer.update(new Float32Array(value));
+        if (isUpdate) {
+            let currUniform = uniformMap.get(uniformKey);
+            if (!currUniform) {
+                uniformMap.set(uniformKey, new Float32Array(value));
+                currUniform = uniformMap.get(uniformKey)!;
+            }
+            currUniform.set(value);
+            buffer.update(currUniform);
+        }
         if (!haveBuff) bindGlobalDesc(descriptorSet, bindId, buffer);
     }
     for (const [key, value] of textures) {
