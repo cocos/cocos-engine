@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -21,10 +21,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { native } from '../../cocos/native-binding/index';
 
-/**
- * export PhysX from internal module
- */
-import asmFactory from 'external:emscripten/physx/physx.release.asm.js';
-
-export { asmFactory };
+export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
+    wasmUrl = `/src/cocos-js/${wasmUrl}`;
+    const arrayBuffer = native.fileUtils.getDataFromFile(wasmUrl);
+    return WebAssembly.instantiate(arrayBuffer, importObject);
+}

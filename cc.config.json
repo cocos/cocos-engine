@@ -289,7 +289,8 @@
                 "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
                 "pal/input": "pal/input/web/index.ts",
                 "pal/env": "pal/env/web/env.ts",
-                "pal/pacer": "pal/pacer/pacer-web.ts"
+                "pal/pacer": "pal/pacer/pacer-web.ts",
+                "pal/wasm": "pal/wasm/wasm-web.ts"
             }
         },
         {
@@ -302,7 +303,8 @@
                 "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
                 "pal/input": "pal/input/native/index.ts",
                 "pal/env": "pal/env/native/env.ts",
-                "pal/pacer": "pal/pacer/pacer-native.ts"
+                "pal/pacer": "pal/pacer/pacer-native.ts",
+                "pal/wasm": "pal/wasm/wasm-native.ts"
             }
         },
         {
@@ -315,7 +317,8 @@
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/minigame/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts"
+                "pal/pacer": "pal/pacer/pacer-minigame.ts",
+                "pal/wasm": "pal/wasm/wasm-minigame.ts"
             }
         },
         {
@@ -328,7 +331,8 @@
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/runtime/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts"
+                "pal/pacer": "pal/pacer/pacer-minigame.ts",
+                "pal/wasm": "pal/wasm/wasm-minigame.ts"
             }
         },
         {
@@ -615,6 +619,12 @@
             "type": "boolean",
             "value": false,
             "internal": true
+        },
+        "WASM_SUPPORT_MODE": {
+            "comment": "Whether support wasm, here we provide 3 options:\n0: The platform doesn't support WASM\n1: The platform supports WASM\n2: The platform may support WASM, especially on Web platform",
+            "type": "number",
+            "value": "$HTML5 ? 2 : ($NATIVE ? ($OPEN_HARMONY?0:1): ($MINIGAME? ($WECHAT?1:0) :0))",
+            "internal": false
         }
     },
 

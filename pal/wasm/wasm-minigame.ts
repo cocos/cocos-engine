@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,9 +22,7 @@
  THE SOFTWARE.
 */
 
-/**
- * export PhysX from internal module
- */
-import asmFactory from 'external:emscripten/physx/physx.release.asm.js';
-
-export { asmFactory };
+export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
+    wasmUrl = `cocos-js/${wasmUrl}`;
+    return WebAssembly.instantiate(wasmUrl, importObject);
+}

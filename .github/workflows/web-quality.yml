@@ -19,7 +19,14 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
+
+      - name: Download external
+        run: |
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+
       - run: npm ci
+
       - name: Run ESLint
         shell: pwsh
         run: ./.github/workflows/eslint.ps1
