@@ -32,10 +32,10 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(new ForwardPass());
         this.addPass(new TAAPass());
         this.addPass(new FSRPass());
-        this.addPass(new ColorGradingPass());
-        this.addPass(new BloomPass());
         this.addPass(new FxaaPass());
+        this.addPass(new ColorGradingPass());
         this.addPass(new BlitScreenPass());
+        this.addPass(new BloomPass());
         this.addPass(new ForwardFinalPass());
     }
 
