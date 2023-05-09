@@ -24,6 +24,14 @@ export interface TCBindingTypeInfo {
      * All value types that this binding can provides.
      */
     provisions?: readonly TCBindingValueType[];
+
+    /**
+     * @zh
+     * 如果有定义，表示该类型的绑定支持的过渡源状态的类型。
+     * @en
+     * If defined, represents the type(s) of the transition source state supported by this type of binding.
+     */
+    transitionSourceFilter?: TCBindingTransitionSourceFilter;
 }
 
 const tcnBindingTypeInfoMap = new WeakMap<Constructor<TCBinding<number>>, TCBindingTypeInfo>();
@@ -43,24 +51,28 @@ function getOrCreateTCBindingTypeInfo <TFunction extends Function> (target: TFun
     return info;
 }
 
-export const menu = (menu: string): ClassDecorator => (!EDITOR ? () => {} : (target) => {
-    const info = getOrCreateTCBindingTypeInfo(target);
-    if (info) {
-        const prefix = 'i18n:';
-        let i18nMenu = menu;
-        if (menu.startsWith(prefix)) {
-            const extensionPrefix = 'ENGINE.';
-            i18nMenu = `${prefix}${extensionPrefix}${menu.slice(prefix.length)}`;
-        }
-        info.menu = i18nMenu;
-    }
-});
-
 export const provide = (...valueTypes: readonly TCBindingValueType[]): ClassDecorator => (!EDITOR ? () => {} : (target) => {
     const info = getOrCreateTCBindingTypeInfo(target);
-    if (info) {
-        info.provisions = valueTypes.slice();
-    }
+    info.provisions = valueTypes.slice();
+});
+
+export enum TCBindingTransitionSourceFilter {
+    /** Motion states. */
+    MOTION = 1 << 0,
+
+    /** Pose states. */
+    POSE = 1 << 1,
+
+    /** Empty states. */
+    EMPTY = 1 << 2,
+
+    /** All states having weight concept. */
+    WEIGHTED = MOTION | POSE | EMPTY,
+}
+
+export const support = (transitionSourceFilter: TCBindingTransitionSourceFilter): ClassDecorator => (!EDITOR ? () => {} : (target) => {
+    const info = getOrCreateTCBindingTypeInfo(target);
+    info.transitionSourceFilter = transitionSourceFilter;
 });
 
 /**

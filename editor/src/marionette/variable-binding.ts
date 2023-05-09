@@ -12,7 +12,7 @@ import {
     VariableType,
 } from '../../../cocos/animation/marionette/asset-creation';
 import { TCBindingValueType } from '../../../cocos/animation/marionette/state-machine/condition/binding/binding';
-import { BindableVariableType, TCVariableBinding } from '../../../cocos/animation/marionette/state-machine/condition/binding/variable-binding';
+import { TCVariableBinding } from '../../../cocos/animation/marionette/state-machine/condition/binding/variable-binding';
 
 export interface VariableBindingView {
     /**
@@ -69,7 +69,7 @@ export function* viewVariableBindings(animationGraph: AnimationGraph): Generator
         };
     }
 
-    function createTCVariableBindingView<TAcceptableType extends BindableVariableType>(
+    function createTCVariableBindingView<TAcceptableType extends VariableType.FLOAT | VariableType.INTEGER>(
         binding: TCVariableBinding<VariableTypeToTCBindingValueTypeMapping[TAcceptableType]>,
         acceptableTypes: TAcceptableType[],
     ) {

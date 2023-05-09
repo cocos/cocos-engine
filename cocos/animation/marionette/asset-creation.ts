@@ -29,7 +29,7 @@ export { BinaryCondition, UnaryCondition, TriggerCondition } from './state-machi
 export type { Condition } from './state-machine/condition';
 
 export { TCBinding, TCBindingValueType } from './state-machine/condition/binding/binding';
-export { getTCBindingTypeInfo } from './state-machine/condition/binding/editor';
+export { getTCBindingTypeInfo, TCBindingTransitionSourceFilter } from './state-machine/condition/binding/editor';
 export type { TCBindingTypeInfo } from './state-machine/condition/binding/editor';
 
 export type { Value } from './variable';
