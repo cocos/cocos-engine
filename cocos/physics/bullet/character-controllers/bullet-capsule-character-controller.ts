@@ -46,7 +46,7 @@ export class BulletCapsuleCharacterController extends BulletCharacterController 
         const pos = BulletCache.instance.BT_V3_0;
         bt.Vec3_set(pos, v3_0.x, v3_0.y, v3_0.z);
 
-        const upDir = new Vec3(0, 1, 0);//temp
+        const upDir = Vec3.UNIT_Y;
         const up = BulletCache.instance.BT_V3_1;
         bt.Vec3_set(up, upDir.x, upDir.y, upDir.z);
 
@@ -83,7 +83,7 @@ export class BulletCapsuleCharacterController extends BulletCharacterController 
 
     updateGeometry (): void {
         const ws = this.component.node.worldScale;
-        const r = this.component.radius * Math.abs(absMax(ws.x, ws.z));
+        const r = this.component.radius * absMax(ws.x, ws.z);
         const h = this.component.height * Math.abs(ws.y);
         bt.CapsuleCharacterController_setRadius(this.impl, r);
         bt.CapsuleCharacterController_setHeight(this.impl, h);

@@ -78,8 +78,10 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
                 const body = this.wrappedBodies[i];
                 body.syncPhysicsToScene();
             }
-            for (let i = 0; i < this.ccts.length; i++) {
-                const cct = this.ccts[i];
+            const ccts = this.ccts;
+            const length = ccts.length;
+            for (let i = 0; i < length; i++) {
+                const cct = ccts[i];
                 cct.syncPhysicsToScene();
             }
         }
@@ -104,8 +106,10 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
             const body = this.wrappedBodies[i];
             body.syncSceneToPhysics();
         }
-        for (let i = 0; i < this.ccts.length; i++) {
-            const cct = this.ccts[i];
+        const ccts = this.ccts;
+        const length = ccts.length;
+        for (let i = 0; i < length; i++) {
+            const cct = ccts[i];
             cct.syncSceneToPhysics();
         }
     }

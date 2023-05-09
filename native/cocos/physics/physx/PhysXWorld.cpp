@@ -87,7 +87,7 @@ PhysXWorld::PhysXWorld() {
     sceneDesc.simulationEventCallback = &_mEventMgr->getEventCallback();
     _mScene = _mPhysics->createScene(sceneDesc);
 
-	_mControllerManager = PxCreateControllerManager(*_mScene);
+    _mControllerManager = PxCreateControllerManager(*_mScene);
 
     _mCollisionMatrix[0] = 1;
 

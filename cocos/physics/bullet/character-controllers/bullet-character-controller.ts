@@ -40,6 +40,7 @@ const v3_0 = new Vec3(0, 0, 0);
 const v3_1 = new Vec3(0, 0, 0);
 const v3_2 = new Vec3(0, 0, 0);
 export abstract class BulletCharacterController implements IBaseCharacterController {
+    readonly wrappedWorld: BulletWorld;
     private _isEnabled = false;
     protected _impl: any = null; //btCapsuleCharacterController
     protected _comp: CharacterController = null as any;
@@ -54,6 +55,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     get characterController (): CharacterController { return this._comp; }
 
     constructor () {
+        this.wrappedWorld = PhysicsSystem.instance.physicsWorld as BulletWorld;
     }
 
     // virtual
@@ -70,7 +72,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         this.onComponentSet();
 
         if (this._impl == null) {
-            error('[Physics]: BulletCharacterController initialize createCapsuleCharacterController failed');
+            error('[Physics]: Initialize BulletCharacterController failed');
             return false;
         } else {
             return true;
@@ -94,15 +96,16 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
 
     onDisable (): void {
         this._isEnabled = false;
+        this.wrappedWorld.removeCCT(this);
         this.onDestroy();
     }
 
     onDestroy (): void {
         //(this._comp as any) = null;
-        (PhysicsSystem.instance.physicsWorld as BulletWorld).removeCCT(this);
         bt._safe_delete(this._impl, EBulletType.EBulletTypeCharacterController);
         BulletCache.delWrapper(this._impl, bt.CCT_CACHE_NAME);
         this._impl = null;
+        //(this.wrappedWorld as any) = null;
     }
 
     onLoad (): void {
@@ -117,6 +120,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     setPosition (value: IVec3Like): void {
         if (!this._impl) return;
         cocos2BulletVec3(bt.CharacterController_getPosition(this.impl), value);
+        this.syncPhysicsToScene();
     }
 
     setContactOffset (value: number): void {
@@ -151,8 +155,12 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     syncSceneToPhysics (): void {
         const node = this.characterController.node;
         if (node.hasChangedFlags) {
-            //only sync scale from scene node to physics
             if (node.hasChangedFlags & TransformBit.SCALE) this.syncScale();
+            //teleport
+            if (node.hasChangedFlags & TransformBit.POSITION) {
+                Vec3.add(v3_0, node.worldPosition, this._comp.scaledCenter);
+                this.setPosition(v3_0);
+            }
         }
     }
 
@@ -216,7 +224,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     }
 
     updateEventListener () {
-        (PhysicsSystem.instance.physicsWorld as BulletWorld).updateNeedEmitCCTEvents(this.characterController.needCollisionEvent);
+        this.wrappedWorld.updateNeedEmitCCTEvents(this.characterController.needCollisionEvent);
     }
 
     // update group and mask by re-adding cct to physics world

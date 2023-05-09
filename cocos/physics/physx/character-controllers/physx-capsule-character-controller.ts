@@ -63,7 +63,7 @@ export class PhysXCapsuleCharacterController extends PhysXCharacterController im
         controllerDesc.contactOffset = this.component.contactOffset;
         controllerDesc.stepOffset = this.component.stepOffset;
         controllerDesc.slopeLimit = Math.cos(degreesToRadians(this.component.slopeLimit));
-        controllerDesc.upDirection = upDir;//this.component._upDirection;
+        controllerDesc.upDirection = upDir;
         controllerDesc.position = { x: v3_0.x, y: v3_0.y, z: v3_0.z };//PxExtendedVec3
         controllerDesc.setMaterial(pxMtl);
         controllerDesc.setReportCallback(PX.PxUserControllerHitReport.implement(physxWorld.callback.controllerHitReportCB));

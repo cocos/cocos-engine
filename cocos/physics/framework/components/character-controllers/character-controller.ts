@@ -216,16 +216,6 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en
-     * Gets the wrapper object, through which the lowLevel instance can be accessed.
-     * @zh
-     * 获取封装对象，通过此对象可以访问到底层实例。
-     */
-    public get characterController () {
-        return this._cct;
-    }
-
-    /**
-     * @en
      * Gets the type of this character controller.
      * @zh
      * 获取此角色控制器的类型。
@@ -299,6 +289,7 @@ export class CharacterController extends Eventify(Component) {
             this._needCollisionEvent = false;
             this._cct.updateEventListener();
             this._cct.onDestroy!();
+            this._cct = null;
         }
     }
 

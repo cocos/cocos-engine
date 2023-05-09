@@ -27,7 +27,7 @@ import { error, IVec3Like, Vec3 } from '../../../core';
 import { PhysicsSystem  } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
 import { IBaseCharacterController } from '../../spec/i-character-controller';
-import { getWrapShape, PX, _trans } from '../physx-adapter';
+import { getWrapShape, PX, _trans, getJsTransform } from '../physx-adapter';
 import { EFilterDataWord3 } from '../physx-enum';
 import { PhysXWorld } from '../physx-world';
 import { PhysXShape } from '../shapes/physx-shape';
@@ -70,7 +70,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     initialize (comp: CharacterController): boolean {
         this._comp = comp;
 
-        this._queryFilterCB = PX.PxQueryFilterCallback.implement(this.queryCallback);
+        this._queryFilterCB = PX.PxQueryFilterCallback.implement(PhysXCharacterController.queryCallback);
 
         const group = this._comp.group;
         this._filterData.word0 = this._comp.group;
@@ -80,7 +80,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
         this.onComponentSet();
 
         if (this._impl == null) {
-            error('[Physics]: PhysXCharacterController Initialize createCapsuleCharacterController Failed');
+            error('[Physics]: Initialize PhysXCharacterController Failed');
             return false;
         } else {
             return true;
@@ -99,7 +99,8 @@ export class PhysXCharacterController implements IBaseCharacterController {
 
     onDisable (): void {
         this._isEnabled = false;
-        this.onDestroy();
+        (PhysicsSystem.instance.physicsWorld as PhysXWorld).removeCCT(this);
+        this.onDestroy();//to be optimized
     }
 
     onLoad (): void {
@@ -119,8 +120,6 @@ export class PhysXCharacterController implements IBaseCharacterController {
 
     onDestroy (): void {
         this.release();
-
-        (PhysicsSystem.instance.physicsWorld as PhysXWorld).removeCCT(this);
     }
 
     getPosition (out: IVec3Like): void {
@@ -131,6 +130,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     setPosition (value: IVec3Like): void {
         if (!this._impl) return;
         this._impl.setPosition(value);
+        this.syncPhysicsToScene();
     }
 
     setContactOffset (value: number): void {
@@ -169,8 +169,12 @@ export class PhysXCharacterController implements IBaseCharacterController {
     syncSceneToPhysics (): void {
         const node = this.characterController.node;
         if (node.hasChangedFlags) {
-            //only sync scale from scene node to physics
             if (node.hasChangedFlags & TransformBit.SCALE) this.syncScale();
+            //teleport
+            if (node.hasChangedFlags & TransformBit.POSITION) {
+                Vec3.add(v3_0, node.worldPosition, this._comp.scaledCenter);
+                this.setPosition(v3_0);
+            }
         }
     }
 
@@ -187,7 +191,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     // eNONE = 0,   //!< the query should ignore this shape
     // eTOUCH = 1,  //!< a hit on the shape touches the intersection geometry of the query but does not block it
     // eBLOCK = 2   //!< a hit on the shape blocks the query (does not block overlap queries)
-    queryCallback = {
+    static queryCallback = {
         preFilter (filterData: any, shape: any, _actor: any, _out: any): number {
             const collider = getWrapShape<PhysXShape>(shape).collider;
             if (!(filterData.word0 & collider.getMask()) || !(filterData.word1 & collider.getGroup())) {

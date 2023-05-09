@@ -93,8 +93,10 @@ export class BulletWorld implements IPhysicsWorld {
             this._needEmitCCTEvents = true;
         } else {
             this._needEmitCCTEvents = false;
-            for (let i = 0; i < this.ccts.length; i++) {
-                const cctCom = this.ccts[i].characterController;
+            const ccts = this.ccts;
+            const length = ccts.length;
+            for (let i = 0; i < length; i++) {
+                const cctCom = ccts[i].characterController;
                 if (cctCom.needCollisionEvent) {
                     this._needEmitCCTEvents = true;
                     return;
@@ -157,8 +159,10 @@ export class BulletWorld implements IPhysicsWorld {
         if (timeSinceLastCalled === undefined) timeSinceLastCalled = deltaTime;
         bt.DynamicsWorld_stepSimulation(this._world, timeSinceLastCalled, maxSubStep, deltaTime);
 
-        for (let i = 0; i < this.ccts.length; i++) {
-            this.ccts[i].syncPhysicsToScene();
+        const ccts = this.ccts;
+        const length = ccts.length;
+        for (let i = 0; i < length; i++) {
+            ccts[i].syncPhysicsToScene();
         }
     }
 
@@ -176,8 +180,10 @@ export class BulletWorld implements IPhysicsWorld {
             body.syncSceneToPhysics();
         }
 
-        for (let i = this.ccts.length - 1; i >= 0; i--) {
-            const cct = this.ccts[i];
+        const ccts = this.ccts;
+        const length = ccts.length;
+        for (let i = length - 1; i >= 0; i--) {
+            const cct = ccts[i];
             cct.updateDirty();
             cct.syncSceneToPhysics();
         }

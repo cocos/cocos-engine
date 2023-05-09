@@ -53,16 +53,16 @@ export class PhysXBoxCharacterController extends PhysXCharacterController implem
         const physxWorld = (PhysicsSystem.instance.physicsWorld as PhysXWorld);
 
         const controllerDesc = new PX.PxBoxControllerDesc();
-        controllerDesc.halfHeight = 0.5;//this.component.halfHeight;
-        controllerDesc.halfSideExtent = 0.5;//this.component.halfSideExtent;
-        controllerDesc.halfForwardExtent = 0.5;//this.component.halfForwardExtent;
+        controllerDesc.halfHeight = this.component.halfHeight;
+        controllerDesc.halfSideExtent = this.component.halfSideExtent;
+        controllerDesc.halfForwardExtent = this.component.halfForwardExtent;
         controllerDesc.density = 10.0;
         controllerDesc.scaleCoeff = 0.8;
         controllerDesc.volumeGrowth = 1.5;
         controllerDesc.contactOffset = this.component.contactOffset;
         controllerDesc.stepOffset = this.component.stepOffset;
         controllerDesc.slopeLimit = Math.cos(degreesToRadians(this.component.slopeLimit));
-        controllerDesc.upDirection = upDir;//this.component._upDirection;
+        controllerDesc.upDirection = upDir;
         controllerDesc.position = { x: v3_0.x, y: v3_0.y, z: v3_0.z };//PxExtendedVec3
         controllerDesc.setMaterial(pxMtl);
         controllerDesc.setReportCallback(PX.PxUserControllerHitReport.implement(physxWorld.callback.controllerHitReportCB));

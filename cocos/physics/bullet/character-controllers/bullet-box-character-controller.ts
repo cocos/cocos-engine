@@ -46,7 +46,7 @@ export class BulletBoxCharacterController extends BulletCharacterController impl
         const pos = BulletCache.instance.BT_V3_0;
         bt.Vec3_set(pos, v3_0.x, v3_0.y, v3_0.z);
 
-        const upDir = new Vec3(0, 1, 0);//temp
+        const upDir = Vec3.UNIT_Y;
         const up = BulletCache.instance.BT_V3_1;
         bt.Vec3_set(up, upDir.x, upDir.y, upDir.z);
 
