@@ -33,6 +33,70 @@ import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, Manag
     RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphObject, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
 import { AccessType, RasterView, ComputeView, ResourceResidency, SceneFlags } from './types';
 
+let hashCode = 0;
+
+function hashCombine (hash) {
+    hashCode ^= (hash >>> 0) + 0x9e3779b9 + (hashCode << 6) + (hashCode >> 2);
+}
+
+function hashCombineNum (val: number) {
+    const hash = 5381;
+    hashCombine((hash * 33) ^ val);
+}
+
+function hashCombineStr (str: string) {
+    // DJB2 HASH
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+        hash = (hash * 33) ^ str.charCodeAt(i);
+    }
+    hashCombine(hash);
+}
+function genHashValue (pass: RasterPass) {
+    hashCode = 0;
+    for (const [name, raster] of pass.rasterViews) {
+        hashCombineStr('raster');
+        hashCombineStr(name);
+        hashCombineStr(raster.slotName);
+        hashCombineNum(raster.accessType);
+        hashCombineNum(raster.attachmentType);
+        hashCombineNum(raster.loadOp);
+        hashCombineNum(raster.storeOp);
+        hashCombineNum(raster.clearFlags);
+        hashCombineNum(raster.clearColor.x);
+        hashCombineNum(raster.clearColor.y);
+        hashCombineNum(raster.clearColor.z);
+        hashCombineNum(raster.clearColor.w);
+        hashCombineNum(raster.slotID);
+        hashCombineNum(raster.shaderStageFlags);
+    }
+    for (const [name, computes] of pass.computeViews) {
+        hashCombineStr(name);
+        for (const compute of computes) {
+            hashCombineStr('compute');
+            hashCombineStr(compute.name);
+            hashCombineNum(compute.accessType);
+            hashCombineNum(compute.clearFlags);
+            hashCombineNum(compute.clearValueType);
+            hashCombineNum(compute.clearValue.x);
+            hashCombineNum(compute.clearValue.y);
+            hashCombineNum(compute.clearValue.z);
+            hashCombineNum(compute.clearValue.w);
+            hashCombineNum(compute.shaderStageFlags);
+        }
+    }
+    hashCombineNum(pass.width);
+    hashCombineNum(pass.height);
+    hashCombineNum(pass.viewport.left);
+    hashCombineNum(pass.viewport.top);
+    hashCombineNum(pass.viewport.width);
+    hashCombineNum(pass.viewport.height);
+    hashCombineNum(pass.viewport.minDepth);
+    hashCombineNum(pass.viewport.maxDepth);
+    hashCombineNum(pass.showStatistics ? 1 : 0);
+    pass.hashValue = hashCode;
+}
+
 class PassVisitor implements RenderGraphVisitor {
     public queueID = 0xFFFFFFFF;
     public sceneID = 0xFFFFFFFF;
@@ -187,6 +251,7 @@ class PassVisitor implements RenderGraphVisitor {
                     resourceGraph.visitVertex(resVisitor, vertID);
                 }
             }
+            genHashValue(pass);
         }
     }
     applyID (id: number, resId: number): void {
