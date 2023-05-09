@@ -282,7 +282,7 @@ export class HBAOPass extends SettingPass {
             .setViewport(area.x, area.y, outWidth, outHeight)
             .setPassInput(inputDS, 'DepthTex')
             .addRasterView(outputRT, Format.BGRA8)
-            .blitScreen(passIdx, QueueHint.RENDER_TRANSPARENT | QueueHint.RENDER_OPAQUE)
+            .blitScreen(passIdx)
             .version();
 
         return {rtName: outputRT, dsName: inputDS};
