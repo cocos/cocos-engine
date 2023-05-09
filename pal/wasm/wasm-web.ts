@@ -22,21 +22,25 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, PREVIEW } from "internal:constants";
+import { EDITOR, PREVIEW } from 'internal:constants';
 
 declare const require: any;
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
-    // NOTE: when it's in EDITOR or PREVIEW, wasmUrl is an absolute file path of wasm.
+    // NOTE: when it's in EDITOR or PREVIEW, wasmUrl is a url with `external:` protocol.
     if (EDITOR) {
-        // IDEA: it's better we implement another PAL for nodejs platform.
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const fs = require('fs');
-        const arrayBuffer = fs.readFileSync(wasmUrl);
-        return WebAssembly.instantiate(arrayBuffer, importObject);
+        return Editor.Message.request('engine', 'query-engine-info').then((info) => {
+            const externalRoot = `${info.native.path}/external/`;
+            wasmUrl = wasmUrl.replace('external:', externalRoot);
+            // IDEA: it's better we implement another PAL for nodejs platform.
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            const fs = require('fs');
+            const arrayBuffer = fs.readFileSync(wasmUrl);
+            return WebAssembly.instantiate(arrayBuffer, importObject);
+        }) as Promise<any>;
     } else if (PREVIEW) {
         // NOTE: we resolve '/engine_external/' in in editor preview server.
-        return fetch(`/engine_external/?path=${wasmUrl}`)
+        return fetch(`/engine_external/?url=${wasmUrl}`)
             .then((response) => response.arrayBuffer().then((buff) => WebAssembly.instantiate(buff, importObject)));
     }
     // here is in the BUILD mode
