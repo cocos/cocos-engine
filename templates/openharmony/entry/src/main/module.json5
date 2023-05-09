@@ -21,7 +21,7 @@
         "icon": "$media:icon",
         "label": "$string:MainAbility_label",
         "startWindowIcon": "$media:icon",
-        "startWindowBackground": "$color:white",
+        "startWindowBackground": "$color:black",
         "visible": true,
         "skills": [
           {

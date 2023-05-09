@@ -546,9 +546,11 @@ export function patch_cc_LightProbeInfo(ctx: cc_LightProbeInfo_Context_Args, app
   apply(() => { $.tooltip('i18n:light_probe.showWireframe')(LightProbeInfo.prototype, 'showWireframe',  showWireframeDescriptor); }, 'tooltip', 'showWireframe');
   apply(() => { $.editable(LightProbeInfo.prototype, 'showWireframe',  showWireframeDescriptor); }, 'editable', 'showWireframe');
   apply(() => { $.tooltip('i18n:light_probe.showConvex')(LightProbeInfo.prototype, 'showConvex',  showConvexDescriptor); }, 'tooltip', 'showConvex');
-  apply(() => { $.tooltip('i18n:light_probe.lightProbeSphereVolume')(LightProbeInfo.prototype, 'lightProbeSphereVolume',  lightProbeSphereVolumeDescriptor); }, 'tooltip', 'lightProbeSphereVolume');
-  apply(() => { $.editable(LightProbeInfo.prototype, 'lightProbeSphereVolume',  lightProbeSphereVolumeDescriptor); }, 'editable', 'lightProbeSphereVolume');
   apply(() => { $.editable(LightProbeInfo.prototype, 'showConvex',  showConvexDescriptor); }, 'editable', 'showConvex');
+  apply(() => { $.tooltip('i18n:light_probe.lightProbeSphereVolume')(LightProbeInfo.prototype, 'lightProbeSphereVolume',  lightProbeSphereVolumeDescriptor); }, 'tooltip', 'lightProbeSphereVolume');
+  apply(() => { $.type(CCFloat)(LightProbeInfo.prototype, 'lightProbeSphereVolume',  lightProbeSphereVolumeDescriptor); }, 'type', 'lightProbeSphereVolume');
+  apply(() => { $.range([0, 100, 1])(LightProbeInfo.prototype, 'lightProbeSphereVolume',  lightProbeSphereVolumeDescriptor); }, 'range', 'lightProbeSphereVolume');
+  apply(() => { $.editable(LightProbeInfo.prototype, 'lightProbeSphereVolume',  lightProbeSphereVolumeDescriptor); }, 'editable', 'lightProbeSphereVolume');
   apply(() => { $.serializable(LightProbeInfo.prototype, '_giScale',  () => { return 1.0; }); }, 'serializable', '_giScale');
   apply(() => { $.serializable(LightProbeInfo.prototype, '_giSamples',  () => { return 1024; }); }, 'serializable', '_giSamples');
   apply(() => { $.serializable(LightProbeInfo.prototype, '_bounces',  () => { return 2; }); }, 'serializable', '_bounces');
