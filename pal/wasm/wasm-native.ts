@@ -21,9 +21,19 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { EDITOR } from 'internal:constants';
 import { native } from '../../cocos/native-binding/index';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
+    // NOTE: when it's in EDITOR, wasmUrl is a url with `external:` protocol.
+    if (EDITOR) {
+        return Editor.Message.request('engine', 'query-engine-info').then((info) => {
+            const externalRoot = `${info.native.path}/external/`;
+            wasmUrl = wasmUrl.replace('external:', externalRoot);
+            const arrayBuffer = native.fileUtils.getDataFromFile(wasmUrl);
+            return WebAssembly.instantiate(arrayBuffer, importObject);
+        }) as Promise<any>;
+    }
     wasmUrl = `/src/cocos-js/${wasmUrl}`;
     const arrayBuffer = native.fileUtils.getDataFromFile(wasmUrl);
     return WebAssembly.instantiate(arrayBuffer, importObject);
