@@ -22,8 +22,10 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
+
 /**
- * This method clones methods in minigame enviroment, sucb as `wx`, `swan` etc. to a module called minigame.
+ * This method clones methods in minigame environment, sub as `wx`, `swan` etc. to a module called minigame.
  * @param targetObject Usually it's specified as the minigame module.
  * @param originObj Original minigame environment such as `wx`, `swan` etc.
  */
@@ -199,7 +201,7 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
     || window.oRequestAnimationFrame
     || window.msRequestAnimationFrame;
 
-    if (raf === undefined || globalThis.__globalXR?.isWebXR) {
+    if (EDITOR || raf === undefined || globalThis.__globalXR?.isWebXR) {
         return setTimeout(callback, delay, ...args);
     }
 
@@ -220,15 +222,20 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
  * @returns Nothing.
  */
 export function clearTimeoutRAF (id) {
-    const raf = requestAnimationFrame
-    || window.requestAnimationFrame
-    || window.webkitRequestAnimationFrame
-    || window.mozRequestAnimationFrame
-    || window.oRequestAnimationFrame
-    || window.msRequestAnimationFrame;
-    if (raf === undefined || globalThis.__globalXR?.isWebXR) {
+    const caf = cancelAnimationFrame
+        || window.cancelAnimationFrame
+        || window.cancelRequestAnimationFrame
+        || window.msCancelRequestAnimationFrame
+        || window.mozCancelRequestAnimationFrame
+        || window.oCancelRequestAnimationFrame
+        || window.webkitCancelRequestAnimationFrame
+        || window.msCancelAnimationFrame
+        || window.mozCancelAnimationFrame
+        || window.webkitCancelAnimationFrame
+        || window.ocancelAnimationFrame;
+    if (EDITOR || caf === undefined || globalThis.__globalXR?.isWebXR) {
         clearTimeout(id);
     } else {
-        cancelAnimationFrame(id);
+        caf(id);
     }
 }

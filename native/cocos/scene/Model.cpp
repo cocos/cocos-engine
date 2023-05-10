@@ -300,8 +300,6 @@ void Model::initSubModel(index_t idx, cc::RenderingSubMesh *subMeshData, Materia
         CC_SAFE_DESTROY(_subModels[idx]);
     }
     _subModels[idx]->initialize(subMeshData, mat->getPasses(), getMacroPatches(idx));
-    _subModels[idx]->initPlanarShadowShader();
-    _subModels[idx]->initPlanarShadowInstanceShader();
     _subModels[idx]->setOwner(this);
     updateAttributesAndBinding(idx);
 }

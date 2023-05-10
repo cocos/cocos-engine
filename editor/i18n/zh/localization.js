@@ -1107,6 +1107,7 @@ module.exports = {
         showProbe: '是否显示光照探针',
         showWireframe: '是否显示光照探针连线',
         showConvex: '是否显示光照探针凸包',
+        lightProbeSphereVolume:'光照探针全局显示大小',
     },
     light_probe_group: {
         method: '光照探针的自动生成算法',
@@ -1118,5 +1119,8 @@ module.exports = {
     },
     reflection_probe: {
         fastBake: '勾选则不会对生成的cubemap进行GGX卷积，烘焙速度非常快。',
+    },
+    color_grading: {
+        originalMap: '内置lut贴图路径internal/dependencies/textures/lut/。',
     },
 };

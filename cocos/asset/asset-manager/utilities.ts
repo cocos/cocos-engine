@@ -132,6 +132,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                 } else {
                     error(`The asset ${depend.uuid} is missing!`);
                 }
+                cclegacy.assetManager.dispatchAssetMissing(asset, depend.owner, depend.prop, depend.uuid);
                 if (depend.type && depend.type !== Asset) {
                     // eslint-disable-next-line new-cap
                     const placeHolder = new depend.type();

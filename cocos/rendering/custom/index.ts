@@ -63,7 +63,6 @@ export const customPipelineBuilderMap = new Map<string, PipelineBuilder>();
 export function setCustomPipeline (name: string, builder: PipelineBuilder) {
     customPipelineBuilderMap.set(name, builder);
 }
-
 export function getCustomPipeline (name: string): PipelineBuilder {
     let builder = customPipelineBuilderMap.get(name) || null;
     if (builder === null) {

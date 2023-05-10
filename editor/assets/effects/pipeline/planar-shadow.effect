@@ -30,30 +30,20 @@ CCProgram planar-shadow-vs %{
   #include <legacy/decode-base>
   #include <legacy/local-batch>
   #include <builtin/uniforms/cc-shadow>
+  #include <common/lighting/functions>
 
   out float v_dist;
 
   vec4 vert () {
     vec4 position;
     CCVertInput(position);
-
-    mat4 matWorld;
-    CCGetWorldMatrix(matWorld);
-
-    vec3 P = (matWorld * position).xyz;
-    vec3 L = cc_mainLitDir.xyz;
-    vec3 N = cc_planarNDInfo.xyz;
-    float d = cc_planarNDInfo.w + 0.001;
-    float dist = (-d - dot(P, N)) / (dot(L, N) + 0.0001);
-    vec3 shadowPos = P + L * dist;
-  
-    // avoid z-fighting with shadow plane
-    vec3 view = normalize(cc_cameraPos.xyz - shadowPos);
-    float viewLength = length(cc_cameraPos.xyz - shadowPos);
-    shadowPos += view * min(1.0, 0.005 * viewLength);
-
-    position = cc_matProj * cc_matView * vec4(shadowPos, 1.0);
-    v_dist = dist;
+    // World Space
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+    vec3 worldPos = (matWorld * position).xyz;
+    vec4 shadowPos = CalculatePlanarShadowPos(worldPos, cc_cameraPos.xyz, cc_mainLitDir.xyz, cc_planarNDInfo);
+    position = cc_matProj * cc_matView * vec4(shadowPos.xyz, 1.0);
+    v_dist = shadowPos.w;
     return position;
   }
 }%
