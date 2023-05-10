@@ -3,23 +3,23 @@ import { PoseGraphNode } from '../pose-graph-node';
 
 export {};
 
-export type PoseGraphCreateNodeContext = {
+export interface PoseGraphCreateNodeContext {
     animationGraph: AnimationGraph;
 
     layerIndex: number;
-};
+}
 
-export type PoseGraphCreateNodeEntry<TArg> = {
+export interface PoseGraphCreateNodeEntry<TArg> {
     arg: TArg;
 
     menu: string;
-};
+}
 
-export type PoseGraphCreateNodeFactory<TArg> = {
+export interface PoseGraphCreateNodeFactory<TArg> {
     listEntries(context: PoseGraphCreateNodeContext): Iterable<PoseGraphCreateNodeEntry<TArg>>;
 
     create: (arg: TArg) => PoseGraphNode;
-};
+}
 
 export interface PoseGraphNodeEditorMetadata {
     /**
