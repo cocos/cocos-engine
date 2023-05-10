@@ -27,6 +27,13 @@ import { ConditionEvaluationContext } from './condition/condition-base';
 import { ReadonlyClipOverrideMap } from '../clip-overriding';
 
 /**
+ * The max transitions can be matched in single frame.
+ *
+ * @internal Only exported for test usage.
+ */
+export const MAX_TRANSITIONS_PER_FRAME = 16;
+
+/**
  * @en
  * Runtime status of a transition.
  * @zh
@@ -422,11 +429,9 @@ class TopLevelStateMachineEvaluation {
 
     /**
      * Loop match transitions util no match,
-     * or util `MAX_ITERATIONS` is reached(in case of circular transition formed).
+     * or util `MAX_TRANSITIONS_PER_FRAME` is reached(in case of circular transition formed or too long transition path).
      */
     private _loopMatchTransitions () {
-        const MAX_ITERATIONS = 100;
-
         const {
             _pendingTransitionPath: pendingTransitionPath,
             _activatedTransitions: activatedTransitions,
@@ -440,8 +445,24 @@ class TopLevelStateMachineEvaluation {
             /* The terminal condition is handled in loop body */;
             ++iterations
         ) {
-            if (iterations >= MAX_ITERATIONS) {
-                warnID(14000, MAX_ITERATIONS);
+            if (iterations >= MAX_TRANSITIONS_PER_FRAME) {
+                let prettyPath = '';
+                if (DEBUG) {
+                    const lastDestination = activatedTransitions[activatedTransitions.length - 1].destination;
+                    let loopFormPosition = -1;
+                    for (let i = activatedTransitions.length - 2; i >= 0; --i) {
+                        if (activatedTransitions[i].destination === lastDestination) {
+                            loopFormPosition = i;
+                            break;
+                        }
+                    }
+                    prettyPath = `${this._currentNode.name} --> ... --> `;
+                    const pathToPrint = loopFormPosition < 0
+                        ? activatedTransitions.slice(-MAX_TRANSITIONS_PER_FRAME) // We didn't find a loop.
+                        : activatedTransitions.slice(loopFormPosition); // Find a loop, print from last loop position.
+                    prettyPath += `${pathToPrint.map((t) => t.destination.name).join(' --> ')}`;
+                }
+                warnID(14000, MAX_TRANSITIONS_PER_FRAME, prettyPath);
                 break;
             }
 

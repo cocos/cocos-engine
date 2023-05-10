@@ -4,7 +4,7 @@ import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, 
 import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, State, Layer } from '../../cocos/animation/marionette/animation-graph';
 import { VariableTypeMismatchedError } from '../../cocos/animation/marionette/errors';
 import { AnimationGraphEval } from '../../cocos/animation/marionette/graph-eval';
-import { MotionStateStatus, ClipStatus } from '../../cocos/animation/marionette/state-machine/state-machine-eval';
+import { MotionStateStatus, ClipStatus, MAX_TRANSITIONS_PER_FRAME } from '../../cocos/animation/marionette/state-machine/state-machine-eval';
 import { blend1D } from '../../cocos/animation/marionette/motion/blend-1d';
 import '../utils/matcher-deep-close-to';
 import { BinaryCondition, UnaryCondition, TriggerCondition } from '../../cocos/animation/marionette/state-machine/condition';
@@ -22,7 +22,7 @@ import '../utils/matchers/value-type-asymmetric-matchers';
 import { AnimationBlend1DFixture, LinearRealValueAnimationFixture, ConstantRealValueAnimationFixture, RealValueAnimationFixture } from './new-gen-anim/utils/fixtures';
 import { NodeTransformValueObserver } from './new-gen-anim/utils/node-transform-value-observer';
 import { SingleRealValueObserver } from './new-gen-anim/utils/single-real-value-observer';
-import { createAnimationGraph } from './new-gen-anim/utils/factory';
+import { createAnimationGraph, StateParams, TransitionParams } from './new-gen-anim/utils/factory';
 
 /**
  * Notable changes
@@ -619,7 +619,7 @@ describe('NewGen Anim', () => {
             });
         });
 
-        test('Infinity loop', () => {
+        test('Warn in loop transition case', () => {
             const warnMockInstance = warnID as unknown as jest.MockInstance<ReturnType<typeof warnID>, Parameters<typeof warnID>>;
             warnMockInstance.mockClear();
 
@@ -641,9 +641,56 @@ describe('NewGen Anim', () => {
             graphEval.update(0.0);
 
             expect(warnMockInstance).toBeCalledTimes(1);
-            expect(warnMockInstance.mock.calls[0]).toHaveLength(2);
+            expect(warnMockInstance.mock.calls[0]).toHaveLength(3);
             expect(warnMockInstance.mock.calls[0][0]).toStrictEqual(14000);
-            expect(warnMockInstance.mock.calls[0][1]).toStrictEqual(100);
+            expect(warnMockInstance.mock.calls[0][1]).toStrictEqual(MAX_TRANSITIONS_PER_FRAME);
+            expect(warnMockInstance.mock.calls[0][2]).toStrictEqual(`Entry --> ... --> Node2 --> Node1 --> Node2`);
+        });
+
+        test('Warn in not loop but too long transition path case', () => {
+            const warnMockInstance = warnID as unknown as jest.MockInstance<ReturnType<typeof warnID>, Parameters<typeof warnID>>;
+            warnMockInstance.mockClear();
+
+            const states: Record<string, StateParams> = {};
+            const transitions: TransitionParams[] = [];
+
+            const nStates = MAX_TRANSITIONS_PER_FRAME + 2;
+
+            const getStateId = (stateIndex: number) => `State${stateIndex}`;
+
+            for (let i = 0; i < nStates; ++i) {
+                states[getStateId(i)] = { type: 'motion' };
+            }
+            for (let i = 0; i < nStates - 1; ++i) {
+                transitions.push({
+                    from: getStateId(i),
+                    to: getStateId(i + 1),
+                    exitTimeEnabled: false,
+                    duration: 0.3,
+                    conditions: [{ type: 'unary', operator: 'to-be-true', operand: { type: 'constant', value: true, } }],
+                });
+            }
+
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: states,
+                        entryTransitions: [{ to: getStateId(0) }],
+                        transitions: transitions,
+                    },
+                }],
+            }), new Node());
+            graphEval.update(0.1);
+
+            expect(warnMockInstance).toBeCalledTimes(1);
+            expect(warnMockInstance.mock.calls[0]).toHaveLength(3);
+            expect(warnMockInstance.mock.calls[0][0]).toStrictEqual(14000);
+            expect(warnMockInstance.mock.calls[0][1]).toStrictEqual(MAX_TRANSITIONS_PER_FRAME);
+            expect(warnMockInstance.mock.calls[0][2]).toStrictEqual(`Entry --> ... --> ${
+                Array.from({ length: nStates }, (_, i) => getStateId(i))
+                .slice(0, MAX_TRANSITIONS_PER_FRAME)
+                .join(' --> ')
+            }`);
         });
 
         test('Self transition', () => {
