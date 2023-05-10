@@ -26,10 +26,10 @@ void main() {
 
 const FS_BG = `
 precision mediump float;
-uniform sampler2D u_Background;
+uniform sampler2D u_Sampler;
 varying vec2 v_TexCoord;
 void main() {
-    gl_FragColor = texture2D(u_Background, v_TexCoord);
+    gl_FragColor = texture2D(u_Sampler, v_TexCoord);
 }`;
 
 const VS_PROGRESSBAR = `
@@ -322,34 +322,13 @@ function updateBgTexture() {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bg);
 }
 
-function draw() {
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.clearColor(0.0, 0.0, 0.0, 0.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    // draw background
-    gl.useProgram(programBg);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, bgTexture);
-    var uSampler = gl.getUniformLocation(programBg, 'u_Background');
-    gl.uniform1i(uSampler, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, bgVertexBuffer);
-    var vertexFormatLength = 4;
-    var aPosition = gl.getAttribLocation(programBg, 'a_Position');
-    gl.enableVertexAttribArray(aPosition);
-    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, vertexFormatLength * 4, 0);
-    var aTexCoord = gl.getAttribLocation(programBg, 'a_TexCoord');
-    gl.enableVertexAttribArray(aTexCoord);
-    gl.vertexAttribPointer(aTexCoord, 2, gl.FLOAT, false, vertexFormatLength * 4, vertexFormatLength * 2);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    // draw logo
+function drawTexture(gl, program, texture, vertexBuffer, vertexFormatLength) {
     gl.useProgram(program);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     var uSampler = gl.getUniformLocation(program, 'u_Sampler');
     gl.uniform1i(uSampler, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    var vertexFormatLength = 4;
     var aPosition = gl.getAttribLocation(program, 'a_Position');
     gl.enableVertexAttribArray(aPosition);
     gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, vertexFormatLength * 4, 0);
@@ -357,37 +336,40 @@ function draw() {
     gl.enableVertexAttribArray(aTexCoord);
     gl.vertexAttribPointer(aTexCoord, 2, gl.FLOAT, false, vertexFormatLength * 4, vertexFormatLength * 2);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    // draw slogan
+}
+
+function drawProgressBar(gl, program, vertexBuffer, vertexFormatLength, progress, progressBarColor, progressBackground) {
     gl.useProgram(program);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, sloganTexture);
-    var uSampler = gl.getUniformLocation(program, 'u_Sampler');
-    gl.uniform1i(uSampler, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, sloganVertexBuffer);
-    var vertexFormatLength = 4;
+    var uCurrentProgress = gl.getUniformLocation(program, 'u_CurrentProgress');
+    gl.uniform1f(uCurrentProgress, progress);
+    var uProgressBarColor = gl.getUniformLocation(program, 'u_ProgressBarColor');
+    gl.uniform4fv(uProgressBarColor, progressBarColor);
+    var uProgressBackground = gl.getUniformLocation(program, 'u_ProgressBackground');
+    gl.uniform4fv(uProgressBackground, progressBackground);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     var aPosition = gl.getAttribLocation(program, 'a_Position');
     gl.enableVertexAttribArray(aPosition);
-    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, vertexFormatLength * 4, 0);
-    var aTexCoord = gl.getAttribLocation(program, 'a_TexCoord');
-    gl.enableVertexAttribArray(aTexCoord);
-    gl.vertexAttribPointer(aTexCoord, 2, gl.FLOAT, false, vertexFormatLength * 4, vertexFormatLength * 2);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    // draw progress bar
-    gl.useProgram(programProgress);
-    var uCurrentProgress = gl.getUniformLocation(programProgress, 'u_CurrentProgress');
-    gl.uniform1f(uCurrentProgress, progress);
-    var uProgressBarColor = gl.getUniformLocation(programProgress, 'u_ProgressBarColor');
-    gl.uniform4fv(uProgressBarColor, progressBarColor);
-    var uProgressBackground = gl.getUniformLocation(programProgress, 'u_ProgressBackground');
-    gl.uniform4fv(uProgressBackground, progressBackground);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferProgress);
-    aPosition = gl.getAttribLocation(programProgress, 'a_Position');
-    gl.enableVertexAttribArray(aPosition);
+    var vertexFormatLength = 4;
     gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, vertexFormatLength * 3, 0);
-    var aProgress = gl.getAttribLocation(programProgress, 'a_Progress');
+    var aProgress = gl.getAttribLocation(program, 'a_Progress');
     gl.enableVertexAttribArray(aProgress);
     gl.vertexAttribPointer(aProgress, 1, gl.FLOAT, false, vertexFormatLength * 3, vertexFormatLength * 2);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+function draw() {
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    // draw background
+    drawTexture(gl, programBg, bgTexture, bgVertexBuffer, 4);
+    // draw logo
+    drawTexture(gl, program, texture, vertexBuffer, 4);
+    // draw slogan
+    drawTexture(gl, program, sloganTexture, sloganVertexBuffer, 4);
+    // draw progress bar
+    drawProgressBar(gl, programProgress, vertexBufferProgress, 3, progress, progressBarColor, progressBackground);
 }
 
 function tick() {
