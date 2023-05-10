@@ -1749,7 +1749,7 @@ export function buildSSSSPass (camera: Camera,
     if (hasSkinObject(ppl)) {
         const blurInfo = _buildSSSSBlurPass(camera, ppl, inputRT, inputDS);
         const specularInfo = _buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
-        return { rtName: postAlphaInfo.rtName, dsName: postAlphaInfo.dsName };
+        return { rtName: specularInfo.rtName, dsName: specularInfo.dsName };
     } else {
         const specularInfo = _buildSpecularPass(camera, ppl, inputRT, inputDS);
         return { rtName: specularInfo.rtName, dsName: specularInfo.dsName };
