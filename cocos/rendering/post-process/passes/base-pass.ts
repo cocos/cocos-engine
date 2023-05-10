@@ -8,13 +8,14 @@ import { MaterialInstance } from '../../../render-scene';
 import { Camera } from '../../../render-scene/scene';
 import { getCameraUniqueID, getRenderArea } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
-import { passContext } from '../utils/pass-context';
+import { passContext, RenderTarget } from '../utils/pass-context';
 
 let _BasePassID = 0;
 
 export abstract class BasePass {
     abstract name: string;
     effectName = 'pipeline/post-process/blit-screen';
+    renderTarget: RenderTarget[] = [];
 
     _id = 0
     constructor () {
