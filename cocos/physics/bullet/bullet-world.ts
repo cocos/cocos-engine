@@ -88,7 +88,7 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     updateNeedEmitCCTEvents (v: boolean) {
-        if (!this.ccts) return; // return if destroyed
+        if (!this.ccts) return; // return if already been removed from bullet world
         if (v) {
             this._needEmitCCTEvents = true;
         } else {
