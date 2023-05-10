@@ -111,10 +111,6 @@
                 "MARIONETTE": true
             }
         },
-
-        "animation-embedded": { "modules": ["animation-embedded"] },
-        "animation-morph-weights": { "modules": ["animation-morph-weights"] },
-        "animation-runtime-exports": { "modules": ["animation-runtime-exports"] },
         "lights": { "modules": ["lights"] },
         "particle-billboard": { "modules": ["particle-billboard"] },
         "particle-line": { "modules": ["particle-line"] },
