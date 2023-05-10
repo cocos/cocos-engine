@@ -206,12 +206,11 @@ export class CharacterController extends Eventify(Component) {
     public set center (value: Vec3) {
         if (this._center === value) return;
         Vec3.copy(this._center, value);
-        if (this._cct) { //update cct position
-            Vec3.copy(VEC3_0, this.node.worldPosition);
-            Vec3.multiply(scaledCenter, this.center, this.node.worldScale);
-            VEC3_0.add(scaledCenter);//cct world position
-            this._cct.setPosition(VEC3_0);
-        }
+        // if (this._cct) { //update cct position
+        //     Vec3.copy(VEC3_0, this.node.worldPosition);
+        //     VEC3_0.add(this.scaledCenter);//cct world position
+        //     this._cct.setPosition(VEC3_0);
+        // }
     }
 
     /**
@@ -503,10 +502,5 @@ export class CharacterController extends Eventify(Component) {
             }
             if (this._cct) this._cct.updateEventListener();
         }
-    }
-
-    public get scaledCenter () {
-        Vec3.multiply(scaledCenter, this.center, this.node.worldScale);
-        return scaledCenter;
     }
 }

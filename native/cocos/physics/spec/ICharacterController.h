@@ -37,8 +37,6 @@ public:
     ~IBaseCharacterController() override = default;
     virtual bool initialize(Node *node) = 0;
 
-    virtual void setMinMoveDistance(float v) = 0;
-    virtual float getMinMoveDistance() = 0;
     virtual void setStepOffset(float v) = 0;
     virtual float getStepOffset() = 0;
     virtual void setSlopeLimit(float v) = 0;
@@ -47,6 +45,7 @@ public:
     virtual float getContactOffset() = 0;
     virtual void setDetectCollisions(bool v) = 0;
     virtual void setOverlapRecovery(bool v) = 0;
+    virtual void setCenter(float x, float y, float z) = 0;
 
     virtual cc::Vec3 getPosition() = 0;
     virtual void setPosition(float x, float y, float z) = 0;

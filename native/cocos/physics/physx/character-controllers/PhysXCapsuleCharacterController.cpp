@@ -65,7 +65,8 @@ void PhysXCapsuleCharacterController::create() {
     capsuleDesc.slopeLimit = cos(_mSlopeLimit * mathutils::D2R);
     capsuleDesc.upDirection = physx::PxVec3(0, 1, 0);
     //node is at capsule's center
-    const Vec3& worldPos = _mNode->getWorldPosition();
+    Vec3 worldPos = _mNode->getWorldPosition();
+    worldPos += scaledCenter();
     capsuleDesc.position = physx::PxExtendedVec3(worldPos.x, worldPos.y, worldPos.z);
     capsuleDesc.material = pxMtl;
     capsuleDesc.userData = this;

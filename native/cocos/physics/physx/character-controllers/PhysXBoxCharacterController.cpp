@@ -70,7 +70,8 @@ void PhysXBoxCharacterController::create() {
     boxDesc.slopeLimit = cos(_mSlopeLimit * mathutils::D2R);
     boxDesc.upDirection = physx::PxVec3(0, 1, 0);
     //node is at capsule's center
-    const Vec3& worldPos = _mNode->getWorldPosition();
+    Vec3 worldPos = _mNode->getWorldPosition();
+    worldPos += scaledCenter();
     boxDesc.position = physx::PxExtendedVec3(worldPos.x, worldPos.y, worldPos.z);
     boxDesc.material = pxMtl;
     boxDesc.userData = this;

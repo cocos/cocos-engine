@@ -158,7 +158,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
             if (node.hasChangedFlags & TransformBit.SCALE) this.syncScale();
             //teleport
             if (node.hasChangedFlags & TransformBit.POSITION) {
-                Vec3.add(v3_0, node.worldPosition, this._comp.scaledCenter);
+                Vec3.add(v3_0, node.worldPosition, this.scaledCenter);
                 this.setPosition(v3_0);
             }
         }
@@ -166,12 +166,17 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
 
     syncPhysicsToScene (): void {
         this.getPosition(v3_0);
-        v3_0.subtract(this._comp.scaledCenter);
+        v3_0.subtract(this.scaledCenter);
         this._comp.node.setWorldPosition(v3_0);
     }
 
     syncScale () {
         this.updateScale();
+    }
+
+    get scaledCenter () {
+        Vec3.multiply(v3_1, this._comp.center, this._comp.node.worldScale);
+        return v3_1;
     }
 
     move (movement: IVec3Like, minDist: number, elapsedTime: number) {

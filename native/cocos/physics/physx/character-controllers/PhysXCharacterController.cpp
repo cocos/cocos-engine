@@ -155,6 +155,12 @@ bool PhysXCharacterController::onGround() {
 void PhysXCharacterController::syncSceneToPhysics() {
     uint32_t getChangedFlags = _mNode->getChangedFlags();
     if (getChangedFlags & static_cast<uint32_t>(TransformBit::SCALE)) syncScale();
+    //teleport
+    if (getChangedFlags & static_cast<uint32_t>(TransformBit::POSITION)) {
+        const auto & cctPos = _mNode->getWorldPosition() + scaledCenter();
+        setPosition(cctPos.x, cctPos.y, cctPos.z);
+    }
+        
 }
 
 void PhysXCharacterController::syncScale () {
@@ -168,18 +174,6 @@ void PhysXCharacterController::move(float x, float y, float z, float minDist, fl
     controllerFilter.mFilterCallback = &_mFilterCallback;
     PhysXWorld::getInstance().getControllerManager().setOverlapRecoveryModule(_mOverlapRecovery);
     _pxCollisionFlags = _impl->move(disp, minDist, elapsedTime, controllerFilter);
-}
-
-void PhysXCharacterController::setMinMoveDistance(float v) {
-    _mMinMoveDistance = v;
-    //_impl->setMinMoveDistance(v);
-    if(_impl){
-        create();
-    }
-}
-
-float PhysXCharacterController::getMinMoveDistance() {
-    return _mMinMoveDistance;
 }
 
 void PhysXCharacterController::setStepOffset(float v) {
@@ -220,6 +214,10 @@ void PhysXCharacterController::setOverlapRecovery(bool v) {
     _mOverlapRecovery = v;
 }
 
+void PhysXCharacterController::setCenter(float x, float y, float z){
+    _mCenter = Vec3(x, y, z);
+}
+
 uint32_t PhysXCharacterController::getGroup() {
     return _mFilterData.word0;
 }
@@ -255,7 +253,7 @@ void PhysXCharacterController::setSimulationFilterData(physx::PxFilterData filte
 }
 
 void PhysXCharacterController::syncPhysicsToScene() {
-    _mNode->setWorldPosition(getPosition());
+    _mNode->setWorldPosition(getPosition() - scaledCenter());
 }
 
 void PhysXCharacterController::insertToCCTMap() {
@@ -269,6 +267,11 @@ void PhysXCharacterController::eraseFromCCTMap() {
         getPxCCTMap().erase(reinterpret_cast<uintptr_t>(_impl));
     }
 }
+
+cc::Vec3 PhysXCharacterController::scaledCenter() {
+    return _mNode->getWorldScale() * _mCenter;
+}
+
 
 } // namespace physics
 } // namespace cc

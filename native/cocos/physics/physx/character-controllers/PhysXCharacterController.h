@@ -70,8 +70,6 @@ public:
     virtual void setPosition(float x, float y, float z) override;
     virtual bool onGround() override;
     virtual void move(float x, float y, float z, float minDist, float elapsedTime) override;
-    virtual void setMinMoveDistance(float v) override;
-    virtual float getMinMoveDistance() override;
     virtual void setStepOffset(float v) override;
     virtual float getStepOffset() override;
     virtual void setSlopeLimit(float v) override;
@@ -80,7 +78,8 @@ public:
     virtual float getContactOffset() override;
     virtual void setDetectCollisions(bool v) override;
     virtual void setOverlapRecovery(bool v) override;
-
+    virtual void setCenter(float x, float y, float z) override;
+    
     uint32_t getGroup() override;
     void setGroup(uint32_t g) override;
     uint32_t getMask() override;
@@ -101,10 +100,10 @@ protected:
     physx::PxControllerFilters controllerFilter;
     physx::PxControllerCollisionFlags _pxCollisionFlags;
     bool _mOverlapRecovery{ true };
-    float _mMinMoveDistance{ 0.001f };
     float _mContactOffset{ 0.01f };
     float _mStepOffset{ 1.f };
     float _mSlopeLimit{ 45.f };
+    cc::Vec3 _mCenter{ 0.f, 0.f, 0.f };
 
     void release();
     void updateFilterData();
@@ -114,6 +113,7 @@ protected:
     virtual void updateScale() = 0;
     void insertToCCTMap();
     void eraseFromCCTMap();
+    cc::Vec3 scaledCenter();
 };
 
 } // namespace physics

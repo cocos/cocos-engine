@@ -1087,7 +1087,7 @@ module.exports = {
             localTorque: '在本地坐标系中，对刚体施加的扭转力',
         },
         character_controller: {
-            group: '分组',
+            group: '碰撞分组',
             minMoveDistance: '最小移动距离',
             stepOffset: '最大爬台阶高度',
             slopeLimit: '最大爬坡角度',

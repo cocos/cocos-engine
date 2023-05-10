@@ -68,14 +68,6 @@ void CLASS::move(float x, float y, float z, float minDist, float elapsedTime) { 
     _impl->move(x, y, z, minDist, elapsedTime);                                 \
 }                                                                               \
                                                                                 \
-void CLASS::setMinMoveDistance(float v) {                                       \
-    _impl->setMinMoveDistance(v);                                               \
-}                                                                               \
-                                                                                \
-float CLASS::getMinMoveDistance() {                                             \
-    return _impl->getMinMoveDistance();                                         \
-}                                                                               \
-                                                                                \
 void CLASS::setStepOffset(float v) {                                            \
     _impl->setStepOffset(v);                                                    \
 }                                                                               \
@@ -105,6 +97,9 @@ void CLASS::setDetectCollisions(bool v) {                                       
 }                                                                               \
 void CLASS::setOverlapRecovery(bool v) {                                        \
     _impl->setOverlapRecovery(v);                                               \
+}                                                                               \
+void CLASS::setCenter(float x, float y, float z) {                              \
+    _impl->setCenter(x, y, z);                                                  \
 }                                                                               \
 uint32_t CLASS::getGroup() {                                                    \
     return _impl->getGroup();                                                   \

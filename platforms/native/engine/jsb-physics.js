@@ -695,7 +695,7 @@ class CharacterController {
         const mask = cm[this._com.group];
         this.setMask(mask);
 
-        this.setMinMoveDistance(this._com.minMoveDistance);
+        this.setCenter(this._com.center);
         this.setStepOffset(this._com.stepOffset);
         this.setSlopeLimit(this._com.slopeLimit);
         this.setContactOffset(this._com.contactOffset);
@@ -715,8 +715,6 @@ class CharacterController {
 
     setPosition (v) { this._impl.setPosition(v.x, v.y, v.z); }
     getPosition () { return this._impl.getPosition(); }
-    setMinMoveDistance (v) { this._impl.setMinMoveDistance(v); }
-    getMinMoveDistance () { return this._impl.getMinMoveDistance(); }
     setStepOffset (v) { this._impl.setStepOffset(v); }
     getStepOffset () { return this._impl.getStepOffset(); }
     setSlopeLimit (v) { this._impl.setSlopeLimit(v); }
@@ -725,6 +723,7 @@ class CharacterController {
     getContactOffset () { return this._impl.getContactOffset(); }
     setDetectCollisions (v) { this._impl.setDetectCollisions(v); }
     setOverlapRecovery (v) { this._impl.setOverlapRecovery(v); }
+    setCenter (v) { this._impl.setCenter(v.x, v.y, v.z); }
 
     updateEventListener () {
         let flag = 0;

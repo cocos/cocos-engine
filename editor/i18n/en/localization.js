@@ -1106,7 +1106,7 @@ module.exports = {
             localTorque: 'The torque applied to the rigid body in the local coordinate system',
         },
         character_controller: {
-            group: 'Group of the character controller.',
+            group: 'Collision Group of the character controller.',
             minMoveDistance: 'The minimum movement distance of the character controller.',
             stepOffset: 'The step offset of the character controller.',
             slopeLimit: 'The slope limit of the character controller in degree.',
