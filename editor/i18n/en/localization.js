@@ -935,6 +935,35 @@ module.exports = {
             label: "Custom Render Pipeline (Experimental)",
             description: "Enable custom render pipeline",
         },
+
+        animation_embedded: {
+            label: "animation embedded",
+            description: "For the player track in the animation editor, embedded modules (animation player and particle player)",
+        },
+        animation_morph_weights: {
+            label: "animation morph weights",
+            description: "Proxy for animated morphological weights（MorphWeightValueProxy, MorphWeightsValueProxy, MorphWeightsAllValueProxy）",
+        },
+        animation_runtime_exports: {
+            label: "animation runtime exports",
+            description: "For animation use（AnimationController, VariableType, StateMachineComponent）",
+        },
+        lights: {
+            label: "lights",
+            description: "lights",
+        },
+        particle_billboard: {
+            label: "particle billboard",
+            description: "The Billboard component is used to render a square that always faces the camera",
+        },
+        particle_line: {
+            label: "particle line",
+            description: "The Line component renders a line segment that is connected to a given point in the 3D scene; the line segment rendered by the Line component has a width and always faces the camera, similar to the billboard component",
+        },
+        skinned_mesh_renderer: {
+            label: "skinned mesh renderer",
+            description: "The skinned mesh renderer component.",
+        },
     },
     renderable_2d: {
         srcBlendFactor: 'Specifies the source blend mode, <br>it will clone a new material object.',

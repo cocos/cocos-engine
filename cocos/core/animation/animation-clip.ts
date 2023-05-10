@@ -38,7 +38,7 @@ import { approx, clamp, Mat4, Quat, Vec3 } from '../math';
 import { Node } from '../scene-graph/node';
 import { assertIsTrue } from '../data/utils/asserts';
 import type { PoseOutput } from './pose-output';
-import * as legacy from './legacy-clip-data';
+// import * as legacy from './legacy-clip-data';
 import { BAKE_SKELETON_CURVE_SYMBOL } from './internal-symbols';
 import { Binder, RuntimeBinding, Track, TrackBinding, trackBindingTag, TrackEval, TrackPath, TrsTrackPath } from './tracks/track';
 import { createEvalSymbol } from './define';
@@ -62,7 +62,7 @@ export declare namespace AnimationClip {
     /**
      * @internal
      */
-    export type { legacy as _legacy };
+    // export type { legacy as _legacy };
 }
 
 // #region Tracks
@@ -509,75 +509,75 @@ export class AnimationClip extends Asset {
         return this._searchForRootBonePath();
     }
 
-    // #region Legacy area
-    // The following are significantly refactored and deprecated since 3.3.
-    // We deprecates the direct exposure of keys, values, events.
-    // Instead, we use track to organize them together.
-
-    /**
-     * @zh 曲线可引用的所有时间轴。
-     * @en Frame keys referenced by curves.
-     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
-     */
-    get keys () {
-        return this._getLegacyData().keys;
-    }
-
-    set keys (value) {
-        this._legacyDataDirty = true;
-        this._getLegacyData().keys = value;
-    }
-
-    /**
-     * @zh 此动画包含的所有曲线。
-     * @en Curves this animation contains.
-     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
-     */
-    get curves () {
-        this._legacyDataDirty = true;
-        return this._getLegacyData().curves;
-    }
-
-    set curves (value) {
-        this._getLegacyData().curves = value;
-    }
-
-    /**
-     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
-     */
-    get commonTargets () {
-        return this._getLegacyData().commonTargets;
-    }
-
-    set commonTargets (value) {
-        this._legacyDataDirty = true;
-        this._getLegacyData().commonTargets = value;
-    }
-
-    /**
-     * @en
-     * The animation's data.
-     * @zh
-     * 此动画的数据。
-     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
-     */
-    get data () {
-        return this._getLegacyData().data;
-    }
-
-    /**
-     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
-     */
-    public getPropertyCurves () {
-        return this._getLegacyData().getPropertyCurves();
-    }
-
-    /**
-     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
-     */
-    get eventGroups (): readonly IAnimationEventGroup[] {
-        return this._runtimeEvents.eventGroups;
-    }
+    // // #region Legacy area
+    // // The following are significantly refactored and deprecated since 3.3.
+    // // We deprecates the direct exposure of keys, values, events.
+    // // Instead, we use track to organize them together.
+    //
+    // /**
+    //  * @zh 曲线可引用的所有时间轴。
+    //  * @en Frame keys referenced by curves.
+    //  * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
+    //  */
+    // get keys () {
+    //     return this._getLegacyData().keys;
+    // }
+    //
+    // set keys (value) {
+    //     this._legacyDataDirty = true;
+    //     this._getLegacyData().keys = value;
+    // }
+    //
+    // /**
+    //  * @zh 此动画包含的所有曲线。
+    //  * @en Curves this animation contains.
+    //  * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
+    //  */
+    // get curves () {
+    //     this._legacyDataDirty = true;
+    //     return this._getLegacyData().curves;
+    // }
+    //
+    // set curves (value) {
+    //     this._getLegacyData().curves = value;
+    // }
+    //
+    // /**
+    //  * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
+    //  */
+    // get commonTargets () {
+    //     return this._getLegacyData().commonTargets;
+    // }
+    //
+    // set commonTargets (value) {
+    //     this._legacyDataDirty = true;
+    //     this._getLegacyData().commonTargets = value;
+    // }
+    //
+    // /**
+    //  * @en
+    //  * The animation's data.
+    //  * @zh
+    //  * 此动画的数据。
+    //  * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
+    //  */
+    // get data () {
+    //     return this._getLegacyData().data;
+    // }
+    //
+    // /**
+    //  * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
+    //  */
+    // public getPropertyCurves () {
+    //     return this._getLegacyData().getPropertyCurves();
+    // }
+    //
+    // /**
+    //  * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
+    //  */
+    // get eventGroups (): readonly IAnimationEventGroup[] {
+    //     return this._runtimeEvents.eventGroups;
+    // }
 
     /**
      * @zh 提交事件数据的修改。
@@ -607,10 +607,10 @@ export class AnimationClip extends Asset {
      * @internal Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     public syncLegacyData () {
-        if (this._legacyData) {
-            this._fromLegacy(this._legacyData);
-            this._legacyData = undefined;
-        }
+        // if (this._legacyData) {
+        //     this._fromLegacy(this._legacyData);
+        //     this._legacyData = undefined;
+        // }
     }
 
     // #endregion
@@ -667,8 +667,7 @@ export class AnimationClip extends Asset {
     @serializable
     private _exoticAnimation: ExoticAnimation | null = null;
 
-    private _legacyData: legacy.AnimationClipLegacyData | undefined = undefined;
-
+    // private _legacyData: legacy.AnimationClipLegacyData | undefined = undefined;
     private _legacyDataDirty = false;
 
     @serializable
@@ -840,32 +839,32 @@ export class AnimationClip extends Asset {
         return highestPathsAreSame ? firstPath.path : '';
     }
 
-    private _getLegacyData () {
-        if (!this._legacyData) {
-            this._legacyData = this._toLegacy();
-        }
-        return this._legacyData;
-    }
+    // private _getLegacyData () {
+    //     if (!this._legacyData) {
+    //         this._legacyData = this._toLegacy();
+    //     }
+    //     return this._legacyData;
+    // }
+    //
+    // private _toLegacy (): legacy.AnimationClipLegacyData {
+    //     const keys: number[][] = [];
+    //     const legacyCurves: legacy.LegacyClipCurve[] = [];
+    //     const commonTargets: legacy.LegacyCommonTarget[] = [];
+    //
+    //     const legacyClipData = new legacy.AnimationClipLegacyData(this._duration);
+    //     legacyClipData.keys = keys;
+    //     legacyClipData.curves = legacyCurves;
+    //     legacyClipData.commonTargets = commonTargets;
+    //     return legacyClipData;
+    // }
 
-    private _toLegacy (): legacy.AnimationClipLegacyData {
-        const keys: number[][] = [];
-        const legacyCurves: legacy.LegacyClipCurve[] = [];
-        const commonTargets: legacy.LegacyCommonTarget[] = [];
-
-        const legacyClipData = new legacy.AnimationClipLegacyData(this._duration);
-        legacyClipData.keys = keys;
-        legacyClipData.curves = legacyCurves;
-        legacyClipData.commonTargets = commonTargets;
-        return legacyClipData;
-    }
-
-    private _fromLegacy (legacyData: legacy.AnimationClipLegacyData) {
-        const newTracks = legacyData.toTracks();
-        const nNewTracks = newTracks.length;
-        for (let iNewTrack = 0; iNewTrack < nNewTracks; ++iNewTrack) {
-            this.addTrack(newTracks[iNewTrack]);
-        }
-    }
+    // private _fromLegacy (legacyData: legacy.AnimationClipLegacyData) {
+    //     const newTracks = legacyData.toTracks();
+    //     const nNewTracks = newTracks.length;
+    //     for (let iNewTrack = 0; iNewTrack < nNewTracks; ++iNewTrack) {
+    //         this.addTrack(newTracks[iNewTrack]);
+    //     }
+    // }
 
     private _collectAnimatedJoints () {
         const joints = new Set<string>();

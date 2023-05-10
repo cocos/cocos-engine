@@ -28,7 +28,7 @@ import { Mesh } from '../../3d';
 import { Material, Texture2D } from '../../core/assets';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
-import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
+// import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../core/director';
 import { Device, Feature, Format, FormatFeatureBit } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
@@ -303,7 +303,8 @@ export default class ParticleSystemRenderer {
         this.create(ps);
         const useGPU = this._useGPU && isSupportGPUParticle();
         if (!this._particleSystem.processor) {
-            this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+            // this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+            this._particleSystem.processor = new ParticleSystemRendererCPU(this);
             this._particleSystem.processor.updateAlignSpace(this.alignSpace);
             this._particleSystem.processor.onInit(ps);
         } else {
@@ -336,7 +337,8 @@ export default class ParticleSystemRenderer {
         if (useGPU && this.gpuMaterial) {
             this.particleMaterial = this.gpuMaterial;
         }
-        this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+        // this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+        this._particleSystem.processor = new ParticleSystemRendererCPU(this);
         this._particleSystem.processor.updateAlignSpace(this.alignSpace);
         this._particleSystem.processor.onInit(this._particleSystem);
         this._particleSystem.processor.onEnable();
