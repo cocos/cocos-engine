@@ -50,7 +50,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     get impl (): any { return this.scene; }
-    scene: any;
+    readonly scene: any;
     readonly callback = PhysXCallback;
     readonly wrappedBodies: PhysXSharedBody[] = [];
     readonly ccts: PhysXCharacterController[] = [];
