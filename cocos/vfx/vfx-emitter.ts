@@ -32,11 +32,10 @@ import { VFXEmitterState, VFXEventInfo, ModuleExecContext, VFXEmitterLifeCyclePa
 import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, PlayingState, ScalingMode } from './define';
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
-import { Component, Node } from '../scene-graph';
-import { ParticleDataSet, BuiltinParticleParameter, BuiltinParticleParameterFlags, builtinParticleParameterIdentities, POSITION, IS_DEAD, VELOCITY, BASE_VELOCITY, SCALE, BASE_SCALE, COLOR, BASE_COLOR, SPRITE_SIZE, BASE_SPRITE_SIZE, SPAWN_TIME_RATIO, SPAWN_NORMALIZED_TIME, INV_START_LIFETIME, NORMALIZED_AGE, RANDOM_SEED, INITIAL_DIR } from './particle-data-set';
+import { Component } from '../scene-graph';
+import { ParticleDataSet, POSITION, IS_DEAD, VELOCITY, BASE_VELOCITY, SCALE, BASE_SCALE, COLOR, BASE_COLOR, SPRITE_SIZE, BASE_SPRITE_SIZE, SPAWN_TIME_RATIO, SPAWN_NORMALIZED_TIME, INV_START_LIFETIME, NORMALIZED_AGE, RANDOM_SEED, INITIAL_DIR, ID, MESH_ORIENTATION } from './particle-data-set';
 import { VFXModuleStage, ModuleExecStage } from './vfx-module';
 import { vfxManager } from './vfx-manager';
-import { RandomStream } from './random-stream';
 import { EventHandler } from './event-handler';
 import { ParticleRenderer } from './particle-renderer';
 import { EmitterDataSet } from './emitter-data-set';
@@ -738,7 +737,7 @@ export class VFXEmitter extends Component {
     }
 
     private removeDeadParticles (particles: ParticleDataSet) {
-        if (particles.hasParameter(BuiltinParticleParameter.IS_DEAD)) {
+        if (particles.hasParameter(IS_DEAD)) {
             const isDead = particles.getBoolParameter(IS_DEAD).data;
             for (let i = particles.count - 1; i >= 0; i--) {
                 if (isDead[i]) {
@@ -790,21 +789,21 @@ export class VFXEmitter extends Component {
             if (particles.hasParameter(BASE_VELOCITY)) {
                 particles.getVec3Parameter(VELOCITY).copyFrom(particles.getVec3Parameter(BASE_VELOCITY), fromIndex, toIndex);
             } else {
-                particles.getVec3Parameter(VELOCITY).fill1f(0, fromIndex, toIndex);
+                particles.getVec3Parameter(VELOCITY).fill(Vec3.ZERO, fromIndex, toIndex);
             }
         }
         if (particles.hasParameter(SCALE)) {
             if (particles.hasParameter(BASE_SCALE)) {
                 particles.getVec3Parameter(SCALE).copyFrom(particles.getVec3Parameter(BASE_SCALE), fromIndex, toIndex);
             } else {
-                particles.getVec3Parameter(SCALE).fill1f(1, fromIndex, toIndex);
+                particles.getVec3Parameter(SCALE).fill(Vec3.ONE, fromIndex, toIndex);
             }
         }
         if (particles.hasParameter(SPRITE_SIZE)) {
             if (particles.hasParameter(BASE_SPRITE_SIZE)) {
-                particles.getVec3Parameter(SPRITE_SIZE).copyFrom(particles.getVec3Parameter(BASE_SPRITE_SIZE), fromIndex, toIndex);
+                particles.getVec2Parameter(SPRITE_SIZE).copyFrom(particles.getVec2Parameter(BASE_SPRITE_SIZE), fromIndex, toIndex);
             } else {
-                particles.getVec3Parameter(SPRITE_SIZE).fill1f(1, fromIndex, toIndex);
+                particles.getVec2Parameter(SPRITE_SIZE).fill(Vec2.ONE, fromIndex, toIndex);
             }
         }
         if (particles.hasParameter(COLOR)) {
@@ -841,9 +840,9 @@ export class VFXEmitter extends Component {
         }
         const toIndex = particles.count;
         const { normalizedLoopAge, normalizedPrevLoopAge, deltaTime, frameOffset } = emitter;
-        const hasPosition = particles.hasParameter(BuiltinParticleParameter.POSITION);
-        const hasSpawnNormalizedTime = particles.hasParameter(BuiltinParticleParameter.SPAWN_NORMALIZED_TIME);
-        const hasSpawnTimeRatio = particles.hasParameter(BuiltinParticleParameter.SPAWN_TIME_RATIO);
+        const hasPosition = particles.hasParameter(POSITION);
+        const hasSpawnNormalizedTime = particles.hasParameter(SPAWN_NORMALIZED_TIME);
+        const hasSpawnTimeRatio = particles.hasParameter(SPAWN_TIME_RATIO);
         const emitterTimeInterval = 1 / numContinuous;
         if (hasPosition) {
             const initialPosition = initialTransform.getTranslation(tempPosition);
@@ -858,14 +857,14 @@ export class VFXEmitter extends Component {
                 for (let i = fromIndex, num = 0, length = fromIndex + numContinuousSpawned; i < length; i++, num++) {
                     const offset = clamp01((spawnFraction + num) * emitterTimeInterval);
                     if (hasSpawnTimeRatio) {
-                        spawnRatio[i] = offset;
+                        spawnRatio![i] = offset;
                     }
                     if (hasSpawnNormalizedTime) {
                         let time = lerp(emitterTime, normalizedPrevLoopAge, offset);
                         if (time > 1) {
                             time -= 1;
                         }
-                        spawnNormalizedTime[i] = time;
+                        spawnNormalizedTime![i] = time;
                     }
                 }
                 noContinuousStartIndex = fromIndex + numContinuousSpawned;
@@ -878,38 +877,38 @@ export class VFXEmitter extends Component {
             }
         }
 
-        if (particles.hasParameter(BuiltinParticleParameter.BASE_VELOCITY)) {
-            particles.getVec3Parameter(BASE_VELOCITY).fill1f(0, fromIndex, toIndex);
+        if (particles.hasParameter(BASE_VELOCITY)) {
+            particles.getVec3Parameter(BASE_VELOCITY).fill(Vec3.ZERO, fromIndex, toIndex);
         }
-        if (particles.hasParameter(BuiltinParticleParameter.ROTATION)) {
-            particles.rotation.fill(initialRotation, fromIndex, toIndex);
+        if (particles.hasParameter(MESH_ORIENTATION)) {
+            particles.getVec3Parameter(MESH_ORIENTATION).fill(initialRotation, fromIndex, toIndex);
         }
-        if (particles.hasParameter(BuiltinParticleParameter.BASE_SCALE)) {
+        if (particles.hasParameter(BASE_SCALE)) {
             particles.getVec3Parameter(BASE_SCALE).fill(initialSize, fromIndex, toIndex);
         }
-        if (particles.hasParameter(BuiltinParticleParameter.BASE_COLOR)) {
-            particles.baseColor.fill(initialColor, fromIndex, toIndex);
+        if (particles.hasParameter(BASE_COLOR)) {
+            particles.getColorParameter(BASE_COLOR).fill(initialColor, fromIndex, toIndex);
         }
-        if (particles.hasParameter(BuiltinParticleParameter.INV_START_LIFETIME)) {
+        if (particles.hasParameter(INV_START_LIFETIME)) {
             particles.getFloatParameter(INV_START_LIFETIME).fill(1, fromIndex, toIndex);
         }
-        if (particles.hasParameter(BuiltinParticleParameter.NORMALIZED_AGE)) {
+        if (particles.hasParameter(NORMALIZED_AGE)) {
             particles.getFloatParameter(NORMALIZED_AGE).fill(0, fromIndex, toIndex);
         }
-        if (particles.hasParameter(BuiltinParticleParameter.ID)) {
-            const id = particles.id.data;
+        if (particles.hasParameter(ID)) {
+            const id = particles.getUint32Parameter(ID).data;
             for (let i = fromIndex; i < toIndex; i++) {
                 id[i] = ++this._state.maxParticleId;
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.RANDOM_SEED)) {
+        if (particles.hasParameter(RANDOM_SEED)) {
             const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
             const randomStream = this._state.randomStream;
             for (let i = fromIndex; i < toIndex; i++) {
                 randomSeed[i] = randomStream.getUInt32();
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.INITIAL_DIR)) {
+        if (particles.hasParameter(INITIAL_DIR)) {
             const initialDir = particles.getVec3Parameter(INITIAL_DIR);
             const initialDirVal = Vec3.set(tempDir, initialTransform.m02, initialTransform.m06, initialTransform.m10);
             initialDir.fill(initialDirVal, fromIndex, toIndex);
@@ -950,7 +949,7 @@ export class VFXEmitter extends Component {
                     const subDt = dtOffset * deltaTime;
                     if (needPositionOffset) {
                         Vec3.multiplyScalar(startPositionOffset, initialVelocity, -subDt);
-                        position.addVec3At(startPositionOffset, i);
+                        position!.addVec3At(startPositionOffset, i);
                     }
                     context.setExecuteRange(i, i + 1);
                     context.deltaTime = subDt;
@@ -971,7 +970,7 @@ export class VFXEmitter extends Component {
                     const subDt = offset * deltaTime;
                     if (needPositionOffset) {
                         Vec3.multiplyScalar(startPositionOffset, initialVelocity, -subDt);
-                        position.addVec3At(startPositionOffset, i);
+                        position!.addVec3At(startPositionOffset, i);
                     }
                     context.setExecuteRange(i, i + 1);
                     context.deltaTime = subDt;

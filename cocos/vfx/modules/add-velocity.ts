@@ -24,7 +24,7 @@
  */
 
 import { ccclass, type, serializable } from 'cc.decorator';
-import { Enum, Mat3, Vec3 } from '../../core';
+import { Enum, Vec3 } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BASE_VELOCITY, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';

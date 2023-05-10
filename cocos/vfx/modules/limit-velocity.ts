@@ -128,7 +128,7 @@ export class LimitVelocityModule extends VFXModule {
                         dampenBeyondLimit(tempVelocity.z, limit.z, dampenRatio));
                     Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
                     velocity.setVec3At(tempVelocity, i);
-                    baseVelocity.subVec3At(Vec3.subtract(tempVelocity, tempVelocity, srcVelocity), i);
+                    baseVelocity.addVec3At(Vec3.subtract(tempVelocity, tempVelocity, srcVelocity), i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
@@ -136,11 +136,11 @@ export class LimitVelocityModule extends VFXModule {
                     velocity.getVec3At(tempVelocity, i);
                     const dampenRatio = dampen.evaluate(i);
                     Vec3.set(tempVelocity,
-                        tempVelocity.x - dampenBeyondLimit(tempVelocity.x, limit.x, dampenRatio),
-                        tempVelocity.y - dampenBeyondLimit(tempVelocity.y, limit.y, dampenRatio),
-                        tempVelocity.z - dampenBeyondLimit(tempVelocity.z, limit.z, dampenRatio));
-                    velocity.subVec3At(tempVelocity, i);
-                    baseVelocity.subVec3At(tempVelocity, i);
+                        dampenBeyondLimit(tempVelocity.x, limit.x, dampenRatio),
+                        dampenBeyondLimit(tempVelocity.y, limit.y, dampenRatio),
+                        dampenBeyondLimit(tempVelocity.z, limit.z, dampenRatio));
+                    velocity.setVec3At(tempVelocity, i);
+                    baseVelocity.addVec3At(Vec3.subtract(tempVelocity, tempVelocity, srcVelocity), i);
                 }
             }
         } else {
@@ -161,7 +161,7 @@ export class LimitVelocityModule extends VFXModule {
                     tempVelocity.multiplyScalar(newLength / oldLength);
                     Vec3.transformMat3(tempVelocity, tempVelocity, invTransform);
                     velocity.setVec3At(tempVelocity, i);
-                    baseVelocity.subVec3At(Vec3.subtract(tempVelocity, tempVelocity, srcVelocity), i);
+                    baseVelocity.addVec3At(Vec3.subtract(tempVelocity, tempVelocity, srcVelocity), i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
@@ -172,7 +172,7 @@ export class LimitVelocityModule extends VFXModule {
                     const newLength = dampenBeyondLimit(oldLength, limit, dampenRatio);
                     tempVelocity.multiplyScalar(newLength / oldLength);
                     velocity.setVec3At(tempVelocity, i);
-                    baseVelocity.subVec3At(Vec3.subtract(tempVelocity, tempVelocity, srcVelocity), i);
+                    baseVelocity.addVec3At(Vec3.subtract(tempVelocity, tempVelocity, srcVelocity), i);
                 }
             }
         }

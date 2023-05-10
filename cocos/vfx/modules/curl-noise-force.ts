@@ -24,10 +24,10 @@
  */
 
 import { ccclass, type, serializable, rangeMin, visible } from 'cc.decorator';
-import { CCFloat, Enum, clamp, lerp, Vec2, Vec3, RealCurve } from '../../core';
+import { Enum, clamp, Vec2, Vec3, RealCurve } from '../../core';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, POSITION, VELOCITY } from '../particle-data-set';
+import { ParticleDataSet, PHYSICS_FORCE, POSITION, VELOCITY } from '../particle-data-set';
 import { VFXEmitterState, ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
@@ -352,8 +352,6 @@ const point2D = new Vec2();
 const sampleX = new Vec2();
 const sampleY = new Vec2();
 const sampleZ = new Vec2();
-const tempRemap = new Vec3();
-const seed = new Vec3();
 const noiseXCache3D = new PerlinNoise3DCache();
 const noiseYCache3D = new PerlinNoise3DCache();
 const noiseZCache3D = new PerlinNoise3DCache();
@@ -377,15 +375,15 @@ export enum Quality {
     HIGH
 }
 
-@ccclass('cc.CurlNoiseModule')
-@VFXModule.register('CurlNoise', ModuleExecStageFlags.UPDATE, [VELOCITY.name], [])
-export class CurlNoiseModule extends VFXModule {
+@ccclass('cc.CurlNoiseForceModule')
+@VFXModule.register('CurlNoiseForce', ModuleExecStageFlags.UPDATE, [VELOCITY.name], [])
+export class CurlNoiseForceModule extends VFXModule {
     @serializable
     @visible(true)
     public separateAxes = false;
 
     @type(Vec3Expression)
-    @visible(function (this: CurlNoiseModule) { return this.separateAxes; })
+    @visible(function (this: CurlNoiseForceModule) { return this.separateAxes; })
     public get strength () {
         if (!this._strength) {
             this._strength = new ConstantVec3Expression(Vec3.ONE);
@@ -398,7 +396,7 @@ export class CurlNoiseModule extends VFXModule {
     }
 
     @type(FloatExpression)
-    @visible(function (this: CurlNoiseModule) { return !this.separateAxes; })
+    @visible(function (this: CurlNoiseForceModule) { return !this.separateAxes; })
     public get uniformStrength () {
         if (!this._uniformStrength) {
             this._uniformStrength = new ConstantFloatExpression(1);
@@ -410,9 +408,12 @@ export class CurlNoiseModule extends VFXModule {
         this._uniformStrength = val;
     }
 
-    @type(CCFloat)
+    @type(FloatExpression)
     @rangeMin(0.0001)
     public get frequency () {
+        if (!this._frequency) {
+            this._frequency = new ConstantFloatExpression(0.5);
+        }
         return this._frequency;
     }
     public set frequency (value) {
@@ -431,10 +432,6 @@ export class CurlNoiseModule extends VFXModule {
         this._panSpeed = val;
     }
 
-    @serializable
-    @visible(true)
-    public damping = true;
-
     @type(Enum(Algorithm))
     @visible(true)
     @serializable
@@ -450,7 +447,7 @@ export class CurlNoiseModule extends VFXModule {
     public enableRemap = false;
 
     @type(RealCurve)
-    @visible(function (this: CurlNoiseModule) { return this.enableRemap && this.separateAxes; })
+    @visible(function (this: CurlNoiseForceModule) { return this.enableRemap && this.separateAxes; })
     public get remapX () {
         if (!this._remapX) {
             this._remapX = new RealCurve();
@@ -462,7 +459,7 @@ export class CurlNoiseModule extends VFXModule {
     }
 
     @type(RealCurve)
-    @visible(function (this: CurlNoiseModule) { return this.enableRemap && this.separateAxes; })
+    @visible(function (this: CurlNoiseForceModule) { return this.enableRemap && this.separateAxes; })
     public get remapY () {
         if (!this._remapY) {
             this._remapY = new RealCurve();
@@ -474,7 +471,7 @@ export class CurlNoiseModule extends VFXModule {
     }
 
     @type(RealCurve)
-    @visible(function (this: CurlNoiseModule) { return this.enableRemap && this.separateAxes; })
+    @visible(function (this: CurlNoiseForceModule) { return this.enableRemap && this.separateAxes; })
     public get remapZ () {
         if (!this._remapZ) {
             this._remapZ = new RealCurve();
@@ -486,7 +483,7 @@ export class CurlNoiseModule extends VFXModule {
     }
 
     @type(RealCurve)
-    @visible(function (this: CurlNoiseModule) { return this.enableRemap && !this.separateAxes; })
+    @visible(function (this: CurlNoiseForceModule) { return this.enableRemap && !this.separateAxes; })
     public get remapCurve () {
         return this.remapX;
     }
@@ -501,7 +498,7 @@ export class CurlNoiseModule extends VFXModule {
     @serializable
     private _panSpeed: Vec3Expression | null = null;
     @serializable
-    private _frequency = 0.5;
+    private _frequency: FloatExpression | null = null;
     @serializable
     private _remapX: RealCurve | null = null;
     @serializable
@@ -510,7 +507,6 @@ export class CurlNoiseModule extends VFXModule {
     private _remapZ: RealCurve | null = null;
 
     private _offset = new Vec3();
-    private _amplitudeScale = 1;
 
     public onPlay (state: VFXEmitterState) {
         super.onPlay(state);
@@ -519,10 +515,9 @@ export class CurlNoiseModule extends VFXModule {
     }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        this.frequency = Math.max(this.frequency, 0.0001);
-        this._amplitudeScale = this.damping ? (1 / this.frequency) : 1;
         particles.markRequiredParameter(POSITION);
         particles.markRequiredParameter(VELOCITY);
+        particles.markRequiredParameter(PHYSICS_FORCE);
         if (this.separateAxes) {
             this.strength.tick(particles, emitter, user, context);
         } else {
@@ -533,161 +528,86 @@ export class CurlNoiseModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
-        const amplitudeScale = this._amplitudeScale;
-        const frequency = this.frequency;
+        const frequencyExp = this._frequency as FloatExpression;
         const offset = this._offset;
-        const randomOffset = this.randomSeed;
         const samplePosition = particles.getVec3Parameter(POSITION);
+        const separateAxes = this.separateAxes;
+        const remap = this.enableRemap;
+        const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
+        if (separateAxes) {
+            (this._strength as Vec3Expression).bind(particles, emitter, user, context);
+        } else {
+            (this._uniformStrength as FloatExpression).bind(particles, emitter, user, context);
+        }
+        const panSpeed = this._panSpeed as Vec3Expression;
+        panSpeed.bind(particles, emitter, user, context);
+        frequencyExp.bind(particles, emitter, user, context);
 
         // eslint-disable-next-line no-lonely-if
         if (this.quality === Quality.HIGH) {
             for (let i = fromIndex; i < toIndex; i++) {
-                this.panSpeed.evaluate(0, tempPanOffset);
+                panSpeed.evaluate(i, tempPanOffset);
                 samplePosition.getVec3At(pos, i);
+                const frequency = frequencyExp.evaluate(i);
                 pos.add(offset);
                 perlin3D(sampleX, Vec3.set(point3D, pos.z, pos.y, pos.x + tempPanOffset.x), frequency, noiseXCache3D);
                 perlin3D(sampleY, Vec3.set(point3D, pos.x + 100, pos.z, pos.y + tempPanOffset.y), frequency, noiseYCache3D);
                 perlin3D(sampleZ, Vec3.set(point3D, pos.y, pos.x + 100, pos.z + tempPanOffset.z), frequency, noiseZCache3D);
-                vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
+                Vec3.set(temp1, sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y);
+                this.remapAndScale(separateAxes, remap, i, temp1);
+                physicsForce.addVec3At(temp1, i);
             }
         } else if (this.quality === Quality.MIDDLE) {
             for (let i = fromIndex; i < toIndex; i++) {
-                this.panSpeed.evaluate(0, tempPanOffset);
+                panSpeed.evaluate(i, tempPanOffset);
                 samplePosition.getVec3At(pos, i);
+                const frequency = frequencyExp.evaluate(i);
                 pos.add(offset);
                 perlin2D(sampleX, Vec2.set(point2D, pos.z, pos.y + tempPanOffset.x), frequency, noiseXCache2D);
                 perlin2D(sampleY, Vec2.set(point2D, pos.x + 100, pos.z + tempPanOffset.y), frequency, noiseYCache2D);
                 perlin2D(sampleZ, Vec2.set(point2D, pos.y, pos.x + 100 + tempPanOffset.z), frequency, noiseZCache2D);
-                vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
+                Vec3.set(temp1, sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y);
+                this.remapAndScale(separateAxes, remap, i, temp1);
+                physicsForce.addVec3At(temp1, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                this.panSpeed.evaluate(0, tempPanOffset);
+                panSpeed.evaluate(i, tempPanOffset);
                 samplePosition.getVec3At(pos, i);
+                const frequency = frequencyExp.evaluate(i);
                 pos.add(offset);
                 perlin1D(sampleX, pos.z + tempPanOffset.x, frequency, noiseXCache1D);
                 perlin1D(sampleY, pos.x + 100 + tempPanOffset.y, frequency, noiseYCache1D);
                 perlin1D(sampleZ, pos.y + tempPanOffset.z, frequency, noiseZCache1D);
-                vec3Register.set3fAt(sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y, i);
+                Vec3.set(temp1, sampleZ.x - sampleY.y, sampleX.x - sampleZ.y, sampleY.x - sampleX.y);
+                this.remapAndScale(separateAxes, remap, i, temp1);
+                physicsForce.addVec3At(temp1, i);
             }
         }
+    }
 
+    private remapAndScale (separateAxes: boolean, remap: boolean, index: number, noise: Vec3) {
         // remap
-        if (this.enableRemap) {
-            if (this.separateAxes) {
+        if (remap) {
+            if (separateAxes) {
                 const remapX = this.remapX;
                 const remapY = this.remapY;
                 const remapZ = this.remapZ;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    vec3Register.getVec3At(tempRemap, i);
-                    vec3Register.set3fAt(remapX.evaluate(clamp(tempRemap.x * 0.5 + 0.5, 0, 1)),
-                        remapY.evaluate(clamp(tempRemap.y * 0.5 + 0.5, 0, 1)),
-                        remapZ.evaluate(clamp(tempRemap.z * 0.5 + 0.5, 0, 1)),
-                        i);
-                }
+                noise.x = remapX.evaluate(clamp(noise.x * 0.5 + 0.5, 0, 1));
+                noise.y = remapY.evaluate(clamp(noise.y * 0.5 + 0.5, 0, 1));
+                noise.z = remapZ.evaluate(clamp(noise.z * 0.5 + 0.5, 0, 1));
             } else {
                 const remapCurve = this.remapCurve;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    vec3Register.getVec3At(tempRemap, i);
-                    vec3Register.set3fAt(remapCurve.evaluate(clamp(tempRemap.x * 0.5 + 0.5, 0, 1)),
-                        remapCurve.evaluate(clamp(tempRemap.y * 0.5 + 0.5, 0, 1)),
-                        remapCurve.evaluate(clamp(tempRemap.z * 0.5 + 0.5, 0, 1)), i);
-                }
+                noise.x = remapCurve.evaluate(clamp(noise.x * 0.5 + 0.5, 0, 1));
+                noise.y = remapCurve.evaluate(clamp(noise.y * 0.5 + 0.5, 0, 1));
+                noise.z = remapCurve.evaluate(clamp(noise.z * 0.5 + 0.5, 0, 1));
             }
         }
         // eslint-disable-next-line no-lonely-if
-        if (this.separateAxes) {
-            if (this.strengthX.mode === FloatExpression.Mode.CONSTANT) {
-                const amplitudeX = this.strengthX.constant * amplitudeScale;
-                const amplitudeY = this.strengthY.constant * amplitudeScale;
-                const amplitudeZ = this.strengthZ.constant * amplitudeScale;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    vec3Register.multiply3fAt(amplitudeX, amplitudeY, amplitudeZ, i);
-                }
-            } else if (this.strengthX.mode === FloatExpression.Mode.CURVE) {
-                const { spline: splineX } = this.strengthX;
-                const { spline: splineY } = this.strengthY;
-                const { spline: splineZ } = this.strengthZ;
-                const multiplierX = this.strengthX.multiplier * amplitudeScale;
-                const multiplierY = this.strengthY.multiplier * amplitudeScale;
-                const multiplierZ = this.strengthZ.multiplier * amplitudeScale;
-                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const life = normalizedAge[i];
-                    vec3Register.multiply3fAt(splineX.evaluate(life) * multiplierX,
-                        splineY.evaluate(life) * multiplierY,
-                        splineZ.evaluate(life) * multiplierZ, i);
-                }
-            } else if (this.strengthX.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const xMax = this.strengthX.constantMax * amplitudeScale;
-                const xMin = this.strengthX.constantMin * amplitudeScale;
-                const yMax = this.strengthY.constantMax * amplitudeScale;
-                const yMin = this.strengthY.constantMin * amplitudeScale;
-                const zMax = this.strengthZ.constantMax * amplitudeScale;
-                const zMin = this.strengthZ.constantMin * amplitudeScale;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
-                    vec3Register.multiply3fAt(lerp(xMin, xMax, ratio.x),
-                        lerp(yMin, yMax, ratio.y),
-                        lerp(zMin, zMax, ratio.z), i);
-                }
-            } else {
-                const { splineMin: xMin, splineMax: xMax } = this.strengthX;
-                const { splineMin: yMin, splineMax: yMax } = this.strengthY;
-                const { splineMin: zMin, splineMax: zMax } = this.strengthZ;
-                const xMultiplier = this.strengthX.multiplier * amplitudeScale;
-                const yMultiplier = this.strengthY.multiplier * amplitudeScale;
-                const zMultiplier = this.strengthZ.multiplier * amplitudeScale;
-                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const life = normalizedAge[i];
-                    const ratio = RandomStream.get3Float(randomSeed[i] + randomOffset, seed);
-                    vec3Register.multiply3fAt(
-                        lerp(xMin.evaluate(life), xMax.evaluate(life), ratio.x) * xMultiplier,
-                        lerp(yMin.evaluate(life), yMax.evaluate(life), ratio.y) * yMultiplier,
-                        lerp(zMin.evaluate(life), zMax.evaluate(life), ratio.z) * zMultiplier, i,
-                    );
-                }
-            }
+        if (separateAxes) {
+            Vec3.multiply(noise, noise, (this._strength as Vec3Expression).evaluate(index, temp1));
         } else {
-            // eslint-disable-next-line no-lonely-if
-            if (this.strengthX.mode === FloatExpression.Mode.CONSTANT) {
-                const amplitude = this.strengthX.constant * amplitudeScale;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    vec3Register.multiply1fAt(amplitude, i);
-                }
-            } else if (this.strengthX.mode === FloatExpression.Mode.CURVE) {
-                const { spline } = this.strengthX;
-                const multiplier = this.strengthX.multiplier * amplitudeScale;
-                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const amplitude = spline.evaluate(normalizedAge[i]) * multiplier;
-                    vec3Register.multiply1fAt(amplitude, i);
-                }
-            } else if (this.strengthX.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const constantMax = this.strengthX.constantMax * amplitudeScale;
-                const constantMin = this.strengthX.constantMin * amplitudeScale;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const amplitude = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + randomOffset));
-                    vec3Register.multiply1fAt(amplitude, i);
-                }
-            } else {
-                const { splineMin, splineMax } = this.strengthX;
-                const multiplier = this.strengthX.multiplier * amplitudeScale;
-                const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-                const randomSeed = particles.getUint32Parameter(RANDOM_SEED).data;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const life = normalizedAge[i];
-                    const amplitude = lerp(splineMin.evaluate(life),
-                        splineMax.evaluate(life), RandomStream.getFloat(randomSeed[i] + randomOffset)) * multiplier;
-                    vec3Register.multiply1fAt(amplitude, i);
-                }
-            }
+            Vec3.multiplyScalar(noise, noise, (this._uniformStrength as FloatExpression).evaluate(index));
         }
-        const velocity = particles.getVec3Parameter(VELOCITY);
-        Vec3ArrayParameter.add(velocity, velocity, vec3Register, fromIndex, toIndex);
     }
 }

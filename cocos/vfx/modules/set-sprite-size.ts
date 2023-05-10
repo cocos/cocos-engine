@@ -106,11 +106,12 @@ export class SetSpriteSizeModule extends VFXModule {
             exp.bind(particles, emitter, user, context);
             if (exp.isConstant) {
                 const srcScale = exp.evaluate(0);
-                scale.fill1f(srcScale, fromIndex, toIndex);
+                Vec2.set(tempSize, srcScale, srcScale);
+                scale.fill(tempSize, fromIndex, toIndex);
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
                     const srcScale = exp.evaluate(i);
-                    scale.set1fAt(srcScale, i);
+                    scale.setUniformFloatAt(srcScale, i);
                 }
             }
         }

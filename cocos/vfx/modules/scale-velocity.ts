@@ -162,12 +162,12 @@ export class ScaleVelocityModule extends VFXModule {
             } else if (exp.isConstant) {
                 const scalar = exp.evaluate(0);
                 for (let i = fromIndex; i < toIndex; i++) {
-                    velocity.multiply1fAt(scalar, i);
+                    velocity.multiplyScalarAt(scalar, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
                     const scalar = exp.evaluate(i);
-                    velocity.multiply1fAt(scalar, i);
+                    velocity.multiplyScalarAt(scalar, i);
                 }
             }
         }

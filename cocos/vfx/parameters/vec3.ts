@@ -19,32 +19,6 @@ export class Vec3ArrayParameter extends ArrayParameter {
 
     private _data = new Float32Array(3 * this._capacity);
 
-    static add (out: Vec3ArrayParameter, a: Vec3ArrayParameter, b: Vec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(out._capacity === a._capacity && a._capacity === b._capacity
-                && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-        }
-        const aData = a.data;
-        const bData = b.data;
-        const outData = out.data;
-        for (let i = fromIndex * 3, length = toIndex * 3; i < length; i++) {
-            outData[i] = aData[i] + bData[i];
-        }
-    }
-
-    static sub (out: Vec3ArrayParameter, a: Vec3ArrayParameter, b: Vec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(out._capacity === a._capacity && a._capacity === b._capacity
-                && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-        }
-        const aData = a.data;
-        const bData = b.data;
-        const outData = out.data;
-        for (let i = fromIndex * 3, length = toIndex * 3; i < length; i++) {
-            outData[i] = aData[i] - bData[i];
-        }
-    }
-
     static scaleAndAdd (out: Vec3ArrayParameter, a: Vec3ArrayParameter, b: Vec3ArrayParameter, scale: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(out._capacity === a._capacity && a._capacity === b._capacity
@@ -78,30 +52,6 @@ export class Vec3ArrayParameter extends ArrayParameter {
         this.setVec3At(this.getVec3At(tempVec3, a), b);
     }
 
-    getXAt (handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        return this._data[offset];
-    }
-
-    getYAt (handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        return this._data[offset + 1];
-    }
-
-    getZAt (handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        return this._data[offset + 2];
-    }
-
     getVec3At (out: Vec3, handle: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
@@ -125,42 +75,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         data[offset + 2] = val.z;
     }
 
-    set3fAt (x: number, y: number, z: number, handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        const data = this._data;
-        data[offset] = x;
-        data[offset + 1] = y;
-        data[offset + 2] = z;
-    }
-
-    setXAt (val: number, handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        this._data[offset] = val;
-    }
-
-    setYAt (val: number, handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        this._data[offset + 1] = val;
-    }
-
-    setZAt (val: number, handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        this._data[offset + 2] = val;
-    }
-
-    set1fAt (val: number, handle: ParticleHandle) {
+    setUniformFloatAt (val: number, handle: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -182,52 +97,6 @@ export class Vec3ArrayParameter extends ArrayParameter {
         data[offset + 2] += val.z;
     }
 
-    subVec3At (val: Vec3, handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        const data = this._data;
-        data[offset] -= val.x;
-        data[offset + 1] -= val.y;
-        data[offset + 2] -= val.z;
-    }
-
-    add3fAt (x: number, y: number, z: number, handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        const data = this._data;
-        data[offset] += x;
-        data[offset + 1] += y;
-        data[offset + 2] += z;
-    }
-
-    addXAt (val: number, handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        this._data[offset] += val;
-    }
-
-    addYAt (val: number, handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        this._data[offset + 1] += val;
-    }
-
-    addZAt (val: number, handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        this._data[offset + 2] += val;
-    }
-
     multiplyVec3At (val: Vec3, handle: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
@@ -239,18 +108,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         data[offset + 2] *= val.z;
     }
 
-    multiply3fAt (x: number, y: number, z: number, handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        const data = this._data;
-        data[offset] *= x;
-        data[offset + 1] *= y;
-        data[offset + 2] *= z;
-    }
-
-    multiply1fAt (val: number, handle: ParticleHandle) {
+    multiplyScalarAt (val: number, handle: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -259,17 +117,6 @@ export class Vec3ArrayParameter extends ArrayParameter {
         data[offset] *= val;
         data[offset + 1] *= val;
         data[offset + 2] *= val;
-    }
-
-    add1fAt (val: number, handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle < this._capacity && handle >= 0);
-        }
-        const offset = handle * 3;
-        const data = this._data;
-        data[offset] += val;
-        data[offset + 1] += val;
-        data[offset + 2] += val;
     }
 
     copyFrom (src: Vec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
@@ -308,20 +155,6 @@ export class Vec3ArrayParameter extends ArrayParameter {
             dest[offset] = data[sourceOffset];
             dest[offset + 1] = data[sourceOffset + 1];
             dest[offset + 2] = data[sourceOffset + 2];
-        }
-    }
-
-    fill1f (val: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-        }
-        if (toIndex - fromIndex > BATCH_OPERATION_THRESHOLD_VEC3) {
-            this._data.fill(val, fromIndex * 3, toIndex * 3);
-        } else {
-            const data = this._data;
-            for (let i = fromIndex * 3, length = toIndex * 3; i < length; i++) {
-                data[i] = val;
-            }
         }
     }
 

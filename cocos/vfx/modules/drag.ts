@@ -24,7 +24,7 @@
  */
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
-import { lerp, Vec3, CCBoolean, Enum } from '../../core';
+import { lerp, Vec3, CCBoolean, Enum, Vec2 } from '../../core';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ModuleExecContext } from '../base';
@@ -33,8 +33,10 @@ import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from '../expressions';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { Vec2ArrayParameter, Vec3ArrayParameter } from '../parameters';
 
-const _temp_v3 = new Vec3();
+const _tempVec3 = new Vec3();
+const _tempVec2 = new Vec2();
 
 export enum RadiusSource {
     SPRITE_SIZE,
@@ -60,12 +62,22 @@ export class DragModule extends VFXModule {
 
     @type(FloatExpression)
     @visible(function (this: DragModule) { return this.multiplyByRadius && this.radiusSource === RadiusSource.CUSTOM; })
-    @serializable
-    public radius: FloatExpression = new ConstantFloatExpression(1);
+    public get radius () {
+        if (!this._radius) {
+            this._radius = new ConstantFloatExpression(1);
+        }
+        return this._radius;
+    }
+
+    public set radius (val) {
+        this._radius = val;
+    }
 
     @type(CCBoolean)
     @serializable
     public multiplyBySpeed = true;
+    @serializable
+    private _radius: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         particles.markRequiredParameter(POSITION);
@@ -77,48 +89,44 @@ export class DragModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
-        const scale = particles.getVec3Parameter(SCALE);
         const { fromIndex, toIndex } = context;
         const exp = this.drag;
         exp.bind(particles, emitter, user, context);
         const multiplyByRadius = this.multiplyByRadius;
+        const radiusSource = this.radiusSource;
+        const spriteSize = multiplyByRadius && radiusSource === RadiusSource.SPRITE_SIZE ? particles.getVec2Parameter(SPRITE_SIZE) : null;
+        const scale = multiplyByRadius && radiusSource === RadiusSource.MESH_SCALE ? particles.getVec3Parameter(SCALE) : null;
+        const radius = multiplyByRadius && radiusSource === RadiusSource.CUSTOM ? this.radius : null;
+        const multiplyBySpeed = this.multiplyBySpeed;
+        const velocity = particles.getVec3Parameter(VELOCITY);
 
         for (let i = fromIndex; i < toIndex; i++) {
-            let finalDrag = exp.evaluate(i);
-            if (multiplyByRadius) {
-                if (this.radiusSource === RadiusSource.SPRITE_SIZE) {
-                    scale.getVec3At(_temp_v3, i);
-                    const maxDimension = Math.max(_temp_v3.x, _temp_v3.y, _temp_v3.z) * 0.5;
-                    finalDrag *= maxDimension ** 2 * Math.PI;
-                }
+            let drag = exp.evaluate(i);
+            const length = velocity.getVec3At(_tempVec3, i).length();
+
+            drag = this.scaleDrag(multiplyByRadius, radiusSource, multiplyBySpeed, length, drag, i, spriteSize, scale);
+            Vec3.multiplyScalar(_tempVec3, _tempVec3, -drag / length);
+            physicsForce.addVec3At(_tempVec3, i);
+        }
+    }
+
+    private scaleDrag (multiplyByRadius: boolean, radiusSource: RadiusSource, multiplyBySpeed: boolean, speed: number, drag: number, index: number, spriteSize: Vec2ArrayParameter | null, scale: Vec3ArrayParameter | null) {
+        if (multiplyByRadius) {
+            if (radiusSource === RadiusSource.SPRITE_SIZE) {
+                spriteSize!.getVec2At(_tempVec2, index);
+                const maxDimension = Math.max(_tempVec2.x, _tempVec2.y) * 0.5;
+                drag *= maxDimension ** 2 * Math.PI;
+            } else if (radiusSource === RadiusSource.MESH_SCALE) {
+                scale!.getVec3At(_tempVec3, index);
+                const maxDimension = Math.max(_tempVec3.x, _tempVec3.y, _tempVec3.z);
+                drag *= maxDimension ** 2 * Math.PI;
+            } else {
+                drag *= (this._radius as FloatExpression).evaluate(index) ** 2 * Math.PI;
             }
         }
-        if (this.multiplyBySize) {
-            const scale = particles.getVec3Parameter(SCALE);
-            for (let i = fromIndex; i < toIndex; i++) {
-                scale.getVec3At(_temp_v3, i);
-                const maxDimension = Math.max(_temp_v3.x, _temp_v3.y, _temp_v3.z) * 0.5;
-                floatRegister[i] *= maxDimension ** 2 * Math.PI;
-            }
+        if (multiplyBySpeed) {
+            drag *= speed;
         }
-        if (this.multiplyBySpeed) {
-            for (let i = fromIndex; i < toIndex; i++) {
-                const length = velocity.getVec3At(_temp_v3, i).length();
-                const coefficient = floatRegister[i] * length * deltaTime;
-                const ratio = length - Math.max(length - coefficient, 0);
-                Vec3.multiplyScalar(_temp_v3, _temp_v3, ratio);
-                baseVelocity.subVec3At(_temp_v3, i);
-                velocity.subVec3At(_temp_v3, i);
-            }
-        } else {
-            for (let i = fromIndex; i < toIndex; i++) {
-                const length = velocity.getVec3At(_temp_v3, i).length();
-                const coefficient = floatRegister[i] * deltaTime;
-                const ratio = length - Math.max(length - coefficient, 0);
-                Vec3.multiplyScalar(_temp_v3, _temp_v3, ratio);
-                baseVelocity.subVec3At(_temp_v3, i);
-                velocity.subVec3At(_temp_v3, i);
-            }
-        }
+        return drag;
     }
 }

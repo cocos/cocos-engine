@@ -41,21 +41,14 @@ export class ColorArrayParameter extends ArrayParameter {
         this._data[handle] = Color.toUint32(color);
     }
 
-    setUint32At (val: number, handle: ParticleHandle) {
-        this._data[handle] = val;
-    }
-
-    getUint32At (handle: ParticleHandle) {
-        return this._data[handle];
-    }
-
     multiplyColorAt (color: Color, handle: ParticleHandle) {
         Color.fromUint32(tempColor, this._data[handle]);
         tempColor.multiply(color);
         this._data[handle] = Color.toUint32(tempColor);
     }
 
-    fillUint32 (val: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    fill (color: Color, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+        const val = Color.toUint32(color);
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.fill(val, fromIndex, toIndex);
         } else {
@@ -64,11 +57,6 @@ export class ColorArrayParameter extends ArrayParameter {
                 data[i] = val;
             }
         }
-    }
-
-    fill (color: Color, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
-        const val = Color.toUint32(color);
-        this.fillUint32(val, fromIndex, toIndex);
     }
 
     copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {

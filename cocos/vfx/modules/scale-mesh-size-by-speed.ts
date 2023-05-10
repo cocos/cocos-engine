@@ -156,7 +156,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.getVec3At(tempVelocity, i);
                     const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                    scale.multiply1fAt(lerp(uniformMinScalar.evaluate(i), uniformMaxScalar.evaluate(i), ratio), i);
+                    scale.multiplyScalarAt(lerp(uniformMinScalar.evaluate(i), uniformMaxScalar.evaluate(i), ratio), i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
@@ -165,7 +165,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
                     const speedOffset = -min * speedScale;
                     velocity.getVec3At(tempVelocity, i);
                     const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                    scale.multiply1fAt(lerp(uniformMinScalar.evaluate(i), uniformMaxScalar.evaluate(i), ratio), i);
+                    scale.multiplyScalarAt(lerp(uniformMinScalar.evaluate(i), uniformMaxScalar.evaluate(i), ratio), i);
                 }
             }
         } else {

@@ -71,14 +71,16 @@ export class UpdateMeshOrientationModule extends VFXModule {
         const { deltaTime } = context;
 
         if (exp.isConstant) {
-            const rate = exp.evaluate(0, eulerAngle);
+            exp.evaluate(0, eulerAngle);
+            Vec3.multiplyScalar(eulerAngle, eulerAngle, deltaTime);
             for (let i = fromIndex; i < toIndex; i++) {
-                meshOrientation.add3fAt(rate.x * deltaTime, rate.y * deltaTime, rate.z * deltaTime, i);
+                meshOrientation.addVec3At(eulerAngle, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
                 const rate = exp.evaluate(i, eulerAngle);
-                meshOrientation.add3fAt(rate.x * deltaTime, rate.y * deltaTime, rate.z * deltaTime, i);
+                Vec3.multiplyScalar(eulerAngle, eulerAngle, deltaTime);
+                meshOrientation.addVec3At(eulerAngle, i);
             }
         }
     }

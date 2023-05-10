@@ -63,7 +63,7 @@ export * from './drag';
 export * from './grid-location';
 export * from './limit-velocity';
 export * from './force';
-export * from './curl-noise';
+export * from './curl-noise-force';
 export * from './sprite-rotation-rate';
 export * from './update-mesh-orientation';
 export * from './set-parameter';

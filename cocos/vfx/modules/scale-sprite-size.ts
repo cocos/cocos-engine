@@ -104,7 +104,7 @@ export class ScaleSpriteSizeModule extends VFXModule {
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
                     const scalar = exp.evaluate(i);
-                    spriteSize.multiply1fAt(scalar, i);
+                    spriteSize.multiplyScalarAt(scalar, i);
                 }
             }
         } else {

@@ -1,6 +1,7 @@
 import { DEBUG } from 'internal:constants';
 import { ParticleHandle, VFXParameterType } from '../define';
 import { ArrayParameter, BATCH_OPERATION_THRESHOLD } from '../vfx-parameter';
+import { assertIsTrue } from '../../core';
 
 export class Uint8ArrayParameter extends ArrayParameter {
     get data () {
@@ -29,11 +30,11 @@ export class Uint8ArrayParameter extends ArrayParameter {
         this._data[b] = this._data[a];
     }
 
-    getUint32At (handle: ParticleHandle) {
+    getUint8At (handle: ParticleHandle) {
         return this._data[handle];
     }
 
-    setUint32At (val: number, handle: ParticleHandle) {
+    setUint8At (val: number, handle: ParticleHandle) {
         this._data[handle] = val;
     }
 
@@ -49,7 +50,7 @@ export class Uint8ArrayParameter extends ArrayParameter {
         }
     }
 
-    copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Uint8Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
@@ -72,8 +73,4 @@ export class Uint8ArrayParameter extends ArrayParameter {
             }
         }
     }
-}
-
-function assertIsTrue (arg0: boolean) {
-    throw new Error('Function not implemented.');
 }

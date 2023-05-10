@@ -99,12 +99,12 @@ export class ScaleMeshSizeModule extends VFXModule {
             if (exp.isConstant) {
                 const scalar = exp.evaluate(0);
                 for (let i = fromIndex; i < toIndex; i++) {
-                    scale.multiply1fAt(scalar, i);
+                    scale.multiplyScalarAt(scalar, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
                     const scalar = exp.evaluate(i);
-                    scale.multiply1fAt(scalar, i);
+                    scale.multiplyScalarAt(scalar, i);
                 }
             }
         } else {
