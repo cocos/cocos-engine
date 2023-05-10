@@ -854,15 +854,15 @@ const Elements = {
 
             panel.$.lodsCheckbox.value = getPropValue.call(panel, panel.meta.userData.lods, false, 'enable');
             const lodItems = panel.meta.userData.lods.options || [];
-            const isBuiltin = panel.meta.userData.lods.isBuiltin;
-            panel.$.lodItems.innerHTML = getLodItemHTML(lodItems, isBuiltin);
-            isBuiltin ? panel.$.noLodLabel.setAttribute('hidden', '') : panel.$.noLodLabel.removeAttribute('hidden');
+            const hasBuiltinLOD = panel.meta.userData.lods.hasBuiltinLOD;
+            panel.$.lodItems.innerHTML = getLodItemHTML(lodItems, hasBuiltinLOD);
+            hasBuiltinLOD ? panel.$.noLodLabel.setAttribute('hidden', '') : panel.$.noLodLabel.removeAttribute('hidden');
             if (panel.$.loadMask.style.display === 'block' && this.asset.imported) {
                 panel.$.loadMask.style.display = 'none';
             }
 
             updateElementInvalid.call(panel, panel.$.lodsCheckbox, 'lods.enable');
-            updateElementReadonly.call(panel, panel.$.lodsCheckbox, isBuiltin);
+            updateElementReadonly.call(panel, panel.$.lodsCheckbox, hasBuiltinLOD);
         },
     },
     // lods end
@@ -920,7 +920,7 @@ exports.close = function() {
     }
 };
 
-function getLodItemHTML(lodItems, isBuiltin = false) {
+function getLodItemHTML(lodItems, hasBuiltinLOD = false) {
     let lodItemsStr = '';
     for (const index in lodItems) {
         const lodItem = lodItems[index];
@@ -935,14 +935,14 @@ function getLodItemHTML(lodItems, isBuiltin = false) {
                 <span class="face-count">Face count(%)</span>
                 <ui-num-input path="faceCount" min="0" max="100" key="${index}"
                     value="${Editor.Utils.Math.multi(lodItem.faceCount, 100)}"
-                    ${ isBuiltin ? 'disabled' : '' }>
+                    ${ hasBuiltinLOD ? 'disabled' : '' }>
                 </ui-num-input>
             </div>
             <div class="right">
                 <div class="triangles">
                     <span> ${lodItem.triangleCount} Triangles</span>
                 </div>
-                <div class="operator" ${ isBuiltin ? 'hidden' : '' }>
+                <div class="operator" ${ hasBuiltinLOD ? 'hidden' : '' }>
                     <ui-icon value="add" key="${index}" path="insertLod" tooltip="insert after this LOD"></ui-icon>
                     <ui-icon value="reduce" key="${index}" path="deleteLod" tooltip="delete this LOD"></ui-icon>
                 </div>
