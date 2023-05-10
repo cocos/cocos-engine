@@ -9,13 +9,12 @@ import { SingleRealValueObserver } from "./utils/single-real-value-observer";
 import '../../utils/matchers/value-type-asymmetric-matchers';
 import { createAnimationGraph, StateParams, TransitionParams } from "./utils/factory";
 import { ApplyAnimationFixturePoseNode } from "./utils/apply-animation-fixture-pose-node";
+import { MAX_TRANSITIONS_PER_FRAME } from "../../../cocos/animation/marionette/state-machine/state-machine-eval";
 
 const DEFAULT_VALUE = 6.666;
 
 // m: Motion | +: Entry | -: Exit
 type SequenceString = string;
-
-const MAX_TRANSITIONS_PER_FRAME = 100;
 
 describe(`Transition sequence`, () => {
     describe(`At a moment`, () => {
@@ -710,10 +709,6 @@ describe(`Circular transitions`, () => {
 
             // Every tick, upto `MAX_TRANSITIONS_PER_FRAME` transitions will be appended to transition.
             {
-                const lastStateIndexBeforeTick = expectation.transitions.length === 0
-                    ? expectation.headStateIndex
-                    : expectation.transitions[expectation.transitions.length - 1].destStateIndex;
-
                 const stateWeightsBeforeTick = new Array(stateCount).fill(0.0);
                 if (!isFirstTick) {
                     const [lastStateWeight, destinationWeights] = computeExpectedWeightsOfTransitionSequence(
@@ -723,9 +718,12 @@ describe(`Circular transitions`, () => {
                     expectation.transitions.forEach(({ destStateIndex }, transitionIndex) => {
                         stateWeightsBeforeTick[destStateIndex] += destinationWeights[transitionIndex];
                     });
-                    stateWeightsBeforeTick[lastStateIndexBeforeTick] += lastStateWeight;
+                    stateWeightsBeforeTick[expectation.headStateIndex] += lastStateWeight;
                 }
 
+                const lastStateIndexBeforeTick = expectation.transitions.length === 0
+                    ? expectation.headStateIndex
+                    : expectation.transitions[expectation.transitions.length - 1].destStateIndex;
                 const expectedNewTransitionsCount = isFirstTick
                     ? MAX_TRANSITIONS_PER_FRAME - 1 // The first tick will exclude Entry -> Head consume 1 iteration
                     : MAX_TRANSITIONS_PER_FRAME;
