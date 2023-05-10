@@ -917,18 +917,6 @@ module.exports = {
             description: "启用自定义渲染管线。",
         },
 
-        animation_embedded: {
-            label: "animation embedded",
-            description: "用于动画编辑器中播放器轨道，嵌入模块（动画播放器与粒子播放器）",
-        },
-        animation_morph_weights: {
-            label: "animation morph weights",
-            description: "动画形态权重的 Proxy（MorphWeightValueProxy, MorphWeightsValueProxy, MorphWeightsAllValueProxy）",
-        },
-        animation_runtime_exports: {
-            label: "animation runtime exports",
-            description: "用于动画使用（AnimationController, VariableType, StateMachineComponent）",
-        },
         lights: {
             label: "灯光",
             description: "灯光",
@@ -942,7 +930,7 @@ module.exports = {
             description: "Line 组件用于渲染 3D 场景中给定的点连成的线段。Line 组件渲染的线段是有宽度的，并且总是面向摄像机，这与 billboard 组件相似",
         },
         skinned_mesh_renderer: {
-            label: "蒙皮网格渲染器组件",
+            label: "蒙皮网格渲染器组件（SkinnedMeshRenderer）",
             description: "蒙皮网格渲染器组件",
         },
     },

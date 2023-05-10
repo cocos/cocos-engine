@@ -30,35 +30,8 @@
         "animation": {
             "label": "i18n:ENGINE.features.animation.label",
             "description": "i18n:ENGINE.features.animation.description",
-            "default": ["animation", "animation-embedded", "animation-morph-weights", "animation-runtime-exports"],
-            "category": "animation",
-            "multi": true,
-            "options": {
-                "animation": {
-                    "default": ["animation"],
-                    "label": "i18n:ENGINE.features.animation.label",
-                    "description": "i18n:ENGINE.features.animation.description",
-                    "wechatPlugin": true
-                },
-                "animation-embedded": {
-                    "default": ["animation-embedded"],
-                    "label": "i18n:ENGINE.features.animation_embedded.label",
-                    "description": "i18n:ENGINE.features.animation_embedded.description",
-                    "wechatPlugin": true
-                },
-                "animation-morph-weights": {
-                    "default": ["animation-morph-weights"],
-                    "label": "i18n:ENGINE.features.animation_morph_weights.label",
-                    "description": "i18n:ENGINE.features.animation_morph_weights.description",
-                    "wechatPlugin": true
-                },
-                "animation-runtime-exports": {
-                    "default": ["animation-runtime-exports"],
-                    "label": "i18n:ENGINE.features.animation_runtime_exports.label",
-                    "description": "i18n:ENGINE.features.animation_runtime_exports.description",
-                    "wechatPlugin": true
-                }
-            }
+            "default": ["animation"],
+            "category": "animation"
         },
         "skeletal-animation": {
             "label": "i18n:ENGINE.features.skeletal_animation.label",

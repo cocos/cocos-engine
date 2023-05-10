@@ -936,18 +936,6 @@ module.exports = {
             description: "Enable custom render pipeline",
         },
 
-        animation_embedded: {
-            label: "animation embedded",
-            description: "For the player track in the animation editor, embedded modules (animation player and particle player)",
-        },
-        animation_morph_weights: {
-            label: "animation morph weights",
-            description: "Proxy for animated morphological weights（MorphWeightValueProxy, MorphWeightsValueProxy, MorphWeightsAllValueProxy）",
-        },
-        animation_runtime_exports: {
-            label: "animation runtime exports",
-            description: "For animation use（AnimationController, VariableType, StateMachineComponent）",
-        },
         lights: {
             label: "lights",
             description: "lights",
@@ -961,7 +949,7 @@ module.exports = {
             description: "The Line component renders a line segment that is connected to a given point in the 3D scene; the line segment rendered by the Line component has a width and always faces the camera, similar to the billboard component",
         },
         skinned_mesh_renderer: {
-            label: "skinned mesh renderer",
+            label: "skinned mesh renderer (SkinnedMeshRenderer)",
             description: "The skinned mesh renderer component.",
         },
     },
