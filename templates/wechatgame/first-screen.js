@@ -67,11 +67,11 @@ let gl = null;
 let image = null;
 let slogan = null;
 let bg = null;
-let programProgress = null;
 let program = null;
 let programBg = null;
+let programProgress = null;
 let rafHandle = null;
-let texture = null;
+let logoTexture = null;
 let sloganTexture = null;
 let bgTexture = null;
 let vertexBuffer = null;
@@ -259,10 +259,10 @@ function loadSlogan(sloganPath) {
 }
 
 
-function initTexture() {
-    texture = gl.createTexture();
+function initLogoTexture() {
+    logoTexture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.bindTexture(gl.TEXTURE_2D, logoTexture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -292,9 +292,9 @@ function initBgTexture() {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255]));
 }
 
-function updateTexture() {
+function updateLogoTexture() {
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.bindTexture(gl.TEXTURE_2D, logoTexture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -365,7 +365,7 @@ function draw() {
     // draw background
     drawTexture(gl, programBg, bgTexture, bgVertexBuffer, 4);
     // draw logo
-    drawTexture(gl, program, texture, vertexBuffer, 4);
+    drawTexture(gl, program, logoTexture, vertexBuffer, 4);
     // draw slogan
     drawTexture(gl, program, sloganTexture, sloganVertexBuffer, 4);
     // draw progress bar
@@ -389,10 +389,15 @@ function end() {
         gl.useProgram(null);
         gl.bindTexture(gl.TEXTURE_2D, null);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.deleteTexture(texture);
+        gl.deleteTexture(logoTexture);
+        gl.deleteTexture(sloganTexture);
+        gl.deleteTexture(bgTexture);
         gl.deleteBuffer(vertexBuffer);
+        gl.deleteBuffer(bgVertexBuffer);
+        gl.deleteBuffer(sloganVertexBuffer);
         gl.deleteBuffer(vertexBufferProgress);
         gl.deleteProgram(program);
+        gl.deleteProgram(programBg);
         gl.deleteProgram(programProgress);
     });
 }
@@ -424,7 +429,7 @@ function start(alpha, antialias, useWebgl2) {
     initSloganVertexBuffer();
     initProgressVertexBuffer();
 
-    initTexture();
+    initLogoTexture();
     initBgTexture();
     initSloganTexture();
 
@@ -443,7 +448,7 @@ function start(alpha, antialias, useWebgl2) {
         }),
         loadImage('logo.png').then(() => {
             updateVertexBuffer();
-            updateTexture();
+            updateLogoTexture();
         })
       ]).then(() => {
         return setProgress(0);
