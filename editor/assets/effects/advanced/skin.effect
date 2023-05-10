@@ -113,43 +113,6 @@ CCEffect %{
           blendDst: one
           blendSrcAlpha: zero
           blendDstAlpha: one
-
-  # - name: transparent
-  #   passes:
-  #   - vert: standard-vs
-  #     frag: standard-fs
-  #     embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, CC_SURFACES_LIGHTING_DISABLE_DIFFUSE: false, CC_SURFACES_LIGHTING_DISABLE_SPECULAR: true }
-  #     depthStencilState:
-  #       depthTest: true
-  #       depthWrite: false
-  #       stencilTestFront: true
-  #       stencilPassOpFront: replace
-  #       stencilRef: 0x78 # [0~255],use 120
-  #     blendState:
-  #       targets:
-  #       - blend: true
-  #         blendSrc: src_alpha
-  #         blendDst: one_minus_src_alpha
-  #         blendDstAlpha: one_minus_src_alpha
-  #     properties: *props
-
-  #   - vert: standard-vs
-  #     frag: standard-fs
-  #     pass: specular-pass
-  #     embeddedMacros: { CC_FORCE_FORWARD_SHADING: true, CC_SURFACES_LIGHTING_DISABLE_DIFFUSE: true, CC_SURFACES_LIGHTING_DISABLE_SPECULAR: false }
-  #     depthStencilState:
-  #       depthTest: true
-  #       depthWrite: false
-  #       stencilTestFront: true
-  #       stencilFuncFront: equal
-  #       stencilRef: 0x78 # [0~255],use 120
-  #     blendState:
-  #       targets:
-  #       - blend: true
-  #         blendSrc: src_alpha
-  #         blendDst: one_minus_src_alpha
-  #         blendDstAlpha: one_minus_src_alpha
-  #     properties: *props
 }%
 
 CCProgram shared-ubos %{
