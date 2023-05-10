@@ -123,7 +123,7 @@ function loadShader(type, source) {
 function initVertexBuffer() {
     const widthRatio = 2 / canvas.width;
     const heightRatio = 2 / canvas.height;
-    const heightOffset = 0.35;
+    const heightOffset = 0.225;
     const vertices = new Float32Array([
         widthRatio,heightRatio + heightOffset, 1.0, 1.0,
         widthRatio, heightRatio + heightOffset, 1.0, 0.0,
@@ -138,12 +138,11 @@ function initVertexBuffer() {
 function initSloganVertexBuffer() {
     const widthRatio = 2 / canvas.width;
     const heightRatio = 2 / canvas.height;
-    const heightOffset = 0.0;
     const vertices = new Float32Array([
-        widthRatio,heightRatio + heightOffset, 1.0, 1.0,
-        widthRatio, heightRatio + heightOffset, 1.0, 0.0,
-        -widthRatio, heightRatio + heightOffset, 0.0, 1.0,
-        -widthRatio, heightRatio + heightOffset, 0.0, 0.0,
+        widthRatio, heightRatio, 1.0, 1.0,
+        widthRatio, heightRatio, 1.0, 0.0,
+        -widthRatio, heightRatio, 0.0, 1.0,
+        -widthRatio, heightRatio, 0.0, 0.0,
     ]);
     sloganVertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, sloganVertexBuffer);
@@ -442,7 +441,7 @@ function start(alpha, antialias, useWebgl2) {
     initBgVertexBuffer();
     initSloganVertexBuffer();
     initProgressVertexBuffer();
-    
+
     initTexture();
     initBgTexture();
     initSloganTexture();
@@ -451,20 +450,21 @@ function start(alpha, antialias, useWebgl2) {
     programBg = initShaders(VS_BG, FS_BG);
     programProgress = initShaders(VS_PROGRESSBAR, FS_PROGRESSBAR);
     tick();
-    loadBackground('background.png').then(() => {
-        updateBgVertexBuffer();
-        updateBgTexture();
-    });
-
-    loadSlogan('slogan.png').then(() => {
-        updateSloganVertexBuffer();
-        updateSloganTexture();
-    });
-
-    return loadImage('logo.png').then(() => {
-        updateVertexBuffer();
-        updateTexture();
+    return Promise.all([
+        loadBackground('background.png').then(() => {
+          updateBgVertexBuffer();
+          updateBgTexture();
+        }),
+        loadSlogan('slogan.png').then(() => {
+          updateSloganVertexBuffer();
+          updateSloganTexture();
+        }),
+        loadImage('logo.png').then(() => {
+            updateVertexBuffer();
+            updateTexture();
+        })
+      ]).then(() => {
         return setProgress(0);
-    });
+      });
 }
 module.exports = { start, end, setProgress };
