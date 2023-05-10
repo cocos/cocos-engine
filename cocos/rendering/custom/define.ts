@@ -200,7 +200,8 @@ class FxaaData {
 let fxaaData: FxaaData | null = null;
 export function buildFxaaPass (camera: Camera,
     ppl: Pipeline,
-    inputRT: string) {
+    inputRT: string,
+    inputDS: string) {
     if (!fxaaData) {
         fxaaData = new FxaaData();
     }
@@ -221,15 +222,12 @@ export function buildFxaaPass (camera: Camera,
     clearColor.w = camera.clearColor.w;
 
     const fxaaPassRTName = `dsFxaaPassColor${cameraName}`;
-    const fxaaPassDSName = `dsFxaaPassDS${cameraName}`;
 
     // ppl.updateRenderWindow(inputRT, camera.window);
     if (!ppl.containsResource(fxaaPassRTName)) {
         ppl.addRenderTarget(fxaaPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(fxaaPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(fxaaPassRTName, width, height);
-    ppl.updateDepthStencil(fxaaPassDSName, width, height);
     const fxaaPassIdx = 0;
     const fxaaPass = ppl.addRasterPass(width, height, 'fxaa');
     fxaaPass.name = `CameraFxaaPass${cameraID}`;
@@ -243,7 +241,7 @@ export function buildFxaaPass (camera: Camera,
         camera, fxaaData.fxaaMaterial, fxaaPassIdx,
         SceneFlags.NONE,
     );
-    return { rtName: fxaaPassRTName, dsName: fxaaPassDSName };
+    return { rtName: fxaaPassRTName, dsName: inputDS };
 }
 
 export const MAX_BLOOM_FILTER_PASS_NUM = 6;
@@ -1384,13 +1382,18 @@ class SSSSBlurData {
 }
 
 let ssssBlurData: SSSSBlurData | null = null;
-export function buildSSSSBlurPass (camera: Camera,
+export function hasSkinObject (ppl: Pipeline) {
+    const sceneData = ppl.pipelineSceneData;
+    return sceneData.skin.enabled && sceneData.standardSkinModel != null;
+}
+
+function _buildSSSSBlurPass (camera: Camera,
     ppl: Pipeline,
     inputRT: string,
     inputDS: string) {
     const sceneData = ppl.pipelineSceneData;
     const skin = sceneData.skin;
-    const standardSkinModel = ppl.pipelineSceneData.standardSkinModel;
+    const standardSkinModel = sceneData.standardSkinModel;
     if (!skin.enabled && standardSkinModel) return { rtName: inputRT, dsName: inputDS };
 
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
@@ -1632,12 +1635,13 @@ export function buildToneMappingPass (camera: Camera,
     return { rtName: toneMappingPassRTName, dsName: toneMappingPassDS };
 }
 
-export function buildAlphaPass (camera: Camera,
+export function buildTransparencyPass (camera: Camera,
     ppl: Pipeline,
     inputRT: string,
     inputDS: string,
-    postAlpha = false) {
-    if (!postAlpha) return { rtName: inputRT, dsName: inputDS };
+    hasDeferredTransparencyObject: boolean) {
+    if (hasDeferredTransparencyObject) return { rtName: inputRT, dsName: inputDS };
+
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
     const cameraInfo = buildShadowPasses(cameraName, camera, ppl);
@@ -1680,7 +1684,7 @@ export function buildAlphaPass (camera: Camera,
     return { rtName: inputRT, dsName: inputDS };
 }
 
-export function buildSpecularPass (camera: Camera,
+function _buildSpecularPass (camera: Camera,
     ppl: Pipeline,
     inputRT: string,
     inputDS: string) {
@@ -1736,4 +1740,18 @@ export function buildSpecularPass (camera: Camera,
             SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
             | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY);
     return { rtName: inputRT, dsName: inputDS };
+}
+
+export function buildSSSSPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string,
+    inputDS: string) {
+    if (hasSkinObject(ppl)) {
+        const blurInfo = _buildSSSSBlurPass(camera, ppl, inputRT, inputDS);
+        const specularInfo = _buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
+        return { rtName: postAlphaInfo.rtName, dsName: postAlphaInfo.dsName };
+    } else {
+        const specularInfo = _buildSpecularPass(camera, ppl, inputRT, inputDS);
+        return { rtName: specularInfo.rtName, dsName: specularInfo.dsName };
+    }
 }

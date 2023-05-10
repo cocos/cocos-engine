@@ -25,7 +25,7 @@
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { buildFxaaPass, buildBloomPass as buildBloomPasses, buildForwardPass,
     buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass,
-    AntiAliasing, buildUIPass, buildSSSSBlurPass, buildSpecularPass, buildToneMappingPass, buildAlphaPass } from './define';
+    AntiAliasing, buildUIPass, buildSSSSPass, hasSkinObject, buildTransparencyPass, buildToneMappingPass } from './define';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { isUICamera } from './utils';
 
@@ -48,7 +48,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 // forward pass
                 const forwardInfo = buildForwardPass(camera, ppl, isGameView);
                 // fxaa pass
-                const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName);
+                const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
                 // bloom passes
                 const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
                 // tone map pass
@@ -79,19 +79,23 @@ export class SkinPipelineBuilder implements PipelineBuilder {
             }
             // TODO: There is currently no effective way to judge the ui camera. Let’s do this first.
             if (!isUICamera(camera)) {
-                const postAlpha = true;
+                const hasDeferredTransparencyObjects = hasSkinObject(ppl);
                 // forward pass
-                const forwardInfo = buildForwardPass(camera, ppl, isGameView, !postAlpha);
-                // blur pass
-                const blurInfo = buildSSSSBlurPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
-                // specular pass
-                const specularInfo = buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
-                // alpha pass
-                const postAlphaInfo = buildAlphaPass(camera, ppl, specularInfo.rtName, specularInfo.dsName, postAlpha);
+                const forwardInfo = buildForwardPass(camera, ppl, isGameView, !hasDeferredTransparencyObjects);
+                // skin pass
+                const skinInfo = buildSSSSPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
+                // deferred transparency objects
+                const deferredTransparencyInfo = buildTransparencyPass(camera, ppl, skinInfo.rtName, skinInfo.dsName, hasDeferredTransparencyObjects);
+                // todo: hbao pass
                 // tone map pass
-                const toneMappingInfo =  buildToneMappingPass(camera, ppl, postAlphaInfo.rtName, postAlphaInfo.dsName);
+                const toneMappingInfo =  buildToneMappingPass(camera, ppl, deferredTransparencyInfo.rtName, deferredTransparencyInfo.dsName);
+                // fxaa pass
+                const fxaaInfo = buildFxaaPass(camera, ppl, toneMappingInfo.rtName, toneMappingInfo.dsName);
+                // bloom passes
+                // todo: bloom need to be rendered before tone-mapping
+                const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
                 // Present Pass
-                buildPostprocessPass(camera, ppl, toneMappingInfo.rtName, AntiAliasing.NONE);
+                buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
                 continue;
             }
             // render ui
