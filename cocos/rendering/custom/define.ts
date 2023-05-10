@@ -185,7 +185,7 @@ class FxaaData {
         if (this.fxaaMaterial) return;
         this.fxaaMaterial = new Material();
         this.fxaaMaterial._uuid = 'builtin-fxaa-material';
-        this.fxaaMaterial.initialize({ effectName: 'pipeline/fxaa-hq' });
+        this.fxaaMaterial.initialize({ effectName: 'pipeline/post-process/fxaa-hq' });
         for (let i = 0; i < this.fxaaMaterial.passes.length; ++i) {
             this.fxaaMaterial.passes[i].tryCompile();
         }
@@ -284,7 +284,7 @@ class BloomData {
         if (this.bloomMaterial) return;
         this.bloomMaterial = new Material();
         this.bloomMaterial._uuid = 'builtin-bloom-material';
-        this.bloomMaterial.initialize({ effectName: 'pipeline/bloom' });
+        this.bloomMaterial.initialize({ effectName: 'pipeline/post-process/bloom' });
         for (let i = 0; i < this.bloomMaterial.passes.length; ++i) {
             this.bloomMaterial.passes[i].tryCompile();
         }
