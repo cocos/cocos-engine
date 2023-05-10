@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.25",
+  "ver": "1.0.26",
   "importer": "image",
   "imported": true,
   "uuid": "c78f78a5-3553-4d1f-ad3b-177fe55af68b",
@@ -27,7 +27,7 @@
         "anisotropy": 0,
         "isUuid": true,
         "imageUuidOrDatabaseUri": "c78f78a5-3553-4d1f-ad3b-177fe55af68b",
-        "visible": true
+        "visible": false
       },
       "displayName": "sphere-light",
       "id": "6c48a",

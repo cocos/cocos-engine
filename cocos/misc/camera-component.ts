@@ -38,6 +38,7 @@ import { Layers } from '../scene-graph/layers';
 import { TransformBit } from '../scene-graph/node-enum';
 import { RenderWindow } from '../render-scene/core/render-window';
 import { ClearFlagBit } from '../gfx';
+import { PostProcess } from '../rendering/post-process/components/post-process';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -167,6 +168,8 @@ export class Camera extends Component {
     protected _visibility = CAMERA_DEFAULT_MASK;
     @serializable
     protected _targetTexture: RenderTexture | null = null;
+    @serializable
+    protected _postProcess: PostProcess | null = null;
 
     protected _camera: scene.Camera | null = null;
     protected _inEditorMode = false;
@@ -482,6 +485,17 @@ export class Camera extends Component {
             this._camera.isWindowSize = true;
         }
         this.node.emit(Camera.TARGET_TEXTURE_CHANGE, this);
+    }
+
+    @type(PostProcess)
+    get postProcess () {
+        return this._postProcess;
+    }
+    set postProcess (v) {
+        this._postProcess = v;
+        if (this._camera) {
+            this._camera.postProcess = v;
+        }
     }
 
     /**

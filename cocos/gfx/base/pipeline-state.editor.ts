@@ -200,7 +200,7 @@ export class BlendTargetEditor extends BlendTarget {
     @editable
     public blendSrc = BlendFactor.ONE;
 
-    @type({ type: BlendFactor })
+    @type(BlendFactor)
     @serializable
     @editable
     public blendDst = BlendFactor.ZERO;

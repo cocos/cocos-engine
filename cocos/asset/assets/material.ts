@@ -348,7 +348,7 @@ export class Material extends Asset {
                 if (name in props) { return props[name]; }
             }
         } else {
-            if (passIdx >= this._props.length) { console.warn(`illegal pass index: ${passIdx}.`); return null; }
+            if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return null; }
             const props = this._props[this._passes[passIdx].propertyIndex];
             if (name in props) { return props[name]; }
         }

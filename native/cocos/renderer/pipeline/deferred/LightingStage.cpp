@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "LightingStage.h"
-#include "../BatchedBuffer.h"
 #include "../Define.h"
 #if CC_USE_GEOMETRY_RENDERER
     #include "../GeometryRenderer.h"
@@ -34,7 +33,6 @@
 #include "../PipelineStateManager.h"
 #include "../PipelineUBO.h"
 #include "../PlanarShadowQueue.h"
-#include "../RenderBatchedQueue.h"
 #include "../RenderInstancedQueue.h"
 #include "../RenderQueue.h"
 #include "DeferredPipeline.h"
