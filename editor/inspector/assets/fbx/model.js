@@ -817,14 +817,15 @@ const Elements = {
                     const nextFaceCount = lods.options[index + 1] ? lods.options[index + 1].faceCount : 0;
                     const option = {
                         screenRatio: (preScreenRatio + nextScreenRatio) / 2,
-                        triangleCount: 0,
                         faceCount: (preFaceCount + nextFaceCount) / 2,
                     };
                     // Insert the specified lod level
                     for (let keyIndex = Object.keys(lods.options).length - 1; keyIndex > index; keyIndex--) {
                         lods.options[keyIndex + 1] = lods.options[keyIndex];
+                        panel.LODTriangleCounts[keyIndex + 1] = panel.LODTriangleCounts[keyIndex];
                     }
                     lods.options[index + 1] = option;
+                    panel.LODTriangleCounts[index + 1] = 0;
                     // update panel
                     Elements.lods.update.call(panel);
                     panel.dispatch('change');
@@ -837,8 +838,10 @@ const Elements = {
                     // Delete the specified lod level
                     for (let key = index; key < Object.keys(lods.options).length; key++) {
                         lods.options[key] = lods.options[key + 1];
+                        panel.LODTriangleCounts[key] = panel.LODTriangleCounts[key + 1];
                     }
-                    delete lods.options[Object.keys(lods.options).length - 1];
+                    lods.options.pop();
+                    panel.LODTriangleCounts.pop();
                     // update panel
                     Elements.lods.update.call(panel);
                     panel.dispatch('change');
@@ -853,9 +856,9 @@ const Elements = {
             const panel = this;
 
             panel.$.lodsCheckbox.value = getPropValue.call(panel, panel.meta.userData.lods, false, 'enable');
-            const lodItems = panel.meta.userData.lods.options || [];
+            const lodOptions = panel.meta.userData.lods.options || [];
             const hasBuiltinLOD = panel.meta.userData.lods.hasBuiltinLOD;
-            panel.$.lodItems.innerHTML = getLodItemHTML(lodItems, hasBuiltinLOD);
+            panel.$.lodItems.innerHTML = getLodItemHTML(lodOptions, panel.LODTriangleCounts, hasBuiltinLOD);
             hasBuiltinLOD ? panel.$.noLodLabel.setAttribute('hidden', '') : panel.$.noLodLabel.removeAttribute('hidden');
             if (panel.$.loadMask.style.display === 'block' && this.asset.imported) {
                 panel.$.loadMask.style.display = 'none';
@@ -900,6 +903,7 @@ exports.update = function(assetList, metaList) {
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];
+    this.LODTriangleCounts = handleLODTriangleCounts(this.meta);
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -920,10 +924,25 @@ exports.close = function() {
     }
 };
 
-function getLodItemHTML(lodItems, hasBuiltinLOD = false) {
+function handleLODTriangleCounts(meta) {
+    let LODTriangleCounts = new Array(meta.userData.lods.options.length).fill(0);
+    for (const key in meta.subMetas) {
+        const subMeta = meta.subMetas[key];
+        if (subMeta.importer === 'gltf-mesh') {
+            if (!subMeta.userData.lodOptions) {
+                LODTriangleCounts[0] = (LODTriangleCounts[0] || 0) + (subMeta.userData.triangleCount || 0);
+            } else {
+                LODTriangleCounts[subMeta.userData.lodOptions.lodLevel] = (LODTriangleCounts[subMeta.userData.lodOptions.lodLevel] || 0) + (subMeta.userData.triangleCount || 0);
+            }
+        }
+    }
+    return LODTriangleCounts;
+}
+
+function getLodItemHTML(lodOptions, LODTriangleCounts, hasBuiltinLOD = false) {
     let lodItemsStr = '';
-    for (const index in lodItems) {
-        const lodItem = lodItems[index];
+    for (const index in lodOptions) {
+        const lodItem = lodOptions[index];
         lodItemsStr += `
 <div class="lod-item">
     <ui-section cache-expand="fbx-mode-lod-item-${index}">
@@ -931,7 +950,7 @@ function getLodItemHTML(lodItems, hasBuiltinLOD = false) {
             <div class="left">
                 <span>LOD ${index}</span>
             </div>
-            <div class="middle" ${ index == 0 || lodItems[0].faceCount == 0 ? 'hidden' : '' }>
+            <div class="middle" ${ index == 0 || lodOptions[0].faceCount == 0 ? 'hidden' : '' }>
                 <span class="face-count">Face count(%)</span>
                 <ui-num-input path="faceCount" min="0" max="100" key="${index}"
                     value="${Editor.Utils.Math.multi(lodItem.faceCount, 100)}"
@@ -940,7 +959,7 @@ function getLodItemHTML(lodItems, hasBuiltinLOD = false) {
             </div>
             <div class="right">
                 <div class="triangles">
-                    <span> ${lodItem.triangleCount} Triangles</span>
+                    <span> ${LODTriangleCounts[index]} Triangles</span>
                 </div>
                 <div class="operator" ${ hasBuiltinLOD ? 'hidden' : '' }>
                     <ui-icon value="add" key="${index}" path="insertLod" tooltip="insert after this LOD"></ui-icon>
