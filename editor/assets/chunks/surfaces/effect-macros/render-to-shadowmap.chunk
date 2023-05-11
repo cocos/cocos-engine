@@ -1,11 +1,24 @@
 // Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
 // Rename some user macros to surface internal macros
+#ifndef CC_SURFACES_USE_TANGENT_SPACE
+  #define CC_SURFACES_USE_TANGENT_SPACE 0
+#endif
 
-#define CC_SURFACES_USE_TANGENT_SPACE 0
-#define CC_SURFACES_USE_VERTEX_COLOR 0
-#define CC_SURFACES_USE_SECOND_UV 0
-#define CC_SURFACES_USE_LIGHT_MAP 0
-#define CC_SURFACES_TRANSFER_LOCAL_POS 0
+#ifndef CC_SURFACES_USE_VERTEX_COLOR
+  #define CC_SURFACES_USE_VERTEX_COLOR 0
+#endif
+
+#ifndef CC_SURFACES_USE_SECOND_UV
+  #define CC_SURFACES_USE_SECOND_UV 0
+#endif
+
+#ifndef CC_SURFACES_USE_LIGHT_MAP
+  #define CC_SURFACES_USE_LIGHT_MAP 0
+#endif
+
+#ifndef CC_SURFACES_TRANSFER_LOCAL_POS
+  #define CC_SURFACES_TRANSFER_LOCAL_POS 0
+#endif
 
 #include <surfaces/effect-macros/common-macros>
