@@ -52,10 +52,6 @@ SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
-void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
-    copyTextToClipboardJNI(text);
-}
-
 void SystemWindow::setWindowHandle(void *handle) {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     //The getWindowHandle interface may have been called earlier, causing _handleMutex to be occupied all the time.

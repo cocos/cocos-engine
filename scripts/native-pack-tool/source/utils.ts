@@ -444,7 +444,12 @@ export const toolHelper = {
     },
 
     runCmake(args: string[]) {
-        const cmakePath = Paths.cmakePath;
+        let cmakePath = Paths.cmakePath;
+        if (process.platform === 'win32' && cmakePath.indexOf(' ') > -1) {
+            cmakePath = `"${cmakePath}"`;
+        } else {
+            cmakePath = cmakePath.replace(/ /g, '\\ ');
+        }
         // Delete environment variables start with `npm_`, which may cause compile error on windows
         const newEnv: any = {};
         Object.assign(newEnv, process.env);

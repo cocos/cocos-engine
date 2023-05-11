@@ -88,7 +88,7 @@ void Model::initialize() {
     _visFlags = Layers::Enum::NONE;
     _inited = true;
     _bakeToReflectionProbe = true;
-    _reflectionProbeType = scene::UseReflectionProbeType::BAKED_CUBEMAP;
+    _reflectionProbeType = scene::UseReflectionProbeType::NONE;
 }
 
 void Model::destroy() {
@@ -300,8 +300,6 @@ void Model::initSubModel(index_t idx, cc::RenderingSubMesh *subMeshData, Materia
         CC_SAFE_DESTROY(_subModels[idx]);
     }
     _subModels[idx]->initialize(subMeshData, mat->getPasses(), getMacroPatches(idx));
-    _subModels[idx]->initPlanarShadowShader();
-    _subModels[idx]->initPlanarShadowInstanceShader();
     _subModels[idx]->setOwner(this);
     updateAttributesAndBinding(idx);
 }
@@ -516,8 +514,18 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
         updateWorldBoundDescriptors(subModelIndex, subModel->getWorldBoundDescriptorSet());
     }
 
-    gfx::Shader *shader = subModel->getPasses()[0]->getShaderVariant(subModel->getPatches());
-    updateInstancedAttributes(shader->getAttributes(), subModel);
+    ccstd::vector<gfx::Attribute> attributes;
+    ccstd::unordered_map<ccstd::string, gfx::Attribute> attributeMap;
+    for (const auto &pass : subModel->getPasses()) {
+        gfx::Shader *shader = pass->getShaderVariant(subModel->getPatches());
+        for (const auto &attr : shader->getAttributes()) {
+            if (attributeMap.find(attr.name) == attributeMap.end()) {
+                attributes.push_back(attr);
+                attributeMap.insert({attr.name, attr});
+            }
+        }
+    }
+    updateInstancedAttributes(attributes, subModel);
 }
 
 void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel *subModel) {

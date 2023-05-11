@@ -102,9 +102,6 @@ void SubModel::setPasses(const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>
     flushPassInfo();
 
     const auto &passes = *_passes;
-    if (passes[0]->getBatchingScheme() == BatchingSchemes::VB_MERGING) {
-        _subMesh->genFlatBuffers();
-    }
     // DS layout might change too
     if (_descriptorSet) {
         _descriptorSet->destroy();
@@ -154,9 +151,6 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd
     flushPassInfo();
 
     const auto &passes = *_passes;
-    if (passes[0]->getBatchingScheme() == BatchingSchemes::VB_MERGING) {
-        subMesh->genFlatBuffers();
-    }
     _priority = pipeline::RenderPriority::DEFAULT;
 
     // initialize resources for reflection material
@@ -192,32 +186,6 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd
         _reflectionSampler = _device->getSampler(samplerInfo);
         _descriptorSet->bindSampler(pipeline::REFLECTIONTEXTURE::BINDING, _reflectionSampler);
         _descriptorSet->bindTexture(pipeline::REFLECTIONSTORAGE::BINDING, _reflectionTex);
-    }
-}
-
-// TODO():
-// This is a temporary solution
-// It should not be written in a fixed way, or modified by the user
-void SubModel::initPlanarShadowShader() {
-    const auto *pipeline = Root::getInstance()->getPipeline();
-    Shadows *shadowInfo = pipeline->getPipelineSceneData()->getShadows();
-    if (shadowInfo != nullptr) {
-        _planarShader = shadowInfo->getPlanarShader(_patches);
-    } else {
-        _planarShader = nullptr;
-    }
-}
-
-// TODO():
-// This is a temporary solution
-// It should not be written in a fixed way, or modified by the user
-void SubModel::initPlanarShadowInstanceShader() {
-    const auto *pipeline = Root::getInstance()->getPipeline();
-    Shadows *shadowInfo = pipeline->getPipelineSceneData()->getShadows();
-    if (shadowInfo != nullptr) {
-        _planarInstanceShader = shadowInfo->getPlanarInstanceShader(_patches);
-    } else {
-        _planarInstanceShader = nullptr;
     }
 }
 
@@ -365,9 +333,6 @@ void SubModel::setSubMesh(RenderingSubMesh *subMesh) {
     const auto &passes = *_passes;
     _inputAssembler->destroy();
     _inputAssembler->initialize(subMesh->getIaInfo());
-    if (passes[0]->getBatchingScheme() == BatchingSchemes::VB_MERGING) {
-        subMesh->genFlatBuffers();
-    }
     _subMesh = subMesh;
 }
 

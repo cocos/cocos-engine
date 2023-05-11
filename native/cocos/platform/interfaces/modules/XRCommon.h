@@ -115,6 +115,9 @@ enum class XRConfigKey {
     SPATIAL_MESHING = 51,
     SPATIAL_MESHING_DATA = 52,
     SPATIAL_MESHING_SUPPORT_STATUS = 53,
+    EYE_RENDER_JS_CALLBACK = 54,
+    ASYNC_LOAD_ASSETS_IMAGE = 55,
+    ASYNC_LOAD_ASSETS_IMAGE_RESULTS = 56,
     MAX_COUNT
 };
 
@@ -375,16 +378,15 @@ struct XRTrackingImageData {
 #define GraphicsApiVulkan_1_1 "Vulkan2"
 
 enum class XRActivityLifecycleType {
-  UnKnown,
-  Created,
-  Started,
-  Resumed,
-  Paused,
-  Stopped,
-  SaveInstanceState,
-  Destroyed
+    UnKnown,
+    Created,
+    Started,
+    Resumed,
+    Paused,
+    Stopped,
+    SaveInstanceState,
+    Destroyed
 };
-
 
 } // namespace xr
 } // namespace cc

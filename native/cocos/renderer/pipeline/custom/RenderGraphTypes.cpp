@@ -129,6 +129,7 @@ RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
   viewport(rhs.viewport),
   versionName(std::move(rhs.versionName), alloc),
   version(rhs.version),
+  hashValue(rhs.hashValue),
   showStatistics(rhs.showStatistics) {}
 
 RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
@@ -140,6 +141,7 @@ RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
   viewport(rhs.viewport),
   versionName(rhs.versionName, alloc),
   version(rhs.version),
+  hashValue(rhs.hashValue),
   showStatistics(rhs.showStatistics) {}
 
 PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept
@@ -287,13 +289,15 @@ RenderData::RenderData(const allocator_type& alloc) noexcept
 : constants(alloc),
   buffers(alloc),
   textures(alloc),
-  samplers(alloc) {}
+  samplers(alloc),
+  custom(alloc) {}
 
 RenderData::RenderData(RenderData&& rhs, const allocator_type& alloc)
 : constants(std::move(rhs.constants), alloc),
   buffers(std::move(rhs.buffers), alloc),
   textures(std::move(rhs.textures), alloc),
-  samplers(std::move(rhs.samplers), alloc) {}
+  samplers(std::move(rhs.samplers), alloc),
+  custom(std::move(rhs.custom), alloc) {}
 
 RenderGraph::RenderGraph(const allocator_type& alloc) noexcept
 : objects(alloc),

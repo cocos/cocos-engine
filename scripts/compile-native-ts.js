@@ -96,6 +96,15 @@ async function compileTsEngine () {
             "./@types/lib.dom",
             "./@types/webGL.extras",
             "./@types/webGL2.extras",
+
+            // pal
+            "./@types/pal/system-info",
+            "./@types/pal/screen-adapter",
+            "./@types/pal/minigame",
+            "./@types/pal/audio",
+            "./@types/pal/input",
+            "./@types/pal/env",
+            "./@types/pal/pacer",
         ].map(typePath => normalizePath(ps.join(buildOutput, typePath))),
         skipLibCheck: true,
         rootDir: buildOutput,

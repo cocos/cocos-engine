@@ -96,6 +96,9 @@ void EmptyCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 void EmptyCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
 }
 
+void EmptyCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+}
+
 void EmptyCommandBuffer::dispatch(const DispatchInfo &info) {
 }
 

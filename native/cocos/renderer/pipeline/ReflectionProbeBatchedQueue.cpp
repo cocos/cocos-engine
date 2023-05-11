@@ -23,12 +23,10 @@
 ****************************************************************************/
 
 #include "ReflectionProbeBatchedQueue.h"
-#include "BatchedBuffer.h"
 #include "Define.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
-#include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Intersect.h"
@@ -50,7 +48,6 @@ ReflectionProbeBatchedQueue::ReflectionProbeBatchedQueue(RenderPipeline *pipelin
 : _phaseID(getPhaseID("default")), _phaseReflectMapID(getPhaseID("reflect-map")) {
     _pipeline = pipeline;
     _instancedQueue = ccnew RenderInstancedQueue;
-    _batchedQueue = ccnew RenderBatchedQueue;
 }
 
 ReflectionProbeBatchedQueue::~ReflectionProbeBatchedQueue() {
@@ -58,7 +55,6 @@ ReflectionProbeBatchedQueue::~ReflectionProbeBatchedQueue() {
 }
 
 void ReflectionProbeBatchedQueue::destroy() {
-    CC_SAFE_DELETE(_batchedQueue)
     CC_SAFE_DELETE(_instancedQueue)
 }
 
@@ -102,7 +98,6 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
     }
 
     _instancedQueue->uploadBuffers(cmdBuffer);
-    _batchedQueue->uploadBuffers(cmdBuffer);
 }
 
 void ReflectionProbeBatchedQueue::clear() {
@@ -111,11 +106,16 @@ void ReflectionProbeBatchedQueue::clear() {
     _passes.clear();
     _rgbeSubModels.clear();
     if (_instancedQueue) _instancedQueue->clear();
-    if (_batchedQueue) _batchedQueue->clear();
 }
 
 void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
     for (const auto &subModel : model->getSubModels()) {
+        //Filter transparent objects
+        const bool isTransparent = subModel->getPass(0)->getBlendState()->targets[0].blend;
+        if (isTransparent) {
+            continue;
+        }
+
         auto passIdx = getReflectMapPassIndex(subModel);
         bool bUseReflectPass = true;
         if (passIdx == -1) {
@@ -140,10 +140,6 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
             auto *instancedBuffer = subModel->getPass(passIdx)->getInstancedBuffer();
             instancedBuffer->merge(subModel, passIdx);
             _instancedQueue->add(instancedBuffer);
-        } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) {
-            auto *batchedBuffer = subModel->getPass(passIdx)->getBatchedBuffer();
-            batchedBuffer->merge(subModel, passIdx, model);
-            _batchedQueue->add(batchedBuffer);
         } else { // standard draw
             _subModels.emplace_back(subModel);
             _shaders.emplace_back(subModel->getShader(passIdx));
@@ -154,7 +150,6 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
 
 void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) const {
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
-    _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
 
     for (size_t i = 0; i < _subModels.size(); i++) {
         const auto *const subModel = _subModels[i];
@@ -171,7 +166,6 @@ void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::
     }
     resetMacro();
     if (_instancedQueue) _instancedQueue->clear();
-    if (_batchedQueue) _batchedQueue->clear();
 }
 void ReflectionProbeBatchedQueue::resetMacro() const {
     for (const auto &subModel : _rgbeSubModels) {

@@ -573,7 +573,7 @@ void cmdFuncGLES2ResizeBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
 void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture) {
     gpuTexture->glFormat = mapGLFormat(gpuTexture->format);
     gpuTexture->glType = formatToGLType(gpuTexture->format);
-    gpuTexture->glInternalFmt = gpuTexture->glFormat;
+    gpuTexture->glInternalFmt = mapGLInternalFormat(gpuTexture->format);
 
     if (gpuTexture->samples > SampleCount::ONE) {
         if (device->constantRegistry()->mMSRT != MSRTSupportLevel::NONE) {
@@ -2966,6 +2966,9 @@ void cmdFuncGLES2CopyTextureToBuffers(GLES2Device *device, GLES2GPUTexture *gpuT
         uint8_t *copyDst = buffers[i];
         GL_CHECK(glReadPixels(region.texOffset.x, region.texOffset.y, region.texExtent.width, region.texExtent.height, glFormat, glType, copyDst));
     }
+}
+
+void cmdFuncGLES2CopyTexture(GLES2Device *device, GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *gpuTextureDst, const TextureCopy *regions, uint32_t count) {
 }
 
 void cmdFuncGLES2BlitTexture(GLES2Device *device, GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *gpuTextureDst, const TextureBlit *regions, uint32_t count, Filter filter) {

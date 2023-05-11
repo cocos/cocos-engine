@@ -26,7 +26,7 @@ import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { Asset } from '../asset/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
-import { errorID, warnID, cclegacy, js, geometry, approx, clamp, Mat4, Quat, Vec3, murmurhash2_32_gc, binarySearchEpsilon, assertIsTrue } from '../core';
+import { errorID, warnID, cclegacy, js, geometry, approx, clamp, Mat4, Quat, Vec3, murmurhash2_32_gc, binarySearchEpsilon, assertIsTrue, RealCurve } from '../core';
 import { SkelAnimDataHub } from '../3d/skeletal-animation/skeletal-animation-data-hub';
 import { WrapMode as AnimationWrapMode, WrapMode } from './types';
 import { Node } from '../scene-graph/node';
@@ -43,6 +43,8 @@ import './exotic-animation/exotic-animation';
 import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
 import { EmbeddedPlayableState, EmbeddedPlayer } from './embedded-player/embedded-player';
+import { AuxiliaryCurveEntry } from './auxiliary-curve-entry';
+import { removeIf } from '../core/utils/array';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -658,6 +660,83 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * @zh 获取此动画剪辑中的辅助曲线数量。
+     * @en Gets the count of auxiliary curves within this animation clip.
+     */
+    public get auxiliaryCurveCount_experimental () {
+        return this._auxiliaryCurveEntries.length;
+    }
+
+    /**
+     * @zh 返回此动画剪辑中所有辅助曲线的名称。
+     * @en Returns names of all auxiliary curves within this animation clip.
+     */
+    public getAuxiliaryCurveNames_experimental (): readonly string[] {
+        return this._auxiliaryCurveEntries.map((entry) => entry.name);
+    }
+
+    /**
+     * @zh 返回此动画剪辑中是否存在指定的辅助曲线。
+     * @en Returns if the specified auxiliary curve exists in this animation clip.
+     */
+    public hasAuxiliaryCurve_experimental (name: string) {
+        return !!this._findAuxiliaryCurveEntry(name);
+    }
+
+    /**
+     * @zh 添加一条辅助曲线。如果已存在同名的辅助曲线，则直接返回。
+     * @en Adds an auxiliary curve. Directly return if there is already such named auxiliary curve.
+     * @param name @zh 辅助曲线的名称。@en The auxiliary curve's name.
+     * @returns @zh 新增或已存在的辅助曲线。 @en The newly created or existing auxiliary curve.
+     * @experimental
+     */
+    public addAuxiliaryCurve_experimental (name: string): RealCurve {
+        let entry = this._findAuxiliaryCurveEntry(name);
+        if (!entry) {
+            entry = new AuxiliaryCurveEntry();
+            entry.name = name;
+            this._auxiliaryCurveEntries.push(entry);
+        }
+        return entry.curve;
+    }
+
+    /**
+     * @zh 获取指定的辅助曲线。
+     * @en Gets the specified auxiliary curve.
+     * @param name @zh 辅助曲线的名称。@en The auxiliary curve's name.
+     * @returns @zh 指定的辅助曲线。@en The specified auxiliary curve.
+     * @experimental
+     */
+    public getAuxiliaryCurve_experimental (name: string) {
+        const entry = this._findAuxiliaryCurveEntry(name);
+        assertIsTrue(entry);
+        return entry.curve;
+    }
+
+    /**
+     * @zh 重命名指定的辅助曲线。
+     * @en Renames the specified auxiliary curve.
+     * @param name @zh 要重命名的辅助曲线的名称。@en Name of the auxiliary curve to rename.
+     * @param newName @zh 新名称。@en New name.
+     */
+    public renameAuxiliaryCurve_experimental (name: string, newName: string) {
+        const entry = this._findAuxiliaryCurveEntry(name);
+        if (entry) {
+            entry.name = newName;
+        }
+    }
+
+    /**
+     * @zh 移除指定的辅助曲线。
+     * @en Removes the specified auxiliary curve.
+     * @param name @zh 辅助曲线的名称。@en The auxiliary curve's name.
+     * @experimental
+     */
+    public removeAuxiliaryCurve_experimental (name: string) {
+        removeIf(this._auxiliaryCurveEntries, (entry) => entry.name === name);
+    }
+
+    /**
      * @internal
      */
     public _trySyncLegacyData () {
@@ -693,6 +772,9 @@ export class AnimationClip extends Asset {
 
     @serializable
     private _additiveSettings = new AdditiveSettings();
+
+    @serializable
+    private _auxiliaryCurveEntries: AuxiliaryCurveEntry[] = [];
 
     private _runtimeEvents: {
         ratios: number[];
@@ -917,6 +999,10 @@ export class AnimationClip extends Asset {
         }
 
         return Array.from(joints);
+    }
+
+    private _findAuxiliaryCurveEntry (name: string) {
+        return this._auxiliaryCurveEntries.find((entry) => entry.name === name);
     }
 }
 

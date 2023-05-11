@@ -22,9 +22,7 @@
  THE SOFTWARE.
 */
 
-import { CCClass } from '../data';
-import { Enum } from '../value-types';
-import { Color, lerp, repeat } from '../math';
+import { CCClass, Color, lerp, repeat, Enum, EPSILON, approx } from '../../core';
 
 const Mode = Enum({
     Blend: 0,
@@ -161,7 +159,7 @@ export class Gradient {
         const colorKeys = this.colorKeys;
         const length = colorKeys.length;
         if (length > 1) {
-            time = repeat(time, 1);
+            time = repeat(time, 1.0 + EPSILON);
             for (let i = 1; i < length; ++i) {
                 const preTime = colorKeys[i - 1].time;
                 const curTime = colorKeys[i].time;
@@ -176,7 +174,9 @@ export class Gradient {
                 }
             }
             const lastIndex = length - 1;
-            if (time < colorKeys[0].time) {
+            if (approx(time, colorKeys[lastIndex].time, EPSILON)) {
+                Color.set(out, colorKeys[lastIndex].color);
+            } else if (time < colorKeys[0].time) {
                 Color.lerp(out, Color.BLACK, colorKeys[0].color, time / colorKeys[0].time);
             } else if (time > colorKeys[lastIndex].time) {
                 Color.lerp(out, colorKeys[lastIndex].color, Color.BLACK, (time - colorKeys[lastIndex].time) / (1 - colorKeys[lastIndex].time));
@@ -195,7 +195,7 @@ export class Gradient {
         const alphaKeys = this.alphaKeys;
         const length = alphaKeys.length;
         if (length > 1) {
-            time = repeat(time, 1);
+            time = repeat(time, 1.0 + EPSILON);
             for (let i = 1; i < length; ++i) {
                 const preTime = alphaKeys[i - 1].time;
                 const curTime = alphaKeys[i].time;
@@ -208,7 +208,9 @@ export class Gradient {
                 }
             }
             const lastIndex = length - 1;
-            if (time < alphaKeys[0].time) {
+            if (approx(time, alphaKeys[lastIndex].time, EPSILON)) {
+                return alphaKeys[lastIndex].alpha;
+            } else if (time < alphaKeys[0].time) {
                 return lerp(basicAlpha, alphaKeys[0].alpha, time / alphaKeys[0].time);
             } else if (time > alphaKeys[lastIndex].time) {
                 return lerp(alphaKeys[lastIndex].alpha, basicAlpha, (time - alphaKeys[lastIndex].time) / (1 - alphaKeys[lastIndex].time));

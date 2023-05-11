@@ -80,6 +80,26 @@ CCEffect %{
         emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleAndStrenth.xyz }
         normalStrenth:  { value: 1.0, target: emissiveScaleAndStrenth.w, editor: { parent: USE_NORMAL_MAP } }
         mainTexture:    { value: white, target: baseColorMap, editor: { displayName: BaseColorMap } }
+    - &planar-shadow
+      vert: planar-shadow-vs:vert
+      frag: planar-shadow-fs:frag
+      phase: planar-shadow
+      propertyIndex: 0
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        stencilTestFront: true
+        stencilFuncFront: not_equal
+        stencilPassOpFront: replace
+        stencilRef: 0x80 # only use the leftmost bit
+        stencilReadMask: 0x80
+        stencilWriteMask: 0x80
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
 }%
 
 CCProgram shared-ubos %{
@@ -319,17 +339,55 @@ CCProgram shadow-caster-fs %{
 
     highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
     // spot use linear
-    if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
-      // enabled linear depth
-      #if CC_SHADOWMAP_USE_LINEAR_DEPTH
+    #if CC_SHADOWMAP_USE_LINEAR_DEPTH
+      if (IS_SPOT_LIGHT(cc_shadowLPNNInfo.x)) {
         clipDepth = CCGetLinearDepth(v_worldPos.xyz);
-      #endif
-    }
+      }
+    #endif
 
     #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
       return packDepthToRGBA(clipDepth);
     #else
       return vec4(clipDepth, 1.0, 1.0, 1.0);
     #endif
+  }
+}%
+
+CCProgram planar-shadow-vs %{
+  precision highp float;
+  #include <legacy/input>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
+  #include <builtin/uniforms/cc-shadow>
+  #include <common/lighting/functions>
+
+  out float v_dist;
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+    // World Space
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+    vec3 worldPos = (matWorld * position).xyz;
+    vec4 shadowPos = CalculatePlanarShadowPos(worldPos, cc_cameraPos.xyz, cc_mainLitDir.xyz, cc_planarNDInfo);
+    position = cc_matProj * cc_matView * vec4(shadowPos.xyz, 1.0);
+    v_dist = shadowPos.w;
+    return position;
+  }
+}%
+
+CCProgram planar-shadow-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-shadow>
+  #include <legacy/output>
+
+  in float v_dist;
+
+  vec4 frag () {
+    if(v_dist < 0.0)
+      discard;
+    return CCFragOutput(cc_shadowColor);
   }
 }%

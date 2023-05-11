@@ -22,15 +22,18 @@
  THE SOFTWARE.
 */
 
+import { Format, LoadOp } from '../../gfx/base/define';
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { buildFxaaPass, buildBloomPass as buildBloomPasses, buildForwardPass,
-    buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass,
+    buildPostprocessPass,
     AntiAliasing, buildUIPass } from './define';
-import { Pipeline, PipelineBuilder } from './pipeline';
+import { BasicPipeline, PipelineBuilder } from './pipeline';
+import { LightInfo, QueueHint, SceneFlags } from './types';
 import { isUICamera } from './utils';
+import { RenderWindow } from '../../render-scene/core/render-window';
 
 export class CustomPipelineBuilder implements PipelineBuilder {
-    public setup (cameras: Camera[], ppl: Pipeline): void {
+    public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene === null) {
@@ -61,8 +64,21 @@ export class CustomPipelineBuilder implements PipelineBuilder {
     }
 }
 
-export class NativePipelineBuilder implements PipelineBuilder {
-    public setup (cameras: Camera[], ppl: Pipeline): void {
+class CameraInfo {
+    constructor (id: number, windowID: number, width: number, height: number) {
+        this.id = id;
+        this.windowID = windowID;
+        this.width = width;
+        this.height = height;
+    }
+    id = 0xFFFFFFFF;
+    windowID = 0xFFFFFFFF;
+    width = 0;
+    height = 0;
+}
+
+export class TestPipelineBuilder implements PipelineBuilder {
+    public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene === null) {
@@ -72,8 +88,73 @@ export class NativePipelineBuilder implements PipelineBuilder {
                 buildForwardPass(camera, ppl, false);
                 continue;
             }
-            buildNativeForwardPass(camera, ppl);
-            // buildNativeDeferredPipeline(camera, ppl);
+            const info = this.prepareGameCamera(ppl, camera);
+            this.buildForward(ppl, camera, info.id, info.width, info.height);
         }
     }
+    private prepareRenderWindow (camera: Camera): number {
+        let windowID = this._windows.get(camera.window);
+        if (windowID === undefined) {
+            windowID = this._windows.size;
+            this._windows.set(camera.window, windowID);
+        }
+        return windowID;
+    }
+    private prepareGameCamera (ppl: BasicPipeline, camera: Camera): CameraInfo {
+        let info = this._cameras.get(camera);
+        if (info !== undefined) {
+            let width = camera.window.width;
+            let height = camera.window.height;
+            if (width === 0) {
+                width = 1;
+            }
+            if (height === 0) {
+                height = 1;
+            }
+            const windowID = this.prepareRenderWindow(camera);
+            if (info.width === width && info.height === height && info.windowID === windowID) {
+                return info;
+            }
+            this.updateGameCamera(ppl, camera, info.id, info.windowID, info.width, info.height);
+            return info;
+        }
+        const windowID = this.prepareRenderWindow(camera);
+        info = new CameraInfo(
+            this._cameras.size,
+            windowID,
+            camera.window.width ? camera.window.width : 1,
+            camera.window.height ? camera.window.height : 1,
+        );
+        this.initGameCamera(ppl, camera, info.id, info.windowID, info.width, info.height);
+        this._cameras.set(camera, info);
+        return info;
+    }
+    private initGameCamera (ppl: BasicPipeline, camera: Camera, id: number, windowID: number, width: number, height: number) {
+        ppl.addRenderWindow(`Color${windowID}`, Format.BGRA8, width, height, camera.window);
+        ppl.addDepthStencil(`DepthStencil${id}`, Format.DEPTH_STENCIL, width, height);
+    }
+    private updateGameCamera (ppl: BasicPipeline, camera: Camera, id: number, windowID: number, width: number, height: number) {
+        ppl.updateRenderWindow(`Color${windowID}`, camera.window);
+        ppl.updateDepthStencil(`DepthStencil${id}`, width, height);
+    }
+    private buildForward (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number) {
+        const scene = camera.scene;
+        const pass = ppl.addRasterPass(width, height, 'default');
+
+        pass.addRenderTarget(`Color${id}`, 'color', LoadOp.CLEAR);
+        pass.addDepthStencil(`DepthStencil${id}`, '_', LoadOp.CLEAR);
+
+        if (scene) {
+            pass.addQueue(QueueHint.RENDER_OPAQUE, 'default')
+                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE_OBJECT | SceneFlags.DEFAULT_LIGHTING);
+
+            pass.addQueue(QueueHint.RENDER_CUTOUT, 'default')
+                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.CUTOUT_OBJECT | SceneFlags.DEFAULT_LIGHTING);
+
+            pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'default')
+                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING);
+        }
+    }
+    readonly _cameras = new Map<Camera, CameraInfo>();
+    readonly _windows = new Map<RenderWindow, number>();
 }
