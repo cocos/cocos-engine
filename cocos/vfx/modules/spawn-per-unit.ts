@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, serializable, tooltip, type, range } from 'cc.decorator';
+import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ModuleExecContext } from '../base';
 import { FloatExpression } from '../expressions/float';

@@ -19,3 +19,4 @@ export * from './binding-float';
 export * from './legacy-curve';
 export * from './noise';
 export * from './constant-vec2';
+export * from './binding-vec3';

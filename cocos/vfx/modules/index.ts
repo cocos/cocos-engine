@@ -67,3 +67,4 @@ export * from './curl-noise-force';
 export * from './sprite-rotation-rate';
 export * from './update-mesh-orientation';
 export * from './set-parameter';
+export * from './vortex-velocity';

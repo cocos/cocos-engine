@@ -50,8 +50,6 @@ export class BoxLocationModule extends ShapeLocationModule {
     public locationMode = LocationMode.VOLUME;
 
     @serializable
-    @displayOrder(12)
-    @tooltip('i18n:shapeModule.boxThickness')
     @visible(function (this: BoxLocationModule) { return this.locationMode !== LocationMode.VOLUME; })
     public boxThickness = new Vec3(0, 0, 0);
 
