@@ -25,6 +25,6 @@
 /**
  * export PhysX from internal module
  */
-import PhysX from '@cocos/physx';
+import asmFactory from 'external:emscripten/physx/physx.release.asm.js';
 
-export { PhysX };
+export { asmFactory };
