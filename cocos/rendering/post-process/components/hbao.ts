@@ -23,7 +23,7 @@
 */
 
 import { CCBoolean, CCFloat, CCInteger } from '../../../core';
-import { ccclass, disallowMultiple, editable, executeInEditMode,menu, range,
+import { ccclass, disallowMultiple, editable, executeInEditMode, menu, range,
     serializable, slide, tooltip, type } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
@@ -78,7 +78,7 @@ export class HBAO extends PostProcessSetting {
     get blurSharpness () {
         return this._blurSharpness;
     }
-    
+
     @slide
     @tooltip('i18n:hbao.aoSaturation')
     @range([0, 10, 0.01])
