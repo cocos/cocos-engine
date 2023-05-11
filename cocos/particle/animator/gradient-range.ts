@@ -24,8 +24,7 @@
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Color, Enum, cclegacy } from '../../core';
-import Gradient, { AlphaKey, ColorKey } from './gradient';
+import { Color, Enum, cclegacy, Gradient, AlphaKey, ColorKey } from '../../core';
 import { Texture2D } from '../../asset/assets';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 
@@ -60,6 +59,9 @@ const Mode = Enum({
     TwoGradients: 3,
     RandomColor: 4,
 });
+
+const tempColor = new Color();
+const tempColor2 = new Color();
 
 /**
  * @en
@@ -168,11 +170,11 @@ export default class GradientRange {
             Color.lerp(this._color, this.colorMin, this.colorMax, rndRatio);
             return this._color;
         case Mode.RandomColor:
-            return this.gradient.randomColor();
+            return this.gradient.randomColor(this._color);
         case Mode.Gradient:
-            return this.gradient.evaluate(time);
+            return this.gradient.evaluate(this._color, time);
         case Mode.TwoGradients:
-            Color.lerp(this._color, this.gradientMin.evaluate(time), this.gradientMax.evaluate(time), rndRatio);
+            Color.lerp(this._color, this.gradientMin.evaluate(tempColor, time), this.gradientMax.evaluate(tempColor2, time), rndRatio);
             return this._color;
         default:
             return this.color;
@@ -194,11 +196,11 @@ function evaluateGradient (gr: GradientRange, time: number, index: number) {
     case Mode.TwoColors:
         return index === 0 ? gr.colorMin : gr.colorMax;
     case Mode.RandomColor:
-        return gr.gradient.randomColor();
+        return gr.gradient.randomColor(tempColor);
     case Mode.Gradient:
-        return gr.gradient.evaluate(time);
+        return gr.gradient.evaluate(tempColor, time);
     case Mode.TwoGradients:
-        return index === 0 ? gr.gradientMin.evaluate(time) : gr.gradientMax.evaluate(time);
+        return index === 0 ? gr.gradientMin.evaluate(tempColor, time) : gr.gradientMax.evaluate(tempColor, time);
     default:
         return gr.color;
     }

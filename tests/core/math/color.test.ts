@@ -188,4 +188,26 @@ describe('Test Color', () => {
         expect(Color.toVec4(new Color(255, 188, 0, 255))).toEqual(new Vec4(1, 0.7372549019607844, 0, 1));
         expect(Color.fromVec4(new Vec4 (1, 0.5, 0, 1))).toEqual(new Color(255, 127, 0, 255));
     });
+
+    test('fromUint32', () => {
+        const color = new Color();
+        for (let i = 0; i != 100; i++) {
+            const val = (Math.random() * 0xFFFFFFFF) | 0;
+            Color.fromUint32(color, val);
+            expect(color.r).toBe(val & 0xFF);
+            expect(color.g).toBe(val >> 8 & 0xFF);
+            expect(color.b).toBe(val >> 16 & 0xFF);
+            expect(color.a).toBe(val >> 24 & 0xFF);
+            expect(color._val).toBe(val);
+        }
+    });
+
+    test('toUint32', () => {
+        const color = new Color();
+        for (let i = 0; i != 100; i++) {
+            const val = (Math.random() * 0xFFFFFFFF) | 0;
+            Color.fromUint32(color, val);
+            expect(Color.toUint32(color)).toBe(val);
+        }
+    });
 });

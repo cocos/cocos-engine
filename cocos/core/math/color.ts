@@ -244,6 +244,32 @@ export class Color extends ValueType {
     }
 
     /**
+     * @zh 从无符号 32 位整数构造颜色，高 8 位为 alpha 通道，次高 8 位为蓝色通道，次低 8 位为绿色通道，低 8 位为红色通道。
+     * @en Construct color from a unsigned 32 bit integer, the highest 8 bits is for alpha channel, the second highest 8 bits is for blue channel,
+     * the second lowest 8 bits is for green channel, and the lowest 8 bits if for red channel.
+     *
+     * @param out @en Output color object. @zh 输出的颜色对象。
+     * @param uint32 @en The unsigned 32 bit integer @zh 32 位无符号整数
+     * @returns @en The `out` object @zh `out` 对象
+     */
+    public static fromUint32<Out extends IColorLike> (out: Out, uint32: number) {
+        out._val = uint32;
+        return out;
+    }
+
+    /**
+     * @zh 转换当前颜色为无符号 32 位整数, 高 8 位为 alpha 通道，次高 8 位为蓝色通道，次低 8 位为绿色通道，低 8 位为红色通道。
+     * @en Convert the current color to a unsigned 32 bit integer, the highest 8 bits is for alpha channel,
+     * the second highest 8 bits is for blue channel, the second lowest 8 bits is for green channel, and the lowest 8 bits if for red channel.
+     *
+     * @param color @en The color. @zh 颜色。
+     * @returns @en The converted unsigned 32 bit integer. @zh 32 位无符号整数。
+     */
+    public static toUint32 (color: IColorLike): number {
+        return color._val;
+    }
+
+    /**
      * @en Check whether the two given colors are identical
      * @zh 颜色等价判断
      */
