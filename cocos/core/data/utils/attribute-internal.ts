@@ -33,4 +33,5 @@ export function setPropertyEnumType (objectOrConstructor: object, propertyName: 
 export function setPropertyEnumTypeOnAttrs (attrs: Record<string, any>, propertyName: string, enumType: EnumType): void {
     attrs[`${propertyName}${DELIMETER}type`] = 'Enum';
     attrs[`${propertyName}${DELIMETER}enumList`] = Enum.getList(enumType);
+    attrs[`${propertyName}${DELIMETER}enumType`] = enumType;
 }

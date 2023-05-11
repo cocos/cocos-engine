@@ -1,6 +1,7 @@
 import { ccclass, property } from '../../cocos/core/data/class-decorator';
 import { attr } from '../../cocos/core/data/utils/attribute';
 import { Layers } from '../../cocos/scene-graph/layers';
+import { Enum } from '../../exports/base';
 
 @ccclass('LayerFlagUser')
 class LayerFlagUser{
@@ -17,7 +18,7 @@ test('Add/Remove layer', () => {
         attr(LayerFlagUser,'visibility').bitmaskList.findIndex((e) => e.name === 'abcd')
     ).toBeGreaterThanOrEqual(0);
     expect(
-        attr(LayerFlagUser,'visibilityEnum').enumList.findIndex((e) => e.name === 'abcd')
+        Enum.getList(attr(LayerFlagUser,'visibilityEnum').enumType).findIndex((e) => e.name === 'abcd')
     ).toBeGreaterThanOrEqual(0);
 
     Layers.deleteLayer(1);
@@ -25,6 +26,6 @@ test('Add/Remove layer', () => {
         attr(LayerFlagUser,'visibility').bitmaskList.findIndex((e) => e.name === 'abcd')
     ).toBeLessThan(0);
     expect(
-        attr(LayerFlagUser,'visibilityEnum').enumList.findIndex((e) => e.name === 'abcd')
+        Enum.getList(attr(LayerFlagUser,'visibilityEnum').enumType).findIndex((e) => e.name === 'abcd')
     ).toBeLessThan(0);
 });

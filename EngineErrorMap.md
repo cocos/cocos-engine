@@ -2647,6 +2647,18 @@ Failed to init builtin asset's raw path.
 
 Sorry, 'cc.Enum' not available on this platform, please report this error here: <https://github.com/cocos-creator/engine/issues/new>
 
+### 7102
+
+The name '%s' has already been registered for %s.
+
+### 7103
+
+The enumeration has already been registered as %s.
+
+### 7104
+
+The enumeration has already been registered as anonymous.
+
 ### 7200
 
 Method 'initWithTMXFile' is no effect now, please set property 'tmxAsset' instead.
