@@ -929,11 +929,9 @@ function handleLODTriangleCounts(meta) {
     for (const key in meta.subMetas) {
         const subMeta = meta.subMetas[key];
         if (subMeta.importer === 'gltf-mesh') {
-            if (!subMeta.userData.lodOptions) {
-                LODTriangleCounts[0] = (LODTriangleCounts[0] || 0) + (subMeta.userData.triangleCount || 0);
-            } else {
-                LODTriangleCounts[subMeta.userData.lodOptions.lodLevel] = (LODTriangleCounts[subMeta.userData.lodOptions.lodLevel] || 0) + (subMeta.userData.triangleCount || 0);
-            }
+            const { lodOptions, triangleCount, lodLevel } = subMeta.userData;
+            const index = !meta.userData.lods.hasBuiltinLOD ? (lodOptions ? lodLevel : 0) : lodLevel;
+            LODTriangleCounts[index] = (LODTriangleCounts[index] || 0) + (triangleCount || 0);
         }
     }
     return LODTriangleCounts;
