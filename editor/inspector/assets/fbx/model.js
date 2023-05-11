@@ -338,7 +338,11 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.addVertexColorCheckbox.value = getPropValue.call(panel, panel.meta.userData.addVertexColor, true);
+            let defaultValue = false;
+            if (panel.meta.userData) {
+                defaultValue = getPropValue.call(panel, panel.meta.userData.addVertexColor, defaultValue);
+            }
+            panel.$.addVertexColorCheckbox.value = defaultValue;
 
             updateElementInvalid.call(panel, panel.$.addVertexColorCheckbox, 'addVertexColor');
             updateElementReadonly.call(panel, panel.$.addVertexColorCheckbox);
