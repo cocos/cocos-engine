@@ -49,7 +49,7 @@ export class LinearLimitSettings  {
     set xMotion (v: EConstraintMode) {
         this._xMotion = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setConstraintMode(0, v);
+            this._impl.setConstraintMode(0, v);
         }
     }
 
@@ -61,7 +61,7 @@ export class LinearLimitSettings  {
     set yMotion (v: EConstraintMode) {
         this._yMotion = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setConstraintMode(1, v);
+            this._impl.setConstraintMode(1, v);
         }
     }
 
@@ -73,7 +73,7 @@ export class LinearLimitSettings  {
     set zMotion (v: EConstraintMode) {
         this._zMotion = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setConstraintMode(2, v);
+            this._impl.setConstraintMode(2, v);
         }
     }
 
@@ -86,9 +86,9 @@ export class LinearLimitSettings  {
         Vec3.copy(this._upper, v);
         if (!EDITOR || cclegacy.GAME_VIEW) {
             const lower = this.lower;
-            this._configurableConstraint.constraint.setLinearLimit(0, lower.x, v.x);
-            this._configurableConstraint.constraint.setLinearLimit(1, lower.y, v.y);
-            this._configurableConstraint.constraint.setLinearLimit(2, lower.z, v.z);
+            this._impl.setLinearLimit(0, lower.x, v.x);
+            this._impl.setLinearLimit(1, lower.y, v.y);
+            this._impl.setLinearLimit(2, lower.z, v.z);
         }
     }
 
@@ -101,9 +101,9 @@ export class LinearLimitSettings  {
         Vec3.copy(this._lower, v);
         if (!EDITOR || cclegacy.GAME_VIEW) {
             const upper = this.upper;
-            this._configurableConstraint.constraint.setLinearLimit(0, v.x, upper.x);
-            this._configurableConstraint.constraint.setLinearLimit(1, v.y, upper.y);
-            this._configurableConstraint.constraint.setLinearLimit(2, v.z, upper.z);
+            this._impl.setLinearLimit(0, v.x, upper.x);
+            this._impl.setLinearLimit(1, v.y, upper.y);
+            this._impl.setLinearLimit(2, v.z, upper.z);
         }
     }
 
@@ -114,6 +114,9 @@ export class LinearLimitSettings  {
     }
     set restitution (v: number) {
         this._bounciness = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._impl.setLinearRestitution(v);
+        }
     }
 
     @type(CCBoolean)
@@ -124,6 +127,9 @@ export class LinearLimitSettings  {
     }
     set enableSoftConstraint (v: boolean) {
         this._enableSoftConstraint = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._impl.setLinearSoftConstraint(v);
+        }
     }
 
     @type(CCFloat)
@@ -134,6 +140,9 @@ export class LinearLimitSettings  {
     }
     set stiffness (v: number) {
         this._stiffness = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._impl.setLinearStiffness(v);
+        }
     }
 
     @type(CCFloat)
@@ -144,6 +153,9 @@ export class LinearLimitSettings  {
     }
     set damping (v: number) {
         this._damping = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._impl.setLinearDamping(v);
+        }
     }
 
     @serializable
@@ -165,9 +177,9 @@ export class LinearLimitSettings  {
     @serializable
     private _damping = 0;
 
-    private _configurableConstraint: ConfigurableConstraint;
-    constructor (configurableConstraint: ConfigurableConstraint) {
-        this._configurableConstraint = configurableConstraint;
+    private _impl: IConfigurableConstraint;
+    constructor (configurableConstraint: IConfigurableConstraint) {
+        this._impl = configurableConstraint;
     }
 }
 
@@ -181,7 +193,7 @@ export class AngularLimitSettings {
     set twistMotion (v: EConstraintMode) {
         this._twistMotion = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setConstraintMode(3, v);
+            this._impl.setConstraintMode(3, v);
         }
     }
     @type(EConstraintMode)
@@ -192,7 +204,7 @@ export class AngularLimitSettings {
     set swingMotion1 (v: EConstraintMode) {
         this._swing1Motion = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setConstraintMode(4, v);
+            this._impl.setConstraintMode(4, v);
         }
     }
     @type(EConstraintMode)
@@ -203,7 +215,7 @@ export class AngularLimitSettings {
     set swingMotion2 (v: EConstraintMode) {
         this._swing2Motion = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setConstraintMode(5, v);
+            this._impl.setConstraintMode(5, v);
         }
     }
 
@@ -215,7 +227,7 @@ export class AngularLimitSettings {
     set twistExtent (v: number) {
         this._twistExtent = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setAngularExtent(v, this.swingExtent1, this.swingExtent2);
+            this._impl.setAngularExtent(v, this.swingExtent1, this.swingExtent2);
         }
     }
 
@@ -227,7 +239,7 @@ export class AngularLimitSettings {
     set swingExtent1 (v: number) {
         this._swingExtent1 = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setAngularExtent(this.twistExtent, v, this.swingExtent2);
+            this._impl.setAngularExtent(this.twistExtent, v, this.swingExtent2);
         }
     }
 
@@ -239,7 +251,7 @@ export class AngularLimitSettings {
     set swingExtent2 (v: number) {
         this._swingExtent2 = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setAngularExtent(this.twistExtent, this.swingExtent1, v);
+            this._impl.setAngularExtent(this.twistExtent, this.swingExtent1, v);
         }
     }
 
@@ -251,7 +263,7 @@ export class AngularLimitSettings {
     set twistRestitution (v: number) {
         this._twistBounciness = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setTwistRestitution(v);
+            this._impl.setTwistRestitution(v);
         }
     }
 
@@ -263,7 +275,7 @@ export class AngularLimitSettings {
     set swingRestitution (v: number) {
         this._swingBounciness = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setSwingRestitution(v);
+            this._impl.setSwingRestitution(v);
         }
     }
 
@@ -276,7 +288,7 @@ export class AngularLimitSettings {
     set enableSoftConstraintTwist (v: boolean) {
         this._enableSoftConstraintTwist = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setTwistSoftConstraint(v);
+            this._impl.setTwistSoftConstraint(v);
         }
     }
 
@@ -289,7 +301,7 @@ export class AngularLimitSettings {
     set twistStiffness (v: number) {
         this._twistStiffness = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setTwistStiffness(v);
+            this._impl.setTwistStiffness(v);
         }
     }
 
@@ -302,7 +314,7 @@ export class AngularLimitSettings {
     set twistDamping (v: number) {
         this._twistDamping = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setTwistDamping(v);
+            this._impl.setTwistDamping(v);
         }
     }
 
@@ -315,7 +327,7 @@ export class AngularLimitSettings {
     set enableSoftConstraintSwing (v: boolean) {
         this._enableSoftConstraintSwing = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setSwingSoftConstraint(v);
+            this._impl.setSwingSoftConstraint(v);
         }
     }
 
@@ -328,7 +340,7 @@ export class AngularLimitSettings {
     set swingStiffness (v: number) {
         this._swingStiffness = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setSwingStiffness(v);
+            this._impl.setSwingStiffness(v);
         }
     }
 
@@ -341,7 +353,7 @@ export class AngularLimitSettings {
     set swingDamping (v: number) {
         this._swingDamping = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setSwingDamping(v);
+            this._impl.setSwingDamping(v);
         }
     }
 
@@ -377,9 +389,9 @@ export class AngularLimitSettings {
     @serializable
     private _twistDamping = 0;
 
-    private _configurableConstraint: ConfigurableConstraint;
-    constructor (configurableConstraint: ConfigurableConstraint) {
-        this._configurableConstraint = configurableConstraint;
+    private _impl: IConfigurableConstraint;
+    constructor (configurableConstraint: IConfigurableConstraint) {
+        this._impl = configurableConstraint;
     }
 }
 
@@ -393,7 +405,7 @@ export class LinearDriverSettings {
     set xDrive (v: EDriverMode) {
         this._xDrive = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setDriverMode(0, v);
+            this._impl.setDriverMode(0, v);
         }
     }
 
@@ -405,7 +417,7 @@ export class LinearDriverSettings {
     set yDrive (v: EDriverMode) {
         this._yDrive = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setDriverMode(1, v);
+            this._impl.setDriverMode(1, v);
         }
     }
 
@@ -417,7 +429,7 @@ export class LinearDriverSettings {
     set zDrive (v: EDriverMode) {
         this._zDrive = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setDriverMode(2, v);
+            this._impl.setDriverMode(2, v);
         }
     }
 
@@ -429,7 +441,7 @@ export class LinearDriverSettings {
     set targetPosition (v: Vec3) {
         Vec3.copy(this._target, v);
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setLinearMotorTarget(v);
+            this._impl.setLinearMotorTarget(v);
         }
     }
 
@@ -441,7 +453,7 @@ export class LinearDriverSettings {
     set targetVelocity (v: Vec3) {
         Vec3.copy(this._velocity, v);
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setLinearMotorVelocity(v);
+            this._impl.setLinearMotorVelocity(v);
         }
     }
 
@@ -453,7 +465,7 @@ export class LinearDriverSettings {
     set strength (v) {
         this._strength = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setLinearMotorForceLimit(v);
+            this._impl.setLinearMotorForceLimit(v);
         }
     }
 
@@ -472,14 +484,86 @@ export class LinearDriverSettings {
     @serializable
     private _strength = 0;
 
-    private _configurableConstraint: ConfigurableConstraint;
-    constructor (configurableConstraint: ConfigurableConstraint) {
-        this._configurableConstraint = configurableConstraint;
+    private _impl: IConfigurableConstraint;
+    constructor (configurableConstraint: IConfigurableConstraint) {
+        this._impl = configurableConstraint;
     }
 }
 
 @ccclass('cc.AngularDriverSettings')
 export class AngularDriverSettings {
+    @type(EDriverMode)
+    @tooltip('i18n:physics3d.constraint.angularDriver.twistMode')
+    get twistDrive () {
+        return this._twistDrive;
+    }
+    set twistDrive (v: EDriverMode) {
+        this._twistDrive = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._impl.setDriverMode(3, v);
+        }
+    }
+
+    @type(EDriverMode)
+    @tooltip('i18n:physics3d.constraint.angularDriver.swingMode1')
+    get swingDrive1 () {
+        return this._swingDrive1;
+    }
+    set swingDrive1 (v: EDriverMode) {
+        this._swingDrive1 = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._impl.setDriverMode(4, v);
+        }
+    }
+
+    @type(EDriverMode)
+    @tooltip('i18n:physics3d.constraint.angularDriver.swingMode2')
+    get swingDrive2 () {
+        return this._swingDrive2;
+    }
+    set swingDrive2 (v: EDriverMode) {
+        this._swingDrive2 = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._impl.setDriverMode(5, v);
+        }
+    }
+
+    @type(Vec3)
+    @tooltip('i18n:physics3d.constraint.angularDriver.targetOrientation')
+    get targetOrientation () {
+        return this._targetOrientation;
+    }
+    set targetOrientation (v) {
+        Vec3.copy(this._targetOrientation, v);
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._impl.setAngularMotorTarget(v);
+        }
+    }
+
+    @type(Vec3)
+    @tooltip('i18n:physics3d.constraint.angularDriver.targetAngularVelocity')
+    get targetVelocity () {
+        return this._targetVelocity;
+    }
+    set targetVelocity (v) {
+        Vec3.copy(this._targetVelocity, v);
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._impl.setAngularMotorVelocity(v);
+        }
+    }
+
+    @type(CCFloat)
+    @tooltip('i18n:physics3d.constraint.angularDriver.strength')
+    get strength () {
+        return this._strength;
+    }
+    set strength (v) {
+        this._strength = v;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            this._impl.setAngularMotorForceLimit(v);
+        }
+    }
+
     @serializable
     private _swingDrive1 = EDriverMode.DISABLED;
     @serializable
@@ -495,81 +579,9 @@ export class AngularDriverSettings {
     @serializable
     private _strength = 0;
 
-    @type(EDriverMode)
-    @tooltip('i18n:physics3d.constraint.angularDriver.twistMode')
-    get twistDrive () {
-        return this._twistDrive;
-    }
-    set twistDrive (v: EDriverMode) {
-        this._twistDrive = v;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setDriverMode(3, v);
-        }
-    }
-
-    @type(EDriverMode)
-    @tooltip('i18n:physics3d.constraint.angularDriver.swingMode1')
-    get swingDrive1 () {
-        return this._swingDrive1;
-    }
-    set swingDrive1 (v: EDriverMode) {
-        this._swingDrive1 = v;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setDriverMode(4, v);
-        }
-    }
-
-    @type(EDriverMode)
-    @tooltip('i18n:physics3d.constraint.angularDriver.swingMode2')
-    get swingDrive2 () {
-        return this._swingDrive2;
-    }
-    set swingDrive2 (v: EDriverMode) {
-        this._swingDrive2 = v;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setDriverMode(5, v);
-        }
-    }
-
-    @type(Vec3)
-    @tooltip('i18n:physics3d.constraint.angularDriver.targetOrientation')
-    get targetOrientation () {
-        return this._targetOrientation;
-    }
-    set targetOrientation (v) {
-        Vec3.copy(this._targetOrientation, v);
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setAngularMotorTarget(v);
-        }
-    }
-
-    @type(Vec3)
-    @tooltip('i18n:physics3d.constraint.angularDriver.targetAngularVelocity')
-    get targetVelocity () {
-        return this._targetVelocity;
-    }
-    set targetVelocity (v) {
-        Vec3.copy(this._targetVelocity, v);
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setAngularMotorVelocity(v);
-        }
-    }
-
-    @type(CCFloat)
-    @tooltip('i18n:physics3d.constraint.angularDriver.strength')
-    get strength () {
-        return this._strength;
-    }
-    set strength (v) {
-        this._strength = v;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            this._configurableConstraint.constraint.setAngularMotorForceLimit(v);
-        }
-    }
-
-    private _configurableConstraint: ConfigurableConstraint;
-    constructor (configurableConstraint: ConfigurableConstraint) {
-        this._configurableConstraint = configurableConstraint;
+    private _impl: IConfigurableConstraint;
+    constructor (configurableConstraint: IConfigurableConstraint) {
+        this._impl = configurableConstraint;
     }
 }
 
@@ -855,10 +867,10 @@ export class ConfigurableConstraint extends Constraint {
 
     constructor () {
         super(EConstraintType.CONFIGURABLE);
-        this._linearLimitSettings = new LinearLimitSettings(this);
-        this._angularLimitSettings = new AngularLimitSettings(this);
-        this._linearDriverSettings = new LinearDriverSettings(this);
-        this._angularDriverSettings = new AngularDriverSettings(this);
+        this._linearLimitSettings = new LinearLimitSettings(this.constraint);
+        this._angularLimitSettings = new AngularLimitSettings(this.constraint);
+        this._linearDriverSettings = new LinearDriverSettings(this.constraint);
+        this._angularDriverSettings = new AngularDriverSettings(this.constraint);
     }
 
     onLoad () {
@@ -866,16 +878,16 @@ export class ConfigurableConstraint extends Constraint {
         if (!EDITOR || cclegacy.GAME_VIEW) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error private member access
-            this.linearLimitSettings._configurableConstraint = this;
+            this.linearLimitSettings._impl = this.constraint;
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error private member access
-            this.angularLimitSettings._configurableConstraint = this;
+            this.angularLimitSettings._impl = this.constraint;
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error private member access
-            this.linearDriverSettings._configurableConstraint = this;
+            this.linearDriverSettings._impl = this.constraint;
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error private member access
-            this.angularDriverSettings._configurableConstraint = this;
+            this.angularDriverSettings._impl = this.constraint;
         }
     }
 }
