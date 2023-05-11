@@ -229,6 +229,7 @@ module.exports = {
         skinning_root: 'The skinning root, where the controlling Animation is located',
         shadow_bias: 'Bias value (world space unit) that can avoid moire artifacts with shadows for model. <br>The more the value, the more the light leakage',
         shadow_normal_bias: 'Bias value (world space unit) that can avoid moire artifacts with surfaces that parallel to the directional light',
+        standard_skin_model: 'Bias value (world space unit) that ensure globally unique standard skin model',
     },
     sprite: {
         gray_scale: 'Whether turn on grayscale rendering mode',
@@ -1111,6 +1112,11 @@ module.exports = {
         minPos: 'The minimum position of the world bounding box.',
         maxPos: 'The maximum position of the world bounding box.',
         depth: 'The depth of octree.',
+    },
+    skin: {
+        enabled: 'The switch of skin scattering',
+        blurRadius: 'This parameter specifies the range of subsurface scattering , in other words, scattering filter width.',
+        sssIntensity: 'This parameter specifies the intensity of subsurface scattering.',
     },
     light_probe: {
         giScale: 'The value of GI multiplier.',

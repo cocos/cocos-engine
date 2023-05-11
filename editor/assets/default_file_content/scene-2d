@@ -245,6 +245,9 @@
     },
     "octree": {
       "__id__": 13
+    },
+    "skin": {
+      "__id__": 14
     }
   },
   {
@@ -366,5 +369,10 @@
       "z": 1024
     },
     "_depth": 8
+  },
+  {
+    "__type__": "cc.SkinInfo",
+    "_enabled": false,
+    "_scale": 5.0
   }
 ]

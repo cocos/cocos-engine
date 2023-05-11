@@ -497,6 +497,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateBakeToReflectionProbe();
         this._updateUseReflectionProbe();
         this._updateReceiveDirLight();
+        this._updateStandardSkin();
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -513,6 +514,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateBakeToReflectionProbe();
         this._updateUseReflectionProbe();
         this._updateReceiveDirLight();
+        this._updateStandardSkin();
     }
 
     public onEnable () {
@@ -537,6 +539,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateReceiveDirLight();
         this._onUpdateReflectionProbeDataMap();
         this._onUpdateLocalReflectionProbeData();
+        this._updateStandardSkin();
         this._attachToScene();
     }
 

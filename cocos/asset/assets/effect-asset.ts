@@ -200,6 +200,8 @@ const legacyBuiltinEffectNames = [
     'occlusion-query',
     'geometry-renderer',
     'debug-renderer',
+    'ssss-blur',
+    'tone-mapping',
 ];
 
 /**
