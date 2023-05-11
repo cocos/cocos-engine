@@ -29,6 +29,10 @@ exports.template = /* html */`
         <ui-checkbox slot="content" class="allowMeshDataAccess-checkbox"></ui-checkbox>
     </ui-prop>
     <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.addVertexColor.name" tooltip="i18n:ENGINE.assets.fbx.addVertexColor.title"></ui-label>
+        <ui-checkbox slot="content" class="addVertexColor-checkbox"></ui-checkbox>
+    </ui-prop>
+    <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.promoteSingleRootNode.name" tooltip="i18n:ENGINE.assets.fbx.promoteSingleRootNode.title"></ui-label>
         <ui-checkbox slot="content" class="promoteSingleRootNode-checkbox"></ui-checkbox>
     </ui-prop>
@@ -162,6 +166,7 @@ exports.$ = {
     skipValidationCheckbox: '.skipValidation-checkbox',
     disableMeshSplitCheckbox: '.disableMeshSplit-checkbox',
     allowMeshDataAccessCheckbox: '.allowMeshDataAccess-checkbox',
+    addVertexColorCheckbox: '.addVertexColor-checkbox',
     promoteSingleRootNodeCheckbox: '.promoteSingleRootNode-checkbox',
     generateLightmapUVNodeCheckbox: '.generateLightmapUVNode-checkbox',
     meshOptimizerCheckbox: '.meshOptimizer-checkbox',
@@ -319,6 +324,24 @@ const Elements = {
 
             updateElementInvalid.call(panel, panel.$.allowMeshDataAccessCheckbox, 'allowMeshDataAccess');
             updateElementReadonly.call(panel, panel.$.allowMeshDataAccessCheckbox);
+        },
+    },
+    addVertexColorCheckbox: {
+        ready() {
+            const panel = this;
+
+            panel.$.addVertexColorCheckbox.addEventListener('change', panel.setProp.bind(panel, 'addVertexColor', 'boolean'));
+            panel.$.addVertexColorCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.addVertexColorCheckbox.value = getPropValue.call(panel, panel.meta.userData.addVertexColor, true);
+
+            updateElementInvalid.call(panel, panel.$.addVertexColorCheckbox, 'addVertexColor');
+            updateElementReadonly.call(panel, panel.$.addVertexColorCheckbox);
         },
     },
     // move this from ./fbx.js in v3.6.0

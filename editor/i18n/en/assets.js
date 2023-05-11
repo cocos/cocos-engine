@@ -316,6 +316,10 @@ module.exports = {
                     'Indicate whether the mesh data in this model could be read or write.<br>' +
                     'If it is unchecked, the mesh data will be released after it is uploaded to GPU',
             },
+            addVertexColor: {
+                name: 'Add Vertex Color',
+                title: 'Fill vertex color with white if the model file does not contain vertex color attribute.',
+            },
             meshOptimizer: {
                 name: 'Mesh Optimizer',
                 title: 'Mesh Optimizer is used to simplify imported mesh.<br>Use it when you need to reduce model face count.<br>In some cases, face reduction could lead to various model defect. <br>Tweak properties and try again in those cases.',
