@@ -5,14 +5,13 @@ import { PipelineBuilder, Pipeline } from '../custom/pipeline';
 
 import { passContext } from './utils/pass-context';
 import { ForwardFinalPass } from './passes/forward-final-pass';
-import { buildHBAOPasses, getCameraUniqueID } from '../custom/define';
+import { getCameraUniqueID } from '../custom/define';
 
 import { BasePass } from './passes/base-pass';
 import { ForwardPass } from './passes/forward-pass';
 import { TAAPass } from './passes/taa-pass';
 import { FSRPass } from './passes/fsr-pass';
 import { BlitScreenPass } from './passes/blit-screen-pass';
-import { ColorGradingPass } from './passes/color-grading-pass';
 import { HBAOPass } from './passes/hbao-pass';
 import { PostProcess } from './components/post-process';
 import { Node } from '../../scene-graph';
