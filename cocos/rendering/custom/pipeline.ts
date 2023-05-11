@@ -89,7 +89,7 @@ export interface Setter extends RenderNode {
     setCamera (camera: Camera): void;
 }
 
-export interface RasterQueueBuilder extends Setter {
+export interface RenderQueueBuilder extends Setter {
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -113,7 +113,7 @@ export interface RasterQueueBuilder extends Setter {
     addCustomCommand (customBehavior: string): void;
 }
 
-export interface RasterSubpassBuilder extends Setter {
+export interface RenderSubpassBuilder extends Setter {
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp, color: Color): void;
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, new Color()*/): void;
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, new Color()*/): void;
@@ -136,9 +136,9 @@ export interface RasterSubpassBuilder extends Setter {
      */
     addComputeView (name: string, view: ComputeView): void;
     setViewport (viewport: Viewport): void;
-    addQueue (hint: QueueHint, layoutName: string): RasterQueueBuilder;
-    addQueue (hint: QueueHint/*, ''*/): RasterQueueBuilder;
-    addQueue (/*QueueHint.NONE, ''*/): RasterQueueBuilder;
+    addQueue (hint: QueueHint, layoutName: string): RenderQueueBuilder;
+    addQueue (hint: QueueHint/*, ''*/): RenderQueueBuilder;
+    addQueue (/*QueueHint.NONE, ''*/): RenderQueueBuilder;
     showStatistics: boolean;
     /**
      * @beta function signature might change
@@ -193,23 +193,23 @@ export interface BasicRenderPassBuilder extends Setter {
      * @deprecated method will be removed in 3.8.0
      */
     addComputeView (name: string, view: ComputeView): void;
-    addQueue (hint: QueueHint, layoutName: string): RasterQueueBuilder;
-    addQueue (hint: QueueHint/*, ''*/): RasterQueueBuilder;
-    addQueue (/*QueueHint.NONE, ''*/): RasterQueueBuilder;
+    addQueue (hint: QueueHint, layoutName: string): RenderQueueBuilder;
+    addQueue (hint: QueueHint/*, ''*/): RenderQueueBuilder;
+    addQueue (/*QueueHint.NONE, ''*/): RenderQueueBuilder;
     setViewport (viewport: Viewport): void;
     setVersion (name: string, version: number): void;
     showStatistics: boolean;
 }
 
-export interface RasterPassBuilder extends BasicRenderPassBuilder {
+export interface RenderPassBuilder extends BasicRenderPassBuilder {
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
     addStorageImage (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
     addStorageImage (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
     addStorageImage (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
-    addRasterSubpass (layoutName: string): RasterSubpassBuilder;
-    addRasterSubpass (/*''*/): RasterSubpassBuilder;
+    addRenderSubpass (layoutName: string): RenderSubpassBuilder;
+    addRenderSubpass (/*''*/): RenderSubpassBuilder;
     addComputeSubpass (layoutName: string): ComputeSubpassBuilder;
     addComputeSubpass (/*''*/): ComputeSubpassBuilder;
     /**
@@ -306,8 +306,8 @@ export interface BasicPipeline extends PipelineRuntime {
     updateDepthStencil (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
     beginFrame (): void;
     endFrame (): void;
-    addRasterPass (width: number, height: number, layoutName: string): BasicRenderPassBuilder;
-    addRasterPass (width: number, height: number/*, 'default'*/): BasicRenderPassBuilder;
+    addRenderPass (width: number, height: number, layoutName: string): BasicRenderPassBuilder;
+    addRenderPass (width: number, height: number/*, 'default'*/): BasicRenderPassBuilder;
     addMovePass (): MovePassBuilder;
     addCopyPass (): CopyPassBuilder;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
@@ -325,8 +325,8 @@ export interface Pipeline extends BasicPipeline {
     updateStorageTexture (name: string, width: number, height: number, format: Format): void;
     updateStorageTexture (name: string, width: number, height: number/*, Format.UNKNOWN*/): void;
     updateShadingRateTexture (name: string, width: number, height: number): void;
-    addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder;
-    addRasterPass (width: number, height: number/*, 'default'*/): RasterPassBuilder;
+    addRenderPass (width: number, height: number, layoutName: string): RenderPassBuilder;
+    addRenderPass (width: number, height: number/*, 'default'*/): RenderPassBuilder;
     addComputePass (layoutName: string): ComputePassBuilder;
     /**
      * @beta function signature might change

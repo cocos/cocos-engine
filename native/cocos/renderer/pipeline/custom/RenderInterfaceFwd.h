@@ -42,12 +42,12 @@ namespace render {
 class PipelineRuntime;
 class RenderNode;
 class Setter;
-class RasterQueueBuilder;
-class RasterSubpassBuilder;
+class RenderQueueBuilder;
+class RenderSubpassBuilder;
 class ComputeQueueBuilder;
 class ComputeSubpassBuilder;
 class BasicRenderPassBuilder;
-class RasterPassBuilder;
+class RenderPassBuilder;
 class ComputePassBuilder;
 class MovePassBuilder;
 class CopyPassBuilder;

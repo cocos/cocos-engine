@@ -139,7 +139,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
     }
     private buildForward (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number) {
         const scene = camera.scene;
-        const pass = ppl.addRasterPass(width, height, 'default');
+        const pass = ppl.addRenderPass(width, height, 'default');
 
         pass.addRenderTarget(`Color${id}`, 'color', LoadOp.CLEAR);
         pass.addDepthStencil(`DepthStencil${id}`, '_', LoadOp.CLEAR);
