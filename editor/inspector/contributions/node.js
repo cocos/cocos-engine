@@ -313,6 +313,7 @@ exports.template = /* html*/`
         <ui-prop class="fog" type="dump"></ui-prop>
         <ui-prop class="shadows" type="dump"></ui-prop>
         <ui-prop class="octree" type="dump"></ui-prop>
+        <ui-prop class="skin" type="dump"></ui-prop>
     </section>
 
     <ui-section class="component node" expand>
@@ -383,6 +384,7 @@ exports.$ = {
     sceneSkyboxAfter: '.scene > .skybox > .after',
     postProcess: '.scene > .postProcess',
     sceneOctree: '.scene > .octree',
+    sceneSkin: '.scene > .skin',
 
     node: '.node',
     nodeHeader: '.node > header',
@@ -860,6 +862,10 @@ const Elements = {
             panel.dump._globals.octree.displayName = 'Octree Scene Culling';
             panel.dump._globals.octree.help = panel.getHelpUrl({ help: 'i18n:cc.OctreeCulling' });
             panel.$.sceneOctree.render(panel.dump._globals.octree);
+
+            panel.dump._globals.skin.displayName = 'Skin';
+            panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
+            panel.$.sceneSkin.render(panel.dump._globals.skin);
 
             // TODO：这个 if 暂时配合引擎调整使用，测试调通后可以去掉
             if (panel.dump._globals.postProcess) {
@@ -1409,7 +1415,7 @@ const Elements = {
                     ],
                     listeners: {
                         async confirm(detail/* info */) {
-                            if (!detail) return;
+                            if (!detail) { return; }
                             Editor.Message.send('scene', 'snapshot');
 
                             for (const uuid of panel.uuidList) {
