@@ -1,5 +1,5 @@
 import { PoseNode } from '../pose-node';
-import { PoseGraphNodeInputInsertId, PoseGraphInputKey, globalNodeInputManager } from '../foundation/authoring/input-authoring';
+import { PoseGraphNodeInputInsertId, PoseGraphInputKey, globalPoseGraphNodeInputManager } from '../foundation/authoring/input-authoring';
 import { PureValueNode } from '../pure-value-node';
 import { assertIsTrue, error } from '../../../../core';
 import { PoseGraphType } from '../foundation/type-system';
@@ -22,22 +22,22 @@ export { PoseGraphType };
 const POSE_NODE_OUTPUT_BINDING_KEY = 0;
 
 export function getInputKeys (node: PoseGraphNode) {
-    return globalNodeInputManager.getInputKeys(node);
+    return globalPoseGraphNodeInputManager.getInputKeys(node);
 }
 
 export function isValidInputKey (node: PoseGraphNode, key: PoseGraphInputKey) {
-    return globalNodeInputManager.hasInput(node, key);
+    return globalPoseGraphNodeInputManager.hasInput(node, key);
 }
 
 export function getInputMetadata (node: PoseGraphNode, key: PoseGraphInputKey) {
-    return globalNodeInputManager.getInputMetadata(node, key);
+    return globalPoseGraphNodeInputManager.getInputMetadata(node, key);
 }
 
 export function getInputConstantValue (node: PoseGraphNode, key: PoseGraphInputKey): unknown {
-    if (!globalNodeInputManager.hasInput(node, key)) {
+    if (!globalPoseGraphNodeInputManager.hasInput(node, key)) {
         return undefined;
     }
-    if (globalNodeInputManager.isPoseInput(node, key)) {
+    if (globalPoseGraphNodeInputManager.isPoseInput(node, key)) {
         // Pose input's "constant value" is defined as `null`.
         return null;
     }
@@ -52,15 +52,15 @@ export function getInputBinding (graph: PoseGraph, node: PoseGraphNode, key: Pos
 }
 
 export function getInputInsertInfos (node: PoseGraphNode) {
-    return globalNodeInputManager.getInputInsertInfos(node);
+    return globalPoseGraphNodeInputManager.getInputInsertInfos(node);
 }
 
 export function insertInput (graph: PoseGraph, node: PoseGraphNode, insertId: PoseGraphNodeInputInsertId) {
-    return globalNodeInputManager.insertInput(graph, node, insertId);
+    return globalPoseGraphNodeInputManager.insertInput(graph, node, insertId);
 }
 
 export function deleteInput (graph: PoseGraph, node: PoseGraphNode, key: PoseGraphInputKey) {
-    globalNodeInputManager.deleteInput(graph, node, key);
+    globalPoseGraphNodeInputManager.deleteInput(graph, node, key);
 }
 
 export const getOutputKeys = (() => {

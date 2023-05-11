@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 import { error, js } from '../../../../core';
-import { NodeInputMappingOptions, globalNodeInputManager } from '../foundation/authoring/input-authoring';
+import { PoseGraphNodeInputMappingOptions, globalPoseGraphNodeInputManager } from '../foundation/authoring/input-authoring';
 import { PoseGraphType } from '../foundation/type-system';
 import { PoseNode } from '../pose-node';
 import { PureValueNode } from '../pure-value-node';
 
-export type { NodeInputMappingOptions };
+export type { PoseGraphNodeInputMappingOptions };
 
 /**
  * @zh
@@ -36,7 +36,7 @@ export type { NodeInputMappingOptions };
  * If the decorating property is **NOT** an array, the property will be mapped as an input.
  * Otherwise, each element of the property will be mapped as an input.
  */
-export function input (options: NodeInputMappingOptions): PropertyDecorator {
+export function input (options: PoseGraphNodeInputMappingOptions): PropertyDecorator {
     return (target, propertyKey) => {
         if (typeof propertyKey !== 'string') {
             error(`@input can be only applied to string-named fields.`);
@@ -55,6 +55,6 @@ export function input (options: NodeInputMappingOptions): PropertyDecorator {
             error(`@input can be only applied to fields of subclasses of PoseNode or PureValueNode.`);
             return;
         }
-        globalNodeInputManager.setPropertyNodeInputRecord(targetConstructor, propertyKey, options);
+        globalPoseGraphNodeInputManager.setPropertyNodeInputRecord(targetConstructor, propertyKey, options);
     };
 }

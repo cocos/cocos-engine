@@ -42,7 +42,7 @@ export type PoseGraphNodeInputInsertId = string;
  * @en Describes the options used
  * when a pose node class property is going to be mapped as node input(s).
  */
-export interface NodeInputMappingOptions {
+export interface PoseGraphNodeInputMappingOptions {
     /**
      * @zh 此属性或属性的元素映射的输入类型。
      * 输入的类型必须和属性（的元素）的实际值类型匹配。
@@ -110,11 +110,11 @@ export interface NodeInputMappingOptions {
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-class NodeInputManager {
+class PoseGraphNodeInputManager {
     public setPropertyNodeInputRecord (
         constructor: Constructor,
         propertyKey: string,
-        options: NodeInputMappingOptions,
+        options: PoseGraphNodeInputMappingOptions,
     ) {
         let classInputRecord = this._classInputMap.get(constructor);
         if (!classInputRecord) {
@@ -457,4 +457,4 @@ function createDefaultInputValueByType (type: PoseGraphType) {
     }
 }
 
-export const globalNodeInputManager = new NodeInputManager();
+export const globalPoseGraphNodeInputManager = new PoseGraphNodeInputManager();
