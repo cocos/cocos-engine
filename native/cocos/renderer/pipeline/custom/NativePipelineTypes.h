@@ -42,8 +42,8 @@
 #include "cocos/renderer/pipeline/custom/details/Set.h"
 
 #ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable: 4250)
+    #pragma warning(push)
+    #pragma warning(disable: 4250)
 #endif
 
 namespace cc {
