@@ -22,17 +22,17 @@ export class ForwardPass extends BasePass {
         if (index === 1) {
             const cameraIdx = director.root!.cameraList.indexOf(camera);
             if (cameraIdx === 0) {
-                this.depthBufferShadingScale = this.finalShadingScale();
+                this.depthBufferShadingScale = passContext.shadingScale;
                 return this.outputNames[index];
             }
 
             let canUsePrevDepth = true;
             canUsePrevDepth = !(camera.clearFlag & ClearFlagBit.DEPTH_STENCIL);
-            canUsePrevDepth = canUsePrevDepth && this.finalShadingScale() === this.depthBufferShadingScale;
+            canUsePrevDepth = canUsePrevDepth && passContext.shadingScale === this.depthBufferShadingScale;
             if (canUsePrevDepth) {
                 return this.outputNames[index];
             }
-            this.depthBufferShadingScale = this.finalShadingScale();
+            this.depthBufferShadingScale = passContext.shadingScale;
         }
 
         return super.slotName(camera, index);
@@ -47,17 +47,14 @@ export class ForwardPass extends BasePass {
 
         Vec4.set(passContext.clearDepthColor, camera.clearDepth, camera.clearStencil, 0, 0);
 
-        const area = this.getRenderArea(camera);
-        const width = area.width;
-        const height = area.height;
-
         const slot0 = this.slotName(camera, 0);
         const slot1 = this.slotName(camera, 1);
 
         const cameraID = getCameraUniqueID(camera);
         const isOffScreen = true;
-        passContext.addRasterPass(width, height, 'default', `${this.name}_${cameraID}`)
-            .setViewport(0, 0, width, height)
+        passContext
+            .updatePassViewPort()
+            .addRasterPass('default', `${this.name}_${cameraID}`)
             .addRasterView(slot0, Format.RGBA16F, isOffScreen)
             .addRasterView(slot1, Format.DEPTH_STENCIL, isOffScreen)
             .version();

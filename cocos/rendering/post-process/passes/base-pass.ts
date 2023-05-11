@@ -58,7 +58,6 @@ export abstract class BasePass {
     }
 
     enable = true;
-    shadingScale = 1;
     outputNames: string[] = []
 
     lastPass: BasePass | undefined;
@@ -68,22 +67,8 @@ export abstract class BasePass {
         return `${name}_${this._id}_${getCameraUniqueID(camera)}`;
     }
 
-    finalShadingScale () {
-        let shadingScale = this.shadingScale;
-        if (passContext.postProcess && (!EDITOR || passContext.postProcess.enableShadingScaleInEditor)) {
-            shadingScale *= passContext.postProcess.shadingScale;
-        }
-        return shadingScale;
-    }
-
     enableInAllEditorCamera = false;
     checkEnable (camera: Camera) {
-        // if (EDITOR && !this.enableInAllEditorCamera) {
-        //     if (camera.name !== 'Editor Camera') {
-        //         return false;
-        //     }
-        // }
-
         return this.enable;
     }
 
@@ -92,15 +77,6 @@ export abstract class BasePass {
             passContext.pass!.showStatistics = true;
             passContext.renderProfiler = false;
         }
-    }
-
-    _renderArea = new Rect()
-    getRenderArea (camera: Camera) {
-        const shadingScale = this.finalShadingScale();
-        const area = getRenderArea(camera, camera.window.width * shadingScale, camera.window.height * shadingScale, null, 0, this._renderArea);
-        area.width = Math.floor(area.width);
-        area.height = Math.floor(area.height);
-        return area;
     }
 
     abstract render (camera: Camera, ppl: Pipeline);

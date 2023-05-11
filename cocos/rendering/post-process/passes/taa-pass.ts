@@ -151,9 +151,6 @@ export class TAAPass extends SettingPass {
         }
 
         const cameraID = getCameraUniqueID(camera);
-        const area = this.getRenderArea(camera);
-        const width = area.width;
-        const height = area.height;
 
         passContext.clearFlag = ClearFlagBit.COLOR;
         Vec4.set(passContext.clearColor, 0, 0, 0, 1);
@@ -167,6 +164,10 @@ export class TAAPass extends SettingPass {
         }
 
         const setting = this.setting;
+
+        passContext.updatePassViewPort();
+        const width = passContext.passViewport.width;
+        const height = passContext.passViewport.height;
 
         this.material.setProperty('taaParams1', tempVec4.set(this.sampleOffset.x, this.sampleOffset.y, setting.feedback, 0));
         this.material.setProperty('taaTextureSize', tempVec4.set(1 / width, 1 / height, 1 / width, 1 / height));
@@ -185,13 +186,12 @@ export class TAAPass extends SettingPass {
         const depthTex = passContext.forwardPass.slotName(camera, 1);
 
         const layoutName = `DeferredTAA${this.taaTextureIndex < 0 ? -1 : (this.taaTextureIndex % 2)}`;
-        passContext.addRasterPass(width, height, layoutName, `CameraTAAPass${cameraID}`)
-            .setViewport(0, 0, width, height)
+        passContext
+            .addRasterPass(layoutName, `CameraTAAPass${cameraID}`)
             .setPassInput(input0, 'inputTexture')
             .setPassInput(depthTex, 'depthTex')
-            .setPassInput(historyTexture, 'taaPrevTexture');
-
-        passContext.addRasterView(slot0, Format.RGBA16F, true, ResourceResidency.PERSISTENT)
+            .setPassInput(historyTexture, 'taaPrevTexture')
+            .addRasterView(slot0, Format.RGBA16F, true, ResourceResidency.PERSISTENT)
             .blitScreen(0)
             .version();
     }

@@ -1,11 +1,13 @@
 import { EDITOR } from 'internal:constants';
 
 import { AccessType, AttachmentType, ComputeView, QueueHint, RasterView, ResourceResidency, SceneFlags } from '../../custom/types';
-import { ClearFlagBit, Color, Format, LoadOp, StoreOp, Viewport } from '../../../gfx';
+import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
 import { Pipeline, RasterPassBuilder } from '../../custom/pipeline';
 import { Camera } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
 import { PostProcess } from '../components';
+import { getRenderArea } from '../../custom/define';
+import { Vec4 } from '../../../core';
 
 export class PassContext {
     clearFlag: ClearFlagBit = ClearFlagBit.COLOR;
@@ -18,6 +20,10 @@ export class PassContext {
     rasterWidth = 0
     rasterHeight = 0
     layoutName = ''
+
+    shadingScale = 1;
+    viewport = new Rect();
+    passViewport = new Rect();
 
     renderProfiler = false;
     passPathName = '';
@@ -38,19 +44,56 @@ export class PassContext {
         return this;
     }
 
-    addRasterPass (width: number, height: number, layoutName: string, passName: string) {
-        const pass = this.ppl!.addRasterPass(width, height, layoutName);
+    clearBlack () {
+        this.clearFlag = ClearFlagBit.COLOR;
+        Vec4.set(passContext.clearColor, 0, 0, 0, 1);
+    }
+
+    addRasterPass (layoutName: string, passName: string) {
+        const passViewport = this.passViewport;
+
+        const pass = this.ppl!.addRasterPass(passViewport.width, passViewport.height, layoutName);
         pass.name = passName;
         this.pass = pass;
-        this.rasterWidth = width;
-        this.rasterHeight = height;
         this.layoutName = layoutName;
+
+        this.rasterWidth = passViewport.width;
+        this.rasterHeight = passViewport.height;
+
+        pass.setViewport(new Viewport(passViewport.x, passViewport.y, passViewport.width, passViewport.height));
+
         return this;
     }
-    setViewport (x: number, y: number, w: number, h: number) {
-        this.pass!.setViewport(new Viewport(x, y, w, h));
+
+    updateViewPort () {
+        const camera = this.camera;
+        if (!camera) {
+            return;
+        }
+
+        let shadingScale = 1;
+        if (this.postProcess && (!EDITOR || this.postProcess.enableShadingScaleInEditor)) {
+            shadingScale *= this.postProcess.shadingScale;
+        }
+        this.shadingScale = shadingScale;
+
+        const area = getRenderArea(camera, camera.window.width * shadingScale, camera.window.height * shadingScale, null, 0, this.viewport);
+        area.width = Math.floor(area.width);
+        area.height = Math.floor(area.height);
+    }
+    updatePassViewPort (shadingScale = 1, offsetScale = 0) {
+        this.passViewport.width = this.viewport.width * shadingScale;
+        this.passViewport.height = this.viewport.height * shadingScale;
+
+        this.passViewport.x = this.viewport.x * offsetScale;
+        this.passViewport.y = this.viewport.y * offsetScale;
         return this;
     }
+
+    // setViewport (x: number, y: number, w: number, h: number) {
+    //     this.pass!.setViewport(new Viewport(x, y, w, h));
+    //     return this;
+    // }
 
     addRasterView (name: string, format: Format, offscreen = true, residency?: ResourceResidency) {
         const ppl = this.ppl;

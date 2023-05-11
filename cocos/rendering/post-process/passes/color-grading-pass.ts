@@ -17,9 +17,6 @@ export class ColorGradingPass extends SettingPass {
 
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);
-        const area = this.getRenderArea(camera);
-        const width = area.width;
-        const height = area.height;
 
         passContext.clearFlag = ClearFlagBit.COLOR;
         Vec4.set(passContext.clearColor, 0, 0, 0, 1);
@@ -35,8 +32,9 @@ export class ColorGradingPass extends SettingPass {
         const isSquareMap = setting.colorGradingMap && setting.colorGradingMap.width === setting.colorGradingMap.height;
         const passName = isSquareMap ? 'color-grading-8x8' : 'color-grading-32';
         const passIndx = isSquareMap ? 1 : 0;
-        passContext.addRasterPass(width, height, passName, `color-grading${cameraID}`)
-            .setViewport(0, 0, width, height)
+        passContext
+            .updatePassViewPort()
+            .addRasterPass(passName, `color-grading${cameraID}`)
             .setPassInput(input, 'sceneColorMap')
             .addRasterView(slot, Format.RGBA8)
             .blitScreen(passIndx)

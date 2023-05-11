@@ -42,12 +42,12 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(forward);
 
         this.addPass(new TAAPass());
-        this.addPass(new FSRPass());
         this.addPass(new FxaaPass());
         this.addPass(new ColorGradingPass());
         this.addPass(new BlitScreenPass());
         this.addPass(new BloomPass());
 
+        this.addPass(new FSRPass()); // fsr should be final
         this.addPass(forwardFinal);
     }
 
@@ -123,7 +123,6 @@ export class PostProcessBuilder implements PipelineBuilder  {
             }
 
             passContext.postProcess = camera.postProcess || globalPP;
-            passContext.camera = camera;
             this.renderCamera(camera, ppl);
         }
     }
@@ -145,6 +144,8 @@ export class PostProcessBuilder implements PipelineBuilder  {
 
     renderCamera (camera: Camera, ppl: Pipeline) {
         passContext.passPathName = `${getCameraUniqueID(camera)}`;
+        passContext.camera = camera;
+        passContext.updateViewPort();
 
         const passes = this.getCameraPasses(camera);
 

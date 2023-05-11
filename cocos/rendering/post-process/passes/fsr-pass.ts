@@ -8,6 +8,7 @@ import { passContext } from '../utils/pass-context';
 
 import { FSR } from '../components/fsr';
 import { getSetting, SettingPass } from './setting-pass';
+import { game } from '../../../game';
 
 export class FSRPass extends SettingPass {
     get setting () { return getSetting(FSR); }
@@ -26,18 +27,15 @@ export class FSRPass extends SettingPass {
 
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);
-        const area = this.getRenderArea(camera);
-        const inputWidth = area.width;
-        const inputHeight = area.height;
-
-        const shadingScale = this.finalShadingScale();
-        const outWidth = Math.floor(inputWidth / shadingScale);
-        const outHeight = Math.floor(inputHeight / shadingScale);
-
-        passContext.clearFlag = ClearFlagBit.COLOR;
-        Vec4.set(passContext.clearColor, 0, 0, 0, 1);
 
         passContext.material = this.material;
+        passContext.clearBlack();
+        passContext.updatePassViewPort(1 / passContext.shadingScale);
+
+        const inputWidth = passContext.passViewport.width;
+        const inputHeight = passContext.passViewport.height;
+        const outWidth = Math.floor(game.canvas!.width);
+        const outHeight = Math.floor(game.canvas!.height);
 
         const setting = this.setting;
         this.material.setProperty('fsrParams', new Vec4(setting.sharpness, 0, 0, 0));
@@ -49,16 +47,16 @@ export class FSRPass extends SettingPass {
 
         const input0 = this.lastPass!.slotName(camera, 0);
         const easu = `FSR_EASU${cameraID}`;
-        passContext.addRasterPass(outWidth, outHeight, 'post-process', `CameraFSR_EASU_Pass${cameraID}`)
-            .setViewport(0, 0, outWidth, outHeight)
+        passContext
+            .addRasterPass('post-process', `CameraFSR_EASU_Pass${cameraID}`)
             .setPassInput(input0, 'outputResultMap')
             .addRasterView(easu, Format.RGBA8)
             .blitScreen(0)
             .version();
 
         const slot0 = this.slotName(camera, 0);
-        passContext.addRasterPass(outWidth, outHeight, 'post-process', `CameraFSR_RCAS_Pass${cameraID}`)
-            .setViewport(0, 0, outWidth, outHeight)
+        passContext
+            .addRasterPass('post-process', `CameraFSR_RCAS_Pass${cameraID}`)
             .setPassInput(easu, 'outputResultMap')
             .addRasterView(slot0, Format.RGBA8)
             .blitScreen(1)
