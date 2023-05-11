@@ -199,7 +199,7 @@ class FxaaData {
 
 let fxaaData: FxaaData | null = null;
 export function buildFxaaPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputRT: string,
     inputDS: string) {
     if (!fxaaData) {
@@ -501,7 +501,7 @@ export function buildPostprocessPass (camera: Camera,
 }
 
 export function buildForwardPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     isOffScreen: boolean,
     enabledAlpha = true) {
     if (EDITOR) {
@@ -1397,13 +1397,13 @@ class SSSSBlurData {
 }
 
 let ssssBlurData: SSSSBlurData | null = null;
-export function hasSkinObject (ppl: Pipeline) {
+export function hasSkinObject (ppl: BasicPipeline) {
     const sceneData = ppl.pipelineSceneData;
     return sceneData.skin.enabled && sceneData.standardSkinModel != null;
 }
 
 function _buildSSSSBlurPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputRT: string,
     inputDS: string) {
     const sceneData = ppl.pipelineSceneData;
@@ -1589,7 +1589,7 @@ class ToneMappingInfo {
 
 let toneMappingInfo: ToneMappingInfo | null = null;
 export function buildToneMappingPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputRT: string,
     inputDS: string) {
     if (!ppl.pipelineSceneData.isHDR || !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) return { rtName: inputRT, dsName: inputDS };
@@ -1651,7 +1651,7 @@ export function buildToneMappingPass (camera: Camera,
 }
 
 export function buildTransparencyPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputRT: string,
     inputDS: string,
     hasDeferredTransparencyObject: boolean) {
@@ -1700,7 +1700,7 @@ export function buildTransparencyPass (camera: Camera,
 }
 
 function _buildSpecularPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputRT: string,
     inputDS: string) {
     if (EDITOR) {
@@ -1758,7 +1758,7 @@ function _buildSpecularPass (camera: Camera,
 }
 
 export function buildSSSSPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputRT: string,
     inputDS: string) {
     if (hasSkinObject(ppl)) {

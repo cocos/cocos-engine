@@ -24,11 +24,10 @@
 
 import { Format, LoadOp } from '../../gfx/base/define';
 import { Camera, CameraUsage } from '../../render-scene/scene';
-import { buildFxaaPass, buildBloomPass as buildBloomPasses, buildForwardPass,
-    buildPostprocessPass,
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { LightInfo, QueueHint, SceneFlags } from './types';
-    AntiAliasing, buildUIPass } from './define';
+import { AntiAliasing, buildBloomPass, buildForwardPass, buildFxaaPass, buildPostprocessPass, buildSSSSPass,
+    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject } from './define';
 import { isUICamera } from './utils';
 import { RenderWindow } from '../../render-scene/core/render-window';
 
@@ -53,7 +52,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 // fxaa pass
                 const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
                 // bloom passes
-                const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
+                const bloomInfo = buildBloomPass(camera, ppl, fxaaInfo.rtName);
                 // tone map pass
                 const toneMappingInfo =  buildToneMappingPass(camera, ppl, bloomInfo.rtName, bloomInfo.dsName);
                 // Present Pass
@@ -67,7 +66,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
 }
 
 export class SkinPipelineBuilder implements PipelineBuilder {
-    public setup (cameras: Camera[], ppl: Pipeline): void {
+    public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene === null) {
@@ -96,7 +95,7 @@ export class SkinPipelineBuilder implements PipelineBuilder {
                 const fxaaInfo = buildFxaaPass(camera, ppl, toneMappingInfo.rtName, toneMappingInfo.dsName);
                 // bloom passes
                 // todo: bloom need to be rendered before tone-mapping
-                const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
+                const bloomInfo = buildBloomPass(camera, ppl, fxaaInfo.rtName);
                 // Present Pass
                 buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
                 continue;
