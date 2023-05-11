@@ -12,6 +12,7 @@ import { ForwardPass } from './passes/forward-pass';
 import { TAAPass } from './passes/taa-pass';
 import { FSRPass } from './passes/fsr-pass';
 import { BlitScreenPass } from './passes/blit-screen-pass';
+import { HBAOPass } from './passes/hbao-pass';
 import { PostProcess } from './components/post-process';
 import { Node } from '../../scene-graph';
 import { director } from '../../game';
@@ -37,6 +38,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(new BlitScreenPass());
         this.addPass(new BloomPass());
         this.addPass(new ForwardFinalPass());
+        this.addPass(new HBAOPass());
     }
 
     initEditor () {
