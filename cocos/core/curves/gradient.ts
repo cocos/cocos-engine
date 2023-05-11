@@ -133,11 +133,23 @@ export class Gradient {
     /**
      * @en Interpolate color and alpha from color and alpha keys.
      * @zh 根据颜色列表插值计算颜色和透明度。
+     * @param time @en Normalized time to interpolate. @zh 用于插值的归一化时间。
+     * @returns @en Interpolated color value. @zh 插值过后的颜色值。
+     *
+     * @deprecated since v3.8 please use [[evaluateFast]] instead
+     */
+    public evaluate (time: number) {
+        return this.evaluateFast(new Color(), time);
+    }
+
+    /**
+     * @en Interpolate color and alpha from color and alpha keys.
+     * @zh 根据颜色列表插值计算颜色和透明度。
      * @param out @en Interpolated color value. @zh 插值过后的颜色值。
      * @param time @en Normalized time to interpolate. @zh 用于插值的归一化时间。
      * @returns @en Interpolated color value. @zh 插值过后的颜色值。
      */
-    public evaluate (out: Color, time: number) {
+    public evaluateFast (out: Color, time: number) {
         this.getRGB(out, time);
         out._set_a_unsafe(this.getAlpha(time)!);
         return out;
@@ -146,10 +158,20 @@ export class Gradient {
     /**
      * @en Generates a random color and alpha.
      * @zh 随机生成颜色和透明度。
+     * @returns @en Randomized color. @zh 随机生成的颜色。
+     * @deprecated since v3.8 please use [[getRandomColor]] instead
+     */
+    public randomColor () {
+        return this.getRandomColor(new Color());
+    }
+
+    /**
+     * @en Generates a random color and alpha.
+     * @zh 随机生成颜色和透明度。
      * @param out @en Randomized color. @zh 随机生成的颜色。
      * @returns @en Randomized color. @zh 随机生成的颜色。
      */
-    public randomColor (out: Color) {
+    public getRandomColor (out: Color) {
         const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
         const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];
         out.set(c.color);
