@@ -29,12 +29,9 @@ export class BloomPass extends SettingPass {
         const cameraID = getCameraUniqueID(camera);
         const cameraName = `Camera${cameraID}`;
         const area = this.getRenderArea(camera);
-        const inputWidth = area.width;
-        const inputHeight = area.height;
+        const width = area.width;
+        const height = area.height;
 
-        const shadingScale = this.finalShadingScale();
-        const width = Math.floor(inputWidth / shadingScale);
-        const height = Math.floor(inputHeight / shadingScale);
         let outWidth = width;
         let outHeight = height;
 
@@ -52,7 +49,7 @@ export class BloomPass extends SettingPass {
         outHeight >>= 1;
         passContext.material.setProperty('texSize', new Vec4(0, 0, setting.threshold, 0), 0);
         passContext.addRasterPass(outWidth, outHeight, 'bloom-prefilter', `bloom-prefilter${cameraID}`)
-            .setViewport(area.x, area.y, outWidth, outHeight)
+            .setViewport(0, 0, outWidth, outHeight)
             .setPassInput(input, 'outputResultMap')
             .addRasterView(output, Format.RGBA8)
             .blitScreen(0)
@@ -67,7 +64,7 @@ export class BloomPass extends SettingPass {
             const downSamplerInput = i === 0 ? output : `dsBloomPassDownSampleColor${cameraName}${i - 1}`;
             passContext.material.setProperty('texSize', texSize, BLOOM_DOWNSAMPLEPASS_INDEX + i);
             passContext.addRasterPass(outWidth, outHeight, `bloom-upsample${i}`, `bloom-upsample${i}${cameraID}`)
-                .setViewport(area.x, area.y, outWidth, outHeight)
+                .setViewport(0, 0, outWidth, outHeight)
                 .setPassInput(downSamplerInput, 'bloomTexture')
                 .addRasterView(bloomPassDownSampleRTName, Format.RGBA8)
                 .blitScreen(BLOOM_DOWNSAMPLEPASS_INDEX + i)
@@ -84,7 +81,7 @@ export class BloomPass extends SettingPass {
                 : `dsBloomPassUpSampleColor${cameraName}${setting.iterations - i}`;
             passContext.material.setProperty('texSize', texSize, BLOOM_UPSAMPLEPASS_INDEX + i);
             passContext.addRasterPass(outWidth, outHeight, `bloom-downsample${i}`, `bloom-downsample${i}${cameraID}`)
-                .setViewport(area.x, area.y, outWidth, outHeight)
+                .setViewport(0, 0, outWidth, outHeight)
                 .setPassInput(upSamplerInput, 'bloomTexture')
                 .addRasterView(bloomPassUpSampleRTName, Format.RGBA8)
                 .blitScreen(BLOOM_UPSAMPLEPASS_INDEX + i)
@@ -96,7 +93,7 @@ export class BloomPass extends SettingPass {
         outHeight = height;
         passContext.material.setProperty('texSize', new Vec4(0, 0, 0, setting.intensity), BLOOM_COMBINEPASS_INDEX);
         passContext.addRasterPass(outWidth, outHeight, `bloom-combine`, `bloom-combine${cameraID}`)
-            .setViewport(area.x, area.y, outWidth, outHeight)
+            .setViewport(0, 0, outWidth, outHeight)
             .setPassInput(input, 'outputResultMap')
             .setPassInput(`dsBloomPassUpSampleColor${cameraName}${0}`, 'bloomTexture')
             .addRasterView(this.slotName(camera, 0), Format.RGBA8)
