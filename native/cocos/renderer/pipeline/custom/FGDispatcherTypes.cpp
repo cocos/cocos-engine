@@ -45,7 +45,8 @@ ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
   culledPasses(alloc),
   accessRecord(alloc),
   resourceLifeRecord(alloc),
-  topologicalOrder(alloc) {}
+  topologicalOrder(alloc),
+  rpInfos(alloc) {}
 
 // ContinuousContainer
 void ResourceAccessGraph::reserve(vertices_size_type sz) {

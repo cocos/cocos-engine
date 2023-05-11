@@ -337,7 +337,7 @@ void AudioEngine::onEnterBackground() {
         }
     }
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     if (sAudioEngineImpl) {
         sAudioEngineImpl->onPause();
     }
@@ -355,7 +355,7 @@ void AudioEngine::onEnterForeground() {
     }
     sBreakAudioID.clear();
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     if (sAudioEngineImpl) {
         sAudioEngineImpl->onResume();
     }

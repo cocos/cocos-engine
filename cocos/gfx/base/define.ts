@@ -1581,24 +1581,16 @@ export class SubpassDependency {
         public srcSubpass: number = 0,
         public dstSubpass: number = 0,
         public generalBarrier: GeneralBarrier = null!,
-        public bufferBarriers: BufferBarrier = null!,
-        public buffers: Buffer = null!,
-        public bufferBarrierCount: number = 0,
-        public textureBarriers: TextureBarrier = null!,
-        public textures: Texture = null!,
-        public textureBarrierCount: number = 0,
+        public prevAccesses: AccessFlags[] = [AccessFlagBit.NONE],
+        public nextAccesses: AccessFlags[] = [AccessFlagBit.NONE],
     ) {}
 
     public copy (info: Readonly<SubpassDependency>) {
         this.srcSubpass = info.srcSubpass;
         this.dstSubpass = info.dstSubpass;
         this.generalBarrier = info.generalBarrier;
-        this.bufferBarriers = info.bufferBarriers;
-        this.buffers = info.buffers;
-        this.bufferBarrierCount = info.bufferBarrierCount;
-        this.textureBarriers = info.textureBarriers;
-        this.textures = info.textures;
-        this.textureBarrierCount = info.textureBarrierCount;
+        this.prevAccesses = info.prevAccesses.slice();
+        this.nextAccesses = info.nextAccesses.slice();
         return this;
     }
 }

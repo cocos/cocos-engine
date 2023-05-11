@@ -1329,16 +1329,14 @@ struct SubpassInfo {
 
 using SubpassInfoList = ccstd::vector<SubpassInfo>;
 
+using AccessFlagList = ccstd::vector<AccessFlags>;
 struct ALIGNAS(8) SubpassDependency {
     uint32_t srcSubpass{0};
     uint32_t dstSubpass{0};
     GeneralBarrier *generalBarrier{nullptr};
-    BufferBarrier **bufferBarriers{nullptr};
-    Buffer **buffers{nullptr};
-    uint32_t bufferBarrierCount{0};
-    TextureBarrier **textureBarriers{nullptr};
-    Texture **textures{nullptr};
-    uint32_t textureBarrierCount{0};
+
+    AccessFlagList prevAccesses{};
+    AccessFlagList nextAccesses{};
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
     uint32_t _padding{0};
 #endif

@@ -918,7 +918,7 @@ export class ParticleSystem extends ModelRenderer {
      * @en Bind module to particle processor.
      * @zh 把模块绑定到粒子更新函数上。
      */
-    public bindModule () {
+    private bindModule () {
         if (this._colorOverLifetimeModule) this._colorOverLifetimeModule.bindTarget(this.processor);
         if (this._sizeOvertimeModule) this._sizeOvertimeModule.bindTarget(this.processor);
         if (this._rotationOvertimeModule) this._rotationOvertimeModule.bindTarget(this.processor);
@@ -1244,13 +1244,6 @@ export class ParticleSystem extends ModelRenderer {
             this.processor.updateRotation(pass);
             this.processor.updateScale(pass);
         }
-        // update render data
-        this.processor.updateRenderData();
-
-        // update trail
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule.updateRenderData();
-        }
 
         if (this._needAttach) { // Check whether this particle model should be reattached
             if (this.getParticleCount() > 0) {
@@ -1293,10 +1286,14 @@ export class ParticleSystem extends ModelRenderer {
             this._needAttach = true;
         }
 
-        if (!this._isPlaying) return;
+        if (!this._isPlaying || !this.processor.getModel()?.scene) return;
 
+        // update render data
+        this.processor.updateRenderData();
         this.processor.beforeRender();
+        // update trail
         if (this._trailModule && this._trailModule.enable) {
+            this._trailModule.updateRenderData();
             this._trailModule.beforeRender();
         }
     }

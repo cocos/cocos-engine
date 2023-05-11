@@ -28,7 +28,7 @@ import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing, preTran
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, CommandBuffer, BufferUsageBit, Format,
-    MemoryUsageBit, TextureType, TextureUsageBit, Address, SurfaceTransform, Swapchain,
+    MemoryUsageBit, TextureType, TextureUsageBit, Address, Swapchain,
 } from '../gfx';
 import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
@@ -210,8 +210,6 @@ export class SplashScreen {
 
             this.logoWidthTemp = 70;
             this.logoHeightTemp = 100;
-            this.logoXTrans = 1 / 2;// Percent
-            this.logoYTrans = 2 / 3;// Percent
 
             this.textSize = 12; // font size
             this.textHeight = this.textSize + this.textExpandSize; // line height
@@ -223,14 +221,14 @@ export class SplashScreen {
 
             this.logoWidthTemp = 140;
             this.logoHeightTemp = 200;
-            this.logoXTrans = 1 / 2;// Percent
-            this.logoYTrans = 1 / 6 + 2.5 / 6;// Percent
 
             this.textSize = 24; // font size
             this.textHeight = this.textSize + this.textExpandSize; // line height
             this.textXTrans = 1 / 2;// Percent
             this.textYExtraTrans = 32;// px
         }
+        this.logoXTrans = 1 / 2;// Percent
+        this.logoYTrans = 1 / 6 + 2.5 / 6;// Percent
         this.initScale();
     }
 

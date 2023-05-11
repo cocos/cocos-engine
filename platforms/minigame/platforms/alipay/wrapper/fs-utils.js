@@ -235,8 +235,19 @@ var fsUtils = {
         });
     },
 
-    loadSubpackage (name, onProgress, onComplete) {
-        throw new Error('Not Implemented');
+    loadSubpackage(name, onProgress, onComplete) {
+        var task = my.loadSubpackage({
+            packages: [name],
+            success: (res) => {
+                onComplete && onComplete();
+            },
+            fail: (res) => {
+                console.warn(`Load Subpackage failed: path: ${name} message: ${res.errMsg}`);
+                onComplete && onComplete(new Error(`Failed to load subpackage ${name}: ${res.errMsg}`));
+            }
+        });
+        onProgress && task.onProgressUpdate(onProgress);
+        return task;
     },
 
     unzip (zipFilePath, targetPath, onComplete) {

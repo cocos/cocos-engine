@@ -106,6 +106,17 @@ struct ResourceAccessNode {
     struct ResourceAccessNode* nextSubpass{nullptr};
 };
 
+struct LayoutAccess {
+    gfx::AccessFlagBit prevAccess{gfx::AccessFlagBit::NONE};
+    gfx::AccessFlagBit nextAccess{gfx::AccessFlagBit::NONE};
+};
+
+struct FGRenderPassInfo {
+    std::vector<LayoutAccess> colorAccesses;
+    LayoutAccess dsAccess;
+    gfx::RenderPassInfo rpInfo;
+};
+
 struct ResourceAccessGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -246,6 +257,7 @@ struct ResourceAccessGraph {
     PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
     PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
+    PmrFlatMap<vertex_descriptor, FGRenderPassInfo> rpInfos;
 };
 
 struct RelationGraph {
@@ -395,7 +407,7 @@ struct FrameGraphDispatcher {
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
 
-    using BarrierMap = FlatMap<ResourceAccessGraph::vertex_descriptor, BarrierNode>;
+    using BarrierMap = PmrMap<ResourceAccessGraph::vertex_descriptor, BarrierNode>;
 
     void enablePassReorder(bool enable);
 

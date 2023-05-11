@@ -46,6 +46,7 @@ class RasterQueueBuilder;
 class RasterSubpassBuilder;
 class ComputeQueueBuilder;
 class ComputeSubpassBuilder;
+class BasicRenderPassBuilder;
 class RasterPassBuilder;
 class ComputePassBuilder;
 class MovePassBuilder;
@@ -53,6 +54,10 @@ class CopyPassBuilder;
 class SceneVisitor;
 class SceneTask;
 class SceneTransversal;
+
+enum class PipelineType;
+
+class BasicPipeline;
 class Pipeline;
 class PipelineBuilder;
 class RenderingModule;
