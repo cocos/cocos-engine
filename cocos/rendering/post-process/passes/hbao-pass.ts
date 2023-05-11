@@ -27,16 +27,13 @@ import { Address, ClearFlagBit, Filter, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
 import { Pipeline, QueueHint } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
-import { passContext, RenderTarget } from '../utils/pass-context';
+import { passContext } from '../utils/pass-context';
 
 import { getSetting, SettingPass } from './setting-pass';
 import { HBAO } from '../components';
-import { Material } from '../../../asset/assets/material';
 import { Texture2D } from '../../../asset/assets/texture-2d';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { DebugViewCompositeType, DebugViewSingleType } from '../../debug-view';
-import { WebPipeline } from '../../custom/web-pipeline';
-import { input } from '../../../input';
 
 const vec2 = new Vec2();
 
@@ -195,12 +192,10 @@ export class HBAOPass extends SettingPass {
         return enable && !!setting && setting.enabledInHierarchy;
     }
 
-    constructor() {
+    constructor () {
         super();
         this._hbaoParams = new HBAOParams();
         this.material.setProperty('RandomTex', this._hbaoParams.randomTexture, 0);
-        this.renderTarget.length = 2;
-        this.renderTarget[0] = new RenderTarget('hbaoRTName','_',);
     }
 
     public render (camera: Camera, ppl: Pipeline): void {
@@ -248,7 +243,7 @@ export class HBAOPass extends SettingPass {
         this._renderHBAOCombinedPass(camera, hbaoCombinedInputRTName, inputRT);
     }
 
-    private _renderHBAOPass(camera: Camera, inputDS: string) {
+    private _renderHBAOPass (camera: Camera, inputDS: string) {
         const cameraID = getCameraUniqueID(camera);
         const area = this.getRenderArea(camera);
         const inputWidth = area.width;
@@ -264,11 +259,12 @@ export class HBAOPass extends SettingPass {
         this.material.setProperty('radiusParam', this._hbaoParams.radiusParam, passIdx);
         this.material.setProperty('miscParam', this._hbaoParams.miscParam, passIdx);
         this.material.setProperty('randomTexSize',
-        new Vec4(
-            this._hbaoParams.randomTexture.width,
-            this._hbaoParams.randomTexture.height,
-            1.0 / this._hbaoParams.randomTexture.width,
-            1.0 / this._hbaoParams.randomTexture.height),
+            new Vec4(
+                this._hbaoParams.randomTexture.width,
+                this._hbaoParams.randomTexture.height,
+                1.0 / this._hbaoParams.randomTexture.width,
+                1.0 / this._hbaoParams.randomTexture.height,
+            ),
             passIdx);
         this.material.setProperty('blurParam', this._hbaoParams.blurParam, passIdx);
 
@@ -285,10 +281,10 @@ export class HBAOPass extends SettingPass {
             .blitScreen(passIdx)
             .version();
 
-        return {rtName: outputRT, dsName: inputDS};
+        return { rtName: outputRT, dsName: inputDS };
     }
 
-    private _renderHBAOBlurPass(camera: Camera, inputRT: string, inputDS: string, isYPass: boolean) {
+    private _renderHBAOBlurPass (camera: Camera, inputRT: string, inputDS: string, isYPass: boolean) {
         const cameraID = getCameraUniqueID(camera);
         const area = this.getRenderArea(camera);
         const inputWidth = area.width;
@@ -307,11 +303,12 @@ export class HBAOPass extends SettingPass {
         this.material.setProperty('radiusParam', this._hbaoParams.radiusParam, passIdx);
         this.material.setProperty('miscParam', this._hbaoParams.miscParam, passIdx);
         this.material.setProperty('randomTexSize',
-        new Vec4(
-            this._hbaoParams.randomTexture.width,
-            this._hbaoParams.randomTexture.height,
-            1.0 / this._hbaoParams.randomTexture.width,
-            1.0 / this._hbaoParams.randomTexture.height),
+            new Vec4(
+                this._hbaoParams.randomTexture.width,
+                this._hbaoParams.randomTexture.height,
+                1.0 / this._hbaoParams.randomTexture.width,
+                1.0 / this._hbaoParams.randomTexture.height,
+            ),
             passIdx);
         this.material.setProperty('blurParam', this._hbaoParams.blurParam, passIdx);
 
@@ -331,10 +328,10 @@ export class HBAOPass extends SettingPass {
             .blitScreen(passIdx)
             .version();
 
-        return {rtName: outputRT, dsName: inputDS};
+        return { rtName: outputRT, dsName: inputDS };
     }
 
-    private _renderHBAOCombinedPass(camera: Camera, inputRT: string, outputRT: string) {
+    private _renderHBAOCombinedPass (camera: Camera, inputRT: string, outputRT: string) {
         const cameraID = getCameraUniqueID(camera);
         const area = this.getRenderArea(camera);
         const inputWidth = area.width;
@@ -350,11 +347,12 @@ export class HBAOPass extends SettingPass {
         this.material.setProperty('radiusParam', this._hbaoParams.radiusParam, passIdx);
         this.material.setProperty('miscParam', this._hbaoParams.miscParam, passIdx);
         this.material.setProperty('randomTexSize',
-        new Vec4(
-            this._hbaoParams.randomTexture.width,
-            this._hbaoParams.randomTexture.height,
-            1.0 / this._hbaoParams.randomTexture.width,
-            1.0 / this._hbaoParams.randomTexture.height),
+            new Vec4(
+                this._hbaoParams.randomTexture.width,
+                this._hbaoParams.randomTexture.height,
+                1.0 / this._hbaoParams.randomTexture.width,
+                1.0 / this._hbaoParams.randomTexture.height,
+            ),
             passIdx);
         this.material.setProperty('blurParam', this._hbaoParams.blurParam, passIdx);
 
@@ -364,14 +362,14 @@ export class HBAOPass extends SettingPass {
         const layoutName = 'combine-pass';
         const passName = `CameraHBAOCombinedPass${cameraID}`;
         passContext.addRasterPass(outWidth, outHeight, layoutName, passName)
-        .setViewport(area.x, area.y, outWidth, outHeight)
-        .setPassInput(inputRT, 'AOTexNearest')
-        .addRasterView(outputRT, Format.BGRA8)
-        .blitScreen(passIdx)
-        .version();
+            .setViewport(area.x, area.y, outWidth, outHeight)
+            .setPassInput(inputRT, 'AOTexNearest')
+            .addRasterView(outputRT, Format.BGRA8)
+            .blitScreen(passIdx)
+            .version();
     }
 
-    slotName(camera: Camera, index = 0) {
+    slotName (camera: Camera, index = 0) {
         return this.lastPass!.slotName(camera, index);
     }
 }

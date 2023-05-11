@@ -1369,7 +1369,7 @@ class HBAOParams {
 let _hbaoParams: HBAOParams | null = null;
 const vec2 = new Vec2();
 function _buildHBAOPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputRT: string,
     inputDS: string) {
     if (!_hbaoParams) return { rtName: inputRT, dsName: inputDS };
@@ -1422,7 +1422,7 @@ function _buildHBAOPass (camera: Camera,
 }
 
 function _buildHBAOBlurPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputRT: string,
     inputDS: string,
     isYPass: boolean) {
@@ -1495,7 +1495,7 @@ function _buildHBAOBlurPass (camera: Camera,
 }
 
 function _buildHBAOCombinedPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputRT: string,
     inputDS: string,
     outputRT: string) {
@@ -1550,7 +1550,7 @@ function _buildHBAOCombinedPass (camera: Camera,
 }
 
 export function buildHBAOPasses (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputRT: string,
     inputDS: string,
     radiusScale = 1.0,
