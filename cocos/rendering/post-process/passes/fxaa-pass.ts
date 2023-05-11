@@ -15,21 +15,11 @@ export class FxaaPass extends SettingPass {
     effectName = 'pipeline/post-process/fxaa-hq';
     outputNames = ['FxaaColor']
 
-    checkEnable (camera: Camera) {
-        const enable = super.checkEnable(camera);
-        const setting = this.setting;
-        return enable && !!setting && setting.enabledInHierarchy;
-    }
-
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);
         const area = this.getRenderArea(camera);
-        const inputWidth = area.width;
-        const inputHeight = area.height;
-
-        const shadingScale = this.finalShadingScale();
-        const width = Math.floor(inputWidth / shadingScale);
-        const height = Math.floor(inputHeight / shadingScale);
+        const width = area.width;
+        const height = area.height;
 
         passContext.clearFlag = ClearFlagBit.COLOR;
         Vec4.set(passContext.clearColor, 0, 0, 0, 1);
@@ -43,7 +33,7 @@ export class FxaaPass extends SettingPass {
 
         passContext.material.setProperty('texSize', new Vec4(width, height, 1.0 / width, 1.0 / height), 0);
         passContext.addRasterPass(width, height, 'fxaa', `fxaa${cameraID}`)
-            .setViewport(area.x, area.y, width, height)
+            .setViewport(0, 0, width, height)
             .setPassInput(input, 'sceneColorMap')
             .addRasterView(output, Format.RGBA8)
             .blitScreen(0)
