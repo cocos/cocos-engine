@@ -589,17 +589,31 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
             vkDependency.dstSubpass = dependency.dstSubpass;
             vkDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-            auto addStageAccessMask = [&vkDependency](const auto *barrier) {
+            auto addStageAccessMask = [&vkDependency](const SubpassDependency& deps) {
                 VkPipelineStageFlags srcStageMask;
                 VkAccessFlags srcAccessMask;
                 VkPipelineStageFlags dstStageMask;
                 VkAccessFlags dstAccessMask;
                 VkImageLayout imageLayout{VK_IMAGE_LAYOUT_UNDEFINED};
                 bool hasWriteAccess{false};
-                const auto *gpuBarrier{barrier->gpuBarrier()};
+                ccstd::vector<ThsvsAccessType> prev;
+                ccstd::vector<ThsvsAccessType> next;
+
+                ccstd::unordered_set<AccessFlags> flags;
+                for (const auto &access : deps.prevAccesses) {
+                    if (flags.emplace(access).second) {
+                        getAccessTypes(access, prev);
+                    }
+                }
+                flags.clear();
+                for (const auto &access : deps.nextAccesses) {
+                    if (flags.emplace(access).second) {
+                        getAccessTypes(access, next);
+                    }
+                }
                 thsvsGetAccessInfo(
-                    utils::toUint(gpuBarrier->prevAccesses.size()),
-                    gpuBarrier->prevAccesses.data(),
+                    utils::toUint(prev.size()),
+                    prev.data(),
                     &srcStageMask,
                     &srcAccessMask,
                     &imageLayout, &hasWriteAccess);
@@ -607,8 +621,8 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
                 // offset += gpuBarrier->prevAccesses.size();
 
                 thsvsGetAccessInfo(
-                    utils::toUint(gpuBarrier->nextAccesses.size()),
-                    gpuBarrier->nextAccesses.data(),
+                    utils::toUint(next.size()),
+                    next.data(),
                     &dstStageMask,
                     &dstAccessMask,
                     &imageLayout, &hasWriteAccess);
@@ -621,21 +635,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
                 dependencyManager.append(vkDependency);
             };
 
-            if (dependency.generalBarrier) {
-                addStageAccessMask(static_cast<CCVKGeneralBarrier *>(dependency.generalBarrier));
-            }
-
-            if (dependency.textureBarriers) {
-                for (size_t index = 0; index < dependency.textureBarrierCount; ++index) {
-                    addStageAccessMask(static_cast<CCVKTextureBarrier *>(dependency.textureBarriers[index]));
-                }
-            }
-
-            if (dependency.bufferBarriers) {
-                for (size_t index = 0; index < dependency.bufferBarrierCount; ++index) {
-                    addStageAccessMask(static_cast<CCVKBufferBarrier *>(dependency.bufferBarriers[index]));
-                }
-            }
+            addStageAccessMask(dependency);
         }
 
     } else {

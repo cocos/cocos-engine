@@ -343,6 +343,7 @@ struct RasterPass {
     gfx::Viewport viewport;
     ccstd::pmr::string versionName;
     uint64_t version{0};
+    uint64_t hashValue{0};
     bool showStatistics{false};
 };
 
@@ -655,6 +656,7 @@ struct RenderQueue {
 
     QueueHint hint{QueueHint::RENDER_OPAQUE};
     uint32_t phaseID{0xFFFFFFFF};
+    gfx::Viewport viewport;
 };
 
 struct SceneData {
@@ -677,7 +679,7 @@ struct SceneData {
     scene::Camera* camera{nullptr};
     LightInfo light;
     SceneFlags flags{SceneFlags::NONE};
-    ccstd::pmr::vector<ccstd::pmr::string> scenes;
+    ccstd::pmr::vector<const scene::RenderScene*> scenes;
 };
 
 struct Dispatch {

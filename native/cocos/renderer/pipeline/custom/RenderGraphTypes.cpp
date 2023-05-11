@@ -129,6 +129,7 @@ RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
   viewport(rhs.viewport),
   versionName(std::move(rhs.versionName), alloc),
   version(rhs.version),
+  hashValue(rhs.hashValue),
   showStatistics(rhs.showStatistics) {}
 
 RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
@@ -140,6 +141,7 @@ RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
   viewport(rhs.viewport),
   versionName(rhs.versionName, alloc),
   version(rhs.version),
+  hashValue(rhs.hashValue),
   showStatistics(rhs.showStatistics) {}
 
 PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept

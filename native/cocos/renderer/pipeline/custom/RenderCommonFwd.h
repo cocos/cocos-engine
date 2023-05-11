@@ -66,6 +66,7 @@ struct RasterView;
 
 enum class ClearValueType;
 
+struct ClearValue;
 struct ComputeView;
 struct LightInfo;
 
@@ -88,6 +89,11 @@ namespace ccstd {
 template <>
 struct hash<cc::render::RasterView> {
     hash_t operator()(const cc::render::RasterView& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::ClearValue> {
+    hash_t operator()(const cc::render::ClearValue& val) const noexcept;
 };
 
 template <>
