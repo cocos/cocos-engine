@@ -1,7 +1,7 @@
 import { EDITOR } from 'internal:constants';
 import { Vec4 } from '../../../core';
 import { ClearFlagBit, Format } from '../../../gfx';
-import { Camera } from '../../../render-scene/scene';
+import { Camera, CameraUsage } from '../../../render-scene/scene';
 import { Pipeline } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
@@ -17,9 +17,11 @@ export class FSRPass extends SettingPass {
     outputNames = ['FSRColor']
 
     checkEnable (camera: Camera) {
-        const enable = super.checkEnable(camera);
-        const setting = this.setting;
-        return enable && !!setting && setting.enabledInHierarchy;
+        let enable = super.checkEnable(camera);
+        if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
+            enable = false;
+        }
+        return enable;
     }
 
     public render (camera: Camera, ppl: Pipeline): void {
@@ -46,18 +48,20 @@ export class FSRPass extends SettingPass {
             ));
 
         const input0 = this.lastPass!.slotName(camera, 0);
-        const easu = 'FSR_EASU';
+        const easu = `FSR_EASU${cameraID}`;
         passContext.addRasterPass(outWidth, outHeight, 'post-process', `CameraFSR_EASU_Pass${cameraID}`)
-            .setViewport(area.x, area.y, outWidth, outHeight)
+            .setViewport(0, 0, outWidth, outHeight)
             .setPassInput(input0, 'outputResultMap')
             .addRasterView(easu, Format.RGBA8)
-            .blitScreen(0);
+            .blitScreen(0)
+            .version();
 
         const slot0 = this.slotName(camera, 0);
         passContext.addRasterPass(outWidth, outHeight, 'post-process', `CameraFSR_RCAS_Pass${cameraID}`)
-            .setViewport(area.x, area.y, outWidth, outHeight)
+            .setViewport(0, 0, outWidth, outHeight)
             .setPassInput(easu, 'outputResultMap')
             .addRasterView(slot0, Format.RGBA8)
-            .blitScreen(1);
+            .blitScreen(1)
+            .version();
     }
 }

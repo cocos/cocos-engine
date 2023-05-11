@@ -9,6 +9,7 @@ import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
 import { BasePass } from './base-pass';
+import { ShadowPass } from './shadow-pass';
 
 export class ForwardPass extends BasePass {
     name = 'ForwardPass';
@@ -62,6 +63,20 @@ export class ForwardPass extends BasePass {
             .version();
 
         const pass = passContext.pass!;
+        const shadowPass = passContext.shadowPass as ShadowPass;
+        if (shadowPass) {
+            for (const dirShadowName of shadowPass.mainLightShadows) {
+                if (ppl.containsResource(dirShadowName)) {
+                    pass.addTexture(dirShadowName, 'cc_shadowMap');
+                }
+            }
+            for (const spotShadowName of shadowPass.spotLightShadows) {
+                if (ppl.containsResource(spotShadowName)) {
+                    pass.addTexture(spotShadowName, 'cc_spotShadowMap');
+                }
+            }
+        }
+
         pass.addQueue(QueueHint.RENDER_OPAQUE)
             .addSceneOfCamera(camera,
                 new LightInfo(),

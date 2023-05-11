@@ -70,7 +70,7 @@ export abstract class BasePass {
 
     finalShadingScale () {
         let shadingScale = this.shadingScale;
-        if (passContext.postProcess && passContext.postProcess.enableShadingScaleInEditor) {
+        if (passContext.postProcess && (!EDITOR || passContext.postProcess.enableShadingScaleInEditor)) {
             shadingScale *= passContext.postProcess.shadingScale;
         }
         return shadingScale;
@@ -78,11 +78,11 @@ export abstract class BasePass {
 
     enableInAllEditorCamera = false;
     checkEnable (camera: Camera) {
-        if (EDITOR && !this.enableInAllEditorCamera) {
-            if (camera.name !== 'Editor Camera') {
-                return false;
-            }
-        }
+        // if (EDITOR && !this.enableInAllEditorCamera) {
+        //     if (camera.name !== 'Editor Camera') {
+        //         return false;
+        //     }
+        // }
 
         return this.enable;
     }

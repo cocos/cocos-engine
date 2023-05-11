@@ -47,11 +47,11 @@ export class BlitScreenPass extends SettingPass {
             const material = materials[i];
             passContext.material = material;
 
-            const slotName = outputNames[slotIdx];
+            const slotName = `${outputNames[slotIdx]}${cameraID}`;
             slotIdx = (++slotIdx) % 2;
 
-            passContext.addRasterPass(width, height, 'post-process', `${this.name}${cameraID}`)
-                .setViewport(area.x, area.y, width, height)
+            passContext.addRasterPass(width, height, 'post-process', `${this.name}${cameraID}${slotIdx}`)
+                .setViewport(0, 0, width, height)
                 .setPassInput(input0, 'inputTexture')
                 .addRasterView(slotName, Format.RGBA8)
                 .blitScreen(0)

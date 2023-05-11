@@ -2,7 +2,7 @@ import { EDITOR } from 'internal:constants';
 import { Mat4, Vec2, Vec4 } from '../../../core';
 import { game } from '../../../game';
 import { ClearFlagBit, Format } from '../../../gfx';
-import { Camera } from '../../../render-scene/scene';
+import { Camera, CameraUsage } from '../../../render-scene/scene';
 import { Pipeline, ResourceResidency } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { TAA } from '../components/taa';
@@ -93,6 +93,14 @@ export class TAAPass extends SettingPass {
     forceRender = true;
     dirty = false;
 
+    checkEnable (camera: Camera) {
+        let enable = super.checkEnable(camera);
+        if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
+            enable = false;
+        }
+        return enable;
+    }
+
     slotName (camera: Camera, index = 0) {
         if (!this.checkEnable(camera)) {
             return this.lastPass!.slotName(camera, index);
@@ -178,7 +186,7 @@ export class TAAPass extends SettingPass {
 
         const layoutName = `DeferredTAA${this.taaTextureIndex < 0 ? -1 : (this.taaTextureIndex % 2)}`;
         passContext.addRasterPass(width, height, layoutName, `CameraTAAPass${cameraID}`)
-            .setViewport(area.x, area.y, width, height)
+            .setViewport(0, 0, width, height)
             .setPassInput(input0, 'inputTexture')
             .setPassInput(depthTex, 'depthTex')
             .setPassInput(historyTexture, 'taaPrevTexture');

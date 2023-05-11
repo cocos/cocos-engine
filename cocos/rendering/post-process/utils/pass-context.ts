@@ -26,6 +26,7 @@ export class PassContext {
     isFinalCamera = false;
     isFinalPass = false;
 
+    shadowPass: any = undefined;
     forwardPass: any = undefined;
     postProcess: PostProcess | undefined;
 
@@ -65,7 +66,7 @@ export class PassContext {
             } else if (offscreen) {
                 ppl.addRenderTarget(name, format, this.rasterWidth, this.rasterHeight, residency || ResourceResidency.MANAGED);
             } else {
-                ppl.addRenderTexture(name, format, this.rasterWidth, this.rasterHeight, camera.window);
+                ppl.addRenderWindow(name, format, this.rasterWidth, this.rasterHeight, camera.window);
             }
         }
 
@@ -79,39 +80,41 @@ export class PassContext {
             ppl.updateDepthStencil(name, this.rasterWidth, this.rasterHeight);
         }
 
-        const clearColor = new Color();
-        let view: RasterView;
+        // let view: RasterView;
         if (format === Format.DEPTH_STENCIL) {
-            clearColor.copy(this.clearDepthColor);
-
             const clearFlag = this.clearFlag & ClearFlagBit.DEPTH_STENCIL;
-            let clearOp = LoadOp.CLEAR;
+            let loadOp = LoadOp.CLEAR;
             if (clearFlag === ClearFlagBit.NONE) {
-                clearOp = LoadOp.LOAD;
+                loadOp = LoadOp.LOAD;
             }
 
-            view = new RasterView('_',
-                AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
-                clearOp, StoreOp.STORE,
-                clearFlag,
-                clearColor);
+            // view = new RasterView('_',
+            //     AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+            //     loadOp, StoreOp.STORE,
+            //     clearFlag,
+            //     clearColor);
+
+            pass.addDepthStencil(name, '_', loadOp, StoreOp.STORE, this.clearDepthColor.x, this.clearDepthColor.y, clearFlag);
         } else {
+            const clearColor = new Color();
             clearColor.copy(this.clearColor);
 
             const clearFlag = this.clearFlag & ClearFlagBit.COLOR;
-            let clearOp = LoadOp.CLEAR;
+            let loadOp = LoadOp.CLEAR;
             if (clearFlag === ClearFlagBit.NONE) {
-                clearOp = LoadOp.LOAD;
+                loadOp = LoadOp.LOAD;
             }
 
-            view = new RasterView('_',
-                AccessType.WRITE, AttachmentType.RENDER_TARGET,
-                clearOp,
-                StoreOp.STORE,
-                clearFlag,
-                clearColor);
+            // view = new RasterView('_',
+            //     AccessType.WRITE, AttachmentType.RENDER_TARGET,
+            //     loadOp,
+            //     StoreOp.STORE,
+            //     clearFlag,
+            //     clearColor);
+
+            pass.addRenderTarget(name, '_', loadOp, StoreOp.STORE, clearColor);
         }
-        pass.addRasterView(name, view);
+        // pass.addRasterView(name, view);
         return this;
     }
     setPassInput (inputName: string, shaderName: string) {

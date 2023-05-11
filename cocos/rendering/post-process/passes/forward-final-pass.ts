@@ -31,26 +31,26 @@ export class ForwardFinalPass extends BasePass {
 
         const cameraID = getCameraUniqueID(camera);
         const area = this.getRenderArea(camera);
-        let width = area.width;
-        let height = area.height;
 
         const input0 = this.lastPass.slotName(camera, 0);
         const slot0 = this.slotName(camera, 0);
 
         const shadingScale = this.finalShadingScale();
-        const isOffScreen = director.root!.mainWindow !== camera.window;
+        const isOffScreen = false;//director.root!.mainWindow !== camera.window;
 
         if (!isOffScreen) {
-            width /= shadingScale;
-            height /= shadingScale;
+            area.width /= shadingScale;
+            area.height /= shadingScale;
+            area.x /= shadingScale;
+            area.y /= shadingScale;
         }
 
         const fb = camera.window.framebuffer;
         const ct = fb && fb.colorTextures[0];
         const format = ct ? ct.format : Format.RGBA8;
 
-        passContext.addRasterPass(width, height, 'post-process', `${this.name}${cameraID}`)
-            .setViewport(area.x, area.y, width, height)
+        passContext.addRasterPass(area.width, area.height, 'post-process', `${this.name}${cameraID}`)
+            .setViewport(area.x, area.y, area.width, area.height)
             .setPassInput(input0, 'inputTexture')
             .addRasterView(slot0, format, isOffScreen)
             .blitScreen(0);
