@@ -3,8 +3,9 @@ import { PoseGraphNodeInputInsertId, PoseGraphInputKey, globalNodeInputManager }
 import { XNode } from '../x-node';
 import { assertIsTrue, error } from '../../../../core';
 import { PoseGraphType } from '../foundation/type-system';
-import { PoseGraphNode, shellTag } from '../foundation/pose-graph-node';
+import { PoseGraphNode } from '../foundation/pose-graph-node';
 import { PoseGraphOutputNode } from '../graph-output-node';
+import type { PoseGraph } from '../pose-graph';
 
 export type {
     PoseGraphInputKey as InputKey,
@@ -43,23 +44,23 @@ export function getInputConstantValue (node: PoseGraphNode, key: PoseGraphInputK
     return getXNodeInputConstantValue(node, key);
 }
 
-export function getInputBinding (node: PoseGraphNode, key: PoseGraphInputKey): Readonly<{
+export function getInputBinding (graph: PoseGraph, node: PoseGraphNode, key: PoseGraphInputKey): Readonly<{
     producer: PoseGraphNode;
     outputIndex: number;
 }> | undefined {
-    return node[shellTag]?.findBinding(key);
+    return graph.getShell(node)?.findBinding(key);
 }
 
 export function getInputInsertInfos (node: PoseGraphNode) {
     return globalNodeInputManager.getInputInsertInfos(node);
 }
 
-export function insertInput (node: PoseGraphNode, insertId: PoseGraphNodeInputInsertId) {
-    return globalNodeInputManager.insertInput(node, insertId);
+export function insertInput (graph: PoseGraph, node: PoseGraphNode, insertId: PoseGraphNodeInputInsertId) {
+    return globalNodeInputManager.insertInput(graph, node, insertId);
 }
 
-export function deleteInput (node: PoseGraphNode, key: PoseGraphInputKey) {
-    globalNodeInputManager.deleteInput(node, key);
+export function deleteInput (graph: PoseGraph, node: PoseGraphNode, key: PoseGraphInputKey) {
+    globalNodeInputManager.deleteInput(graph, node, key);
 }
 
 export const getOutputKeys = (() => {
@@ -93,9 +94,9 @@ export function getOutputType(node: PoseGraphNode, outputId: OutputKey) {
     }
 }
 
-export function connectNode (node: PoseGraphNode, key: PoseGraphInputKey, producer: PoseGraphNode, outputKey?: OutputKey) {
+export function connectNode (graph: PoseGraph, node: PoseGraphNode, key: PoseGraphInputKey, producer: PoseGraphNode, outputKey?: OutputKey) {
     const consumerNode = node;
-    const consumerShell = node[shellTag];
+    const consumerShell = graph.getShell(node);
     if (!consumerShell) {
         error(`Consumer node is not with in graph!`);
         return;
@@ -152,23 +153,24 @@ export function connectNode (node: PoseGraphNode, key: PoseGraphInputKey, produc
     }
 }
 
-export function disconnectNode (node: PoseGraphNode, key: PoseGraphInputKey) {
-    node[shellTag]?.deleteBinding(key);
+export function disconnectNode (graph: PoseGraph, node: PoseGraphNode, key: PoseGraphInputKey) {
+    graph.getShell(node)?.deleteBinding(key);
 }
 
-export function connectOutputNode(outputNode: PoseGraphOutputNode, producer: PoseNode) {
+export function connectOutputNode(graph: PoseGraph, outputNode: PoseGraphOutputNode, producer: PoseNode) {
     const outputNodeInputKeys = getInputKeys(outputNode);
     assertIsTrue(outputNodeInputKeys.length === 1);
-    connectNode(outputNode, outputNodeInputKeys[0], producer);
+    connectNode(graph, outputNode, outputNodeInputKeys[0], producer);
 }
 
 export function hasInputBinding (
+    graph: PoseGraph,
     node: PoseGraphNode,
     key: PoseGraphInputKey,
     producerNode: PoseGraphNode,
     producerOutputKey: OutputKey,
 ) {
-    const binding = getInputBinding(node, key);
+    const binding = getInputBinding(graph, node, key);
     if (!binding) {
         return false;
     }

@@ -56,7 +56,7 @@ describe(`Pose node instantiation`, () => {
         const layer = animationGraph.addLayer();
         const poseState = layer.stateMachine.addPoseState();
         const poseNodeMock = poseState.graph.addNode(new PoseNodeMock());
-        poseGraphOp.connectNode(poseState.graph.outputNode, getTheOnlyInputKey(poseState.graph.outputNode), poseNodeMock);
+        poseGraphOp.connectNode(poseState.graph, poseState.graph.outputNode, getTheOnlyInputKey(poseState.graph.outputNode), poseNodeMock);
         layer.stateMachine.connect(layer.stateMachine.entryState, poseState);
 
         expect(PoseNodeMock.constructorMock).toBeCalledTimes(1);
@@ -268,8 +268,8 @@ describe(`Pose node ticking`, () => {
         const xNode = poseState.graph.addNode(new ObservedXNode());
         const keys = poseGraphOp.getInputKeys(poseNode);
         expect(keys).toHaveLength(1);
-        poseGraphOp.connectNode(poseNode, keys[0], xNode, getTheOnlyOutputKey(xNode));
-        poseGraphOp.connectNode(poseState.graph.outputNode, getTheOnlyInputKey(poseState.graph.outputNode), poseNode);
+        poseGraphOp.connectNode(poseState.graph, poseNode, keys[0], xNode, getTheOnlyOutputKey(xNode));
+        poseGraphOp.connectNode(poseState.graph, poseState.graph.outputNode, getTheOnlyInputKey(poseState.graph.outputNode), poseNode);
         layer.stateMachine.connect(layer.stateMachine.entryState, poseState);
     
         const node = new Node();

@@ -65,8 +65,8 @@ describe(`Class PoseGraph`, () => {
         expect(() => graph.addNode(anotherNode)).toThrowError(AddNonFreestandingNodeError);
 
         // Remove a pose which was marked as main.
-        poseGraphOp.connectNode(graph.outputNode, getTheOnlyInputKey(graph.outputNode), node);
-        expect(poseGraphOp.getInputBinding(graph.outputNode, getTheOnlyInputKey(graph.outputNode))).toStrictEqual(expect.objectContaining({
+        poseGraphOp.connectNode(graph, graph.outputNode, getTheOnlyInputKey(graph.outputNode), node);
+        expect(poseGraphOp.getInputBinding(graph, graph.outputNode, getTheOnlyInputKey(graph.outputNode))).toStrictEqual(expect.objectContaining({
             producer: node,
             outputIndex: 0,
         }));
@@ -75,7 +75,7 @@ describe(`Class PoseGraph`, () => {
             graph.outputNode,
             anotherNode,
         ]));
-        expect(poseGraphOp.getInputBinding(graph.outputNode, getTheOnlyInputKey(graph.outputNode))).toBeUndefined();
+        expect(poseGraphOp.getInputBinding(graph, graph.outputNode, getTheOnlyInputKey(graph.outputNode))).toBeUndefined();
     });
 });
 
@@ -391,21 +391,21 @@ describe(`Node`, () => {
                     expect(key).not.toBeUndefined();
                     assertIsTrue(key);
                     // Initial: no binding.
-                    expect(poseGraphOp.getInputBinding(mainNode, key)).toBeUndefined();
+                    expect(poseGraphOp.getInputBinding(poseGraph,mainNode, key)).toBeUndefined();
                     // Connect and reconnect.
                     for (let i = 0; i < 2; ++i) {
                         const bindingPose = poseGraph.addNode(new UnimplementedPoseNode());
                         // Connect.
-                        poseGraphOp.connectNode(mainNode, key, bindingPose);
+                        poseGraphOp.connectNode(poseGraph,mainNode, key, bindingPose);
                         // `poseGraphOp.getInputBinding` should returns the connected pose.
-                        expect(poseGraphOp.getInputBinding(mainNode, key)).toStrictEqual(expect.objectContaining({
+                        expect(poseGraphOp.getInputBinding(poseGraph,mainNode, key)).toStrictEqual(expect.objectContaining({
                             producer: bindingPose,
                             outputIndex: 0,
                         }));
                     }
                     // Disconnect.
-                    poseGraphOp.disconnectNode(mainNode, key);
-                    expect(poseGraphOp.getInputBinding(mainNode, key)).toBeUndefined();
+                    poseGraphOp.disconnectNode(poseGraph,mainNode, key);
+                    expect(poseGraphOp.getInputBinding(poseGraph,mainNode, key)).toBeUndefined();
                 }
             }
 
@@ -424,21 +424,21 @@ describe(`Node`, () => {
                 expect(key).not.toBeUndefined();
                 assertIsTrue(key);
                 // Initial: no binding.
-                expect(poseGraphOp.getInputBinding(mainNode, key)).toBeUndefined();
+                expect(poseGraphOp.getInputBinding(poseGraph,mainNode, key)).toBeUndefined();
                 // Connect and reconnect.
                 for (let i = 0; i < 2; ++i) {
                     const bindingNode = poseGraph.addNode(new UnimplementedXNode([PoseGraphType.FLOAT]));
                     // Connect.
-                    poseGraphOp.connectNode(mainNode, key, bindingNode, 0);
+                    poseGraphOp.connectNode(poseGraph,mainNode, key, bindingNode, 0);
                     // Query the binding.
-                    expect(poseGraphOp.getInputBinding(mainNode, key)).toStrictEqual(expect.objectContaining({
+                    expect(poseGraphOp.getInputBinding(poseGraph,mainNode, key)).toStrictEqual(expect.objectContaining({
                         producer: bindingNode,
                         outputIndex: getTheOnlyOutputKey(bindingNode),
                     }));
                 }
                 // Disconnect.
-                poseGraphOp.disconnectNode(mainNode, key);
-                expect(poseGraphOp.getInputBinding(mainNode, key)).toBeUndefined();
+                poseGraphOp.disconnectNode(poseGraph,mainNode, key);
+                expect(poseGraphOp.getInputBinding(poseGraph,mainNode, key)).toBeUndefined();
             }
         });
     
@@ -464,7 +464,7 @@ describe(`Node`, () => {
     
             // Inserts inputs.
             for (let i = 0; i < 5; ++i) {
-                poseGraphOp.insertInput(node, inputInsertInfos[0][0]);
+                poseGraphOp.insertInput(poseGraph, node, inputInsertInfos[0][0]);
                 const expectedElementCount = i + 1;
                 expect(visitArray()).toHaveLength(expectedElementCount);
                 const keys = poseGraphOp.getInputKeys(node);
@@ -483,7 +483,7 @@ describe(`Node`, () => {
             const middleInputKey = poseGraphOp.getInputKeys(node).find((k) => poseGraphOp.getInputMetadata(node, k)?.displayName === `array_inputs 3`);
             expect(middleInputKey).not.toBeUndefined();
             assertIsTrue(middleInputKey);
-            poseGraphOp.deleteInput(node, middleInputKey);
+            poseGraphOp.deleteInput(poseGraph, node, middleInputKey);
             {
                 expect(visitArray()).toHaveLength(4);
                 const keys = poseGraphOp.getInputKeys(node);
@@ -511,7 +511,7 @@ describe(`Node`, () => {
             const node = poseGraph.addNode(new SomeNode());
             const insertIds = Object.keys(poseGraphOp.getInputInsertInfos(node));
             expect(insertIds).toHaveLength(1);
-            poseGraphOp.insertInput(node, insertIds[0]);
+            poseGraphOp.insertInput(poseGraph, node, insertIds[0]);
             // The insertion should succeed with one key inserted!
             expect(poseGraphOp.getInputKeys(node)).toHaveLength(1);
         });
@@ -548,7 +548,7 @@ describe(`Node`, () => {
 
             // Fire 4 times insertion on prop1/prop2/prop3... in turn.
             for (let i = 0; i < 4; ++i) {
-                poseGraphOp.insertInput(node, insertIds[i % GROUP_MEMBER_COUNT]);
+                poseGraphOp.insertInput(poseGraph, node, insertIds[i % GROUP_MEMBER_COUNT]);
 
                 // The insertion should causes both all props extending 1 element with its type-specified default value.
                 expectedProp1ConstantValue.push(null);
@@ -573,6 +573,7 @@ describe(`Node`, () => {
                         ? 'prop2'
                         : 'prop3';
                 poseGraphOp.deleteInput(
+                    poseGraph,
                     node,
                     findInputKeyHavingDisplayName(node, `${propName} ${deleteIndex}`),
                 );
@@ -612,6 +613,7 @@ describe(`Node`, () => {
 
         // OK: connect x-node to x-node input of pose node.
         poseGraphOp.connectNode(
+            poseGraph,
             poseNode1,
             findInputKeyHavingDisplayName(poseNode1, 'x_node_prop'),
             xNode1,
@@ -621,6 +623,7 @@ describe(`Node`, () => {
 
         // OK: connect x-node to x-node input of x-node.
         poseGraphOp.connectNode(
+            poseGraph,
             xNode2,
             findInputKeyHavingDisplayName(poseNode1, 'x_node_prop'),
             xNode1,
@@ -630,6 +633,7 @@ describe(`Node`, () => {
 
         // Error: connect x-node to pose input of pose node.
         poseGraphOp.connectNode(
+            poseGraph,
             poseNode1,
             findInputKeyHavingDisplayName(poseNode1, 'pose_prop'),
             xNode1,
@@ -641,6 +645,7 @@ describe(`Node`, () => {
 
         // OK: connect pose node to pose input of pose node.
         poseGraphOp.connectNode(
+            poseGraph,
             poseNode1,
             findInputKeyHavingDisplayName(poseNode1, 'pose_prop'),
             poseNode2,
@@ -650,6 +655,7 @@ describe(`Node`, () => {
 
         // Error: connect pose node to x-node input of pose node.
         poseGraphOp.connectNode(
+            poseGraph,
             poseNode1,
             findInputKeyHavingDisplayName(poseNode1, 'x_node_prop'),
             poseNode2,
@@ -661,6 +667,7 @@ describe(`Node`, () => {
 
         // Error: connect pose node to x-node input of x-node node.
         poseGraphOp.connectNode(
+            poseGraph,
             xNode1,
             findInputKeyHavingDisplayName(poseNode1, 'x_node_prop'),
             poseNode1,
@@ -702,7 +709,7 @@ test(`Inputs from base classes`, () => {
         const inputKeys = poseGraphOp.getInputKeys(node);
         for (const inputKey of inputKeys) {
             expect(poseGraphOp.isValidInputKey(node, inputKey)).toBeTrue();
-            expect(poseGraphOp.getInputBinding(node, inputKey)).toBeUndefined();
+            expect(poseGraphOp.getInputBinding(poseGraph, node, inputKey)).toBeUndefined();
         }
         expect(inputKeys.map((key) => ({
             displayName: poseGraphOp.getInputMetadata(node, key)?.displayName,

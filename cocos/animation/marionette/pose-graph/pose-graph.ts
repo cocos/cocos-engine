@@ -2,7 +2,7 @@ import { EditorExtendable, assertIsTrue, error, js, warn } from '../../../core';
 import { ccclass, serializable } from '../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../define';
 import { PoseGraphNodeShell } from './foundation/node-shell';
-import { PoseGraphNode, shellTag } from './foundation/pose-graph-node';
+import { PoseGraphNode } from './foundation/pose-graph-node';
 import { AddNonFreestandingNodeError } from './foundation/errors';
 import { PoseGraphOutputNode } from './graph-output-node';
 
@@ -36,7 +36,7 @@ export class PoseGraph extends EditorExtendable {
         for (let iNode = 0; iNode < this._nodes.length; ++iNode) {
             const node = this._nodes[iNode];
             const shell = this._shells[iNode];
-            node._emplaceShell(shell);
+            this._shellMap.set(node, shell);
             node.__callOnAfterDeserializeRecursive?.();
         }
     }
@@ -62,13 +62,13 @@ export class PoseGraph extends EditorExtendable {
      * means it should not been already in any graph. Otherwise, an exception would be thrown.
      */
     public addNode<TNode extends PoseGraphNode> (node: TNode) {
-        if (node[shellTag]) {
+        if (this._shellMap.has(node)) {
             throw new AddNonFreestandingNodeError(node);
         }
         const shell = new PoseGraphNodeShell();
-        node._emplaceShell(shell);
         this._shells.push(shell);
         this._nodes.push(node);
+        this._shellMap.set(node, shell);
         return node;
     }
 
@@ -94,7 +94,7 @@ export class PoseGraph extends EditorExtendable {
         }
 
         // This should be true.
-        assertIsTrue(removal[shellTag] === this._shells[nodeIndex]);
+        assertIsTrue(this._shellMap.has(removal));
 
         // Disconnect from others.
         for (const shell of this._shells) {
@@ -102,9 +102,20 @@ export class PoseGraph extends EditorExtendable {
         }
 
         // Remove from graph.
-        removal._dropShell();
         js.array.removeAt(this._shells, nodeIndex);
         js.array.removeAt(this._nodes, nodeIndex);
+        this._shellMap.delete(removal);
+    }
+
+    /**
+     * @zh
+     * 获取指定结点在姿势图中的外壳。
+     * @en
+     * Gets the specified node's shell in pose graph.
+     * @internal
+     */
+    public getShell (node: PoseGraphNode) {
+        return this._shellMap.get(node);
     }
 
     @serializable
@@ -115,4 +126,7 @@ export class PoseGraph extends EditorExtendable {
 
     @serializable
     private _shells: PoseGraphNodeShell[] = [];
+
+    @serializable
+    private _shellMap = new Map<PoseGraphNode, PoseGraphNodeShell>();
 }

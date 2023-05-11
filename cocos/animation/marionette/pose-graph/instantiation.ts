@@ -6,7 +6,7 @@ import { PoseNode } from './pose-node';
 import { PoseGraph } from './pose-graph';
 import { XNode, XNodeLinkContext } from './x-node';
 import { NodeInputPath } from './foundation/node-shell';
-import { PoseGraphNode, shellTag } from './foundation/pose-graph-node';
+import { PoseGraphNode } from './foundation/pose-graph-node';
 
 type EvaluatableNode = PoseNode | XNode;
 
@@ -22,7 +22,7 @@ export function instantiatePoseGraph (
         outputNode,
     } = graph;
 
-    const outputNodeShell = outputNode[shellTag];
+    const outputNodeShell = graph.getShell(outputNode);
     assertIsTrue(outputNodeShell);
     const bindings = outputNodeShell.getBindings();
     // Output node can only has 1 or has no binding.
@@ -37,6 +37,7 @@ export function instantiatePoseGraph (
 
     const instantiationMap = new Map<PoseGraphNode, RuntimeNodeEvaluation>();
     const mainRecord = instantiateNode(
+        graph,
         binding.producer,
         instantiationMap,
         linkContext,
@@ -51,13 +52,12 @@ export interface PoseNodeDependencyEvaluation {
 }
 
 function instantiateNode<TNode extends EvaluatableNode> (
+    graph: PoseGraph,
     node: TNode,
     instantiationMap: Map<PoseGraphNode, RuntimeNodeEvaluation>,
     linkContext: XNodeLinkContext,
 ): RuntimeNodeEvaluation {
-    const {
-        [shellTag]: shell,
-    } = node;
+    const shell = graph.getShell(node);
     assertIsTrue(shell, `Want to instantiate an unbound graph?`);
 
     const existing = instantiationMap.get(node);
@@ -95,7 +95,7 @@ function instantiateNode<TNode extends EvaluatableNode> (
             warn(`There's a input bound to a node with unrecognized type.`);
             continue;
         }
-        const producer = instantiateNode(producerNode, instantiationMap, linkContext);
+        const producer = instantiateNode(graph, producerNode, instantiationMap, linkContext);
         if (producer instanceof PoseNode) {
             // Rule: pose nodes can only be used to feed pose nodes.
             assertIsTrue(consumerNode instanceof PoseNode);

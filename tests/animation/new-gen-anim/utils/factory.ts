@@ -404,7 +404,7 @@ export type PoseNodeParams = PoseNode | Node_;
 function fillPoseGraph(poseGraph: PoseGraph, params: PoseGraphParams) {
     if (params.rootNode) {
         const root = createPoseNode(poseGraph, params.rootNode);
-        poseGraphOp.connectOutputNode(poseGraph.outputNode, root);
+        poseGraphOp.connectOutputNode(poseGraph, poseGraph.outputNode, root);
     }
 }
 
