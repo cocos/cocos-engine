@@ -2,7 +2,7 @@ import { EDITOR } from 'internal:constants';
 
 import { AccessType, AttachmentType, ComputeView, QueueHint, RasterView, ResourceResidency, SceneFlags } from '../../custom/types';
 import { ClearFlagBit, Color, Format, LoadOp, StoreOp, Viewport } from '../../../gfx';
-import { Pipeline, RasterPassBuilder } from '../../custom/pipeline';
+import { Pipeline, RenderPassBuilder } from '../../custom/pipeline';
 import { Camera } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
 import { PostProcess } from '../components';
@@ -14,7 +14,7 @@ export class PassContext {
     ppl: Pipeline| undefined
     camera: Camera| undefined
     material: Material| undefined
-    pass: RasterPassBuilder| undefined
+    pass: RenderPassBuilder| undefined
     rasterWidth = 0
     rasterHeight = 0
     layoutName = ''
@@ -38,7 +38,7 @@ export class PassContext {
     }
 
     addRasterPass (width: number, height: number, layoutName: string, passName: string) {
-        const pass = this.ppl!.addRasterPass(width, height, layoutName);
+        const pass = this.ppl!.addRenderPass(width, height, layoutName);
         pass.name = passName;
         this.pass = pass;
         this.rasterWidth = width;
