@@ -11,7 +11,7 @@ import { PoseGraphNode } from "../../../../cocos/animation/marionette/pose-graph
 import { AddNonFreestandingNodeError } from "../../../../cocos/animation/marionette/pose-graph/foundation/errors";
 import { poseGraphCreateNodeFactory, poseGraphNodeAppearance, poseGraphNodeHide, poseGraphNodeMenu } from "../../../../cocos/animation/marionette/pose-graph/decorator/node";
 import { PoseGraphNodeEditorMetadata, getPoseGraphNodeEditorMetadata } from "../../../../cocos/animation/marionette/pose-graph/foundation/authoring/node-authoring";
-import { createPoseGraph, findInputKeyHavingDisplayName, getTheOnlyInputKey, getTheOnlyOutputKey, normalizeNodeInputMetadata, UnimplementedPoseNode, UnimplementedXNode } from "./utils/misc";
+import { createPoseGraph, findInputKeyHavingDisplayName, getTheOnlyInputKey, getTheOnlyOutputKey, normalizeNodeInputMetadata, UnimplementedPoseNode, UnimplementedPVNode } from "./utils/misc";
 import { PoseNode } from "../../../../cocos/animation/marionette/pose-graph/pose-node";
 
 describe(`Class PoseGraph`, () => {
@@ -39,7 +39,7 @@ describe(`Class PoseGraph`, () => {
         expect(() => graph.addNode(node)).toThrowError(AddNonFreestandingNodeError);
 
         // Add another node.
-        const anotherNode = new UnimplementedXNode([]);
+        const anotherNode = new UnimplementedPVNode([]);
         graph.addNode(anotherNode);
         expect([...graph.nodes()]).toStrictEqual(expect.arrayContaining([
             graph.outputNode,
@@ -132,7 +132,7 @@ describe(`Input decorator @input`, () => {
         };
     });
 
-    test(`@input can be only applied to fields of subclasses of PoseNode or XNode.`, () => {
+    test(`@input can be only applied to fields of subclasses of PoseNode or PureValueNode.`, () => {
         const errorWatcher = captureErrors();
 
         for (const define of [defineSubClassOfPoseGraphNode, defineOtherClass]) {
@@ -140,7 +140,7 @@ describe(`Input decorator @input`, () => {
 
             expect(errorWatcher.captured).toHaveLength(1);
             expect(errorWatcher.captured[0]).toMatchObject([
-                '@input can be only applied to fields of subclasses of PoseNode or XNode.',
+                '@input can be only applied to fields of subclasses of PoseNode or PureValueNode.',
             ]);
             
             errorWatcher.clear();
@@ -230,7 +230,7 @@ describe(`Node editor decorators`, () => {
 describe(`Node`, () => {
     type PosePropertyName = 'pose_input_with_no_displayName_specified' | 'pose_input_with_displayName_specified';
 
-    type XNodePropertyName = 'x_node_input_with_no_displayName_specified' | 'x_node_input_with_displayName_specified';
+    type PVNodePropertyName = 'pv_node_input_with_no_displayName_specified' | 'pv_node_input_with_displayName_specified';
 
     interface PoseGraphNodeTestSuite {
         makeFundamental: (poseGraph: PoseGraph) => {
@@ -251,10 +251,10 @@ describe(`Node`, () => {
             pose_input_with_displayName_specified: PoseNode | null = null;
 
             @input({ type: PoseGraphType.FLOAT })
-            x_node_input_with_no_displayName_specified = 1;
+            pv_node_input_with_no_displayName_specified = 1;
 
-            @input({ type: PoseGraphType.FLOAT, displayName: 'XNode_SomeDisPlayName' })
-            x_node_input_with_displayName_specified = 2;
+            @input({ type: PoseGraphType.FLOAT, displayName: 'PVNode_SomeDisPlayName' })
+            pv_node_input_with_displayName_specified = 2;
 
             /**
              * Does not observed by this test case.
@@ -286,13 +286,13 @@ describe(`Node`, () => {
         };
     })();
 
-    const testSuiteXNode: PoseGraphNodeTestSuite = (() => {
-        class Fundamental_Node extends UnimplementedXNode {
+    const testSuitePVNode: PoseGraphNodeTestSuite = (() => {
+        class Fundamental_Node extends UnimplementedPVNode {
             @input({ type: PoseGraphType.FLOAT })
-            x_node_input_with_no_displayName_specified = 1;
+            pv_node_input_with_no_displayName_specified = 1;
 
-            @input({ type: PoseGraphType.FLOAT, displayName: 'XNode_SomeDisPlayName' })
-            x_node_input_with_displayName_specified = 2;
+            @input({ type: PoseGraphType.FLOAT, displayName: 'PVNode_SomeDisPlayName' })
+            pv_node_input_with_displayName_specified = 2;
 
             /**
              * Does not observed by this test case.
@@ -301,7 +301,7 @@ describe(`Node`, () => {
             array_inputs: Array<PoseNode | null> = [];
         }
 
-        class ArrayInput_Node extends UnimplementedXNode {
+        class ArrayInput_Node extends UnimplementedPVNode {
             @input({ type: PoseGraphType.FLOAT })
             array_inputs: number[] = [];
         }
@@ -325,7 +325,7 @@ describe(`Node`, () => {
 
     describe.each([
         [`Pose Node`, testSuitePoseNode],
-        [`X Node`, testSuiteXNode],
+        [`X Node`, testSuitePVNode],
     ] as [title: string, suite: PoseGraphNodeTestSuite][])(`%s`, (_, {
         makeFundamental: makeMainNode,
         makeArrayInput: makeArrayNode,
@@ -347,13 +347,13 @@ describe(`Node`, () => {
             const metadataTable = rawKeys.map((k) => normalizeNodeInputMetadata(poseGraphOp.getInputMetadata(mainNode, k)));
             expect(metadataTable).toStrictEqual(expect.arrayContaining([
                 expect.objectContaining({
-                    displayName: 'x_node_input_with_no_displayName_specified',
+                    displayName: 'pv_node_input_with_no_displayName_specified',
                     deletable: false,
                     insertPoint: false,
                     type: PoseGraphType.FLOAT,
                 }),
                 expect.objectContaining({
-                    displayName: 'XNode_SomeDisPlayName',
+                    displayName: 'PVNode_SomeDisPlayName',
                     deletable: false,
                     insertPoint: false,
                     type: PoseGraphType.FLOAT,
@@ -409,16 +409,16 @@ describe(`Node`, () => {
                 }
             }
 
-            // X-node input binding query.
+            // PV node input binding query.
             for (const [
                 expectedDisplayName,
                 expectedPropertyName,
             ] of [
-                ['x_node_input_with_no_displayName_specified', 'x_node_input_with_no_displayName_specified'],
-                ['XNode_SomeDisPlayName', 'x_node_input_with_displayName_specified'],
+                ['pv_node_input_with_no_displayName_specified', 'pv_node_input_with_no_displayName_specified'],
+                ['PVNode_SomeDisPlayName', 'pv_node_input_with_displayName_specified'],
             ] as [
                 expectedDisplayName: string,
-                expectedPropertyName: XNodePropertyName,
+                expectedPropertyName: PVNodePropertyName,
             ][]) {
                 const key = rawKeys.find((k) => poseGraphOp.getInputMetadata(mainNode, k)?.displayName === expectedDisplayName);
                 expect(key).not.toBeUndefined();
@@ -427,7 +427,7 @@ describe(`Node`, () => {
                 expect(poseGraphOp.getInputBinding(poseGraph,mainNode, key)).toBeUndefined();
                 // Connect and reconnect.
                 for (let i = 0; i < 2; ++i) {
-                    const bindingNode = poseGraph.addNode(new UnimplementedXNode([PoseGraphType.FLOAT]));
+                    const bindingNode = poseGraph.addNode(new UnimplementedPVNode([PoseGraphType.FLOAT]));
                     // Connect.
                     poseGraphOp.connectNode(poseGraph,mainNode, key, bindingNode, 0);
                     // Query the binding.
@@ -592,52 +592,52 @@ describe(`Node`, () => {
 
         class PoseNode1 extends UnimplementedPoseNode {
             @input({ type: PoseGraphType.FLOAT })
-            public x_node_prop = 2;
+            public pv_node_prop = 2;
 
             @input({ type: PoseGraphType.POSE, })
             public pose_prop: Pose | null = null;
         }
 
-        class XNode1 extends UnimplementedXNode {
+        class PVNode1 extends UnimplementedPVNode {
             constructor() { super([PoseGraphType.FLOAT]); }
             @input({ type: PoseGraphType.FLOAT })
-            public x_node_prop = 2;
+            public pv_node_prop = 2;
         }
 
         const poseNode1 = poseGraph.addNode(new PoseNode1());
         const poseNode2 = poseGraph.addNode(new PoseNode1());
-        const xNode1 = poseGraph.addNode(new XNode1());
-        const xNode2 = poseGraph.addNode(new XNode1());
+        const pvNode1 = poseGraph.addNode(new PVNode1());
+        const pvNode2 = poseGraph.addNode(new PVNode1());
 
         const logCapture = captureErrors();
 
-        // OK: connect x-node to x-node input of pose node.
+        // OK: connect pv-node to pv-node input of pose node.
         poseGraphOp.connectNode(
             poseGraph,
             poseNode1,
-            findInputKeyHavingDisplayName(poseNode1, 'x_node_prop'),
-            xNode1,
-            getTheOnlyOutputKey(xNode1),
+            findInputKeyHavingDisplayName(poseNode1, 'pv_node_prop'),
+            pvNode1,
+            getTheOnlyOutputKey(pvNode1),
         );
         expect(logCapture.captured).toHaveLength(0);
 
-        // OK: connect x-node to x-node input of x-node.
+        // OK: connect pv-node to pv-node input of pv-node.
         poseGraphOp.connectNode(
             poseGraph,
-            xNode2,
-            findInputKeyHavingDisplayName(poseNode1, 'x_node_prop'),
-            xNode1,
-            getTheOnlyOutputKey(xNode1),
+            pvNode2,
+            findInputKeyHavingDisplayName(poseNode1, 'pv_node_prop'),
+            pvNode1,
+            getTheOnlyOutputKey(pvNode1),
         );
         expect(logCapture.captured).toHaveLength(0);
 
-        // Error: connect x-node to pose input of pose node.
+        // Error: connect pv-node to pose input of pose node.
         poseGraphOp.connectNode(
             poseGraph,
             poseNode1,
             findInputKeyHavingDisplayName(poseNode1, 'pose_prop'),
-            xNode1,
-            getTheOnlyOutputKey(xNode1),
+            pvNode1,
+            getTheOnlyOutputKey(pvNode1),
         );
         expect(logCapture.captured).toHaveLength(1);
         expect(logCapture.captured[0]).toStrictEqual([`Type mismatch: input has type POSE, output has type FLOAT.`]);
@@ -653,11 +653,11 @@ describe(`Node`, () => {
         );
         expect(logCapture.captured).toHaveLength(0);
 
-        // Error: connect pose node to x-node input of pose node.
+        // Error: connect pose node to pv-node input of pose node.
         poseGraphOp.connectNode(
             poseGraph,
             poseNode1,
-            findInputKeyHavingDisplayName(poseNode1, 'x_node_prop'),
+            findInputKeyHavingDisplayName(poseNode1, 'pv_node_prop'),
             poseNode2,
             getTheOnlyOutputKey(poseNode2),
         );
@@ -665,11 +665,11 @@ describe(`Node`, () => {
         expect(logCapture.captured[0]).toStrictEqual([`Type mismatch: input has type FLOAT, output has type POSE.`]);
         logCapture.clear();
 
-        // Error: connect pose node to x-node input of x-node node.
+        // Error: connect pose node to pv-node input of pv-node node.
         poseGraphOp.connectNode(
             poseGraph,
-            xNode1,
-            findInputKeyHavingDisplayName(poseNode1, 'x_node_prop'),
+            pvNode1,
+            findInputKeyHavingDisplayName(poseNode1, 'pv_node_prop'),
             poseNode1,
             getTheOnlyOutputKey(poseNode1),
         );
@@ -682,7 +682,7 @@ describe(`Node`, () => {
 test(`Inputs from base classes`, () => {
     class Base extends UnimplementedPoseNode {
         @input({ type: PoseGraphType.FLOAT })
-        base_xNode_input = 1.0;
+        base_pvNode_input = 1.0;
 
         @input({ type: PoseGraphType.POSE, })
         base_pose_input: Pose | null = null;
@@ -693,7 +693,7 @@ test(`Inputs from base classes`, () => {
 
     class Sub extends Base {
         @input({ type: PoseGraphType.FLOAT })
-        sub_xNode_input = 2.0;
+        sub_pvNode_input = 2.0;
 
         @input({ type: PoseGraphType.POSE, })
         sub_pose_input: Pose | null = null;
@@ -716,10 +716,10 @@ test(`Inputs from base classes`, () => {
             value: poseGraphOp.getInputConstantValue(node, key),
         }))).toStrictEqual([
             // Base inputs first.
-            { displayName: 'base_xNode_input', value: 1.0 },
+            { displayName: 'base_pvNode_input', value: 1.0 },
             { displayName: 'base_pose_input', value: null },
             { displayName: 'base_input_about_to_be_overrode', value: null },
-            { displayName: 'sub_xNode_input', value: 2.0 },
+            { displayName: 'sub_pvNode_input', value: 2.0 },
             { displayName: 'sub_pose_input', value: null },
         ]);
     }

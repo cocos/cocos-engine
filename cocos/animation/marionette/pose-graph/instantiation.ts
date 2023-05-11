@@ -4,19 +4,19 @@ import { assertIsTrue, warn } from '../../../core';
 import { instantiate } from '../../../serialization';
 import { PoseNode } from './pose-node';
 import { PoseGraph } from './pose-graph';
-import { XNode, XNodeLinkContext } from './x-node';
+import { PureValueNode, PureValueNodeLinkContext } from './pure-value-node';
 import { NodeInputPath } from './foundation/node-shell';
 import { PoseGraphNode } from './foundation/pose-graph-node';
 
-type EvaluatableNode = PoseNode | XNode;
+type EvaluatableNode = PoseNode | PureValueNode;
 
 function isEvaluatableNode (node: PoseGraphNode): node is EvaluatableNode {
-    return (node instanceof PoseNode || node instanceof XNode);
+    return (node instanceof PoseNode || node instanceof PureValueNode);
 }
 
 export function instantiatePoseGraph (
     graph: PoseGraph,
-    linkContext: XNodeLinkContext,
+    linkContext: PureValueNodeLinkContext,
 ): PoseNode | undefined {
     const {
         outputNode,
@@ -55,7 +55,7 @@ function instantiateNode<TNode extends EvaluatableNode> (
     graph: PoseGraph,
     node: TNode,
     instantiationMap: Map<PoseGraphNode, RuntimeNodeEvaluation>,
-    linkContext: XNodeLinkContext,
+    linkContext: PureValueNodeLinkContext,
 ): RuntimeNodeEvaluation {
     const shell = graph.getShell(node);
     assertIsTrue(shell, `Want to instantiate an unbound graph?`);
@@ -75,7 +75,7 @@ function instantiateNode<TNode extends EvaluatableNode> (
     }
 
     /** Link. */
-    if (instantiated instanceof XNode) {
+    if (instantiated instanceof PureValueNode) {
         instantiated.link(linkContext);
     }
 
@@ -83,9 +83,9 @@ function instantiateNode<TNode extends EvaluatableNode> (
     const consumerNode = instantiated;
 
     /**
-     * Create the x-node property binding records.
+     * Create the pv-node property binding records.
      */
-    const runtimeXNodePropertyBindings: RuntimeXNodePropertyBinding[] = [];
+    const runtimePVNodePropertyBindings: RuntimePVNodePropertyBinding[] = [];
     for (const {
         producer: producerNode,
         outputIndex: producerOutputIndex,
@@ -107,20 +107,20 @@ function instantiateNode<TNode extends EvaluatableNode> (
                 producerOutputIndex,
             );
         } else {
-            const runtimeXNodePropertyBinding = linkXNode(
+            const runtimePVNodePropertyBinding = linkPVNode(
                 consumerNode,
                 consumerInputPath,
                 producer,
                 producerOutputIndex,
             );
-            if (runtimeXNodePropertyBinding) {
-                runtimeXNodePropertyBindings.push(runtimeXNodePropertyBinding);
+            if (runtimePVNodePropertyBinding) {
+                runtimePVNodePropertyBindings.push(runtimePVNodePropertyBinding);
             }
         }
     }
 
     // Create the dependency evaluation.
-    const dependencyEvaluation = new DependencyEvaluation(runtimeXNodePropertyBindings);
+    const dependencyEvaluation = new DependencyEvaluation(runtimePVNodePropertyBindings);
 
     // Create the evaluation record.
     let evaluation: PoseNode | RuntimeNodeEvaluation;
@@ -130,8 +130,8 @@ function instantiateNode<TNode extends EvaluatableNode> (
         evaluation = consumerNode;
     } else {
         // Otherwise, create the evaluation record.
-        const xNodeEvaluation = new RuntimeXNodeEvaluation(consumerNode, dependencyEvaluation);
-        evaluation = xNodeEvaluation;
+        const pureValueNodeEvaluation = new RuntimePVNodeEvaluation(consumerNode, dependencyEvaluation);
+        evaluation = pureValueNodeEvaluation;
     }
 
     instantiationMap.set(node, evaluation);
@@ -140,7 +140,7 @@ function instantiateNode<TNode extends EvaluatableNode> (
 
 class DependencyEvaluation implements PoseNodeDependencyEvaluation {
     constructor (
-        bindingEvaluations: readonly RuntimeXNodePropertyBinding[],
+        bindingEvaluations: readonly RuntimePVNodePropertyBinding[],
     ) {
         this._bindingEvaluations = bindingEvaluations;
     }
@@ -155,12 +155,12 @@ class DependencyEvaluation implements PoseNodeDependencyEvaluation {
         }
     }
 
-    private _bindingEvaluations: readonly RuntimeXNodePropertyBinding[];
+    private _bindingEvaluations: readonly RuntimePVNodePropertyBinding[];
 }
 
-class RuntimeXNodeEvaluation {
+class RuntimePVNodeEvaluation {
     constructor (
-        private _node: XNode,
+        private _node: PureValueNode,
         private _dependency: DependencyEvaluation,
     ) {
         this._outputs = new Array(_node.outputCount);
@@ -196,7 +196,7 @@ class RuntimeXNodeEvaluation {
     protected _outputs: unknown[];
 }
 
-type RuntimeNodeEvaluation = PoseNode | RuntimeXNodeEvaluation;
+type RuntimeNodeEvaluation = PoseNode | RuntimePVNodeEvaluation;
 
 function linkPoseNode (
     consumerNode: PoseNode,
@@ -255,15 +255,15 @@ function linkPoseNode (
     consumerProperty[consumerElementIndex] = producerNode;
 }
 
-interface RuntimeXNodePropertyBinding {
+interface RuntimePVNodePropertyBinding {
     evaluate(): void;
 }
 
-class RuntimeXNodePlainPropertyBinding implements RuntimeXNodePropertyBinding {
+class RuntimePVNodePlainPropertyBinding implements RuntimePVNodePropertyBinding {
     constructor (
         private _consumerNode: EvaluatableNode,
         private _consumerPropertyKey: string,
-        private _producerRecord: RuntimeXNodeEvaluation,
+        private _producerRecord: RuntimePVNodeEvaluation,
         private _producerOutputIndex: number,
     ) {
     }
@@ -274,12 +274,12 @@ class RuntimeXNodePlainPropertyBinding implements RuntimeXNodePropertyBinding {
     }
 }
 
-class RuntimeXNodeArrayElementPropertyBinding implements RuntimeXNodePropertyBinding {
+class RuntimePVNodeArrayElementPropertyBinding implements RuntimePVNodePropertyBinding {
     constructor (
         private _consumerNode: EvaluatableNode,
         private _consumerPropertyKey: string,
         private _consumerElementIndex: number,
-        private _producerRecord: RuntimeXNodeEvaluation,
+        private _producerRecord: RuntimePVNodeEvaluation,
         private _producerOutputIndex: number,
     ) {
     }
@@ -290,12 +290,12 @@ class RuntimeXNodeArrayElementPropertyBinding implements RuntimeXNodePropertyBin
     }
 }
 
-function linkXNode (
+function linkPVNode (
     consumerNode: EvaluatableNode,
     consumerInputPath: NodeInputPath,
-    producerRecord: RuntimeXNodeEvaluation,
+    producerRecord: RuntimePVNodeEvaluation,
     producerOutputIndex: number,
-): RuntimeXNodePropertyBinding | undefined {
+): RuntimePVNodePropertyBinding | undefined {
     const [consumerPropertyKey, consumerElementIndex = -1] = consumerInputPath;
     if (!(consumerPropertyKey in consumerNode)) {
         // Invalid binding.
@@ -308,7 +308,7 @@ function linkXNode (
     // Plain property binding.
 
     if (consumerElementIndex < 0) {
-        return new RuntimeXNodePlainPropertyBinding(
+        return new RuntimePVNodePlainPropertyBinding(
             consumerNode,
             consumerPropertyKey,
             producerRecord,
@@ -331,7 +331,7 @@ function linkXNode (
         return undefined;
     }
 
-    return new RuntimeXNodeArrayElementPropertyBinding(
+    return new RuntimePVNodeArrayElementPropertyBinding(
         consumerNode,
         consumerPropertyKey,
         consumerElementIndex,

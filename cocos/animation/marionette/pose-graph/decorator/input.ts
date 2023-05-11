@@ -4,7 +4,7 @@ import { error, js } from '../../../../core';
 import { NodeInputMappingOptions, globalNodeInputManager } from '../foundation/authoring/input-authoring';
 import { PoseGraphType } from '../foundation/type-system';
 import { PoseNode } from '../pose-node';
-import { XNode } from '../x-node';
+import { PureValueNode } from '../pure-value-node';
 
 export type { NodeInputMappingOptions };
 
@@ -22,7 +22,7 @@ export type { NodeInputMappingOptions };
  *
  * @zh 生成的装饰器对要装饰的属性所属的类有要求：
  * - 如果结点输入选项中指定了输入类型为姿势，则所属类必须是 `PoseNode` 的子类。
- * - 否则，所属类必须是 `PoseNode` 或 `XNode` 的子类。
+ * - 否则，所属类必须是 `PoseNode` 或 `PureValueNode` 的子类。
  * 如果所属类不符合要求，此装饰器无效。
  *
  * 如果要装饰的属性 **不是** 数组属性，则该属性将映射为一项输入；
@@ -30,7 +30,7 @@ export type { NodeInputMappingOptions };
  *
  * @en The generated has requirements on the class to which the decorating property belongs:
  * - If the node input option specifies that the input type is pose, then the belonging class should be subclass of `PoseNode`.
- * - Otherwise, the belonging class should be subclass of either `PoseNode` or `XNode`.
+ * - Otherwise, the belonging class should be subclass of either `PoseNode` or `PureValueNode`.
  * The decorator takes no effect if the belonging class does not fulfill the requirements.
  *
  * If the decorating property is **NOT** an array, the property will be mapped as an input.
@@ -51,8 +51,8 @@ export function input (options: NodeInputMappingOptions): PropertyDecorator {
         }
         if (
             !js.isChildClassOf(targetConstructor, PoseNode)
-            && !js.isChildClassOf(targetConstructor, XNode)) {
-            error(`@input can be only applied to fields of subclasses of PoseNode or XNode.`);
+            && !js.isChildClassOf(targetConstructor, PureValueNode)) {
+            error(`@input can be only applied to fields of subclasses of PoseNode or PureValueNode.`);
             return;
         }
         globalNodeInputManager.setPropertyNodeInputRecord(targetConstructor, propertyKey, options);

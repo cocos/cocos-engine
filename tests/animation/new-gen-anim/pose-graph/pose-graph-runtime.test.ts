@@ -13,7 +13,7 @@ import { poseGraphOp } from "../../../../cocos/animation/marionette/pose-graph/o
 import { PoseGraphType } from "../../../../cocos/animation/marionette/pose-graph/foundation/type-system";
 import { getTheOnlyInputKey, getTheOnlyOutputKey, UnimplementedPoseNode } from "./utils/misc";
 import { PoseNode } from "../../../../cocos/animation/marionette/pose-graph/pose-node";
-import { XNode } from "../../../../cocos/animation/marionette/pose-graph/x-node";
+import { PureValueNode } from "../../../../cocos/animation/marionette/pose-graph/pure-value-node";
 
 describe(`Pose node instantiation`, () => {
     test(`Should be instantiated at animation graph initialization stage`, () => {
@@ -230,19 +230,19 @@ describe(`Pose node reentering`, () => {
 });
 
 describe(`Pose node ticking`, () => {
-    test(`XNode dependencies should be evaluated before pose node updating`, () => {
-        let xNodeOutputValue = 0.0;
+    test(`PureValueNode dependencies should be evaluated before pose node updating`, () => {
+        let pvNodeOutputValue = 0.0;
     
         const poseNodeUpdateMethodMock = jest.fn();
-        const xNodeEvaluateMethodMock = jest.fn(() => xNodeOutputValue);
+        const pvNodeEvaluateMethodMock = jest.fn(() => pvNodeOutputValue);
     
-        class ObservedXNode extends XNode {
+        class ObservedPVNode extends PureValueNode {
             constructor() {
                 super([PoseGraphType.FLOAT]);
             }
     
             public selfEvaluate(outputs: unknown[]): void {
-                outputs[0] = xNodeEvaluateMethodMock();
+                outputs[0] = pvNodeEvaluateMethodMock();
             }
         }
     
@@ -265,17 +265,17 @@ describe(`Pose node ticking`, () => {
         const layer = animationGraph.addLayer();
         const poseState = layer.stateMachine.addPoseState();
         const poseNode = poseState.graph.addNode(new ObservedPoseNode());
-        const xNode = poseState.graph.addNode(new ObservedXNode());
+        const pvNode = poseState.graph.addNode(new ObservedPVNode());
         const keys = poseGraphOp.getInputKeys(poseNode);
         expect(keys).toHaveLength(1);
-        poseGraphOp.connectNode(poseState.graph, poseNode, keys[0], xNode, getTheOnlyOutputKey(xNode));
+        poseGraphOp.connectNode(poseState.graph, poseNode, keys[0], pvNode, getTheOnlyOutputKey(pvNode));
         poseGraphOp.connectNode(poseState.graph, poseState.graph.outputNode, getTheOnlyInputKey(poseState.graph.outputNode), poseNode);
         layer.stateMachine.connect(layer.stateMachine.entryState, poseState);
     
         const node = new Node();
         for (let i = 0; i < 2; ++i) {
-            // Change the x-node's evaluation result.
-            xNodeOutputValue = 0.1 + 0.1 * i;
+            // Change the pv-node's evaluation result.
+            pvNodeOutputValue = 0.1 + 0.1 * i;
     
             const evalMock = new AnimationGraphEvalMock(node, animationGraph);
             evalMock.step(0.2);
@@ -283,19 +283,19 @@ describe(`Pose node ticking`, () => {
             // Pose node's doUpdate() should have been called.
             expect(poseNodeUpdateMethodMock).toHaveBeenCalledTimes(1);
     
-            // X-node's evaluate() should have been called.
-            expect(xNodeEvaluateMethodMock).toHaveBeenCalledTimes(1);
+            // PV-node's evaluate() should have been called.
+            expect(pvNodeEvaluateMethodMock).toHaveBeenCalledTimes(1);
     
-            // X-node's evaluate() should happen before Pose node's doUpdate().
-            expect(xNodeEvaluateMethodMock.mock.invocationCallOrder[0]).toBeLessThan(
+            // PV-node's evaluate() should happen before Pose node's doUpdate().
+            expect(pvNodeEvaluateMethodMock.mock.invocationCallOrder[0]).toBeLessThan(
                 poseNodeUpdateMethodMock.mock.invocationCallOrder[0],
             );
     
-            // Pose nodes's doUpdate() should have received the x-node's return.
-            expect(poseNodeUpdateMethodMock.mock.calls[0][0]).toBe(xNodeEvaluateMethodMock.mock.results[0].value);
+            // Pose nodes's doUpdate() should have received the pv-node's return.
+            expect(poseNodeUpdateMethodMock.mock.calls[0][0]).toBe(pvNodeEvaluateMethodMock.mock.results[0].value);
     
             poseNodeUpdateMethodMock.mockClear();
-            xNodeEvaluateMethodMock.mockClear();
+            pvNodeEvaluateMethodMock.mockClear();
         }
     });
 });

@@ -4,7 +4,14 @@ import { PoseGraphType } from './foundation/type-system';
 
 type Outputs = unknown[];
 
-export abstract class XNode extends PoseGraphNode {
+/**
+ * Base class of all pure value nodes in pose graph.
+ *
+ * Pure value nodes are nodes in pose graph that yields non-pose-object value(s).
+ *
+ * Sometimes, pure values nodes are also abbreviated as pv nodes.
+ */
+export abstract class PureValueNode extends PoseGraphNode {
     constructor (outputTypes: readonly PoseGraphType[]) {
         super();
         this._outputTypes = outputTypes;
@@ -18,7 +25,7 @@ export abstract class XNode extends PoseGraphNode {
         return this._outputTypes[outputIndex];
     }
 
-    public link (context: XNodeLinkContext) {
+    public link (context: PureValueNodeLinkContext) {
     }
 
     private _outputTypes: readonly PoseGraphType[] = [];
@@ -26,7 +33,7 @@ export abstract class XNode extends PoseGraphNode {
     public abstract selfEvaluate(outputs: Outputs): void;
 }
 
-export abstract class SingleOutputXNode<TValue = unknown> extends XNode {
+export abstract class SingleOutputPVNode<TValue = unknown> extends PureValueNode {
     constructor (outputType: PoseGraphType) {
         super([outputType]);
     }
@@ -38,6 +45,6 @@ export abstract class SingleOutputXNode<TValue = unknown> extends XNode {
     protected abstract selfEvaluateDefaultOutput(): TValue;
 }
 
-export interface XNodeLinkContext {
+export interface PureValueNodeLinkContext {
     getVar(name: string): VarInstance | undefined;
 }

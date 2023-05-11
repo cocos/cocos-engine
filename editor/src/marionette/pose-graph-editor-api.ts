@@ -3,7 +3,8 @@ import {
     getPoseGraphNodeEditorMetadata, PoseGraphCreateNodeContext, PoseGraphNodeAppearanceOptions,
 } from "../../../cocos/animation/marionette/pose-graph/foundation/authoring/node-authoring";
 import { js } from "../../../cocos/core/utils";
-import { PoseNode, XNode } from "../../exports/new-gen-anim";
+import { PoseNode } from "../../../cocos/animation/marionette/pose-graph/pose-node";
+import { PureValueNode } from "../../../cocos/animation/marionette/pose-graph/pure-value-node";
 
 type Constructor<T = unknown> = new (...args: any[]) => T;
 
@@ -19,10 +20,10 @@ export function* getCreatePoseGraphNodeEntries(
 ): Iterable<PoseGraphCreateNodeEntry> {
     type AbstractedConstructor<T = unknown> = abstract new (...args: any[]) => T;
 
-    if ((classConstructor as AbstractedConstructor) === PoseNode || (classConstructor as AbstractedConstructor) === XNode) {
+    if ((classConstructor as AbstractedConstructor) === PoseNode || (classConstructor as AbstractedConstructor) === PureValueNode) {
         return;
     }
-    const nodeClassMetadata = getPoseGraphNodeEditorMetadata(classConstructor as Constructor<PoseNode | XNode>);
+    const nodeClassMetadata = getPoseGraphNodeEditorMetadata(classConstructor as Constructor<PoseNode | PureValueNode>);
     if (nodeClassMetadata) {
         if (nodeClassMetadata.factory) {
             yield* nodeClassMetadata.factory.listEntries(createNodeContext);
@@ -42,9 +43,9 @@ export function createPoseGraphNode(
     classConstructor: Constructor<PoseGraphNode>,
     arg: unknown,
 ): PoseGraphNode {
-    const nodeClassMetadata = getPoseGraphNodeEditorMetadata(classConstructor as Constructor<PoseNode | XNode>);
+    const nodeClassMetadata = getPoseGraphNodeEditorMetadata(classConstructor as Constructor<PoseNode | PureValueNode>);
     if (nodeClassMetadata?.factory) {
-        return nodeClassMetadata.factory.create(arg) as PoseNode | XNode;
+        return nodeClassMetadata.factory.create(arg) as PoseNode | PureValueNode;
     }
     return new classConstructor();
 }
@@ -55,7 +56,7 @@ export function getNodeTitle(node: PoseGraphNode) {
     if (node.getTitle) {
         return node.getTitle();
     }
-    const classConstructor = node.constructor as Constructor<PoseNode | XNode>;
+    const classConstructor = node.constructor as Constructor<PoseNode | PureValueNode>;
     const metadata = getPoseGraphNodeEditorMetadata(classConstructor);
     if (metadata?.menu) {
         return metadata.menu.split('/').pop() ?? '';

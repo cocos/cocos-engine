@@ -1,6 +1,6 @@
 import { PoseNode } from '../pose-node';
 import { PoseGraphNodeInputInsertId, PoseGraphInputKey, globalNodeInputManager } from '../foundation/authoring/input-authoring';
-import { XNode } from '../x-node';
+import { PureValueNode } from '../pure-value-node';
 import { assertIsTrue, error } from '../../../../core';
 import { PoseGraphType } from '../foundation/type-system';
 import { PoseGraphNode } from '../foundation/pose-graph-node';
@@ -41,7 +41,7 @@ export function getInputConstantValue (node: PoseGraphNode, key: PoseGraphInputK
         // Pose input's "constant value" is defined as `null`.
         return null;
     }
-    return getXNodeInputConstantValue(node, key);
+    return getPureValueInputConstantValue(node, key);
 }
 
 export function getInputBinding (graph: PoseGraph, node: PoseGraphNode, key: PoseGraphInputKey): Readonly<{
@@ -69,7 +69,7 @@ export const getOutputKeys = (() => {
     return (node: PoseGraphNode): readonly OutputKey[] => {
         if (node instanceof PoseNode) {
             return poseNodeOutputKeys;
-        } else if (node instanceof XNode) {
+        } else if (node instanceof PureValueNode) {
             // TODO: optimize me
             const outputCount = node.outputCount;
             return Array.from({ length: outputCount }, (_, i) => i);
@@ -82,7 +82,7 @@ export const getOutputKeys = (() => {
 export function getOutputType(node: PoseGraphNode, outputId: OutputKey) {
     if (node instanceof PoseNode) {
         return PoseGraphType.POSE;
-    } else if (node instanceof XNode) {
+    } else if (node instanceof PureValueNode) {
         const outputIndex = Number(outputId);
         if (outputIndex < 0 || outputIndex >= node.outputCount) {
             throw new Error(`${node} does not have specified output key ${outputId}`);
@@ -110,7 +110,7 @@ export function connectNode (graph: PoseGraph, node: PoseGraphNode, key: PoseGra
 
     let outputIndex = 0;
     let outputType: PoseGraphType;
-    if (producer instanceof XNode) {
+    if (producer instanceof PureValueNode) {
         if (typeof outputKey !== 'number') {
             error(`Output key is not specified.`);
             return;
@@ -177,7 +177,7 @@ export function hasInputBinding (
     return binding.producer === producerNode && binding.outputIndex === producerOutputKey;
 }
 
-function getXNodeInputConstantValue (node: PoseGraphNode, inputKey: PoseGraphInputKey): unknown {
+function getPureValueInputConstantValue (node: PoseGraphNode, inputKey: PoseGraphInputKey): unknown {
     const [
         propertyKey,
         elementIndex = -1,

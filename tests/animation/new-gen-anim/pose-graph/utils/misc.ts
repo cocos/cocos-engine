@@ -5,7 +5,7 @@ import { Pose } from "../../../../../cocos/animation/core/pose";
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext } from "../../../../../cocos/animation/marionette/animation-graph-context";
 import { Quat, Vec3 } from "../../../../../exports/base";
 import { PoseNode } from "../../../../../cocos/animation/marionette/pose-graph/pose-node";
-import { XNode } from "../../../../../cocos/animation/marionette/pose-graph/x-node";
+import { PureValueNode } from "../../../../../cocos/animation/marionette/pose-graph/pure-value-node";
 
 export function normalizeNodeInputMetadata(nodeInputMetadata?: poseGraphOp.InputMetadata) {
     return nodeInputMetadata ? {
@@ -76,7 +76,7 @@ export class UnimplementedPoseNode extends PoseNode {
     }
 }
 
-export class UnimplementedXNode extends XNode {
+export class UnimplementedPVNode extends PureValueNode {
     public selfEvaluate(outputs: unknown[]): void {
         throw new Error("Method not implemented.");
     }
