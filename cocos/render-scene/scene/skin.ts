@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../../core';
 import { SkinInfo } from '../../scene-graph';
 
 /**
@@ -75,5 +74,3 @@ export class Skin {
         this._sssIntensity = skinInfo.sssIntensity;
     }
 }
-
-cclegacy.Skin = Skin;
