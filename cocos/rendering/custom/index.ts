@@ -27,7 +27,7 @@ import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
-import { CustomPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
+import { CustomPipelineBuilder, SkinPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { WebProgramLibrary } from './web-program-library';
