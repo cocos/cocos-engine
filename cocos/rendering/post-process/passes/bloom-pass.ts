@@ -19,12 +19,6 @@ export class BloomPass extends SettingPass {
     effectName = 'pipeline/post-process/bloom';
     outputNames = ['BloomColor']
 
-    checkEnable (camera: Camera) {
-        const enable = super.checkEnable(camera);
-        const setting = this.setting;
-        return enable && !!setting && setting.enabledInHierarchy;
-    }
-
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);
         const cameraName = `Camera${cameraID}`;

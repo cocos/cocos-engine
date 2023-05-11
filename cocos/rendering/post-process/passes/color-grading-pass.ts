@@ -15,12 +15,6 @@ export class ColorGradingPass extends SettingPass {
     effectName = 'pipeline/post-process/color-grading';
     outputNames = ['ColorGrading']
 
-    checkEnable (camera: Camera) {
-        const enable = super.checkEnable(camera);
-        const setting = this.setting;
-        return enable && !!setting && setting.enabledInHierarchy;
-    }
-
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);
         const area = this.getRenderArea(camera);
