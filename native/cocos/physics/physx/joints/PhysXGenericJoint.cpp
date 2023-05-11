@@ -101,8 +101,8 @@ void PhysXGenericJoint::setConstraintMode(uint32_t index, uint32_t mode) {
 
 void PhysXGenericJoint::setLinearLimit(uint32_t index, float lower, float upper) {
     assert(index < 3); // linear index should be 1, 2, or 3
-    _linearLimit.lower[index] = -upper;
-    _linearLimit.upper[index] = -lower;
+    _linearLimit.lower[index] = lower;
+    _linearLimit.upper[index] = upper;
     updateLinearLimit();
 }
 
@@ -202,17 +202,17 @@ void PhysXGenericJoint::setDriverMode(uint32_t index, uint32_t mode) {
 
 void PhysXGenericJoint::setLinearMotorTarget(float x, float y, float z) {
     auto& p = _linearMotor.target;
-    p.x = -x;
-    p.y = -y;
-    p.z = -z;
+    p.x = x;
+    p.y = y;
+    p.z = z;
     this->updateDrivePosition();
 }
 
 void PhysXGenericJoint::setLinearMotorVelocity(float x, float y, float z) {
     auto& v = _linearMotor.velocity;
-    v.x = -x;
-    v.y = -y;
-    v.z = -z;
+    v.x = x;
+    v.y = y;
+    v.z = z;
     this->updateDriveVelocity();
 }
 
@@ -225,9 +225,9 @@ void PhysXGenericJoint::setLinearMotorForceLimit(float limit) {
 
 void PhysXGenericJoint::setAngularMotorTarget(float x, float y, float z) {
     auto& p = _angularMotor.target;
-    p.x = -x;
-    p.y = -y;
-    p.z = -z;
+    p.x = x;
+    p.y = y;
+    p.z = z;
     this->updateDrivePosition();
 }
 
@@ -323,8 +323,8 @@ void PhysXGenericJoint::updateLinearLimit() {
         joint->setLinearLimit(physx::PxD6Axis::Enum::eY, limity);
     }
     if (_linearLimit.z == physx::PxD6Motion::Enum::eLIMITED) {
-        limity.upper = upper[2];
-        limity.lower = lower[2];
+        limitz.upper = upper[2];
+        limitz.lower = lower[2];
         joint->setLinearLimit(physx::PxD6Axis::Enum::eZ, limity);
     }
 }

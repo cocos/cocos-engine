@@ -29,7 +29,7 @@ import { error, IVec3Like, Mat4, Quat, Vec3, toRadian } from '../../../core';
 import { ConfigurableConstraint, EConstraintMode, EConstraintType, EDriverMode, PhysicsSystem } from '../../framework';
 import { bt } from '../instantiated';
 import { BulletRigidBody } from '../bullet-rigid-body';
-import { BulletCache, CC_QUAT_0, CC_QUAT_1, CC_V3_0, CC_MAT4_0 } from '../bullet-cache';
+import { BulletCache, CC_QUAT_0, CC_QUAT_1, CC_V3_0, CC_MAT4_0, CC_V3_1 } from '../bullet-cache';
 import { cocos2BulletQuat, cocos2BulletVec3, force2Impulse } from '../bullet-utils';
 
 enum RotateOrder {
@@ -50,7 +50,6 @@ enum BulletDofAxis {
     SWING2 = 5,
 }
 
-// TODO(yiwenxue): should we sync all state whenever the related setting changed?
 export class BulletConfigurableConstraint extends BulletConstraint implements IConfigurableConstraint {
     private _setLimit (v: EConstraintMode, axis: number, lower: number, upper: number): void  {
         switch (v) {
@@ -214,25 +213,25 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
         case 3:
             axis = BulletDofAxis.TWIST;
             mode = ad.twistDrive;
-            target = toRadian(ad.targetOrientation.x);
-            velocity = toRadian(ad.targetVelocity.x);
+            target = -toRadian(ad.targetOrientation.x);
+            velocity = -toRadian(ad.targetVelocity.x);
             break;
         case 4: axis = BulletDofAxis.SWING1;
             mode = ad.swingDrive1;
-            target = toRadian(ad.targetOrientation.y);
-            velocity = toRadian(ad.targetVelocity.y);
+            target = -toRadian(ad.targetOrientation.y);
+            velocity = -toRadian(ad.targetVelocity.y);
             break;
         case 5: axis = BulletDofAxis.SWING2;
             mode = ad.swingDrive2;
-            target = toRadian(ad.targetOrientation.z);
-            velocity = toRadian(ad.targetVelocity.z);
+            target = -toRadian(ad.targetOrientation.z);
+            velocity = -toRadian(ad.targetVelocity.z);
             break;
         default: break;
         }
         const strength = index > 2 ? ad.strength : ld.strength;
         bt.Generic6DofSpring2Constraint_setServoTarget(this._impl, axis, target);
         if (mode === EDriverMode.SERVO) {
-            bt.Generic6DofSpring2Constraint_setTargetVelocity(this._impl, axis, -target * strength * 0.1);
+            bt.Generic6DofSpring2Constraint_setTargetVelocity(this._impl, axis, target * strength * 0.1);
         } else if (mode === EDriverMode.INDUCTION) {
             bt.Generic6DofSpring2Constraint_setTargetVelocity(this._impl, axis, velocity);
         }
@@ -372,16 +371,14 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
 
         const axisX = cs.axis;
         const axisY = cs.secondaryAxis;
-        const axisZ = Vec3.cross(new Vec3(), axisX, axisY);
+        const axisZ = Vec3.cross(CC_V3_1, axisX, axisY);
 
-        CC_MAT4_0.set(
-            axisX.x, axisY.x, axisZ.x, 0,
-            axisX.y, axisY.y, axisZ.y, 0,
-            axisX.z, axisY.z, axisZ.z, 0,
-            0, 0, 0, 1,
-        );
-
-        CC_MAT4_0.getRotation(rot_0);
+        const mat = Mat4.set(CC_MAT4_0,
+            axisX.x, axisX.y, axisX.z, 0,
+            axisY.x, axisY.y, axisY.z, 0,
+            axisZ.x, axisZ.y, axisZ.z, 0,
+            0, 0, 0, 1);
+        mat.getRotation(rot_0);
 
         cocos2BulletQuat(quat, rot_0);
         bt.Transform_setRotation(trans0, quat);
@@ -392,7 +389,6 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
             Quat.multiply(rot_0, node.worldRotation, rot_0);
             Quat.invert(rot_1, cb.node.worldRotation);
             Quat.multiply(rot_0, rot_1, rot_0);
-
             if (cs.autoPivotB) {
                 Vec3.multiply(v3_0, cb.node.worldScale, cs.pivotA);
                 Vec3.transformQuat(v3_0, v3_0, node.worldRotation);

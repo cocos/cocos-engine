@@ -77,7 +77,6 @@ export class LinearLimitSettings  {
         }
     }
 
-    // TODO (yiwenxue): apply the scale of the node to the limit
     @type(Vec3)
     @tooltip('i18n:physics3d.constraint.linearLimit.upper')
     get upper () {
@@ -865,12 +864,16 @@ export class ConfigurableConstraint extends Constraint {
     onLoad () {
         super.onLoad();
         if (!EDITOR || cclegacy.GAME_VIEW) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error private member access
             this.linearLimitSettings._configurableConstraint = this;
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error private member access
             this.angularLimitSettings._configurableConstraint = this;
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error private member access
             this.linearDriverSettings._configurableConstraint = this;
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error private member access
             this.angularDriverSettings._configurableConstraint = this;
         }

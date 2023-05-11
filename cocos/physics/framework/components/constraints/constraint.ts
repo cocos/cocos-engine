@@ -51,9 +51,9 @@ export class Constraint extends Eventify(Component) {
 
     /**
      * @en
-     * The rigid body where the constraint is attached to.
+     * Gets the collider attached rigid-body.
      * @zh
-     * 约束附着的刚体。
+     * 获取碰撞器所绑定的刚体组件。
      */
     @type(RigidBody)
     @readOnly
@@ -65,9 +65,9 @@ export class Constraint extends Eventify(Component) {
 
     /**
      * @en
-     * The rigid body connected to the constraint, if not set, it will be connected to the world.
+     * Get or set the jointed rigid body, null means link to a static rigid body at the world origin.
      * @zh
-     * 约束连接的刚体， 未设置时为世界坐标系。
+     * 获取或设置关节连接的刚体，为空时表示链接到位于世界原点的静态刚体。
      */
     @type(RigidBody)
     @displayOrder(-1)
@@ -85,9 +85,9 @@ export class Constraint extends Eventify(Component) {
 
     /**
      * @en
-     * Whether to enable collision between the two rigid bodies.
+     * Get or set whether collision is turned on between two rigid bodies connected by a joint.
      * @zh
-     * 是否开启两个刚体之间的碰撞。
+     * 获取或设置关节连接的两刚体之间是否开启碰撞。
      */
     @displayOrder(0)
     @tooltip('i18n:physics3d.constraint.enableCollision')

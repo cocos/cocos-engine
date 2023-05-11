@@ -28,7 +28,14 @@ import { IVec3Like, Vec3, Quat, Mat4, error, math, toRadian } from '../../../cor
 import { ConfigurableConstraint, EConstraintMode, EDriverMode } from '../../framework';
 import { IConfigurableConstraint } from '../../spec/i-physics-constraint';
 import { PX, _trans, getTempTransform, _pxtrans } from '../physx-adapter';
+import { PhysXInstance } from '../physx-instance';
 import { PhysXJoint } from './physx-joint';
+
+const CC_V3_0 = new Vec3();
+const CC_V3_1 = new Vec3();
+const CC_QUAT_0 = new Quat();
+const CC_QUAT_1 = new Quat();
+const CC_MAT4_0 = new Mat4();
 
 function getConstraintFlag (v: EConstraintMode) {
     switch (v) {
@@ -44,9 +51,9 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
     protected _setLinearLimit () {
         const linearLimit = this.constraint.linearLimitSettings;
 
-        const limitPairX = this._linearLimitX;
-        const limitPairY = this._linearLimitY;
-        const limitPairZ = this._linearLimitZ;
+        const limitPairX = PhysXConfigurableJoint._linearLimitX;
+        const limitPairY = PhysXConfigurableJoint._linearLimitY;
+        const limitPairZ = PhysXConfigurableJoint._linearLimitZ;
 
         const setLimitPair = (limitPair: any) => {
             if (linearLimit.enableSoftConstraint) {
@@ -68,27 +75,27 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         const lower = linearLimit.lower;
         const upper = linearLimit.upper;
         if (linearLimit.xMotion === EConstraintMode.LIMITED) {
-            limitPairX.lower = -upper.x;
-            limitPairX.upper = -lower.x;
+            limitPairX.lower = lower.x;
+            limitPairX.upper = upper.x;
             this._impl.setLinearLimit(PX.D6Axis.eX, limitPairX);
         }
 
         if (linearLimit.yMotion === EConstraintMode.LIMITED) {
-            limitPairX.lower = -upper.y;
-            limitPairX.upper = -lower.y;
+            limitPairY.lower = lower.y;
+            limitPairY.upper = upper.y;
             this._impl.setLinearLimit(PX.D6Axis.eY, limitPairY);
         }
 
         if (linearLimit.zMotion === EConstraintMode.LIMITED) {
-            limitPairX.lower = -upper.z;
-            limitPairX.upper = -lower.z;
+            limitPairZ.lower = lower.z;
+            limitPairZ.upper = upper.z;
             this._impl.setLinearLimit(PX.D6Axis.eZ, limitPairZ);
         }
     }
 
     protected _setSwingLimit () {
         const angularLimit = this.constraint.angularLimitSettings;
-        const limitCone = this._swingLimit;
+        const limitCone = PhysXConfigurableJoint._swingLimit;
 
         if (angularLimit.enableSoftConstraintSwing) {
             limitCone.stiffness = angularLimit.swingStiffness;
@@ -116,7 +123,7 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
 
     protected _setTwistLimit () {
         const angularLimit = this.constraint.angularLimitSettings;
-        const limitPair = this._twistLimit;
+        const limitPair = PhysXConfigurableJoint._twistLimit;
 
         if (angularLimit.enableSoftConstraintTwist) {
             limitPair.stiffness = angularLimit.twistStiffness;
@@ -164,7 +171,7 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         case 5: axis = PX.D6Drive.eSWING; driveMode = getSwingDriveMode(); break;
         default: break;
         }
-        const drive = this._drive[idx];
+        const drive = PhysXConfigurableJoint._drive[idx];
         if (idx >= 0 && idx < 3) {
             drive.forceLimit = com.linearDriverSettings.strength;
         } else if (idx < 6) {
@@ -185,18 +192,16 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
     protected _updateDriveTarget () {
         const linearTarget = this.constraint.linearDriverSettings.targetPosition;
         const angularTarget = this.constraint.angularDriverSettings.targetOrientation;
-        const quat = this._rot;
-        Quat.fromEuler(quat, -angularTarget.x, -angularTarget.y, -angularTarget.z); // no need to calculation radian for quat.fromEuler
+        const quat = Quat.fromEuler(CC_QUAT_0, angularTarget.x, angularTarget.y, angularTarget.z);
         getTempTransform(linearTarget, quat);
-        Vec3.multiplyScalar(_pxtrans.p, _pxtrans.p, -1);
         this._impl.setDrivePosition(_pxtrans, true);
     }
 
     protected _updateDriveVelocity () {
         const linearVelocity = this.constraint.linearDriverSettings.targetVelocity;
         const angularVelocity = this.constraint.angularDriverSettings.targetVelocity;
-        const lv = new Vec3(-linearVelocity.x, -linearVelocity.y, -linearVelocity.z);
-        const av = new Vec3(toRadian(-angularVelocity.x), toRadian(-angularVelocity.y), toRadian(-angularVelocity.z));
+        const lv = Vec3.set(CC_V3_0, linearVelocity.x, linearVelocity.y, linearVelocity.z);
+        const av = Vec3.set(CC_V3_1, toRadian(-angularVelocity.x), toRadian(-angularVelocity.y), toRadian(-angularVelocity.z));
         this._impl.setDriveVelocity(lv, av, true);
     }
 
@@ -331,17 +336,9 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         return this._com as ConfigurableConstraint;
     }
 
-    private _rot = new Quat(Quat.IDENTITY);
-    private _jointToleranceScale = new PX.TolerancesScale();
-    private _drive = [new PX.D6JointDrive(), new PX.D6JointDrive(),
-        new PX.D6JointDrive(), new PX.D6JointDrive(), new PX.D6JointDrive(), new PX.D6JointDrive()];
-    private _linearLimitX = new PX.PxJointLinearLimitPair(this._jointToleranceScale, 0, 0);
-    private _linearLimitY = new PX.PxJointLinearLimitPair(this._jointToleranceScale, 0, 0);
-    private _linearLimitZ = new PX.PxJointLinearLimitPair(this._jointToleranceScale, 0, 0);
-    private _twistLimit = new PX.PxJointAngularLimitPair(0, 0);
-    private _swingLimit = new PX.PxJointLimitCone(1.5, 1.5);
-
     onComponentSet (): void {
+        PhysXConfigurableJoint._initCache();
+
         const cs = this.constraint;
         this._impl = PX.createD6Joint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
         this.setBreakForce(cs.breakForce);
@@ -373,22 +370,23 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
 
         const axisX = cs.axis;
         const axisY = cs.secondaryAxis;
-        const axisZ = Vec3.cross(new Vec3(), axisX, axisY);
+        const axisZ = Vec3.cross(CC_V3_0, axisX, axisY);
 
-        const mat = new Mat4(
-            axisX.x, axisY.x, axisZ.x, 0,
-            axisX.y, axisY.y, axisZ.y, 0,
-            axisX.z, axisY.z, axisZ.z, 0,
-            0, 0, 0, 1,
-        );
+        const _rot = CC_QUAT_0;
+        const mat = Mat4.set(CC_MAT4_0,
+            axisX.x, axisX.y, axisX.z, 0,
+            axisY.x, axisY.y, axisY.z, 0,
+            axisZ.x, axisZ.y, axisZ.z, 0,
+            0, 0, 0, 1);
+        mat.getRotation(_rot);
+
         Vec3.multiply(pos, cs.node.worldScale, cs.pivotA);
-        mat.getRotation(this._rot);
-        this._impl.setLocalPose(0, getTempTransform(pos, this._rot));
+        this._impl.setLocalPose(0, getTempTransform(pos, _rot));
 
         if (cb) {
-            Quat.multiply(this._rot, node.worldRotation, this._rot);
+            Quat.multiply(_rot, node.worldRotation, _rot);
             Quat.invert(rot, cb.node.worldRotation);
-            Quat.multiply(this._rot, rot, this._rot);
+            Quat.multiply(_rot, rot, _rot);
             if (cs.autoPivotB) {
                 Vec3.multiply(pos, cs.node.worldScale, cs.pivotA);
                 Vec3.transformQuat(pos, pos, node.worldRotation);
@@ -402,9 +400,9 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
             Vec3.multiply(pos, node.worldScale, cs.pivotA);
             Vec3.transformQuat(pos, pos, node.worldRotation);
             Vec3.add(pos, pos, node.worldPosition);
-            Quat.multiply(this._rot, node.worldRotation, this._rot);
+            Quat.multiply(_rot, node.worldRotation, _rot);
         }
-        this._impl.setLocalPose(1, getTempTransform(pos, this._rot));
+        this._impl.setLocalPose(1, getTempTransform(pos, _rot));
     }
 
     updateScale0 (): void {
@@ -413,5 +411,43 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
 
     updateScale1 (): void {
         this.updateFrames();
+    }
+
+    private static _jointToleranceScale: any = null;
+    private static _linearLimitX: any = null;
+    private static _linearLimitY: any = null;
+    private static _linearLimitZ: any = null;
+    private static _twistLimit: any = null;
+    private static _swingLimit: any = null;
+    private static _drive_x: any = null;
+    private static _drive_y: any = null;
+    private static _drive_z: any = null;
+    private static _drive_twist: any=  null;
+    private static _drive_swing1: any= null;
+    private static _drive_swing2: any= null;
+    private static _drive: any[] = [];
+    private static _initCache () {
+        if (!PhysXConfigurableJoint._jointToleranceScale) {
+            PhysXConfigurableJoint._jointToleranceScale = PhysXInstance.physics.getTolerancesScale();
+            PhysXConfigurableJoint._linearLimitX = new PX.PxJointLinearLimitPair(PhysXConfigurableJoint._jointToleranceScale, 0, 0);
+            PhysXConfigurableJoint._linearLimitY = new PX.PxJointLinearLimitPair(PhysXConfigurableJoint._jointToleranceScale, 0, 0);
+            PhysXConfigurableJoint._linearLimitZ = new PX.PxJointLinearLimitPair(PhysXConfigurableJoint._jointToleranceScale, 0, 0);
+            PhysXConfigurableJoint._twistLimit =   new PX.PxJointAngularLimitPair(0, 0);
+            PhysXConfigurableJoint._swingLimit =   new PX.PxJointLimitCone(1.5, 1.5);
+            PhysXConfigurableJoint._drive_x =  new PX.D6JointDrive();
+            PhysXConfigurableJoint._drive_y = new PX.D6JointDrive();
+            PhysXConfigurableJoint._drive_z = new PX.D6JointDrive();
+            PhysXConfigurableJoint._drive_twist = new PX.D6JointDrive();
+            PhysXConfigurableJoint._drive_swing1 = new PX.D6JointDrive();
+            PhysXConfigurableJoint._drive_swing2 = new PX.D6JointDrive();
+            PhysXConfigurableJoint._drive = [
+                PhysXConfigurableJoint._drive_x,
+                PhysXConfigurableJoint._drive_y,
+                PhysXConfigurableJoint._drive_z,
+                PhysXConfigurableJoint._drive_twist,
+                PhysXConfigurableJoint._drive_swing1,
+                PhysXConfigurableJoint._drive_swing2,
+            ];
+        }
     }
 }
