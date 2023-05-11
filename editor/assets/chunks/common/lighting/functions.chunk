@@ -80,3 +80,20 @@ vec4 CalculateBoxProjectedDirection(vec3 R, vec3 worldPos, vec3 cubeCenterPos, v
   float weight = len < 0.0 ? 0.0 : 1.0;
   return vec4(P, weight);
 }
+
+// calculate planar world pos
+vec4 CalculatePlanarShadowPos(vec3 meshWorldPos, vec3 cameraPos, vec3 lightDir, vec4 plane) {
+  vec3 P = meshWorldPos;
+  vec3 L = lightDir;
+  vec3 N = plane.xyz;
+  float d = plane.w + 0.001;
+  float dist = (-d - dot(P, N)) / (dot(L, N) + EPSILON_LOWP);
+  vec3 shadowPos = P + L * dist;
+
+  // avoid z-fighting with shadow plane
+  vec3 view = normalize(cameraPos.xyz - shadowPos);
+  float viewLength = length(cameraPos.xyz - shadowPos);
+  shadowPos += view * min(1.0, 0.005 * viewLength);
+
+  return vec4(shadowPos, dist);
+}

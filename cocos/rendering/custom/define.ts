@@ -27,7 +27,7 @@ import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet,
     Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address } from '../../gfx';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
-import { Pipeline } from './pipeline';
+import { BasicPipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Vec2, Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
 import { ImageAsset, Material, Texture2D } from '../../asset/assets';
@@ -49,7 +49,7 @@ export enum AntiAliasing {
     FXAAHQ,
 }
 
-export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) {
+export function validPunctualLightsCulling (pipeline: BasicPipeline, camera: Camera) {
     const sceneData = pipeline.pipelineSceneData;
     const validPunctualLights = sceneData.validPunctualLights;
     validPunctualLights.length = 0;
@@ -186,7 +186,7 @@ class FxaaData {
         if (this.fxaaMaterial) return;
         this.fxaaMaterial = new Material();
         this.fxaaMaterial._uuid = 'builtin-fxaa-material';
-        this.fxaaMaterial.initialize({ effectName: 'pipeline/fxaa-hq' });
+        this.fxaaMaterial.initialize({ effectName: 'pipeline/post-process/fxaa-hq' });
         for (let i = 0; i < this.fxaaMaterial.passes.length; ++i) {
             this.fxaaMaterial.passes[i].tryCompile();
         }
@@ -199,7 +199,7 @@ class FxaaData {
 
 let fxaaData: FxaaData | null = null;
 export function buildFxaaPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputRT: string) {
     if (!fxaaData) {
         fxaaData = new FxaaData();
@@ -285,7 +285,7 @@ class BloomData {
         if (this.bloomMaterial) return;
         this.bloomMaterial = new Material();
         this.bloomMaterial._uuid = 'builtin-bloom-material';
-        this.bloomMaterial.initialize({ effectName: 'pipeline/bloom' });
+        this.bloomMaterial.initialize({ effectName: 'pipeline/post-process/bloom' });
         for (let i = 0; i < this.bloomMaterial.passes.length; ++i) {
             this.bloomMaterial.passes[i].tryCompile();
         }
@@ -297,7 +297,7 @@ class BloomData {
 }
 let bloomData: BloomData | null = null;
 export function buildBloomPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputRT: string,
     threshold = 0.1,
     iterations = 2,
@@ -458,7 +458,7 @@ class PostInfo {
 let postInfo: PostInfo | null = null;
 
 export function buildPostprocessPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     inputTex: string,
     antiAliasing: AntiAliasing = AntiAliasing.NONE) {
     if (!postInfo || (postInfo && postInfo.antiAliasing !== antiAliasing)) {
@@ -472,7 +472,7 @@ export function buildPostprocessPass (camera: Camera,
     const postprocessPassDS = `postprocessPassDS${cameraID}`;
     if (!ppl.containsResource(postprocessPassRTName)) {
         ppl.addRenderWindow(postprocessPassRTName, Format.BGRA8, width, height, camera.window);
-        ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.EXTERNAL);
     }
     ppl.updateRenderWindow(postprocessPassRTName, camera.window);
     ppl.updateDepthStencil(postprocessPassDS, width, height);
@@ -503,7 +503,7 @@ export function buildPostprocessPass (camera: Camera,
 }
 
 export function buildForwardPass (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     isOffScreen: boolean) {
     if (EDITOR) {
         ppl.setMacroInt('CC_PIPELINE_TYPE', 0);
@@ -521,7 +521,7 @@ export function buildForwardPass (camera: Camera,
         if (!isOffScreen) {
             ppl.addRenderWindow(forwardPassRTName, Format.BGRA8, width, height, camera.window);
         } else {
-            ppl.addRenderTarget(forwardPassRTName, Format.RGBA16F, width, height, ResourceResidency.MANAGED);
+            ppl.addRenderTarget(forwardPassRTName, Format.RGBA16F, width, height, ResourceResidency.PERSISTENT);
         }
         ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
@@ -551,7 +551,8 @@ export function buildForwardPass (camera: Camera,
         new Color(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w));
     forwardPass.addDepthStencil(forwardPassDSName, '_',
         isOffScreen ? LoadOp.CLEAR : getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
-        StoreOp.STORE,
+        // If the depth texture is used by subsequent passes, it must be set to store.
+        isOffScreen ? StoreOp.DISCARD : StoreOp.STORE,
         camera.clearDepth,
         camera.clearStencil,
         camera.clearFlag);
@@ -571,8 +572,9 @@ export function buildForwardPass (camera: Camera,
     return { rtName: forwardPassRTName, dsName: forwardPassDSName };
 }
 
+let shadowPass;
 export function buildShadowPass (passName: Readonly<string>,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     camera: Camera, light: Light, level: number,
     width: Readonly<number>, height: Readonly<number>) {
     const fboW = width;
@@ -589,19 +591,22 @@ export function buildShadowPass (passName: Readonly<string>,
     }
     ppl.updateRenderTarget(shadowMapName, fboW, fboH);
     ppl.updateDepthStencil(`${shadowMapName}Depth`, fboW, fboH);
-    const pass = ppl.addRasterPass(width, height, 'default');
-    pass.name = passName;
-    pass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
-    pass.addRenderTarget(shadowMapName, '_', LoadOp.CLEAR, StoreOp.STORE, new Color(1, 1, 1, camera.clearColor.w));
-    pass.addDepthStencil(`${shadowMapName}Depth`, '_', LoadOp.CLEAR, StoreOp.DISCARD,
-        camera.clearDepth, camera.clearStencil, ClearFlagBit.DEPTH_STENCIL);
-    const queue = pass.addQueue(QueueHint.RENDER_OPAQUE);
+    if (!level) {
+        shadowPass = ppl.addRasterPass(width, height, 'default');
+        shadowPass.name = passName;
+        shadowPass.setViewport(new Viewport(0, 0, fboW, fboH));
+        shadowPass.addRenderTarget(shadowMapName, '_', LoadOp.CLEAR, StoreOp.STORE, new Color(1, 1, 1, camera.clearColor.w));
+        shadowPass.addDepthStencil(`${shadowMapName}Depth`, '_', LoadOp.CLEAR, StoreOp.DISCARD,
+            camera.clearDepth, camera.clearStencil, ClearFlagBit.DEPTH_STENCIL);
+    }
+    const queue = shadowPass.addQueue(QueueHint.RENDER_OPAQUE);
     queue.addSceneOfCamera(camera, new LightInfo(light, level),
         SceneFlags.SHADOW_CASTER);
+    queue.setViewport(new Viewport(area.x, area.y, area.width, area.height));
 }
 
 export function buildReflectionProbePasss (camera: Camera,
-    ppl: Pipeline,
+    ppl: BasicPipeline,
     isOffScreen: boolean) {
     const probes = cclegacy.internal.reflectionProbeManager.getProbes();
     if (probes.length === 0) {
@@ -619,7 +624,7 @@ export function buildReflectionProbePasss (camera: Camera,
 }
 
 export function buildReflectionProbePass (camera: Camera,
-    ppl: Pipeline, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx: number) {
+    ppl: BasicPipeline, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx: number) {
     const cameraName = `Camera${faceIdx}`;
     const area = probe.renderArea();
     const width = area.x;
@@ -633,7 +638,7 @@ export function buildReflectionProbePass (camera: Camera,
 
     if (!ppl.containsResource(probePassRTName)) {
         ppl.addRenderWindow(probePassRTName, Format.RGBA8, width, height, renderWindow);
-        ppl.addDepthStencil(probePassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(probePassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.EXTERNAL);
     }
     ppl.updateRenderWindow(probePassRTName, renderWindow);
     ppl.updateDepthStencil(probePassDSName, width, height);
@@ -656,7 +661,7 @@ class CameraInfo {
     spotLightShadowNames = new Array<string>();
 }
 
-export function buildShadowPasses (cameraName: string, camera: Camera, ppl: Pipeline): CameraInfo {
+export function buildShadowPasses (cameraName: string, camera: Camera, ppl: BasicPipeline): CameraInfo {
     validPunctualLightsCulling(ppl, camera);
     const pipeline = ppl;
     const shadowInfo = pipeline.pipelineSceneData.shadows;
@@ -691,9 +696,9 @@ export function buildShadowPasses (cameraName: string, camera: Camera, ppl: Pipe
                 camera, mainLight, 0, mapWidth, mapHeight);
         } else {
             const csmLevel = pipeline.pipelineSceneData.csmSupported ? mainLight.csmLevel : 1;
+            cameraInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
             for (let i = 0; i < csmLevel; i++) {
-                cameraInfo.mainLightShadowNames[i] = `MainLightShadow${cameraName}`;
-                buildShadowPass(cameraInfo.mainLightShadowNames[i], ppl,
+                buildShadowPass(cameraInfo.mainLightShadowNames[0], ppl,
                     camera, mainLight, i, mapWidth, mapHeight);
             }
         }
@@ -717,7 +722,7 @@ export class GBufferInfo {
 }
 // deferred passes
 export function buildGBufferPass (camera: Camera,
-    ppl: Pipeline) {
+    ppl: BasicPipeline) {
     const cameraID = getCameraUniqueID(camera);
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -787,7 +792,7 @@ class LightingInfo {
 let lightingInfo: LightingInfo | null = null;
 
 // deferred lighting pass
-export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBufferInfo) {
+export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: GBufferInfo) {
     if (!lightingInfo) {
         lightingInfo = new LightingInfo();
     }
@@ -866,7 +871,7 @@ function getClearFlags (attachment: AttachmentType, clearFlag: ClearFlagBit, loa
 }
 
 export function buildUIPass (camera: Camera,
-    ppl: Pipeline) {
+    ppl: BasicPipeline) {
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
@@ -877,7 +882,7 @@ export function buildUIPass (camera: Camera,
     const dsUIAndProfilerPassDSName = `dsUIAndProfilerPassDS${cameraName}`;
     if (!ppl.containsResource(dsUIAndProfilerPassRTName)) {
         ppl.addRenderWindow(dsUIAndProfilerPassRTName, Format.BGRA8, width, height, camera.window);
-        ppl.addDepthStencil(dsUIAndProfilerPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(dsUIAndProfilerPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.EXTERNAL);
     }
     ppl.updateRenderWindow(dsUIAndProfilerPassRTName, camera.window);
     ppl.updateDepthStencil(dsUIAndProfilerPassDSName, width, height);
@@ -901,7 +906,7 @@ export function buildUIPass (camera: Camera,
     }
 }
 
-export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
+export function buildNativeForwardPass (camera: Camera, ppl: BasicPipeline) {
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
@@ -961,7 +966,7 @@ export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
     forwardPass.showStatistics = true;
 }
 
-export function buildNativeDeferredPipeline (camera: Camera, ppl: Pipeline) {
+export function buildNativeDeferredPipeline (camera: Camera, ppl: BasicPipeline) {
     const cameraID = getCameraUniqueID(camera);
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -1036,7 +1041,7 @@ export function buildNativeDeferredPipeline (camera: Camera, ppl: Pipeline) {
     }
 }
 
-export function updateCameraUBO (setter: any, camera: Readonly<Camera>, ppl: Readonly<Pipeline>) {
+export function updateCameraUBO (setter: any, camera: Readonly<Camera>, ppl: Readonly<BasicPipeline>) {
     const pipeline = cclegacy.director.root.pipeline;
     const sceneData = ppl.pipelineSceneData;
     const skybox = sceneData.skybox;
@@ -1106,6 +1111,7 @@ export function getDescBindingFromName (bindingName: string) {
     return -1;
 }
 
+const uniformMap: Map<string, Float32Array> = new Map();
 function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = false) {
     const constants = data.constants;
     const samplers = data.samplers;
@@ -1116,6 +1122,7 @@ function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = fa
     for (const [key, value] of constants) {
         const bindId = getDescBinding(key, descriptorSetData);
         if (bindId === -1) { continue; }
+        const uniformKey = `${layout}${bindId}`;
         let buffer = descriptorSet.getBuffer(bindId);
         let haveBuff = true;
         if (!buffer && !isUpdate) {
@@ -1125,7 +1132,15 @@ function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = fa
                 value.length * 4));
             haveBuff = false;
         }
-        if (isUpdate) buffer.update(new Float32Array(value));
+        if (isUpdate) {
+            let currUniform = uniformMap.get(uniformKey);
+            if (!currUniform) {
+                uniformMap.set(uniformKey, new Float32Array(value));
+                currUniform = uniformMap.get(uniformKey)!;
+            }
+            currUniform.set(value);
+            buffer.update(currUniform);
+        }
         if (!haveBuff) bindGlobalDesc(descriptorSet, bindId, buffer);
     }
     for (const [key, value] of textures) {

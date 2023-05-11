@@ -33,13 +33,16 @@
     console.info('injectWebAssembly ...');
 
     const oldWebAssemblyInstantiate = WebAssembly.instantiate;
+    const oldWebAssemblyCompile = WebAssembly.compile;
 
     WebAssembly.compile = function(bufferSource) {
         return new Promise((resolve, reject)=>{
             if (!bufferSource) {
                 reject('WebAssembly.compile: Invalid buffer source!');
-            }
-            else {
+            } else if (CC_EDITOR) {
+                // FIX EDITOR ERROR: WebAssembly.Compile is disallowed on the main thread, if the buffer size is larger than 4KB. Use WebAssembly.compile, or compile on a worker thread.
+                resolve(oldWebAssemblyCompile.call(WebAssembly, bufferSource));
+            } else {
                 resolve(new WebAssembly.Module(bufferSource));
             }
         });

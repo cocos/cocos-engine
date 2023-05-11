@@ -861,11 +861,6 @@ export class Model {
         }
         this._subModels[idx].initialize(subMeshData, mat.passes, this.getMacroPatches(idx));
 
-        // This is a temporary solution
-        // It should not be written in a fixed way, or modified by the user
-        this._subModels[idx].initPlanarShadowShader();
-        this._subModels[idx].initPlanarShadowInstanceShader();
-
         this._updateAttributesAndBinding(idx);
     }
 
@@ -1202,8 +1197,18 @@ export class Model {
             this._updateWorldBoundDescriptors(subModelIndex, subModel.worldBoundDescriptorSet);
         }
 
-        const shader = subModel.passes[0].getShaderVariant(subModel.patches)!;
-        this._updateInstancedAttributes(shader.attributes, subModel);
+        const attributes: Attribute[] = [];
+        const attributeSet = new Set<string>();
+        for (const pass of subModel.passes) {
+            const shader = pass.getShaderVariant(subModel.patches)!;
+            for (const attr of shader.attributes) {
+                if (!attributeSet.has(attr.name)) {
+                    attributes.push(attr);
+                    attributeSet.add(attr.name);
+                }
+            }
+        }
+        this._updateInstancedAttributes(attributes, subModel);
     }
 
     // sub-classes can override the following functions if needed

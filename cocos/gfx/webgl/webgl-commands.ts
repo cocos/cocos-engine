@@ -2101,7 +2101,7 @@ export function WebGLCmdFuncBindStates (
             }
 
             if (!vf32) {
-                error(`Buffer binding '${glBlock.name}' at set ${glBlock.set} binding ${glBlock.binding} is not bounded`);
+                // error(`Buffer binding '${glBlock.name}' at set ${glBlock.set} binding ${glBlock.binding} is not bounded`);
                 continue;
             }
 
@@ -2274,7 +2274,7 @@ export function WebGLCmdFuncBindStates (
                 const texUnit = glSampler.units[l];
 
                 if (!gpuDescriptor || !gpuDescriptor.gpuSampler) {
-                    error(`Sampler binding '${glSampler.name}' at set ${glSampler.set} binding ${glSampler.binding} index ${l} is not bounded`);
+                    // error(`Sampler binding '${glSampler.name}' at set ${glSampler.set} binding ${glSampler.binding} index ${l} is not bounded`);
                     continue;
                 }
 

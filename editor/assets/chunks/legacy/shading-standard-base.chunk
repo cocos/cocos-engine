@@ -8,6 +8,7 @@
 #include <common/data/unpack>
 #include <common/texture/texture-lod>
 #include <builtin/uniforms/cc-environment>
+#include <common/math/number>
 #include <common/lighting/functions>
 #if CC_USE_IBL
   #if CC_USE_DIFFUSEMAP
