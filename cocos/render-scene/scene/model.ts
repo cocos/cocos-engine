@@ -35,7 +35,7 @@ import { SubModel } from './submodel';
 import { IMacroPatch } from '../core/pass';
 import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON } from '../../core';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
-    BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture, InputAssembler } from '../../gfx';
+    BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
 import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
@@ -864,33 +864,6 @@ export class Model {
         this._subModels[idx].initialize(subMeshData, mat.passes, this.getMacroPatches(idx));
 
         this._updateAttributesAndBinding(idx);
-    }
-
-    public initSubModelWithIA (idx: number, subMeshData: RenderingSubMesh, mat: Material, ia: InputAssembler) {
-        this.initialize();
-
-        if (this._subModels[idx] == null) {
-            this._subModels[idx] = this._createSubModel();
-        } else {
-            this._subModels[idx].destroyWithOutIA(); // hack // 与下面成对出现
-        }
-        this._subModels[idx].initWithIA(subMeshData, mat.passes, ia, this.getMacroPatches(idx));
-
-        // This is a temporary solution
-        // It should not be written in a fixed way, or modified by the user
-        // this._subModels[idx].initPlanarShadowShader();
-        // this._subModels[idx].initPlanarShadowInstanceShader();
-
-        this._updateAttributesAndBinding(idx);
-    }
-
-    public destroyExtraSubModel (count: number) {
-        for (let i = this.subModels.length - 1; i > count; i--) {
-            if (this._subModels[i]) {
-                this._subModels[i].destroyWithOutIA();
-            }
-        }
-        this._subModels.length = count;
     }
 
     /**

@@ -298,6 +298,13 @@ export class MeshBuffer {
             iaRef.ia.destroy();
         }
         this._iaPool.length = 0;
+
+        // Destroy renderSubMesh
+        for (let i = 0; i < this._subMeshPool.length; ++i) {
+            const subMesh = this._subMeshPool[i];
+            subMesh.destroy();
+        }
+        this._subMeshPool.length = 0;
     }
 
     /**
@@ -469,9 +476,8 @@ export class MeshBuffer {
     }
 
     private createNewRenderSubMesh (iaRef: IIARef) {
-        // 能不能直接用现有的 ia 和各种信息？
+        // used meshBuffer but not used this ia
         const subMesh = new RenderingSubMesh(iaRef.vertexBuffers, this.attributes, PrimitiveMode.TRIANGLE_LIST, iaRef.indexBuffer); // hack
-        subMesh.initWithIA(this._iaInfo, iaRef.vertexBuffers, this.attributes, iaRef.indexBuffer);
         return subMesh;
     }
 }

@@ -275,71 +275,6 @@ export class SubModel {
         }
     }
 
-    public initWithIA (subMesh: RenderingSubMesh, passes: Pass[], ia: InputAssembler, patches: IMacroPatch[] | null = null): void {
-        const root = cclegacy.director.root as Root;
-        this._device = deviceManager.gfxDevice;
-        _dsInfo.layout = passes[0].localSetLayout;
-
-        this._inputAssembler = ia;
-        this._descriptorSet = this._device.createDescriptorSet(_dsInfo); // 同 ia 一样可以进行共享
-
-        const pipeline = (cclegacy.director.root as Root).pipeline;
-        const occlusionPass = pipeline.pipelineSceneData.getOcclusionQueryPass();
-        if (occlusionPass) {
-            const occlusionDSInfo = new DescriptorSetInfo(null!);
-            occlusionDSInfo.layout = occlusionPass.localSetLayout;
-            this._worldBoundDescriptorSet = this._device.createDescriptorSet(occlusionDSInfo);
-        }
-
-        this._subMesh = subMesh;
-        this._patches = patches;
-        this._passes = passes;
-
-        this._flushPassInfo();
-        if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) {
-            this.subMesh.genFlatBuffers();
-        }
-
-        this.priority = RenderPriority.DEFAULT;
-        const r = cclegacy.rendering;
-        // initialize resources for reflection material
-        if (((!r || !r.enableEffectImport) && passes[0].phase === getPhaseID('reflection'))
-        || (isEnableEffect() && passes[0].phaseID === r.getPhaseID(r.getPassID('default'), 'reflection'))) {
-            let texWidth = root.mainWindow!.width;
-            let texHeight = root.mainWindow!.height;
-            const minSize = 512;
-
-            if (texHeight < texWidth) {
-                texWidth = minSize * texWidth / texHeight;
-                texHeight = minSize;
-            } else {
-                texWidth = minSize;
-                texHeight = minSize * texHeight / texWidth;
-            }
-
-            this._reflectionTex = this._device.createTexture(new TextureInfo(
-                TextureType.TEX2D,
-                TextureUsageBit.STORAGE | TextureUsageBit.TRANSFER_SRC | TextureUsageBit.SAMPLED,
-                Format.RGBA8,
-                texWidth,
-                texHeight,
-            ));
-
-            this.descriptorSet.bindTexture(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionTex);
-
-            this._reflectionSampler = this._device.getSampler(new SamplerInfo(
-                Filter.LINEAR,
-                Filter.LINEAR,
-                Filter.NONE,
-                Address.CLAMP,
-                Address.CLAMP,
-                Address.CLAMP,
-            ));
-            this.descriptorSet.bindSampler(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionSampler);
-            this.descriptorSet.bindTexture(UNIFORM_REFLECTION_STORAGE_BINDING, this._reflectionTex);
-        }
-    }
-
     /**
      * @en
      * destroy sub model
@@ -352,29 +287,6 @@ export class SubModel {
 
         this._inputAssembler!.destroy();
         this._inputAssembler = null;
-
-        this._worldBoundDescriptorSet?.destroy();
-        this._worldBoundDescriptorSet = null;
-
-        this.priority = RenderPriority.DEFAULT;
-
-        this._patches = null;
-        this._subMesh = null;
-
-        this._passes = null;
-        this._shaders = null;
-
-        if (this._reflectionTex) this._reflectionTex.destroy();
-        this._reflectionTex = null;
-        this._reflectionSampler = null;
-    }
-
-    public destroyWithOutIA (): void {
-        this._descriptorSet!.destroy();
-        this._descriptorSet = null;
-
-        // this._inputAssembler!.destroy();
-        // this._inputAssembler = null;
 
         this._worldBoundDescriptorSet?.destroy();
         this._worldBoundDescriptorSet = null;

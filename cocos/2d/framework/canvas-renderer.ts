@@ -8,7 +8,6 @@ import { Root } from '../../root';
 @menu('2D/CanvasRenderer')
 @executeInEditMode
 export class CanvasRenderer extends ModelRenderer {
-
     @override
     @visible(false)
     get sharedMaterials () {
@@ -44,7 +43,7 @@ export class CanvasRenderer extends ModelRenderer {
 
     public onDestroy () {
         if (this._model) {
-            this._model.destroyExtraSubModel(0); // 由于 ia 共享
+            this._model.destroy();
             cclegacy.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
@@ -58,7 +57,7 @@ export class CanvasRenderer extends ModelRenderer {
     protected _updateModels () {
         const model = this._model;
         if (model) {
-            model.destroyExtraSubModel(0);
+            model.destroy();
             model.initialize();
             model.node = model.transform = this.node;
         } else {
@@ -68,7 +67,7 @@ export class CanvasRenderer extends ModelRenderer {
 
     protected _createModel () {
         const model = this._model = (cclegacy.director.root as Root).createModel<Model>(Model);
-        model.visFlags = this.visibility;// 会整体影响子节点，以其自身为准
+        model.visFlags = this.visibility;// will change child
         model.node = model.transform = this.node;
         this._models.length = 0;
         this._models.push(this._model);

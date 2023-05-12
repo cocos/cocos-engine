@@ -98,6 +98,8 @@ export class DrawBatch2D {
 
     private _material: Material | null = null; // for world mode
     private _renderingSubMesh: RenderingSubMesh | null = null;
+    public firstIndex = 0;
+    public indexCount = 0;
 
     public destroy (ui: IBatcher) {
         this._passes = [];
@@ -117,6 +119,9 @@ export class DrawBatch2D {
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
         // this.renderScene = null;
+        this.firstIndex = 0;
+        this.indexCount = 0;
+        this._renderingSubMesh = null;
     }
 
     // object version

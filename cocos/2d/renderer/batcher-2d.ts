@@ -23,7 +23,7 @@
 */
 
 import { DEBUG, JSB } from 'internal:constants';
-import { Camera, Model } from '../../render-scene/scene';
+import { Camera, Model, SubModel } from '../../render-scene/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../asset/assets/material';
 import { CanvasRenderMode, RenderRoot2D, UIRenderer,  CanvasRenderer, Canvas } from '../framework';
@@ -284,17 +284,23 @@ export class Batcher2D implements IBatcher {
                 if (!model) continue;
                 model.enabled = false;
                 if (this._batches.length > offset) {
-                    model.destroyExtraSubModel(count); // clean subModel
+                    this.destroyExtraSubModel(model, count); // clean subModel // maybe very slow
                     const subModels = model.subModels;
                     const binding = ModelLocalBindings.SAMPLER_SPRITE;
                     for (let j = 0; offset < this._batches.length; ++offset, j++) {
                         const batch = this._batches.array[offset];
-                        const subMesh = batch.renderingSubMesh;
-                        if (!subMesh || !batch.material || !batch.inputAssembler) continue;// hack
+                        const subMesh = batch.renderingSubMesh; // destroy with batch
+                        if (!subMesh || !batch.material) continue;
                         subMesh.subMeshIdx = j;
-                        model.initSubModelWithIA(j, subMesh, batch.material, batch.inputAssembler);
-                        // model.initSubModel(i, subMesh, batch.material);
-                        // subModels[i].inputAssembler.drawInfo.copy(batch.inputAssembler.drawInfo); // drawInfo 的加工？
+                        const subModel = subModels[j];
+                        if (!subModel) { model.initSubModel(j, subMesh, batch.material); }
+                        if (subModels[j].subMesh.iaInfo !== subMesh.iaInfo) { // need hash
+                            model.setSubModelMesh(j, subMesh); //may not recognize ia info
+                            model.setSubModelMaterial(j, batch.material);
+                        }
+
+                        subModels[j].inputAssembler.firstIndex = batch.firstIndex;
+                        subModels[j].inputAssembler.indexCount = batch.indexCount;
 
                         const { descriptorSet } = subModels[j];
                         descriptorSet.bindTexture(binding, batch.texture!);
@@ -308,7 +314,17 @@ export class Batcher2D implements IBatcher {
         }
     }
 
-    public uploadBuffers (): void {
+    private destroyExtraSubModel (model: Model, count = 0) {
+        const subModels = model.subModels;
+        for (let i = subModels.length - 1; i >= count; i--) {
+            if (subModels[i]) {
+                subModels[i].destroy();
+            }
+        }
+        subModels.length = count;
+    }
+
+    public uploadBuffers () {
         if (JSB) {
             this._nativeObj.uploadBuffers();
         } else if (this._batches.length > 0) {
@@ -665,6 +681,10 @@ export class Batcher2D implements IBatcher {
         let renderMesh: RenderingSubMesh;
         const rd = this._currRenderData as MeshRenderData;
         const accessor = this._staticVBBuffer;
+
+        let indexCount = 0;
+        let batchFirstIndex = 0;
+        let batchIndexCount = 0;
         // Previous batch using mesh buffer
         if (rd && rd._isMeshBuffer) {
             ia = rd.requestIA(this.device);
@@ -678,17 +698,17 @@ export class Batcher2D implements IBatcher {
             if (!buf) {
                 return;
             }
-            const indexCount = buf.indexOffset - this._indexStart;
+            indexCount = buf.indexOffset - this._indexStart;
             if (indexCount <= 0) return;
             assertIsTrue(this._indexStart < buf.indexOffset);
             buf.setDirty();
             if (this._currIsWorldMode) {
-                iaRef = buf.requireFreeIARef(this.device);
-                ia = iaRef.ia;
-                ia.firstIndex = this._indexStart;
-                ia.indexCount = indexCount;
-                this._indexStart = buf.indexOffset;
+                iaRef = buf.requireFreeIARef(this.device); // need vb buffer
                 renderMesh = buf.requireFreeRenderSubMesh(iaRef);
+                ia = renderMesh.iaInfo;
+                batchFirstIndex = this._indexStart;
+                batchIndexCount = indexCount;
+                this._indexStart = buf.indexOffset;
             } else {
                 // Request ia
                 ia = buf.requireFreeIA(this.device);
@@ -727,6 +747,8 @@ export class Batcher2D implements IBatcher {
                     mat = renderComp.getMaterialAddDepth();
                 }
             }
+            curDrawBatch.firstIndex = batchFirstIndex;
+            curDrawBatch.indexCount = batchIndexCount;
             curDrawBatch.material = mat;
             curDrawBatch.renderingSubMesh = renderMesh;
         } else {
