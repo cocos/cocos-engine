@@ -40,6 +40,7 @@ export {
     VFXExpression,
 };
 
+export * from './vfx-events';
 export * from './particle-renderer';
 export * from './vfx-parameter';
 export * from './modules';

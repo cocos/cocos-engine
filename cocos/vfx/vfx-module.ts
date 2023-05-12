@@ -25,8 +25,8 @@
 
 import { ModuleExecContext, VFXEmitterState } from './base';
 import { ParticleDataSet } from './particle-data-set';
-import { ccclass, serializable, type, visible } from '../core/data/decorators';
-import { assertIsTrue, CCBoolean, CCString, Enum } from '../core';
+import { ccclass, serializable, type } from '../core/data/decorators';
+import { assertIsTrue, CCBoolean, CCString } from '../core';
 import { EmitterDataSet } from './emitter-data-set';
 import { UserDataSet } from './user-data-set';
 import { RandomStream } from './random-stream';

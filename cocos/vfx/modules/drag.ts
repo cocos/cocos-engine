@@ -104,13 +104,13 @@ export class DragModule extends VFXModule {
             let drag = exp.evaluate(i);
             const length = velocity.getVec3At(_tempVec3, i).length();
 
-            drag = this.scaleDrag(multiplyByRadius, radiusSource, multiplyBySpeed, length, drag, i, spriteSize, scale);
+            drag = this.scaleDrag(multiplyByRadius, radiusSource, multiplyBySpeed, length, drag, i, spriteSize, scale, radius);
             Vec3.multiplyScalar(_tempVec3, _tempVec3, -drag / length);
             physicsForce.addVec3At(_tempVec3, i);
         }
     }
 
-    private scaleDrag (multiplyByRadius: boolean, radiusSource: RadiusSource, multiplyBySpeed: boolean, speed: number, drag: number, index: number, spriteSize: Vec2ArrayParameter | null, scale: Vec3ArrayParameter | null) {
+    private scaleDrag (multiplyByRadius: boolean, radiusSource: RadiusSource, multiplyBySpeed: boolean, speed: number, drag: number, index: number, spriteSize: Vec2ArrayParameter | null, scale: Vec3ArrayParameter | null, radius: FloatExpression | null) {
         if (multiplyByRadius) {
             if (radiusSource === RadiusSource.SPRITE_SIZE) {
                 spriteSize!.getVec2At(_tempVec2, index);
@@ -121,7 +121,7 @@ export class DragModule extends VFXModule {
                 const maxDimension = Math.max(_tempVec3.x, _tempVec3.y, _tempVec3.z);
                 drag *= maxDimension ** 2 * Math.PI;
             } else {
-                drag *= (this._radius as FloatExpression).evaluate(index) ** 2 * Math.PI;
+                drag *= radius!.evaluate(index) ** 2 * Math.PI;
             }
         }
         if (multiplyBySpeed) {

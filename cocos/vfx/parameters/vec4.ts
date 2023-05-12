@@ -1,5 +1,5 @@
 import { DEBUG } from 'internal:constants';
-import { Vec3, Vec4, assertIsTrue } from '../../core';
+import { Vec4, assertIsTrue } from '../../core';
 import { ParticleHandle, VFXParameterType } from '../define';
 import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3 } from '../vfx-parameter';
 

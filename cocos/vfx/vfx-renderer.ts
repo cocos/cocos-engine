@@ -29,7 +29,6 @@ import { ModelRenderer } from '../misc';
 import { VFXEmitter } from './vfx-emitter';
 import { vfxManager } from './vfx-manager';
 import { scene } from '../render-scene';
-import { ParticleRenderer } from './particle-renderer';
 
 @ccclass('cc.VFXRenderer')
 @menu('Effects/VFXRenderer')

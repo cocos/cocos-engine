@@ -25,9 +25,8 @@
 import { RealCurve } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { ModuleExecContext } from '../base';
-import { BuiltinParticleParameterFlags, NORMALIZED_AGE, ParticleDataSet, SPAWN_NORMALIZED_TIME } from '../particle-data-set';
+import { NORMALIZED_AGE, ParticleDataSet, SPAWN_NORMALIZED_TIME } from '../particle-data-set';
 import { ModuleExecStage } from '../vfx-module';
-import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { EmitterDataSet } from '../emitter-data-set';

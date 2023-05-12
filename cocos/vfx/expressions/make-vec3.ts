@@ -27,7 +27,6 @@ import { ccclass, type } from '../../core/data/class-decorator';
 import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
-import { RandomStream } from '../random-stream';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
@@ -69,10 +68,10 @@ export class MakeVec3Expression extends Vec3Expression {
         return out;
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream, out: Vec3) {
-        out.x = this.x.evaluateSingle(time, randomStream);
-        out.y = this.y.evaluateSingle(time, randomStream);
-        out.z = this.z.evaluateSingle(time, randomStream);
+    public evaluateSingle (out: Vec3) {
+        out.x = this.x.evaluateSingle();
+        out.y = this.y.evaluateSingle();
+        out.z = this.z.evaluateSingle();
         return out;
     }
 }

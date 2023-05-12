@@ -28,7 +28,7 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, 
 import { DEBUG, EDITOR } from 'internal:constants';
 import { approx, clamp01, Color, lerp, Mat4, Quat, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { VFXEmitterState, VFXEventInfo, ModuleExecContext, VFXEmitterLifeCycleParams } from './base';
+import { VFXEmitterState, ModuleExecContext, VFXEmitterLifeCycleParams } from './base';
 import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, PlayingState, ScalingMode } from './define';
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
@@ -40,6 +40,7 @@ import { EventHandler } from './event-handler';
 import { ParticleRenderer } from './particle-renderer';
 import { EmitterDataSet } from './emitter-data-set';
 import { UserDataSet } from './user-data-set';
+import { VFXEventInfo } from './vfx-events';
 
 const startPositionOffset = new Vec3();
 const tempPosition = new Vec3();

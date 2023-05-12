@@ -26,11 +26,11 @@
 import { Mesh } from '../../3d';
 import { Color, Quat, Vec3, Vec4 } from '../../core';
 import { Material, RenderingSubMesh } from '../../asset/assets';
-import { ccclass, displayOrder, serializable, tooltip, type } from '../../core/data/decorators';
-import { BufferInfo, BufferUsageBit, deviceManager, DrawInfo, DRAW_INFO_SIZE, IndirectBuffer, MemoryUsageBit, Buffer, FormatInfos, PrimitiveMode, AttributeName } from '../../gfx';
+import { ccclass, serializable, type } from '../../core/data/decorators';
+import { BufferInfo, BufferUsageBit, deviceManager, MemoryUsageBit, Buffer, FormatInfos, PrimitiveMode, AttributeName } from '../../gfx';
 import { MacroRecord } from '../../render-scene';
 import { AlignmentSpace } from '../define';
-import { BuiltinParticleParameter, ParticleDataSet } from '../particle-data-set';
+import { COLOR, MESH_ORIENTATION, ParticleDataSet, POSITION, SCALE, SUB_UV_INDEX, VELOCITY } from '../particle-data-set';
 import { CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshColorRGBA8, meshNormal, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, RENDER_MODE_MESH, ROTATION_OVER_TIME_MODULE_ENABLE, ParticleRenderer } from '../particle-renderer';
 import { EmitterDataSet } from '../emitter-data-set';
 
@@ -43,8 +43,6 @@ export class MeshParticleRenderer extends ParticleRenderer {
      * @zh 粒子发射的模型。
      */
     @type(Mesh)
-    @displayOrder(7)
-    @tooltip('i18n:particleSystemRenderer.mesh')
     public get mesh () {
         return this._mesh;
     }
@@ -89,7 +87,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
         const dynamicBuffer = this._dynamicBuffer;
         const dynamicBufferUintView = this._dynamicBufferUintView;
         const vertexStreamSizeDynamic = this._vertexStreamSize;
-        if (particles.hasParameter(BuiltinParticleParameter.POSITION)) {
+        if (particles.hasParameter(POSITION)) {
             const position = particles.getVec3Parameter(POSITION).data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
@@ -101,8 +99,8 @@ export class MeshParticleRenderer extends ParticleRenderer {
                 dynamicBuffer[offset + 2] = position[zOffset];
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.ROTATION)) {
-            const rotation = particles.rotation.data;
+        if (particles.hasParameter(MESH_ORIENTATION)) {
+            const rotation = particles.getVec3Parameter(MESH_ORIENTATION).data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 const xOffset = i * 3;
@@ -113,7 +111,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
                 dynamicBuffer[offset + 5] = rotation[zOffset];
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.SCALE)) {
+        if (particles.hasParameter(SCALE)) {
             const scale = particles.getVec3Parameter(SCALE).data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
@@ -125,22 +123,22 @@ export class MeshParticleRenderer extends ParticleRenderer {
                 dynamicBuffer[offset + 8] = scale[zOffset];
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.SUB_UV_INDEX)) {
-            const subUVIndex = particles.subUVIndex.data;
+        if (particles.hasParameter(SUB_UV_INDEX)) {
+            const subUVIndex = particles.getFloatParameter(SUB_UV_INDEX);
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 dynamicBuffer[offset + 9] = subUVIndex[i];
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.COLOR)) {
+        if (particles.hasParameter(COLOR)) {
             const color = particles.getColorParameter(COLOR).data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 dynamicBufferUintView[offset + 10] = color[i];
             }
         }
-        if (particles.hasParameter(BuiltinParticleParameter.VELOCITY)) {
-            const { velocity } = particles;
+        if (particles.hasParameter(VELOCITY)) {
+            const velocity = particles.getVec3Parameter(VELOCITY);
             const velocityData = velocity.data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;

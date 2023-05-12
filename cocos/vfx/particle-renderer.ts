@@ -30,7 +30,6 @@ import { ParticleDataSet } from './particle-data-set';
 import { Model } from '../render-scene/scene';
 import { Material, RenderingSubMesh } from '../asset/assets';
 import { MaterialInstance } from '../render-scene';
-import { VFXEmitterParams, VFXEmitterState } from './base';
 
 export const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 export const CC_RENDER_MODE = 'CC_RENDER_MODE';
