@@ -199,9 +199,10 @@ export class HBAOPass extends SettingPass {
     }
 
     public render (camera: Camera, ppl: Pipeline): void {
-        const area = this.getRenderArea(camera);
-        const width = area.width;
-        const height = area.height;
+        passContext.updatePassViewPort();
+        const width = passContext.passViewport.width;
+        const height = passContext.passViewport.height;
+
         const setting = this.setting;
 
         // params
@@ -232,7 +233,7 @@ export class HBAOPass extends SettingPass {
         }
 
         const inputRT = this.lastPass!.slotName(camera, 0);
-        const inputDS = this.lastPass!.slotName(camera, 1);
+        const inputDS = passContext.forwardPass.slotName(camera, 1);
         const hbaoInfo = this._renderHBAOPass(camera, inputDS);
         let hbaoCombinedInputRTName = hbaoInfo.rtName;
         if (this.setting.needBlur) {
@@ -245,13 +246,6 @@ export class HBAOPass extends SettingPass {
 
     private _renderHBAOPass (camera: Camera, inputDS: string) {
         const cameraID = getCameraUniqueID(camera);
-        const area = this.getRenderArea(camera);
-        const inputWidth = area.width;
-        const inputHeight = area.height;
-
-        const shadingScale = this.finalShadingScale();
-        const outWidth = Math.floor(inputWidth / shadingScale);
-        const outHeight = Math.floor(inputHeight / shadingScale);
 
         const passIdx = this.HBAO_PASS_INDEX;
         passContext.material = this.material;
@@ -268,14 +262,12 @@ export class HBAOPass extends SettingPass {
             passIdx);
         this.material.setProperty('blurParam', this._hbaoParams.blurParam, passIdx);
 
-        passContext.clearFlag = ClearFlagBit.COLOR;
-        Vec4.set(passContext.clearColor, 0, 0, 0, camera.clearColor.w);
+        passContext.clearBlack();
 
         const outputRT = super.slotName(camera, 0);
         const layoutName = 'hbao-pass';
         const passName = `CameraHBAOPass${cameraID}`;
-        passContext.addRasterPass(outWidth, outHeight, layoutName, passName)
-            .setViewport(area.x, area.y, outWidth, outHeight)
+        passContext.addRasterPass(layoutName, passName)
             .setPassInput(inputDS, 'DepthTex')
             .addRasterView(outputRT, Format.BGRA8)
             .blitScreen(passIdx)
@@ -286,16 +278,8 @@ export class HBAOPass extends SettingPass {
 
     private _renderHBAOBlurPass (camera: Camera, inputRT: string, inputDS: string, isYPass: boolean) {
         const cameraID = getCameraUniqueID(camera);
-        const area = this.getRenderArea(camera);
-        const inputWidth = area.width;
-        const inputHeight = area.height;
 
-        const shadingScale = this.finalShadingScale();
-        const outWidth = Math.floor(inputWidth / shadingScale);
-        const outHeight = Math.floor(inputHeight / shadingScale);
-
-        passContext.clearFlag = ClearFlagBit.COLOR;
-        Vec4.set(passContext.clearColor, 0, 0, 0, 1);
+        passContext.clearBlack();
 
         const passIdx = isYPass ? this.HBAO_BLUR_Y_PASS_INDEX : this.HBAO_BLUR_X_PASS_INDEX;
         passContext.material = this.material;
@@ -320,8 +304,7 @@ export class HBAOPass extends SettingPass {
             layoutName = 'blury-pass';
             passName = `CameraHBAOBluredYPass${cameraID}`;
         }
-        passContext.addRasterPass(outWidth, outHeight, layoutName, passName)
-            .setViewport(area.x, area.y, outWidth, outHeight)
+        passContext.addRasterPass(layoutName, passName)
             .setPassInput(inputRT, 'AOTexNearest')
             .setPassInput(inputDS, 'DepthTex')
             .addRasterView(outputRT, Format.BGRA8)
@@ -333,13 +316,6 @@ export class HBAOPass extends SettingPass {
 
     private _renderHBAOCombinedPass (camera: Camera, inputRT: string, outputRT: string) {
         const cameraID = getCameraUniqueID(camera);
-        const area = this.getRenderArea(camera);
-        const inputWidth = area.width;
-        const inputHeight = area.height;
-
-        const shadingScale = this.finalShadingScale();
-        const outWidth = Math.floor(inputWidth / shadingScale);
-        const outHeight = Math.floor(inputHeight / shadingScale);
 
         const passIdx = this.HBAO_COMBINED_PASS_INDEX;
         passContext.material = this.material;
@@ -356,13 +332,11 @@ export class HBAOPass extends SettingPass {
             passIdx);
         this.material.setProperty('blurParam', this._hbaoParams.blurParam, passIdx);
 
-        passContext.clearFlag = ClearFlagBit.COLOR;
-        Vec4.set(passContext.clearColor, 0, 0, 0, 1);
+        passContext.clearBlack();
 
         const layoutName = 'combine-pass';
         const passName = `CameraHBAOCombinedPass${cameraID}`;
-        passContext.addRasterPass(outWidth, outHeight, layoutName, passName)
-            .setViewport(area.x, area.y, outWidth, outHeight)
+        passContext.addRasterPass(layoutName, passName)
             .setPassInput(inputRT, 'AOTexNearest')
             .addRasterView(outputRT, Format.BGRA8)
             .blitScreen(passIdx)

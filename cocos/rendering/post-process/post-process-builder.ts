@@ -1,6 +1,6 @@
 import { EDITOR } from 'internal:constants';
 
-import { Camera } from '../../render-scene/scene';
+import { Camera, CameraUsage } from '../../render-scene/scene';
 import { PipelineBuilder, Pipeline } from '../custom/pipeline';
 
 import { passContext } from './utils/pass-context';
@@ -12,68 +12,83 @@ import { ForwardPass } from './passes/forward-pass';
 import { TAAPass } from './passes/taa-pass';
 import { FSRPass } from './passes/fsr-pass';
 import { BlitScreenPass } from './passes/blit-screen-pass';
+
+import { ShadowPass } from './passes/shadow-pass';
 import { HBAOPass } from './passes/hbao-pass';
 import { PostProcess } from './components/post-process';
 import { Node } from '../../scene-graph';
 import { director } from '../../game';
 import { CCObject } from '../../core';
 import { setCustomPipeline } from '../custom';
+
+import { CameraComponent } from '../../misc';
 import { BloomPass, ColorGradingPass, FxaaPass } from './passes';
 
 export class PostProcessBuilder implements PipelineBuilder  {
-    passes: BasePass[] = [];
-
+    pipelines: Map<string, BasePass[]> = new Map();
     constructor () {
         this.init();
     }
 
-    editorPostProcess: PostProcess | undefined;
-
     init () {
-        this.addPass(new ForwardPass());
+        const forward = new ForwardPass();
+        const forwardFinal = new ForwardFinalPass();
+
+        // default pipeline
+        this.addPass(forward, 'default');
+        this.addPass(forwardFinal, 'default');
+
+        // forward pipeline
+        this.addPass(new ShadowPass());
+        this.addPass(forward);
+
+        this.addPass(new HBAOPass());
         this.addPass(new TAAPass());
-        this.addPass(new FSRPass());
         this.addPass(new FxaaPass());
         this.addPass(new ColorGradingPass());
         this.addPass(new BlitScreenPass());
         this.addPass(new BloomPass());
-        this.addPass(new ForwardFinalPass());
-        this.addPass(new HBAOPass());
+
+        this.addPass(new FSRPass()); // fsr should be final
+        this.addPass(forwardFinal);
     }
 
-    initEditor () {
-        if (this.editorPostProcess) {
-            return;
+    getPass (passClass: typeof BasePass, pipelineName = 'forward') {
+        const pp = this.pipelines.get(pipelineName);
+        return pp && pp.find((p) => p instanceof passClass);
+    }
+    addPass (pass: BasePass, pipelineName = 'forward') {
+        let pp = this.pipelines.get(pipelineName);
+        if (!pp) {
+            pp = [];
+            this.pipelines.set(pipelineName, pp);
         }
+        pp.push(pass);
+    }
+    insertPass (pass: BasePass, passClass: typeof BasePass, pipelineName = 'forward') {
+        const pp = this.pipelines.get(pipelineName);
+        if (pp) {
+            const idx = pp.findIndex((p) => p instanceof passClass);
+            if (idx !== -1) {
+                pp.splice(idx + 1, 0, pass);
+            }
+        }
+    }
 
-        const node = new Node('editor-post-process');
-        node.hideFlags = CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
-
-        const pp = node.addComponent(PostProcess);
-        pp.global = false;
-
-        node.parent = director.getScene();
-        director.addPersistRootNode(node);
-
+    private initEditor () {
         director.root!.cameraList.forEach((cam) => {
-            if (cam.name === 'Scene Gizmo Camera' || cam.name === 'Editor UIGizmoCamera') {
-                cam.postProcess = pp;
+            if (cam.name === 'Editor Camera') {
+                cam.usePostProcess = true;
             }
         });
-
-        this.editorPostProcess = pp;
     }
-
-    getPass (passClass: typeof BasePass) {
-        return this.passes.find((p) => p instanceof passClass);
-    }
-    addPass (pass: BasePass) {
-        this.passes.push(pass);
-    }
-    insertPass (pass: BasePass, passClass: typeof BasePass) {
-        const idx = this.passes.findIndex((p) => p instanceof passClass);
-        if (idx !== -1) {
-            this.passes.splice(idx + 1, 0, pass);
+    private applyPreviewCamera (camera: Camera) {
+        if (!camera.node.parent) return;
+        const camComp = camera.node.parent.getComponent(CameraComponent);
+        const oriCamera = camComp && camComp.camera;
+        if (oriCamera) {
+            camera.postProcess = oriCamera.postProcess;
+            camera.usePostProcess = oriCamera.usePostProcess;
         }
     }
 
@@ -84,6 +99,8 @@ export class PostProcessBuilder implements PipelineBuilder  {
 
         passContext.ppl = ppl;
         passContext.renderProfiler = false;
+        passContext.shadowPass = undefined;
+        passContext.forwardPass = undefined;
 
         let globalPP: PostProcess | undefined;
         for (let i = 0; i < PostProcess.all.length; i++) {
@@ -103,26 +120,36 @@ export class PostProcessBuilder implements PipelineBuilder  {
                 passContext.isFinalCamera = true;
             }
 
+            if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
+                this.applyPreviewCamera(camera);
+            }
+
             passContext.postProcess = camera.postProcess || globalPP;
-            passContext.camera = camera;
             this.renderCamera(camera, ppl);
         }
     }
 
-    enableSceneGizmoCamera = true;
-    enableEditorUIGizmoCamera = true;
+    getCameraPipelineName (camera: Camera) {
+        let pipelineName = camera.pipeline;
+        if (!pipelineName && camera.usePostProcess) {
+            pipelineName = 'forward';
+        } else {
+            pipelineName = 'default';
+        }
+        return pipelineName;
+    }
+
+    getCameraPasses (camera: Camera) {
+        const pipelineName = this.getCameraPipelineName(camera);
+        return this.pipelines.get(pipelineName) || [];
+    }
 
     renderCamera (camera: Camera, ppl: Pipeline) {
-        if (EDITOR) {
-            if ((camera.name === 'Scene Gizmo Camera' && !this.enableSceneGizmoCamera)
-            || (camera.name === 'Editor UIGizmoCamera' && !this.enableEditorUIGizmoCamera)) {
-                return;
-            }
-        }
-
         passContext.passPathName = `${getCameraUniqueID(camera)}`;
+        passContext.camera = camera;
+        passContext.updateViewPort();
 
-        const passes = this.passes;
+        const passes = this.getCameraPasses(camera);
 
         const taaPass = passes.find((p) => p instanceof TAAPass) as TAAPass;
         if (taaPass && taaPass.checkEnable(camera)) {
