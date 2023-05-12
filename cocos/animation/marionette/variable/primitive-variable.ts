@@ -26,10 +26,10 @@ export class PlainVariable {
         default:
             break;
         case VariableType.FLOAT:
-            this._value = 0;
+            this._value = 0.0;
             break;
         case VariableType.INTEGER:
-            this._value = 0.0;
+            this._value = 0;
             break;
         case VariableType.BOOLEAN:
             this._value = false;
