@@ -14,6 +14,7 @@ import { FSRPass } from './passes/fsr-pass';
 import { BlitScreenPass } from './passes/blit-screen-pass';
 
 import { ShadowPass } from './passes/shadow-pass';
+import { HBAOPass } from './passes/hbao-pass';
 import { PostProcess } from './components/post-process';
 import { Node } from '../../scene-graph';
 import { director } from '../../game';
@@ -41,6 +42,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(new ShadowPass());
         this.addPass(forward);
 
+        this.addPass(new HBAOPass());
         this.addPass(new TAAPass());
         this.addPass(new FxaaPass());
         this.addPass(new ColorGradingPass());
