@@ -32,7 +32,7 @@ export class BloomPass extends SettingPass {
         const setting = this.setting;
 
         const input = this.lastPass!.slotName(camera, 0);
-        const output = 'BLOOM_PREFILTER_COLOR';
+        const output = `BLOOM_PREFILTER_COLOR${cameraID}`;
         // prefilter pass
         let shadingScale = 1 / 2;
         passContext.material.setProperty('texSize', new Vec4(0, 0, setting.threshold, 0), 0);

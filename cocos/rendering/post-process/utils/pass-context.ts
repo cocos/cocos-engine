@@ -131,12 +131,6 @@ export class PassContext {
                 loadOp = LoadOp.LOAD;
             }
 
-            // view = new RasterView('_',
-            //     AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
-            //     loadOp, StoreOp.STORE,
-            //     clearFlag,
-            //     clearColor);
-
             pass.addDepthStencil(name, '_', loadOp, StoreOp.STORE, this.clearDepthColor.x, this.clearDepthColor.y, clearFlag);
         } else {
             const clearColor = new Color();
@@ -148,16 +142,8 @@ export class PassContext {
                 loadOp = LoadOp.LOAD;
             }
 
-            // view = new RasterView('_',
-            //     AccessType.WRITE, AttachmentType.RENDER_TARGET,
-            //     loadOp,
-            //     StoreOp.STORE,
-            //     clearFlag,
-            //     clearColor);
-
             pass.addRenderTarget(name, '_', loadOp, StoreOp.STORE, clearColor);
         }
-        // pass.addRasterView(name, view);
         return this;
     }
     setPassInput (inputName: string, shaderName: string) {
