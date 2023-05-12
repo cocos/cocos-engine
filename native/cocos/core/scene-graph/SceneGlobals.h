@@ -53,6 +53,8 @@ public:
     inline scene::SkyboxInfo *getSkyboxInfo() const { return _skyboxInfo.get(); }
     inline scene::FogInfo *getFogInfo() const { return _fogInfo.get(); }
     inline scene::OctreeInfo *getOctreeInfo() const { return _octreeInfo.get(); }
+    // TODO: get SkinInfo
+    // inline scene::SkinInfo *getSkinInfo() const { return _skinInfo.get(); }
     inline gi::LightProbeInfo *getLightProbeInfo() const { return _lightProbeInfo.get(); }
     inline bool getBakedWithStationaryMainLight() const { return _bakedWithStationaryMainLight; }
     inline bool getBakedWithHighpLightmap() const { return _bakedWithHighpLightmap; }
@@ -62,6 +64,8 @@ public:
     void setSkyboxInfo(scene::SkyboxInfo *info);
     void setFogInfo(scene::FogInfo *info);
     void setOctreeInfo(scene::OctreeInfo *info);
+    // TODO:set SkinInfo
+    // void setSkinInfo(scene::SkinInfo *info);
     void setLightProbeInfo(gi::LightProbeInfo *info);
     void setBakedWithStationaryMainLight(bool value);
     void setBakedWithHighpLightmap(bool value);
@@ -72,6 +76,8 @@ private:
     IntrusivePtr<scene::SkyboxInfo> _skyboxInfo;
     IntrusivePtr<scene::FogInfo> _fogInfo;
     IntrusivePtr<scene::OctreeInfo> _octreeInfo;
+    // TODO: SkinInfo
+    // IntrusivePtr<scene::SkinInfo> _skinInfo;
     IntrusivePtr<gi::LightProbeInfo> _lightProbeInfo;
     bool _bakedWithStationaryMainLight;
     bool _bakedWithHighpLightmap;
