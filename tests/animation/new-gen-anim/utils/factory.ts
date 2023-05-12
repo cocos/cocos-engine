@@ -1,6 +1,6 @@
 import { AnimationClip } from "../../../../cocos/animation/animation-clip";
 import { AnimationGraph, AnimationTransition, EmptyStateTransition, isAnimationTransition, PoseState, PoseTransition, State, StateMachine, SubStateMachine, Transition } from "../../../../cocos/animation/marionette/animation-graph";
-import { PoseGraph, PoseNode, TCBinding, TCBindingValueType } from "../../../../cocos/animation/marionette/asset-creation";
+import { PoseGraph, poseGraphOp, TCBinding, TCBindingValueType } from "../../../../cocos/animation/marionette/asset-creation";
 import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D } from "../../../../cocos/animation/marionette/motion";
 import { BinaryCondition, TriggerCondition, UnaryCondition } from "../../../../cocos/animation/marionette/state-machine/condition";
 import { MotionState } from "../../../../cocos/animation/marionette/state-machine/motion-state";
@@ -10,6 +10,7 @@ import { assertIsTrue, Vec2 } from "../../../../exports/base";
 import { TCVariableBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/variable-binding";
 import { TCAuxiliaryCurveBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/auxiliary-curve-binding";
 import { TCStateWeightBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/state-weight-binding";
+import { PoseNode } from "../../../../cocos/animation/marionette/pose-graph/pose-node";
 
 export function createAnimationGraph(params: AnimationGraphParams): AnimationGraph {
     const animationGraph = new AnimationGraph();
@@ -159,7 +160,7 @@ function fillTransition(transition: Transition, params: TransitionAttributes) {
 
     function assertsIsDurableTransition(transition: Transition): asserts transition is (AnimationTransition | EmptyStateTransition | PoseTransition) {
         if (!isAnimationTransition(transition) && !(transition instanceof EmptyStateTransition) && !(transition instanceof PoseTransition)) {
-            throw new Error(`The transition should be animation/empty transition.`);
+            throw new Error(`The transition should be animation/empty/pose transition.`);
         }
     }
 
@@ -388,21 +389,44 @@ export type MotionParams = {
     }>;
 };
 
-export interface PoseGraphParams {
+interface PoseGraphParams {
     rootNode?: PoseNodeParams;
 }
 
-export type PoseNodeParams = PoseNode;
+export type PoseNodeParams = PoseNode | Node_;
 
 function fillPoseGraph(poseGraph: PoseGraph, params: PoseGraphParams) {
     if (params.rootNode) {
         const root = createPoseNode(poseGraph, params.rootNode);
-        poseGraph.main = root;
+        poseGraphOp.connectOutputNode(poseGraph, poseGraph.outputNode, root);
     }
 }
 
-export function createPoseNode(poseGraph: PoseGraph, params: PoseNodeParams): NonNullable<PoseGraph['main']> {
-    poseGraph.addNode(params);
-    return params;
+declare global {
+    interface PoseNodeFactoryRegistry {
+    }
+}
+
+type Map_ = {
+    [k in keyof PoseNodeFactoryRegistry]: PoseNodeFactoryRegistry[k] & { type: k };
+}
+
+const poseNodeFactoryMap: Record<string, (poseGraph: PoseGraph, params: any) => PoseNode> = {};
+
+export function addPoseNodeFactory<T extends keyof PoseNodeFactoryRegistry> (
+    type: T, factory: (poseGraph: PoseGraph, params: PoseNodeFactoryRegistry[T]) => PoseNode) {
+    poseNodeFactoryMap[type] = factory;
+}
+
+export type Node_ = Map_[keyof Map_];
+
+export function createPoseNode(poseGraph: PoseGraph, params: PoseNodeParams): PoseNode {
+    if (params instanceof PoseNode) {
+        return poseGraph.addNode(params);
+    } else if (!(params.type in poseNodeFactoryMap)) {
+        throw new Error(`${params.type} factory does not exist.`);
+    } else {
+        return poseNodeFactoryMap[params.type](poseGraph, params);
+    }
 }
 
