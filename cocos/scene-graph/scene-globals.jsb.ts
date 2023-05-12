@@ -171,7 +171,7 @@ legacyCC.OctreeInfo = OctreeInfo;
 
 export const SkinInfo: typeof JsbSkinInfo = jsb.SkinInfo;
 export type SkinInfo = JsbSkinInfo;
-//legacyCC.SkinInfo = SkinInfo;
+legacyCC.SkinInfo = SkinInfo;
 
 export const LightProbeInfo: typeof JsbLightProbeInfo = jsb.LightProbeInfo;
 export type LightProbeInfo = JsbLightProbeInfo;
@@ -190,6 +190,7 @@ legacyCC.SceneGlobals = SceneGlobals;
         this._skyboxRef = this.getSkyboxInfo();
         this._fogRef = this.getFogInfo();
         this._octreeRef = this.getOctreeInfo();
+        this._skinRef = this.getSkinInfo();
         this._lightProbeRef = this.getLightProbeInfo();
     };
 
@@ -262,6 +263,18 @@ legacyCC.SceneGlobals = SceneGlobals;
         set(v) {
             this._octreeRef = v;
             this.setOctreeInfo(v);
+        },
+    });
+
+    Object.defineProperty(sceneGlobalsProto, 'skin', {
+        enumerable: true,
+        configurable: true,
+        get() {
+            return this._skinRef;
+        },
+        set(v) {
+            this._skinRef = v;
+            this.setSkinInfo(v);
         },
     });
 
