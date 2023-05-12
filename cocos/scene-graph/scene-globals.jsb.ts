@@ -34,7 +34,6 @@ import type {
     FogInfo as JsbFogInfo,
     ShadowsInfo as JsbShadowsInfo,
     OctreeInfo as JsbOctreeInfo,
-    SkinInfo as JsbSkinInfo,
     SceneGlobals as JsbSceneGlobals,
     LightProbeInfo as JsbLightProbeInfo,
 } from './scene-globals';
@@ -168,10 +167,6 @@ legacyCC.ShadowsInfo = ShadowsInfo;
 export const OctreeInfo: typeof JsbOctreeInfo = jsb.OctreeInfo;
 export type OctreeInfo = JsbOctreeInfo;
 legacyCC.OctreeInfo = OctreeInfo;
-
-export const SkinInfo: typeof JsbSkinInfo = jsb.SkinInfo;
-export type SkinInfo = JsbSkinInfo;
-legacyCC.SkinInfo = SkinInfo;
 
 export const LightProbeInfo: typeof JsbLightProbeInfo = jsb.LightProbeInfo;
 export type LightProbeInfo = JsbLightProbeInfo;
