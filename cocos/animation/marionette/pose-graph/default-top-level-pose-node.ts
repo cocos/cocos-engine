@@ -7,12 +7,14 @@ import { AnimationMask } from '../animation-mask';
 import { ReadonlyClipOverrideMap } from '../clip-overriding';
 import { TopLevelStateMachineEvaluation } from '../state-machine/state-machine-eval';
 import { PoseNode } from './pose-node';
+import { PoseStashAllocator, RuntimeStashManager } from './stash/runtime-stash';
 
 export class DefaultTopLevelPoseNode extends PoseNode {
     constructor (
         graph: AnimationGraph,
         bindingContext: AnimationGraphBindingContext,
         clipOverrides: ReadonlyClipOverrideMap | null,
+        poseStashAllocator: PoseStashAllocator,
     ) {
         super();
 
@@ -21,6 +23,7 @@ export class DefaultTopLevelPoseNode extends PoseNode {
                 layer,
                 bindingContext,
                 clipOverrides,
+                poseStashAllocator,
             );
 
             return record;
@@ -99,6 +102,8 @@ export class DefaultTopLevelPoseNode extends PoseNode {
                 blendPoseInto(finalPose, layerPose, layerActualWeight, transformFilter);
             }
             context.popPose();
+
+            layer.postEvaluate();
         }
         return finalPose;
     }
@@ -111,7 +116,22 @@ class LayerEvaluationRecord {
         layer: Layer,
         bindingContext: AnimationGraphBindingContext,
         clipOverrides: ReadonlyClipOverrideMap | null,
+        poseStashAllocator: PoseStashAllocator,
     ) {
+        const stashManager = new RuntimeStashManager(poseStashAllocator);
+        for (const [stashId, _] of layer.stashes()) {
+            stashManager.addStash(stashId);
+        }
+        this._stashManager = stashManager;
+
+        bindingContext._setLayerWideContextProperties(
+            stashManager,
+        );
+
+        for (const [stashId, stash] of layer.stashes()) {
+            stashManager.setStash(stashId, stash, bindingContext);
+        }
+
         this.weight = layer.weight;
         const additive = this.additive = layer.additive;
         this._mask = layer.mask ?? undefined;
@@ -123,6 +143,8 @@ class LayerEvaluationRecord {
             clipOverrides,
         );
         bindingContext._popAdditiveFlag();
+
+        bindingContext._unsetLayerWideContextProperties();
     }
 
     get stateMachineEvaluation () {
@@ -134,6 +156,9 @@ class LayerEvaluationRecord {
             this.transformFilter = context.createTransformFilter(this._mask);
         }
 
+        // Settle layer stashes.
+        this._stashManager.settle(context);
+
         // Settle the top level state machine.
         this._topLevelStateMachineEval.settle(context);
     }
@@ -142,12 +167,18 @@ class LayerEvaluationRecord {
         this.stateMachineEvaluation.update(context);
     }
 
+    public postEvaluate () {
+        // Reset stash resources.
+        this._stashManager.reset();
+    }
+
     public additive = false;
 
     public weight = 0.0;
 
     private _topLevelStateMachineEval: TopLevelStateMachineEvaluation;
 
+    private _stashManager: RuntimeStashManager;
     private _mask: AnimationMask | undefined = undefined;
 
     public transformFilter: TransformFilter | undefined = undefined;
