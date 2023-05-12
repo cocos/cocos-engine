@@ -1085,8 +1085,7 @@ legacyCC.OctreeInfo = OctreeInfo;
  * @en Global skin in the render scene.
  * @zh 渲染场景中的全局皮肤后处理设置。
  */
-@ccclass('cc.SkinInfo')
-export class SkinInfo {
+class SkinInfo {
     /**
      * @en Enable skip.
      * @zh 是否开启皮肤后效。
