@@ -1,4 +1,4 @@
-import { AnimationController } from "../../../cocos/animation/animation";
+import { AnimationController, VariableType } from "../../../cocos/animation/animation";
 import { AnimationGraph, AnimationTransition, EmptyState, EmptyStateTransition, isAnimationTransition, Layer, State, SubStateMachine, Transition } from "../../../cocos/animation/marionette/animation-graph";
 import { UnaryCondition } from "../../../cocos/animation/marionette/state-machine/condition";
 import { MotionState } from "../../../cocos/animation/marionette/state-machine/motion-state";
@@ -175,7 +175,7 @@ describe(`Transition sequence`, () => {
             const [condition] = transition.conditions = [new UnaryCondition()];
             condition.operator = UnaryCondition.Operator.TRUTHY;
             condition.operand.variable = `${transitionIndex}`;
-            graph.addBoolean(condition.operand.variable, true); // Trigger at start
+            graph.addVariable(condition.operand.variable, VariableType.BOOLEAN, true); // Trigger at start
         });
 
         const evalMock = new AnimationGraphEvalMock(observer.root, graph);
@@ -307,7 +307,7 @@ describe(`Transition sequence`, () => {
                 const [condition] = transition.conditions = [new UnaryCondition()];
                 condition.operator = UnaryCondition.Operator.TRUTHY;
                 condition.operand.variable = `${transitionIndex}`;
-                graph.addBoolean(condition.operand.variable, true); // Trigger at start
+                graph.addVariable(condition.operand.variable, VariableType.BOOLEAN, true); // Trigger at start
             }
             const evalMock = new AnimationGraphEvalMock(observer.root, graph);
             return {
@@ -955,7 +955,7 @@ function makeGraphByTransitionSequenceFixture(
         const fromStateBefore = fromState;
 
         const triggeringVarName = `Trigger ${transitionIndex}`;
-        graph.addBoolean(triggeringVarName, true);
+        graph.addVariable(triggeringVarName, VariableType.BOOLEAN, true);
 
         const toState = addState(transitionMock.destination);
         toState.name = `TransitionDestination ${transitionIndex}`;

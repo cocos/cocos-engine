@@ -25,7 +25,7 @@
 import { DEBUG } from 'internal:constants';
 import { AnimationGraph } from './animation-graph';
 import type { Node } from '../../scene-graph/node';
-import { Value, VarInstance, TriggerResetMode } from './variable';
+import { Value, VarInstance, TriggerResetMode, createInstanceTag, VarInstanceTrigger } from './variable';
 import { VariableType } from './parametric';
 import { assertIsTrue } from '../../core';
 import { MAX_ANIMATION_LAYER } from '../../3d/skeletal-animation/limits';
@@ -68,11 +68,10 @@ export class AnimationGraphEval {
         }
 
         for (const [name, variable] of graph.variables) {
-            const varInstance = this._varInstances[name] = new VarInstance(variable.type, variable.value);
-            if (variable.type === VariableType.TRIGGER) {
-                const { resetMode } = variable;
-                varInstance.resetMode = resetMode;
-                if (resetMode === TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED) {
+            const varInstance = variable[createInstanceTag]();
+            this._varInstances[name] = varInstance;
+            if (varInstance instanceof VarInstanceTrigger) {
+                if (varInstance.resetMode === TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED) {
                     this._hasAutoTrigger = true;
                 }
             }
@@ -146,7 +145,7 @@ export class AnimationGraphEval {
             const { _varInstances: varInstances } = this;
             for (const varName in varInstances) {
                 const varInstance = varInstances[varName];
-                if (varInstance.type === VariableType.TRIGGER
+                if (varInstance instanceof VarInstanceTrigger
                     && varInstance.resetMode === TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED) {
                     varInstance.value = false;
                 }

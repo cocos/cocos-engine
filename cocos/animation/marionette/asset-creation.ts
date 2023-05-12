@@ -24,7 +24,7 @@
 
 export { InvalidTransitionError, VariableNotDefinedError } from './errors';
 export { AnimationGraph, isAnimationTransition, StateMachine, SubStateMachine, EmptyStateTransition, EmptyState, PoseState, PoseTransition } from './animation-graph';
-export type { Transition, AnimationTransition, Layer, State, VariableDescription } from './animation-graph';
+export type { Transition, AnimationTransition, Layer, State } from './animation-graph';
 export { BinaryCondition, UnaryCondition, TriggerCondition } from './state-machine/condition';
 export type { Condition } from './state-machine/condition';
 
@@ -32,7 +32,7 @@ export { TCBinding, TCBindingValueType } from './state-machine/condition/binding
 export { getTCBindingTypeInfo, TCBindingTransitionSourceFilter } from './state-machine/condition/binding/editor';
 export type { TCBindingTypeInfo } from './state-machine/condition/binding/editor';
 
-export type { Value } from './variable';
+export type { Value, VariableDescription } from './variable';
 export { TriggerResetMode } from './variable';
 export { MotionState } from './state-machine/motion-state';
 export * from './motion';
