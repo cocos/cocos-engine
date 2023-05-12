@@ -36,7 +36,7 @@ import {
     AnimationGraphUpdateContext, AnimationGraphUpdateContextGenerator,
     AnimationGraphSettleContext,
 } from './animation-graph-context';
-import { createLayerEvaluationRecord, DefaultTopLevelPoseNode } from './pose-graph/default-top-level-pose-node';
+import { DefaultTopLevelPoseNode } from './pose-graph/default-top-level-pose-node';
 import {
     ClipStatus,
     MotionStateStatus,
@@ -91,16 +91,11 @@ export class AnimationGraphEval {
 
         poseLayoutMaintainer.startBind();
 
-        const layerEvaluationRecords = graph.layers.map((layer) => {
-            const record = createLayerEvaluationRecord(
-                layer,
-                bindingContext,
-                clipOverrides,
-            );
-            return record;
-        });
-
-        this._rootPoseNode = new DefaultTopLevelPoseNode(layerEvaluationRecords);
+        this._rootPoseNode = new DefaultTopLevelPoseNode(
+            graph,
+            bindingContext,
+            clipOverrides,
+        );
 
         this._root = root;
         this._initializeContexts();
@@ -254,10 +249,7 @@ export class AnimationGraphEval {
 
         this._createOrUpdateTransformFilters();
 
-        const evaluationContext = new AnimationGraphEvaluationContext({
-            transformCount: poseLayoutMaintainer.transformCount,
-            auxiliaryCurveCount: poseLayoutMaintainer.auxiliaryCurveCount,
-        });
+        const evaluationContext = poseLayoutMaintainer.createEvaluationContext();
         this._evaluationContext = evaluationContext;
 
         // Capture the default transforms.
@@ -286,10 +278,7 @@ export class AnimationGraphEval {
         let evaluationContextRecreated = false;
         if ((layoutChangeFlags & LayoutChangeFlag.TRANSFORM_COUNT)
         || (layoutChangeFlags & LayoutChangeFlag.AUXILIARY_CURVE_COUNT)) {
-            const evaluationContext = new AnimationGraphEvaluationContext({
-                transformCount: poseLayoutMaintainer.transformCount,
-                auxiliaryCurveCount: poseLayoutMaintainer.auxiliaryCurveCount,
-            });
+            const evaluationContext = poseLayoutMaintainer.createEvaluationContext();
             this._evaluationContext.destroy();
             this._evaluationContext = evaluationContext;
             evaluationContextRecreated = true;

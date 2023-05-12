@@ -317,6 +317,14 @@ export class AnimationGraphPoseLayoutMaintainer {
         }
     }
 
+    public createEvaluationContext () {
+        assertIsTrue(!this._bindStarted);
+        return new AnimationGraphEvaluationContext(
+            this.transformCount,
+            this.auxiliaryCurveCount,
+        );
+    }
+
     public createTransformFilter (mask: Readonly<AnimationMask>) {
         const { _origin: origin } = this;
         const involvedTransformIndices: number[] = [];
@@ -570,10 +578,10 @@ export class AnimationGraphSettleContext {
     }
 }
 
-export class AnimationGraphEvaluationContext {
-    constructor (layout: PoseLayout) {
-        this._poseAllocator = new PoseStackAllocator(layout.transformCount, layout.auxiliaryCurveCount);
-        this[defaultTransformsTag] = new TransformArray(layout.transformCount);
+class AnimationGraphEvaluationContext {
+    constructor (transformCount: number, auxiliaryCurveCount: number) {
+        this._poseAllocator = new PoseStackAllocator(transformCount, auxiliaryCurveCount);
+        this[defaultTransformsTag] = new TransformArray(transformCount);
     }
 
     public destroy () {
@@ -630,6 +638,8 @@ export class AnimationGraphEvaluationContext {
 
     private _poseAllocator: PoseStackAllocator;
 }
+
+export type { AnimationGraphEvaluationContext };
 
 export interface PoseLayout {
     transformCount: number;

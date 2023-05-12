@@ -22,7 +22,7 @@ import {
 } from '../animation-graph-context';
 import { blendPoseInto, Pose } from '../../core/pose';
 import { PoseNode } from '../pose-graph/pose-node';
-import { instantiatePoseGraph } from '../pose-graph/instantiation';
+import { instantiatePoseGraph, InstantiatedPoseGraph } from '../pose-graph/instantiation';
 import { ConditionEvaluationContext } from './condition/condition-base';
 import { ReadonlyClipOverrideMap } from '../clip-overriding';
 
@@ -175,7 +175,7 @@ class TopLevelStateMachineEvaluation {
         if (currentNode.kind === NodeKind.animation) {
             return currentNode.getStatus();
         } else if (currentNode.kind === NodeKind.pose) {
-            return currentNode.status;
+            return currentNode.getStatus();
         } else {
             return null;
         }
@@ -215,7 +215,7 @@ class TopLevelStateMachineEvaluation {
         default:
             break;
         case NodeKind.pose:
-            return lastState.status;
+            return lastState.getStatus();
         case NodeKind.animation:
             return lastState.getStatus();
         }
@@ -1363,41 +1363,39 @@ class PoseStateEval extends StateEval {
 
     public constructor (state: PoseState, context: AnimationGraphBindingContext) {
         super(state);
-        const poseEval = instantiatePoseGraph(state.graph, context);
-        if (poseEval) {
-            poseEval.bind(context);
-            this._rootPoseNodeEval = poseEval;
-        }
+        const instantiatedPoseGraph = instantiatePoseGraph(state.graph, context);
+        instantiatedPoseGraph.bind(context);
+        this._instantiatedPoseGraph = instantiatedPoseGraph;
         if (DEBUG) {
             this._statusCache.__DEBUG_ID__ = state.name;
         }
         this._statusCache.progress = 0.0;
     }
 
-    public get status (): Readonly<MotionStateStatus> {
-        this._statusCache.progress = normalizeProgress(this._elapsedTime);
-        return this._statusCache;
-    }
-
     public settle (context: AnimationGraphSettleContext) {
-        this._rootPoseNodeEval?.settle(context);
+        this._instantiatedPoseGraph?.settle(context);
     }
 
     public reenter () {
         this._statusCache.progress = 0.0;
-        this._rootPoseNodeEval?.reenter();
+        this._instantiatedPoseGraph.reenter();
     }
 
     public update (context: AnimationGraphUpdateContext) {
         this._elapsedTime += context.deltaTime;
-        this._rootPoseNodeEval?.update(context);
+        this._instantiatedPoseGraph.update(context);
     }
 
     public evaluate (context: AnimationGraphEvaluationContext) {
-        return this._rootPoseNodeEval?.evaluate(context) ?? null;
+        return this._instantiatedPoseGraph.evaluate(context) ?? null;
     }
 
-    private _rootPoseNodeEval: PoseNode | null = null;
+    public getStatus () {
+        this._statusCache.progress = normalizeProgress(this._elapsedTime);
+        return this._statusCache;
+    }
+
+    private _instantiatedPoseGraph: InstantiatedPoseGraph;
 
     private readonly _statusCache: MotionStateStatus = createStateStatusCache();
 

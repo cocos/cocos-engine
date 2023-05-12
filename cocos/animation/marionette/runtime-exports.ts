@@ -29,6 +29,8 @@ import './animation-graph-variant';
 
 import type { MotionStateStatus } from './animation-controller';
 
+export * from './pose-graph/runtime-exports';
+
 export type { AnimationGraphRunTime } from './animation-graph';
 export type { AnimationGraphVariantRunTime } from './animation-graph-variant';
 export { AnimationController } from './animation-controller';

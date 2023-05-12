@@ -265,6 +265,8 @@ export class StateMachine extends EditorExtendable {
             const state = this._states[iState];
             if (state instanceof SubStateMachine) {
                 state.stateMachine.__callOnAfterDeserializeRecursive();
+            } else if (state instanceof PoseState) {
+                state.__callOnAfterDeserializeRecursive();
             }
         }
     }
