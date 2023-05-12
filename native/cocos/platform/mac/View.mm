@@ -126,7 +126,6 @@
     }
 
     if (cc::EventDispatcher::initialized()) {
-        cc::events::Resize::broadcast(static_cast<int>(width), static_cast<int>(height), [self getWindowId]);
         cc::WindowEvent ev;
         ev.windowId = [self getWindowId];
         ev.type = cc::WindowEvent::Type::RESIZED;
