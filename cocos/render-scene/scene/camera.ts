@@ -807,6 +807,8 @@ export class Camera {
     public screenScale: number;
 
     public postProcess: PostProcess | null = null;
+    public usePostProcess = false;
+    public pipeline = '';
 
     private _device: Device;
     private _scene: RenderScene | null = null;

@@ -300,6 +300,7 @@ export class RenderScene {
      */
     public setMainLight (dl: DirectionalLight | null) {
         this._mainLight = dl;
+        if (this._mainLight) this._mainLight.activate();
     }
 
     /**

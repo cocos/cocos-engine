@@ -183,6 +183,7 @@ const legacyBuiltinEffectNames = [
     'skybox',
     'deferred-lighting',
     'bloom',
+    'hbao',
     'post-process',
     'profiler',
     'splash-screen',
@@ -200,6 +201,8 @@ const legacyBuiltinEffectNames = [
     'occlusion-query',
     'geometry-renderer',
     'debug-renderer',
+    'ssss-blur',
+    'tone-mapping',
 ];
 
 /**

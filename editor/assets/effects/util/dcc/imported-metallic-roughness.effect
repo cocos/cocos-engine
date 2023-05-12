@@ -18,6 +18,7 @@ CCEffect %{
         metallicMap:          { value: grey }
         occlusion:            { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         occlusionMap:         { value: white }
+        specularIntensity:    { value: 0.5, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         emissiveScale:        { value: 1.0 }
         emissiveScaleMap:     { value: grey }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { displayName: EmissiveColor, type: color} }
@@ -91,6 +92,7 @@ CCProgram shared-ubos %{
     float normalStrength;
     float alphaSource;
     float albedoScale;
+    float specularIntensity;
   };
 }%
 
@@ -329,7 +331,7 @@ CCProgram surface-fragment %{
     pbr.z = metallicValue;
 
     //specularIntensity
-    pbr.w = 0.5;
+    pbr.w = specularIntensity;
     return pbr;
   }
 }%
@@ -359,6 +361,7 @@ CCProgram standard-vs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-vs>
   #include <shared-ubos>
@@ -399,6 +402,7 @@ CCProgram standard-fs %{
 
 CCProgram shadow-caster-fs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-fs>
   #include <shared-ubos>
