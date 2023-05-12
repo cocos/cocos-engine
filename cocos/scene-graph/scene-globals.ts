@@ -1170,6 +1170,7 @@ export class SkinInfo {
     }
 }
 legacyCC.SkinInfo = SkinInfo;
+
 export interface ILightProbeNode {
     node: Node;
     probes: Vec3[] | null;
