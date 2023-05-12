@@ -1085,7 +1085,8 @@ legacyCC.OctreeInfo = OctreeInfo;
  * @en Global skin in the render scene.
  * @zh 渲染场景中的全局皮肤后处理设置。
  */
-class SkinInfo {
+@ccclass('cc.SkinInfo')
+export class SkinInfo {
     /**
      * @en Enable skip.
      * @zh 是否开启皮肤后效。
@@ -1168,6 +1169,7 @@ class SkinInfo {
         this._resource.initialize(this);
     }
 }
+legacyCC.SkinInfo = SkinInfo;
 export interface ILightProbeNode {
     node: Node;
     probes: Vec3[] | null;
