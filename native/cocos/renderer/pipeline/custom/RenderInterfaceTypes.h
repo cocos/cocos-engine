@@ -183,7 +183,7 @@ public:
 
     virtual void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
     virtual void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
-    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) = 0;
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     /**
@@ -221,6 +221,9 @@ public:
     }
     void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil) {
         addDepthStencil(name, accessType, slotName, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+        addTexture(name, slotName, nullptr);
     }
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
         addStorageBuffer(name, accessType, slotName, ClearValueType::NONE, {});
@@ -260,7 +263,7 @@ public:
     ComputeSubpassBuilder() noexcept = default;
 
     virtual void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) = 0;
-    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) = 0;
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     /**
@@ -272,6 +275,9 @@ public:
      * @beta function signature might change
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+        addTexture(name, slotName, nullptr);
+    }
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
         addStorageBuffer(name, accessType, slotName, ClearValueType::NONE, {});
     }
@@ -295,7 +301,7 @@ public:
 
     virtual void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
     virtual void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
-    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) = 0;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -332,6 +338,9 @@ public:
     }
     void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil) {
         addDepthStencil(name, slotName, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+        addTexture(name, slotName, nullptr);
     }
     RenderQueueBuilder *addQueue() {
         return addQueue(QueueHint::NONE, "");
@@ -377,7 +386,7 @@ class ComputePassBuilder : public Setter {
 public:
     ComputePassBuilder() noexcept = default;
 
-    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName) = 0;
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) = 0;
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     /**
@@ -389,6 +398,9 @@ public:
      * @beta function signature might change
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+        addTexture(name, slotName, nullptr);
+    }
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
         addStorageBuffer(name, accessType, slotName, ClearValueType::NONE, {});
     }
@@ -471,11 +483,47 @@ enum class PipelineType {
     STANDARD,
 };
 
+enum class SubpassCapabilities : uint32_t {
+    NONE = 0,
+    INPUT_DEPTH_STENCIL = 1 << 0,
+    INPUT_COLOR = 1 << 1,
+    INPUT_COLOR_MRT = 1 << 2,
+};
+
+constexpr SubpassCapabilities operator|(const SubpassCapabilities lhs, const SubpassCapabilities rhs) noexcept {
+    return static_cast<SubpassCapabilities>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+}
+
+constexpr SubpassCapabilities operator&(const SubpassCapabilities lhs, const SubpassCapabilities rhs) noexcept {
+    return static_cast<SubpassCapabilities>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+}
+
+constexpr SubpassCapabilities& operator|=(SubpassCapabilities& lhs, const SubpassCapabilities rhs) noexcept {
+    return lhs = lhs | rhs;
+}
+
+constexpr SubpassCapabilities& operator&=(SubpassCapabilities& lhs, const SubpassCapabilities rhs) noexcept {
+    return lhs = lhs & rhs;
+}
+
+constexpr bool operator!(SubpassCapabilities e) noexcept {
+    return e == static_cast<SubpassCapabilities>(0);
+}
+
+constexpr bool any(SubpassCapabilities e) noexcept {
+    return !!e;
+}
+
+struct PipelineCapabilities {
+    SubpassCapabilities subpass{SubpassCapabilities::NONE};
+};
+
 class BasicPipeline : public PipelineRuntime {
 public:
     BasicPipeline() noexcept = default;
 
     virtual PipelineType getPipelineType() const = 0;
+    virtual PipelineCapabilities getPipelineCapabilities() const = 0;
     virtual void beginSetup() = 0;
     virtual void endSetup() = 0;
     virtual bool containsResource(const ccstd::string &name) const = 0;

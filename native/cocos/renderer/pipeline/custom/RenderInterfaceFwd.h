@@ -56,7 +56,9 @@ class SceneTask;
 class SceneTransversal;
 
 enum class PipelineType;
+enum class SubpassCapabilities : uint32_t;
 
+struct PipelineCapabilities;
 class BasicPipeline;
 class Pipeline;
 class PipelineBuilder;

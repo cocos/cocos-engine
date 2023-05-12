@@ -387,7 +387,10 @@ void NativeRenderPassBuilder::addDepthStencil(
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-void NativeRenderPassBuilder::addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+void NativeRenderPassBuilder::addTexture(
+    const ccstd::string &name, const ccstd::string &slotName,
+    gfx::Sampler *sampler) {
+    std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
@@ -631,7 +634,10 @@ void NativeRenderSubpassBuilder::addDepthStencil(
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-void NativeRenderSubpassBuilder::addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+void NativeRenderSubpassBuilder::addTexture(
+    const ccstd::string &name, const ccstd::string &slotName,
+    gfx::Sampler *sampler) {
+    std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
@@ -785,7 +791,10 @@ void NativeComputeSubpassBuilder::addRenderTarget(const ccstd::string &name, con
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-void NativeComputeSubpassBuilder::addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+void NativeComputeSubpassBuilder::addTexture(
+    const ccstd::string &name, const ccstd::string &slotName,
+    gfx::Sampler *sampler) {
+    std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
@@ -1453,7 +1462,10 @@ void NativeComputeQueueBuilder::addDispatch(
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-void NativeComputePassBuilder::addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+void NativeComputePassBuilder::addTexture(
+    const ccstd::string &name, const ccstd::string &slotName,
+    gfx::Sampler *sampler) {
+    std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{

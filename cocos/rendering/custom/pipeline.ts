@@ -124,7 +124,8 @@ export interface RenderSubpassBuilder extends Setter {
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
     addDepthStencil (name: string, accessType: AccessType, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
-    addTexture (name: string, slotName: string): void;
+    addTexture (name: string, slotName: string, sampler: Sampler | null): void;
+    addTexture (name: string, slotName: string/*, null*/): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
@@ -154,7 +155,8 @@ export interface ComputeQueueBuilder extends Setter {
 
 export interface ComputeSubpassBuilder extends Setter {
     addRenderTarget (name: string, slotName: string): void;
-    addTexture (name: string, slotName: string): void;
+    addTexture (name: string, slotName: string, sampler: Sampler | null): void;
+    addTexture (name: string, slotName: string/*, null*/): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
@@ -184,7 +186,8 @@ export interface BasicRenderPassBuilder extends Setter {
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp, storeOp: StoreOp/*, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
     addDepthStencil (name: string, slotName: string, loadOp: LoadOp/*, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
     addDepthStencil (name: string, slotName: string/*, LoadOp.CLEAR, StoreOp.STORE, 1, 0, ClearFlagBit.DEPTH_STENCIL*/): void;
-    addTexture (name: string, slotName: string): void;
+    addTexture (name: string, slotName: string, sampler: Sampler | null): void;
+    addTexture (name: string, slotName: string/*, null*/): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -219,7 +222,8 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
 }
 
 export interface ComputePassBuilder extends Setter {
-    addTexture (name: string, slotName: string): void;
+    addTexture (name: string, slotName: string, sampler: Sampler | null): void;
+    addTexture (name: string, slotName: string/*, null*/): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType, clearValue: ClearValue): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType: ClearValueType/*, new ClearValue()*/): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string/*, ClearValueType.NONE, new ClearValue()*/): void;
@@ -285,8 +289,20 @@ export function getPipelineTypeName (e: PipelineType): string {
     }
 }
 
+export enum SubpassCapabilities {
+    NONE = 0,
+    INPUT_DEPTH_STENCIL = 1 << 0,
+    INPUT_COLOR = 1 << 1,
+    INPUT_COLOR_MRT = 1 << 2,
+}
+
+export class PipelineCapabilities {
+    subpass: SubpassCapabilities = SubpassCapabilities.NONE;
+}
+
 export interface BasicPipeline extends PipelineRuntime {
     readonly pipelineType: PipelineType;
+    readonly pipelineCapabilities: PipelineCapabilities;
     beginSetup (): void;
     endSetup (): void;
     containsResource (name: string): boolean;

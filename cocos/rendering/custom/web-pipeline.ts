@@ -29,7 +29,7 @@ import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeat
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
 import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, CopyPassBuilder, MovePassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder } from './pipeline';
+import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, CopyPassBuilder, MovePassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
@@ -900,7 +900,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
         throw new Error('Method not implemented.');
     }
-    addTexture (name: string, slotName: string): void {
+    addTexture (name: string, slotName: string, sampler: Sampler | null = null): void {
         throw new Error('Method not implemented.');
     }
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
@@ -1037,7 +1037,7 @@ export class WebRenderPassBuilder extends WebSetter implements RenderPassBuilder
             this._pass.computeViews.set(name, [view]);
         }
     }
-    addTexture (name: string, slotName: string): void {
+    addTexture (name: string, slotName: string, sampler: Sampler | null = null): void {
         this._addComputeResource(name, AccessType.READ, slotName);
     }
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
@@ -1180,7 +1180,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
-    addTexture (name: string, slotName: string): void {
+    addTexture (name: string, slotName: string, sampler: Sampler | null = null): void {
         throw new Error('Method not implemented.');
     }
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
@@ -1277,6 +1277,9 @@ export class WebPipeline implements BasicPipeline {
     }
     get pipelineType () {
         return PipelineType.BASIC;
+    }
+    get pipelineCapabilities () {
+        return new PipelineCapabilities();
     }
     addCustomBuffer (name: string, info: BufferInfo, type: string): number {
         throw new Error('Method not implemented.');

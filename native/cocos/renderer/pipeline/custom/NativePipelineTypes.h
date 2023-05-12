@@ -218,7 +218,7 @@ public:
 
     void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
     void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
-    void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) override;
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
@@ -285,7 +285,7 @@ public:
     }
 
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) override;
-    void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) override;
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
@@ -350,7 +350,7 @@ public:
 
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
     void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
-    void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) override;
     void addRasterView(const ccstd::string &name, const RasterView &view) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) override;
@@ -479,7 +479,7 @@ public:
         NativeSetter::setCamera(camera);
     }
 
-    void addTexture(const ccstd::string &name, const ccstd::string &slotName) override;
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) override;
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
@@ -924,6 +924,7 @@ public:
     bool isRenderQueueReset() const override;
 
     PipelineType getPipelineType() const override;
+    PipelineCapabilities getPipelineCapabilities() const override;
     void beginSetup() override;
     void endSetup() override;
     bool containsResource(const ccstd::string &name) const override;

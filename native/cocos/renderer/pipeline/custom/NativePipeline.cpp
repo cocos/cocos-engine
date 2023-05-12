@@ -94,6 +94,10 @@ PipelineType NativePipeline::getPipelineType() const {
     return PipelineType::STANDARD;
 }
 
+PipelineCapabilities NativePipeline::getPipelineCapabilities() const {
+    return PipelineCapabilities{};
+}
+
 void NativePipeline::beginSetup() {
     renderGraph = RenderGraph(get_allocator());
 }
