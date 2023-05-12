@@ -12,7 +12,8 @@
     {
       "USE_TEXTURE": true,
       "CC_USE_EMBEDDED_ALPHA": false,
-      "IS_GRAY": false
+      "IS_GRAY": false,
+      "USE_LOCAL": true
     }
   ],
   "_states": [

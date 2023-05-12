@@ -48,6 +48,10 @@ export * from './skeleton-data';
 export * from './skeleton-texture';
 export * from './vertex-effect-delegate';
 export * from './assembler';
+export * from './cocos-spine/spine-skeleton-ui';
+export * from './cocos-spine/spine-skeleton-renderer-ui';
+export * from './cocos-spine/spine-skeleton-animation';
+export * from './cocos-spine/spine-skeleton-model-renderer';
 
 export { spine };
 
