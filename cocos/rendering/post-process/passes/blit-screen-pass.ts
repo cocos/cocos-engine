@@ -48,7 +48,7 @@ export class BlitScreenPass extends SettingPass {
 
             passContext
                 .updatePassViewPort()
-                .addRasterPass('post-process', `${this.name}${cameraID}${slotIdx}`)
+                .addRenderPass('post-process', `${this.name}${cameraID}${slotIdx}`)
                 .setPassInput(input0, 'inputTexture')
                 .addRasterView(slotName, Format.RGBA8)
                 .blitScreen(0)

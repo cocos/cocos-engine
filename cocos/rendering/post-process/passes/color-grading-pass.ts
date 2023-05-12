@@ -34,7 +34,7 @@ export class ColorGradingPass extends SettingPass {
         const passIndx = isSquareMap ? 1 : 0;
         passContext
             .updatePassViewPort()
-            .addRasterPass(passName, `color-grading${cameraID}`)
+            .addRenderPass(passName, `color-grading${cameraID}`)
             .setPassInput(input, 'sceneColorMap')
             .addRasterView(slot, Format.RGBA8)
             .blitScreen(passIndx)

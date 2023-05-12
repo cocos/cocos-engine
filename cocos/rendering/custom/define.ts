@@ -1447,7 +1447,7 @@ function _buildSSSSBlurPass (camera: Camera,
     ppl.updateRenderTarget(ssssBlurDSName, width, height);
 
     // ==== Copy input DS ===
-    const copyInputDSPass = ppl.addRasterPass(width, height, 'copy-pass');
+    const copyInputDSPass = ppl.addRenderPass(width, height, 'copy-pass');
     copyInputDSPass.name = `CameraCopyDSPass${cameraID}`;
     copyInputDSPass.setViewport(new Viewport(area.x, area.y, width, height));
     if (ppl.containsResource(inputDS)) {
@@ -1474,7 +1474,7 @@ function _buildSSSSBlurPass (camera: Camera,
     );
 
     // ==== SSSS Blur X Pass ===
-    const ssssblurXPass = ppl.addRasterPass(width, height, 'ssss-blurX');
+    const ssssblurXPass = ppl.addRenderPass(width, height, 'ssss-blurX');
     ssssblurXPass.name = `CameraSSSSBlurXPass${cameraID}`;
     ssssblurXPass.setViewport(new Viewport(area.x, area.y, width, height));
     if (ppl.containsResource(inputRT)) {
@@ -1522,7 +1522,7 @@ function _buildSSSSBlurPass (camera: Camera,
     );
 
     // === SSSS Blur Y Pass ===
-    const ssssblurYPass = ppl.addRasterPass(width, height, 'ssss-blurY');
+    const ssssblurYPass = ppl.addRenderPass(width, height, 'ssss-blurY');
     ssssblurYPass.name = `CameraSSSSBlurYPass${cameraID}`;
     ssssblurYPass.setViewport(new Viewport(area.x, area.y, width, height));
     if (ppl.containsResource(ssssBlurRTName)) {
@@ -1618,7 +1618,7 @@ export function buildToneMappingPass (camera: Camera,
     }
     ppl.updateRenderTarget(toneMappingPassRTName, width, height);
     ppl.updateDepthStencil(toneMappingPassDS, width, height);
-    const toneMappingPass = ppl.addRasterPass(width, height, 'tone-mapping');
+    const toneMappingPass = ppl.addRenderPass(width, height, 'tone-mapping');
     toneMappingPass.name = `CameraToneMappingPass${cameraID}`;
     toneMappingPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
     if (ppl.containsResource(inputRT)) {
@@ -1665,7 +1665,7 @@ export function buildTransparencyPass (camera: Camera,
     const width = area.width;
     const height = area.height;
 
-    const alphaPass = ppl.addRasterPass(width, height, 'default');
+    const alphaPass = ppl.addRenderPass(width, height, 'default');
     alphaPass.name = `CameraAlphaPass${cameraID}`;
     alphaPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
@@ -1714,7 +1714,7 @@ function _buildSpecularPass (camera: Camera,
     const width = area.width;
     const height = area.height;
 
-    const specalurPass = ppl.addRasterPass(width, height, 'specular-pass');
+    const specalurPass = ppl.addRenderPass(width, height, 'specular-pass');
     specalurPass.name = `CameraSpecalurPass${cameraID}`;
     specalurPass.setViewport(new Viewport(area.x, area.y, width, height));
     for (const dirShadowName of cameraInfo.mainLightShadowNames) {
@@ -1938,7 +1938,7 @@ function _buildHBAOPass (camera: Camera,
         ppl.addRenderTarget(hbaoRTName, Format.BGRA8, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(hbaoRTName, width, height);
-    const hbaoPass = ppl.addRasterPass(width, height, 'hbao-pass');
+    const hbaoPass = ppl.addRenderPass(width, height, 'hbao-pass');
     hbaoPass.name = `CameraHBAOPass${cameraID}`;
     hbaoPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
     if (ppl.containsResource(inputDS)) {
@@ -2002,7 +2002,7 @@ function _buildHBAOBlurPass (camera: Camera,
         ppl.addRenderTarget(outputRTName, Format.BGRA8, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(outputRTName, width, height);
-    const blurPass = ppl.addRasterPass(width, height, shaderPassName);
+    const blurPass = ppl.addRenderPass(width, height, shaderPassName);
     blurPass.name = blurPassName;
     blurPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
     if (ppl.containsResource(inputDS)) {
@@ -2065,7 +2065,7 @@ function _buildHBAOCombinedPass (camera: Camera,
         ppl.addRenderTarget(outputRTName, Format.BGRA8, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(outputRTName, width, height);
-    const hbaoPass = ppl.addRasterPass(width, height, 'combine-pass');
+    const hbaoPass = ppl.addRenderPass(width, height, 'combine-pass');
     hbaoPass.name = `CameraHBAOCombinedPass${cameraID}`;
     hbaoPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
 
