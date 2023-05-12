@@ -1,5 +1,5 @@
 import { TEST } from 'internal:constants';
-import { assertIsTrue, EditorExtendable } from '../../../core';
+import { assertIsTrue } from '../../../core';
 import { ccclass } from '../../../core/data/decorators';
 import { Pose } from '../../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../../define';
@@ -9,6 +9,8 @@ import {
     AnimationGraphSettleContext,
     AnimationGraphUpdateContext,
 } from '../animation-graph-context';
+import { PoseGraphNode } from './foundation/pose-graph-node';
+import type { PoseNodeDependencyEvaluation } from './instantiation';
 
 const POSE_NODE_EVALUATION_STACK_ORDER_DEBUG_ENABLED = !!TEST;
 
@@ -18,7 +20,7 @@ const POSE_NODE_EVALUATION_STACK_ORDER_DEBUG_ENABLED = !!TEST;
  * Pose nodes are nodes in pose graph that yields pose objects.
  */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNode`)
-export abstract class PoseNode extends EditorExtendable {
+export abstract class PoseNode extends PoseGraphNode {
     /**
      * Starts the bind stage on this pose node.
      *
@@ -61,7 +63,7 @@ export abstract class PoseNode extends EditorExtendable {
      * @note Subclasses shall not override this method and should override `doUpdate` instead.
      */
     public update (context: AnimationGraphUpdateContext) {
-        // TODO: update dependencies.
+        this._dependencyEvaluation?.evaluate();
         this.doUpdate(context);
     }
 
@@ -98,6 +100,11 @@ export abstract class PoseNode extends EditorExtendable {
         return context.pushDefaultedPose();
     }
 
+    /** @internal */
+    public _setDependencyEvaluation (dependency: PoseNodeDependencyEvaluation) {
+        this._dependencyEvaluation = dependency;
+    }
+
     /**
      * Implement this method to performs the update stage on this pose node.
      *
@@ -116,4 +123,6 @@ export abstract class PoseNode extends EditorExtendable {
      * @returns The result pose.
      */
     protected abstract doEvaluate (context: AnimationGraphEvaluationContext): Pose;
+
+    private _dependencyEvaluation: PoseNodeDependencyEvaluation | undefined = undefined;
 }

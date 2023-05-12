@@ -43,3 +43,5 @@ export {
 export {
     getVariableValueAttributes,
 } from '../src/marionette/get-variable-value-attributes';
+
+export * from '../src/marionette/pose-graph-editor-api';

@@ -3,7 +3,7 @@ jest.mock('../../../cocos/animation/marionette/graph-eval');
 import { AnimationController } from "../../../cocos/animation/animation";
 import { AnimationGraphCustomEventEmitter } from "../../../cocos/animation/marionette/event/custom-event-emitter";
 import { AnimationGraphEval } from "../../../cocos/animation/marionette/graph-eval";
-import { AnimationGraph } from "../../../editor/exports/new-gen-anim";
+import { AnimationGraph } from "../../../cocos/animation/marionette/animation-graph";
 import { EventTarget, Node } from "../../../exports/base";
 import { AnimationGraphEvalMock } from './utils/eval-mock';
 import 'jest-extended';
