@@ -1169,8 +1169,6 @@ export class SkinInfo {
         this._resource.initialize(this);
     }
 }
-legacyCC.SkinInfo = SkinInfo;
-
 export interface ILightProbeNode {
     node: Node;
     probes: Vec3[] | null;
