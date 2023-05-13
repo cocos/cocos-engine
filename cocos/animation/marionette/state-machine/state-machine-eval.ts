@@ -1373,7 +1373,7 @@ class PoseStateEval extends StateEval {
     }
 
     public settle (context: AnimationGraphSettleContext) {
-        this._instantiatedPoseGraph?.settle(context);
+        this._instantiatedPoseGraph.settle(context);
     }
 
     public reenter () {
