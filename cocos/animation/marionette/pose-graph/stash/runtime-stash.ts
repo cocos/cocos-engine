@@ -43,7 +43,7 @@ interface RuntimeStash {
         [*] --> Evaluating
         Evaluating --> Evaluating: `evaluate()`, circular dependency formed, return the default pose
         Evaluating --> Evaluated: The `evaluate()` returned
-        Evaluated --> Evaluated: `evaluate()`, no effect
+        Evaluated --> Evaluated: `evaluate()`, cache is returned
         Evaluated --> [*]
       }
 
