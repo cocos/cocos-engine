@@ -29,28 +29,28 @@ interface RuntimeStash {
       Settled --> Pending: `reenter()`
       Pending --> Pending: Repeatedly renter through `reenter()`, no effect
 
-      Pending --> Update
+      Pending --> Update: `update()`
       state Update {
-        [*] --> Updating: `update()`
+        [*] --> Updating
         Updating --> Updating: `update()`, circular dependency formed, no effect
         Updating --> Updated: The `update()` returned
         Updated --> Updated: `update()`, no effect
         Updated --> [*]
       }
 
-      Update --> Evaluate
+      Update --> Evaluate: `evaluate()`
       state Evaluate {
-        [*] --> Evaluating: `evaluate()`
+        [*] --> Evaluating
         Evaluating --> Evaluating: `evaluate()`, circular dependency formed, return the default pose
         Evaluating --> Evaluated: The `evaluate()` returned
         Evaluated --> Evaluated: `evaluate()`, no effect
         Evaluated --> [*]
       }
 
-      Settled --> Settled: The stash was not touched in last tick and still not been touched in this tick
-      Pending --> Settled: The stash was touched in last tick but does not being touched in this tick.
-      Update --> Pending: End of tick, the stash is updated but not evaluated in this tick
-      Evaluate --> Pending: End of tick, The stash is evaluated in this tick
+      Settled --> Settled: At the end of tick
+      Pending --> Settled: At the end of tick
+      Update --> Pending: At the end of tick
+      Evaluate --> Pending: At the end of tick
   ```
  *
  * - Stash records are created at the beginning of layer instantiation, before instantiation of any other things.
