@@ -10,6 +10,10 @@
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
 #include "editor-support/spine-creator-support/spine-cocos2dx.h"
+#include "editor-support/cocos-spine/spine-mesh-data.h"
+#include "editor-support/cocos-spine/spine-skeleton-instance.h"
+#include "editor-support/cocos-spine/spine-skeleton-ui-renderer.h"
+#include "editor-support/cocos-spine/spine-skeleton-ui.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
@@ -316,3 +320,9 @@ using namespace spine;
 %include "editor-support/spine-creator-support/SkeletonDataMgr.h"
 %include "editor-support/spine-creator-support/SkeletonCacheAnimation.h"
 %include "editor-support/spine-creator-support/SkeletonCacheMgr.h"
+
+// cocos-spine
+%include "editor-support/cocos-spine/spine-mesh-data.h"
+%include "editor-support/cocos-spine/spine-skeleton-instance.h"
+%include "editor-support/cocos-spine/spine-skeleton-ui-renderer.h"
+%include "editor-support/cocos-spine/spine-skeleton-ui.h"

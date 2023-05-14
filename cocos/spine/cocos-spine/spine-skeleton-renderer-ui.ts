@@ -13,6 +13,7 @@ import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { MaterialInstance } from '../../render-scene';
 import { RenderEntity, RenderEntityType } from '../../2d/renderer/render-entity';
 import { SpineSkeletonMesh } from './spine-skeleton-imply-wasm';
+import { NativeSpineSkeletonUIRenderer } from './spine-skeleton-native-type';
 
 let _accessor: StaticVBAccessor = null!;
 
@@ -96,23 +97,27 @@ export class SpineSkeletonRendererUI extends UIRenderable {
     private _mesh: SpineSkeletonMesh = null!;
     private _drawList: SpineSkeletonUIDraw[] = [];
     private _premultipliedAlpha = true;
-    //private _nativeObj: NativeSpineSkeletonRendererUI = null!;
+    private _nativeObj: NativeSpineSkeletonUIRenderer = null!;
 
     constructor () {
         super();
         this._assembler = simple;
         this._useVertexOpacity = true;
+        if (JSB) {
+            this._nativeObj = new NativeSpineSkeletonUIRenderer();
+            this._nativeObj.setRenderEntity(this._renderEntity.nativeObj);
+        }
     }
 
     public nativeObject () {
-        //return this._nativeObj;
+        return this._nativeObj;
     }
 
     public setTexture (tex: Texture2D | null) {
         this._texture = tex;
-        // if (this._nativeObj && tex) {
-        //     this._nativeObj.setTexture(tex);
-        // }
+        if (this._nativeObj && tex) {
+            this._nativeObj.setTexture(tex);
+        }
     }
     set premultipliedAlpha (v: boolean) {
         this._premultipliedAlpha = v;
@@ -135,6 +140,12 @@ export class SpineSkeletonRendererUI extends UIRenderable {
     public onDisable () {
         super.onDisable();
     }
+    public onDestroy () {
+        super.onDestroy();
+        if (JSB) {
+            this._nativeObj.onDestroy();
+        }
+    }
 
     public updateMaterial () {
         let mat;
@@ -147,6 +158,9 @@ export class SpineSkeletonRendererUI extends UIRenderable {
             mat = builtinResMgr.get<Material>('default-spine-material');
             this.setMaterial(mat, 0);
         }
+        if (JSB) {
+            this._nativeObj.setMaterial(mat);
+        }
     }
 
     public updateRenderer () {
@@ -155,6 +169,7 @@ export class SpineSkeletonRendererUI extends UIRenderable {
     }
 
     protected _render (batcher: Batcher2D): void {
+        if (JSB) return;
         if (!this._mesh) return;
         if (!this._texture) return;
         if (!this._renderData) return;
@@ -173,10 +188,6 @@ export class SpineSkeletonRendererUI extends UIRenderable {
         accessor.appendIndices(chunk.bufferId, rd.indices!);
     }
 
-    public onDestroy () {
-        super.onDestroy();
-    }
-
     private _assembleRenderData () {
         this._drawList.length = 0;
         if (JSB || !this._mesh) return;
@@ -189,8 +200,8 @@ export class SpineSkeletonRendererUI extends UIRenderable {
         const ib = renderData.indices;
         const chunkOffset = renderData.chunk.vertexOffset;
 
-        const srcVB = mesh.vertices;
-        const srcIB = mesh.indices;
+        const srcVB = mesh.vBuf;
+        const srcIB = mesh.iBuf;
 
         vb.set(srcVB, 0);
         ib.set(srcIB, 0);

@@ -37,8 +37,8 @@ export class SpineSkeletonMesh {
         this.iCount = ic;
         this.byteStride = stride;
         const floatNum = vc * this.byteStride / 4;
-        this.vertices = new Float32Array(floatNum);
-        this.indices = new Uint16Array(ic);
+        this.vBuf = new Float32Array(floatNum);
+        this.iBuf = new Uint16Array(ic);
     }
 
     public clone (): SpineSkeletonMesh {
@@ -47,10 +47,10 @@ export class SpineSkeletonMesh {
         newOne.vCount = this.vCount;
         newOne.iCount = this.iCount;
         newOne.byteStride = this.byteStride;
-        newOne.vertices = new Float32Array(this.vertices.length);
-        newOne.indices = new Uint16Array(this.indices.length);
-        newOne.vertices.set(this.vertices);
-        newOne.indices.set(this.indices);
+        newOne.vBuf = new Float32Array(this.vBuf.length);
+        newOne.iBuf = new Uint16Array(this.iBuf.length);
+        newOne.vBuf.set(this.vBuf);
+        newOne.iBuf.set(this.iBuf);
 
         this.blendInfos.forEach((item) => {
             newOne.blendInfos.push({
@@ -66,8 +66,8 @@ export class SpineSkeletonMesh {
     public declare vCount: number;
     public declare iCount: number;
     public declare byteStride: number;
-    public declare vertices: Float32Array;
-    public declare indices: Uint16Array;
+    public declare vBuf: Float32Array;
+    public declare iBuf: Uint16Array;
     public blendInfos: SpineMeshBlendInfo[] = [];
 }
 
@@ -170,6 +170,9 @@ export class SpineSkeletonInstance implements SpineSkeletonInstanceInterface {
         this._objPtr = _wasmInstance.createSkeletonObject();
     }
 
+    initialize () {
+    }
+
     public getNativeObject (): any {
         return null;
     }
@@ -239,8 +242,8 @@ export class SpineSkeletonInstance implements SpineSkeletonInstanceInterface {
         mesh.byteStride = 4 * floatStride;
         mesh.vCount = vc;
         mesh.iCount = ic;
-        mesh.vertices = vertices;
-        mesh.indices = indices;
+        mesh.vBuf = vertices;
+        mesh.iBuf = indices;
 
         for (let i = 0; i < blendCount; i++) {
             const blend = heap32[uint32Ptr++];

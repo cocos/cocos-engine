@@ -46,6 +46,10 @@ import { legacyCC } from '../core/global-exports';
 export * from './skeleton';
 export * from './skeleton-data';
 export * from './assembler';
+export * from './cocos-spine/spine-skeleton-ui';
+export * from './cocos-spine/spine-skeleton-renderer-ui';
+export * from './cocos-spine/spine-skeleton-animation';
+export * from './cocos-spine/spine-skeleton-model-renderer';
 
 export const spine = globalThis.spine;
 export const VertexEffectDelegate = spine.VertexEffectDelegate;

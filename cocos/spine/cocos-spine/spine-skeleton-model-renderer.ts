@@ -48,7 +48,11 @@ export class SpineSkeletonModelRenderer extends ModelRenderer {
 
     set mesh (mesh: SpineSkeletonMesh) {
         this._mesh = mesh;
-        this._assembleModel();
+        if (JSB) {
+            this._assembleModelForNative();
+        } else {
+            this._assembleModelForWeb();
+        }
     }
 
     public onLoad () {
@@ -63,7 +67,6 @@ export class SpineSkeletonModelRenderer extends ModelRenderer {
     }
 
     public update (dt: number) {
-        this._assembleModel();
         this._onUpdateLocalDescriptorSet();
     }
 
@@ -183,16 +186,33 @@ export class SpineSkeletonModelRenderer extends ModelRenderer {
         }
     }
 
-    private _assembleModel () {
+    private _assembleModelForWeb () {
         const mesh = this._mesh;
+        if (!mesh) return;
         for (let idx = 0;  idx < 1; idx++) {
             this._activeSubModel(idx);
             const subModel = this._models[0].subModels[idx];
             const ia = subModel.inputAssembler;
-            const vb = new Float32Array(mesh.vertices);
+            const vb = new Float32Array(mesh.vBuf);
             ia.vertexBuffers[0].update(vb);
             ia.vertexCount = mesh.vCount;
-            const ib = new Uint16Array(mesh.indices);
+            const ib = new Uint16Array(mesh.iBuf);
+            ia.indexBuffer!.update(ib);
+            ia.indexCount = ib.length;
+        }
+    }
+
+    private _assembleModelForNative () {
+        const mesh = this._mesh;
+        if (!mesh) return;
+        for (let idx = 0;  idx < 1; idx++) {
+            this._activeSubModel(idx);
+            const subModel = this._models[0].subModels[idx];
+            const ia = subModel.inputAssembler;
+            const vb = new Float32Array(mesh.vBuf.buffer);
+            ia.vertexBuffers[0].update(vb);
+            ia.vertexCount = mesh.vCount;
+            const ib = new Uint16Array(mesh.iBuf);
             ia.indexBuffer!.update(ib);
             ia.indexCount = ib.length;
         }

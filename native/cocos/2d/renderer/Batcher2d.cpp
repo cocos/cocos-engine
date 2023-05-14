@@ -606,4 +606,29 @@ void Batcher2d::createClearModel() {
         _maskClearModel->initSubModel(0, _maskModelMesh, _maskClearMtl);
     }
 }
+void Batcher2d::addMeshBuffer(uint16_t accId, UIMeshBuffer* buffer) {
+    if (_meshBuffersMap.find(accId) != _meshBuffersMap.end()) {
+        _meshBuffersMap[accId].push_back(buffer);
+    } else {
+        ccstd::vector<UIMeshBuffer*> bufferArray;
+        bufferArray.push_back(buffer);
+        _meshBuffersMap[accId] = bufferArray;
+    }
+}
+void Batcher2d::removeMeshBuffer(uint16_t accId, UIMeshBuffer * buffer) {
+    auto iter = _meshBuffersMap.find(accId);
+    if (iter != _meshBuffersMap.end()) {
+        UIMeshBufferArray& bufferArray = iter->second;
+        for (auto it = bufferArray.begin(); it != bufferArray.end(); ++it) {
+            if (*it == buffer) {
+                bufferArray.erase(it);
+                break;
+            }
+        }
+        if (bufferArray.empty()) {
+            _meshBuffersMap.erase(iter);
+        }
+    }
+}
+
 } // namespace cc

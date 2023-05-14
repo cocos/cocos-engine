@@ -32,6 +32,7 @@ import { SpineSocket } from '../skeleton';
 import { SpineSkeletonCache, SpineAnimationCache } from './spine-skeleton-cache';
 import { SpineSkeletonInstance, SpineSkeletonMesh, SpineJitterVertexEffect, SpineSwirlVertexEffect } from './spine-skeleton-imply-wasm';
 import { UITransform } from '../../2d';
+import { NativeSpineSkeletonUI } from './spine-skeleton-native-type';
 
 const attachMat4 = new Mat4();
 
@@ -82,12 +83,17 @@ export class SpineSkeletonUI extends Component {
     protected _effect: SpineJitterVertexEffect | SpineSwirlVertexEffect | null = null;
     private _cacheInfo: SpineAnimationCacheInfo = null!;
     private _animationCache: SpineAnimationCache = null!;
+    private _nativeObj: NativeSpineSkeletonUI = null!;
 
     constructor () {
         super();
         setEnumAttr(this, 'defaultSkinIndex', Enum({}));
         setEnumAttr(this, 'animationIndex', Enum({}));
         this._skeleton = new SpineSkeletonInstance();
+        if (JSB) {
+            this._nativeObj = new NativeSpineSkeletonUI();
+            this._nativeObj.setSkeletonInstance(this._skeleton.getNativeObject());
+        }
     }
 
     @type(SkeletonData)
@@ -327,7 +333,9 @@ export class SpineSkeletonUI extends Component {
     }
 
     public onEnable () {
-
+        if (JSB && this._renderer) {
+            this._nativeObj.setSkeletonRendererer(this._renderer.nativeObject());
+        }
     }
 
     public onDisable () {
@@ -411,7 +419,12 @@ export class SpineSkeletonUI extends Component {
 
     private _updateRenderData () {
         if (!this._renderer) return;
-        this.updateColor();
+        //this.updateColor();
+        if (JSB) {
+            this._nativeObj.updateRenderData();
+            this._renderer.markForUpdateRenderData();
+            return;
+        }
         let mesh: SpineSkeletonMesh = null!;
         if (this._cacheMode && this._animationCache) {
             const frameIdx = this._cacheInfo.currFrameIdx;

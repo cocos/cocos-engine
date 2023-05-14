@@ -47,6 +47,8 @@ public:
     ~Batcher2d();
 
     void syncMeshBuffersToNative(uint16_t accId, ccstd::vector<UIMeshBuffer*>&& buffers);
+    void addMeshBuffer(uint16_t accId, UIMeshBuffer *buffer);
+    void removeMeshBuffer(uint16_t accId, UIMeshBuffer *buffer);
 
     bool initialize();
     void update();
