@@ -252,6 +252,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         audioBufferManager.tryReleasingCache(this._src);
         game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
         game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
+        this.offRunning();
     }
     static load (url: string): Promise<AudioPlayerWeb> {
         return new Promise((resolve) => {
