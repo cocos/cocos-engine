@@ -97,7 +97,7 @@ export class SpineSkeletonRendererUI extends UIRenderable {
     private _mesh: SpineSkeletonMesh = null!;
     private _drawList: SpineSkeletonUIDraw[] = [];
     private _premultipliedAlpha = true;
-    private _nativeObj: NativeSpineSkeletonUIRenderer = null!;
+    private declare _nativeObj: NativeSpineSkeletonUIRenderer;
 
     constructor () {
         super();
@@ -115,7 +115,7 @@ export class SpineSkeletonRendererUI extends UIRenderable {
 
     public setTexture (tex: Texture2D | null) {
         this._texture = tex;
-        if (this._nativeObj && tex) {
+        if (JSB && tex) {
             this._nativeObj.setTexture(tex);
         }
     }
