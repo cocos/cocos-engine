@@ -71,8 +71,8 @@ export class SafeArea extends Component {
     }
 
     /**
-     * @en Adapt to safe area
-     * @zh 立即适配安全区域
+     * @en Adapt to safe area.
+     * @zh 立即适配安全区域。
      * @method updateArea
      * @example
      * let safeArea = this.node.addComponent(cc.SafeArea);

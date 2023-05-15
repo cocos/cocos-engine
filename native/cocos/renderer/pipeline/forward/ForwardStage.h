@@ -30,7 +30,6 @@ namespace cc {
 namespace pipeline {
 
 class RenderFlow;
-class RenderBatchedQueue;
 class RenderInstancedQueue;
 class RenderAdditiveLightQueue;
 class PlanarShadowQueue;
@@ -54,8 +53,6 @@ private:
     static RenderStageInfo initInfo;
     // manage memory manually
     PlanarShadowQueue *_planarShadowQueue{nullptr};
-    // manage memory manually
-    RenderBatchedQueue *_batchedQueue{nullptr};
     // manage memory manually
     RenderInstancedQueue *_instancedQueue{nullptr};
     // manage memory manually

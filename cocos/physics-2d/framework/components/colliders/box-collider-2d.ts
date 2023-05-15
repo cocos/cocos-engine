@@ -26,20 +26,23 @@ import { Vec2, Size, _decorator } from '../../../../core';
 import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { IBoxShape } from '../../../spec/i-physics-shape';
+import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
 const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.BoxCollider2D')
+@help('i18n:cc.BoxCollider2D')
 @menu('Physics2D/Colliders/BoxCollider2D')
 export class BoxCollider2D extends Collider2D {
-    @property
+    @serializable
     private _size = new Size(1, 1);
 
     /**
      * @en Box size.
      * @zh 包围盒大小。
      */
-    @property
+    @type(Size)
+    @tooltip('i18n:physics2d.collider.size')
     get size () {
         return this._size;
     }

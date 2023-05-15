@@ -28,6 +28,8 @@ import { DirectionalLight } from '../scene/directional-light';
 import { Model } from '../scene/model';
 import { SphereLight } from '../scene/sphere-light';
 import { SpotLight } from '../scene/spot-light';
+import { PointLight } from '../scene/point-light';
+import { RangedDirectionalLight } from '../scene/ranged-directional-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../2d/renderer/draw-batch';
 import { LODGroup } from '../scene/lod-group';
@@ -64,64 +66,80 @@ export interface IRaycastResult {
  */
 export class RenderScene {
     /**
-     * @en The root manager of the renderer
-     * @zh 基础渲染管理器
+     * @en The root manager of the renderer.
+     * @zh 基础渲染管理器。
      */
     get root (): Root {
         return this._root;
     }
 
     /**
-     * @en The name of the render scene
-     * @zh 渲染场景的名称
+     * @en The name of the render scene.
+     * @zh 渲染场景的名称。
      */
     get name (): string {
         return this._name;
     }
 
     /**
-     * @en All cameras of the render scene
-     * @zh 渲染场景管理的所有相机
+     * @en All cameras of the render scene.
+     * @zh 渲染场景管理的所有相机。
      */
     get cameras (): Camera[] {
         return this._cameras;
     }
 
     /**
-     * @en The main directional light source of the render scene
-     * @zh 渲染场景管理的主方向光源
+     * @en The main directional light source of the render scene.
+     * @zh 渲染场景管理的主方向光源。
      */
     get mainLight (): DirectionalLight | null {
         return this._mainLight;
     }
 
     /**
-     * @en All sphere light sources of the render scene
-     * @zh 渲染场景管理的所有球面光源
+     * @en All sphere light sources of the render scene.
+     * @zh 渲染场景管理的所有球面光源。
      */
-    get sphereLights (): SphereLight[] {
+    get sphereLights (): Readonly<SphereLight[]> {
         return this._sphereLights;
     }
 
     /**
-     * @en All spot light sources of the render scene
-     * @zh 渲染场景管理的所有聚光灯光源
+     * @en All spot light sources of the render scene.
+     * @zh 渲染场景管理的所有聚光灯光源。
      */
-    get spotLights (): SpotLight[] {
+    get spotLights (): Readonly<SpotLight[]> {
         return this._spotLights;
     }
 
     /**
-     * @en All active models of the render scene
-     * @zh 渲染场景管理的所有模型
+     * @en All point light sources of the render scene.
+     * @zh 渲染场景管理的所有点光源。
+     */
+    get pointLights (): Readonly<PointLight[]> {
+        return this._pointLights;
+    }
+
+    /**
+     * @en All ranged directional light sources of the render scene.
+     * @zh 渲染场景管理的所有范围平行光光源。
+     */
+    get rangedDirLights (): Readonly<RangedDirectionalLight[]> {
+        return this._rangedDirLights;
+    }
+
+    /**
+     * @en All active models of the render scene.
+     * @zh 渲染场景管理的所有模型。
      */
     get models (): Model[] {
         return this._models;
     }
 
     /**
-     * @en All active 2d draw batches of the render scene
-     * @zh 渲染场景管理的所有 2D 渲染批次对象
+     * @en All active 2d draw batches of the render scene.
+     * @zh 渲染场景管理的所有 2D 渲染批次对象。
      */
     get batches () {
         return this._batches;
@@ -129,8 +147,8 @@ export class RenderScene {
 
     /**
      * @engineInternal
-     * @en All LOD groups of the render scene
-     * @zh 渲染场景管理的所有 LOD 组
+     * @en All LOD groups of the render scene.
+     * @zh 渲染场景管理的所有 LOD 组。
      */
     get lodGroups (): readonly LODGroup[] { return this._lodGroups; }
 
@@ -143,6 +161,8 @@ export class RenderScene {
     private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
+    private _pointLights: PointLight[] = [];
+    private _rangedDirLights: RangedDirectionalLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId = 0;
     private _lodStateCache: LodStateCache = null!;
@@ -194,6 +214,18 @@ export class RenderScene {
             light.update();
         }
 
+        const pointLights = this._pointLights;
+        for (let i = 0; i < pointLights.length; i++) {
+            const light = pointLights[i];
+            light.update();
+        }
+
+        const rangedDirLights = this._rangedDirLights;
+        for (let i = 0; i < rangedDirLights.length; i++) {
+            const light = rangedDirLights[i];
+            light.update();
+        }
+
         const models = this._models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
@@ -214,6 +246,7 @@ export class RenderScene {
         this.removeCameras();
         this.removeSphereLights();
         this.removeSpotLights();
+        this.removeRangedDirLights();
         this.removeModels();
         this.removeLODGroups();
         this._lodStateCache.clearCache();
@@ -267,6 +300,7 @@ export class RenderScene {
      */
     public setMainLight (dl: DirectionalLight | null) {
         this._mainLight = dl;
+        if (this._mainLight) this._mainLight.activate();
     }
 
     /**
@@ -384,7 +418,79 @@ export class RenderScene {
         for (let i = 0; i < this._spotLights.length; ++i) {
             this._spotLights[i].detachFromScene();
         }
-        this._spotLights = [];
+        this._spotLights.length = 0;
+    }
+
+    /**
+     * @en Add a point light source.
+     * @zh 增加一个点光源。
+     * @param pl @en The point light. @zh 点光源。
+     */
+    public addPointLight (pl: PointLight) {
+        pl.attachToScene(this);
+        this._pointLights.push(pl);
+    }
+
+    /**
+     * @en Remove a sphere light source.
+     * @zh 删除一个点光源。
+     * @param pl @en The point light. @zh 点光源。
+     */
+    public removePointLight (pl: PointLight) {
+        for (let i = 0; i < this._pointLights.length; ++i) {
+            if (this._pointLights[i] === pl) {
+                pl.detachFromScene();
+                this._pointLights.splice(i, 1);
+                return;
+            }
+        }
+    }
+
+    /**
+     * @en Remove all point light sources.
+     * @zh 删除所有点光源。
+     */
+    public removePointLights () {
+        for (let i = 0; i < this._pointLights.length; ++i) {
+            this._pointLights[i].detachFromScene();
+        }
+        this._pointLights.length = 0;
+    }
+
+    /**
+     * @en Add a ranged directional light source.
+     * @zh 增加一个范围平行光源。
+     * @param l @en The ranged directional light. @zh 范围平行光。
+     */
+    public addRangedDirLight (l: RangedDirectionalLight) {
+        l.attachToScene(this);
+        this._rangedDirLights.push(l);
+    }
+
+    /**
+     * @en Remove a ranged directional light source.
+     * @zh 删除一个范围平行光源。
+     * @param l @en The ranged directional light. @zh 范围平行光。
+     */
+    public removeRangedDirLight (l: RangedDirectionalLight) {
+        for (let i = 0; i < this._rangedDirLights.length; ++i) {
+            if (this._rangedDirLights[i] === l) {
+                l.detachFromScene();
+                this._rangedDirLights.splice(i, 1);
+                return;
+            }
+        }
+    }
+
+    /**
+     * @en Remove all ranged directional light sources.
+     * @zh 删除所有范围平行光源。
+     */
+    public removeRangedDirLights () {
+        for (let i = 0; i < this._rangedDirLights.length; ++i) {
+            this._rangedDirLights[i].detachFromScene();
+        }
+        this._rangedDirLights.length = 0;
     }
 
     /**
@@ -523,26 +629,13 @@ export class RenderScene {
     }
 }
 
-class ModelInfo {
-    /**
-     * @zh model 所属的 LOD 层级
-     * @en LOD level of the model。
-     */
-    ownerLodLevel = -1;
-    lodGroup: LODGroup = null!;
-    /**
-     * @zh model 能被看到的相机列表
-     * @en List of cameras that model can be seen.
-     */
-    visibleCameras: Map<Camera, boolean> = new Map<Camera, boolean>();
-}
-
 class LODInfo {
     /**
      * @zh 当前使用哪一级的 LOD, -1 表示没有层级被使用
      * @en Which level of LOD is currently in use, -1 means no levels are used
      */
     usedLevel = -1;
+    lastUsedLevel = -1;
     transformDirty = true;
 }
 
@@ -599,6 +692,7 @@ class LodStateCache {
         for (const visibleCamera of this._lodStateInCamera) {
             visibleCamera[1].delete(lodGroup);
         }
+        this._levelModels.delete(lodGroup);
     }
 
     removeModel (model: Model) {
@@ -609,31 +703,42 @@ class LodStateCache {
 
     // Update list of visible cameras on _modelsInLODGroup and update lod usage level under specified camera.
     updateLodState () {
-        //insert vecAddedLodGroup's model into modelsByAnyLODGroup
+        // insert vecAddedLodGroup's model into modelsByAnyLODGroup
         for (const addedLodGroup of this._newAddedLodGroupVec) {
+            let levelModels = this._levelModels.get(addedLodGroup);
+            if (!levelModels) {
+                levelModels = new Map<number, Array<Model>>();
+                this._levelModels.set(addedLodGroup, levelModels);
+            }
             for (let index = 0; index < addedLodGroup.lodCount; index++) {
+                let lodModels = levelModels.get(index);
+                if (!lodModels) {
+                    lodModels = new Array<Model>();
+                }
                 const lod = addedLodGroup.lodDataArray[index];
                 for (const model of lod.models) {
                     let modelInfo = this._modelsInLODGroup.get(model);
                     if (!modelInfo) {
-                        modelInfo = new ModelInfo();
+                        modelInfo = new Map<Camera, boolean>();
                     }
-                    modelInfo.ownerLodLevel = index;
-                    modelInfo.lodGroup = addedLodGroup;
                     this._modelsInLODGroup.set(model, modelInfo);
+                    lodModels.push(model);
                 }
+                levelModels.set(index, lodModels);
             }
         }
         this._newAddedLodGroupVec.length = 0;
 
-        //update current visible lod index & model's visible cameras list
+        // update current visible lod index & model's visible cameras list
         for (const lodGroup of this._renderScene.lodGroups) {
             if (lodGroup.enabled) {
                 const lodLevels = lodGroup.getLockedLODLevels();
                 const count = lodLevels.length;
-                // count > 0, indicating that the user force to use certain layers of lod
+                // count > 0, indicating that the user force to use certain layers of
+                // lod
                 if (count > 0) {
-                    //Update the dirty flag to make it easier to update the visible index of lod after lifting the forced use of lod.
+                    // Update the dirty flag to make it easier to update the visible
+                    // index of lod after lifting the forced use of lod.
                     if (lodGroup.node.hasChangedFlags > 0) {
                         for (const visibleCamera of this._lodStateInCamera) {
                             let lodInfo = visibleCamera[1].get(lodGroup);
@@ -644,26 +749,33 @@ class LodStateCache {
                             lodInfo.transformDirty = true;
                         }
                     }
-                    //Update the visible camera list of all models on lodGroup when the visible level changes.
+                    // Update the visible camera list of all models on lodGroup when the
+                    // visible level changes.
                     if (lodGroup.isLockLevelChanged()) {
                         lodGroup.resetLockChangeFlag();
-                        for (let index = 0; index < lodGroup.lodCount; index++) {
-                            const lod = lodGroup.lodDataArray[index];
-                            for (const model of lod.models) {
-                                const modelInfo = this._modelsInLODGroup.get(model);
-                                if (!modelInfo) {
-                                    continue;
-                                }
-                                modelInfo.visibleCameras.clear();
-                                if (model.node && model.node.active) {
-                                    for (const visibleIndex of lodLevels) {
-                                        if (modelInfo.ownerLodLevel === visibleIndex) {
-                                            for (const visibleCamera of this._lodStateInCamera) {
-                                                modelInfo.visibleCameras.set(visibleCamera[0], true);
-                                            }
-                                            break;
-                                        }
+
+                        const lodModels = this._levelModels.get(lodGroup);
+                        if (lodModels) {
+                            lodModels.forEach((vecArray, index) => {
+                                vecArray.forEach((model) => {
+                                    const modelInfo = this._modelsInLODGroup.get(model);
+                                    if (modelInfo) {
+                                        modelInfo.clear();
                                     }
+                                });
+                            });
+
+                            for (const visibleIndex of lodLevels) {
+                                const vecModels = lodModels.get(visibleIndex);
+                                if (vecModels) {
+                                    vecModels.forEach((model) => {
+                                        const modelInfo = this._modelsInLODGroup.get(model);
+                                        if (modelInfo && model.node && model.node.active) {
+                                            for (const visibleCamera of this._lodStateInCamera) {
+                                                modelInfo.set(visibleCamera[0], true);
+                                            }
+                                        }
+                                    });
                                 }
                             }
                         }
@@ -671,7 +783,7 @@ class LodStateCache {
                     continue;
                 }
 
-                //Normal Process, no LOD is forced.
+                // Normal Process, no LOD is forced.
                 let hasUpdated = false;
                 for (const visibleCamera of this._lodStateInCamera) {
                     let lodInfo = visibleCamera[1].get(lodGroup);
@@ -681,48 +793,74 @@ class LodStateCache {
                     }
                     const cameraChangeFlags = visibleCamera[0].node.hasChangedFlags;
                     const lodChangeFlags = lodGroup.node.hasChangedFlags;
-                    // Changes in the camera matrix or changes in the matrix of the node where lodGroup is located or
-                    // the transformDirty marker is true, etc. All need to recalculate the visible level of LOD.
+                    // Changes in the camera matrix or changes in the matrix of the node
+                    // where lodGroup is located or the transformDirty marker is true,
+                    // etc. All need to recalculate the visible level of LOD.
                     if (cameraChangeFlags > 0 || lodChangeFlags > 0 || lodInfo.transformDirty) {
                         if (lodInfo.transformDirty) {
                             lodInfo.transformDirty = false;
                         }
                         const index = lodGroup.getVisibleLODLevel(visibleCamera[0]);
                         if (index !== lodInfo.usedLevel) {
+                            lodInfo.lastUsedLevel = lodInfo.usedLevel;
                             lodInfo.usedLevel = index;
                             hasUpdated = true;
                         }
                     }
                 }
 
-                //The LOD of the last frame is forced to be used, the list of visible cameras of modelInfo needs to be updated.
+                const lodModels = this._levelModels.get(lodGroup);
+                if (!lodModels) {
+                    continue;
+                }
+
+                // The LOD of the last frame is forced to be used, the list of visible
+                // cameras of modelInfo needs to be updated.
                 if (lodGroup.isLockLevelChanged()) {
                     lodGroup.resetLockChangeFlag();
-                    hasUpdated = true;
-                }
-                //Update the visible camera list of all models on lodGroup.
-                if (hasUpdated) {
-                    for (let index = 0; index < lodGroup.lodCount; index++) {
-                        const lod = lodGroup.lodDataArray[index];
-                        for (const model of lod.models) {
+
+                    lodModels.forEach((vecArray, index) => {
+                        vecArray.forEach((model) => {
                             const modelInfo = this._modelsInLODGroup.get(model);
                             if (modelInfo) {
-                                modelInfo.visibleCameras.clear();
-                                if (model.node && model.node.active) {
-                                    this._lodStateInCamera.forEach((lodMap, camera) => {
-                                        let visibleLevel = -1;
-                                        const lodInfo = lodMap.get(lodGroup);
-                                        if (lodInfo) {
-                                            visibleLevel = lodInfo.usedLevel;
-                                        }
-                                        if (modelInfo.ownerLodLevel === visibleLevel) {
-                                            modelInfo.visibleCameras.set(camera, true);
-                                        }
-                                    });
-                                }
+                                modelInfo.clear();
+                            }
+                        });
+                    });
+                    hasUpdated = true;
+                } else if (hasUpdated) {
+                    this._lodStateInCamera.forEach((lodState, camera) => {
+                        const lodInfo = lodState.get(lodGroup);
+                        if (lodInfo && lodInfo.usedLevel !== lodInfo.lastUsedLevel) {
+                            const vecModels = lodModels.get(lodInfo.lastUsedLevel);
+                            if (vecModels) {
+                                vecModels.forEach((model) => {
+                                    const modelInfo = this._modelsInLODGroup.get(model);
+                                    if (modelInfo) {
+                                        modelInfo.clear();
+                                    }
+                                });
                             }
                         }
-                    }
+                    });
+                }
+
+                if (hasUpdated) {
+                    this._lodStateInCamera.forEach((lodState, camera) => {
+                        const lodInfo = lodState.get(lodGroup);
+                        if (lodInfo) {
+                            const usedLevel = lodInfo.usedLevel;
+                            const vecModels = lodModels.get(usedLevel);
+                            if (vecModels) {
+                                vecModels.forEach((model) => {
+                                    const modelInfo = this._modelsInLODGroup.get(model);
+                                    if (modelInfo && model.node && model.node.active) {
+                                        modelInfo.set(camera, true);
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
             }
         }
@@ -734,10 +872,11 @@ class LodStateCache {
             return false;
         }
 
-        return !modelInfo.visibleCameras.has(camera);
+        return !modelInfo.has(camera);
     }
 
     clearCache () {
+        this._levelModels.clear();
         this._modelsInLODGroup.clear();
         this._lodStateInCamera.clear();
         this._newAddedLodGroupVec.length = 0;
@@ -751,10 +890,11 @@ class LodStateCache {
     private _renderScene: RenderScene = null!;
 
     /**
-     * @zh LOD使用的model集合；包含每个LODGroup的每一级LOD
-     * @en The collection of models used by LOD; Each LOD of each LODGroup.
+     * @zh LOD使用的model集合以及每个model当前能被看到的相机列表；包含每个LODGroup的每一级LOD
+     * @en The set of models used by the LOD and the list of cameras that each models can currently be seen,
+     *  contains each level of LOD for each LODGroup.
      */
-    private _modelsInLODGroup: Map<Model, ModelInfo> = new Map<Model, ModelInfo>();
+    private _modelsInLODGroup: Map<Model, Map<Camera, boolean>> = new Map<Model, Map<Camera, boolean>>();
 
     /**
       * @zh 指定相机下，LODGroup使用哪一级的LOD
@@ -767,4 +907,6 @@ class LodStateCache {
       * @en The lodgroup added in the previous frame.
       */
     private _newAddedLodGroupVec: Array<LODGroup> = new Array<LODGroup>();
+
+    private _levelModels: Map<LODGroup, Map<number, Array<Model>>> = new Map<LODGroup, Map<number, Array<Model>>>();
 }

@@ -22,14 +22,14 @@
  THE SOFTWARE.
 */
 
-
-
 import { IAssemblerManager } from '../../2d/renderer/base';
 import { ArmatureDisplay } from '../ArmatureDisplay';
 import { simple } from './simple';
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
-
+/**
+ * @engineInternal Since v3.7.2 this is an engine private object.
+ */
 export const simpleDragonBoneAssembler: IAssemblerManager = {
     getAssembler () {
         return simple;

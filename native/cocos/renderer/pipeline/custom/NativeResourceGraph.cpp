@@ -40,6 +40,23 @@ ResourceGroup::~ResourceGroup() noexcept {
     }
 }
 
+void ProgramResource::syncResources() noexcept {
+    for (auto&& [nameID, buffer] : uniformBuffers) {
+        buffer.bufferPool.syncResources();
+    }
+    descriptorSetPool.syncDescriptorSets();
+}
+
+void LayoutGraphNodeResource::syncResources() noexcept {
+    for (auto&& [nameID, buffer] : uniformBuffers) {
+        buffer.bufferPool.syncResources();
+    }
+    descriptorSetPool.syncDescriptorSets();
+    for (auto&& [programName, programResource] : programResources) {
+        programResource.syncResources();
+    }
+}
+
 void NativeRenderContext::clearPreviousResources(uint64_t finishedFenceValue) noexcept {
     for (auto iter = resourceGroups.begin(); iter != resourceGroups.end();) {
         if (iter->first <= finishedFenceValue) {
@@ -47,6 +64,9 @@ void NativeRenderContext::clearPreviousResources(uint64_t finishedFenceValue) no
         } else {
             break;
         }
+    }
+    for (auto& node : layoutGraphResources) {
+        node.syncResources();
     }
 }
 
@@ -120,6 +140,9 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     if (any(desc.flags & ResourceFlags::STORAGE)) {
         usage |= TextureUsage::STORAGE;
     }
+    if (any(desc.flags & ResourceFlags::SHADING_RATE)) {
+        usage |= TextureUsage::SHADING_RATE;
+    }
 
     return {
         type,
@@ -137,6 +160,27 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
 }
 
 } // namespace
+
+bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
+    if (!texture) {
+        return false;
+    }
+    const auto& info = texture->getInfo();
+    return desc.width == info.width && desc.height == info.height && desc.format == info.format;
+}
+
+void ResourceGraph::validateSwapchains() {
+    bool swapchainInvalidated = false;
+    for (auto& sc : swapchains) {
+        if (sc.generation != sc.swapchain->getGeneration()) {
+            swapchainInvalidated = true;
+            sc.generation = sc.swapchain->getGeneration();
+        }
+    }
+    if (swapchainInvalidated) {
+        renderPasses.clear();
+    }
+}
 
 void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
     std::ignore = device;
@@ -156,49 +200,123 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             buffer.fenceValue = nextFenceValue;
         },
         [&](ManagedTexture& texture) {
-            if (!texture.texture) {
+            if (!texture.checkResource(desc)) {
                 auto info = getTextureInfo(desc);
                 texture.texture = device->createTexture(info);
             }
             CC_ENSURES(texture.texture);
             texture.fenceValue = nextFenceValue;
         },
-        [&](const IntrusivePtr<gfx::Buffer>& pass) {
+        [&](const IntrusivePtr<gfx::Buffer>& buffer) {
+            CC_EXPECTS(buffer);
+            std::ignore = buffer;
         },
-        [&](const IntrusivePtr<gfx::Texture>& pass) {
+        [&](const IntrusivePtr<gfx::Texture>& texture) {
+            CC_EXPECTS(texture);
+            std::ignore = texture;
         },
-        [&](const IntrusivePtr<gfx::Framebuffer>& pass) {
+        [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+            CC_EXPECTS(fb);
+            std::ignore = fb;
         },
         [&](const RenderSwapchain& queue) {
+            CC_EXPECTS(queue.swapchain);
+            std::ignore = queue;
         });
 }
 
 void ResourceGraph::unmount(uint64_t completedFenceValue) {
     auto& resg = *this;
     for (const auto& vertID : makeRange(vertices(resg))) {
-        visitObject(
-            vertID, resg,
-            [&](const ManagedResource& resource) {
-                // to be removed
-            },
-            [&](ManagedBuffer& buffer) {
-                if (buffer.fenceValue <= completedFenceValue) {
-                    buffer.buffer.reset();
+        // here msvc has strange behaviour when using visitObject
+        // we use if-else instead.
+        if (holds<ManagedBufferTag>(vertID, resg)) {
+            auto& buffer = get(ManagedBufferTag{}, vertID, resg);
+            if (buffer.buffer && buffer.fenceValue <= completedFenceValue) {
+                buffer.buffer.reset();
+            }
+        } else if (holds<ManagedTextureTag>(vertID, resg)) {
+            auto& texture = get(ManagedTextureTag{}, vertID, resg);
+            if (texture.texture && texture.fenceValue <= completedFenceValue) {
+                invalidatePersistentRenderPassAndFramebuffer(texture.texture.get());
+                texture.texture.reset();
+                const auto& traits = get(ResourceGraph::TraitsTag{}, resg, vertID);
+                if (traits.hasSideEffects()) {
+                    auto& states = get(ResourceGraph::StatesTag{}, resg, vertID);
+                    states.states = cc::gfx::AccessFlagBit::NONE;
                 }
-            },
-            [&](ManagedTexture& texture) {
-                if (texture.fenceValue <= completedFenceValue) {
-                    texture.texture.reset();
-                }
-            },
-            [&](const IntrusivePtr<gfx::Buffer>& pass) {
-            },
-            [&](const IntrusivePtr<gfx::Texture>& pass) {
-            },
-            [&](const IntrusivePtr<gfx::Framebuffer>& pass) {
-            },
-            [&](const RenderSwapchain& queue) {
-            });
+            }
+        }
+    }
+}
+
+gfx::Buffer* ResourceGraph::getBuffer(vertex_descriptor resID) {
+    gfx::Buffer* buffer = nullptr;
+    visitObject(
+        resID, *this,
+        [&](const ManagedBuffer& res) {
+            buffer = res.buffer.get();
+        },
+        [&](const IntrusivePtr<gfx::Buffer>& buf) {
+            buffer = buf.get();
+        },
+        [&](const auto& buffer) {
+            std::ignore = buffer;
+            CC_EXPECTS(false);
+        });
+    CC_ENSURES(buffer);
+
+    return buffer;
+}
+
+gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
+    gfx::Texture* texture = nullptr;
+    visitObject(
+        resID, *this,
+        [&](const ManagedTexture& res) {
+            texture = res.texture.get();
+        },
+        [&](const IntrusivePtr<gfx::Texture>& tex) {
+            texture = tex.get();
+        },
+        [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+            CC_EXPECTS(fb->getColorTextures().size() == 1);
+            CC_EXPECTS(fb->getColorTextures().at(0));
+            texture = fb->getColorTextures()[0];
+        },
+        [&](const RenderSwapchain& sc) {
+            texture = sc.swapchain->getColorTexture();
+        },
+        [&](const auto& buffer) {
+            std::ignore = buffer;
+            CC_EXPECTS(false);
+        });
+    CC_ENSURES(texture);
+
+    return texture;
+}
+
+void ResourceGraph::invalidatePersistentRenderPassAndFramebuffer(gfx::Texture* pTexture) {
+    if (!pTexture) {
+        return;
+    }
+    for (auto iter = renderPasses.begin(); iter != renderPasses.end();) {
+        const auto& pass = iter->second;
+        bool bErase = false;
+        for (const auto& color : pass.framebuffer->getColorTextures()) {
+            if (color == pTexture) {
+                bErase = true;
+                break;
+            }
+        }
+        if (pass.framebuffer->getDepthStencilTexture() == pTexture) {
+            bErase = true;
+        }
+        if (bErase) {
+            iter = renderPasses.erase(iter);
+        } else {
+            ++iter;
+        }
     }
 }
 

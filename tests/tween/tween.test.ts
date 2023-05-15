@@ -1,7 +1,8 @@
 import { Vec3, System } from "../../cocos/core";
 import { tween, Tween, TweenSystem } from "../../cocos/tween";
 import { Node, Scene } from "../../cocos/scene-graph";
-import { director } from "../../cocos/game";
+import { Component } from "../../cocos/scene-graph/component";
+import { game, director } from "../../cocos/game";
 
 test('remove actions by tag', function () {
     const scene = new Scene('test-tags');
@@ -20,4 +21,21 @@ test('remove actions by tag', function () {
     Tween.stopAllByTag(1);
 
     expect(TweenSystem.instance.ActionManager.getActionByTag(1, node)).toBeNull();
+});
+
+test('destroySelf', function () {
+    const scene = new Scene('test-destroy');
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    director.runSceneImmediate(scene);
+
+    const node = new Node();
+    var comp = node.addComponent(Component);
+    const onDestroy = comp.onDestroy = jest.fn(() => {});
+    scene.addChild(node);
+    tween(node).destroySelf().start();
+    game.step();
+    expect(onDestroy).toBeCalledTimes(1);
+    director.unregisterSystem(sys);
 });

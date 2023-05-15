@@ -24,9 +24,11 @@
 
 #pragma once
 #include <boost/container/pmr/memory_resource.hpp>
+#include <iosfwd>
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
+#include "gfx-base/GFXDevice.h"
 
 namespace cc {
 
@@ -47,7 +49,22 @@ void initializeDescriptorSetLayoutInfo(
     const DescriptorSetLayoutData& layoutData,
     gfx::DescriptorSetLayoutInfo& info);
 
-uint32_t getSize(const ccstd::vector<gfx::Uniform>& blockMembers);
+uint32_t getUniformBlockSize(const ccstd::vector<gfx::Uniform>& blockMembers);
+
+bool isDynamicUniformBlock(std::string_view name);
+
+gfx::DescriptorSet* getOrCreatePerPassDescriptorSet(
+    gfx::Device* device,
+    LayoutGraphData& lg, LayoutGraphData::vertex_descriptor vertID);
+
+void generateConstantMacros(
+    gfx::Device* device,
+    ccstd::string& constantMacros,
+    bool clusterEnabled);
+
+void printLayoutGraphData(
+    const LayoutGraphData& lg, std::ostream& oss,
+    boost::container::pmr::memory_resource* scratch);
 
 } // namespace render
 

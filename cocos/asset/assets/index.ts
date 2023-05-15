@@ -30,7 +30,7 @@ export { BufferAsset } from './buffer-asset';
 export * from './scripts';
 export { RenderingSubMesh } from './rendering-sub-mesh';
 export { SceneAsset } from './scene-asset';
-export { default as TextAsset } from './text-asset';
+export { TextAsset } from './text-asset';
 export { default as JsonAsset } from './json-asset';
 export { ImageAsset } from './image-asset';
 export { Texture2D } from './texture-2d';

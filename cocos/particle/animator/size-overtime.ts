@@ -31,11 +31,22 @@ import { isCurveTwoValues } from '../particle-general-function';
 
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
+/**
+ * @en
+ * This module will modify particle size over life time.
+ * Open the separateAxes option you can change the particle size on XYZ axis (Size on Z axis is invalid for billboard particle)
+ * Size on every axis is curve so you can modify these curves to see how it animate.
+ * @zh
+ * 本模块用于在粒子生命周期内对大小进行改变。
+ * 打开 separateAxes 就能够修改粒子在三个轴方向的大小（z轴大小对公告板粒子无效）
+ * 每个轴上的粒子大小都是可以用曲线来进行编辑，修改曲线就能够看到粒子大小变化的效果了。
+ */
 @ccclass('cc.SizeOvertimeModule')
 export default class SizeOvertimeModule extends ParticleModuleBase {
     @serializable
     _enable = false;
     /**
+     * @en Enable this module or not.
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -51,6 +62,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Different size on separate axis.
      * @zh 决定是否在每个轴上独立控制粒子大小。
      */
     @serializable
@@ -59,6 +71,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     public separateAxes = false;
 
     /**
+     * @en Curve to modify particle size.
      * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
      */
     @type(CurveRange)
@@ -70,6 +83,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     public size = new CurveRange();
 
     /**
+     * @en Curve to modify particle size on X axis.
      * @zh 定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化。
      */
     @type(CurveRange)
@@ -81,6 +95,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     public x = new CurveRange();
 
     /**
+     * @en Curve to modify particle size on Y axis.
      * @zh 定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化。
      */
     @type(CurveRange)
@@ -92,6 +107,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     public y = new CurveRange();
 
     /**
+     * @en Curve to modify particle size on Z axis.
      * @zh 定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化。
      */
     @type(CurveRange)
@@ -104,6 +120,13 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
 
     public name = PARTICLE_MODULE_NAME.SIZE;
 
+    /**
+     * @en Apply size animation to particle.
+     * @zh 应用大小变换到粒子上。
+     * @param particle @en Particle to animate @zh 模块需要更新的粒子
+     * @param dt @en Update interval time @zh 粒子系统更新的间隔时间
+     * @internal
+     */
     public animate (particle: Particle, dt: number) {
         if (!this.separateAxes) {
             const rand = isCurveTwoValues(this.size) ? pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET) : 0;

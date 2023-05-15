@@ -54,7 +54,7 @@ public:
     Texture *getTexture(uint32_t binding, uint32_t index) const;
     Sampler *getSampler(uint32_t binding, uint32_t index) const;
 
-    inline DescriptorSetLayout *getLayout() const { return _layout; }
+    inline const DescriptorSetLayout *getLayout() const { return _layout; }
 
     inline void bindBuffer(uint32_t binding, Buffer *buffer) { bindBuffer(binding, buffer, 0U); }
     inline void bindTexture(uint32_t binding, Texture *texture) { bindTexture(binding, texture, 0U); }
@@ -73,7 +73,7 @@ protected:
         uint32_t id = INVALID_OBJECT_ID;
     };
 
-    DescriptorSetLayout *_layout = nullptr;
+    const DescriptorSetLayout *_layout = nullptr;
     ccstd::vector<ObjectWithId<Buffer>> _buffers;
     ccstd::vector<ObjectWithId<Texture>> _textures;
     ccstd::vector<ObjectWithId<Sampler>> _samplers;

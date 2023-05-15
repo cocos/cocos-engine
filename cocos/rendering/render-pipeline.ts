@@ -563,7 +563,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         this._pipelineRenderData!.bloom = null;
     }
 
-    private _genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
+    private _genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect): Float32Array {
         const vbData = new Float32Array(4 * 4);
 
         const minX = renderArea.x / this._width;

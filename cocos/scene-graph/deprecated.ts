@@ -316,9 +316,7 @@ export class PrivateNode extends Node {
 
 if (EDITOR) {
     // check components to avoid missing node reference serialied in previous version
-    PrivateNode.prototype._onBatchCreated = function onBatchCreated (dontSyncChildPrefab: boolean) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
+    PrivateNode.prototype._onBatchCreated = function onBatchCreated (this: PrivateNode, dontSyncChildPrefab: boolean) {
         for (const comp of this._components) {
             comp.node = this;
         }

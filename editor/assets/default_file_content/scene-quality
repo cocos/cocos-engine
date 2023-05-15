@@ -256,6 +256,9 @@
       },
       "lightProbeInfo": {
         "__id__": 13
+      },
+      "skin": {
+        "__id__": 14
       }
     },
     {
@@ -386,8 +389,14 @@
       "_reduceRinging": 0,
       "_showProbe": true,
       "_showWireframe": true,
+      "_lightProbeSphereVolume":1,
       "_showConvex": false,
       "_data": null,
       "_lightProbeGroups": []
+    },
+    {
+      "__type__": "cc.SkinInfo",
+      "_enabled": false,
+      "_scale": 5.0
     }
   ]

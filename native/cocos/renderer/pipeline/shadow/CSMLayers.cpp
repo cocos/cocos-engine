@@ -283,9 +283,6 @@ Mat4 CSMLayers::getCameraWorldMatrix(const scene::Camera *camera) {
 
     Mat4 out;
     Mat4::fromRT(rotation, position, &out);
-    out.m[8] *= -1.0F;
-    out.m[9] *= -1.0F;
-    out.m[10] *= -1.0F;
     return out;
 }
 

@@ -30,6 +30,7 @@ import { getClassName, getset, isEmptyObject } from './js';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import { macro } from '../platform/macro';
+import { setTimeoutRAF } from '../../../pal/utils';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
@@ -163,7 +164,7 @@ export function isDomNode (node) {
  */
 export function callInNextTick (callback, p1?: any, p2?: any) {
     if (callback) {
-        setTimeout(() => {
+        setTimeoutRAF(() => {
             callback(p1, p2);
         }, 0);
     }

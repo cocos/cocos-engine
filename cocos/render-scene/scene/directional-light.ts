@@ -127,7 +127,7 @@ export class DirectionalLight extends Light {
     }
     set shadowEnabled (val) {
         this._shadowEnabled = val;
-        this._activate();
+        this.activate();
     }
 
     /**
@@ -139,7 +139,7 @@ export class DirectionalLight extends Light {
     }
     set shadowPcf (val) {
         this._shadowPcf = val;
-        this._activate();
+        this.activate();
     }
 
     /**
@@ -206,7 +206,7 @@ export class DirectionalLight extends Light {
     }
     set csmLevel (val) {
         this._csmLevel = val;
-        this._activate();
+        this.activate();
     }
 
     /**
@@ -251,7 +251,7 @@ export class DirectionalLight extends Light {
     }
     set shadowFixedArea (val) {
         this._shadowFixedArea = val;
-        this._activate();
+        this.activate();
     }
 
     /**
@@ -296,7 +296,7 @@ export class DirectionalLight extends Light {
     }
     set csmLayersTransition (val) {
         this._csmLayersTransition = val;
-        this._activate();
+        this.activate();
     }
 
     /**
@@ -332,7 +332,10 @@ export class DirectionalLight extends Light {
         }
     }
 
-    private _activate () {
+    /**
+     * @engineInternal
+     */
+    public activate () {
         const root = cclegacy.director.root;
         const pipeline = root.pipeline;
         if (this._shadowEnabled) {

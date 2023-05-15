@@ -34,7 +34,7 @@
 #include "base/Log.h"
 #include "base/memory/Memory.h"
 
-using namespace cc; //NOLINT
+using namespace cc; // NOLINT
 
 namespace {
 unsigned int gIdIndex = 0;
@@ -56,7 +56,7 @@ AudioPlayer::AudioPlayer()
 }
 
 AudioPlayer::~AudioPlayer() {
-    CC_LOG_DEBUG("~AudioPlayer() (%p), id=%u", this, _id);
+    // CC_LOG_DEBUG("~AudioPlayer() (%p), id=%u", this, _id);
     destroy();
 
     if (_streamingSource) {
@@ -69,7 +69,7 @@ void AudioPlayer::destroy() {
         return;
     }
 
-    CC_LOG_DEBUG("AudioPlayer::destroy begin, id=%u", _id);
+    // CC_LOG_DEBUG("AudioPlayer::destroy begin, id=%u", _id);
 
     _isDestroyed = true;
 
@@ -107,17 +107,17 @@ void AudioPlayer::destroy() {
         }
     } while (false);
 
-    CC_LOG_DEBUG("Before alSourceStop");
+    // CC_LOG_DEBUG("Before alSourceStop");
     alSourceStop(_alSource);
     CHECK_AL_ERROR_DEBUG();
-    CC_LOG_DEBUG("Before alSourcei");
+    // CC_LOG_DEBUG("Before alSourcei");
     alSourcei(_alSource, AL_BUFFER, 0);
     CHECK_AL_ERROR_DEBUG();
 
     _removeByAudioEngine = true;
 
     _ready = false;
-    CC_LOG_DEBUG("AudioPlayer::destroy end, id=%u", _id);
+    // CC_LOG_DEBUG("AudioPlayer::destroy end, id=%u", _id);
 }
 
 void AudioPlayer::setCache(AudioCache *cache) {
@@ -126,7 +126,7 @@ void AudioPlayer::setCache(AudioCache *cache) {
 
 bool AudioPlayer::play2d() {
     _play2dMutex.lock();
-    CC_LOG_INFO("AudioPlayer::play2d, _alSource: %u, player id=%u", _alSource, _id);
+    //CC_LOG_INFO("AudioPlayer::play2d, _alSource: %u, player id=%u", _alSource, _id);
 
     /*********************************************************************/
     /*       Note that it may be in sub thread or in main thread.       **/
@@ -202,7 +202,7 @@ bool AudioPlayer::play2d() {
         if (state != AL_PLAYING) {
             ALOGE("state isn't playing, %d, %s, cache id=%u, player id=%u", state, _audioCache->_fileFullPath.c_str(),
                   _audioCache->_id, _id);
-            //abort playing if the state is incorrect
+            // abort playing if the state is incorrect
             break;
         }
         _ready = true;

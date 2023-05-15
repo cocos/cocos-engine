@@ -56,7 +56,7 @@ function pushUnique (array, item) {
     }
 }
 
-// both getter and prop must register the name into __props__ array
+// both getter and prop must register the name into `__props__` array
 function appendProp (cls, name) {
     if (DEV) {
         // if (!IDENTIFIER_RE.test(name)) {
@@ -197,10 +197,10 @@ function define (className, baseClass, options) {
             window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
         }
 
-        // Note: `options.ctor` should be same as `cls` except if
+        // Note: `options.ctor` should be the same as `cls` except if
         // cc-class is defined by `cc.Class({/* ... */})`.
         // In such case, `options.ctor` may be `undefined`.
-        // So we can not use `options.ctor`. Instead we should use `cls` which is the "real" registered cc-class.
+        // So we can not use `options.ctor`. Instead, we should use `cls` which is the "real" registered cc-class.
         EditorExtends.emit('class-registered', cls, frame, className);
     }
 
@@ -243,7 +243,7 @@ function getNewValueTypeCodeJit (value) {
 
 // TODO - move escapeForJS, IDENTIFIER_RE, getNewValueTypeCodeJit to misc.js or a new source file
 
-// convert a normal string including newlines, quotes and unicode characters into a string literal
+// convert a normal string including newlines, quotes and Unicode characters into a string literal
 // ready to use in JavaScript source
 function escapeForJS (s) {
     return JSON.stringify(s)
@@ -358,7 +358,7 @@ CCClass.Attr = attributeUtils;
 CCClass.attr = attributeUtils.attr;
 
 /**
- * Returns if the class is a cc-class or is fast defined.
+ * Returns if the class is a cc-class or is fast-defined.
  * @param constructor The constructor of the class.
  * @returns Judge result.
  * @engineInternal
@@ -478,7 +478,9 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
     if ('default' in attributes) {
         (attrs || initAttrs())[`${propertyNamePrefix}default`] = attributes.default;
     } else if (((EDITOR && !window.Build) || TEST) && warnOnNoDefault && !(attributes.get || attributes.set)) {
-        warnID(3654, className, propertyName);
+        // TODO: we close this warning for now:
+        // issue: https://github.com/cocos/3d-tasks/issues/14887
+        // warnID(3654, className, propertyName);
     }
 
     const parseSimpleAttribute = (attributeName: keyof IAcceptableAttributes, expectType: string) => {
@@ -596,6 +598,7 @@ CCClass.isArray = function (defaultVal) {
 CCClass.getDefault = getDefault;
 CCClass.escapeForJS = escapeForJS;
 CCClass.IDENTIFIER_RE = IDENTIFIER_RE;
-CCClass.getNewValueTypeCode = (SUPPORT_JIT && getNewValueTypeCodeJit) as ((value: any) => string);
+// NOTE: the type of getNewValueTypeCode can be ((value: any) => string) or boolean.
+CCClass.getNewValueTypeCode = (SUPPORT_JIT && getNewValueTypeCodeJit) as any;
 
 legacyCC.Class = CCClass;

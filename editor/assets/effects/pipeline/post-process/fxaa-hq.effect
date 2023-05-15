@@ -1,0 +1,67 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: fxaa
+    passes:
+    - vert: fxaa-vs:vert
+      frag: fxaa-edge-fs:frag
+      pass: fxaa
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      rasterizerState:
+        cullMode: none
+}%
+
+CCProgram fxaa-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+
+  in vec2 a_position;
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 0.0, 1.0);
+    v_uv = a_texCoord;
+    return pos;
+  }
+}%
+
+CCProgram fxaa-edge-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+
+  //#define FXAA_PRESET 5
+  #include <post-process/fxaa-hq>
+
+  uniform fxaaUBO {
+    vec4 texSize;
+  };
+
+  in vec2 v_uv;
+  #pragma rate sceneColorMap pass
+  uniform sampler2D sceneColorMap;
+
+  vec4 frag () {
+    vec3 color = FxaaPixelShader(v_uv, sceneColorMap, texSize.zw);
+    return vec4(color, 1.0); 
+  }
+}%
+
+CCProgram copy-fs %{
+  precision highp float;
+
+  uniform fxaaUBO {
+    vec4 texSize;
+  };
+
+  in vec2 v_uv;
+  #pragma rate sceneColorMap pass
+  uniform sampler2D sceneColorMap;
+
+  vec4 frag () {
+    return texture(sceneColorMap, v_uv);
+  }
+}%

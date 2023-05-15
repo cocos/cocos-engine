@@ -64,6 +64,7 @@ public:
     inline const RenderObjectList &getRenderObjects() const { return _renderObjects; }
     inline void setRenderObjects(RenderObjectList &&ro) { _renderObjects = std::forward<RenderObjectList>(ro); }
     inline const ccstd::vector<const scene::Light *> &getValidPunctualLights() const { return _validPunctualLights; }
+    inline void setValidPunctualLights(ccstd::vector<const scene::Light *> lights) { _validPunctualLights = std::move(lights); }
     inline bool isHDR() const { return _isHDR; }
     inline void setHDR(bool val) { _isHDR = val; }
     inline scene::Shadows *getShadows() const { return _shadow; }

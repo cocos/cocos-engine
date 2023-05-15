@@ -71,6 +71,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 1510, "cc.Scheduler: Illegal target which doesn't have id, you should do Scheduler.enableForTarget(target) before all scheduler API usage on target" },
 { 1511, "cc.Scheduler: pause state of the scheduled task doesn't match the element pause state in Scheduler, the given paused state will be ignored." },
 { 1513, "cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you should do Scheduler.enableForTarget(target) before all scheduler API usage on target" },
+{ 1514, "since v3.8.0, `Scheduler.schedule(target, callback, interval)` is deprecated, please use `Scheduler.schedule(callback, target, interval)` instead." },
 { 1607, "removeFromParentAndCleanup is deprecated. Use removeFromParent instead" },
 { 1619, "callback function must be non-null" },
 { 1620, "interval must be positive" },
@@ -211,6 +212,10 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 3936, "Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this." },
 { 3937, "Previous error occurred when instantiating animation clip %s on node %s." },
 { 3938, "'%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'." },
+{ 3940, "Error when animation attempted to bind material uniform target: target %s is not a material." },
+{ 3941, "Error when animation attempted to bind material uniform target: material %s has no recorded pass %s." },
+{ 3942, "Error when animation attempted to bind material uniform target: material %s at pass %s has no recorded uniform %s." },
+{ 3943, "Error when animation attempted to bind material uniform target: material %s at pass %s's uniform %s has no recorded channel %s." },
 { 4003, "Label font size can't be shirnked less than 0!" },
 { 4004, "force notify all fonts loaded!" },
 { 4011, "Property spriteFrame of Font '%s' is invalid. Using system font instead." },
@@ -222,6 +227,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 4300, "Can not found the %s page." },
 { 4301, "Can not add a page without UITransform." },
 { 4302, "Can not set the scroll view content when it hasn't UITransform or its parent hasn't UITransform." },
+{ 4303, "The %s scrollBar on the '%s' node is not available, please check it." },
 { 4400, "Invalid RichText img tag! The sprite frame name can't be found in the ImageAtlas!" },
 { 4500, "Graphics: There is no model in %s." },
 { 4600, "Script attached to '%s' is missing or invalid." },
@@ -419,6 +425,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 9611, "[Physics]: builtin physics system doesn't support mesh collider" },
 { 9612, "[Physics]: builtin physics system doesn't support cylinder collider" },
 { 9620, "[Physics][Ammo]: changing the mesh is not supported after the initialization is completed" },
+{ 9630, "[Physics]: A dynamic rigid body can not have the following collider shapes: Terrain, Plane and Non-convex Mesh. Node name: %s" },
 { 10001, "The sub-mesh contains %d vertices, which beyonds the capability (%d vertices most) of renderer of your platform." },
 { 10002, "Sub-mesh may include at most %d morph targets, but you specified %d." },
 { 11000, "WebGL context lost." },
@@ -459,6 +466,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 16101, "The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html" },
 { 16201, "The asset replacing failed, can not found override asset('%s') for '%s'" },
 { 16301, "node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first" },
+{ 16302, "There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer." },
 
 };
 }//namespace cc

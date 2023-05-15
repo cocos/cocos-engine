@@ -30,16 +30,16 @@ import { dependMap, nativeDependMap } from './depend-maps';
 import dependUtil from './depend-util';
 import { isScene } from './helper';
 import RequestItem from './request-item';
-import { assets, AssetType, CompleteCallbackNoData, CompleteCallback, IOptions, ProgressCallback, references } from './shared';
+import { assets, references } from './shared';
 import Task from './task';
 
-let defaultProgressCallback: ProgressCallback | null = null;
+let defaultProgressCallback: ((finished: number, total: number, item: RequestItem) => void) | null = null;
 
 declare class WeakRef {
     constructor (obj: any);
 }
 
-export function setDefaultProgressCallback (onProgress: ProgressCallback) {
+export function setDefaultProgressCallback (onProgress: (finished: number, total: number, item: RequestItem) => void) {
     defaultProgressCallback = onProgress;
 }
 
@@ -67,9 +67,9 @@ export function urlAppendTimestamp (url: string, append: boolean): string {
     return url;
 }
 
-export type RetryFunction = (times: number, done: CompleteCallback) => void;
+export type RetryFunction = (times: number, done: ((err: Error | null, data?: any | null) => void)) => void;
 
-export function retry (process: RetryFunction, times: number, wait: number, onComplete: CompleteCallback, index = 0) {
+export function retry (process: RetryFunction, times: number, wait: number, onComplete: ((err: Error | null, data?: any | null) => void), index = 0) {
     process(index, (err, result) => {
         index++;
         if (!err || index > times) {
@@ -132,6 +132,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                 } else {
                     error(`The asset ${depend.uuid} is missing!`);
                 }
+                cclegacy.assetManager.dispatchAssetMissing(asset, depend.owner, depend.prop, depend.uuid);
                 if (depend.type && depend.type !== Asset) {
                     // eslint-disable-next-line new-cap
                     const placeHolder = new depend.type();
@@ -182,7 +183,7 @@ export function gatherAsset (task: Task) {
     }
 }
 
-type ForEachFunction<T> = (item: T, done: CompleteCallbackNoData) => void;
+type ForEachFunction<T> = (item: T, done: ((err?: Error | null) => void)) => void;
 
 export function forEach<T = any> (array: T[], process: ForEachFunction<T>, onComplete: (errs: Error[]) => void) {
     let count = 0;
@@ -208,20 +209,20 @@ export function forEach<T = any> (array: T[], process: ForEachFunction<T>, onCom
 }
 
 interface IParameters<T> {
-    options: IOptions;
-    onProgress: ProgressCallback | null;
+    options: Record<string, any>;
+    onProgress: ((finished: number, total: number, item: RequestItem) => void) | null;
     onComplete: T | null;
 }
 
 interface ILoadResArgs<T> {
-    type: AssetType | null;
-    onProgress: ProgressCallback | null;
+    type: Constructor<Asset> | null;
+    onProgress: ((finished: number, total: number, item: RequestItem) => void) | null;
     onComplete: T | null;
 }
 
 export function parseParameters<T extends (...args) => void> (
-    options: IOptions | ProgressCallback | T | null | undefined,
-    onProgress: ProgressCallback | T | null | undefined,
+    options: Record<string, any> | ((finished: number, total: number, item: RequestItem) => void) | T | null | undefined,
+    onProgress: ((finished: number, total: number, item: RequestItem) => void) | T | null | undefined,
     onComplete: T | null | undefined): IParameters<T> {
     let optionsOut: any = options;
     let onProgressOut: any = onProgress;
@@ -239,7 +240,7 @@ export function parseParameters<T extends (...args) => void> (
             onProgressOut = null;
         }
         if (onProgress !== undefined && isCallback) {
-            onProgressOut = options as ProgressCallback;
+            onProgressOut = options as ((finished: number, total: number, item: RequestItem) => void);
             optionsOut = null;
         }
     }
@@ -248,14 +249,14 @@ export function parseParameters<T extends (...args) => void> (
 }
 
 export function parseLoadResArgs<T extends (...args) => void> (
-    type: AssetType | ProgressCallback | T | null | undefined,
-    onProgress: ProgressCallback | T | null | undefined,
+    type: Constructor<Asset> | ((finished: number, total: number, item: RequestItem) => void) | T | null | undefined,
+    onProgress: ((finished: number, total: number, item: RequestItem) => void) | T | null | undefined,
     onComplete: T | null | undefined): ILoadResArgs<T> {
     let typeOut: any = type;
     let onProgressOut: any = onProgress;
     let onCompleteOut: any = onComplete;
     if (onComplete === undefined) {
-        const isValidType = js.isChildClassOf(type as AssetType, Asset);
+        const isValidType = js.isChildClassOf(type as Constructor<Asset>, Asset);
         if (onProgress) {
             onCompleteOut = onProgress as T;
             if (isValidType) {
@@ -267,7 +268,7 @@ export function parseLoadResArgs<T extends (...args) => void> (
             typeOut = null;
         }
         if (onProgress !== undefined && !isValidType) {
-            onProgressOut = type as ProgressCallback;
+            onProgressOut = type as ((finished: number, total: number, item: RequestItem) => void);
             typeOut = null;
         }
     }

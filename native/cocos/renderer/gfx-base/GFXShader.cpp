@@ -46,7 +46,7 @@ void Shader::initialize(const ShaderInfo &info) {
     _textures = info.textures;
     _images = info.images;
     _subpassInputs = info.subpassInputs;
-
+    _hash = info.hash;
     doInit(info);
 }
 

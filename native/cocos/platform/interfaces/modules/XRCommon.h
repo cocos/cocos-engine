@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -48,6 +48,16 @@ enum class XRVendor {
     PICO,
     ROKID,
     SEED,
+    SPACESXR,
+    GSXR,
+    YVR,
+    HTC,
+    IQIYI,
+    SKYWORTH,
+    FFALCON,
+    NREAL,
+    INMO,
+    LENOVO
 };
 
 enum class XRConfigKey {
@@ -88,6 +98,26 @@ enum class XRConfigKey {
     HAND_TRACKING_SUPPORT_STATUS = 34,
     APPLY_HAPTIC_CONTROLLER = 35,
     STOP_HAPTIC_CONTROLLER = 36,
+    DEVICE_IPD = 37,
+    APP_COMMAND = 38,
+    ADB_COMMAND = 39,
+    ACTIVITY_LIFECYCLE = 40,
+    NATIVE_WINDOW = 41,
+    SPLIT_AR_GLASSES = 42,
+    ENGINE_VERSION = 43,
+    RECENTER_HMD = 44,
+    RECENTER_CONTROLLER = 45,
+    FOVEATION_LEVEL = 46,
+    DISPLAY_REFRESH_RATE = 47,
+    CAMERA_ACCESS = 48,
+    CAMERA_ACCESS_DATA = 49,
+    CAMERA_ACCESS_SUPPORT_STATUS = 50,
+    SPATIAL_MESHING = 51,
+    SPATIAL_MESHING_DATA = 52,
+    SPATIAL_MESHING_SUPPORT_STATUS = 53,
+    EYE_RENDER_JS_CALLBACK = 54,
+    ASYNC_LOAD_ASSETS_IMAGE = 55,
+    ASYNC_LOAD_ASSETS_IMAGE_RESULTS = 56,
     MAX_COUNT
 };
 
@@ -346,6 +376,17 @@ struct XRTrackingImageData {
 #define GraphicsApiOpenglES   "OpenGLES"
 #define GraphicsApiVulkan_1_0 "Vulkan1"
 #define GraphicsApiVulkan_1_1 "Vulkan2"
+
+enum class XRActivityLifecycleType {
+    UnKnown,
+    Created,
+    Started,
+    Resumed,
+    Paused,
+    Stopped,
+    SaveInstanceState,
+    Destroyed
+};
 
 } // namespace xr
 } // namespace cc

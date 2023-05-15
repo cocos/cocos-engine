@@ -34,25 +34,6 @@ namespace cc {
 
 namespace render {
 
-PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept
-: clearColors(alloc) {}
-
-PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs, const allocator_type& alloc)
-: renderPass(std::move(rhs.renderPass)),
-  framebuffer(std::move(rhs.framebuffer)),
-  clearColors(std::move(rhs.clearColors), alloc),
-  clearDepth(rhs.clearDepth),
-  clearStencil(rhs.clearStencil),
-  refCount(rhs.refCount) {}
-
-PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc)
-: renderPass(rhs.renderPass),
-  framebuffer(rhs.framebuffer),
-  clearColors(rhs.clearColors, alloc),
-  clearDepth(rhs.clearDepth),
-  clearStencil(rhs.clearStencil),
-  refCount(rhs.refCount) {}
-
 RenderInstancingQueue::RenderInstancingQueue(const allocator_type& alloc) noexcept
 : batches(alloc),
   sortedBatches(alloc) {}
@@ -80,19 +61,21 @@ NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc) {}
 
-NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, const allocator_type& alloc) noexcept
+NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t layoutPassIDIn, const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
   transparentQueue(alloc),
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc),
-  sceneFlags(sceneFlagsIn) {}
+  sceneFlags(sceneFlagsIn),
+  layoutPassID(layoutPassIDIn) {}
 
 NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
 : opaqueQueue(std::move(rhs.opaqueQueue), alloc),
   transparentQueue(std::move(rhs.transparentQueue), alloc),
   opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
   transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
-  sceneFlags(rhs.sceneFlags) {}
+  sceneFlags(rhs.sceneFlags),
+  layoutPassID(rhs.layoutPassID) {}
 
 DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
 : name(alloc) {}
@@ -103,13 +86,110 @@ DefaultForwardLightingTransversal::DefaultForwardLightingTransversal(const alloc
 ResourceGroup::ResourceGroup(const allocator_type& alloc) noexcept
 : instancingBuffers(alloc) {}
 
-NativeRenderContext::NativeRenderContext(const allocator_type& alloc) noexcept
-: renderPasses(alloc),
-  resourceGroups(alloc) {}
+BufferPool::BufferPool(const allocator_type& alloc) noexcept
+: currentBuffers(alloc),
+  currentBufferViews(alloc),
+  freeBuffers(alloc),
+  freeBufferViews(alloc) {}
+
+BufferPool::BufferPool(gfx::Device* deviceIn, uint32_t bufferSizeIn, bool dynamicIn, const allocator_type& alloc) noexcept // NOLINT
+: device(deviceIn),
+  bufferSize(bufferSizeIn),
+  dynamic(dynamicIn),
+  currentBuffers(alloc),
+  currentBufferViews(alloc),
+  freeBuffers(alloc),
+  freeBufferViews(alloc) {}
+
+BufferPool::BufferPool(BufferPool&& rhs, const allocator_type& alloc)
+: device(rhs.device),
+  bufferSize(rhs.bufferSize),
+  dynamic(rhs.dynamic),
+  currentBuffers(std::move(rhs.currentBuffers), alloc),
+  currentBufferViews(std::move(rhs.currentBufferViews), alloc),
+  freeBuffers(std::move(rhs.freeBuffers), alloc),
+  freeBufferViews(std::move(rhs.freeBufferViews), alloc) {}
+
+DescriptorSetPool::DescriptorSetPool(const allocator_type& alloc) noexcept
+: currentDescriptorSets(alloc),
+  freeDescriptorSets(alloc) {}
+
+DescriptorSetPool::DescriptorSetPool(gfx::Device* deviceIn, IntrusivePtr<gfx::DescriptorSetLayout> setLayoutIn, const allocator_type& alloc) noexcept // NOLINT
+: device(deviceIn),
+  setLayout(std::move(setLayoutIn)),
+  currentDescriptorSets(alloc),
+  freeDescriptorSets(alloc) {}
+
+DescriptorSetPool::DescriptorSetPool(DescriptorSetPool&& rhs, const allocator_type& alloc)
+: device(rhs.device),
+  setLayout(std::move(rhs.setLayout)),
+  currentDescriptorSets(std::move(rhs.currentDescriptorSets), alloc),
+  freeDescriptorSets(std::move(rhs.freeDescriptorSets), alloc) {}
+
+UniformBlockResource::UniformBlockResource(const allocator_type& alloc) noexcept
+: cpuBuffer(alloc),
+  bufferPool(alloc) {}
+
+UniformBlockResource::UniformBlockResource(UniformBlockResource&& rhs, const allocator_type& alloc)
+: cpuBuffer(std::move(rhs.cpuBuffer), alloc),
+  bufferPool(std::move(rhs.bufferPool), alloc) {}
+
+ProgramResource::ProgramResource(const allocator_type& alloc) noexcept
+: uniformBuffers(alloc),
+  descriptorSetPool(alloc) {}
+
+ProgramResource::ProgramResource(ProgramResource&& rhs, const allocator_type& alloc)
+: uniformBuffers(std::move(rhs.uniformBuffers), alloc),
+  descriptorSetPool(std::move(rhs.descriptorSetPool), alloc) {}
+
+LayoutGraphNodeResource::LayoutGraphNodeResource(const allocator_type& alloc) noexcept
+: uniformBuffers(alloc),
+  descriptorSetPool(alloc),
+  programResources(alloc) {}
+
+LayoutGraphNodeResource::LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, const allocator_type& alloc)
+: uniformBuffers(std::move(rhs.uniformBuffers), alloc),
+  descriptorSetPool(std::move(rhs.descriptorSetPool), alloc),
+  programResources(std::move(rhs.programResources), alloc) {}
+
+NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
+: defaultResource(std::move(defaultResourceIn)),
+  resourceGroups(alloc),
+  layoutGraphResources(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),
-  phases(alloc) {}
+  phases(alloc),
+  localLayoutData(alloc) {}
+
+PipelineCustomization::PipelineCustomization(const allocator_type& alloc) noexcept
+: contexts(alloc),
+  renderPasses(alloc),
+  renderSubpasses(alloc),
+  computeSubpasses(alloc),
+  computePasses(alloc),
+  renderQueues(alloc),
+  renderCommands(alloc) {}
+
+PipelineCustomization::PipelineCustomization(PipelineCustomization&& rhs, const allocator_type& alloc)
+: currentContext(std::move(rhs.currentContext)),
+  contexts(std::move(rhs.contexts), alloc),
+  renderPasses(std::move(rhs.renderPasses), alloc),
+  renderSubpasses(std::move(rhs.renderSubpasses), alloc),
+  computeSubpasses(std::move(rhs.computeSubpasses), alloc),
+  computePasses(std::move(rhs.computePasses), alloc),
+  renderQueues(std::move(rhs.renderQueues), alloc),
+  renderCommands(std::move(rhs.renderCommands), alloc) {}
+
+PipelineCustomization::PipelineCustomization(PipelineCustomization const& rhs, const allocator_type& alloc)
+: currentContext(rhs.currentContext),
+  contexts(rhs.contexts, alloc),
+  renderPasses(rhs.renderPasses, alloc),
+  renderSubpasses(rhs.renderSubpasses, alloc),
+  computeSubpasses(rhs.computeSubpasses, alloc),
+  computePasses(rhs.computePasses, alloc),
+  renderQueues(rhs.renderQueues, alloc),
+  renderCommands(rhs.renderCommands, alloc) {}
 
 } // namespace render
 

@@ -33,22 +33,15 @@
     #include "tetgen.h"
 #endif
 
-#define FIX_TS_NATIVE_INCOMPATIBLE 0
-
 namespace cc {
 namespace gi {
 
 void CircumSphere::init(const Vec3 &p0, const Vec3 &p1, const Vec3 &p2, const Vec3 &p3) {
     // calculate circumsphere of 4 points in R^3 space.
-#if FIX_TS_NATIVE_INCOMPATIBLE
     Mat3 mat(p1.x - p0.x, p1.y - p0.y, p1.z - p0.z,
              p2.x - p0.x, p2.y - p0.y, p2.z - p0.z,
              p3.x - p0.x, p3.y - p0.y, p3.z - p0.z);
-#else
-    Mat3 mat(p1.x - p0.x, p2.x - p0.x, p3.x - p0.x,
-             p1.y - p0.y, p2.y - p0.y, p3.y - p0.y,
-             p1.z - p0.z, p2.z - p0.z, p3.z - p0.z);
-#endif
+
     mat.inverse();
     mat.transpose();
 
@@ -380,17 +373,11 @@ void Delaunay::computeTetrahedronMatrix(Tetrahedron &tetrahedron) {
     const auto &p2 = _probes[tetrahedron.vertex2].position;
     const auto &p3 = _probes[tetrahedron.vertex3].position;
 
-#if FIX_TS_NATIVE_INCOMPATIBLE
     tetrahedron.matrix.set(
         p0.x - p3.x, p1.x - p3.x, p2.x - p3.x,
         p0.y - p3.y, p1.y - p3.y, p2.y - p3.y,
         p0.z - p3.z, p1.z - p3.z, p2.z - p3.z);
-#else
-    tetrahedron.matrix.set(
-        p0.x - p3.x, p0.y - p3.y, p0.z - p3.z,
-        p1.x - p3.x, p1.y - p3.y, p1.z - p3.z,
-        p2.x - p3.x, p2.y - p3.y, p2.z - p3.z);
-#endif
+
     tetrahedron.matrix.inverse();
     tetrahedron.matrix.transpose();
 }
@@ -449,11 +436,7 @@ void Delaunay::computeOuterCellMatrix(Tetrahedron &tetrahedron) {
     }
 
     // transpose the matrix
-#if FIX_TS_NATIVE_INCOMPATIBLE
     tetrahedron.matrix.set(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
-#else
-    tetrahedron.matrix.set(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
-#endif
 
     // last column of mat3x4
     tetrahedron.offset.set(m[9], m[10], m[11]);

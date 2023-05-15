@@ -48,6 +48,38 @@ class Material;
 
 namespace scene {
 
+/**
+ * @en Use Reflection probe
+ * @zh 使用反射探针。
+ */
+enum class UseReflectionProbeType {
+    /**
+     * @en Use the default skybox.
+     * @zh 使用默认天空盒。
+     */
+    NONE,
+    /**
+     * @en Cubemap generate by probe.
+     * @zh Probe烘焙的cubemap。
+     */
+    BAKED_CUBEMAP,
+    /**
+     * @en Realtime planar reflection.
+     * @zh 实时平面反射。
+     */
+    PLANAR_REFLECTION,
+    /**
+     * @en Mixing between reflection probe.
+     * @zh 反射探针之间进行混合。
+     */
+    BLEND_PROBES,
+    /**
+     * @en Mixing between reflection probe and skybox.
+     * @zh 反射探针之间混合或反射探针和天空盒之间混合。
+     */
+    BLEND_PROBES_AND_SKYBOX,
+};
+
 // SubModel.h -> Define.h -> Model.h, so do not include SubModel.h here.
 class SubModel;
 // RenderScene.h <-> Model.h, so do not include RenderScene.h here.
@@ -115,6 +147,9 @@ public:
     void updateLocalShadowBias();
     void updateReflectionProbeCubemap(TextureCube *texture);
     void updateReflectionProbePlanarMap(gfx::Texture *texture);
+    void updateReflectionProbeId();
+    void updateReflectionProbeDataMap(Texture2D *texture);
+    void updateReflectionProbeBlendCubemap(TextureCube *texture);
 
     inline void attachToScene(RenderScene *scene) {
         _scene = scene;
@@ -159,8 +194,20 @@ public:
     inline void setBakeToReflectionProbe(bool val) {
         _bakeToReflectionProbe = val;
     }
-    inline int32_t getReflectionProbeType() const { return _reflectionProbeType; }
-    void setReflectionProbeType(int32_t val);
+    inline UseReflectionProbeType getReflectionProbeType() const { return _reflectionProbeType; }
+    void setReflectionProbeType(UseReflectionProbeType val);
+    inline int32_t getReflectionProbeId() const { return _reflectionProbeId; }
+    inline void setReflectionProbeId(int32_t reflectionProbeId) {
+        _reflectionProbeId = reflectionProbeId;
+        _shadowBias.z = reflectionProbeId;
+    }
+    inline int32_t getReflectionProbeBlendId() const { return _reflectionProbeBlendId; }
+    inline void setReflectionProbeBlendId(int32_t reflectionProbeId) {
+        _reflectionProbeBlendId = reflectionProbeId;
+        _shadowBias.w = reflectionProbeId;
+    }
+    inline float getReflectionProbeBlendWeight() const { return _reflectionProbeBlendWeight; }
+    inline void setReflectionProbeBlendWeight(float weight) { _reflectionProbeBlendWeight = weight; }
     inline int32_t getTetrahedronIndex() const { return _tetrahedronIndex; }
     inline void setTetrahedronIndex(int32_t index) { _tetrahedronIndex = index; }
     inline bool showTetrahedron() const { return isLightProbeAvailable(); }
@@ -187,6 +234,11 @@ public:
     inline float getShadowNormalBias() const { return _shadowBias.y; }
     inline uint32_t getPriority() const { return _priority; }
     inline void setPriority(uint32_t value) { _priority = value; }
+    inline bool isReceiveDirLight() const { return _receiveDirLight; }
+    inline void setReceiveDirLight(bool value) {
+        _receiveDirLight = value;
+        onMacroPatchesStateChanged();
+    }
 
     // For JS
     inline void setCalledFromJS(bool v) { _isCalledFromJS = v; }
@@ -209,10 +261,14 @@ protected:
     Type _type{Type::DEFAULT};
     Layers::Enum _visFlags{Layers::Enum::NONE};
 
+    UseReflectionProbeType _reflectionProbeType{ UseReflectionProbeType::NONE };
+    int32_t _tetrahedronIndex{-1};
     uint32_t _descriptorSetCount{1};
     uint32_t _priority{0};
     uint32_t _updateStamp{0};
-    Float32Array _localSHData;
+    int32_t _reflectionProbeId{-1};
+    int32_t _reflectionProbeBlendId{ -1 };
+    float _reflectionProbeBlendWeight{0.F};
 
     OctreeNode *_octreeNode{nullptr};
     RenderScene *_scene{nullptr};
@@ -227,13 +283,6 @@ protected:
     IntrusivePtr<geometry::AABB> _modelBounds;
     IntrusivePtr<Texture2D> _lightmap;
 
-    int32_t _tetrahedronIndex{-1};
-    Vec3 _lastWorldBoundCenter{INFINITY, INFINITY, INFINITY};
-    bool _useLightProbe = false;
-
-    bool _bakeToReflectionProbe{true};
-    int32_t _reflectionProbeType{0};
-
     bool _enabled{false};
     bool _castShadow{false};
     bool _receiveShadow{false};
@@ -241,8 +290,13 @@ protected:
     bool _inited{false};
     bool _localDataUpdated{false};
     bool _worldBoundsDirty{true};
+    bool _useLightProbe = false;
+    bool _bakeToReflectionProbe{true};
+    bool _receiveDirLight{true};
     // For JS
     bool _isCalledFromJS{false};
+
+    Vec3 _lastWorldBoundCenter{INFINITY, INFINITY, INFINITY};
 
     Vec4 _shadowBias;
     Vec4 _lightmapUVParam;
@@ -250,6 +304,8 @@ protected:
     // For JS
     // CallbacksInvoker _eventProcessor;
     ccstd::vector<IntrusivePtr<SubModel>> _subModels;
+
+    Float32Array _localSHData;
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(Model);

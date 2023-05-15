@@ -48,12 +48,12 @@ DescriptorSetValidator::~DescriptorSetValidator() {
 void DescriptorSetValidator::doInit(const DescriptorSetInfo &info) {
     CC_ASSERT(!isInited());
     _inited = true;
-    CC_ASSERT(info.layout && static_cast<DescriptorSetLayoutValidator *>(info.layout)->isInited());
+    CC_ASSERT(info.layout && static_cast<const DescriptorSetLayoutValidator *>(info.layout)->isInited());
 
     /////////// execute ///////////
 
     DescriptorSetInfo actorInfo;
-    actorInfo.layout = static_cast<DescriptorSetLayoutValidator *>(info.layout)->getActor();
+    actorInfo.layout = static_cast<const DescriptorSetLayoutValidator *>(info.layout)->getActor();
 
     _actor->initialize(actorInfo);
 }

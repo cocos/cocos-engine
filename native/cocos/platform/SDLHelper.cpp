@@ -210,7 +210,7 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
     }
 }
 
-void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, bool *quit) {
+void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent) {
     cc::TouchEvent touch;
     cc::MouseEvent mouse;
     cc::KeyboardEvent keyboard;
@@ -223,9 +223,6 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
 
     switch (sdlEvent.type) {
         case SDL_QUIT: {
-            if (quit) {
-                *quit = true;
-            }
             WindowEvent ev;
             ev.type = WindowEvent::Type::QUIT;
             events::WindowEvent::broadcast(ev);
@@ -262,9 +259,11 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, b
         case SDL_MOUSEMOTION: {
             const SDL_MouseMotionEvent &event = sdlEvent.motion;
             mouse.type = MouseEvent::Type::MOVE;
+            mouse.button = 0;
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
-            mouse.button = 0;
+            mouse.xDelta = static_cast<float>(event.xrel);
+            mouse.yDelta = static_cast<float>(event.yrel);
             events::Mouse::broadcast(mouse);
             break;
         }
@@ -355,6 +354,7 @@ SDL_Window *SDLHelper::createWindow(const char *title,
 
 void SDLHelper::setCursorEnabled(bool value) {
     SDL_SetRelativeMouseMode(value ? SDL_FALSE : SDL_TRUE);
+    events::PointerLock::broadcast(!value);
 }
 
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)

@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "LightingStage.h"
-#include "../BatchedBuffer.h"
 #include "../Define.h"
 #if CC_USE_GEOMETRY_RENDERER
     #include "../GeometryRenderer.h"
@@ -34,7 +33,6 @@
 #include "../PipelineStateManager.h"
 #include "../PipelineUBO.h"
 #include "../PlanarShadowQueue.h"
-#include "../RenderBatchedQueue.h"
 #include "../RenderInstancedQueue.h"
 #include "../RenderQueue.h"
 #include "DeferredPipeline.h"
@@ -48,6 +46,8 @@
 #include "scene/RenderScene.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -228,6 +228,125 @@ void LightingStage::gatherLights(scene::Camera *camera) {
         _lightBufferData[offset] = direction.x;
         _lightBufferData[offset + 1] = direction.y;
         _lightBufferData[offset + 2] = direction.z;
+
+        ++idx;
+    }
+
+    for (const auto &light : scene->getPointLights()) {
+        if (idx >= _maxDeferredLights) {
+            break;
+        }
+
+        const auto &position = light->getPosition();
+        sphere.setCenter(position);
+        sphere.setRadius(light->getRange());
+        if (!sphere.sphereFrustum(camera->getFrustum())) {
+            continue;
+        }
+        // position
+        offset = idx * elementLen;
+        _lightBufferData[offset] = position.x;
+        _lightBufferData[offset + 1] = position.y;
+        _lightBufferData[offset + 2] = position.z;
+        _lightBufferData[offset + 3] = 0;
+
+        // color
+        const auto &color = light->getColor();
+        offset = idx * elementLen + fieldLen;
+        tmpArray.set(color.x, color.y, color.z, 0);
+        if (light->isUseColorTemperature()) {
+            const auto &colorTemperatureRGB = light->getColorTemperatureRGB();
+            tmpArray.x *= colorTemperatureRGB.x;
+            tmpArray.y *= colorTemperatureRGB.y;
+            tmpArray.z *= colorTemperatureRGB.z;
+        }
+
+        if (sceneData->isHDR()) {
+            tmpArray.w = light->getLuminanceHDR() * exposure * _lightMeterScale;
+        }
+        else {
+            tmpArray.w = light->getLuminanceLDR();
+        }
+
+        _lightBufferData[offset + 0] = tmpArray.x;
+        _lightBufferData[offset + 1] = tmpArray.y;
+        _lightBufferData[offset + 2] = tmpArray.z;
+        _lightBufferData[offset + 3] = tmpArray.w;
+
+        // size range angle
+        offset = idx * elementLen + fieldLen * 2;
+        _lightBufferData[offset] = 0.0F;
+        _lightBufferData[offset + 1] = light->getRange();
+        _lightBufferData[offset + 2] = 0;
+
+        ++idx;
+    }
+
+    for (const auto &light : scene->getRangedDirLights()) {
+        if (idx >= _maxDeferredLights) {
+            break;
+        }
+
+        geometry::AABB rangedDirLightBoundingBox(0.0F, 0.0F, 0.0F, 0.5F, 0.5F, 0.5F);
+        light->getNode()->updateWorldTransform();
+        rangedDirLightBoundingBox.transform(light->getNode()->getWorldMatrix(), &rangedDirLightBoundingBox);
+        if (!rangedDirLightBoundingBox.aabbFrustum(camera->getFrustum())) {
+            continue;
+        }
+
+        // position
+        const auto &position = light->getPosition();
+        offset = idx * elementLen;
+        _lightBufferData[offset] = position.x;
+        _lightBufferData[offset + 1] = position.y;
+        _lightBufferData[offset + 2] = position.z;
+        _lightBufferData[offset + 3] = 0;
+
+        // color
+        const auto &color = light->getColor();
+        offset = idx * elementLen + fieldLen;
+        tmpArray.set(color.x, color.y, color.z, 0);
+        if (light->isUseColorTemperature()) {
+            const auto &colorTemperatureRGB = light->getColorTemperatureRGB();
+            tmpArray.x *= colorTemperatureRGB.x;
+            tmpArray.y *= colorTemperatureRGB.y;
+            tmpArray.z *= colorTemperatureRGB.z;
+        }
+
+        if (sceneData->isHDR()) {
+            tmpArray.w = light->getIlluminanceHDR() * exposure * _lightMeterScale;
+        } else {
+            tmpArray.w = light->getIlluminanceLDR();
+        }
+
+        _lightBufferData[offset + 0] = tmpArray.x;
+        _lightBufferData[offset + 1] = tmpArray.y;
+        _lightBufferData[offset + 2] = tmpArray.z;
+        _lightBufferData[offset + 3] = tmpArray.w;
+
+        // right
+        const auto &right = light->getRight();
+        offset = idx * elementLen + fieldLen * 2;
+        _lightBufferData[offset] = right.x;
+        _lightBufferData[offset + 1] = right.y;
+        _lightBufferData[offset + 2] = right.z;
+        _lightBufferData[offset + 3] = 0.0F;
+
+        // dir
+        const auto &direction = light->getDirection();
+        offset = idx * elementLen + fieldLen * 3;
+        _lightBufferData[offset] = direction.x;
+        _lightBufferData[offset + 1] = direction.y;
+        _lightBufferData[offset + 2] = direction.z;
+        _lightBufferData[offset + 3] = 0.0F;
+
+        // scale
+        const auto &scale = light->getScale();
+        offset = idx * elementLen + fieldLen * 4;
+        _lightBufferData[offset] = scale.x * 0.5F;
+        _lightBufferData[offset + 1] = scale.y * 0.5F;
+        _lightBufferData[offset + 2] = scale.z * 0.5F;
+        _lightBufferData[offset + 3] = 0.0F;
 
         ++idx;
     }

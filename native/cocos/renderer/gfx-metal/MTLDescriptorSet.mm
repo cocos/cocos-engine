@@ -37,7 +37,7 @@ CCMTLDescriptorSet::CCMTLDescriptorSet() : DescriptorSet() {
 }
 
 void CCMTLDescriptorSet::doInit(const DescriptorSetInfo &info) {
-    const auto gpuDescriptorSetLayout = static_cast<CCMTLDescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
+    const auto gpuDescriptorSetLayout = static_cast<const CCMTLDescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
     const auto descriptorCount = gpuDescriptorSetLayout->descriptorCount;
     const auto bindingCount = gpuDescriptorSetLayout->bindings.size();
 

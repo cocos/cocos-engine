@@ -4,16 +4,6 @@ import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, 
 import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource, State, Layer } from '../../cocos/animation/marionette/animation-graph';
 import { VariableTypeMismatchedError } from '../../cocos/animation/marionette/errors';
 import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/animation/marionette/graph-eval';
-import { createGraphFromDescription } from '../../cocos/animation/marionette/__tmp__/graph-from-description';
-import gAnyTransition from './graphs/any-transition';
-import gUnspecifiedCondition from './graphs/unspecified-condition';
-import glUnspecifiedConditionOnEntryNode from './graphs/unspecified-condition-for-non-entry-node';
-import gSuccessiveSatisfaction from './graphs/successive-satisfaction';
-import gVariableNotFoundInCondition from './graphs/variable-not-found-in-condition';
-import gVariableNotFoundInAnimationBlend from './graphs/variable-not-found-in-pose-blend';
-import gAnimationBlendRequiresNumbers from './graphs/pose-blend-requires-numbers';
-import gInfinityLoop from './graphs/infinity-loop';
-import gZeroTimePiece from './graphs/zero-time-piece';
 import { blend1D } from '../../cocos/animation/marionette/blend-1d';
 import '../utils/matcher-deep-close-to';
 import { BinaryCondition, UnaryCondition, TriggerCondition } from '../../cocos/animation/marionette/condition';
@@ -31,6 +21,7 @@ import '../utils/matchers/value-type-asymmetric-matchers';
 import { AnimationBlend1DFixture, LinearRealValueAnimationFixture, ConstantRealValueAnimationFixture, RealValueAnimationFixture } from './new-gen-anim/utils/fixtures';
 import { NodeTransformValueObserver } from './new-gen-anim/utils/node-transform-value-observer';
 import { SingleRealValueObserver } from './new-gen-anim/utils/single-real-value-observer';
+import { createAnimationGraph } from './new-gen-anim/utils/factory';
 
 const DEFAULT_AROUND_NUM_DIGITS = 5;
 
@@ -500,7 +491,59 @@ describe('NewGen Anim', () => {
             // The following updates at that time would still steadily proceed:
             // - The graph is in transition state and the transition specified 0 duration, then the switch will happened;
             // - The graph is in node state and a transition is judged to be happened, then the graph will run in transition state.
-            const graphEval = createAnimationGraphEval(createGraphFromDescription(gZeroTimePiece), new Node());
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': { type: 'motion' },
+                            'Node2': {
+                                type: 'sub-state-machine',
+                                stateMachine: {
+                                    states: { 'SubStateMachineNode1': { type: 'motion' } },
+                                    entryTransitions: [{ to: 'SubStateMachineNode1' }],
+                                    exitTransitions: [{ from: 'SubStateMachineNode1', exitTimeEnabled: true, exitTime: 0.0, duration: 0.0 }],
+                                },
+                            },
+                        },
+                        entryTransitions: [{ to: 'Node1' }],
+                        exitTransitions: [{ from: 'Node2' }],
+                        transitions: [{ from: 'Node1', to: 'Node2', exitTimeEnabled: true, exitTime: 0.0, duration: 0.0 }],
+                    }
+                }],
+            }), new Node());
+            graphEval.update(0.0);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: { __DEBUG_ID__: 'SubStateMachineNode1' },
+            });
+        });
+
+        test('Zero time piece', () => {
+            // SPEC: Whenever zero time piece is encountered,
+            // no matter the time piece is generated since originally passed to `update()`,
+            // or was exhausted and left zero.
+            // The following updates at that time would still steadily proceed:
+            // - The graph is in transition state and the transition specified 0 duration, then the switch will happened;
+            // - The graph is in node state and a transition is judged to be happened, then the graph will run in transition state.
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': { type: 'motion' },
+                            'Node2': {
+                                type: 'sub-state-machine',
+                                stateMachine: {
+                                    states: { 'SubStateMachineNode1': { type: 'motion' } },
+                                    entryTransitions: [{ to: 'SubStateMachineNode1' }],
+                                    exitTransitions: [{ from: 'SubStateMachineNode1', exitTimeEnabled: true, exitTime: 0.0, duration: 0.0 }],
+                                },
+                            },
+                        },
+                        entryTransitions: [{ to: 'Node1' }],
+                        exitTransitions: [{ from: 'Node2' }],
+                        transitions: [{ from: 'Node1', to: 'Node2', exitTimeEnabled: true, exitTime: 0.0, duration: 0.0 }],
+                    }
+                }],
+            }), new Node());
             graphEval.update(0.0);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 currentNode: { __DEBUG_ID__: 'SubStateMachineNode1' },
@@ -528,7 +571,14 @@ describe('NewGen Anim', () => {
         });
 
         test('Condition not specified', () => {
-            const graphEval = createAnimationGraphEval(createGraphFromDescription(gUnspecifiedCondition), new Node());
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: { 'asd': { type: 'motion' } },
+                        entryTransitions: [{ to: 'asd' }],
+                    },
+                }],
+            }), new Node());
             graphEval.update(0.0);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                currentNode: { __DEBUG_ID__: 'asd' },
@@ -536,7 +586,18 @@ describe('NewGen Anim', () => {
         });
 
         test('Condition not specified for non-entry node', () => {
-            const graphEval = createAnimationGraphEval(createGraphFromDescription(glUnspecifiedConditionOnEntryNode), new Node());
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': { type: 'motion' },
+                            'Node2': { type: 'motion' },
+                        },
+                        entryTransitions: [{ to: 'Node1' }],
+                        transitions: [{ from: 'Node1', to: 'Node2', duration: 0.3, exitTimeEnabled: true, exitTime: 0.0 }],
+                    },
+                }],
+            }), new Node());
             graphEval.update(0.0);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 currentNode: { __DEBUG_ID__: 'Node1' },
@@ -551,7 +612,18 @@ describe('NewGen Anim', () => {
         });
 
         test('Successive transitions', () => {
-            const graphEval = createAnimationGraphEval(createGraphFromDescription(gSuccessiveSatisfaction), new Node());
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': { type: 'motion' },
+                            'Node2': { type: 'motion' },
+                        },
+                        entryTransitions: [{ to: 'Node1' }],
+                        transitions: [{ from: 'Node1', to: 'Node2', duration: 0.0, exitTimeEnabled: true, exitTime: 0.0 }],
+                    },
+                }],
+            }), new Node());
             graphEval.update(0.0);
             
             expectAnimationGraphEvalStatusLayer0(graphEval, {
@@ -563,7 +635,21 @@ describe('NewGen Anim', () => {
             const warnMockInstance = warnID as unknown as jest.MockInstance<ReturnType<typeof warnID>, Parameters<typeof warnID>>;
             warnMockInstance.mockClear();
 
-            const graphEval = createAnimationGraphEval(createGraphFromDescription(gInfinityLoop), new Node());
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': { type: 'motion' },
+                            'Node2': { type: 'motion' },
+                        },
+                        entryTransitions: [{ to: 'Node1' }],
+                        transitions: [
+                            { from: 'Node1', to: 'Node2', duration: 0.0, exitTimeEnabled: true, exitTime: 0.0 },
+                            { from: 'Node2', to: 'Node1', duration: 0.0, exitTimeEnabled: true, exitTime: 0.0 }
+                        ],
+                    },
+                }],
+            }), new Node());
             graphEval.update(0.0);
 
             expect(warnMockInstance).toBeCalledTimes(1);
@@ -1896,12 +1982,17 @@ describe('NewGen Anim', () => {
             expect(isAnimationTransition(anyTransition)).toBe(true);
         });
 
-        test('Any transition', () => {
-            const graphEval = createAnimationGraphEval(createGraphFromDescription(gAnyTransition), new Node());
+        test('Any transition shall only match motion states', () => {
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {  'Node1': { type: 'motion' } },
+                        anyTransitions: [{ to: 'Node1', }],
+                    },
+                }],
+            }), new Node());
             graphEval.update(0.0);
-            expectAnimationGraphEvalStatusLayer0(graphEval, {
-                currentNode: { __DEBUG_ID__: 'Node1' },
-            });
+            expect(graphEval.getCurrentStateStatus(0)).toBeNull();
         });
 
         test('Inheritance', () => {
@@ -2775,17 +2866,71 @@ describe('NewGen Anim', () => {
 
     describe('Variable not found error', () => {
         test('Missed in conditions', () => {
-            expect(() => createAnimationGraphEval(createGraphFromDescription(gVariableNotFoundInCondition), new Node())).toThrowError(VariableNotDefinedError);
+            expect(() => createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: { 'Node1': { type: 'motion' }  },
+                        entryTransitions: [{ to: 'Node1', conditions: [{
+                            type: 'unary',
+                            operator: 'to-be-true',
+                            operand: { type: 'variable', name: 'asd' },
+                        }] }],
+                    },
+                }],
+            }), new Node())).toThrowError(VariableNotDefinedError);
         });
 
         test('Missed in animation blend', () => {
-            expect(() => createAnimationGraphEval(createGraphFromDescription(gVariableNotFoundInAnimationBlend), new Node())).toThrowError(VariableNotDefinedError);
+            expect(() => createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': {
+                                type: 'motion',
+                                motion: {
+                                    type: 'animation-blend-1d',
+                                    param: { type: 'variable', name: 'asd' },
+                                    items: [{
+                                        motion: { type: 'clip-motion' },
+                                        threshold: 0.0,
+                                    }, {
+                                        motion: { type: 'clip-motion' },
+                                        threshold: 1.0,
+                                    }],
+                                },
+                            },
+                        },
+                    },
+                }],
+            }), new Node())).toThrowError(VariableNotDefinedError);
         });
     });
 
     describe('Variable type mismatch error', () => {
         test('animation blend requires numbers', () => {
-            expect(() => createAnimationGraphEval(createGraphFromDescription(gAnimationBlendRequiresNumbers), new Node())).toThrowError(VariableTypeMismatchedError);
+            expect(() => createAnimationGraphEval(createAnimationGraph({
+                variableDeclarations: { 'v': { type: 'boolean', value: false } },
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': {
+                                type: 'motion',
+                                motion: {
+                                    type: 'animation-blend-1d',
+                                    param: { type: 'variable', name: 'v' },
+                                    items: [{
+                                        motion: { type: 'clip-motion' },
+                                        threshold: 0.0,
+                                    }, {
+                                        motion: { type: 'clip-motion' },
+                                        threshold: 1.0,
+                                    }],
+                                },
+                            },
+                        },
+                    },
+                }],
+            }), new Node())).toThrowError(VariableTypeMismatchedError);
         });
     });
 
@@ -3487,6 +3632,81 @@ describe('NewGen Anim', () => {
                     lerp(M0_MOTION_CLIP_FROM, M0_MOTION_CLIP_TO, 0.17 / M0_MOTION_CLIP_DURATION),
                     0.17 / INTERRUPTING_TRANSITION_DURATION,
                 ),
+            );
+        });
+
+        test(`Interruption on circular transitions`, () => {
+            const fixture = {
+                initialValue: 0.0,
+                a: new LinearRealValueAnimationFixture(1, 2, 3),
+                b: new LinearRealValueAnimationFixture(4, 5, 6),
+                aToBDuration: 0.3,
+                bToADuration: 0.4,
+            };
+
+            const observer = new SingleRealValueObserver(fixture.initialValue);
+            const graph = new AnimationGraph();
+            const layer = graph.addLayer();
+            const motionStateA = layer.stateMachine.addMotion();
+            motionStateA.name = 'A';
+            motionStateA.motion = fixture.a.createMotion(observer.getCreateMotionContext());
+            const motionStateB = layer.stateMachine.addMotion();
+            motionStateB.name = 'B';
+            motionStateB.motion = fixture.b.createMotion(observer.getCreateMotionContext());
+            {
+                const transitionAToB = layer.stateMachine.connect(motionStateA, motionStateB);
+                transitionAToB.exitConditionEnabled = false;
+                const [condition] = transitionAToB.conditions = [new UnaryCondition()];
+                condition.operator = UnaryCondition.Operator.TRUTHY;
+                condition.operand.variable = 'AToB';
+                graph.addBoolean(condition.operand.variable, true);
+                transitionAToB.duration = fixture.aToBDuration;
+                transitionAToB.interruptionSource = TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE;
+            }
+            {
+                const transitionBToA = layer.stateMachine.connect(motionStateB, motionStateA);
+                transitionBToA.exitConditionEnabled = false;
+                const [condition] = transitionBToA.conditions = [new UnaryCondition()];
+                condition.operator = UnaryCondition.Operator.TRUTHY;
+                condition.operand.variable = 'BToA';
+                graph.addBoolean(condition.operand.variable, false);
+                transitionBToA.duration = fixture.bToADuration;
+                transitionBToA.interruptionSource = TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE;
+            }
+            layer.stateMachine.connect(layer.stateMachine.entryState, motionStateA);
+
+            const graphEval = createAnimationGraphEval(graph, observer.root);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            graphUpdater.goto(0.1);
+
+            graphEval.setValue('BToA', true);
+            graphUpdater.goto(0.25);
+            expect(observer.value).toBeCloseTo(
+                lerp(
+                    lerp(
+                        fixture.a.getExpected(0.1),
+                        fixture.b.getExpected(0.1),
+                        0.1 / fixture.aToBDuration,
+                    ),
+                    fixture.a.getExpected(0.15),
+                    0.15 / fixture.bToADuration,  
+                ),
+                DEFAULT_AROUND_NUM_DIGITS
+            );
+
+            graphUpdater.goto(0.27);
+            expect(observer.value).toBeCloseTo(
+                lerp(
+                    lerp(
+                        fixture.a.getExpected(0.1),
+                        fixture.b.getExpected(0.1),
+                        0.1 / fixture.aToBDuration,
+                    ),
+                    fixture.a.getExpected(0.17),
+                    0.17 / fixture.bToADuration,  
+                ),
+                DEFAULT_AROUND_NUM_DIGITS,
             );
         });
     });

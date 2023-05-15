@@ -25,7 +25,6 @@
 
 import downloader from '../asset/asset-manager/downloader';
 import factory from '../asset/asset-manager/factory';
-import { CompleteCallback, IDownloadParseOptions } from '../asset/asset-manager/shared';
 import { log } from '../core/platform/debug';
 import { VideoClip } from './assets/video-clip';
 import { ccwindow } from '../core/global-exports';
@@ -33,7 +32,7 @@ import { ccwindow } from '../core/global-exports';
 const ccdocument = ccwindow.document;
 
 // eslint-disable-next-line consistent-return
-export function downloadVideo (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
+export function downloadVideo (url: string, options: Record<string, any>, onComplete: (err: Error | null, data?: any | null) => void) {
     const video = ccdocument.createElement('video');
     const source = ccdocument.createElement('source');
     video.appendChild(source);
@@ -57,7 +56,7 @@ export function downloadVideo (url: string, options: IDownloadParseOptions, onCo
     req.send();
 }
 
-function createVideoClip (id: string, data: HTMLVideoElement, options: IDownloadParseOptions, onComplete: CompleteCallback<VideoClip>) {
+function createVideoClip (id: string, data: HTMLVideoElement, options: Record<string, any>, onComplete: (err: Error | null, data?: VideoClip | null) => void) {
     const out = new VideoClip();
     out._nativeUrl = id;
     out._nativeAsset = data;

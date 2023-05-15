@@ -38,7 +38,7 @@ export const deserializeTag = Symbol('[[Deserialize]]');
 
 export interface SerializationInput {
     /**
-     * Reads a property from input.
+     * Reads a property from the input.
      * @param name Property name.
      * @returns The property's value, after deserialized.
      */
@@ -76,19 +76,17 @@ export interface SerializationOutput {
 
 export type SerializationContext = {
     /**
-     * The main serializing asset or root node in the scene/prefab passed to serialization procedure.
+     * The main serializing asset or root node in the scene/prefab passed to the serialization procedure.
      */
     root: unknown;
-
     /**
      * True if the serialization procedure is targeting CCON.
      */
     toCCON: boolean;
-
     /**
      * Customized arguments passed to serialization procedure.
      */
-    customArguments: Record<PropertyKey, unknown>
+    customArguments: Record<PropertyKey, unknown>;
 };
 
 /**
@@ -108,7 +106,7 @@ export interface CustomSerializable {
 }
 
 /**
- * Enables the custom serialize/deserialize method only if the (de)serialize procedure is targeting CCON.
+ * Enables the custom to serialize/deserialize method only if the (de)serialize procedure is targeting CCON.
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export const enableIfCCON: MethodDecorator = <T>(

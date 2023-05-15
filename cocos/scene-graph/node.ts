@@ -73,7 +73,10 @@ const m4_2 = new Mat4();
 const dirtyNodes: any[] = [];
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
-let globalFlagChangeVersion = 0;
+
+// The default value of the global version should be higher than the default value of the node's changedVersion,
+// to ensure that the changeFlags of a node are initialized to 0.
+let globalFlagChangeVersion = 1;
 
 /**
  * @zh
@@ -265,8 +268,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected static _findComponent<T extends Component> (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>): T | null {
         const cls = constructor;
         const comps = node._components;
-        // @ts-expect-error internal rtti property
-        if (cls._sealed) {
+        // NOTE: internal rtti property
+        if ((cls as any)._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
                 if (comp.constructor === constructor) {
@@ -287,8 +290,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected static _findComponents<T extends Component> (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>, components: Component[]) {
         const cls = constructor;
         const comps = node._components;
-        // @ts-expect-error internal rtti property
-        if (cls._sealed) {
+        // NOTE: internal rtti property
+        if ((cls as any)._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
                 if (comp.constructor === constructor) {
@@ -342,10 +345,18 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     @serializable
     protected _active = true;
 
+    /**
+     * NOTE: components getter is typeof ReadonlyArray
+     * @engineInternal
+     */
+    public getWritableComponents () { return this._components; }
     @serializable
     protected _components: Component[] = [];
 
-    // The PrefabInfo object
+    /**
+     * TODO(PP_Pro): this property should be exported to editor only, we should support editorOnly tag.
+     * Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+     */
     @serializable
     protected _prefab: PrefabInfo | null = null;
 
@@ -353,6 +364,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     protected _activeInHierarchy = false;
 
+    /**
+     * @engineInternal
+     */
+    public set id (v: string) { this._id = v; }
     protected _id: string = idGenerator.getNewId();
 
     protected _name: string;
@@ -361,6 +376,14 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected _eventMask = 0;
 
     protected _siblingIndex = 0;
+    /**
+     * @engineInternal
+     */
+    public get siblingIndex (): number { return this._siblingIndex; }
+    /**
+     * @engineInternal
+     */
+    public set siblingIndex (val: number) { this._siblingIndex = val; }
 
     /**
      * @en
@@ -408,6 +431,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public getParent () {
         return this._parent;
+    }
+
+    /**
+     * As there are setter and setParent(), and both of them not just modify _parent, but have
+     * other logic. So add a new function that only modify _parent value.
+     * @engineInternal
+     */
+    public modifyParent (parent: this | null) {
+        this._parent = parent;
     }
 
     /**
@@ -601,6 +633,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             if (this._onSiblingIndexChanged) {
                 this._onSiblingIndexChanged(index);
             }
+            this._eventProcessor.onUpdatingSiblingIndex();
         }
     }
 
@@ -996,6 +1029,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (this._activeInHierarchy) {
             legacyCC.director._nodeActivator.activateComp(component);
         }
+        if (EDITOR && !legacyCC.GAME_VIEW) {
+            component.resetInEditor?.();
+        }
 
         return component;
     }
@@ -1306,12 +1342,14 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
             if (!inCurrentSceneBefore && inCurrentSceneNow) {
                 // attached
-                // @ts-expect-error Polyfilled functions in node-dev.ts
-                this._registerIfAttached!(true);
+                // TODO: `_registerIfAttached` is injected property
+                // issue: https://github.com/cocos/cocos-engine/issues/14643
+                (this as any)._registerIfAttached!(true);
             } else if (inCurrentSceneBefore && !inCurrentSceneNow) {
                 // detached
-                // @ts-expect-error Polyfilled functions in node-dev.ts
-                this._registerIfAttached!(false);
+                // TODO: `_registerIfAttached` is injected property
+                // issue: https://github.com/cocos/cocos-engine/issues/14643
+                (this as any)._registerIfAttached!(false);
             }
 
             // conflict detection
@@ -1332,8 +1370,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const parent = this._parent;
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
         if (!destroyByParent && EDITOR) {
-            // @ts-expect-error Polyfilled functions in node-dev.ts
-            this._registerIfAttached!(false);
+            // TODO: `_registerIfAttached` is injected property
+            // issue: https://github.com/cocos/cocos-engine/issues/14643
+            (this as any)._registerIfAttached!(false);
         }
 
         // remove from persist
@@ -1439,15 +1478,22 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _static = false;
-
-    // world transform, don't access this directly
-    protected declare _pos: Vec3;
-
-    protected declare _rot: Quat;
-
-    protected declare _scale: Vec3;
-
-    protected declare _mat: Mat4;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _pos: Vec3;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _rot: Quat;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _scale: Vec3;
+    /**
+     * @engineInternal NOTE: this is engineInternal interface that doesn't have a side effect of updating the transforms
+     */
+    public declare _mat: Mat4;
 
     // local transform
     @serializable
@@ -1469,11 +1515,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     @serializable
     protected _euler = new Vec3();
 
-    protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
+    protected _transformFlags = TransformBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
 
-    protected _flagChangeVersion = 0;
-    protected _hasChangedFlags = 0;
+    /**
+     * The high bits are used to store the version number of the changedFlag, and the low 3 bits represent its specific value
+     *
+     * | 31 - 29 reserved | 28 - 3 version number | 2  - 0 : Scale Rotation Translation|
+     */
+    protected _changedVersionAndRTS = 0;
 
     constructor (name?: string) {
         super(name);
@@ -1704,12 +1754,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return this._flagChangeVersion === globalFlagChangeVersion ? this._hasChangedFlags : 0;
+        return (this._changedVersionAndRTS >>> 3) === globalFlagChangeVersion ? (this._changedVersionAndRTS & 7) : 0;
     }
 
     set hasChangedFlags (val: number) {
-        this._flagChangeVersion = globalFlagChangeVersion;
-        this._hasChangedFlags = val;
+        this._changedVersionAndRTS = (globalFlagChangeVersion << 3) | val;
     }
 
     /**
@@ -1776,7 +1825,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 parent.updateWorldTransform();
                 if (approx(Mat4.determinant(parent._mat), 0, EPSILON)) {
                     warnID(14300);
-                    this._dirtyFlags |= TransformBit.TRS;
+                    this._transformFlags |= TransformBit.TRS;
                     this.updateWorldTransform();
                 } else {
                     Mat4.multiply(m4_1, Mat4.invert(m4_1, parent._mat), this._mat);
@@ -1803,7 +1852,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         this.hasChangedFlags = TransformBit.TRS;
-        this._dirtyFlags |= TransformBit.TRS;
+        this._transformFlags |= TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -1935,8 +1984,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         while (i >= 0) {
             cur = dirtyNodes[i--];
             hasChangedFlags = cur.hasChangedFlags;
-            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                cur._dirtyFlags |= dirtyBit;
+            if (cur.isValid && (cur._transformFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                cur._transformFlags |= dirtyBit;
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
 
                 children = cur._children;
@@ -1954,12 +2003,12 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 更新节点的世界变换信息
      */
     public updateWorldTransform () {
-        if (!this._dirtyFlags) { return; }
+        if (!this._transformFlags) { return; }
         // we need to recursively iterate this
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         let cur: this | null = this;
         let i = 0;
-        while (cur && cur._dirtyFlags) {
+        while (cur && cur._transformFlags) {
             // top level node
             dirtyNodes[i++] = cur;
             cur = cur._parent;
@@ -1968,7 +2017,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         while (i) {
             child = dirtyNodes[--i];
-            dirtyBits |= child._dirtyFlags;
+            dirtyBits |= child._transformFlags;
             if (cur) {
                 if (dirtyBits & TransformBit.POSITION) {
                     Vec3.transformMat4(child._pos, child._lpos, cur._mat);
@@ -2001,7 +2050,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 }
             }
 
-            child._dirtyFlags = TransformBit.NONE;
+            child._transformFlags = TransformBit.NONE;
             cur = child;
         }
     }
@@ -2468,6 +2517,14 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     }
 
     /**
+     * @en Does the world transform information of this node need to be updated?
+     * @zh 这个节点的空间变换信息是否需要更新？
+     */
+    public isTransformDirty () {
+        return this._transformFlags !== TransformBit.NONE;
+    }
+
+    /**
      * @en
      * Pause all system events which is dispatched by [[SystemEvent]].
      * If recursive is set to true, then this API will pause the node system events for the node and all nodes in its sub node tree.
@@ -2503,7 +2560,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * 清除所有节点的脏标记。
      */
     public static resetHasChangedFlags () {
-        globalFlagChangeVersion += 1;
+        // Using 26 bits for the flags is sufficient.
+        globalFlagChangeVersion = (globalFlagChangeVersion + 1) & 0x3FFFFFF;
     }
 
     /**

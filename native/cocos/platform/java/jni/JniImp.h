@@ -26,24 +26,30 @@
 
 #include "base/std/container/string.h"
 
-extern ccstd::string getObbFilePathJNI();
-extern int getObbAssetFileDescriptorJNI(const ccstd::string &path, int64_t *startOffset, int64_t *size);
-extern ccstd::string getCurrentLanguageJNI();
-extern ccstd::string getCurrentLanguageCodeJNI();
-extern ccstd::string getSystemVersionJNI();
-extern bool openURLJNI(const ccstd::string &url);
-extern void copyTextToClipboardJNI(const ccstd::string &text);
-extern ccstd::string getDeviceModelJNI();
-extern int getDPIJNI();
-extern void setVibrateJNI(float duration);
-extern void setKeepScreenOnJNI(bool isEnabled);
-extern int getNetworkTypeJNI();
-extern float *getSafeAreaEdgeJNI();
-extern int getDeviceRotationJNI();
-extern float getBatteryLevelJNI();
-extern void flushTasksOnGameThreadJNI();
-extern void flushTasksOnGameThreadAtForegroundJNI();
-extern void setAccelerometerEnabledJNI(bool isEnabled);
-extern void setAccelerometerIntervalJNI(float interval);
-extern float *getDeviceMotionValueJNI();
-extern void finishActivity();
+namespace cc {
+ccstd::string getObbFilePathJNI();
+int getObbAssetFileDescriptorJNI(const ccstd::string &path, int64_t *startOffset, int64_t *size);
+ccstd::string getCurrentLanguageJNI();
+ccstd::string getCurrentLanguageCodeJNI();
+ccstd::string getSystemVersionJNI();
+bool openURLJNI(const ccstd::string &url);
+void copyTextToClipboardJNI(const ccstd::string &text);
+ccstd::string getDeviceModelJNI();
+int getDPIJNI();
+void setVibrateJNI(float duration);
+void setKeepScreenOnJNI(bool isEnabled);
+int getNetworkTypeJNI();
+float *getSafeAreaEdgeJNI();
+int getDeviceRotationJNI();
+float getBatteryLevelJNI();
+void flushTasksOnGameThreadJNI();
+void flushTasksOnGameThreadAtForegroundJNI();
+void setAccelerometerEnabledJNI(bool isEnabled);
+void setAccelerometerIntervalJNI(float interval);
+float *getDeviceMotionValueJNI();
+void finishActivity();
+/**
+ * support for High Performance Emulator
+ */
+bool getSupportHPE();
+} // namespace cc

@@ -32,9 +32,14 @@
 #define SCRIPT_ENGINE_NONE 0
 #define SCRIPT_ENGINE_SM   1
 #define SCRIPT_ENGINE_V8   2
+#define SCRIPT_ENGINE_NAPI 5
 
 #ifndef SCRIPT_ENGINE_TYPE
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    #define SCRIPT_ENGINE_TYPE SCRIPT_ENGINE_NAPI
+#else
     #define SCRIPT_ENGINE_TYPE SCRIPT_ENGINE_V8
+#endif
 #endif
 
 #define SE_LOG_TO_JS_ENV 0 // print log to JavaScript environment, for example DevTools
@@ -58,7 +63,11 @@
 CC_FORMAT_HINT(3, 4)
 void selogMessage(cc::LogLevel level, const char *tag, const char *format, ...);
 
+#if CC_DEBUG
 #define SE_LOGD(...) selogMessage(cc::LogLevel::LEVEL_DEBUG, "D/", ##__VA_ARGS__)
+#else
+#define SE_LOGD(...)
+#endif
 #define SE_LOGE(...) selogMessage(cc::LogLevel::ERR, "E/", ##__VA_ARGS__)
 
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))

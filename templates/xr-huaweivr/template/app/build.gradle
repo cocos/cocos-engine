@@ -5,11 +5,12 @@ apply plugin: 'com.android.application'
 RES_PATH = RES_PATH.replace("\\", "/")
 COCOS_ENGINE_PATH = COCOS_ENGINE_PATH.replace("\\", "/")
 
-buildDir = "${RES_PATH}/proj/build/$project.name"
+buildDir = "${RES_PATH}/proj/build/${project.name ==~ /^[_a-zA-Z0-9-]+$/ ? project.name : 'CocosGame'}"
 android {
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
     buildToolsVersion PROP_BUILD_TOOLS_VERSION
     ndkPath PROP_NDK_PATH
+    namespace APPLICATION_ID
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -22,11 +23,12 @@ android {
         targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
+        resValue  "string", "app_name", PROP_APP_NAME
 
         externalNativeBuild {
             cmake {
                 targets "cocos"
-                arguments "-DRES_DIR=${RES_PATH}", "-DCOCOS_X_PATH=${COCOS_ENGINE_PATH}", "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE", "-DANDROID_LD=gold"
+                arguments "-DRES_DIR=${RES_PATH}", "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE"
             }
             ndk { abiFilters PROP_APP_ABI.split(':') }
         }
@@ -46,6 +48,7 @@ android {
 
     externalNativeBuild {
         cmake {
+            version "3.22.1"
             path "../CMakeLists.txt"
             buildStagingDirectory "${RES_PATH}/proj/build"
         }
@@ -81,8 +84,11 @@ android {
                     arguments "-DHIDE_SYMBOLS=ON"
                 }
             }
-            
-            // resValue  "string", "app_name", PROP_APP_NAME
+
+            if (!Boolean.parseBoolean(PROP_IS_DEBUG)) {
+                getIsDefault().set(true)
+            }
+
         }
 
         debug {
@@ -102,4 +108,7 @@ dependencies {
     implementation project(':libservice')
     implementation project(':libxrcommon')
     implementation project(':libcocos')
+    if (Boolean.parseBoolean(PROP_ENABLE_INPUTSDK)) {
+        implementation 'com.google.android.libraries.play.games:inputmapping:1.1.0-beta'
+    }
 }

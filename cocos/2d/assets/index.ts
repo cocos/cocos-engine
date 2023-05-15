@@ -22,8 +22,6 @@
  THE SOFTWARE.
 */
 
-
-
 export * from './sprite-frame';
 export { SpriteAtlas } from './sprite-atlas';
 export { TTFFont } from './ttf-font';

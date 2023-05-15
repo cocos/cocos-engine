@@ -386,6 +386,10 @@ export class Sprite extends UIRenderer {
         }
     }
 
+    /**
+     * @en Grayscale mode.
+     * @zh 是否以灰度模式渲染。
+     */
     @editable
     @displayOrder(5)
     @tooltip('i18n:sprite.gray_scale')
@@ -431,9 +435,25 @@ export class Sprite extends UIRenderer {
         }
     }
 
+    /**
+     * @en Enum for fill type.
+     * @zh 填充类型。
+     */
     public static FillType = FillType;
+    /**
+     * @en Enum for sprite type.
+     * @zh Sprite 类型。
+     */
     public static Type = SpriteType;
+    /**
+     * @en Sprite's size mode, including trimmed size, raw size, and none.
+     * @zh 精灵尺寸调整模式。
+     */
     public static SizeMode = SizeMode;
+    /**
+     * @en Event types for sprite.
+     * @zh sprite 的事件类型。
+     */
     public static EventType = EventType;
 
     @serializable
@@ -501,9 +521,8 @@ export class Sprite extends UIRenderer {
      * If there is no atlas, the switch fails.
      *
      * @zh
-     * 精灵图集内的精灵替换
-     *
-     * @returns
+     * 选取使用精灵图集中的其他精灵。
+     * @param name @en Name of the spriteFrame to switch. @zh 要切换的 spriteFrame 名字。
      */
     public changeSpriteFrameFromAtlas (name: string) {
         if (!this._atlas) {
@@ -514,6 +533,9 @@ export class Sprite extends UIRenderer {
         this.spriteFrame = sprite;
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public changeMaterialForDefine () {
         let texture;
         const lastInstanceMaterialType = this._instanceMaterialType;
@@ -579,10 +601,10 @@ export class Sprite extends UIRenderer {
             this._assembler = assembler;
         }
 
-        if (!this.renderData) {
+        if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this.renderData!.material = this.getRenderMaterial(0);
+                this._renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 if (this.spriteFrame) {
                     this._assembler.updateUVs(this);

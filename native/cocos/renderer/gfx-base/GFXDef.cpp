@@ -60,11 +60,21 @@ bool operator==(const DepthStencilAttachment &lhs, const DepthStencilAttachment 
 
 template <>
 ccstd::hash_t Hasher<SubpassDependency>::operator()(const SubpassDependency &info) const {
-    return quickHashTrivialStruct(&info);
+    ccstd::hash_t seed = 8;
+    ccstd::hash_combine(seed, info.dstSubpass);
+    ccstd::hash_combine(seed, info.srcSubpass);
+    ccstd::hash_combine(seed, info.generalBarrier);
+    ccstd::hash_combine(seed, info.prevAccesses);
+    ccstd::hash_combine(seed, info.nextAccesses);
+    return seed;
 }
 
 bool operator==(const SubpassDependency &lhs, const SubpassDependency &rhs) {
-    return !memcmp(&lhs, &rhs, sizeof(SubpassDependency));
+    return lhs.srcSubpass == rhs.srcSubpass &&
+           lhs.dstSubpass == rhs.dstSubpass &&
+           lhs.generalBarrier == rhs.generalBarrier &&
+           lhs.prevAccesses == rhs.prevAccesses &&
+           lhs.nextAccesses == rhs.nextAccesses;
 }
 
 template <>

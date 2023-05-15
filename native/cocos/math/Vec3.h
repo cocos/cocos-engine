@@ -194,15 +194,6 @@ public:
     void cross(const Vec3 &v);
 
     /**
-     * Calculate cross product.
-     *
-     * @param v1 is a vector.
-     * @param v2 is a vector.
-     * @param dst is a vector used to calculate the cross product of v1 and v2. 
-     */
-    static void crossProduct(const Vec3 &v1, const Vec3 &v2, Vec3 *dst);
-
-    /**
      * Computes the cross product of the specified vectors and stores the result in dst.
      *
      * @param v1 The first vector.
@@ -265,6 +256,15 @@ public:
      * @zh 向量与四维矩阵乘法，默认向量第四位为 0。
      */
     static void transformMat4Normal(const Vec3 &v, const Mat4 &m, Vec3 *dst);
+
+    /**
+     * @en Calculates a new position from current to target no more than `maxStep` distance.
+     * @zh 计算一个新位置从当前位置移动不超过 `maxStep` 距离到目标位置。
+     * @param current current position
+     * @param target target position
+     * @param maxStep maximum moving distance
+     */
+    static void moveTowards(const Vec3 &current, const Vec3 &target, float maxStep, Vec3 *dst);
 
     /**
      * Transforms this vector by the specified quaternion and stores the result in this vector.

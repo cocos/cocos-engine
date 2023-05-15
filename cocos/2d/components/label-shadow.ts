@@ -29,8 +29,8 @@ import { Color, Vec2 } from '../../core';
 import { Label } from './label';
 
 /**
- * @en Shadow effect for Label component, only for system fonts or TTF fonts
- * @zh 用于给 Label 组件添加阴影效果，只能用于系统字体或 ttf 字体
+ * @en Shadow effect for Label component, only for system fonts or TTF fonts.
+ * @zh 用于给 Label 组件添加阴影效果，只能用于系统字体或 ttf 字体。
  * @example
  * import { Node, Label, LabelShadow } from 'cc';
  * // Create a new node and add label components.
@@ -82,7 +82,7 @@ export class LabelShadow extends Component {
 
     /**
      * @en
-     * Offset between font and shadow
+     * Offset between font and shadow.
      *
      * @zh
      * 字体与阴影的偏移。
@@ -105,10 +105,10 @@ export class LabelShadow extends Component {
 
     /**
      * @en
-     * A non-negative float specifying the level of shadow blur
+     * A non-negative float specifying the level of shadow blur.
      *
      * @zh
-     * 阴影的模糊程度
+     * 阴影的模糊程度。
      *
      * @example
      * ```ts

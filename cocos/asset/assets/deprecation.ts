@@ -41,9 +41,8 @@ removeProperty(TextureBase.prototype, 'TextureBase.prototype', [
 replaceProperty(RenderTexture.prototype, 'RenderTexture.prototype', [
     {
         name: 'getGFXWindow',
-        customFunction () {
-            // @ts-expect-error
-            return this._window;
+        customFunction (this: RenderTexture) {
+            return this.window;
         },
     },
 ]);

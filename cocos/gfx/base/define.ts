@@ -400,6 +400,8 @@ export enum TextureFlagBit {
     NONE = 0,
     GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
+    EXTERNAL_OES = 0x4, // External oes texture
+    EXTERNAL_NORMAL = 0x8, // External normal texture
 }
 
 export enum FormatFeatureBit {
@@ -1579,24 +1581,16 @@ export class SubpassDependency {
         public srcSubpass: number = 0,
         public dstSubpass: number = 0,
         public generalBarrier: GeneralBarrier = null!,
-        public bufferBarriers: BufferBarrier = null!,
-        public buffers: Buffer = null!,
-        public bufferBarrierCount: number = 0,
-        public textureBarriers: TextureBarrier = null!,
-        public textures: Texture = null!,
-        public textureBarrierCount: number = 0,
+        public prevAccesses: AccessFlags[] = [AccessFlagBit.NONE],
+        public nextAccesses: AccessFlags[] = [AccessFlagBit.NONE],
     ) {}
 
     public copy (info: Readonly<SubpassDependency>) {
         this.srcSubpass = info.srcSubpass;
         this.dstSubpass = info.dstSubpass;
         this.generalBarrier = info.generalBarrier;
-        this.bufferBarriers = info.bufferBarriers;
-        this.buffers = info.buffers;
-        this.bufferBarrierCount = info.bufferBarrierCount;
-        this.textureBarriers = info.textureBarriers;
-        this.textures = info.textures;
-        this.textureBarrierCount = info.textureBarrierCount;
+        this.prevAccesses = info.prevAccesses.slice();
+        this.nextAccesses = info.nextAccesses.slice();
         return this;
     }
 }

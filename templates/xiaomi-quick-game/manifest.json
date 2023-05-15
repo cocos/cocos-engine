@@ -1,0 +1,13 @@
+{
+    "package": "",
+    "name": "",
+    "versionName": "1.0.0",
+    "versionCode": 1201,
+    "minPlatformVersion": 1056,
+    "icon": "/image/icon.png",
+    "orientation": "portrait",
+    "type": "game",
+    "config": {},
+    "display": {},
+    "subpackages": []
+}

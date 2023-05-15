@@ -32,8 +32,11 @@ exports.methods = {
         $group.$header.setAttribute('class', 'tab-header');
         $group.appendChild($group.$header);
         $group.$header.addEventListener('change', (e) => {
+            active(e.target.value);
+        });
+        function active(index) {
             const tabNames = Object.keys($group.tabs);
-            const tabName = tabNames[e.target.value || 0];
+            const tabName = tabNames[index];
             $group.childNodes.forEach((child) => {
                 if (!child.classList.contains('tab-content')) {
                     return;
@@ -44,12 +47,9 @@ exports.methods = {
                     child.style.display = 'none';
                 }
             });
-        });
+        }
         setTimeout(() => {
-            const $firstTab = $group.$header.shadowRoot.querySelector('ui-button');
-            if ($firstTab) {
-                $firstTab.dispatch('confirm');
-            }
+            active(0);
         });
         return $group;
     },

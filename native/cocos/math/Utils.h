@@ -49,7 +49,7 @@ constexpr auto HALF_TO_RAD = 0.5 * D2R;
 template <typename F>
 bool equals(F a, F b) {
     static_assert(std::is_floating_point<F>::value, "number expected");
-    return std::fabs(a - b) <= EPSILON * std::max(1.0, std::fabs(a), std::fabs(b));
+    return std::fabs(a - b) <= EPSILON * std::max(1.0F, std::max(std::fabs(a), std::fabs(b)));
 }
 
 /**
@@ -215,6 +215,7 @@ auto pseudoRandomRangeInt(In seed, In min, In max) {
  */
 template <typename T>
 auto nextPow2(T val) {
+    // ref: https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
     --val;
     val = (val >> 1) | val;
     val = (val >> 2) | val;
@@ -264,15 +265,14 @@ auto inverseLerp(T from, T to, T value) {
     return (value - from) / (to - from);
 }
 
-using Vec3ElementType = decltype(static_cast<Vec3 *>(nullptr)->x);
 /**
  * @zh 对所有分量的绝对值进行比较大小，返回绝对值最大的分量。
  * @param v 类 Vec3 结构
  * @returns 绝对值最大的分量
  */
-Vec3ElementType absMaxComponent(const Vec3 &v);
+float absMaxComponent(const Vec3 &v);
 
-Vec3ElementType maxComponent(const Vec3 &v);
+float maxComponent(const Vec3 &v);
 
 /**
  * @zh 对 a b 的绝对值进行比较大小，返回绝对值最大的值。

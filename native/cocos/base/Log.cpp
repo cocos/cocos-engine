@@ -47,6 +47,8 @@
     #include <android/log.h>
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
     #include <hilog/log.h>
+#elif (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    #include <hilog/log.h>
 #endif
 
 namespace cc {
@@ -203,6 +205,29 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
         default:
             HILOG_DEBUG(LOG_APP, typeStr, buff);
     }
+#elif (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    ::LogLevel ohosLoglevel = ::LogLevel::LOG_DEBUG;
+    switch (level) {
+        case LogLevel::LEVEL_DEBUG:
+        ohosLoglevel = ::LogLevel::LOG_DEBUG;
+        break;
+        case LogLevel::INFO:
+        ohosLoglevel = ::LogLevel::LOG_INFO;
+        break;
+        case LogLevel::WARN:
+        ohosLoglevel = ::LogLevel::LOG_WARN;
+        break;
+        case LogLevel::ERR:
+        ohosLoglevel = ::LogLevel::LOG_ERROR;
+        break;
+        case LogLevel::FATAL:
+        ohosLoglevel = ::LogLevel::LOG_FATAL;
+        break;
+        default:
+        ohosLoglevel = ::LogLevel::LOG_INFO;
+        break;
+    }
+    OH_LOG_Print(LOG_APP, ohosLoglevel, LOG_DOMAIN, "HMG_LOG", "%{public}s", buff);
 #else
     fputs(buff, stdout);
 #endif

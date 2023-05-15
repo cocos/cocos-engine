@@ -31,10 +31,10 @@ import { Stage } from '../renderer/stencil-manager';
 
 /**
  * @en Legacy 2D base class for rendering component, please use [[UIRenderer]] instead.
- * This component will setup NodeUIProperties.uiComp in its owner [[Node]]
+ * This component will setup NodeUIProperties.uiComp in its owner [[Node]].
  * @zh 旧的 2D 渲染组件基类，请使用 [[UIRenderer]] 替代。
  * 这个组件会设置 [[Node]] 上的 NodeUIProperties.uiComp。
- * @deprecated since v3.4.1
+ * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
  */
 @ccclass('cc.UIComponent')
 @requireComponent(UITransform)
@@ -45,8 +45,10 @@ export class UIComponent extends Component {
     protected _lastParent: Node | null = null;
 
     public __preload () {
-        // @ts-expect-error temporary, UIComponent should be removed
-        this.node._uiProps.uiComp = this;
+        // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
+        // workaround: mark this as any
+        // issue: https://github.com/cocos/cocos-engine/issues/14637
+        (this as any).node._uiProps.uiComp = this;
     }
 
     public onEnable () {
@@ -57,10 +59,11 @@ export class UIComponent extends Component {
     }
 
     public onDestroy () {
-        // @ts-expect-error temporary, UIComponent should be removed
-        if (this.node._uiProps.uiComp === this) {
-            // @ts-expect-error temporary, UIComponent should be removed
-            this.node._uiProps.uiComp = null;
+        // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
+        // workaround: mark this as any
+        // issue: https://github.com/cocos/cocos-engine/issues/14637
+        if ((this as any).node._uiProps.uiComp === this) {
+            (this as any).node._uiProps.uiComp = null;
         }
     }
 
@@ -71,18 +74,31 @@ export class UIComponent extends Component {
      * @zh 后置渲染数据组装程序，它会在所有子节点的渲染数据组装完成后被调用。
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
+     * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
      */
     public postUpdateAssembler (render: IBatcher) {
     }
 
+    /**
+     * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
+     */
     public markForUpdateRenderData (enable = true) {
     }
 
-    public stencilStage : Stage = Stage.DISABLED;
+    /**
+     * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
+     */
+    public stencilStage: Stage = Stage.DISABLED;
 
+    /**
+     * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
+     */
     public setNodeDirty () {
     }
 
+    /**
+     * @deprecated since v3.4.1, please use [[UIRenderer]] instead.
+     */
     public setTextureDirty () {
     }
 }

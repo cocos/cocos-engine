@@ -25,22 +25,21 @@
 import { EDITOR } from 'internal:constants';
 import { ImageAsset } from '../assets/image-asset';
 import JsonAsset from '../assets/json-asset';
-import TextAsset from '../assets/text-asset';
+import { TextAsset } from '../assets/text-asset';
 import { Asset } from '../assets/asset';
 import { BufferAsset } from '../assets/buffer-asset';
 import Bundle, { resources } from './bundle';
 import Cache from './cache';
 import { IConfigOption } from './config';
 import {
-    assets, BuiltinBundleName, bundles, CompleteCallback, IRemoteOptions,
-    IDownloadParseOptions,
+    assets, BuiltinBundleName, bundles,
 } from './shared';
 import { cache } from './utilities';
 import { js } from '../../core';
 
-export type CreateHandler = (id: string, data: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset|Bundle>) => void;
+export type CreateHandler = (id: string, data: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | Bundle | null) => void)) => void;
 
-function createImageAsset (id: string, data: HTMLImageElement, options: IDownloadParseOptions, onComplete: CompleteCallback<ImageAsset>) {
+function createImageAsset (id: string, data: HTMLImageElement, options: Record<string, any>, onComplete: ((err: Error | null, data?: ImageAsset | null) => void)) {
     let out: ImageAsset | null = null;
     let err: Error | null = null;
     try {
@@ -53,33 +52,33 @@ function createImageAsset (id: string, data: HTMLImageElement, options: IDownloa
     onComplete(err, out);
 }
 
-function createJsonAsset (id: string, data: Record<string, any>, options: IDownloadParseOptions, onComplete: CompleteCallback<JsonAsset>) {
+function createJsonAsset (id: string, data: Record<string, any>, options: Record<string, any>, onComplete: ((err: Error | null, data?: JsonAsset | null) => void)) {
     const out = new JsonAsset();
     out.json = data;
     onComplete(null, out);
 }
 
-function createTextAsset (id: string, data: string, options: IDownloadParseOptions, onComplete: CompleteCallback<TextAsset>) {
+function createTextAsset (id: string, data: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: TextAsset | null) => void)) {
     const out = new TextAsset();
     out.text = data;
     onComplete(null, out);
 }
 
-function createBufferAsset (id: string, data: ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<BufferAsset>) {
+function createBufferAsset (id: string, data: ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: BufferAsset | null) => void)) {
     const out = new BufferAsset();
     out._nativeUrl = id;
     out._nativeAsset = data;
     onComplete(null, out);
 }
 
-function createAsset (id: string, data: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset>) {
+function createAsset (id: string, data: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | null) => void)) {
     const out = new Asset();
     out._nativeUrl = id;
     out._nativeAsset = data;
     onComplete(null, out);
 }
 
-function createBundle (id: string, data: IConfigOption, options: IDownloadParseOptions, onComplete: CompleteCallback<Bundle>) {
+function createBundle (id: string, data: IConfigOption, options: Record<string, any>, onComplete: ((err: Error | null, data?: Bundle | null) => void)) {
     let bundle = bundles.get(data.name);
     if (!bundle) {
         bundle = data.name === BuiltinBundleName.RESOURCES ? resources : new Bundle();
@@ -97,7 +96,7 @@ function createBundle (id: string, data: IConfigOption, options: IDownloadParseO
 }
 
 export class Factory {
-    private _creating = new Cache<CompleteCallback[]>();
+    private _creating = new Cache<((err: Error | null, data?: any | null) => void)[]>();
 
     private _producers: Record<string, CreateHandler> = {
         // Images
@@ -147,7 +146,7 @@ export class Factory {
         }
     }
 
-    public create (id: string, data: any, type: string, options: IRemoteOptions, onComplete: CompleteCallback<Asset | Bundle>): void {
+    public create (id: string, data: any, type: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | Bundle | null) => void)): void {
         const handler = this._producers[type] || this._producers.default;
         const asset = assets.get(id);
         if (!options.reloadAsset && asset) {

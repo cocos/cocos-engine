@@ -27,7 +27,7 @@ import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
 import { b2PhysicsWorld } from './physics-world';
-import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree } from '../../core';
+import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, TWO_PI, HALF_PI } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
 
 import { Node } from '../../scene-graph/node';
@@ -132,8 +132,21 @@ export class b2RigidBody2D implements IRigidBody2D {
         tempVec2_1.y = (this._animatedPos.y - b2Pos.y) * timeStep;
         b2body.SetLinearVelocity(tempVec2_1);
 
-        const b2Rotation = b2body.GetAngle();
-        b2body.SetAngularVelocity((this._animatedAngle - b2Rotation) * timeStep);
+        //convert b2Rotation to [-PI~PI], which is the same as this._animatedAngle
+        let b2Rotation = b2body.GetAngle() % (TWO_PI);
+        if (b2Rotation > Math.PI) {
+            b2Rotation -= TWO_PI;
+        }
+
+        //calculate angular velocity
+        let angularVelocity = (this._animatedAngle - b2Rotation) * timeStep;
+        if (this._animatedAngle < -HALF_PI && b2Rotation > HALF_PI) { //ccw, crossing PI
+            angularVelocity = (this._animatedAngle + TWO_PI - b2Rotation) * timeStep;
+        } if (this._animatedAngle > HALF_PI && b2Rotation < -HALF_PI) { //cw, crossing PI
+            angularVelocity = (this._animatedAngle - TWO_PI - b2Rotation) * timeStep;
+        }
+
+        b2body.SetAngularVelocity(angularVelocity);
     }
 
     syncSceneToPhysics () {
@@ -171,7 +184,7 @@ export class b2RigidBody2D implements IRigidBody2D {
 
         const rot = this._rigidBody.node.worldRotation;
         const euler = tempVec3;
-        Quat.toEuler(euler, rot);
+        Quat.toEulerInYXZOrder(euler, rot);
         const rotation = toRadian(euler.z);
 
         const bodyType = this._rigidBody.type;

@@ -40,6 +40,8 @@
 #include "scene/LODGroup.h"
 #include "scene/Model.h"
 #include "scene/Octree.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
 
@@ -52,26 +54,13 @@ namespace scene {
  */
 class LodStateCache : public RefCounted {
 public:
-    struct ModelInfo {
-        /**
-         * @zh model 所属的 LOD 层级
-         * @en LOD level of the model。
-         */
-        int8_t ownerLodLevel{-1};
-        const LODGroup *lodGroup{nullptr};
-        /**
-         * @zh model 能被看到的相机列表
-         * @en List of cameras that model can be seen.
-         */
-        ccstd::unordered_map<const Camera *, bool> visibleCameras;
-    };
-
     struct LODInfo {
         /**
          * @zh 当前使用哪一级的 LOD, -1 表示没有层级被使用
          * @en Which level of LOD is currently in use, -1 means no levels are used
          */
         int8_t usedLevel{-1};
+        int8_t lastUsedLevel{-1};
         bool transformDirty{true};
     };
 
@@ -96,10 +85,10 @@ public:
 
 private:
     /**
-     * @zh LOD使用的model集合；包含每个LODGroup的每一级LOD
-     * @en The collection of models used by LOD; Each LOD of each LODGroup.
+     * @zh LOD使用的model集合以及每个model当前能被看到的相机列表；包含每个LODGroup的每一级LOD
+     * @en The set of models used by the LOD and the list of cameras that each models can currently be seen, contains each level of LOD for each LODGroup.
      */
-    ccstd::unordered_map<const Model *, ModelInfo> _modelsInLODGroup;
+    ccstd::unordered_map<const Model *, ccstd::unordered_map<const Camera *, bool>> _modelsInLODGroup;
 
     /**
      * @zh 指定相机下，LODGroup使用哪一级的LOD
@@ -112,6 +101,12 @@ private:
      * @en The LODGroup added in the previous frame.
      */
     ccstd::vector<const LODGroup *> _newAddedLodGroupVec;
+
+    /**
+     * @zh 每个LOD上的所有models，包含所有LODGroup中的所有LOD
+     * @en All mods on each LOD, containing all LODs in all LODGroups.
+     */
+    ccstd::unordered_map<const LODGroup *, ccstd::unordered_map<uint8_t, ccstd::vector<const Model *>>> _levelModels;
 
     RenderScene *_renderScene{nullptr};
 };
@@ -162,6 +157,7 @@ bool RenderScene::isCulledByLod(const Camera *camera, const Model *model) const 
 
 void RenderScene::setMainLight(DirectionalLight *dl) {
     _mainLight = dl;
+    if (_mainLight) _mainLight->activate();
 }
 
 void RenderScene::update(uint32_t stamp) {
@@ -173,8 +169,14 @@ void RenderScene::update(uint32_t stamp) {
     for (const auto &light : _sphereLights) {
         light->update();
     }
-    for (const auto &spotLight : _spotLights) {
-        spotLight->update();
+    for (const auto &light : _spotLights) {
+        light->update();
+    }
+    for (const auto &light : _pointLights) {
+        light->update();
+    }
+    for (const auto &light : _rangedDirLights) {
+        light->update();
     }
     for (const auto &model : _models) {
         if (model->isEnabled()) {
@@ -195,6 +197,7 @@ void RenderScene::destroy() {
     removeCameras();
     removeSphereLights();
     removeSpotLights();
+    removePointLights();
     removeLODGroups();
     removeModels();
     _lodStateCache->clearCache();
@@ -254,12 +257,14 @@ void RenderScene::removeDirectionalLight(DirectionalLight *dl) {
 }
 
 void RenderScene::addSphereLight(SphereLight *light) {
+    light->attachToScene(this);
     _sphereLights.emplace_back(light);
 }
 
 void RenderScene::removeSphereLight(SphereLight *sphereLight) {
     auto iter = std::find(_sphereLights.begin(), _sphereLights.end(), sphereLight);
     if (iter != _sphereLights.end()) {
+        (*iter)->detachFromScene();
         _sphereLights.erase(iter);
     } else {
         CC_LOG_WARNING("Try to remove invalid sphere light.");
@@ -267,12 +272,14 @@ void RenderScene::removeSphereLight(SphereLight *sphereLight) {
 }
 
 void RenderScene::addSpotLight(SpotLight *spotLight) {
+    spotLight->attachToScene(this);
     _spotLights.emplace_back(spotLight);
 }
 
 void RenderScene::removeSpotLight(SpotLight *spotLight) {
     auto iter = std::find(_spotLights.begin(), _spotLights.end(), spotLight);
     if (iter != _spotLights.end()) {
+        (*iter)->detachFromScene();
         _spotLights.erase(iter);
     } else {
         CC_LOG_WARNING("Try to remove invalid spot light.");
@@ -291,6 +298,46 @@ void RenderScene::removeSpotLights() {
         spotLight->detachFromScene();
     }
     _spotLights.clear();
+}
+
+void RenderScene::addPointLight(PointLight *light) {
+    _pointLights.emplace_back(light);
+}
+
+void RenderScene::removePointLight(PointLight *pointLight) {
+    auto iter = std::find(_pointLights.begin(), _pointLights.end(), pointLight);
+    if (iter != _pointLights.end()) {
+        _pointLights.erase(iter);
+    } else {
+        CC_LOG_WARNING("Try to remove invalid point light.");
+    }
+}
+
+void RenderScene::removePointLights() {
+    for (const auto &pointLight : _pointLights) {
+        pointLight->detachFromScene();
+    }
+    _pointLights.clear();
+}
+
+void RenderScene::addRangedDirlLight(RangedDirectionalLight *rangedDirLight) {
+    _rangedDirLights.emplace_back(rangedDirLight);
+}
+
+void RenderScene::removeRangedDirLight(RangedDirectionalLight *rangedDirLight) {
+    const auto iter = std::find(_rangedDirLights.begin(), _rangedDirLights.end(), rangedDirLight);
+    if (iter != _rangedDirLights.end()) {
+        _rangedDirLights.erase(iter);
+    } else {
+        CC_LOG_WARNING("Try to remove invalid ranged directional light.");
+    }
+}
+
+void RenderScene::removeRangedDirLights() {
+    for (const auto &rangedDirLight : _rangedDirLights) {
+        rangedDirLight->detachFromScene();
+    }
+    _rangedDirLights.clear();
 }
 
 void RenderScene::addModel(Model *model) {
@@ -397,6 +444,7 @@ void LodStateCache::removeLodGroup(const LODGroup *lodGroup) {
     for (auto &visibleCamera : _lodStateInCamera) {
         visibleCamera.second.erase(lodGroup);
     }
+    _levelModels.erase(lodGroup);
 }
 
 void LodStateCache::removeModel(const Model *model) {
@@ -409,12 +457,13 @@ void LodStateCache::removeModel(const Model *model) {
 void LodStateCache::updateLodState() {
     //insert _newAddedLodGroupVec's model into _modelsInLODGroup
     for (const auto &addedLodGroup : _newAddedLodGroupVec) {
+        auto &lodModels = _levelModels[addedLodGroup];
         for (uint8_t index = 0; index < addedLodGroup->getLodCount(); index++) {
+            auto &vecModels = lodModels[index];
             const auto &lod = addedLodGroup->getLodDataArray()[index];
             for (const auto &model : lod->getModels()) {
                 auto &modelInfo = _modelsInLODGroup[model];
-                modelInfo.ownerLodLevel = index;
-                modelInfo.lodGroup = addedLodGroup;
+                vecModels.push_back(model);
             }
         }
     }
@@ -436,19 +485,21 @@ void LodStateCache::updateLodState() {
                 //Update the visible camera list of all models on lodGroup when the visible level changes.
                 if (lodGroup->isLockLevelChanged()) {
                     lodGroup->resetLockChangeFlag();
-                    for (auto index = 0; index < lodGroup->getLodCount(); index++) {
-                        const auto &lod = lodGroup->getLodDataArray()[index];
-                        for (const auto &model : lod->getModels()) {
-                            auto &modelInfo = _modelsInLODGroup[model];
-                            modelInfo.visibleCameras.clear();
+                    const auto &lodModels = _levelModels[lodGroup];
+                    for (const auto &level : lodModels) {
+                        const auto &vecModels = lodModels.at(level.first);
+                        for (const auto &model : vecModels) {
+                            _modelsInLODGroup[model].clear();
+                        }
+                    }
+
+                    for (uint8_t visibleIndex : lodLevels) {
+                        const auto &vecModels = lodModels.at(visibleIndex);
+                        for (const auto &model : vecModels) {
                             if (model->getNode() && model->getNode()->isActive()) {
-                                for (uint8_t visibleIndex : lodLevels) {
-                                    if (modelInfo.ownerLodLevel == static_cast<int8_t>(visibleIndex)) {
-                                        for (auto &visibleCamera : _lodStateInCamera) {
-                                            modelInfo.visibleCameras.emplace(visibleCamera.first, true);
-                                        }
-                                        break;
-                                    }
+                                auto &modelInfo = _modelsInLODGroup[model];
+                                for (const auto &visibleCamera : _lodStateInCamera) {
+                                    modelInfo.emplace(visibleCamera.first, true);
                                 }
                             }
                         }
@@ -471,29 +522,47 @@ void LodStateCache::updateLodState() {
 
                     int8_t index = lodGroup->getVisibleLODLevel(visibleCamera.first);
                     if (index != lodInfo.usedLevel) {
+                        lodInfo.lastUsedLevel = lodInfo.usedLevel;
                         lodInfo.usedLevel = index;
                         hasUpdated = true;
                     }
                 }
             }
+
             //The LOD of the last frame is forced to be used, the list of visible cameras of modelInfo needs to be updated.
+            const auto &lodModels = _levelModels[lodGroup];
             if (lodGroup->isLockLevelChanged()) {
                 lodGroup->resetLockChangeFlag();
-                hasUpdated = true;
-            }
 
-            //Update the visible camera list of all models on lodGroup
+                for (const auto &level : lodModels) {
+                    const auto &vecModels = lodModels.at(level.first);
+                    for (const auto &model : vecModels) {
+                        _modelsInLODGroup[model].clear();
+                    }
+                }
+                hasUpdated = true;
+            } else if (hasUpdated) {
+                for (auto &visibleCamera : _lodStateInCamera) {
+                    const auto &lodInfo = visibleCamera.second[lodGroup];
+                    int8_t usedLevel = lodInfo.usedLevel;
+                    if (lodInfo.usedLevel != lodInfo.lastUsedLevel && lodInfo.lastUsedLevel >= 0) {
+                        const auto &vecModels = lodModels.at(static_cast<uint8_t>(lodInfo.lastUsedLevel));
+                        for (const auto &model : vecModels) {
+                            _modelsInLODGroup[model].clear();
+                        }
+                    }
+                }
+            }
+            //Update the visible camera list of all models on lodGroup.
             if (hasUpdated) {
-                for (auto index = 0; index < lodGroup->getLodCount(); index++) {
-                    const auto &lod = lodGroup->getLodDataArray()[index];
-                    for (const auto &model : lod->getModels()) {
-                        auto &modelInfo = _modelsInLODGroup[model];
-                        modelInfo.visibleCameras.clear();
-                        if (model->getNode() && model->getNode()->isActive()) {
-                            for (auto &visibleCamera : _lodStateInCamera) {
-                                if (modelInfo.ownerLodLevel == visibleCamera.second[lodGroup].usedLevel) {
-                                    modelInfo.visibleCameras.emplace(visibleCamera.first, true);
-                                }
+                for (auto &visibleCamera : _lodStateInCamera) {
+                    int8_t usedLevel = visibleCamera.second[lodGroup].usedLevel;
+                    if (usedLevel >= 0) {
+                        const auto &vecModels = lodModels.at(static_cast<uint8_t>(usedLevel));
+                        for (const auto &model : vecModels) {
+                            if (model->getNode() && model->getNode()->isActive()) {
+                                auto &modelInfo = _modelsInLODGroup[model];
+                                modelInfo.emplace(visibleCamera.first, true);
                             }
                         }
                     }
@@ -509,11 +578,12 @@ bool LodStateCache::isLodModelCulled(const Camera *camera, const Model *model) {
         return false;
     }
 
-    const auto &visibleCamera = itModel->second.visibleCameras;
+    const auto &visibleCamera = itModel->second;
     return visibleCamera.count(camera) == 0;
 }
 
 void LodStateCache::clearCache() {
+    _levelModels.clear();
     _modelsInLODGroup.clear();
     _lodStateInCamera.clear();
     _newAddedLodGroupVec.clear();

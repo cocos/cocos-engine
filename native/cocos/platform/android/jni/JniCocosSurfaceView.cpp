@@ -31,7 +31,6 @@
 #include "base/memory/Memory.h"
 #include "engine/EngineEvents.h"
 #include "platform/android/AndroidPlatform.h"
-#include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/SystemWindow.h"
 #include "platform/java/modules/SystemWindowManager.h"
 

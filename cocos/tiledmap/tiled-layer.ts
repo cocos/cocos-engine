@@ -34,7 +34,7 @@ import { TMXMapInfo } from './tmx-xml-parser';
 import { Color, IVec2Like, Mat4, Size, Vec2, Vec3, warn, logID } from '../core';
 import { TiledTile } from './tiled-tile';
 import { RenderData } from '../2d/renderer/render-data';
-import { IBatcher } from '../2d/renderer/i-batcher.js';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
     GIDFlags, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
@@ -84,7 +84,7 @@ interface TiledSubNodeData {
 @ccclass('cc.TiledLayer')
 export class TiledLayer extends UIRenderer {
     // [row][col] = {count: 0, nodesList: []};
-    protected _userNodeGrid: { [key: number]: { count: number;[key: number]: { count: number, list: (TiledUserNodeData | null)[] } } } = {};
+    protected _userNodeGrid: SafeRecord<number, { count: number; } & SafeRecord<number, { count: number, list: (TiledUserNodeData | null)[] } >> = {};
     protected _userNodeMap: { [key: string]: TiledUserNodeData } = {};// [id] = node;
     protected _userNodeDirty = false;
 
@@ -121,7 +121,7 @@ export class TiledLayer extends UIRenderer {
     public tiles: MixedGID[] = [];
 
     // vertex array
-    public vertices: { minCol: number, maxCol: number, [key: number]: { left: number, bottom: number, index: number } }[] = [];
+    public vertices: SafeArray<{ minCol: number, maxCol: number } & SafeRecord<number, { left: number, bottom: number, index: number }>> = [];
     // vertices dirty
     protected _verticesDirty = true;
 
@@ -353,7 +353,7 @@ export class TiledLayer extends UIRenderer {
         const rowData = this._userNodeGrid[row];
         const colData = rowData && rowData[col];
         if (colData) {
-            rowData.count--;
+            rowData!.count--;
             colData.count--;
             colData.list[index] = null;
             if (colData.count <= 0) {
@@ -993,7 +993,7 @@ export class TiledLayer extends UIRenderer {
         }
 
         const rowData = vertices[cullingRow] = vertices[cullingRow] || { minCol: 0, maxCol: 0 };
-        const colData = rowData[cullingCol] = rowData[cullingCol] || {};
+        const colData = rowData[cullingCol] = rowData[cullingCol] || { left: 0, bottom: 0, index: 0 };
 
         // record each row range, it will faster when culling grid
         if (rowData.minCol > cullingCol) {

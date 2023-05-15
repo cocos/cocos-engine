@@ -44,16 +44,16 @@ public class AppActivity extends CocosActivity {
 
     @Override
     protected void onResume() {
-      super.onResume();
-      CocosXRVideoManager.getInstance().onResume();
-      SDKWrapper.shared().onResume();
+        super.onResume();
+        CocosXRVideoManager.getInstance().onResume();
+        SDKWrapper.shared().onResume();
     }
 
     @Override
     protected void onPause() {
-      super.onPause();
-      CocosXRVideoManager.getInstance().onPause();
-      SDKWrapper.shared().onPause();
+        super.onPause();
+        CocosXRVideoManager.getInstance().onPause();
+        SDKWrapper.shared().onPause();
     }
 
     @Override

@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2018-2022 Xiamen Yaji Software Co., Ltd.
+ * Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
  *
  * http://www.cocos.com
  *
@@ -30,8 +30,10 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
@@ -48,7 +50,7 @@ public class CocosXRVideoPlayer {
         END,
         ERROR,
         COMPLETED
-    };
+    }
 
     private static final String TAG = "CocosXRVideoPlayer";
     private String uniqueKey;
@@ -74,57 +76,39 @@ public class CocosXRVideoPlayer {
         this.eventName = eventName;
         this.quadScreen = new CocosXRGLHelper.GLQuadScreen();
         this.mediaPlayer = new MediaPlayer();
-        this.mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-            @Override
-            public boolean onError(MediaPlayer mp, int what, int extra) {
-                mediaPlayerState = MediaPlayerState.ERROR;
-                Log.e(TAG, "onError " + what + "," + extra + "." + mp.toString());
-                CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_MEDIA_PLAYER_ERROR, eventName, uniqueKey);
-                return false;
-            }
+        this.mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+            mediaPlayerState = MediaPlayerState.ERROR;
+            Log.e(TAG, "onError " + what + "," + extra + "." + mp.toString());
+            CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_MEDIA_PLAYER_ERROR, eventName, uniqueKey);
+            return false;
         });
-        this.mediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
-            @Override
-            public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                // Log.d(TAG, "onInfo " + what + "," + extra + "." + mp.toString());
-                CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_MEDIA_PLAYER_ON_INFO, eventName, uniqueKey, String.valueOf(what));
-                return false;
-            }
+        this.mediaPlayer.setOnInfoListener((mp, what, extra) -> {
+            // Log.d(TAG, "onInfo " + what + "," + extra + "." + mp.toString());
+            CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_MEDIA_PLAYER_ON_INFO, eventName, uniqueKey, String.valueOf(what));
+            return false;
         });
-        this.mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                mediaPlayerState = MediaPlayerState.PREPARED;
-                CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_MEDIA_PLAYER_PREPARED, eventName, uniqueKey);
-                CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_GET_DURATION, eventName, uniqueKey, String.valueOf(mp.getDuration()));
-                Log.d(TAG, "onPrepared." + mp+ ", getDuration." + mp.getDuration() + "," + mp.getVideoWidth() + "X" + mp.getVideoHeight() + "," + mp.isPlaying());
-            }
+        this.mediaPlayer.setOnPreparedListener(mp -> {
+            mediaPlayerState = MediaPlayerState.PREPARED;
+            CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_MEDIA_PLAYER_PREPARED, eventName, uniqueKey);
+            CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_GET_DURATION, eventName, uniqueKey, String.valueOf(mp.getDuration()));
+            Log.d(TAG, "onPrepared." + mp+ ", getDuration." + mp.getDuration() + "," + mp.getVideoWidth() + "X" + mp.getVideoHeight() + "," + mp.isPlaying());
         });
-        this.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                Log.d(TAG, "onCompletion." + mp.toString());
-                mediaPlayerState = MediaPlayerState.COMPLETED;
-                CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_MEDIA_PLAYER_PLAY_COMPLETE, eventName, uniqueKey);
-            }
+        this.mediaPlayer.setOnCompletionListener(mp -> {
+            Log.d(TAG, "onCompletion." + mp.toString());
+            mediaPlayerState = MediaPlayerState.COMPLETED;
+            CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_MEDIA_PLAYER_PLAY_COMPLETE, eventName, uniqueKey);
         });
-        this.mediaPlayer.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
-            @Override
-            public void onSeekComplete(MediaPlayer mp) {
-                // Log.d(TAG, "onSeekComplete." + mp.toString());
-                CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_MEDIA_PLAYER_SEEK_COMPLETE, eventName, uniqueKey);
-            }
+        this.mediaPlayer.setOnSeekCompleteListener(mp -> {
+            // Log.d(TAG, "onSeekComplete." + mp.toString());
+            CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_MEDIA_PLAYER_SEEK_COMPLETE, eventName, uniqueKey);
         });
-        this.mediaPlayer.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
-            @Override
-            public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-                Log.d(TAG, "onVideoSizeChanged " + width + "x" + height + "." + mp.toString() + ", isPlaying." + mp.isPlaying());
-                if(videoSourceSizeWidth != width || videoSourceSizeHeight != height) {
-                    videoSourceSizeWidth = width;
-                    videoSourceSizeHeight = height;
-                    CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_GET_IS_PALYING, eventName, uniqueKey, String.valueOf(mp.isPlaying() ? 1 : 0));
-                    CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_MEDIA_PLAYER_VIDEO_SIZE, eventName, uniqueKey, width + "&" + height);
-                }
+        this.mediaPlayer.setOnVideoSizeChangedListener((mp, width, height) -> {
+            Log.d(TAG, "onVideoSizeChanged " + width + "x" + height + "." + mp.toString() + ", isPlaying." + mp.isPlaying());
+            if(videoSourceSizeWidth != width || videoSourceSizeHeight != height) {
+                videoSourceSizeWidth = width;
+                videoSourceSizeHeight = height;
+                CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_GET_IS_PALYING, eventName, uniqueKey, String.valueOf(mp.isPlaying() ? 1 : 0));
+                CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_MEDIA_PLAYER_VIDEO_SIZE, eventName, uniqueKey, width + "&" + height);
             }
         });
         this.mediaPlayer.setAudioAttributes(new AudioAttributes.Builder().setLegacyStreamType(AudioManager.STREAM_MUSIC).build());
@@ -153,6 +137,11 @@ public class CocosXRVideoPlayer {
         }
         this.videoSourceType = data.videoSourceType;
         this.videoSourceUrl = data.videoSourceUrl;
+        if(TextUtils.isEmpty(this.videoSourceUrl)) {
+            Log.w(TAG, "prepare failed, because video source is empty !!!");
+            return;
+        }
+
         try {
             if (data.videoSourceType == CocosXRVideoManager.VIDEO_SOURCE_TYPE_LOCAL) {
                 AssetFileDescriptor afd = atyWeakReference.get().getResources().getAssets().openFd(data.videoSourceUrl);
@@ -177,13 +166,10 @@ public class CocosXRVideoPlayer {
         }
         mediaPlayerState = MediaPlayerState.READY_PREPARE;
         if (isGLInitialized) {
-            runOnUIThread(new Runnable() {
-                @Override
-                public void run() {
-                    if(mediaPlayerState == MediaPlayerState.READY_PREPARE) {
-                        mediaPlayerState = MediaPlayerState.PREPARING;
-                        mediaPlayer.prepareAsync();
-                    }
+            runOnUIThread(() -> {
+                if(mediaPlayerState == MediaPlayerState.READY_PREPARE) {
+                    mediaPlayerState = MediaPlayerState.PREPARING;
+                    mediaPlayer.prepareAsync();
                 }
             });
         }
@@ -227,13 +213,10 @@ public class CocosXRVideoPlayer {
         surface.release();
         isGLInitialized = true;
         if(mediaPlayerState == MediaPlayerState.READY_PREPARE) {
-            runOnUIThread(new Runnable() {
-                @Override
-                public void run() {
-                    if(mediaPlayerState == MediaPlayerState.READY_PREPARE) {
-                        mediaPlayerState = MediaPlayerState.PREPARING;
-                        mediaPlayer.prepareAsync();
-                    }
+            runOnUIThread(() -> {
+                if(mediaPlayerState == MediaPlayerState.READY_PREPARE) {
+                    mediaPlayerState = MediaPlayerState.PREPARING;
+                    mediaPlayer.prepareAsync();
                 }
             });
         }
@@ -242,7 +225,6 @@ public class CocosXRVideoPlayer {
     public void onBeforeGLDrawFrame() {
         if (!isGLInitialized) {
             onGLReady();
-            return;
         }
     }
 
@@ -267,77 +249,62 @@ public class CocosXRVideoPlayer {
     }
 
     public void play() {
-        runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "- start");
-                mediaPlayer.start();
-                mediaPlayerState = MediaPlayerState.STARTED;
-                CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_GET_IS_PALYING, eventName, uniqueKey, String.valueOf(mediaPlayer.isPlaying() ? 1 : 0));
-            }
+        runOnUIThread(() -> {
+            Log.d(TAG, "- start");
+            mediaPlayer.start();
+            mediaPlayerState = MediaPlayerState.STARTED;
+            CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_GET_IS_PALYING, eventName, uniqueKey, String.valueOf(mediaPlayer.isPlaying() ? 1 : 0));
         });
     }
 
     public void pause() {
         if(!mediaPlayer.isPlaying()) return;
-        runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "- pause");
-                mediaPlayer.pause();
-                mediaPlayerState = MediaPlayerState.PAUSED;
-                CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_GET_IS_PALYING, eventName, uniqueKey, String.valueOf(mediaPlayer.isPlaying() ? 1 : 0));
-            }
+        runOnUIThread(() -> {
+            Log.d(TAG, "- pause");
+            mediaPlayer.pause();
+            mediaPlayerState = MediaPlayerState.PAUSED;
+            CocosXRVideoManager.getInstance().sendVideoEvent(CocosXRVideoManager.VIDEO_EVENT_GET_IS_PALYING, eventName, uniqueKey, String.valueOf(mediaPlayer.isPlaying() ? 1 : 0));
         });
     }
 
     public void stop() {
-        runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "- stop");
-                mediaPlayer.stop();
-                mediaPlayerState = MediaPlayerState.STOPPED;
-            }
+        runOnUIThread(() -> {
+            Log.d(TAG, "- stop");
+            mediaPlayer.stop();
+            mediaPlayerState = MediaPlayerState.STOPPED;
         });
     }
 
     public void reset() {
-        runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "- reset");
-                mediaPlayer.reset();
-                mediaPlayerState = MediaPlayerState.IDLE;
-            }
+        runOnUIThread(() -> {
+            Log.d(TAG, "- reset");
+            mediaPlayer.reset();
+            mediaPlayerState = MediaPlayerState.IDLE;
         });
     }
 
     public void release() {
-        runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mediaPlayer != null) {
-                    try {
-                        if (mediaPlayer.isPlaying()) {
-                            mediaPlayer.pause();
-                        }
-                        mediaPlayer.stop();
-                        mediaPlayer.release();
-                        mediaPlayer = null;
-                        mediaPlayerState = MediaPlayerState.END;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Log.e(TAG, e.getLocalizedMessage());
+        runOnUIThread(() -> {
+            if (mediaPlayer != null) {
+                try {
+                    if (mediaPlayer.isPlaying()) {
+                        mediaPlayer.pause();
                     }
-                    Log.d(TAG, "- release");
+                    mediaPlayer.stop();
+                    mediaPlayer.release();
+                    mediaPlayer = null;
+                    mediaPlayerState = MediaPlayerState.END;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e(TAG, e.getLocalizedMessage());
                 }
+                Log.d(TAG, "- release");
             }
         });
     }
 
     public boolean isPlaying() {
-        return mediaPlayer == null ? false : mediaPlayer.isPlaying();
+        return mediaPlayer != null && mediaPlayer.isPlaying();
     }
 
     public boolean isStopped() {
@@ -349,22 +316,14 @@ public class CocosXRVideoPlayer {
     }
 
     public void setLooping(boolean looping) {
-        runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "- setLooping." + looping);
-                mediaPlayer.setLooping(looping);
-            }
+        runOnUIThread(() -> {
+            Log.d(TAG, "- setLooping." + looping);
+            mediaPlayer.setLooping(looping);
         });
     }
 
     public void setVolume(float volume) {
-        runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                mediaPlayer.setVolume(volume, volume);
-            }
-        });
+        runOnUIThread(() -> mediaPlayer.setVolume(volume, volume));
     }
 
     public int getDuration() {
@@ -376,10 +335,10 @@ public class CocosXRVideoPlayer {
     }
 
     public void seekTo(int mSec) {
-        runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                // Log.d(TAG, "- seekTo." + mSec);
+        runOnUIThread(() -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                mediaPlayer.seekTo(mSec, MediaPlayer.SEEK_CLOSEST);
+            } else {
                 mediaPlayer.seekTo(mSec);
             }
         });
@@ -394,17 +353,14 @@ public class CocosXRVideoPlayer {
     }
 
     public void setPlaybackSpeed(float speed) {
-        runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "- setPlaybackSpeed." + speed);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    try {
-                        mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(Math.max(speed, 0.1f)));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Log.e(TAG, e.getLocalizedMessage());
-                    }
+        runOnUIThread(() -> {
+            Log.d(TAG, "- setPlaybackSpeed." + speed);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                try {
+                    mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(Math.max(speed, 0.1f)));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e(TAG, e.getLocalizedMessage());
                 }
             }
         });

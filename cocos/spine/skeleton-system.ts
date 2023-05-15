@@ -78,6 +78,7 @@ export class SkeletonSystem extends System {
         }
         this._skeletons.forEach((skeleton) => {
             skeleton.updateAnimation(dt);
+            skeleton.syncAttachedNode();
         });
     }
 

@@ -29,7 +29,7 @@
  */
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { DescriptorSetLayout, Device, PipelineLayout, Shader, ShaderInfo } from '../../gfx';
+import { DescriptorSetLayout, Device, PipelineLayout, PipelineState, Shader, ShaderInfo } from '../../gfx';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 

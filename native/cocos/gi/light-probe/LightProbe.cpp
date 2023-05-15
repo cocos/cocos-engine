@@ -26,6 +26,7 @@
 #include "LightProbe.h"
 #include "PolynomialSolver.h"
 #include "core/Root.h"
+#include "core/scene-graph/Node.h"
 #include "core/scene-graph/Scene.h"
 #include "math/Math.h"
 #include "math/Utils.h"
@@ -195,6 +196,7 @@ void LightProbes::initialize(LightProbeInfo *info) {
     _reduceRinging = info->getReduceRinging();
     _showProbe = info->isShowProbe();
     _showWireframe = info->isShowWireframe();
+    _lightProbeSphereVolume = info->getLightProbeSphereVolume();
     _showConvex = info->isShowConvex();
     _data = info->getData();
 }
@@ -203,6 +205,15 @@ void LightProbeInfo::activate(Scene *scene, LightProbes *resource) {
     _scene = scene;
     _resource = resource;
     _resource->initialize(this);
+}
+
+void LightProbeInfo::onProbeBakeFinished() {
+    onProbeBakingChanged(_scene);
+}
+
+void LightProbeInfo::onProbeBakeCleared() {
+    clearSHCoefficients();
+    onProbeBakingChanged(_scene);
 }
 
 void LightProbeInfo::clearSHCoefficients() {
@@ -290,6 +301,19 @@ void LightProbeInfo::update(bool updateTet) {
     if (updateTet) {
         resetAllTetraIndices();
         _data->updateTetrahedrons();
+    }
+}
+
+void LightProbeInfo::onProbeBakingChanged(Node *node) { // NOLINT(misc-no-recursion)
+    if (!node) {
+        return;
+    }
+
+    node->emit<Node::LightProbeBakingChanged>();
+
+    const auto &children = node->getChildren();
+    for (const auto &child: children) {
+        onProbeBakingChanged(child);
     }
 }
 

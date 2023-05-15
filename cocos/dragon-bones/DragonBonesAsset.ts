@@ -33,16 +33,16 @@ const { ccclass, serializable } = _decorator;
 
 /**
  * @en The skeleton data of dragonBones.
- * @zh dragonBones 的 骨骼数据。
+ * @zh dragonBones 的骨骼数据。
  * @class DragonBonesAsset
  * @extends Asset
  */
 @ccclass('dragonBones.DragonBonesAsset')
 export class DragonBonesAsset extends Asset {
     /**
-     * @en
+     * @en The string parsed from the DragonBonesAsset data in json format.
      * See http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
-     * @zh
+     * @zh Json 格式的 DragonBones 骨骼数据被解析后的字符串。
      * 可查看 DragonBones 官方文档 http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
      * @property {string} dragonBonesJson
      */
@@ -67,7 +67,10 @@ export class DragonBonesAsset extends Asset {
     constructctor () {
         this.reset();
     }
-
+    /**
+     * @en Create a new node with Dragonbones component.
+     * @zh 创建一个附带龙骨组件的 node 节点。
+     */
     createNode (callback: (err: Error | null, node: Node) => void) {
         const node = new Node(this.name);
         const armatureDisplay = node.addComponent('dragonBones.ArmatureDisplay') as any;
@@ -75,14 +78,23 @@ export class DragonBonesAsset extends Asset {
 
         return callback(null, node);
     }
-
+    /**
+     * @en Reset DragonBonesAsset data and state.
+     * @zh 重置 DragonBonesAsset 数据和状态。
+     */
     reset () {
         this._clear();
         if (EDITOR && !cclegacy.GAME_VIEW) {
             this._armaturesEnum = null;
         }
     }
-
+    /**
+     * @en Initialize with altas uuid.
+     * @zh 使用 uuid 初始化 DragonBonesAsset 资产数据。
+     * @param factory   @en The global CCFactory instance object.
+     *                  @zh 全局的 CCFactory 对象。
+     * @param atlasUUID @en Atlas uuid. @zh Atlas uuid。
+     */
     init (factory?: CCFactory, atlasUUID?: string) {
         this._factory = factory || CCFactory.getInstance();
 
@@ -90,7 +102,7 @@ export class DragonBonesAsset extends Asset {
             this._dragonBonesJsonData = JSON.parse(this.dragonBonesJson);
         }
 
-        let rawData:any = null;
+        let rawData: any = null;
         if (this._dragonBonesJsonData) {
             rawData = this._dragonBonesJsonData;
         } else {
@@ -111,12 +123,15 @@ export class DragonBonesAsset extends Asset {
         const dragonBonesData = this._factory.getDragonBonesData(armatureKey);
         if (dragonBonesData) return armatureKey;
 
+        // eslint-disable-next-line max-len
         this._factory.parseDragonBonesData(rawData instanceof ArrayBuffer ? rawData : (rawData.buffer instanceof ArrayBuffer ? rawData.buffer : rawData), armatureKey);
         return armatureKey;
     }
 
     // EDITOR
-
+    /**
+     * @engineInternal Since v3.7.2, this is an engine private function.
+     */
     getArmatureEnum (): any {
         if (this._armaturesEnum) {
             return this._armaturesEnum as unknown as any;
@@ -134,7 +149,9 @@ export class DragonBonesAsset extends Asset {
         }
         return null;
     }
-
+    /**
+     * @engineInternal Since v3.7.2, this is an engine private function.
+     */
     public getAnimsEnum (armatureName: string) {
         this.init();
         const dragonBonesData = this._factory!.getDragonBonesDataByUUID(this._uuid);
@@ -158,7 +175,10 @@ export class DragonBonesAsset extends Asset {
         }
         return null;
     }
-
+    /**
+     * @en Destroy DragonBonesAsset data.
+     * @zh 销毁 DragonBonesAsset 资产数据。
+     */
     public destroy () {
         this._clear();
         return super.destroy();

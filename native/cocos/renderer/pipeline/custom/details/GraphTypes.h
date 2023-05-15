@@ -56,8 +56,8 @@ namespace render {
 
 template <class... Ts>
 struct VertexOverloaded : Overloaded<Ts...> {
-    VertexOverloaded(Ts... ts) // NOLINT
-    : Overloaded<Ts...>(std::move(ts)...) {}
+    VertexOverloaded(Ts &&...ts) // NOLINT
+    : Overloaded<Ts...>{std::forward<Ts>(ts)...} {}
     template <class T>
     auto operator()(T *ptr) {
         return this->Overloaded<Ts...>::operator()(*ptr);
@@ -65,8 +65,8 @@ struct VertexOverloaded : Overloaded<Ts...> {
 };
 
 template <class GraphT, class... Ts>
-auto visitObject(typename GraphT::vertex_descriptor v, GraphT &g, Ts... args) {
-    return ccstd::visit(VertexOverloaded<Ts...>{std::move(args)...}, value(v, g));
+auto visitObject(typename GraphT::vertex_descriptor v, GraphT &g, Ts &&...args) {
+    return ccstd::visit(VertexOverloaded<Ts...>{std::forward<Ts>(args)...}, value(v, g));
 }
 
 namespace impl {

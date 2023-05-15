@@ -179,7 +179,11 @@ export class JointTexturePool {
     public registerCustomTextureLayouts (layouts: ICustomJointTextureLayout[]) {
         for (let i = 0; i < layouts.length; i++) {
             const layout = layouts[i];
-            const chunkIdx = this._customPool.createChunk(layout.textureLength);
+            let textureLength = layout.textureLength;
+            if (!(this._device.getFormatFeatures(Format.RGBA32F) & FormatFeatureBit.SAMPLED_TEXTURE)) {
+                textureLength *= 2; // RGBA8 format textures need 4 times the memory.
+            }
+            const chunkIdx = this._customPool.createChunk(textureLength);
             for (let j = 0; j < layout.contents.length; j++) {
                 const content = layout.contents[j];
                 const { skeleton } = content;
@@ -487,7 +491,7 @@ export class JointAnimationInfo {
 
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
         info.currentClip = clip;
-        info.data[0] = -1;
+        info.data[0] = 0; // reset default frame 0
         info.buffer.update(info.data);
         info.dirty = false;
         if (JSB) {

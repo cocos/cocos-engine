@@ -24,7 +24,7 @@
 
 import { Attribute, Device } from '../../gfx';
 import type { MeshBuffer } from './mesh-buffer';
-import { getAttributeStride, getComponentPerVertex } from './vertex-format';
+import { getAttributeStride } from './vertex-format';
 
 export class BufferAccessor {
     public get attributes (): Readonly<Attribute[]> { return this._attributes; }

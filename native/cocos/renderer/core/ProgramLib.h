@@ -60,7 +60,7 @@ struct ITemplateInfo {
     ccstd::vector<int32_t> blockSizes;
     RefVector<gfx::DescriptorSetLayout *> setLayouts;
     IntrusivePtr<gfx::PipelineLayout> pipelineLayout;
-    Record<ccstd::string, uint32_t> handleMap;
+    ccstd::unordered_map<ccstd::string, uint32_t> handleMap;
     ccstd::vector<gfx::DescriptorSetLayoutBinding> bindings;
     int32_t samplerStartBinding{-1};
 };
@@ -101,7 +101,7 @@ public:
      * @param name Target shader name
      */
 
-    IProgramInfo *getTemplate(const ccstd::string &name);
+    const IProgramInfo *getTemplate(const ccstd::string &name) const;
 
     /**
      * @en Gets the shader template info with its name
@@ -160,9 +160,9 @@ private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(ProgramLib);
 
     static ProgramLib *instance;
-    Record<ccstd::string, IProgramInfo> _templates; // per shader
-    Record<ccstd::string, IntrusivePtr<gfx::Shader>> _cache;
-    Record<uint64_t, ITemplateInfo> _templateInfos;
+    ccstd::unordered_map<ccstd::string, IProgramInfo> _templates; // per shader
+    ccstd::unordered_map<ccstd::string, IntrusivePtr<gfx::Shader>> _cache;
+    ccstd::unordered_map<uint64_t, ITemplateInfo> _templateInfos;
 };
 
 } // namespace cc

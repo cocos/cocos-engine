@@ -29,12 +29,15 @@
 #include "core/event/Event.h"
 #include "core/memop/Pool.h"
 #include "renderer/pipeline/RenderPipeline.h"
+#include "renderer/pipeline/DebugView.h"
 #include "scene/DrawBatch2D.h"
 #include "scene/Light.h"
 #include "scene/Model.h"
 #include "scene/RenderScene.h"
 #include "scene/RenderWindow.h"
 #include "scene/SphereLight.h"
+#include "scene/PointLight.h"
+#include "scene/RangedDirectionalLight.h"
 
 namespace cc {
 class IXRInterface;
@@ -51,14 +54,6 @@ class PipelineRuntime;
 class Pipeline;
 } // namespace render
 class Batcher2d;
-
-struct CC_DLL DebugViewConfig {
-    uint8_t singleMode;
-    uint8_t compositeModeBitCount;
-    uint32_t compositeModeValue;
-    bool lightingWithAlbedo;
-    bool csmLayerColoration;
-};
 
 struct ISystemWindowInfo;
 class ISystemWindow;
@@ -255,8 +250,7 @@ public:
      * @zh
      * 渲染调试数据
      */
-    inline void setDebugViewConfig(const DebugViewConfig &config) { _debugViewConfig = config; }
-    inline const DebugViewConfig &getDebugViewConfig() const { return _debugViewConfig; }
+    inline pipeline::DebugView *getDebugView() const { return _debugView.get(); }
 
     /**
      * @zh
@@ -301,6 +295,8 @@ public:
         return _cameraList;
     }
 
+    void frameSync();
+
 private:
     void frameMoveBegin();
     void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames);
@@ -320,7 +316,7 @@ private:
     std::unique_ptr<render::PipelineRuntime> _pipelineRuntime;
     //    IntrusivePtr<DataPoolManager>                  _dataPoolMgr;
     ccstd::vector<IntrusivePtr<scene::RenderScene>> _scenes;
-    DebugViewConfig _debugViewConfig;
+    std::unique_ptr<pipeline::DebugView> _debugView;
     float _cumulativeTime{0.F};
     float _frameTime{0.F};
     float _fpsTime{0.F};

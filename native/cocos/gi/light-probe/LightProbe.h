@@ -59,11 +59,11 @@ public:
     void updateProbes(ccstd::vector<Vec3> &points);
     void updateTetrahedrons();
 
+    inline bool hasCoefficients() const { return !empty() && !_probes[0].coefficients.empty(); }
     bool getInterpolationSHCoefficients(int32_t tetIndex, const Vec4 &weights, ccstd::vector<Vec3> &coefficients) const;
     int32_t getInterpolationWeights(const Vec3 &position, int32_t tetIndex, Vec4 &weights) const;
 
 private:
-    inline bool hasCoefficients() const { return !empty() && !_probes[0].coefficients.empty(); }
     static Vec3 getTriangleBarycentricCoord(const Vec3 &p0, const Vec3 &p1, const Vec3 &p2, const Vec3 &position);
     void getBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron, Vec4 &weights) const;
     void getTetrahedronBarycentricCoord(const Vec3 &position, const Tetrahedron &tetrahedron, Vec4 &weights) const;
@@ -92,6 +92,9 @@ public:
     inline void setGIScale(float val) { _giScale = val; }
     inline float getGIScale() const { return _giScale; }
 
+    inline void setLightProbeSphereVolume(float val) { _lightProbeSphereVolume = val; }
+    inline float getLightProbeSphereVolume() const { return _lightProbeSphereVolume; }
+
     inline void setGISamples(uint32_t val) { _giSamples = val; }
     inline uint32_t getGISamples() const { return _giSamples; }
 
@@ -114,6 +117,7 @@ public:
     inline LightProbesData *getData() const { return _data.get(); }
 
     float _giScale{1.0F};
+    float _lightProbeSphereVolume{1.0F};
     uint32_t _giSamples{1024U};
     uint32_t _bounces{2U};
     float _reduceRinging{0.0F};
@@ -137,6 +141,8 @@ public:
     ~LightProbeInfo() override = default;
 
     void activate(Scene *scene, LightProbes *resource);
+    void onProbeBakeFinished();
+    void onProbeBakeCleared();
     void clearSHCoefficients();
     inline bool isUniqueNode() const { return _nodes.size() == 1; }
     bool addNode(Node *node);
@@ -155,6 +161,18 @@ public:
         }
     }
     inline float getGIScale() const { return _giScale; }
+
+    inline void setLightProbeSphereVolume(float val) {
+        if (_lightProbeSphereVolume == val) {
+            return;
+        }
+
+        _lightProbeSphereVolume = val;
+        if (_resource) {
+            _resource->setLightProbeSphereVolume(val);
+        }
+    }
+    inline float getLightProbeSphereVolume() const { return _lightProbeSphereVolume; }
 
     inline void setGISamples(uint32_t val) {
         if (_giSamples == val) {
@@ -239,6 +257,7 @@ public:
 
     //cjh JSB need to bind the property, so need to make it public
     float _giScale{1.0F};
+    float _lightProbeSphereVolume{1.0F};
     uint32_t _giSamples{1024U};
     uint32_t _bounces{2U};
     float _reduceRinging{0.0F};
@@ -248,6 +267,7 @@ public:
     IntrusivePtr<LightProbesData> _data;
 
 private:
+    void onProbeBakingChanged(Node *node);
     void clearAllSHUBOs();
     void resetAllTetraIndices();
 

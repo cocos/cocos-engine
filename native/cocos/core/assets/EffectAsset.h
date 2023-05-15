@@ -25,6 +25,7 @@
 #pragma once
 
 #include <tuple>
+#include <type_traits>
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/optional.h"
@@ -36,15 +37,49 @@
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/pipeline/Define.h"
-
 namespace cc {
+
+// To avoid errors when generating code using SWIG.
+#if !SWIGCOCOS
+
+// The properties in Pass are obtained from an asset file. If they are directly stored in an unordered_map,
+// the order of these properties may become scrambled. To maintain their order, a vector<pair> is used
+// instead. Since there is no scenario where these data objects are randomly inserted,
+// only a find interface is provided.
+template <typename K, typename V>
+class StablePropertyMap : public ccstd::vector<std::pair<K, V>> { // NOLINT
+    using Super = ccstd::vector<std::pair<K, V>>;
+
+public:
+    auto find(const K &key) const {
+        auto *self = static_cast<const Super *>(this);
+        return std::find_if(self->begin(), self->end(), [&](auto &ele) {
+            return ele.first == key;
+        });
+    }
+};
+#endif
+
+template <typename K, typename V>
+using UnstablePropertyContainer = ccstd::unordered_map<K, V>;
+
+template <typename K, typename V>
+using StablePropertyContainer = StablePropertyMap<K, V>;
+
+#if CC_EDITOR
+template <typename K, typename V>
+using PropertyContainer = StablePropertyContainer<K, V>;
+#else
+template <typename K, typename V>
+using PropertyContainer = UnstablePropertyContainer<K, V>;
+#endif
 
 using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
 
 using IPropertyValue = ccstd::variant<ccstd::monostate, ccstd::vector<float>, ccstd::string>;
 
 using IPropertyEditorValueType = ccstd::variant<ccstd::monostate, ccstd::string, bool, float, ccstd::vector<float>>;
-using IPropertyEditorInfo = ccstd::unordered_map<ccstd::string, IPropertyEditorValueType>;
+using IPropertyEditorInfo = PropertyContainer<ccstd::string, IPropertyEditorValueType>;
 
 struct IPropertyInfo {
     int32_t type{0};                                 // auto-extracted from shader
@@ -351,7 +386,7 @@ struct IPassStates {
 };
 using PassOverrides = IPassStates;
 
-using PassPropertyInfoMap = ccstd::unordered_map<ccstd::string, IPropertyInfo>;
+using PassPropertyInfoMap = PropertyContainer<ccstd::string, IPropertyInfo>;
 
 struct IPassInfoFull final { // cjh } : public IPassInfo {
     // IPassStates
@@ -374,6 +409,8 @@ struct IPassInfoFull final { // cjh } : public IPassInfo {
     // IPassInfoFull
     // generated part
     index_t passIndex{0};
+    uint32_t passID = 0xFFFFFFFF;
+    uint32_t phaseID = 0xFFFFFFFF;
     MacroRecord defines;
     ccstd::optional<PassOverrides> stateOverrides;
 
@@ -478,8 +515,8 @@ struct IDefineInfo {
     ccstd::optional<ccstd::vector<int32_t>> range; // cjh number is float?  ?: number[];
     ccstd::optional<ccstd::vector<ccstd::string>> options;
     ccstd::optional<ccstd::string> defaultVal;
-    ccstd::optional<ccstd::vector<ccstd::string>> defines;             // NOTE: it's only used in Editor
-    ccstd::optional<ccstd::unordered_map<ccstd::string, bool>> editor; // NOTE: it's only used in Editor
+    ccstd::optional<ccstd::vector<ccstd::string>> defines;                                            // NOTE: it's only used in Editor
+    ccstd::optional<ccstd::unordered_map<ccstd::string, ccstd::variant<ccstd::string, bool>>> editor; // NOTE: it's only used in Editor
 };
 
 struct IBuiltin {
@@ -516,11 +553,12 @@ struct IDescriptorInfo {
 struct IShaderSource {
     ccstd::string vert;
     ccstd::string frag;
+    ccstd::optional<ccstd::string> compute;
 };
 
 struct IShaderInfo {
     ccstd::string name;
-    ccstd::hash_t hash{0xFFFFFFFFU};
+    ccstd::hash_t hash{gfx::INVALID_SHADER_HASH};
     IShaderSource glsl4;
     IShaderSource glsl3;
     IShaderSource glsl1;
@@ -537,6 +575,12 @@ struct IShaderInfo {
     ccstd::vector<IDescriptorInfo> descriptors;
 
     const IShaderSource *getSource(const ccstd::string &version) const {
+        if (version == "glsl1") return &glsl1;
+        if (version == "glsl3") return &glsl3;
+        if (version == "glsl4") return &glsl4;
+        return nullptr;
+    }
+    IShaderSource *getSource(const ccstd::string &version) {
         if (version == "glsl1") return &glsl1;
         if (version == "glsl3") return &glsl3;
         if (version == "glsl4") return &glsl4;

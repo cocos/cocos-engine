@@ -22,11 +22,12 @@
  THE SOFTWARE.
 */
 
-import { KeyboardCallback } from 'pal/input';
 import { systemInfo } from 'pal/system-info';
 import { KeyCode, EventKeyboard } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+
+export type KeyboardCallback = (res: EventKeyboard) => void;
 
 const nativeKeyCode2KeyCode: Record<number, KeyCode> = {
     12: KeyCode.NUM_LOCK,

@@ -25,7 +25,7 @@
 
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
-import { WECHAT } from 'internal:constants';
+import { WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { Vec2 } from '../math/vec2';
@@ -260,6 +260,11 @@ export const sys = {
     },
 
     /**
+     * @engineInternal
+     */
+    __isWebIOS14OrIPadOS14Env: false,
+
+    /**
      * @en Dump systemInfo informations.
      * @zh 在控制台打印当前的主要系统信息。
      */
@@ -304,24 +309,23 @@ export const sys = {
                     localStorage.removeItem('storage');
                     localStorage = null;
                 } catch (e) {
-                    const warn = function () {
+                    const warn = function (...args: any): any {
                         warnID(5200);
                     };
                     this.localStorage = {
-                        // @ts-expect-error Type '() => void' is not assignable to type '(key: string) => string | null'
                         getItem: warn,
                         setItem: warn,
                         clear: warn,
                         removeItem: warn,
+                        key: warn,
+                        length: 0,
                     };
                 }
 
-                if (WECHAT) {
-                    // @ts-expect-error HACK: this private property only needed on web & wechat JIT
+                if (WECHAT || WECHAT_MINI_PROGRAM) {
                     this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
             && /(OS 1((4\.[0-9])|(5\.[0-3])))|(Version\/1((4\.[0-9])|(5\.[0-3])))/.test(window.navigator.userAgent);
                 } else {
-                    // @ts-expect-error HACK: this private property only needed on web & wechat JIT
                     this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
             && /(OS 14)|(Version\/14)/.test(window.navigator.userAgent);
                 }

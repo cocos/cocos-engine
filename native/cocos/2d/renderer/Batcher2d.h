@@ -137,7 +137,7 @@ private:
     void insertMaskBatch(RenderEntity* entity);
     void createClearModel();
 
-    gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* dsLayout);
+    gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, const gfx::DescriptorSetLayout* dsLayout);
 
     StencilManager* _stencilManager{nullptr};
 

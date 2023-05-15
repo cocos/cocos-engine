@@ -55,6 +55,7 @@ public:
     inline scene::OctreeInfo *getOctreeInfo() const { return _octreeInfo.get(); }
     inline gi::LightProbeInfo *getLightProbeInfo() const { return _lightProbeInfo.get(); }
     inline bool getBakedWithStationaryMainLight() const { return _bakedWithStationaryMainLight; }
+    inline bool getBakedWithHighpLightmap() const { return _bakedWithHighpLightmap; }
 
     void setAmbientInfo(scene::AmbientInfo *info);
     void setShadowsInfo(scene::ShadowsInfo *info);
@@ -63,6 +64,7 @@ public:
     void setOctreeInfo(scene::OctreeInfo *info);
     void setLightProbeInfo(gi::LightProbeInfo *info);
     void setBakedWithStationaryMainLight(bool value);
+    void setBakedWithHighpLightmap(bool value);
 
 private:
     IntrusivePtr<scene::AmbientInfo> _ambientInfo;
@@ -72,6 +74,7 @@ private:
     IntrusivePtr<scene::OctreeInfo> _octreeInfo;
     IntrusivePtr<gi::LightProbeInfo> _lightProbeInfo;
     bool _bakedWithStationaryMainLight;
+    bool _bakedWithHighpLightmap;
 };
 
 } // namespace cc

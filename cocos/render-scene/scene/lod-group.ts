@@ -92,7 +92,7 @@ export class LODGroup {
         this._device = deviceManager.gfxDevice;
     }
 
-    set localBoundaryCenter (val: Vec3) {  this._localBoundaryCenter.set(val); }
+    set localBoundaryCenter (val: Readonly<Vec3>) {  this._localBoundaryCenter.set(val); }
 
     get localBoundaryCenter (): Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
 
@@ -114,6 +114,18 @@ export class LODGroup {
     }
 
     lockLODLevels (lockLev: number[]) {
+        if (lockLev.length !== this._lockedLODLevelVec.length) {
+            this._isLockLevelChanged = true;
+        } else {
+            const size = lockLev.length;
+            let index = 0;
+            for (; index < size; index++) {
+                if (lockLev[index] !== this._lockedLODLevelVec[index]) {
+                    this._isLockLevelChanged = true;
+                    break;
+                }
+            }
+        }
         this._lockedLODLevelVec = lockLev;
     }
 

@@ -23,12 +23,12 @@
 */
 
 /**
- * Tag to visit editor extras of an object. Never concern about its value please.
+ * Tag to visit editor extras of an object. Never be concerned about its value, please.
  */
 export const editorExtrasTag = '__editorExtras__';
 
 /**
- * Engine classes with this kind of signatures are integrated with editor extendability.
+ * Engine classes with this kind of signature are integrated with editor extendability.
  * @internal
  */
 export interface EditorExtendableObject {
@@ -37,10 +37,10 @@ export interface EditorExtendableObject {
      * The editor extras on this object.
      *
      * BE CAREFUL: this property is currently governed by Cocos Creator Editor.
-     * Its definition is not visible and is unknown to both engine code or users codes,
-     * they SHALL NOT operates it.
+     * Its definition is not visible and is unknown to both engine code and users codes,
+     * they SHALL NOT operate it.
      *
-     * You should use editor extras tag to visit this property.
+     * You should use the editor extras tag to visit this property.
      * @example
      * ```ts
      * import { editorExtrasTag } from 'cc';
