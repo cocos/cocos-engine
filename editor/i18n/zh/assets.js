@@ -113,6 +113,8 @@ module.exports = {
                 anisotropyMapNearestFilter: '将 Anisotropy Map 贴图复制出来并选择 Nearest 过滤',
                 anisotropyMapResolutionHeight: 'Anisotropy Map 的分辨率高度',
                 ior: '相对折射率，该值可以影响折射角度和菲涅耳效果。水是1.33',
+                skinTransmitThickness: '物体厚度（世界空间单位），注意！该值过小可能导致穿透光消失',
+                skinTransmitExtinction: '皮肤的散射消光系数，可以影响耳朵和鼻子处的背面穿透光。该值越大则穿透光越弱、亮区范围也会更小、厚薄感变强， 反之穿透光越强越均匀、亮区更大但厚薄感变弱。有一点需要特别注意！由于是按照世界空间单位计算散射，则模型越大，该值必须相对更小才能维持同样的光照效果',
             },
         },
         image: {
