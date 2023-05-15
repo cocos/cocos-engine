@@ -780,11 +780,13 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
 
     if (array->isTypedArray()) {
         CC_ASSERT(std::is_arithmetic<T>::value);
-        uint8_t *data = nullptr;
-        size_t dataLen = 0;
-        array->getTypedArrayData(&data, &dataLen);
-        to->assign(reinterpret_cast<T *>(data), reinterpret_cast<T *>(data + dataLen));
-        return true;
+        if constexpr (std::is_arithmetic<T>::value) {
+            uint8_t *data = nullptr;
+            size_t dataLen = 0;
+            array->getTypedArrayData(&data, &dataLen);
+            to->assign(reinterpret_cast<T *>(data), reinterpret_cast<T *>(data + dataLen));
+            return true;
+        }
     }
 
     SE_LOGE("[warn] failed to convert to ccstd::vector\n");
