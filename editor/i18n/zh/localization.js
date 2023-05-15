@@ -226,6 +226,7 @@ module.exports = {
         skinning_root: '骨骼根节点的引用，对应控制此模型的动画组件所在节点',
         shadow_bias: '模型额外增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',
         shadow_normal_bias: '模型额外增加法线深度偏移值（世界空间单位），可以消除物体表面朝向平行于阳光方向的阴影摩尔纹，<br>防止曲面出现锯齿状；但是过大的值可能会造成阴影位置偏差',
+        standard_skin_model: '模型额外设定全局唯一的标准皮肤模型',
     },
     sprite: {
         gray_scale: '是否开启灰度渲染模式',
@@ -1108,6 +1109,11 @@ module.exports = {
         maxPos: '世界包围盒最大顶点的坐标',
         depth: '八叉树深度',
     },
+    skin: {
+        enabled: '皮肤散射开关',
+        blurRadius: '该参数指定了次表面散射的范围，即卷积过滤器的宽度。',
+        sssIntensity: '该参数指定了次表面散射的强度',
+    },
     light_probe: {
         giScale: 'GI乘数',
         giSamples: 'GI采样数量',
@@ -1116,6 +1122,7 @@ module.exports = {
         showProbe: '是否显示光照探针',
         showWireframe: '是否显示光照探针连线',
         showConvex: '是否显示光照探针凸包',
+        lightProbeSphereVolume:'光照探针全局显示大小',
     },
     light_probe_group: {
         method: '光照探针的自动生成算法',
@@ -1127,5 +1134,8 @@ module.exports = {
     },
     reflection_probe: {
         fastBake: '勾选则不会对生成的cubemap进行GGX卷积，烘焙速度非常快。',
+    },
+    color_grading: {
+        originalMap: '内置lut贴图路径internal/dependencies/textures/lut/。',
     },
 };

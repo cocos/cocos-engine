@@ -26,7 +26,7 @@ declare const render: any;
 
 import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
-import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
+import { CustomPipelineBuilder, TestPipelineBuilder, SkinPipelineBuilder } from './custom-pipeline';
 import { Device } from '../../gfx';
 
 export * from './types';
@@ -60,7 +60,8 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Custom', new CustomPipelineBuilder());
-    map.set('Native', new NativePipelineBuilder());
+    map.set('Test', new TestPipelineBuilder());
+    map.set('Skin', new SkinPipelineBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);

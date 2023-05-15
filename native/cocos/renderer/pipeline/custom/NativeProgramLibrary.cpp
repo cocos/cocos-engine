@@ -201,7 +201,6 @@ ShaderProgramData &buildProgramData(
     auto shaderID = static_cast<uint32_t>(phase.shaderPrograms.size());
     phase.shaderIndex.emplace(programName, shaderID);
     auto &programData = phase.shaderPrograms.emplace_back();
-
     // build per-batch
     {
         auto res = programData.layout.descriptorSets.emplace(
@@ -832,6 +831,11 @@ std::pair<uint32_t, uint32_t> findBinding(
             return std::pair{v.set, v.binding};
         }
     }
+    for (const auto &v : shaderInfo.subpassInputs) {
+        if (v.name == name) {
+            return std::pair{v.set, v.binding};
+        }
+    }
     CC_EXPECTS(false);
     return {};
 }
@@ -911,6 +915,14 @@ void overwriteShaderSourceBinding(
             newLayout.append(std::to_string(set));
             newLayout.append(", binding = ");
             newLayout.append(std::to_string(binding));
+
+            auto inputIndex = prevLayout.find("input_attachment_index");
+            if (inputIndex != ccstd::string::npos) {
+                newLayout.append(", ");
+                auto endIndex = prevLayout.find_first_of(",)", inputIndex + 1);
+                newLayout.append(prevLayout.data(), inputIndex, endIndex - inputIndex);
+            }
+
             newLayout.append(")");
 
             // replace layout expression
@@ -930,14 +942,6 @@ void overwriteShaderSourceBinding(
         end += offset;
         // find next uniform
         pos = source.find(" uniform ", end);
-        auto exceptionPos = source.find(" uniform subpassInput ", end);
-        if (exceptionPos != ccstd::string::npos) {
-            while (pos == exceptionPos) {
-                end += strlen(" uniform subpassInput ");
-                pos = source.find(" uniform ", end);
-                exceptionPos = source.find(" uniform subpassInput ", end);
-            }
-        }
     }
 }
 
@@ -1120,6 +1124,14 @@ void populatePipelineLayoutInfo(
     } else {
         info.setLayouts.emplace_back(lib.emptyDescriptorSetLayout.get());
     }
+}
+
+template <typename T>
+static ccstd::hash_t getShaderHash(ccstd::hash_t src, const T &val) {
+    if (src != gfx::INVALID_SHADER_HASH) {
+        ccstd::hash_combine(src, val);
+    }
+    return src;
 }
 
 } // namespace
@@ -1492,6 +1504,7 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
     info.shaderInfo.attributes = getActiveAttributes(programInfo, info.attributes, defines);
 
     info.shaderInfo.name = getShaderInstanceName(name, macroArray);
+    info.shaderInfo.hash = getShaderHash(programInfo.hash, prefix);
 
     IntrusivePtr<gfx::Shader> shader = device->createShader(info.shaderInfo);
     auto res = phase.programProxies.emplace(

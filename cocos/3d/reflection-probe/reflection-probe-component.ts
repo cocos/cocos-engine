@@ -248,6 +248,7 @@ export class ReflectionProbe extends Component {
      * @en fast bake no convolution.
      * @zh 快速烘焙不会进行卷积。
      */
+    @visible(function (this: ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
     @type(CCBoolean)
     @tooltip('i18n:reflection_probe.fastBake')
     get fastBake () {
@@ -264,6 +265,10 @@ export class ReflectionProbe extends Component {
         ReflectionProbeManager.probeManager.onUpdateProbes(true);
     }
 
+    get cubemap () {
+        return this._cubemap;
+    }
+
     get probe () {
         return this._probe!;
     }
@@ -272,7 +277,7 @@ export class ReflectionProbe extends Component {
      * @en Reflection probe cube mode preview sphere
      * @zh 反射探针cube模式的预览小球
      */
-    set previewSphere (val: Node) {
+    set previewSphere (val: Node | null) {
         this._previewSphere = val;
         if (this.probe) {
             this.probe.previewSphere = val;

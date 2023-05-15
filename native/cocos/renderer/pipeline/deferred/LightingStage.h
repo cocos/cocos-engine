@@ -33,7 +33,6 @@ namespace cc {
 namespace pipeline {
 
 class RenderFlow;
-class RenderBatchedQueue;
 class RenderInstancedQueue;
 class RenderAdditiveLightQueue;
 class PlanarShadowQueue;

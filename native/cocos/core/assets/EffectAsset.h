@@ -515,7 +515,7 @@ struct IDefineInfo {
     ccstd::optional<ccstd::vector<int32_t>> range; // cjh number is float?  ?: number[];
     ccstd::optional<ccstd::vector<ccstd::string>> options;
     ccstd::optional<ccstd::string> defaultVal;
-    ccstd::optional<ccstd::vector<ccstd::string>> defines;             // NOTE: it's only used in Editor
+    ccstd::optional<ccstd::vector<ccstd::string>> defines;                                            // NOTE: it's only used in Editor
     ccstd::optional<ccstd::unordered_map<ccstd::string, ccstd::variant<ccstd::string, bool>>> editor; // NOTE: it's only used in Editor
 };
 
@@ -558,7 +558,7 @@ struct IShaderSource {
 
 struct IShaderInfo {
     ccstd::string name;
-    ccstd::hash_t hash{0xFFFFFFFFU};
+    ccstd::hash_t hash{gfx::INVALID_SHADER_HASH};
     IShaderSource glsl4;
     IShaderSource glsl3;
     IShaderSource glsl1;

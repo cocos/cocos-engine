@@ -40,10 +40,10 @@
 #include "scene/LODGroup.h"
 #include "scene/Model.h"
 #include "scene/Octree.h"
-#include "scene/SphereLight.h"
-#include "scene/SpotLight.h"
 #include "scene/PointLight.h"
 #include "scene/RangedDirectionalLight.h"
+#include "scene/SphereLight.h"
+#include "scene/SpotLight.h"
 
 namespace cc {
 namespace scene {
@@ -157,6 +157,7 @@ bool RenderScene::isCulledByLod(const Camera *camera, const Model *model) const 
 
 void RenderScene::setMainLight(DirectionalLight *dl) {
     _mainLight = dl;
+    if (_mainLight) _mainLight->activate();
 }
 
 void RenderScene::update(uint32_t stamp) {
@@ -256,12 +257,14 @@ void RenderScene::removeDirectionalLight(DirectionalLight *dl) {
 }
 
 void RenderScene::addSphereLight(SphereLight *light) {
+    light->attachToScene(this);
     _sphereLights.emplace_back(light);
 }
 
 void RenderScene::removeSphereLight(SphereLight *sphereLight) {
     auto iter = std::find(_sphereLights.begin(), _sphereLights.end(), sphereLight);
     if (iter != _sphereLights.end()) {
+        (*iter)->detachFromScene();
         _sphereLights.erase(iter);
     } else {
         CC_LOG_WARNING("Try to remove invalid sphere light.");
@@ -269,12 +272,14 @@ void RenderScene::removeSphereLight(SphereLight *sphereLight) {
 }
 
 void RenderScene::addSpotLight(SpotLight *spotLight) {
+    spotLight->attachToScene(this);
     _spotLights.emplace_back(spotLight);
 }
 
 void RenderScene::removeSpotLight(SpotLight *spotLight) {
     auto iter = std::find(_spotLights.begin(), _spotLights.end(), spotLight);
     if (iter != _spotLights.end()) {
+        (*iter)->detachFromScene();
         _spotLights.erase(iter);
     } else {
         CC_LOG_WARNING("Try to remove invalid spot light.");

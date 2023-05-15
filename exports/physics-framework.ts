@@ -61,6 +61,7 @@ export {
 
     EAxisDirection,
     ERigidBodyType,
+    EColliderType,
 } from '../cocos/physics/framework';
 
 export type {

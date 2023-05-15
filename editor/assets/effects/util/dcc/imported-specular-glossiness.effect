@@ -263,7 +263,7 @@ CCProgram surface-fragment %{
     vec3 normal = FSInput_worldNormal;
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
-      normal = CalculateNormalFromTangentSpace(nmmp, normalScale, normal.xyz, FSInput_worldTangent, FSInput_mirrorNormal);
+      normal = CalculateNormalFromTangentSpace(nmmp, normalScale, normalize(normal.xyz), normalize(FSInput_worldTangent), FSInput_mirrorNormal);
     #endif
 
     return normalize(normal);
@@ -392,6 +392,7 @@ CCProgram standard-vs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-vs>
   #include <shared-ubos>
@@ -432,6 +433,7 @@ CCProgram standard-fs %{
 
 CCProgram shadow-caster-fs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-fs>
   #include <shared-ubos>

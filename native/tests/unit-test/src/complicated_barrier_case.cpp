@@ -58,26 +58,29 @@ TEST(complicatedBarrierTest, test12) {
 
     // 1st node
     const auto& node1 = barrierMap.at(1);
-    ExpectEq(node1.blockBarrier.frontBarriers.size() == 2, true);
-    ExpectEq(node1.blockBarrier.rearBarriers.size() == 1, true);
+    // block barrier: replace by rnderpass info, same below
+    //ExpectEq(node1.blockBarrier.frontBarriers.size() == 2, true);
+    //ExpectEq(node1.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node1.subpassBarriers.empty(), false);
 
-    //block barrier: what comes in and what comes out, no matter how many subpasses inside.
-    ExpectEq(node1.blockBarrier.rearBarriers[0].type == cc::gfx::BarrierType::FULL, true);
-    ExpectEq(node1.blockBarrier.rearBarriers[0].resourceID == 1, true);
-    ExpectEq(node1.blockBarrier.rearBarriers[0].beginStatus.vertID == 1, true);
-    ExpectEq(node1.blockBarrier.rearBarriers[0].beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    ExpectEq(node1.blockBarrier.rearBarriers[0].endStatus.vertID == 1, true);
-    ExpectEq(node1.blockBarrier.rearBarriers[0].endStatus.access == MemoryAccessBit::READ_ONLY, true);
+    //ExpectEq(node1.blockBarrier.rearBarriers[0].type == cc::gfx::BarrierType::FULL, true);
+    //ExpectEq(node1.blockBarrier.rearBarriers[0].resourceID == 1, true);
+    //ExpectEq(node1.blockBarrier.rearBarriers[0].beginStatus.vertID == 1, true);
+    //ExpectEq(node1.blockBarrier.rearBarriers[0].beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
+    //ExpectEq(node1.blockBarrier.rearBarriers[0].endStatus.vertID == 1, true);
+    //ExpectEq(node1.blockBarrier.rearBarriers[0].endStatus.access == MemoryAccessBit::READ_ONLY, true);
 
     //subpass barrier: like normal pass
     const auto& node1subpass = node1.subpassBarriers;
-    ExpectEq(node1subpass[0].frontBarriers.empty(), true);
+    ExpectEq(node1subpass[0].frontBarriers.empty(), false);
     ExpectEq(node1subpass[0].rearBarriers.size() == 1, true);
+
+    // undefined external depends
     const auto& node1subpassres0 = node1subpass[0].rearBarriers[0];
     ExpectEq(node1subpassres0.type == cc::gfx::BarrierType::FULL, true);
     ExpectEq(node1subpassres0.resourceID == 0, true);
-    ExpectEq(node1subpassres0.beginStatus.vertID == 1, true);
+    // vertid in subpass:subpass index, same below
+    ExpectEq(node1subpassres0.beginStatus.vertID == 0, true);
     ExpectEq(node1subpassres0.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
     ExpectEq(node1subpassres0.beginStatus.passType == PassType::RASTER, true);
     ExpectEq(node1subpassres0.endStatus.vertID == 1, true);
@@ -85,7 +88,7 @@ TEST(complicatedBarrierTest, test12) {
     ExpectEq(node1subpassres0.endStatus.access == MemoryAccessBit::READ_ONLY, true);
     ExpectEq(node1subpassres0.endStatus.passType == PassType::RASTER, true);
 
-    ExpectEq(node1subpass[1].frontBarriers.empty(), true);
+    ExpectEq(node1subpass[1].frontBarriers.size() == 1, true);
     const auto& node1subpassres1 = node1subpass[1].rearBarriers[0];
     ExpectEq(node1subpassres1.type == cc::gfx::BarrierType::FULL, true);
     ExpectEq(node1subpassres1.resourceID == 1, true);
@@ -99,32 +102,33 @@ TEST(complicatedBarrierTest, test12) {
 
     //node2
     const auto& node2 = barrierMap.at(2);
-    ExpectEq(node2.blockBarrier.frontBarriers.size() == 2, true);
-    ExpectEq(node2.blockBarrier.rearBarriers.size() == 1, true);
+    //ExpectEq(node2.blockBarrier.frontBarriers.size() == 2, true);
+    //ExpectEq(node2.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node2.subpassBarriers.size() == 2, true);
 
-    const auto& node2blockRear = node2.blockBarrier.rearBarriers;
-    auto iter3in2 = findBarrierByResID(node2blockRear, 3);
-    const auto& res3in2 = (*iter3in2);
-    ExpectEq(res3in2.resourceID == 3, true);
-    ExpectEq(res3in2.type == cc::gfx::BarrierType::FULL, true);
-    ExpectEq(res3in2.beginStatus.vertID == 2, true);
-    ExpectEq(res3in2.beginStatus.passType == PassType::RASTER, true);
-    ExpectEq(res3in2.endStatus.vertID == 2, true);
-    ExpectEq(res3in2.endStatus.passType == PassType::RASTER, true);
+    //const auto& node2blockRear = node2.blockBarrier.rearBarriers;
+    //auto iter3in2 = findBarrierByResID(node2blockRear, 3);
+    //const auto& res3in2 = (*iter3in2);
+    //ExpectEq(res3in2.resourceID == 3, true);
+    //ExpectEq(res3in2.type == cc::gfx::BarrierType::FULL, true);
+    //ExpectEq(res3in2.beginStatus.vertID == 2, true);
+    //ExpectEq(res3in2.beginStatus.passType == PassType::RASTER, true);
+    //ExpectEq(res3in2.endStatus.vertID == 2, true);
+    //ExpectEq(res3in2.endStatus.passType == PassType::RASTER, true);
 
     const auto& node2subpass = node2.subpassBarriers;
     ExpectEq(node2subpass.empty(), false);
-    ExpectEq(node2subpass[0].frontBarriers.empty(), true);
+    // subpass dependency instead of extra barrier
+    ExpectEq(node2subpass[0].frontBarriers.size() == 1, true);
     ExpectEq(node2subpass[0].rearBarriers.empty(), false);
 
     const auto& node2subpassRes2 = node2subpass[0].rearBarriers[0];
     ExpectEq(node2subpassRes2.type == cc::gfx::BarrierType::FULL, true);
     ExpectEq(node2subpassRes2.resourceID == 2, true);
-    ExpectEq(node2subpassRes2.beginStatus.vertID == 2, true);
+    ExpectEq(node2subpassRes2.beginStatus.vertID == 0, true);
     ExpectEq(node2subpassRes2.beginStatus.passType == PassType::RASTER, true);
     ExpectEq(node2subpassRes2.beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    ExpectEq(node2subpassRes2.endStatus.vertID == 2, true);
+    ExpectEq(node2subpassRes2.endStatus.vertID == 1, true);
     ExpectEq(node2subpassRes2.endStatus.access == MemoryAccessBit::READ_ONLY, true);
 
     //node3
@@ -143,39 +147,42 @@ TEST(complicatedBarrierTest, test12) {
 
     //node4
     const auto& node4 = barrierMap.at(4);
-    ExpectEq(node4.blockBarrier.frontBarriers.size() == 2, true);
-    ExpectEq(node4.blockBarrier.rearBarriers.size() == 1, true);
+    //ExpectEq(node4.blockBarrier.frontBarriers.size() == 2, true);
+    //ExpectEq(node4.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node4.subpassBarriers.empty(), false);
 
-    const auto& node4block = node4.blockBarrier;
-    auto iter5in4 = findBarrierByResID(node4block.rearBarriers, 5);
-    ExpectEq(iter5in4 == node4block.rearBarriers.end(), true);
+    //const auto& node4block = node4.blockBarrier;
+    //auto iter5in4 = findBarrierByResID(node4block.rearBarriers, 5);
+    //ExpectEq(iter5in4 == node4block.rearBarriers.end(), true);
 
-    auto iter6in4 = findBarrierByResID(node4block.rearBarriers, 6);
-    ExpectEq(iter6in4 != node4block.rearBarriers.end(), true);
-    ExpectEq((*iter6in4).type == cc::gfx::BarrierType::SPLIT_BEGIN, true);
-    ExpectEq((*iter6in4).resourceID == 6, true);
-    ExpectEq((*iter6in4).beginStatus.vertID == 4, true);
-    ExpectEq((*iter6in4).endStatus.vertID == 14, true);
+    //auto iter6in4 = findBarrierByResID(node4block.rearBarriers, 6);
+    //ExpectEq(iter6in4 != node4block.rearBarriers.end(), true);
+    //ExpectEq((*iter6in4).type == cc::gfx::BarrierType::SPLIT_BEGIN, true);
+    //ExpectEq((*iter6in4).resourceID == 6, true);
+    //ExpectEq((*iter6in4).beginStatus.vertID == 4, true);
+    //ExpectEq((*iter6in4).endStatus.vertID == 14, true);
 
     const auto& node4subpass0 = node4.subpassBarriers[0];
-    ExpectEq(node4subpass0.frontBarriers.empty(), true);
+    // subpass undefined external depends
+    ExpectEq(node4subpass0.frontBarriers.empty(), false);
     ExpectEq(node4subpass0.rearBarriers.size() == 1, true);
     ExpectEq(node4subpass0.rearBarriers[0].type == cc::gfx::BarrierType::FULL, true);
     ExpectEq(node4subpass0.rearBarriers[0].resourceID == 5, true);
-    ExpectEq(node4subpass0.rearBarriers[0].beginStatus.vertID == 4, true);
+    ExpectEq(node4subpass0.rearBarriers[0].beginStatus.vertID == 0, true);
     ExpectEq(node4subpass0.rearBarriers[0].beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    ExpectEq(node4subpass0.rearBarriers[0].endStatus.vertID == 4, true);
+    ExpectEq(node4subpass0.rearBarriers[0].endStatus.vertID == 1, true);
     ExpectEq(node4subpass0.rearBarriers[0].endStatus.access == MemoryAccessBit::READ_ONLY, true);
 
     const auto& node4subpass1 = node4.subpassBarriers[1];
-    ExpectEq(node4subpass1.frontBarriers.empty(), true);
+    ExpectEq(node4subpass1.frontBarriers.empty(), false);
     ExpectEq(node4subpass1.rearBarriers.size() == 1, true);
     ExpectEq(node4subpass1.rearBarriers[0].type == cc::gfx::BarrierType::SPLIT_BEGIN, true);
     ExpectEq(node4subpass1.rearBarriers[0].resourceID == 6, true);
-    ExpectEq(node4subpass1.rearBarriers[0].beginStatus.vertID == 4, true);
+    // external subpass depends
+    ExpectEq(node4subpass1.rearBarriers[0].beginStatus.vertID == 0xFFFFFFFF, true);
     ExpectEq(node4subpass1.rearBarriers[0].beginStatus.access == MemoryAccessBit::WRITE_ONLY, true);
-    ExpectEq(node4subpass1.rearBarriers[0].endStatus.vertID == 14, true);
+    // external subpass depends
+    ExpectEq(node4subpass1.rearBarriers[0].endStatus.vertID == 0xFFFFFFFF, true);
     ExpectEq(node4subpass1.rearBarriers[0].endStatus.access == MemoryAccessBit::READ_ONLY, true);
 
     const auto& node5 = barrierMap.at(5);

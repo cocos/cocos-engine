@@ -618,7 +618,7 @@ export class Mask extends Component {
     public getMaterial (idx: number): any {
         warnID(9007);
         if (this.subComp) {
-            return this.subComp.getMaterial(idx);
+            return this.subComp.getSharedMaterial(idx);
         }
         return null;
     }

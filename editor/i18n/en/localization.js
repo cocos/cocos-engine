@@ -229,6 +229,7 @@ module.exports = {
         skinning_root: 'The skinning root, where the controlling Animation is located',
         shadow_bias: 'Bias value (world space unit) that can avoid moire artifacts with shadows for model. <br>The more the value, the more the light leakage',
         shadow_normal_bias: 'Bias value (world space unit) that can avoid moire artifacts with surfaces that parallel to the directional light',
+        standard_skin_model: 'Bias value (world space unit) that ensure globally unique standard skin model',
     },
     sprite: {
         gray_scale: 'Whether turn on grayscale rendering mode',
@@ -1127,6 +1128,11 @@ module.exports = {
         maxPos: 'The maximum position of the world bounding box.',
         depth: 'The depth of octree.',
     },
+    skin: {
+        enabled: 'The switch of skin scattering',
+        blurRadius: 'This parameter specifies the range of subsurface scattering , in other words, scattering filter width.',
+        sssIntensity: 'This parameter specifies the intensity of subsurface scattering.',
+    },
     light_probe: {
         giScale: 'The value of GI multiplier.',
         giSamples: 'The value of GI sample counts.',
@@ -1135,6 +1141,7 @@ module.exports = {
         showProbe: 'The switch of showing light probe.',
         showWireframe: 'The switch of showing connection of light probe.',
         showConvex: 'The switch of showing convex of light probe.',
+        lightProbeSphereVolume: 'The value of all light probe sphere display size',
     },
     light_probe_group: {
         method: 'The automatic generation algorithm of light probe.',
@@ -1146,5 +1153,8 @@ module.exports = {
     },
     reflection_probe: {
         fastBake: 'If checked, generating progress will ignore GGX convolution for cubemap, very fast generation.',
+    },
+    color_grading: {
+        originalMap: 'The builtin lut texture path is internal/dependencies/textures/lut/.',
     },
 };

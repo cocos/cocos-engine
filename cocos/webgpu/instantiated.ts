@@ -1,3 +1,7 @@
+/// <reference path="../../@types/consts.d.ts"/>
+/// <reference path="../../native/external/emscripten/external-wasm.d.ts"/>
+/// <reference path="../../native/external/emscripten/webgpu/webgpu.d.ts"/>
+
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable no-void */
 /*
@@ -23,12 +27,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { WEBGPU } from 'internal:constants';
-import webgpuUrl from 'url:native/external/emscripten/webgpu/webgpu_wasm.wasm';
-import glslangUrl from 'url:native/external/emscripten/webgpu/glslang.wasm';
-import wasmDevice from './webgpu_wasm.js';
-import glslangLoader from './glslang.js';
+import { WASM_SUPPORT_MODE, WEBGPU } from 'internal:constants';
+import webgpuUrl from 'external:emscripten/webgpu/webgpu_wasm.wasm';
+import glslangUrl from 'external:emscripten/webgpu/glslang.wasm';
+import wasmDevice from 'external:emscripten/webgpu/webgpu_wasm.js';
+import glslangLoader from 'external:emscripten/webgpu/glslang.js';
 import { legacyCC } from '../core/global-exports';
+import { WebAssemblySupportMode } from '../misc/webassembly-support';
 
 export const glslalgWasmModule: any = {
     glslang: null,
@@ -45,7 +50,8 @@ export const webgpuAdapter: any = {
 };
 
 export const promiseForWebGPUInstantiation = (() => {
-    if (WEBGPU) {
+    if (WEBGPU && WASM_SUPPORT_MODE !== WebAssemblySupportMode.NONE) {
+        // TODO: we need to support AsmJS fallback option
         return Promise.all([
             glslangLoader(new URL(glslangUrl, import.meta.url).href).then((res) => {
                 glslalgWasmModule.glslang = res;
@@ -76,7 +82,7 @@ export const promiseForWebGPUInstantiation = (() => {
     return Promise.resolve();
 })();
 
-if (WEBGPU) {
+if (WEBGPU && WASM_SUPPORT_MODE !== WebAssemblySupportMode.NONE) {
     const intervalId = setInterval(() => {
         if (legacyCC.game) {
             legacyCC.game.onPreInfrastructureInitDelegate.add(() => promiseForWebGPUInstantiation);

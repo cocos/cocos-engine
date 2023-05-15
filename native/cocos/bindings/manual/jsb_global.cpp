@@ -789,9 +789,9 @@ static bool JSB_copyTextToClipboard(se::State &s) { // NOLINT
         ccstd::string text;
         ok = sevalue_to_native(args[0], &text);
         SE_PRECONDITION2(ok, false, "text is invalid!");
-        ISystemWindow *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-        CC_ASSERT_NOT_NULL(systemWindowIntf);
-        systemWindowIntf->copyTextToClipboard(text);
+        ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
+        CC_ASSERT_NOT_NULL(systemIntf);
+        systemIntf->copyTextToClipboard(text);
         return true;
     }
 

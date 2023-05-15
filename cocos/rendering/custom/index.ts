@@ -23,11 +23,11 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { Pipeline, PipelineBuilder } from './pipeline';
+import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
-import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
+import { CustomPipelineBuilder, SkinPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { WebProgramLibrary } from './web-program-library';
@@ -47,7 +47,7 @@ export * from './archive';
 export const enableEffectImport = true;
 export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
 
-export function createCustomPipeline (): Pipeline {
+export function createCustomPipeline (): BasicPipeline {
     const layoutGraph = defaultLayoutGraph;
 
     const ppl = new WebPipeline(layoutGraph);
@@ -63,7 +63,6 @@ export const customPipelineBuilderMap = new Map<string, PipelineBuilder>();
 export function setCustomPipeline (name: string, builder: PipelineBuilder) {
     customPipelineBuilderMap.set(name, builder);
 }
-
 export function getCustomPipeline (name: string): PipelineBuilder {
     let builder = customPipelineBuilderMap.get(name) || null;
     if (builder === null) {
@@ -76,7 +75,7 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Custom', new CustomPipelineBuilder());
-    map.set('Native', new NativePipelineBuilder());
+    map.set('Skin', new SkinPipelineBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);

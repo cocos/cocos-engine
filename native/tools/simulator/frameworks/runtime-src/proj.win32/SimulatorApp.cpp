@@ -226,8 +226,7 @@ int SimulatorApp::getPositionY() {
     GetWindowRect(_hwnd, &rect);
     return rect.top;
 }
-
-int SimulatorApp::run() {
+int SimulatorApp::init() {
     createFileUtils();
     INITCOMMONCONTROLSEX InitCtrls;
     InitCtrls.dwSize = sizeof(InitCtrls);
@@ -344,7 +343,10 @@ int SimulatorApp::run() {
     }
     _project.setFrameScale(frameScale);
     CC_LOG_DEBUG("FRAME SCALE = %0.2f", frameScale);
+}
 
+int SimulatorApp::run() {
+    cc::Size frameSize = _project.getFrameSize();
     // create opengl view
     const Rect frameRect = Rect(0, 0, frameSize.width, frameSize.height);
     ConfigParser::getInstance()->setInitViewSize(frameSize);

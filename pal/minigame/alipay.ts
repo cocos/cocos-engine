@@ -89,13 +89,6 @@ minigame.createInnerAudioContext = function (): InnerAudioContext {
     return audio as InnerAudioContext;
 };
 
-// #region Font
-minigame.loadFont = function (url) {
-    // my.loadFont crash when url is not in user data path
-    return 'Arial';
-};
-// #endregion Font
-
 // #region Accelerometer
 let _accelerometerCb: AccelerometerChangeCallback | undefined;
 minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
