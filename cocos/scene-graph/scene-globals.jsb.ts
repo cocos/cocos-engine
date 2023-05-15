@@ -266,18 +266,6 @@ legacyCC.SceneGlobals = SceneGlobals;
         },
     });
 
-    Object.defineProperty(sceneGlobalsProto, 'skin', {
-        enumerable: true,
-        configurable: true,
-        get() {
-            return this._skinRef;
-        },
-        set(v) {
-            this._skinRef = v;
-            this.setSkinInfo(v);
-        },
-    });
-
     Object.defineProperty(sceneGlobalsProto, 'lightProbeInfo', {
         enumerable: true,
         configurable: true,
