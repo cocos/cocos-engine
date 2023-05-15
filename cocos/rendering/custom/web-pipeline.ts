@@ -29,7 +29,7 @@ import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeat
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
 import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, CopyPassBuilder, MovePassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities } from './pipeline';
+import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
@@ -1220,7 +1220,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     private readonly _pipeline: PipelineSceneData;
 }
 
-export class WebMovePassBuilder implements MovePassBuilder {
+export class WebMovePassBuilder {
     constructor (renderGraph: RenderGraph, vertID: number, pass: MovePass) {
         this._renderGraph = renderGraph;
         this._vertID = vertID;
@@ -1243,7 +1243,7 @@ export class WebMovePassBuilder implements MovePassBuilder {
     private readonly _pass: MovePass;
 }
 
-export class WebCopyPassBuilder implements CopyPassBuilder {
+export class WebCopyPassBuilder {
     constructor (renderGraph: RenderGraph, vertID: number, pass: CopyPass) {
         this._renderGraph = renderGraph;
         this._vertID = vertID;
@@ -1372,10 +1372,10 @@ export class WebPipeline implements BasicPipeline {
     public addComputePass (layoutName: string): ComputePassBuilder {
         throw new Error('Method not implemented.');
     }
-    public addMovePass (): MovePassBuilder {
+    public addMovePass (movePairs: MovePair[]): void {
         throw new Error('Method not implemented.');
     }
-    public addCopyPass (): CopyPassBuilder {
+    public addCopyPass (copyPairs: CopyPair[]): void {
         throw new Error('Method not implemented.');
     }
     protected _generateConstantMacros (clusterEnabled: boolean) {
