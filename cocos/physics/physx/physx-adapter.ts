@@ -47,7 +47,6 @@ import { Node } from '../../scene-graph';
 import { Director, director, game } from '../../game';
 import { degreesToRadians } from '../../core/utils/misc';
 import { PhysXCharacterController } from './character-controllers/physx-character-controller';
-import { Contact } from '@cocos/box2d';
 
 export const PX = {} as any;
 const globalThis = cclegacy._global;
@@ -593,7 +592,7 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
     return false;
 }
 
-export function initializeWorld (world: PhysXWorld) {
+export function initializeWorld (world: any) {
     if (USE_BYTEDANCE) {
         // construct PhysX instance object only once
         if (!PhysXInstance.physics) {
