@@ -407,12 +407,6 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             continue;
         }
 
-        // Early exit if slot is invisible
-        if (slot->getColor().a == 0) {
-            _clipper->clipEnd(*slot);
-            continue;
-        }
-
         cc::middleware::Triangles triangles;
         cc::middleware::TwoColorTriangles trianglesTwoColor;
 
