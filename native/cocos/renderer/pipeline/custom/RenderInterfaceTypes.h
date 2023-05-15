@@ -418,20 +418,6 @@ public:
     }
 };
 
-class MovePassBuilder : public RenderNode {
-public:
-    MovePassBuilder() noexcept = default;
-
-    virtual void addPair(const MovePair &pair) = 0;
-};
-
-class CopyPassBuilder : public RenderNode {
-public:
-    CopyPassBuilder() noexcept = default;
-
-    virtual void addPair(const CopyPair &pair) = 0;
-};
-
 class SceneVisitor {
 public:
     SceneVisitor() noexcept = default;
@@ -540,8 +526,8 @@ public:
     virtual void beginFrame() = 0;
     virtual void endFrame() = 0;
     virtual BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) = 0;
-    virtual MovePassBuilder *addMovePass() = 0;
-    virtual CopyPassBuilder *addCopyPass() = 0;
+    virtual void addMovePass(const ccstd::vector<MovePair> &movePairs) = 0;
+    virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
         return addRenderTarget(name, format, width, height, ResourceResidency::MANAGED);

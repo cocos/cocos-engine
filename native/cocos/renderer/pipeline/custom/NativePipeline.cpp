@@ -557,34 +557,38 @@ ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutNa
     return ccnew NativeComputePassBuilder(this, &renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
 }
 
-// NOLINTNEXTLINE
-MovePassBuilder *NativePipeline::addMovePass() {
+void NativePipeline::addMovePass(const ccstd::vector<MovePair> &movePairs) {
+    MovePass pass(renderGraph.get_allocator());
+    pass.movePairs.reserve(movePairs.size());
+    for (auto &&pair : movePairs) {
+        pass.movePairs.emplace_back(pair);
+    }
     std::string_view name("Move");
-    auto passID = addVertex(
+    addVertex(
         MoveTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(pass)),
         renderGraph);
-
-    return ccnew NativeMovePassBuilder(this, &renderGraph, passID);
 }
 
-// NOLINTNEXTLINE
-CopyPassBuilder *NativePipeline::addCopyPass() {
+void NativePipeline::addCopyPass(const ccstd::vector<CopyPair> &copyPairs) {
+    CopyPass pass(renderGraph.get_allocator());
+    pass.copyPairs.reserve(copyPairs.size());
+    for (auto &&pair : copyPairs) {
+        pass.copyPairs.emplace_back(pair);
+    }
     std::string_view name("Copy");
-    auto passID = addVertex(
+    addVertex(
         CopyTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(pass)),
         renderGraph);
-
-    return ccnew NativeCopyPassBuilder(this, &renderGraph, passID);
 }
 
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {

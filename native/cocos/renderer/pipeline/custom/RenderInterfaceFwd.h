@@ -49,8 +49,6 @@ class ComputeSubpassBuilder;
 class BasicRenderPassBuilder;
 class RenderPassBuilder;
 class ComputePassBuilder;
-class MovePassBuilder;
-class CopyPassBuilder;
 class SceneVisitor;
 class SceneTask;
 class SceneTransversal;

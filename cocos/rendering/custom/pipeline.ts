@@ -242,14 +242,6 @@ export interface ComputePassBuilder extends Setter {
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
 
-export interface MovePassBuilder extends RenderNode {
-    addPair (pair: MovePair): void;
-}
-
-export interface CopyPassBuilder extends RenderNode {
-    addPair (pair: CopyPair): void;
-}
-
 export interface SceneVisitor {
     readonly pipelineSceneData: PipelineSceneData;
     setViewport (vp: Viewport): void;
@@ -324,8 +316,8 @@ export interface BasicPipeline extends PipelineRuntime {
     endFrame (): void;
     addRenderPass (width: number, height: number, layoutName: string): BasicRenderPassBuilder;
     addRenderPass (width: number, height: number/*, 'default'*/): BasicRenderPassBuilder;
-    addMovePass (): MovePassBuilder;
-    addCopyPass (): CopyPassBuilder;
+    addMovePass (movePairs: MovePair[]): void;
+    addCopyPass (copyPairs: CopyPair[]): void;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
 

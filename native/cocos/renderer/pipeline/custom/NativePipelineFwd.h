@@ -45,8 +45,6 @@ class NativeComputeSubpassBuilder;
 class NativeRenderPassBuilder;
 class NativeComputeQueueBuilder;
 class NativeComputePassBuilder;
-class NativeMovePassBuilder;
-class NativeCopyPassBuilder;
 class NativeSceneTransversal;
 struct RenderInstancingQueue;
 struct DrawInstance;

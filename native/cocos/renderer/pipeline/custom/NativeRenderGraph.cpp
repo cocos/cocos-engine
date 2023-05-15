@@ -1559,16 +1559,6 @@ ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &lay
     return new NativeComputeQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
 }
 
-void NativeMovePassBuilder::addPair(const MovePair &pair) {
-    auto &movePass = get(MoveTag{}, nodeID, *renderGraph);
-    movePass.movePairs.emplace_back(pair);
-}
-
-void NativeCopyPassBuilder::addPair(const CopyPair &pair) {
-    auto &copyPass = get(CopyTag{}, nodeID, *renderGraph);
-    copyPass.copyPairs.emplace_back(pair);
-}
-
 namespace {
 
 const char *getName(const gfx::LoadOp &op) {

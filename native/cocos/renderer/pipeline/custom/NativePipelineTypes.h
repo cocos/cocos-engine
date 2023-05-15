@@ -487,42 +487,6 @@ public:
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
 };
 
-class NativeMovePassBuilder final : public MovePassBuilder, public NativeRenderNode {
-public:
-    NativeMovePassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn) noexcept
-    : NativeRenderNode(pipelineRuntimeIn, renderGraphIn, nodeIDIn) {}
-
-    ccstd::string getName() const override {
-        return NativeRenderNode::getName();
-    }
-    void setName(const ccstd::string &name) override {
-        NativeRenderNode::setName(name);
-    }
-    void setCustomBehavior(const ccstd::string &name) override {
-        NativeRenderNode::setCustomBehavior(name);
-    }
-
-    void addPair(const MovePair &pair) override;
-};
-
-class NativeCopyPassBuilder final : public CopyPassBuilder, public NativeRenderNode {
-public:
-    NativeCopyPassBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn) noexcept
-    : NativeRenderNode(pipelineRuntimeIn, renderGraphIn, nodeIDIn) {}
-
-    ccstd::string getName() const override {
-        return NativeRenderNode::getName();
-    }
-    void setName(const ccstd::string &name) override {
-        NativeRenderNode::setName(name);
-    }
-    void setCustomBehavior(const ccstd::string &name) override {
-        NativeRenderNode::setCustomBehavior(name);
-    }
-
-    void addPair(const CopyPair &pair) override;
-};
-
 class NativeSceneTransversal final : public SceneTransversal {
 public:
     NativeSceneTransversal() = default;
@@ -937,8 +901,8 @@ public:
     void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
     void beginFrame() override;
     void endFrame() override;
-    MovePassBuilder *addMovePass() override;
-    CopyPassBuilder *addCopyPass() override;
+    void addMovePass(const ccstd::vector<MovePair> &movePairs) override;
+    void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
 
     uint32_t addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size, ResourceResidency residency) override;
