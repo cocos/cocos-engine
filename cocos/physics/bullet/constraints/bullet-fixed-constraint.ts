@@ -25,12 +25,12 @@
 /* eslint-disable new-cap */
 import { BulletConstraint } from './bullet-constraint';
 import { IFixedConstraint } from '../../spec/i-physics-constraint';
-import { IVec3Like, Quat, Vec3, Mat4 } from '../../../core';
-import { FixedConstraint, HingeConstraint, PhysicsSystem } from '../../framework';
+import { Quat, Vec3, Mat4 } from '../../../core';
+import { FixedConstraint, PhysicsSystem } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
 import { BulletCache, CC_MAT4_0, CC_QUAT_0, CC_V3_0 } from '../bullet-cache';
 import { bt } from '../instantiated';
-import { bullet2CocosVec3, cocos2BulletQuat, cocos2BulletVec3 } from '../bullet-utils';
+import { cocos2BulletQuat, cocos2BulletVec3 } from '../bullet-utils';
 import { BulletWorld } from '../bullet-world';
 
 export class BulletFixedConstraint extends BulletConstraint implements IFixedConstraint {
@@ -63,8 +63,8 @@ export class BulletFixedConstraint extends BulletConstraint implements IFixedCon
         const bodyA = (this._rigidBody.body as BulletRigidBody).sharedBody;
         const bodyB = cb ? (cb.body as BulletRigidBody).sharedBody : (PhysicsSystem.instance.physicsWorld as BulletWorld).getSharedBody(bodyA.node);
 
-        const pos : Vec3 = CC_V3_0;
-        const rot : Quat = CC_QUAT_0;
+        const pos: Vec3 = CC_V3_0;
+        const rot: Quat = CC_QUAT_0;
         const trans0 = BulletCache.instance.BT_TRANSFORM_0;
         const trans1 = BulletCache.instance.BT_TRANSFORM_1;
         const quat = BulletCache.instance.BT_QUAT_0;
