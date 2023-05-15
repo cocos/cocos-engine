@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-/* eslint-disable func-names */
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -93,9 +91,9 @@ export class CharacterController extends Eventify(Component) {
 
     /**
      * @en 、
-     * Gets or sets the stepOffset of the character controller.
+     * Gets or sets the maximum height the character controller can automatically climb.
      * @zh
-     * 获取或设置角色控制器的最大爬台阶高度。
+     * 获取或设置角色控制器的最大自动爬台阶高度。
      */
     @tooltip('i18n:physics3d.character_controller.stepOffset')
     @type(CCFloat)
@@ -134,6 +132,7 @@ export class CharacterController extends Eventify(Component) {
     /**
      * @en
      * Gets or sets the contact offset of the character controller.
+     * Contact offset is the character's collision skin width.
      * @zh
      * 获取或设置角色控制器的接触间隙。
      */
@@ -204,7 +203,7 @@ export class CharacterController extends Eventify(Component) {
     }
 
     public set center (value: Vec3) {
-        if (this._center === value) return;
+        if (Vec3.equals(this._center, value)) return;
         Vec3.copy(this._center, value);
         // if (this._cct) { //update cct position
         //     Vec3.copy(VEC3_0, this.node.worldPosition);
@@ -219,11 +218,11 @@ export class CharacterController extends Eventify(Component) {
      * @zh
      * 获取此角色控制器的类型。
      */
-    readonly TYPE: ECharacterControllerType;
+    readonly type: ECharacterControllerType;
 
     constructor (type: ECharacterControllerType) {
         super();
-        this.TYPE = type;
+        this.type = type;
     }
 
     protected _cct: IBaseCharacterController | null = null; //lowLevel instance
@@ -266,7 +265,7 @@ export class CharacterController extends Eventify(Component) {
 
     protected onLoad () {
         if (!selector.runInEditor) return;
-        this._cct = createCharacterController(this.TYPE);
+        this._cct = createCharacterController(this.type);
         this._initialized = this._cct.initialize(this);
         this._cct.onLoad!();
     }
@@ -316,6 +315,13 @@ export class CharacterController extends Eventify(Component) {
         if (this._isInitialized) this._cct!.setPosition(value);
     }
 
+    /**
+     * @en
+     * Gets the velocity.
+     * @zh
+     * 获取速度。
+     * @param out @zh 速度向量 @en The velocity vector
+     */
     public getVelocity (): Vec3 {
         return this._velocity;
     }

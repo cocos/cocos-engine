@@ -58,7 +58,7 @@ export default function (parent: Node, _steps = 0) {
         const nodeBoxCCT = new Node('BoxCharacterController');
         parent.addChild(nodeBoxCCT);
         const boxCCT = nodeBoxCCT.addComponent(physics.BoxCharacterController) as physics.BoxCharacterController;
-        expect(boxCCT.TYPE).toBe(physics.ECharacterControllerType.BOX);
+        expect(boxCCT.type).toBe(physics.ECharacterControllerType.BOX);
 
         boxCCT.halfForwardExtent = 0.5;
         expect(boxCCT.halfForwardExtent === 0.5).toBe(true);
@@ -80,7 +80,7 @@ export default function (parent: Node, _steps = 0) {
         const nodeCapsuleCCT = new Node('CapsuleCharacterController');
         parent.addChild(nodeCapsuleCCT);
         const capsuleCCT = nodeCapsuleCCT.addComponent(physics.CapsuleCharacterController) as physics.CapsuleCharacterController;
-        expect(capsuleCCT.TYPE).toBe(physics.ECharacterControllerType.CAPSULE);
+        expect(capsuleCCT.type).toBe(physics.ECharacterControllerType.CAPSULE);
 
         capsuleCCT.radius = 0.5;
         expect(capsuleCCT.radius === 0.5).toBe(true);

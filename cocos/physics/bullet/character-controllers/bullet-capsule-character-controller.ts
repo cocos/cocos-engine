@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Vec3, absMax } from '../../../core';
 import { PhysicsSystem } from '../../framework';
 import { ICapsuleCharacterController } from '../../spec/i-character-controller';

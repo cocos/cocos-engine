@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { error, IVec3Like, Vec3 } from '../../../core';
 import { CharacterControllerContact, PhysicsSystem  } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
@@ -51,7 +50,10 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     private _collisionFilterMask = -1;
 
     get isEnabled (): boolean { return this._isEnabled; }
-    get impl (): any { return this._impl; }
+    get impl (): any {
+        /* eslint-disable @typescript-eslint/no-unsafe-return */
+        return this._impl;
+    }
     get characterController (): CharacterController { return this._comp; }
 
     constructor () {

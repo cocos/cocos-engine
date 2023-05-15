@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { error, IVec3Like, Vec3 } from '../../../core';
 import { PhysicsSystem  } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
@@ -47,14 +46,19 @@ export class PhysXCharacterController implements IBaseCharacterController {
     protected _overlapRecovery = true;
 
     get isEnabled (): boolean { return this._isEnabled; }
-    get impl (): any { return this._impl; }
+    get impl (): any {
+        /* eslint-disable @typescript-eslint/no-unsafe-return */
+        return this._impl;
+    }
     get characterController (): CharacterController { return this._comp; }
 
     get filterData () {
+        /* eslint-disable @typescript-eslint/no-unsafe-return */
         return this._filterData;
     }
 
     get queryFilterCB () {
+        /* eslint-disable @typescript-eslint/no-unsafe-return */
         return this._queryFilterCB;
     }
 

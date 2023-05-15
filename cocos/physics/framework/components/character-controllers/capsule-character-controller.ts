@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-/* eslint-disable func-names */
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 

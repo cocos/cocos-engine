@@ -87,9 +87,9 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    updateNeedEmitCCTEvents (v: boolean) {
+    updateNeedEmitCCTEvents (force: boolean) {
         if (!this.ccts) return; // return if already been removed from bullet world
-        if (v) {
+        if (force) {
             this._needEmitCCTEvents = true;
         } else {
             this._needEmitCCTEvents = false;
