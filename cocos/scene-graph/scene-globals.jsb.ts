@@ -34,6 +34,7 @@ import type {
     FogInfo as JsbFogInfo,
     ShadowsInfo as JsbShadowsInfo,
     OctreeInfo as JsbOctreeInfo,
+    SkinInfo as JsbSkinInfo,
     SceneGlobals as JsbSceneGlobals,
     LightProbeInfo as JsbLightProbeInfo,
 } from './scene-globals';
@@ -168,6 +169,10 @@ export const OctreeInfo: typeof JsbOctreeInfo = jsb.OctreeInfo;
 export type OctreeInfo = JsbOctreeInfo;
 legacyCC.OctreeInfo = OctreeInfo;
 
+export const SkinInfo: typeof JsbSkinInfo = jsb.SkinInfo;
+export type SkinInfo = JsbSkinInfo;
+legacyCC.SkinInfo = SkinInfo;
+
 export const LightProbeInfo: typeof JsbLightProbeInfo = jsb.LightProbeInfo;
 export type LightProbeInfo = JsbLightProbeInfo;
 //legacyCC.LightProbeInfo = LightProbeInfo;
@@ -185,6 +190,7 @@ legacyCC.SceneGlobals = SceneGlobals;
         this._skyboxRef = this.getSkyboxInfo();
         this._fogRef = this.getFogInfo();
         this._octreeRef = this.getOctreeInfo();
+        this._skinRef = this.getSkinInfo();
         this._lightProbeRef = this.getLightProbeInfo();
     };
 
@@ -260,6 +266,18 @@ legacyCC.SceneGlobals = SceneGlobals;
         },
     });
 
+    Object.defineProperty(sceneGlobalsProto, 'skin', {
+        enumerable: true,
+        configurable: true,
+        get() {
+            return this._skinRef;
+        },
+        set(v) {
+            this._skinRef = v;
+            this.setSkinInfo(v);
+        },
+    });
+
     Object.defineProperty(sceneGlobalsProto, 'lightProbeInfo', {
         enumerable: true,
         configurable: true,
@@ -277,7 +295,7 @@ legacyCC.SceneGlobals = SceneGlobals;
 
 // handle meta data, it is generated automatically
 
-decros.patch_cc_SceneGlobals({SceneGlobals, AmbientInfo, SkyboxInfo, FogInfo, ShadowsInfo, LightProbeInfo, OctreeInfo});
+decros.patch_cc_SceneGlobals({SceneGlobals, AmbientInfo, SkyboxInfo, FogInfo, ShadowsInfo, LightProbeInfo, OctreeInfo, SkinInfo});
 
 decros.patch_cc_OctreeInfo({OctreeInfo, CCInteger, Vec3, DEFAULT_WORLD_MAX_POS, DEFAULT_WORLD_MIN_POS, DEFAULT_OCTREE_DEPTH});
 
