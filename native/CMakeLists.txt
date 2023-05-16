@@ -1854,11 +1854,14 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/sdk/RigidBody.cpp
         cocos/physics/sdk/Joint.h
         cocos/physics/sdk/Joint.cpp
+        cocos/physics/sdk/CharacterController.h
+        cocos/physics/sdk/CharacterController.cpp
         cocos/physics/spec/IBody.h
         cocos/physics/spec/IJoint.h
         cocos/physics/spec/ILifecycle.h
         cocos/physics/spec/IShape.h
         cocos/physics/spec/IWorld.h
+        cocos/physics/spec/ICharacterController.h
         cocos/physics/physx/PhysX.h
         cocos/physics/physx/PhysXInc.h
         cocos/physics/physx/PhysXUtils.h
@@ -1899,6 +1902,12 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXFixedJoint.cpp
         cocos/physics/physx/joints/PhysXSpherical.h
         cocos/physics/physx/joints/PhysXSpherical.cpp
+        cocos/physics/physx/character-controllers/PhysXCharacterController.h
+        cocos/physics/physx/character-controllers/PhysXCharacterController.cpp
+        cocos/physics/physx/character-controllers/PhysXCapsuleCharacterController.h
+        cocos/physics/physx/character-controllers/PhysXCapsuleCharacterController.cpp
+        cocos/physics/physx/character-controllers/PhysXBoxCharacterController.h
+        cocos/physics/physx/character-controllers/PhysXBoxCharacterController.cpp
     )
     cocos_source_files(
         NO_WERROR NO_UBUILD ${SWIG_OUTPUT}/jsb_physics_auto.cpp
