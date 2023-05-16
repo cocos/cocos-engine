@@ -129,8 +129,10 @@ export class AndroidPackTool extends NativePackTool {
             const pattern = /android:screenOrientation="[^"]*"/;
             let replaceString = 'android:screenOrientation="unspecified"';
 
-            if (cfg.landscapeRight && cfg.landscapeLeft && cfg.portrait && cfg.upsideDown) {
+            if (cfg.landscapeRight && cfg.landscapeLeft && (cfg.portrait || cfg.upsideDown)) {
                 replaceString = 'android:screenOrientation="fullSensor"';
+            } else if ((cfg.landscapeRight || cfg.landscapeLeft) && (cfg.portrait || cfg.upsideDown)) {
+                replaceString = 'android:screenOrientation="unspecified"';
             } else if (cfg.landscapeRight && !cfg.landscapeLeft) {
                 replaceString = 'android:screenOrientation="landscape"';
             } else if (!cfg.landscapeRight && cfg.landscapeLeft) {
