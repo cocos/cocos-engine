@@ -33,6 +33,7 @@ import { HBAO } from '../components';
 import { Texture2D } from '../../../asset/assets/texture-2d';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { DebugViewCompositeType, DebugViewSingleType } from '../../debug-view';
+import { Format } from '../../../gfx';
 
 const vec2 = new Vec2();
 
