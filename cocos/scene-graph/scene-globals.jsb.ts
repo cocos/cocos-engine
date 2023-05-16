@@ -28,7 +28,7 @@ import { Ambient, EnvironmentLightingType } from '../render-scene/scene';
 import { Material } from '../asset/assets/material';
 import { Vec2, Vec3, Color, Vec4 } from '../core/math';
 import * as decros from '../native-binding/decorators';
-import type { Skin } from '../render-scene/scene';
+import type { Skin } from '../render-scene/scene/skin';
 import type {
     AmbientInfo as JsbAmbientInfo,
     SkyboxInfo as JsbSkyboxInfo,
@@ -37,6 +37,7 @@ import type {
     OctreeInfo as JsbOctreeInfo,
     SceneGlobals as JsbSceneGlobals,
     LightProbeInfo as JsbLightProbeInfo,
+    SkinInfo as JsbSkinInfo,
 } from './scene-globals';
 import { ccclass, editable, range, serializable, slide, tooltip, type, visible } from '../core/data/decorators';
 import { macro } from '../core';
@@ -185,7 +186,7 @@ legacyCC.SceneGlobals = SceneGlobals;
  * @zh 渲染场景中的全局皮肤后处理设置。
  */
 @ccclass('cc.SkinInfo')
-export class SkinInfo {
+class SkinInfoLocal {
     /**
      * @en Enable skip.
      * @zh 是否开启皮肤后效。
@@ -268,7 +269,8 @@ export class SkinInfo {
         this._resource.initialize(this as any);
     }
 }
-legacyCC.SkinInfo = SkinInfo;
+export type SkinInfo = JsbSkinInfo;
+legacyCC.SkinInfo = SkinInfoLocal;
 
 (function () {
     const sceneGlobalsProto: any = SceneGlobals.prototype;
@@ -371,7 +373,7 @@ legacyCC.SkinInfo = SkinInfo;
 
 // handle meta data, it is generated automatically
 
-decros.patch_cc_SceneGlobals({SceneGlobals, AmbientInfo, SkyboxInfo, FogInfo, ShadowsInfo, LightProbeInfo, OctreeInfo, SkinInfo});
+decros.patch_cc_SceneGlobals({SceneGlobals, AmbientInfo, SkyboxInfo, FogInfo, ShadowsInfo, LightProbeInfo, OctreeInfo, SkinInfo: SkinInfoLocal});
 
 decros.patch_cc_OctreeInfo({OctreeInfo, CCInteger, Vec3, DEFAULT_WORLD_MAX_POS, DEFAULT_WORLD_MIN_POS, DEFAULT_OCTREE_DEPTH});
 
