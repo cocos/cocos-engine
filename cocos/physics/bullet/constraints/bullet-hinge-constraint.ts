@@ -72,7 +72,8 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         cocos2BulletVec3(bt.Transform_getOrigin(trans0), v3_0);
         // rotation of axis in local frame of bodyA
         const quat = BulletCache.instance.BT_QUAT_0;
-        Quat.rotationTo(rot_1, Vec3.UNIT_Z, cs.axis);
+        Vec3.normalize(v3_0, cs.axis);
+        Quat.rotationTo(rot_1, Vec3.UNIT_Z, v3_0);
         cocos2BulletQuat(quat, rot_1);
         bt.Transform_setRotation(trans0, quat);
 

@@ -22,36 +22,70 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like, Quat, Vec3 } from '../../../core';
+import { IVec3Like, Mat4, Quat, Vec3 } from '../../../core';
 import { HingeConstraint } from '../../framework';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { getTempTransform, PX, _pxtrans, _trans } from '../physx-adapter';
 import { PhysXJoint } from './physx-joint';
 
+const v3_0 = new Vec3();
+const v3_1 = new Vec3();
+const v3_2 = new Vec3();
+const mat_0 = new Mat4();
+
 export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
     private _rot = new Quat(Quat.IDENTITY);
 
     setPivotA (v: IVec3Like): void {
-        const cs = this.constraint;
-        const pos = _trans.translation;
-        const rot = _trans.rotation;
-
-        Quat.rotationTo(rot, Vec3.UNIT_X, cs.axis);
-        Vec3.multiply(pos, cs.node.worldScale, cs.pivotA);
-        this._impl.setLocalPose(0, getTempTransform(pos, rot));
-
-        if (!cs.connectedBody) this.setPivotB(cs.pivotB); // seems useless
+        this.updateFrames();
     }
 
     setPivotB (v: IVec3Like): void {
+        this.updateFrames();
+    }
+
+    setAxis (v: IVec3Like): void {
+        this.updateFrames();
+    }
+
+    get constraint (): HingeConstraint {
+        return this._com as HingeConstraint;
+    }
+
+    onComponentSet (): void {
+        this._impl = PX.createRevoluteJoint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
+        this.updateFrames();
+    }
+
+    updateFrames () {
         const cs = this.constraint;
         const cb = cs.connectedBody;
         const pos = _trans.translation;
         const rot = _trans.rotation;
         const node = cs.node;
 
-        // rotation in local space body0
-        Quat.rotationTo(this._rot, Vec3.UNIT_X, cs.axis);
+        Vec3.normalize(v3_0, cs.axis);
+        Vec3.cross(v3_2, v3_0, Vec3.UNIT_Y); // z
+        if (Vec3.len(v3_2) < 0.0001) {
+            Vec3.cross(v3_1, Vec3.UNIT_Z, v3_0); // y
+            Vec3.cross(v3_2, v3_0, v3_1); // z
+        } else {
+            Vec3.cross(v3_1, v3_2, v3_0); // y
+        }
+
+        Vec3.normalize(v3_1, v3_1);
+        Vec3.normalize(v3_2, v3_2);
+
+        mat_0.set(
+            v3_0.x, v3_0.y, v3_0.z, 0, // x
+            v3_1.x, v3_1.y, v3_1.z, 0, // y
+            v3_2.x, v3_2.y, v3_2.z, 0, // z
+            0, 0, 0, 1,
+        );
+
+        mat_0.getRotation(this._rot);
+        Vec3.multiply(pos, cs.node.worldScale, cs.pivotA);
+        this._impl.setLocalPose(0, getTempTransform(pos, this._rot));
 
         if (cb) {
             // orientation of axis in local space of body1
@@ -71,26 +105,11 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
         this._impl.setLocalPose(1, getTempTransform(pos, this._rot));
     }
 
-    setAxis (v: IVec3Like): void {
-        this.setPivotA(this.constraint.pivotA);
-        this.setPivotB(this.constraint.pivotB);
-    }
-
-    get constraint (): HingeConstraint {
-        return this._com as HingeConstraint;
-    }
-
-    onComponentSet (): void {
-        this._impl = PX.createRevoluteJoint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
-        this.setPivotA(this.constraint.pivotA);
-        this.setPivotB(this.constraint.pivotB);
-    }
-
     updateScale0 () {
-        this.setPivotA(this.constraint.pivotA);
+        this.updateFrames();
     }
 
     updateScale1 () {
-        this.setPivotB(this.constraint.pivotB);
+        this.updateFrames();
     }
 }

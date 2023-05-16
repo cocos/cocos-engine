@@ -30,6 +30,7 @@ import { CannonRigidBody } from '../cannon-rigid-body';
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 
 const v3_0 = new Vec3();
+const quat_0 = new Quat();
 
 export class CannonHingeConstraint extends CannonConstraint implements IHingeConstraint {
     public get impl () {
@@ -61,20 +62,23 @@ export class CannonHingeConstraint extends CannonConstraint implements IHingeCon
     }
 
     setAxis (v: IVec3Like): void {
+        const equations = this.impl.equations;
         Vec3.copy(this.impl.axisA, v);
-        Vec3.copy((this.impl.equations[3] as CANNON.RotationalEquation).axisA, v);
-        Vec3.copy((this.impl.equations[4] as CANNON.RotationalEquation).axisA, v);
-        Vec3.copy((this.impl.equations[5] as CANNON.RotationalMotorEquation).axisA, v);
+        Vec3.copy((equations[3] as CANNON.RotationalEquation).axisA, v);
+        Vec3.copy((equations[4] as CANNON.RotationalEquation).axisA, v);
+        Vec3.copy((equations[5] as CANNON.RotationalMotorEquation).axisA, v);
         if (this.constraint.connectedBody) {
-            Vec3.copy(this.impl.axisB, v);
-            Vec3.copy((this.impl.equations[3] as CANNON.RotationalEquation).axisB, v);
-            Vec3.copy((this.impl.equations[4] as CANNON.RotationalEquation).axisB, v);
-            Vec3.copy((this.impl.equations[5] as CANNON.RotationalMotorEquation).axisB, v);
+            Vec3.transformQuat(this.impl.axisB, v, this.constraint.node.worldRotation);
+            Quat.invert(quat_0, this.constraint.connectedBody.node.worldRotation);
+            Vec3.transformQuat(this.impl.axisB, this.impl.axisB, quat_0);
+            Vec3.copy((equations[3] as CANNON.RotationalEquation).axisB, this.impl.axisB);
+            Vec3.copy((equations[4] as CANNON.RotationalEquation).axisB, this.impl.axisB);
+            Vec3.copy((equations[5] as CANNON.RotationalMotorEquation).axisB, this.impl.axisB);
         } else {
             Vec3.transformQuat(this.impl.axisB, v, this.constraint.node.worldRotation);
-            Vec3.copy((this.impl.equations[3] as CANNON.RotationalEquation).axisB, this.impl.axisB);
-            Vec3.copy((this.impl.equations[4] as CANNON.RotationalEquation).axisB, this.impl.axisB);
-            Vec3.copy((this.impl.equations[5] as CANNON.RotationalMotorEquation).axisB, this.impl.axisB);
+            Vec3.copy((equations[3] as CANNON.RotationalEquation).axisB, this.impl.axisB);
+            Vec3.copy((equations[4] as CANNON.RotationalEquation).axisB, this.impl.axisB);
+            Vec3.copy((equations[5] as CANNON.RotationalMotorEquation).axisB, this.impl.axisB);
         }
     }
 

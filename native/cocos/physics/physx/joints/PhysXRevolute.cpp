@@ -61,11 +61,33 @@ void PhysXRevolute::updatePose() {
     physx::PxTransform pose0{physx::PxIdentity};
     physx::PxTransform pose1{physx::PxIdentity};
 
+    auto xAxis = _mAxis.getNormalized();
+    auto yAxis = physx::PxVec3(0, 1, 0);
+    auto zAxis = _mAxis.cross(yAxis);
+    if (zAxis.magnitude() < 0.0001) {
+        yAxis = physx::PxVec3(0, 0, 1).cross(xAxis);
+        zAxis = xAxis.cross(yAxis);
+    } else {
+        yAxis = zAxis.cross(xAxis);
+    }
+
+    yAxis = yAxis.getNormalized();
+    zAxis = zAxis.getNormalized();
+
+    Mat4 transform(
+        xAxis.x, xAxis.y, xAxis.z, 0,
+        yAxis.x, yAxis.y, yAxis.z, 0,
+        zAxis.x, zAxis.y, zAxis.z, 0,
+        0.F, 0.F, 0.F, 1.F);
+
+    auto quat = Quaternion();
+    transform.getRotation(&quat);
+
     // pos and rot in with respect to bodyA
     auto *node0 = _mSharedBody->getNode();
     node0->updateWorldTransform();
     pose0.p = _mPivotA * node0->getWorldScale();
-    pxSetFromTwoVectors(pose0.q, physx::PxVec3{1.F, 0.F, 0.F}, _mAxis);
+    pose0.q = physx::PxQuat(quat.x, quat.y, quat.z, quat.w);
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR0, pose0);
 
     if (_mConnectedBody) {
