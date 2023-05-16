@@ -23,7 +23,6 @@
 */
 
 import { cclegacy, toRadian, Vec2, Vec4 } from '../../../core';
-import { Address, ClearFlagBit, Filter, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
 import { Pipeline, QueueHint } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
@@ -178,7 +177,8 @@ export class HBAOPass extends SettingPass {
     private HBAO_BLUR_X_PASS_INDEX = 1;
     private HBAO_BLUR_Y_PASS_INDEX = 2;
     private HBAO_COMBINED_PASS_INDEX = 3;
-    private _hbaoParams: HBAOParams;
+    private _hbaoParams: HBAOParams = new HBAOParams();
+    private _initialize = false;
 
     get setting () { return getSetting(HBAO); }
 
@@ -186,24 +186,16 @@ export class HBAOPass extends SettingPass {
     effectName = 'pipeline/post-process/hbao';
     outputNames = ['hbaoRTName', 'hbaoBluredRTName']
 
-    checkEnable (camera: Camera) {
-        const enable = super.checkEnable(camera);
-        const setting = this.setting;
-        return enable && !!setting && setting.enabledInHierarchy;
-    }
-
-    constructor () {
-        super();
-        this._hbaoParams = new HBAOParams();
-        this.material.setProperty('RandomTex', this._hbaoParams.randomTexture, 0);
-    }
-
     public render (camera: Camera, ppl: Pipeline): void {
         passContext.updatePassViewPort();
         const width = passContext.passViewport.width;
         const height = passContext.passViewport.height;
 
         const setting = this.setting;
+        if (!this._initialize) {
+            passContext.material = this.material;
+            this.material.setProperty('RandomTex', this._hbaoParams.randomTexture, 0);
+        }
 
         // params
         const aoStrength = 1.0;
@@ -241,14 +233,13 @@ export class HBAOPass extends SettingPass {
             const haboBlurInfoY = this._renderHBAOBlurPass(camera, haboBlurInfoX.rtName, inputDS, true);
             hbaoCombinedInputRTName = haboBlurInfoY.rtName;
         }
-        this._renderHBAOCombinedPass(camera, hbaoCombinedInputRTName, inputRT);
+        // this._renderHBAOCombinedPass(camera, hbaoCombinedInputRTName, inputRT);
     }
 
     private _renderHBAOPass (camera: Camera, inputDS: string) {
         const cameraID = getCameraUniqueID(camera);
 
         const passIdx = this.HBAO_PASS_INDEX;
-        passContext.material = this.material;
         this.material.setProperty('uvDepthToEyePosParams',  this._hbaoParams.uvDepthToEyePosParams, passIdx);
         this.material.setProperty('radiusParam', this._hbaoParams.radiusParam, passIdx);
         this.material.setProperty('miscParam', this._hbaoParams.miscParam, passIdx);
