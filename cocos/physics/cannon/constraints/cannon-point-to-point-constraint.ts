@@ -54,8 +54,8 @@ export class CannonPointToPointConstraint extends CannonConstraint implements IP
         } else {
             const node = cs.node;
             Vec3.multiply(v3_0, node.worldScale, cs.pivotA);
+            Vec3.transformQuat(v3_0, v3_0, node.worldRotation);
             Vec3.add(v3_0, v3_0, node.worldPosition);
-            Vec3.add(v3_0, v3_0, cs.pivotB);
             Vec3.copy(this.impl.pivotB, v3_0);
         }
     }
