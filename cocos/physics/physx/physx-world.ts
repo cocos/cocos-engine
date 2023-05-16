@@ -181,11 +181,6 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return raycastClosest(this, worldRay, options, result);
     }
 
-    // sweepClosest (worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
-    //     options: IRaycastOptions, result: PhysicsRayResult): boolean {
-    //     return sweepClosest(this, worldRay, geometry, geometryRotation, options, result);
-    // }
-
     sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
         options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         if (!PhysXWorld._sweepBoxGeometry) {
