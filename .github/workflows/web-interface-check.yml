@@ -1,0 +1,85 @@
+name: <Web> Interface check
+
+#on: push
+on: [pull_request_target]
+
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  interface_check:
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.19'
+
+      - uses: actions/checkout@v3
+        name: Checkout Base Ref
+        with:
+          repository: ${{ github.event.pull_request.base.repo.full_name }}
+          ref: ${{ github.base_ref }}
+          path: './engine'
+      - run: |
+          "EXT_VERSION=$(node ./engine/.github/workflows/get-native-external-version.js)" >> $env:GITHUB_ENV
+        shell: pwsh
+      - uses: actions/checkout@v3
+        name: Download external
+        with:
+          repository: cocos/cocos-engine-external
+          path: './engine/native/external'
+          ref: "${{ env.EXT_VERSION }}"
+          fetch-depth: 1
+
+      - name: Build Base Declarations
+        working-directory: ./engine
+        run: |
+          npm install
+
+      - name: Clear npm Cache
+        run: |
+          npm cache clean --force
+
+      - uses: actions/checkout@v3
+        name: Checkout Head Ref
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.head_ref }}
+          path: './engine-HEAD'
+      - run: |
+          "EXT_VERSION_HEAD=$(node ./engine-HEAD/.github/workflows/get-native-external-version.js)" >> $env:GITHUB_ENV
+        shell: pwsh
+      - uses: actions/checkout@v3
+        name: Download external
+        with:
+          repository: cocos/cocos-engine-external
+          path: './engine-HEAD/native/external'
+          ref: "${{ env.EXT_VERSION_HEAD }}"
+          fetch-depth: 1
+
+      - name: Build Head Declarations
+        working-directory: ./engine-HEAD
+        run: |
+          npm install
+
+      - uses: LouisBrunner/diff-action@v0.1.2
+        with:
+          old: ./engine/bin/.declarations/cc.d.ts
+          new: ./engine-HEAD/bin/.declarations/cc.d.ts
+          mode: addition
+          tolerance: worse
+          output: ./engine/interface-diff.txt
+
+      - name: optimize interface check report
+        working-directory: ./engine
+        run: |
+          cat ./interface-diff.txt
+          node ./.github/workflows/interface-check-report.js
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: ./engine/interface-diff.txt
