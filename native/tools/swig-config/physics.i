@@ -4,6 +4,8 @@
 // Note: doesn't support number prefix
 %module(target_namespace="jsb.physics") physics
 
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
