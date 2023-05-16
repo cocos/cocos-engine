@@ -187,7 +187,7 @@ export class TAAPass extends SettingPass {
 
         const layoutName = `DeferredTAA${this.taaTextureIndex < 0 ? -1 : (this.taaTextureIndex % 2)}`;
         passContext
-            .addRasterPass(layoutName, `CameraTAAPass${cameraID}`)
+            .addRenderPass(layoutName, `CameraTAAPass${cameraID}`)
             .setPassInput(input0, 'inputTexture')
             .setPassInput(depthTex, 'depthTex')
             .setPassInput(historyTexture, 'taaPrevTexture')

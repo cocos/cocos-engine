@@ -376,7 +376,7 @@ struct CopyPair {
     CopyPair(CopyPair const& rhs, const allocator_type& alloc);
 
     CopyPair(CopyPair&& rhs) noexcept = default;
-    CopyPair(CopyPair const& rhs) = delete;
+    CopyPair(CopyPair const& rhs) = default;
     CopyPair& operator=(CopyPair&& rhs) = default;
     CopyPair& operator=(CopyPair const& rhs) = default;
 
@@ -404,7 +404,7 @@ struct MovePair {
     MovePair(MovePair const& rhs, const allocator_type& alloc);
 
     MovePair(MovePair&& rhs) noexcept = default;
-    MovePair(MovePair const& rhs) = delete;
+    MovePair(MovePair const& rhs) = default;
     MovePair& operator=(MovePair&& rhs) = default;
     MovePair& operator=(MovePair const& rhs) = default;
 

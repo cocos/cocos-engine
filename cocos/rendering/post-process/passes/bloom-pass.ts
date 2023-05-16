@@ -38,7 +38,7 @@ export class BloomPass extends SettingPass {
         passContext.material.setProperty('texSize', new Vec4(0, 0, setting.threshold, 0), 0);
         passContext
             .updatePassViewPort(shadingScale)
-            .addRasterPass('bloom-prefilter', `bloom-prefilter${cameraID}`)
+            .addRenderPass('bloom-prefilter', `bloom-prefilter${cameraID}`)
             .setPassInput(input, 'outputResultMap')
             .addRasterView(output, Format.RGBA8)
             .blitScreen(0)
@@ -53,7 +53,7 @@ export class BloomPass extends SettingPass {
             shadingScale /= 2;
             passContext
                 .updatePassViewPort(shadingScale)
-                .addRasterPass(`bloom-upsample${i}`, `bloom-upsample${i}${cameraID}`)
+                .addRenderPass(`bloom-upsample${i}`, `bloom-upsample${i}${cameraID}`)
                 .setPassInput(downSamplerInput, 'bloomTexture')
                 .addRasterView(bloomPassDownSampleRTName, Format.RGBA8)
                 .blitScreen(BLOOM_DOWNSAMPLEPASS_INDEX + i)
@@ -70,7 +70,7 @@ export class BloomPass extends SettingPass {
             shadingScale *= 2;
             passContext
                 .updatePassViewPort(shadingScale)
-                .addRasterPass(`bloom-downsample${i}`, `bloom-downsample${i}${cameraID}`)
+                .addRenderPass(`bloom-downsample${i}`, `bloom-downsample${i}${cameraID}`)
                 .setPassInput(upSamplerInput, 'bloomTexture')
                 .addRasterView(bloomPassUpSampleRTName, Format.RGBA8)
                 .blitScreen(BLOOM_UPSAMPLEPASS_INDEX + i)
@@ -81,7 +81,7 @@ export class BloomPass extends SettingPass {
         passContext.material.setProperty('texSize', new Vec4(0, 0, 0, setting.intensity), BLOOM_COMBINEPASS_INDEX);
         passContext
             .updatePassViewPort()
-            .addRasterPass(`bloom-combine`, `bloom-combine${cameraID}`)
+            .addRenderPass(`bloom-combine`, `bloom-combine${cameraID}`)
             .setPassInput(input, 'outputResultMap')
             .setPassInput(`dsBloomPassUpSampleColor${cameraName}${0}`, 'bloomTexture')
             .addRasterView(this.slotName(camera, 0), Format.RGBA8)

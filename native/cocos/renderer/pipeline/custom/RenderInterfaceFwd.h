@@ -42,21 +42,21 @@ namespace render {
 class PipelineRuntime;
 class RenderNode;
 class Setter;
-class RasterQueueBuilder;
-class RasterSubpassBuilder;
+class RenderQueueBuilder;
+class RenderSubpassBuilder;
 class ComputeQueueBuilder;
 class ComputeSubpassBuilder;
 class BasicRenderPassBuilder;
-class RasterPassBuilder;
+class RenderPassBuilder;
 class ComputePassBuilder;
-class MovePassBuilder;
-class CopyPassBuilder;
 class SceneVisitor;
 class SceneTask;
 class SceneTransversal;
 
 enum class PipelineType;
+enum class SubpassCapabilities : uint32_t;
 
+struct PipelineCapabilities;
 class BasicPipeline;
 class Pipeline;
 class PipelineBuilder;
