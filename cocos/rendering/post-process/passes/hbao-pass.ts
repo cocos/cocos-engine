@@ -117,15 +117,11 @@ class HBAOParams {
         const width = 4;
         const height = 4;
         const pixelFormat = Texture2D.PixelFormat.RGBA8888;
-        const arrayBuffer = new ArrayBuffer(width * height * 4);
-        const arrayBufferView = new DataView(arrayBuffer);
-        for (let i = 0; i < this._randomDirAndJitter.length; i++) {
-            arrayBufferView.setUint8(i, this._randomDirAndJitter[i]);
-        }
+
         const image = new ImageAsset({
             width,
             height,
-            _data: arrayBufferView,
+            _data: new Uint8Array(this._randomDirAndJitter),
             _compressed: false,
             format: pixelFormat,
         });
@@ -227,7 +223,7 @@ export class HBAOPass extends SettingPass {
         if (root.debugView) {
             if (root.debugView.isEnabled()
                 && (root.debugView.singleMode !== DebugViewSingleType.NONE && root.debugView.singleMode !== DebugViewSingleType.AO
-                || !root.debugView.isCompositeModeEnabled(DebugViewCompositeType.AO))) {
+                    || !root.debugView.isCompositeModeEnabled(DebugViewCompositeType.AO))) {
                 this.enable = false;
             }
         }
@@ -237,7 +233,7 @@ export class HBAOPass extends SettingPass {
         const hbaoInfo = this._renderHBAOPass(camera, inputDS);
         let hbaoCombinedInputRTName = hbaoInfo.rtName;
         if (this.setting.needBlur) {
-            const haboBlurInfoX =  this._renderHBAOBlurPass(camera, hbaoInfo.rtName, inputDS, false);
+            const haboBlurInfoX = this._renderHBAOBlurPass(camera, hbaoInfo.rtName, inputDS, false);
             const haboBlurInfoY = this._renderHBAOBlurPass(camera, haboBlurInfoX.rtName, inputDS, true);
             hbaoCombinedInputRTName = haboBlurInfoY.rtName;
         }
@@ -249,7 +245,7 @@ export class HBAOPass extends SettingPass {
 
         const passIdx = this.HBAO_PASS_INDEX;
         passContext.material = this.material;
-        this.material.setProperty('uvDepthToEyePosParams',  this._hbaoParams.uvDepthToEyePosParams, passIdx);
+        this.material.setProperty('uvDepthToEyePosParams', this._hbaoParams.uvDepthToEyePosParams, passIdx);
         this.material.setProperty('radiusParam', this._hbaoParams.radiusParam, passIdx);
         this.material.setProperty('miscParam', this._hbaoParams.miscParam, passIdx);
         this.material.setProperty('randomTexSize',
@@ -267,7 +263,7 @@ export class HBAOPass extends SettingPass {
         const outputRT = super.slotName(camera, 0);
         const layoutName = 'hbao-pass';
         const passName = `CameraHBAOPass${cameraID}`;
-        passContext.addRenderPass(layoutName, passName)
+        passContext.addRasterPass(layoutName, passName)
             .setPassInput(inputDS, 'DepthTex')
             .addRasterView(outputRT, Format.BGRA8)
             .blitScreen(passIdx)
@@ -283,7 +279,7 @@ export class HBAOPass extends SettingPass {
 
         const passIdx = isYPass ? this.HBAO_BLUR_Y_PASS_INDEX : this.HBAO_BLUR_X_PASS_INDEX;
         passContext.material = this.material;
-        this.material.setProperty('uvDepthToEyePosParams',  this._hbaoParams.uvDepthToEyePosParams, passIdx);
+        this.material.setProperty('uvDepthToEyePosParams', this._hbaoParams.uvDepthToEyePosParams, passIdx);
         this.material.setProperty('radiusParam', this._hbaoParams.radiusParam, passIdx);
         this.material.setProperty('miscParam', this._hbaoParams.miscParam, passIdx);
         this.material.setProperty('randomTexSize',
@@ -304,7 +300,7 @@ export class HBAOPass extends SettingPass {
             layoutName = 'blury-pass';
             passName = `CameraHBAOBluredYPass${cameraID}`;
         }
-        passContext.addRenderPass(layoutName, passName)
+        passContext.addRasterPass(layoutName, passName)
             .setPassInput(inputRT, 'AOTexNearest')
             .setPassInput(inputDS, 'DepthTex')
             .addRasterView(outputRT, Format.BGRA8)
@@ -319,7 +315,7 @@ export class HBAOPass extends SettingPass {
 
         const passIdx = this.HBAO_COMBINED_PASS_INDEX;
         passContext.material = this.material;
-        this.material.setProperty('uvDepthToEyePosParams',  this._hbaoParams.uvDepthToEyePosParams, passIdx);
+        this.material.setProperty('uvDepthToEyePosParams', this._hbaoParams.uvDepthToEyePosParams, passIdx);
         this.material.setProperty('radiusParam', this._hbaoParams.radiusParam, passIdx);
         this.material.setProperty('miscParam', this._hbaoParams.miscParam, passIdx);
         this.material.setProperty('randomTexSize',
@@ -336,7 +332,7 @@ export class HBAOPass extends SettingPass {
 
         const layoutName = 'combine-pass';
         const passName = `CameraHBAOCombinedPass${cameraID}`;
-        passContext.addRenderPass(layoutName, passName)
+        passContext.addRasterPass(layoutName, passName)
             .setPassInput(inputRT, 'AOTexNearest')
             .addRasterView(outputRT, Format.BGRA8)
             .blitScreen(passIdx)
