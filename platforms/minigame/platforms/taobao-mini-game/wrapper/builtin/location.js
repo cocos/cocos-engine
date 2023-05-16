@@ -1,7 +1,8 @@
-var location = {
+const location = {
   href: 'game.js',
-  reload() {
-  }
-}
+  protocol: '',
+  reload () {
+  },
+};
 
-export default location
+export default location;

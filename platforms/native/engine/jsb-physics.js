@@ -42,6 +42,16 @@ const CollisionEventObject = {
     impl: null,
 };
 
+const CCTShapeEventObject = {
+    type: 'onColliderHit',
+    selfCCT: null,
+    otherCollider: null,
+    worldPosition: null,
+    worldNormal: null,
+    motionDirection: null,
+    motionLength: 0,
+};
+
 function emitTriggerEvent (t, c0, c1, impl) {
     TriggerEventObject.type = t;
     TriggerEventObject.impl = impl;
@@ -128,6 +138,18 @@ function emitCollisionEvent (t, c0, c1, impl, b) {
     }
 }
 
+function emitCCTShapeEvent (t, cct, collider, b) {
+    CCTShapeEventObject.type = t;
+
+    const contactCount = b.length / 10;
+    CCTShapeEventObject.worldPosition = new cc.Vec3(b[0], b[1], b[2]);
+    CCTShapeEventObject.worldNormal = new cc.Vec3(b[3], b[4], b[5]);
+    CCTShapeEventObject.motionDirection = new cc.Vec3(b[6], b[7], b[8]);
+    CCTShapeEventObject.motionLength = b[9];
+    CCTShapeEventObject.otherCollider = collider;
+    cct.emit(t, cct, collider, CCTShapeEventObject);
+}
+
 class PhysicsWorld {
     get impl () { return this._impl; }
     constructor () { this._impl = new jsbPhy.World(); }
@@ -183,6 +205,7 @@ class PhysicsWorld {
     emitEvents () {
         this.emitTriggerEvent();
         this.emitCollisionEvent();
+        this.emitCCTShapeEvent();
         this._impl.emitEvents();
     }
 
@@ -235,6 +258,19 @@ class PhysicsWorld {
             } else {
                 emitCollisionEvent('onCollisionExit', c0, c1, ceps, ceps[t + 3]);
             }
+        }
+    }
+
+    emitCCTShapeEvent () {
+        const events = this._impl.getCCTShapeEventPairs();
+        const len2 = events.length / 3;
+        for (let i = 0; i < len2; i++) {
+            const t = i * 3;
+            const cct = ptrToObj[events[t + 0]]; const shape = ptrToObj[events[t + 1]];
+            if (!cct || !shape) continue;
+            const c0 = cct.characterController; const c1 = shape.collider;
+            if (!(c0 && c0.isValid && c1 && c1.isValid)) continue;
+            emitCCTShapeEvent('onColliderHit', c0, c1, events[t + 2]);
         }
     }
 }
@@ -643,6 +679,91 @@ class FixedJoint extends Joint {
     }
 }
 
+class CharacterController {
+    get impl () { return this._impl; }
+    get characterController () { return this._com; }
+    constructor () { updateCollisionMatrix(); }
+    initialize (com) {
+        this._com = com;
+        const inited = this._impl.initialize(com.node);
+        ptrToObj[this._impl.getObjectID()] = this;
+        return inited;
+    }
+    onLoad () {
+        this.setGroup(this._com.group);
+        const cm = cc.PhysicsSystem.instance.collisionMatrix;
+        const mask = cm[this._com.group];
+        this.setMask(mask);
+
+        this.setCenter(this._com.center);
+        this.setStepOffset(this._com.stepOffset);
+        this.setSlopeLimit(this._com.slopeLimit);
+        this.setContactOffset(this._com.contactOffset);
+        this.setDetectCollisions(true);//this._com.detectCollisions);
+        this.setOverlapRecovery(true);//this._com.enableOverlapRecovery);
+    }
+    onEnable () { this._impl.onEnable(); }
+    onDisable () { this._impl.onDisable(); }
+    onDestroy () {
+        delete ptrToObj[this._impl.getObjectID()];
+        ptrToObj[this._impl.getObjectID()] = null;
+        this._impl.onDestroy();
+    }
+
+    onGround () { return this._impl.onGround(); }
+    move (v, minDist, dt) { return this._impl.move(v.x, v.y, v.z, minDist, dt); }
+
+    setPosition (v) { this._impl.setPosition(v.x, v.y, v.z); }
+    getPosition () { return this._impl.getPosition(); }
+    setStepOffset (v) { this._impl.setStepOffset(v); }
+    getStepOffset () { return this._impl.getStepOffset(); }
+    setSlopeLimit (v) { this._impl.setSlopeLimit(v); }
+    getSlopeLimit () { return this._impl.getSlopeLimit(); }
+    setContactOffset (v) { this._impl.setContactOffset(v); }
+    getContactOffset () { return this._impl.getContactOffset(); }
+    setDetectCollisions (v) { this._impl.setDetectCollisions(v); }
+    setOverlapRecovery (v) { this._impl.setOverlapRecovery(v); }
+    setCenter (v) { this._impl.setCenter(v.x, v.y, v.z); }
+
+    updateEventListener () {
+        let flag = 0;
+        if (this._com.needTriggerEvent) flag |= ESHAPE_FLAG.DETECT_TRIGGER_EVENT;
+        this._impl.updateEventListener(flag);
+    }
+    setGroup (v) { this._impl.setGroup(v); }
+    getGroup () { return this._impl.getGroup(); }
+    addGroup (v) { this.setGroup(this.getGroup() | v); }
+    removeGroup (v) { this.setGroup(this.getGroup() & ~v); }
+    setMask (v) { this._impl.setMask(v >>> 0); }
+    getMask () { return this._impl.getMask(); }
+    addMask (v) { this.setMask(this.getMask() | v); }
+    removeMask (v) { this.setMask(this.getMask() & ~v); }
+}
+
+class CapsuleCharacterController extends CharacterController {
+    constructor () { super(); this._impl = new jsbPhy.CapsuleCharacterController(); }
+    setRadius (v) { this._impl.setRadius(v); }
+    setHeight (v) { this._impl.setHeight(v); }
+    onLoad () {
+        super.onLoad();
+        this.setRadius(this._com.radius);
+        this.setHeight(this._com.height);
+    }
+}
+
+class BoxCharacterController extends CharacterController {
+    constructor () { super(); this._impl = new jsbPhy.BoxCharacterController(); }
+    setHalfHeight (v) { this._impl.setHalfHeight(v); }
+    setHalfSideExtent (v) { this._impl.setHalfSideExtent(v); }
+    setHalfForwardExtent (v) { this._impl.setHalfForwardExtent(v); }
+    onLoad () {
+        super.onLoad();
+        this.setHalfHeight(this._com.halfHeight);
+        this.setHalfSideExtent(this._com.halfSideExtent);
+        this.setHalfForwardExtent(this._com.halfForwardExtent);
+    }
+}
+
 cc.physics.selector.register('physx', {
     PhysicsWorld,
     RigidBody,
@@ -657,4 +778,6 @@ cc.physics.selector.register('physx', {
     PointToPointConstraint: SphericalJoint,
     HingeConstraint: RevoluteJoint,
     FixedConstraint: FixedJoint,
+    CapsuleCharacterController,
+    BoxCharacterController,
 });

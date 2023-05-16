@@ -2,7 +2,7 @@ import { EDITOR } from 'internal:constants';
 
 import { AccessType, AttachmentType, ComputeView, QueueHint, RasterView, ResourceResidency, SceneFlags } from '../../custom/types';
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
-import { Pipeline, RasterPassBuilder } from '../../custom/pipeline';
+import { Pipeline, RenderPassBuilder } from '../../custom/pipeline';
 import { Camera } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
 import { PostProcess } from '../components';
@@ -16,7 +16,7 @@ export class PassContext {
     ppl: Pipeline| undefined
     camera: Camera| undefined
     material: Material| undefined
-    pass: RasterPassBuilder| undefined
+    pass: RenderPassBuilder| undefined
     rasterWidth = 0
     rasterHeight = 0
     layoutName = ''
@@ -49,10 +49,10 @@ export class PassContext {
         Vec4.set(passContext.clearColor, 0, 0, 0, 1);
     }
 
-    addRasterPass (layoutName: string, passName: string) {
+    addRenderPass (layoutName: string, passName: string) {
         const passViewport = this.passViewport;
 
-        const pass = this.ppl!.addRasterPass(passViewport.width, passViewport.height, layoutName);
+        const pass = this.ppl!.addRenderPass(passViewport.width, passViewport.height, layoutName);
         pass.name = passName;
         this.pass = pass;
         this.layoutName = layoutName;

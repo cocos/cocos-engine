@@ -267,7 +267,7 @@ export class HBAOPass extends SettingPass {
         const outputRT = super.slotName(camera, 0);
         const layoutName = 'hbao-pass';
         const passName = `CameraHBAOPass${cameraID}`;
-        passContext.addRasterPass(layoutName, passName)
+        passContext.addRenderPass(layoutName, passName)
             .setPassInput(inputDS, 'DepthTex')
             .addRasterView(outputRT, Format.BGRA8)
             .blitScreen(passIdx)
@@ -304,7 +304,7 @@ export class HBAOPass extends SettingPass {
             layoutName = 'blury-pass';
             passName = `CameraHBAOBluredYPass${cameraID}`;
         }
-        passContext.addRasterPass(layoutName, passName)
+        passContext.addRenderPass(layoutName, passName)
             .setPassInput(inputRT, 'AOTexNearest')
             .setPassInput(inputDS, 'DepthTex')
             .addRasterView(outputRT, Format.BGRA8)
@@ -336,7 +336,7 @@ export class HBAOPass extends SettingPass {
 
         const layoutName = 'combine-pass';
         const passName = `CameraHBAOCombinedPass${cameraID}`;
-        passContext.addRasterPass(layoutName, passName)
+        passContext.addRenderPass(layoutName, passName)
             .setPassInput(inputRT, 'AOTexNearest')
             .addRasterView(outputRT, Format.BGRA8)
             .blitScreen(passIdx)
