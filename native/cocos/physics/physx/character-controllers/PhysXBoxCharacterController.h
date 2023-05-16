@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,23 +24,31 @@
 
 #pragma once
 
-#if defined(USE_PHYSICS_BULLET)
-    #include "physics/bullet/Bullet.h"
-#else
-    #include "physics/physx/PhysX.h"
-    #define WrappedWorld                        PhysXWorld
-    #define WrappedRigidBody                    PhysXRigidBody
-    #define WrappedSphereShape                  PhysXSphere
-    #define WrappedBoxShape                     PhysXBox
-    #define WrappedPlaneShape                   PhysXPlane
-    #define WrappedCapsuleShape                 PhysXCapsule
-    #define WrappedTrimeshShape                 PhysXTrimesh
-    #define WrappedTerrainShape                 PhysXTerrain
-    #define WrappedConeShape                    PhysXCone
-    #define WrappedCylinderShape                PhysXCylinder
-    #define WrappedRevoluteJoint                PhysXRevolute
-    #define WrappedFixedJoint                   PhysXFixedJoint
-    #define WrappedDistanceJoint                PhysXSpherical
-    #define WrappedCapsuleCharacterController   PhysXCapsuleCharacterController
-    #define WrappedBoxCharacterController       PhysXBoxCharacterController
-#endif
+#include "physics/physx/character-controllers/PhysXCharacterController.h"
+
+namespace cc {
+namespace physics {
+
+class PhysXBoxCharacterController final : public PhysXCharacterController, public IBoxCharacterController {
+public:
+    PhysXBoxCharacterController();
+    ~PhysXBoxCharacterController() override = default;
+    
+    // IBoxCharacterController
+    void setHalfHeight(float v) override;
+    void setHalfSideExtent(float v) override;
+    void setHalfForwardExtent(float v) override;
+    // IBoxCharacterController END
+
+private:
+    float _mHalfHeight;
+    float _mHalfSideExtent;
+    float _mHalfForwardExtent;
+    void create() override;
+    void onComponentSet() override;
+    void updateScale() override;
+    void updateGeometry();
+};
+
+} // namespace physics
+} // namespace cc

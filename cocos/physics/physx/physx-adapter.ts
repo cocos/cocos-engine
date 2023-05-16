@@ -38,13 +38,15 @@ import { BYTEDANCE, DEBUG, EDITOR, TEST, WASM_SUPPORT_MODE } from 'internal:cons
 import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
-import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem } from '../framework';
+import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem, CharacterControllerContact } from '../framework';
 import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
 import { Node } from '../../scene-graph';
 import { Director, director, game } from '../../game';
+import { degreesToRadians } from '../../core/utils/misc';
+import { PhysXCharacterController } from './character-controllers/physx-character-controller';
 
 export const PX = {} as any;
 const globalThis = cclegacy._global;
@@ -645,6 +647,7 @@ export function initializeWorld (world: any) {
 
         const sceneDesc = PX.getDefaultSceneDesc(PhysXInstance.physics.getTolerancesScale(), 0, PhysXInstance.simulationCB);
         world.scene = PhysXInstance.physics.createScene(sceneDesc);
+        world.controllerManager = PX.PxCreateControllerManager(world.scene, false);
     }
 }
 
