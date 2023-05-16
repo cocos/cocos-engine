@@ -67,6 +67,12 @@ export enum EConstraintType {
 }
 Enum(EConstraintType);
 
+export enum ECharacterControllerType {
+    BOX,
+    CAPSULE,
+}
+Enum(ECharacterControllerType);
+
 export enum PhysicsGroup {
     DEFAULT = 1,
 }

@@ -262,7 +262,7 @@ using namespace cc;
 %attribute(cc::scene::Pass, cc::IProgramInfo*, shaderInfo, getShaderInfo);
 %attribute(cc::scene::Pass, cc::gfx::DescriptorSetLayout*, localSetLayout, getLocalSetLayout);
 %attribute(cc::scene::Pass, ccstd::string&, program, getProgram);
-%attribute(cc::scene::Pass, %arg(ccstd::unordered_map<ccstd::string, cc::IPropertyInfo> &), properties, getProperties);
+%attribute(cc::scene::Pass, cc::PassPropertyInfoMap& , properties, getProperties);
 %attribute(cc::scene::Pass, cc::MacroRecord&, defines, getDefines);
 %attribute(cc::scene::Pass, index_t, passIndex, getPassIndex);
 %attribute(cc::scene::Pass, index_t, propertyIndex, getPropertyIndex);

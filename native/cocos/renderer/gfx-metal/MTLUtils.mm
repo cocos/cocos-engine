@@ -937,8 +937,6 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
 
     // The SPIR-V is now parsed, and we can perform reflection on it.
     auto executionModel = msl.get_execution_model();
-    spirv_cross::MSLResourceBinding newBinding;
-    newBinding.stage = executionModel;
     auto active = msl.get_active_interface_variables();
     spirv_cross::ShaderResources resources = msl.get_shader_resources(active);
     msl.set_enabled_interface_variables(std::move(active));
@@ -976,23 +974,24 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         }
 
         uint32_t fakeHash = set * 128 + binding;
-        if (gpuShader->blocks.find(fakeHash) == gpuShader->blocks.end()) {
-            auto mappedBinding = gpuShader->bufferIndex;
-            newBinding.desc_set = set;
-            newBinding.binding = binding;
+        spirv_cross::MSLResourceBinding newBinding;
+        newBinding.stage = executionModel;
+        auto mappedBinding = gpuShader->bufferIndex;
+        newBinding.desc_set = set;
+        newBinding.binding = binding;
+        if (gpuShader->resourceBinding.find(fakeHash) == gpuShader->resourceBinding.end()) {
             newBinding.msl_buffer = mappedBinding;
-            msl.add_msl_resource_binding(newBinding);
             gpuShader->blocks[fakeHash] = {ubo.name, set, binding, mappedBinding, shaderType, size};
+            gpuShader->resourceBinding[fakeHash] = {mappedBinding, 0, 0};
+            ++gpuShader->bufferIndex;
         } else {
-            auto mappedBinding = gpuShader->blocks[fakeHash].mappedBinding;
-            newBinding.desc_set = set;
-            newBinding.binding = binding;
-            newBinding.msl_buffer = mappedBinding;
-            msl.add_msl_resource_binding(newBinding);
             gpuShader->blocks[fakeHash].stages |= shaderType;
+            gpuShader->resourceBinding[fakeHash].bufferBinding = gpuShader->blocks[fakeHash].mappedBinding;
+            newBinding.msl_sampler = gpuShader->resourceBinding[fakeHash].samplerBinding;
+            newBinding.msl_texture = gpuShader->resourceBinding[fakeHash].textureBinding;
+            newBinding.msl_buffer = gpuShader->resourceBinding[fakeHash].bufferBinding;
         }
-        //msl.set_decoration(ubo.id, spv::DecorationLocation, gpuShader->blocks[nameHash].mappedBinding);
-        ++gpuShader->bufferIndex;
+        msl.add_msl_resource_binding(newBinding);
     }
 
     for (const auto &ubo : resources.storage_buffers) {
@@ -1005,23 +1004,25 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         }
 
         uint32_t fakeHash = set * 128 + binding;
-        if (gpuShader->blocks.find(fakeHash) == gpuShader->blocks.end()) {
-            auto mappedBinding = gpuShader->bufferIndex;
-            newBinding.desc_set = set;
-            newBinding.binding = binding;
-            newBinding.msl_buffer = mappedBinding;
-            msl.add_msl_resource_binding(newBinding);
+        spirv_cross::MSLResourceBinding newBinding;
+        newBinding.stage = executionModel;
+        auto mappedBinding = gpuShader->bufferIndex;
+        newBinding.desc_set = set;
+        newBinding.binding = binding;
+        newBinding.msl_buffer = mappedBinding;
+        if (gpuShader->resourceBinding.find(fakeHash) == gpuShader->resourceBinding.end()) {
             gpuShader->blocks[fakeHash] = {ubo.name, set, binding, mappedBinding, shaderType, size};
+            gpuShader->resourceBinding[fakeHash] = {mappedBinding, 0, 0};
+            ++gpuShader->bufferIndex;
         } else {
             auto mappedBinding = gpuShader->blocks[fakeHash].mappedBinding;
-            newBinding.desc_set = set;
-            newBinding.binding = binding;
-            newBinding.msl_buffer = mappedBinding;
-            msl.add_msl_resource_binding(newBinding);
             gpuShader->blocks[fakeHash].stages |= shaderType;
+            gpuShader->resourceBinding[fakeHash].bufferBinding = mappedBinding;
+            newBinding.msl_sampler = gpuShader->resourceBinding[fakeHash].samplerBinding;
+            newBinding.msl_texture = gpuShader->resourceBinding[fakeHash].textureBinding;
+            newBinding.msl_buffer = gpuShader->resourceBinding[fakeHash].bufferBinding;
         }
-        //msl.set_decoration(ubo.id, spv::DecorationLocation, gpuShader->blocks[nameHash].mappedBinding);
-        ++gpuShader->bufferIndex;
+        msl.add_msl_resource_binding(newBinding);
     }
 
     //TODO: coulsonwang, need to set sampler binding explicitly
@@ -1043,18 +1044,27 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
 
         for (int i = 0; i < size; ++i) {
             auto mappedBinding = gpuShader->samplerIndex + rtOffsets;
+            uint32_t fakeHash = set * 128 + binding;
+            spirv_cross::MSLResourceBinding newBinding;
+            newBinding.stage = executionModel;
             newBinding.desc_set = set;
             newBinding.binding = binding + i;
             newBinding.msl_texture = mappedBinding;
             newBinding.msl_sampler = gpuShader->samplerIndex;
-            msl.add_msl_resource_binding(newBinding);
-
-            if (gpuShader->samplers.find(mappedBinding) == gpuShader->samplers.end()) {
+            
+            if(gpuShader->resourceBinding.find(fakeHash) == gpuShader->resourceBinding.end()) {
+                gpuShader->resourceBinding[fakeHash] = {0, mappedBinding, mappedBinding};
                 gpuShader->samplers[mappedBinding] = {sampler.name, set, binding, newBinding.msl_texture, newBinding.msl_sampler, shaderType};
+                ++gpuShader->samplerIndex;
             } else {
+                gpuShader->resourceBinding[fakeHash].samplerBinding = mappedBinding;
+                gpuShader->resourceBinding[fakeHash].textureBinding = mappedBinding;
                 gpuShader->samplers[mappedBinding].stages |= shaderType;
+                newBinding.msl_buffer = gpuShader->resourceBinding[fakeHash].bufferBinding;
+                newBinding.msl_texture = gpuShader->resourceBinding[fakeHash].textureBinding;
+                newBinding.msl_sampler = gpuShader->resourceBinding[fakeHash].samplerBinding;
             }
-            ++gpuShader->samplerIndex;
+            msl.add_msl_resource_binding(newBinding);
         }
     }
 
@@ -1077,7 +1087,21 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
                 gpuShader->inputs[i].name = attachment.name;
                 auto set = msl.get_decoration(attachment.id, spv::DecorationDescriptorSet);
                 auto index = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
+                auto binding = msl.get_decoration(attachment.id, spv::DecorationBinding);
+                
+                spirv_cross::MSLResourceBinding textureBinding;
+                textureBinding.stage = executionModel;
+                uint32_t fakeHash = set * 128 + binding;
+                if(gpuShader->resourceBinding.find(fakeHash) == gpuShader->resourceBinding.end()) {
+                    gpuShader->resourceBinding[fakeHash] = {0, index, index};
+                } else {
+                    gpuShader->resourceBinding[fakeHash].samplerBinding = index;
+                    gpuShader->resourceBinding[fakeHash].textureBinding = index;
+                    textureBinding.msl_buffer = gpuShader->resourceBinding[fakeHash].bufferBinding;
+                }
                 msl.set_decoration(attachment.id, spv::DecorationBinding, index);
+                // avoid (set, index) collision
+                msl.set_decoration(attachment.id, spv::DecorationDescriptorSet, 4);
                 gpuShader->inputs[i].binding = index;
                 gpuShader->inputs[i].set = set;
             }

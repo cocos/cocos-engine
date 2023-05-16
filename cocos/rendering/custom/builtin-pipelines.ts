@@ -24,13 +24,13 @@
 
 import { EDITOR } from 'internal:constants';
 import { Camera, CameraUsage } from '../../render-scene/scene';
-import { Pipeline, PipelineBuilder } from './pipeline';
+import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { buildForwardPass, buildGBufferPass, buildLightingPass, buildPostprocessPass,
     buildReflectionProbePasss, buildUIPass } from './define';
 import { isUICamera } from './utils';
 
 export class ForwardPipelineBuilder implements PipelineBuilder {
-    public setup (cameras: Camera[], ppl: Pipeline): void {
+    public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene === null) {
@@ -46,7 +46,7 @@ export class ForwardPipelineBuilder implements PipelineBuilder {
 }
 
 export class DeferredPipelineBuilder implements PipelineBuilder {
-    public setup (cameras: Camera[], ppl: Pipeline): void {
+    public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; ++i) {
             const camera = cameras[i];
             if (!camera.scene) {

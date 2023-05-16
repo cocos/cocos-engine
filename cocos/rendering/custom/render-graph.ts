@@ -33,6 +33,7 @@ import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, RenderPass, SampleCount, Sampler, SamplerInfo, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
 import { ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
+import { RenderScene } from '../../render-scene/core/render-scene';
 
 export class ResourceDesc {
     dimension: ResourceDimension = ResourceDimension.BUFFER;
@@ -425,6 +426,7 @@ export class RasterPass {
     readonly viewport: Viewport = new Viewport();
     versionName = '';
     version = 0;
+    hashValue = 0;
     showStatistics = false;
 }
 
@@ -1098,6 +1100,7 @@ export class RenderQueue {
     }
     hint: QueueHint;
     phaseID: number;
+    viewport: Viewport | null = null;
 }
 
 export class SceneData {
@@ -1110,7 +1113,7 @@ export class SceneData {
     /*pointer*/ camera: Camera | null = null;
     readonly light: LightInfo;
     flags: SceneFlags;
-    readonly scenes: string[] = [];
+    readonly scenes: RenderScene[] = [];
 }
 
 export class Dispatch {

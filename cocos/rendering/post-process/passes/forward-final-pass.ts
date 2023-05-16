@@ -24,33 +24,23 @@ export class ForwardFinalPass extends BasePass {
         passContext.clearFlag = camera.clearFlag & ClearFlagBit.COLOR;
         Vec4.set(passContext.clearColor, camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w);
 
-        // passContext.clearFlag = ClearFlagBit.COLOR;
-        // Vec4.set(passContext.clearColor, 0, 0, 0, 1);
-
         passContext.material = this.material;
 
         const cameraID = getCameraUniqueID(camera);
-        const area = this.getRenderArea(camera);
-        let width = area.width;
-        let height = area.height;
 
         const input0 = this.lastPass.slotName(camera, 0);
         const slot0 = this.slotName(camera, 0);
 
-        const shadingScale = this.finalShadingScale();
-        const isOffScreen = director.root!.mainWindow !== camera.window;
-
-        if (!isOffScreen) {
-            width /= shadingScale;
-            height /= shadingScale;
-        }
+        const isOffScreen = false;//director.root!.mainWindow !== camera.window;
 
         const fb = camera.window.framebuffer;
         const ct = fb && fb.colorTextures[0];
         const format = ct ? ct.format : Format.RGBA8;
 
-        passContext.addRasterPass(width, height, 'post-process', `${this.name}${cameraID}`)
-            .setViewport(area.x, area.y, width, height)
+        const shadingScale = passContext.shadingScale;
+        passContext
+            .updatePassViewPort(1 / shadingScale, 1 / shadingScale)
+            .addRasterPass('post-process', `${this.name}${cameraID}`)
             .setPassInput(input0, 'inputTexture')
             .addRasterView(slot0, format, isOffScreen)
             .blitScreen(0);

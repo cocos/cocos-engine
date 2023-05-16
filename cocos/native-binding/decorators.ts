@@ -882,10 +882,11 @@ interface cc_SceneGlobals_Context_Args {
    SkyboxInfo: any;
    FogInfo: any;
    OctreeInfo: any;
+   SkinInfo: any;
    LightProbeInfo: any;
 }
 export function patch_cc_SceneGlobals(ctx: cc_SceneGlobals_Context_Args, apply = defaultExec) {
-  const { SceneGlobals, AmbientInfo, ShadowsInfo, SkyboxInfo, FogInfo, OctreeInfo, LightProbeInfo } = { ...ctx };
+  const { SceneGlobals, AmbientInfo, ShadowsInfo, SkyboxInfo, FogInfo, OctreeInfo, SkinInfo, LightProbeInfo } = { ...ctx };
   const skyboxDescriptor = Object.getOwnPropertyDescriptor(SceneGlobals.prototype, 'skybox');
   apply(() => { $.editable(SceneGlobals.prototype, 'ambient',  () => { return new AmbientInfo(); }); }, 'editable', 'ambient');
   apply(() => { $.serializable(SceneGlobals.prototype, 'ambient',  () => { return new AmbientInfo(); }); }, 'serializable', 'ambient');
@@ -898,6 +899,8 @@ export function patch_cc_SceneGlobals(ctx: cc_SceneGlobals_Context_Args, apply =
   apply(() => { $.editable(SceneGlobals.prototype, 'skybox',  skyboxDescriptor); }, 'editable', 'skybox');
   apply(() => { $.serializable(SceneGlobals.prototype, 'octree',  () => { return new OctreeInfo(); }); }, 'serializable', 'octree');
   apply(() => { $.editable(SceneGlobals.prototype, 'octree',  () => { return new OctreeInfo(); }); }, 'editable', 'octree');
+  apply(() => { $.serializable(SceneGlobals.prototype, 'skin',  () => { return new SkinInfo(); }); }, 'serializable', 'skin');
+  apply(() => { $.editable(SceneGlobals.prototype, 'skin',  () => { return new SkinInfo(); }); }, 'editable', 'skin');
   apply(() => { $.serializable(SceneGlobals.prototype, 'lightProbeInfo',  () => { return new LightProbeInfo(); }); }, 'serializable', 'lightProbeInfo');
   apply(() => { $.editable(SceneGlobals.prototype, 'lightProbeInfo',  () => { return new LightProbeInfo(); }); }, 'editable', 'lightProbeInfo');
   apply(() => { $.serializable(SceneGlobals.prototype, 'bakedWithStationaryMainLight',  () => { return false; }); }, 'serializable', 'bakedWithStationaryMainLight');

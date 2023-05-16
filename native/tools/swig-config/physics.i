@@ -35,7 +35,7 @@
 //
 %ignore cc::RefCounted;
 
-%rename("$ignore", regextarget=1, fullname=1) "cc::physics::I[A-Za-z0-9]*(?:Body|World|Shape|Joint|Lifecycle)$";
+%rename("$ignore", regextarget=1, fullname=1) "cc::physics::I[A-Za-z0-9]*(?:Body|World|Shape|Joint|CharacterController|Lifecycle)$";
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -110,8 +110,10 @@
 %import "physics/spec/IBody.h"
 %import "physics/spec/IShape.h"
 %import "physics/spec/IJoint.h"
+%import "physics/spec/ICharacterController.h"
 
 %include "physics/sdk/World.h"
 %include "physics/sdk/RigidBody.h"
 %include "physics/sdk/Shape.h"
 %include "physics/sdk/Joint.h"
+%include "physics/sdk/CharacterController.h"

@@ -259,6 +259,7 @@ CCProgram standard-vs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-vs>
   #include <shared-ubos>
@@ -299,6 +300,7 @@ CCProgram standard-fs %{
 
 CCProgram shadow-caster-fs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-fs>
   #include <shared-ubos>
