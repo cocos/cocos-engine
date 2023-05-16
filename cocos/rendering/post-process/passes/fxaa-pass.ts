@@ -31,7 +31,7 @@ export class FxaaPass extends SettingPass {
 
         passContext.material.setProperty('texSize', new Vec4(width, height, 1.0 / width, 1.0 / height), 0);
 
-        passContext.addRasterPass('fxaa', `fxaa${cameraID}`)
+        passContext.addRenderPass('fxaa', `fxaa${cameraID}`)
             .setPassInput(input, 'sceneColorMap')
             .addRasterView(output, Format.RGBA8)
             .blitScreen(0)

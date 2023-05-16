@@ -54,7 +54,7 @@ export class ForwardPass extends BasePass {
         const isOffScreen = true;
         passContext
             .updatePassViewPort()
-            .addRasterPass('default', `${this.name}_${cameraID}`)
+            .addRenderPass('default', `${this.name}_${cameraID}`)
             .addRasterView(slot0, Format.RGBA16F, isOffScreen)
             .addRasterView(slot1, Format.DEPTH_STENCIL, isOffScreen)
             .version();

@@ -53,6 +53,10 @@ physx::PxPhysics &PhysXWorld::getPhysics() {
     return *getInstance()._mPhysics;
 }
 
+physx::PxControllerManager &PhysXWorld::getControllerManager() {
+    return *getInstance()._mControllerManager;
+}
+
 PhysXWorld::PhysXWorld() {
     instance = this;
     static physx::PxDefaultAllocator gAllocator;
@@ -83,6 +87,8 @@ PhysXWorld::PhysXWorld() {
     sceneDesc.simulationEventCallback = &_mEventMgr->getEventCallback();
     _mScene = _mPhysics->createScene(sceneDesc);
 
+    _mControllerManager = PxCreateControllerManager(*_mScene);
+
     _mCollisionMatrix[0] = 1;
 
     createMaterial(0, 0.6F, 0.6F, 0.1F, 2, 2);
@@ -94,6 +100,7 @@ PhysXWorld::~PhysXWorld() {
     materialMap.clear();
     delete _mEventMgr;
     PhysXJoint::releaseTempRigidActor();
+    PX_RELEASE(_mControllerManager);
     PX_RELEASE(_mScene);
     PX_RELEASE(_mDispatcher);
     PX_RELEASE(_mPhysics);
@@ -219,6 +226,9 @@ void PhysXWorld::syncSceneToPhysics() {
     for (auto const &sb : _mSharedBodies) {
         sb->syncSceneToPhysics();
     }
+    for (auto const &cct : _mCCTs) {
+        cct->syncSceneToPhysics();
+    }
 }
 
 uint32_t PhysXWorld::getMaskByIndex(uint32_t i) {
@@ -229,6 +239,9 @@ uint32_t PhysXWorld::getMaskByIndex(uint32_t i) {
 void PhysXWorld::syncPhysicsToScene() {
     for (auto const &sb : _mSharedBodies) {
         sb->syncPhysicsToScene();
+    }
+    for (auto const &cct : _mCCTs) {
+        cct->syncPhysicsToScene();
     }
 }
 
@@ -258,6 +271,24 @@ void PhysXWorld::removeActor(const PhysXSharedBody &sb) {
     if (iter != end) {
         _mScene->removeActor(*(const_cast<PhysXSharedBody &>(sb).getImpl().rigidActor), true);
         _mSharedBodies.erase(iter);
+    }
+}
+
+void PhysXWorld::addCCT (const PhysXCharacterController &cct) {
+    auto beg = _mCCTs.begin();
+    auto end = _mCCTs.end();
+    auto iter = find(beg, end, &cct);
+    if (iter == end) {
+        _mCCTs.push_back(&const_cast<PhysXCharacterController &>(cct));
+    }
+}
+
+void PhysXWorld::removeCCT(const PhysXCharacterController&cct) {
+    auto beg = _mCCTs.begin();
+    auto end = _mCCTs.end();
+    auto iter = find(beg, end, &cct);
+    if (iter != end) {
+        _mCCTs.erase(iter);
     }
 }
 

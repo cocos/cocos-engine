@@ -34,8 +34,9 @@ import {
 } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IRigidBody } from '../spec/i-rigid-body';
+import { IBoxCharacterController, ICapsuleCharacterController } from '../spec/i-character-controller';
 import { errorID, IVec3Like, warn, cclegacy } from '../../core';
-import { EColliderType, EConstraintMode, EConstraintType } from './physics-enum';
+import { EColliderType, EConstraintType, ECharacterControllerType } from './physics-enum';
 import { PhysicsMaterial } from '.';
 
 export type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'ammo.js' | 'physx' | string;
@@ -43,6 +44,8 @@ export type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'ammo.js' | 'physx' | s
 interface IPhysicsWrapperObject {
     PhysicsWorld?: Constructor<IPhysicsWorld>,
     RigidBody?: Constructor<IRigidBody>,
+    BoxCharacterController?: Constructor<IBoxCharacterController>,
+    CapsuleCharacterController?: Constructor<ICapsuleCharacterController>,
     BoxShape?: Constructor<IBoxShape>,
     SphereShape?: Constructor<ISphereShape>,
     CapsuleShape?: Constructor<ICapsuleShape>,
@@ -226,6 +229,9 @@ enum ECheckType {
     ConeTwistConstraint,
     FixedConstraint,
     ConfigurableConstraint,
+    // CHARACTER CONTROLLER //
+    BoxCharacterController,
+    CapsuleCharacterController,
 }
 
 function check (obj: any, type: ECheckType) {
@@ -476,5 +482,62 @@ function initConstraintProxy () {
     CREATE_CONSTRAINT_PROXY[EConstraintType.CONFIGURABLE] = function createConfigurableConstraint (): IConfigurableConstraint {
         if (check(selector.wrapper.ConfigurableConstraint, ECheckType.ConfigurableConstraint)) { return ENTIRE_CONSTRAINT; }
         return new selector.wrapper.ConfigurableConstraint!();
+    };
+}
+
+/// CREATE CHARACTER CONTROLLER ///
+const CREATE_CHARACTER_CONTROLLER_PROXY = { INITED: false };
+
+interface IEntireCharacterController extends IBoxCharacterController, ICapsuleCharacterController { }
+const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
+    initialize: FUNC,
+    onLoad: FUNC,
+    onEnable: FUNC,
+    onDisable: FUNC,
+    onDestroy: FUNC,
+    onGround: FUNC,
+    getPosition: FUNC,
+    setPosition: FUNC,
+    setStepOffset: FUNC,
+    setSlopeLimit: FUNC,
+    setContactOffset: FUNC,
+    setDetectCollisions: FUNC,
+    setOverlapRecovery: FUNC,
+    setGroup: FUNC,
+    getGroup: FUNC,
+    addGroup: FUNC,
+    removeGroup: FUNC,
+    setMask: FUNC,
+    getMask: FUNC,
+    addMask: FUNC,
+    removeMask: FUNC,
+    move: FUNC,
+    updateEventListener: FUNC,
+    //IBoxCharacterController
+    setHalfHeight: FUNC,
+    setHalfSideExtent: FUNC,
+    setHalfForwardExtent: FUNC,
+    //ICapsuleCharacterController
+    setRadius: FUNC,
+    setHeight: FUNC,
+};
+
+export function createCharacterController (type: ECharacterControllerType): IEntireCharacterController {
+    initCharacterControllerProxy();
+    return CREATE_CHARACTER_CONTROLLER_PROXY[type]();
+}
+
+function initCharacterControllerProxy () {
+    if (CREATE_CHARACTER_CONTROLLER_PROXY.INITED) return;
+    CREATE_CHARACTER_CONTROLLER_PROXY.INITED = true;
+
+    CREATE_CHARACTER_CONTROLLER_PROXY[ECharacterControllerType.BOX] = function createBoxCharacterController (): IBoxCharacterController {
+        if (check(selector.wrapper.BoxCharacterController, ECheckType.BoxCharacterController)) { return ENTIRE_CHARACTER_CONTROLLER; }
+        return new selector.wrapper.BoxCharacterController!();
+    };
+
+    CREATE_CHARACTER_CONTROLLER_PROXY[ECharacterControllerType.CAPSULE] = function createCapsuleCharacterController (): ICapsuleCharacterController {
+        if (check(selector.wrapper.CapsuleCharacterController, ECheckType.CapsuleCharacterController)) { return ENTIRE_CHARACTER_CONTROLLER; }
+        return new selector.wrapper.CapsuleCharacterController!();
     };
 }

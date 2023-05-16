@@ -92,6 +92,12 @@ export enum EDriverMode {
 }
 Enum(EDriverMode);
 
+export enum ECharacterControllerType {
+    BOX,
+    CAPSULE,
+}
+Enum(ECharacterControllerType);
+
 export enum PhysicsGroup {
     DEFAULT = 1,
 }

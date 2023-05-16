@@ -36,6 +36,7 @@ cclegacy.physics = physics;
 export {
     PhysicsSystem,
     RigidBody,
+    CharacterController,
     ConstantForce,
     PhysicsMaterial,
     PhysicsRayResult,
@@ -57,6 +58,9 @@ export {
     FixedConstraint,
     PointToPointConstraint,
 
+    CapsuleCharacterController,
+    BoxCharacterController,
+
     EAxisDirection,
     ERigidBodyType,
     EColliderType,
@@ -70,6 +74,8 @@ export type {
     CollisionCallback,
     TriggerEventType,
     TriggerCallback,
+    CharacterCollisionEventType,
+    CharacterControllerContact,
 } from '../cocos/physics/framework';
 
 export * from '../cocos/physics/framework/deprecated';
