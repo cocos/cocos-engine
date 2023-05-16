@@ -327,38 +327,38 @@ uniform sampler2D AOTexNearest; //Sample_Point_Clamp
 
 float CrossBilateralWeight(float r, float d, float d0, float blurFalloff, float blurDepthThreshold)
 {
-	return exp2(-r*r*blurFalloff) * (abs(d - d0) < blurDepthThreshold ? 1.0 : 0.0);
+  return exp2(-r*r*blurFalloff) * (abs(d - d0) < blurDepthThreshold ? 1.0 : 0.0);
 }
 
 vec2 SumWeightedAO(int i, float centerCameraDepth, vec2 centerUV, vec2 sampleDir, float blurFalloff, float blurDepthThreshold)
 {
-	// step = 2
-	float r = 2.0 * float(i) + 0.5;
-	vec2 sampleUV = centerUV + r * sampleDir * g_InvFullResolution;
-	float d = GetLinearDepthBilinear(sampleUV);
-	float sampledAO = texture(AOTexNearest/*AOTexBilinear*/, sampleUV).x;
-	float w = CrossBilateralWeight(r, d, centerCameraDepth, blurFalloff, blurDepthThreshold);
-	return vec2(w * sampledAO, w);
+  // step = 2
+  float r = 2.0 * float(i) + 0.5;
+  vec2 sampleUV = centerUV + r * sampleDir * g_InvFullResolution;
+  float d = GetLinearDepthBilinear(sampleUV);
+  float sampledAO = texture(AOTexNearest/*AOTexBilinear*/, sampleUV).x;
+  float w = CrossBilateralWeight(r, d, centerCameraDepth, blurFalloff, blurDepthThreshold);
+  return vec2(w * sampledAO, w);
 }
 
 float BlurCore(vec2 uv, vec2 sampleDir)
 {
-	float ao = texture(AOTexNearest, uv).x;
+  float ao = texture(AOTexNearest, uv).x;
   float weight = 1.0;
-	float centerCameraDepth = GetLinearDepth(uv);
-	for(int i = -HALF_KERNEL_RADIUS; i <= HALF_KERNEL_RADIUS; i++)
-	{
-		vec2 aoAndW = SumWeightedAO(i, centerCameraDepth, uv, sampleDir, g_BlurFallOff, g_BlurDepthThreshold);
+  float centerCameraDepth = GetLinearDepth(uv);
+  for(int i = -HALF_KERNEL_RADIUS; i <= HALF_KERNEL_RADIUS; i++)
+  {
+    vec2 aoAndW = SumWeightedAO(i, centerCameraDepth, uv, sampleDir, g_BlurFallOff, g_BlurDepthThreshold);
     ao += aoAndW.x;
     weight += aoAndW.y;
-	}
-	return ao / weight;
+  }
+  return ao / weight;
 }
 
 ///////////////////////////////////////Composite
 #define g_AOSaturation blurParam.w
 float Combine(vec2 uv)
 {
-	float ao = texture(AOTexNearest, uv).x;
-  return pow(ao, g_AOSaturation);
+  float ao = texture(AOTexNearest, uv).x;
+  return g_AOSaturation > 1.0 ? pow(ao, g_AOSaturation) : mix(1.0, ao, g_AOSaturation);
 }
