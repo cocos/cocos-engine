@@ -32,6 +32,9 @@ import { PhysXRigidBody } from '../physx-rigid-body';
 import { PhysXWorld } from '../physx-world';
 import { PhysXJoint } from './physx-joint';
 
+const v3_0 = new Vec3();
+const quat_0 = new Quat();
+
 export class PhysXFixedJoint extends PhysXJoint implements IFixedConstraint {
     setBreakForce (v: number): void {
         this._breakForce = this.constraint.breakForce;
@@ -62,21 +65,18 @@ export class PhysXFixedJoint extends PhysXJoint implements IFixedConstraint {
         const cb = this.constraint.connectedBody;
         const bodyB = cb ? (cb.body as PhysXRigidBody).sharedBody : (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(bodyA.node);
 
-        const pos : Vec3 = new Vec3();
-        const rot : Quat = new Quat();
-
         const trans = new Mat4();
         Mat4.fromRT(trans, bodyA.node.worldRotation, bodyA.node.worldPosition);
         Mat4.invert(trans, trans);
-        Mat4.getRotation(rot, trans);
-        Mat4.getTranslation(pos, trans);
-        this._impl.setLocalPose(0, getTempTransform(pos, rot));
+        Mat4.getRotation(quat_0, trans);
+        Mat4.getTranslation(v3_0, trans);
+        this._impl.setLocalPose(0, getTempTransform(v3_0, quat_0));
 
         Mat4.fromRT(trans, bodyB.node.worldRotation, bodyB.node.worldPosition);
         Mat4.invert(trans, trans);
-        Mat4.getRotation(rot, trans);
-        Mat4.getTranslation(pos, trans);
-        this._impl.setLocalPose(1, getTempTransform(pos, rot));
+        Mat4.getRotation(quat_0, trans);
+        Mat4.getTranslation(v3_0, trans);
+        this._impl.setLocalPose(1, getTempTransform(v3_0, quat_0));
     }
 
     updateScale0 () {
