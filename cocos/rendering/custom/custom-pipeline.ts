@@ -27,45 +27,11 @@ import { Camera, CameraUsage } from '../../render-scene/scene';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { LightInfo, QueueHint, SceneFlags } from './types';
 import { AntiAliasing, buildBloomPass, buildForwardPass, buildFxaaPass, buildPostprocessPass, buildSSSSPass,
-    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject } from './define';
+    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject, buildHBAOPasses } from './define';
 import { isUICamera } from './utils';
 import { RenderWindow } from '../../render-scene/core/render-window';
 
 export class CustomPipelineBuilder implements PipelineBuilder {
-    public setup (cameras: Camera[], ppl: BasicPipeline): void {
-        for (let i = 0; i < cameras.length; i++) {
-            const camera = cameras[i];
-            if (camera.scene === null) {
-                continue;
-            }
-            const isGameView = camera.cameraUsage === CameraUsage.GAME
-                || camera.cameraUsage === CameraUsage.GAME_VIEW;
-            if (!isGameView) {
-                // forward pass
-                buildForwardPass(camera, ppl, isGameView);
-                continue;
-            }
-            // TODO: There is currently no effective way to judge the ui camera. Let’s do this first.
-            if (!isUICamera(camera)) {
-                // forward pass
-                const forwardInfo = buildForwardPass(camera, ppl, isGameView);
-                // fxaa pass
-                const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
-                // bloom passes
-                const bloomInfo = buildBloomPass(camera, ppl, fxaaInfo.rtName);
-                // tone map pass
-                const toneMappingInfo =  buildToneMappingPass(camera, ppl, bloomInfo.rtName, bloomInfo.dsName);
-                // Present Pass
-                buildPostprocessPass(camera, ppl, toneMappingInfo.rtName, AntiAliasing.NONE);
-                continue;
-            }
-            // render ui
-            buildUIPass(camera, ppl);
-        }
-    }
-}
-
-export class SkinPipelineBuilder implements PipelineBuilder {
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
@@ -88,9 +54,10 @@ export class SkinPipelineBuilder implements PipelineBuilder {
                 const skinInfo = buildSSSSPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
                 // deferred transparency objects
                 const deferredTransparencyInfo = buildTransparencyPass(camera, ppl, skinInfo.rtName, skinInfo.dsName, hasDeferredTransparencyObjects);
-                // todo: hbao pass
+                // hbao pass
+                const hbaoInfo = buildHBAOPasses(camera, ppl, deferredTransparencyInfo.rtName, deferredTransparencyInfo.dsName);
                 // tone map pass
-                const toneMappingInfo =  buildToneMappingPass(camera, ppl, deferredTransparencyInfo.rtName, deferredTransparencyInfo.dsName);
+                const toneMappingInfo =  buildToneMappingPass(camera, ppl, hbaoInfo.rtName, hbaoInfo.dsName);
                 // fxaa pass
                 const fxaaInfo = buildFxaaPass(camera, ppl, toneMappingInfo.rtName, toneMappingInfo.dsName);
                 // bloom passes
