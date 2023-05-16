@@ -27,7 +27,7 @@ import { CannonConstraint } from './cannon-constraint';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { HingeConstraint } from '../../framework';
 import { CannonRigidBody } from '../cannon-rigid-body';
-import { IVec3Like, Vec3 } from '../../../core';
+import { IVec3Like, Quat, Vec3 } from '../../../core';
 
 const v3_0 = new Vec3();
 
@@ -54,8 +54,8 @@ export class CannonHingeConstraint extends CannonConstraint implements IHingeCon
         } else {
             const node = this.constraint.node;
             Vec3.multiply(v3_0, node.worldScale, cs.pivotA);
+            Vec3.transformQuat(v3_0, v3_0, node.worldRotation);
             Vec3.add(v3_0, v3_0, node.worldPosition);
-            Vec3.add(v3_0, v3_0, cs.pivotB);
             Vec3.copy(this.impl.pivotB, v3_0);
         }
     }

@@ -82,14 +82,13 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
             // offset of axis in local frame of bodyB
             Vec3.multiply(v3_0, cb.node.worldScale, cs.pivotB);
             // rotation of axis in local frame of bodyB
-            Quat.invert(rot_0, node.worldRotation);
+            Quat.multiply(rot_1, node.worldRotation, rot_1);
+            Quat.invert(rot_0, cb.node.worldRotation);
             Quat.multiply(rot_1, rot_0, rot_1);
-            Quat.multiply(rot_1, cb.node.worldRotation, rot_1);
         } else {
             // offset of axis in local frame of bodyB
-            Quat.invert(rot_0, node.worldRotation);
-            Vec3.multiply(v3_0, node.worldScale, cs.pivotB);
-            Vec3.transformQuat(v3_0, v3_0, rot_0);
+            Vec3.multiply(v3_0, node.worldScale, cs.pivotA);
+            Vec3.transformQuat(v3_0, v3_0, node.worldRotation);
             Vec3.add(v3_0, v3_0, node.worldPosition);
             // rotation of axis in local frame of bodyB
             Quat.multiply(rot_1, node.worldRotation, rot_1);

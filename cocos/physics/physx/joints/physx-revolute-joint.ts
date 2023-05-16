@@ -48,25 +48,24 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
         const cb = cs.connectedBody;
         const pos = _trans.translation;
         const rot = _trans.rotation;
+        const node = cs.node;
 
         // rotation in local space body0
         Quat.rotationTo(this._rot, Vec3.UNIT_X, cs.axis);
 
         if (cb) {
             // orientation of axis in local space of body1
-            Quat.invert(rot, cs.node.worldRotation);
+            Quat.multiply(this._rot, node.worldRotation, this._rot);
+            Quat.invert(rot, cb.node.worldRotation);
             Quat.multiply(this._rot, rot, this._rot);
-            Quat.multiply(this._rot, cb.node.worldRotation, this._rot);
             // position in local space body0
             Vec3.multiply(pos, cb.node.worldScale, cs.pivotB);
         } else {
-            const node = cs.node;
             // orientation of axis in local space of body1
-            Quat.multiply(this._rot, cs.node.worldRotation, this._rot);
+            Quat.multiply(this._rot, node.worldRotation, this._rot);
             // position in world space
-            Quat.invert(rot, cs.node.worldRotation);
-            Vec3.multiply(pos, node.worldScale, cs.pivotB);
-            Vec3.transformQuat(pos, pos, rot);
+            Vec3.multiply(pos, node.worldScale, cs.pivotA);
+            Vec3.transformQuat(pos, pos, node.worldRotation);
             Vec3.add(pos, pos, node.worldPosition);
         }
         this._impl.setLocalPose(1, getTempTransform(pos, this._rot));
