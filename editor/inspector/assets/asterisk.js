@@ -7,12 +7,10 @@ const { TextLikeRead } = require('../utils/text-like-read.js');
 
 exports.template = /* html */`
 <section class="asset-asterisk">
-    <ui-code language="xml"></ui-code>
 </section>`;
 
 exports.$ = {
     container: '.asset-asterisk',
-    code: 'ui-code',
 };
 
 exports.style = /* css */`
@@ -29,16 +27,19 @@ exports.style = /* css */`
 `;
 
 exports.methods = {
-    renderContent(content) {
-
-        if (content) {
-            this.$.code.textContent = content;
-            this.$.code.style.display = 'block';
-        } else {
-            this.$.code.textContent = '';
-            this.$.code.style.display = 'none';
-        }
+    renderText() {
+        this.textLikeRead.read(this.asset.file).then(text => {
+            const code = document.createElement('ui-code');
+            code.setAttribute('language', 'xml');
+            code.textContent = text;
+            this.$.container.innerHTML = '';
+            this.$.container.appendChild(code);
+        });
     },
+};
+
+exports.ready = function() {
+    this.textLikeRead = new TextLikeRead();
 };
 
 exports.update = function(assetList, metaList) {
@@ -58,10 +59,8 @@ exports.update = function(assetList, metaList) {
     }
 
     const isTextLike = textLike.includes(extname(this.asset.name));
-    if (!isTextLike) { return; }
-
-    (new TextLikeRead()).read(this.asset.file).then(text => {
-        this.renderContent(text);
-    });
+    if (isTextLike) {
+        this.renderText();
+    }
 };
 
