@@ -38,7 +38,7 @@ import { Executor } from './executor';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { isEnableEffect, supportsR32FloatTexture, UBOSkinning } from '../define';
+import { isEnableEffect, supportsR32FloatTexture, supportsRGBA16FloatTexture, UBOSkinning } from '../define';
 import { OS } from '../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
 import { PipelineUBO } from '../pipeline-ubo';
@@ -1429,8 +1429,7 @@ export class WebPipeline implements BasicPipeline {
             : this._globalDescSetData.descriptorSet;
         this._globalDSManager.globalDescriptorSet = this.globalDescriptorSet;
         this.setMacroBool('CC_USE_HDR', this._pipelineSceneData.isHDR);
-        this.setMacroBool('CC_USE_FLOAT_OUTPUT', macro.ENABLE_FLOAT_OUTPUT && (!!(this._device.getFormatFeatures(Format.RGBA32F)
-            & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))));
+        this.setMacroBool('CC_USE_FLOAT_OUTPUT', macro.ENABLE_FLOAT_OUTPUT && supportsRGBA16FloatTexture(this._device));
         this._generateConstantMacros(false);
         this._pipelineSceneData.activate(this._device);
         this._pipelineUBO.activate(this._device, this);
