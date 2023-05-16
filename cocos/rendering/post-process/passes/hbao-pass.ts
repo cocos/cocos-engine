@@ -117,15 +117,14 @@ class HBAOParams {
         const width = 4;
         const height = 4;
         const pixelFormat = Texture2D.PixelFormat.RGBA8888;
-        const arrayBuffer = new ArrayBuffer(width * height * 4);
-        const arrayBufferView = new DataView(arrayBuffer);
+        const arrayBuffer = new Uint8Array(width * height * 4);
         for (let i = 0; i < this._randomDirAndJitter.length; i++) {
-            arrayBufferView.setUint8(i, this._randomDirAndJitter[i]);
+            arrayBuffer[i] = this._randomDirAndJitter[i];
         }
         const image = new ImageAsset({
             width,
             height,
-            _data: arrayBufferView,
+            _data: arrayBuffer,
             _compressed: false,
             format: pixelFormat,
         });
