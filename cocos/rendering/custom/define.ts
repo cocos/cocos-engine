@@ -1875,15 +1875,14 @@ class HBAOParams {
         const width = 4;
         const height = 4;
         const pixelFormat = Texture2D.PixelFormat.RGBA8888;
-        const arrayBuffer = new ArrayBuffer(width * height * 4);
-        const arrayBufferView = new DataView(arrayBuffer);
+        const arrayBuffer = new Uint8Array(width * height * 4);
         for (let i = 0; i < this._randomDirAndJitter.length; i++) {
-            arrayBufferView.setUint8(i, this._randomDirAndJitter[i]);
+            arrayBuffer[i] = this._randomDirAndJitter[i];
         }
         const image = new ImageAsset({
             width,
             height,
-            _data: arrayBufferView,
+            _data: arrayBuffer,
             _compressed: false,
             format: pixelFormat,
         });
@@ -2123,6 +2122,7 @@ export function buildHBAOPasses (camera: Camera,
     angleBiasDegree = 10.0,
     blurSharpness = 3,
     aoSaturation = 1.0,
+    aoStrength = 1.0,
     needBlur = true) {
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -2130,7 +2130,6 @@ export function buildHBAOPasses (camera: Camera,
 
     // params
     if (!_hbaoParams) _hbaoParams = new HBAOParams();
-    const aoStrength = 1.0;
     // todo: nearest object distance from camera
     const sceneScale = camera.nearClip;
     // todo: Half Res Depth Tex
