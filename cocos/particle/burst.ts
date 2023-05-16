@@ -168,14 +168,15 @@ export default class Burst {
     public update (psys, dt: number, parentParticle?: Particle) {
         if (this._remainingCount === 0) {
             this._remainingCount = this._repeatCount;
-            psys.startDelay.bake();
-            const startDelay: number = psys.startDelay.evaluate(0, random());
-            this._curTime = this._time + startDelay;
+            this._curTime = this._time;
         }
         if (this._remainingCount > 0) {
-            let preFrameTime = repeat(psys.time, psys.duration) - dt;
+            psys.startDelay.bake();
+            const startDelay: number = psys.startDelay.evaluate(0, random());
+
+            const curFrameTime = repeat(psys.time - startDelay, psys.duration);
+            let preFrameTime = curFrameTime - dt;
             preFrameTime = (preFrameTime > 0.0) ? preFrameTime : 0.0;
-            const curFrameTime = repeat(psys.time, psys.duration);
             if (this._curTime >= preFrameTime && this._curTime < curFrameTime) {
                 if (!parentParticle) {
                     this.count.bake();

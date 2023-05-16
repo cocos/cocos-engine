@@ -2009,15 +2009,6 @@ export class ParticleSystem extends ModelRenderer {
 
     // internal function
     private _emit (dt, parentParticle?: Particle) {
-        if (!parentParticle) {
-            // bursts
-            if (!this.loop && this.time <= this.duration) {
-                for (const burst of this.bursts) {
-                    burst.update(this, dt, parentParticle);
-                }
-            }
-        }
-
         // emit particles.
         this.startDelay.bake();
         const startDelay = this.startDelay.evaluate(0, random())!;
@@ -2057,6 +2048,11 @@ export class ParticleSystem extends ModelRenderer {
                     const emitNum = Math.floor(this._emitRateDistanceCounter);
                     this._emitRateDistanceCounter -= emitNum;
                     this.emit(emitNum, dt, parentParticle);
+                }
+
+                // bursts
+                for (const burst of this.bursts) {
+                    burst.update(this, dt, parentParticle);
                 }
             } else {
                 // emit by rateOverTime
