@@ -117,8 +117,9 @@ declare module 'pal/screen-adapter' {
          */
         public exitFullScreen (): Promise<void>;
 
-        on (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any)=>void, target?: any);
-        off (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb?: (...args: any)=>void, target?: any);
+        on (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any) => void, target?: any);
+        once (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any) => void, target?: any);
+        off (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb?: (...args: any) => void, target?: any);
     }
 
     export const screenAdapter: ScreenAdapter;
