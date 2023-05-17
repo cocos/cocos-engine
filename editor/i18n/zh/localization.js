@@ -1087,6 +1087,13 @@ module.exports = {
             torque: '在世界坐标系中，对刚体施加的扭转力',
             localTorque: '在本地坐标系中，对刚体施加的扭转力',
         },
+        constraint: {
+            hinge: {
+                pivotA: '在自身刚体的本地坐标系中，旋转轴的锚点位置',
+                pivotB: '在连接刚体的本地坐标系中，旋转轴的锚点位置',
+                axis: '在自身刚体的本地坐标系中，旋转轴的方向',
+            },
+        },
         character_controller: {
             group: '碰撞分组',
             minMoveDistance: '最小移动距离',
