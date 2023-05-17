@@ -24,7 +24,7 @@
 
 import { PhysicsSystem } from './physics-system';
 import { PhysicsMaterial } from './assets/physics-material';
-import { PhysicsRayResult } from './physics-ray-result';
+import { PhysicsRayResult, PhysicsLineStripCastResult } from './physics-ray-result';
 import { BoxCollider } from './components/colliders/box-collider';
 import { Collider } from './components/colliders/collider';
 import { SphereCollider } from './components/colliders/sphere-collider';
@@ -56,6 +56,7 @@ import * as utils from '../utils/util';
 export {
     PhysicsSystem,
     PhysicsRayResult,
+    PhysicsLineStripCastResult,
 
     Collider,
     BoxCollider,

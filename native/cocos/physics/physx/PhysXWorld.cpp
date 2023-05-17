@@ -361,6 +361,113 @@ RaycastResult &PhysXWorld::raycastClosestResult() {
     return hit;
 }
 
+bool PhysXWorld::sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
+        float orientationW, float orientationX, float orientationY, float orientationZ) {
+    return sweep(opt, physx::PxBoxGeometry{ halfExtentX, halfExtentY, halfExtentZ}, 
+        physx::PxQuat(orientationX, orientationY, orientationZ, orientationW));
+}
+
+bool PhysXWorld::sweepBoxClosest(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
+        float orientationW, float orientationX, float orientationY, float orientationZ) {
+    return sweepClosest(opt, physx::PxBoxGeometry{ halfExtentX, halfExtentY, halfExtentZ}, 
+        physx::PxQuat(orientationX, orientationY, orientationZ, orientationW));
+}
+
+bool PhysXWorld::sweepSphere(RaycastOptions &opt, float radius) {
+    return sweep(opt, physx::PxSphereGeometry{ radius }, physx::PxQuat(0, 0, 0, 1));
+}
+
+bool PhysXWorld::sweepSphereClosest(RaycastOptions &opt, float radius) {
+    return sweepClosest(opt, physx::PxSphereGeometry{ radius }, physx::PxQuat(0, 0, 0, 1));
+}
+
+bool PhysXWorld::sweepCapsule(RaycastOptions &opt, float radius, float height,
+        float orientationW, float orientationX, float orientationY, float orientationZ) {
+    //add an extra 90 degree rotation to PxCapsuleGeometry whose axis is originally along the X axis
+    physx::PxQuat finalOrientation = physx::PxQuat(physx::PxPiDivTwo, physx::PxVec3{0.F, 0.F, 1.F});
+    finalOrientation = physx::PxQuat(orientationX, orientationY, orientationZ, orientationW) * finalOrientation;
+    return sweep(opt, physx::PxCapsuleGeometry{ radius, height/2.f }, finalOrientation);
+}
+
+bool PhysXWorld::sweepCapsuleClosest(RaycastOptions &opt, float radius, float height,
+        float orientationW, float orientationX, float orientationY, float orientationZ) {
+    //add an extra 90 degree rotation to PxCapsuleGeometry whose axis is originally along the X axis
+    physx::PxQuat finalOrientation = physx::PxQuat(physx::PxPiDivTwo, physx::PxVec3{0.F, 0.F, 1.F});
+    finalOrientation = physx::PxQuat(orientationX, orientationY, orientationZ, orientationW) * finalOrientation;
+    return sweepClosest(opt, physx::PxCapsuleGeometry{ radius, height/2.f }, finalOrientation);
+}
+
+bool PhysXWorld::sweep(RaycastOptions &opt, const physx::PxGeometry &geometry, const physx::PxQuat &orientation) {
+    physx::PxQueryCache *cache = nullptr;
+    const auto o = opt.origin;
+    const auto ud = opt.unitDir;
+    physx::PxVec3 origin{o.x, o.y, o.z};
+    physx::PxVec3 unitDir{ud.x, ud.y, ud.z};
+    unitDir.normalize();
+    physx::PxTransform pose{origin, orientation};
+    physx::PxHitFlags flags = physx::PxHitFlag::ePOSITION | physx::PxHitFlag::eNORMAL;
+    physx::PxSceneQueryFilterData filterData;
+    filterData.data.word0 = opt.mask;
+    filterData.data.word3 = QUERY_FILTER | (opt.queryTrigger ? 0 : QUERY_CHECK_TRIGGER);
+    filterData.flags = physx::PxQueryFlag::eSTATIC | physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::ePREFILTER;
+    auto &hitBuffer = getPxSweepHitBuffer();
+    bool result = false;
+    const auto nbTouches = physx::PxSceneQueryExt::sweepMultiple(
+        getScene(), geometry, pose, unitDir, opt.distance, flags, hitBuffer.data(),
+        static_cast<physx::PxU32>(hitBuffer.size()), result, filterData, &getQueryFilterShader(), cache);
+    if (nbTouches == 0 || nbTouches == -1) return false;
+    auto &r = sweepResult();
+    r.resize(nbTouches);
+    for (physx::PxI32 i = 0; i < nbTouches; i++) {
+        const auto &shapeIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(hitBuffer[i].shape));
+        if (shapeIter == getPxShapeMap().end()) return false;
+        r[i].shape = shapeIter->second;
+        r[i].distance = hitBuffer[i].distance;
+        pxSetVec3Ext(r[i].hitNormal, hitBuffer[i].normal);
+        pxSetVec3Ext(r[i].hitPoint, hitBuffer[i].position);
+    }
+    return true;
+}
+
+ccstd::vector<RaycastResult> &PhysXWorld::sweepResult() {
+    static ccstd::vector<RaycastResult> hits;
+    return hits;
+}
+
+bool PhysXWorld::sweepClosest(RaycastOptions &opt, const physx::PxGeometry &geometry, const physx::PxQuat &orientation) {
+    physx::PxSweepHit hit;
+    physx::PxQueryCache *cache = nullptr;
+    const auto o = opt.origin;
+    const auto ud = opt.unitDir;
+    physx::PxVec3 origin{o.x, o.y, o.z};
+    physx::PxVec3 unitDir{ud.x, ud.y, ud.z};
+    unitDir.normalize();
+    physx::PxTransform pose{origin, orientation};
+    physx::PxHitFlags flags = physx::PxHitFlag::ePOSITION | physx::PxHitFlag::eNORMAL;
+    physx::PxSceneQueryFilterData filterData;
+    filterData.data.word0 = opt.mask;
+    filterData.data.word3 = QUERY_FILTER | (opt.queryTrigger ? 0 : QUERY_CHECK_TRIGGER) | QUERY_SINGLE_HIT;
+    filterData.flags = physx::PxQueryFlag::eSTATIC | physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::ePREFILTER;
+    const auto result = physx::PxSceneQueryExt::sweepSingle(
+        getScene(), geometry, pose, unitDir, opt.distance, flags,
+        hit, filterData, &getQueryFilterShader(), cache, 0);
+    if (result) {
+        auto &r = sweepClosestResult();
+        const auto &shapeIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(hit.shape));
+        if (shapeIter == getPxShapeMap().end()) return false;
+        r.shape = shapeIter->second;
+        r.distance = hit.distance;
+        pxSetVec3Ext(r.hitPoint, hit.position);
+        pxSetVec3Ext(r.hitNormal, hit.normal);
+    }
+    return result;
+}
+
+RaycastResult &PhysXWorld::sweepClosestResult() {
+    static RaycastResult hit;
+    return hit;
+}
+
 uint32_t PhysXWorld::addPXObject(uintptr_t PXObjectPtr) {
     uint32_t pxObjectID = _msPXObjectID;
     _msPXObjectID++;

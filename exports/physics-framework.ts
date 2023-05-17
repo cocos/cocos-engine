@@ -40,6 +40,7 @@ export {
     ConstantForce,
     PhysicsMaterial,
     PhysicsRayResult,
+    PhysicsLineStripCastResult,
 
     Collider,
     BoxCollider,
