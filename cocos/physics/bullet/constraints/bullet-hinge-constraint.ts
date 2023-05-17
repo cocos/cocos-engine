@@ -69,14 +69,14 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
     setMotorEnabled (v: boolean): void {
         const motorData = this.constraint.motorData;
         bt.HingeConstraint_enableMotor(this._impl, v);
-        const velocity = -motorData.motorVelocity * PhysicsSystem.instance.fixedTimeStep;
+        const velocity = -motorData.motorVelocity / 60.0;
         const impulse = force2Impulse(motorData.motorForceLimit, PhysicsSystem.instance.fixedTimeStep);
         bt.HingeConstraint_setMotorVelocity(this._impl, velocity);
         bt.HingeConstraint_setMaxMotorImpulse(this._impl, impulse);
     }
     setMotorVelocity (v: number): void {
         if (this.constraint.motorData.enabled) {
-            const velocity = -v * PhysicsSystem.instance.fixedTimeStep;
+            const velocity = -v / 60.0;
             bt.HingeConstraint_setMotorVelocity(this._impl, velocity);
         }
     }
@@ -98,7 +98,6 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         const trans0 = BulletCache.instance.BT_TRANSFORM_0;
         const trans1 = BulletCache.instance.BT_TRANSFORM_1;
         this._impl = bt.HingeConstraint_new(bodyA, bodyB, trans0, trans1);
-        this.updateFrames();
 
         const motorData = this.constraint.motorData;
         const limitData = this.constraint.limitData;
@@ -108,6 +107,7 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         this.setMotorEnabled(motorData.enabled);
         this.setMotorVelocity(motorData.motorVelocity);
         this.setMotorForceLimit(motorData.motorForceLimit);
+        this.updateFrames();
     }
 
     updateFrames () {

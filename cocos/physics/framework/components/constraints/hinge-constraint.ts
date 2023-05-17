@@ -239,9 +239,9 @@ export class HingeConstraint extends Constraint {
 
     /**
      * @en
-     * The upper limit to the rotation of pivotB related to pivotB's local position.
+     * The upper limit to the rotation angle of pivotB related to pivotB's local position.
      * @zh
-     * 转轴约束的旋转上限。
+     * 转轴约束的旋转角度上限。
      */
     @type(CCFloat)
     get upperLimit (): number {
@@ -256,9 +256,9 @@ export class HingeConstraint extends Constraint {
 
     /**
      * @en
-     * The lower limit to the rotation of pivotB related to pivotB's local position.
+     * The lower limit to the rotation angle of pivotB related to pivotB's local position.
      * @zh
-     * 转轴约束的旋转下限。
+     * 转轴约束的旋转角度下限。
      */
     @type(CCFloat)
     get lowerLimit (): number {

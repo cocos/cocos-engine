@@ -34,7 +34,7 @@ namespace physics {
 
 void PhysXRevolute::onComponentSet() {
     _mJoint = PxRevoluteJointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});
-    _mlimit.stiffness = 1.0;
+    _mlimit.stiffness = 0;
     _mlimit.damping = 0;
     _mlimit.restitution = 0.4;
     _mlimit.contactDistance = 0.1;
@@ -64,7 +64,7 @@ void PhysXRevolute::setAxis(float x, float y, float z) {
 void PhysXRevolute::setLimitEnabled(bool v) {
     _limitEnabled = v;
     auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
-    joint->setRevoluteJointFlags(physx::PxRevoluteJointFlag::eLIMIT_ENABLED);
+    joint->setRevoluteJointFlag(physx::PxRevoluteJointFlag::eLIMIT_ENABLED, _limitEnabled);
     if (v) {
         joint->setLimit(_mlimit);
     }
@@ -91,7 +91,7 @@ void PhysXRevolute::setUpperLimit(float v) {
 void PhysXRevolute::setMotorEnabled(bool v) {
     _motorEnabled = v;
     auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
-    joint->setRevoluteJointFlags(physx::PxRevoluteJointFlag::eDRIVE_ENABLED);
+    joint->setRevoluteJointFlag(physx::PxRevoluteJointFlag::eDRIVE_ENABLED, _motorEnabled);
     if (v) {
         joint->setDriveVelocity(_motorVelocity * PhysXWorld::getInstance().getFixedTimeStep());
         joint->setDriveForceLimit(_motorForceLimit);
@@ -102,7 +102,7 @@ void PhysXRevolute::setMotorVelocity(float v) {
     _motorVelocity = v;
     if (_motorEnabled) {
         auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
-        joint->setDriveVelocity(_motorVelocity * PhysXWorld::getInstance().getFixedTimeStep());
+        joint->setDriveVelocity(_motorVelocity / 60.0);
     }
 }
 

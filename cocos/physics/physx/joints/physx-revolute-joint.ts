@@ -65,7 +65,7 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
     }
     setMotorVelocity (v: number): void {
         if (this.constraint.motorEnabled) {
-            this._impl.setDriveVelocity(PhysicsSystem.instance.fixedTimeStep * v, false);
+            this._impl.setDriveVelocity(v / 60.0, false);
         }
     }
     setMotorForceLimit (v: number): void {
@@ -93,7 +93,7 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
     onComponentSet (): void {
         this._impl = PX.createRevoluteJoint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
 
-        this._limitPair.stiffness = 1;
+        this._limitPair.stiffness = 0;
         this._limitPair.damping = 0;
         this._limitPair.restitution = 0.4;
         this._limitPair.contactDistance = 0.01;
