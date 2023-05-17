@@ -30,7 +30,33 @@ import { bt, EBulletType } from '../instantiated';
 
 export abstract class BulletConstraint implements IBaseConstraint {
     setConnectedBody (v: RigidBody | null): void {
-        // TODO: support dynamic change connected body
+        if (this._connectedBody === v) return;
+        // clear old joint info
+        const oldBody2 = this._connectedBody;
+        if (oldBody2) {
+            const oldSB2 = (oldBody2.body as BulletRigidBody).sharedBody;
+            oldSB2.removeJoint(this, 1);
+        }
+
+        const sb = (this._rigidBody.body as BulletRigidBody).sharedBody;
+        sb.removeJoint(this, 0);
+        if (this._impl) {
+            sb.wrappedWorld.removeConstraint(this);
+            bt._safe_delete(this._impl, EBulletType.EBulletTypeTypedConstraint); // delete old bullet constraint
+        }
+
+        this._connectedBody = v;
+        const connect = this._connectedBody;
+        // create the new joint
+        this.onComponentSet();
+        this.setEnableCollision(this._collided);
+        sb.wrappedWorld.addConstraint(this);
+        sb.addJoint(this, 0);
+        // fill new joint info
+        if (connect) {
+            const sb2 = (connect.body as BulletRigidBody).sharedBody;
+            sb2.addJoint(this, 1);
+        }
     }
 
     setEnableCollision (v: boolean): void {
@@ -54,6 +80,7 @@ export abstract class BulletConstraint implements IBaseConstraint {
     protected _impl: Bullet.ptr = 0;
     protected _com!: Constraint;
     protected _rigidBody!: RigidBody;
+    protected _connectedBody: RigidBody | null = null;
     protected _collided = false;
 
     updateByReAdd () {
@@ -67,8 +94,10 @@ export abstract class BulletConstraint implements IBaseConstraint {
     initialize (v: Constraint): void {
         this._com = v;
         this._rigidBody = v.attachedBody!;
+        this._connectedBody = v.connectedBody;
         this._collided = v.enableCollision;
         this.onComponentSet();
+        this.setEnableCollision(this._collided);
     }
 
     // virtual
@@ -81,7 +110,7 @@ export abstract class BulletConstraint implements IBaseConstraint {
         const sb = (this._rigidBody.body as BulletRigidBody).sharedBody;
         sb.wrappedWorld.addConstraint(this);
         sb.addJoint(this, 0);
-        const connect = this.constraint.connectedBody;
+        const connect = this._connectedBody;
         if (connect) {
             const sb2 = (connect.body as BulletRigidBody).sharedBody;
             sb2.addJoint(this, 1);
@@ -92,7 +121,7 @@ export abstract class BulletConstraint implements IBaseConstraint {
         const sb = (this._rigidBody.body as BulletRigidBody).sharedBody;
         sb.wrappedWorld.removeConstraint(this);
         sb.removeJoint(this, 0);
-        const connect = this.constraint.connectedBody;
+        const connect = this._connectedBody;
         if (connect) {
             const sb2 = (connect.body as BulletRigidBody).sharedBody;
             sb2.removeJoint(this, 1);
@@ -103,5 +132,6 @@ export abstract class BulletConstraint implements IBaseConstraint {
         bt._safe_delete(this._impl, EBulletType.EBulletTypeTypedConstraint);
         (this._com as any) = null;
         (this._rigidBody as any) = null;
+        (this._connectedBody as any) = null;
     }
 }
