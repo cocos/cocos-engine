@@ -148,6 +148,11 @@ inline ccstd::vector<physx::PxRaycastHit> &getPxRaycastHitBuffer() {
     return m;
 }
 
+inline ccstd::vector<physx::PxSweepHit> &getPxSweepHitBuffer() {
+    static ccstd::vector<physx::PxSweepHit> m{12};
+    return m;
+}
+
 inline QueryFilterShader &getQueryFilterShader() {
     static QueryFilterShader shader;
     return shader;

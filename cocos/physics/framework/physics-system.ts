@@ -23,7 +23,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry, warn } from '../../core';
+import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry, warn, IQuatLike, IVec3Like } from '../../core';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director, game } from '../../game';
 import { PhysicsMaterial } from './assets/physics-material';
@@ -33,6 +33,7 @@ import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
 import { constructDefaultWorld, IWorldInitData, selector } from './physics-selector';
 import { assetManager, builtinResMgr } from '../../asset/asset-manager';
+import { Collider } from './components/colliders/collider';
 
 cclegacy.internal.PhysicsGroup = PhysicsGroup;
 
@@ -211,7 +212,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 设置默认物理材质。
      */
-    public setDefaultPhysicsMaterial (material : PhysicsMaterial) {
+    public setDefaultPhysicsMaterial (material: PhysicsMaterial) {
         this._material = material;
         this.physicsWorld.setDefaultMaterial(this._material);
         this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
@@ -289,6 +290,22 @@ export class PhysicsSystem extends System implements IWorldInitData {
     public lineStripCastResults: PhysicsLineStripCastResult[] = [];
 
     /**
+     * @en
+     * Gets the sweepCastClosest test result.
+     * @zh
+     * 获取 sweepCastClosest 的检测结果。
+     */
+    public readonly sweepCastClosestResult = new PhysicsRayResult();
+
+    /**
+        * @en
+        * Gets the sweepCast test results.
+        * @zh
+        * 获取 sweepCast 的检测结果。
+        */
+    public readonly sweepCastResults: PhysicsRayResult[] = [];
+
+    /**
     * @en
     * Gets the collision matrix that used for initialization only.
     * @zh
@@ -325,6 +342,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
     }
 
     private readonly raycastResultPool = new RecyclePool<PhysicsRayResult>(() => new PhysicsRayResult(), 1);
+    private readonly sweepResultPool = new RecyclePool<PhysicsRayResult>(() => new PhysicsRayResult(), 1);
 
     private constructor () {
         super();
@@ -572,6 +590,166 @@ export class PhysicsSystem extends System implements IWorldInitData {
             }
         }
         return hit;
+    }
+
+    /**
+     * @en
+     * Cast a box along a ray and record information on what was hit.
+     * Access the results through PhysicsSystem.Instance.sweepCastResults.
+     * @zh
+     * 将盒体沿着射线发射，记录所有被检测到的结果，通过 PhysicsSystem.instance.sweepCastResults 访问结果。
+     * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
+     * @param halfExtent @zh 盒体的一半尺寸 @en Half extent of the box
+     * @param orientation @zh 盒体的方向 @en Orientation of the box
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+     * @param maxDistance @zh 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     *                    @en Maximum detection distance, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+     * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
+     */
+    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (!this.physicsWorld) return false;
+        this.sweepResultPool.reset();
+        this.sweepCastResults.length = 0;
+        this.raycastOptions.mask = mask >>> 0;
+        this.raycastOptions.maxDistance = maxDistance;
+        this.raycastOptions.queryTrigger = queryTrigger;
+        return this.physicsWorld.sweepBox(worldRay, halfExtent, orientation,
+            this.raycastOptions, this.sweepResultPool, this.sweepCastResults);
+    }
+
+    /**
+     * @en
+     * Cast a box along a ray and record information on the closest hit.
+     * Access the results through PhysicsSystem.Instance.sweepCastClosestResult.
+     * @zh
+     * 将盒体沿着射线发射，记录距离最近的碰撞结果，通过 PhysicsSystem.instance.sweepCastClosestResult 访问结果。
+     * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
+     * @param halfExtent @zh 盒体的一半尺寸 @en Half extent of the box
+     * @param orientation @zh 盒体的方向 @en Orientation of the box
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+     * @param maxDistance @zh 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     *                   @en Maximum detection distance, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+     * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
+     */
+    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (!this.physicsWorld) return false;
+        this.raycastOptions.mask = mask >>> 0;
+        this.raycastOptions.maxDistance = maxDistance;
+        this.raycastOptions.queryTrigger = queryTrigger;
+        return this.physicsWorld.sweepBoxClosest(worldRay, halfExtent, orientation,
+            this.raycastOptions, this.sweepCastClosestResult);
+    }
+
+    /**
+     * @en
+     * Cast a sphere along a ray and record information on what was hit.
+     * Access the results through PhysicsSystem.Instance.sweepCastResults.
+     * @zh
+     * 将球体沿着射线发射，记录所有被检测到的结果，通过 PhysicsSystem.instance.sweepCastResults 访问结果。
+     * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
+     * @param radius @zh 球体的半径 @en Radius of the sphere
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+     * @param maxDistance @zh 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     *                  @en Maximum detection distance, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+     * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
+     */
+    sweepSphere (worldRay: geometry.Ray, radius: number,
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (!this.physicsWorld) return false;
+        this.sweepResultPool.reset();
+        this.sweepCastResults.length = 0;
+        this.raycastOptions.mask = mask >>> 0;
+        this.raycastOptions.maxDistance = maxDistance;
+        this.raycastOptions.queryTrigger = queryTrigger;
+        return this.physicsWorld.sweepSphere(worldRay, radius,
+            this.raycastOptions, this.sweepResultPool, this.sweepCastResults);
+    }
+
+    /**
+     * @en
+     * Cast a sphere along a ray and record information on the closest hit.
+     * Access the result through PhysicsSystem.Instance.sweepCastClosestResult.
+     * @zh
+     * 将球体沿着射线发射，记录距离最近的碰撞结果，通过 PhysicsSystem.instance.sweepCastClosestResult 访问结果。
+     * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
+     * @param radius @zh 球体的半径 @en Radius of the sphere
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+     * @param maxDistance @zh 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     *                 @en Maximum detection distance, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+     * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
+     */
+    sweepSphereClosest (worldRay: geometry.Ray, radius: number,
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (!this.physicsWorld) return false;
+        this.raycastOptions.mask = mask >>> 0;
+        this.raycastOptions.maxDistance = maxDistance;
+        this.raycastOptions.queryTrigger = queryTrigger;
+        return this.physicsWorld.sweepSphereClosest(worldRay, radius,
+            this.raycastOptions, this.sweepCastClosestResult);
+    }
+
+    /**
+     * @en
+     * Cast a capsule along a ray and record information on what was hit.
+     * Access the results through PhysicsSystem.Instance.sweepCastResults.
+     * Capsule's default axis is along the world space Y axis.
+     * @zh
+     * 将胶囊体沿着射线发射，记录所有被检测到的结果，通过 PhysicsSystem.instance.sweepCastResults 访问结果。
+     * 胶囊体的默认朝向是世界空间下的 Y 轴。
+     * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
+     * @param radius @zh 胶囊体的半径 @en Radius of the capsule
+     * @param height @zh 胶囊体末端两个半球圆心的距离 @en Distance between the two half-sphere centers of the capsule
+     * @param orientation @zh 胶囊体的朝向 @en Orientation of the capsule
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+     * @param maxDistance @zh 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     *                @en Maximum detection distance, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+     * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
+     */
+    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (!this.physicsWorld) return false;
+        this.sweepResultPool.reset();
+        this.sweepCastResults.length = 0;
+        this.raycastOptions.mask = mask >>> 0;
+        this.raycastOptions.maxDistance = maxDistance;
+        this.raycastOptions.queryTrigger = queryTrigger;
+        return this.physicsWorld.sweepCapsule(worldRay, radius, height, orientation,
+            this.raycastOptions, this.sweepResultPool, this.sweepCastResults);
+    }
+
+    /**
+     * @en
+     * Cast a capsule along a ray and record information on the closest hit.
+     * Access the result through PhysicsSystem.Instance.sweepCastClosestResult.
+     * Capsule's default axis is along the world space Y axis.
+     * @zh
+     * 将胶囊体沿着射线发射，记录距离最近的碰撞结果，通过 PhysicsSystem.instance.sweepCastClosestResult 访问结果。
+     * 胶囊体的默认朝向是世界空间下的 Y 轴。
+     * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
+     * @param radius @zh 胶囊体的半径 @en Radius of the capsule
+     * @param height @zh 胶囊体末端两个半球圆心的距离 @en Distance between the two half-sphere centers of the capsule
+     * @param orientation @zh 胶囊体的朝向 @en Orientation of the capsule
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+     * @param maxDistance @zh 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     *               @en Maximum detection distance, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+     * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
+     */
+    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
+        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (!this.physicsWorld) return false;
+        this.raycastOptions.mask = mask >>> 0;
+        this.raycastOptions.maxDistance = maxDistance;
+        this.raycastOptions.queryTrigger = queryTrigger;
+        return this.physicsWorld.sweepCapsuleClosest(worldRay, radius, height, orientation,
+            this.raycastOptions, this.sweepCastClosestResult);
     }
 
     private _updateMaterial () {

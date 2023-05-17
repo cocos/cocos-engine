@@ -25,22 +25,23 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType, CharacterControllerContact } from '../framework';
-import { error, RecyclePool, js, IVec3Like, geometry, Vec3 } from '../../core';
+import { error, RecyclePool, js, IVec3Like, geometry, IQuatLike, Vec3, Quat } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import {
-    addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest,
-    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset,
+    addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest, sweepClosest,
+    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll,
 } from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { PhysXContactEquation } from './physx-contact-equation';
-import { CollisionEventObject, TriggerEventObject } from '../utils/util';
+import { CollisionEventObject, TriggerEventObject, VEC3_0 } from '../utils/util';
 import { PhysXShape } from './shapes/physx-shape';
 import { EFilterDataWord3 } from './physx-enum';
 import { PhysXInstance } from './physx-instance';
 import { Node } from '../../scene-graph';
 import { PhysXCharacterController } from './character-controllers/physx-character-controller';
+import { CC_QUAT_0 } from '../bullet/bullet-cache';
 
 export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     setAllowSleep (_v: boolean): void { }
@@ -58,6 +59,10 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     controllerManager: any;
 
     private _isNeedFetch = false;
+
+    private static _sweepBoxGeometry: any;
+    private static _sweepSphereGeometry: any;
+    private static _sweepCapsuleGeometry: any;
 
     constructor () {
         super();
@@ -174,6 +179,70 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
 
     raycastClosest (worldRay: geometry.Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         return raycastClosest(this, worldRay, options, result);
+    }
+
+    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        if (!PhysXWorld._sweepBoxGeometry) {
+            PhysXWorld._sweepBoxGeometry = new PX.BoxGeometry(halfExtent);
+        }
+        PhysXWorld._sweepBoxGeometry.setHalfExtents(halfExtent);
+        return sweepAll(this, worldRay, PhysXWorld._sweepBoxGeometry, orientation, options, pool, results);
+    }
+
+    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        if (!PhysXWorld._sweepBoxGeometry) {
+            PhysXWorld._sweepBoxGeometry = new PX.BoxGeometry(halfExtent);
+        }
+        PhysXWorld._sweepBoxGeometry.setHalfExtents(halfExtent);
+        return sweepClosest(this, worldRay, PhysXWorld._sweepBoxGeometry, orientation, options, result);
+    }
+
+    sweepSphere (worldRay: geometry.Ray, radius: number,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        if (!PhysXWorld._sweepSphereGeometry) {
+            PhysXWorld._sweepSphereGeometry = new PX.SphereGeometry(radius);
+        }
+        PhysXWorld._sweepSphereGeometry.setRadius(radius);
+        return sweepAll(this, worldRay, PhysXWorld._sweepSphereGeometry, Quat.IDENTITY, options, pool, results);
+    }
+
+    sweepSphereClosest (worldRay: geometry.Ray, radius: number,
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        if (!PhysXWorld._sweepSphereGeometry) {
+            PhysXWorld._sweepSphereGeometry = new PX.SphereGeometry(radius);
+        }
+        PhysXWorld._sweepSphereGeometry.setRadius(radius);
+        return sweepClosest(this, worldRay, PhysXWorld._sweepSphereGeometry, Quat.IDENTITY, options, result);
+    }
+
+    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        if (!PhysXWorld._sweepCapsuleGeometry) {
+            PhysXWorld._sweepCapsuleGeometry = new PX.CapsuleGeometry(radius, height / 2);
+        }
+        PhysXWorld._sweepCapsuleGeometry.setRadius(radius);
+        PhysXWorld._sweepCapsuleGeometry.setHalfHeight(height / 2);
+        //add an extra 90 degree rotation to PxCapsuleGeometry whose axis is originally along the X axis
+        const finalOrientation = CC_QUAT_0;
+        Quat.fromEuler(finalOrientation, 0, 0, 90);
+        Quat.multiply(finalOrientation, orientation, finalOrientation);
+        return sweepAll(this, worldRay, PhysXWorld._sweepCapsuleGeometry, finalOrientation, options, pool, results);
+    }
+
+    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        if (!PhysXWorld._sweepCapsuleGeometry) {
+            PhysXWorld._sweepCapsuleGeometry = new PX.CapsuleGeometry(radius, height / 2);
+        }
+        PhysXWorld._sweepCapsuleGeometry.setRadius(radius);
+        PhysXWorld._sweepCapsuleGeometry.setHalfHeight(height / 2);
+        //add an extra 90 degree rotation to PxCapsuleGeometry whose axis is originally along the X axis
+        const finalOrientation = CC_QUAT_0;
+        Quat.fromEuler(finalOrientation, 0, 0, 90);
+        Quat.multiply(finalOrientation, orientation, finalOrientation);
+        return sweepClosest(this, worldRay, PhysXWorld._sweepCapsuleGeometry, finalOrientation, options, result);
     }
 
     emitEvents (): void {
