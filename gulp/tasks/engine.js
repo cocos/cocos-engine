@@ -237,10 +237,10 @@ exports.buildPreview = function (sourceFile, outputFile, callback, devMode) {
     if (!devMode) {
         bundler = bundler
             .pipe(Sourcemaps.init({loadMaps: true}))
-            .pipe(Utils.uglify('preview', {physics_cannon: true}))
-            .pipe(Optimizejs({
-                sourceMap: false
-            }))
+            // .pipe(Utils.uglify('preview', {physics_cannon: true}))
+            // .pipe(Optimizejs({
+            //     sourceMap: false
+            // }))
             .pipe(Sourcemaps.write('./', {
                 sourceRoot: '../',
                 includeContent: false,
