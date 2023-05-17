@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
 import { cclegacy, toRadian, Vec2, Vec4 } from '../../../core';
-import { Camera } from '../../../render-scene/scene';
+import { Camera, CameraUsage } from '../../../render-scene/scene';
 import { Pipeline, QueueHint } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
@@ -33,7 +34,7 @@ import { HBAO } from '../components';
 import { Texture2D } from '../../../asset/assets/texture-2d';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { DebugViewCompositeType, DebugViewSingleType } from '../../debug-view';
-import { Format } from '../../../gfx';
+import { ClearFlagBit, Format } from '../../../gfx';
 
 const vec2 = new Vec2();
 
@@ -187,6 +188,14 @@ export class HBAOPass extends SettingPass {
     effectName = 'pipeline/post-process/hbao';
     outputNames = ['hbaoRTName', 'hbaoBluredRTName']
 
+    checkEnable (camera: Camera) {
+        let enable = super.checkEnable(camera);
+        if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
+            enable = false;
+        }
+        return enable;
+    }
+
     public render (camera: Camera, ppl: Pipeline): void {
         passContext.updatePassViewPort();
         const width = passContext.passViewport.width;
@@ -225,7 +234,7 @@ export class HBAOPass extends SettingPass {
             }
         }
 
-        const inputRT = this.lastPass!.slotName(camera, 0);
+        const inputRT = passContext.forwardPass.slotName(camera, 0);
         const inputDS = passContext.forwardPass.slotName(camera, 1);
         const hbaoInfo = this._renderHBAOPass(camera, inputDS);
         let hbaoCombinedInputRTName = hbaoInfo.rtName;
@@ -234,7 +243,7 @@ export class HBAOPass extends SettingPass {
             const haboBlurInfoY = this._renderHBAOBlurPass(camera, haboBlurInfoX.rtName, inputDS, true);
             hbaoCombinedInputRTName = haboBlurInfoY.rtName;
         }
-        // this._renderHBAOCombinedPass(camera, hbaoCombinedInputRTName, inputRT);
+        this._renderHBAOCombinedPass(camera, hbaoCombinedInputRTName, inputRT);
     }
 
     private _renderHBAOPass (camera: Camera, inputDS: string) {
@@ -324,7 +333,7 @@ export class HBAOPass extends SettingPass {
             passIdx);
         this.material.setProperty('blurParam', this._hbaoParams.blurParam, passIdx);
 
-        passContext.clearBlack();
+        passContext.clearFlag = ClearFlagBit.NONE;
 
         const layoutName = 'combine-pass';
         const passName = `CameraHBAOCombinedPass${cameraID}`;
@@ -336,6 +345,7 @@ export class HBAOPass extends SettingPass {
     }
 
     slotName (camera: Camera, index = 0) {
-        return this.lastPass!.slotName(camera, index);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return passContext.forwardPass.slotName(camera, index);
     }
 }
