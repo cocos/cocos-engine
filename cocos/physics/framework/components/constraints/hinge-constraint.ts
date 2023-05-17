@@ -228,10 +228,10 @@ export class HingeConstraint extends Constraint {
      */
     @type(CCBoolean)
     get limitEnabled (): boolean {
-        return this.limitData.enabled;
+        return this._limitData.enabled;
     }
     set limitEnabled (v: boolean) {
-        this.limitData.enabled = v;
+        this._limitData.enabled = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
             this.constraint.setLimitEnabled(v);
         }
@@ -245,10 +245,10 @@ export class HingeConstraint extends Constraint {
      */
     @type(CCFloat)
     get upperLimit (): number {
-        return this.limitData.upperLimit;
+        return this._limitData.upperLimit;
     }
     set upperLimit (v: number) {
-        this.limitData.upperLimit = v;
+        this._limitData.upperLimit = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
             this.constraint.setUpperLimit(v);
         }
@@ -262,10 +262,10 @@ export class HingeConstraint extends Constraint {
      */
     @type(CCFloat)
     get lowerLimit (): number {
-        return this.limitData.lowerLimit;
+        return this._limitData.lowerLimit;
     }
     set lowerLimit (v: number) {
-        this.limitData.lowerLimit = v;
+        this._limitData.lowerLimit = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
             this.constraint.setLowerLimit(v);
         }
@@ -279,10 +279,10 @@ export class HingeConstraint extends Constraint {
      */
     @type(CCBoolean)
     get motorEnabled (): boolean {
-        return this.motorData.enabled;
+        return this._motorData.enabled;
     }
     set motorEnabled (v: boolean) {
-        this.motorData.enabled = v;
+        this._motorData.enabled = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
             this.constraint.setMotorEnabled(v);
         }
@@ -296,10 +296,10 @@ export class HingeConstraint extends Constraint {
      */
     @type(CCFloat)
     get motorVelocity (): number {
-        return this.motorData.motorVelocity;
+        return this._motorData.motorVelocity;
     }
     set motorVelocity (v: number) {
-        this.motorData.motorVelocity = v;
+        this._motorData.motorVelocity = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
             this.constraint.setMotorVelocity(v);
         }
@@ -313,10 +313,10 @@ export class HingeConstraint extends Constraint {
      */
     @type(CCFloat)
     get motorForceLimit (): number {
-        return this.motorData.motorForceLimit;
+        return this._motorData.motorForceLimit;
     }
     set motorForceLimit (v: number) {
-        this.motorData.motorForceLimit = v;
+        this._motorData.motorForceLimit = v;
         if (!EDITOR || cclegacy.GAME_VIEW) {
             this.constraint.setMotorForceLimit(v);
         }
@@ -336,11 +336,11 @@ export class HingeConstraint extends Constraint {
 
     @serializable
     @formerlySerializedAs('limitData')
-    public limitData =  new HingeLimitData();
+    private _limitData =  new HingeLimitData();
 
     @serializable
     @formerlySerializedAs('motorData')
-    public motorData =  new HingeMotorData();
+    private _motorData =  new HingeMotorData();
 
     get constraint (): IHingeConstraint {
         return this._constraint as IHingeConstraint;
