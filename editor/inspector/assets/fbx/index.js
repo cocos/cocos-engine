@@ -18,7 +18,6 @@ exports.style = /* css */`
     flex: 1;
     flex-direction: column;
     padding-top: 5px;
-    overflow: hidden;
 }
 
 .asset-fbx > .header {
@@ -97,6 +96,12 @@ const Elements = {
             panel.$.tabPanel.update(panel.assetList, panel.metaList);
         },
     },
+};
+
+exports.methods = {
+    apply() {
+        Editor.Message.broadcast('fbx-inspector:apply');
+    }
 };
 
 exports.listeners = {

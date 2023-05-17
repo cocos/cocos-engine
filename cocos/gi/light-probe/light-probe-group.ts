@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,9 +20,21 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { ccclass, disallowMultiple, displayName, editable, executeInEditMode, menu, range, serializable, tooltip, type } from 'cc.decorator';
+import {
+    ccclass,
+    disallowMultiple,
+    displayName,
+    editable,
+    executeInEditMode,
+    menu,
+    range,
+    serializable,
+    tooltip,
+    type,
+    visible,
+} from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Component } from '../../scene-graph/component';
@@ -46,10 +57,10 @@ export class LightProbeGroup extends Component {
     protected _method = PlaceMethod.UNIFORM;
 
     @serializable
-    protected _minPos = new Vec3(-10, -10, -10);
+    protected _minPos = new Vec3(-5, -5, -5);
 
     @serializable
-    protected _maxPos = new Vec3(10, 10, 10);
+    protected _maxPos = new Vec3(5, 5, 5);
 
     @serializable
     protected _nProbesX = 3;
@@ -60,6 +71,9 @@ export class LightProbeGroup extends Component {
     @serializable
     protected _nProbesZ = 3;
 
+    @editable
+    @type([Vec3])
+    @visible(false)
     get probes (): Vec3[] {
         return this._probes;
     }
@@ -74,9 +88,10 @@ export class LightProbeGroup extends Component {
     get method () {
         return this._method;
     }
-    set method (val) {
-        this._method = val;
-    }
+    // Support this feature later.
+    // set method (val) {
+    //     this._method = val;
+    // }
 
     /**
      * @en Minimum position of the light probe group
@@ -142,6 +157,21 @@ export class LightProbeGroup extends Component {
         this._nProbesZ = val;
     }
 
+    public onLoad () {
+        if (!EDITOR) {
+            return;
+        }
+
+        if (!this.node) {
+            return;
+        }
+
+        const changed = this.node.scene.globals.lightProbeInfo.addNode(this.node);
+        if (changed) {
+            this.node.scene.globals.lightProbeInfo.syncData(this.node, this.probes);
+        }
+    }
+
     public onEnable () {
         if (!EDITOR) {
             return;
@@ -151,8 +181,7 @@ export class LightProbeGroup extends Component {
             return;
         }
 
-        this.node.on(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, this.onAncestorTransformChanged, this);
-        const changed = this.node.scene.globals.lightProbeInfo.addGroup(this);
+        const changed = this.node.scene.globals.lightProbeInfo.addNode(this.node);
         if (changed) {
             this.onProbeChanged();
         }
@@ -167,11 +196,10 @@ export class LightProbeGroup extends Component {
             return;
         }
 
-        const changed = this.node.scene.globals.lightProbeInfo.removeGroup(this);
+        const changed = this.node.scene.globals.lightProbeInfo.removeNode(this.node);
         if (changed) {
             this.onProbeChanged();
         }
-        this.node.off(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, this.onAncestorTransformChanged, this);
     }
 
     public generateLightProbes () {
@@ -192,19 +220,11 @@ export class LightProbeGroup extends Component {
     }
 
     public onProbeChanged (updateTet = true, emitEvent = true) {
+        this.node.scene.globals.lightProbeInfo.syncData(this.node, this.probes);
         this.node.scene.globals.lightProbeInfo.update(updateTet);
+
         if (emitEvent) {
             this.node.emit(NodeEventType.LIGHT_PROBE_CHANGED);
         }
-    }
-
-    private onAncestorTransformChanged () {
-        if (!this.node) {
-            return;
-        }
-
-        const updateTet = !this.node.scene.globals.lightProbeInfo.isUniqueGroup();
-        this.node.updateWorldTransform();
-        this.onProbeChanged(updateTet);
     }
 }

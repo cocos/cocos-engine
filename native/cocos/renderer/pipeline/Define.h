@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,6 +26,7 @@
 
 #include <functional>
 #include "base/Ptr.h"
+#include "base/RefCounted.h"
 #include "base/TypeDef.h"
 #include "base/Value.h"
 #include "renderer/gfx-base/GFXDef.h"
@@ -158,12 +158,16 @@ enum class CC_DLL RenderQueueSortMode {
 };
 CC_ENUM_CONVERSION_OPERATOR(RenderQueueSortMode)
 
-struct CC_DLL RenderQueueDesc {
+class CC_DLL RenderQueueDesc : public RefCounted {
+public:
+    RenderQueueDesc() = default;
+    RenderQueueDesc(bool isTransparent, RenderQueueSortMode sortMode, const ccstd::vector<ccstd::string> &stages) // NOLINT
+    : isTransparent(isTransparent), sortMode(sortMode), stages(stages) {}
     bool isTransparent = false;
     RenderQueueSortMode sortMode = RenderQueueSortMode::FRONT_TO_BACK;
     ccstd::vector<ccstd::string> stages;
 };
-using RenderQueueDescList = ccstd::vector<RenderQueueDesc>;
+using RenderQueueDescList = ccstd::vector<IntrusivePtr<RenderQueueDesc>>;
 
 uint32_t getPhaseID(const ccstd::string &phase);
 
@@ -257,7 +261,8 @@ enum class CC_DLL ModelLocalBindings {
 
     SAMPLER_REFLECTION_PROBE_CUBE,
     SAMPLER_REFLECTION_PROBE_PLANAR,
-
+    SAMPLER_REFLECTION_PROBE_DATA_MAP,
+    SAMPLER_REFLECTION_PROBE_BLEND_CUBE,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(ModelLocalBindings)
@@ -292,7 +297,11 @@ struct CC_DLL UBOLocal {
     static constexpr uint32_t MAT_WORLD_IT_OFFSET = UBOLocal::MAT_WORLD_OFFSET + 16;
     static constexpr uint32_t LIGHTINGMAP_UVPARAM = UBOLocal::MAT_WORLD_IT_OFFSET + 16;
     static constexpr uint32_t LOCAL_SHADOW_BIAS = UBOLocal::LIGHTINGMAP_UVPARAM + 4;
-    static constexpr uint32_t COUNT = UBOLocal::LOCAL_SHADOW_BIAS + 4;
+    static constexpr uint32_t REFLECTION_PROBE_DATA1 = UBOLocal::LOCAL_SHADOW_BIAS + 4;
+    static constexpr uint32_t REFLECTION_PROBE_DATA2 = UBOLocal::REFLECTION_PROBE_DATA1 + 4;
+    static constexpr uint32_t REFLECTION_PROBE_BLEND_DATA1 = UBOLocal::REFLECTION_PROBE_DATA2 + 4;
+    static constexpr uint32_t REFLECTION_PROBE_BLEND_DATA2 = UBOLocal::REFLECTION_PROBE_BLEND_DATA1 + 4;
+    static constexpr uint32_t COUNT = UBOLocal::REFLECTION_PROBE_BLEND_DATA2 + 4;
     static constexpr uint32_t SIZE = UBOLocal::COUNT * 4;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_LOCAL);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
@@ -317,7 +326,8 @@ struct CC_DLL UBOForwardLight {
     static constexpr uint32_t LIGHT_COLOR_OFFSET = UBOForwardLight::LIGHT_POS_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
     static constexpr uint32_t LIGHT_SIZE_RANGE_ANGLE_OFFSET = UBOForwardLight::LIGHT_COLOR_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
     static constexpr uint32_t LIGHT_DIR_OFFSET = UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
-    static constexpr uint32_t COUNT = UBOForwardLight::LIGHT_DIR_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
+    static constexpr uint32_t LIGHT_BOUNDING_SIZE_VS_OFFSET = UBOForwardLight::LIGHT_DIR_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
+    static constexpr uint32_t COUNT = UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
     static constexpr uint32_t SIZE = UBOForwardLight::COUNT * 4;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_FORWARD_LIGHTS);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
@@ -397,6 +407,7 @@ struct CC_DLL UBOSH {
 };
 
 enum class CC_DLL ForwardStagePriority {
+    AR = 5,
     FORWARD = 10,
     UI = 20
 };
@@ -437,13 +448,11 @@ struct CC_DLL UBOGlobal {
     static constexpr uint32_t TIME_OFFSET = 0;
     static constexpr uint32_t SCREEN_SIZE_OFFSET = UBOGlobal::TIME_OFFSET + 4;
     static constexpr uint32_t NATIVE_SIZE_OFFSET = UBOGlobal::SCREEN_SIZE_OFFSET + 4;
+    static constexpr uint32_t PROBE_INFO_OFFSET = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
 
-    static constexpr uint32_t DEBUG_VIEW_MODE_OFFSET = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
-    static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 4;
-    static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
-    static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
+    static constexpr uint32_t DEBUG_VIEW_MODE_OFFSET = UBOGlobal::PROBE_INFO_OFFSET + 4;
 
-    static constexpr uint32_t COUNT = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET + 4;
+    static constexpr uint32_t COUNT = UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 4;
 
     static constexpr uint32_t SIZE = UBOGlobal::COUNT * 4;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(PipelineGlobalBindings::UBO_GLOBAL);
@@ -542,8 +551,8 @@ enum class LayerList : uint32_t {
 CC_ENUM_CONVERSION_OPERATOR(LayerList)
 
 const uint32_t CAMERA_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & ~static_cast<uint32_t>(LayerList::PROFILER);
-//constexpr CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
-//                                                           Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
+// constexpr CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
+//                                                            Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
 uint32_t nextPow2(uint32_t val);
 
@@ -653,6 +662,20 @@ struct CC_DLL REFLECTIONPROBECUBEMAP {
 
 struct CC_DLL REFLECTIONPROBEPLANARMAP {
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_PLANAR);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL REFLECTIONPROBEDATAMAP {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_DATA_MAP);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL REFLECTIONPROBEBLENDCUBEMAP {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_BLEND_CUBE);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSamplerTexture LAYOUT;
     static const ccstd::string NAME;

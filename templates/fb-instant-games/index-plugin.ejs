@@ -1,0 +1,24 @@
+<% if (webDebuggerSrc) { %>
+<script src="<%=webDebuggerSrc%>"></script>
+<script type="text/javascript">
+    // open web debugger console
+    window.VConsole && (window.vConsole = new VConsole());
+</script>
+<% } %>
+
+<!-- Import fbinstant -->
+<!-- <script src="https://connect.facebook.net/en_US/fbinstant.6.3.js"></script> -->
+<script src="https://www.facebook.com/assets.php/en_US/fbinstant.latest.js"></script>
+
+<!-- Polyfills bundle. -->
+<script src="<%= polyfillsBundleFile %>" charset="utf-8"> </script>
+
+<!-- SystemJS support. -->
+<script src="<%= systemJsBundleFile %>" charset="utf-8"> </script>
+
+<!-- Import map -->
+<script src="<%= importMapFile%>" type="systemjs-importmap" charset="utf-8"> </script>
+
+<script>
+    System.import('./<%= indexJsName %>').catch(function(err) { console.error(err); })
+</script>

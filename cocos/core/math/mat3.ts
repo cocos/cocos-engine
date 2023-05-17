@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2018-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,7 +26,7 @@ import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Quat } from './quat';
 import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like } from './type-define';
-import { EPSILON } from './utils';
+import { EPSILON, HALF_PI } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 
@@ -75,12 +74,12 @@ export class Mat3 extends ValueType {
     public static set <Out extends IMat3Like>  (
         out: Out,
         m00: number, m01: number, m02: number,
-        m10: number, m11: number, m12: number,
-        m20: number, m21: number, m22: number,
+        m03: number, m04: number, m05: number,
+        m06: number, m07: number, m08: number,
     ) {
         out.m00 = m00; out.m01 = m01; out.m02 = m02;
-        out.m03 = m10; out.m04 = m11; out.m05 = m12;
-        out.m06 = m20; out.m07 = m21; out.m08 = m22;
+        out.m03 = m03; out.m04 = m04; out.m05 = m05;
+        out.m06 = m06; out.m07 = m07; out.m08 = m08;
         return out;
     }
 
@@ -181,8 +180,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Multiply two matrices explicitly and save the results to out matrix
-     * @zh 矩阵乘法
+     * @en Multiply two matrices explicitly and save the results to out matrix: a * b
+     * @zh 矩阵乘法：a * b
      */
     public static multiply <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
@@ -208,8 +207,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Take the first third order of the fourth order matrix and multiply by the third order matrix
-     * @zh 取四阶矩阵的前三阶，与三阶矩阵相乘
+     * @en Take the first third order of the fourth order matrix and multiply by the third order matrix: a * b
+     * @zh 取四阶矩阵的前三阶，与三阶矩阵相乘：a * b
      */
     public static multiplyMat4 <Out extends IMat3Like> (out: Out, a: Out, b: IMat4Like) {
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
@@ -235,10 +234,21 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Multiply a matrix with a translation vector given by a translation offset.
-     * @zh 在给定矩阵变换基础上加入变换
+     * @en Multiply a matrix with a translation vector given by a translation offset, first translate, then transform：a * T(v).
+     * @zh 在给定矩阵变换基础上加入位移变换，先位移，再变换，即a * T(v)。
+     */
+    /**
+     * @deprecated since v3.8.0, the function name is misleading, please use translate instead.
      */
     public static transform <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
+        this.translate(out, a, v);
+    }
+
+    /**
+     * @en Multiply a matrix with a translation vector given by a translation offset, first translate, then transform：a * T(v).
+     * @zh 在给定矩阵变换基础上加入位移变换，先位移，再变换，即a * T(v)。
+     */
+    public static translate <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
         const a10 = a.m03; const a11 = a.m04; const a12 = a.m05;
         const a20 = a.m06; const a21 = a.m07; const a22 = a.m08;
@@ -259,8 +269,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Multiply a matrix with a scale matrix given by a scale vector and save the results to out matrix
-     * @zh 在给定矩阵变换基础上加入新缩放变换
+     * @en Multiply a matrix with a scale matrix given by a scale vector and save the results to out matrix, first scale, then transform：a * S(v).
+     * @zh 在给定矩阵变换基础上加入新缩放变换，先缩放，再变换，即a * S(v)。
      */
     public static scale <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
         const x = v.x; const y = v.y;
@@ -280,9 +290,9 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Rotates the transform by the given angle and save the results into the out matrix
-     * @zh 在给定矩阵变换基础上加入新旋转变换
-     * @param rad radius of rotation
+     * @en Rotates the transform by the given angle and save the results into the out matrix, first rotate, then transform：a * R(rad).
+     * @zh 在给定矩阵变换基础上加入新旋转变换，先旋转，再变换，即a * R(rad)。
+     * @param rad radian of rotation
      */
     public static rotate <Out extends IMat3Like> (out: Out, a: Out, rad: number) {
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
@@ -446,6 +456,9 @@ export class Mat3 extends ValueType {
         return out;
     }
 
+    /**
+     * @deprecated since v3.8.0, this function is too complicated, and should be split into several functions.
+     */
     /**
      * @en Calculates the upper-left 3x3 matrix of a 4x4 matrix's inverse transpose
      * @zh 计算指定四维矩阵的逆转置三维矩阵
@@ -623,6 +636,48 @@ export class Mat3 extends ValueType {
             && Math.abs(a.m08 - b.m08) <= epsilon * Math.max(1.0, Math.abs(a.m08), Math.abs(b.m08))
         );
     }
+
+    /**
+     * @en Convert Matrix to euler angle, resulting angle y, z in the range of [-PI, PI],
+     *  x in the range of [-PI/2, PI/2], the rotation order is YXZ, first rotate around Y, then around X, and finally around Z.
+     * @zh 将矩阵转换成欧拉角, 返回角度 y,z 在 [-PI, PI] 区间内, x 在 [-PI/2, PI/2] 区间内，旋转顺序为 YXZ，即先绕Y旋转，再绕X，最后绕Z旋转。
+     */
+    public static toEuler<InType extends IMat3Like, VecLike extends IVec3Like> (matrix: InType,  v: VecLike): boolean {
+        //a[col][row]
+        const a00 = matrix.m00; const a01 = matrix.m01; const a02 = matrix.m02;
+        const a10 = matrix.m03; const a11 = matrix.m04; const a12 = matrix.m05;
+        const a20 = matrix.m06; const a21 = matrix.m07; const a22 = matrix.m08;
+
+        // from http://www.geometrictools.com/Documentation/EulerAngles.pdf
+        // YXZ order
+        if (a21 < 0.999) {
+            if (a21 > -0.999) {
+                v.x = Math.asin(-a21);
+                v.y = Math.atan2(a20, a22);
+                v.z = Math.atan2(a01, a11);
+                return true;
+            } else {
+                // Not unique.  YA - ZA = atan2(r01,r00)
+                v.x = HALF_PI;
+                v.y = Math.atan2(a10, a00);
+                v.z = 0.0;
+                return false;
+            }
+        } else {
+            // Not unique.  YA + ZA = atan2(-r01,r00)
+            v.x = -HALF_PI;
+            v.y = Math.atan2(-a10, a00);
+            v.z = 0.0;
+            return false;
+        }
+    }
+
+    /**
+     * matrix layout
+     * |m00  m03  m06|
+     * |m01  m04  m07|
+     * |m02  m05  m08|
+     */
 
     /**
      * @en Value at column 0 row 0 of the matrix.
@@ -957,8 +1012,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Multiply the current matrix with a scale matrix given by a scale vector.
-     * @zh 将当前矩阵左乘缩放矩阵的结果赋值给当前矩阵，缩放矩阵由各个轴的缩放给出。
+     * @en Multiply the current matrix with a scale matrix given by a scale vector, that is M * S(vec).
+     * @zh 将当前矩阵左乘缩放矩阵的结果赋值给当前矩阵，缩放矩阵由各个轴的缩放给出，即M * S(vec)。
      * @param vec vector to scale by
      */
     public scale (vec: Vec3) {
@@ -979,9 +1034,9 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Rotates the current matrix by the given angle.
-     * @zh 将当前矩阵左乘旋转矩阵的结果赋值给当前矩阵，旋转矩阵由旋转轴和旋转角度给出。
-     * @param rad radius of rotation
+     * @en Rotates the current matrix by the given angle, that is M * R(rad).
+     * @zh 将当前矩阵左乘旋转矩阵的结果赋值给当前矩阵，旋转矩阵由旋转轴和旋转角度给出，即M * R(rad)。
+     * @param rad radian of rotation
      */
     public rotate (rad: number) {
         const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,13 +20,15 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
-import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING, INST_MAT_WORLD } from '../../rendering/define';
+import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING,
+    INST_MAT_WORLD, INST_SH, UBOSH, isEnableEffect } from '../../rendering/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
-    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager, Attribute, Feature, FormatInfos, getTypedArrayConstructor } from '../../gfx';
+    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager,
+    Attribute, Feature, FormatInfos, getTypedArrayConstructor } from '../../gfx';
 import { errorID, Mat4, cclegacy } from '../../core';
 import { getPhaseID } from '../../rendering/pass-phase';
 import { Root } from '../../root';
@@ -57,12 +58,12 @@ export class SubModel {
     protected _inputAssembler: InputAssembler | null = null;
     protected _descriptorSet: DescriptorSet | null = null;
     protected _worldBoundDescriptorSet: DescriptorSet | null = null;
-    protected _planarInstanceShader: Shader | null = null;
-    protected _planarShader: Shader | null = null;
     protected _reflectionTex: Texture | null = null;
     protected _reflectionSampler: Sampler | null = null;
     protected _instancedAttributeBlock: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
     protected _instancedWorldMatrixIndex = -1;
+    protected _instancedSHIndex = -1;
+    protected _useReflectionProbeType = 0;
 
     /**
      * @en
@@ -83,9 +84,6 @@ export class SubModel {
         }
         this._passes = passes;
         this._flushPassInfo();
-        if (this._passes[0].batchingScheme === BatchingSchemes.VB_MERGING) {
-            this.subMesh.genFlatBuffers();
-        }
 
         // DS layout might change too
         if (this._descriptorSet) {
@@ -114,7 +112,6 @@ export class SubModel {
     set subMesh (subMesh) {
         this._inputAssembler!.destroy();
         this._inputAssembler = this._device!.createInputAssembler(subMesh.iaInfo);
-        if (this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
         this._subMesh = subMesh;
     }
 
@@ -167,22 +164,6 @@ export class SubModel {
     }
 
     /**
-     * @en The shader for rendering the planar shadow, instancing draw version.
-     * @zh 用于渲染平面阴影的着色器，适用于实例化渲染（instancing draw）
-     */
-    get planarInstanceShader (): Shader | null {
-        return this._planarInstanceShader;
-    }
-
-    /**
-     * @en The shader for rendering the planar shadow.
-     * @zh 用于渲染平面阴影的着色器。
-     */
-    get planarShader (): Shader | null {
-        return this._planarShader;
-    }
-
-    /**
      * @en The instance attribute block, access by sub model
      * @zh 硬件实例化属性，通过子模型访问
      */
@@ -194,11 +175,33 @@ export class SubModel {
      * @en Get or set instance matrix id, access by sub model
      * @zh 获取或者设置硬件实例化中的矩阵索引，通过子模型访问
      */
-    set instancedWorldMatrixIndex (val : number) {
+    set instancedWorldMatrixIndex (val: number) {
         this._instancedWorldMatrixIndex = val;
     }
     get instancedWorldMatrixIndex () {
         return this._instancedWorldMatrixIndex;
+    }
+
+    /**
+     * @en Get or set instance SH id, access by sub model
+     * @zh 获取或者设置硬件实例化中的球谐索引，通过子模型访问
+     */
+    set instancedSHIndex (val: number) {
+        this._instancedSHIndex = val;
+    }
+    get instancedSHIndex () {
+        return this._instancedSHIndex;
+    }
+
+    /**
+     * @en Gets or sets the type of reflection probe, Used to process instance
+     * @zh 获取或设置使用反射探针的类型，用于处理instance
+     */
+    set useReflectionProbeType (val) {
+        this._useReflectionProbeType = val;
+    }
+    get useReflectionProbeType () {
+        return this._useReflectionProbeType;
     }
 
     /**
@@ -231,14 +234,12 @@ export class SubModel {
         this._passes = passes;
 
         this._flushPassInfo();
-        if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) {
-            this.subMesh.genFlatBuffers();
-        }
 
         this.priority = RenderPriority.DEFAULT;
-
+        const r = cclegacy.rendering;
         // initialize resources for reflection material
-        if (passes[0].phase === getPhaseID('reflection')) {
+        if (((!r || !r.enableEffectImport) && passes[0].phase === getPhaseID('reflection'))
+        || (isEnableEffect() && passes[0].phaseID === r.getPhaseID(r.getPassID('default'), 'reflection'))) {
             let texWidth = root.mainWindow!.width;
             let texHeight = root.mainWindow!.height;
             const minSize = 512;
@@ -272,33 +273,6 @@ export class SubModel {
             this.descriptorSet.bindSampler(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionSampler);
             this.descriptorSet.bindTexture(UNIFORM_REFLECTION_STORAGE_BINDING, this._reflectionTex);
         }
-    }
-
-    /**
-     * @en
-     * init planar shadow's shader
-     * @zh
-     * 平面阴影着色器初始化
-     */
-    public initPlanarShadowShader () {
-        const pipeline = (cclegacy.director.root as Root).pipeline;
-        const shadowInfo = pipeline.pipelineSceneData.shadows;
-        this._planarShader = shadowInfo.getPlanarShader(this._patches);
-    }
-
-    /**
-     * @en
-     * init planar shadow's instance shader
-     * @zh
-     * 平面阴影实例着色器初始化
-     */
-    /**
-     * @internal
-     */
-    public initPlanarShadowInstanceShader () {
-        const pipeline = (cclegacy.director.root as Root).pipeline;
-        const shadowInfo = pipeline.pipelineSceneData.shadows;
-        this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
     }
 
     /**
@@ -442,6 +416,28 @@ export class SubModel {
         v2[0] = mat.m04; v2[1] = mat.m05; v2[2] = mat.m06; v2[3] = mat.m13;
         v3[0] = mat.m08; v3[1] = mat.m09; v3[2] = mat.m10; v3[3] = mat.m14;
     }
+
+    /**
+     * @en
+     * update instancing SH data, invoked by model
+     * @zh
+     * 更新硬件实例化球谐数据，一般由model调用
+     */
+    /**
+     * @internal
+     */
+    public updateInstancedSH (data: Float32Array, idx: number) {
+        const attrs = this.instancedAttributeBlock.views;
+        const count = (UBOSH.SH_QUADRATIC_R_OFFSET - UBOSH.SH_LINEAR_CONST_R_OFFSET) / 4;
+        let offset = 0;
+
+        for (let i = idx; i < idx + count; i++) {
+            for (let k = 0; k < 4; k++) {
+                attrs[i][k] = data[offset++];
+            }
+        }
+    }
+
     /**
      * @en
      * update instancing related data, invoked by model
@@ -454,6 +450,7 @@ export class SubModel {
     public UpdateInstancedAttributes (attributes: Attribute[]) {
         // initialize subModelWorldMatrixIndex
         this.instancedWorldMatrixIndex = -1;
+        this.instancedSHIndex = -1;
 
         const pass = this.passes[0];
         if (!pass.device.hasFeature(Feature.INSTANCED_ARRAYS)) { return; }
@@ -488,6 +485,7 @@ export class SubModel {
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { pass.getInstancedBuffer().destroy(); } // instancing IA changed
         this.instancedWorldMatrixIndex = this.getInstancedAttributeIndex(INST_MAT_WORLD);
+        this.instancedSHIndex = this.getInstancedAttributeIndex(INST_SH);
     }
 
     protected _flushPassInfo (): void {

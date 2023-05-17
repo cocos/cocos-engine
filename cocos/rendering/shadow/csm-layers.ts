@@ -1,15 +1,16 @@
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
  https://www.cocos.com/
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -17,15 +18,15 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { DirectionalLight, Camera, Shadows, CSMLevel, CSMOptimizationMode } from '../../render-scene/scene';
 import { Mat4, Vec3, Vec2, Vec4 } from '../../core/math';
 import { Frustum, AABB } from '../../core/geometry';
 import { IRenderObject } from '../define';
-import { legacyCC } from '../../core/global-exports';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { CachedArray } from '../../core/memop/cached-array';
+import { cclegacy } from '../../core';
 
 const _mat4Trans = new Mat4();
 const _matShadowTrans = new Mat4();
@@ -138,7 +139,7 @@ export class ShadowLayerVolume {
     }
 
     public createMatrix (dirLight: DirectionalLight, shadowMapWidth: number, onlyForCulling: boolean) {
-        const device = legacyCC.director.root.device;
+        const device = cclegacy.director.root.device;
         const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
         Frustum.copy(this._lightViewFrustum, this._splitFrustum);
 
@@ -160,7 +161,7 @@ export class ShadowLayerVolume {
             orthoSizeWidth = orthoSizeHeight = Vec3.distance(this._lightViewFrustum.vertices[0], this._lightViewFrustum.vertices[6]);
         }
 
-        const csmLevel = legacyCC.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
+        const csmLevel = cclegacy.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
         if (csmLevel > 1 && dirLight.csmOptimizationMode
             === CSMOptimizationMode.RemoveDuplicates) {
             if (this._level >= csmLevel - 1) {
@@ -249,7 +250,7 @@ export class CSMShadowLayer extends ShadowLayerVolume {
     }
 
     private _calculateAtlas (level: number) {
-        const clipSpaceSignY =  legacyCC.director.root.device.capabilities.clipSpaceSignY;
+        const clipSpaceSignY =  cclegacy.director.root.device.capabilities.clipSpaceSignY;
         const x = level % 2 - 0.5;
         const y = (0.5 - Math.floor(level / 2)) * clipSpaceSignY;
         this._csmAtlas.set(0.5, 0.5, x, y);
@@ -299,7 +300,7 @@ export class CSMLayers {
         if (dirLight === null) { return; }
 
         const shadowInfo = sceneData.shadows;
-        const levelCount = legacyCC.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
+        const levelCount = cclegacy.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
         const shadowDistance = dirLight.shadowDistance;
 
         if (!shadowInfo.enabled || !dirLight.shadowEnabled) { return; }
@@ -327,7 +328,7 @@ export class CSMLayers {
     }
 
     private _updateFixedArea (dirLight: DirectionalLight) {
-        const device = legacyCC.director.root.device;
+        const device = cclegacy.director.root.device;
         const x = dirLight.shadowOrthoSize;
         const y = dirLight.shadowOrthoSize;
         const near = dirLight.shadowNear;
@@ -348,7 +349,7 @@ export class CSMLayers {
         const nd = 0.1;
         const fd = dirLight.shadowDistance;
         const ratio = fd / nd;
-        const level = legacyCC.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
+        const level = cclegacy.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
         const lambda = dirLight.csmLayerLambda;
         this._layers[0].splitCameraNear = nd;
         for (let i = 1; i < level; i++) {
@@ -368,7 +369,7 @@ export class CSMLayers {
     }
 
     private _calculateCSM (camera: Camera, dirLight: DirectionalLight, shadowInfo: Shadows) {
-        const level = legacyCC.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
+        const level = cclegacy.director.root.pipeline.pipelineSceneData.csmSupported ? dirLight.csmLevel : 1;
         const shadowMapWidth = level > 1 ? shadowInfo.size.x * 0.5 : shadowInfo.size.x;
 
         if (shadowMapWidth < 0.0) { return; }
@@ -402,8 +403,5 @@ export class CSMLayers {
         const rotation = cameraNode.getWorldRotation();
 
         Mat4.fromRT(out, rotation, position);
-        out.m08 *= -1.0;
-        out.m09 *= -1.0;
-        out.m10 *= -1.0;
     }
 }

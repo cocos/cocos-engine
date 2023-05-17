@@ -1423,7 +1423,7 @@ unsigned JSONDataParser::_parseIKConstraintFrame(const rapidjson::Value &rawData
     auto frameIntOffset = _frameIntArray.size();
     _frameIntArray.resize(_frameIntArray.size() + 2);
     _frameIntArray[frameIntOffset++] = _getBoolean(rawData, BEND_POSITIVE, true) ? 1 : 0;
-    _frameIntArray[frameIntOffset++] = round(_getNumber(rawData, WEIGHT, 1.0f) * 100.0f);
+    _frameIntArray[frameIntOffset++] = std::round(_getNumber(rawData, WEIGHT, 1.0f) * 100.0f);
 
     return frameOffset;
 }

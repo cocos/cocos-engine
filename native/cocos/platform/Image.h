@@ -1,20 +1,19 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2016-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2016-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -54,6 +53,8 @@ public:
         ETC2,
         //! ASTC
         ASTC,
+        //! Compressed Data
+        COMPRESSED,
         //! Raw Data
         RAW_DATA,
         //! Unknown format
@@ -81,6 +82,7 @@ public:
     inline int getHeight() const { return _height; }
     inline ccstd::string getFilePath() const { return _filePath; }
     inline bool isCompressed() const { return _isCompressed; }
+    inline const ccstd::vector<uint32_t> &getMipmapLevelDataSize() const { return _mipmapLevelDataSize; }
 
     /**
      @brief    Save Image data to the specified file, with specified format.
@@ -101,6 +103,7 @@ protected:
     bool initWithETCData(const unsigned char *data, uint32_t dataLen);
     bool initWithETC2Data(const unsigned char *data, uint32_t dataLen);
     bool initWithASTCData(const unsigned char *data, uint32_t dataLen);
+    bool initWithCompressedMipsData(const unsigned char *data, uint32_t dataLen);
 
     bool saveImageToPNG(const std::string &filePath, bool isToRGB = true);
     bool saveImageToJPG(const std::string &filePath);
@@ -113,6 +116,7 @@ protected:
     gfx::Format _renderFormat;
     ccstd::string _filePath;
     bool _isCompressed = false;
+    ccstd::vector<uint32_t> _mipmapLevelDataSize;
 
     static Format detectFormat(const unsigned char *data, uint32_t dataLen);
     static bool isPng(const unsigned char *data, uint32_t dataLen);
@@ -122,6 +126,7 @@ protected:
     static bool isEtc(const unsigned char *data, uint32_t dataLen);
     static bool isEtc2(const unsigned char *data, uint32_t dataLen);
     static bool isASTC(const unsigned char *data, uint32_t detaLen);
+    static bool isCompressed(const unsigned char *data, uint32_t detaLen);
 
     static gfx::Format getASTCFormat(const unsigned char *pHeader);
 

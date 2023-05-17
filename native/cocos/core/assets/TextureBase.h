@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,6 +29,7 @@
 #include "core/assets/Asset.h"
 #include "core/assets/AssetEnum.h"
 #include "renderer/gfx-base/GFXDef.h"
+#include "base/std/container/unordered_map.h"
 
 #include "base/std/any.h"
 
@@ -56,19 +56,19 @@ public:
      * @en The pixel format enum.
      * @zh 像素格式枚举类型
      */
-    using PixelFormat = PixelFormat;
+    using PixelFormat = cc::PixelFormat;
 
     /**
      * @en The wrap mode enum.
      * @zh 环绕模式枚举类型
      */
-    using WrapMode = WrapMode;
+    using WrapMode = cc::WrapMode;
 
     /**
      * @en The texture filter mode enum
      * @zh 纹理过滤模式枚举类型
      */
-    using Filter = Filter;
+    using Filter = cc::Filter;
 
     TextureBase(); // NOTE: Editor needs to invoke 'new TextureBase' in JS, so we need to make the constructor public.
     ~TextureBase() override;
@@ -244,10 +244,9 @@ public:
     /*@serializable*/
     uint32_t _anisotropy{0};
 
+protected:
     uint32_t _width{1};
     uint32_t _height{1};
-
-protected:
     ccstd::string _id;
     gfx::SamplerInfo _samplerInfo;
     gfx::Sampler *_gfxSampler{nullptr};

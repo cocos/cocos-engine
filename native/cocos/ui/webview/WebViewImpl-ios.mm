@@ -46,7 +46,7 @@
 
 - (void)setBounces:(bool)bounces;
 
-- (void)setFrameWithX:(float)x y:(float)y width:(float)width height:(float)height;
+- (void)setFrame:(float)x y:(float)y width:(float)width height:(float)height;
 
 - (void)setJavascriptInterfaceScheme:(const ccstd::string &)scheme;
 
@@ -124,13 +124,13 @@
     self.uiWebView.scrollView.bounces = bounces;
 }
 
-- (void)setFrameWithX:(float)x y:(float)y width:(float)width height:(float)height {
+- (void)setFrame:(float)x y:(float)y width:(float)width height:(float)height {
     if (!self.uiWebView) {
         [self setupWebView];
     }
     CGRect newFrame = CGRectMake(x, y, width, height);
     if (!CGRectEqualToRect(self.uiWebView.frame, newFrame)) {
-        self.uiWebView.frame = CGRectMake(x, y, width, height);
+        self.uiWebView.frame = newFrame;
     }
 }
 
@@ -450,9 +450,9 @@ void WebViewImpl::setFrame(float x, float y, float width, float height) {
         return;
     }
 
-    UIView *view = UIApplication.sharedApplication.delegate.window.rootViewController.view;
-    auto scaleFactor = [view contentScaleFactor];
-    [_uiWebViewWrapper setFrameWithX:x / scaleFactor
+    auto scaleFactor = [[UIScreen mainScreen] nativeScale];
+
+    [_uiWebViewWrapper setFrame:x / scaleFactor
                                    y:y / scaleFactor
                                width:width / scaleFactor
                               height:height / scaleFactor];

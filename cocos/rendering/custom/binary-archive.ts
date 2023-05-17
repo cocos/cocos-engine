@@ -1,10 +1,34 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { OutputArchive, InputArchive } from './archive';
 
 export class BinaryOutputArchive implements OutputArchive {
     constructor () {
         this.capacity = 4096;
         this.buffer = new Uint8Array(this.capacity);
-        this.dataView = new DataView(this.buffer);
+        this.dataView = new DataView(this.buffer.buffer);
     }
     writeBool (value: boolean): void {
         const newSize = this.size + 1;
@@ -38,7 +62,7 @@ export class BinaryOutputArchive implements OutputArchive {
         const prevBuffer = this.buffer;
         this.buffer = new Uint8Array(newCapacity);
         this.buffer.set(prevBuffer);
-        this.dataView = new DataView(this.buffer);
+        this.dataView = new DataView(this.buffer.buffer);
         this.capacity = newCapacity;
     }
     get data (): ArrayBuffer {
@@ -64,10 +88,11 @@ export class BinaryInputArchive implements InputArchive {
     }
     readString (): string {
         const length = this.readNumber();
-        const value = new Uint8Array(this.dataView.buffer, this.offset, length).toString();
+        const value = new Uint8Array(this.dataView.buffer, this.offset, length);
         this.offset += length;
-        return value;
+        return this.textDecoder.decode(value);
     }
     offset = 0;
     dataView: DataView;
+    textDecoder = new TextDecoder('utf-8');
 }

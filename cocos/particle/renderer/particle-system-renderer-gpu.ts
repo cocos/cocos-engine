@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
@@ -74,7 +73,7 @@ const _vert_attr_name = {
     DIR_LIFE: 'a_dir_life',
     RANDOM_SEED: 'a_rndSeed',
     VERT_SIZE_FID: 'a_size_fid',
-    VERT_ROTATION_RND: 'a_rotation_rnd',
+    VERT_ROTATION: 'a_rotation',
     VERT_UV: 'a_uv',
 };
 
@@ -103,18 +102,20 @@ const _gpu_vert_attr_mesh = [
 const _gpu_vert_attr_ins = [
     new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.VERT_SIZE_FID, Format.RGBA32F, false, 0, true),
-    new Attribute(_vert_attr_name.VERT_ROTATION_RND, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.VERT_ROTATION, Format.RGB32F, false, 0, true),
     new Attribute(_vert_attr_name.COLOR, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F, false, 0, true),
     new Attribute(_vert_attr_name.VERT_UV, Format.RGB32F, false, 1),
 ];
 
 const _gpu_vert_attr_mesh_ins = [
     new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.VERT_SIZE_FID, Format.RGBA32F, false, 0, true),
-    new Attribute(_vert_attr_name.VERT_ROTATION_RND, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.VERT_ROTATION, Format.RGB32F, false, 0, true),
     new Attribute(_vert_attr_name.COLOR, Format.RGBA32F, false, 0, true),
     new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F, false, 0, true),
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F, false, 0, true),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F, false, 1),      // mesh uv
     new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F, false, 1),     // mesh position
     new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, 1),         // mesh normal
@@ -268,7 +269,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
             if (cameraLst !== undefined) {
                 for (let i = 0; i < cameraLst?.length; ++i) {
-                    const camera:Camera = cameraLst[i];
+                    const camera: Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
                     const checkCamera: boolean = (!EDITOR || cclegacy.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
@@ -373,7 +374,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         let enable = false;
         // force
         const forceModule = this._particleSystem._forceOvertimeModule;
-        enable = forceModule && forceModule.enable;
+        enable = forceModule ? forceModule.enable : false;
         this._defines[FORCE_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             const packed = packCurveRangeXYZ(this._forceTexture, this._forceData, _sample_num, forceModule.x, forceModule.y, forceModule.z);
@@ -391,7 +392,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         // velocity
         const velocityModule = this._particleSystem._velocityOvertimeModule;
-        enable = velocityModule && velocityModule.enable;
+        enable = velocityModule ? velocityModule.enable : false;
         this._defines[VELOCITY_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             const packed = packCurveRangeXYZW(this._velocityTexture, this._velocityData, _sample_num, velocityModule.x, velocityModule.y,
@@ -410,7 +411,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         // color module
         const colorModule = this._particleSystem._colorOverLifetimeModule;
-        enable = colorModule && colorModule.enable;
+        enable = colorModule ? colorModule.enable : false;
         this._defines[COLOR_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             const packed = packGradientRange(this._colorTexture, this._colorData, _sample_num, colorModule.color);
@@ -426,7 +427,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         // rotation module
         const roationModule = this._particleSystem._rotationOvertimeModule;
-        enable = roationModule && roationModule.enable;
+        enable = roationModule ? roationModule.enable : false;
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             let packed;
@@ -450,7 +451,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         // size module
         const sizeModule = this._particleSystem._sizeOvertimeModule;
-        enable = sizeModule && sizeModule.enable;
+        enable = sizeModule ? sizeModule.enable : false;
         this._defines[SIZE_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             let packed;
@@ -473,7 +474,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         // texture module
         const textureModule = this._particleSystem._textureAnimationModule;
-        enable = textureModule && textureModule.enable;
+        enable = textureModule ? textureModule.enable : false;
         this._defines[TEXTURE_ANIMATION_MODULE_ENABLE] = enable;
         if (enable) {
             // eslint-disable-next-line max-len

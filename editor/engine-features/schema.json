@@ -61,9 +61,6 @@
                 "animation": {
                     "$ref": "#/definitions/Item"
                 },
-                "ar": {
-                    "$ref": "#/definitions/Item"
-                },
                 "audio": {
                     "$ref": "#/definitions/Item"
                 },
@@ -209,9 +206,6 @@
                     "$ref": "#/definitions/BaseItem"
                 },
                 "animation": {
-                    "$ref": "#/definitions/BaseItem"
-                },
-                "ar": {
                     "$ref": "#/definitions/BaseItem"
                 },
                 "audio": {

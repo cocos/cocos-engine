@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,12 +20,12 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType } from '../framework';
-import { error, RecyclePool, js, IVec3Like, geometry } from '../../core';
+import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType, CharacterControllerContact } from '../framework';
+import { error, RecyclePool, js, IVec3Like, geometry, Vec3 } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import {
@@ -41,6 +40,7 @@ import { PhysXShape } from './shapes/physx-shape';
 import { EFilterDataWord3 } from './physx-enum';
 import { PhysXInstance } from './physx-instance';
 import { Node } from '../../scene-graph';
+import { PhysXCharacterController } from './character-controllers/physx-character-controller';
 
 export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     setAllowSleep (_v: boolean): void { }
@@ -53,6 +53,9 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     readonly scene: any;
     readonly callback = PhysXCallback;
     readonly wrappedBodies: PhysXSharedBody[] = [];
+    readonly ccts: PhysXCharacterController[] = [];
+
+    controllerManager: any;
 
     private _isNeedFetch = false;
 
@@ -67,13 +70,19 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
-        if (this.wrappedBodies.length === 0) return;
+        if (this.wrappedBodies.length === 0 && this.ccts.length === 0) return;
         this._simulate(deltaTime);
         if (!PX.MULTI_THREAD) {
             this._fetchResults();
             for (let i = 0; i < this.wrappedBodies.length; i++) {
                 const body = this.wrappedBodies[i];
                 body.syncPhysicsToScene();
+            }
+            const ccts = this.ccts;
+            const length = ccts.length;
+            for (let i = 0; i < length; i++) {
+                const cct = ccts[i];
+                cct.syncPhysicsToScene();
             }
         }
     }
@@ -96,6 +105,12 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         for (let i = 0; i < this.wrappedBodies.length; i++) {
             const body = this.wrappedBodies[i];
             body.syncSceneToPhysics();
+        }
+        const ccts = this.ccts;
+        const length = ccts.length;
+        for (let i = 0; i < length; i++) {
+            const cct = ccts[i];
+            cct.syncSceneToPhysics();
         }
     }
 
@@ -135,6 +150,20 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         }
     }
 
+    addCCT (cct: PhysXCharacterController): void {
+        const index = this.ccts.indexOf(cct);
+        if (index < 0) {
+            this.ccts.push(cct);
+        }
+    }
+
+    removeCCT (cct: PhysXCharacterController): void {
+        const index = this.ccts.indexOf(cct);
+        if (index >= 0) {
+            js.array.fastRemoveAt(this.ccts, index);
+        }
+    }
+
     addConstraint (_constraint: IBaseConstraint): void { }
 
     removeConstraint (_constraint: IBaseConstraint): void { }
@@ -151,6 +180,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         gatherEvents(this);
         PhysXCallback.emitTriggerEvent();
         PhysXCallback.emitCollisionEvent();
+        PhysXCallback.emitCCTShapeEvent();
     }
 }
 
@@ -179,6 +209,9 @@ const triggerEventsPool: ITriggerEventItem[] = [];
 const contactEventDic = new TupleDictionary();
 const contactEventsPool: ICollisionEventItem[] = [];
 const contactsPool: [] = [];
+const cctShapeEventDic = new TupleDictionary();
+const emitHit = new CharacterControllerContact();
+
 const PhysXCallback = {
     eventCallback: {
         onContactBegin: (a: any, b: any, c: any, d: any, o: number): void => {
@@ -365,5 +398,44 @@ const PhysXCallback = {
             }
         }
         contactEventDic.reset();
+    },
+    controllerHitReportCB: {
+        onShapeHit (hit: any): void { //PX.ControllerShapeHit
+            const cct = getWrapShape<PhysXCharacterController>(hit.getCurrentController());
+            const s = getWrapShape<PhysXShape>(hit.getTouchedShape());
+            let item = cctShapeEventDic.get<any>(hit.getCurrentController(), hit.getTouchedShape());
+            if (!item) {
+                const worldPos = new Vec3();
+                worldPos.set(hit.worldPos.x, hit.worldPos.y, hit.worldPos.z);
+                const worldNormal = new Vec3();
+                worldNormal.set(hit.worldNormal.x, hit.worldNormal.y, hit.worldNormal.z);
+                const motionDir = new Vec3();
+                motionDir.set(hit.dir.x, hit.dir.y, hit.dir.z);
+                const motionLength = hit.length;
+                item = cctShapeEventDic.set(hit.getCurrentController(), hit.getTouchedShape(),
+                    { PhysXCharacterController: cct, PhysXShape: s, worldPos, worldNormal, motionDir, motionLength });
+            }
+        },
+        onControllerHit (hit: any): void { //PX.ControllersHit
+        },
+    },
+    emitCCTShapeEvent (): void {
+        let dicL = cctShapeEventDic.getLength();
+        while (dicL--) {
+            const key = cctShapeEventDic.getKeyByIndex(dicL);
+            const data = cctShapeEventDic.getDataByKey<any>(key);
+            const cct = data.PhysXCharacterController.characterController;
+            const collider = data.PhysXShape.collider;
+            if (cct && cct.isValid && collider && collider.isValid) {
+                emitHit.selfCCT = cct;
+                emitHit.otherCollider = collider;
+                emitHit.worldPosition.set(data.worldPos);
+                emitHit.worldNormal.set(data.worldNormal);
+                emitHit.motionDirection.set(data.motionDir);
+                emitHit.motionLength = data.motionLength;
+                cct.emit('onColliderHit', cct, collider, emitHit);
+            }
+        }
+        cctShapeEventDic.reset();
     },
 };

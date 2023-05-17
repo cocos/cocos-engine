@@ -1,0 +1,20 @@
+#if CC_USE_LIGHT_PROBE
+  #if USE_INSTANCING
+    out mediump vec4 v_sh_linear_const_r;
+    out mediump vec4 v_sh_linear_const_g;
+    out mediump vec4 v_sh_linear_const_b;
+  #endif
+#endif
+
+//define function to transfer
+
+void CC_TRANSFER_SH() {
+#if CC_USE_LIGHT_PROBE
+  #if USE_INSTANCING
+    v_sh_linear_const_r = a_sh_linear_const_r;
+    v_sh_linear_const_g = a_sh_linear_const_g;
+    v_sh_linear_const_b = a_sh_linear_const_b;
+  #endif
+#endif
+}
+

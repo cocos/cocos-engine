@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { TransformBit } from '../../scene-graph/node-enum';
 import { Node } from '../../scene-graph';
@@ -35,7 +34,7 @@ import { CC_V3_0, CC_QUAT_0, BulletCache } from './bullet-cache';
 import { PhysicsSystem } from '../framework';
 import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
 import { js } from '../../core';
-import { bt } from './instantiated';
+import { bt, EBulletType } from './instantiated';
 import { BulletConstraint } from './constraints/bullet-constraint';
 
 const v3_0 = CC_V3_0;
@@ -513,16 +512,16 @@ export class BulletSharedBody {
         if (this._bodyStruct) {
             const bodyStruct = this._bodyStruct;
             BulletCache.delWrapper(bodyStruct.body, bt.BODY_CACHE_NAME);
-            bt.MotionState_del(bodyStruct.motionState);
-            bt.CollisionShape_del(bodyStruct.compound);
-            bt.CollisionObject_del(bodyStruct.body);
+            bt._safe_delete(bodyStruct.motionState, EBulletType.EBulletTypeMotionState);
+            bt._safe_delete(bodyStruct.compound, EBulletType.EBulletTypeCollisionShape);
+            bt._safe_delete(bodyStruct.body, EBulletType.EBulletTypeCollisionObject);
             (this._bodyStruct as any) = null;
         }
 
         if (this._ghostStruct) {
             const ghostStruct = this._ghostStruct;
-            bt.CollisionShape_del(ghostStruct.compound);
-            bt.CollisionObject_del(ghostStruct.ghost);
+            bt._safe_delete(ghostStruct.compound, EBulletType.EBulletTypeCollisionShape);
+            bt._safe_delete(ghostStruct.ghost, EBulletType.EBulletTypeCollisionObject);
             (this._ghostStruct as any) = null;
         }
     }

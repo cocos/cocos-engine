@@ -1,4 +1,28 @@
-import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
@@ -8,12 +32,18 @@ import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../en
 let currentPlatform: Platform;
 if (WECHAT) {
     currentPlatform = Platform.WECHAT_GAME;
+} else if (WECHAT_MINI_PROGRAM) {
+    currentPlatform = Platform.WECHAT_MINI_PROGRAM;
 } else if (BAIDU) {
     currentPlatform = Platform.BAIDU_MINI_GAME;
 } else if (XIAOMI) {
     currentPlatform = Platform.XIAOMI_QUICK_GAME;
 } else if (ALIPAY) {
     currentPlatform = Platform.ALIPAY_MINI_GAME;
+} else if (TAOBAO) {
+    currentPlatform = Platform.TAOBAO_CREATIVE_APP;
+} else if (TAOBAO_MINIGAME) {
+    currentPlatform = Platform.TAOBAO_MINI_GAME;
 } else if (BYTEDANCE) {
     currentPlatform = Platform.BYTEDANCE_MINI_GAME;
 } else if (OPPO) {
@@ -102,8 +132,9 @@ class SystemInfo extends EventTarget {
             [Feature.WEBP]: false,      // Initialize in Promise,
             [Feature.IMAGE_BITMAP]: false,
             [Feature.WEB_VIEW]: false,
-            [Feature.VIDEO_PLAYER]: WECHAT || OPPO,
-            [Feature.SAFE_AREA]: WECHAT || BYTEDANCE,
+            [Feature.VIDEO_PLAYER]: WECHAT || WECHAT_MINI_PROGRAM || OPPO,
+            [Feature.SAFE_AREA]: WECHAT || WECHAT_MINI_PROGRAM || BYTEDANCE,
+            [Feature.HPE]: false,
 
             [Feature.INPUT_TOUCH]: !isPCWechat,
             [Feature.EVENT_KEYBOARD]: isPCWechat,
@@ -113,6 +144,8 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_GAMEPAD]: false,
             [Feature.EVENT_HANDLE]: this.isXR,
             [Feature.EVENT_HMD]: this.isXR,
+            [Feature.EVENT_HANDHELD]: false,
+            [Feature.WASM]: WECHAT,
         };
 
         this._initPromise = [];
@@ -132,6 +165,15 @@ class SystemInfo extends EventTarget {
 
     private _supportsWebp (): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
+            if (WECHAT_MINI_PROGRAM) {
+                resolve(true);
+                return;
+            }
+            // HACK: webp base64 doesn't support on Wechat Android, which reports some internal error log.
+            if (WECHAT && this.os === OS.ANDROID) {
+                resolve(false);
+                return;
+            }
             try {
                 const img = document.createElement('img');
                 const timer = setTimeout(() => {
@@ -181,7 +223,7 @@ class SystemInfo extends EventTarget {
         return minigame.getBatteryInfoSync().level / 100;
     }
     public triggerGC (): void {
-        minigame.triggerGC();
+        minigame.triggerGC?.();
     }
     public openURL (url: string): void {
         if (DEBUG) {

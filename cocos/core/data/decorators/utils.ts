@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,24 +20,29 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { DEV } from 'internal:constants';
 import { CCClass } from '../class';
 import { error } from '../../platform/debug';
 import { getClassName } from '../../utils/js-typed';
 
-export type BabelPropertyDecoratorDescriptor = PropertyDescriptor & { initializer?: any };
+export type Initializer = () => unknown;
+
+export type BabelPropertyDecoratorDescriptor = PropertyDescriptor & { initializer?: Initializer };
 
 /**
  * @en
- * The signature compatible with both TypeScript legacy decorator and Babel legacy decorator.
- * The `descriptor` argument will only appear in Babel case.
+ * The signature is compatible with both the TypeScript legacy decorator and the Babel legacy decorator.
+ * The third argument is `descriptor` in the Babel case.
+ * For some engine internally optimized decorators, the third argument is the initializer.
  * @zh
  * 该签名同时兼容 TypeScript legacy 装饰器以及 Babel legacy 装饰器。
- * `descriptor` 参数只会在 Babel 情况下出现。
+ * 第三个参数在 Babel 情况下，会传入 descriptor。对于一些被优化的引擎内部装饰器，会传入 initializer。
  */
-export type LegacyPropertyDecorator = (target: Object, propertyKey: string | symbol, descriptor?: BabelPropertyDecoratorDescriptor) => void;
+export type LegacyPropertyDecorator = (
+    target: Record<string, any>, propertyKey: string | symbol, descriptorOrInitializer?: BabelPropertyDecoratorDescriptor | Initializer | null,
+) => void;
 
 /**
  * @en
@@ -50,7 +54,7 @@ export const emptyDecorator: ClassDecorator & LegacyPropertyDecorator = () => {}
 
 /**
  * @en
- * A function which ignore all arguments and return the `emptyDecorator`.
+ * A function that ignores all arguments and returns the `emptyDecorator`.
  * @zh
  * 一个忽略所有参数并且返回 `emptyDecorator` 的函数。
  */
@@ -71,7 +75,7 @@ export const emptySmartClassDecorator = makeSmartClassDecorator(() => {});
  * - `@x`
  * - `@x(arg0)`
  *
- * and forward both the decorated class and the `arg0` (in first form, `arg0` is forward as `undefined`) to
+ * and forward both the decorated class and the `arg0` (in the first form, `arg0` is forwarded as `undefined`) to
  * `decorate`.
  * @zh
  * 创建一个智能类装饰器，它能正确地处理以下形式的装饰器语法：
@@ -82,7 +86,7 @@ export const emptySmartClassDecorator = makeSmartClassDecorator(() => {});
  * @param decorate
  */
 export function makeSmartClassDecorator<TArg> (
-    decorate: <TFunction extends Function>(constructor: TFunction, arg?: TArg) => ReturnType<ClassDecorator>,
+    decorate: <TFunction extends AnyFunction>(constructor: TFunction, arg?: TArg) => ReturnType<ClassDecorator>,
 ): ClassDecorator & ((arg?: TArg) => ClassDecorator) {
     return proxyFn;
     function proxyFn(...args: Parameters<ClassDecorator>): ReturnType<ClassDecorator>;
@@ -92,14 +96,14 @@ export function makeSmartClassDecorator<TArg> (
             // If no parameter specified
             return decorate(target);
         } else {
-            return function <TFunction extends Function> (constructor: TFunction) {
+            return function <TFunction extends AnyFunction> (constructor: TFunction) {
                 return decorate(constructor, target);
             };
         }
     }
 }
 
-function writeEditorClassProperty<TValue> (constructor: Function, propertyName: string, value: TValue) {
+function writeEditorClassProperty<TValue> (constructor: AnyFunction, propertyName: string, value: TValue) {
     const cache = getClassCache(constructor, propertyName);
     if (cache) {
         const proto = getSubDict(cache, 'proto');
@@ -109,7 +113,7 @@ function writeEditorClassProperty<TValue> (constructor: Function, propertyName: 
 
 /**
  * @en
- * Make a function which accept an argument value and return a class decorator.
+ * Make a function that accepts an argument value and returns a class decorator.
  * The decorator sets the editor property `propertyName`, on the decorated class, into that argument value.
  * @zh
  * 创建一个函数，该函数接受一个参数值并返回一个类装饰器。
@@ -117,7 +121,7 @@ function writeEditorClassProperty<TValue> (constructor: Function, propertyName: 
  * @param propertyName The editor property.
  */
 export function makeEditorClassDecoratorFn<TValue> (propertyName: string): (value: TValue) => ClassDecorator {
-    return (value: TValue) => <TFunction extends Function>(constructor: TFunction) => {
+    return (value: TValue) => <TFunction extends AnyFunction>(constructor: TFunction) => {
         writeEditorClassProperty(constructor, propertyName, value);
     };
 }
@@ -148,10 +152,10 @@ export function getClassCache (ctor, decoratorName?) {
         error('`@%s` should be used after @ccclass for class "%s"', decoratorName, getClassName(ctor));
         return null;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return getSubDict(ctor, CACHE_KEY);
 }
 
 export function getSubDict<T, TKey extends keyof T> (obj: T, key: TKey): NonNullable<T[TKey]> {
-    // @ts-expect-error I don't know how to fix it.
-    return obj[key] || (obj[key] = {});
+    return obj[key] as NonNullable<T[TKey]> || ((obj[key]) = {} as NonNullable<T[TKey]>);
 }

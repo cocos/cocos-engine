@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable no-console */
@@ -31,18 +30,23 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable import/order */
 
-import { PhysX } from './physx.asmjs';
-import { BYTEDANCE, DEBUG, EDITOR, TEST } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings } from '../../core';
+import { asmFactory } from './physx.asmjs';
+import { wasmFactory, PhysXWasmUrl } from './physx.wasmjs';
+import { WebAssemblySupportMode } from '../../misc/webassembly-support';
+import { instantiateWasm } from 'pal/wasm';
+import { BYTEDANCE, DEBUG, EDITOR, TEST, WASM_SUPPORT_MODE } from 'internal:constants';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
-import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem } from '../framework';
+import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem, CharacterControllerContact } from '../framework';
 import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
 import { Node } from '../../scene-graph';
 import { Director, director, game } from '../../game';
+import { degreesToRadians } from '../../core/utils/misc';
+import { PhysXCharacterController } from './character-controllers/physx-character-controller';
 
 export const PX = {} as any;
 const globalThis = cclegacy._global;
@@ -55,30 +59,65 @@ game.onPostInfrastructureInitDelegate.add(InitPhysXLibs);
 
 export function InitPhysXLibs () {
     if (USE_BYTEDANCE) {
-        if (!EDITOR && !TEST) console.info('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
+        if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
         Object.assign(PX, globalThis.nativePhysX);
         Object.assign(_pxtrans, new PX.Transform(_v3, _v4));
         _pxtrans.setPosition = PX.Transform.prototype.setPosition.bind(_pxtrans);
         _pxtrans.setQuaternion = PX.Transform.prototype.setQuaternion.bind(_pxtrans);
         initConfigAndCacheObject(PX);
     } else {
-        if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
-        return initPhysXWithJsModule();
+        if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+            if (sys.hasFeature(sys.Feature.WASM)) {
+                return initWASM();
+            } else {
+                return initASM();
+            }
+        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+            return initWASM();
+        } else {
+            return initASM();
+        }
     }
 }
 
-function initPhysXWithJsModule () {
-    // If external PHYSX not given, then try to use internal PhysX libs.
-    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : PhysX;
+function initASM () {
+    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : asmFactory;
     if (globalThis.PhysX != null) {
         return globalThis.PhysX().then((Instance: any) => {
-            if (!EDITOR && !TEST) console.info('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX libs loaded.`);
+            if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX asm libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
             Object.assign(PX, Instance);
-        }, (reason: any) => { console.error('[PHYSICS]:', `PhysX load failed: ${reason}`); });
+        }, (reason: any) => { console.error('[PHYSICS]:', `PhysX asm load failed: ${reason}`); });
     } else {
-        if (!EDITOR) console.error('[PHYSICS]:', 'Not Found PhysX js or wasm Libs.');
+        if (!EDITOR && !TEST) console.error('[PHYSICS]:', 'Failed to load PhysX js libs, package may be not found.');
+        return new Promise<void>((resolve, reject) => {
+            resolve();
+        });
+    }
+}
+
+function initWASM () {
+    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : wasmFactory;
+    if (globalThis.PhysX != null) {
+        return globalThis.PhysX({
+            instantiateWasm (importObject: WebAssembly.Imports,
+                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
+                return instantiateWasm(PhysXWasmUrl, importObject).then((result: any) => {
+                    receiveInstance(result.instance, result.module);
+                });
+            },
+        }).then((Instance: any) => {
+            if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX wasm libs loaded.`);
+            initAdaptWrapper(Instance);
+            initConfigAndCacheObject(Instance);
+            Object.assign(PX, Instance);
+        }, (reason: any) => { console.error('[PHYSICS]:', `PhysX wasm load failed: ${reason}`); });
+    } else {
+        if (!EDITOR && !TEST) console.error('[PHYSICS]:', 'Failed to load PhysX wasm libs, package may be not found.');
+        return new Promise<void>((resolve, reject) => {
+            resolve();
+        });
     }
 }
 
@@ -111,7 +150,8 @@ function initAdaptWrapper (obj: any) {
     obj.TriangleMeshGeometry = obj.PxTriangleMeshGeometry;
     obj.RigidDynamicLockFlag = obj.PxRigidDynamicLockFlag;
     obj.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => obj.PxRevoluteJointCreate(PX.physics, a, b, c, d);
-    obj.createDistanceJoint = (a: any, b: any, c: any, d: any): any => obj.PxDistanceJointCreate(PX.physics, a, b, c, d);
+    obj.createFixedConstraint = (a: any, b: any, c: any, d: any): any => obj.PxFixedJointCreate(PX.physics, a, b, c, d);
+    obj.createSphericalJoint = (a: any, b: any, c: any, d: any): any => obj.PxSphericalJointCreate(PX.physics, a, b, c, d);
 }
 
 const _v3: IVec3Like = { x: 0, y: 0, z: 0 };
@@ -607,6 +647,7 @@ export function initializeWorld (world: any) {
 
         const sceneDesc = PX.getDefaultSceneDesc(PhysXInstance.physics.getTolerancesScale(), 0, PhysXInstance.simulationCB);
         world.scene = PhysXInstance.physics.createScene(sceneDesc);
+        world.controllerManager = PX.PxCreateControllerManager(world.scene, false);
     }
 }
 

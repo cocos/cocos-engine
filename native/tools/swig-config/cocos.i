@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="jsb") engine
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -46,6 +49,7 @@
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
+%ignore cc::RefCounted;
 
 %rename("$ignore", regextarget=1, fullname=1) "cc::Vec2::.*[^2]$";
 %rename("$ignore", regextarget=1, fullname=1) "cc::Vec3::.*[^3]$";
@@ -54,7 +58,8 @@
 %rename("$ignore", regextarget=1, fullname=1) "cc::Mat3::.*[^3]$";
 %rename("$ignore", regextarget=1, fullname=1) "cc::Mat4::.*[^4]$";
 %rename("$ignore", regextarget=1, fullname=1) "cc::Quaternion::.*[^n]$";
-%rename("$ignore", regextarget=1, fullname=1) "cc::Color::.*[^n]$";
+%rename("$ignore", regextarget=1, fullname=1) "cc::Color::.*[^r]$";
+%rename("$ignore", regextarget=1, fullname=1) "cc::Color::r$";
 
 namespace cc {
 //%ignore ISystemWindowManager;
@@ -90,12 +95,16 @@ namespace cc {
 %ignore DebugRenderer::activate;
 %ignore DebugRenderer::render;
 %ignore DebugRenderer::destroy;
+%ignore DebugRenderer::update;
 
 %ignore DebugFontInfo;
 %ignore DebugRendererInfo;
 
 %ignore JSBNativeDataHolder::getData;
 %ignore JSBNativeDataHolder::setData;
+
+%ignore CCObject::setScriptObject;
+%ignore CCObject::getScriptObject;
 
 }
 
@@ -175,6 +184,7 @@ namespace cc {
 //   %import "your_header_file.h" will not generate code for that header file
 //
 %import "base/Macros.h"
+%import "base/RefCounted.h"
 %import "base/memory/Memory.h"
 %import "base/Data.h"
 %import "base/Value.h"

@@ -1,4 +1,28 @@
-import { assertIsTrue, Vec2, Vec3 } from '../../core';
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { approx, assertIsTrue, Vec2, Vec3 } from '../../core';
 
 /**
  * Blends given samples using simple directional algorithm.
@@ -141,6 +165,26 @@ export class SimpleDirectionalIssueSameDirection {
     public constructor (public samples: readonly number[]) { }
 }
 
+//#region Gradient Band Interpolation
+
+/**
+ * In the following, two interpolation methods are implemented based on paper
+ * [rune_skovbo_johansen_thesis.pdf](https://runevision.com/thesis/rune_skovbo_johansen_thesis.pdf).
+ *
+ * - Gradient brand interpolation in Cartesian space.
+ *
+ * - Gradient brand interpolation in polar space.
+ *
+ *   This is a variety of standard gradient brand interpolation
+ *   which is suitable for velocity interpolation(the Cartesian one is not **WELL** suited as pointed out by the paper).
+ *
+ *   This type of method requires a motion to be placed at origin and
+ *   the angles between adjacent points to be greater than 180°.
+ */
+const _DEV_NOTE = false;
+
+//#endregion
+
 /**
  * Cartesian Gradient Band Interpolation.
  * @param weights
@@ -149,16 +193,6 @@ export class SimpleDirectionalIssueSameDirection {
  */
 export function sampleFreeformCartesian (weights: number[], thresholds: readonly Vec2[], value: Readonly<Vec2>) {
     sampleFreeform(weights, thresholds, value, getGradientBandCartesianCoords);
-}
-
-/**
- * Polar Gradient Band Interpolation.
- * @param weights
- * @param thresholds
- * @param value
- */
-export function sampleFreeformDirectional (weights: number[], thresholds: readonly Vec2[], value: Readonly<Vec2>) {
-    sampleFreeform(weights, thresholds, value, getGradientBandPolarCoords);
 }
 
 function sampleFreeform (weights: number[], samples: readonly Vec2[], value: Readonly<Vec2>, getGradientBandCoords: GetGradientBandCoords) {
@@ -232,50 +266,196 @@ const getGradientBandCartesianCoords: GetGradientBandCoords = (pI, pJ, input, pI
     Vec2.subtract(pIpJ, pJ, pI);
 };
 
-const getGradientBandPolarCoords = ((): GetGradientBandCoords => {
-    const axis = new Vec3(0, 0, 0); // buffer for axis
-    const tmpV3 = new Vec3(0, 0, 0); // buffer for temp vec3
-    const pQueriedProjected = new Vec3(0, 0, 0); // buffer for pQueriedProjected
-    const pi3 = new Vec3(0, 0, 0); // buffer for pi3
-    const pj3 = new Vec3(0, 0, 0); // buffer for pj3
-    const pQueried3 = new Vec3(0, 0, 0); // buffer for pQueried3
-    return (pI, pJ, input, pIpInput, pIpJ) => {
-        let aIJ = 0.0;
-        let aIQ = 0.0;
-        let angleMultiplier = 2.0;
-        Vec3.set(pQueriedProjected, input.x, input.y, 0.0);
-        if (Vec2.equals(pI, Vec2.ZERO)) {
-            aIJ = Vec2.angle(input, pJ);
-            aIQ = 0.0;
-            angleMultiplier = 1.0;
-        } else if (Vec2.equals(pJ, Vec2.ZERO)) {
-            aIJ = Vec2.angle(input, pI);
-            aIQ = aIJ;
-            angleMultiplier = 1.0;
+const PRECOMPUTED_VIJ_DATA_STRIDE = 3;
+
+/**
+ * The class tracking the polar space gradient band interpolation.
+ * For code readers, throughout the implementation:
+ * - Variable names like `V_IJ` denotes a vector pointing from example motion "I" to example motion "J";
+ * - Variable names like `V_IX` denotes a vector pointing from example motion "I" to new velocity being queried, which is properly named "X".
+ * For detail definitions see section 6.3 in [paper](https://runevision.com/thesis/rune_skovbo_johansen_thesis.pdf) .
+ */
+export class PolarSpaceGradientBandInterpolator2D {
+    private static _CACHE_INPUT_DIRECTION = new Vec2();
+
+    private static _CACHE_VIJ = new Vec2();
+
+    private static _CACHE_VIX = new Vec2();
+
+    private static _ANGLE_MULTIPLIER = 1.0;
+
+    constructor (examples: readonly Readonly<Vec2>[]) {
+        const {
+            _ANGLE_MULTIPLIER: angleMultiplier,
+        } = PolarSpaceGradientBandInterpolator2D;
+
+        const nExamples = examples.length;
+
+        const exampleMagnitudes = this._exampleMagnitudes = new Array<number>(nExamples).fill(0.0);
+        const exampleDirections = this._exampleDirections = examples.map((example, iExample) => {
+            const direction = Vec2.copy(new Vec2(), example);
+            const magnitude = Vec2.len(direction);
+            exampleMagnitudes[iExample] = magnitude;
+            if (!approx(magnitude, 0.0, 1e-5)) {
+                Vec2.multiplyScalar(direction, direction, 1.0 / magnitude);
+            }
+            return direction;
+        });
+
+        const precomputedVIJs = this._precomputedVIJs = new Float32Array(PRECOMPUTED_VIJ_DATA_STRIDE * nExamples * nExamples);
+        for (let iExample = 0; iExample < nExamples; ++iExample) {
+            const magnitudeI = exampleMagnitudes[iExample];
+            const directionI = exampleDirections[iExample];
+            for (let jExample = 0; jExample < nExamples; ++jExample) {
+                if (iExample === jExample) {
+                    continue;
+                }
+                const magnitudeJ = exampleMagnitudes[jExample];
+                const directionJ = exampleDirections[jExample];
+                const averagedMagnitude = (magnitudeI + magnitudeJ) / 2;
+                const pOutput = PRECOMPUTED_VIJ_DATA_STRIDE * (nExamples * iExample + jExample);
+                precomputedVIJs[pOutput + 0] = (magnitudeJ - magnitudeI) / averagedMagnitude;
+                precomputedVIJs[pOutput + 1] = signedAngle(directionI, directionJ) * angleMultiplier;
+                precomputedVIJs[pOutput + 2] = averagedMagnitude;
+            }
+        }
+
+        this._cacheVIXAngles = new Float32Array(nExamples);
+    }
+
+    public interpolate (weights: number[], input: Readonly<Vec2>) {
+        const {
+            _exampleDirections: exampleDirections,
+            _exampleMagnitudes: exampleMagnitudes,
+            _precomputedVIJs: precomputedVIJs,
+            _cacheVIXAngles: cacheVIXAngles,
+        } = this;
+
+        const {
+            _CACHE_INPUT_DIRECTION: cacheInputDirection,
+            _CACHE_VIJ: cacheVIJ,
+            _CACHE_VIX: cacheVIX,
+            _ANGLE_MULTIPLIER: angleMultiplier,
+        } = PolarSpaceGradientBandInterpolator2D;
+
+        const nExamples = exampleDirections.length;
+        assertIsTrue(weights.length === nExamples);
+
+        // Specially handle 0/1 sample case, the algorithm is not defined for them.
+        if (nExamples === 0) {
+            return;
+        } else if (nExamples === 1) {
+            weights[0] = 1.0;
+            return;
+        }
+
+        const vX = input;
+        const magnitudeX = Vec2.len(vX);
+
+        // Calculate $\angle(v_i, v_x) * \alpha$ for each example.
+        // If either vector is zero, the angle is defined as zero.
+        const vIXAngles = cacheVIXAngles;
+        if (Vec2.equals(vX, Vec2.ZERO)) {
+            for (let iExample = 0; iExample < nExamples; ++iExample) {
+                vIXAngles[iExample] = 0.0;
+            }
         } else {
-            aIJ = Vec2.angle(pI, pJ);
-            if (aIJ <= 0.0) {
-                aIQ = 0.0;
-            } else if (Vec2.equals(input, Vec2.ZERO)) {
-                aIQ = aIJ;
-            } else {
-                Vec3.set(pi3, pI.x, pI.y, 0);
-                Vec3.set(pj3, pJ.x, pJ.y, 0);
-                Vec3.set(pQueried3, input.x, input.y, 0);
-                Vec3.cross(axis, pi3, pj3);
-                Vec3.projectOnPlane(pQueriedProjected, pQueried3, axis);
-                aIQ = Vec3.angle(pi3, pQueriedProjected);
-                if (aIJ < Math.PI * 0.99) {
-                    if (Vec3.dot(Vec3.cross(tmpV3, pi3, pQueriedProjected), axis) < 0) {
-                        aIQ = -aIQ;
-                    }
+            const directionX = Vec2.multiplyScalar(cacheInputDirection, vX, 1.0 / magnitudeX);
+            for (let iExample = 0; iExample < nExamples; ++iExample) {
+                const directionI = exampleDirections[iExample];
+                if (Vec2.equals(directionI, Vec2.ZERO)) {
+                    vIXAngles[iExample] = 0.0;
+                } else {
+                    vIXAngles[iExample] = signedAngle(directionI, directionX) * angleMultiplier;
                 }
             }
         }
-        const lenPI = Vec2.len(pI);
-        const lenPJ = Vec2.len(pJ);
-        const deno = (lenPJ + lenPI) / 2;
-        Vec2.set(pIpJ, (lenPJ - lenPI) / deno, aIJ * angleMultiplier);
-        Vec2.set(pIpInput, (Vec3.len(pQueriedProjected) - lenPI) / deno, aIQ * angleMultiplier);
-    };
-})();
+
+        // The polar space gradient band interpolation.
+        let totalWeight = 0.0;
+        for (let iExample = 0; iExample < nExamples; ++iExample) {
+            const magnitudeI = exampleMagnitudes[iExample];
+            const directionI = exampleDirections[iExample];
+            let minInfluence = Number.POSITIVE_INFINITY; // 1 - Math.abs(vIXAngles[iExample]) / Math.PI;
+            for (let jExample = 0; jExample < nExamples; ++jExample) {
+                if (iExample === jExample) {
+                    continue;
+                }
+
+                const directionJ = exampleDirections[jExample];
+
+                const precomputedDataIndex = PRECOMPUTED_VIJ_DATA_STRIDE * (nExamples * iExample + jExample);
+                const {
+                    [precomputedDataIndex + 0]: vIJMag,
+                    [precomputedDataIndex + 1]: vIJAnglePrecomputed,
+                    [precomputedDataIndex + 2]: averagedMagnitude,
+                } = precomputedVIJs;
+
+                let vIJAngle = vIJAnglePrecomputed;
+                let vIXAngle = vIXAngles[iExample];
+
+                // Handle zero cases:
+                // - If $v_i$(or $v_j$) is zero vector,
+                //   the angle between v_i_j is defined to be the angle between $v_x$ and $v_j$(or $v_i$).
+                // - If $v_x$ is zero vector,
+                //   the angle between v_i_x is defined to be the angle between $v_i$ and $v_j$.
+                if (Vec2.equals(directionI, Vec2.ZERO)) {
+                    vIJAngle = vIXAngles[jExample];
+                    // And `vIXAngle` is 0 as computed above.
+                } else if (Vec2.equals(directionJ, Vec2.ZERO)) {
+                    vIJAngle = vIXAngles[iExample];
+                } else if (Vec2.equals(vX, Vec2.ZERO)) {
+                    vIXAngle = vIJAngle;
+                }
+
+                const vIJ = Vec2.set(cacheVIJ, vIJMag, vIJAngle);
+                const vIX = Vec2.set(
+                    cacheVIX,
+                    (magnitudeX - magnitudeI) / averagedMagnitude,
+                    vIXAngle,
+                );
+
+                // Calculate the influence.
+                // Note we can't cache `len(vIJ)` due to above process of `vIJ.y`!
+                const influence = 1.0 - Vec2.dot(vIX, vIJ) / Vec2.lengthSqr(vIJ);
+                if (influence <= 0) { // The input is outside hull.
+                    minInfluence = 0.0;
+                    break; // No more iteration.
+                }
+                minInfluence = Math.min(minInfluence, influence);
+            }
+            weights[iExample] = minInfluence;
+            totalWeight += minInfluence;
+        }
+
+        // Normalize the weights.
+        if (totalWeight > 0) {
+            for (let iExample = 0; iExample < nExamples; ++iExample) {
+                weights[iExample] /= totalWeight;
+            }
+        } else {
+            // This can happen if there no example at origin and the input is origin.
+            // Just average weight to all examples.
+            const averaged = 1.0 / nExamples;
+            for (let iExample = 0; iExample < nExamples; ++iExample) {
+                weights[iExample] = averaged;
+            }
+        }
+    }
+
+    private declare _exampleDirections: Vec2[];
+    private declare _exampleMagnitudes: number[];
+
+    /**
+     * n*n Precomputed (\vec{p_i}{p_j}, (|p_i| + |p_j|) / 2).
+     */
+    private declare _precomputedVIJs: Float32Array;
+
+    private declare _cacheVIXAngles: Float32Array;
+}
+
+function signedAngle (v1: Readonly<Vec2>, v2: Readonly<Vec2>) {
+    const angle = Vec2.angle(v1, v2);
+    const determinate = v1.x * v2.y - v1.y * v2.x;
+    return determinate < 0 ? -angle : angle;
+}

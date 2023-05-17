@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http =//www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -20,7 +19,7 @@
  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE.
 ****************************************************************************/
 
 #include "Debug.h"
@@ -88,36 +87,44 @@ void printLog(DebugMode mode, const ccstd::string &fmt, ccstd::any *arr, int par
         if (pos != ccstd::string::npos && pos != (msg.length() - 1) && (msg[pos + 1] == 'd' || msg[pos + 1] == 's' || msg[pos + 1] == 'f')) {
             needToReplace = true;
         }
-
-        if (arr[i].type() == typeid(const ccstd::string)) {
-            const ccstd::string s = ccstd::any_cast<const ccstd::string>(arr[i]);
+        const auto &elemTypeId = arr[i].type();
+        if (elemTypeId == typeid(const ccstd::string)) {
+            const auto s = ccstd::any_cast<const ccstd::string>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
             } else {
                 msg += " " + s;
             }
-        } else if (arr[i].type() == typeid(ccstd::string)) {
-            ccstd::string s = ccstd::any_cast<ccstd::string>(arr[i]);
+        } else if (elemTypeId == typeid(ccstd::string)) {
+            auto s = ccstd::any_cast<ccstd::string>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
             } else {
                 msg += " " + s;
             }
-        } else if (arr[i].type() == typeid(int)) {
+        } else if (elemTypeId == typeid(int)) {
             int value = ccstd::any_cast<int>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, std::to_string(value));
             } else {
                 msg += " " + std::to_string(value);
             }
-        } else if (arr[i].type() == typeid(float)) {
+        } else if (elemTypeId == typeid(unsigned int)) {
+            auto value = ccstd::any_cast<unsigned int>(arr[i]);
+            if (needToReplace) {
+                msg.replace(pos, 2, std::to_string(value));
+            } else {
+                msg += " " + std::to_string(value);
+            }
+
+        } else if (elemTypeId == typeid(float)) {
             auto value = ccstd::any_cast<float>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, std::to_string(value));
             } else {
                 msg += " " + std::to_string(value);
             }
-        } else if (arr[i].type() == typeid(const char *)) {
+        } else if (elemTypeId == typeid(const char *)) {
             ccstd::string s = ccstd::any_cast<const char *>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
@@ -125,7 +132,8 @@ void printLog(DebugMode mode, const ccstd::string &fmt, ccstd::any *arr, int par
                 msg += " " + s;
             }
         } else {
-            CC_LOG_ERROR("unsupport params data type");
+            CC_LOG_ERROR("DebugInfos: unsupport params data type: '%s'", elemTypeId.name());
+            CC_LOG_ERROR(" fmt: \"%s\", parameter index: %d", fmt.c_str(), i);
             return;
         }
     }
@@ -134,4 +142,4 @@ void printLog(DebugMode mode, const ccstd::string &fmt, ccstd::any *arr, int par
 }
 
 } // namespace debug
-} //namespace cc
+} // namespace cc

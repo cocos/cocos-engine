@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { JSB } from 'internal:constants';
 import { TextureAtlasData } from '@cocos/dragonbones-js';
@@ -36,7 +35,7 @@ const { ccclass, serializable, type } = _decorator;
 
 /**
  * @en The skeleton atlas data of dragonBones.
- * @zh dragonBones 的骨骼纹理数据。
+ * @zh DragonBones 的骨骼纹理数据。
  * @class DragonBonesAtlasAsset
  * @extends Asset
  */
@@ -46,10 +45,12 @@ export class DragonBonesAtlasAsset extends Asset {
         super();
         this._clear();
     }
-
+    /**
+     * @en atlas of json file.
+     * @zh 纹理图集的 json 文件。
+     */
     @serializable
     _atlasJson = '';
-
     get atlasJson () {
         return this._atlasJson;
     }
@@ -58,15 +59,28 @@ export class DragonBonesAtlasAsset extends Asset {
         this._atlasJsonData = JSON.parse(this.atlasJson);
         this._clear();
     }
+    /**
+     * @en 2D Texture.
+     * @zh 2D 纹理。
+     */
     @serializable
     @type(Texture2D)
     _texture: Texture2D | null = null;
 
+    /**
+     * @en Data with json format for Describing the atlas information.
+     * @zh 描述图集信息的 json 数据。
+     */
     @serializable
     _atlasJsonData: any = {};
-
+    /**
+     * @en Dragonbones instance of CCFactory.
+     * @zh Dragonbones 工厂实例。
+     */
     _factory: CCFactory| null = null;
     /**
+     * @en 2D texture.
+     * @zh 2D 纹理。
      * @property {Texture2D} texture
      */
     get texture () {
@@ -76,10 +90,17 @@ export class DragonBonesAtlasAsset extends Asset {
         this._texture = value;
         this._clear();
     }
-
+    /**
+     * @en The texture atlas data.
+     * @zh 贴图集数据。
+     */
     @serializable
     _textureAtlasData: TextureAtlasData | null = null;
 
+    /**
+     * @en Create a new node with Dragonbones component.
+     * @zh 创建一个附带龙骨组件的 node 节点。
+     */
     createNode (callback: (error: Error | null, node: Node) => void) {
         const node = new Node(this.name);
         const armatureDisplay = node.addComponent('dragonBones.ArmatureDisplay') as ArmatureDisplay;
@@ -88,6 +109,11 @@ export class DragonBonesAtlasAsset extends Asset {
         return callback(null, node);
     }
 
+    /**
+     * @en Atlas resource initialization. Parse the original atlas data and atlas object into a
+     * TextureAtlasData instance, and cache it to the factory.
+     * @zh 图集资源初始化。将原始贴图集数据和贴图集对象解析为 TextureAtlasData 实例，并缓存到工厂中。
+     */
     init (factory: CCFactory) {
         this._factory = factory;
 
@@ -105,7 +131,10 @@ export class DragonBonesAtlasAsset extends Asset {
             this._textureAtlasData = factory.parseTextureAtlasData(atlasJsonObj, this.texture, this._uuid);
         }
     }
-
+    /**
+     * @en Destroy altas assets.
+     * @zh 销毁图集资源。
+     */
     destroy () {
         this._clear();
         return super.destroy();

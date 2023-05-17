@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,12 +20,14 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
+import { cclegacy } from '../core';
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,
     DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../gfx';
 import { Light } from '../render-scene/scene';
-import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings } from './define';
+import { getDescBindingFromName, getDescriptorSetDataFromLayout } from './custom/define';
+import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings, isEnableEffect } from './define';
 
 const _samplerLinearInfo = new SamplerInfo(
     Filter.LINEAR,
@@ -70,6 +71,11 @@ export class GlobalDSManager {
 
     get descriptorSetLayout () {
         return this._descriptorSetLayout;
+    }
+
+    // apply layoutGraph descriptorSet
+    set globalDescriptorSet (val: DescriptorSet) {
+        this._globalDescriptorSet = val;
     }
 
     get globalDescriptorSet () {
@@ -172,8 +178,9 @@ export class GlobalDSManager {
 
         // The global descriptorSet is managed by the pipeline and binds the buffer
         if (!this._descriptorSetMap.has(light)) {
-            const globalDescriptorSet = this._globalDescriptorSet;
-            const descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
+            const globalDescriptorSet = isEnableEffect() ? getDescriptorSetDataFromLayout('default')!.descriptorSet! : this._globalDescriptorSet;
+            const descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(isEnableEffect()
+                ? getDescriptorSetDataFromLayout('default')!.descriptorSetLayout! : this._descriptorSetLayout));
             this._descriptorSetMap.set(light, descriptorSet);
 
             // Create & Sync ALL UBO Buffer, Texture, Sampler
@@ -189,7 +196,8 @@ export class GlobalDSManager {
                 UBOShadow.SIZE,
                 UBOShadow.SIZE,
             ));
-            descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
+            const binding = isEnableEffect() ? getDescBindingFromName('CCShadow') : UBOShadow.BINDING;
+            descriptorSet.bindBuffer(binding, shadowUBO);
 
             descriptorSet.update();
         }

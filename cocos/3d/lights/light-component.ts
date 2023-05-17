@@ -1,15 +1,15 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -53,8 +53,6 @@ class StaticLightSettings {
     @serializable
     protected _editorOnly = false;
     @serializable
-    protected _bakeable = false;
-    @serializable
     protected _castShadow = false;
 
     /**
@@ -79,19 +77,6 @@ class StaticLightSettings {
 
     set baked (val) {
         this._baked = val;
-    }
-
-    /**
-     * @en Whether the light is bake-able.
-     * @zh 光源是否可烘培。
-     */
-    @editable
-    get bakeable () {
-        return this._bakeable;
-    }
-
-    set bakeable (val) {
-        this._bakeable = val;
     }
 
     /**
@@ -236,8 +221,8 @@ export class Light extends Component {
     }
 
     /**
-     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light(Does not work with directional light).
-     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合（对方向光不生效）。
+     * @en Visibility mask of the light, declaring a set of node layers that will be visible to this light.
+     * @zh 光照的可见性掩码，声明在当前光照中可见的节点层级集合。
      */
     @tooltip('i18n:lights.visibility')
     @displayOrder(255)
@@ -245,6 +230,7 @@ export class Light extends Component {
     set visibility (vis: number) {
         this._visibility = vis;
         if (this._light) { this._light.visibility = vis; }
+        this._onUpdateReceiveDirLight();
     }
     get visibility (): number {
         return this._visibility;
@@ -305,6 +291,12 @@ export class Light extends Component {
             case scene.LightType.SPOT:
                 renderScene.addSpotLight(this._light as scene.SpotLight);
                 break;
+            case scene.LightType.POINT:
+                renderScene.addPointLight(this._light as scene.PointLight);
+                break;
+            case scene.LightType.RANGED_DIRECTIONAL:
+                renderScene.addRangedDirLight(this._light as scene.RangedDirectionalLight);
+                break;
             default:
                 break;
             }
@@ -325,9 +317,17 @@ export class Light extends Component {
             case scene.LightType.SPOT:
                 renderScene.removeSpotLight(this._light as scene.SpotLight);
                 break;
+            case scene.LightType.POINT:
+                renderScene.removePointLight(this._light as scene.PointLight);
+                break;
+            case scene.LightType.RANGED_DIRECTIONAL:
+                renderScene.removeRangedDirLight(this._light as scene.RangedDirectionalLight);
+                break;
             default:
                 break;
             }
         }
     }
+
+    protected _onUpdateReceiveDirLight () {}
 }

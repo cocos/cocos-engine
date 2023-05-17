@@ -1,4 +1,28 @@
-import { DEBUG, EDITOR, TEST } from 'internal:constants';
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { DEBUG, EDITOR, PREVIEW, TEST } from 'internal:constants';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
@@ -26,8 +50,8 @@ class SystemInfo extends EventTarget {
         super();
         const nav = window.navigator;
         const ua = nav.userAgent.toLowerCase();
-        // @ts-expect-error getBattery is not totally supported
-        nav.getBattery?.().then((battery) => {
+        // NOTE: getBattery is not totally supported on Web standard
+        (nav as any).getBattery?.().then((battery) => {
             this._battery = battery;
         });
 
@@ -172,22 +196,47 @@ class SystemInfo extends EventTarget {
 
         const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || EDITOR);
         const supportMouse = document.documentElement.onmouseup !== undefined || EDITOR;
+        // NOTE: xr is not totally supported on web
+        const supportXR = typeof (navigator as any).xr !== 'undefined';
+        // refer https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
+        const supportWasm = (() => {
+            // NOTE: safari on iOS 15.4 and MacOS 15.4 has some wasm memory issue, can not use wasm for bullet
+            const isSafari_15_4 = (this.os === OS.IOS || this.os === OS.OSX) && /(OS 15_4)|(Version\/15.4)/.test(window.navigator.userAgent);
+            if (isSafari_15_4) {
+                return false;
+            }
+            try {
+                if (typeof WebAssembly === 'object'
+                    && typeof WebAssembly.instantiate === 'function') {
+                    const module = new WebAssembly.Module(new Uint8Array([0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]));
+                    if (module instanceof WebAssembly.Module) {
+                        return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+                    }
+                }
+            } catch (e) {
+                return false;
+            }
+            return false;
+        })();
         this._featureMap = {
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BITMAP]: false,      // Initialize in Promise
             [Feature.WEB_VIEW]: true,
             [Feature.VIDEO_PLAYER]: true,
             [Feature.SAFE_AREA]: false,
+            [Feature.HPE]: false,
 
             [Feature.INPUT_TOUCH]: supportTouch,
             [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined || EDITOR,
             [Feature.EVENT_MOUSE]: supportMouse,
             [Feature.EVENT_TOUCH]: supportTouch || supportMouse,
             [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
-            // @ts-expect-error undefined webkitGetGamepads
-            [Feature.EVENT_GAMEPAD]: (navigator.getGamepads !== undefined || navigator.webkitGetGamepads !== undefined),
-            [Feature.EVENT_HANDLE]: this.isXR,
-            [Feature.EVENT_HMD]: this.isXR,
+            // NOTE: webkitGetGamepads is not standard web interface
+            [Feature.EVENT_GAMEPAD]: (navigator.getGamepads !== undefined || (navigator as any).webkitGetGamepads !== undefined || supportXR),
+            [Feature.EVENT_HANDLE]: EDITOR || PREVIEW,
+            [Feature.EVENT_HMD]: supportXR,
+            [Feature.EVENT_HANDHELD]: supportXR,
+            [Feature.WASM]: supportWasm,
         };
 
         this._initPromise = [];
@@ -254,8 +303,8 @@ class SystemInfo extends EventTarget {
             for (let i = 0; i < changeList.length; i++) {
                 document.addEventListener(changeList[i], (event) => {
                     let visible = document[hiddenPropName];
-                    // @ts-expect-error QQ App need hidden property
-                    visible = visible || event.hidden;
+                    // NOTE: QQ App need hidden property
+                    visible = visible || (event as any).hidden;
                     if (visible) {
                         onHidden();
                     } else {

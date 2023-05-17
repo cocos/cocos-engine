@@ -2,16 +2,16 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -29,15 +29,17 @@
 
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from '../asset/assets/scene-asset';
-import { System, EventTarget, Scheduler, js, errorID, error, assertID, warnID, macro, cclegacy, CCObject } from '../core';
+import { System, EventTarget, Scheduler, js, errorID, error, assertID, warnID, macro, CCObject, cclegacy, isValid } from '../core';
 import { input } from '../input';
 import { Root } from '../root';
 import { Node, Scene } from '../scene-graph';
 import { ComponentScheduler } from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
-import { containerManager } from '../core/memop/container-manager';
+import { scalableContainerManager } from '../core/memop/scalable-container';
 import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
+import { assetManager } from '../asset/asset-manager';
 import { deviceManager } from '../gfx';
+import { releaseManager } from '../asset/asset-manager/release-manager';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -64,10 +66,6 @@ export class Director extends EventTarget {
      * @zh Director 单例初始化时触发的事件
      * @event Director.EVENT_INIT
      */
-    /**
-     * @en The event which will be triggered when the singleton of Director initialized.
-     * @zh Director 单例初始化时触发的事件
-     */
     public static readonly EVENT_INIT = 'director_init';
 
     /**
@@ -75,21 +73,12 @@ export class Director extends EventTarget {
      * @zh Director 单例重置时触发的事件
      * @event Director.EVENT_RESET
      */
-    /**
-     * @en The event which will be triggered when the singleton of Director reset.
-     * @zh Director 单例重置时触发的事件
-     */
     public static readonly EVENT_RESET = 'director_reset';
 
     /**
      * @en The event which will be triggered before loading a new scene.
      * @zh 加载新场景之前所触发的事件。
      * @event Director.EVENT_BEFORE_SCENE_LOADING
-     * @param {String} sceneName - The loading scene name
-     */
-    /**
-     * @en The event which will be triggered before loading a new scene.
-     * @zh 加载新场景之前所触发的事件。
      */
     public static readonly EVENT_BEFORE_SCENE_LOADING = 'director_before_scene_loading';
 
@@ -97,11 +86,6 @@ export class Director extends EventTarget {
      * @en The event which will be triggered before launching a new scene.
      * @zh 运行新场景之前所触发的事件。
      * @event Director.EVENT_BEFORE_SCENE_LAUNCH
-     * @param {String} sceneName - New scene which will be launched
-     */
-    /**
-     * @en The event which will be triggered before launching a new scene.
-     * @zh 运行新场景之前所触发的事件。
      */
     public static readonly EVENT_BEFORE_SCENE_LAUNCH = 'director_before_scene_launch';
 
@@ -109,11 +93,6 @@ export class Director extends EventTarget {
      * @en The event which will be triggered after launching a new scene.
      * @zh 运行新场景之后所触发的事件。
      * @event Director.EVENT_AFTER_SCENE_LAUNCH
-     * @param {String} sceneName - New scene which is launched
-     */
-    /**
-     * @en The event which will be triggered after launching a new scene.
-     * @zh 运行新场景之后所触发的事件。
      */
     public static readonly EVENT_AFTER_SCENE_LAUNCH = 'director_after_scene_launch';
 
@@ -122,20 +101,12 @@ export class Director extends EventTarget {
      * @zh 每个帧的开始时所触发的事件。
      * @event Director.EVENT_BEFORE_UPDATE
      */
-    /**
-     * @en The event which will be triggered at the beginning of every frame.
-     * @zh 每个帧的开始时所触发的事件。
-     */
     public static readonly EVENT_BEFORE_UPDATE = 'director_before_update';
 
     /**
      * @en The event which will be triggered after engine and components update logic.
      * @zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
      * @event Director.EVENT_AFTER_UPDATE
-     */
-    /**
-     * @en The event which will be triggered after engine and components update logic.
-     * @zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
      */
     public static readonly EVENT_AFTER_UPDATE = 'director_after_update';
 
@@ -161,11 +132,18 @@ export class Director extends EventTarget {
     public static readonly EVENT_BEFORE_COMMIT = 'director_before_commit';
 
     /**
-     * @en The event which will be triggered before the pipeline render.
-     * @zh 当前渲染帧渲染前所触发的事件。
+     * @en The event which will be triggered before the render pipeline processes the render scene.
+     * @zh 当前帧将渲染场景提交到渲染管线之前所触发的事件。
      * @event Director.EVENT_BEFORE_RENDER
      */
     public static readonly EVENT_BEFORE_RENDER = 'director_before_render';
+
+    /**
+     * @en The event which will be triggered after the render pipeline finishes the rendering process on CPU.
+     * @zh 当前帧渲染管线渲染流程完成后所触发的事件。
+     * @event Director.EVENT_AFTER_RENDER
+     */
+    public static readonly EVENT_AFTER_RENDER = 'director_after_render';
 
     /**
      * @en The event which will be triggered before the physics process.<br/>
@@ -288,7 +266,7 @@ export class Director extends EventTarget {
         this._nodeActivator.reset();
 
         if (!EDITOR) {
-            if (cclegacy.isValid(this._scene)) {
+            if (isValid(this._scene)) {
                 this._scene!.destroy();
             }
             this._scene = null;
@@ -297,7 +275,7 @@ export class Director extends EventTarget {
         this.stopAnimation();
 
         // Clear all caches
-        cclegacy.assetManager.releaseAll();
+        assetManager.releaseAll();
     }
 
     /**
@@ -328,14 +306,13 @@ export class Director extends EventTarget {
      * @param onBeforeLoadScene - The function invoked at the scene before loading.
      * @param onLaunched - The function invoked at the scene after launch.
      */
-    public runSceneImmediate (scene: Scene|SceneAsset, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
+    public runSceneImmediate (scene: Scene | SceneAsset, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
         if (scene instanceof SceneAsset) scene = scene.scene!;
         assertID(scene instanceof Scene, 1216);
 
         if (BUILD && DEBUG) {
             console.time('InitScene');
         }
-        // @ts-expect-error run private method
         scene._load();  // ensure scene initialized
         if (BUILD && DEBUG) {
             console.timeEnd('InitScene');
@@ -371,7 +348,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('Destroy');
         }
-        if (cclegacy.isValid(oldScene)) {
+        if (isValid(oldScene)) {
             oldScene!.destroy();
         }
         if (!EDITOR) {
@@ -379,7 +356,7 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            cclegacy.assetManager._releaseManager._autoRelease(oldScene, scene, this._persistRootNodes);
+            releaseManager._autoRelease(oldScene!, scene, this._persistRootNodes);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
@@ -402,7 +379,6 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('Activate');
         }
-        // @ts-expect-error run private method
         scene._activate();
         if (BUILD && DEBUG) {
             console.timeEnd('Activate');
@@ -452,7 +428,7 @@ export class Director extends EventTarget {
             warnID(1208, sceneName, this._loadingScene);
             return false;
         }
-        const bundle = cclegacy.assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
+        const bundle = assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
             this.emit(Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
@@ -510,9 +486,11 @@ export class Director extends EventTarget {
         onProgress?: Director.OnLoadSceneProgress | Director.OnSceneLoaded,
         onLoaded?: Director.OnSceneLoaded,
     ) {
-        const bundle = cclegacy.assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
+        const bundle = assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
-            bundle.preloadScene(sceneName, null, onProgress, onLoaded);
+            // NOTE: the similar function signatures but defined as deferent function types.
+            bundle.preloadScene(sceneName, null, onProgress as (finished: number, total: number, item: any) => void,
+                onLoaded as ((err?: Error | null) => void) | null);
         } else {
             const err = `Can not preload the scene "${sceneName}" because it is not in the build settings.`;
             if (onLoaded) {
@@ -688,9 +666,9 @@ export class Director extends EventTarget {
         if (!this._invalid) {
             this.emit(Director.EVENT_BEGIN_FRAME);
             if (!EDITOR || cclegacy.GAME_VIEW) {
-                // @ts-expect-error _frameDispatchEvents is a private method.
                 input._frameDispatchEvents();
             }
+
             // Update
             if (!this._paused) {
                 this.emit(Director.EVENT_BEFORE_UPDATE);
@@ -722,7 +700,7 @@ export class Director extends EventTarget {
 
             Node.resetHasChangedFlags();
             Node.clearNodeArray();
-            containerManager.update(dt);
+            scalableContainerManager.update(dt);
             this.emit(Director.EVENT_END_FRAME);
             this._totalFrames++;
         }
@@ -739,7 +717,7 @@ export class Director extends EventTarget {
 
     private setupRenderPipelineBuilder () {
         if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this._root && this._root.usesCustomPipeline) {
-            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
+            this.on(Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
         }
     }
 
@@ -775,14 +753,14 @@ export class Director extends EventTarget {
      * @param node - The node to be made persistent
      */
     public addPersistRootNode (node: Node) {
-        if (!cclegacy.Node.isNode(node) || !node.uuid) {
+        if (!Node.isNode(node) || !node.uuid) {
             warnID(3800);
             return;
         }
         const id = node.uuid;
         if (!this._persistRootNodes[id]) {
             const scene = this._scene as any;
-            if (cclegacy.isValid(scene)) {
+            if (isValid(scene)) {
                 if (!node.parent) {
                     node.parent = scene;
                     node._originalSceneId = scene.uuid;
@@ -798,7 +776,7 @@ export class Director extends EventTarget {
             }
             this._persistRootNodes[id] = node;
             node._persistNode = true;
-            cclegacy.assetManager._releaseManager._addPersistNodeRef(node);
+            releaseManager._addPersistNodeRef(node);
         }
     }
 
@@ -813,7 +791,7 @@ export class Director extends EventTarget {
             delete this._persistRootNodes[id];
             node._persistNode = false;
             node._originalSceneId = '';
-            cclegacy.assetManager._releaseManager._removePersistNodeRef(node);
+            releaseManager._removePersistNodeRef(node);
         }
     }
 

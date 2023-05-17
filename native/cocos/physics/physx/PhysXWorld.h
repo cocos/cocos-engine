@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -34,6 +33,7 @@
 #include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXRigidBody.h"
 #include "physics/physx/PhysXSharedBody.h"
+#include "physics/physx/character-controllers/PhysXCharacterController.h"
 #include "physics/spec/IWorld.h"
 
 namespace cc {
@@ -45,6 +45,8 @@ public:
     static physx::PxFoundation &getFundation();
     static physx::PxCooking &getCooking();
     static physx::PxPhysics &getPhysics();
+    static physx::PxControllerManager &getControllerManager();
+
     PhysXWorld();
     ~PhysXWorld() override;
     void step(float fixedTimeStep) override;
@@ -67,6 +69,9 @@ public:
     inline ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override {
         return _mEventMgr->getConatctPairs();
     }
+    inline ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& getCCTShapeEventPairs() override {
+        return _mEventMgr->getCCTShapePairs();
+    }
     void syncSceneToPhysics() override;
     void syncSceneWithCheck() override;
     void destroy() override;
@@ -82,7 +87,9 @@ public:
     void syncPhysicsToScene();
     void addActor(const PhysXSharedBody &sb);
     void removeActor(const PhysXSharedBody &sb);
-
+    void addCCT(const PhysXCharacterController &cct);
+    void removeCCT(const PhysXCharacterController &cct);
+    
     //Mapping PhysX Object ID and Pointer
     uint32_t addPXObject(uintptr_t PXObjectPtr);
     void removePXObject(uint32_t pxObjectID);
@@ -100,6 +107,8 @@ private:
     physx::PxFoundation *_mFoundation;
     physx::PxCooking *_mCooking;
     physx::PxPhysics *_mPhysics;
+    physx::PxControllerManager *_mControllerManager = NULL;
+
 #ifdef CC_DEBUG
     physx::PxPvd *_mPvd;
 #endif
@@ -108,6 +117,7 @@ private:
     PhysXEventManager *_mEventMgr;
     uint32_t _mCollisionMatrix[31];
     ccstd::vector<PhysXSharedBody *> _mSharedBodies;
+    ccstd::vector<PhysXCharacterController *> _mCCTs;
 
     static uint32_t _msWrapperObjectID;
     static uint32_t _msPXObjectID;

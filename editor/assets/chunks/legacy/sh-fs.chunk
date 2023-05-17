@@ -1,0 +1,10 @@
+#if CC_USE_LIGHT_PROBE
+  #if USE_INSTANCING
+    in mediump vec4 v_sh_linear_const_r;
+    in mediump vec4 v_sh_linear_const_g;
+    in mediump vec4 v_sh_linear_const_b;
+  #else
+    #include <builtin/uniforms/cc-sh>
+  #endif
+  #include <builtin/functionalities/sh>
+#endif

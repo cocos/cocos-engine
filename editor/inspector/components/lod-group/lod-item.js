@@ -1,5 +1,7 @@
 'use strict';
 
+const { trackEventWithTimer } = require('../../utils/metrics');
+
 exports.template = `
 <ui-section :cache-expand="cacheExpandId">
     <header class="header" slot="header">
@@ -7,8 +9,10 @@ exports.template = `
             <span>LOD {{ index }}</span>
         </div>
         <div class="right">
-            <span> {{ totalTriangles }} Triangles - </span>
-            <span>{{ data.value.renderers.value.length }} Sub Mesh(es)</span>
+            <div class="info">
+                <span> {{ totalTriangles }} Triangles - </span>
+                <span>{{ data.value.renderers.value.length }} Sub Mesh(es)</span>
+            </div>
             <div class="operator">
                 <ui-icon value="add" @click.stop="updateLODs('insert')" tooltip="insert after this LOD"></ui-icon>
                 <ui-icon value="reduce" @click.stop="updateLODs('delete')" tooltip="delete this LOD"></ui-icon>
@@ -18,21 +22,23 @@ exports.template = `
 
     <div class="content">
         <ui-prop>
-            <ui-label slot="label" value="Screen Size (%)"></ui-label>
+            <ui-label slot="label" value="Screen Ratio (%)"></ui-label>
             <div class="screen-size-content" slot="content">
                 <ui-num-input
                     :ref="screenUsagePercentageRef"
                     :min="minScreenUsagePercentage"
                     :max="maxScreenUsagePercentage"
-                    :value="data.value.screenUsagePercentage.value * 100"
+                    :value="Editor.Utils.Math.multi(data.value.screenUsagePercentage.value, 100)"
                     @confirm="onScreenSizeConfirm($event)">
                 </ui-num-input>
-                <ui-button @confirm="applyCameraSize" tooltip="i18n:ENGINE.components.lod.applyCameraSizeTip">Apply Current Camera Size</ui-button>
+                <ui-button @confirm="applyCameraSize" tooltip="i18n:ENGINE.components.lod.applyCameraSizeTip">
+                    <ui-label value="Apply Current Screen Ratio"></ui-label>
+                </ui-button>
             </div>
         </ui-prop>
 
         <ui-prop ref="lod-item-dump" type="dump"></ui-prop>
-        <ui-section whole class="mesh-list config" header="Mesh List">
+        <ui-section whole class="mesh-renderers config" header="Mesh Renderers">
             <template v-for="(mesh, meshIndex) in data.value.renderers.value">
                 <div class="mesh"
                     :key="meshIndex"
@@ -94,8 +100,8 @@ exports.watch = {
                 const LODs = obj.value.LODs.value;
                 const min = LODs[that.index + 1] ? LODs[that.index + 1].value.screenUsagePercentage.value : 0;
                 const max = LODs[that.index - 1] ? LODs[that.index - 1].value.screenUsagePercentage.value : null;
-                that.minScreenUsagePercentage = min * 100;
-                that.maxScreenUsagePercentage = max ? max * 100 : null;
+                that.minScreenUsagePercentage = Editor.Utils.Math.multi(min, 100);
+                that.maxScreenUsagePercentage = max ? Editor.Utils.Math.multi(max, 100) : null;
             }
             that.$nextTick(() => {
                 that.data = obj.value.LODs.value[that.index];
@@ -122,8 +128,9 @@ exports.methods = {
         if (!that.enableUpdateScreenUsagePercentage) {
             return;
         }
-        that.data.value.screenUsagePercentage.value = event.target.value / 100;
+        that.data.value.screenUsagePercentage.value = Editor.Utils.Math.divide(event.target.value, 100);
         that.updateDump(that.data.value.screenUsagePercentage);
+        trackEventWithTimer('LOD', 'A100009');
     },
     onMeshConfirm(event, meshIndex) {
         const that = this;
@@ -134,8 +141,10 @@ exports.methods = {
         const that = this;
         if (operator === 'insert') {
             that.data.value.renderers.value.push(that.data.value.renderers.elementTypeData);
+            trackEventWithTimer('LOD', 'A100007');
         } else if (operator === 'delete') {
             that.data.value.renderers.value.pop();
+            trackEventWithTimer('LOD', 'A100008');
         }
         that.updateDump(that.data.value.renderers);
     },
@@ -143,6 +152,7 @@ exports.methods = {
         const that = this;
         that.$refs['lod-item-dump'].dump = dump;
         that.$refs['lod-item-dump'].dispatch('change-dump');
+        that.$refs['lod-item-dump'].dispatch('confirm-dump');
     },
     updateLODs(operator) {
         const that = this;
@@ -153,18 +163,19 @@ exports.methods = {
         const that = this;
         let size = await Editor.Message.request('scene', 'lod-apply-current-camera-size', that.dump.value.uuid.value);
         if (that.$refs[that.screenUsagePercentageRef]) {
-            const min = that.$refs[that.screenUsagePercentageRef].min / 100 || 0;
-            const max = that.$refs[that.screenUsagePercentageRef].max / 100 || null;
+            const min = Editor.Utils.Math.divide(that.$refs[that.screenUsagePercentageRef].min, 100) || 0;
+            const max = that.$refs[that.screenUsagePercentageRef].max ? Editor.Utils.Math.divide(that.$refs[that.screenUsagePercentageRef].max, 100) : null;
             if (size < min) {
                 size = min;
                 console.log(Editor.I18n.t('ENGINE.components.lod.applyCameraSizeLessThanMinimum'));
-            } else if (size > max) {
+            } else if (max && size > max) {
                 size = max;
                 console.log(Editor.I18n.t('ENGINE.components.lod.applyCameraSizeGreaterThanMaximum'));
             }
         }
         that.data.value.screenUsagePercentage.value = size;
         that.updateDump(that.data.value.screenUsagePercentage);
+        trackEventWithTimer('LOD', 'A100004');
     },
     handleTriangleLabel(meshIndex) {
         const that = this;

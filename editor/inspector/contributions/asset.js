@@ -14,9 +14,6 @@ exports.template = `
         <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
         <ui-label class="name"></ui-label>
-        <ui-link value="" class="help" tooltip="i18n:ENGINE.menu.help_url">
-            <ui-icon value="help"></ui-icon>
-        </ui-link>
         <ui-button class="save tiny green transparent" tooltip="i18n:ENGINE.assets.save">
             <ui-icon value="check"></ui-icon>
         </ui-button>
@@ -26,6 +23,9 @@ exports.template = `
         <ui-button type="icon" class="copy transparent" tooltip="i18n:ENGINE.inspector.cloneToEdit">
             <ui-icon value="copy"></ui-icon>
         </ui-button>
+        <ui-link value="" class="help" tooltip="i18n:ENGINE.menu.help_url">
+            <ui-icon value="help"></ui-icon>
+        </ui-link>
     </header>
     <section class="content">
         <section class="content-header"></section>
@@ -56,12 +56,12 @@ const Elements = {
     panel: {
         ready() {
             const panel = this;
-            let animationId;
+            panel.__assetChangedHandle__ = undefined;
 
             panel.__assetChanged__ = (uuid) => {
                 if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
-                    window.cancelAnimationFrame(animationId);
-                    animationId = window.requestAnimationFrame(async () => {
+                    window.cancelAnimationFrame(panel.__assetChangedHandle__);
+                    panel.__assetChangedHandle__ = window.requestAnimationFrame(async () => {
                         await panel.reset();
                     });
                 }
@@ -149,6 +149,11 @@ const Elements = {
         },
         close() {
             const panel = this;
+
+            if (panel.__assetChangedHandle__) {
+                window.cancelAnimationFrame(panel.__assetChangedHandle__);
+                panel.__assetChangedHandle__ = undefined;
+            }
 
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
@@ -531,6 +536,18 @@ exports.methods = {
             Editor.Message.request('asset-db', 'save-asset-meta', uuid, content);
         });
     },
+    async abort() {
+        const panel = this;
+        panel.$.header.removeAttribute('dirty');
+
+        for (const renderName in panel.contentRenders) {
+            const { contentRender } = panel.contentRenders[renderName];
+
+            for (let i = 0; i < contentRender.__panels__.length; i++) {
+                await contentRender.__panels__[i].callMethod('abort');
+            }
+        }
+    },
     async reset() {
         const panel = this;
         panel.$.header.removeAttribute('dirty');
@@ -541,6 +558,10 @@ exports.methods = {
             for (let i = 0; i < contentRender.__panels__.length; i++) {
                 await contentRender.__panels__[i].callMethod('reset');
             }
+        }
+
+        if (panel.ready !== true) {
+            return;
         }
 
         panel.$this.update(panel.uuidList, panel.renderMap);
@@ -584,6 +605,7 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
 
 exports.ready = function ready() {
     const panel = this;
+    panel.ready = true;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -637,7 +659,7 @@ exports.beforeClose = async function beforeClose() {
 
     if (result === 0) {
         // abort
-        panel.$.header.removeAttribute('dirty');
+        await panel.abort();
         return true;
     }
 
@@ -652,6 +674,7 @@ exports.beforeClose = async function beforeClose() {
 
 exports.close = async function close() {
     const panel = this;
+    panel.ready = false;
 
     for (const prop in Elements) {
         const element = Elements[prop];

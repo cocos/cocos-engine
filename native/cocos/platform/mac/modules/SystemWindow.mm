@@ -25,9 +25,14 @@
 
 #include "platform/mac/modules/SystemWindow.h"
 #import <AppKit/AppKit.h>
-#include "platform/mac/AppDelegate.h"
 #include "platform/BasePlatform.h"
 #include "platform/interfaces/modules/IScreen.h"
+
+#if CC_EDITOR
+#import <QuartzCore/CAMetalLayer.h>
+#else
+#include "platform/mac/AppDelegate.h"
+#endif
 
 namespace cc {
 
@@ -42,6 +47,9 @@ SystemWindow::~SystemWindow() = default;
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
+#if CC_EDITOR
+    return createWindow(title, 0, 0, w, h, flags);
+#else
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     NSString *aString = [NSString stringWithUTF8String:title];
     _window = [delegate createLeftBottomWindow:aString width:w height:h];
@@ -52,11 +60,22 @@ bool SystemWindow::createWindow(const char *title,
     _width  = w * dpr;
     _height = h * dpr;
     return true;
+#endif
 }
 
 bool SystemWindow::createWindow(const char *title,
                                 int x, int y, int w,
                                 int h, int flags) {
+#if CC_EDITOR
+    _width                = w;
+    _height               = h;
+    CAMetalLayer *layer = [[CAMetalLayer layer] retain];
+    layer.pixelFormat   = MTLPixelFormatBGRA8Unorm;
+    layer.frame = CGRectMake(x, y, w, h);
+    [layer setAnchorPoint:CGPointMake(0.f, 0.f)];
+    _windowHandle = reinterpret_cast<uintptr_t>(layer);
+    return true;
+#else
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     NSString *aString = [NSString stringWithUTF8String:title];
     _window = [delegate createWindow:aString xPos:x yPos:y width:w height:h];
@@ -67,6 +86,7 @@ bool SystemWindow::createWindow(const char *title,
     _width  = w * dpr;
     _height = h * dpr;
     return true;
+#endif
 }
 
 void SystemWindow::closeWindow() {
@@ -78,13 +98,23 @@ void SystemWindow::closeWindow() {
 }
 
 void SystemWindow::setCursorEnabled(bool value) {
-}
-
-void SystemWindow::copyTextToClipboard(const std::string &text) {
-    NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
-    [pasteboard clearContents];
-    NSString *tmp = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
-    [pasteboard setString:tmp forType:NSPasteboardTypeString];
+    CGError result;
+    if(value) {
+        result = CGAssociateMouseAndMouseCursorPosition(YES);
+        [NSCursor unhide];
+        if(_pointerLock) {
+            CGPoint point =
+                CGPointMake((float)_lastMousePosX, _lastMousePosY);
+            CGWarpMouseCursorPosition(point);
+        }
+        _pointerLock = false;
+    } else {
+        result = CGAssociateMouseAndMouseCursorPosition(NO);
+        [NSCursor hide];
+        _pointerLock = true;
+    }
+    CC_ASSERT(result == kCGErrorSuccess);
+    events::PointerLock::broadcast(!value);
 }
 
 uintptr_t SystemWindow::getWindowHandle() const {
@@ -98,6 +128,15 @@ SystemWindow::Size SystemWindow::getViewSize() const {
 
 uint32_t SystemWindow::getWindowId() const { 
     return _windowId;
+}
+
+bool SystemWindow::isPointerLock() const {
+    return _pointerLock;
+}
+
+void SystemWindow::setLastMousePos(float x, float y) {
+    _lastMousePosX = x;
+    _lastMousePosY = y;
 }
 
 } // namespace cc

@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { ccclass, serializable, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { cclegacy } from '../../core';
@@ -20,7 +44,7 @@ function compareStringArray (array1: string[] | undefined, array2: string[] | un
 
 @ccclass('cc.TargetInfo')
 export class TargetInfo {
-    // 用于标识目标在prefab 资源中的ID，区别于UUID
+    // as the target's fileId in prefab asset,used to find the target when prefab expanded.
     @serializable
     public localID: string[] = [];
 }
@@ -115,26 +139,27 @@ export class PrefabInstance {
     @serializable
     public fileId = '';
 
-    // 记录PrefabInstance所属的Prefab的Root节点信息
+    // record the node with the Prefab that this prefabInstance belongs to.
     @serializable
     @type(Node)
     public prefabRootNode?: Node;
 
-    // 实例化的Prefab中额外增加的子节点数据
+    // record children nodes that exist in this prefabInstance but not in prefab asset.
     @serializable
     @type([MountedChildrenInfo])
     public mountedChildren: MountedChildrenInfo[] = [];
 
-    // 实例化的Prefab中额外增加的Component数据
+    // record components that exist in this prefabInstance but not in prefab asset.
     @serializable
     @type([MountedComponentsInfo])
     public mountedComponents: MountedComponentsInfo[] = [];
 
-    // 属性的覆盖数据
+    // override properties info in this prefabInstance.
     @serializable
     @type([PropertyOverrideInfo])
     public propertyOverrides: PropertyOverrideInfo[] = [];
 
+    // record components that exist in ths prefab asset but not in prefabInstance.
     @serializable
     @type([TargetInfo])
     public removedComponents: TargetInfo[] = [];
@@ -180,12 +205,12 @@ export class PrefabInfo {
     @type(Node)
     public root?: Node;
 
-    // 所属的 prefab 资源对象 (cc.Prefab)
+    // reference to the prefab asset file.
     // In Editor, only asset._uuid is usable because asset will be changed.
     @serializable
     public asset?: Prefab;
 
-    // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
+    // prefabInfo's id,unique in the asset.
     @serializable
     @editable
     public fileId = '';

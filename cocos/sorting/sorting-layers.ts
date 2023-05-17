@@ -1,15 +1,16 @@
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -132,11 +133,23 @@ export class SortingLayers {
     }
 
     /**
+     * @zh 获取内置 Sorting Layer 数组
+     * @en Get Builtin Layer array
+     */
+    public static getBuiltinLayers (): ReadonlyArray<SortingItem> {
+        return [{ id: 0, name: 'default', value: 0 }];
+        // Tips：If want ues more builtin layer, builtin layer id should smaller than 0, custom layer id is bigger than 0
+        // 'default' layer id is 0
+    }
+
+    /**
      * @engineInternal
      */
     public static init () {
-        const sortingLayers = settings.querySettings<SortingItem[]>(Settings.Category.ENGINE, 'sortingLayers');
-        if (!sortingLayers) return;
+        let sortingLayers = settings.querySettings<ReadonlyArray<SortingItem>>(Settings.Category.ENGINE, 'sortingLayers');
+        if (!sortingLayers || sortingLayers.length === 0) {
+            sortingLayers = this.getBuiltinLayers();
+        }
         SortingLayers.resetState();
         for (let i = 0; i < sortingLayers.length; i++) {
             const layer = sortingLayers[i];
@@ -154,8 +167,9 @@ export class SortingLayers {
             scene.walk((node) => {
                 const sort = node.getComponent('cc.Sorting');
                 if (sort) {
-                    // @ts-expect-error private method
-                    sort._updateSortingPriority();
+                    // HACK: Property '_updateSortingPriority' does not exist on type 'Component'.
+                    // we can't import Sorting class in this module.
+                    (sort as any)._updateSortingPriority();
                 }
             });
         }

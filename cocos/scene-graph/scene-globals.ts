@@ -1,16 +1,17 @@
 /* eslint-disable func-names */
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,8 +21,10 @@
  THE SOFTWARE.
 */
 
-import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep,
-    editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
+import {
+    ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep,
+    editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName,
+} from 'cc.decorator';
 import { BAIDU } from 'internal:constants';
 import { TextureCube } from '../asset/assets/texture-cube';
 import { CCFloat, CCInteger } from '../core/data/utils/attribute';
@@ -30,6 +33,7 @@ import { Ambient } from '../render-scene/scene/ambient';
 import { Shadows, ShadowType, ShadowSize } from '../render-scene/scene/shadows';
 import { Skybox, EnvironmentLightingType } from '../render-scene/scene/skybox';
 import { Octree } from '../render-scene/scene/octree';
+import { Skin } from '../render-scene/scene/skin';
 import { Fog, FogType } from '../render-scene/scene/fog';
 import { LightProbesData, LightProbes } from '../gi/light-probe/light-probe';
 import { Node } from './node';
@@ -37,7 +41,10 @@ import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
-import { LightProbeGroup } from '../gi/light-probe/light-probe-group';
+import { cclegacy, macro } from '../core';
+import { Scene } from './scene';
+import { NodeEventType } from './node-event';
+import { property } from '../core/data/class-decorator';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -46,7 +53,7 @@ const _col = new Color();
 const _qt = new Quat();
 
 // Normalize HDR color
-const normalizeHDRColor = (color : Vec4) => {
+const normalizeHDRColor = (color: Vec4) => {
     const intensity = 1.0 / Math.max(Math.max(Math.max(color.x, color.y), color.z), 0.0001);
     if (intensity < 1.0) {
         color.x *= intensity;
@@ -64,7 +71,7 @@ export class AmbientInfo {
      * @en The sky color in HDR mode
      * @zh HDR 模式下的天空光照色
      */
-    get skyColorHDR () : Readonly<Vec4> {
+    get skyColorHDR (): Readonly<Vec4> {
         return this._skyColorHDR;
     }
 
@@ -72,7 +79,7 @@ export class AmbientInfo {
      * @en The ground color in HDR mode
      * @zh HDR 模式下的地面光照色
      */
-    get groundAlbedoHDR () : Readonly<Vec4> {
+    get groundAlbedoHDR (): Readonly<Vec4> {
         return this._groundAlbedoHDR;
     }
 
@@ -88,7 +95,7 @@ export class AmbientInfo {
      * @en The sky color in LDR mode
      * @zh LDR 模式下的天空光照色
      */
-    get skyColorLDR () : Readonly<Vec4> {
+    get skyColorLDR (): Readonly<Vec4> {
         return this._skyColorLDR;
     }
 
@@ -96,7 +103,7 @@ export class AmbientInfo {
      * @en The ground color in LDR mode
      * @zh LDR 模式下的地面光照色
      */
-    get groundAlbedoLDR () : Readonly<Vec4> {
+    get groundAlbedoLDR (): Readonly<Vec4> {
         return this._groundAlbedoLDR;
     }
 
@@ -416,8 +423,7 @@ export class SkyboxInfo {
      * @zh 旋转天空盒
      */
     @type(CCFloat)
-    @range([0, 360])
-    @rangeStep(1)
+    @range([0, 360, 1])
     @slide
     @tooltip('i18n:skybox.rotationAngle')
     set rotationAngle (val: number) {
@@ -432,7 +438,7 @@ export class SkyboxInfo {
      * @en The optional diffusion convolution map used in tandem with IBL
      * @zh 使用的漫反射卷积图
      */
-    @visible(function (this : SkyboxInfo) {
+    @visible(function (this: SkyboxInfo) {
         if (this.useIBL && this.applyDiffuseMap) {
             return true;
         }
@@ -442,7 +448,7 @@ export class SkyboxInfo {
     @readOnly
     @type(TextureCube)
     @displayOrder(100)
-    set diffuseMap (val : TextureCube | null) {
+    set diffuseMap (val: TextureCube | null) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._diffuseMapHDR = val;
@@ -467,7 +473,7 @@ export class SkyboxInfo {
      * @en Convolutional map using environmental reflections
      * @zh 使用环境反射卷积图
      */
-    @visible(function (this : SkyboxInfo) {
+    @visible(function (this: SkyboxInfo) {
         if (this._resource?.reflectionMap) {
             return true;
         }
@@ -563,6 +569,27 @@ export class SkyboxInfo {
         this._resource.setRotationAngle(this._rotationAngle);
         this._resource.activate(); // update global DS first
     }
+
+    /**
+     * @en When the environment map changed will call this function to update scene.
+     * @zh 环境贴图发生变化时，会调用此函数更新场景。
+     * @param val environment map
+     */
+    public updateEnvMap (val: TextureCube) {
+        if (!val) {
+            this.applyDiffuseMap = false;
+            this.useIBL = false;
+            this.envLightingType = EnvironmentLightingType.HEMISPHERE_DIFFUSE;
+            warnID(15001);
+        }
+        if (this._resource) {
+            this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
+            this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+            this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
+            this._resource.useDiffuseMap = this.applyDiffuseMap;
+            this._resource.envmap = val;
+        }
+    }
 }
 legacyCC.SkyboxInfo = SkyboxInfo;
 
@@ -624,12 +651,12 @@ export class FogInfo {
      */
     @editable
     @tooltip('i18n:fog.fogColor')
-    set fogColor (val: Color) {
+    set fogColor (val: Readonly<Color>) {
         this._fogColor.set(val);
         if (this._resource) { this._resource.fogColor = this._fogColor; }
     }
 
-    get fogColor () : Readonly<Color> {
+    get fogColor (): Readonly<Color> {
         return this._fogColor;
     }
 
@@ -658,8 +685,7 @@ export class FogInfo {
         return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
     })
     @type(CCFloat)
-    @range([0, 1])
-    @rangeStep(0.01)
+    @range([0, 1, 0.01])
     @slide
     @tooltip('i18n:fog.fogDensity')
     get fogDensity () {
@@ -843,11 +869,11 @@ export class ShadowsInfo {
      */
     @tooltip('i18n:shadow.shadowColor')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
-    set shadowColor (val: Color) {
+    set shadowColor (val: Readonly<Color>) {
         this._shadowColor.set(val);
         if (this._resource) { this._resource.shadowColor = val; }
     }
-    get shadowColor () : Readonly<Color> {
+    get shadowColor (): Readonly<Color> {
         return this._shadowColor;
     }
 
@@ -857,11 +883,11 @@ export class ShadowsInfo {
      */
     @tooltip('i18n:shadow.planeDirection')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
-    set planeDirection (val: Vec3) {
+    set planeDirection (val: Readonly<Vec3>) {
         Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
     }
-    get planeDirection () : Readonly<Vec3> {
+    get planeDirection (): Readonly<Vec3> {
         return this._normal;
     }
 
@@ -1056,34 +1082,112 @@ export class OctreeInfo {
 legacyCC.OctreeInfo = OctreeInfo;
 
 /**
+ * @en Global skin in the render scene.
+ * @zh 渲染场景中的全局皮肤后处理设置。
+ */
+@ccclass('cc.SkinInfo')
+export class SkinInfo {
+    /**
+     * @en Enable skip.
+     * @zh 是否开启皮肤后效。
+     */
+    @editable
+    @tooltip('i18n:skin.enabled')
+    set enabled (val: boolean) {
+        if (this._enabled === val) return;
+        this._enabled = val;
+        if (val && !macro.ENABLE_FLOAT_OUTPUT) {
+            console.warn('Separable-SSS skin filter need float output, please open ENABLE_FLOAT_OUTPUT define...');
+        }
+        if (this._resource) {
+            this._resource.enabled = val;
+        }
+    }
+    get enabled () {
+        return this._enabled;
+    }
+
+    /**
+     * @en Getter/Setter sampler width.
+     * @zh 设置或者获取采样宽度。
+     */
+    @visible(false)
+    @editable
+    @range([0.0, 0.1, 0.001])
+    @slide
+    @type(CCFloat)
+    @tooltip('i18n:skin.blurRadius')
+    set blurRadius (val: number) {
+        if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
+            console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
+            return;
+        }
+        this._blurRadius = val;
+        if (this._resource) { this._resource.blurRadius = val; }
+    }
+    get blurRadius () {
+        return this._blurRadius;
+    }
+
+    /**
+     * @en Getter/Setter depth unit scale.
+     * @zh 设置或者获取深度单位比例。
+     */
+    @editable
+    @range([0.0, 10.0, 0.1])
+    @slide
+    @type(CCFloat)
+    @tooltip('i18n:skin.sssIntensity')
+    set sssIntensity (val: number) {
+        if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
+            console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
+            return;
+        }
+        this._sssIntensity = val;
+        if (this._resource) { this._resource.sssIntensity = val; }
+    }
+    get sssIntensity () {
+        return this._sssIntensity;
+    }
+
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _blurRadius = 0.01;
+    @serializable
+    protected _sssIntensity = 5.0;
+
+    protected _resource: Skin | null = null;
+
+    /**
+     * @en Activate the skin configuration in the render scene, no need to invoke manually.
+     * @zh 在渲染场景中启用八叉树设置，不需要手动调用
+     * @param resource The skin configuration object in the render scene
+     */
+    public activate (resource: Skin) {
+        this._resource = resource;
+        this._resource.initialize(this);
+    }
+}
+legacyCC.SkinInfo = SkinInfo;
+
+export interface ILightProbeNode {
+    node: Node;
+    probes: Vec3[] | null;
+}
+
+/**
  * @en light probe configuration
  * @zh 光照探针配置
  */
 @ccclass('cc.LightProbeInfo')
 export class LightProbeInfo {
     /**
-     * @en Whether activate light probe
-     * @zh 是否启用光照探针
-     */
-    @editable
-    @tooltip('i18n:light_probe.enabled')
-    set enabled (val: boolean) {
-        if (this._enabled === val) return;
-        this._enabled = val;
-        if (this._resource) {
-            this._resource.enabled = val;
-        }
-    }
-    get enabled (): boolean {
-        return this._enabled;
-    }
-
-    /**
      * @en GI multiplier
      * @zh GI乘数
      */
     @editable
-    @range([0.1, 10, 0.1])
+    @range([0, 100, 1])
     @type(CCFloat)
     @tooltip('i18n:light_probe.giScale')
     @displayName('GIScale')
@@ -1103,7 +1207,7 @@ export class LightProbeInfo {
      * @zh GI 采样数量
      */
     @editable
-    @range([64, 65536, 1])
+    @range([64, 65535, 1])
     @type(CCInteger)
     @tooltip('i18n:light_probe.giSamples')
     @displayName('GISamples')
@@ -1223,8 +1327,25 @@ export class LightProbeInfo {
         return this._data;
     }
 
-    @serializable
-    protected _enabled = false;
+    /**
+     * @en The value of all light probe sphere display size
+     * @zh 光照探针全局显示大小
+     */
+    @editable
+    @range([0, 100, 1])
+    @type(CCFloat)
+    @tooltip('i18n:light_probe.lightProbeSphereVolume')
+    set lightProbeSphereVolume (val: number) {
+        if (this._lightProbeSphereVolume === val) return;
+        this._lightProbeSphereVolume = val;
+        if (this._resource) {
+            this._resource.lightProbeSphereVolume = val;
+        }
+    }
+    get lightProbeSphereVolume (): number {
+        return this._lightProbeSphereVolume;
+    }
+
     @serializable
     protected _giScale = 1.0;
     @serializable
@@ -1242,13 +1363,38 @@ export class LightProbeInfo {
     @serializable
     protected _data: LightProbesData | null = null;
     @serializable
-    protected _lightProbeGroups: LightProbeGroup[] = [];
+    protected _lightProbeSphereVolume = 1.0;
 
+    protected _nodes: ILightProbeNode[] = [];
+    protected _scene: Scene | null = null;
     protected _resource: LightProbes | null = null;
 
-    public activate (resource: LightProbes) {
+    public activate (scene: Scene, resource: LightProbes) {
+        this._scene = scene;
         this._resource = resource;
         this._resource.initialize(this);
+    }
+
+    public onProbeBakeFinished () {
+        this.onProbeBakingChanged(this._scene);
+    }
+
+    public onProbeBakeCleared () {
+        this.clearSHCoefficients();
+        this.onProbeBakingChanged(this._scene);
+    }
+
+    private onProbeBakingChanged (node: Node | null) {
+        if (!node) {
+            return;
+        }
+
+        node.emit(NodeEventType.LIGHT_PROBE_BAKING_CHANGED);
+
+        for (let i = 0; i < node.children.length; i++) {
+            const child = node.children[i];
+            this.onProbeBakingChanged(child);
+        }
     }
 
     public clearSHCoefficients () {
@@ -1258,77 +1404,88 @@ export class LightProbeInfo {
 
         const probes = this._data.probes;
         for (let i = 0; i < probes.length; i++) {
-            const probe = probes[i];
-            probe.coefficients.length = 0;
+            probes[i].coefficients.length = 0;
         }
+
+        this.clearAllSHUBOs();
     }
 
-    public isUniqueGroup (): boolean {
-        return this._lightProbeGroups.length === 1;
+    public isUniqueNode (): boolean {
+        return this._nodes.length === 1;
     }
 
-    public addGroup (group: LightProbeGroup): boolean {
-        if (!group) {
+    public addNode (node: Node): boolean {
+        if (!node) {
             return false;
         }
 
-        if (this._lightProbeGroups.includes(group)) {
-            return false;
+        for (let i = 0; i < this._nodes.length; i++) {
+            if (this._nodes[i].node === node) {
+                return false;
+            }
         }
 
-        this._lightProbeGroups.push(group);
+        this._nodes.push({ node, probes: null });
 
         return true;
     }
 
-    public removeGroup (group: LightProbeGroup): boolean {
-        if (!group) {
+    public removeNode (node: Node): boolean {
+        if (!node) {
             return false;
         }
 
-        const index = this._lightProbeGroups.findIndex((element) => element === group);
+        const index = this._nodes.findIndex((element) => element.node === node);
         if (index === -1) {
             return false;
         }
 
-        this._lightProbeGroups.splice(index, 1);
+        this._nodes.splice(index, 1);
 
         return true;
     }
 
+    public syncData (node: Node, probes: Vec3[]) {
+        for (let i = 0; i < this._nodes.length; i++) {
+            if (this._nodes[i].node === node) {
+                this._nodes[i].probes = probes;
+                return;
+            }
+        }
+    }
+
     public update (updateTet = true) {
-        if (!legacyCC.internal.LightProbesData) {
+        if (!cclegacy.internal.LightProbesData) {
             return;
         }
 
         if (!this._data) {
-            this._data = new legacyCC.internal.LightProbesData();
+            this._data = new cclegacy.internal.LightProbesData();
             if (this._resource) {
                 this._resource.data = this._data;
             }
         }
 
         const points: Vec3[] = [];
-        for (let i = 0; i < this._lightProbeGroups.length; i++) {
-            const group = this._lightProbeGroups[i];
-            if (!group.node) {
+        for (let i = 0; i < this._nodes.length; i++) {
+            const node = this._nodes[i].node;
+            const probes = this._nodes[i].probes;
+            const worldPosition = node.worldPosition;
+
+            if (!probes) {
                 continue;
             }
 
-            const worldPosition = group.node.worldPosition;
-            const count = group.probes.length;
-
-            for (let j = 0; j < count; j++) {
+            for (let j = 0; j < probes.length; j++) {
                 const position = new Vec3(0, 0, 0);
-                Vec3.add(position, group.probes[j], worldPosition);
+                Vec3.add(position, probes[j], worldPosition);
                 points.push(position);
             }
         }
 
         const pointCount = points.length;
         if (pointCount < 4) {
-            warnID(17000);
-            this.resetTetraIndices();
+            this.resetAllTetraIndices();
             this._data!.reset();
             return;
         }
@@ -1336,18 +1493,33 @@ export class LightProbeInfo {
         this._data!.updateProbes(points);
 
         if (updateTet) {
-            this.resetTetraIndices();
+            this.resetAllTetraIndices();
             this._data!.updateTetrahedrons();
         }
     }
 
-    private resetTetraIndices () {
-        const scene = legacyCC.director.getScene();
-        if (!scene) {
+    private clearAllSHUBOs () {
+        if (!this._scene) {
             return;
         }
 
-        const renderScene = scene.renderScene;
+        const renderScene = this._scene.renderScene;
+        if (!renderScene) {
+            return;
+        }
+
+        const models = renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            models[i].clearSHUBOs();
+        }
+    }
+
+    private resetAllTetraIndices () {
+        if (!this._scene) {
+            return;
+        }
+
+        const renderScene = this._scene.renderScene;
         if (!renderScene) {
             return;
         }
@@ -1358,7 +1530,6 @@ export class LightProbeInfo {
         }
     }
 }
-legacyCC.internal.LightProbeInfo = LightProbeInfo;
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene
@@ -1415,18 +1586,42 @@ export class SceneGlobals {
     public octree = new OctreeInfo();
 
     /**
+     * @en Octree related configuration
+     * @zh 八叉树相关配置
+     */
+    @editable
+    @serializable
+    public skin = new SkinInfo();
+
+    /**
      * @en Light probe related configuration
      * @zh 光照探针相关配置
      */
     @editable
     @serializable
-    public lightProbeInfo = legacyCC.internal.LightProbeInfo ? new legacyCC.internal.LightProbeInfo() : null;
+    public lightProbeInfo = new LightProbeInfo();
+
+    /**
+     * @en bake with stationary main light
+     * @zh 主光源是否以静止状态烘培
+     */
+    @editable
+    @serializable
+    public bakedWithStationaryMainLight = false;
+
+    /**
+     * @en bake lightmap with highp mode
+     * @zh 是否使用高精度模式烘培光照图
+     */
+    @editable
+    @serializable
+    public bakedWithHighpLightmap = false;
 
     /**
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.
      * @zh 启用和初始化场景全局配置，不需要手动调用
      */
-    public activate () {
+    public activate (scene: Scene) {
         const sceneData = (legacyCC.director.root as Root).pipeline.pipelineSceneData;
         this.skybox.activate(sceneData.skybox);
         this.ambient.activate(sceneData.ambient);
@@ -1434,8 +1629,9 @@ export class SceneGlobals {
         this.shadows.activate(sceneData.shadows);
         this.fog.activate(sceneData.fog);
         this.octree.activate(sceneData.octree);
+        this.skin.activate(sceneData.skin);
         if (this.lightProbeInfo && sceneData.lightProbes) {
-            this.lightProbeInfo.activate(sceneData.lightProbes);
+            this.lightProbeInfo.activate(scene, sceneData.lightProbes);
         }
 
         const root = legacyCC.director.root as Root;

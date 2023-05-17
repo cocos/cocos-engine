@@ -1,19 +1,9 @@
 
 import { lerp, Vec3, warnID } from '../../cocos/core';
-import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType, AnimationMask } from '../../cocos/animation/marionette/asset-creation';
-import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource } from '../../cocos/animation/marionette/animation-graph';
+import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType, AnimationMask, AnimationGraphVariant } from '../../cocos/animation/marionette/asset-creation';
+import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource, State, Layer } from '../../cocos/animation/marionette/animation-graph';
 import { VariableTypeMismatchedError } from '../../cocos/animation/marionette/errors';
 import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/animation/marionette/graph-eval';
-import { createGraphFromDescription } from '../../cocos/animation/marionette/__tmp__/graph-from-description';
-import gAnyTransition from './graphs/any-transition';
-import gUnspecifiedCondition from './graphs/unspecified-condition';
-import glUnspecifiedConditionOnEntryNode from './graphs/unspecified-condition-for-non-entry-node';
-import gSuccessiveSatisfaction from './graphs/successive-satisfaction';
-import gVariableNotFoundInCondition from './graphs/variable-not-found-in-condition';
-import gVariableNotFoundInAnimationBlend from './graphs/variable-not-found-in-pose-blend';
-import gAnimationBlendRequiresNumbers from './graphs/pose-blend-requires-numbers';
-import gInfinityLoop from './graphs/infinity-loop';
-import gZeroTimePiece from './graphs/zero-time-piece';
 import { blend1D } from '../../cocos/animation/marionette/blend-1d';
 import '../utils/matcher-deep-close-to';
 import { BinaryCondition, UnaryCondition, TriggerCondition } from '../../cocos/animation/marionette/condition';
@@ -27,6 +17,13 @@ import { TriggerResetMode } from '../../cocos/animation/marionette/variable';
 import { MotionState } from '../../cocos/animation/marionette/motion-state';
 import { Node, Component } from '../../cocos/scene-graph';
 import * as maskTestHelper from './new-gen-anim/utils/mask-test-helper';
+import '../utils/matchers/value-type-asymmetric-matchers';
+import { AnimationBlend1DFixture, LinearRealValueAnimationFixture, ConstantRealValueAnimationFixture, RealValueAnimationFixture } from './new-gen-anim/utils/fixtures';
+import { NodeTransformValueObserver } from './new-gen-anim/utils/node-transform-value-observer';
+import { SingleRealValueObserver } from './new-gen-anim/utils/single-real-value-observer';
+import { createAnimationGraph } from './new-gen-anim/utils/factory';
+
+const DEFAULT_AROUND_NUM_DIGITS = 5;
 
 describe('NewGen Anim', () => {
     test('Defaults', () => {
@@ -494,7 +491,59 @@ describe('NewGen Anim', () => {
             // The following updates at that time would still steadily proceed:
             // - The graph is in transition state and the transition specified 0 duration, then the switch will happened;
             // - The graph is in node state and a transition is judged to be happened, then the graph will run in transition state.
-            const graphEval = createAnimationGraphEval(createGraphFromDescription(gZeroTimePiece), new Node());
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': { type: 'motion' },
+                            'Node2': {
+                                type: 'sub-state-machine',
+                                stateMachine: {
+                                    states: { 'SubStateMachineNode1': { type: 'motion' } },
+                                    entryTransitions: [{ to: 'SubStateMachineNode1' }],
+                                    exitTransitions: [{ from: 'SubStateMachineNode1', exitTimeEnabled: true, exitTime: 0.0, duration: 0.0 }],
+                                },
+                            },
+                        },
+                        entryTransitions: [{ to: 'Node1' }],
+                        exitTransitions: [{ from: 'Node2' }],
+                        transitions: [{ from: 'Node1', to: 'Node2', exitTimeEnabled: true, exitTime: 0.0, duration: 0.0 }],
+                    }
+                }],
+            }), new Node());
+            graphEval.update(0.0);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: { __DEBUG_ID__: 'SubStateMachineNode1' },
+            });
+        });
+
+        test('Zero time piece', () => {
+            // SPEC: Whenever zero time piece is encountered,
+            // no matter the time piece is generated since originally passed to `update()`,
+            // or was exhausted and left zero.
+            // The following updates at that time would still steadily proceed:
+            // - The graph is in transition state and the transition specified 0 duration, then the switch will happened;
+            // - The graph is in node state and a transition is judged to be happened, then the graph will run in transition state.
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': { type: 'motion' },
+                            'Node2': {
+                                type: 'sub-state-machine',
+                                stateMachine: {
+                                    states: { 'SubStateMachineNode1': { type: 'motion' } },
+                                    entryTransitions: [{ to: 'SubStateMachineNode1' }],
+                                    exitTransitions: [{ from: 'SubStateMachineNode1', exitTimeEnabled: true, exitTime: 0.0, duration: 0.0 }],
+                                },
+                            },
+                        },
+                        entryTransitions: [{ to: 'Node1' }],
+                        exitTransitions: [{ from: 'Node2' }],
+                        transitions: [{ from: 'Node1', to: 'Node2', exitTimeEnabled: true, exitTime: 0.0, duration: 0.0 }],
+                    }
+                }],
+            }), new Node());
             graphEval.update(0.0);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 currentNode: { __DEBUG_ID__: 'SubStateMachineNode1' },
@@ -522,7 +571,14 @@ describe('NewGen Anim', () => {
         });
 
         test('Condition not specified', () => {
-            const graphEval = createAnimationGraphEval(createGraphFromDescription(gUnspecifiedCondition), new Node());
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: { 'asd': { type: 'motion' } },
+                        entryTransitions: [{ to: 'asd' }],
+                    },
+                }],
+            }), new Node());
             graphEval.update(0.0);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                currentNode: { __DEBUG_ID__: 'asd' },
@@ -530,7 +586,18 @@ describe('NewGen Anim', () => {
         });
 
         test('Condition not specified for non-entry node', () => {
-            const graphEval = createAnimationGraphEval(createGraphFromDescription(glUnspecifiedConditionOnEntryNode), new Node());
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': { type: 'motion' },
+                            'Node2': { type: 'motion' },
+                        },
+                        entryTransitions: [{ to: 'Node1' }],
+                        transitions: [{ from: 'Node1', to: 'Node2', duration: 0.3, exitTimeEnabled: true, exitTime: 0.0 }],
+                    },
+                }],
+            }), new Node());
             graphEval.update(0.0);
             expectAnimationGraphEvalStatusLayer0(graphEval, {
                 currentNode: { __DEBUG_ID__: 'Node1' },
@@ -545,7 +612,18 @@ describe('NewGen Anim', () => {
         });
 
         test('Successive transitions', () => {
-            const graphEval = createAnimationGraphEval(createGraphFromDescription(gSuccessiveSatisfaction), new Node());
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': { type: 'motion' },
+                            'Node2': { type: 'motion' },
+                        },
+                        entryTransitions: [{ to: 'Node1' }],
+                        transitions: [{ from: 'Node1', to: 'Node2', duration: 0.0, exitTimeEnabled: true, exitTime: 0.0 }],
+                    },
+                }],
+            }), new Node());
             graphEval.update(0.0);
             
             expectAnimationGraphEvalStatusLayer0(graphEval, {
@@ -557,7 +635,21 @@ describe('NewGen Anim', () => {
             const warnMockInstance = warnID as unknown as jest.MockInstance<ReturnType<typeof warnID>, Parameters<typeof warnID>>;
             warnMockInstance.mockClear();
 
-            const graphEval = createAnimationGraphEval(createGraphFromDescription(gInfinityLoop), new Node());
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': { type: 'motion' },
+                            'Node2': { type: 'motion' },
+                        },
+                        entryTransitions: [{ to: 'Node1' }],
+                        transitions: [
+                            { from: 'Node1', to: 'Node2', duration: 0.0, exitTimeEnabled: true, exitTime: 0.0 },
+                            { from: 'Node2', to: 'Node1', duration: 0.0, exitTimeEnabled: true, exitTime: 0.0 }
+                        ],
+                    },
+                }],
+            }), new Node());
             graphEval.update(0.0);
 
             expect(warnMockInstance).toBeCalledTimes(1);
@@ -1734,6 +1826,60 @@ describe('NewGen Anim', () => {
                 },
             });
         });
+
+        test(`Empty->Empty transition`, () => {
+            // SPEC: if both the transition's start and destination are empty state,
+            // the state machine's animation result is as if
+            // the state machine is in a single empty state.
+
+            const fixture = {
+                initial_value: 0.3,
+                layer1_animation_value: 0.8,
+                layer1_weight: 0.8,
+                layer2_weight: 0.6,
+                transition_duration: 0.2,
+            };
+
+            const node = new Node();
+            node.setPosition(fixture.initial_value, 0.0, 0.0);
+
+            const animationGraph = new AnimationGraph();
+            {
+                const layer = animationGraph.addLayer();
+                layer.weight = fixture.layer1_weight;
+                const motionState = layer.stateMachine.addMotion();
+                motionState.motion = createClipMotionPositionX(1.0, fixture.layer1_animation_value);
+                layer.stateMachine.connect(layer.stateMachine.entryState, motionState);
+            }
+            {
+                const layer = animationGraph.addLayer();
+                layer.weight = fixture.layer2_weight;
+                const empty1 = layer.stateMachine.addEmpty();
+                const empty2 = layer.stateMachine.addEmpty();
+                layer.stateMachine.connect(layer.stateMachine.entryState, empty1);
+                const transition = layer.stateMachine.connect(empty1, empty2);
+                transition.duration = fixture.transition_duration;
+                const [condition] = transition.conditions = [new UnaryCondition()];
+                condition.operator = UnaryCondition.Operator.TRUTHY;
+                condition.operand.value = true;
+            }
+
+            const graphEval = createAnimationGraphEval(animationGraph, node);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            graphUpdater.step(fixture.transition_duration * 0.5);
+
+            let expected = fixture.initial_value;
+            expected = lerp( // Layer 1
+                expected,
+                fixture.layer1_animation_value,
+                fixture.layer1_weight,
+            );
+            // Layer 2 has no effect
+
+            expect(expected).toMatchSnapshot(`Expected result`);
+            expect(node.position.x).toBeCloseTo(expected, DEFAULT_AROUND_NUM_DIGITS);
+        })
     });
 
     describe('Wrap mode', () => {
@@ -1836,12 +1982,17 @@ describe('NewGen Anim', () => {
             expect(isAnimationTransition(anyTransition)).toBe(true);
         });
 
-        test('Any transition', () => {
-            const graphEval = createAnimationGraphEval(createGraphFromDescription(gAnyTransition), new Node());
+        test('Any transition shall only match motion states', () => {
+            const graphEval = createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {  'Node1': { type: 'motion' } },
+                        anyTransitions: [{ to: 'Node1', }],
+                    },
+                }],
+            }), new Node());
             graphEval.update(0.0);
-            expectAnimationGraphEvalStatusLayer0(graphEval, {
-                currentNode: { __DEBUG_ID__: 'Node1' },
-            });
+            expect(graphEval.getCurrentStateStatus(0)).toBeNull();
         });
 
         test('Inheritance', () => {
@@ -1977,7 +2128,7 @@ describe('NewGen Anim', () => {
             // Start Motion -> Empty
             updater.goto(FIRST_TIME_EMPTY_REST_TIME + MOTION_EXIT_CONDITION + 0.15);
             expectAnimationGraphEvalStatus(graphEval, [
-                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.15 / MOTION_TO_EMPTY_DURATION } },
+                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.15 / MOTION_TO_EMPTY_DURATION }, transition: {} },
             ]);
             expect(node.position.x).toBeCloseTo(lerp(
                 MOTION_SAMPLE_RESULT_AT(MOTION_EXIT_CONDITION + 0.15), // Layer 0 result
@@ -1988,7 +2139,7 @@ describe('NewGen Anim', () => {
             // Step for a little while
             updater.step(0.06);
             expectAnimationGraphEvalStatus(graphEval, [
-                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.21 / MOTION_TO_EMPTY_DURATION } },
+                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.21 / MOTION_TO_EMPTY_DURATION }, transition: {} },
             ]);
             expect(node.position.x).toBeCloseTo(lerp(
                 MOTION_SAMPLE_RESULT_AT(MOTION_EXIT_CONDITION + 0.21), // Layer 0 result
@@ -2044,7 +2195,7 @@ describe('NewGen Anim', () => {
             updater.goto(0.3 * 1.0 + 0.12);
             expectAnimationGraphEvalStatus(graphEval, [
                 { current: { clip: layer0Clip!.clip, weight: 1.0 } },
-                { current: { clip: layer1Clip.clip, weight: 1.0 - 0.12 / 0.5 } },
+                { current: { clip: layer1Clip.clip, weight: 1.0 - 0.12 / 0.5 }, transition: {} },
             ]);
             expect(node.position.x).toBeCloseTo(1.3 * (1.0 - 0.12 / 0.5) + 0.6 * (0.12 / 0.5));
         });
@@ -2596,6 +2747,31 @@ describe('NewGen Anim', () => {
                 MOTION_TIME_ELAPSED += 0.4 * (-1.3 * FIXED_SPEED);
                 check();
             });
+
+            test(`Clip inherent speed`, () => {
+                const fixture = {
+                    clip_animation: new LinearRealValueAnimationFixture(1, 2, 0.5),
+                    speed: 0.8,
+                };
+
+                const valueObserver = new SingleRealValueObserver();
+
+                const animationGraph = new AnimationGraph();
+                const layer = animationGraph.addLayer();
+                const stateMachine = layer.stateMachine;
+                const motionState = stateMachine.addMotion();
+                const clipMotion = motionState.motion = fixture.clip_animation.createMotion(valueObserver.getCreateMotionContext());
+                clipMotion.clip.speed = 0.8;
+                stateMachine.connect(stateMachine.entryState, motionState);
+
+                const graphEval = createAnimationGraphEval(animationGraph, valueObserver.root);
+                const graphUpdater = new GraphUpdater(graphEval);
+
+                graphUpdater.step(fixture.clip_animation.duration);
+                expect(valueObserver.value).toBeCloseTo(
+                    fixture.clip_animation.getExpected(fixture.clip_animation.duration * clipMotion.clip.speed),
+                );
+            });
         });
     });
 
@@ -2690,17 +2866,71 @@ describe('NewGen Anim', () => {
 
     describe('Variable not found error', () => {
         test('Missed in conditions', () => {
-            expect(() => createAnimationGraphEval(createGraphFromDescription(gVariableNotFoundInCondition), new Node())).toThrowError(VariableNotDefinedError);
+            expect(() => createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: { 'Node1': { type: 'motion' }  },
+                        entryTransitions: [{ to: 'Node1', conditions: [{
+                            type: 'unary',
+                            operator: 'to-be-true',
+                            operand: { type: 'variable', name: 'asd' },
+                        }] }],
+                    },
+                }],
+            }), new Node())).toThrowError(VariableNotDefinedError);
         });
 
         test('Missed in animation blend', () => {
-            expect(() => createAnimationGraphEval(createGraphFromDescription(gVariableNotFoundInAnimationBlend), new Node())).toThrowError(VariableNotDefinedError);
+            expect(() => createAnimationGraphEval(createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': {
+                                type: 'motion',
+                                motion: {
+                                    type: 'animation-blend-1d',
+                                    param: { type: 'variable', name: 'asd' },
+                                    items: [{
+                                        motion: { type: 'clip-motion' },
+                                        threshold: 0.0,
+                                    }, {
+                                        motion: { type: 'clip-motion' },
+                                        threshold: 1.0,
+                                    }],
+                                },
+                            },
+                        },
+                    },
+                }],
+            }), new Node())).toThrowError(VariableNotDefinedError);
         });
     });
 
     describe('Variable type mismatch error', () => {
         test('animation blend requires numbers', () => {
-            expect(() => createAnimationGraphEval(createGraphFromDescription(gAnimationBlendRequiresNumbers), new Node())).toThrowError(VariableTypeMismatchedError);
+            expect(() => createAnimationGraphEval(createAnimationGraph({
+                variableDeclarations: { 'v': { type: 'boolean', value: false } },
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'Node1': {
+                                type: 'motion',
+                                motion: {
+                                    type: 'animation-blend-1d',
+                                    param: { type: 'variable', name: 'v' },
+                                    items: [{
+                                        motion: { type: 'clip-motion' },
+                                        threshold: 0.0,
+                                    }, {
+                                        motion: { type: 'clip-motion' },
+                                        threshold: 1.0,
+                                    }],
+                                },
+                            },
+                        },
+                    },
+                }],
+            }), new Node())).toThrowError(VariableTypeMismatchedError);
         });
     });
 
@@ -2751,18 +2981,218 @@ describe('NewGen Anim', () => {
         ]);
     });
 
-    test('Layer weight get/set', () => {
+    test('Layer weight get/set, layer count', () => {
         const animationGraph = new AnimationGraph();
         const layer0 = animationGraph.addLayer();
         const layer1 = animationGraph.addLayer();
         layer1.weight = 0.4;
         const { newGenAnim: animationController } = createAnimationGraphEval2(animationGraph, new Node());
+
+        expect(animationController.layerCount).toBe(2);
+
         expect(animationController.getLayerWeight(0)).toBe(1.0);
         expect(animationController.getLayerWeight(1)).toBe(0.4);
         animationController.setLayerWeight(0, 0.2);
         animationController.setLayerWeight(1, 0.3);
         expect(animationController.getLayerWeight(0)).toBe(0.2);
         expect(animationController.getLayerWeight(1)).toBe(0.3);
+    });
+
+    test('No graph is specified', () => {
+        const node = new Node();
+        const animationController = node.addComponent(AnimationController) as AnimationController;
+
+        // SPEC: if no graph is specified, the layer count would be 0.
+        expect(animationController.layerCount).toBe(0);
+    });
+
+    describe(`Status query methods`, () => {
+        describe(`If no transition is being performed`, () => {
+            /**
+             * ### SPEC
+             * 
+             * If a layer ran into an state and there is no transition is performing:
+             * 
+             * - `getCurrentTransition` returns null.
+             * - `getNextStateStatus` returns null.
+             * - `getNextClipStatuses` yields nothing.
+             * - If the state is a motion state:
+             *     - `getCurrentStateStatus` returns the status of the state, where:
+             *       - `.time` gives the transition time(absolute, in seconds).
+             *       - `.duration` gives the transition duration.
+             *     - `getCurrentClipStatuses` return the status of the clips containing in the state, where:
+             *       - `.clip` gives the clip.
+             *       - `.weight` gives the clip's contribution in whole layer.
+             *  - Otherwise:
+             *     - `getCurrentStateStatus` returns null.
+             *     - `getCurrentClipStatuses` yields nothing.
+             */
+            const _SPEC = undefined;
+
+            const commonCheck1 = (controller: AnimationController) => {
+                expect(controller.getCurrentTransition(0)).toBeNull();
+                expect(controller.getNextStateStatus(0)).toBeNull();
+                expect([...controller.getNextClipStatuses(0)]).toHaveLength(0);
+            };
+
+            test(`Motion state`, () => {
+                const fixture = {
+                    motion_duration: 2.0,
+                    state_time: 0.1,
+                };
+
+                const graph = new AnimationGraph();
+                const mainLayer = graph.addLayer();
+                const motionState = mainLayer.stateMachine.addMotion();
+                const clipMotion = motionState.motion = createEmptyClipMotion(fixture.motion_duration);
+                mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, motionState);
+
+                const { newGenAnim, graphEval } = createAnimationGraphEval2(graph, new Node());
+                const graphUpdater = new GraphUpdater(graphEval);
+
+                graphUpdater.step(fixture.state_time);
+                expect(newGenAnim.getCurrentStateStatus(0)).toMatchObject({
+                    progress: expect.toBeAround(fixture.state_time / fixture.motion_duration, DEFAULT_AROUND_NUM_DIGITS),
+                });
+                expect([...newGenAnim.getCurrentClipStatuses(0)]).toMatchObject({
+                    [0]: {
+                        clip: clipMotion.clip,
+                        weight: 1.0,
+                    },
+                });
+                commonCheck1(newGenAnim);
+            });
+
+            test(`Empty state`, () => {
+                const graph = new AnimationGraph();
+                const mainLayer = graph.addLayer();
+                const emptyState = mainLayer.stateMachine.addEmpty();
+                mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, emptyState);
+
+                const { newGenAnim, graphEval } = createAnimationGraphEval2(graph, new Node());
+                const graphUpdater = new GraphUpdater(graphEval);
+
+                graphUpdater.step(0.2);
+                expect(newGenAnim.getCurrentStateStatus(0)).toBeNull();
+                expect([...newGenAnim.getCurrentClipStatuses(0)]).toHaveLength(0);
+                commonCheck1(newGenAnim);
+            });
+
+            test(`Top level entry state`, () => {
+                const graph = new AnimationGraph();
+                const mainLayer = graph.addLayer();
+                const motionState = mainLayer.stateMachine.addMotion();
+                motionState.motion = createEmptyClipMotion(1.23 /** ANY */);
+                mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, motionState);
+    
+                const { newGenAnim: controller } = createAnimationGraphEval2(graph, new Node());
+                
+                // Before any evaluation
+
+                expect(controller.getCurrentStateStatus(0)).toBe(null);
+                expect([...controller.getCurrentClipStatuses(0)]).toHaveLength(0);
+                expect(controller.getCurrentTransition(0)).toBe(null);
+                expect(controller.getNextStateStatus(0)).toBe(null);
+                expect([...controller.getNextClipStatuses(0)]).toHaveLength(0);
+            });
+        });
+
+        describe(`If the layer is performing transition`, () => {
+            /**
+             * ### SPEC
+             * 
+             * If a layer is performing a transition:
+             * 
+             * - `getCurrentTransition` returns the status of the transition:
+             *   - `.time` gives the transition time(absolute, in seconds).
+             *   - `.duration` gives the transition duration.
+             * 
+             * - `getCurrentStateStatus`(`getNextStateStatus`) returns:
+             *   - the status of transition source(destination), if the transition source(destination) is a motion state.
+             *   - null otherwise.
+             * 
+             * - `getCurrentClipStatuses`(`getNextClipStatuses`) yields:
+             *   - the status of clips containing in transition source(destination), if the transition source(destination) is a motion state.
+             *   - nothing otherwise.
+             */
+            const _SPEC = undefined;
+
+            test('Ran into a transition(Motion -> Empty)', () => {
+                const fixture = {
+                    motion_duration: 2.0,
+                    transition_duration: 0.25,
+                    eval_time: 0.1,
+                };
+    
+                const graph = new AnimationGraph();
+                const mainLayer = graph.addLayer();
+                const motionState = mainLayer.stateMachine.addMotion();
+                const clipMotion = motionState.motion = createEmptyClipMotion(fixture.motion_duration);
+                const emptyState = mainLayer.stateMachine.addEmpty();
+                mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, motionState);
+                const m2e = mainLayer.stateMachine.connect(motionState, emptyState);
+                m2e.duration = fixture.transition_duration;
+                m2e.exitConditionEnabled = true;
+                m2e.exitCondition = 0.0; // Immediately start the transition.
+    
+                const { newGenAnim: controller, graphEval } = createAnimationGraphEval2(graph, new Node());
+                const graphUpdater = new GraphUpdater(graphEval);
+    
+                graphUpdater.step(fixture.eval_time);
+                expect(controller.getCurrentStateStatus(0)).toMatchObject({
+                    progress: expect.toBeAround(fixture.eval_time / fixture.motion_duration, DEFAULT_AROUND_NUM_DIGITS),
+                });
+                expect([...controller.getCurrentClipStatuses(0)]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        clip: clipMotion.clip,
+                        weight: expect.toBeAround(1.0 - fixture.eval_time / fixture.transition_duration, DEFAULT_AROUND_NUM_DIGITS),
+                    }),
+                ]));
+                expect(controller.getCurrentTransition(0)).toMatchObject({
+                    time: expect.toBeAround(fixture.eval_time, DEFAULT_AROUND_NUM_DIGITS),
+                    duration: fixture.transition_duration,
+                });
+                expect(controller.getNextStateStatus(0)).toBeNull();
+                expect([...controller.getNextClipStatuses(0)]).toHaveLength(0);
+            });
+    
+            test('Ran into a transition(Empty -> Motion)', () => {
+                const fixture = {
+                    motion_duration: 2.0,
+                    transition_duration: 0.25,
+                    eval_time: 0.1,
+                };
+
+                const graph = new AnimationGraph();
+                const mainLayer = graph.addLayer();
+                const motionState = mainLayer.stateMachine.addMotion();
+                const clipMotion = motionState.motion = createEmptyClipMotion(fixture.motion_duration);
+                const emptyState = mainLayer.stateMachine.addEmpty();
+                mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, emptyState);
+                const transition = mainLayer.stateMachine.connect(emptyState, motionState);
+                transition.duration = fixture.transition_duration;
+                const [transitionCondition] = transition.conditions = [new UnaryCondition()];
+                transitionCondition.operator = UnaryCondition.Operator.TRUTHY;
+                transitionCondition.operand.value = true;
+    
+                const { newGenAnim: controller, graphEval } = createAnimationGraphEval2(graph, new Node());
+                const graphUpdater = new GraphUpdater(graphEval);
+    
+                graphUpdater.step(fixture.eval_time);
+                expect(controller.getCurrentStateStatus(0)).toBeNull();
+                expect([...controller.getCurrentClipStatuses(0)]).toHaveLength(0);
+                expect(controller.getCurrentTransition(0)).toMatchObject({
+                    time: expect.toBeAround(fixture.eval_time, DEFAULT_AROUND_NUM_DIGITS),
+                    duration: fixture.transition_duration,
+                });
+                expect([...controller.getNextClipStatuses(0)]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        clip: clipMotion.clip,
+                        weight: expect.toBeAround(fixture.eval_time / fixture.transition_duration, DEFAULT_AROUND_NUM_DIGITS),
+                    }),
+                ]));
+            });
+        });
     });
 
     describe('Interruption', () => {
@@ -3204,6 +3634,81 @@ describe('NewGen Anim', () => {
                 ),
             );
         });
+
+        test(`Interruption on circular transitions`, () => {
+            const fixture = {
+                initialValue: 0.0,
+                a: new LinearRealValueAnimationFixture(1, 2, 3),
+                b: new LinearRealValueAnimationFixture(4, 5, 6),
+                aToBDuration: 0.3,
+                bToADuration: 0.4,
+            };
+
+            const observer = new SingleRealValueObserver(fixture.initialValue);
+            const graph = new AnimationGraph();
+            const layer = graph.addLayer();
+            const motionStateA = layer.stateMachine.addMotion();
+            motionStateA.name = 'A';
+            motionStateA.motion = fixture.a.createMotion(observer.getCreateMotionContext());
+            const motionStateB = layer.stateMachine.addMotion();
+            motionStateB.name = 'B';
+            motionStateB.motion = fixture.b.createMotion(observer.getCreateMotionContext());
+            {
+                const transitionAToB = layer.stateMachine.connect(motionStateA, motionStateB);
+                transitionAToB.exitConditionEnabled = false;
+                const [condition] = transitionAToB.conditions = [new UnaryCondition()];
+                condition.operator = UnaryCondition.Operator.TRUTHY;
+                condition.operand.variable = 'AToB';
+                graph.addBoolean(condition.operand.variable, true);
+                transitionAToB.duration = fixture.aToBDuration;
+                transitionAToB.interruptionSource = TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE;
+            }
+            {
+                const transitionBToA = layer.stateMachine.connect(motionStateB, motionStateA);
+                transitionBToA.exitConditionEnabled = false;
+                const [condition] = transitionBToA.conditions = [new UnaryCondition()];
+                condition.operator = UnaryCondition.Operator.TRUTHY;
+                condition.operand.variable = 'BToA';
+                graph.addBoolean(condition.operand.variable, false);
+                transitionBToA.duration = fixture.bToADuration;
+                transitionBToA.interruptionSource = TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE;
+            }
+            layer.stateMachine.connect(layer.stateMachine.entryState, motionStateA);
+
+            const graphEval = createAnimationGraphEval(graph, observer.root);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            graphUpdater.goto(0.1);
+
+            graphEval.setValue('BToA', true);
+            graphUpdater.goto(0.25);
+            expect(observer.value).toBeCloseTo(
+                lerp(
+                    lerp(
+                        fixture.a.getExpected(0.1),
+                        fixture.b.getExpected(0.1),
+                        0.1 / fixture.aToBDuration,
+                    ),
+                    fixture.a.getExpected(0.15),
+                    0.15 / fixture.bToADuration,  
+                ),
+                DEFAULT_AROUND_NUM_DIGITS
+            );
+
+            graphUpdater.goto(0.27);
+            expect(observer.value).toBeCloseTo(
+                lerp(
+                    lerp(
+                        fixture.a.getExpected(0.1),
+                        fixture.b.getExpected(0.1),
+                        0.1 / fixture.aToBDuration,
+                    ),
+                    fixture.a.getExpected(0.17),
+                    0.17 / fixture.bToADuration,  
+                ),
+                DEFAULT_AROUND_NUM_DIGITS,
+            );
+        });
     });
 
     describe('Animation mask', () => {
@@ -3463,6 +3968,1339 @@ describe('NewGen Anim', () => {
             l.stateMachine.connect(l.stateMachine.entryState, motion);
         }
     });
+
+    describe('Clip overriding', () => {
+        test('Through animation graph variant', () => {
+            const DEFAULT_VALUE = 0.9;
+
+            // -----------------------------------------------------
+            // | Layer0:
+            // |   Entry -> Motion1 -> Motion2 -> SubStateMachine
+            // |                                    Entry->Motion3
+            // | Layer1:
+            // |   Entry -> Empty -> Motion1
+            // -----------------------------------------------------
+            // Where:
+            // - Motion1 tests the relative duration, exit times as well as multiple replacements(it also occurs in layer 1)
+            // - Motion2 tests the destination start time.
+            // - Motion3 tests if the motion in sub state machine was correctly overridden.
+            //
+            const LAYER_1_WEIGHT = 0.5;
+            // Original clips. The data do not matter.
+            const MOTION1_ORIGINAL_CLIP_SHEET = createClipSheet(0.0001, 0.0, 0.0);
+            const MOTION2_ORIGINAL_CLIP_SHEET = createClipSheet(0.002, 0.0, 0.0);
+            const MOTION3_ORIGINAL_CLIP_SHEET = createClipSheet(0.03, 0.0, 0.0);
+            // Overriding clips.
+            const MOTION1_OVERRIDING_CLIP_SHEET = createClipSheet(1.2, 3, 4);
+            const MOTION2_OVERRIDING_CLIP_SHEET = createClipSheet(2.3, 5, 6);
+            const MOTION3_OVERRIDING_CLIP_SHEET = createClipSheet(3.4, 8.8, 6.666);
+            // Transition configurations.
+            const T_1_2_EXIT_TIMES = 0.8; // relative
+            const T_1_2_DURATION = 0.5; // relative
+            const T_1_2_DESTINATION_START = 0.6; // relative
+
+            const animationGraph = new AnimationGraph();
+            { // Layer 0
+                const layer = animationGraph.addLayer();
+                const { stateMachine } = layer;
+
+                const motionState1 = stateMachine.addMotion();
+                motionState1.motion = MOTION1_ORIGINAL_CLIP_SHEET.createMotion();
+
+                const motionState2 = stateMachine.addMotion();
+                motionState2.motion = MOTION2_ORIGINAL_CLIP_SHEET.createMotion();
+
+                const subStateMachine = stateMachine.addSubStateMachine();
+                const motionState3 = subStateMachine.stateMachine.addMotion();
+                motionState3.motion = MOTION3_ORIGINAL_CLIP_SHEET.createMotion();
+                subStateMachine.stateMachine.connect(subStateMachine.stateMachine.entryState, motionState3);
+
+                stateMachine.connect(stateMachine.entryState, motionState1);
+
+                const t_1_2 = stateMachine.connect(motionState1, motionState2);
+                t_1_2.exitConditionEnabled = true;
+                t_1_2.exitCondition = T_1_2_EXIT_TIMES;
+                t_1_2.relativeDuration = true;
+                t_1_2.duration = T_1_2_DURATION;
+                t_1_2.relativeDestinationStart = true;
+                t_1_2.destinationStart = T_1_2_DESTINATION_START;
+                
+                const t_2_3 = stateMachine.connect(motionState2, subStateMachine);
+                t_2_3.duration = 0.0;
+                t_2_3.exitConditionEnabled = false;
+                const [t_2_3_condition] = t_2_3.conditions = [new UnaryCondition()];
+                t_2_3_condition.operator = UnaryCondition.Operator.TRUTHY;
+                t_2_3_condition.operand.variable = '2_3';
+                animationGraph.addBoolean('2_3');
+            }
+            { // Layer 1
+                const layer = animationGraph.addLayer();
+                layer.weight = LAYER_1_WEIGHT;
+                const { stateMachine } = layer;
+
+                const motionState1 = stateMachine.addMotion();
+                motionState1.motion = MOTION1_ORIGINAL_CLIP_SHEET.createMotion();
+
+                const empty = stateMachine.addEmpty();
+
+                stateMachine.connect(stateMachine.entryState, empty);
+
+                const t_layer1 = stateMachine.connect(empty, motionState1);
+                t_layer1.duration = 0.0;
+                const [t_layer1_condition] = t_layer1.conditions = [new UnaryCondition()];
+                t_layer1_condition.operator = UnaryCondition.Operator.TRUTHY;
+                t_layer1_condition.operand.variable = 'layer1';
+                animationGraph.addBoolean('layer1');
+            }
+
+            const animationGraphVariant = new AnimationGraphVariant();
+            animationGraphVariant.original = animationGraph;
+            const clipOverrides = animationGraphVariant.clipOverrides;
+            clipOverrides.set(MOTION1_ORIGINAL_CLIP_SHEET.clip, MOTION1_OVERRIDING_CLIP_SHEET.clip);
+            clipOverrides.set(MOTION2_ORIGINAL_CLIP_SHEET.clip, MOTION2_OVERRIDING_CLIP_SHEET.clip);
+            clipOverrides.set(MOTION3_ORIGINAL_CLIP_SHEET.clip, MOTION3_OVERRIDING_CLIP_SHEET.clip);
+
+            const node = new Node();
+            node.position = new Vec3(DEFAULT_VALUE);
+            const graphEval = createAnimationGraphEval(animationGraphVariant, node);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            // Motion1 should be overridden.
+            graphUpdater.goto(0.12);
+            expect(graphEval.getCurrentTransition(0)).toBeNull();
+            expect(node.position.x).toBeCloseTo(
+                MOTION1_OVERRIDING_CLIP_SHEET.sampleAtTime(0.12),
+            );
+
+            // Go to the place where motion1 is about to start transition.
+            graphUpdater.goto(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration - 0.02);
+            expect(graphEval.getCurrentTransition(0)).toBeNull();
+            expect(node.position.x).toBeCloseTo(
+                MOTION1_OVERRIDING_CLIP_SHEET.sampleAtTime(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration - 0.02),
+            );
+
+            // Go to the place where motion1 just started transition
+            // to make sure the exit times property takes correctly effect.
+            graphUpdater.goto(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration + 0.03);
+            expect(graphEval.getCurrentTransition(0)).not.toBeNull();
+            expect(node.position.x).toBeCloseTo(
+                lerp(
+                    MOTION1_OVERRIDING_CLIP_SHEET.sampleAtTime(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration + 0.03),
+                    MOTION2_OVERRIDING_CLIP_SHEET.sampleAtTime(0.03 + (T_1_2_DESTINATION_START * MOTION2_OVERRIDING_CLIP_SHEET.duration)),
+                    0.03 / (T_1_2_DURATION * MOTION1_OVERRIDING_CLIP_SHEET.duration),
+                ),
+            );
+
+            // This time step further more...
+            // Here we're also confirming the effective of `duration` and `destination start`.
+            graphUpdater.goto(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration + 0.2);
+            expect(graphEval.getCurrentTransition(0)).not.toBeNull();
+            expect(node.position.x).toBeCloseTo(
+                lerp(
+                    MOTION1_OVERRIDING_CLIP_SHEET.sampleAtTime(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration + 0.2),
+                    MOTION2_OVERRIDING_CLIP_SHEET.sampleAtTime(0.2 + (T_1_2_DESTINATION_START * MOTION2_OVERRIDING_CLIP_SHEET.duration)),
+                    0.2 / (T_1_2_DURATION * MOTION1_OVERRIDING_CLIP_SHEET.duration),
+                ),
+            );
+
+            // Then let's go into the sub state machine
+            // to verify the overriding in sub state machine.
+            graphUpdater.goto((T_1_2_EXIT_TIMES + T_1_2_DURATION) * MOTION1_OVERRIDING_CLIP_SHEET.duration + 0.1);
+            graphEval.setValue('2_3', true);
+            graphUpdater.step(0.3);
+            expect(graphEval.getCurrentTransition(0)).toBeNull();
+            expect(node.position.x).toBeCloseTo(
+                MOTION3_OVERRIDING_CLIP_SHEET.sampleAtTime(0.3),
+            );
+
+            // Also verify in different layer!
+            graphEval.setValue('layer1', true);
+            graphUpdater.step(0.1);
+            expect(graphEval.getCurrentTransition(0)).toBeNull();
+            expect(node.position.x).toBeCloseTo(
+                lerp(
+                    MOTION3_OVERRIDING_CLIP_SHEET.sampleAtTime(0.4), // Layer 0
+                    MOTION1_OVERRIDING_CLIP_SHEET.sampleAtTime(0.1), // Layer 1
+                    LAYER_1_WEIGHT,
+                ),
+            );
+        });
+
+        test('Through API', () => {
+            const DEFAULT_VALUE = 0.9;
+            const MOTION2_FIXED_VALUE = 6.66;
+            const MOTION1_EXIT_TIME_RELATIVE = 0.8;
+            const MOTION1_TO_MOTION2_RELATIVE_DURATION = 0.2;
+            const MOTION1_ORIGINAL_CLIP_SHEET = createClipSheet(1.2, 0.3, 0.3);
+
+            const animationGraph = new AnimationGraph();
+            { // Layer 0
+                const layer = animationGraph.addLayer();
+                const { stateMachine } = layer;
+                const motionState = stateMachine.addMotion();
+                motionState.motion = MOTION1_ORIGINAL_CLIP_SHEET.createMotion();
+                const motionState2 = stateMachine.addMotion();
+                motionState2.motion = createClipMotionPositionX(2.6, MOTION2_FIXED_VALUE);
+                stateMachine.connect(stateMachine.entryState, motionState);
+                const t = stateMachine.connect(motionState, motionState2);
+                t.exitConditionEnabled = true;
+                t.exitCondition = MOTION1_EXIT_TIME_RELATIVE;
+                t.duration = MOTION1_TO_MOTION2_RELATIVE_DURATION;
+                t.relativeDuration = true;
+            }
+
+            const node = new Node();
+            node.position = new Vec3(DEFAULT_VALUE);
+            const graphEval = createAnimationGraphEval(animationGraph, node);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            graphUpdater.goto(0.1);
+            expect(node.position.x).toBeCloseTo(MOTION1_ORIGINAL_CLIP_SHEET.sample(0.1 / MOTION1_ORIGINAL_CLIP_SHEET.duration));
+
+            /**
+             * Trace the normalized time of "current from state" of layer 0.
+             */
+            let TRACE_MOTION1_NORMALIZED_TIME = 0.0;
+
+            /**
+             * Trace the normalized time of "current transition" of layer 0.
+             */
+            let TRACE_TRANSITION_NORMALIZED_TIME = 0.0;
+
+            // Overriding with same clips is easy.
+            // We only need to ensure the motion starts from previous normalized location.
+            {
+                const MOTION1_SAME_DURATION_OVERRIDE_CLIP_SHEET = createClipSheet(MOTION1_ORIGINAL_CLIP_SHEET.duration, 0.4, 0.7);
+                graphEval.overrideClips(new Map([[MOTION1_ORIGINAL_CLIP_SHEET.clip, MOTION1_SAME_DURATION_OVERRIDE_CLIP_SHEET.clip]]));
+                graphUpdater.goto(0.2);
+                expect(node.position.x).toBeCloseTo(
+                    MOTION1_SAME_DURATION_OVERRIDE_CLIP_SHEET.sample(
+                        TRACE_MOTION1_NORMALIZED_TIME += 0.2 / MOTION1_SAME_DURATION_OVERRIDE_CLIP_SHEET.duration,
+                    ),
+                );
+            }
+
+            // Different(Shorter) duration override.
+            // After overrode, the motion starts from previous normalized location.
+            const MOTION1_SHORTER_OVERRIDE_CLIP_SHEET = createClipSheet(0.5, 0.6, 0.7);
+            graphEval.overrideClips(new Map([[MOTION1_ORIGINAL_CLIP_SHEET.clip, MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.clip]]));
+            graphUpdater.goto(0.35);
+            expect(node.position.x).toBeCloseTo(MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.sample(
+                TRACE_MOTION1_NORMALIZED_TIME += (0.15 / MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration)
+            ));
+
+            const EXIT_TIME =
+                graphUpdater.current +
+                (MOTION1_EXIT_TIME_RELATIVE - TRACE_MOTION1_NORMALIZED_TIME) * MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration;
+            // The following updates ensures that
+            // the `exitCondition` respects to the new duration.
+            // -----
+            {
+                // Go ahead, util the motion state 1 is about to start transition.
+                const AHEAD_EXIT_TIME_A_LITTLE = EXIT_TIME - 0.01;
+                graphUpdater.goto(AHEAD_EXIT_TIME_A_LITTLE);
+                expect(graphEval.getCurrentTransition(0)).toBeNull();
+                expect(node.position.x).toBeCloseTo(
+                    MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.sample(
+                        TRACE_MOTION1_NORMALIZED_TIME += graphUpdater.lastDeltaTime / MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration,
+                    ),
+                );
+                // Go ahead, to the place where the motion state 1 just start the transition.
+                const AFTER_EXIT_TIME_A_LITTLE = EXIT_TIME + 0.005;
+                graphUpdater.goto(AFTER_EXIT_TIME_A_LITTLE);
+                expect(graphEval.getCurrentTransition(0)).not.toBeNull();
+                expect(node.position.x).toBeCloseTo(lerp(
+                    MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.sample(
+                        TRACE_MOTION1_NORMALIZED_TIME += graphUpdater.lastDeltaTime / MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration,
+                    ),
+                    MOTION2_FIXED_VALUE,
+                    // Note here: the transition duration also respects to the new duration.
+                    TRACE_TRANSITION_NORMALIZED_TIME =
+                        (graphUpdater.current - EXIT_TIME) / (MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration * MOTION1_TO_MOTION2_RELATIVE_DURATION),
+                ));
+            }
+
+            // The following updates ensures that
+            // the `transition duration` respects to the new duration.
+            // However this time we test it with a longer-duration override.
+            // -----
+            {
+                // Longer duration override
+                const MOTION1_LONGER_OVERRIDE_CLIP_SHEET = createClipSheet(3.5, 1.6, 1.8);
+                graphEval.overrideClips(new Map([[MOTION1_ORIGINAL_CLIP_SHEET.clip, MOTION1_LONGER_OVERRIDE_CLIP_SHEET.clip]]));
+
+                graphUpdater.step(0.1);
+                expect(node.position.x).toBeCloseTo(
+                    lerp(
+                        MOTION1_LONGER_OVERRIDE_CLIP_SHEET.sample(
+                            TRACE_MOTION1_NORMALIZED_TIME += 0.1 / MOTION1_LONGER_OVERRIDE_CLIP_SHEET.duration),
+                        MOTION2_FIXED_VALUE,
+                        TRACE_TRANSITION_NORMALIZED_TIME += 0.1 / (MOTION1_LONGER_OVERRIDE_CLIP_SHEET.duration * MOTION1_TO_MOTION2_RELATIVE_DURATION),
+                    ),
+                );
+                expect(graphEval.getCurrentTransition(0)!.time).toBeCloseTo(
+                    TRACE_TRANSITION_NORMALIZED_TIME * (MOTION1_LONGER_OVERRIDE_CLIP_SHEET.duration * MOTION1_TO_MOTION2_RELATIVE_DURATION));
+            }
+        });
+
+        test(`How clip overriding affect the set of animated node`, () => {
+            /**
+             * ## Spec
+             * 
+             * For `AnimationController.overrideClips` invocation, the following can happen without surprise:
+             * 
+             * 1. The original and substitution clip have animation on same set of nodes.
+             * 
+             * 2. The substitution clip introduce new nodes to be animated
+             *   since it has animation on formerly-not-animated nodes.
+             * 
+             * 3. The original clip uniquely has animation on some nodes.
+             *   Overriding causes there's no longer animation on those nodes.
+             *   This leads to those nodes no longer to be animated by controller.
+             * 
+             * 4. The invocation can remove partial animation effect(or it decreases the number of animation reference on some nodes).
+             * 
+             * ## About the test
+             * 
+             * In the following, we're going to construct a simple animation graph which blends two clip motions.
+             * The two clip motions are (clip0, clip1) at initial and will be overridden as (clip2, clip3) in later.
+             * 
+             * The fixture is designed so that:
+             * 
+             * - All clips have animation on node1.
+             *   This simulates case 1.
+             *   This should be the commonest case in real world.
+             * 
+             * - Both (clip0, clip1) do have animation on node2, but both (clip2, clip3) have NO animation on node2.
+             *   This simulates case 2.
+             * 
+             * - Both (clip0, clip1) have NO animation on node3, but both (clip2, clip3) do have animation on node3.
+             *   This simulates case 3.
+             * 
+             * - Both (clip0, clip1) do have animation on node4, but either of  (clip2, clip3) have animation on node4. 
+             *   This simulates case 4.
+             */
+            const fixture = {
+                initialValues: [
+                    6.,
+                    5.,
+                    -2.6,
+                    10.,
+                ],
+
+                /** Each matrix element E describe the animation value of node(row) at clip(column). */
+                animations: [
+                    /* ---------------------------------------------------------------- */
+                    /*           clip0     |  clip1     |   clip2      |  clip3         */
+                    /* node0 */  [7.,          8.,           8.8,         9.0           ],
+                    /* node1 */  [3.3,         -2.3,         undefined,   undefined     ],
+                    /* node2 */  [undefined,   undefined,    -2.4,        -3.1          ],
+                    /* node3 */  [9.,          -2.,          6.6,         undefined     ],
+                ] as const,
+
+                blendRate: 0.4,
+
+                manualValue: 0.3,
+            };
+
+            // Construct the nodes. Initialize them with initial values.
+            const root = new Node();
+            const nodes = Array.from({ length: fixture.animations.length }, (_, nodeIndex) => {
+                const node = new Node(`Node${nodeIndex}`);
+                node.parent = root;
+                node.setPosition(fixture.initialValues[nodeIndex], 0.0, 0.0);
+                return node;
+            });
+            const getCurrentValue = () => nodes.reduce((result, node, nodeIndex) => {
+                result[`node${nodeIndex}`] = node.position.x;
+                return result;
+            }, {} as Record<string, number>);
+
+            // Construct the clips.
+            const clips = Array.from({ length: fixture.animations[0].length }, (_, clipIndex) => {
+                const clip = new AnimationClip();
+                clip.enableTrsBlending = true;
+                clip.duration = 1.0;
+                for (let iNodeIndex = 0; iNodeIndex < nodes.length; ++iNodeIndex) {
+                    const animationValue = fixture.animations[iNodeIndex][clipIndex];
+                    if (typeof animationValue !== 'undefined') {
+                        addConstantAnimation(clip, nodes[iNodeIndex].name, animationValue);
+                    }
+                }
+                return clip;
+            });
+
+            // Construct a simple graph which blend two clips motion at fixed rate.
+            // The two clips are initially the [clip0, clip1].
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const motionState = layer.stateMachine.addMotion();
+            const blend = motionState.motion = new AnimationBlend1D();
+            blend.param.variable = 't';
+            animationGraph.addFloat(blend.param.variable, fixture.blendRate);
+            blend.items = [
+                (() => {
+                    const item = new AnimationBlend1D.Item();
+                    item.threshold = 0.0;
+                    const clipMotion = new ClipMotion(); clipMotion.clip = clips[0];
+                    item.motion = clipMotion;
+                    return item;
+                })(),
+                (() => {
+                    const item = new AnimationBlend1D.Item();
+                    item.threshold = 1.0;
+                    const clipMotion = new ClipMotion(); clipMotion.clip = clips[1];
+                    item.motion = clipMotion;
+                    return item;
+                })(),
+            ];
+            layer.stateMachine.connect(layer.stateMachine.entryState, motionState);
+
+            const { graphEval, newGenAnim: animationController } = createAnimationGraphEval2(animationGraph, root);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            const toBeAround = (value: number) =>
+                expect.toBeAround(value, DEFAULT_AROUND_NUM_DIGITS);
+
+            // Before override.
+            graphUpdater.step(0.2);
+            expect(getCurrentValue()).toMatchObject({
+                node0: toBeAround(lerp(fixture.animations[0][0], fixture.animations[0][1], fixture.blendRate)),
+                node1: toBeAround(lerp(fixture.animations[1][0], fixture.animations[1][1], fixture.blendRate)),
+                node2: toBeAround(fixture.initialValues[2]),
+                node3: toBeAround(lerp(fixture.animations[3][0], fixture.animations[3][1], fixture.blendRate)),
+            });
+
+            // Apply override.
+            const node1CurrentValue = getCurrentValue().node1;
+            animationController.overrideClips_experimental(new Map([
+                [clips[0], clips[2]],
+                [clips[1], clips[3]],
+            ]));
+            graphUpdater.step(0.3);
+            expect(getCurrentValue()).toMatchObject({
+                node0: toBeAround(lerp(fixture.animations[0][2], fixture.animations[0][3], fixture.blendRate)),
+
+                // node1's animation is fully dropped.
+                // NOTICE here: node1 keeps its current value.
+                node1: node1CurrentValue,
+
+                // The override brings animation on node3.
+                node2: toBeAround(lerp(fixture.animations[2][2], fixture.animations[2][3], fixture.blendRate)),
+
+                // Node4's animation does not exists on blend src, but exists on blend target.
+                node3: toBeAround(lerp(fixture.animations[3][2], fixture.initialValues[3], fixture.blendRate)),
+            });
+
+            // To further ensure that the node1 is not animated after override, let's manually change its value and step again.
+            nodes[1].setPosition(fixture.manualValue, nodes[2].position.y, nodes[2].position.z);
+            graphUpdater.step(0.325);
+            expect(getCurrentValue()).toMatchObject({
+                node0: toBeAround(lerp(fixture.animations[0][2], fixture.animations[0][3], fixture.blendRate)),
+
+                // NOTICE here: node2 keeps the manual value.
+                node1: fixture.manualValue,
+
+                // The override brings animation on node3.
+                node2: toBeAround(lerp(fixture.animations[2][2], fixture.animations[2][3], fixture.blendRate)),
+
+                // Node4's animation does not exists on blend src, but exists on blend target.
+                node3: toBeAround(lerp(fixture.animations[3][2], fixture.initialValues[3], fixture.blendRate)),
+            });
+
+            function addConstantAnimation(clip: AnimationClip, path: string, value: number) {
+                const track = new VectorTrack();
+                track.componentsCount = 3;
+                track.path.toHierarchy(path).toProperty('position');
+                track.channels()[0].curve.assignSorted([[0.0, value]]);
+                clip.addTrack(track);
+            }
+        });
+
+        test(`Bugfix: clip overriding only introduce new nodes`, () => {
+            // This was a bug found during development which is not covered by
+            // "How clip overriding affect the set of animated node"...
+            const fixture = {
+                initialValues: [
+                    6.,
+                    5.,
+                    -2.6,
+                    10.,
+                ],
+
+                /** Each matrix element E describe the animation value of node(row) at clip(column). */
+                animations: [
+                    /* ---------------------------------------------------------------- */
+                    /*           clip0     |  clip1     |   clip2      |  clip3         */
+                    /* node0 */  [7.,          8.,           8.8,         9.0           ],
+                    /* node1 */  [3.3,         -2.3,         5.,          6.            ],
+                    /* node2 */  [undefined,   undefined,    -2.4,        -3.1          ],
+                    /* node3 */  [9.,          -2.,          6.6,         7.            ],
+                ] as const,
+
+                blendRate: 0.4,
+
+                manualValue: 0.3,
+            };
+
+            // Construct the nodes. Initialize them with initial values.
+            const root = new Node();
+            const nodes = Array.from({ length: fixture.animations.length }, (_, nodeIndex) => {
+                const node = new Node(`Node${nodeIndex}`);
+                node.parent = root;
+                node.setPosition(fixture.initialValues[nodeIndex], 0.0, 0.0);
+                return node;
+            });
+            const getCurrentValue = () => nodes.reduce((result, node, nodeIndex) => {
+                result[`node${nodeIndex}`] = node.position.x;
+                return result;
+            }, {} as Record<string, number>);
+
+            // Construct the clips.
+            const clips = Array.from({ length: fixture.animations[0].length }, (_, clipIndex) => {
+                const clip = new AnimationClip();
+                clip.enableTrsBlending = true;
+                clip.duration = 1.0;
+                for (let iNodeIndex = 0; iNodeIndex < nodes.length; ++iNodeIndex) {
+                    const animationValue = fixture.animations[iNodeIndex][clipIndex];
+                    if (typeof animationValue !== 'undefined') {
+                        addConstantAnimation(clip, nodes[iNodeIndex].name, animationValue);
+                    }
+                }
+                return clip;
+            });
+
+            // Construct a simple graph which blend two clips motion at fixed rate.
+            // The two clips are initially the [clip0, clip1].
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const motionState = layer.stateMachine.addMotion();
+            const blend = motionState.motion = new AnimationBlend1D();
+            blend.param.variable = 't';
+            animationGraph.addFloat(blend.param.variable, fixture.blendRate);
+            blend.items = [
+                (() => {
+                    const item = new AnimationBlend1D.Item();
+                    item.threshold = 0.0;
+                    const clipMotion = new ClipMotion(); clipMotion.clip = clips[0];
+                    item.motion = clipMotion;
+                    return item;
+                })(),
+                (() => {
+                    const item = new AnimationBlend1D.Item();
+                    item.threshold = 1.0;
+                    const clipMotion = new ClipMotion(); clipMotion.clip = clips[1];
+                    item.motion = clipMotion;
+                    return item;
+                })(),
+            ];
+            layer.stateMachine.connect(layer.stateMachine.entryState, motionState);
+
+            const { graphEval, newGenAnim: animationController } = createAnimationGraphEval2(animationGraph, root);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            const toBeAround = (value: number) =>
+                expect.toBeAround(value, DEFAULT_AROUND_NUM_DIGITS);
+
+            // Before override.
+            graphUpdater.step(0.2);
+            expect(getCurrentValue()).toMatchObject({
+                node0: toBeAround(lerp(fixture.animations[0][0], fixture.animations[0][1], fixture.blendRate)),
+                node1: toBeAround(lerp(fixture.animations[1][0], fixture.animations[1][1], fixture.blendRate)),
+                node2: toBeAround(fixture.initialValues[2]),
+                node3: toBeAround(lerp(fixture.animations[3][0], fixture.animations[3][1], fixture.blendRate)),
+            });
+
+            // Apply override.
+            animationController.overrideClips_experimental(new Map([
+                [clips[0], clips[2]],
+                [clips[1], clips[3]],
+            ]));
+            graphUpdater.step(0.3);
+            expect(getCurrentValue()).toMatchObject({
+                node0: toBeAround(lerp(fixture.animations[0][2], fixture.animations[0][3], fixture.blendRate)),
+                node1: toBeAround(lerp(fixture.animations[1][2], fixture.animations[1][3], fixture.blendRate)),
+                node2: toBeAround(lerp(fixture.animations[2][2], fixture.animations[2][3], fixture.blendRate)),
+                node3: toBeAround(lerp(fixture.animations[3][2], fixture.animations[3][3], fixture.blendRate)),
+            });
+
+            function addConstantAnimation(clip: AnimationClip, path: string, value: number) {
+                const track = new VectorTrack();
+                track.componentsCount = 3;
+                track.path.toHierarchy(path).toProperty('position');
+                track.channels()[0].curve.assignSorted([[0.0, value]]);
+                clip.addTrack(track);
+            }
+        });
+    });
+
+    describe(`Additive layers`, () => {
+        const DEFAULT_CLOSE_TO_NUM_DIGITS = 6;
+
+        /**
+         * We want to test:
+         * 
+         * - The semantic of additive animation on following kinds of properties:
+         *   - real number
+         *   - position
+         *   - scale
+         *   - quaternion rotation
+         *   - euler angle rotation
+         * 
+         * - The semantic of additive animation in following states:
+         *   - clip motion case;
+         *   - animation blend case.
+         *   - empty case.
+         *   - transitions between these cases.
+         * 
+         * - How does an additive layer interop with other layers:
+         *   - Non-additive then additive.
+         *   - Additive then non-additive.
+         *   - Additive then additive.
+         * 
+         * - Additive layer should effected by mask.
+         */
+        const _note = undefined;
+
+        describe(`Additive properties`, () => {
+            test(`Node trs`, () => {
+                const fixture = {
+                    non_additive_layer_animation: new ConstantRealValueAnimationFixture(6.0),
+                    non_additive_layer_weight: 0.8,
+                    additive_layer_fixture: new LinearRealValueAnimationFixture(0.8, -3.5, 2.0),
+                    additive_layer_weight: 0.6,
+                    time: 0.2,
+                    initial_position: 3.,
+                    initial_rotation: 4.,
+                    initial_scale: 5.,
+                    initial_eulerAngles: 6.,
+                };
+
+                const valueObserver = new NodeTransformValueObserver({
+                    position: fixture.initial_position,
+                    rotation: fixture.initial_rotation,
+                    scale: fixture.initial_scale,
+                    eulerAngles: fixture.initial_eulerAngles,
+                });
+
+                run();
+
+                const actualValue = valueObserver.value;
+
+                const getDesired = (initialValue: number) => {
+                    let desired = initialValue;
+                    desired = lerp(desired, fixture.non_additive_layer_animation.getExpected(), fixture.non_additive_layer_weight);
+                    desired += lerp(0.0, fixture.additive_layer_fixture.getExpectedAdditive(fixture.time), fixture.additive_layer_weight);
+                    return desired;
+                };
+                
+                { // position
+                    const desired = getDesired(fixture.initial_position);
+                    expect(desired).toMatchSnapshot('Desired position');
+                    expect(actualValue.position).toBeCloseTo(desired);
+                }
+
+                { // scale
+                    const desired = getDesired(fixture.initial_scale);
+                    expect(desired).toMatchSnapshot('Desired scale');
+                    expect(actualValue.scale).toBeCloseTo(desired);
+                }
+
+                { // quaternion rotation
+                    const desired = getDesired(fixture.initial_rotation);
+                    expect(desired).toMatchSnapshot('Desired rotation');
+                    expect(actualValue.rotation).toBeCloseTo(desired);
+                }
+
+                { // euler angles rotation
+                    const desired = getDesired(fixture.initial_eulerAngles);
+                    expect(desired).toMatchSnapshot('Desired rotation(euler angles)');
+                    expect(actualValue.eulerAngles).toBeCloseTo(desired);
+                }
+
+                function run() {
+                    const animationGraph = new AnimationGraph();
+
+                    {
+                        const layer = animationGraph.addLayer();
+                        layer.weight = fixture.non_additive_layer_weight;
+                        layer.additive = false;
+                        const motionState = layer.stateMachine.addMotion();
+                        motionState.motion = fixture.non_additive_layer_animation.createMotion(valueObserver.getCreateMotionContext());
+                        layer.stateMachine.connect(layer.stateMachine.entryState, motionState);
+                    }
+        
+                    {
+                        const layer = animationGraph.addLayer();
+                        layer.weight = fixture.additive_layer_weight;
+                        layer.additive = true;
+                        const motionState = layer.stateMachine.addMotion();
+                        motionState.motion = fixture.additive_layer_fixture.createMotion(valueObserver.getCreateMotionContext());
+                        layer.stateMachine.connect(layer.stateMachine.entryState, motionState);
+                    }
+
+                    const graphEval = createAnimationGraphEval(animationGraph, valueObserver.root);
+
+                    const graphUpdater = new GraphUpdater(graphEval);
+
+                    graphUpdater.step(fixture.time);
+                }
+            });
+        });
+        
+        test(`Additive state`, () => {
+            // Constructs a two layers animation graph.
+            // First is non-additive and additive(this is the most common case).
+            // The non-additive layer outputs a fixed value,
+            // the additive layer has
+            // - an empty state _E_,
+            // - a clip motion state _C_,
+            // - a animation blend state _B_,
+            // - transitions _E->C_, _C->E_, _E->B_.
+            const fixture = {
+                non_additive_layer_animation_fixture: new ConstantRealValueAnimationFixture(6.0),
+                non_additive_layer_weight: 0.8,
+                additive_layer_weight: 0.6,
+                clip_motion_fixture: new LinearRealValueAnimationFixture(4.0, 5.0, 3.0),
+                animation_blend_fixture: new AnimationBlend1DFixture(
+                    { fixture: new LinearRealValueAnimationFixture(2.4, 3.2, 1.5), threshold: 0.0 },
+                    { fixture: new LinearRealValueAnimationFixture(4.8, -2.2, 1.6), threshold: 1.0 },
+                ),
+                animation_blend_input: 0.7,
+                e_to_c_transition_duration: 0.3,
+                c_to_e_transition_duration: 0.4,
+                initial_value: 9.0,
+            };
+
+            const valueObserver = new SingleRealValueObserver(fixture.initial_value);
+
+            const RESULT_AFTER_FIXED_LAYER = lerp(
+                fixture.initial_value, fixture.non_additive_layer_animation_fixture.getExpected(), fixture.non_additive_layer_weight);
+
+            const animationGraph = new AnimationGraph();
+
+            // The fixed, upper, non-additive layer.
+            addNonAdditiveConstantLayer();
+
+            // The additive layer.
+            addAdditiveLayer();
+
+            const graphEval = createAnimationGraphEval(animationGraph, valueObserver.root);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            // The empty state.
+            graphUpdater.step(0.2);
+            {
+                // SPEC: If a additive layer run into an empty state.
+                // It's as if this layer doesn't exists.
+                expect(valueObserver.value).toBeCloseTo(
+                    RESULT_AFTER_FIXED_LAYER,
+                    DEFAULT_CLOSE_TO_NUM_DIGITS,
+                );
+            }
+
+            // Empty -> ClipMotion
+            graphEval.setValue('e2c', true);
+            graphUpdater.step(fixture.e_to_c_transition_duration * 0.3);
+            {
+                // SPEC: the transition should work correctly.
+                expect(valueObserver.value).toBeCloseTo(
+                    RESULT_AFTER_FIXED_LAYER + fixture.additive_layer_weight * (
+                        // The result of the additive layer is so that:
+                        lerp(
+                            0, // Empty generates 0 in additive layer
+                            fixture.clip_motion_fixture.getExpectedAdditive(fixture.e_to_c_transition_duration * 0.3), // Clip motion generates an additive value.
+                            0.3, // The transition ratio
+                        )
+                    ),
+                    DEFAULT_CLOSE_TO_NUM_DIGITS,
+                );
+            }
+
+            // The clip motion state.
+            graphUpdater.step(fixture.e_to_c_transition_duration * 0.7 + 0.6);
+            {
+                // SPEC: If a additive layer run into an clip motion state.
+                // the clip motion generates an additive value.
+                expect(valueObserver.value).toBeCloseTo(
+                    RESULT_AFTER_FIXED_LAYER + fixture.additive_layer_weight * (
+                        // The result of the additive layer is so that:
+                        fixture.clip_motion_fixture.getExpectedAdditive(fixture.e_to_c_transition_duration + 0.6) // Clip motion generates an additive value.
+                    ),
+                    DEFAULT_CLOSE_TO_NUM_DIGITS,
+                );
+            }
+
+            // ClipMotion -> Empty
+            graphEval.setValue('c2e', true);
+            graphUpdater.step(fixture.c_to_e_transition_duration * 0.4);
+            {
+                // SPEC: the transition should work correctly.
+                expect(valueObserver.value).toBeCloseTo(
+                    RESULT_AFTER_FIXED_LAYER + fixture.additive_layer_weight * (
+                        // The result of the additive layer is so that:
+                        lerp(
+                            fixture.clip_motion_fixture.getExpectedAdditive(
+                                fixture.e_to_c_transition_duration + 0.6 + fixture.c_to_e_transition_duration * 0.4), // Clip motion generates an additive value.
+                            0, // Empty generates 0 in additive layer.
+                            0.4, // The transition ratio
+                        )
+                    ),
+                    DEFAULT_CLOSE_TO_NUM_DIGITS,
+                );
+            }
+
+            // Goto Empty again.
+            graphUpdater.step(6.6);
+
+            // The animation blend state.
+            graphEval.setValue('e2b', true);
+            graphUpdater.step(0.2);
+            {
+                // SPEC: If a additive layer run into an animation blend state,
+                // its recursive clip motion should generate additive animations then blend together.
+                expect(valueObserver.value).toBeCloseTo(
+                    RESULT_AFTER_FIXED_LAYER + fixture.additive_layer_weight * (
+                        // The result of the additive layer is so that:
+                        fixture.animation_blend_fixture.getExpectedAdditive(0.2, fixture.animation_blend_input) // Clip motion generates an additive value.
+                    ),
+                    DEFAULT_CLOSE_TO_NUM_DIGITS,
+                );
+            }
+
+            function addNonAdditiveConstantLayer() {
+                const layer = animationGraph.addLayer();
+                layer.weight = fixture.non_additive_layer_weight;
+                layer.additive = false;
+                const motionState = layer.stateMachine.addMotion();
+                motionState.motion = fixture.non_additive_layer_animation_fixture.createMotion(valueObserver.getCreateMotionContext());
+                layer.stateMachine.connect(layer.stateMachine.entryState, motionState);
+            }
+
+            function addAdditiveLayer() {
+                const layer = animationGraph.addLayer();
+                layer.weight = fixture.additive_layer_weight;
+                layer.additive = true;
+
+                const { stateMachine } = layer;
+
+                const empty = stateMachine.addEmpty();
+                stateMachine.connect(stateMachine.entryState, empty);
+
+                const clipMotionState = stateMachine.addMotion();
+                clipMotionState.motion = fixture.clip_motion_fixture.createMotion(valueObserver.getCreateMotionContext());
+
+                const animationBlendState = stateMachine.addMotion();
+                const animationBlend = animationBlendState.motion =
+                fixture.animation_blend_fixture.createMotion(valueObserver.getCreateMotionContext());
+                animationBlend.param.value = fixture.animation_blend_input;
+
+                {
+                    const e2c = stateMachine.connect(empty, clipMotionState);
+                    e2c.duration = fixture.e_to_c_transition_duration;
+                    const [condition] = e2c.conditions = [new TriggerCondition()];
+                    condition.trigger = 'e2c';
+                    animationGraph.addTrigger('e2c');
+                }
+
+                {
+                    const c2e = stateMachine.connect(clipMotionState, empty);
+                    c2e.duration = fixture.c_to_e_transition_duration;
+                    c2e.exitConditionEnabled = false;
+                    const [condition] = c2e.conditions = [new TriggerCondition()];
+                    condition.trigger = 'c2e';
+                    animationGraph.addTrigger('c2e');
+                }
+
+                {
+                    const e2b = stateMachine.connect(empty, animationBlendState);
+                    e2b.duration = 0.0;
+                    const [condition] = e2b.conditions = [new TriggerCondition()];
+                    condition.trigger = 'e2b';
+                    animationGraph.addTrigger('e2b');
+                }
+            }
+        });
+
+        describe(`Additive transition`, () => {
+            test(`Empty -> Empty`, () => {
+                const fixture = {
+                    initial_value: 0.3,
+                    non_additive_layer_animation: new ConstantRealValueAnimationFixture(0.8),
+                    non_additive_layer_weight: 0.6,
+                    additive_layer_weight: 0.8,
+                    transition_duration: 0.2,
+                };
+
+                const observer = new NodeTransformValueObserver({
+                    position: fixture.initial_value,
+                    rotation: fixture.initial_value,
+                    scale: fixture.initial_value,
+                    eulerAngles: fixture.initial_value,
+                });
+
+                const animationGraph = new AnimationGraph();
+                {
+                    const layer = animationGraph.addLayer();
+                    layer.additive = false;
+                    layer.weight = fixture.non_additive_layer_weight;
+                    const motionState = layer.stateMachine.addMotion();
+                    motionState.motion = fixture.non_additive_layer_animation.createMotion(observer.getCreateMotionContext());
+                    layer.stateMachine.connect(layer.stateMachine.entryState, motionState);
+                }
+                {
+                    const layer = animationGraph.addLayer();
+                    layer.additive = true;
+                    layer.weight = fixture.additive_layer_weight;
+                    const empty1 = layer.stateMachine.addEmpty();
+                    const empty2 = layer.stateMachine.addEmpty();
+                    layer.stateMachine.connect(layer.stateMachine.entryState, empty1);
+                    const transition = layer.stateMachine.connect(empty1, empty2);
+                    transition.duration = fixture.transition_duration;
+                    const [condition] = transition.conditions = [new UnaryCondition()];
+                    condition.operator = UnaryCondition.Operator.TRUTHY;
+                    condition.operand.value = true;
+                }
+
+                const graphEval = createAnimationGraphEval(animationGraph, observer.root);
+                const graphUpdater = new GraphUpdater(graphEval);
+
+                graphUpdater.step(fixture.transition_duration * 0.5);
+
+                let expected = fixture.initial_value;
+                expected = lerp( // Layer 1
+                    expected,
+                    fixture.non_additive_layer_animation.getExpected(),
+                    fixture.non_additive_layer_weight,
+                );
+                // Layer 2 takes no effect
+                expect(expected).toMatchSnapshot(`Expected result`);
+
+                expect(observer.value).toMatchObject({
+                    position: expect.toBeAround(expected),
+                    rotation: expect.toBeAround(expected),
+                    scale: expect.toBeAround(expected),
+                    eulerAngles: expect.toBeAround(expected),
+                });
+            });
+        });
+
+        describe(`Layer composition`, () => {
+            /**
+             * ## SPEC
+             * 
+             * The layers are evaluated sequentially, from first to last:
+             * - The initial value is the target's default value.
+             * 
+             * - If the layer is a non-additive layer,
+             *   current value is interpolated to the layer's animation value,
+             *   according to the layer's weight.
+             * 
+             * - If the layer is an additive layer,
+             *   the interpolated value from "zero" to the layer's additive animation value according to the layer's weight,
+             *   will be added to current value.
+             *   > Here "zero" means:
+             *   >   - 0 for numeric property,
+             *   >   - zero vector for vector properties,
+             *   >   - identity quaternion for quaternion property.
+             */
+            const _note = undefined;
+
+            const fixture = {
+                non_additive_layer_animation_fixture: new LinearRealValueAnimationFixture(6.0, 8.0, 1.0),
+                non_additive_layer_weight: 0.314,
+                additive_layer_1_animation_fixture: new LinearRealValueAnimationFixture(-2.8, 6.6, 1.5),
+                additive_layer_1_weight: 0.456,
+                additive_layer_2_animation_fixture: new LinearRealValueAnimationFixture(1.2, -1.0, 2.0),
+                additive_layer_2_weight: 0.618,
+                initial_value: 3.0,
+                time: 0.2,
+            };
+
+            test(`Non-additive | Additive`, () => {
+                const {
+                    valueObserver,
+                } = run(fixture.initial_value, [
+                    { fixture: fixture.non_additive_layer_animation_fixture, weight: fixture.non_additive_layer_weight, additive: false },
+                    { fixture: fixture.additive_layer_1_animation_fixture, weight: fixture.additive_layer_1_weight, additive: true },
+                ], fixture.time);
+
+                let expectedValue = fixture.initial_value;
+                expectedValue = lerp(
+                    expectedValue,
+                    fixture.non_additive_layer_animation_fixture.getExpected(fixture.time),
+                    fixture.non_additive_layer_weight,
+                );
+                expectedValue += lerp(
+                    0,
+                    fixture.additive_layer_1_animation_fixture.getExpectedAdditive(fixture.time),
+                    fixture.additive_layer_1_weight,
+                );
+
+                // Snapshot our expected value.
+                expect(expectedValue).toMatchSnapshot('Expected value');
+                expect(valueObserver.value).toBeCloseTo(expectedValue, DEFAULT_CLOSE_TO_NUM_DIGITS);
+            });
+
+            test(`Additive | Non-additive`, () => {
+                const {
+                    valueObserver,
+                } = run(fixture.initial_value, [
+                    { fixture: fixture.additive_layer_1_animation_fixture, weight: fixture.additive_layer_1_weight, additive: true },
+                    { fixture: fixture.non_additive_layer_animation_fixture, weight: fixture.non_additive_layer_weight, additive: false },
+                ], fixture.time);
+
+                let expectedValue = fixture.initial_value;
+                expectedValue += lerp(
+                    0,
+                    fixture.additive_layer_1_animation_fixture.getExpectedAdditive(fixture.time),
+                    fixture.additive_layer_1_weight,
+                );
+                expectedValue = lerp(
+                    expectedValue,
+                    fixture.non_additive_layer_animation_fixture.getExpected(fixture.time),
+                    fixture.non_additive_layer_weight,
+                );
+
+                // Snapshot our expected value.
+                expect(expectedValue).toMatchSnapshot('Expected value');
+                expect(valueObserver.value).toBeCloseTo(expectedValue, DEFAULT_CLOSE_TO_NUM_DIGITS);
+            });
+
+            test(`Non-additive | Non-additive`, () => {
+                const {
+                    valueObserver,
+                } = run(fixture.initial_value, [
+                    { fixture: fixture.additive_layer_1_animation_fixture, weight: fixture.additive_layer_1_weight, additive: true },
+                    { fixture: fixture.additive_layer_2_animation_fixture, weight: fixture.additive_layer_2_weight, additive: true },
+                ], fixture.time);
+
+                let expectedValue = fixture.initial_value;
+                expectedValue += lerp(
+                    0,
+                    fixture.additive_layer_1_animation_fixture.getExpectedAdditive(fixture.time),
+                    fixture.additive_layer_1_weight,
+                );
+                expectedValue += lerp(
+                    0,
+                    fixture.additive_layer_2_animation_fixture.getExpectedAdditive(fixture.time),
+                    fixture.additive_layer_2_weight,
+                );
+
+                // Snapshot our expected value.
+                expect(expectedValue).toMatchSnapshot('Expected value');
+                expect(valueObserver.value).toBeCloseTo(expectedValue, DEFAULT_CLOSE_TO_NUM_DIGITS);
+            });
+
+            function run(
+                initialValue: number,
+                layerConfigs: ReadonlyArray<{
+                    fixture: RealValueAnimationFixture;
+                    weight: number;
+                    additive: boolean;
+                }>,
+                time: number,
+            ) {
+                const valueObserver = new SingleRealValueObserver(initialValue);
+
+                const animationGraph = new AnimationGraph();
+                for (const {
+                    fixture,
+                    weight,
+                    additive,
+                } of layerConfigs) {
+                    const layer = animationGraph.addLayer();
+                    layer.weight = weight;
+                    layer.additive = additive;
+    
+                    const { stateMachine } = layer;
+    
+                    const clipMotionState = stateMachine.addMotion();
+                    clipMotionState.motion = fixture.createMotion(valueObserver.getCreateMotionContext());
+
+                    stateMachine.connect(stateMachine.entryState, clipMotionState);
+                }
+
+                const graphEval = createAnimationGraphEval(animationGraph, valueObserver.root);
+                const graphUpdater = new GraphUpdater(graphEval);
+                
+                graphUpdater.step(time);
+
+                return {
+                    valueObserver,
+                };
+            }
+        });
+
+        test(`Additive layer should be affected by mask`, () => {
+            const fixture = {
+                clip_duration: 0.3,
+                node1_initial_value: 6.,
+                node1_animation: new LinearRealValueAnimationFixture(3., 4., 0.3),
+                node2_initial_value: 7.,
+                node2_animation: new LinearRealValueAnimationFixture(-2., -6.6, 0.3),
+                time: 0.2,
+            };
+
+            const root = new Node('Root');
+            const node1 = new Node('Node1');
+            node1.parent = root;
+            node1.setPosition(fixture.node1_initial_value, 0.0, 0.0);
+            const node2 = new Node('Node2');
+            node2.parent = root;
+            node2.setPosition(fixture.node2_initial_value, 0.0, 0.0);
+
+            const clipMotion = new ClipMotion();
+            const clip = clipMotion.clip = new AnimationClip();
+            clip.duration = fixture.clip_duration;
+            addTrack(node1.name, fixture.node1_animation);
+            addTrack(node2.name, fixture.node2_animation);
+
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            layer.additive = true;
+            const animationMask = layer.mask = new AnimationMask();
+            animationMask.addJoint(node1.name, true);
+            animationMask.addJoint(node2.name, false);
+            const motionState = layer.stateMachine.addMotion();
+            motionState.motion = clipMotion;
+            layer.stateMachine.connect(layer.stateMachine.entryState, motionState);
+
+            const graphEval = createAnimationGraphEval(animationGraph, root);
+            graphEval.update(fixture.time);
+
+            // Node1
+            {
+                let desired = fixture.node1_initial_value;
+                desired += fixture.node1_animation.getExpectedAdditive(fixture.time);
+                expect(desired).toMatchSnapshot('Expected value of node1');
+                expect(node1.position.x).toBeCloseTo(desired, DEFAULT_CLOSE_TO_NUM_DIGITS);
+            }
+
+            // Node2
+            {
+                const desired = fixture.node2_initial_value; // Since the node is masked, the layer has no effect.
+                expect(desired).toMatchSnapshot('Expected value of node2');
+                expect(node2.position.x).toBeCloseTo(desired, DEFAULT_CLOSE_TO_NUM_DIGITS);
+            }
+
+            function addTrack(path: string, fixture: LinearRealValueAnimationFixture) {
+                const track = new VectorTrack();
+                track.path.toHierarchy(path).toProperty('position')
+                track.componentsCount = 3;
+                track.channels()[0].curve.assignSorted([
+                    [0, fixture.from],
+                    [fixture.duration, fixture.to],
+                ]);
+                clip.addTrack(track);
+            }
+        });
+
+        describe(`Additive nullish motion`, () => {
+            /**
+             * 
+             * ### Spec
+             * 
+             * In everywhere of an additive layer, if a motion is required but it is not specified,
+             * it's as if there is a "nullish motion" specified at that place.
+             * The nullish motion yields "zero delta pose", that's, it takes no any animation effect when applying additive operation.
+             * 
+             * Besides, if the layer is not in a motion state, the layer yields "zero delta pose" too.
+             */
+            const _spec = undefined;
+
+            test(`The whole additive layer is nullish`, () => {
+                const observer = new SingleRealValueObserver(6.);
+                const graph = new AnimationGraph();
+                const layer = graph.addLayer();
+                layer.additive = true;
+
+                // Adds a motion to "hold the pose" but don't connect to it.
+                const holderState = layer.stateMachine.addMotion();
+                holderState.motion = new ConstantRealValueAnimationFixture(2.).createMotion(observer.getCreateMotionContext());
+
+                const graphEval = createAnimationGraphEval(graph, observer.root);
+                const graphUpdater = new GraphUpdater(graphEval);
+                graphUpdater.step(0.2);
+                expect(observer.value).toBeCloseTo(6.);
+            });
+
+            test(`Run into a nullish motion state`, () => {
+                const observer = new SingleRealValueObserver(6.);
+                const graph = new AnimationGraph();
+                const layer = graph.addLayer();
+                layer.additive = true;
+
+                // Adds a motion to "hold the pose" but don't connect to it.
+                const holderState = layer.stateMachine.addMotion();
+                holderState.motion = new ConstantRealValueAnimationFixture(2.).createMotion(observer.getCreateMotionContext());
+
+                const nullMotionState = layer.stateMachine.addMotion();
+                layer.stateMachine.connect(layer.stateMachine.entryState, nullMotionState);
+
+                const graphEval = createAnimationGraphEval(graph, observer.root);
+                const graphUpdater = new GraphUpdater(graphEval);
+                graphUpdater.step(0.2);
+                expect(observer.value).toBeCloseTo(6.);
+            });
+
+            test(`Run into a transition, either of the source or destination state is nullish`, () => {
+                const fixture = {
+                    initial_value: 6.,
+                    source_animation: new LinearRealValueAnimationFixture(1., 2., 3.),
+                    transition_duration: 0.3,
+                };
+
+                const observer = new SingleRealValueObserver(fixture.initial_value);
+                const graph = new AnimationGraph();
+                const layer = graph.addLayer();
+                layer.additive = true;
+
+                // Adds a motion to "hold the pose" but don't connect to it.
+                const holderState = layer.stateMachine.addMotion();
+                holderState.motion = new ConstantRealValueAnimationFixture(2.).createMotion(observer.getCreateMotionContext());
+
+                const sourceState = layer.stateMachine.addMotion();
+                sourceState.motion = fixture.source_animation.createMotion(observer.getCreateMotionContext());
+                layer.stateMachine.connect(layer.stateMachine.entryState, sourceState);
+
+                const nullDestinationState = layer.stateMachine.addMotion();
+
+                const transition = layer.stateMachine.connect(sourceState, nullDestinationState);
+                transition.duration = fixture.transition_duration;
+                transition.exitConditionEnabled = true;
+                transition.exitCondition = 0.0;
+
+                const graphEval = createAnimationGraphEval(graph, observer.root);
+                const graphUpdater = new GraphUpdater(graphEval);
+                graphUpdater.step(0.2);
+
+                expect(observer.value).toBeCloseTo(fixture.initial_value +
+                    lerp(
+                        fixture.source_animation.getExpectedAdditive(0.2),
+                        0.0, // Because destination state is nullish, it's as if it's "zero delta pose".
+                        0.2 / fixture.transition_duration,
+                    ),
+                );
+            })
+        });
+    });
+
+    describe(`Animation blend`, () => {
+        interface BlendItemFixture {
+            animation: RealValueAnimationFixture;
+            weight: number;
+        }
+
+        test(`Blend non zero motions`, () => {
+            /**
+             * ### Spec
+             * 
+             * When blending child motions,
+             * the result motion has the duration weighted from all motion's duration.
+             * 
+             * For example, when blending motion `A`(duration: 4s) and `B`(duration: 3s) and their weights are `0.3`, `0.7` respectively.
+             * The result motion has duration $(4 * 0.3 + 3 * 0.7)s = 3.3s$.
+             * As 0.1 second elapsed,
+             * both `A` and `B` are sampled at their $((0.1 / 3.3) * 100)% ≈ 3%$ and then are blended together according to weight again.
+             */
+            const fixture = {
+                child1: {
+                    animation: new LinearRealValueAnimationFixture(2., 3., 4.),
+                    weight: 0.3,
+                },
+                
+                child2: {
+                    animation: new ConstantRealValueAnimationFixture(5., 0.),
+                    weight: 0.7,
+                }
+            };
+
+            const evaluate = createAnimationBlend(fixture.child1, fixture.child2);
+
+            const expectedDuration = fixture.child1.animation.duration * fixture.child1.weight
+                +
+                fixture.child2.animation.duration * fixture.child2.weight;
+
+            const stepRatio = 0.3;
+            expect(evaluate(expectedDuration * stepRatio)).toBeCloseTo(
+                fixture.child1.animation.getExpected(fixture.child1.animation.duration * stepRatio) * fixture.child1.weight
+                +
+                fixture.child2.animation.getExpected(fixture.child2.animation.duration * stepRatio) * fixture.child2.weight,
+            );
+        });
+
+        test(`Blend with zero duration children`, () => {
+            const fixture = {
+                non_zero_child: {
+                    animation: new LinearRealValueAnimationFixture(2., 3., 4.),
+                    weight: 0.3,
+                },
+                
+                zero_child: {
+                    animation: new ConstantRealValueAnimationFixture(5., 0.),
+                    weight: 0.7,
+                }
+            };
+
+            const evaluate = createAnimationBlend(fixture.non_zero_child, fixture.zero_child);
+
+            const stepTime = fixture.non_zero_child.animation.duration * 0.2;
+            const ratio = stepTime /
+                (fixture.non_zero_child.animation.duration * fixture.non_zero_child.weight);
+            expect(evaluate(stepTime)).toBeCloseTo(
+                fixture.non_zero_child.animation.getExpected(fixture.non_zero_child.animation.duration * ratio) * fixture.non_zero_child.weight
+                +
+                fixture.zero_child.animation.getExpected() * fixture.zero_child.weight,
+            );
+        });
+
+        test(`When blending, only zero duration children take weights`, () => {
+            const fixture = {
+                non_zero_child: {
+                    animation: new LinearRealValueAnimationFixture(2., 3., 4.),
+                    weight: 0.0,
+                },
+                
+                zero_child: {
+                    animation: new ConstantRealValueAnimationFixture(5., 0.),
+                    weight: 1.0,
+                }
+            };
+
+            const evaluate = createAnimationBlend(fixture.non_zero_child, fixture.zero_child);
+
+            expect(evaluate(100.86 /* CAN BE ANY */)).toBeCloseTo(
+                fixture.zero_child.animation.getExpected() * fixture.zero_child.weight,
+            );
+        });
+
+        function createAnimationBlend(...itemFixtures: readonly BlendItemFixture[]) {
+            const valueObserver = new SingleRealValueObserver();
+
+            const animationBlend = new AnimationBlendDirect();
+            animationBlend.items = itemFixtures.map((itemFixture) => {
+                const item = new AnimationBlendDirect.Item();
+                item.motion = itemFixture.animation.createMotion(valueObserver.getCreateMotionContext());
+                item.weight.value = itemFixture.weight;
+                return item;
+            });
+
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const motionState = layer.stateMachine.addMotion();
+            motionState.motion = animationBlend;
+            layer.stateMachine.connect(layer.stateMachine.entryState, motionState);
+
+            const graphEval = createAnimationGraphEval(animationGraph, valueObserver.root);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            return (time: number) => {
+                graphUpdater.goto(time);
+                return valueObserver.value; 
+            };
+        }
+    });
 });
 
 function assertivelyGetGraphVariable(graph: AnimationGraph, name: string) {
@@ -3514,6 +5352,58 @@ function createClipMotionPositionXLinear(duration: number, from: number, to: num
     const clipMotion = new ClipMotion();
     clipMotion.clip = clip;
     return clipMotion as NonNullableClipMotion;
+}
+
+/**
+ * A clip sheet contains a well-created animation clip object
+ * and provide utilities to verify sample result.
+ */
+function createClipSheet(duration: number, from: number, to: number, name = '') {
+    const clip = createClipMotionPositionXLinear(duration, from, to, name).clip;
+    return {
+        clip,
+
+        from,
+
+        to,
+
+        duration,
+
+        /**
+         * Creates a clip motion referencing to the created clip.
+         * @returns 
+         */
+        createMotion() {
+            const clipMotion = new ClipMotion();
+            clipMotion.clip = clip;
+            return clipMotion as NonNullableClipMotion;
+        },
+
+        /**
+         * Returns what the result would be when sample from such a clip.
+         * @param ratio Normalized time of this clip.
+         */
+        sample(ratio: number) {
+            return lerp(
+                from,
+                to,
+                ratio,
+            );
+        },
+
+        /**
+         * Returns what the result would be when sample from such a clip.
+         */
+        sampleAtTime(time: number) {
+            expect(time).toBeLessThanOrEqual(duration);
+            expect(time).toBeGreaterThan(0.0);
+            return lerp(
+                from,
+                to,
+                time / duration,
+            );
+        },
+    };
 }
 
 type MayBeArray<T> = T | T[];
@@ -3605,24 +5495,26 @@ function expectClipStatuses (clipStatuses: ClipStatus[], expected: MayBeArray<{
     }
 }
 
-function createAnimationGraphEval (animationGraph: AnimationGraph, node: Node): AnimationGraphEval {
+function createAnimationGraphEval (animationGraph: AnimationGraph | AnimationGraphVariant, node: Node): AnimationGraphEval {
     const newGenAnim = node.addComponent(AnimationController) as AnimationController;
     const graphEval = new AnimationGraphEval(
-        animationGraph,
+        (animationGraph instanceof AnimationGraph) ? animationGraph : animationGraph.original!,
         node,
         newGenAnim,
+        (animationGraph instanceof AnimationGraph) ? null : animationGraph.clipOverrides,
     );
     // @ts-expect-error HACK
     newGenAnim._graphEval = graphEval;
     return graphEval;
 }
 
-function createAnimationGraphEval2 (animationGraph: AnimationGraph, node: Node) {
+function createAnimationGraphEval2 (animationGraph: AnimationGraph | AnimationGraphVariant, node: Node) {
     const newGenAnim = node.addComponent(AnimationController) as AnimationController;
     const graphEval = new AnimationGraphEval(
-        animationGraph,
+        (animationGraph instanceof AnimationGraph) ? animationGraph : animationGraph.original!,
         node,
         newGenAnim,
+        (animationGraph instanceof AnimationGraph) ? null : animationGraph.clipOverrides,
     );
     // @ts-expect-error HACK
     newGenAnim._graphEval = graphEval;
@@ -3637,16 +5529,28 @@ class GraphUpdater {
 
     }
 
+    get current() {
+        return this._current;
+    }
+
+    get lastDeltaTime() {
+        return this._lastDeltaTime;
+    }
+
     public step(deltaTime: number) {
         this._current += deltaTime;
         this._graphEval.update(deltaTime);
+        this._lastDeltaTime = deltaTime;
     }
 
     public goto(time: number) {
         const deltaTime = time - this._current;
         this._current = time;
         this._graphEval.update(deltaTime);
+        this._lastDeltaTime = deltaTime;
     }
 
     private _current = 0.0;
+
+    private _lastDeltaTime = 0.0;
 }

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
@@ -38,6 +37,8 @@ import { Camera } from '../../render-scene/scene/camera';
 import { Pass } from '../../render-scene';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
+import { isCurveTwoValues } from '../particle-general-function';
+import { Mode } from '../animator/curve-range';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -309,7 +310,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
             if (cameraLst !== undefined) {
                 for (let i = 0; i < cameraLst?.length; ++i) {
-                    const camera:Camera = cameraLst[i];
+                    const camera: Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
                     const checkCamera: boolean = (!EDITOR || cclegacy.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
@@ -367,15 +368,19 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             trailModule.update();
         }
 
-        if (ps.simulationSpace === Space.Local) {
-            const r:Quat = ps.node.getRotation();
-            Mat4.fromQuat(this._localMat, r);
-            this._localMat.transpose(); // just consider rotation, use transpose as invert
-        }
+        const useGravity = !ps.gravityModifier.isZero();
+        if (useGravity) {
+            if (ps.simulationSpace === Space.Local) {
+                const r: Quat = ps.node.getRotation();
+                Mat4.fromQuat(this._localMat, r);
+                this._localMat.transpose(); // just consider rotation, use transpose as invert
+            }
 
-        if (ps.node.parent) {
-            ps.node.parent.getWorldMatrix(_tempParentInverse);
-            _tempParentInverse.invert();
+            if (ps.node.parent) {
+                const r: Quat = ps.node.parent.getWorldRotation();
+                Mat4.fromQuat(_tempParentInverse, r);
+                _tempParentInverse.transpose();
+            }
         }
 
         for (let i = 0; i < this._particles!.length; ++i) {
@@ -392,27 +397,31 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 continue;
             }
 
-            if (ps.simulationSpace === Space.Local) {
-                const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-                this._gravity.x = 0.0;
-                this._gravity.y = gravityFactor;
-                this._gravity.z = 0.0;
-                this._gravity.w = 1.0;
-                if (!approx(gravityFactor, 0.0, EPSILON)) {
-                    if (ps.node.parent) {
-                        this._gravity = this._gravity.transformMat4(_tempParentInverse);
+            // apply gravity when both the mode is not Constant and the value is not 0.
+            if (useGravity) {
+                const rand = isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
+                if (ps.simulationSpace === Space.Local) {
+                    const time = 1 - p.remainingLifetime / p.startLifetime;
+                    const gravityFactor = -ps.gravityModifier.evaluate(time, rand)! * 9.8 * dt;
+                    this._gravity.x = 0.0;
+                    this._gravity.y = gravityFactor;
+                    this._gravity.z = 0.0;
+                    this._gravity.w = 1.0;
+                    if (!approx(gravityFactor, 0.0, EPSILON)) {
+                        if (ps.node.parent) {
+                            this._gravity = this._gravity.transformMat4(_tempParentInverse);
+                        }
+                        this._gravity = this._gravity.transformMat4(this._localMat);
+
+                        p.velocity.x += this._gravity.x;
+                        p.velocity.y += this._gravity.y;
+                        p.velocity.z += this._gravity.z;
                     }
-                    this._gravity = this._gravity.transformMat4(this._localMat);
-
-                    p.velocity.x += this._gravity.x;
-                    p.velocity.y += this._gravity.y;
-                    p.velocity.z += this._gravity.z;
+                } else {
+                    // apply gravity.
+                    p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
                 }
-            } else {
-                // apply gravity.
-                p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
             }
-
             Vec3.copy(p.ultimateVelocity, p.velocity);
 
             this._runAnimateList.forEach((value) => {
@@ -685,7 +694,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         let enable = false;
         const roationModule = this._particleSystem._rotationOvertimeModule;
-        enable = roationModule && roationModule.enable;
+        enable = roationModule ? roationModule.enable : false;
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
         this._defines[INSTANCE_PARTICLE] = this._useInstance;
 

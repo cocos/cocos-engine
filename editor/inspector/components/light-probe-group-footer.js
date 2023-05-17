@@ -1,8 +1,10 @@
+const { trackEventWithTimer } = require('../utils/metrics');
+
 exports.template = `
 <div class="light-probe-group">
     <ui-button class="box">Edit Area Box</ui-button>
     <ui-button class="generate" tooltip="i18n:ENGINE.components.lightProbeGroup.generateTip">Generate Probes</ui-button>
-    <ui-button class="blue edit" type="success" tooltip="i18n:ENGINE.components.lightProbeGroup.editTip">Enter Probe Edit Mode</ui-button>
+    <ui-button class="blue edit" tooltip="i18n:ENGINE.components.lightProbeGroup.editTip">Enter Probe Edit Mode</ui-button>
 </div>
 `;
 
@@ -71,11 +73,16 @@ exports.ready = function() {
                     args: [],
                 });
             }
+
+            trackEventWithTimer('bakingSystem', 'A100006');
+
+            Editor.Message.send('scene', 'snapshot');
         }
     });
 
     panel.$.edit.addEventListener('confirm', async () => {
         await Editor.Message.request('scene', 'toggle-light-probe-edit-mode', !panel.sceneProbeMode);
+        trackEventWithTimer('bakingSystem', 'A100008');
     });
 
     panel.changeProbeModeBind = panel.changeProbeMode.bind(panel);
@@ -83,6 +90,7 @@ exports.ready = function() {
 
     panel.$.box.addEventListener('confirm', async () => {
         await Editor.Message.request('scene', 'toggle-light-probe-bounding-box-edit-mode', !panel.sceneProbeBoxMode);
+        trackEventWithTimer('bakingSystem', 'A100007');
     });
 
     panel.changeProbeBoxModeBind = panel.changeProbeBoxMode.bind(panel);
@@ -104,8 +112,12 @@ exports.methods = {
 
         if (mode) {
             panel.$.edit.innerText = 'Exit Probe Edit Mode';
+            panel.$.edit.classList.remove('blue');
+            panel.$.edit.classList.add('red');
         } else {
             panel.$.edit.innerText = 'Enter Probe Edit Mode';
+            panel.$.edit.classList.add('blue');
+            panel.$.edit.classList.remove('red');
         }
     },
     changeProbeBoxMode(mode) {
@@ -115,8 +127,10 @@ exports.methods = {
 
         if (mode) {
             panel.$.box.innerText = 'Done Edit';
+            panel.$.box.classList.add('red');
         } else {
             panel.$.box.innerText = 'Edit Area Box';
+            panel.$.box.classList.remove('red');
         }
     },
 };

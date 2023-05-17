@@ -5,10 +5,12 @@ CCEffect %{
   - passes:
     - vert: post-process-vs
       frag: post-process-fs
-      phase: post-process
+      pass: post-process
       depthStencilState:
         depthTest: false
         depthWrite: false
+      rasterizerState:
+        cullMode: none
       blendState:
         targets:
         - blend: true
@@ -20,7 +22,7 @@ CCEffect %{
 
 CCProgram post-process-vs %{
   precision highp float;
-  #include <legacy/input-standard>
+  #include <legacy/decode-standard>
   #include <builtin/uniforms/cc-global>
   #include <common/common-define>
 
@@ -28,7 +30,7 @@ CCProgram post-process-vs %{
 
   void main () {
     StandardVertInput In;
-    CCVertInput(In);
+    CCDecode(In);
     CC_HANDLE_GET_CLIP_FLIP(In.position.xy);
     gl_Position = In.position;
     gl_Position.y = gl_Position.y;
@@ -42,6 +44,7 @@ CCProgram post-process-fs %{
   #include <post-process/anti-aliasing>
   in vec2 v_uv;
 
+  #pragma rate outputResultMap pass
   layout(binding = 0) uniform sampler2D outputResultMap;
 
   layout(location = 0) out vec4 fragColor;
@@ -59,17 +62,20 @@ void texcoords(vec2 fragCoord, vec2 resolution,
 }
 
 void main () {
-    mediump vec2 v_rgbNW;
-	  mediump vec2 v_rgbNE;
-	  mediump vec2 v_rgbSW;
-	  mediump vec2 v_rgbSE;
-  	mediump vec2 v_rgbM;
-
     #if ANTIALIAS_TYPE == 1
+      mediump vec2 v_rgbNW;
+      mediump vec2 v_rgbNE;
+      mediump vec2 v_rgbSW;
+      mediump vec2 v_rgbSE;
+      mediump vec2 v_rgbM;
+
       vec2 resolution = cc_screenSize.xy;
       vec2 fragCoord = v_uv * resolution;
       texcoords(fragCoord, resolution, v_rgbNW, v_rgbNE, v_rgbSW, v_rgbSE, v_rgbM);
       fragColor = fxaa(outputResultMap, fragCoord, resolution, v_rgbNW, v_rgbNE, v_rgbSW, v_rgbSE, v_rgbM);
+    #elif ANTIALIAS_TYPE == 2
+      vec3 color = FxaaPixelShader(v_uv, outputResultMap, 1.0 / cc_screenSize.xy);
+      fragColor = vec4(color, texture(outputResultMap, v_uv).a);
     #else
       fragColor = texture(outputResultMap, v_uv);
     #endif

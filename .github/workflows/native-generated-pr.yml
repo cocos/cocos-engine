@@ -13,6 +13,8 @@ jobs:
     if: 
       (contains(github.event.pull_request.body, 'Automated PR to genbindings'))
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v2
       - name: Update assignees
@@ -36,8 +38,13 @@ jobs:
           #   ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/assignees \
           #   -d "{\"assignees\":[\"${SRC_MERGER}\"]}"
           # exit 0
-      - name: Assignment
-        uses: OperationsYU/auto-assignment@v1
+      # - name: Assignment
+      #   uses: OperationsYU/auto-assignment@v1
+      #   with:
+      #     token: ${{ secrets.LABEL_TOKEN }}
+      #     users: '["${{steps.merger.outputs.SRC_MERGER}}"]'
+      - name: Notify the merger of previous commit
+        uses: mshick/add-pr-comment@v2
         with:
-          token: ${{ secrets.LABEL_TOKEN }}
-          users: '["${{steps.merger.outputs.SRC_MERGER}}"]'
+          message: |
+            @${{steps.merger.outputs.SRC_MERGER}} please review

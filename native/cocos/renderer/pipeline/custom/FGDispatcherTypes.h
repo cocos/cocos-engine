@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -37,18 +36,24 @@
 #include <variant>
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
-#include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/Set.h"
+#include "cocos/renderer/pipeline/custom/details/GraphTypes.h"
+#include "cocos/renderer/pipeline/custom/details/Map.h"
+#include "cocos/renderer/pipeline/custom/details/Set.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 
 namespace render {
 
-struct NullTag {};
+struct NullTag {
+};
+
+struct ResourceLifeRecord {
+    uint32_t start{0};
+    uint32_t end{0};
+};
 
 struct LeafStatus {
     bool isExternal{false};
@@ -86,6 +91,7 @@ struct AccessStatus {
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
     gfx::MemoryAccessBit access{gfx::MemoryAccessBit::NONE};
     gfx::PassType passType{gfx::PassType::RASTER};
+    gfx::AccessFlagBit accessFlag{gfx::AccessFlagBit::NONE};
     ResourceUsage usage;
     Range range;
 };
@@ -98,6 +104,17 @@ struct ResourceTransition {
 struct ResourceAccessNode {
     std::vector<AccessStatus> attachmentStatus;
     struct ResourceAccessNode* nextSubpass{nullptr};
+};
+
+struct LayoutAccess {
+    gfx::AccessFlagBit prevAccess{gfx::AccessFlagBit::NONE};
+    gfx::AccessFlagBit nextAccess{gfx::AccessFlagBit::NONE};
+};
+
+struct FGRenderPassInfo {
+    std::vector<LayoutAccess> colorAccesses;
+    LayoutAccess dsAccess;
+    gfx::RenderPassInfo rpInfo;
 };
 
 struct ResourceAccessGraph {
@@ -221,10 +238,8 @@ struct ResourceAccessGraph {
         ccstd::pmr::vector<InEdge> inEdges;
     };
 
-    struct PassIDTag {
-    } static constexpr PassID{}; // NOLINT
-    struct AccessNodeTag {
-    } static constexpr AccessNode{}; // NOLINT
+    struct PassIDTag {};
+    struct AccessNodeTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -236,18 +251,30 @@ struct ResourceAccessGraph {
     // Members
     ccstd::pmr::vector<ccstd::pmr::string> resourceNames;
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
-    RenderGraph::vertex_descriptor presentPassID{0xFFFFFFFF};
-    PmrFlatMap<RenderGraph::vertex_descriptor, LeafStatus> leafPasses;
-    PmrFlatSet<RenderGraph::vertex_descriptor> culledPasses;
+    vertex_descriptor presentPassID{0xFFFFFFFF};
+    PmrFlatMap<vertex_descriptor, LeafStatus> leafPasses;
+    PmrFlatSet<vertex_descriptor> culledPasses;
     PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
+    PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
+    ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
+    PmrFlatMap<vertex_descriptor, FGRenderPassInfo> rpInfos;
 };
 
-struct EmptyGraph {
-    EmptyGraph() = default;
-    EmptyGraph(EmptyGraph&& rhs) = delete;
-    EmptyGraph(EmptyGraph const& rhs) = delete;
-    EmptyGraph& operator=(EmptyGraph&& rhs) = delete;
-    EmptyGraph& operator=(EmptyGraph const& rhs) = delete;
+struct RelationGraph {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {_vertices.get_allocator().resource()};
+    }
+
+    inline boost::container::pmr::memory_resource* resource() const noexcept {
+        return get_allocator().resource();
+    }
+
+    RelationGraph(const allocator_type& alloc) noexcept; // NOLINT
+    RelationGraph(RelationGraph&& rhs) = delete;
+    RelationGraph(RelationGraph const& rhs) = delete;
+    RelationGraph& operator=(RelationGraph&& rhs) = delete;
+    RelationGraph& operator=(RelationGraph const& rhs) = delete;
 
     // Graph
     using directed_category      = boost::bidirectional_tag;
@@ -268,36 +295,36 @@ struct EmptyGraph {
     // IncidenceGraph
     using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        std::vector<OutEdge>::iterator,
+        ccstd::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
     using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        std::vector<InEdge>::iterator,
+        ccstd::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
     using adjacency_iterator = boost::adjacency_iterator_generator<
-        EmptyGraph, vertex_descriptor, out_edge_iterator>::type;
+        RelationGraph, vertex_descriptor, out_edge_iterator>::type;
 
     // VertexListGraph
     using vertex_iterator    = boost::integer_range<vertex_descriptor>::iterator;
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline std::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const std::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline std::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const std::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
@@ -314,7 +341,7 @@ struct EmptyGraph {
     }
 
     // EdgeListGraph
-    using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, EmptyGraph>;
+    using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, RelationGraph>;
     using edges_size_type = uint32_t;
 
     // ContinuousContainer
@@ -322,16 +349,38 @@ struct EmptyGraph {
 
     // Members
     struct Vertex {
-        std::vector<OutEdge> outEdges;
-        std::vector<InEdge> inEdges;
+        using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+        allocator_type get_allocator() const noexcept { // NOLINT
+            return {outEdges.get_allocator().resource()};
+        }
+
+        Vertex(const allocator_type& alloc) noexcept; // NOLINT
+        Vertex(Vertex&& rhs, const allocator_type& alloc);
+        Vertex(Vertex const& rhs, const allocator_type& alloc);
+
+        Vertex(Vertex&& rhs) noexcept = default;
+        Vertex(Vertex const& rhs) = delete;
+        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex const& rhs) = default;
+
+        ccstd::pmr::vector<OutEdge> outEdges;
+        ccstd::pmr::vector<InEdge> inEdges;
     };
+
+    struct DescIDTag {};
+
     // Vertices
-    std::vector<Vertex> _vertices;
+    ccstd::pmr::vector<Vertex> _vertices;
+    // Components
+    ccstd::pmr::vector<ResourceAccessGraph::vertex_descriptor> descID;
+    // UuidGraph
+    PmrUnorderedMap<ResourceAccessGraph::vertex_descriptor, vertex_descriptor> vertexMap;
 };
 
 struct Barrier {
-    RenderGraph::vertex_descriptor resourceID{0xFFFFFFFF};
+    ResourceGraph::vertex_descriptor resourceID{0xFFFFFFFF};
     gfx::BarrierType type{gfx::BarrierType::FULL};
+    gfx::GFXObject* barrier{nullptr};
     AccessStatus beginStatus;
     AccessStatus endStatus;
 };
@@ -352,13 +401,13 @@ struct FrameGraphDispatcher {
         return {resourceAccessGraph.get_allocator().resource()};
     }
 
-    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
+    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, const LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
     FrameGraphDispatcher(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher(FrameGraphDispatcher const& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
 
-    using BarrierMap = FlatMap<ResourceAccessGraph::vertex_descriptor, BarrierNode>;
+    using BarrierMap = PmrMap<ResourceAccessGraph::vertex_descriptor, BarrierNode>;
 
     void enablePassReorder(bool enable);
 
@@ -378,10 +427,10 @@ struct FrameGraphDispatcher {
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;
     const RenderGraph& graph;
-    LayoutGraphData& layoutGraph;
+    const LayoutGraphData& layoutGraph;
     boost::container::pmr::memory_resource* scratch{nullptr};
     PmrFlatMap<ccstd::pmr::string, ResourceTransition> externalResMap;
-    EmptyGraph relationGraph;
+    RelationGraph relationGraph;
     bool _enablePassReorder{false};
     bool _enableAutoBarrier{true};
     bool _enableMemoryAliasing{false};

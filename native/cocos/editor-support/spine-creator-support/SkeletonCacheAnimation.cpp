@@ -28,6 +28,8 @@
  *****************************************************************************/
 
 #include "SkeletonCacheAnimation.h"
+#include "2d/renderer/RenderDrawInfo.h"
+#include "2d/renderer/RenderEntity.h"
 #include "MiddlewareMacro.h"
 #include "SharedBufferManager.h"
 #include "SkeletonCacheMgr.h"
@@ -35,8 +37,6 @@
 #include "base/memory/Memory.h"
 #include "gfx-base/GFXDef.h"
 #include "math/Math.h"
-#include "2d/renderer/RenderDrawInfo.h"
-#include "2d/renderer/RenderEntity.h"
 #include "renderer/core/MaterialInstance.h"
 
 USING_NS_MW; // NOLINT(google-build-using-namespace)
@@ -54,13 +54,12 @@ SkeletonCacheAnimation::SkeletonCacheAnimation(const std::string &uuid, bool isS
         _skeletonCache->addRef();
     } else {
         _skeletonCache = new SkeletonCache();
+        _skeletonCache->addRef();
         _skeletonCache->initWithUUID(uuid);
     }
 
     // store global TypedArray begin and end offset
     _sharedBufferOffset = new IOTypedArray(se::Object::TypedArrayType::UINT32, sizeof(uint32_t) * 2);
-
-    beginSchedule();
 }
 
 SkeletonCacheAnimation::~SkeletonCacheAnimation() {
@@ -78,11 +77,11 @@ SkeletonCacheAnimation::~SkeletonCacheAnimation() {
         _animationQueue.pop();
         delete ani;
     }
-    for (auto* draw : _drawInfoArray) {
+    for (auto *draw : _drawInfoArray) {
         CC_SAFE_DELETE(draw);
     }
 
-    for (auto& item : _materialCaches) {
+    for (auto &item : _materialCaches) {
         CC_SAFE_DELETE(item.second);
     }
     stopSchedule();
@@ -227,8 +226,8 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     bool needColor = false;
     int curBlendSrc = -1;
     int curBlendDst = -1;
-    cc::Texture2D* curTexture = nullptr;
-    RenderDrawInfo* curDrawInfo = nullptr;
+    cc::Texture2D *curTexture = nullptr;
+    RenderDrawInfo *curDrawInfo = nullptr;
 
     if (abs(_nodeColor.r - 1.0F) > 0.0001F ||
         abs(_nodeColor.g - 1.0F) > 0.0001F ||
@@ -245,14 +244,14 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
         tempG = _nodeColor.g * multiplier;
         tempB = _nodeColor.b * multiplier;
 
-        finalColor.a = (uint8_t)floorf(tempA);
-        finalColor.r = (uint8_t)floorf(colorData->finalColor.r * tempR);
-        finalColor.g = (uint8_t)floorf(colorData->finalColor.g * tempG);
-        finalColor.b = (uint8_t)floorf(colorData->finalColor.b * tempB);
+        finalColor.r = static_cast<uint8_t>(std::round(colorData->finalColor.r * tempR));
+        finalColor.g = static_cast<uint8_t>(std::round(colorData->finalColor.g * tempG));
+        finalColor.b = static_cast<uint8_t>(std::round(colorData->finalColor.b * tempB));
+        finalColor.a = static_cast<uint8_t>(std::round(tempA));
 
-        darkColor.r = (uint8_t)floorf(colorData->darkColor.r * tempR);
-        darkColor.g = (uint8_t)floorf(colorData->darkColor.g * tempG);
-        darkColor.b = (uint8_t)floorf(colorData->darkColor.b * tempB);
+        darkColor.r = static_cast<uint8_t>(std::round(colorData->darkColor.r * tempR));
+        darkColor.g = static_cast<uint8_t>(std::round(colorData->darkColor.g * tempG));
+        darkColor.b = static_cast<uint8_t>(std::round(colorData->darkColor.b * tempB));
         darkColor.a = _premultipliedAlpha ? 255 : 0;
     };
 
@@ -271,7 +270,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
         curDrawInfo = requestDrawInfo(segmentCount++);
         entity->addDynamicRenderDrawInfo(curDrawInfo);
         // fill new texture index
-        curTexture = static_cast<cc::Texture2D*>(segment->getTexture()->getRealTexture());
+        curTexture = static_cast<cc::Texture2D *>(segment->getTexture()->getRealTexture());
         gfx::Texture *texture = curTexture->getGFXTexture();
         gfx::Sampler *sampler = curTexture->getGFXSampler();
         curDrawInfo->setTexture(texture);
@@ -361,7 +360,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
         srcIndexBytesOffset += indexBytes;
 
         // fill new index and vertex buffer id
-        UIMeshBuffer* uiMeshBuffer = mb->getUIMeshBuffer();
+        UIMeshBuffer *uiMeshBuffer = mb->getUIMeshBuffer();
         curDrawInfo->setMeshBuffer(uiMeshBuffer);
 
         // fill new index offset
@@ -441,7 +440,7 @@ void SkeletonCacheAnimation::setColor(float r, float g, float b, float a) {
 
 void SkeletonCacheAnimation::setBatchEnabled(bool enabled) {
     if (_enableBatch != enabled) {
-        for (auto& item : _materialCaches) {
+        for (auto &item : _materialCaches) {
             CC_SAFE_DELETE(item.second);
         }
         _materialCaches.clear();
@@ -553,15 +552,19 @@ void SkeletonCacheAnimation::setSlotsToSetupPose() {
         _skeletonCache->setSlotsToSetupPose();
     }
 }
-void SkeletonCacheAnimation::setRenderEntity(cc::RenderEntity* entity) {
+void SkeletonCacheAnimation::setRenderEntity(cc::RenderEntity *entity) {
     _entity = entity;
 }
 
 void SkeletonCacheAnimation::setMaterial(cc::Material *material) {
     _material = material;
+    for (auto &item : _materialCaches) {
+        CC_SAFE_DELETE(item.second);
+    }
+    _materialCaches.clear();
 }
 
-cc::RenderDrawInfo* SkeletonCacheAnimation::requestDrawInfo(int idx) {
+cc::RenderDrawInfo *SkeletonCacheAnimation::requestDrawInfo(int idx) {
     if (_drawInfoArray.size() < idx + 1) {
         cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
         draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::MIDDLEWARE));
@@ -573,11 +576,10 @@ cc::RenderDrawInfo* SkeletonCacheAnimation::requestDrawInfo(int idx) {
 cc::Material *SkeletonCacheAnimation::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
     uint32_t key = static_cast<uint32_t>(blendSrc) << 16 | static_cast<uint32_t>(blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
-        const IMaterialInstanceInfo info {
-            (Material*)_material,
-            0
-        };
-        MaterialInstance* materialInstance = new MaterialInstance(info);
+        const IMaterialInstanceInfo info{
+            (Material *)_material,
+            0};
+        MaterialInstance *materialInstance = new MaterialInstance(info);
         PassOverrides overrides;
         BlendStateInfo stateInfo;
         stateInfo.blendColor = gfx::Color{1.0F, 1.0F, 1.0F, 1.0F};
@@ -588,11 +590,11 @@ cc::Material *SkeletonCacheAnimation::requestMaterial(uint16_t blendSrc, uint16_
         targetInfo.blendDst = (gfx::BlendFactor)blendDst;
         targetInfo.blendSrcAlpha = (gfx::BlendFactor)blendSrc;
         targetInfo.blendDstAlpha = (gfx::BlendFactor)blendDst;
-        BlendTargetInfoList targetList {targetInfo};
+        BlendTargetInfoList targetList{targetInfo};
         stateInfo.targets = targetList;
         overrides.blendState = stateInfo;
         materialInstance->overridePipelineStates(overrides);
-        const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_enableBatch}};
+        const MacroRecord macros{{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_enableBatch}};
         materialInstance->recompileShaders(macros);
         _materialCaches[key] = materialInstance;
     }

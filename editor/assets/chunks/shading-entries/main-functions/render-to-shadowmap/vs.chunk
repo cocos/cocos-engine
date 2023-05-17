@@ -11,6 +11,7 @@ void main()
   CCSurfacesVertexInput(In);
   CCSurfacesVertexAnimation(In);
   In.position.xyz = SurfacesVertexModifyLocalPos(In);
+  SurfacesVertexModifyLocalSharedData(In);
 
   // World Space
   CCSurfacesVertexWorldTransform(In);
@@ -22,6 +23,7 @@ void main()
 
   // Other Surfaces Function
   SurfacesVertexModifyUV(In);
+  SurfacesVertexModifySharedData(In);
 
   // Other Data
   CCSurfacesVertexTransformUV(In);  

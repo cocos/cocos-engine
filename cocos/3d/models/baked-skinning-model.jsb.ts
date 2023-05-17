@@ -1,11 +1,39 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { cclegacy, geometry } from '../../core';
 import { Skeleton } from '../assets/skeleton';
 import { Mesh } from '../assets/mesh';
 import { Node } from '../../scene-graph/node'
 import { AnimationClip } from "../../animation";
 import { IJointTextureHandle } from '../skeletal-animation/skeletal-animation-utils';
+import type { BakedSkinningModel as JsbBakedSkinningModel } from './baked-skinning-model';
 
-export const BakedSkinningModel = jsb.BakedSkinningModel;
+declare const jsb: any;
+
+export const BakedSkinningModel: typeof JsbBakedSkinningModel = jsb.BakedSkinningModel;
+export type BakedSkinningModel = JsbBakedSkinningModel;
 cclegacy.BakedSkinningModel = jsb.BakedSkinningModel;
 const MorphModel = jsb.MorphModel;
 
@@ -20,6 +48,7 @@ bakedSkinningModelProto._ctor = function () {
     this._jointsMedium = { buffer: null, jointTextureInfo, animInfo, texture: null, boundsInfo: null };
     this._skeleton = null;
     this._mesh = null;
+    this._registerOnDestroy();
 };
 
 const oldDestroy = bakedSkinningModelProto.destroy;
@@ -30,6 +59,11 @@ bakedSkinningModelProto.destroy = function () {
 
     oldDestroy.call(this);
 };
+
+// tips:for native platform need call jointTexturePool.releaseHandle(oldTex)
+bakedSkinningModelProto._onDestroy = function () {
+    this._applyJointTexture();
+}
 
 const oldBindSkeleton = bakedSkinningModelProto.bindSkeleton;
 bakedSkinningModelProto.bindSkeleton = function (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {

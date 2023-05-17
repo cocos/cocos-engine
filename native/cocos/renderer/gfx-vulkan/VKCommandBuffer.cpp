@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -64,6 +63,22 @@ void CCVKCommandBuffer::doInit(const CommandBufferInfo & /*info*/) {
 }
 
 void CCVKCommandBuffer::doDestroy() {
+    if (_gpuCommandBuffer) {
+        auto cleanEvent = [this](VkEvent event) {
+            auto res = vkResetEvent(CCVKDevice::getInstance()->gpuDevice()->vkDevice, event);
+            CC_ASSERT(res == VK_SUCCESS);
+            vkDestroyEvent(CCVKDevice::getInstance()->gpuDevice()->vkDevice, event, nullptr);
+        };
+        while (!_availableEvents.empty()) {
+            VkEvent event = _availableEvents.front();
+            cleanEvent(event);
+            _availableEvents.pop();
+        }
+        for (auto pair : _barrierEvents) {
+            cleanEvent(pair.second);
+        }
+    }
+
     _gpuCommandBuffer = nullptr;
 }
 
@@ -141,7 +156,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         const auto &dependencies = renderPass->getDependencies();
         if (!dependencies.empty()) {
             const auto &frontBarrier = dependencies.front();
-            pipelineBarrier(frontBarrier.generalBarrier, frontBarrier.bufferBarriers, frontBarrier.buffers, frontBarrier.bufferBarrierCount, frontBarrier.textureBarriers, frontBarrier.textures, frontBarrier.textureBarrierCount);
+            //pipelineBarrier(frontBarrier.generalBarrier, frontBarrier.bufferBarriers, frontBarrier.buffers, frontBarrier.bufferBarrierCount, frontBarrier.textureBarriers, frontBarrier.textures, frontBarrier.textureBarrierCount);
         }
     }
 
@@ -221,7 +236,7 @@ void CCVKCommandBuffer::endRenderPass() {
         const auto &dependencies = _curGPURenderPass->dependencies;
         if (!dependencies.empty()) {
             const auto &rearBarrier = _curGPURenderPass->dependencies.back();
-            pipelineBarrier(rearBarrier.generalBarrier, rearBarrier.bufferBarriers, rearBarrier.buffers, rearBarrier.bufferBarrierCount, rearBarrier.textureBarriers, rearBarrier.textures, rearBarrier.textureBarrierCount);
+            //pipelineBarrier(rearBarrier.generalBarrier, rearBarrier.bufferBarriers, rearBarrier.buffers, rearBarrier.bufferBarrierCount, rearBarrier.textureBarriers, rearBarrier.textures, rearBarrier.textureBarrierCount);
         }
     }
 }
@@ -493,6 +508,50 @@ void CCVKCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Text
     cmdFuncCCVKCopyBuffersToTexture(CCVKDevice::getInstance(), buffers, static_cast<CCVKTexture *>(texture)->gpuTexture(), regions, count, _gpuCommandBuffer);
 }
 
+void CCVKCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    VkImageAspectFlags srcAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkImageAspectFlags dstAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkImage srcImage = VK_NULL_HANDLE;
+    VkImage dstImage = VK_NULL_HANDLE;
+
+    auto getImage = [](Texture * texture) -> auto {
+        CCVKGPUTexture *gpuTexture = static_cast<CCVKTexture *>(texture)->gpuTexture();
+        return gpuTexture->swapchain ? std::pair{gpuTexture->aspectMask, gpuTexture->swapchainVkImages[gpuTexture->swapchain->curImageIndex]} : std::pair{gpuTexture->aspectMask, gpuTexture->vkImage};
+    };
+
+    std::tie(srcAspectMask, srcImage) = getImage(srcTexture);
+    std::tie(dstAspectMask, dstImage) = getImage(dstTexture);
+
+    ccstd::vector<VkImageCopy> copyRegions(count, VkImageCopy{});
+    for (uint32_t i = 0U; i < count; ++i) {
+        const TextureCopy &region = regions[i];
+        auto &copyRegion = copyRegions[i];
+
+        copyRegion.srcSubresource.aspectMask = srcAspectMask;
+        copyRegion.srcSubresource.mipLevel = region.srcSubres.mipLevel;
+        copyRegion.srcSubresource.baseArrayLayer = region.srcSubres.baseArrayLayer;
+        copyRegion.srcSubresource.layerCount = region.srcSubres.layerCount;
+
+        copyRegion.dstSubresource.aspectMask = dstAspectMask;
+        copyRegion.dstSubresource.mipLevel = region.dstSubres.mipLevel;
+        copyRegion.dstSubresource.baseArrayLayer = region.dstSubres.baseArrayLayer;
+        copyRegion.dstSubresource.layerCount = region.dstSubres.layerCount;
+
+        copyRegion.srcOffset.x = region.srcOffset.x;
+        copyRegion.srcOffset.y = region.srcOffset.y;
+        copyRegion.srcOffset.z = region.srcOffset.z;
+
+        copyRegion.dstOffset.x = region.dstOffset.x;
+        copyRegion.dstOffset.y = region.dstOffset.y;
+        copyRegion.dstOffset.z = region.dstOffset.z;
+
+        copyRegion.extent.width = region.extent.width;
+        copyRegion.extent.height = region.extent.height;
+        copyRegion.extent.depth = region.extent.depth;
+    }
+    vkCmdCopyImage(_gpuCommandBuffer->vkCommandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, count, copyRegions.data());
+}
+
 void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     VkImageAspectFlags srcAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     VkImageAspectFlags dstAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -635,8 +694,8 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
     VkPipelineStageFlags splitDstStageMask = VK_PIPELINE_STAGE_NONE_KHR;
     VkMemoryBarrier const *pMemoryBarrier = nullptr;
 
-    ccstd::vector<VkImageMemoryBarrier> splitImageBarriers;
-    ccstd::vector<VkBufferMemoryBarrier> splitBufferBarriers;
+    ccstd::vector<std::pair<uint32_t, VkImageMemoryBarrier>> splitImageBarriers;
+    ccstd::vector<std::pair<uint32_t, VkBufferMemoryBarrier>> splitBufferBarriers;
     ccstd::vector<VkImageMemoryBarrier> fullImageBarriers;
     ccstd::vector<VkBufferMemoryBarrier> fullBufferBarriers;
     ccstd::vector<VkEvent> scheduledEvents;
@@ -650,13 +709,13 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
             VkEventCreateInfo eventInfo = {
                 VK_STRUCTURE_TYPE_EVENT_CREATE_INFO,
                 nullptr,
-                VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR,
+                0,
             };
             VkResult res = vkCreateEvent(CCVKDevice::getInstance()->gpuDevice()->vkDevice,
                                          &eventInfo,
                                          nullptr,
                                          &event);
-            CC_ASSERT(res == VK_SUCCESS);
+            CC_ASSERT_EQ(res, VK_SUCCESS);
         }
         vkCmdSetEvent(_gpuCommandBuffer->vkCommandBuffer, event, stageMask);
         _barrierEvents.insert({obj, event});
@@ -673,25 +732,36 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                 signalEvent(ccTexture, gpuBarrier->srcStageMask);
             } else {
                 bool fullBarrier = ccBarrier->getInfo().type == BarrierType::FULL;
-                if (!fullBarrier) {
-                    auto key = ccstd::hash_value(gpuTexture);
-                    CC_ASSERT(_barrierEvents.find(ccTexture) != _barrierEvents.end());
+                bool missed = _barrierEvents.find(ccTexture) == _barrierEvents.end();
+                if (!fullBarrier && !missed) {
+                    //CC_ASSERT(_barrierEvents.find(ccTexture) != _barrierEvents.end());
                     VkEvent event = _barrierEvents.at(ccTexture);
                     scheduledEvents.push_back(event);
-                }
-                auto &vkImageBarriers = fullBarrier ? fullImageBarriers : splitImageBarriers;
-                auto &srcStageMask = fullBarrier ? fullSrcStageMask : splitSrcStageMask;
-                auto &dstStageMask = fullBarrier ? fullDstStageMask : splitDstStageMask;
-                gpuTexture->currentAccessTypes.assign(gpuBarrier->barrier.pNextAccesses, gpuBarrier->barrier.pNextAccesses + gpuBarrier->barrier.nextAccessCount);
-                vkImageBarriers.push_back(gpuBarrier->vkBarrier);
-                vkImageBarriers.back().subresourceRange.aspectMask = gpuTexture->aspectMask;
-                if (gpuTexture->swapchain) {
-                    vkImageBarriers.back().image = gpuTexture->swapchainVkImages[gpuTexture->swapchain->curImageIndex];
+
+                    gpuTexture->currentAccessTypes.assign(gpuBarrier->barrier.pNextAccesses, gpuBarrier->barrier.pNextAccesses + gpuBarrier->barrier.nextAccessCount);
+                    auto srcStageMask = gpuBarrier->srcStageMask & VK_PIPELINE_STAGE_HOST_BIT ? 0x0 : gpuBarrier->srcStageMask;
+                    auto &barrier = splitImageBarriers.emplace_back(i, gpuBarrier->vkBarrier);
+                    barrier.second.subresourceRange.aspectMask = gpuTexture->aspectMask;
+                    if (gpuTexture->swapchain) {
+                        barrier.second.image = gpuTexture->swapchainVkImages[gpuTexture->swapchain->curImageIndex];
+                    } else {
+                        barrier.second.image = gpuTexture->vkImage;
+                    }
+                    splitSrcStageMask |= gpuBarrier->srcStageMask;
+                    splitDstStageMask |= gpuBarrier->dstStageMask;
                 } else {
-                    vkImageBarriers.back().image = gpuTexture->vkImage;
+                    gpuTexture->currentAccessTypes.assign(gpuBarrier->barrier.pNextAccesses, gpuBarrier->barrier.pNextAccesses + gpuBarrier->barrier.nextAccessCount);
+                    fullImageBarriers.push_back(gpuBarrier->vkBarrier);
+                    fullImageBarriers.back().srcAccessMask = missed ? VK_IMAGE_LAYOUT_UNDEFINED : fullImageBarriers.back().srcAccessMask;
+                    fullImageBarriers.back().subresourceRange.aspectMask = gpuTexture->aspectMask;
+                    if (gpuTexture->swapchain) {
+                        fullImageBarriers.back().image = gpuTexture->swapchainVkImages[gpuTexture->swapchain->curImageIndex];
+                    } else {
+                        fullImageBarriers.back().image = gpuTexture->vkImage;
+                    }
+                    fullSrcStageMask |= gpuBarrier->srcStageMask;
+                    fullDstStageMask |= gpuBarrier->dstStageMask;
                 }
-                srcStageMask |= gpuBarrier->srcStageMask;
-                dstStageMask |= gpuBarrier->dstStageMask;
             }
         }
     }
@@ -707,20 +777,25 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                 signalEvent(ccBuffer, gpuBarrier->srcStageMask);
             } else {
                 bool fullBarrier = ccBarrier->getInfo().type == BarrierType::FULL;
-                if (!fullBarrier) {
+                bool missed = _barrierEvents.find(ccBuffer) != _barrierEvents.end();
+                if (!fullBarrier && !missed) {
                     CC_ASSERT(_barrierEvents.find(ccBuffer) != _barrierEvents.end());
                     VkEvent event = _barrierEvents.at(ccBuffer);
                     scheduledEvents.push_back(event);
-                }
-                auto &vkBufferBarriers = fullBarrier ? fullBufferBarriers : splitBufferBarriers;
-                auto &srcStageMask = fullBarrier ? fullSrcStageMask : splitSrcStageMask;
-                auto &dstStageMask = fullBarrier ? fullDstStageMask : splitDstStageMask;
 
-                gpuBuffer->currentAccessTypes.assign(gpuBarrier->barrier.pNextAccesses, gpuBarrier->barrier.pNextAccesses + gpuBarrier->barrier.nextAccessCount);
-                vkBufferBarriers.push_back(gpuBarrier->vkBarrier);
-                vkBufferBarriers.back().buffer = gpuBuffer->vkBuffer;
-                srcStageMask |= gpuBarrier->srcStageMask;
-                dstStageMask |= gpuBarrier->dstStageMask;
+                    gpuBuffer->currentAccessTypes.assign(gpuBarrier->barrier.pNextAccesses, gpuBarrier->barrier.pNextAccesses + gpuBarrier->barrier.nextAccessCount);
+                    auto &splitBarrier = splitBufferBarriers.emplace_back(i, gpuBarrier->vkBarrier);
+                    splitBarrier.second.buffer = gpuBuffer->vkBuffer;
+                    splitSrcStageMask |= gpuBarrier->srcStageMask;
+                    splitDstStageMask |= gpuBarrier->dstStageMask;
+                } else {
+                    gpuBuffer->currentAccessTypes.assign(gpuBarrier->barrier.pNextAccesses, gpuBarrier->barrier.pNextAccesses + gpuBarrier->barrier.nextAccessCount);
+                    fullBufferBarriers.push_back(gpuBarrier->vkBarrier);
+                    fullBufferBarriers.back().srcAccessMask = missed ? VK_IMAGE_LAYOUT_UNDEFINED : fullBufferBarriers.back().srcAccessMask;
+                    fullBufferBarriers.back().buffer = gpuBuffer->vkBuffer;
+                    fullSrcStageMask |= gpuBarrier->srcStageMask;
+                    fullDstStageMask |= gpuBarrier->dstStageMask;
+                }
             }
         }
     }
@@ -741,24 +816,37 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
     if (textureBarrierCount || bufferBarrierCount || barrier) {
         // split end detect
         if (!splitBufferBarriers.empty() || !splitImageBarriers.empty()) {
-            vkCmdWaitEvents(_gpuCommandBuffer->vkCommandBuffer, scheduledEvents.size(), scheduledEvents.data(), splitSrcStageMask, splitDstStageMask, 0, nullptr, splitBufferBarriers.size(),
-                            splitBufferBarriers.data(), splitImageBarriers.size(), splitImageBarriers.data());
+            {
+                ccstd::vector<VkImageMemoryBarrier> vkImageBarriers(splitImageBarriers.size());
+                ccstd::vector<VkBufferMemoryBarrier> vkBufferBarriers(splitBufferBarriers.size());
+                for (size_t idx = 0; idx < splitImageBarriers.size(); ++idx) {
+                    vkImageBarriers[idx] = splitImageBarriers[idx].second;
+                }
+                for (size_t idx = 0; idx < splitBufferBarriers.size(); ++idx) {
+                    vkBufferBarriers[idx] = splitBufferBarriers[idx].second;
+                }
 
-            for (size_t i = 0; i < textureBarrierCount; ++i) {
-                VkEvent event = _barrierEvents.at(textures[i]);
-                const auto *ccBarrier = static_cast<const CCVKTextureBarrier *const>(textureBarriers[i]);
+                vkCmdWaitEvents(_gpuCommandBuffer->vkCommandBuffer, scheduledEvents.size(), scheduledEvents.data(), splitSrcStageMask, splitDstStageMask, 0, nullptr, vkBufferBarriers.size(),
+                                vkBufferBarriers.data(), vkImageBarriers.size(), vkImageBarriers.data());
+            }
+
+            for (size_t i = 0; i < splitImageBarriers.size(); ++i) { // NOLINT (range-based-for)
+                auto index = splitImageBarriers[i].first;
+                VkEvent event = _barrierEvents.at(textures[index]);
+                const auto *ccBarrier = static_cast<const CCVKTextureBarrier *const>(textureBarriers[index]);
                 const auto *gpuBarrier = ccBarrier->gpuBarrier();
                 vkCmdResetEvent(_gpuCommandBuffer->vkCommandBuffer, event, gpuBarrier->dstStageMask);
-                _barrierEvents.erase(textures[i]);
+                _barrierEvents.erase(textures[index]);
                 _availableEvents.push(event);
             }
 
-            for (size_t i = 0; i < bufferBarrierCount; ++i) {
-                VkEvent event = _barrierEvents.at(buffers[i]);
-                const auto *ccBarrier = static_cast<const CCVKBufferBarrier *const>(bufferBarriers[i]);
+            for (size_t i = 0; i < splitBufferBarriers.size(); ++i) { // NOLINT (range-based-for)
+                auto index = splitBufferBarriers[i].first;
+                VkEvent event = _barrierEvents.at(buffers[index]);
+                const auto *ccBarrier = static_cast<const CCVKBufferBarrier *const>(bufferBarriers[index]);
                 const auto *gpuBarrier = ccBarrier->gpuBarrier();
                 vkCmdResetEvent(_gpuCommandBuffer->vkCommandBuffer, event, gpuBarrier->dstStageMask);
-                _barrierEvents.erase(buffers[i]);
+                _barrierEvents.erase(buffers[index]);
                 _availableEvents.push(event);
             }
         }
@@ -797,6 +885,10 @@ void CCVKCommandBuffer::resetQueryPool(QueryPool *queryPool) {
 
     vkCmdResetQueryPool(_gpuCommandBuffer->vkCommandBuffer, gpuQueryPool->vkPool, 0, queryPool->getMaxQueryObjects());
     vkQueryPool->_ids.clear();
+}
+
+void CCVKCommandBuffer::customCommand(CustomCommand &&cmd) {
+    cmd(reinterpret_cast<void *>(_gpuCommandBuffer->vkCommandBuffer));
 }
 
 } // namespace gfx

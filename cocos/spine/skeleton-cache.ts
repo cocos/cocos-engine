@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,12 +20,12 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
 import { Texture2D } from '../asset/assets';
-// Permit max cache time, unit is second.
+
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
 
@@ -113,7 +112,7 @@ export interface AnimationFrame {
 
 // Cache all frames in an animation
 export class AnimationCache {
-    public frames: AnimationFrame[] = [];
+    public frames: SafeArray<AnimationFrame> = [];
     public totalTime = 0;
     public isCompleted = false;
     public maxVertexCount = 0;
@@ -160,7 +159,7 @@ export class AnimationCache {
     public clear () {
         this._inited = false;
         for (let i = 0, n = this.frames.length; i < n; i++) {
-            const frame = this.frames[i];
+            const frame = this.frames[i]!;
             frame.segments.length = 0;
         }
         this.invalidAllFrame();
@@ -285,13 +284,13 @@ export class AnimationCache {
         _finalColor.a = _tempa;
 
         if (slot.darkColor == null) {
-            _darkColor.set(0.0, 0, 0, 1.0);
+            _darkColor.set(0.0, 0, 0, 0.0);
         } else {
             _darkColor.r = slot.darkColor.r * _tempr;
             _darkColor.g = slot.darkColor.g * _tempg;
             _darkColor.b = slot.darkColor.b * _tempb;
+            _darkColor.a = 0;
         }
-        _darkColor.a = 0;
 
         _finalColor32 = ((_finalColor.a << 24) >>> 0) + (_finalColor.b << 16) + (_finalColor.g << 8) + _finalColor.r;
         _darkColor32 = ((_darkColor.a << 24) >>> 0) + (_darkColor.b << 16) + (_darkColor.g << 8) + _darkColor.r;
@@ -322,7 +321,8 @@ export class AnimationCache {
                 _vertices[v + 5] = _darkColor32;      // dark color
             }
         } else {
-            clipper.clipTriangles(_vertices, _vfCount, _indices, _indexCount,
+            const subIndices = _indices.slice(_indexOffset, _indices.length);
+            clipper.clipTriangles(_vertices, _vfCount, subIndices, _indexCount,
                 _vertices, _finalColor, _darkColor, true, PerVertexSize, _vfOffset, _vfOffset + 2);
             const clippedVertices = clipper.clippedVertices;
             const clippedTriangles = clipper.clippedTriangles;
@@ -366,11 +366,10 @@ export class AnimationCache {
             segments: [],
             colors: [],
             boneInfos: [],
-            vertices: null,
-            uintVert: null,
-            indices: null,
+            vertices: new Float32Array(),
+            indices: new Uint16Array(),
         };
-        const frame = this.frames[index];
+        const frame = this.frames[index]!;
 
         const segments = this._tempSegments = frame.segments;
         const colors = this._tempColors = frame.colors;

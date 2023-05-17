@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -35,7 +34,7 @@ namespace cc {
 namespace physics {
 
 PhysXWorld *PhysXWorld::instance = nullptr;
-uint32_t PhysXWorld::_msWrapperObjectID = 0;
+uint32_t PhysXWorld::_msWrapperObjectID = 1; // starts from 1 because 0 means null
 uint32_t PhysXWorld::_msPXObjectID = 0;
 
 PhysXWorld &PhysXWorld::getInstance() {
@@ -52,6 +51,10 @@ physx::PxCooking &PhysXWorld::getCooking() {
 
 physx::PxPhysics &PhysXWorld::getPhysics() {
     return *getInstance()._mPhysics;
+}
+
+physx::PxControllerManager &PhysXWorld::getControllerManager() {
+    return *getInstance()._mControllerManager;
 }
 
 PhysXWorld::PhysXWorld() {
@@ -84,6 +87,8 @@ PhysXWorld::PhysXWorld() {
     sceneDesc.simulationEventCallback = &_mEventMgr->getEventCallback();
     _mScene = _mPhysics->createScene(sceneDesc);
 
+    _mControllerManager = PxCreateControllerManager(*_mScene);
+
     _mCollisionMatrix[0] = 1;
 
     createMaterial(0, 0.6F, 0.6F, 0.1F, 2, 2);
@@ -95,6 +100,7 @@ PhysXWorld::~PhysXWorld() {
     materialMap.clear();
     delete _mEventMgr;
     PhysXJoint::releaseTempRigidActor();
+    PX_RELEASE(_mControllerManager);
     PX_RELEASE(_mScene);
     PX_RELEASE(_mDispatcher);
     PX_RELEASE(_mPhysics);
@@ -220,6 +226,9 @@ void PhysXWorld::syncSceneToPhysics() {
     for (auto const &sb : _mSharedBodies) {
         sb->syncSceneToPhysics();
     }
+    for (auto const &cct : _mCCTs) {
+        cct->syncSceneToPhysics();
+    }
 }
 
 uint32_t PhysXWorld::getMaskByIndex(uint32_t i) {
@@ -230,6 +239,9 @@ uint32_t PhysXWorld::getMaskByIndex(uint32_t i) {
 void PhysXWorld::syncPhysicsToScene() {
     for (auto const &sb : _mSharedBodies) {
         sb->syncPhysicsToScene();
+    }
+    for (auto const &cct : _mCCTs) {
+        cct->syncPhysicsToScene();
     }
 }
 
@@ -259,6 +271,24 @@ void PhysXWorld::removeActor(const PhysXSharedBody &sb) {
     if (iter != end) {
         _mScene->removeActor(*(const_cast<PhysXSharedBody &>(sb).getImpl().rigidActor), true);
         _mSharedBodies.erase(iter);
+    }
+}
+
+void PhysXWorld::addCCT (const PhysXCharacterController &cct) {
+    auto beg = _mCCTs.begin();
+    auto end = _mCCTs.end();
+    auto iter = find(beg, end, &cct);
+    if (iter == end) {
+        _mCCTs.push_back(&const_cast<PhysXCharacterController &>(cct));
+    }
+}
+
+void PhysXWorld::removeCCT(const PhysXCharacterController&cct) {
+    auto beg = _mCCTs.begin();
+    auto end = _mCCTs.end();
+    auto iter = find(beg, end, &cct);
+    if (iter != end) {
+        _mCCTs.erase(iter);
     }
 }
 
@@ -366,6 +396,9 @@ void PhysXWorld::removeWrapperObject(uint32_t wrapperObjectID) {
 }
 
 uintptr_t PhysXWorld::getWrapperPtrWithObjectID(uint32_t wrapperObjectID) {
+    if (wrapperObjectID == 0) {
+        return 0;
+    }
     auto const &iter = _mWrapperObjects.find(wrapperObjectID);
     if (iter == _mWrapperObjects.end())
         return 0;

@@ -1,19 +1,18 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -47,7 +46,7 @@ void jsToSeArgs(const v8::FunctionCallbackInfo<v8::Value> &v8args, ValueArray &o
 }
 
 void seToJsArgs(v8::Isolate *isolate, const ValueArray &args, v8::Local<v8::Value> *outArr) {
-    CC_ASSERT(outArr != nullptr);
+    CC_ASSERT_NOT_NULL(outArr);
     uint32_t i = 0;
     for (const auto &data : args) {
         v8::Local<v8::Value> &jsval = outArr[i];
@@ -57,7 +56,7 @@ void seToJsArgs(v8::Isolate *isolate, const ValueArray &args, v8::Local<v8::Valu
 }
 
 void seToJsValue(v8::Isolate *isolate, const Value &v, v8::Local<v8::Value> *outJsVal) {
-    CC_ASSERT(outJsVal != nullptr);
+    CC_ASSERT_NOT_NULL(outJsVal);
     switch (v.getType()) {
         case Value::Type::Number:
             *outJsVal = v8::Number::New(isolate, v.toDouble());
@@ -86,13 +85,13 @@ void seToJsValue(v8::Isolate *isolate, const Value &v, v8::Local<v8::Value> *out
             *outJsVal = v8::BigInt::New(isolate, v.toInt64());
             break;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
     }
 }
 
 void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
-    CC_ASSERT(v != nullptr);
+    CC_ASSERT_NOT_NULL(v);
     v8::HandleScope handleScope(isolate);
 
     if (jsval->IsUndefined()) {
@@ -116,7 +115,8 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
         }
     } else if (jsval->IsString()) {
         v8::String::Utf8Value utf8(isolate, jsval);
-        v->setString(ccstd::string(*utf8));
+        const char *utf8Str = *utf8;
+        v->setString(utf8Str);
     } else if (jsval->IsBoolean()) {
         v8::MaybeLocal<v8::Boolean> jsBoolean = jsval->ToBoolean(isolate);
         if (!jsBoolean.IsEmpty()) {
@@ -127,16 +127,11 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
     } else if (jsval->IsObject()) {
         v8::MaybeLocal<v8::Object> jsObj = jsval->ToObject(isolate->GetCurrentContext());
         if (!jsObj.IsEmpty()) {
-            auto *seObj = internal::getPrivate(isolate, jsObj.ToLocalChecked());
-            PrivateObjectBase *privateObject = seObj != nullptr ? seObj->getPrivateObject() : nullptr;
-            void *nativePtr = privateObject != nullptr ? privateObject->getRaw() : nullptr;
-            Object *obj = nullptr;
-            if (nativePtr != nullptr) {
-                obj = Object::getObjectWithPtr(nativePtr);
-            }
-
+            auto *obj = internal::getPrivate(isolate, jsObj.ToLocalChecked());
             if (obj == nullptr) {
                 obj = Object::_createJSObject(nullptr, jsObj.ToLocalChecked());
+            } else {
+                obj->incRef();
             }
             v->setObject(obj, true);
             obj->decRef();
@@ -161,29 +156,44 @@ static void warnWithinTimesInReleaseMode(const char *msg) {
 
 template <typename T>
 void setReturnValueTemplate(const Value &data, const T &argv) {
-    if (data.getType() == Value::Type::Undefined) {
-        argv.GetReturnValue().Set(v8::Undefined(argv.GetIsolate()));
-    } else if (data.getType() == Value::Type::Null) {
-        argv.GetReturnValue().Set(v8::Null(argv.GetIsolate()));
-    } else if (data.getType() == Value::Type::Number) {
-        argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), data.toDouble()));
-    } else if (data.getType() == Value::Type::BigInt) {
-        constexpr int64_t maxSafeInt = 9007199254740991LL;  // value refer to JS Number.MAX_SAFE_INTEGER
-        constexpr int64_t minSafeInt = -9007199254740991LL; // value refer to JS Number.MIN_SAFE_INTEGER
-        if (data.toInt64() > maxSafeInt || data.toInt64() < minSafeInt) {
-            // NOTICE: Precision loss will happend here.
-            warnWithinTimesInReleaseMode<100>("int64 value is out of range for double");
-            CC_ASSERT(false); // should be fixed in debug mode.
+    switch (data.getType()) {
+        case Value::Type::Undefined: {
+            argv.GetReturnValue().Set(v8::Undefined(argv.GetIsolate()));
+            break;
         }
-        argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), static_cast<double>(data.toInt64())));
-    } else if (data.getType() == Value::Type::String) {
-        v8::MaybeLocal<v8::String> value = v8::String::NewFromUtf8(argv.GetIsolate(), data.toString().c_str(), v8::NewStringType::kNormal);
-        CC_ASSERT(!value.IsEmpty());
-        argv.GetReturnValue().Set(value.ToLocalChecked());
-    } else if (data.getType() == Value::Type::Boolean) {
-        argv.GetReturnValue().Set(v8::Boolean::New(argv.GetIsolate(), data.toBoolean()));
-    } else if (data.getType() == Value::Type::Object) {
-        argv.GetReturnValue().Set(data.toObject()->_getJSObject());
+        case Value::Type::Null: {
+            argv.GetReturnValue().Set(v8::Null(argv.GetIsolate()));
+            break;
+        }
+        case Value::Type::Number: {
+            argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), data.toDouble()));
+            break;
+        }
+        case Value::Type::BigInt: {
+            constexpr int64_t maxSafeInt = 9007199254740991LL;  // value refer to JS Number.MAX_SAFE_INTEGER
+            constexpr int64_t minSafeInt = -9007199254740991LL; // value refer to JS Number.MIN_SAFE_INTEGER
+            if (data.toInt64() > maxSafeInt || data.toInt64() < minSafeInt) {
+                // NOTICE: Precision loss will happend here.
+                warnWithinTimesInReleaseMode<100>("int64 value is out of range for double");
+                CC_ABORT(); // should be fixed in debug mode.
+            }
+            argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), static_cast<double>(data.toInt64())));
+            break;
+        }
+        case Value::Type::String: {
+            v8::MaybeLocal<v8::String> value = v8::String::NewFromUtf8(argv.GetIsolate(), data.toString().c_str(), v8::NewStringType::kNormal);
+            CC_ASSERT(!value.IsEmpty());
+            argv.GetReturnValue().Set(value.ToLocalChecked());
+            break;
+        }
+        case Value::Type::Boolean: {
+            argv.GetReturnValue().Set(v8::Boolean::New(argv.GetIsolate(), data.toBoolean()));
+            break;
+        }
+        case Value::Type::Object: {
+            argv.GetReturnValue().Set(data.toObject()->_getJSObject());
+            break;
+        }
     }
 }
 
@@ -203,8 +213,8 @@ bool hasPrivate(v8::Isolate * /*isolate*/, v8::Local<v8::Value> value) {
 void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, Object *thizObj) {
     v8::Local<v8::Object> obj = wrap.handle(isolate);
     int c = obj->InternalFieldCount();
-    CC_ASSERT(c > 0);
-    if (c > 0) {
+    CC_ASSERT_GT(c, 0);
+    if (c == 1) {
         wrap.wrap(thizObj, 0);
     }
 }
@@ -218,7 +228,7 @@ Object *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value) {
 
     v8::Local<v8::Object> objChecked = obj.ToLocalChecked();
     int c = objChecked->InternalFieldCount();
-    if (c > 0) {
+    if (c == 1) {
         return static_cast<Object *>(ObjectWrap::unwrap(objChecked, 0));
     }
 
@@ -228,7 +238,7 @@ Object *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value) {
 void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap) {
     v8::Local<v8::Object> obj = wrap.handle(isolate);
     int c = obj->InternalFieldCount();
-    if (c > 0) {
+    if (c == 1) {
         wrap.wrap(nullptr, 0);
     }
 }

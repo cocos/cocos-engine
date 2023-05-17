@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,6 +23,7 @@
 ****************************************************************************/
 
 #include "ScriptEngine.h"
+#include "engine/EngineEvents.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
@@ -33,6 +33,7 @@
     #include "MissingSymbols.h"
     #include "Object.h"
     #include "Utils.h"
+    #include "base/Log.h"
     #include "base/std/container/unordered_map.h"
     #include "platform/FileUtils.h"
     #include "plugins/bus/EventBus.h"
@@ -79,7 +80,8 @@ namespace {
 void seLogCallback(const v8::FunctionCallbackInfo<v8::Value> &info) {
     if (info[0]->IsString()) {
         v8::String::Utf8Value utf8(v8::Isolate::GetCurrent(), info[0]);
-        SE_LOGD("JS: %s", *utf8);
+        cc::Log::logMessage(cc::LogType::KERNEL, cc::LogLevel::LEVEL_DEBUG
+            , "JS: %s", *utf8);
     }
 }
 
@@ -134,7 +136,7 @@ se::Value oldConsoleWarn;
 se::Value oldConsoleError;
 se::Value oldConsoleAssert;
 
-bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) {
+bool jsbConsoleFormatLog(State &state, cc::LogLevel level, int msgIndex = 0) {
     if (msgIndex < 0) {
         return false;
     }
@@ -143,7 +145,8 @@ bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) {
     int argc = static_cast<int>(args.size());
     if ((argc - msgIndex) == 1) {
         ccstd::string msg = args[msgIndex].toStringForce();
-        SE_LOGD("JS: %s%s", prefix, msg.c_str());
+        cc::Log::logMessage(cc::LogType::KERNEL, level 
+            ,"JS: %s", msg.c_str());
     } else if (argc > 1) {
         ccstd::string msg = args[msgIndex].toStringForce();
         size_t pos;
@@ -155,43 +158,43 @@ bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) {
                 msg += " " + args[i].toStringForce();
             }
         }
-
-        SE_LOGD("JS: %s%s", prefix, msg.c_str());
+        cc::Log::logMessage(cc::LogType::KERNEL, level
+            ,"JS: %s", msg.c_str());
     }
 
     return true;
 }
 
 bool jsbConsoleLog(State &s) {
-    jsbConsoleFormatLog(s, "");
+    jsbConsoleFormatLog(s, cc::LogLevel::LEVEL_DEBUG);
     oldConsoleLog.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleLog)
 
 bool jsbConsoleDebug(State &s) {
-    jsbConsoleFormatLog(s, "[DEBUG]: ");
+    jsbConsoleFormatLog(s, cc::LogLevel::LEVEL_DEBUG);
     oldConsoleDebug.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleDebug)
 
 bool jsbConsoleInfo(State &s) {
-    jsbConsoleFormatLog(s, "[INFO]: ");
+    jsbConsoleFormatLog(s, cc::LogLevel::INFO);
     oldConsoleInfo.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleInfo)
 
 bool jsbConsoleWarn(State &s) {
-    jsbConsoleFormatLog(s, "[WARN]: ");
+    jsbConsoleFormatLog(s, cc::LogLevel::WARN);
     oldConsoleWarn.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleWarn)
 
 bool jsbConsoleError(State &s) {
-    jsbConsoleFormatLog(s, "[ERROR]: ");
+    jsbConsoleFormatLog(s, cc::LogLevel::ERR);
     oldConsoleError.toObject()->call(s.args(), s.thisObject());
     return true;
 }
@@ -201,7 +204,7 @@ bool jsbConsoleAssert(State &s) {
     const auto &args = s.args();
     if (!args.empty()) {
         if (args[0].isBoolean() && !args[0].toBoolean()) {
-            jsbConsoleFormatLog(s, "[ASSERT]: ", 1);
+            jsbConsoleFormatLog(s, cc::LogLevel::WARN, 1);
             oldConsoleAssert.toObject()->call(s.args(), s.thisObject());
         }
     }
@@ -221,8 +224,15 @@ public:
         ccstd::string flags;
         // NOTICE: spaces are required between flags
         flags.append(" --expose-gc-as=" EXPOSE_GC);
-        flags.append(" --no-flush-bytecode --no-lazy"); // for bytecode support
-                                                        // flags.append(" --trace-gc"); // v8 trace gc
+        // for bytecode support
+        flags.append(" --no-flush-bytecode --no-lazy");
+        // v8 trace gc
+        // flags.append(" --trace-gc");
+
+        // NOTICE: should be remove flag --no-turbo-escape after upgrade v8 to 10.x
+        // https://github.com/cocos/cocos-engine/issues/13342
+        flags.append(" --no-turbo-escape");
+
         #if (CC_PLATFORM == CC_PLATFORM_IOS)
         flags.append(" --jitless");
         #endif
@@ -568,7 +578,10 @@ bool ScriptEngine::postInit() {
 
     _isValid = true;
 
+    // @deprecated since 3.7.0
     cc::plugin::send(cc::plugin::BusType::SCRIPT_ENGINE, cc::plugin::ScriptEngineEvent::POST_INIT);
+
+    cc::events::ScriptEngine::broadcast(cc::ScriptEngineEvent::AFTER_INIT);
 
     for (const auto &hook : _afterInitHookArray) {
         hook();
@@ -588,6 +601,8 @@ bool ScriptEngine::init(v8::Isolate *isolate) {
     ++_vmId;
 
     _engineThreadId = std::this_thread::get_id();
+
+    cc::events::ScriptEngine::broadcast(cc::ScriptEngineEvent::BEFORE_INIT);
 
     for (const auto &hook : _beforeInitHookArray) {
         hook();
@@ -621,6 +636,8 @@ void ScriptEngine::cleanup() {
 
     SE_LOGD("ScriptEngine::cleanup begin ...\n");
     _isInCleanup = true;
+
+    cc::events::ScriptEngine::broadcast(cc::ScriptEngineEvent::BEFORE_CLEANUP);
 
     {
         AutoHandleScope hs;
@@ -689,6 +706,7 @@ void ScriptEngine::cleanup() {
     NativePtrToObjectMap::destroy();
     _gcFuncValue.setUndefined();
     _gcFunc = nullptr;
+    cc::events::ScriptEngine::broadcast(cc::ScriptEngineEvent::AFTER_CLEANUP);
     SE_LOGD("ScriptEngine::cleanup end ...\n");
 }
 
@@ -809,17 +827,17 @@ void ScriptEngine::_setDebuggerInfo(const DebuggerInfo &info) {
 }
 
 bool ScriptEngine::isValid() const {
-    return _isValid;
+    return ScriptEngine::instance != nullptr && _isValid;
 }
 
 bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Value *ret /* = nullptr */, const char *fileName /* = nullptr */) {
     if (_engineThreadId != std::this_thread::get_id()) {
         // `evalString` should run in main thread
-        CC_ASSERT(false);
+        CC_ABORT();
         return false;
     }
 
-    CC_ASSERT(script != nullptr);
+    CC_ASSERT_NOT_NULL(script);
     if (length == 0) {
         length = static_cast<uint32_t>(strlen(script));
     }

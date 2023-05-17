@@ -2,7 +2,7 @@
 #include "core/event/EventTarget.h"
 #include "utils.h"
 namespace {
-class TestNode : public cc::event::EventTarget {
+class TestNode {
     IMPL_EVENT_TARGET(TestNode)
     DECLARE_TARGET_EVENT_BEGIN(TestNode)
     TARGET_EVENT_ARG0(Init)
@@ -37,7 +37,7 @@ struct LinkNode {
     LinkNode *prev{nullptr};
 };
 
-class TestNodeWithParent : public cc::event::EventTarget {
+class TestNodeWithParent {
     IMPL_EVENT_TARGET_WITH_PARENT(TestNodeWithParent, getParent)
     DECLARE_TARGET_EVENT_BEGIN(TestNodeWithParent)
     TARGET_EVENT_ARG0(Init)

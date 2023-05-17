@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -199,7 +198,8 @@ export class BaseRenderData {
                 this._renderDrawInfo.setBufferId(this.chunk.bufferId);
                 this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
                 this._renderDrawInfo.setVB(this.chunk.vb);
-                this._renderDrawInfo.setIB(this.chunk.ib);
+                // TODO: on TS 4.2, argument of type 'Readonly<Uint16Array>' is not assignable to parameter of type 'Uint16Array'.
+                this._renderDrawInfo.setIB(this.chunk.ib as Uint16Array);
                 if (this.chunk.meshBuffer) {
                     this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
                     this._renderDrawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
@@ -352,7 +352,8 @@ export class RenderData extends BaseRenderData {
             this._renderDrawInfo.setVertexOffset(this.chunk.vertexOffset);
             this._renderDrawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
             this._renderDrawInfo.setVB(this.chunk.vb);
-            this._renderDrawInfo.setIB(this.chunk.ib);
+            // TODO: on TS 4.2, argument of type 'Readonly<Uint16Array>' is not assignable to parameter of type 'Uint16Array'.
+            this._renderDrawInfo.setIB(this.chunk.ib as Uint16Array);
             this._renderDrawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
             this._renderDrawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
             this._renderDrawInfo.setVBCount(this._vc);
@@ -384,7 +385,8 @@ export class RenderData extends BaseRenderData {
             drawInfo.setVertexOffset(this.chunk.vertexOffset);
             drawInfo.setIndexOffset(this.chunk.meshBuffer.indexOffset);
             drawInfo.setVB(this.chunk.vb);
-            drawInfo.setIB(this.chunk.ib);
+            // TODO: on TS 4.2, argument of type 'Readonly<Uint16Array>' is not assignable to parameter of type 'Uint16Array'.
+            drawInfo.setIB(this.chunk.ib as Uint16Array);
             drawInfo.setVData(this.chunk.meshBuffer.vData.buffer);
             drawInfo.setIData(this.chunk.meshBuffer.iData.buffer);
             drawInfo.setVBCount(this._vc);

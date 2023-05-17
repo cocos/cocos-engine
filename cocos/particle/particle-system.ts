@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible } from 'cc.decorator';
@@ -46,7 +45,7 @@ import { CullingMode, Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
-import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
+import { ParticleSystemRendererBase } from './renderer/particle-system-renderer-base';
 import { PARTICLE_MODULE_PROPERTY } from './particle';
 import { TransformBit } from '../scene-graph/node-enum';
 import { Camera } from '../render-scene/scene';
@@ -58,6 +57,16 @@ const _world_rol = new Quat();
 
 const superMaterials = Object.getOwnPropertyDescriptor(Renderer.prototype, 'sharedMaterials')!;
 
+/**
+ * @en
+ * Particle system component, which can make many effects such as smoke and fire.
+ * Include some interesting modules and components such as Velocity Overtime, Force Overtime, Trail and Noise.
+ * You can open these modules to see how the particles animate.
+ * @zh
+ * 粒子系统能够用来制作许多特效，例如 烟雾和火焰。
+ * 包含一些有趣的模块，例如 速度模块，受力模块，拖尾模块和噪声模块。
+ * 打开这些模块可以看到粒子如何进行变化。
+ */
 @ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
 @menu('Effects/ParticleSystem')
@@ -65,9 +74,10 @@ const superMaterials = Object.getOwnPropertyDescriptor(Renderer.prototype, 'shar
 @executeInEditMode
 export class ParticleSystem extends ModelRenderer {
     /**
+     * @en Maximum particle capacity to generate.
      * @zh 粒子系统能生成的最大粒子数量。
      */
-    @range([0, Number.POSITIVE_INFINITY])
+    @range([0, Number.POSITIVE_INFINITY, 1])
     @displayOrder(1)
     @tooltip('i18n:particle_system.capacity')
     public get capacity () {
@@ -76,14 +86,13 @@ export class ParticleSystem extends ModelRenderer {
 
     public set capacity (val) {
         this._capacity = Math.floor(val > 0 ? val : 0);
-        // @ts-expect-error private property access
-        if (this.processor && this.processor._model) {
-            // @ts-expect-error private property access
-            this.processor._model.setCapacity(this._capacity);
+        if (this.processor && this.processor.model) {
+            this.processor.model.setCapacity(this._capacity);
         }
     }
 
     /**
+     * @en The initial color of the particle.
      * @zh 粒子初始颜色。
      */
     @type(GradientRange)
@@ -92,70 +101,85 @@ export class ParticleSystem extends ModelRenderer {
     @tooltip('i18n:particle_system.startColor')
     public startColor = new GradientRange();
 
+    /**
+     * @en The space of particle scaling.
+     * @zh 计算粒子缩放的空间。
+     */
     @type(Space)
     @serializable
     @displayOrder(9)
     @tooltip('i18n:particle_system.scaleSpace')
     public scaleSpace = Space.Local;
 
+    /**
+     * @en Whether to modify particle size on XYZ axis.
+     * @zh 是否需要修改粒子在三个轴上的大小。
+     */
     @serializable
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSize3D')
     public startSize3D = false;
 
     /**
-     * @zh 粒子初始大小。
+     * @en The initial X size of the particle.
+     * @zh 粒子初始x轴方向大小。
      */
     @formerlySerializedAs('startSize')
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @type(CurveRange)
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeX')
     public startSizeX = new CurveRange();
 
     /**
-     * @zh 粒子初始大小。
+     * @en The initial Y size of the particle.
+     * @zh 粒子初始y轴方向大小。
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeY')
     @visible(function (this: ParticleSystem): boolean { return this.startSize3D; })
     public startSizeY = new CurveRange();
 
     /**
-     * @zh 粒子初始大小。
+     * @en The initial Z size of the particle.
+     * @zh 粒子初始z轴方向大小。
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeZ')
     @visible(function (this: ParticleSystem): boolean { return this.startSize3D; })
     public startSizeZ = new CurveRange();
 
     /**
+     * @en The initial velocity of the particle.
      * @zh 粒子初始速度。
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(11)
     @tooltip('i18n:particle_system.startSpeed')
     public startSpeed = new CurveRange();
 
+    /**
+     * @en Whether to modify particle rotation on XYZ axis.
+     * @zh 是否需要修改粒子在三个轴上的旋转。
+     */
     @serializable
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotation3D')
     public startRotation3D = false;
 
     /**
-     * @zh 粒子初始旋转角度。
+     * @en The initial rotation angle of the particle on X axis.
+     * @zh 粒子初始x轴旋转角度。
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationX')
@@ -163,11 +187,11 @@ export class ParticleSystem extends ModelRenderer {
     public startRotationX = new CurveRange();
 
     /**
-     * @zh 粒子初始旋转角度。
+     * @en The initial rotation angle of the particle on Y axis.
+     * @zh 粒子初始y轴旋转角度。
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationY')
@@ -175,38 +199,40 @@ export class ParticleSystem extends ModelRenderer {
     public startRotationY = new CurveRange();
 
     /**
-     * @zh 粒子初始旋转角度。
+     * @en The initial rotation angle of the particle on Z axis.
+     * @zh 粒子初始z轴旋转角度。
      */
     @type(CurveRange)
     @formerlySerializedAs('startRotation')
-    @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationZ')
-    @visible(function (this: ParticleSystem): boolean { return this.startRotation3D; })
     public startRotationZ = new CurveRange();
 
     /**
+     * @en The time delay to start emission after the particle system starts running.
      * @zh 粒子系统开始运行后，延迟粒子发射的时间。
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(6)
     @tooltip('i18n:particle_system.startDelay')
     public startDelay = new CurveRange();
 
     /**
+     * @en Particle life time.
      * @zh 粒子生命周期。
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(7)
     @tooltip('i18n:particle_system.startLifetime')
     public startLifetime = new CurveRange();
 
     /**
+     * @en Particle system duration time.
      * @zh 粒子系统运行时间。
      */
     @serializable
@@ -215,6 +241,7 @@ export class ParticleSystem extends ModelRenderer {
     public duration = 5.0;
 
     /**
+     * @en Whether the particle system is looping.
      * @zh 粒子系统是否循环播放。
      */
     @serializable
@@ -223,6 +250,7 @@ export class ParticleSystem extends ModelRenderer {
     public loop = true;
 
     /**
+     * @en Play one round before start this particle system.
      * @zh 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）。
      */
     @displayOrder(3)
@@ -239,6 +267,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
+     * @en The simulation space of the particle system, it could be world, local or custom.
      * @zh 选择粒子系统所在的坐标系[[Space]]。<br>
      */
     @type(Space)
@@ -260,6 +289,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
+     * @en The simulation speed of the particle system.
      * @zh 控制整个粒子系统的更新速度。
      */
     @serializable
@@ -268,6 +298,7 @@ export class ParticleSystem extends ModelRenderer {
     public simulationSpeed = 1.0;
 
     /**
+     * @en Automatically start playing after particle system initialized.
      * @zh 粒子系统加载后是否自动开始播放。
      */
     @serializable
@@ -276,37 +307,40 @@ export class ParticleSystem extends ModelRenderer {
     public playOnAwake = true;
 
     /**
+     * @en The gravity of the particle system.
      * @zh 粒子受重力影响的重力系数。
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(13)
     @tooltip('i18n:particle_system.gravityModifier')
     public gravityModifier = new CurveRange();
 
     // emission module
     /**
-     * @zh 每秒发射的粒子数。
+     * @en The value curve of emission rate over time.
+     * @zh 随时间推移发射的粒子数的变化曲线。
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(14)
     @tooltip('i18n:particle_system.rateOverTime')
     public rateOverTime = new CurveRange();
 
     /**
-     * @zh 每移动单位距离发射的粒子数。
+     * @en The value curve of emission rate over distance.
+     * @zh 每移动单位距离发射的粒子数的变化曲线。
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(15)
     @tooltip('i18n:particle_system.rateOverDistance')
     public rateOverDistance = new CurveRange();
 
     /**
+     * @en Burst triggers of the particle system.
      * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
      */
     @type([Burst])
@@ -316,7 +350,8 @@ export class ParticleSystem extends ModelRenderer {
     public bursts: Burst[] = [];
 
     /**
-     * @en Enable particle culling switch. Open it to enable particle culling. If enabled will generate emitter bounding box and emitters outside the frustum will be culled.
+     * @en Enable particle culling switch. Open it to enable particle culling.
+     * If enabled will generate emitter bounding box and emitters outside the frustum will be culled.
      * @zh 粒子剔除开关，如果打开将会生成一个发射器包围盒，包围盒在相机外发射器将被剔除。
      */
     @type(CCBoolean)
@@ -357,6 +392,10 @@ export class ParticleSystem extends ModelRenderer {
     @serializable
     _cullingMode = CullingMode.Pause;
 
+    /**
+     * @en Emitter culling mode.
+     * @zh 发射器的各种剔除模式。
+     */
     public static CullingMode = CullingMode;
 
     /**
@@ -448,7 +487,6 @@ export class ParticleSystem extends ModelRenderer {
 
     @override
     @visible(false)
-    @type(Material)
     @serializable
     @displayName('Materials')
     get sharedMaterials () {
@@ -458,14 +496,15 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     set sharedMaterials (val) {
-        // @ts-expect-error private property access
-        superMaterials.set.call(this, val);
+        // TODO: can we assert that superMaterials.set is defined ?
+        superMaterials.set!.call(this, val);
     }
 
     // color over lifetime module
     @type(ColorOverLifetimeModule)
     _colorOverLifetimeModule: ColorOverLifetimeModule | null = null;
     /**
+     * @en The module controlling particle's color over life time.
      * @zh 颜色控制模块。
      */
     @type(ColorOverLifetimeModule)
@@ -490,6 +529,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(ShapeModule)
     _shapeModule: ShapeModule | null = null;
     /**
+     * @en The module controlling emitter's shape.
      * @zh 粒子发射器模块。
      */
     @type(ShapeModule)
@@ -514,6 +554,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(SizeOvertimeModule)
     _sizeOvertimeModule: SizeOvertimeModule | null = null;
     /**
+     * @en The module controlling particle's size over time.
      * @zh 粒子大小模块。
      */
     @type(SizeOvertimeModule)
@@ -538,6 +579,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(VelocityOvertimeModule)
     _velocityOvertimeModule: VelocityOvertimeModule | null = null;
     /**
+     * @en The module controlling particle's velocity over time.
      * @zh 粒子速度模块。
      */
     @type(VelocityOvertimeModule)
@@ -562,6 +604,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(ForceOvertimeModule)
     _forceOvertimeModule: ForceOvertimeModule | null = null;
     /**
+     * @en The module controlling the force applied to particles over time.
      * @zh 粒子加速度模块。
      */
     @type(ForceOvertimeModule)
@@ -587,6 +630,7 @@ export class ParticleSystem extends ModelRenderer {
     _limitVelocityOvertimeModule: LimitVelocityOvertimeModule | null = null;
 
     /**
+     * @en The module which limits the velocity applied to particles over time, only supported in CPU particle system.
      * @zh 粒子限制速度模块（只支持 CPU 粒子）。
      */
     @type(LimitVelocityOvertimeModule)
@@ -611,6 +655,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(RotationOvertimeModule)
     _rotationOvertimeModule: RotationOvertimeModule | null = null;
     /**
+     * @en The module controlling the rotation of particles over time.
      * @zh 粒子旋转模块。
      */
     @type(RotationOvertimeModule)
@@ -635,6 +680,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(TextureAnimationModule)
     _textureAnimationModule: TextureAnimationModule | null = null;
     /**
+     * @en The module controlling the texture animation of particles.
      * @zh 贴图动画模块。
      */
     @type(TextureAnimationModule)
@@ -656,11 +702,19 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     // noise module
+    /**
+     * @en Noise module which can add some interesting effects.
+     * @zh 噪声模块能够增加许多有趣的特效。
+     */
     @type(NoiseModule)
     private _noiseModule: NoiseModule | null = null;
-
+    /**
+     * @en The module controlling noise map applied to the particles, only supported in CPU particle system.
+     * @zh 噪声动画模块，仅支持 CPU 粒子。
+     */
     @type(NoiseModule)
     @displayOrder(24)
+    @tooltip('i18n:particle_system.noiseModule')
     public get noiseModule () {
         if (EDITOR) {
             if (!this._noiseModule) {
@@ -680,6 +734,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(TrailModule)
     _trailModule: TrailModule | null = null;
     /**
+     * @en The module controlling the trail module.
      * @zh 粒子轨迹模块。
      */
     @type(TrailModule)
@@ -689,8 +744,6 @@ export class ParticleSystem extends ModelRenderer {
         if (EDITOR && !cclegacy.GAME_VIEW) {
             if (!this._trailModule) {
                 this._trailModule = new TrailModule();
-                this._trailModule.onInit(this);
-                this._trailModule.onEnable();
             }
         }
         return this._trailModule;
@@ -702,6 +755,10 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     // particle system renderer
+    /**
+     * @en Particle system renderer (CPU or GPU).
+     * @zh 粒子系统渲染器（CPU 还是 GPU）。
+     */
     @type(ParticleSystemRenderer)
     @serializable
     @displayOrder(26)
@@ -746,7 +803,11 @@ export class ParticleSystem extends ModelRenderer {
     @serializable
     private _simulationSpace = Space.Local;
 
-    public processor: IParticleSystemRenderer = null!;
+    /**
+     * @en Particle update processor (update every particle).
+     * @zh 粒子更新器（负责更新每个粒子）。
+     */
+    public processor: ParticleSystemRendererBase = null!;
 
     constructor () {
         super();
@@ -791,7 +852,7 @@ export class ParticleSystem extends ModelRenderer {
         // HACK, TODO
         this.renderer.onInit(this);
         if (this._shapeModule) this._shapeModule.onInit(this);
-        if (this._trailModule && !this.renderer.useGPU) {
+        if (this._trailModule && !this.renderer.useGPU && this._trailModule.enable) {
             this._trailModule.onInit(this);
         }
         this.bindModule();
@@ -835,7 +896,10 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    protected _detachFromScene () {
+    /**
+     * @engineInternal
+     */
+    public _detachFromScene () {
         this.processor.detachFromScene();
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule._detachFromScene();
@@ -850,7 +914,11 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    public bindModule () {
+    /**
+     * @en Bind module to particle processor.
+     * @zh 把模块绑定到粒子更新函数上。
+     */
+    private bindModule () {
         if (this._colorOverLifetimeModule) this._colorOverLifetimeModule.bindTarget(this.processor);
         if (this._sizeOvertimeModule) this._sizeOvertimeModule.bindTarget(this.processor);
         if (this._rotationOvertimeModule) this._rotationOvertimeModule.bindTarget(this.processor);
@@ -867,7 +935,7 @@ export class ParticleSystem extends ModelRenderer {
     // }
 
     /**
-     * @en play particle system
+     * @en Play particle system.
      * @zh 播放粒子效果。
      */
     public play () {
@@ -901,7 +969,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en pause particle system
+     * @en Pause particle system.
      * @zh 暂停播放粒子效果。
      */
     public pause () {
@@ -925,7 +993,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en stop particle system
+     * @en Stop particle system.
      * @zh 停止播放粒子。
      */
     public stop () {
@@ -969,10 +1037,15 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @zh 获取当前粒子数量
+     * @en Get current particle capacity.
+     * @zh 获取当前粒子数量。
      */
     public getParticleCount () {
-        return this.processor.getParticleCount();
+        if (this.processor) {
+            return this.processor.getParticleCount();
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -982,6 +1055,9 @@ export class ParticleSystem extends ModelRenderer {
         Vec2.set(this._customData1, x, y);
     }
 
+    /**
+     * @ignore
+     */
     public setCustomData2 (x, y) {
         Vec2.set(this._customData2, x, y);
     }
@@ -1105,7 +1181,7 @@ export class ParticleSystem extends ModelRenderer {
             let culled = true;
             if (cameraLst !== undefined && this._boundingBox) {
                 for (let i = 0; i < cameraLst.length; ++i) {
-                    const camera:Camera = cameraLst[i];
+                    const camera: Camera = cameraLst[i];
                     const visibility = camera.visibility;
                     if ((visibility & this.node.layer) === this.node.layer) {
                         if (EDITOR && !cclegacy.GAME_VIEW) {
@@ -1168,13 +1244,6 @@ export class ParticleSystem extends ModelRenderer {
             this.processor.updateRotation(pass);
             this.processor.updateScale(pass);
         }
-        // update render data
-        this.processor.updateRenderData();
-
-        // update trail
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule.updateRenderData();
-        }
 
         if (this._needAttach) { // Check whether this particle model should be reattached
             if (this.getParticleCount() > 0) {
@@ -1191,15 +1260,20 @@ export class ParticleSystem extends ModelRenderer {
                 }
             }
         }
+
+        if (!this.renderer.useGPU && this._trailModule && this._trailModule.enable) {
+            if (!this._trailModule.inited) {
+                this._trailModule.clear();
+                this._trailModule.destroy();
+                this._trailModule.onInit(this);
+                // Rebuild trail buffer
+                this._trailModule.enable = false;
+                this._trailModule.enable = true;
+            }
+        }
     }
 
     protected beforeRender () {
-        if (!this._isPlaying) return;
-        this.processor.beforeRender();
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule.beforeRender();
-        }
-
         if (this.getParticleCount() <= 0) {
             if (this.processor.getModel()?.scene) {
                 this.processor.detachFromScene();
@@ -1211,13 +1285,22 @@ export class ParticleSystem extends ModelRenderer {
         } else if (!this.processor.getModel()?.scene) {
             this._needAttach = true;
         }
+
+        if (!this._isPlaying || !this.processor.getModel()?.scene) return;
+
+        // update render data
+        this.processor.updateRenderData();
+        this.processor.beforeRender();
+        // update trail
+        if (this._trailModule && this._trailModule.enable) {
+            this._trailModule.updateRenderData();
+            this._trailModule.beforeRender();
+        }
     }
 
     protected _onVisibilityChange (val) {
-        // @ts-expect-error private property access
-        if (this.processor._model) {
-            // @ts-expect-error private property access
-            this.processor._model.visFlags = val;
+        if (this.processor.model) {
+            this.processor.model.visFlags = val;
         }
     }
 
@@ -1341,10 +1424,13 @@ export class ParticleSystem extends ModelRenderer {
             }
 
             // emit by rateOverDistance
-            this.node.getWorldPosition(this._curWPos);
-            const distance = Vec3.distance(this._curWPos, this._oldWPos);
-            Vec3.copy(this._oldWPos, this._curWPos);
-            this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
+            const rateOverDistance = this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
+            if (rateOverDistance > 0) {
+                Vec3.copy(this._oldWPos, this._curWPos);
+                this.node.getWorldPosition(this._curWPos);
+                const distance = Vec3.distance(this._curWPos, this._oldWPos);
+                this._emitRateDistanceCounter += distance * rateOverDistance;
+            }
 
             if (this._emitRateDistanceCounter > 1) {
                 const emitNum = Math.floor(this._emitRateDistanceCounter);
@@ -1423,18 +1509,34 @@ export class ParticleSystem extends ModelRenderer {
         return this._isPlaying;
     }
 
+    /**
+     * @en Query particle system is paused or not.
+     * @zh 获取粒子系统当前是否已经暂停运行。
+     */
     get isPaused () {
         return this._isPaused;
     }
 
+    /**
+     * @en Query particle system is stopped or not.
+     * @zh 获取粒子系统当前是否已经停止。
+     */
     get isStopped () {
         return this._isStopped;
     }
 
+    /**
+     * @en Query particle system is emitting or not.
+     * @zh 获取粒子系统当前是否还在发射。
+     */
     get isEmitting () {
         return this._isEmitting;
     }
 
+    /**
+     * @en Query particle system simulation time.
+     * @zh 获取粒子系统运行时间。
+     */
     get time () {
         return this._time;
     }
@@ -1447,6 +1549,13 @@ export class ParticleSystem extends ModelRenderer {
         return this.dataCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
 
+    /**
+     * @en Gets the preview of noise texture.
+     * @zh 获取噪声图预览。
+     * @param width @en Noise texture width @zh 噪声图宽度
+     * @param height @en Noise texture height @zh 噪声图高度
+     * @returns @en Noise texture RGB pixel array @zh 噪声图 RGB 纹理数组
+     */
     public getNoisePreview (width: number, height: number): number[] {
         const out: number[] = [];
         if (this.processor) {

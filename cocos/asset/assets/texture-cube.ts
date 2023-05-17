@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,14 +22,15 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, OPPO, TEST, VIVO, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
-import { TextureType, TextureInfo, TextureViewInfo } from '../../gfx';
+import { TextureType, TextureInfo, TextureViewInfo, BufferTextureCopy } from '../../gfx';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
-import { legacyCC } from '../../core/global-exports';
-import { js } from '../../core';
+import { legacyCC, ccwindow } from '../../core/global-exports';
+import { js, sys } from '../../core';
+import { OS } from '../../../pal/system-info/enum-type';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 /**
@@ -168,10 +168,11 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @en Fill mipmaps with convolutional maps.
-     * @zh 使用卷积图填充mipmaps。
-     * @param value All mipmaps of each face of the cube map are stored in the form of atlas
+     * @en Fill mipmaps for cube map with atlas.
+     * @zh 使用 atlas 方式排布的图填充到立方体贴图的 mipmaps。
+     * @param value @en All mipmaps of each face of the cube map are stored in the form of atlas
      * and the value contains the atlas of the 6 faces and the layout information of each mipmap layer.
+     * @zh 立方体贴图六个面的图，其中每张图中的全部 mip 数据都使用 atlas 方式排布
      */
     set mipmapAtlas (value: ITextureCubeMipmapAtlas | null) {
         this._mipmapAtlas = value;
@@ -187,14 +188,20 @@ export class TextureCube extends SimpleTexture {
         if (!imageAtlasAsset.data) {
             return;
         }
+        //In ios wechat mini-game platform drawImage and getImageData can not get correct data,so upload to gfxTexture than use readPixels to get data
+        //The performance of upload to gfxTexture and readPixels is not good, so only use this way in the ios wechat mini-game platform
+        if (((WECHAT || WECHAT_MINI_PROGRAM) && sys.os === OS.IOS) || VIVO || OPPO) {
+            this._uploadAtlas();
+            return;
+        }
         const faceAtlas = this._mipmapAtlas.atlas;
         const layout = this._mipmapAtlas.layout;
         const mip0Layout = layout[0];
 
-        const ctx = Object.assign(document.createElement('canvas'), {
+        const ctx = Object.assign(ccwindow.document.createElement('canvas'), {
             width: imageAtlasAsset.width,
             height: imageAtlasAsset.height,
-        }).getContext('2d');
+        }).getContext('2d')!;
 
         this.reset({
             width: mip0Layout.width,
@@ -206,10 +213,11 @@ export class TextureCube extends SimpleTexture {
         for (let j = 0; j < layout.length; j++) {
             const layoutInfo = layout[j];
             _forEachFace(faceAtlas, (face, faceIndex) => {
-                ctx!.clearRect(0, 0, imageAtlasAsset.width, imageAtlasAsset.height);
+                ctx.clearRect(0, 0, imageAtlasAsset.width, imageAtlasAsset.height);
                 const drawImg = face.data as HTMLImageElement;
-                ctx!.drawImage(drawImg, 0, 0);
-                const rawData = ctx!.getImageData(layoutInfo.left, layoutInfo.top, layoutInfo.width, layoutInfo.height);
+                // NOTE: on OH platform, drawImage only supports ImageBitmap and PixelMap type, so we mark drawImg as any.
+                ctx.drawImage(drawImg as any, 0, 0);
+                const rawData = ctx.getImageData(layoutInfo.left, layoutInfo.top, layoutInfo.width, layoutInfo.height);
 
                 const bufferAsset = new ImageAsset({
                     _data: rawData.data,
@@ -309,7 +317,7 @@ export class TextureCube extends SimpleTexture {
      * After reset, the gfx resource will become invalid, you must use [[uploadData]] explicitly to upload the new mipmaps to GPU resources.
      * @zh 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级。重置后，贴图的像素数据将变为未定义。
      * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 [[uploadData]] 来上传贴图数据。
-     * @param info The create information
+     * @param info @en The create information. @zh 创建贴图的相关信息。
      */
     public reset (info: ITextureCubeCreateInfo) {
         this._width = info.width;
@@ -323,6 +331,13 @@ export class TextureCube extends SimpleTexture {
         this._tryReset();
     }
 
+    /**
+     * @en Updates the given level mipmap image.
+     * @zh 更新指定层级范围内的 Mipmap。当 Mipmap 数据发生了改变时应调用此方法提交更改。
+     * 若指定的层级范围超出了实际已有的层级范围，只有覆盖的那些层级范围会被更新。
+     * @param firstLevel @en First level to be updated. @zh 更新指定层的 mipmap。
+     * @param count @en Mipmap level count to be updated。 @zh 指定要更新层的数量。
+     */
     public updateMipmaps (firstLevel = 0, count?: number) {
         if (firstLevel >= this._mipmaps.length) {
             return;
@@ -342,7 +357,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @en Destroy this texture, clear all mipmaps and release GPU resources
+     * @en Destroys this texture, clear all mipmaps and release GPU resources
      * @zh 销毁此贴图，清空所有 Mipmap 并释放占用的 GPU 资源。
      */
     public destroy () {
@@ -490,6 +505,49 @@ export class TextureCube extends SimpleTexture {
         texViewInfo.layerCount = 6;
         Object.assign(texViewInfo, presumed);
         return texViewInfo;
+    }
+
+    protected _uploadAtlas () {
+        const layout = this._mipmapAtlas!.layout;
+        const mip0Layout = layout[0];
+        this.reset({
+            width: mip0Layout.width,
+            height: mip0Layout.height,
+            format: this._mipmapAtlas!.atlas.front.format,
+            mipmapLevel: layout.length,
+        });
+
+        _forEachFace(this._mipmapAtlas!.atlas, (face, faceIndex) => {
+            const tex = new Texture2D();
+            tex.image = face;
+            tex.reset({
+                width: face.width,
+                height: face.height,
+                format: face.format,
+            });
+            tex.uploadData(face.data!);
+
+            for (let i = 0; i < layout.length; i++) {
+                const layoutInfo = layout[i];
+
+                const buffer = new Uint8Array(4 * layoutInfo.width * layoutInfo.height);
+                const region = new BufferTextureCopy();
+                region.texOffset.x = layoutInfo.left;
+                region.texOffset.y = layoutInfo.top;
+                region.texExtent.width = layoutInfo.width;
+                region.texExtent.height = layoutInfo.height;
+
+                this._getGFXDevice()!.copyTextureToBuffers(tex.getGFXTexture()!, [buffer], [region]);
+                const bufferAsset = new ImageAsset({
+                    _data: buffer,
+                    _compressed: face.isCompressed,
+                    width: layoutInfo.width,
+                    height: layoutInfo.height,
+                    format: face.format,
+                });
+                this._assignImage(bufferAsset, layoutInfo.level, faceIndex);
+            }
+        });
     }
 
     public initDefault (uuid?: string) {

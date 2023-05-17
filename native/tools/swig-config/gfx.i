@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="gfx") gfx
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -44,6 +47,8 @@
 //  1. 'Rename Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 
+%ignore cc::RefCounted;
+
 namespace cc { namespace gfx {
 
 // TODO(cjh): use regex to ignore
@@ -83,11 +88,12 @@ namespace cc { namespace gfx {
 %ignore Device::getInstance;
 %ignore Device::setOptions;
 %ignore Device::getOptions;
+%ignore Device::frameSync;
 
 %ignore DeviceManager::isDetachDeviceThread;
 %ignore DeviceManager::getGFXName;
 
-%ignore FormatInfo;
+// %ignore FormatInfo;
 
 %ignore DefaultResource;
 
@@ -158,6 +164,9 @@ namespace cc { namespace gfx {
 
 // DescriptorSet
 %attribute(cc::gfx::DescriptorSet, cc::gfx::DescriptorSetLayout*, layout, getLayout);
+
+
+%attribute(cc::gfx::DescriptorSetLayout, cc::gfx::DescriptorSetLayoutBindingList, bindings, getBindings);
 
 // PipelineState
 %attribute(cc::gfx::PipelineState, cc::gfx::Shader*, shader, getShader);
@@ -245,6 +254,7 @@ namespace cc { namespace gfx {
 //   %import "your_header_file.h" will not generate code for that header file
 //
 %import "base/Macros.h"
+%import "base/RefCounted.h"
 %import "base/memory/Memory.h"
 
 // ----- Include Section ------

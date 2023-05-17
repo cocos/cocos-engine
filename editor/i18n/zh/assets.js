@@ -90,20 +90,44 @@ module.exports = {
             glsl1: 'GLSL 100 Output',
             vert: 'Vertex Shader',
             frag: 'Fragment Shader',
+            propertyTips: {
+                // macros
+                USE_DITHERED_ALPHA_TEST: '使用抖动透贴的方式来实现半透明效果，最好同时开启 TAA',
+                USE_TWOSIDE: '双面材质，通常用于单面物体，正面和背面的法线相反。还需将 Cull Mode 设为 None',
+                IS_ANISOTROPY: '各向异性材质，通常用于头发、光碟、拉丝金属等',
+                USE_VERTEX_COLOR: '使用顶点色，如果模型本身没有顶点色可能会发黑',
+                FIX_ANISOTROPIC_ROTATION_MAP: '修复各向异性旋转图黑白相接处的异常接缝，遇到此问题再开启',
+                // uniforms
+                tilingOffset: '贴图平铺和偏移，在 Surface 函数中可以用作纹理动画偏移速度',
+                alphaThreshold: '透贴阈值，用于 Mask 材质，该值越大被裁掉的像素就越多',
+                occlusion: '环境遮蔽强度，该值越大则环境遮蔽贴图的影响就越大',
+                roughness: '粗糙度，用于控制高光弥散的程度',
+                metallic: '金属性，用于控制漫反射和高光比例',
+                specularIntensity: '高光强度，该值相当于基准反射率 F0 的倍增，仅对非金属有效',
+                pbrMap: 'r: 环境遮蔽(AO) g: 粗糙度 b: 金属性 a: 高光强度',
+                normalMap: '法线贴图，g 通道需适配 GL 坐标系，尽量开启三线性过滤，否则光照会有噪点',
+                normalStrength: '法线贴图强度，过高的值可能造成光照有噪点',
+                anisotropyIntensity: '各向异性强度，用于控制各向异性高光的形状',
+                anisotropyRotation: '用于控制条状高光的朝向',
+                anisotropyMap: 'r: Anisotropy Intensity;  g: Anisotropy Rotation.',
+                anisotropyMapNearestFilter: '将 Anisotropy Map 贴图复制出来并选择 Nearest 过滤',
+                anisotropyMapResolutionHeight: 'Anisotropy Map 的分辨率高度',
+                ior: '相对折射率，该值可以影响折射角度和菲涅耳效果。水是1.33',
+            },
         },
         image: {
-            type: 'Type',
-            typeTip: 'Type',
+            type: '类型',
+            typeTip: '类型',
             // bakeOfflineMipmaps: 'Bake Offline Mipmaps',
             // bakeOfflineMipmapsTip: 'Bake Offline Mipmaps',
-            flipVertical: 'Flip Vertical',
-            flipVerticalTip: 'Flip Vertical',
-            fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
+            flipVertical: '垂直翻转',
+            flipVerticalTip: '垂直翻转',
+            fixAlphaTransparencyArtifacts: '消除透明伪影',
             fixAlphaTransparencyArtifactsTip:
                 '为全透明像素填充相邻像素的颜色，防止纹理过滤引起的黑边问题。当使用 Alpha 透明通道时，请启用此功能。',
-            isRGBE: 'Is RGBE',
-            isRGBETip: 'Is RGBE',
-            flipGreenChannel: '翻转绿通道',
+            isRGBE: '作为 RGBE 格式',
+            isRGBETip: '作为 RGBE 格式',
+            flipGreenChannel: '翻转绿色通道',
         },
         spriteFrame: {
             packable: 'Packable',
@@ -291,8 +315,8 @@ module.exports = {
                     '若不勾选，网格数据被提交到 GPU 后会被自动释放。<br>',
             },
             meshOptimizer: {
-                name: 'Mesh Optimizer',
-                title: 'Mesh Optimizer',
+                name: 'Mesh 优化',
+                title: 'Mesh 优化可以被用来简化导入的模型，可以在需要模型减面时使用。<br>在一些少数情况下减面后的模型可能会出现显示异常，如发生这种情况请尝试调整参数并重试。',
                 simplification: {
                     name: 'Simplification',
                     title: 'Simplification',
@@ -329,6 +353,44 @@ module.exports = {
                         title: 'Verbose Output',
                     },
                 },
+                algorithm: {
+                    name: '减面算法',
+                    simplify: 'simplify',
+                    gltfpack: 'gltfpack (已废弃)',
+                },
+                simplify: {
+                    targetRatio: {
+                        name: 'LOD 压缩比例',
+                        title: '减面之后的目标面数比例，0 代表减面至最少，1 代表没有减面的原模型。',
+                    },
+                    preserveSurfaceCurvature: {
+                        name: '保留表面曲率',
+                        title: 'Preserve Surface Curvature',
+                    },
+                    preserveBorderEdges: {
+                        name: '保留边界边',
+                        title: 'Preserve Border Edges',
+                    },
+                    preserveUVSeamEdges: {
+                        name: '保留 UV 缝合边',
+                        title: 'Preserve UV Seam Edges',
+                    },
+                    preserveUVFoldoverEdges: {
+                        name: '保留 UV 折叠边',
+                        title: 'Preserve UV Foldover Edges',
+                    },
+                    agressiveness: {
+                        name: '误差距离',
+                        title: '模型减面算法的激进程度。<br>当设置数值越高时，算法的减面策略会越激进，但是过于激进的策略更有可能导致结果错误。',
+                    },
+                    maxIterationCount: {
+                        name: '计算迭代次数',
+                        title: '最大重复计数代表减面算法运行的重复次数。<br>高数值可以使算法运行结果更接近目标，但也会增加运行时间和结果错误的概率。',
+                    },
+                },
+                gltfpack: {
+                    warn: '当前资源使用的减面算法 gltfpack 已被废弃，请选用新的 simplify 减面算法。',
+                },
                 warn: '警告：优化后，网格资源的数量和名称会发生改变，这将会造成组件引用的资源丢失，请及时手动更新；（另外，对于模型资源中预生成的预制体，资源同步机制会自动更新）',
             },
             animationBakeRate: {
@@ -339,6 +401,10 @@ module.exports = {
             promoteSingleRootNode: {
                 name: '提升单一根节点',
                 title: '若开启并且模型场景顶部仅有一个根节点，那么该节点就作为预制体的根节点。<br>否则，场景的所有根节点作为预制体的子节点。',
+            },
+            generateLightmapUVNode: {
+                name: '生成灯光贴图 UV　通道',
+                title: '若开启会为模型生成灯光贴图的 UV 通道， 若模型有第二套 UV , 该 UV 会被生成的 UV 覆盖。< br > 否则，使用原始 UV 信息。',
             },
             preferLocalTimeSpan: {
                 name: '优先使用文件时间范围',
@@ -402,6 +468,7 @@ module.exports = {
         reset_node_position: '重置节点坐标位置',
         reset_node_rotation: '重置节点旋转角度',
         reset_node_scale: '重置节点缩放比例',
+        reset_node_mobility: '重置节点可移动性',
 
         copy_node_value: '复制节点的值',
         paste_node_value: '粘贴节点的值',

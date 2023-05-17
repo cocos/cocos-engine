@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,122 +20,30 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-import { IMemoryImageSource } from '../assets/image-asset';
+import { ImageAsset, IMemoryImageSource } from '../assets/image-asset';
 import { js } from '../../core';
 import Cache from './cache';
 import deserialize from './deserialize';
 import { isScene } from './helper';
 import plistParser from './plist-parser';
-import { CompleteCallback, IDownloadParseOptions, files, parsed } from './shared';
-
-import { PixelFormat } from '../assets/asset-enum';
+import { files, parsed } from './shared';
 import { CCON } from '../../serialization/ccon';
 import { Asset } from '../assets';
 
-// PVR constants //
-// https://github.com/toji/texture-tester/blob/master/js/webgl-texture-util.js#L424
-const PVR_HEADER_LENGTH = 13; // The header length in 32 bit ints.
-const PVR_MAGIC = 0x03525650; // 0x50565203;
-
-// Offsets into the header array.
-const PVR_HEADER_MAGIC = 0;
-const PVR_HEADER_FORMAT = 2;
-const PVR_HEADER_HEIGHT = 6;
-const PVR_HEADER_WIDTH = 7;
-const PVR_HEADER_MIPMAPCOUNT = 11;
-const PVR_HEADER_METADATA = 12;
-
-// ETC constants //
-const ETC_PKM_HEADER_SIZE = 16;
-
-const ETC_PKM_FORMAT_OFFSET = 6;
-const ETC_PKM_ENCODED_WIDTH_OFFSET = 8;
-const ETC_PKM_ENCODED_HEIGHT_OFFSET = 10;
-const ETC_PKM_WIDTH_OFFSET = 12;
-const ETC_PKM_HEIGHT_OFFSET = 14;
-
-const ETC1_RGB_NO_MIPMAPS = 0;
-const ETC2_RGB_NO_MIPMAPS = 1;
-const ETC2_RGBA_NO_MIPMAPS = 3;
-
-//= ==============//
-// ASTC constants //
-//= ==============//
-
-// struct astc_header
-// {
-//  uint8_t magic[4];
-//  uint8_t blockdim_x;
-//  uint8_t blockdim_y;
-//  uint8_t blockdim_z;
-//  uint8_t xsize[3]; // x-size = xsize[0] + xsize[1] + xsize[2]
-//  uint8_t ysize[3]; // x-size, y-size and z-size are given in texels;
-//  uint8_t zsize[3]; // block count is inferred
-// };
-const ASTC_MAGIC = 0x5CA1AB13;
-
-const ASTC_HEADER_LENGTH = 16; // The header length
-const ASTC_HEADER_MAGIC = 4;
-const ASTC_HEADER_BLOCKDIM = 3;
-
-const ASTC_HEADER_SIZE_X_BEGIN = 7;
-const ASTC_HEADER_SIZE_Y_BEGIN = 10;
-const ASTC_HEADER_SIZE_Z_BEGIN = 13;
-
-function getASTCFormat (xdim, ydim) {
-    if (xdim === 4) {
-        return PixelFormat.RGBA_ASTC_4x4;
-    } if (xdim === 5) {
-        if (ydim === 4) {
-            return PixelFormat.RGBA_ASTC_5x4;
-        }
-        return PixelFormat.RGBA_ASTC_5x5;
-    } if (xdim === 6) {
-        if (ydim === 5) {
-            return PixelFormat.RGBA_ASTC_6x5;
-        }
-        return PixelFormat.RGBA_ASTC_6x6;
-    } if (xdim === 8) {
-        if (ydim === 5) {
-            return PixelFormat.RGBA_ASTC_8x5;
-        } if (ydim === 6) {
-            return PixelFormat.RGBA_ASTC_8x6;
-        }
-        return PixelFormat.RGBA_ASTC_8x8;
-    } if (xdim === 10) {
-        if (ydim === 5) {
-            return PixelFormat.RGBA_ASTC_10x5;
-        } if (ydim === 6) {
-            return PixelFormat.RGBA_ASTC_10x6;
-        } if (ydim === 8) {
-            return PixelFormat.RGBA_ASTC_10x8;
-        }
-        return PixelFormat.RGBA_ASTC_10x10;
-    }
-    if (ydim === 10) {
-        return PixelFormat.RGBA_ASTC_12x10;
-    }
-    return PixelFormat.RGBA_ASTC_12x12;
-}
-
-function readBEUint16 (header, offset: number) {
-    return (header[offset] << 8) | header[offset + 1];
-}
-
-export type ParseHandler = (file: any, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;
+export type ParseHandler = (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void;
 
 /**
  * @en
- * Parse the downloaded file, it's a singleton, all member can be accessed with `assetManager.parser`
+ * Parse the downloaded file, it's a singleton, you can access it via [[AssetManager.parser]].
  *
  * @zh
- * 解析已下载的文件，parser 是一个单例, 所有成员能通过 `assetManaager.parser` 访问
+ * 解析已下载的文件，parser 是一个单例, 你能通过 [[assetManager.parser]] 访问它。
  *
  */
 export class Parser {
-    private _parsing = new Cache<CompleteCallback[]>();
+    private _parsing = new Cache<((err: Error | null, data?: any | null) => void)[]>();
 
     private _parsers: Record<string, ParseHandler> = {
         '.png': this.parseImage,
@@ -160,7 +67,20 @@ export class Parser {
         '.cconb': this.parseImport,
     };
 
-    public parseImage (file: HTMLImageElement | Blob, options: IDownloadParseOptions, onComplete: CompleteCallback<HTMLImageElement|ImageBitmap>) {
+    private static _instance: Parser;
+
+    public static get instance () {
+        if (!this._instance) {
+            this._instance = new Parser();
+        }
+        return this._instance;
+    }
+    private constructor () {}
+
+    /**
+     * @engineInternal
+     */
+    public parseImage (file: HTMLImageElement | Blob, options: Record<string, any>, onComplete: ((err: Error | null, data?: HTMLImageElement | ImageBitmap | null) => void)) {
         if (file instanceof HTMLImageElement) {
             onComplete(null, file);
             return;
@@ -172,135 +92,65 @@ export class Parser {
         });
     }
 
-    public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
+    /**
+     * @engineInternal
+     */
+    public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)) {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
-            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            // Get a view of the arrayBuffer that represents the DDS header.
-            const header = new Int32Array(buffer, 0, PVR_HEADER_LENGTH);
-
-            // Do some sanity checks to make sure this is a valid DDS file.
-            if (header[PVR_HEADER_MAGIC] === PVR_MAGIC) {
-                // Gather other basic metrics and a view of the raw the DXT data.
-                const width = header[PVR_HEADER_WIDTH];
-                const height = header[PVR_HEADER_HEIGHT];
-                const dataOffset = header[PVR_HEADER_METADATA] + 52;
-                // todo: use new Uint8Array(buffer, dataOffset) instead
-                // buffer = buffer.slice(dataOffset, buffer.byteLength);
-                const pvrtcData = new Uint8Array(buffer, dataOffset);
-                out = {
-                    _data: pvrtcData,
-                    _compressed: true,
-                    width,
-                    height,
-                    format: 0,
-                };
-            } else if (header[11] === 0x21525650) {
-                const headerLength = header[0];
-                const height = header[1];
-                const width = header[2];
-                // todo: use new Uint8Array(buffer, headerLength) instead
-                // buffer = buffer.slice(headerLength, buffer.byteLength);
-                const pvrtcData = new Uint8Array(buffer, headerLength);
-                out = {
-                    _data: pvrtcData,
-                    _compressed: true,
-                    width,
-                    height,
-                    format: 0,
-                };
-            } else {
-                throw new Error('Invalid magic number in PVR header');
-            }
+            out = ImageAsset.parseCompressedTextures(file, 0);
         } catch (e) {
             err = e as Error;
+            console.warn(err);
         }
         onComplete(err, out);
     }
 
-    public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
+    /**
+     * @engineInternal
+     */
+    public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)) {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
-            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            const header = new Uint8Array(buffer);
-            const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
-            if (format !== ETC1_RGB_NO_MIPMAPS && format !== ETC2_RGB_NO_MIPMAPS && format !== ETC2_RGBA_NO_MIPMAPS) {
-                throw new Error('Invalid magic number in ETC header');
-            }
-            const width = readBEUint16(header, ETC_PKM_WIDTH_OFFSET);
-            const height = readBEUint16(header, ETC_PKM_HEIGHT_OFFSET);
-            const encodedWidth = readBEUint16(header, ETC_PKM_ENCODED_WIDTH_OFFSET);
-            const encodedHeight = readBEUint16(header, ETC_PKM_ENCODED_HEIGHT_OFFSET);
-            const etcData = new Uint8Array(buffer, ETC_PKM_HEADER_SIZE);
-            out = {
-                _data: etcData,
-                _compressed: true,
-                width,
-                height,
-                format: 0,
-            };
+            out = ImageAsset.parseCompressedTextures(file, 1);
         } catch (e) {
             err = e as Error;
+            console.warn(err);
         }
         onComplete(err, out);
     }
 
-    public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
+    /**
+     * @engineInternal
+     */
+    public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)) {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
-            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            const header = new Uint8Array(buffer);
-
-            const magicval = header[0] + (header[1] << 8) + (header[2] << 16) + (header[3] << 24);
-            if (magicval !== ASTC_MAGIC) {
-                throw new Error('Invalid magic number in ASTC header');
-            }
-
-            const xdim = header[ASTC_HEADER_MAGIC];
-            const ydim = header[ASTC_HEADER_MAGIC + 1];
-            const zdim = header[ASTC_HEADER_MAGIC + 2];
-            if ((xdim < 3 || xdim > 6 || ydim < 3 || ydim > 6 || zdim < 3 || zdim > 6)
-                && (xdim < 4 || xdim === 7 || xdim === 9 || xdim === 11 || xdim > 12
-                || ydim < 4 || ydim === 7 || ydim === 9 || ydim === 11 || ydim > 12 || zdim !== 1)) {
-                throw new Error('Invalid block number in ASTC header');
-            }
-
-            const format = getASTCFormat(xdim, ydim);
-
-            const xsize = header[ASTC_HEADER_SIZE_X_BEGIN] + (header[ASTC_HEADER_SIZE_X_BEGIN + 1] << 8)
-                + (header[ASTC_HEADER_SIZE_X_BEGIN + 2] << 16);
-            const ysize = header[ASTC_HEADER_SIZE_Y_BEGIN] + (header[ASTC_HEADER_SIZE_Y_BEGIN + 1] << 8)
-                + (header[ASTC_HEADER_SIZE_Y_BEGIN + 2] << 16);
-            const zsize = header[ASTC_HEADER_SIZE_Z_BEGIN] + (header[ASTC_HEADER_SIZE_Z_BEGIN + 1] << 8)
-                + (header[ASTC_HEADER_SIZE_Z_BEGIN + 2] << 16);
-
-            // buffer = buffer.slice(ASTC_HEADER_LENGTH, buffer.byteLength);
-            const astcData = new Uint8Array(buffer, ASTC_HEADER_LENGTH);
-
-            out = {
-                _data: astcData,
-                _compressed: true,
-                width: xsize,
-                height: ysize,
-                format,
-            };
+            out = ImageAsset.parseCompressedTextures(file, 2);
         } catch (e) {
             err = e as Error;
+            console.warn(err);
         }
         onComplete(err, out);
     }
 
-    public parsePlist (file: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
+    /**
+     * @engineInternal
+     */
+    public parsePlist (file: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) {
         let err: Error | null = null;
         const result = plistParser.parse(file);
         if (!result) { err = new Error('parse failed'); }
         onComplete(err, result);
     }
 
-    public parseImport (file: Record<string, any> | CCON, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset>) {
+    /**
+     * @engineInternal
+     */
+    public parseImport (file: Record<string, any> | CCON, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | null) => void)) {
         if (!file) {
             onComplete(new Error(`The json file of asset ${options.__uuid__ as string} is empty or missing`));
             return;
@@ -315,22 +165,27 @@ export class Parser {
         onComplete(err, result);
     }
 
+    /**
+     * @engineInternal
+     */
     public init () {
         this._parsing.clear();
     }
 
     /**
      * @en
-     * Register custom handler if you want to change default behavior or extend parser to parse other format file
+     * Register custom handler if you want to change default behavior or extend parser to parse other format file.
      *
      * @zh
-     * 当你想修改默认行为或者拓展 parser 来解析其他格式文件时可以注册自定义的handler
+     * 当你想修改默认行为或者拓展 parser 来解析其他格式文件时可以注册自定义的 handler。
      *
-     * @param type - Extension likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}
-     * @param handler - The corresponding handler
-     * @param handler.file - File
-     * @param handler.options - Some optional paramter
-     * @param handler.onComplete - callback when finishing parsing
+     * @param type
+     * @en Extension name likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}.
+     * @zh 形如 '.jpg' 的扩展名或形如 {'.jpg': jpgHandler, '.png': pngHandler} 的映射表。
+     * @param handler @en The corresponding handler. @zh 对应扩展名的处理方法。
+     * @param handler.file @en The file to be parsed. @zh 待解析的文件。
+     * @param handler.options @en Some optional parameters. @zh 一些可选的参数。
+     * @param handler.onComplete @en The callback invoked when parsing finished. @zh 完成解析的回调。
      *
      * @example
      * parser.register('.tga', (file, options, onComplete) => onComplete(null, null));
@@ -338,9 +193,12 @@ export class Parser {
      *                  '.ext': (file, options, onComplete) => onComplete(null, null)});
      *
      */
-    public register (type: string, handler: ParseHandler): void;
-    public register (map: Record<string, ParseHandler>): void;
-    public register (type: string | Record<string, ParseHandler>, handler?: ParseHandler) {
+    public register (type: string, handler: (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void): void;
+    public register (map: Record<string, (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void>): void;
+    public register (
+        type: string | Record<string, (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void>,
+        handler?: (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void,
+    ) {
         if (typeof type === 'object') {
             js.mixin(this._parsers, type);
         } else {
@@ -350,18 +208,18 @@ export class Parser {
 
     /**
      * @en
-     * Use corresponding handler to parse file
+     * Use corresponding handler to parse file.
      *
      * @zh
-     * 使用对应的handler来解析文件
+     * 使用对应的 handler 来解析文件。
      *
-     * @param id - The id of file
-     * @param file - File
-     * @param type - The corresponding type of file, likes '.jpg'.
-     * @param options - Some optional parameters will be transferred to the corresponding handler.
-     * @param onComplete - callback when finishing downloading
-     * @param onComplete.err - The occurred error, null indicates success
-     * @param onComplete.content - The parsed file
+     * @param id @en The id of file. @zh 文件的唯一 id。
+     * @param file @en The data of file. @zh 文件的数据。
+     * @param type @en The corresponding type of file, likes '.jpg'. @zh 需要使用的解析方法类型。
+     * @param options @en Some optional parameters will be transferred to the corresponding handler. @zh 传递到解析方法的额外参数。
+     * @param onComplete @en The callback invoked when finishing parsing. @zh 完成解析的回调。
+     * @param onComplete.err @en The occurred error, null indicates success. @zh 解析过程中发生的错误，null 表明解析成功。
+     * @param onComplete.content @en The parsed data. @zh 解析后的数据。
      *
      * @example
      * downloader.download('test.jpg', 'test.jpg', '.jpg', {}, (err, file) => {
@@ -369,7 +227,7 @@ export class Parser {
      * });
      *
      */
-    public parse (id: string, file: any, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
+    public parse (id: string, file: any, type: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
         const parsedAsset = parsed.get(id);
         if (parsedAsset) {
             onComplete(null, parsedAsset);
@@ -402,4 +260,4 @@ export class Parser {
     }
 }
 
-export default new Parser();
+export default Parser.instance;

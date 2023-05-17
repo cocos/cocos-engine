@@ -1,7 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -101,7 +101,6 @@ void Quaternion::conjugate() {
     x = -x;
     y = -y;
     z = -z;
-    //w =  w;
 }
 
 Quaternion Quaternion::getConjugated() const {
@@ -110,29 +109,14 @@ Quaternion Quaternion::getConjugated() const {
     return q;
 }
 
-bool Quaternion::inverse() {
-    float n = x * x + y * y + z * z + w * w;
-    if (n == 1.F) {
-        x = -x;
-        y = -y;
-        z = -z;
-        //w = w;
+void Quaternion::inverse() {
+    float dot = x * x + y * y + z * z + w * w;
+    float invDot = dot > 0.F ? 1.F / dot : 0.F;
 
-        return true;
-    }
-
-    // Too close to zero.
-    if (n < 0.000001F) {
-        return false;
-    }
-
-    n = 1.F / n;
-    x = -x * n;
-    y = -y * n;
-    z = -z * n;
-    w = w * n;
-
-    return true;
+    x = -x * invDot;
+    y = -y * invDot;
+    z = -z * invDot;
+    w = w * invDot;
 }
 
 Quaternion Quaternion::getInversed() const {
@@ -160,24 +144,19 @@ void Quaternion::multiply(const Quaternion &q1, const Quaternion &q2, Quaternion
 }
 
 void Quaternion::normalize() {
-    float n = x * x + y * y + z * z + w * w;
-
-    // Already normalized.
-    if (n == 1.F) {
-        return;
+    float len = x * x + y * y + z * z + w * w;
+    if (len > 0.F) {
+        len = 1.F / sqrt(len);
+        x *= len;
+        y *= len;
+        z *= len;
+        w *= len;
+    } else {
+        x = 0.F;
+        y = 0.F;
+        z = 0.F;
+        w = 0.F;
     }
-
-    n = sqrt(n);
-    // Too close to zero.
-    if (n < 0.000001F) {
-        return;
-    }
-
-    n = 1.F / n;
-    x *= n;
-    y *= n;
-    z *= n;
-    w *= n;
 }
 
 Quaternion Quaternion::getNormalized() const {
@@ -240,26 +219,60 @@ void Quaternion::lerp(const Quaternion &q1, const Quaternion &q2, float t, Quate
     CC_ASSERT(dst);
     CC_ASSERT(!(t < 0.F || t > 1.F));
 
-    if (t == 0.F) {
-        memcpy(dst, &q1, sizeof(float) * 4);
-        return;
-    }
-    if (t == 1.F) {
-        memcpy(dst, &q2, sizeof(float) * 4);
-        return;
-    }
-
     float t1 = 1.F - t;
-
     dst->x = t1 * q1.x + t * q2.x;
     dst->y = t1 * q1.y + t * q2.y;
     dst->z = t1 * q1.z + t * q2.z;
     dst->w = t1 * q1.w + t * q2.w;
 }
 
-void Quaternion::slerp(const Quaternion &q1, const Quaternion &q2, float t, Quaternion *dst) {
-    CC_ASSERT(dst);
-    slerp(q1.x, q1.y, q1.z, q1.w, q2.x, q2.y, q2.z, q2.w, t, &dst->x, &dst->y, &dst->z, &dst->w);
+void Quaternion::slerp(const Quaternion &a, const Quaternion &b, float t, Quaternion *dst) {
+    // benchmarks: http://jsperf.com/quaternion-slerp-implementations
+
+    float scale0 = 0;
+    float scale1 = 0;
+    float bx = b.x;
+    float by = b.y;
+    float bz = b.z;
+    float bw = b.w;
+
+    // calc cosine
+    float cosom = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+    // adjust signs (if necessary)
+    if (cosom < 0.F) {
+        cosom = -cosom;
+        bx = -bx;
+        by = -by;
+        bz = -bz;
+        bw = -bw;
+    }
+    // calculate coefficients
+    if ((1.F - cosom) > 0.000001F) {
+        // standard case (slerp)
+        const float omega = acos(cosom);
+        const float sinom = sinf(omega);
+        scale0 = sinf((1.0F - t) * omega) / sinom;
+        scale1 = sinf(t * omega) / sinom;
+    } else {
+        // "from" and "to" quaternions are very close
+        //  ... so we can do a linear interpolation
+        scale0 = 1.0F - t;
+        scale1 = t;
+    }
+    // calculate final values
+    dst->x = scale0 * a.x + scale1 * bx;
+    dst->y = scale0 * a.y + scale1 * by;
+    dst->z = scale0 * a.z + scale1 * bz;
+    dst->w = scale0 * a.w + scale1 * bw;
+}
+
+void Quaternion::sqlerp(const Quaternion &a, const Quaternion &b, const Quaternion &c, const Quaternion &d, float t, Quaternion *dst) {
+    Quaternion q1(0.F, 0.F, 0.F, 1.F);
+    Quaternion q2(0.F, 0.F, 0.F, 1.F);
+
+    slerp(a, d, t, &q1);
+    slerp(b, c, t, &q2);
+    slerp(q1, q2, 2.F * t * (1.F - t), dst);
 }
 
 void Quaternion::squad(const Quaternion &q1, const Quaternion &q2, const Quaternion &s1, const Quaternion &s2, float t, Quaternion *dst) {
@@ -271,6 +284,22 @@ void Quaternion::squad(const Quaternion &q1, const Quaternion &q2, const Quatern
     slerpForSquad(q1, q2, t, &dstQ);
     slerpForSquad(s1, s2, t, &dstS);
     slerpForSquad(dstQ, dstS, 2.F * t * (1.F - t), dst);
+}
+
+float Quaternion::angle(const Quaternion &a, const Quaternion &b) {
+    const auto dot = std::min(std::abs(Quaternion::dot(a, b)), 1.0F);
+    return std::acos(dot) * 2.0F;
+}
+
+void Quaternion::rotateTowards(const Quaternion &from, const Quaternion &to, float maxStep, Quaternion *dst) {
+    const auto angle = Quaternion::angle(from, to);
+    if (angle == 0.0F) {
+        dst->set(to);
+        return;
+    }
+
+    const auto t = std::min(maxStep / (angle * 180.F / math::PI), 1.0F);
+    Quaternion::slerp(from, to, t, dst);
 }
 
 void Quaternion::fromViewUp(const Vec3 &view, Quaternion *out) {
@@ -317,7 +346,7 @@ void Quaternion::toEuler(const Quaternion &q, bool outerZ, Vec3 *out) {
     float r2d = 180.F / math::PI;
     if (test > 0.499999) {
         bank = 0;
-        heading = -2 * atan2(x, w) * r2d;
+        heading = 2 * atan2(x, w) * r2d;
         attitude = 90;
     } else if (test < -0.499999) {
         bank = 0;
@@ -344,42 +373,43 @@ void Quaternion::toEuler(const Quaternion &q, bool outerZ, Vec3 *out) {
 void Quaternion::fromMat3(const Mat3 &m, Quaternion *out) {
     CC_ASSERT(out);
     float m00 = m.m[0];
-    float m03 = m.m[1];
-    float m06 = m.m[2];
+    float m10 = m.m[1];
+    float m20 = m.m[2];
     float m01 = m.m[3];
-    float m04 = m.m[4];
-    float m07 = m.m[5];
+    float m11 = m.m[4];
+    float m21 = m.m[5];
     float m02 = m.m[6];
-    float m05 = m.m[7];
-    float m08 = m.m[8];
-    float trace = m00 + m04 + m08;
-    if (trace > 0) {
+    float m12 = m.m[7];
+    float m22 = m.m[8];
+    float trace = m00 + m11 + m22;
+
+    if (trace > 0.F) {
         const float s = 0.5F / sqrtf(trace + 1.F);
         out->w = 0.25F / s;
-        out->x = (m05 - m07) * s;
-        out->y = (m06 - m02) * s;
-        out->z = (m01 - m03) * s;
-    } else if ((m00 > m04) && (m00 > m08)) {
-        const float s = 2.F * sqrtf(1.F + m04 - m00 - m08);
+        out->x = (m21 - m12) * s;
+        out->y = (m02 - m20) * s;
+        out->z = (m10 - m01) * s;
+    } else if ((m00 > m11) && (m00 > m22)) {
+        const float s = 0.5F / sqrtf(1.F + m00 - m11 - m22);
 
-        out->w = (m05 - m07) / s;
-        out->x = 0.25F * s;
-        out->y = (m03 + m01) / s;
-        out->z = (m06 + m02) / s;
-    } else if (m04 > m08) {
-        const float s = 2.F * sqrtf(1.F + m04 - m00 - m08);
+        out->w = (m21 - m12) * s;
+        out->x = 0.25F / s;
+        out->y = (m01 + m10) * s;
+        out->z = (m02 + m20) * s;
+    } else if (m11 > m22) {
+        const float s = 0.5F / sqrtf(1.F + m11 - m00 - m22);
 
-        out->w = (m06 - m02) / s;
-        out->x = (m03 + m01) / s;
-        out->y = 0.25F * s;
-        out->z = (m07 + m05) / s;
+        out->w = (m02 - m20) * s;
+        out->x = (m02 + m10) * s;
+        out->y = 0.25F / s;
+        out->z = (m12 + m21) * s;
     } else {
-        const float s = 2.F * sqrtf(1.F + m08 - m00 - m04);
+        const float s = 0.5F / sqrtf(1.F + m22 - m00 - m11);
 
-        out->w = (m01 - m03) / s;
-        out->x = (m06 + m02) / s;
-        out->y = (m07 + m05) / s;
-        out->z = 0.25F * s;
+        out->w = (m10 - m01) * s;
+        out->x = (m02 + m20) * s;
+        out->y = (m12 + m21) * s;
+        out->z = 0.25F / s;
     }
 }
 

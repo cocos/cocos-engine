@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -40,8 +39,8 @@ const IsOnLoadStarted = CCObject.Flags.IsOnLoadStarted;
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 const Deactivating = CCObject.Flags.Deactivating;
 
-const callPreloadInTryCatch = EDITOR && tryCatchFunctor_EDITOR('__preload');
-const callOnLoadInTryCatch = EDITOR && function (c) {
+const callPreloadInTryCatch: any = EDITOR && tryCatchFunctor_EDITOR('__preload');
+const callOnLoadInTryCatch: any = EDITOR && function (c) {
     try {
         c.onLoad();
     } catch (e) {
@@ -50,9 +49,9 @@ const callOnLoadInTryCatch = EDITOR && function (c) {
     c._objFlags |= IsOnLoadCalled;
     _onLoadInEditor(c);
 };
-const callOnDestroyInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onDestroy');
-const callOnFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onFocusInEditor');
-const callOnLostFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onLostFocusInEditor');
+const callOnDestroyInTryCatch: any = EDITOR && tryCatchFunctor_EDITOR('onDestroy');
+const callOnFocusInTryCatch: any = EDITOR && tryCatchFunctor_EDITOR('onFocusInEditor');
+const callOnLostFocusInTryCatch: any = EDITOR && tryCatchFunctor_EDITOR('onLostFocusInEditor');
 
 // for __preload: used internally, no sort
 class UnsortedInvoker extends LifeCycleInvoker {
@@ -132,7 +131,6 @@ function _componentCorrupted (node, comp, index) {
 
 function _onLoadInEditor (comp) {
     if (comp.onLoad && !legacyCC.GAME_VIEW) {
-        // @ts-expect-error Editor API usage
         const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
             if (comp.onFocusInEditor && callOnFocusInTryCatch) {

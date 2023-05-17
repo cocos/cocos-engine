@@ -10,4 +10,14 @@
     fragColor0 = CCSurfacesDeferredOutput0(surfaceData);
     fragColor1 = CCSurfacesDeferredOutput1(surfaceData);
     fragColor2 = CCSurfacesDeferredOutput2(surfaceData);
+
+  // Debug view
+  #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE && CC_SURFACES_ENABLE_DEBUG_VIEW
+    vec4 debugColor = vec4(0.0, 0.0, 0.0, 1.0);
+    CCSurfacesDebugViewMeshData(debugColor);
+    CCSurfacesDebugViewSurfaceData(debugColor, surfaceData);
+    if (IS_DEBUG_VIEW_ENABLE_WITH_CAMERA) {
+      fragColor0 = debugColor;
+    }
+  #endif
   }

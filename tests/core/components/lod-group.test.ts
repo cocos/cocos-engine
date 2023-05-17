@@ -1,4 +1,4 @@
-import { LODGroup, LOD } from '../../../cocos/misc';
+import { LODGroup, LOD } from '../../../cocos/3d/lod';
 import { Node, NodeActivator } from "../../../cocos/scene-graph"
 import { MeshRenderer } from '../../../cocos/3d/framework/mesh-renderer';
 import { Vec3, cclegacy  } from '../../../cocos/core';

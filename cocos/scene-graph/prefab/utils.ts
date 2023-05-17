@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -34,8 +33,9 @@ import { ValueType } from '../../core/value-types';
 export * from './prefab-info';
 
 export function createNodeWithPrefab (node: Node) {
-    // @ts-expect-error: private member access
-    const prefabInfo = node._prefab;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const prefabInfo = (node as any)._prefab;
     if (!prefabInfo) {
         return;
     }
@@ -59,18 +59,16 @@ export function createNodeWithPrefab (node: Node) {
 
     // save root's preserved props to avoid overwritten by prefab
     const _objFlags = node._objFlags;
-    // @ts-expect-error: private member access
-    const _parent = node._parent;
-    // @ts-expect-error: private member access
-    const _id = node._id;
-    // @ts-expect-error: private member access
-    const _prefab = node._prefab;
+    const _parent = node.getParent();
+    const _id = node.uuid;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const _prefab = (node as any)._prefab;
     const editorExtras = node[editorExtrasTag];
 
     // instantiate prefab
     cclegacy.game._isCloning = true;
     if (SUPPORT_JIT) {
-        // @ts-expect-error: private member access
         prefabInfo.asset._doInstantiate(node);
     } else {
         // root in prefab asset is always synced
@@ -86,19 +84,17 @@ export function createNodeWithPrefab (node: Node) {
 
     // restore preserved props
     node._objFlags = _objFlags;
-    // @ts-expect-error: private member access
-    node._parent = _parent;
-    // @ts-expect-error: private member access
-    node._id = _id;
+    node.modifyParent(_parent);
+    node.id = _id;
     if (EDITOR) {
         node[editorExtrasTag] = editorExtras;
     }
 
-    // @ts-expect-error: private member access
-    if (node._prefab) {
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    if ((node as any)._prefab) {
         // just keep the instance
-        // @ts-expect-error: private member access
-        node._prefab.instance = _prefab?.instance;
+        (node as any)._prefab.instance = _prefab?.instance;
     }
 }
 
@@ -114,15 +110,17 @@ export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) 
 
     let curTargetMap = targetMap;
 
-    // @ts-expect-error: private member access
-    const prefabInstance = node._prefab?.instance;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const prefabInstance = (node as any)._prefab?.instance;
     if (!isRoot && prefabInstance) {
         targetMap[prefabInstance.fileId] = {};
         curTargetMap = targetMap[prefabInstance.fileId];
     }
 
-    // @ts-expect-error: private member access
-    const prefabInfo = node._prefab;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const prefabInfo = (node as any)._prefab;
     if (prefabInfo) {
         curTargetMap[prefabInfo.fileId] = node;
     }
@@ -184,27 +182,22 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                 for (let i = 0; i < childInfo.nodes.length; i++) {
                     const childNode = childInfo.nodes[i];
 
-                    // @ts-expect-error private member access
-                    if (!childNode || target._children.includes(childNode)) {
+                    if (!childNode || target.children.includes(childNode)) {
                         continue;
                     }
 
-                    // @ts-expect-error private member access
-                    target._children.push(childNode);
-                    // @ts-expect-error: private member access
-                    childNode._parent = target;
+                    target.children.push(childNode);
+                    childNode.modifyParent(target);
                     if (EDITOR) {
                         if (!childNode[editorExtrasTag]) {
                             childNode[editorExtrasTag] = {};
                         }
-                        // @ts-expect-error editor polyfill
-                        childNode[editorExtrasTag].mountedRoot = node;
+                        // NOTE: editor polyfill
+                        (childNode[editorExtrasTag] as any).mountedRoot = node;
                     }
                     // mounted node need to add to the target map
                     generateTargetMap(childNode, curTargetMap, false);
-                    // siblingIndex update is in _onBatchCreated function, and it p needs a parent.
-                    // @ts-expect-error private member access
-                    childNode._siblingIndex = target._children.length - 1;
+                    childNode.siblingIndex = target.children.length - 1;
                     expandPrefabInstanceNode(childNode, true);
                 }
             }
@@ -237,11 +230,10 @@ export function applyMountedComponents (node: Node, mountedComponents: MountedCo
                         if (!comp[editorExtrasTag]) {
                             comp[editorExtrasTag] = {};
                         }
-                        // @ts-expect-error editor polyfill
-                        comp[editorExtrasTag].mountedRoot = node;
+                        // TODO: editor polyfill
+                        (comp[editorExtrasTag] as any).mountedRoot = node;
                     }
-                    // @ts-expect-error private member access
-                    target._components.push(comp);
+                    target.getWritableComponents().push(comp);
                 }
             }
         }
@@ -263,8 +255,7 @@ export function applyRemovedComponents (node: Node, removedComponents: TargetInf
 
             const index = target.node.components.indexOf(target);
             if (index >= 0) {
-                // @ts-expect-error private member access
-                target.node._components.splice(index, 1);
+                target.node.getWritableComponents().splice(index, 1);
             }
         }
     }
@@ -329,8 +320,9 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
 }
 
 export function applyTargetOverrides (node: Node) {
-    // @ts-expect-error private member access
-    const targetOverrides = node._prefab?.targetOverrides;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const targetOverrides = (node as any)._prefab?.targetOverrides;
     if (targetOverrides) {
         for (let i = 0; i < targetOverrides.length; i++) {
             const targetOverride = targetOverrides[i];
@@ -338,7 +330,7 @@ export function applyTargetOverrides (node: Node) {
             let source: Node | Component | null = targetOverride.source;
             const sourceInfo = targetOverride.sourceInfo;
             if (sourceInfo) {
-                // @ts-expect-error private member access
+                // TODO: targetOverride.source is type of `Node | Component`, while `_prefab` does not exist on type 'Component'.
                 const sourceInstance = targetOverride.source?._prefab?.instance;
                 if (sourceInstance && sourceInstance.targetMap) {
                     source = getTarget(sourceInfo.localID, sourceInstance.targetMap);
@@ -356,7 +348,6 @@ export function applyTargetOverrides (node: Node) {
                 continue;
             }
 
-            // @ts-expect-error private member access
             const targetInstance = targetOverride.target?._prefab?.instance;
             if (!targetInstance || !targetInstance.targetMap) {
                 continue;
@@ -394,8 +385,9 @@ export function applyTargetOverrides (node: Node) {
 }
 
 export function expandPrefabInstanceNode (node: Node, recursively = false) {
-    // @ts-expect-error private member access
-    const prefabInfo = node._prefab;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const prefabInfo = (node as any)._prefab;
     const prefabInstance = prefabInfo?.instance;
     if (prefabInstance && !prefabInstance.expanded) {
         createNodeWithPrefab(node);
@@ -407,8 +399,6 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
                 });
             }
         }
-        // nested prefab children's id will be the same: 3dtask#12511
-        // applyNodeAndComponentId(node, node.uuid);
 
         const targetMap: Record<string, any | Node | Component> = {};
         prefabInstance.targetMap = targetMap;
@@ -428,26 +418,41 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
 }
 
 export function expandNestedPrefabInstanceNode (node: Node) {
-    // @ts-expect-error private member access
-    const prefabInfo = node._prefab;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const prefabInfo = (node as any)._prefab;
 
     if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             expandPrefabInstanceNode(instanceNode);
+            // when expanding the prefab,it's children will be change,so need to apply after expanded
+            if (!EDITOR) {
+                applyNodeAndComponentId(instanceNode, (instanceNode as any)._prefab?.instance?.fileId ?? '');
+            }
         });
     }
 }
 
-export function applyNodeAndComponentId (node: Node, rootId: string) {
-    const { components, children } = node;
+// make sure prefab instance's children id is fixed
+export function applyNodeAndComponentId (prefabInstanceNode: Node, rootId: string) {
+    const { components, children } = prefabInstanceNode;
     for (let i = 0; i < components.length; i++) {
         const comp = components[i];
-        comp._id = `${rootId}${comp.__prefab?.fileId}`;
+        const fileID = comp.__prefab?.fileId ?? '';
+        comp._id = `${rootId}${fileID}`;
     }
     for (let i = 0; i < children.length; i++) {
         const child = children[i];
-        // @ts-expect-error private member access
-        child._id = `${rootId}${child._prefab?.fileId}`;
-        applyNodeAndComponentId(child, rootId);
+        // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+        // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+        const prefabInfo = (child as any)._prefab!;
+        const fileId = prefabInfo?.instance ? prefabInfo.instance.fileId : prefabInfo?.fileId;
+        if (!fileId) continue;
+        child.id = `${rootId}${fileId}`;
+
+        // ignore prefab instance,because it will be apply in 'nestedPrefabInstanceRoots' for loop;
+        if (!prefabInfo?.instance) {
+            applyNodeAndComponentId(child, rootId);
+        }
     }
 }

@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,7 +23,6 @@
  THE SOFTWARE.
 */
 
-// @ts-check
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from './asset';
@@ -51,7 +49,7 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Pixel width of the texture
+     * @en Pixel width of the texture.
      * @zh 此贴图的像素宽度。
      */
     public get width (): number {
@@ -59,7 +57,7 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Pixel height of the texture
+     * @en Pixel height of the texture.
      * @zh 此贴图的像素高度。
      */
     public get height (): number {
@@ -68,47 +66,77 @@ export class TextureBase extends Asset {
 
     /**
      * @en The pixel format enum.
-     * @zh 像素格式枚举类型
+     * @zh 像素格式枚举类型。
      */
     public static PixelFormat = PixelFormat;
 
     /**
      * @en The wrap mode enum.
-     * @zh 环绕模式枚举类型
+     * @zh 环绕模式枚举类型。
      */
     public static WrapMode = WrapMode;
 
     /**
-     * @en The texture filter mode enum
-     * @zh 纹理过滤模式枚举类型
+     * @en The texture filter mode enum.
+     * @zh 纹理过滤模式枚举类型。
      */
     public static Filter = Filter;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _format = PixelFormat.RGBA8888;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _minFilter = Filter.LINEAR;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _magFilter = Filter.LINEAR;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _mipFilter = Filter.NONE;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _wrapS = WrapMode.REPEAT;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _wrapT = WrapMode.REPEAT;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _wrapR = WrapMode.REPEAT;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _anisotropy = 0;
 
+    /**
+     * @engineInternal
+     */
     protected _width = 1;
+    /**
+     * @engineInternal
+     */
     protected _height = 1;
 
     private _id: string;
@@ -128,27 +156,27 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Gets the id of the texture
+     * @en Gets the id of the texture.
      * @zh 获取标识符。
-     * @returns The id
+     * @returns @en The id of this texture. @zh 此贴图的 id。
      */
     public getId () {
         return this._id;
     }
 
     /**
-     * @en Gets the pixel format
+     * @en Gets the pixel format.
      * @zh 获取像素格式。
-     * @returns The pixel format
+     * @returns @en The pixel format. @zh 像素格式。
      */
     public getPixelFormat () {
         return this._format;
     }
 
     /**
-     * @en Gets the anisotropy
+     * @en Gets the anisotropy.
      * @zh 获取各向异性。
-     * @returns The anisotropy
+     * @returns @en The anisotropy. @zh 各项异性值。
      */
     public getAnisotropy () {
         return this._anisotropy;
@@ -159,9 +187,9 @@ export class TextureBase extends Asset {
      * Be noted, if the size of the texture is not power of two, only [[WrapMode.CLAMP_TO_EDGE]] is allowed.
      * @zh 设置此贴图的缠绕模式。
      * 注意，若贴图尺寸不是 2 的整数幂，缠绕模式仅允许 [[WrapMode.CLAMP_TO_EDGE]]。
-     * @param wrapS S(U) coordinate wrap mode
-     * @param wrapT T(V) coordinate wrap mode
-     * @param wrapR R(W) coordinate wrap mode
+     * @param wrapS @en S(U) coordinate wrap mode. @zh S(U) 坐标系缠绕模式.
+     * @param wrapT @en T(V) coordinate wrap mode. @zh T(V) 坐标系缠绕模式.
+     * @param wrapR @en R(W) coordinate wrap mode. @zh R(W) 坐标系缠绕模式.
      */
     public setWrapMode (wrapS: WrapMode, wrapT: WrapMode, wrapR?: WrapMode) {
         if (wrapR === undefined) wrapR = wrapS; // wrap modes should be as consistent as possible for performance
@@ -179,10 +207,10 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Sets the texture's filter mode
+     * @en Sets the texture's filter mode.
      * @zh 设置此贴图的过滤算法。
-     * @param minFilter Filter mode for scale down
-     * @param magFilter Filter mode for scale up
+     * @param minFilter @en Filter mode for scale down. @zh 贴图缩小时使用的过滤模式。
+     * @param magFilter @en Filter mode for scale up. @zh 贴图放大时使用的过滤模式。
      */
     public setFilters (minFilter: Filter, magFilter: Filter) {
         this._minFilter = minFilter;
@@ -196,9 +224,9 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Sets the texture's mip filter
-     * @zh 设置此贴图的缩小过滤算法。
-     * @param mipFilter Filter mode for scale down
+     * @en Sets the texture's mip filter mode.
+     * @zh 设置此贴图的多层 mip 过滤算法。
+     * @param mipFilter @en Filter mode for multiple mip level. @zh 多层 mip 过滤模式。
      */
     public setMipFilter (mipFilter: Filter) {
         this._mipFilter = mipFilter;
@@ -210,9 +238,9 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Sets the texture's anisotropy
+     * @en Sets the texture's anisotropy.
      * @zh 设置此贴图的各向异性。
-     * @param anisotropy
+     * @param anisotropy @en The anisotropy to be set. @zh 待设置的各向异性数值。
      */
     public setAnisotropy (anisotropy: number) {
         this._anisotropy = anisotropy;

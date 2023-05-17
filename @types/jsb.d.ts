@@ -10,6 +10,8 @@
  */
 declare namespace jsb {
 
+    let window: any;
+
     type AccelerationXYZ = number;
     type AccelerationIncludingGravityXYZ = number;
     type RotationRateAlpha = number;
@@ -52,6 +54,8 @@ declare namespace jsb {
     export interface MouseEvent {
         x: number,
         y: number,
+        xDelta: number | undefined,
+        yDelta: number | undefined,
         button: number,
         windowId: number,
     }
@@ -105,6 +109,7 @@ declare namespace jsb {
 
     export let onHandlePoseInput: (infoList: PoseInfo[]) => void | undefined;
     export let onHMDPoseInput: (infoList: PoseInfo[]) => void | undefined;
+    export let onHandheldPoseInput: (infoList: PoseInfo[]) => void | undefined;
 
     export interface KeyboardEvent {
         altKey: boolean;
@@ -185,7 +190,7 @@ declare namespace jsb {
         /**
          * Get PCM header without pcm data. if you want to get pcm data, use getOriginalPCMBuffer instead
          */
-        export function getPCMHeader (url: string) : PCMHeader;
+        export function getPCMHeader (url: string): PCMHeader;
         /**
          * Get PCM Data in decode format for example Int16Array, the format information is written in PCMHeader.
          * @param url: file relative path, for example player._path
@@ -334,3 +339,33 @@ declare namespace jsb {
         setEventCallback (eventCallback: (event: EventAssetsManager) => void): void;
     }
 }
+
+declare namespace ns {
+
+    class NativePOD {
+        underlyingData(): ArrayBuffer;
+        _arraybuffer(): ArrayBuffer;
+    }
+    export class Line extends jsb.NativePOD {
+    }
+    export class Plane extends jsb.NativePOD {
+    }
+    export class Ray extends jsb.NativePOD {
+    }
+    export class Triangle extends jsb.NativePOD {
+    }
+    export class Sphere extends jsb.NativePOD {
+    }
+    export class AABB extends jsb.NativePOD {
+    }
+    export class Capsule extends jsb.NativePOD {
+    }
+    export class Frustum extends jsb.NativePOD {
+    }
+}
+
+/**
+ * Only defined on native platforms.
+ * Now we only support 'V8'
+ */
+declare const scriptEngineType: 'V8';

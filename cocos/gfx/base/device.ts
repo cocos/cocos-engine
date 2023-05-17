@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,14 +20,15 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import {
     API, Feature, MemoryStatus,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
     QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GeneralBarrierInfo, TextureBarrierInfo, BufferBarrierInfo,
-    SwapchainInfo, BindingMappingInfo, Format, FormatFeature, TextureType, TextureUsageBit, TextureFlagBit, Offset, Extent, SampleCount, TextureSubresLayers,
+    SwapchainInfo, BindingMappingInfo, Format, FormatFeature, TextureType, TextureUsageBit,
+    TextureFlagBit, Offset, Extent, SampleCount, TextureSubresLayers,
 } from './define';
 import { Buffer } from './buffer';
 import { CommandBuffer } from './command-buffer';
@@ -352,14 +352,20 @@ export abstract class Device {
     public getFormatFeatures (format: Format): FormatFeature {
         return this._formatFeatures[format];
     }
+
+    /**
+     * @en Enable automatically barrier deduction GFX inside, no effect on web.
+     * @zh 是否开启自动GFX内部barrier推导，web无影响。
+     * @param format The GFX format to be queried.
+     */
+    public enableAutoBarrier (en: boolean) {}
 }
 
 export class DefaultResource {
-    private _texture2D : Texture | null = null;
-    private _texture3D : Texture | null = null;
-    private _textureCube : Texture | null = null;
-    private _texture1DArray : Texture | null = null;
-    private _texture2DArray : Texture | null = null;
+    private _texture2D: Texture | null = null;
+    private _texture3D: Texture | null = null;
+    private _textureCube: Texture | null = null;
+    private _texture2DArray: Texture | null = null;
 
     constructor (device: Device) {
         const bufferSize = 64;
@@ -414,20 +420,6 @@ export class DefaultResource {
             device.copyBuffersToTexture([buffer], this._texture3D, [copyRegion]);
         }
         if (device.capabilities.maxArrayTextureLayers >= 2) {
-            this._texture1DArray = device.createTexture(new TextureInfo(
-                TextureType.TEX1D_ARRAY,
-                TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
-                Format.RGBA8,
-                1, 1,
-                TextureFlagBit.NONE,
-                2,
-            ));
-            const copyRegion = new BufferTextureCopy(0, 0, 0, new Offset(0, 0, 0), new Extent(1, 1, 1), new TextureSubresLayers(0, 0, 1));
-            device.copyBuffersToTexture([buffer], this._texture1DArray, [copyRegion]);
-            copyRegion.texSubres.baseArrayLayer = 1;
-            device.copyBuffersToTexture([buffer], this._texture1DArray, [copyRegion]);
-        }
-        if (device.capabilities.maxArrayTextureLayers >= 2) {
             this._texture2DArray = device.createTexture(new TextureInfo(
                 TextureType.TEX2D_ARRAY,
                 TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
@@ -443,12 +435,11 @@ export class DefaultResource {
         }
     }
 
-    public getTexture (type : TextureType) {
+    public getTexture (type: TextureType) {
         switch (type) {
         case TextureType.TEX2D: return this._texture2D;
         case TextureType.TEX3D: return this._texture3D;
         case TextureType.CUBE: return this._textureCube;
-        case TextureType.TEX1D_ARRAY: return this._texture1DArray;
         case TextureType.TEX2D_ARRAY: return this._texture2DArray;
         default: return null;
         }

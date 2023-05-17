@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
@@ -163,11 +162,11 @@ public:
     }
 
     TypedArrayTemp subarray(uint32_t begin, uint32_t end) {
-        return TypedArrayTemp(_buffer, begin * BYTES_PER_ELEMENT, end - begin);
+        return TypedArrayTemp(_buffer, begin * BYTES_PER_ELEMENT + _byteOffset, end - begin);
     }
 
     TypedArrayTemp subarray(uint32_t begin) {
-        return TypedArrayTemp(_buffer, begin * BYTES_PER_ELEMENT);
+        return TypedArrayTemp(_buffer, begin * BYTES_PER_ELEMENT + _byteOffset);
     }
 
     TypedArrayTemp slice() {
@@ -179,7 +178,7 @@ public:
     }
 
     TypedArrayTemp slice(uint32_t start, uint32_t end) {
-        CC_ASSERT(end > start);
+        CC_ASSERT_GT(end, start);
         CC_ASSERT(start < (_byteLength / BYTES_PER_ELEMENT));
         CC_ASSERT(end <= (_byteLength / BYTES_PER_ELEMENT));
         uint32_t newBufByteLength = (end - start) * BYTES_PER_ELEMENT;
@@ -256,18 +255,18 @@ public:
             _jsTypedArray->incRef();
 
             se::Value tmpVal;
-            _jsTypedArray->getProperty("buffer", &tmpVal);
+            _jsTypedArray->getProperty("buffer", &tmpVal, true);
             CC_ASSERT(tmpVal.isObject());
             CC_ASSERT(tmpVal.toObject()->isArrayBuffer());
 
             _buffer = ccnew ArrayBuffer();
             _buffer->setJSArrayBuffer(tmpVal.toObject());
 
-            _jsTypedArray->getProperty("byteOffset", &tmpVal);
+            _jsTypedArray->getProperty("byteOffset", &tmpVal, true);
             CC_ASSERT(tmpVal.isNumber());
             _byteOffset = tmpVal.toUint32();
 
-            _jsTypedArray->getProperty("byteLength", &tmpVal);
+            _jsTypedArray->getProperty("byteLength", &tmpVal, true);
             CC_ASSERT(tmpVal.isNumber());
             _byteLength = tmpVal.toUint32();
 
@@ -307,7 +306,7 @@ typename std::enable_if_t<!std::is_same<T, SrcType>::value, void> TypedArrayTemp
     uint32_t srcByteOffset = array.byteOffset();
     uint32_t srcCount = array.length();
     uint32_t remainCount = (_byteEndPos - dstByteOffset) / BYTES_PER_ELEMENT;
-    CC_ASSERT(srcCount <= remainCount);
+    CC_ASSERT_LE(srcCount, remainCount);
     for (uint32_t i = 0; i < srcCount; ++i) {
         (*this)[offset + i] = reinterpret_cast<T>(array[i]);
     }

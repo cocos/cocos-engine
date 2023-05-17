@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,15 +20,15 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
 #include "base/Ptr.h"
 #include "base/std/any.h"
 #include "bindings/utils/BindingUtils.h"
-//#include "core/components/Component.h"
-//#include "core/event/Event.h"
+// #include "core/components/Component.h"
+// #include "core/event/Event.h"
 #include "core/data/Object.h"
 #include "core/event/EventTarget.h"
 #include "core/scene-graph/Layers.h"
@@ -51,7 +50,7 @@ class Scene;
  */
 using TransformDirtyBit = TransformBit;
 
-class Node : public CCObject, public event::EventTarget {
+class Node : public CCObject {
     IMPL_EVENT_TARGET_WITH_PARENT(Node, getParent)
     DECLARE_TARGET_EVENT_BEGIN(Node)
     TARGET_EVENT_ARG0(TouchStart)
@@ -75,15 +74,13 @@ class Node : public CCObject, public event::EventTarget {
     TARGET_EVENT_ARG1(ChildAdded, Node *)
     TARGET_EVENT_ARG1(ChildRemoved, Node *)
     TARGET_EVENT_ARG1(ParentChanged, Node *)
-    TARGET_EVENT_ARG0(NodeDestroyed)
+    TARGET_EVENT_ARG0(MobilityChanged)
     TARGET_EVENT_ARG1(LayerChanged, uint32_t)
     TARGET_EVENT_ARG0(SiblingOrderChanged)
+    TARGET_EVENT_ARG1(SiblingIndexChanged, index_t)
     TARGET_EVENT_ARG0(ActiveInHierarchyChanged)
-    TARGET_EVENT_ARG0(MobilityChanged)
-    TARGET_EVENT_ARG1(AncestorTransformChanged, TransformBit)
     TARGET_EVENT_ARG0(Reattach)
     TARGET_EVENT_ARG0(RemovePersistRootNode)
-    TARGET_EVENT_ARG0(DestroyComponents)
     TARGET_EVENT_ARG0(UITransformDirty)
     TARGET_EVENT_ARG1(ActiveNode, bool)
     TARGET_EVENT_ARG1(BatchCreated, bool)
@@ -93,6 +90,7 @@ class Node : public CCObject, public event::EventTarget {
     TARGET_EVENT_ARG3(LocalScaleUpdated, float, float, float)
     TARGET_EVENT_ARG10(LocalRTSUpdated, float, float, float, float, float, float, float, float, float, float)
     TARGET_EVENT_ARG1(EditorAttached, bool)
+    TARGET_EVENT_ARG0(LightProbeBakingChanged)
     DECLARE_TARGET_EVENT_END()
 public:
     class UserData : public RefCounted {
@@ -129,7 +127,11 @@ public:
     template <typename T>
     static bool isNode(T *obj);
 
-    static void resetChangedFlags();
+    inline static void resetChangedFlags() {
+        // Using 26 bits for the flags is sufficient.
+        globalFlagChangeVersion = (globalFlagChangeVersion + 1) & 0x3FFFFFF;
+    }
+
     static void clearNodeArray();
 
     Node();
@@ -139,6 +141,7 @@ public:
     virtual void onPostActivated(bool active) {}
 
     void setParent(Node *parent, bool isKeepWorld = false);
+    inline void modifyParent(Node *parent) { _parent = parent; }
 
     inline Scene *getScene() const { return _scene; };
 
@@ -153,6 +156,8 @@ public:
         }
         return false;
     }
+
+    void destruct() override;
 
     inline void destroyAllChildren() {
         for (const auto &child : _children) {
@@ -463,15 +468,13 @@ public:
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     inline uint32_t getChangedFlags() const {
-        return _hasChangedFlagsVersion == globalFlagChangeVersion ? _hasChangedFlags : 0;
+        return (_changedVersionAndRTS >> 3) == globalFlagChangeVersion ? (_changedVersionAndRTS & 0x7) : 0;
     }
     inline void setChangedFlags(uint32_t value) {
-        _hasChangedFlagsVersion = globalFlagChangeVersion;
-        _hasChangedFlags = value;
+        _changedVersionAndRTS = (globalFlagChangeVersion << 3) | value;
     }
 
-    inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
-    inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
+    inline bool isTransformDirty() const { return _transformFlags != static_cast<uint32_t>(TransformBit::NONE); }
     inline void setLayer(uint32_t layer) {
         _layer = layer;
         emit<LayerChanged>(layer);
@@ -486,28 +489,28 @@ public:
     //    template <typename T, typename = std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    static Component *findComponent(Node * /*node*/) {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //        return nullptr;
     //    }
     //
     //    template <typename T, typename = std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    static Component *findComponents(Node * /*node*/, const ccstd::vector<Component *> & /*components*/) {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //        return nullptr;
     //    }
     //
     //    template <typename T, typename = std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    static Component *findChildComponent(const ccstd::vector<Node *> & /*children*/) {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //        return nullptr;
     //    }
     //
     //    template <typename T, typename = std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    static void findChildComponents(const ccstd::vector<Node *> & /*children*/, ccstd::vector<Component *> & /*components*/) {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //    }
     //
     //    template <typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>, T>>
@@ -542,21 +545,21 @@ public:
     //    template <typename T, typename std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    ccstd::vector<Component *> getComponents() const {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //        return {};
     //    };
     //
     //    template <typename T, typename std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    Component *getComponentInChildren(const T & /*comp*/) const {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //        return nullptr;
     //    }
     //
     //    template <typename T, typename std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    ccstd::vector<Component *> getComponentsInChildren() const {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //        return {};
     //    }
     //
@@ -580,7 +583,6 @@ public:
     bool onPreDestroy() override;
     bool onPreDestroyBase();
 
-    std::function<void(index_t)> onSiblingIndexChanged{nullptr};
     // For deserialization
     ccstd::string _id;
     Node *_parent{nullptr};
@@ -639,10 +641,11 @@ private:
     Vec3 _localPosition{Vec3::ZERO};
     Vec3 _localScale{Vec3::ONE};
     Quaternion _localRotation{Quaternion::identity()};
+    Vec3 _euler{0, 0, 0};
+
     // world transform
     Vec3 _worldPosition{Vec3::ZERO};
     Vec3 _worldScale{Vec3::ONE};
-    Vec3 _euler{0, 0, 0};
     Quaternion _worldRotation{Quaternion::identity()};
     Mat4 _worldMatrix{Mat4::IDENTITY};
 
@@ -650,18 +653,19 @@ private:
     // NOTE: TypeArray created in node.jsb.ts _ctor should have the same memory layout
     uint32_t _eventMask{0};                                             // Uint32: 0
     uint32_t _layer{static_cast<uint32_t>(Layers::LayerList::DEFAULT)}; // Uint32: 1
-    uint32_t _dirtyFlag{0};                                             // Uint32: 2
+    uint32_t _transformFlags{0};                                        // Uint32: 2
     index_t _siblingIndex{0};                                           // Int32: 0
     uint8_t _activeInHierarchy{0};                                      // Uint8: 0
     uint8_t _active{1};                                                 // Uint8: 1
     uint8_t _isStatic{0};                                               // Uint8: 2
     uint8_t _padding{0};                                                // Uint8: 3
 
-    /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
-     * `globalFlagChangeVersion == _hasChangedFlagsVersion` means that "_hasChangedFlags is dirty in current frametime".
-     */
-    uint32_t _hasChangedFlagsVersion{0};
-    uint32_t _hasChangedFlags{0};
+    /**
+     * The high bits are used to store the version number of the changeflag, and the low 3 bits represent its specific value
+     *
+     * | 31 - 29 reserved | 28 - 3 version number | 2  - 0 : Scale Rotation Translation|
+    */
+    uint32_t _changedVersionAndRTS{0};
 
     bool _eulerDirty{false};
 

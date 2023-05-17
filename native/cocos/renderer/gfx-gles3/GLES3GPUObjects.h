@@ -1,15 +1,16 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,11 +23,13 @@
 #pragma once
 
 #include <algorithm>
+#include <unordered_map>
 
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
+#include "gfx-base/GFXDeviceObject.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 
 #include "GLES3Std.h"
@@ -278,6 +281,7 @@ struct GLES3GPUShader {
 
     GLES3GPUShaderStageList gpuStages;
     GLuint glProgram = 0;
+    ccstd::hash_t hash = INVALID_SHADER_HASH;
     GLES3GPUInputList glInputs;
     GLES3GPUUniformBufferList glBuffers;
     GLES3GPUUniformSamplerTextureList glSamplerTextures;
@@ -395,6 +399,7 @@ struct GLES3GPUDescriptorSetLayout {
     ccstd::vector<uint32_t> bindingIndices;
     ccstd::vector<uint32_t> descriptorIndices;
     uint32_t descriptorCount = 0U;
+    ccstd::hash_t hash = 0U;
 };
 using GLES3GPUDescriptorSetLayoutList = ccstd::vector<GLES3GPUDescriptorSetLayout *>;
 
@@ -405,7 +410,8 @@ struct GLES3GPUPipelineLayout {
     ccstd::vector<ccstd::vector<int>> dynamicOffsetIndices;
     ccstd::vector<uint32_t> dynamicOffsetOffsets;
     ccstd::vector<uint32_t> dynamicOffsets;
-    uint32_t dynamicOffsetCount;
+    uint32_t dynamicOffsetCount = 0U;
+    ccstd::hash_t hash = 0U;
 };
 
 struct GLES3GPUPipelineState {
@@ -612,7 +618,7 @@ public:
 
             GLenum status;
             GL_CHECK(status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
-            CC_ASSERT(status == GL_FRAMEBUFFER_COMPLETE);
+            CC_ASSERT_EQ(status, GL_FRAMEBUFFER_COMPLETE);
 
             cacheMap[glResource][mipLevel].glFramebuffer = glFramebuffer;
         }
@@ -670,6 +676,13 @@ public:
 
 private:
     ccstd::unordered_map<GLES3GPUTexture *, ccstd::vector<GLES3GPUFramebuffer *>> _framebuffers;
+};
+
+struct GLES3GPUProgramBinary : public GFXDeviceObject<DefaultDeleter> {
+    ccstd::string name;
+    ccstd::hash_t hash = 0;
+    GLenum format;
+    std::vector<char> data;
 };
 
 } // namespace gfx

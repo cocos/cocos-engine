@@ -1,15 +1,15 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -41,37 +41,33 @@ const { ccclass, range, slide, type, editable, displayOrder, help, executeInEdit
 @executeInEditMode
 export class SpotLight extends Light {
     @serializable
-    protected _size = 0.15;
+    private _size = 0.15;
 
     @serializable
     @formerlySerializedAs('_luminance')
-    protected _luminanceHDR = 1700 / scene.nt2lm(0.15);
+    private _luminanceHDR = 1700 / scene.nt2lm(0.15);
 
     @serializable
-    protected _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
+    private _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
 
     @serializable
-    protected _term = PhotometricTerm.LUMINOUS_FLUX;
+    private _term = PhotometricTerm.LUMINOUS_FLUX;
 
     @serializable
-    protected _range = 1;
+    private _range = 1;
 
     @serializable
-    protected _spotAngle = 60;
+    private _spotAngle = 60;
 
     // Shadow map properties
     @serializable
-    protected _shadowEnabled = false;
+    private _shadowEnabled = false;
     @serializable
-    protected _shadowPcf = PCFType.HARD;
+    private _shadowPcf = PCFType.HARD;
     @serializable
-    protected _shadowBias = 0.00001;
+    private _shadowBias = 0.00001;
     @serializable
-    protected _shadowNormalBias = 0.0;
-
-    protected _type = scene.LightType.SPOT;
-
-    protected _light: scene.SpotLight | null = null;
+    private _shadowNormalBias = 0.0;
 
     /**
      * @en Luminous flux of the light.
@@ -98,7 +94,7 @@ export class SpotLight extends Light {
             this._luminanceLDR = val;
             result = this._luminanceLDR;
         }
-        this._light && (this._light.luminance = result);
+        this._light && ((this._light as scene.SpotLight).luminance = result);
     }
 
     /**
@@ -120,10 +116,10 @@ export class SpotLight extends Light {
         const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._luminanceHDR = val;
-            this._light && (this._light.luminanceHDR = this._luminanceHDR);
+            this._light && ((this._light as scene.SpotLight).luminanceHDR = this._luminanceHDR);
         } else {
             this._luminanceLDR = val;
-            this._light && (this._light.luminanceLDR = this._luminanceLDR);
+            this._light && ((this._light as scene.SpotLight).luminanceLDR = this._luminanceLDR);
         }
     }
 
@@ -155,7 +151,7 @@ export class SpotLight extends Light {
 
     set size (val) {
         this._size = val;
-        if (this._light) { this._light.size = val; }
+        if (this._light) { (this._light as scene.SpotLight).size = val; }
     }
 
     /**
@@ -171,7 +167,7 @@ export class SpotLight extends Light {
 
     set range (val) {
         this._range = val;
-        if (this._light) { this._light.range = val; }
+        if (this._light) { (this._light as scene.SpotLight).range = val; }
     }
 
     /**
@@ -189,7 +185,7 @@ export class SpotLight extends Light {
 
     set spotAngle (val) {
         this._spotAngle = val;
-        if (this._light) { this._light.spotAngle = toRadian(val); }
+        if (this._light) { (this._light as scene.SpotLight).spotAngle = toRadian(val); }
     }
 
     /**
@@ -207,7 +203,7 @@ export class SpotLight extends Light {
     set shadowEnabled (val) {
         this._shadowEnabled = val;
         if (this._light) {
-            this._light.shadowEnabled = val;
+            (this._light as scene.SpotLight).shadowEnabled = val;
         }
     }
 
@@ -226,7 +222,7 @@ export class SpotLight extends Light {
     set shadowPcf (val) {
         this._shadowPcf = val;
         if (this._light) {
-            this._light.shadowPcf = val;
+            (this._light as scene.SpotLight).shadowPcf = val;
         }
     }
 
@@ -245,7 +241,7 @@ export class SpotLight extends Light {
     set shadowBias (val) {
         this._shadowBias = val;
         if (this._light) {
-            this._light.shadowBias = val;
+            (this._light as scene.SpotLight).shadowBias = val;
         }
     }
 
@@ -264,7 +260,7 @@ export class SpotLight extends Light {
     set shadowNormalBias (val) {
         this._shadowNormalBias = val;
         if (this._light) {
-            this._light.shadowNormalBias = val;
+            (this._light as scene.SpotLight).shadowNormalBias = val;
         }
     }
 
@@ -275,18 +271,20 @@ export class SpotLight extends Light {
 
     protected _createLight () {
         super._createLight();
+        this._type = scene.LightType.SPOT;
         this.size = this._size;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
 
         if (this._light) {
-            this._light.luminanceHDR = this._luminanceHDR;
-            this._light.luminanceLDR = this._luminanceLDR;
+            const spotLight = this._light as scene.SpotLight;
+            spotLight.luminanceHDR = this._luminanceHDR;
+            spotLight.luminanceLDR = this._luminanceLDR;
             // shadow info
-            this._light.shadowEnabled = this._shadowEnabled;
-            this._light.shadowPcf = this._shadowPcf;
-            this._light.shadowBias = this._shadowBias;
-            this._light.shadowNormalBias = this._shadowNormalBias;
+            spotLight.shadowEnabled = this._shadowEnabled;
+            spotLight.shadowPcf = this._shadowPcf;
+            spotLight.shadowBias = this._shadowBias;
+            spotLight.shadowNormalBias = this._shadowNormalBias;
         }
     }
 }

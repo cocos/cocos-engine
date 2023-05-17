@@ -1,9 +1,32 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, move } from '../../core';
+import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, shift } from '../../core';
 import { MotionEval, MotionEvalContext } from './motion';
 import type { Condition } from './condition';
-import { Asset } from '../../asset/assets';
 import { OwnedBy, assertsOwnedBy, own, markAsDangling, ownerSymbol } from './ownership';
 import { TriggerResetMode, Value, VariableType } from './variable';
 import { InvalidTransitionError } from './errors';
@@ -13,6 +36,8 @@ import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './sta
 import { AnimationMask } from './animation-mask';
 import { onAfterDeserializedTag } from '../../serialization/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { AnimationGraphLike } from './animation-graph-like';
+import { renameObjectProperty } from '../../core/utils/internal';
 
 export { State };
 
@@ -577,7 +602,7 @@ export class StateMachine extends EditorExtendable {
         }
         // eslint-disable-next-line no-lone-blocks
         { // 2. Adjust the order in outgoing array.
-            move(outgoings, iAdjusting, iNew);
+            shift(outgoings, iAdjusting, iNew);
         }
     }
 
@@ -687,6 +712,9 @@ export class Layer implements OwnedBy<AnimationGraph> {
 
     @serializable
     public mask: AnimationMask | null = null;
+
+    @serializable
+    public additive = false;
 
     /**
      * @marked_as_engine_private
@@ -846,7 +874,7 @@ export type VariableDescription =
     | TriggerVariable;
 
 @ccclass('cc.animation.AnimationGraph')
-export class AnimationGraph extends Asset implements AnimationGraphRunTime {
+export class AnimationGraph extends AnimationGraphLike implements AnimationGraphRunTime {
     public declare readonly __brand: 'AnimationGraph';
 
     @serializable
@@ -900,7 +928,7 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
      * @param newIndex
      */
     public moveLayer (index: number, newIndex: number) {
-        move(this._layers, index, newIndex);
+        shift(this._layers, index, newIndex);
     }
 
     /**
@@ -969,17 +997,6 @@ export class AnimationGraph extends Asset implements AnimationGraphRunTime {
      * @param newName @zh 新的名字。 @en New name.
      */
     public renameVariable (name: string, newName: string) {
-        const { _variables: variables } = this;
-        if (!(name in variables)) {
-            return;
-        }
-        if (newName in variables) {
-            return;
-        }
-        // Rename but also retain order.
-        this._variables = Object.entries(variables).reduce((result, [k, v]) => {
-            result[k === name ? newName : k] = v;
-            return result;
-        }, {} as AnimationGraph['_variables']);
+        this._variables = renameObjectProperty(this._variables, name, newName);
     }
 }

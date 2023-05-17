@@ -1,8 +1,33 @@
-import { KeyboardCallback } from 'pal/input';
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { systemInfo } from 'pal/system-info';
 import { KeyCode, EventKeyboard } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+
+export type KeyboardCallback = (res: EventKeyboard) => void;
 
 const nativeKeyCode2KeyCode: Record<number, KeyCode> = {
     12: KeyCode.NUM_LOCK,
@@ -32,12 +57,11 @@ export class KeyboardInputSource {
     // On native platform, KeyboardEvent.repeat is always false, so we need a map to manage the key state.
     private _keyStateMap: Record<number, boolean> = {};
 
-    constructor () {
-        this._registerEvent();
-    }
+    private _handleKeyboardDown: (event: jsb.KeyboardEvent) => void;
+    private _handleKeyboardUp: (event: jsb.KeyboardEvent) => void;
 
-    private _registerEvent () {
-        jsb.onKeyDown = (event: jsb.KeyboardEvent) => {
+    constructor () {
+        this._handleKeyboardDown = (event: jsb.KeyboardEvent) => {
             const keyCode = getKeyCode(event.keyCode);
             if (!this._keyStateMap[keyCode]) {
                 const eventKeyDown = this._getInputEvent(event, InputEventType.KEY_DOWN);
@@ -48,12 +72,21 @@ export class KeyboardInputSource {
             }
             this._keyStateMap[keyCode] = true;
         };
-        jsb.onKeyUp = (event: jsb.KeyboardEvent) => {
+        this._handleKeyboardUp = (event: jsb.KeyboardEvent) => {
             const keyCode = getKeyCode(event.keyCode);
             const eventKeyUp = this._getInputEvent(event, InputEventType.KEY_UP);
             this._keyStateMap[keyCode] = false;
             this._eventTarget.emit(InputEventType.KEY_UP, eventKeyUp);
         };
+        this._registerEvent();
+    }
+
+    public dispatchKeyboardDownEvent (nativeKeyboardEvent: jsb.KeyboardEvent) { this._handleKeyboardDown(nativeKeyboardEvent); }
+    public dispatchKeyboardUpEvent (nativeKeyboardEvent: jsb.KeyboardEvent) { this._handleKeyboardUp(nativeKeyboardEvent); }
+
+    private _registerEvent () {
+        jsb.onKeyDown = this._handleKeyboardDown;
+        jsb.onKeyUp = this._handleKeyboardUp;
     }
 
     private _getInputEvent (event: jsb.KeyboardEvent, eventType: InputEventType) {

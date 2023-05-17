@@ -25,12 +25,37 @@ you.
 ****************************************************************************/
 
 #include <iostream>
+#include <windows.h>
 
 #include "platform/BasePlatform.h"
 
 #if defined(CC_SERVER_MODE)
-#include <windows.h>
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {
+
+static bool UTF16ToUTF8(LPCWSTR wideStr, const char **const outUtf8) {
+  if (outUtf8 == nullptr) {
+    return false;
+  }
+  int utf8BufferBytes =
+      ::WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, NULL, 0, NULL, NULL);
+  if (utf8BufferBytes < 0) {
+    *outUtf8 = nullptr;
+    return false;
+  }
+
+  char *utf8Str = static_cast<char *>(malloc(utf8BufferBytes));
+  int convResult = ::WideCharToMultiByte(
+      CP_UTF8, 0, wideStr, -1, (LPSTR)utf8Str, utf8BufferBytes, NULL, NULL);
+  if (convResult != utf8BufferBytes) {
+    free(utf8Str);
+    *outUtf8 = nullptr;
+    return false;
+  }
+
+  *outUtf8 = utf8Str;
+  return true;
+}
+
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmdLine, int sw) {
   if (!AllocConsole()) {
     // GetLastError() to get more info about the error.
     MessageBox(NULL, L"The console window was not created", NULL,
@@ -43,14 +68,33 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {
   freopen_s(&fConsole, "CONOUT$", "w", stderr);
   freopen_s(&fConsole, "CONIN$", "r", stdin);
 
-  START_PLATFORM(0, nullptr);
+  int argc = 0;
+
+  LPCWSTR szCmdLine = ::GetCommandLineW();
+  LPWSTR *lpszArgv = ::CommandLineToArgvW(szCmdLine, &argc);
+
+  std::vector<const char *> argv;
+  argv.reserve(argc);
+  for (int i = 0; i < argc; ++i) {
+    const char *utf8Arg = nullptr;
+    if (UTF16ToUTF8(lpszArgv[i], &utf8Arg)) {
+      argv.emplace_back(utf8Arg);
+    }
+  }
+
+  START_PLATFORM(static_cast<int>(argv.size()), argv.data());
+
+  for (const char *arg : argv) {
+    free(const_cast<char *>(arg));
+  }
 
   fclose(fConsole);
-  if (!FreeConsole())
+  if (!FreeConsole()) {
     MessageBox(NULL, L"Failed to free the console!", NULL, MB_ICONEXCLAMATION);
+  }
 }
 #else
-#include "sdl2/SDL_main.h"
+#include "SDL2/SDL_main.h"
 
 int SDL_main(int argc, char **argv) {
   START_PLATFORM(argc, (const char **)argv);

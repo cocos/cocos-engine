@@ -25,10 +25,8 @@
 ****************************************************************************/
 
 #include "VideoPlayer.h"
-
 using namespace cc;
 
-// No Available on tvOS
 #if CC_PLATFORM == CC_PLATFORM_IOS
 
 //-------------------------------------------------------------------------------------
@@ -279,8 +277,8 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 }
 
 - (void)addPlayerControllerSubView {
-    auto eaglview = UIApplication.sharedApplication.delegate.window.rootViewController.view;
-    [eaglview addSubview:self.playerController.view];
+    auto rootView = UIApplication.sharedApplication.delegate.window.rootViewController.view;
+    [rootView addSubview:self.playerController.view];
 }
 
 @end
@@ -408,8 +406,7 @@ void VideoPlayer::onPlayEvent(int event) {
 }
 
 void VideoPlayer::setFrame(float x, float y, float width, float height) {
-    auto eaglview = UIApplication.sharedApplication.delegate.window.rootViewController.view;
-    auto scaleFactor = [eaglview contentScaleFactor];
+    auto scaleFactor = [[UIScreen mainScreen] nativeScale];
     [((UIVideoViewWrapperIos *)_videoView) setFrame:x / scaleFactor:y / scaleFactor:width / scaleFactor:height / scaleFactor];
 }
 

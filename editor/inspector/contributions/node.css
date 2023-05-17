@@ -65,6 +65,15 @@
     margin-right: 4px;
 }
 
+.scene .envmap .envmap-prop {
+    margin-top: 0;
+}
+
+.scene .envmap .envmap-radio {
+    margin-top: 16px;
+    padding-left: 1px;
+}
+
 :host([type="node"][sub-type='scene']) > .container > .scene {
     display: block;
 }
@@ -126,6 +135,7 @@
 
 .node .layer-content > .layer-select {
     flex: 1;
+    margin-top: 0;
 }
 
 .node .layer-content > .layer-edit {

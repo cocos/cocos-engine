@@ -1,0 +1,29 @@
+import { Application } from '<%= applicationJS %>';
+
+const canvas = document.getElementById('GameCanvas');
+const $p = canvas.parentElement;
+const bcr = $p.getBoundingClientRect();
+canvas.width = bcr.width;
+canvas.height = bcr.height;
+
+function topLevelImport (url) {
+    return System.import(url);
+}
+
+const application = new Application();
+
+FBInstant.initializeAsync().then(function () {
+    FBInstant.setLoadingProgress(10);
+    return topLevelImport('cc');
+}).then(function (engine) {
+    FBInstant.setLoadingProgress(50);
+    return application.init(engine);
+}).then(function () {
+    FBInstant.setLoadingProgress(99);
+    return application.start();
+}).then(function () {
+    FBInstant.setLoadingProgress(100);
+    return FBInstant.startGameAsync();
+}).catch((err) => {
+    console.error(err);
+});

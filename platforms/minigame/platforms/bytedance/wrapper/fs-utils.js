@@ -236,7 +236,7 @@ var fsUtils = {
     loadSubpackage (name, onProgress, onComplete) {
         if (!tt.loadSubpackage) {
             console.warn('tt.loadSubpackage not supported, fallback to loading bundle');
-            require(`../../subpackages/${name}/game.js`);
+            require(`subpackages/${name}/game.js`);
             onComplete && onComplete();
             return;
         }

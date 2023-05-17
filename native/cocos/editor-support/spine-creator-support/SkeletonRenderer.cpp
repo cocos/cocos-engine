@@ -29,6 +29,8 @@
 
 #include "spine-creator-support/SkeletonRenderer.h"
 #include <algorithm>
+#include "2d/renderer/RenderDrawInfo.h"
+#include "2d/renderer/RenderEntity.h"
 #include "MiddlewareMacro.h"
 #include "SharedBufferManager.h"
 #include "SkeletonDataMgr.h"
@@ -38,11 +40,9 @@
 #include "gfx-base/GFXDef.h"
 #include "math/Math.h"
 #include "math/Vec3.h"
+#include "renderer/core/MaterialInstance.h"
 #include "spine-creator-support/AttachmentVertices.h"
 #include "spine-creator-support/spine-cocos2dx.h"
-#include "2d/renderer/RenderDrawInfo.h"
-#include "2d/renderer/RenderEntity.h"
-#include "renderer/core/MaterialInstance.h"
 
 USING_NS_MW;             // NOLINT(google-build-using-namespace)
 using namespace spine;   // NOLINT(google-build-using-namespace)
@@ -91,7 +91,6 @@ void SkeletonRenderer::initialize() {
 
     _skeleton->setToSetupPose();
     _skeleton->updateWorldTransform();
-    beginSchedule();
 }
 
 void SkeletonRenderer::beginSchedule() {
@@ -155,11 +154,11 @@ SkeletonRenderer::~SkeletonRenderer() {
         _sharedBufferOffset = nullptr;
     }
 
-    for (auto* draw : _drawInfoArray) {
+    for (auto *draw : _drawInfoArray) {
         CC_SAFE_DELETE(draw);
     }
 
-    for (auto& item : _materialCaches) {
+    for (auto &item : _materialCaches) {
         CC_SAFE_DELETE(item.second);
     }
 
@@ -278,7 +277,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
     if (_skeleton->getColor().a == 0) {
         return;
     }
-    auto& nodeWorldMat = entity->getNode()->getWorldMatrix();
+    auto &nodeWorldMat = entity->getNode()->getWorldMatrix();
     // color range is [0.0, 1.0]
     cc::middleware::Color4F color;
     cc::middleware::Color4F darkColor;
@@ -311,9 +310,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
     int curBlendMode = -1;
     int preBlendMode = -1;
     uint32_t curISegLen = 0;
-    cc::Texture2D* preTexture = nullptr;
-    cc::Texture2D* curTexture = nullptr;
-    RenderDrawInfo* curDrawInfo = nullptr;
+    cc::Texture2D *preTexture = nullptr;
+    cc::Texture2D *curTexture = nullptr;
+    RenderDrawInfo *curDrawInfo = nullptr;
 
     int materialLen = 0;
     Slot *slot = nullptr;
@@ -359,7 +358,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         gfx::Sampler *sampler = curTexture->getGFXSampler();
         curDrawInfo->setTexture(texture);
         curDrawInfo->setSampler(sampler);
-        auto* uiMeshBuffer = mb->getUIMeshBuffer();
+        auto *uiMeshBuffer = mb->getUIMeshBuffer();
         curDrawInfo->setMeshBuffer(uiMeshBuffer);
         curDrawInfo->setIndexOffset(static_cast<uint32_t>(ib.getCurPos()) / sizeof(uint16_t));
         // reset pre blend mode to current
@@ -715,7 +714,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             }
         }
 
-        curTexture = (cc::Texture2D*)attachmentVertices->_texture->getRealTexture();
+        curTexture = (cc::Texture2D *)attachmentVertices->_texture->getRealTexture();
         // If texture or blendMode change,will change material.
         if (preTexture != curTexture || preBlendMode != slot->getData().getBlendMode() || isFull) {
             flush();
@@ -958,7 +957,7 @@ void SkeletonRenderer::setColor(float r, float g, float b, float a) {
 
 void SkeletonRenderer::setBatchEnabled(bool enabled) {
     if (enabled != _enableBatch) {
-        for (auto& item : _materialCaches) {
+        for (auto &item : _materialCaches) {
             CC_SAFE_DELETE(item.second);
         }
         _materialCaches.clear();
@@ -1000,15 +999,19 @@ se_object_ptr SkeletonRenderer::getSharedBufferOffset() const {
     return nullptr;
 }
 
-void SkeletonRenderer::setRenderEntity(cc::RenderEntity* entity) {
+void SkeletonRenderer::setRenderEntity(cc::RenderEntity *entity) {
     _entity = entity;
 }
 
 void SkeletonRenderer::setMaterial(cc::Material *material) {
     _material = material;
+    for (auto &item : _materialCaches) {
+        CC_SAFE_DELETE(item.second);
+    }
+    _materialCaches.clear();
 }
 
-cc::RenderDrawInfo* SkeletonRenderer::requestDrawInfo(int idx) {
+cc::RenderDrawInfo *SkeletonRenderer::requestDrawInfo(int idx) {
     if (_drawInfoArray.size() < idx + 1) {
         cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
         draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::MIDDLEWARE));
@@ -1020,11 +1023,10 @@ cc::RenderDrawInfo* SkeletonRenderer::requestDrawInfo(int idx) {
 cc::Material *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
     uint32_t key = static_cast<uint32_t>(blendSrc) << 16 | static_cast<uint32_t>(blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
-        const IMaterialInstanceInfo info {
-            (Material*)_material,
-            0
-        };
-        MaterialInstance* materialInstance = new MaterialInstance(info);
+        const IMaterialInstanceInfo info{
+            (Material *)_material,
+            0};
+        MaterialInstance *materialInstance = new MaterialInstance(info);
         PassOverrides overrides;
         BlendStateInfo stateInfo;
         stateInfo.blendColor = gfx::Color{1.0F, 1.0F, 1.0F, 1.0F};
@@ -1035,11 +1037,11 @@ cc::Material *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blen
         targetInfo.blendDst = (gfx::BlendFactor)blendDst;
         targetInfo.blendSrcAlpha = (gfx::BlendFactor)blendSrc;
         targetInfo.blendDstAlpha = (gfx::BlendFactor)blendDst;
-        BlendTargetInfoList targetList {targetInfo};
+        BlendTargetInfoList targetList{targetInfo};
         stateInfo.targets = targetList;
         overrides.blendState = stateInfo;
         materialInstance->overridePipelineStates(overrides);
-        const MacroRecord macros {{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_enableBatch}};
+        const MacroRecord macros{{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_enableBatch}};
         materialInstance->recompileShaders(macros);
         _materialCaches[key] = materialInstance;
     }

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,15 +20,12 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
-export type TaskCompleteCallback = (err: Error | null | undefined, data: any) => void;
-export type TaskProgressCallback = (...args: any[]) => void;
-export type TaskErrorCallback = (...args: any[]) => void;
 export interface ITaskOption {
-    onComplete?: TaskCompleteCallback | null;
-    onProgress?: TaskProgressCallback | null;
-    onError?: TaskErrorCallback | null;
+    onComplete?: ((err: Error | null | undefined, data: any) => void) | null;
+    onProgress?: ((...args: any[]) => void) | null;
+    onError?: ((...args: any[]) => void) | null;
     input: any;
     progress?: any;
     options?: Record<string, any> | null;
@@ -37,32 +33,40 @@ export interface ITaskOption {
 
 /**
  * @en
- * Task is used to run in the pipeline for some effect
+ * Tasks are the smallest unit of data running in the pipeline, You can create a task and pass in the input information,
+ * and then get the output of that task after it has been executed in the pipeline to use.
  *
  * @zh
- * 任务用于在管线中运行以达成某种效果
+ * 任务是在管线中运行的最小数据单位，你可以创建一个任务并传入输入信息，在经过管线执行后获取该任务的输出来使用。
  *
  */
 export default class Task {
+    /**
+     * @engineInternal
+     */
     public static MAX_DEAD_NUM = 500;
 
     /**
      * @en
-     * Create a new task from pool
+     * Create a new task from pool.
      *
      * @zh
-     * 从对象池中创建 task
+     * 从对象池中创建 task。
      *
-     * @static
-     * @method create
-     * @param options - Some optional paramters
-     * @param options.onComplete - Callback when the task complete, if the pipeline is synchronous, onComplete is unnecessary.
-     * @param options.onProgress - Continuously callback when the task is runing, if the pipeline is synchronous, onProgress is unnecessary.
-     * @param options.onError - Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
-     * @param options.input - Something will be handled with pipeline
-     * @param options.progress - Progress information, you may need to assign it manually when multiple pipeline share one progress
-     * @param options.options - Custom parameters
-     * @returns task
+     * @param options @en Some optional parameters. @zh 一些可选参数。
+     * @param options.onComplete
+     * @en Callback when the task complete, if the pipeline is synchronous, onComplete is unnecessary.
+     * @zh 任务完成后的回调，如果流水线是同步的，onComplete 是不必要的。
+     * @param options.onProgress
+     * @en Continuously callback when the task is running, if the pipeline is synchronous, onProgress is unnecessary.
+     * @zh 在任务运行时持续回调，如果管道是同步的，onProgress 是不必要的。
+     * @param options.onError
+     * @en Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
+     * @zh 出错时的回调，如果流水线是同步的，onError 是不必要的。
+     * @param options.input @en Something will be handled with pipeline. @zh 需要被此管道处理的任务数据。
+     * @param options.progress @en Progress information. @zh 进度信息。
+     * @param options.options @en Custom parameters. @zh 自定义参数。
+     * @returns @en return a newly created task. @zh 返回一个新创建的任务。
      *
      */
     public static create (options: ITaskOption): Task {
@@ -82,117 +86,138 @@ export default class Task {
 
     /**
      * @en
-     * The id of task
+     * The id of task.
      *
      * @zh
-     * 任务id
+     * 任务 id。
      *
      */
     public id: number = Task._taskId++;
 
     /**
      * @en
-     * The callback when task is completed
+     * The callback when task is completed.
      *
      * @zh
-     * 完成回调
+     * 完成回调。
      *
      */
-    public onComplete: TaskCompleteCallback | null = null;
+    public onComplete: ((err: Error | null | undefined, data: any) => void) | null = null;
 
     /**
      * @en
-     * The callback of progression
+     * The callback of progression.
      *
      * @zh
-     * 进度回调
+     * 进度回调。
      *
      */
-    public onProgress: TaskProgressCallback | null = null;
+    public onProgress: ((...args: any[]) => void) | null = null;
 
     /**
      * @en
-     * The callback when something goes wrong
+     * The callback when something goes wrong.
      *
      * @zh
-     * 错误回调
+     * 错误回调。
      *
      */
-    public onError: TaskErrorCallback | null = null;
+    public onError: ((...args: any[]) => void) | null = null;
 
     /**
      * @en
-     * The source of task
+     * The source data of task.
      *
      * @zh
-     * 任务的源
+     * 任务的源数据。
      *
      */
     public source: any = null;
 
     /**
      * @en
-     * The output of task
+     * The output of task.
      *
      * @zh
-     * 任务的输出
+     * 任务的输出。
      */
     public output: any = null;
 
     /**
      * @en
-     * The input of task
+     * The input of task.
      *
      * @zh
-     * 任务的输入
+     * 任务的输入。
      *
      */
     public input: any = null;
 
     /**
      * @en
-     * The progression of task
+     * The progression of task.
      *
      * @zh
-     * 任务的进度
+     * 任务的进度。
      *
      */
     public progress: any = null;
 
     /**
      * @en
-     * Custom options
+     * Custom options.
      *
      * @zh
-     * 自定义参数
+     * 自定义参数。
      *
      */
     public options: Record<string, any> | null = null;
 
     /**
-     * @en
-     * Whether or not this task is completed
-     *
-     * @zh
-     * 此任务是否已经完成
-     *
+     * @deprecated Typo. Since v3.7, please use [[Task.isFinished]] instead.
      */
-    public isFinish = true;
+    public get isFinish () {
+        return this.isFinished;
+    }
+
+    /**
+     * @deprecated Typo. Since v3.7, please use [[Task.isFinished]] instead.
+     */
+    public set isFinish (val: boolean) {
+        this.isFinished = val;
+    }
 
     /**
      * @en
-     * Create a new Task
+     * Whether or not this task is completed.
      *
      * @zh
-     * 创建一个任务
+     * 此任务是否已经完成。
      *
-     * @param options - Some optional paramters
-     * @param options.onComplete - Callback when the task is completed, if the pipeline is synchronous, onComplete is unnecessary.
-     * @param options.onProgress - Continuously callback when the task is runing, if the pipeline is synchronous, onProgress is unnecessary.
-     * @param options.onError - Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
-     * @param options.input - Something will be handled with pipeline
-     * @param options.progress - Progress information, you may need to assign it manually when multiple pipeline share one progress
-     * @param options.options - Custom parameters
+     */
+    public isFinished = true;
+
+    /**
+     * @en
+     * Create a new Task.
+     *
+     * @zh
+     * 创建一个任务。
+     *
+     * @param options @en Some optional parameters. @zh 一些可选参数。
+     * @param options.onComplete
+     * @en Callback when the task complete, if the pipeline is synchronous, onComplete is unnecessary.
+     * @zh 任务完成后的回调，如果流水线是同步的，onComplete 是不必要的。
+     * @param options.onProgress
+     * @en Continuously callback when the task is running, if the pipeline is synchronous, onProgress is unnecessary.
+     * @zh 在任务运行时持续回调，如果管道是同步的，onProgress 是不必要的。
+     * @param options.onError
+     * @en Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
+     * @zh 出错时的回调，如果流水线是同步的，onError 是不必要的。
+     * @param options.input @en Something will be handled with pipeline. @zh 需要被此管道处理的任务数据。
+     * @param options.progress @en Progress information. @zh 进度信息。
+     * @param options.options @en Custom parameters. @zh 自定义参数。
+     * @returns @en return a newly created task. @zh 返回一个新创建的任务。
      */
     public constructor (options?: ITaskOption) {
         this.set(options);
@@ -200,21 +225,28 @@ export default class Task {
 
     /**
      * @en
-     * Set parameters of this task
+     * Set parameters of this task.
      *
      * @zh
-     * 设置任务的参数
+     * 设置任务的参数。
      *
-     * @param options - Some optional parameters
-     * @param options.onComplete - Callback when the task is completed, if the pipeline is synchronous, onComplete is unnecessary.
-     * @param options.onProgress - Continuously callback when the task is running, if the pipeline is synchronous, onProgress is unnecessary.
-     * @param options.onError - Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
-     * @param options.input - Something will be handled with pipeline
-     * @param options.progress - Progress information, you may need to assign it manually when multiple pipeline share one progress
-     * @param options.options - Custom parameters
+     * @param options @en Some optional parameters. @zh 一些可选参数。
+     * @param options.onComplete
+     * @en Callback when the task complete, if the pipeline is synchronous, onComplete is unnecessary.
+     * @zh 任务完成后的回调，如果流水线是同步的，onComplete 是不必要的。
+     * @param options.onProgress
+     * @en Continuously callback when the task is running, if the pipeline is synchronous, onProgress is unnecessary.
+     * @zh 在任务运行时持续回调，如果管道是同步的，onProgress 是不必要的。
+     * @param options.onError
+     * @en Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
+     * @zh 出错时的回调，如果流水线是同步的，onError 是不必要的。
+     * @param options.input @en Something will be handled with pipeline. @zh 需要被此管道处理的任务数据。
+     * @param options.progress @en Progress information. @zh 进度信息。
+     * @param options.options @en Custom parameters. @zh 自定义参数。
+     * @returns @en return a newly created task. @zh 返回一个新创建的任务。
      *
      * @example
-     * var task = new Task();
+     * const task = new Task();
      * task.set({input: ['test'], onComplete: (err, result) => console.log(err), onProgress: (finish, total) => console.log(finish / total)});
      *
      */
@@ -231,21 +263,21 @@ export default class Task {
 
     /**
      * @en
-     * Dispatch event
+     * Dispatch event with any parameter.
      *
      * @zh
-     * 发布事件
+     * 分发事件，可以传递任意参数。
      *
-     * @param event - The event name
-     * @param param1 - Parameter 1
-     * @param param2 - Parameter 2
-     * @param param3 - Parameter 3
-     * @param param4 - Parameter 4
+     * @param event @en The event name. @zh 事件名称。
+     * @param param1 @en The parameter 1. @zh 参数 1。
+     * @param param2 @en The parameter 2. @zh 参数 2。
+     * @param param3 @en The parameter 3. @zh 参数 3。
+     * @param param4 @en The parameter 4. @zh 参数 4。
      *
      * @example
-     * var task = Task.create();
-     * Task.onComplete = (msg) => console.log(msg);
-     * Task.dispatch('complete', 'hello world');
+     * const task = Task.create();
+     * task.onComplete = (msg) => console.log(msg);
+     * task.dispatch('complete', 'hello world');
      *
      */
     public dispatch (event: string, param1?: any, param2?: any, param3?: any, param4?: any): void {
@@ -277,10 +309,10 @@ export default class Task {
 
     /**
      * @en
-     * Recycle this for reuse
+     * Recycle this task to be reused.
      *
      * @zh
-     * 回收 task 用于复用
+     * 回收 task 用于复用。
      *
      */
     public recycle (): void {

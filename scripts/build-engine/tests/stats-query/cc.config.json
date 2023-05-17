@@ -66,6 +66,7 @@
                 "cocos/core/renderer/core/render-scene.ts": "cocos/core/renderer/core/render-scene.jsb.ts",
                 "cocos/core/renderer/scene/submodel.ts": "cocos/core/renderer/scene/submodel.jsb.ts",
                 "cocos/core/renderer/scene/index.ts": "cocos/core/renderer/scene/index.jsb.ts",
+                "cocos/core/renderer/scene/reflection-probe.ts": "cocos/core/renderer/scene/reflection-probe.jsb.ts",
                 "cocos/core/gfx/index.ts": "cocos/core/gfx/index.jsb.ts",
                 "cocos/core/gfx/pipeline-state.ts": "cocos/core/gfx/pipeline-state.jsb.ts",
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -38,6 +37,7 @@
 #include "renderer/GFXDeviceManager.h"
 #include "renderer/core/ProgramLib.h"
 #include "renderer/pipeline/RenderPipeline.h"
+#include "renderer/pipeline/custom/RenderingModule.h"
 
 #if CC_USE_AUDIO
     #include "cocos/audio/include/AudioEngine.h"
@@ -82,9 +82,11 @@ bool setCanvasCallback(se::Object * /*global*/) {
 
     std::stringstream ss;
     {
-        ss << "window.innerWidth = " << static_cast<int>(viewSize.width / dpr) << ";";
-        ss << "window.innerHeight = " << static_cast<int>(viewSize.height / dpr) << ";";
-        ss << "window.windowHandler = ";
+        ss << "globalThis.jsb = globalThis.jsb || {}; " << std::endl;
+        ss << "jsb.window = jsb.window || {}; " << std::endl;
+        ss << "jsb.window.innerWidth = " << static_cast<int>(viewSize.width / dpr) << ";" << std::endl;
+        ss << "jsb.window.innerHeight = " << static_cast<int>(viewSize.height / dpr) << ";" << std::endl;
+        ss << "jsb.window.windowHandler = ";
         if (sizeof(handler) == 8) { // use bigint
             ss << static_cast<uint64_t>(handler) << "n;";
         }
@@ -168,7 +170,7 @@ void Engine::destroy() {
     delete _debugRenderer;
 #endif
 
-    //TODO(): Delete some global objects.
+    // TODO(): Delete some global objects.
 #if CC_USE_DEBUG_RENDERER
     // FreeTypeFontFace is only used in DebugRenderer now, so use CC_USE_DEBUG_RENDERER macro temporarily
     FreeTypeFontFace::destroyFreeType();
@@ -190,6 +192,11 @@ void Engine::destroy() {
 
     delete _builtinResMgr;
     delete _programLib;
+
+    if (cc::render::getRenderingModule()) {
+        cc::render::Factory::destroy(cc::render::getRenderingModule());
+    }
+
     CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
     delete _fs;
     _scheduler.reset();
@@ -224,9 +231,9 @@ void Engine::close() { // NOLINT
     cc::AudioEngine::stopAll();
 #endif
 
-    //#if CC_USE_SOCKET
-    //    cc::network::WebSocket::closeAllConnections();
-    //#endif
+    // #if CC_USE_SOCKET
+    //     cc::network::WebSocket::closeAllConnections();
+    // #endif
 
     cc::DeferredReleasePool::clear();
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
@@ -243,13 +250,15 @@ void Engine::setPreferredFramesPerSecond(int fps) {
     }
     BasePlatform *platform = BasePlatform::getPlatform();
     platform->setFps(fps);
-    _prefererredNanosecondsPerFrame = static_cast<long>(1.0 / fps * NANOSECONDS_PER_SECOND); //NOLINT(google-runtime-int)
+    _preferredNanosecondsPerFrame = static_cast<long>(1.0 / fps * NANOSECONDS_PER_SECOND); // NOLINT(google-runtime-int)
 }
 
 void Engine::tick() {
     CC_PROFILER_BEGIN_FRAME;
     {
         CC_PROFILE(EngineTick);
+
+        _gfxDevice->frameSync();
 
         if (_needRestart) {
             doRestart();
@@ -264,12 +273,13 @@ void Engine::tick() {
         ++_totalFrames;
 
         // iOS/macOS use its own fps limitation algorithm.
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
-        if (dtNS < static_cast<double>(_prefererredNanosecondsPerFrame)) {
+        // Windows for Editor should not sleep,because Editor call tick function synchronously
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || (CC_PLATFORM == CC_PLATFORM_WINDOWS && !CC_EDITOR) || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+        if (dtNS < static_cast<double>(_preferredNanosecondsPerFrame)) {
             CC_PROFILE(EngineSleep);
             std::this_thread::sleep_for(
-                std::chrono::nanoseconds(_prefererredNanosecondsPerFrame - static_cast<int64_t>(dtNS)));
-            dtNS = static_cast<double>(_prefererredNanosecondsPerFrame);
+                std::chrono::nanoseconds(_preferredNanosecondsPerFrame - static_cast<int64_t>(dtNS)));
+            dtNS = static_cast<double>(_preferredNanosecondsPerFrame);
         }
 #endif
 
@@ -329,6 +339,9 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::CLOSE) {
         emit<EngineStatusChange>(ON_CLOSE);
+        events::Close::broadcast();
+        // Increase the frame rate and get the program to exit as quickly as possible
+        setPreferredFramesPerSecond(1000);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::QUIT) {
         // There is no need to process the quit message,

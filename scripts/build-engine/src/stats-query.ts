@@ -41,6 +41,13 @@ export class StatsQuery {
     get tsConfigPath () {
         return ps.join(this._engine, 'tsconfig.json');
     }
+    
+    /**
+     * Gets all optimzie decorators
+     */
+    public getOptimizeDecorators () {
+        return this._config.optimizeDecorators;
+    }
 
     /**
      * Gets all features defined.
@@ -56,6 +63,11 @@ export class StatsQuery {
     public hasFeature (feature: string) {
         return !!this._features[feature];
     }
+
+    // TODO: it seems we don't need this interface for now.
+    // public isNativeOnlyFeature (feature: string) {
+    //     return !!this._features[feature].isNativeOnly;
+    // }
 
     /**
      * Gets all feature units included in specified features.

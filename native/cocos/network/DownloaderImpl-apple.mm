@@ -58,7 +58,6 @@
 }
 @property (nonatomic, strong) NSURLSession *downloadSession;
 @property (nonatomic, strong) NSMutableDictionary *taskDict; // ocTask: DownloadTaskWrapper
-@property (nonatomic) Boolean hasUnfinishedTask;
 
 - (id)init:(const cc::network::DownloaderApple *)o hints:(const cc::network::DownloaderHints &)hints;
 - (const cc::network::DownloaderHints &)getHints;
@@ -106,7 +105,11 @@ IDownloadTask *DownloaderApple::createCoTask(std::shared_ptr<const DownloadTask>
     DeclareDownloaderImplVar;
     if (task->storagePath.length()) {
 #if CC_PLATFORM == CC_PLATFORM_IOS
-        if (impl.hasUnfinishedTask == YES) {
+        NSString *requesetURL = [NSString stringWithFormat:@"%s", task->requestURL.c_str()];
+        NSString *savaPath = [NSString stringWithFormat:@"%s", (cc::FileUtils::getInstance()->getWritablePath() + "resumeData.plist").c_str()];
+        NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:savaPath];
+        NSString *hasResumeData = [dict objectForKey:requesetURL];
+        if ([hasResumeData isEqual: @"YES"]) {
                 CC_CURRENT_ENGINE()->getScheduler()->schedule([=](float dt) mutable {
                     coTask->downloadTask = [impl createDownloadTask:task];
                 },this , 0, 0, 0.1F, false, task->requestURL);
@@ -205,7 +208,6 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
     // create backgroundSession for iOS to support background download
     self.downloadSession = [self backgroundURLSession];
 
-    self.hasUnfinishedTask = YES;
     // cancel and save last running tasks
     [self.downloadSession getTasksWithCompletionHandler:^(NSArray *dataTasks, NSArray *uploadTasks, NSArray *downloadTasks) {
         for (NSURLSessionDownloadTask *downloadTask in downloadTasks) {
@@ -272,6 +274,12 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
 };
 
 - (NSURLSessionDownloadTask *)createDownloadTask:(std::shared_ptr<const cc::network::DownloadTask> &)task {
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    NSString *requesetURL = [NSString stringWithFormat:@"%s", task->requestURL.c_str()];
+    [dict setObject:@"YES" forKey:requesetURL];
+    NSString *savaPath = [NSString stringWithFormat:@"%s", (cc::FileUtils::getInstance()->getWritablePath() + "resumeData.plist").c_str()];
+    [dict writeToFile:savaPath atomically:YES];
+
     const char *urlStr = task->requestURL.c_str();
     DLLOG("DownloaderAppleImpl createDownloadTask: %s", urlStr);
     NSString *resourcePath = [NSString stringWithUTF8String:urlStr];
@@ -509,7 +517,6 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
             }
     }
     [self.taskDict removeObjectForKey:task];
-    self.hasUnfinishedTask = NO;
 
     while (!_taskQueue.empty() && _taskQueue.front() == nil) {
         _taskQueue.pop();
@@ -656,7 +663,12 @@ void DownloaderApple::abort(const std::unique_ptr<IDownloadTask> &task) {
         }
         ccstd::vector<unsigned char> buf; // just a placeholder
         _outer->onTaskFinish(*[wrapper get], errorCode, errorCodeInternal, errorString, buf);
-        self.hasUnfinishedTask = NO;
+
+        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+        NSString *requesetURL = [NSString stringWithFormat:@"%s", [wrapper get]->requestURL.c_str()];
+        [dict removeObjectForKey:requesetURL];
+        NSString *savaPath = [NSString stringWithFormat:@"%s", (cc::FileUtils::getInstance()->getWritablePath() + "resumeData.plist").c_str()];
+        [dict writeToFile:savaPath atomically:YES];
     }
 }
 

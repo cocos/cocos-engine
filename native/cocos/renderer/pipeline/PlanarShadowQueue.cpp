@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,10 +22,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/std/container/array.h"
-
 #include "Define.h"
-#include "LODModelsUtil.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
@@ -44,7 +40,8 @@ namespace cc {
 namespace pipeline {
 
 PlanarShadowQueue::PlanarShadowQueue(RenderPipeline *pipeline)
-: _pipeline(pipeline) {
+: _pipeline(pipeline),
+  _phaseID(getPhaseID("planar-shadow")) {
     _instancedQueue = ccnew RenderInstancedQueue;
 }
 
@@ -56,7 +53,7 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
     clear();
 
     const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
-    const scene::Shadows *shadowInfo = sceneData->getShadows();
+    scene::Shadows *shadowInfo = sceneData->getShadows();
     if (shadowInfo == nullptr || !shadowInfo->isEnabled() || shadowInfo->getType() != scene::ShadowType::PLANAR || shadowInfo->getNormal().length() < 0.000001F) {
         return;
     }
@@ -67,10 +64,9 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
         return;
     }
 
-    LODModelsCachedUtils::updateCachedLODModels(scene, camera);
     const auto &models = scene->getModels();
     for (const auto &model : models) {
-        if (LODModelsCachedUtils::isLODModelCulled(model)) {
+        if (scene->isCulledByLod(camera, model)) {
             continue;
         }
         if (!model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
@@ -81,10 +77,6 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
             _castModels.emplace_back(model);
         }
     }
-    LODModelsCachedUtils::clearCachedLODModels();
-
-    const auto &passes = *shadowInfo->getInstancingMaterial()->getPasses();
-    InstancedBuffer *instancedBuffer = passes[0]->getInstancedBuffer();
 
     geometry::AABB ab;
     for (const auto *model : _castModels) {
@@ -96,16 +88,23 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
 
         const auto &subModels = model->getSubModels();
         for (const auto &subModel : subModels) {
-            const auto &subModelPasses = subModel->getPasses();
-            for (index_t i = 0; i < static_cast<index_t>(subModelPasses.size()); ++i) {
-                const auto subModelPass = subModelPasses[i];
-                const auto batchingScheme = subModelPass->getBatchingScheme();
-                if (batchingScheme == scene::BatchingSchemes::INSTANCING) {
-                    instancedBuffer->merge(subModel, i, subModel->getPlanarInstanceShader());
-                    _instancedQueue->add(instancedBuffer);
-                } else { // standard draw
-                    _pendingSubModels.emplace_back(subModel);
-                }
+            const auto shadowPassIdx = getShadowPassIndex(subModel);
+            if (shadowPassIdx == -1) {
+                _subModelArray.emplace_back(subModel);
+                _shaderArray.emplace_back(shadowInfo->getPlanarShader(subModel->getPatches()));
+                _passArray.emplace_back((*shadowInfo->getMaterial()->getPasses())[0]);
+                continue;
+            }
+            auto *const pass = subModel->getPass(shadowPassIdx);
+            const auto batchingScheme = pass->getBatchingScheme();
+            if (batchingScheme == scene::BatchingSchemes::INSTANCING) {
+                auto *instancedBuffer = pass->getInstancedBuffer();
+                instancedBuffer->merge(subModel, shadowPassIdx);
+                _instancedQueue->add(instancedBuffer);
+            } else { // standard draw
+                _subModelArray.emplace_back(subModel);
+                _shaderArray.emplace_back(subModel->getShader(shadowPassIdx));
+                _passArray.emplace_back(pass);
             }
         }
     }
@@ -115,7 +114,9 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
 
 void PlanarShadowQueue::clear() {
     _castModels.clear();
-    _pendingSubModels.clear();
+    _subModelArray.clear();
+    _shaderArray.clear();
+    _passArray.clear();
     if (_instancedQueue) _instancedQueue->clear();
 }
 
@@ -128,19 +129,15 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
 
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
 
-    if (_pendingSubModels.empty()) {
-        return;
-    }
-
-    const scene::Pass *pass = (*shadowInfo->getMaterial()->getPasses())[0];
-    cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
-
-    for (const auto *subModel : _pendingSubModels) {
-        auto *const shader = subModel->getPlanarShader();
+    for (size_t i = 0; i < _subModelArray.size(); ++i) {
+        const auto *const subModel = _subModelArray[i];
+        auto *const shader = _shaderArray[i];
+        const auto *pass = _passArray[i];
         auto *const ia = subModel->getInputAssembler();
         auto *const pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass, subpassID);
 
         cmdBuffer->bindPipelineState(pso);
+        cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         cmdBuffer->bindDescriptorSet(localSet, subModel->getDescriptorSet());
         cmdBuffer->bindInputAssembler(ia);
         cmdBuffer->draw(ia);
@@ -151,7 +148,18 @@ void PlanarShadowQueue::destroy() {
     _pipeline = nullptr;
     CC_SAFE_DELETE(_instancedQueue);
     _castModels.clear();
-    _pendingSubModels.clear();
+    _subModelArray.clear();
+}
+
+int PlanarShadowQueue::getShadowPassIndex(const scene::SubModel *subModel) const {
+    int i = 0;
+    for (const auto &pass : subModel->getPasses()) {
+        if (pass->getPhase() == _phaseID) {
+            return i;
+        }
+        ++i;
+    }
+    return -1;
 }
 
 } // namespace pipeline

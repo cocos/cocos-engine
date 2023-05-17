@@ -1,10 +1,36 @@
-import { Vec2, _decorator, ccenum } from '../../core';
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { Vec2, _decorator, ccenum, assertIsTrue, editable } from '../../core';
 import { createEval } from './create-eval';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { MotionEvalContext } from './motion';
 import { BindableNumber, bindOr, VariableType } from './parametric';
-import { sampleFreeformCartesian, sampleFreeformDirectional, blendSimpleDirectional } from './blend-2d';
+import { sampleFreeformCartesian, blendSimpleDirectional, PolarSpaceGradientBandInterpolator2D } from './blend-2d';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { AnimationGraphLayerWideBindingContext } from './animation-graph-context';
+import { ReadonlyClipOverrideMap } from './graph-eval';
 
 const { ccclass, serializable } = _decorator;
 
@@ -40,8 +66,18 @@ export class AnimationBlend2D extends AnimationBlend {
 
     public static Item = AnimationBlend2DItem;
 
-    @serializable
-    public algorithm = Algorithm.SIMPLE_DIRECTIONAL;
+    @editable
+    public get algorithm () {
+        return this._algorithm;
+    }
+
+    public set algorithm (value) {
+        if (value === this._algorithm) {
+            return;
+        }
+        this._algorithm = value;
+        this._tryReconstructPolarSpaceInterpolator();
+    }
 
     @serializable
     private _items: AnimationBlend2DItem[] = [];
@@ -58,6 +94,7 @@ export class AnimationBlend2D extends AnimationBlend {
 
     set items (items) {
         this._items = Array.from(items);
+        this._tryReconstructPolarSpaceInterpolator();
     }
 
     public clone () {
@@ -66,20 +103,44 @@ export class AnimationBlend2D extends AnimationBlend {
         that._items = this._items.map((item) => item?.clone() ?? null);
         that.paramX = this.paramX.clone();
         that.paramY = this.paramY.clone();
+        that.algorithm = this._algorithm;
         return that;
     }
 
-    public [createEval] (context: MotionEvalContext) {
-        const evaluation = new AnimationBlend2DEval(
-            context,
-            this,
-            this._items,
-            this._items.map(({ threshold }) => threshold),
-            this.algorithm,
-            [0.0, 0.0],
-        );
+    public [createEval] (context: AnimationGraphLayerWideBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
+        const { algorithm } = this;
+        let evaluation: AnimationBlendEval;
+        switch (algorithm) {
+        case Algorithm.FREEFORM_DIRECTIONAL:
+            assertIsTrue(this._polarSpaceGBI, `The polar space interpolator is not setup correctly!`);
+            evaluation = new PolarSpaceGradientBandBlend2DEval(
+                context,
+                clipOverrides,
+                this,
+                this._items,
+                this._polarSpaceGBI,
+                [0.0, 0.0],
+            );
+            break;
+        default:
+            assertIsTrue(false);
+            // fallthrough
+        case Algorithm.SIMPLE_DIRECTIONAL:
+        case Algorithm.FREEFORM_CARTESIAN:
+            evaluation =  new AnimationBlend2DEval(
+                context,
+                clipOverrides,
+                this,
+                this._items,
+                this._items.map(({ threshold }) => threshold),
+                algorithm,
+                [0.0, 0.0],
+            );
+            break;
+        }
+
         const initialValueX = bindOr(
-            context,
+            context.outerContext,
             this.paramX,
             VariableType.FLOAT,
             evaluation.setInput,
@@ -87,7 +148,7 @@ export class AnimationBlend2D extends AnimationBlend {
             0,
         );
         const initialValueY = bindOr(
-            context,
+            context.outerContext,
             this.paramY,
             VariableType.FLOAT,
             evaluation.setInput,
@@ -97,6 +158,19 @@ export class AnimationBlend2D extends AnimationBlend {
         evaluation.setInput(initialValueX, 0);
         evaluation.setInput(initialValueY, 1);
         return evaluation;
+    }
+
+    @serializable
+    private _algorithm = Algorithm.SIMPLE_DIRECTIONAL;
+
+    private _polarSpaceGBI: PolarSpaceGradientBandInterpolator2D | undefined = undefined;
+
+    private _tryReconstructPolarSpaceInterpolator () {
+        if (this._algorithm === Algorithm.FREEFORM_DIRECTIONAL) {
+            this._polarSpaceGBI = new PolarSpaceGradientBandInterpolator2D(this._items.map((item) => item.threshold));
+        } else {
+            this._polarSpaceGBI = undefined;
+        }
     }
 }
 
@@ -108,18 +182,19 @@ export declare namespace AnimationBlend2D {
 
 class AnimationBlend2DEval extends AnimationBlendEval {
     private _thresholds: readonly Vec2[];
-    private _algorithm: Algorithm;
+    private _algorithm: Algorithm.SIMPLE_DIRECTIONAL | Algorithm.FREEFORM_CARTESIAN;
     private _value = new Vec2();
 
     constructor (
-        context: MotionEvalContext,
+        context: AnimationGraphLayerWideBindingContext,
+        clipOverrides: ReadonlyClipOverrideMap | null,
         base: AnimationBlend,
         items: AnimationBlendItem[],
         thresholds: readonly Vec2[],
-        algorithm: Algorithm,
+        algorithm: Algorithm.SIMPLE_DIRECTIONAL | Algorithm.FREEFORM_CARTESIAN,
         inputs: [number, number],
     ) {
-        super(context, base, items, inputs);
+        super(context, clipOverrides, base, items, inputs);
         this._thresholds = thresholds;
         this._algorithm = algorithm;
         this.doEval();
@@ -135,11 +210,32 @@ class AnimationBlend2DEval extends AnimationBlendEval {
         case Algorithm.FREEFORM_CARTESIAN:
             sampleFreeformCartesian(weights, this._thresholds, this._value);
             break;
-        case Algorithm.FREEFORM_DIRECTIONAL:
-            sampleFreeformDirectional(weights, this._thresholds, this._value);
-            break;
         default:
             break;
         }
+    }
+}
+
+class PolarSpaceGradientBandBlend2DEval extends AnimationBlendEval {
+    private _interpolator: PolarSpaceGradientBandInterpolator2D;
+    private _value = new Vec2();
+
+    constructor (
+        context: AnimationGraphLayerWideBindingContext,
+        clipOverrides: ReadonlyClipOverrideMap | null,
+        base: AnimationBlend,
+        items: AnimationBlendItem[],
+        interpolator: PolarSpaceGradientBandInterpolator2D,
+        inputs: [number, number],
+    ) {
+        super(context, clipOverrides, base, items, inputs);
+        this._interpolator = interpolator;
+        this.doEval();
+    }
+
+    protected eval (weights: number[], [x, y]: [number, number]) {
+        Vec2.set(this._value, x, y);
+        weights.fill(0);
+        this._interpolator.interpolate(weights, this._value);
     }
 }

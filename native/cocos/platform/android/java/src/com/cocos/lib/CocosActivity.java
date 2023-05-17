@@ -24,9 +24,6 @@
 
 package com.cocos.lib;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
@@ -50,7 +47,6 @@ public class CocosActivity extends GameActivity {
     private static final String TAG = "CocosActivity";
     private CocosWebViewHelper mWebViewHelper = null;
     private CocosVideoHelper mVideoHelper = null;
-    private CocosOrientationHelper mOrientationHelper = null;
 
     private CocosSensorHandler mSensorHandler;
     private List<CocosSurfaceView> mSurfaceViewArray;
@@ -69,9 +65,11 @@ public class CocosActivity extends GameActivity {
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
 
-        GlobalObject.setActivity(this);
+        // GlobalObject.init should be initialized at first.
+        GlobalObject.init(this, this);
+
         CocosHelper.registerBatteryLevelReceiver(this);
-        CocosHelper.init(this);
+        CocosHelper.init();
         CocosAudioFocusManager.registerAudioFocusListener(this);
         CanvasRenderingContext2DImpl.init(this);
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -85,10 +83,7 @@ public class CocosActivity extends GameActivity {
 
         Utils.hideVirtualButton();
 
-        int orientation = getRequestedOrientation();
-        if (orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR || orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE || orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT) {
-            mOrientationHelper = new CocosOrientationHelper(this);
-        }
+        mSurfaceView.setOnTouchListener((v, event) -> processMotionEvent(event));
     }
 
     private void setImmersiveMode() {
@@ -138,24 +133,19 @@ public class CocosActivity extends GameActivity {
         CocosHelper.unregisterBatteryLevelReceiver(this);
         CocosAudioFocusManager.unregisterAudioFocusListener(this);
         CanvasRenderingContext2DImpl.destroy();
+        GlobalObject.destroy();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mSensorHandler.onPause();
-        if (null != mOrientationHelper) {
-            mOrientationHelper.onPause();
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mSensorHandler.onResume();
-        if (null != mOrientationHelper) {
-            mOrientationHelper.onResume();
-        }
         Utils.hideVirtualButton();
         if (CocosAudioFocusManager.isAudioFocusLoss()) {
             CocosAudioFocusManager.registerAudioFocusListener(this);

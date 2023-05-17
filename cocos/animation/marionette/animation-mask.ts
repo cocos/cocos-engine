@@ -1,8 +1,47 @@
-import { ccclass, serializable, editable } from 'cc.decorator';
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { ccclass, serializable, editable, type } from 'cc.decorator';
 import type { Node } from '../../scene-graph/node';
 import { Asset } from '../../asset/assets/asset';
 import { js } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+
+interface JointMaskInfo {
+    readonly path: string;
+
+    enabled: boolean;
+}
+
+@ccclass('cc.JointMask')
+class JointMask {
+    @serializable
+    public path = '';
+
+    @serializable
+    public enabled = true;
+}
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationMask`)
 export class AnimationMask extends Asset {
@@ -10,7 +49,11 @@ export class AnimationMask extends Asset {
     private _jointMasks: JointMask[] = [];
 
     @editable
+    @type(JointMask)
     get joints (): Iterable<JointMaskInfo> {
+        // TODO: editor currently treats this property as (and expects it to be) an array.
+        // If later refactoring is needed, changes should also be made to editor.
+
         return this._jointMasks;
     }
 
@@ -61,25 +104,14 @@ export class AnimationMask extends Asset {
         }
         return disabledNodes;
     }
+
+    public isExcluded (path: string) {
+        return !(this._jointMasks.find(({ path: p }) => p === path)?.enabled ?? true);
+    }
 }
 
 type JointMaskInfo_ = JointMaskInfo;
 
 export declare namespace AnimationMask {
     export type JointMaskInfo = JointMaskInfo_;
-}
-
-interface JointMaskInfo {
-    readonly path: string;
-
-    enabled: boolean;
-}
-
-@ccclass('cc.JointMask')
-class JointMask {
-    @serializable
-    public path = '';
-
-    @serializable
-    public enabled = true;
 }

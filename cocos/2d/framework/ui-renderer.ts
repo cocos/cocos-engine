@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,7 +30,7 @@ import {
 import { Color, assert, ccenum, cclegacy } from '../../core';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets';
-import { BlendFactor } from '../../gfx';
+import { BlendFactor, BlendOp, ColorMask } from '../../gfx';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
@@ -48,6 +47,8 @@ import { director } from '../../game';
 
 // hack
 ccenum(BlendFactor);
+ccenum(BlendOp);
+ccenum(ColorMask);
 
 /**
  * @en
@@ -118,16 +119,19 @@ export class UIRenderer extends Renderer {
      * @en The blend factor enums
      * @zh 混合模式枚举类型
      * @see [[gfx.BlendFactor]]
+     * @internal
      */
     public static BlendState = BlendFactor;
     /**
      * @en The render data assembler
      * @zh 渲染数据组装器
+     * @internal
      */
     public static Assembler: IAssemblerManager = null!;
     /**
      * @en The post render data assembler
      * @zh 后置渲染数据组装器
+     * @internal
      */
     public static PostAssembler: IAssemblerManager | null = null;
 
@@ -191,28 +195,35 @@ export class UIRenderer extends Renderer {
         this._color.set(value);
         this._updateColor();
         if (EDITOR) {
-            const clone = value.clone();
+            const clone = this._color.clone();
             this.node.emit(NodeEventType.COLOR_CHANGED, clone);
         }
     }
 
     protected _renderData: RenderData | null = null;
     /**
-     * @internal
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get renderData () {
         return this._renderData;
     }
+    /**
+     * As can not set setter internal individually, so add setRenderData();
+     * @engineInternal
+     */
+    setRenderData (renderData: RenderData | null) {
+        this._renderData = renderData;
+    }
 
     /**
-     * @internal
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     get useVertexOpacity () {
         return this._useVertexOpacity;
     }
 
     /**
-     * @internal
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
      */
@@ -231,6 +242,12 @@ export class UIRenderer extends Renderer {
 
     @serializable
     protected _srcBlendFactor = BlendFactor.SRC_ALPHA;
+    /**
+     * @engineInternal
+     * @internal
+     */
+    get srcBlendFactor (): BlendFactor { return this._srcBlendFactor; }
+    set srcBlendFactor (srcBlendFactor: BlendFactor) { this._srcBlendFactor = srcBlendFactor; }
     @serializable
     protected _dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
     @serializable
@@ -251,19 +268,26 @@ export class UIRenderer extends Renderer {
     protected _instanceMaterialType = -1;
     protected _srcBlendFactorCache = BlendFactor.SRC_ALPHA;
     protected _dstBlendFactorCache = BlendFactor.ONE_MINUS_SRC_ALPHA;
+
     /**
-     * @internal
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public _dirtyVersion = -1;
     /**
-     * @internal
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public _internalId = -1;
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get batcher () {
         return director.root!.batcher2D;
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get renderEntity () {
         if (DEBUG) {
             assert(this._renderEntity, 'this._renderEntity should not be invalid');
@@ -337,7 +361,7 @@ export class UIRenderer extends Renderer {
      */
     public markForUpdateRenderData (enable = true) {
         if (enable) {
-            const renderData = this.renderData;
+            const renderData = this._renderData;
             if (renderData) {
                 renderData.vertDirty = true;
             }
@@ -348,7 +372,7 @@ export class UIRenderer extends Renderer {
     /**
      * @en Request new render data object.
      * @zh 请求新的渲染数据对象。
-     * @return The new render data
+     * @return @en The new render data. @zh 新的渲染数据。
      */
     public requestRenderData (drawInfoType = RenderDrawInfoType.COMP) {
         const data = RenderData.add();
@@ -362,15 +386,17 @@ export class UIRenderer extends Renderer {
      * @zh 销毁当前渲染数据。
      */
     public destroyRenderData () {
-        if (!this.renderData) {
+        if (!this._renderData) {
             return;
         }
-        this.renderData.removeRenderDrawInfo(this);
-        RenderData.remove(this.renderData);
+        this._renderData.removeRenderDrawInfo(this);
+        RenderData.remove(this._renderData);
         this._renderData = null;
     }
 
-    // test code: to replace prev part updateAssembler
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public updateRenderer () {
         if (this._assembler) {
             this._assembler.updateRenderData(this);
@@ -379,7 +405,9 @@ export class UIRenderer extends Renderer {
         this._renderEntity.enabled = this._renderFlag;
     }
 
-    // test code: to replace after part updateAssembler
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public fillBuffers (render: IBatcher) {
         if (this._renderFlag) {
             this._render(render);
@@ -408,16 +436,21 @@ export class UIRenderer extends Renderer {
         if (DEBUG) {
             assert(this.isValid, 'this component should not be invalid!');
         }
-        return this.getMaterial(0) !== null
+        return this.getSharedMaterial(0) !== null
             && this._enabled
             && this._color.a > 0;
     }
 
     protected _postCanRender () { }
 
-    protected updateMaterial () {
+    /**
+     * @engineInternal
+     */
+    public updateMaterial () {
         if (this._customMaterial) {
-            this.setMaterial(this._customMaterial, 0);
+            if (this.getSharedMaterial(0) !== this._customMaterial) {
+                this.setMaterial(this._customMaterial, 0);
+            }
             return;
         }
         const mat = this._updateBuiltinMaterial();
@@ -437,11 +470,21 @@ export class UIRenderer extends Renderer {
         if (this._assembler) {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
+            const renderFlag = this._renderFlag;
             this._renderFlag = this._canRender();
             this.setEntityEnabled(this._renderFlag);
+            if (renderFlag !== this._renderFlag) {
+                const renderData = this.renderData;
+                if (renderData) {
+                    renderData.vertDirty = true;
+                }
+            }
         }
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     // for common
     public static setEntityColorDirtyRecursively (node: Node, dirty: boolean) {
         const render = node._uiProps.uiComp as UIRenderer;
@@ -459,18 +502,27 @@ export class UIRenderer extends Renderer {
         }
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public setEntityColor (color: Color) {
         if (JSB) {
             this._renderEntity.color = color;
         }
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public setEntityOpacity (opacity: number) {
         if (JSB) {
             this._renderEntity.localOpacity = opacity;
         }
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public setEntityEnabled (enabled: boolean) {
         if (JSB) {
             this._renderEntity.enabled = enabled;
@@ -493,7 +545,6 @@ export class UIRenderer extends Renderer {
             target.blendSrc = this._srcBlendFactor;
             const targetPass = this.getMaterialInstance(0)!.passes[0];
             targetPass.blendState.setTarget(0, target);
-            // @ts-expect-error hack for UI use pass object
             targetPass._updatePassHash();
             this._dstBlendFactorCache = this._dstBlendFactor;
             this._srcBlendFactorCache = this._srcBlendFactor;
@@ -502,7 +553,7 @@ export class UIRenderer extends Renderer {
 
     // pos, rot, scale changed
     protected _nodeStateChange (transformType: TransformBit) {
-        if (this.renderData) {
+        if (this._renderData) {
             this.markForUpdateRenderData();
         }
 
@@ -521,9 +572,9 @@ export class UIRenderer extends Renderer {
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {
-        if (this.renderData) {
+        if (this._renderData) {
             this.markForUpdateRenderData();
-            this.renderData.passDirty = true;
+            this._renderData.passDirty = true;
         }
         super._onMaterialModified(idx, material);
     }
@@ -552,15 +603,21 @@ export class UIRenderer extends Renderer {
 
     protected _flushAssembler?(): void;
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public setNodeDirty () {
-        if (this.renderData) {
-            this.renderData.nodeDirty = true;
+        if (this._renderData) {
+            this._renderData.nodeDirty = true;
         }
     }
 
+    /**
+     * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public setTextureDirty () {
-        if (this.renderData) {
-            this.renderData.textureDirty = true;
+        if (this._renderData) {
+            this._renderData.textureDirty = true;
         }
     }
 

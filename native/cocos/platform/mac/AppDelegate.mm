@@ -84,7 +84,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification {
     _platform = dynamic_cast<cc::MacPlatform*>(cc::BasePlatform::getPlatform());
-    CC_ASSERT(_platform != nullptr);
+    CC_ASSERT_NOT_NULL(_platform);
     _platform->loop();
 }
 
@@ -102,6 +102,11 @@
 
 - (NSWindow*)getWindow {
     return _window;
+}
+
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
+{
+    return _platform->readyToExit() ? NSTerminateNow : NSTerminateLater;
 }
 
 - (void)applicationWillTerminate:(NSNotification*)aNotification {

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,12 +20,10 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { BUILD } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { director } from '../../game/director';
-import { game } from '../../game';
 import { getError, macro, path, removeProperty, replaceProperty, cclegacy } from '../../core';
 import Cache from './cache';
 import assetManager, { AssetManager } from './asset-manager';
@@ -35,11 +32,11 @@ import dependUtil from './depend-util';
 import downloader from './downloader';
 import { getUuidFromURL, transform } from './helper';
 import parser from './parser';
-import releaseManager from './release-manager';
-import { assets, BuiltinBundleName, bundles, ProgressCallback, CompleteCallback } from './shared';
+import { releaseManager } from './release-manager';
+import { assets, BuiltinBundleName, bundles } from './shared';
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';
-import { ISceneInfo } from './config';
 import factory from './factory';
+import RequestItem from './request-item';
 
 const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm', '.astc'];
 const AudioFmts = ['.mp3', '.ogg', '.wav', '.m4a'];
@@ -96,7 +93,7 @@ export class CCLoader {
      *
      * @deprecated since v3.0, loader.onProgress is deprecated, please transfer onProgress to API as a parameter
      */
-    public set onProgress (val: ProgressCallback) {
+    public set onProgress (val: ((finished: number, total: number, item: RequestItem) => void)) {
         setDefaultProgressCallback(val);
     }
 
@@ -111,8 +108,7 @@ export class CCLoader {
      */
     public get _cache (): Record<string, Asset> {
         if (assets instanceof Cache) {
-            // @ts-expect-error return private property
-            return assets._map;
+            return assets.map!;
         } else {
             const map = {};
             assets.forEach((val, key) => {
@@ -585,7 +581,7 @@ export class CCLoader {
      * @param extMap Handlers for corresponding type in a map
      * @deprecated since v3.0 loader.addDownloadHandlers is deprecated, please use assetManager.downloader.register instead
      */
-    public addDownloadHandlers (extMap: Record<string, (item: { url: string }, cb: CompleteCallback) => void>) {
+    public addDownloadHandlers (extMap: Record<string, (item: { url: string }, cb: ((err: Error | null, data?: any | null) => void)) => void>) {
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
@@ -609,7 +605,7 @@ export class CCLoader {
      * @param extMap Handlers for corresponding type in a map
      * @deprecated since v3.0 loader.addLoadHandlers is deprecated, please use assetManager.parser.register instead
      */
-    public addLoadHandlers (extMap: Record<string, ({ content: any }, cb: CompleteCallback) => void>) {
+    public addLoadHandlers (extMap: Record<string, ({ content: any }, cb: ((err: Error | null, data?: any | null) => void)) => void>) {
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
@@ -883,7 +879,7 @@ export const AssetLibrary = {
      * @param {Asset} options.existingAsset - 加载现有资源，此参数仅在编辑器中可用。
      * @deprecated since v3.0 AssetLibrary.loadAsset is deprecated, please use assetManager.loadAny instead
      */
-    loadAsset (uuid: string, callback: CompleteCallback, options?) {
+    loadAsset (uuid: string, callback: ((err: Error | null, data?: any | null) => void), options?) {
         assetManager.loadAny(uuid, callback);
     },
 };
@@ -985,37 +981,6 @@ replaceProperty(macro, 'macro', [
         target: downloader,
         targetName: 'assetManager.downloader',
         newName: 'maxConcurrency',
-    },
-]);
-
-replaceProperty(director, 'director', [
-    {
-        name: '_getSceneUuid',
-        targetName: 'assetManager.main',
-        newName: 'getSceneInfo',
-        customFunction: (sceneName) => {
-            if (assetManager.main) {
-                return assetManager.main.getSceneInfo(sceneName)?.uuid;
-            }
-            return '';
-        },
-    },
-]);
-
-replaceProperty(game, 'game', [
-    {
-        name: '_sceneInfos',
-        targetName: 'assetManager.main',
-        newName: 'getSceneInfo',
-        customGetter: () => {
-            const scenes: ISceneInfo[] = [];
-            if (assetManager.main) {
-                assetManager.main.config.scenes.forEach((val) => {
-                    scenes.push(val);
-                });
-            }
-            return scenes;
-        },
     },
 ]);
 

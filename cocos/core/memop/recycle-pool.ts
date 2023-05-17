@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ScalableContainer } from './scalable-container';
 
@@ -79,8 +78,8 @@ export class RecyclePool<T = any> extends ScalableContainer {
     }
 
     /**
-     * @en Resets the object pool. Only changes the length to 0
-     * @zh 清空对象池。目前仅仅会设置尺寸为 0
+     * @en Resets the object pool. Only changes the length to 0.
+     * @zh 清空对象池。目前仅仅会设置尺寸为 0。
      */
     public reset () {
         this._count = 0;
@@ -89,7 +88,7 @@ export class RecyclePool<T = any> extends ScalableContainer {
     /**
      * @en Resize the object poo, and fills with new created elements.
      * @zh 设置对象池大小，并填充新的元素。
-     * @param size The new size of the pool
+     * @param size @en The new size of the pool. @zh 新的对象池大小。
      */
     public resize (size: number) {
         if (size > this._data.length) {
@@ -100,9 +99,8 @@ export class RecyclePool<T = any> extends ScalableContainer {
     }
 
     /**
-     * @en Expand the object pool, the size will be increment to current size times two, and fills with new created elements.
-     * @zh 扩充对象池容量，会自动扩充尺寸到两倍，并填充新的元素。
-     * @param idx
+     * @en Expand the array size to 2 times the original size, and fills with new created elements.
+     * @zh 扩充对象池容量，会自动扩充尺寸到原来的 2 倍，并填充新的元素。
      */
     public add () {
         if (this._count >= this._data.length) {
@@ -112,6 +110,10 @@ export class RecyclePool<T = any> extends ScalableContainer {
         return this._data[this._count++];
     }
 
+    /**
+     * @en Destroy the object pool. Please don't use it any more after it is destroyed.
+     * @zh 销毁对象池。销毁后不能继续使用。
+     */
     public destroy () {
         if (this._dtor) {
             for (let i = 0; i < this._data.length; i++) {
@@ -123,6 +125,10 @@ export class RecyclePool<T = any> extends ScalableContainer {
         super.destroy();
     }
 
+    /**
+     * @en Try to shrink the object pool to free memory.
+     * @zh 尝试回收没用的对象，释放内存。
+     */
     public tryShrink () {
         if (this._data.length >> 2 > this._count) {
             const length = Math.max(this._initSize, this._data.length >> 1);
@@ -136,9 +142,9 @@ export class RecyclePool<T = any> extends ScalableContainer {
     }
 
     /**
-     * @en Remove an element of the object pool. This will also decrease size of the pool
-     * @zh 移除对象池中的一个元素，同时会减小池子尺寸。
-     * @param idx The index of the element to be removed
+     * @en Remove the element with the specified index from the object pool. This will decrease pool size.
+     * @zh 移除对象池中指定索引的元素，会减小池子尺寸。
+     * @param idx @en The index of the element to remove. @zh 被移除的元素的索引。
      */
     public removeAt (idx: number) {
         if (idx >= this._count) {

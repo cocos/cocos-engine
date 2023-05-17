@@ -98,6 +98,12 @@ rules:
 
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
 
+    '@typescript-eslint/ban-ts-comment': [error, {
+        'ts-expect-error': true,
+        'ts-ignore': true,
+        'ts-nocheck': true,
+        'ts-check': false,
+    }]
     '@typescript-eslint/indent': [warn, 4, {
         SwitchCase: 0
     }]
@@ -123,4 +129,14 @@ rules:
     '@typescript-eslint/restrict-template-expressions': [warn, { # concatenations of different types are common, e.g. hash calculations
         allowNumber: true,
         allowBoolean: true
+    }]
+
+    '@typescript-eslint/type-annotation-spacing': warn
+
+    # We choose to use style `... as foo` since it's more common.
+    # In the other hand, angle bracket style can be ambiguous with j/tsx syntax.
+    # For example, https://babeljs.io/docs/en/babel-plugin-transform-typescript#istsx
+    # forbids angle bracket style if `isTSX` is enabled.
+    '@typescript-eslint/consistent-type-assertions': [error, {
+        assertionStyle: 'as'
     }]

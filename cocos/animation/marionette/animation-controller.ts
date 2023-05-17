@@ -1,17 +1,44 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { Component } from '../../scene-graph/component';
 import { AnimationGraph } from './animation-graph';
 import type { AnimationGraphRunTime } from './animation-graph';
-import { _decorator, assertIsNonNullable } from '../../core';
+import { _decorator, assertIsNonNullable, assertIsTrue } from '../../core';
 import { AnimationGraphEval } from './graph-eval';
-import type { MotionStateStatus, TransitionStatus, ClipStatus } from './graph-eval';
+import type { MotionStateStatus, TransitionStatus, ClipStatus, ReadonlyClipOverrideMap } from './graph-eval';
 import { Value } from './variable';
+import { AnimationGraphVariant, AnimationGraphVariantRunTime } from './animation-graph-variant';
+import { AnimationGraphLike } from './animation-graph-like';
 
-const { ccclass, menu, property } = _decorator;
+const { ccclass, menu, type, serializable, editable, formerlySerializedAs } = _decorator;
 
 export type {
     MotionStateStatus,
     ClipStatus,
     TransitionStatus,
+    ReadonlyClipOverrideMap,
 };
 
 /**
@@ -33,15 +60,53 @@ export class AnimationController extends Component {
      * @en
      * The animation graph associated with the animation controller.
      */
-    @property(AnimationGraph)
-    public graph: AnimationGraphRunTime | null = null;
+    @type(AnimationGraphLike)
+    @editable
+    public get graph () {
+        return this._graph;
+    }
+
+    public set graph (value) {
+        this._graph = value;
+    }
+
+    @serializable
+    @formerlySerializedAs('graph')
+    private _graph: AnimationGraphRunTime | AnimationGraphVariantRunTime | null = null;
 
     private _graphEval: AnimationGraphEval | null = null;
 
+    /**
+     * @zh 获取动画图的层级数量。如果控制器没有指定动画图，则返回 0。
+     * @en Gets the count of layers in the animation graph.
+     * If no animation graph is specified, 0 is returned.
+     */
+    public get layerCount () {
+        return this._graphEval?.layerCount ?? 0;
+    }
+
     public __preload () {
-        if (this.graph) {
-            this._graphEval = new AnimationGraphEval(this.graph as AnimationGraph, this.node, this);
+        const { graph } = this;
+        if (graph) {
+            let originalGraph: AnimationGraph;
+            let clipOverrides: ReadonlyClipOverrideMap | null = null;
+            if (graph instanceof AnimationGraphVariant) {
+                if (!graph.original) {
+                    return;
+                }
+                originalGraph = graph.original;
+                clipOverrides = graph.clipOverrides;
+            } else {
+                assertIsTrue(graph instanceof AnimationGraph);
+                originalGraph = graph;
+            }
+            const graphEval = new AnimationGraphEval(originalGraph, this.node, this, clipOverrides);
+            this._graphEval = graphEval;
         }
+    }
+
+    public onDestroy () {
+        this._graphEval?.destroy();
     }
 
     public update (deltaTime: number) {
@@ -99,8 +164,8 @@ export class AnimationController extends Component {
      * @zh 获取动画图实例中当前状态的运行状况。
      * @en Gets the running status of the current state in the animation graph instance.
      * @param layer @en Index of the layer. @zh 层级索引。
-     * @returns @en The running status of the current state.
-     *          @zh 当前的状态运作状态对象。
+     * @returns @en The running status of the current state. `null` is returned if current state is not a motion state.
+     *          @zh 当前的状态运作状态对象。如果当前的状态不是动作状态，则返回 `null`。
      */
     public getCurrentStateStatus (layer: number) {
         const { _graphEval: graphEval } = this;
@@ -113,7 +178,8 @@ export class AnimationController extends Component {
      * @en Gets the running status of all the animation clips added on the current state in the animation graph instance.
      * @param layer @en Index of the layer. @zh 层级索引。
      * @returns @en Iterable to the animation clip statuses on current state.
-     *          @zh 到动画剪辑运作状态的迭代器。
+     *              An empty iterable is returned if current state is not a motion state.
+     *          @zh 到动画剪辑运作状态的迭代器。若当前状态不是动画状态，则返回一个空的迭代器。
      */
     public getCurrentClipStatuses (layer: number) {
         const { _graphEval: graphEval } = this;
@@ -138,8 +204,8 @@ export class AnimationController extends Component {
      * @zh 获取动画图实例中下一个状态的运行状况。
      * @en Gets the running status of the next state in the animation graph instance.
      * @param layer @en Index of the layer. @zh 层级索引。
-     * @returns @en The running status of the next state. `null` is returned in case of no transition.
-     *          @zh 下一状态运作状态对象，若未在进行过渡，则返回 `null`。
+     * @returns @en The running status of the next state. `null` is returned in case of no transition or if next state is not a motion state.
+     *          @zh 下一状态运作状态对象，若未在进行过渡或下一状态不是动画状态，则返回 `null`。
      */
     public getNextStateStatus (layer: number) {
         const { _graphEval: graphEval } = this;
@@ -151,8 +217,9 @@ export class AnimationController extends Component {
      * @zh 获取动画图实例中下一个状态上添加的所有动画剪辑的运行状况。
      * @en Gets the running status of all the animation clips added on the next state in the animation graph instance.
      * @param layer @en Index of the layer. @zh 层级索引。
-     * @returns @en Iterable to the animation clip statuses on next state. An empty iterable is returned in case of no transition.
-     *          @zh 到下一状态上包含的动画剪辑运作状态的迭代器，若未在进行过渡，则返回一个空的迭代器。
+     * @returns @en Iterable to the animation clip statuses on next state.
+     *              An empty iterable is returned in case of no transition or next state is not a motion state.
+     *          @zh 到下一状态上包含的动画剪辑运作状态的迭代器，若未在进行过渡或下一状态不是动画状态，则返回一个空的迭代器。
      */
     public getNextClipStatuses (layer: number) {
         const { _graphEval: graphEval } = this;
@@ -180,5 +247,50 @@ export class AnimationController extends Component {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.setLayerWeight(layer, weight);
+    }
+
+    /**
+     * @zh 覆盖动画图实例中的动画剪辑。
+     * 对于每一对源剪辑、目标剪辑，
+     * 动画图（实例）中的出现的所有源剪辑都会被替换为目标剪辑，就好像动画图中一开始就使用的是目标剪辑。
+     * 不过，动画图当前的运转状态会依然保持不变，例如：
+     *
+     * - 若动作状态涉及的动画剪辑被替换，动作状态的播放进度百分比依然保持不变。
+     *
+     * - 若过渡的周期是相对的，即使在某一刻动画过渡的源头被替换，那么过渡的进度百分比也依然保持不变。
+     *
+     * 不管进行多少次覆盖，源剪辑应该一直指定为原始动画图中的动画剪辑。例如：
+     *
+     * ```ts
+     * // `originalClip` 是原始动画图中的剪辑对象，第一次希望将原剪辑覆盖为 `newClip1`，第二次希望将原剪辑覆盖为 `newClip2`
+     * animationController.overrideClips_experimental(new Map([ [originalClip, newClip1] ])); // 第一次覆盖
+     * animationController.overrideClips_experimental(new Map([ [newClip1, newClip2] ])); // 错误：第二次覆盖
+     * animationController.overrideClips_experimental(new Map([ [originalClip, newClip2] ])); // 正确：第二次覆盖
+     * ```
+     * @en Overrides the animation clips in animation graph instance.
+     * TODO
+     * @experimental
+     */
+    public overrideClips_experimental (overrides: ReadonlyClipOverrideMap) {
+        const { _graphEval: graphEval } = this;
+        assertIsNonNullable(graphEval);
+        graphEval.overrideClips(overrides);
+    }
+
+    /**
+     * @zh 获取指定辅助曲线的当前值。
+     * @en Gets the current value of specified auxiliary curve.
+     * @param curveName @en Name of the auxiliary curve. @zh 辅助曲线的名字。
+     * @returns @zh 指定辅助曲线的当前值，如果指定辅助曲线不存在或动画图为空则返回 0。
+     * @en The current value of specified auxiliary curve,
+     * or 0 if specified adjoint curve does not exist or if the animation graph is null.
+     * @experimental
+     */
+    public getAuxiliaryCurveValue_experimental (curveName: string) {
+        const { _graphEval: graphEval } = this;
+        if (!graphEval) {
+            return 0.0;
+        }
+        return graphEval.getAuxiliaryCurveValue(curveName);
     }
 }

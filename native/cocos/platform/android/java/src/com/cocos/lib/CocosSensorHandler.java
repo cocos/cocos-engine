@@ -41,10 +41,10 @@ public class CocosSensorHandler implements SensorEventListener {
     private static boolean mEnableSensor = false;
 
     private final Context mContext;
-    private final SensorManager mSensorManager;
-    private final Sensor mAcceleration;
-    private final Sensor mAccelerationIncludingGravity;
-    private final Sensor mGyroscope;
+    private SensorManager mSensorManager;
+    private Sensor mAcceleration;
+    private Sensor mAccelerationIncludingGravity;
+    private Sensor mGyroscope;
     private int mSamplingPeriodUs = SensorManager.SENSOR_DELAY_GAME;
 
     private static float[] sDeviceMotionValues = new float[9];
@@ -55,12 +55,6 @@ public class CocosSensorHandler implements SensorEventListener {
 
     public CocosSensorHandler(final Context context) {
         mContext = context;
-
-        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
-        mAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mAccelerationIncludingGravity = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-
         mSensorHandler = this;
     }
 
@@ -69,6 +63,13 @@ public class CocosSensorHandler implements SensorEventListener {
     // ===========================================================
     public void enable() {
         if (mEnableSensor) {
+            if (null == mSensorManager) {
+                mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+                mAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                mAccelerationIncludingGravity = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+                mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+            }
+
             mSensorManager.registerListener(this, mAcceleration, mSamplingPeriodUs);
             mSensorManager.registerListener(this, mAccelerationIncludingGravity, mSamplingPeriodUs);
             mSensorManager.registerListener(this, mGyroscope, mSamplingPeriodUs);
@@ -76,7 +77,7 @@ public class CocosSensorHandler implements SensorEventListener {
     }
 
     public void disable() {
-        if (mEnableSensor) {
+        if (mEnableSensor && null != mSensorManager) {
             this.mSensorManager.unregisterListener(this);
         }
     }

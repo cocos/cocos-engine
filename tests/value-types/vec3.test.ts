@@ -1,3 +1,4 @@
+import { lerp, toRadian } from '../../cocos/core/math/utils';
 import { Vec3 } from '../../cocos/core/math/vec3';
 import { clampf } from '../../cocos/core/utils/misc';
 
@@ -53,4 +54,83 @@ test('misc', function () {
     // Relating the vec2 angle features
     vector.set(12, 3, -10);
     vec1.set(-2, -4, -11);
+});
+
+test('Slerp', () => {
+    const expectToBeCloseToVec3 = (actual: Readonly<Vec3>, expected: Readonly<Vec3>) => {
+        expect(Vec3.equals(actual, expected)).toBe(true);
+    };
+
+    // If either start vector or destination vector close to zero,
+    // slerp changed to use lerp.
+    {
+        const expectFallbackToLerp = (from: Readonly<Vec3>, to: Readonly<Vec3>, t: number) => {
+            expectToBeCloseToVec3(
+                Vec3.slerp(new Vec3(), from, to, t),
+                Vec3.lerp(new Vec3(), from, to, t),
+            );
+        };
+        expectFallbackToLerp(Vec3.ZERO, new Vec3(1.0, 2.0, 3.0), 0.2);
+        expectFallbackToLerp(new Vec3(-1.0, -2.0, 3.0), new Vec3(1e-7, 1e-7, 0.0), 0.3);
+        expectFallbackToLerp(new Vec3(1e-9, 1e-7, 1e-8), Vec3.ZERO, 0.3);
+    }
+
+    // Almost same directions.
+    {
+        expectToBeCloseToVec3(
+            Vec3.slerp(new Vec3(), new Vec3(1.5, 1.5, 1.5), new Vec3(1.2, 1.2, 1.2 + 1e-8), 0.6),
+            new Vec3(1.32, 1.32, 1.32),
+        );
+    }
+
+    // Almost opposite directions.
+    {
+        const from = new Vec3(1.5, 1.5, 1.5);
+        const toScale = 1.2;
+        const t = 0.6;
+
+        const to = new Vec3(-from.x, -from.y + 1e-7, -from.z + 1e-8);
+        Vec3.multiplyScalar(to, to, toScale);
+        const result = Vec3.slerp(new Vec3(), from, to, t);
+        // In such case, we don't care about the value but:
+        // - Length should be lerped;
+        expect(Vec3.len(result)).toBeCloseTo(lerp(Vec3.len(from), Vec3.len(to), t));
+        // - Angle should be lerped.
+        expect(Vec3.angle(from, result) / Math.PI).toBeCloseTo(t);
+    }
+
+    { // Regular slerp.
+        const from = createSphericalCoordinate(30, 20, 1);
+        const to = createSphericalCoordinate(100, 60, 2.2);
+        
+        expectToBeCloseToVec3(
+            Vec3.slerp(new Vec3(), from, to, 0.0),
+            from,
+        );
+
+        expectToBeCloseToVec3(
+            Vec3.slerp(new Vec3(), from, to, 0.2),
+            new Vec3(0.268105, 1.133066, 0.426475),
+        );
+
+        expectToBeCloseToVec3(
+            Vec3.slerp(new Vec3(), from, to, 0.6),
+            new Vec3(0.06108944712193978, 1.3119492440010865, 1.1106112103771124),
+        );
+
+        expectToBeCloseToVec3(
+            Vec3.slerp(new Vec3(), from, to, 1.0),
+            to,
+        );
+    }
+
+    function createSphericalCoordinate(yawDegrees: number, pitchDegrees: number, radius: number) {
+        const theta = toRadian(pitchDegrees);
+        const phi = toRadian(yawDegrees);
+        return new Vec3(
+            radius * Math.sin(theta) * Math.cos(phi),
+            radius * Math.cos(theta),
+            radius * Math.sin(theta) * Math.sin(phi),
+        );
+    }
 });
