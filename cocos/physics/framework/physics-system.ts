@@ -597,7 +597,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * Cast a box along a ray and record information on what was hit.
      * Access the results through PhysicsSystem.Instance.sweepCastResults.
      * @zh
-     * 将盒体沿着射线发射，记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果。
+     * 将盒体沿着射线发射，记录所有被检测到的结果，通过 PhysicsSystem.instance.sweepCastResults 访问结果。
      * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
      * @param halfExtent @zh 盒体的一半尺寸 @en Half extent of the box
      * @param orientation @zh 盒体的方向 @en Orientation of the box
@@ -624,7 +624,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * Cast a box along a ray and record information on the closest hit.
      * Access the results through PhysicsSystem.Instance.sweepCastClosestResult.
      * @zh
-     * 将盒体沿着射线发射，记录距离最近的碰撞结果，通过 PhysicsSystem.instance.raycastResults 访问结果。
+     * 将盒体沿着射线发射，记录距离最近的碰撞结果，通过 PhysicsSystem.instance.sweepCastClosestResult 访问结果。
      * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
      * @param halfExtent @zh 盒体的一半尺寸 @en Half extent of the box
      * @param orientation @zh 盒体的方向 @en Orientation of the box
@@ -649,7 +649,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * Cast a sphere along a ray and record information on what was hit.
      * Access the results through PhysicsSystem.Instance.sweepCastResults.
      * @zh
-     * 将球体沿着射线发射，记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果。
+     * 将球体沿着射线发射，记录所有被检测到的结果，通过 PhysicsSystem.instance.sweepCastResults 访问结果。
      * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
      * @param radius @zh 球体的半径 @en Radius of the sphere
      * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
@@ -675,7 +675,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * Cast a sphere along a ray and record information on the closest hit.
      * Access the result through PhysicsSystem.Instance.sweepCastClosestResult.
      * @zh
-     * 将球体沿着射线发射，记录距离最近的碰撞结果，通过 PhysicsSystem.instance.raycastResults 访问结果。
+     * 将球体沿着射线发射，记录距离最近的碰撞结果，通过 PhysicsSystem.instance.sweepCastClosestResult 访问结果。
      * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
      * @param radius @zh 球体的半径 @en Radius of the sphere
      * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
@@ -700,7 +700,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * Access the results through PhysicsSystem.Instance.sweepCastResults.
      * Capsule's default axis is along the world space Y axis.
      * @zh
-     * 将胶囊体沿着射线发射，记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果。
+     * 将胶囊体沿着射线发射，记录所有被检测到的结果，通过 PhysicsSystem.instance.sweepCastResults 访问结果。
      * 胶囊体的默认朝向是世界空间下的 Y 轴。
      * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
      * @param radius @zh 胶囊体的半径 @en Radius of the capsule
@@ -730,7 +730,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * Access the result through PhysicsSystem.Instance.sweepCastClosestResult.
      * Capsule's default axis is along the world space Y axis.
      * @zh
-     * 将胶囊体沿着射线发射，记录距离最近的碰撞结果，通过 PhysicsSystem.instance.raycastResults 访问结果。
+     * 将胶囊体沿着射线发射，记录距离最近的碰撞结果，通过 PhysicsSystem.instance.sweepCastClosestResult 访问结果。
      * 胶囊体的默认朝向是世界空间下的 Y 轴。
      * @param worldRay @zh 世界空间下的一条射线 @en A ray in world space
      * @param radius @zh 胶囊体的半径 @en Radius of the capsule
