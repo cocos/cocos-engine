@@ -645,7 +645,7 @@ class Joint {
 }
 
 class SphericalJoint extends Joint {
-    constructor () { super(); this._impl = new jsbPhy.DistanceJoint(); }
+    constructor () { super(); this._impl = new jsbPhy.SphericalJoint(); }
     setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
     setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
     onLoad () {

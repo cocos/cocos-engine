@@ -40,7 +40,7 @@
     #define WrappedCylinderShape              PhysXCylinder
     #define WrappedRevoluteJoint              PhysXRevolute
     #define WrappedFixedJoint                 PhysXFixedJoint
-    #define WrappedDistanceJoint              PhysXSpherical
+    #define WrappedSphericalJoint             PhysXSpherical
     #define WrappedGenericJoint               PhysXGenericJoint
     #define WrappedCapsuleCharacterController PhysXCapsuleCharacterController
     #define WrappedBoxCharacterController     PhysXBoxCharacterController
