@@ -161,16 +161,16 @@ export enum EColliderType {
     CYLINDER,
     /**
      * @en
-     * Mesh collider.
+     * Cone collider.
      * @zh
-     * 网格碰撞体。
+     * 圆锥碰撞体。
      */
     CONE,
     /**
      * @en
-     * Cone collider.
+     * Mesh collider.
      * @zh
-     * 圆锥碰撞体。
+     * 网格碰撞体。
      */
     MESH,
     /**
