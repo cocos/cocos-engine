@@ -787,6 +787,26 @@ export function supportsR32FloatTexture (device: Device) {
         && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
 }
 
+/**
+ * @en Does the device support 4-channeled float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持4通道浮点贴图？（颜色输出和采样）
+ */
+export function supportsRGBA16FloatTexture (device: Device) {
+    return (device.getFormatFeatures(Format.RGBA16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
+        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+}
+
+/**
+ * @en Does the device support 4-channeled float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持4通道浮点贴图？（颜色输出和采样）
+ */
+export function supportsRGBA32FloatTexture (device: Device) {
+    return (device.getFormatFeatures(Format.RGBA32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
+        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+}
+
 export function isEnableEffect (): boolean {
     return !!(cclegacy.rendering && cclegacy.rendering.enableEffectImport);
 }

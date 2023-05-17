@@ -48,7 +48,7 @@ jobs:
         name: Checkout Head Ref
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.head_ref }}
+          ref: 'refs/pull/${{ github.event.pull_request.number }}/merge' # Don't check out the head commit, checkout the "merge commit" instead
           path: './engine-HEAD'
       - run: |
           "EXT_VERSION_HEAD=$(node ./engine-HEAD/.github/workflows/get-native-external-version.js)" >> $env:GITHUB_ENV

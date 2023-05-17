@@ -26,7 +26,7 @@ import { EDITOR } from 'internal:constants';
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
     Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address } from '../../gfx';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
-import { supportsR32FloatTexture } from '../define';
+import { supportsR32FloatTexture, supportsRGBA16FloatTexture } from '../define';
 import { BasicPipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Vec2, Vec3, Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
@@ -39,6 +39,7 @@ import { DescriptorSetData } from './layout-graph';
 import { AABB } from '../../core/geometry';
 import { MeshRenderer } from '../../3d';
 import { DebugViewCompositeType, DebugViewSingleType } from '../debug-view';
+import { Pipeline } from '../../asset/asset-manager/pipeline';
 
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 const _tmpBoundingBox = new AABB();
@@ -48,6 +49,18 @@ export enum AntiAliasing {
     NONE,
     FXAA,
     FXAAHQ,
+}
+
+function GetRTFormatBeforeToneMapping (ppl: BasicPipeline) {
+    const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
+    return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16FloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
+}
+function ForceEnableFloatOutput (ppl: BasicPipeline) {
+    if (ppl.pipelineSceneData.isHDR && !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
+        const supportFloatOutput = supportsRGBA16FloatTexture(ppl.device);
+        ppl.setMacroBool('CC_USE_FLOAT_OUTPUT', supportFloatOutput);
+        macro.ENABLE_FLOAT_OUTPUT = supportFloatOutput;
+    }
 }
 
 export function validPunctualLightsCulling (pipeline: BasicPipeline, camera: Camera) {
@@ -298,9 +311,9 @@ let bloomData: BloomData | null = null;
 export function buildBloomPass (camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    threshold = 0.1,
+    threshold = 0.6,
     iterations = 2,
-    intensity = 0.8) {
+    intensity = 2.0) {
     if (!bloomData) {
         bloomData = new BloomData();
     }
@@ -521,7 +534,7 @@ export function buildForwardPass (camera: Camera,
         if (!isOffScreen) {
             ppl.addRenderWindow(forwardPassRTName, Format.BGRA8, width, height, camera.window);
         } else {
-            ppl.addRenderTarget(forwardPassRTName, Format.RGBA16F, width, height, ResourceResidency.PERSISTENT);
+            ppl.addRenderTarget(forwardPassRTName, GetRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.PERSISTENT);
         }
         ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
@@ -1440,7 +1453,7 @@ function _buildSSSSBlurPass (camera: Camera,
     const ssssBlurRTName = `dsSSSSBlurColor${cameraName}`;
     const ssssBlurDSName = `dsSSSSBlurDSColor${cameraName}`;
     if (!ppl.containsResource(ssssBlurRTName)) {
-        ppl.addRenderTarget(ssssBlurRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(ssssBlurRTName, GetRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.MANAGED);
         ppl.addRenderTarget(ssssBlurDSName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(ssssBlurRTName, width, height);
@@ -1613,7 +1626,7 @@ export function buildToneMappingPass (camera: Camera,
     const toneMappingPassRTName = `toneMappingPassRTName${cameraID}`;
     const toneMappingPassDS = `toneMappingPassDS${cameraID}`;
     if (!ppl.containsResource(toneMappingPassRTName)) {
-        ppl.addRenderTarget(toneMappingPassRTName, Format.RGBA16F, width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(toneMappingPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
         ppl.addDepthStencil(toneMappingPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(toneMappingPassRTName, width, height);
@@ -1763,6 +1776,7 @@ export function buildSSSSPass (camera: Camera,
     inputRT: string,
     inputDS: string) {
     if (hasSkinObject(ppl)) {
+        ForceEnableFloatOutput(ppl);
         const blurInfo = _buildSSSSBlurPass(camera, ppl, inputRT, inputDS);
         const specularInfo = _buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
         return { rtName: specularInfo.rtName, dsName: specularInfo.dsName };
@@ -1861,15 +1875,14 @@ class HBAOParams {
         const width = 4;
         const height = 4;
         const pixelFormat = Texture2D.PixelFormat.RGBA8888;
-        const arrayBuffer = new ArrayBuffer(width * height * 4);
-        const arrayBufferView = new DataView(arrayBuffer);
+        const arrayBuffer = new Uint8Array(width * height * 4);
         for (let i = 0; i < this._randomDirAndJitter.length; i++) {
-            arrayBufferView.setUint8(i, this._randomDirAndJitter[i]);
+            arrayBuffer[i] = this._randomDirAndJitter[i];
         }
         const image = new ImageAsset({
             width,
             height,
-            _data: arrayBufferView,
+            _data: arrayBuffer,
             _compressed: false,
             format: pixelFormat,
         });
@@ -2062,7 +2075,7 @@ function _buildHBAOCombinedPass (camera: Camera,
 
     const outputRTName = outputRT;
     if (!ppl.containsResource(outputRTName)) {
-        ppl.addRenderTarget(outputRTName, Format.BGRA8, width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(outputRTName, GetRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(outputRTName, width, height);
     const hbaoPass = ppl.addRenderPass(width, height, 'combine-pass');
@@ -2109,6 +2122,7 @@ export function buildHBAOPasses (camera: Camera,
     angleBiasDegree = 10.0,
     blurSharpness = 3,
     aoSaturation = 1.0,
+    aoStrength = 1.0,
     needBlur = true) {
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -2116,7 +2130,6 @@ export function buildHBAOPasses (camera: Camera,
 
     // params
     if (!_hbaoParams) _hbaoParams = new HBAOParams();
-    const aoStrength = 1.0;
     // todo: nearest object distance from camera
     const sceneScale = camera.nearClip;
     // todo: Half Res Depth Tex

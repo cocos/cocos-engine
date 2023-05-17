@@ -266,3 +266,17 @@ vec3 quatToEuler(vec4 q) {
   }
   return vec3(bank, heading, attitude);
 }
+
+void departWorldMatrix(out vec3 translation, out vec3 scale, mat4 matWorld)
+{
+  scale = vec3(length(matWorld[0].xyz), length(matWorld[1].xyz), length(matWorld[2].xyz));
+  translation = vec3(matWorld[0].w, matWorld[1].w, matWorld[2].w);
+}
+
+void departWorldMatrix(out vec3 translation, out vec3 scale, out mat3 matRotation, mat4 matWorld)
+{
+  departWorldMatrix(translation, scale, matWorld);
+  matRotation[0] = matWorld[0].xyz / scale.x;
+  matRotation[1] = matWorld[1].xyz / scale.y;
+  matRotation[2] = matWorld[2].xyz / scale.z;
+}

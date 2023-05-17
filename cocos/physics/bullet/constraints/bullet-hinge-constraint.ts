@@ -28,7 +28,7 @@ import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { HingeConstraint, PhysicsSystem } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
-import { BulletCache, CC_QUAT_0, CC_V3_0 } from '../bullet-cache';
+import { BulletCache, CC_QUAT_0, CC_QUAT_1, CC_V3_0 } from '../bullet-cache';
 import { bt } from '../instantiated';
 import { cocos2BulletQuat, cocos2BulletVec3, force2Impulse } from '../bullet-utils';
 import { toRadian } from '../../../core/math';
@@ -115,26 +115,38 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         const node = cs.node;
         const v3_0 = CC_V3_0;
         const rot_0 = CC_QUAT_0;
+        const rot_1 = CC_QUAT_1;
         const trans0 = BulletCache.instance.BT_TRANSFORM_0;
+
+        // offset of axis in local frame of bodyA
         Vec3.multiply(v3_0, node.worldScale, cs.pivotA);
         cocos2BulletVec3(bt.Transform_getOrigin(trans0), v3_0);
+        // rotation of axis in local frame of bodyA
         const quat = BulletCache.instance.BT_QUAT_0;
-        Quat.rotationTo(rot_0, Vec3.UNIT_Z, cs.axis);
-        cocos2BulletQuat(quat, rot_0);
+        Vec3.normalize(v3_0, cs.axis);
+        Quat.rotationTo(rot_1, Vec3.UNIT_Z, v3_0);
+        cocos2BulletQuat(quat, rot_1);
         bt.Transform_setRotation(trans0, quat);
 
         const trans1 = BulletCache.instance.BT_TRANSFORM_1;
         const cb = this.constraint.connectedBody;
         if (cb) {
+            // offset of axis in local frame of bodyB
             Vec3.multiply(v3_0, cb.node.worldScale, cs.pivotB);
+            // rotation of axis in local frame of bodyB
+            Quat.multiply(rot_1, node.worldRotation, rot_1);
+            Quat.invert(rot_0, cb.node.worldRotation);
+            Quat.multiply(rot_1, rot_0, rot_1);
         } else {
+            // offset of axis in local frame of bodyB
             Vec3.multiply(v3_0, node.worldScale, cs.pivotA);
+            Vec3.transformQuat(v3_0, v3_0, node.worldRotation);
             Vec3.add(v3_0, v3_0, node.worldPosition);
-            Vec3.add(v3_0, v3_0, cs.pivotB);
-            Quat.multiply(rot_0, rot_0, node.worldRotation);
+            // rotation of axis in local frame of bodyB
+            Quat.multiply(rot_1, node.worldRotation, rot_1);
         }
         cocos2BulletVec3(bt.Transform_getOrigin(trans1), v3_0);
-        cocos2BulletQuat(quat, rot_0);
+        cocos2BulletQuat(quat, rot_1);
         bt.Transform_setRotation(trans1, quat);
         bt.HingeConstraint_setFrames(this._impl, trans0, trans1);
     }

@@ -24,7 +24,7 @@
 
 import { CCBoolean, CCFloat, CCInteger } from '../../../core';
 import { ccclass, disallowMultiple, editable, executeInEditMode, menu, range,
-    serializable, slide, tooltip, type } from '../../../core/data/decorators';
+    serializable, slide, tooltip, type, visible } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.HBAO')
@@ -55,6 +55,7 @@ export class HBAO extends PostProcessSetting {
         return this._radiusScale;
     }
 
+    @visible(false)
     @slide
     @tooltip('i18n:hbao.angleBiasDegree')
     @range([0, 100, 0.1])
@@ -67,6 +68,7 @@ export class HBAO extends PostProcessSetting {
         return this._angleBiasDegree;
     }
 
+    @visible(false)
     @slide
     @tooltip('i18n:hbao.blurSharpness')
     @range([0, 10, 1])
