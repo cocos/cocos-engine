@@ -285,6 +285,7 @@ const ccstd::unordered_map<ccstd::string, uint32_t> DEFAULT_UNIFORM_COUNTS{
     {"cc_lightColor", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
     {"cc_lightSizeRangeAngle", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
     {"cc_lightDir", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
+    {"cc_lightBoundingSizeVS", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
 };
 
 const TransparentSet<ccstd::string> DYNAMIC_UNIFORM_BLOCK{
