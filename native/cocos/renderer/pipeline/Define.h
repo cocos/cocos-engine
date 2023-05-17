@@ -557,8 +557,10 @@ const uint32_t CAMERA_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & 
 uint32_t nextPow2(uint32_t val);
 
 bool supportsR16HalfFloatTexture(const gfx::Device *device);
+bool supportsRGBA16HalfFloatTexture(const gfx::Device *device);
 
 bool supportsR32FloatTexture(const gfx::Device *device);
+bool supportsRGBA32FloatTexture(const gfx::Device *device);
 
 extern CC_DLL uint32_t skyboxFlag;
 

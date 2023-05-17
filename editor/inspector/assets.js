@@ -31,4 +31,5 @@ module.exports = {
     typescript: join(__dirname, './assets/typescript.js'),
     unknown: join(__dirname, './assets/unknown.js'),
     prefab: join(__dirname, './assets/prefab.js'),
+    "*": join(__dirname, './assets/asterisk.js'),
 };

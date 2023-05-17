@@ -113,7 +113,7 @@ export class Line extends ModelRenderer {
     }
 
     @type([Vec3])
-    private _positions = [];
+    private _positions: Vec3[] = [];
 
     /**
      * @en Inflection point positions of each polyline.

@@ -11,6 +11,7 @@ import { InitPhysXLibs } from '../../cocos/physics/physx/physx-adapter';
 InitPhysXLibs();
 import EventTest from "./event";
 import RaycastTest from "./raycast";
+import SweepTest from "./sweep";
 import SleepTest from "./sleep";
 import StableTest from "./stability";
 import VolumeTest from "./volume";
@@ -51,6 +52,9 @@ for (const id in physics.selector.backend) {
 
         // test raycast
         RaycastTest(temp0);
+
+        // test sweep
+        SweepTest(temp0);
 
         if (physics.PhysicsSystem.PHYSICS_BUILTIN) {
             temp0.destroy();

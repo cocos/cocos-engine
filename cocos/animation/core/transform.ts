@@ -104,7 +104,7 @@ export class Transform {
      * - The scale should be uniformed, ie. all components should be the same.
      * - Each component of the scale shall be non-negative.
      */
-    public static multiply (out: Transform, first: ReadonlyTransform, second: ReadonlyTransform) {
+    public static multiply (out: Transform, second: ReadonlyTransform, first: ReadonlyTransform) {
         // May reference to https://zhuanlan.zhihu.com/p/119066087
         // for the reason about restrictions on uniform scales.
 

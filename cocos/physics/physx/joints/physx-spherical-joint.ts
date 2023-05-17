@@ -51,8 +51,8 @@ export class PhysXSphericalJoint extends PhysXJoint implements IPointToPointCons
         } else {
             const node = cs.node;
             Vec3.multiply(pos, node.worldScale, cs.pivotA);
+            Vec3.transformQuat(pos, pos, node.worldRotation);
             Vec3.add(pos, pos, node.worldPosition);
-            Vec3.add(pos, pos, cs.pivotB);
             Quat.multiply(rot, rot, node.worldRotation);
         }
         this._impl.setLocalPose(1, getTempTransform(pos, rot));
