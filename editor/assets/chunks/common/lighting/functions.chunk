@@ -4,15 +4,32 @@
 // V from pixel to camera
 vec3 CalculateRefractDirection(vec3 N, vec3 V, float NoV, float ior)
 {
-  float NoVAbs = abs(NoV);
   // two sided
   float sideSign = NoV < 0.0 ? -1.0 : 1.0;
   N *= sideSign;
-  NoV *= sideSign;
-  float sinB = sqrt(1.0 - NoVAbs*NoVAbs) / ior;
-  vec3 X = normalize(-V + N * NoVAbs);
-  vec3 R = -N + X * sinB;
+  
+  // A: NV  B:NR
+  float cosA = abs(NoV);
+  float sinA = sqrt(1.0 - cosA * cosA);
+  float sinB = saturate(sinA / ior);
+  float cosB = sqrt(1.0 - sinB * sinB);
+
+  vec3 edgeA = -V + N * cosA;
+  vec3 edgeB = normalize(edgeA) * sinB;
+  vec3 R = edgeB - N * cosB;
   return R;
+}
+
+vec3 CalculateRefractDirectionFast(vec3 N, vec3 V, float NoV, float ior)
+{
+  // two sided
+  float sideSign = NoV < 0.0 ? -1.0 : 1.0;
+  N *= sideSign;
+  
+  float w = ior * NoV;
+  float k = sqrt(1.0 + (w - ior) * (w + ior)); // 1 + ior2 * (NoV2 - 1)
+  vec3 R = (w - k) * N - ior * V;
+  return -R;
 }
 
 vec3 CalculateReflectDirection(vec3 N, vec3 V, float NoV)
@@ -46,4 +63,37 @@ vec3 CalculatePlanarReflectPositionOnPlane(vec3 N, vec3 V, vec3 worldPos, vec4 p
   // the ray from virtual camera to reflected point, will intersect with plane on P'
   float y = distCameraToPlane / max(EPSILON_LOWP, dot(planeN, virtualCameraToReflectedPoint));
   return virtualCameraPos + y * virtualCameraToReflectedPoint;
+}
+
+
+
+// fix cubemap direction with box projection
+// return unnormalized vector and weight for exceeding
+vec4 CalculateBoxProjectedDirection(vec3 R, vec3 worldPos, vec3 cubeCenterPos, vec3 cubeBoxHalfSize)
+{
+  // point W is the worldPos in the space origin align with cube center
+  vec3 W = worldPos - cubeCenterPos;
+  // find point P which intersected with cube box border from W alone R
+  vec3 projectedLength = (sign(R) * cubeBoxHalfSize - W) / (R + vec3(EPSILON));
+  float len = min(min(projectedLength.x, projectedLength.y), projectedLength.z);
+  vec3 P = W + len * R;
+  float weight = len < 0.0 ? 0.0 : 1.0;
+  return vec4(P, weight);
+}
+
+// calculate planar world pos
+vec4 CalculatePlanarShadowPos(vec3 meshWorldPos, vec3 cameraPos, vec3 lightDir, vec4 plane) {
+  vec3 P = meshWorldPos;
+  vec3 L = lightDir;
+  vec3 N = plane.xyz;
+  float d = plane.w + 0.001;
+  float dist = (-d - dot(P, N)) / (dot(L, N) + EPSILON_LOWP);
+  vec3 shadowPos = P + L * dist;
+
+  // avoid z-fighting with shadow plane
+  vec3 view = normalize(cameraPos.xyz - shadowPos);
+  float viewLength = length(cameraPos.xyz - shadowPos);
+  shadowPos += view * min(1.0, 0.005 * viewLength);
+
+  return vec4(shadowPos, dist);
 }

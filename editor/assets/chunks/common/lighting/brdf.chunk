@@ -29,6 +29,9 @@ void GetAnisotropicRoughness(float roughness, float anisotropyShape, out float r
     roughnessY = saturate(r2);
 }
 
+// How to get an anisotropic offset along T/B:
+// 1. accurate: rotation TBN basis, let N intend to T/B, such as flow map as normalmap, output vec3(0, delta, 1) instead of vec3(0, 0, 1)
+// 2. not accurate: H intend to V, and passed to this function
 float D_GGXAniso(float RoughnessX, float RoughnessY, float NoH, vec3 H, vec3 X, vec3 Y)
 {
     float mx = max(EPSILON_LOWP, RoughnessX * RoughnessX);
@@ -64,7 +67,7 @@ vec3 IntegratedGFApprox (vec3 specular, float roughness, float NoV) {
   float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
   vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
   AB.y *= clamp(50.0 * specular.g, 0.0, 1.0);
-  return specular * AB.x + AB.y;
+  return max(vec3(0.0), specular * AB.x + AB.y);
 }
 
 //Diffuse_Lambert

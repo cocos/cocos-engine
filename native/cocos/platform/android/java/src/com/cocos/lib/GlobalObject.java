@@ -24,15 +24,57 @@
 package com.cocos.lib;
 
 import android.app.Activity;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 public class GlobalObject {
+    private static Context sContext = null;
     private static Activity sActivity = null;
+    private static Handler sHandler = null;
+    private static Thread sUiThread = null;
 
-    public static void setActivity(Activity activity) {
-        GlobalObject.sActivity = activity;
+    // Should be invoked in UI thread. The parameter `context` and `activity` could be the same value.
+    public static void init(Context context, Activity activity) {
+        sContext = context;
+        sActivity = activity;
+        sHandler = new Handler(Looper.getMainLooper());
+        sUiThread = Thread.currentThread();
+        if (sUiThread != Looper.getMainLooper().getThread()) {
+            throw new RuntimeException("GlobalObject.init should be invoked in UI thread");
+        }
+    }
+
+    public static void destroy() {
+        sContext = null;
+        sActivity = null;
+        if (sHandler != null) {
+            sHandler.removeCallbacksAndMessages(null);
+        }
+        sHandler = null;
     }
 
     public static Activity getActivity() {
-        return GlobalObject.sActivity;
+        return sActivity;
+    }
+
+    public static Context getContext() {
+        return sContext;
+    }
+
+    /**
+     * Runs the specified action on the UI thread. If the current thread is the UI
+     * thread, then the action is executed immediately. If the current thread is
+     * not the UI thread, the action is posted to the event queue of the UI thread.
+     * This method keeps the same logic as which in Activity.runOnUiThread.
+     * https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-13.0.0_r37/core/java/android/app/Activity.java#7364
+     * @param action the action to run on the UI thread
+     */
+    public static void runOnUiThread(Runnable action) {
+        if (Thread.currentThread() != sUiThread) {
+            sHandler.post(action);
+        } else {
+            action.run();
+        }
     }
 }

@@ -174,9 +174,9 @@ exports.template = `
                         @confirm="onObjectSizeConfirm($event)"
                     >
                     </ui-num-input>
-                    <ui-button @confirm="resetObjectSize">
+                    <!-- <ui-button @confirm="resetObjectSize">
                         <ui-label value="Reset Object Size"></ui-label>
-                    </ui-button>
+                    </ui-button> -->
                 </div>
             </ui-prop>
             <ui-prop ref="lod-dump" type="dump"></ui-prop>

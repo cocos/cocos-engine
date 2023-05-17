@@ -43,6 +43,10 @@ if(NOT COCOS_X_PATH)
     message(FATAL_ERROR "COCOS_X_PATH is not set!")
 endif()
 
+if(USE_XR OR USE_AR_MODULE)
+    include(${CMAKE_CURRENT_LIST_DIR}/xr.cmake)
+endif()
+
 include(${COCOS_X_PATH}/CMakeLists.txt)
 
 list(APPEND CC_COMMON_SOURCES

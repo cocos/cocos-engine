@@ -47,6 +47,7 @@ private:
     static void dispatchMouseEvent(const MouseEvent &mouseEvent);
     static void dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent);
     static void dispatchControllerEvent(const ControllerEvent &controllerEvent);
+    static void dispatchControllerChangeEvent(const ControllerChangeEvent &changeEvent);
     static void dispatchTickEvent(float dt);
     static void dispatchResizeEvent(int width, int height, uint32_t windowId = UINT32_MAX);
     static void dispatchOrientationChangeEvent(int orientation);
@@ -55,6 +56,7 @@ private:
     static void dispatchMemoryWarningEvent();
     static void dispatchRestartVM();
     static void dispatchCloseEvent();
+    static void dispatchPointerlockChangeEvent(bool value);
     static uint32_t hashListenerId; // simple increment hash
 
     static events::EnterForeground::Listener listenerEnterForeground;
@@ -65,11 +67,13 @@ private:
     static events::Mouse::Listener listenerMouse;
     static events::Keyboard::Listener listenerKeyboard;
     static events::Controller::Listener listenerConroller;
+    static events::ControllerChange::Listener listenerConrollerChange;
     static events::Tick::Listener listenerTick;
     static events::Resize::Listener listenerResize;
     static events::Orientation::Listener listenerOrientation;
     static events::RestartVM::Listener listenerRestartVM;
     static events::Close::Listener listenerClose;
+    static events::PointerLock::Listener listenerPointerLock;
 };
 
 } // end of namespace cc

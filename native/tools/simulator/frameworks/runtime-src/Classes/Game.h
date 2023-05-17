@@ -43,4 +43,6 @@ public:
     void onClose() override;
 
     void handleException(const char* location, const char* message, const char* stack) override;
+private:
+    std::once_flag _windowCreateFlag;
 };

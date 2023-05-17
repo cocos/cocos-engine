@@ -675,9 +675,18 @@ const cacheManager = require('./jsb-cache-manager');
     const _tempAttachMat4 = cc.mat4();
 
     armatureDisplayProto._render = function () {
+    };
+
+    armatureDisplayProto._updateBatch = function () {
+        if (this.nativeDisplay) {
+            this.nativeDisplay.setBatchEnabled(this.enableBatch);
+            this.markForUpdateRenderData();
+        }
+    };
+
+    armatureDisplayProto.syncAttachedNode = function () {
         const nativeDisplay = this._nativeDisplay;
         if (!nativeDisplay) return;
-
         const sharedBufferOffset = this._sharedBufferOffset;
         if (!sharedBufferOffset) return;
 
@@ -691,7 +700,6 @@ const cacheManager = require('./jsb-cache-manager');
             sharedBufferOffset[0] = 0;
 
             const socketNodes = this.socketNodes;
-
             for (let l = sockets.length - 1; l >= 0; l--) {
                 const sock = sockets[l];
                 const boneNode = sock.target;
@@ -715,13 +723,6 @@ const cacheManager = require('./jsb-cache-manager');
                 tm.m13 = attachInfo[matOffset + 13];
                 boneNode.matrix = tm;
             }
-        }
-    };
-
-    armatureDisplayProto._updateBatch = function () {
-        if (this.nativeDisplay) {
-            this.nativeDisplay.setBatchEnabled(this.enableBatch);
-            this.markForUpdateRenderData();
         }
     };
 

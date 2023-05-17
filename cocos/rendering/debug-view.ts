@@ -116,6 +116,7 @@ export const enum DebugViewCompositeType {
     TRANSMIT_DIFFUSE,
     TRANSMIT_SPECULAR,
     TRT,
+    TT,
 
     MAX_BIT_COUNT
 }

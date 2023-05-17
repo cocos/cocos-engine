@@ -23,12 +23,10 @@
 ****************************************************************************/
 
 #include "ShadowMapBatchedQueue.h"
-#include "BatchedBuffer.h"
 #include "Define.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
-#include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "SceneCulling.h"
 #include "forward/ForwardPipeline.h"
@@ -47,7 +45,6 @@ ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("shadow-caster")) {
     _pipeline = pipeline;
     _instancedQueue = ccnew RenderInstancedQueue;
-    _batchedQueue = ccnew RenderBatchedQueue;
 }
 
 ShadowMapBatchedQueue::~ShadowMapBatchedQueue() = default;
@@ -70,7 +67,10 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                         } else {
                             layer = csmLayers->getLayers()[level];
                         }
-                        shadowCulling(_pipeline, camera, layer);
+                        bool isCullingEnable = camera->isCullingEnabled();
+                        if (isCullingEnable) {
+                            shadowCulling(_pipeline, camera, layer);
+                        }
                         const RenderObjectList &dirShadowObjects = layer->getShadowObjects();
                         for (const auto &ro : dirShadowObjects) {
                             add(ro.model);
@@ -102,7 +102,6 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
         }
 
         _instancedQueue->uploadBuffers(cmdBuffer);
-        _batchedQueue->uploadBuffers(cmdBuffer);
     }
 }
 
@@ -111,7 +110,6 @@ void ShadowMapBatchedQueue::clear() {
     _shaders.clear();
     _passes.clear();
     if (_instancedQueue) _instancedQueue->clear();
-    if (_batchedQueue) _batchedQueue->clear();
 }
 
 void ShadowMapBatchedQueue::add(const scene::Model *model) {
@@ -128,10 +126,6 @@ void ShadowMapBatchedQueue::add(const scene::Model *model) {
             auto *instancedBuffer = subModel->getPass(shadowPassIdx)->getInstancedBuffer();
             instancedBuffer->merge(subModel, shadowPassIdx);
             _instancedQueue->add(instancedBuffer);
-        } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) {
-            auto *batchedBuffer = subModel->getPass(shadowPassIdx)->getBatchedBuffer();
-            batchedBuffer->merge(subModel, shadowPassIdx, model);
-            _batchedQueue->add(batchedBuffer);
         } else { // standard draw
             _subModels.emplace_back(subModel);
             _shaders.emplace_back(subModel->getShader(shadowPassIdx));
@@ -142,7 +136,6 @@ void ShadowMapBatchedQueue::add(const scene::Model *model) {
 
 void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) const {
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
-    _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
 
     for (size_t i = 0; i < _subModels.size(); i++) {
         const auto *const subModel = _subModels[i];
@@ -160,8 +153,6 @@ void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::Render
 }
 
 void ShadowMapBatchedQueue::destroy() {
-    CC_SAFE_DELETE(_batchedQueue)
-
     CC_SAFE_DELETE(_instancedQueue)
 }
 

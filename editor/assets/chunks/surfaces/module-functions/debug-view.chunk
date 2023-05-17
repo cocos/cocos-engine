@@ -110,7 +110,7 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
     
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_SPECULAR))
     {
-        color.rgb = lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+        color.rgb = lightingResult.directSpecular * lightingResult.specularColorWithEnvLighting;
         isSRGBColor = true;
     }
     
@@ -128,7 +128,7 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
     
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ENV_SPECULAR))
     {
-        color.rgb = lightingResult.environmentSpecular * lightingResult.specularColorWithLighting;
+        color.rgb = lightingResult.environmentSpecular * lightingResult.specularColorWithEnvLighting;
         isSRGBColor = true;
     }
     
@@ -165,7 +165,8 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
     float fresnel = 0.0;
     vec3 directTransmitSpecular = vec3(0.0), environmentTransmitSpecular = vec3(0.0);
     vec3 directTransmitDiffuse = vec3(0.0), environmentTransmitDiffuse = vec3(0.0);
-    vec3 directTRT = vec3(0.0), environmentTRT = vec3(0.0);
+    vec3 diffuseColorWithLightingTT = vec3(0.0), specularColorWithLighting2ndSpecular = vec3(0.0);
+    vec3 direct2ndSpecular = vec3(0.0), environment2ndSpecular = vec3(0.0);
   #if CC_SURFACES_LIGHTING_USE_FRESNEL
     fresnel = lightingResult.fresnel;
   #endif
@@ -177,9 +178,10 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
     directTransmitDiffuse = lightingResult.directTransmitDiffuse;
     environmentTransmitDiffuse = lightingResult.environmentTransmitDiffuse;
   #endif
-  #if CC_SURFACES_LIGHTING_TRT
-    directTRT = lightingResult.directTRT;
-    environmentTRT = lightingResult.environmentTRT;
+  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+    direct2ndSpecular = lightingResult.direct2ndSpecular;
+    environment2ndSpecular = lightingResult.environment2ndSpecular;
+    specularColorWithLighting2ndSpecular = lightingResult.specularColorWithEnvLighting2ndSpecular;
   #endif
 
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRESNEL))
@@ -216,19 +218,19 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
         isSRGBColor = true;
     }
 
-    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRT_DIRECT))
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_2ND_SPECULAR))
     {
-        color.rgb = directTRT;
+        color.rgb = direct2ndSpecular * specularColorWithLighting2ndSpecular;
         isSRGBColor = true;
     }
-    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRT_ENVIRONMENT))
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_ENVIRONMENT_2ND_SPECULAR))
     {
-        color.rgb = environmentTRT;
+        color.rgb = environment2ndSpecular * specularColorWithLighting2ndSpecular;
         isSRGBColor = true;
     }
-    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRT_ALL))
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_2ND_SPECULAR_ALL))
     {
-        color.rgb = directTRT + environmentTRT;
+        color.rgb = (direct2ndSpecular + environment2ndSpecular) * specularColorWithLighting2ndSpecular;
         isSRGBColor = true;
     }
 
@@ -263,9 +265,14 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
       lightingResult.directTransmitSpecular = lightingResult.environmentTransmitSpecular = vec3(0.0);
   #endif
 
-  #if CC_SURFACES_LIGHTING_TRT
-    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_TRT)
-        lightingResult.directTRT = lightingResult.environmentTRT = vec3(0.0);
+  #if CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_2ND_SPECULAR)
+        lightingResult.direct2ndSpecular = lightingResult.environment2ndSpecular = vec3(0.0);
+  #endif
+
+  #if CC_SURFACES_LIGHTING_TT
+    if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_TT)
+        lightingResult.directTT = vec3(0.0);
   #endif
 
     if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_EMISSIVE)

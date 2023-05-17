@@ -164,6 +164,7 @@ export enum ResourceFlags {
     COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
+    SHADING_RATE = 0x80,
 }
 
 export enum TaskType {
@@ -223,6 +224,7 @@ export function getLightingModeName (e: LightingMode): string {
 export enum AttachmentType {
     RENDER_TARGET,
     DEPTH_STENCIL,
+    SHADING_RATE,
 }
 
 export function getAttachmentTypeName (e: AttachmentType): string {
@@ -231,6 +233,8 @@ export function getAttachmentTypeName (e: AttachmentType): string {
         return 'RENDER_TARGET';
     case AttachmentType.DEPTH_STENCIL:
         return 'DEPTH_STENCIL';
+    case AttachmentType.SHADING_RATE:
+        return 'SHADING_RATE';
     default:
         return '';
     }
@@ -264,6 +268,7 @@ export class RasterView {
         storeOp: StoreOp = StoreOp.STORE,
         clearFlags: ClearFlagBit = ClearFlagBit.ALL,
         clearColor: Color = new Color(),
+        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
     ) {
         this.slotName = slotName;
         this.accessType = accessType;
@@ -272,6 +277,7 @@ export class RasterView {
         this.storeOp = storeOp;
         this.clearFlags = clearFlags;
         this.clearColor = clearColor;
+        this.shaderStageFlags = shaderStageFlags;
     }
     slotName: string;
     accessType: AccessType;
@@ -281,15 +287,19 @@ export class RasterView {
     clearFlags: ClearFlagBit;
     readonly clearColor: Color;
     slotID = 0;
+    shaderStageFlags: ShaderStageFlagBit;
 }
 
 export enum ClearValueType {
+    NONE,
     FLOAT_TYPE,
     INT_TYPE,
 }
 
 export function getClearValueTypeName (e: ClearValueType): string {
     switch (e) {
+    case ClearValueType.NONE:
+        return 'NONE';
     case ClearValueType.FLOAT_TYPE:
         return 'FLOAT_TYPE';
     case ClearValueType.INT_TYPE:
@@ -299,25 +309,41 @@ export function getClearValueTypeName (e: ClearValueType): string {
     }
 }
 
+export class ClearValue {
+    constructor (x = 0, y = 0, z = 0, w = 0) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+    }
+    x: number;
+    y: number;
+    z: number;
+    w: number;
+}
+
 export class ComputeView {
     constructor (
         name = '',
         accessType: AccessType = AccessType.READ,
         clearFlags: ClearFlagBit = ClearFlagBit.NONE,
-        clearColor: Color = new Color(),
-        clearValueType: ClearValueType = ClearValueType.FLOAT_TYPE,
+        clearValueType: ClearValueType = ClearValueType.NONE,
+        clearValue: ClearValue = new ClearValue(),
+        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
     ) {
         this.name = name;
         this.accessType = accessType;
         this.clearFlags = clearFlags;
-        this.clearColor = clearColor;
         this.clearValueType = clearValueType;
+        this.clearValue = clearValue;
+        this.shaderStageFlags = shaderStageFlags;
     }
     name: string;
     accessType: AccessType;
     clearFlags: ClearFlagBit;
-    readonly clearColor: Color;
     clearValueType: ClearValueType;
+    readonly clearValue: ClearValue;
+    shaderStageFlags: ShaderStageFlagBit;
 }
 
 export class LightInfo {
@@ -466,6 +492,20 @@ export class MovePair {
     targetPlaneSlice: number;
 }
 
+export class PipelineStatistics {
+    numRenderPasses = 0;
+    numManagedTextures = 0;
+    totalManagedTextures = 0;
+    numUploadBuffers = 0;
+    numUploadBufferViews = 0;
+    numFreeUploadBuffers = 0;
+    numFreeUploadBufferViews = 0;
+    numDescriptorSets = 0;
+    numFreeDescriptorSets = 0;
+    numInstancingBuffers = 0;
+    numInstancingUniformBlocks = 0;
+}
+
 export function saveRasterView (ar: OutputArchive, v: RasterView) {
     ar.writeString(v.slotName);
     ar.writeNumber(v.accessType);
@@ -475,6 +515,7 @@ export function saveRasterView (ar: OutputArchive, v: RasterView) {
     ar.writeNumber(v.clearFlags);
     saveColor(ar, v.clearColor);
     ar.writeNumber(v.slotID);
+    ar.writeNumber(v.shaderStageFlags);
 }
 
 export function loadRasterView (ar: InputArchive, v: RasterView) {
@@ -486,22 +527,39 @@ export function loadRasterView (ar: InputArchive, v: RasterView) {
     v.clearFlags = ar.readNumber();
     loadColor(ar, v.clearColor);
     v.slotID = ar.readNumber();
+    v.shaderStageFlags = ar.readNumber();
+}
+
+export function saveClearValue (ar: OutputArchive, v: ClearValue) {
+    ar.writeNumber(v.x);
+    ar.writeNumber(v.y);
+    ar.writeNumber(v.z);
+    ar.writeNumber(v.w);
+}
+
+export function loadClearValue (ar: InputArchive, v: ClearValue) {
+    v.x = ar.readNumber();
+    v.y = ar.readNumber();
+    v.z = ar.readNumber();
+    v.w = ar.readNumber();
 }
 
 export function saveComputeView (ar: OutputArchive, v: ComputeView) {
     ar.writeString(v.name);
     ar.writeNumber(v.accessType);
     ar.writeNumber(v.clearFlags);
-    saveColor(ar, v.clearColor);
     ar.writeNumber(v.clearValueType);
+    saveClearValue(ar, v.clearValue);
+    ar.writeNumber(v.shaderStageFlags);
 }
 
 export function loadComputeView (ar: InputArchive, v: ComputeView) {
     v.name = ar.readString();
     v.accessType = ar.readNumber();
     v.clearFlags = ar.readNumber();
-    loadColor(ar, v.clearColor);
     v.clearValueType = ar.readNumber();
+    loadClearValue(ar, v.clearValue);
+    v.shaderStageFlags = ar.readNumber();
 }
 
 export function saveLightInfo (ar: OutputArchive, v: LightInfo) {
@@ -668,4 +726,32 @@ export function loadMovePair (ar: InputArchive, v: MovePair) {
     v.targetMostDetailedMip = ar.readNumber();
     v.targetFirstSlice = ar.readNumber();
     v.targetPlaneSlice = ar.readNumber();
+}
+
+export function savePipelineStatistics (ar: OutputArchive, v: PipelineStatistics) {
+    ar.writeNumber(v.numRenderPasses);
+    ar.writeNumber(v.numManagedTextures);
+    ar.writeNumber(v.totalManagedTextures);
+    ar.writeNumber(v.numUploadBuffers);
+    ar.writeNumber(v.numUploadBufferViews);
+    ar.writeNumber(v.numFreeUploadBuffers);
+    ar.writeNumber(v.numFreeUploadBufferViews);
+    ar.writeNumber(v.numDescriptorSets);
+    ar.writeNumber(v.numFreeDescriptorSets);
+    ar.writeNumber(v.numInstancingBuffers);
+    ar.writeNumber(v.numInstancingUniformBlocks);
+}
+
+export function loadPipelineStatistics (ar: InputArchive, v: PipelineStatistics) {
+    v.numRenderPasses = ar.readNumber();
+    v.numManagedTextures = ar.readNumber();
+    v.totalManagedTextures = ar.readNumber();
+    v.numUploadBuffers = ar.readNumber();
+    v.numUploadBufferViews = ar.readNumber();
+    v.numFreeUploadBuffers = ar.readNumber();
+    v.numFreeUploadBufferViews = ar.readNumber();
+    v.numDescriptorSets = ar.readNumber();
+    v.numFreeDescriptorSets = ar.readNumber();
+    v.numInstancingBuffers = ar.readNumber();
+    v.numInstancingUniformBlocks = ar.readNumber();
 }

@@ -62,6 +62,8 @@ public:
     using Device::createRenderPass;
     using Device::createShader;
     using Device::createTexture;
+    
+    void frameSync() override;
 
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
@@ -86,10 +88,6 @@ public:
             _swapchains.erase(iter);
         }
     }
-
-    CommandBuffer *transferCommandBuffer() const;
-
-    void writeBuffer(Buffer *buffer, const void *data, uint32_t size);
 
 protected:
     static CCMTLDevice *_instance;
@@ -132,13 +130,11 @@ protected:
     CCMTLGPUStagingBufferPool *_gpuStagingBufferPools[MAX_FRAMES_IN_FLIGHT] = {nullptr};
     uint32_t _currentBufferPoolId = 0;
     uint32_t _currentFrameIndex = 0;
-    CCMTLSemaphore *_inFlightSemaphore = nullptr;
     CC_UNUSED uint32_t _memoryAlarmListenerId = 0;
 
     ccstd::vector<CCMTLSwapchain *> _swapchains;
 
     CCMTLGPUDeviceObject *_gpuDeviceObj = nullptr;
-    uint8_t _inFlightCount = 0;
 };
 
 } // namespace gfx

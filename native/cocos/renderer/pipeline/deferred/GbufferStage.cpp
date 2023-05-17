@@ -24,12 +24,10 @@
 ****************************************************************************/
 
 #include "GbufferStage.h"
-#include "../BatchedBuffer.h"
 #include "../InstancedBuffer.h"
 #include "../PipelineSceneData.h"
 #include "../PipelineUBO.h"
 #include "../PlanarShadowQueue.h"
-#include "../RenderBatchedQueue.h"
 #include "../RenderInstancedQueue.h"
 #include "../RenderQueue.h"
 #include "DeferredPipeline.h"
@@ -53,7 +51,6 @@ RenderStageInfo GbufferStage::initInfo = {
 const RenderStageInfo &GbufferStage::getInitializeInfo() { return GbufferStage::initInfo; }
 
 GbufferStage::GbufferStage() {
-    _batchedQueue = ccnew RenderBatchedQueue;
     _instancedQueue = ccnew RenderInstancedQueue;
 }
 
@@ -79,7 +76,6 @@ void GbufferStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 }
 
 void GbufferStage::destroy() {
-    CC_SAFE_DELETE(_batchedQueue);
     CC_SAFE_DELETE(_instancedQueue);
     CC_SAFE_DESTROY_AND_DELETE(_planarShadowQueue);
     RenderStage::destroy();
@@ -87,7 +83,6 @@ void GbufferStage::destroy() {
 
 void GbufferStage::dispenseRenderObject2Queues() {
     _instancedQueue->clear();
-    _batchedQueue->clear();
 
     const auto &renderObjects = _pipeline->getPipelineSceneData()->getRenderObjects();
     for (auto *queue : _renderQueues) {
@@ -112,10 +107,6 @@ void GbufferStage::dispenseRenderObject2Queues() {
                     auto *instancedBuffer = pass->getInstancedBuffer();
                     instancedBuffer->merge(subModel, passIdx);
                     _instancedQueue->add(instancedBuffer);
-                } else if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
-                    auto *batchedBuffer = pass->getBatchedBuffer();
-                    batchedBuffer->merge(subModel, passIdx, model);
-                    _batchedQueue->add(batchedBuffer);
                 } else {
                     for (k = 0; k < _renderQueues.size(); k++) {
                         _renderQueues[k]->insertRenderPass(ro, subModelIdx, passIdx);
@@ -139,7 +130,6 @@ void GbufferStage::recordCommands(DeferredPipeline *pipeline, scene::Camera *cam
     // record commands
     _renderQueues[0]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
     _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-    _batchedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
 }
 
 void GbufferStage::render(scene::Camera *camera) {
@@ -234,10 +224,9 @@ void GbufferStage::render(scene::Camera *camera) {
     dispenseRenderObject2Queues();
     auto *cmdBuff = pipeline->getCommandBuffers()[0];
     _instancedQueue->uploadBuffers(cmdBuff);
-    _batchedQueue->uploadBuffers(cmdBuff);
 
     // if empty == true, gbuffer and lightig passes will be ignored
-    bool empty = _renderQueues[0]->empty() && _instancedQueue->empty() && _batchedQueue->empty();
+    bool empty = _renderQueues[0]->empty() && _instancedQueue->empty();
     if (!empty) {
         pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint32_t>(DeferredInsertPoint::DIP_GBUFFER), DeferredPipeline::fgStrHandleGbufferPass, gbufferSetup, gbufferExec);
     }

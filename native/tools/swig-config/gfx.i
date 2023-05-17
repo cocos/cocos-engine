@@ -85,6 +85,7 @@ namespace cc { namespace gfx {
 %ignore Device::getInstance;
 %ignore Device::setOptions;
 %ignore Device::getOptions;
+%ignore Device::frameSync;
 
 %ignore DeviceManager::isDetachDeviceThread;
 %ignore DeviceManager::getGFXName;

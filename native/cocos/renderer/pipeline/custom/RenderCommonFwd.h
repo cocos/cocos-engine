@@ -40,7 +40,9 @@ namespace render {
 enum class UpdateFrequency;
 enum class ParameterType;
 
-struct RasterTag;
+struct RasterPassTag;
+struct RasterSubpassTag;
+struct ComputeSubpassTag;
 struct ComputeTag;
 struct CopyTag;
 struct MoveTag;
@@ -64,6 +66,7 @@ struct RasterView;
 
 enum class ClearValueType;
 
+struct ClearValue;
 struct ComputeView;
 struct LightInfo;
 
@@ -75,6 +78,7 @@ struct DescriptorBlockFlattened;
 struct DescriptorBlockIndex;
 struct CopyPair;
 struct MovePair;
+struct PipelineStatistics;
 
 } // namespace render
 
@@ -85,6 +89,11 @@ namespace ccstd {
 template <>
 struct hash<cc::render::RasterView> {
     hash_t operator()(const cc::render::RasterView& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::ClearValue> {
+    hash_t operator()(const cc::render::ClearValue& val) const noexcept;
 };
 
 template <>

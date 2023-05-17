@@ -36,6 +36,8 @@
     #undef Status
 #endif
 
+#define CC_USE_PIPELINE_CACHE 0
+
 /**
  * Some general guide lines:
  * Always use explicit numeric types rather than `int`, `long`, etc. for a stable memory layout
@@ -96,6 +98,7 @@ using IndexList = ccstd::vector<uint32_t>;
 constexpr uint32_t MAX_ATTACHMENTS = 4U;
 constexpr uint32_t INVALID_BINDING = ~0U;
 constexpr uint32_t SUBPASS_EXTERNAL = ~0U;
+constexpr ccstd::hash_t INVALID_SHADER_HASH = 0xFFFFFFFFU;
 
 // Although the standard is not limited, some devices do not support up to 65536 queries
 constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 32767;
@@ -471,14 +474,17 @@ enum class TextureUsageBit : uint32_t {
     COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
+    SHADING_RATE = 0x80,
 };
 using TextureUsage = TextureUsageBit;
 CC_ENUM_BITWISE_OPERATORS(TextureUsageBit);
 
 enum class TextureFlagBit : uint32_t {
     NONE = 0,
-    GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
-    GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
+    GEN_MIPMAP = 0x1,      // Generate mipmaps using bilinear filter
+    GENERAL_LAYOUT = 0x2,  // For inout framebuffer attachments
+    EXTERNAL_OES = 0x4,    // External oes texture
+    EXTERNAL_NORMAL = 0x8, // External normal texture
 };
 using TextureFlags = TextureFlagBit;
 CC_ENUM_BITWISE_OPERATORS(TextureFlagBit);
@@ -490,6 +496,7 @@ enum class FormatFeatureBit : uint32_t {
     LINEAR_FILTER = 0x4,     // Allow linear filtering when sampling in shaders or blitting
     STORAGE_TEXTURE = 0x8,   // Allow storage reads & writes in shaders
     VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
+    SHADING_RATE = 0x20,     // Allow usages as shading rate
 };
 using FormatFeature = FormatFeatureBit;
 CC_ENUM_BITWISE_OPERATORS(FormatFeatureBit);
@@ -664,6 +671,8 @@ enum class AccessFlagBit : uint32_t {
     TRANSFER_WRITE = 1 << 24,                 // Written as the destination of a transfer operation
     HOST_PREINITIALIZED = 1 << 25,            // Data pre-filled by host before device access starts
     HOST_WRITE = 1 << 26,                     // Written on the host
+
+    SHADING_RATE = 1 << 27, // Read as a shading rate image
 };
 CC_ENUM_BITWISE_OPERATORS(AccessFlagBit);
 using AccessFlags = AccessFlagBit;
@@ -844,6 +853,8 @@ struct DeviceCaps {
     Size maxComputeWorkGroupCount;
 
     bool supportQuery{false};
+    bool supportVariableRateShading{false};
+    bool supportSubPassShading{false};
 
     float clipSpaceMinZ{-1.F};
     float screenSpaceSignY{1.F};
@@ -1255,6 +1266,7 @@ struct ShaderInfo {
     UniformTextureList textures;
     UniformStorageImageList images;
     UniformInputAttachmentList subpassInputs;
+    ccstd::hash_t hash = INVALID_SHADER_HASH;
 
     EXPOSE_COPY_FN(ShaderInfo)
 };
@@ -1308,6 +1320,7 @@ struct SubpassInfo {
 
     uint32_t depthStencil{INVALID_BINDING};
     uint32_t depthStencilResolve{INVALID_BINDING};
+    uint32_t shadingRate{INVALID_BINDING};
     ResolveMode depthResolveMode{ResolveMode::NONE};
     ResolveMode stencilResolveMode{ResolveMode::NONE};
 
@@ -1316,16 +1329,14 @@ struct SubpassInfo {
 
 using SubpassInfoList = ccstd::vector<SubpassInfo>;
 
+using AccessFlagList = ccstd::vector<AccessFlags>;
 struct ALIGNAS(8) SubpassDependency {
     uint32_t srcSubpass{0};
     uint32_t dstSubpass{0};
     GeneralBarrier *generalBarrier{nullptr};
-    BufferBarrier **bufferBarriers{nullptr};
-    Buffer **buffers{nullptr};
-    uint32_t bufferBarrierCount{0};
-    TextureBarrier **textureBarriers{nullptr};
-    Texture **textures{nullptr};
-    uint32_t textureBarrierCount{0};
+
+    AccessFlagList prevAccesses{};
+    AccessFlagList nextAccesses{};
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
     uint32_t _padding{0};
 #endif
@@ -1515,7 +1526,7 @@ struct BlendState {
 
     void setTarget(index_t index, const BlendTarget &target) {
         if (index >= targets.size()) {
-            targets.resize(index + 1);
+            targets.resize(static_cast<size_t>(index) + 1);
         }
         targets[index] = target;
     }

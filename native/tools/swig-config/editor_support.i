@@ -46,7 +46,15 @@
 %ignore cc::middleware::MeshBuffer::getUIMeshBuffer;
 %ignore cc::middleware::MeshBuffer::uiMeshBuffers;
 
-
+%ignore cc::middleware::Color4B;
+%ignore cc::middleware::Color4F;
+%ignore cc::middleware::Tex2F;
+%ignore cc::middleware::V3F_T2F_C4B;
+%ignore cc::middleware::V3F_T2F_C4B_C4B;
+%ignore cc::middleware::Triangles;
+%ignore cc::middleware::TwoColorTriangles;
+%ignore cc::middleware::Texture2D::TexParams;
+%ignore cc::middleware::IMiddleware;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed

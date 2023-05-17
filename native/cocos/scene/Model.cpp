@@ -40,6 +40,8 @@
 #include "scene/Pass.h"
 #include "scene/RenderScene.h"
 #include "scene/SubModel.h"
+#include "scene/ReflectionProbeManager.h"
+#include "scene/ReflectionProbe.h"
 
 namespace {
 const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_HASH{
@@ -63,9 +65,10 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
 const ccstd::vector<cc::scene::IMacroPatch> LIGHT_PROBE_PATCHES{{"CC_USE_LIGHT_PROBE", true}};
 const ccstd::string CC_USE_REFLECTION_PROBE = "CC_USE_REFLECTION_PROBE";
-const ccstd::string CC_RECEIVE_DIRECTIONAL_LIGHT = "CC_RECEIVE_DIRECTIONAL_LIGHT";
+const ccstd::string CC_DISABLE_DIRECTIONAL_LIGHT = "CC_DISABLE_DIRECTIONAL_LIGHT";
 const ccstd::vector<cc::scene::IMacroPatch> STATIC_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 1}};
 const ccstd::vector<cc::scene::IMacroPatch> STATIONARY_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 2}};
+const ccstd::vector<cc::scene::IMacroPatch> HIGHP_LIGHTMAP_PATHES{{"CC_LIGHT_MAP_VERSION", 2}};
 } // namespace
 
 namespace cc {
@@ -85,7 +88,7 @@ void Model::initialize() {
     _visFlags = Layers::Enum::NONE;
     _inited = true;
     _bakeToReflectionProbe = true;
-    _reflectionProbeType = 0;
+    _reflectionProbeType = scene::UseReflectionProbeType::NONE;
 }
 
 void Model::destroy() {
@@ -118,7 +121,7 @@ void Model::updateTransform(uint32_t stamp) {
     }
 
     Node *node = _transform;
-    if (node->getChangedFlags() || node->getDirtyFlag()) {
+    if (node->getChangedFlags() || node->isTransformDirty()) {
         node->updateWorldTransform();
         _localDataUpdated = true;
         if (_modelBounds != nullptr && _modelBounds->isValid() && _worldBounds != nullptr) {
@@ -204,6 +207,39 @@ void Model::updateUBOs(uint32_t stamp) {
         _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
         _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
 
+        auto * probe = scene::ReflectionProbeManager::getInstance()->getReflectionProbeById(_reflectionProbeId);
+        auto * blendProbe = scene::ReflectionProbeManager::getInstance()->getReflectionProbeById(_reflectionProbeBlendId);
+        if (probe) {
+            if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
+                const Vec4 plane = {probe->getNode()->getUp().x, probe->getNode()->getUp().y, probe->getNode()->getUp().z, 1.F};
+                _localBuffer->write(plane, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
+                const Vec4 depthScale = {1.F, 0.F, 0.F, 1.F};
+                _localBuffer->write(depthScale, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
+            } else {
+                uint16_t mipAndUseRGBE = probe->isRGBE() ? 1000 : 0;
+                const Vec4 pos = {probe->getNode()->getWorldPosition().x, probe->getNode()->getWorldPosition().y, probe->getNode()->getWorldPosition().z, 0.F};
+                _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA1));
+                const Vec4 boxSize = {probe->getBoudingSize().x, probe->getBoudingSize().y, probe->getBoudingSize().z, static_cast<float>(probe->getCubeMap() ? probe->getCubeMap()->mipmapLevel() + mipAndUseRGBE : 1 + mipAndUseRGBE)};
+                _localBuffer->write(boxSize, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_DATA2));
+            }
+            if (_reflectionProbeType == scene::UseReflectionProbeType::BLEND_PROBES ||
+                _reflectionProbeType == scene::UseReflectionProbeType::BLEND_PROBES_AND_SKYBOX) {
+                if (blendProbe) {
+                    uint16_t mipAndUseRGBE = blendProbe->isRGBE() ? 1000 : 0;
+                    const Vec3 worldPos = blendProbe->getNode()->getWorldPosition();
+                    Vec3 boudingBox = blendProbe->getBoudingSize();
+                    const Vec4 pos = {worldPos.x, worldPos.y, worldPos.z, _reflectionProbeBlendWeight};
+                    _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA1));
+                    const Vec4 boxSize = {boudingBox.x, boudingBox.y, boudingBox.z, static_cast<float>(blendProbe->getCubeMap() ? blendProbe->getCubeMap()->mipmapLevel() + mipAndUseRGBE : 1 + mipAndUseRGBE)};
+                    _localBuffer->write(boxSize, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA2));
+                } else if (_reflectionProbeType == scene::UseReflectionProbeType::BLEND_PROBES_AND_SKYBOX) {
+                    //blend with skybox
+                    const Vec4 pos = { 0.F, 0.F, 0.F, _reflectionProbeBlendWeight };
+                    _localBuffer->write(pos, sizeof(float) * (pipeline::UBOLocal::REFLECTION_PROBE_BLEND_DATA1));
+                }
+            }
+        }
+
         _localBuffer->update();
         const bool enableOcclusionQuery = Root::getInstance()->getPipeline()->isOcclusionQueryEnabled();
         if (enableOcclusionQuery) {
@@ -264,8 +300,6 @@ void Model::initSubModel(index_t idx, cc::RenderingSubMesh *subMeshData, Materia
         CC_SAFE_DESTROY(_subModels[idx]);
     }
     _subModels[idx]->initialize(subMeshData, mat->getPasses(), getMacroPatches(idx));
-    _subModels[idx]->initPlanarShadowShader();
-    _subModels[idx]->initPlanarShadowInstanceShader();
     _subModels[idx]->setOwner(this);
     updateAttributesAndBinding(idx);
 }
@@ -434,7 +468,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
         }
     }
 
-    patches.push_back({CC_USE_REFLECTION_PROBE, _reflectionProbeType});
+    patches.push_back({CC_USE_REFLECTION_PROBE, static_cast<int32_t>(_reflectionProbeType) });
 
     if (_lightmap != nullptr) {
         bool stationary = false;
@@ -451,8 +485,17 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
                 patches.push_back(patch);
             }
         }
+
+        // use highp lightmap
+        if (getNode() != nullptr && getNode()->getScene() != nullptr) {
+            if (getNode()->getScene()->getSceneGlobals()->getBakedWithHighpLightmap()) {
+                for (const auto &patch : HIGHP_LIGHTMAP_PATHES) {
+                    patches.push_back(patch);
+                }
+            }
+        }
     }
-    patches.push_back({CC_RECEIVE_DIRECTIONAL_LIGHT, _receiveDirLight});
+    patches.push_back({CC_DISABLE_DIRECTIONAL_LIGHT, !_receiveDirLight});
 
     return patches;
 }
@@ -471,8 +514,18 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
         updateWorldBoundDescriptors(subModelIndex, subModel->getWorldBoundDescriptorSet());
     }
 
-    gfx::Shader *shader = subModel->getPasses()[0]->getShaderVariant(subModel->getPatches());
-    updateInstancedAttributes(shader->getAttributes(), subModel);
+    ccstd::vector<gfx::Attribute> attributes;
+    ccstd::unordered_map<ccstd::string, gfx::Attribute> attributeMap;
+    for (const auto &pass : subModel->getPasses()) {
+        gfx::Shader *shader = pass->getShaderVariant(subModel->getPatches());
+        for (const auto &attr : shader->getAttributes()) {
+            if (attributeMap.find(attr.name) == attributeMap.end()) {
+                attributes.push_back(attr);
+                attributeMap.insert({attr.name, attr});
+            }
+        }
+    }
+    updateInstancedAttributes(attributes, subModel);
 }
 
 void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel *subModel) {
@@ -616,15 +669,53 @@ void Model::updateReflectionProbePlanarMap(gfx::Texture *texture) {
     }
 }
 
+void Model::updateReflectionProbeDataMap(Texture2D *texture) {
+    _localDataUpdated = true;
+
+    if (!texture) {
+        texture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"));
+    }
+    gfx::Texture *gfxTexture = texture->getGFXTexture();
+    if (gfxTexture) {
+        for (SubModel *subModel : _subModels) {
+            gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
+            descriptorSet->bindTexture(pipeline::REFLECTIONPROBEDATAMAP::BINDING, gfxTexture);
+            descriptorSet->bindSampler(pipeline::REFLECTIONPROBEDATAMAP::BINDING, texture->getGFXSampler());
+            descriptorSet->update();
+        }
+    }
+}
+
+void Model::updateReflectionProbeBlendCubemap(TextureCube *texture) {
+    _localDataUpdated = true;
+    if (texture == nullptr) {
+        texture = BuiltinResMgr::getInstance()->get<TextureCube>(ccstd::string("default-cube-texture"));
+    }
+    gfx::Texture *gfxTexture = texture->getGFXTexture();
+    if (gfxTexture) {
+        auto *sampler = _device->getSampler(texture->getSamplerInfo());
+        for (SubModel *subModel : _subModels) {
+            gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
+            descriptorSet->bindTexture(pipeline::REFLECTIONPROBEBLENDCUBEMAP::BINDING, gfxTexture);
+            descriptorSet->bindSampler(pipeline::REFLECTIONPROBEBLENDCUBEMAP::BINDING, sampler);
+            descriptorSet->update();
+        }
+    }
+}
+
+void Model::updateReflectionProbeId() {
+    _localDataUpdated = true;
+}
+
 void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {
     for (const auto &subModel : _subModels) {
         subModel->setInstancedAttribute(name, value, byteLength);
     }
 }
-void Model::setReflectionProbeType(int32_t val) {
+void Model::setReflectionProbeType(UseReflectionProbeType val) {
     _reflectionProbeType = val;
     for (const auto &subModel : _subModels) {
-        subModel->setReflectionProbeType(val);
+        subModel->setReflectionProbeType(static_cast<int32_t>(val));
     }
     onMacroPatchesStateChanged();
 }

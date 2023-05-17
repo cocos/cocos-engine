@@ -90,6 +90,30 @@ module.exports = {
             glsl1: 'GLSL 100 Output',
             vert: 'Vertex Shader',
             frag: 'Fragment Shader',
+            propertyTips: {
+                // macros
+                USE_DITHERED_ALPHA_TEST: 'Make transparency using opaque dithered alpha clip with TAA.',
+                USE_TWOSIDE: 'Two sided material for single-face objects, normal get inverse on back-face. Cull mode should set to None.',
+                IS_ANISOTROPY: 'Anisotropic materials, such as hair, disc, metal with micro-wires.',
+                USE_VERTEX_COLOR: 'Use vertex color, will become darker if mesh does not contain vertex color data.',
+                FIX_ANISOTROPIC_ROTATION_MAP: 'Fix the anomalous seam at the black-white joint of the anisotropic rotation map, turn it on if you encounter this problem.',
+                // uniforms
+                tilingOffset: 'Tiling and offset for textures, which can be used as uv animation speed in Surface functions.',
+                alphaThreshold: 'Alpha threshold for Mask materials, the larger the value the more pixels will be cropped.',
+                occlusion: 'Ambient occlusion intensity, the higher the value, the greater the effect of ambient occlusion map.',
+                roughness: 'Roughness, for controlling the area of highlight dispersion.',
+                metallic: 'Metallic，for controlling the ratio of diffuse and specular.',
+                specularIntensity: 'Multiplication of the base reflectance F0, valid only for non-metals.',
+                pbrMap: 'r: Ambient Occlusion(AO) g: Roughness b: Metallic a: Specular Intensity.',
+                normalMap: 'g channel should be adapted to GL coordinate system, try to turn on trilinear filtering, otherwise there will be noise with lighting.',
+                normalStrength: 'Normal map intensity, high value may cause noise with lighting.',
+                anisotropyIntensity: 'Anisotropic intensity, for controlling the shape of anisotropic highlights.',
+                anisotropyRotation: 'for controlling the orientation of the strip highlights.',
+                anisotropyMap: 'r: Anisotropy Intensity;  g: Anisotropy Rotation.',
+                anisotropyMapNearestFilter: 'Duplicate the Anisotropy Map and select the Nearest filter.',
+                anisotropyMapResolutionHeight: 'The height of Anisotropy Map texture resolution.',
+                ior: 'Relative refractive index, which can affect the refraction angle and Fresnel effect. Water is 1.33',
+            },
         },
         image: {
             type: 'Type',
@@ -294,7 +318,7 @@ module.exports = {
             },
             meshOptimizer: {
                 name: 'Mesh Optimizer',
-                title: 'Mesh Optimizer',
+                title: 'Mesh Optimizer is used to simplify imported mesh.<br>Use it when you need to reduce model face count.<br>In some cases, face reduction could lead to various model defect. <br>Tweak properties and try again in those cases.',
                 simplification: {
                     name: 'Simplification',
                     title: 'Simplification',
@@ -339,7 +363,7 @@ module.exports = {
                 simplify:{
                     targetRatio: {
                         name: 'Ratio',
-                        title: 'Target Ratio',
+                        title: 'The target face count ratio after face reduction. <br>0 means reduce to minimum, and 1 means no face reduction at all. ',
                     },
                     preserveSurfaceCurvature: {
                         name: 'Surface Curvature',
@@ -357,17 +381,13 @@ module.exports = {
                         name: 'UV Foldover Edges',
                         title: 'Preserve UV Foldover Edges',
                     },
-                    enableSmartLink: {
-                        name: 'Smart Link',
-                        title: 'Enable Smart Link',
-                    },
                     agressiveness: {
                         name: 'Agressiveness',
-                        title: 'Agressiveness',
+                        title: 'Face reduction algorithm aggressiveness. <br>The higher it sets, the more aggressive the face reduction algorithm tries to delete faces. <br>High aggressiveness setting is more likely to cause defects in result.',
                     },
                     maxIterationCount: {
                         name: 'Max Iteration Count',
-                        title: 'Max Iteration Count',
+                        title: 'The max iteration counts that the algorithm tries to further reduce faces of a model. <br>High iteration count is more likely to reach face reduction target, yet it is more likely to take more time and has higher chance to cause mistakes.',
                     },
                 },
                 gltfpack: {
@@ -442,7 +462,7 @@ module.exports = {
             message: 'The modified data has not been saved. Do you want to save it?',
             assetMessage: "${assetName} is modified, it's data has not been saved. Do you want to save it?",
             save: 'Save',
-            abort: 'Abort',
+            abort: 'Discard',
         },
     },
 

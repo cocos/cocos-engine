@@ -29,7 +29,7 @@ import { Material } from '../../asset/assets/material';
 import { RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
     BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../gfx';
-import { CachedArray, Pool, Mat4, cclegacy, assertIsTrue, assert } from '../../core';
+import { CachedArray, Pool, Mat4, cclegacy, assertIsTrue, assert, approx, EPSILON } from '../../core';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
@@ -53,10 +53,8 @@ const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
 
 /**
- * @en
- * UI render flow
- * @zh
- * UI 渲染流程
+ * @en UI rendering process
+ * @zh UI 渲染流程
  */
 export class Batcher2D implements IBatcher {
     protected declare _nativeObj: NativeBatcher2d;
@@ -792,43 +790,45 @@ export class Batcher2D implements IBatcher {
         const selfOpacity = render && render.color ? render.color.a / 255 : 1;
         this._pOpacity = opacity *= selfOpacity * uiProps.localOpacity;
         // TODO Set opacity to ui property's opacity before remove it
-        // @ts-expect-error temporary force set, will be removed with ui property's opacity
-        uiProps._opacity = opacity;
-        if (uiProps.colorDirty) {
+        uiProps.setOpacity(opacity);
+        if (!approx(opacity, 0, EPSILON)) {
+            if (uiProps.colorDirty) {
             // Cascade color dirty state
-            this._opacityDirty++;
-        }
+                this._opacityDirty++;
+            }
 
-        // Render assembler update logic
-        if (render && render.enabledInHierarchy) {
-            render.fillBuffers(this);// for rendering
-        }
+            // Render assembler update logic
+            if (render && render.enabledInHierarchy) {
+                render.fillBuffers(this);// for rendering
+            }
 
-        // Update cascaded opacity to vertex buffer
-        if (this._opacityDirty && render && !render.useVertexOpacity && render.renderData && render.renderData.vertexCount > 0) {
+            // Update cascaded opacity to vertex buffer
+            if (this._opacityDirty && render && !render.useVertexOpacity && render.renderData && render.renderData.vertexCount > 0) {
             // HARD COUPLING
-            updateOpacity(render.renderData, opacity);
-            const buffer = render.renderData.getMeshBuffer();
-            if (buffer) {
-                buffer.setDirty();
+                updateOpacity(render.renderData, opacity);
+                const buffer = render.renderData.getMeshBuffer();
+                if (buffer) {
+                    buffer.setDirty();
+                }
             }
-        }
 
-        if (children.length > 0 && !node._static) {
-            for (let i = 0; i < children.length; ++i) {
-                const child = children[i];
-                this.walk(child, level);
+            if (children.length > 0 && !node._static) {
+                for (let i = 0; i < children.length; ++i) {
+                    const child = children[i];
+                    this.walk(child, level);
+                }
             }
-        }
 
-        if (uiProps.colorDirty) {
+            if (uiProps.colorDirty) {
             // Reduce cascaded color dirty state
-            this._opacityDirty--;
-            // Reset color dirty
-            uiProps.colorDirty = false;
+                this._opacityDirty--;
+                // Reset color dirty
+                uiProps.colorDirty = false;
+            }
         }
         // Restore opacity
         this._pOpacity = parentOpacity;
+
         // Post render assembler update logic
         // ATTENTION: Will also reset colorDirty inside postUpdateAssembler
         if (render && render.enabledInHierarchy) {
@@ -1017,15 +1017,17 @@ class LocalDescriptorSet  {
 
     public uploadLocalData () {
         const node = this._transform!;
-        // @ts-expect-error TS2445
-        if (node.hasChangedFlags || node._dirtyFlags) {
+        if (node.hasChangedFlags || node.isTransformDirty()) {
             node.updateWorldTransform();
             this._transformUpdate = true;
         }
         if (this._transformUpdate) {
             const worldMatrix = node.worldMatrix;
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-            Mat4.inverseTranspose(m4_1, worldMatrix);
+
+            Mat4.invert(m4_1, worldMatrix);
+            Mat4.transpose(m4_1, m4_1);
+
             if (!JSB) {
                 // fix precision lost of webGL on android device
                 // scale worldIT mat to around 1.0 by product its sqrt of determinant.
@@ -1101,7 +1103,10 @@ class DescriptorSetCache {
             }
         }
         for (let i = uselessArray.length - 1; i >= 0; i--) {
-            caches.splice(uselessArray[i], 1);
+            const index = uselessArray[i];
+            const localDs = caches[index];
+            caches.splice(index, 1);
+            this._localCachePool.free(localDs);
         }
     }
 

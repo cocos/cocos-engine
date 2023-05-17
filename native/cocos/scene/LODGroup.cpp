@@ -64,7 +64,7 @@ float LODGroup::getScreenUsagePercentage(const Camera *camera) const {
     if (camera->getProjectionType() == CameraProjection::PERSPECTIVE) {
         Vec3 tmp{_localBoundaryCenter};
         tmp.transformMat4(_node->getWorldMatrix());
-        tmp.subtract(camera->getNode()->getPosition());
+        tmp.subtract(camera->getNode()->getWorldPosition());
         distance = tmp.length();
     }
 

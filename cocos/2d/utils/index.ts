@@ -25,4 +25,5 @@
 import './font-loader';
 
 export * from './html-text-parser';
-export { dynamicAtlasManager } from './dynamic-atlas/atlas-manager';
+export * from './text-utils';
+export * from './dynamic-atlas/atlas-manager';

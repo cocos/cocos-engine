@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like } from '../../core';
+import { IVec3Like, Vec3 } from '../../core';
+import { CharacterController } from './components/character-controllers/character-controller';
 import { Collider } from './components/colliders/collider';
 
 /**
@@ -240,3 +241,67 @@ export type CollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCol
  * 碰撞事件的回调函数签名定义。
  */
 export type CollisionCallback = (event?: ICollisionEvent) => void;
+
+/**
+ * @en
+ * Value type definitions fot the collision events of character controller.
+ * @zh
+ * 角色控制器碰撞事件的值类型定义。
+ */
+export type CharacterCollisionEventType = 'onColliderHit';
+
+/**
+ * @en
+ * Contact information of the collision event of character controller.
+ * @zh
+ * 角色控制器碰撞事件的碰撞信息。
+ */
+export class CharacterControllerContact {
+    /**
+     * @en
+     * Character Controller in collision.
+     * @zh
+     * 碰撞中的角色控制器。
+     */
+    selfCCT: any = null;
+
+    /**
+     * @en
+     * Collider in collision.
+     * @zh
+     * 碰撞中的碰撞器。
+     */
+    otherCollider: any = null;
+
+    /**
+     * @en
+     * The contact point in the world coordinate system.
+     * @zh
+     * 世界坐标系中的碰撞点。
+     */
+    worldPosition: Vec3 = new Vec3();
+
+    /**
+     * @en
+     * The contact normal in the world coordinate system.
+     * @zh
+     * 世界坐标系中的碰撞法线。
+     */
+    worldNormal: Vec3 = new Vec3();
+
+    /**
+     * @en
+     * Motion direction.
+     * @zh
+     * 移动方向。
+     */
+    motionDirection: Vec3 = new Vec3();
+
+    /**
+     * @en
+     * Motion length.
+     * @zh
+     * 移动长度。
+     */
+    motionLength = 0;
+}

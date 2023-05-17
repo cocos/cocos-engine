@@ -28,7 +28,7 @@
 namespace cc {
 
 namespace {
-Record<gfx::FormatType, ccstd::string> typeMap{
+ccstd::unordered_map<gfx::FormatType, ccstd::string> typeMap{
     {gfx::FormatType::UNORM, "Uint"},
     {gfx::FormatType::SNORM, "Int"},
     {gfx::FormatType::UINT, "Uint"},

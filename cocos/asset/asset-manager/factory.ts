@@ -25,7 +25,7 @@
 import { EDITOR } from 'internal:constants';
 import { ImageAsset } from '../assets/image-asset';
 import JsonAsset from '../assets/json-asset';
-import TextAsset from '../assets/text-asset';
+import { TextAsset } from '../assets/text-asset';
 import { Asset } from '../assets/asset';
 import { BufferAsset } from '../assets/buffer-asset';
 import Bundle, { resources } from './bundle';

@@ -64,18 +64,17 @@ template <class T,
               std::is_integral_v<T> || std::is_floating_point_v<T>,
               bool> = false>
 void load(InputArchive& ar, T& v) {
-    static_assert(sizeof(T) <= sizeof(uint32_t)); // enum can only be 1, 2, 4 bytes
     v = static_cast<T>(ar.readNumber());
 }
 
 // Cast from double to enum might not be supported. _MSC_VER(1924)
 template <class T,
-          std::enable_if_t<std::is_enum_v<T>,
+          std::enable_if_t<
+              std::is_enum_v<T>,
               bool> = false>
 void load(InputArchive& ar, T& v) {
     v = static_cast<T>(static_cast<typename std::underlying_type<T>::type>(ar.readNumber()));
 }
-
 
 // string
 template <class T, class Traits, class Allocator>

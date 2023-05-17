@@ -40,7 +40,6 @@ export class Joint2D extends Component {
      * @zh
      * 在自身刚体的本地空间中，Joint2D的位置。
      */
-    @type(Vec2)
     @serializable
     @tooltip('i18n:physics2d.joint.anchor')
     anchor = new Vec2();
@@ -51,7 +50,6 @@ export class Joint2D extends Component {
      * @zh
      * 在连接刚体的本地空间中，Joint2D的位置。
      */
-    @type(Vec2)
     @serializable
     @tooltip('i18n:physics2d.joint.connectedAnchor')
     connectedAnchor = new Vec2();
@@ -62,7 +60,6 @@ export class Joint2D extends Component {
      * @zh
      * 关节连接的两刚体之间是否开启碰撞。
      */
-    @type(CCBoolean)
     @serializable
     @tooltip('i18n:physics2d.joint.collideConnected')
     collideConnected = false;

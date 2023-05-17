@@ -47,7 +47,8 @@ public:
     int getSdkVersion() const override;
 
     int32_t loop() override;
-
+    void exit() override;
+    
     void *getActivity();
 
     static void *getEnv();
@@ -66,7 +67,6 @@ private:
     int _loopTimeOut{-1};
     GameInputProxy *_inputProxy{nullptr};
     android_app *_app{nullptr};
-
     friend class GameInputProxy;
 };
 } // namespace cc

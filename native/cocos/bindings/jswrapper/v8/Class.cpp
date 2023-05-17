@@ -61,13 +61,7 @@ void invalidConstructor(const v8::FunctionCallbackInfo<v8::Value> &args) {
 
 } // namespace
 
-Class::Class()
-: _parent(nullptr),
-  _parentProto(nullptr),
-  _proto(nullptr),
-  _ctor(nullptr),
-  _finalizeFunc(nullptr),
-  _createProto(true) {
+Class::Class() {
     __allClasses.push_back(this);
 }
 
@@ -107,27 +101,43 @@ bool Class::init(const ccstd::string &clsName, Object *parent, Object *parentPro
         _parentProto->incRef();
     }
 
-    _ctor = ctor;
+    _constructor = ctor;
 
-    v8::FunctionCallback ctorToSet = _ctor != nullptr ? _ctor : invalidConstructor;
+    v8::FunctionCallback ctorToSet = _constructor != nullptr ? _constructor : invalidConstructor;
 
-    _ctorTemplate.Reset(__isolate, v8::FunctionTemplate::New(__isolate, ctorToSet, createExternal(__isolate, data)));
+    _constructorTemplate.Reset(__isolate, v8::FunctionTemplate::New(__isolate, ctorToSet, createExternal(__isolate, data)));
     v8::MaybeLocal<v8::String> jsNameVal = v8::String::NewFromUtf8(__isolate, _name.c_str(), v8::NewStringType::kNormal);
     if (jsNameVal.IsEmpty()) {
         return false;
     }
 
-    _ctorTemplate.Get(__isolate)->SetClassName(jsNameVal.ToLocalChecked());
-    _ctorTemplate.Get(__isolate)->InstanceTemplate()->SetInternalFieldCount(1);
+    _constructorTemplate.Get(__isolate)->SetClassName(jsNameVal.ToLocalChecked());
+    _constructorTemplate.Get(__isolate)->InstanceTemplate()->SetInternalFieldCount(1);
 
     return true;
+}
+
+void Class::_setCtor(Object *obj) {
+    assert(!_ctor.has_value());
+    _ctor = obj;
+    if (obj != nullptr) {
+        obj->root();
+        obj->incRef();
+    }
 }
 
 void Class::destroy() {
     SAFE_DEC_REF(_parent);
     SAFE_DEC_REF(_proto);
     SAFE_DEC_REF(_parentProto);
-    _ctorTemplate.Reset();
+    if (_ctor.has_value()) {
+        if (_ctor.value() != nullptr) {
+            _ctor.value()->unroot();
+            _ctor.value()->decRef();
+        }
+        _ctor.reset();
+    }
+    _constructorTemplate.Reset();
 }
 
 void Class::cleanup() {
@@ -153,11 +163,11 @@ bool Class::install() {
     //        __clsMap.emplace(_name, this);
 
     if (_parentProto != nullptr) {
-        _ctorTemplate.Get(__isolate)->Inherit(_parentProto->_getClass()->_ctorTemplate.Get(__isolate));
+        _constructorTemplate.Get(__isolate)->Inherit(_parentProto->_getClass()->_constructorTemplate.Get(__isolate));
     }
 
     v8::Local<v8::Context> context = __isolate->GetCurrentContext();
-    v8::MaybeLocal<v8::Function> ctor = _ctorTemplate.Get(__isolate)->GetFunction(context);
+    v8::MaybeLocal<v8::Function> ctor = _constructorTemplate.Get(__isolate)->GetFunction(context);
     if (ctor.IsEmpty()) {
         return false;
     }
@@ -196,7 +206,7 @@ bool Class::defineFunction(const char *name, v8::FunctionCallback func, void *da
     if (jsName.IsEmpty()) {
         return false;
     }
-    _ctorTemplate.Get(__isolate)->PrototypeTemplate()->Set(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, func, createExternal(__isolate, data)));
+    _constructorTemplate.Get(__isolate)->PrototypeTemplate()->Set(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, func, createExternal(__isolate, data)));
     return true;
 }
 
@@ -206,7 +216,7 @@ bool Class::defineProperty(const char *name, v8::FunctionCallback getter, v8::Fu
         return false;
     }
 
-    auto prototypeTemplate = _ctorTemplate.Get(__isolate)->PrototypeTemplate();
+    auto prototypeTemplate = _constructorTemplate.Get(__isolate)->PrototypeTemplate();
     auto externalData = createExternal(__isolate, data);
     prototypeTemplate->SetAccessorProperty(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, getter, externalData), v8::FunctionTemplate::New(__isolate, setter, externalData));
     return true;
@@ -225,7 +235,7 @@ bool Class::defineStaticFunction(const char *name, v8::FunctionCallback func, vo
     if (jsName.IsEmpty()) {
         return false;
     }
-    _ctorTemplate.Get(__isolate)->Set(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, func, createExternal(__isolate, data)));
+    _constructorTemplate.Get(__isolate)->Set(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, func, createExternal(__isolate, data)));
     return true;
 }
 
@@ -236,7 +246,7 @@ bool Class::defineStaticProperty(const char *name, v8::FunctionCallback getter, 
     }
 
     auto externalData = createExternal(__isolate, data);
-    _ctorTemplate.Get(__isolate)->SetAccessorProperty(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, getter, externalData), v8::FunctionTemplate::New(__isolate, setter, externalData));
+    _constructorTemplate.Get(__isolate)->SetAccessorProperty(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, getter, externalData), v8::FunctionTemplate::New(__isolate, setter, externalData));
     return true;
 }
 
@@ -248,7 +258,7 @@ bool Class::defineStaticProperty(const char *name, const Value &value, PropertyA
 
     v8::Local<v8::Value> v8Val;
     internal::seToJsValue(__isolate, value, &v8Val);
-    _ctorTemplate.Get(__isolate)->Set(jsName.ToLocalChecked(), v8Val, static_cast<v8::PropertyAttribute>(attribute));
+    _constructorTemplate.Get(__isolate)->Set(jsName.ToLocalChecked(), v8Val, static_cast<v8::PropertyAttribute>(attribute));
     return true;
 }
 
@@ -271,8 +281,8 @@ bool Class::defineFinalizeFunction(V8FinalizeFunc finalizeFunc) {
 //        return _createJSObjectWithClass(iter->second);
 //    }
 
-v8::Local<v8::Object> Class::_createJSObjectWithClass(Class *cls) { //NOLINT
-    v8::MaybeLocal<v8::Object> ret = cls->_ctorTemplate.Get(__isolate)->InstanceTemplate()->NewInstance(__isolate->GetCurrentContext());
+v8::Local<v8::Object> Class::_createJSObjectWithClass(Class *cls) { // NOLINT
+    v8::MaybeLocal<v8::Object> ret = cls->_constructorTemplate.Get(__isolate)->InstanceTemplate()->NewInstance(__isolate->GetCurrentContext());
     CC_ASSERT(!ret.IsEmpty());
     return ret.ToLocalChecked();
 }
@@ -281,7 +291,7 @@ Object *Class::getProto() const {
     return _proto;
 }
 
-V8FinalizeFunc Class::_getFinalizeFunction() const { //NOLINT
+V8FinalizeFunc Class::_getFinalizeFunction() const { // NOLINT
     return _finalizeFunc;
 }
 

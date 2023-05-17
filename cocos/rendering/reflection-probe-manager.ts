@@ -24,9 +24,12 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
+import { MeshRenderer } from '../3d/framework/mesh-renderer';
+import { ReflectionProbeType } from '../3d/framework/reflection-probe-enum';
+import { ImageAsset, Texture2D } from '../asset/assets';
+import { PixelFormat } from '../asset/assets/asset-enum';
 import { Vec3, geometry, cclegacy } from '../core';
-import { director, Director } from '../game';
+import { AABB } from '../core/geometry';
 import { Texture } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';
 import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
@@ -52,13 +55,9 @@ export class ReflectionProbeManager {
      * 场景中所有使用planar类型反射探针的模型
      */
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
-
     private _updateForRuntime = true;
-
-    constructor () {
-        director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
-    }
-
+    private _dataTexture: Texture2D | null = null;
+    private _registeredEvent = false;
     /**
      * @en Set and get whether to detect objects leaving or entering the reflection probe's bounding box at runtime.
      * @zh 设置和获取是否在运行时检测物体离开或者进入反射探针的包围盒。
@@ -70,14 +69,20 @@ export class ReflectionProbeManager {
         return this._updateForRuntime;
     }
 
+    public registerEvent () {
+        if (!this._registeredEvent) {
+            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
+            this._registeredEvent = true;
+        }
+    }
     /**
      * @en refresh all reflection probe
      * @zh 刷新所有反射探针
      */
     public onUpdateProbes (forceUpdate = false) {
-        if (!this._updateForRuntime) return;
+        if (!EDITOR && !this._updateForRuntime) return;
         if (this._probes.length === 0) return;
-        const scene = director.getScene();
+        const scene = cclegacy.director.getScene();
         if (!scene || !scene.renderScene) {
             return;
         }
@@ -86,7 +91,7 @@ export class ReflectionProbeManager {
             const model = models[i];
             if (!model.node) continue;
             if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && (model.node.hasChangedFlags || forceUpdate)) {
-                if (model.reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP) {
+                if (model.reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP || this._isUsedBlending(model)) {
                     this.updateUseCubeModels(model);
                 } else if (model.reflectionProbeType === ReflectionProbeType.PLANAR_REFLECTION) {
                     this.updateUsePlanarModels(model);
@@ -97,7 +102,7 @@ export class ReflectionProbeManager {
 
     public filterModelsForPlanarReflection () {
         if (this._probes.length === 0) return;
-        const scene = director.getScene();
+        const scene = cclegacy.director.getScene();
         if (!scene || !scene.renderScene) {
             return;
         }
@@ -114,11 +119,7 @@ export class ReflectionProbeManager {
     public clearPlanarReflectionMap (probe: ReflectionProbe) {
         for (const entry of this._usePlanarModels.entries()) {
             if (entry[1] === probe) {
-                const model = entry[0];
-                const meshRender = model.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbePlanarMap(null);
-                }
+                this._updatePlanarMapOfModel(entry[0], null, null);
             }
         }
     }
@@ -127,6 +128,7 @@ export class ReflectionProbeManager {
         const index = this._probes.indexOf(probe);
         if (index === -1) {
             this._probes.push(probe);
+            this.updateProbeData();
         }
     }
 
@@ -140,6 +142,7 @@ export class ReflectionProbeManager {
                 break;
             }
         }
+        this.updateProbeData();
     }
 
     public exists (probeId: number): boolean {
@@ -168,6 +171,15 @@ export class ReflectionProbeManager {
         return this._probes;
     }
 
+    public getProbeById (probeId: number): ReflectionProbe | null {
+        for (let i = 0; i < this._probes.length; i++) {
+            if (this._probes[i].getProbeId() === probeId) {
+                return this._probes[i];
+            }
+        }
+        return null;
+    }
+
     public clearAll () {
         this._probes = [];
     }
@@ -191,12 +203,17 @@ export class ReflectionProbeManager {
         if (!probe.cubemap) return;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if (meshRender) {
-                meshRender.updateProbeCubemap(probe.cubemap);
-            }
+            this._updateCubemapOfModel(model, probe);
         }
         probe.needRefresh = false;
+        //if used for blend,when baked end need refresh cubemap
+        if (models.length === 0) {
+            for (const entry of this._useCubeModels.entries()) {
+                if (entry[0].reflectionProbeBlendId === probe.getProbeId()) {
+                    this._updateBlendCubemap(entry[0], probe);
+                }
+            }
+        }
     }
 
     /**
@@ -208,11 +225,7 @@ export class ReflectionProbeManager {
         if (!probe.node || !probe.node.scene) return;
         const models = this._getModelsByProbe(probe);
         for (let i = 0; i < models.length; i++) {
-            const model = models[i];
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if (meshRender) {
-                meshRender.updateProbePlanarMap(texture);
-            }
+            this._updatePlanarMapOfModel(models[i], texture, probe);
         }
         if (probe.previewPlane) {
             const meshRender = probe.previewPlane.getComponent(MeshRenderer);
@@ -233,8 +246,7 @@ export class ReflectionProbeManager {
         for (let i = 0; i < this._probes.length; i++) {
             const probe = this._probes[i];
             if (probe.probeType !== ProbeType.PLANAR) continue;
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && meshRender) {
+            if (model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) {
                 model.updateWorldBound();
                 if (geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
                     this._usePlanarModels.set(model, probe);
@@ -242,10 +254,7 @@ export class ReflectionProbeManager {
                     const old = this._usePlanarModels.get(model);
                     if (old === probe) {
                         this._usePlanarModels.delete(model);
-                        const meshRender = model.node.getComponent(MeshRenderer);
-                        if (meshRender) {
-                            meshRender.updateProbePlanarMap(null);
-                        }
+                        this._updatePlanarMapOfModel(model, null, null);
                     }
                 }
             }
@@ -274,10 +283,7 @@ export class ReflectionProbeManager {
             const nearest = this._getNearestProbe(model);
             if (!nearest) {
                 //not in the range of any probe,set default texture for the model
-                const meshRender = model.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbeCubemap(null);
-                }
+                this._updateCubemapOfModel(model, null);
                 this._useCubeModels.delete(model);
             } else if (this._useCubeModels.has(model)) {
                 const old = this._useCubeModels.get(model);
@@ -293,7 +299,7 @@ export class ReflectionProbeManager {
         }
 
         for (let i = 0; i < this._probes.length; i++) {
-            if (this._probes[i].needRefresh && this._probes[i].probeType === ProbeType.CUBE) {
+            if ((this._probes[i].needRefresh && this._probes[i].probeType === ProbeType.CUBE) || this._isUsedBlending(model)) {
                 this.updateBakedCubemap(this._probes[i]);
             }
         }
@@ -307,7 +313,8 @@ export class ReflectionProbeManager {
         if (!probe || !probe.previewSphere) return;
         const meshRender = probe.previewSphere.getComponent(MeshRenderer);
         if (meshRender) {
-            meshRender.updateProbeCubemap(probe.cubemap, !probe.cubemap);
+            meshRender.updateProbeCubemap(probe.cubemap);
+            meshRender.updateReflectionProbeId(probe.getProbeId());
         }
     }
 
@@ -326,18 +333,110 @@ export class ReflectionProbeManager {
     }
 
     /**
+     * @en Update reflection probe data of model bind.
+     * @zh 更新模型绑定的反射探针数据。
+     */
+    public updateProbeData () {
+        if (this._probes.length === 0) return;
+        const maxId = this.getMaxProbeId();
+        const height = maxId + 1;
+        const dataWidth = 3;
+        if (this._dataTexture) {
+            this._dataTexture.destroy();
+        }
+
+        const buffer = new Float32Array(4 * dataWidth * height);
+        let bufferOffset = 0;
+        for (let i = 0; i <= maxId; i++) {
+            const probe = this.getProbeById(i);
+            if (!probe) {
+                bufferOffset += 4 * dataWidth;
+                continue;
+            }
+            if (probe.probeType === ProbeType.CUBE) {
+                //world pos
+                buffer[bufferOffset] = probe.node.worldPosition.x;
+                buffer[bufferOffset + 1] = probe.node.worldPosition.y;
+                buffer[bufferOffset + 2] = probe.node.worldPosition.z;
+                buffer[bufferOffset + 3] = 0.0;
+
+                buffer[bufferOffset + 4] = probe.size.x;
+                buffer[bufferOffset + 5] = probe.size.y;
+                buffer[bufferOffset + 6] = probe.size.z;
+                buffer[bufferOffset + 7] = 0.0;
+                const mipAndUseRGBE = probe.isRGBE() ? 1000 : 0;
+                buffer[bufferOffset + 8] = probe.cubemap ? probe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
+            } else {
+                //plane.xyz;
+                buffer[bufferOffset] = probe.node.up.x;
+                buffer[bufferOffset + 1] = probe.node.up.y;
+                buffer[bufferOffset + 2] = probe.node.up.z;
+                buffer[bufferOffset + 3] = 1.0;
+                //plane.w;
+                buffer[bufferOffset + 4] = 1.0;
+                //planarReflectionDepthScale
+                buffer[bufferOffset + 5] = 1.0;
+                buffer[bufferOffset + 6] = 0.0;
+                buffer[bufferOffset + 7] = 0.0;
+                //mipCount;
+                buffer[bufferOffset + 8] = 1.0;
+            }
+            bufferOffset += 4 * dataWidth;
+        }
+        const updateView = new Uint8Array(buffer.buffer);
+        const image = new ImageAsset({
+            _data: updateView,
+            _compressed: false,
+            width: dataWidth * 4,
+            height,
+            format: PixelFormat.RGBA8888,
+        });
+
+        this._dataTexture = new Texture2D();
+        this._dataTexture.setFilters(Texture2D.Filter.NONE, Texture2D.Filter.NONE);
+        this._dataTexture.setMipFilter(Texture2D.Filter.NONE);
+        this._dataTexture.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
+        this._dataTexture.image = image;
+
+        this._dataTexture.uploadData(updateView);
+
+        for (let i = 0; i < this._probes.length; i++) {
+            const probe = this._probes[i];
+            const models = this._getModelsByProbe(probe);
+            for (let j = 0; j < models.length; j++) {
+                const meshRender = models[j].node.getComponent(MeshRenderer);
+                if (meshRender) {
+                    meshRender.updateReflectionProbeDataMap(this._dataTexture);
+                }
+            }
+        }
+    }
+
+    /**
+     * @en get max value of probe id.
+     * @zh 获取反射探针id的最大值。
+     */
+    public getMaxProbeId () {
+        if (this._probes.length === 0) {
+            return -1;
+        }
+        if (this._probes.length === 1) {
+            return this._probes[0].getProbeId();
+        }
+        this._probes.sort((a: ReflectionProbe, b: ReflectionProbe) => a.getProbeId() - b.getProbeId());
+        return this._probes[this._probes.length - 1].getProbeId();
+    }
+    /**
      * @en Get the reflection probe used by the model.
      * @zh 获取模型使用的反射探针。
      */
-    public getUsedReflectionProbe (model: Model, probeType: ReflectionProbeType) {
-        if (probeType === ReflectionProbeType.BAKED_CUBEMAP) {
-            if (this._useCubeModels.has(model)) {
-                return this._useCubeModels.get(model);
-            }
-        } else if (probeType === ReflectionProbeType.PLANAR_REFLECTION) {
+    public getUsedReflectionProbe (model: Model, planarReflection: boolean) {
+        if (planarReflection) {
             if (this._usePlanarModels.has(model)) {
                 return this._usePlanarModels.get(model);
             }
+        } else if (this._useCubeModels.has(model)) {
+            return this._useCubeModels.get(model);
         }
         return null;
     }
@@ -350,26 +449,43 @@ export class ReflectionProbeManager {
      * @param model select the probe for this model
      */
     private _getNearestProbe (model: Model): ReflectionProbe | null {
-        if (this._probes.length === 0) return null;
-        if (!model.node || !model.worldBounds) return null;
-        let distance = 0;
-        let idx = -1;
-        let find = false;
+        if (!model.node || !model.worldBounds || this._probes.length === 0) return null;
+
+        let nearestProbe: ReflectionProbe | null = null;
+        let minDistance = Infinity;
+
+        for (const probe of this._probes) {
+            if (probe.probeType !== ProbeType.CUBE || !probe.validate() || !geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
+                continue;
+            }
+
+            const distance = Vec3.distance(model.node.worldPosition, probe.node.worldPosition);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestProbe = probe;
+            }
+        }
+
+        return nearestProbe;
+    }
+
+    private _getBlendProbe (model: Model): ReflectionProbe | null {
+        if (!model || !model.node || !model.worldBounds || this._probes.length < 2) {
+            return null;
+        }
+        const temp: ReflectionProbe[] = [];
         for (let i = 0; i < this._probes.length; i++) {
             if (this._probes[i].probeType !== ProbeType.CUBE || !this._probes[i].validate() || !geometry.intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox!)) {
                 continue;
-            } else if (!find) {
-                find = true;
-                distance = Vec3.distance(model.node.worldPosition, this._probes[i].node.worldPosition);
-                idx = i;
             }
-            const d = Vec3.distance(model.node.worldPosition, this._probes[i].node.worldPosition);
-            if (d < distance) {
-                distance = d;
-                idx = i;
-            }
+            temp.push(this._probes[i]);
         }
-        return find ? this._probes[idx] : null;
+        temp.sort((a: ReflectionProbe, b: ReflectionProbe) => {
+            const aDistance = Vec3.distance(model.node.worldPosition, a.node.worldPosition);
+            const bDistance = Vec3.distance(model.node.worldPosition, b.node.worldPosition);
+            return aDistance - bDistance;
+        });
+        return temp.length > 1 ? temp[1] : null;
     }
 
     private _getModelsByProbe (probe: ReflectionProbe) {
@@ -398,12 +514,158 @@ export class ReflectionProbeManager {
             const p = this._usePlanarModels.get(key);
             if (p !== undefined && p === probe) {
                 this._usePlanarModels.delete(key);
-                const meshRender = key.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbePlanarMap(null);
-                }
+                this.updateUsePlanarModels(key);
             }
         }
+    }
+
+    private _updateCubemapOfModel (model: Model, probe: ReflectionProbe | null) {
+        const node = model.node;
+        if (!node) {
+            return;
+        }
+        const meshRender = node.getComponent(MeshRenderer);
+        if (!meshRender) {
+            return;
+        }
+
+        meshRender.updateProbeCubemap(probe ? probe.cubemap : null);
+        meshRender.updateReflectionProbeId(probe && probe.cubemap ? probe.getProbeId() : -1);
+
+        if (probe) {
+            meshRender.updateReflectionProbeDataMap(this._dataTexture);
+            if (this._isUsedBlending(model)) {
+                this._updateBlendProbeInfo(model, probe);
+            }
+        }
+    }
+    private _updatePlanarMapOfModel (model: Model, texture: Texture | null, probe: ReflectionProbe | null) {
+        const meshRender = model.node.getComponent(MeshRenderer);
+        if (meshRender) {
+            meshRender.updateProbePlanarMap(texture);
+            if (probe) {
+                meshRender.updateReflectionProbeId(probe.getProbeId());
+                meshRender.updateReflectionProbeDataMap(this._dataTexture);
+            } else {
+                meshRender.updateReflectionProbeId(-1);
+            }
+        }
+    }
+    private _isUsedBlending (model: Model) {
+        if (model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES
+            || model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
+            return true;
+        }
+        return false;
+    }
+
+    private _updateBlendProbeInfo (model: Model, probe: ReflectionProbe) {
+        const node = model.node;
+        if (!node) {
+            return;
+        }
+        const meshRender = node.getComponent(MeshRenderer);
+        if (!meshRender) {
+            return;
+        }
+        const blendProbe = this._getBlendProbe(model);
+        if (blendProbe) {
+            meshRender.updateReflectionProbeBlendId(blendProbe.getProbeId());
+            meshRender.updateProbeBlendCubemap(blendProbe.cubemap);
+            meshRender.updateReflectionProbeBlendWeight(this._calculateBlendWeight(model, probe, blendProbe));
+        } else {
+            meshRender.updateReflectionProbeBlendId(-1);
+            if (model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
+                meshRender.updateReflectionProbeBlendWeight(this._calculateBlendWeight(model, probe, blendProbe));
+            }
+        }
+    }
+
+    private _updateBlendCubemap (model: Model, probe: ReflectionProbe) {
+        const node = model.node;
+        if (!node) {
+            return;
+        }
+        if (!this._isUsedBlending(model)) {
+            return;
+        }
+        const meshRender = node.getComponent(MeshRenderer);
+        if (meshRender) {
+            meshRender.updateProbeBlendCubemap(probe.cubemap);
+        }
+    }
+
+    private _calculateBlendWeight (model: Model, probe: ReflectionProbe, blendProbe: ReflectionProbe | null) {
+        if (blendProbe) {
+            const d1 = Vec3.distance(model.node.worldPosition, probe.node.worldPosition);
+            const d2 = Vec3.distance(model.node.worldPosition, blendProbe.node.worldPosition);
+            return 1.0 - d2 / (d1 + d2);
+        }
+        if (model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES) {
+            return 0.0;
+        } else if (model.reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
+            return this._calculateBlendOfSkybox(model.worldBounds, probe.boundingBox!);
+        }
+        return 0.0;
+    }
+
+    private _calculateBlendOfSkybox (aabb1: AABB, aabb2: AABB) {
+        const aMin = new Vec3();
+        const aMax = new Vec3();
+        const bMin = new Vec3();
+        const bMax = new Vec3();
+        Vec3.subtract(aMin, aabb1.center, aabb1.halfExtents);
+        Vec3.add(aMax, aabb1.center, aabb1.halfExtents);
+
+        Vec3.subtract(bMin, aabb2.center, aabb2.halfExtents);
+        Vec3.add(bMax, aabb2.center, aabb2.halfExtents);
+
+        const inside = (aMin.x <= bMax.x && aMax.x >= bMin.x)
+                && (aMin.y <= bMax.y && aMax.y >= bMin.y)
+                && (aMin.z <= bMax.z && aMax.z >= bMin.z);
+        if (inside) {
+            const fullSize = new Vec3();
+            Vec3.multiplyScalar(fullSize, aabb1.halfExtents, 2.0);
+            const boundaryXAdd = (aMin.x + fullSize.x) <= bMax.x && (aMax.x + fullSize.x) >= bMin.x;
+            const boundaryXSub = (aMin.x - fullSize.x) <= bMax.x && (aMax.x - fullSize.x) >= bMin.x;
+            const boundaryYAdd = (aMin.y + fullSize.y) <= bMax.y && (aMax.y + fullSize.y) >= bMin.y;
+            const boundaryYSub = (aMin.y - fullSize.y) <= bMax.y && (aMax.y - fullSize.y) >= bMin.y;
+            const boundaryZAdd = (aMin.z + fullSize.z) <= bMax.z && (aMax.z + fullSize.z) >= bMin.z;
+            const boundaryZSub = (aMin.z - fullSize.z) <= bMax.z && (aMax.z - fullSize.z) >= bMin.z;
+
+            const weights: number[] = [];
+            if (!boundaryXAdd) {
+                const offset = aMax.x - bMax.x;
+                weights.push(offset / fullSize.x);
+            }
+            if (!boundaryXSub) {
+                const offset = Math.abs(aMin.x - bMin.x);
+                weights.push(offset / fullSize.x);
+            }
+            if (!boundaryYAdd) {
+                const offset = aMax.y - bMax.y;
+                weights.push(offset / fullSize.y);
+            }
+            if (!boundaryYSub) {
+                const offset = Math.abs(aMin.y - bMin.y);
+                weights.push(offset / fullSize.y);
+            }
+            if (!boundaryZAdd) {
+                const offset = aMax.z - bMax.z;
+                weights.push(offset / fullSize.z);
+            }
+            if (!boundaryZSub) {
+                const offset = Math.abs(aMin.z - bMin.z);
+                weights.push(offset / fullSize.z);
+            }
+            if (weights.length > 0) {
+                weights.sort((a: number, b: number) => b - a);
+                return weights[0];
+            } else {
+                return 0.0;
+            }
+        }
+        return 1.0;
     }
 }
 

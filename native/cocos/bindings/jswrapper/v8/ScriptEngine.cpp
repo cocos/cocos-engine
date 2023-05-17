@@ -33,6 +33,7 @@
     #include "MissingSymbols.h"
     #include "Object.h"
     #include "Utils.h"
+    #include "base/Log.h"
     #include "base/std/container/unordered_map.h"
     #include "platform/FileUtils.h"
     #include "plugins/bus/EventBus.h"
@@ -79,7 +80,8 @@ namespace {
 void seLogCallback(const v8::FunctionCallbackInfo<v8::Value> &info) {
     if (info[0]->IsString()) {
         v8::String::Utf8Value utf8(v8::Isolate::GetCurrent(), info[0]);
-        SE_LOGD("JS: %s", *utf8);
+        cc::Log::logMessage(cc::LogType::KERNEL, cc::LogLevel::LEVEL_DEBUG
+            , "JS: %s", *utf8);
     }
 }
 
@@ -134,7 +136,7 @@ se::Value oldConsoleWarn;
 se::Value oldConsoleError;
 se::Value oldConsoleAssert;
 
-bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) {
+bool jsbConsoleFormatLog(State &state, cc::LogLevel level, int msgIndex = 0) {
     if (msgIndex < 0) {
         return false;
     }
@@ -143,7 +145,8 @@ bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) {
     int argc = static_cast<int>(args.size());
     if ((argc - msgIndex) == 1) {
         ccstd::string msg = args[msgIndex].toStringForce();
-        SE_LOGD("JS: %s%s", prefix, msg.c_str());
+        cc::Log::logMessage(cc::LogType::KERNEL, level 
+            ,"JS: %s", msg.c_str());
     } else if (argc > 1) {
         ccstd::string msg = args[msgIndex].toStringForce();
         size_t pos;
@@ -155,43 +158,43 @@ bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) {
                 msg += " " + args[i].toStringForce();
             }
         }
-
-        SE_LOGD("JS: %s%s", prefix, msg.c_str());
+        cc::Log::logMessage(cc::LogType::KERNEL, level
+            ,"JS: %s", msg.c_str());
     }
 
     return true;
 }
 
 bool jsbConsoleLog(State &s) {
-    jsbConsoleFormatLog(s, "");
+    jsbConsoleFormatLog(s, cc::LogLevel::LEVEL_DEBUG);
     oldConsoleLog.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleLog)
 
 bool jsbConsoleDebug(State &s) {
-    jsbConsoleFormatLog(s, "[DEBUG]: ");
+    jsbConsoleFormatLog(s, cc::LogLevel::LEVEL_DEBUG);
     oldConsoleDebug.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleDebug)
 
 bool jsbConsoleInfo(State &s) {
-    jsbConsoleFormatLog(s, "[INFO]: ");
+    jsbConsoleFormatLog(s, cc::LogLevel::INFO);
     oldConsoleInfo.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleInfo)
 
 bool jsbConsoleWarn(State &s) {
-    jsbConsoleFormatLog(s, "[WARN]: ");
+    jsbConsoleFormatLog(s, cc::LogLevel::WARN);
     oldConsoleWarn.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleWarn)
 
 bool jsbConsoleError(State &s) {
-    jsbConsoleFormatLog(s, "[ERROR]: ");
+    jsbConsoleFormatLog(s, cc::LogLevel::ERR);
     oldConsoleError.toObject()->call(s.args(), s.thisObject());
     return true;
 }
@@ -201,7 +204,7 @@ bool jsbConsoleAssert(State &s) {
     const auto &args = s.args();
     if (!args.empty()) {
         if (args[0].isBoolean() && !args[0].toBoolean()) {
-            jsbConsoleFormatLog(s, "[ASSERT]: ", 1);
+            jsbConsoleFormatLog(s, cc::LogLevel::WARN, 1);
             oldConsoleAssert.toObject()->call(s.args(), s.thisObject());
         }
     }
@@ -824,7 +827,7 @@ void ScriptEngine::_setDebuggerInfo(const DebuggerInfo &info) {
 }
 
 bool ScriptEngine::isValid() const {
-    return _isValid;
+    return ScriptEngine::instance != nullptr && _isValid;
 }
 
 bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Value *ret /* = nullptr */, const char *fileName /* = nullptr */) {

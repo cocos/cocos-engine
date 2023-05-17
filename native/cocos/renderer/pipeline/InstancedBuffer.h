@@ -50,6 +50,7 @@ struct CC_DLL InstancedItem {
     gfx::Texture *reflectionProbeCubemap = nullptr;
     gfx::Texture *reflectionProbePlanarMap = nullptr;
     uint32_t reflectionProbeType = 0;
+    gfx::Texture *reflectionProbeBlendCubemap = nullptr;
 };
 using InstancedItemList = ccstd::vector<InstancedItem>;
 using DynamicOffsetList = ccstd::vector<uint32_t>;

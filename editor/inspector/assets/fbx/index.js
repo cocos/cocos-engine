@@ -98,6 +98,12 @@ const Elements = {
     },
 };
 
+exports.methods = {
+    apply() {
+        Editor.Message.broadcast('fbx-inspector:apply');
+    }
+};
+
 exports.listeners = {
     track(event) {
         if (event.args?.length) {

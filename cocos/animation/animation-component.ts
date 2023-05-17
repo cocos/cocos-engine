@@ -316,7 +316,7 @@ export class Animation extends Eventify(Component) {
      * @returns The created animation state
      */
     public addClip (clip: AnimationClip, name?: string): AnimationState {
-        if (js.array.contains(this._clips, clip)) {
+        if (!js.array.contains(this._clips, clip)) {
             this._clips.push(clip);
         }
         return this.createState(clip, name);

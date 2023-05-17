@@ -23,11 +23,12 @@
 */
 
 /* eslint-disable import/no-dynamic-require */
-import { BAIDU, TAOBAO, WECHAT, XIAOMI } from 'internal:constants';
+import { BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT, WECHAT_MINI_PROGRAM, XIAOMI } from 'internal:constants';
 
 declare const require: (path: string) => any;
 declare const __baiduRequire: (path: string) => any;
 declare const __wxRequire: (path: string) => any;
+declare const __taobaoRequire: (path: string) => any;
 
 export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElement, canvas: HTMLCanvasElement } {
     const container = document.createElement('div');
@@ -41,8 +42,11 @@ export function loadJsFile (path: string): any {
     if (BAIDU) {
         return __baiduRequire(`./${path}`);
     }
-    if (WECHAT) {
+    if (WECHAT || WECHAT_MINI_PROGRAM) {
         return __wxRequire(path);
+    }
+    if (TAOBAO_MINIGAME) {
+        return globalThis.__taobaoRequire(path);
     }
     if (TAOBAO) {
         // NOTE: Taobao doesn't support dynamic require

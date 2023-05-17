@@ -1,0 +1,251 @@
+CCEffect %{
+  editor:
+    hide: true
+  techniques:
+  - passes:
+    - vert: gizmo-vs:vert
+      frag: gizmo-fs:front
+      priority: max - 10
+      rasterizerState:
+        cullMode: none
+      depthStencilState: &disable_depth
+        depthTest: false
+        depthWrite: false
+      blendState: &enable_blend
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+
+  - passes:
+    - vert: line-vs:vert
+      frag: line-fs:front
+      priority: max - 10
+      rasterizerState:
+        cullMode: none
+      depthStencilState: *disable_depth
+      blendState: *enable_blend
+
+  - passes:
+    - vert: line-vs:vert
+      frag: line-fs:front
+      priority: max - 10
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState: *enable_blend
+    - vert: line-vs:vert
+      frag: line-fs:back
+      priority: max - 10
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        depthFunc: greater
+      blendState: *enable_blend
+
+  - passes:
+    - vert: sprite-vs:vert
+      frag: sprite-fs:frag
+      priority: max - 10
+      rasterizerState:
+        cullMode: none
+      depthStencilState: *disable_depth
+      blendState: *enable_blend
+
+  - passes:
+    - vert: gizmo-vs:vert
+      frag: gizmo-fs:front
+      priority: max - 10
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState: *enable_blend
+    - vert: gizmo-vs:vert
+      frag: gizmo-fs:back
+      priority: max - 10
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        depthFunc: greater
+      blendState: *enable_blend
+}%
+
+CCProgram gizmo-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
+
+  in vec3 a_position;
+  in vec3 a_normal;
+  out vec3 normal_w;
+  out vec3 pos_w;
+  out vec3 pos_l;
+  out vec3 right;
+  out vec3 up;
+  out vec3 forward;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 1);
+    vec4 normal = vec4(a_normal, 0);
+
+    pos_l = a_position;
+    pos_w = (cc_matWorld * pos).xyz;
+    normal_w = (cc_matWorldIT * normal).xyz;
+    right = vec3(cc_matView[0][0], cc_matView[1][0], cc_matView[2][0]);
+    up = vec3(cc_matView[0][1], cc_matView[1][1], cc_matView[2][1]);
+    forward = vec3(cc_matView[0][2], cc_matView[1][2], cc_matView[2][2]);
+
+    return cc_matProj * (cc_matView * cc_matWorld) * pos;
+  }
+}%
+
+CCProgram gizmo-fs %{
+  precision mediump float;
+  #include <common/lighting/rect-area-light>
+  #include <builtin/uniforms/cc-global>
+  #include <common/color/gamma>
+  #include <legacy/output>
+
+  in vec3 normal_w;
+  in vec3 pos_w;
+  in vec3 pos_l;
+  in vec3 right;
+  in vec3 up;
+  in vec3 forward;
+
+  uniform Constant {
+    vec4 mainColor;
+
+    // SH coefficents used for light probe visualization
+    vec4 cc_sh_linear_const_r;
+    vec4 cc_sh_linear_const_g;
+    vec4 cc_sh_linear_const_b;
+    vec4 cc_sh_quadratic_r;
+    vec4 cc_sh_quadratic_g;
+    vec4 cc_sh_quadratic_b;
+    vec4 cc_sh_quadratic_a;
+  };
+
+  vec4 gizmo_fs (float alpha) {
+    vec3 N = normalize(normal_w) * (float(gl_FrontFacing) * 2.0 - 1.0);
+    vec3 V = normalize(cc_cameraPos.xyz - pos_w);
+
+    vec3 points [4];
+    points[0] = (forward * 3.0 + right + up) * 40.0;
+    points[1] = (forward * 3.0 - right + up) * 40.0;
+    points[2] = (forward * 3.0 - right - up) * 40.0;
+    points[3] = (forward * 3.0 + right - up) * 40.0;
+    vec3 diffuse = LinearToSRGB(mainColor.rgb * LTC_Evaluate(N, V, pos_l, mat3(1), points));
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(vec4(diffuse, mainColor.a * alpha));
+    #else
+      return vec4(diffuse, mainColor.a * alpha);
+    #endif
+  }
+
+  vec4 front () {
+    return gizmo_fs(1.0);
+  }
+
+  vec4 back () {
+    return gizmo_fs(0.2);
+  }
+}%
+
+CCProgram line-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
+
+  in highp vec3 a_position;
+
+  #if USE_DASHED_LINE
+  in float a_lineDistance;
+  out float lineDistance;
+  #endif
+
+  vec4 vert () {
+    vec4 pos = cc_matProj * (cc_matView * cc_matWorld) * vec4(a_position, 1);
+    pos.z -= 0.000001;
+    #if USE_DASHED_LINE
+    lineDistance = a_lineDistance;
+    #endif
+    return pos;
+  }
+}%
+
+CCProgram line-fs %{
+  precision mediump float;
+  #include <legacy/output>
+
+  uniform Constant {
+    vec4 mainColor;
+  };
+
+  in float lineDistance;
+
+  vec4 front() {
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(mainColor);
+    #else
+        #if USE_DASHED_LINE
+            if (mod(lineDistance, 10.0) > 5.0) {
+                discard;
+            }
+        #endif
+      return mainColor;
+    #endif
+  }
+  vec4 back() {
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(vec4(mainColor.rgb, mainColor.a * 0.2));
+    #else
+      return vec4(mainColor.rgb, mainColor.a * 0.2);
+    #endif
+  }
+}%
+
+CCProgram sprite-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
+
+  in vec3 a_position;
+  in vec2 a_texCoord;
+  out vec2 uv0;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 1);
+
+    pos = cc_matProj * (cc_matView * cc_matWorld) * pos;
+
+    uv0 = a_texCoord;
+
+    return pos;
+  }
+}%
+
+CCProgram sprite-fs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-global>
+
+  in vec2 uv0;
+  uniform Constant {
+    vec4 mainColor;
+  };
+
+  uniform sampler2D mainTexture;
+
+  vec4 frag () {
+    vec4 o = vec4(1, 1, 1, 1);
+
+    o *= texture(mainTexture, uv0);
+    o *= mainColor;
+    return o;
+  }
+}%

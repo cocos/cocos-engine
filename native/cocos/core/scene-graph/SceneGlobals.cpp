@@ -43,6 +43,7 @@ SceneGlobals::SceneGlobals() {
     _octreeInfo = ccnew scene::OctreeInfo();
     _lightProbeInfo = ccnew gi::LightProbeInfo();
     _bakedWithStationaryMainLight = false;
+    _bakedWithHighpLightmap = false;
 }
 
 void SceneGlobals::activate(Scene *scene) {
@@ -100,6 +101,10 @@ void SceneGlobals::setLightProbeInfo(gi::LightProbeInfo *info) {
 
 void SceneGlobals::setBakedWithStationaryMainLight(bool value) {
     _bakedWithStationaryMainLight = value;
+}
+
+void SceneGlobals::setBakedWithHighpLightmap(bool value) {
+    _bakedWithHighpLightmap = value;
 }
 
 } // namespace cc

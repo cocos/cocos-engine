@@ -32,8 +32,9 @@
 #if CC_SUPPORT_CASCADED_SHADOW_MAP
   #include <builtin/uniforms/cc-csm>
 #endif
+
+#include <builtin/uniforms/cc-environment>
 #if CC_USE_IBL
-  #include <builtin/uniforms/cc-environment>
   #if CC_USE_DIFFUSEMAP
     #include <builtin/uniforms/cc-diffusemap>
   #endif
@@ -47,7 +48,7 @@
 #include <common/texture/texture-lod>
 #include <common/data/packing>
 #include <common/data/unpack>
-#include <common/color/aces>
+#include <common/color/tone-mapping>
 #include <common/color/gamma>
 #include <common/math/number>
 #include <common/math/coordinates>
@@ -60,6 +61,9 @@
 #include <builtin/functionalities/fog>
 #if CC_USE_LIGHT_PROBE
   #include <builtin/functionalities/sh>
+#endif
+#if CC_USE_REFLECTION_PROBE
+  #include <builtin/functionalities/probe>
 #endif
 
 // Uniform should depend on system macro, not surface macro

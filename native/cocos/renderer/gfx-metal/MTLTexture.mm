@@ -65,8 +65,8 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
 
     if (_info.externalRes) {
         auto pixelBuffer = static_cast<CVPixelBufferRef>(_info.externalRes);
-        
-// for separating y tex and cbcr tex from arkit background pixelbuffer 
+
+// for separating y tex and cbcr tex from arkit background pixelbuffer
 #if CC_USE_AR_MODULE
         size_t width = CVPixelBufferGetWidthOfPlane(pixelBuffer, _info.layerCount);
         size_t height = CVPixelBufferGetHeightOfPlane(pixelBuffer, _info.layerCount);
@@ -239,7 +239,10 @@ bool CCMTLTexture::createMTLTexture() {
 #else
         descriptor.storageMode = MTLStorageModePrivate;
 #endif
-    } else if (hasFlag(_info.usage, TextureUsage::COLOR_ATTACHMENT) || hasFlag(_info.usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) || hasFlag(_info.usage, TextureUsage::INPUT_ATTACHMENT)) {
+    } else if (hasFlag(_info.usage, TextureUsage::COLOR_ATTACHMENT) ||
+               hasFlag(_info.usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) ||
+               hasFlag(_info.usage, TextureUsage::INPUT_ATTACHMENT) ||
+               hasFlag(_info.usage, TextureUsage::STORAGE)) {
         descriptor.storageMode = MTLStorageModePrivate;
     }
 

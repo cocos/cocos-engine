@@ -22,35 +22,30 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range, visible, override, displayName } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
-import { Component } from '../scene-graph';
-import { Vec3, Vec2, Vec4, cclegacy } from '../core';
+import { Vec3, cclegacy, Vec4, Vec2, CCBoolean } from '../core';
 import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../asset/asset-manager';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
-import { IMaterialInstanceInfo, MaterialInstance } from '../render-scene/core/material-instance';
-
-const _matInsInfo: IMaterialInstanceInfo = {
-    parent: null!,
-    owner: null!,
-    subModelIdx: 0,
-};
+import { ModelRenderer } from '../misc';
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
-const define = { CC_USE_WORLD_SPACE: false };
+const CC_USE_WORLD_SCALE = 'CC_USE_WORLD_SCALE';
+const define = { CC_USE_WORLD_SPACE: false, CC_USE_WORLD_SCALE: true };
 
 @ccclass('cc.Line')
 @help('i18n:cc.Line')
 @menu('Effects/Line')
 @executeInEditMode
-export class Line extends Component {
+export class Line extends ModelRenderer {
     @type(Texture2D)
     private _texture = null;
 
     /**
      * @zh 显示的纹理。
+     * @en Texture used.
      */
     @type(Texture2D)
     @displayOrder(0)
@@ -61,23 +56,35 @@ export class Line extends Component {
 
     set texture (val) {
         this._texture = val;
-        if (this._materialInstance) {
-            this._materialInstance.setProperty('mainTexture', val);
+        if (this.material) {
+            this.material.setProperty('mainTexture', val);
         }
     }
+
     @serializable
     private _material: Material | null = null;
-    private _materialInstance: MaterialInstance | null = null;
 
     @type(Material)
     @displayOrder(1)
     @tooltip('i18n:line.material')
-    get material () {
-        return this._material;
+    @displayName('Material')
+    get lineMaterial () {
+        return this.getSharedMaterial(0);
     }
 
-    set material (val) {
-        this._material = val;
+    set lineMaterial (val) {
+        this.setMaterial(val, 0);
+    }
+
+    @override
+    @visible(false)
+    @serializable
+    get sharedMaterials () {
+        return super.sharedMaterials;
+    }
+
+    set sharedMaterials (val) {
+        super.sharedMaterials = val;
     }
 
     @serializable
@@ -85,6 +92,7 @@ export class Line extends Component {
 
     /**
      * @zh positions是否为世界空间坐标。
+     * @en Whether positions are world space coordinates.
      */
     @displayOrder(1)
     @tooltip('i18n:line.worldSpace')
@@ -94,11 +102,12 @@ export class Line extends Component {
 
     set worldSpace (val) {
         this._worldSpace = val;
-        if (this._materialInstance) {
+        const matIns = this.getMaterialInstance(0);
+        if (matIns) {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
-            this._materialInstance.recompileShaders(define);
-            if (this._model) {
-                this._model.setSubModelMaterial(0, this._materialInstance);
+            matIns.recompileShaders(define);
+            if (this._models[0]) {
+                this._models[0].setSubModelMaterial(0, matIns);
             }
         }
     }
@@ -107,7 +116,7 @@ export class Line extends Component {
     private _positions = [];
 
     /**
-     * @en Inflection point positions of each polyline
+     * @en Inflection point positions of each polyline.
      * @zh 每段折线的拐点坐标。
      */
     @type([Vec3])
@@ -119,16 +128,15 @@ export class Line extends Component {
 
     set positions (val) {
         this._positions = val;
-        if (this._model) {
-            this._model.addLineVertexData(this._positions, this._width, this._color);
+        if (this._models[0]) {
+            const lineModel = this._models[0] as LineModel;
+            lineModel.addLineVertexData(this._positions, this.width, this.color);
         }
     }
 
-    @type(CurveRange)
-    private _width = new CurveRange();
-
     /**
      * @zh 线段的宽度。
+     * @en Width of this line.
      */
     @type(CurveRange)
     @range([0, 1])
@@ -140,16 +148,45 @@ export class Line extends Component {
 
     set width (val) {
         this._width = val;
-        if (this._model) {
-            this._model.addLineVertexData(this._positions, this._width, this._color);
+        if (this._models[0]) {
+            const lineModel = this._models[0] as LineModel;
+            lineModel.addLineVertexData(this._positions, this._width, this._color);
         }
     }
 
     @serializable
+    private _width = new CurveRange();
+
+    /**
+     * @zh 线段颜色。
+     * @en Color of this line.
+     */
+    @type(GradientRange)
+    @displayOrder(6)
+    @tooltip('i18n:line.color')
+    get color () {
+        return this._color;
+    }
+
+    set color (val) {
+        this._color = val;
+        if (this._models[0]) {
+            const lineModel = this._models[0] as LineModel;
+            lineModel.addLineVertexData(this._positions, this._width, this._color);
+        }
+    }
+
+    @serializable
+    private _color = new GradientRange();
+
+    @serializable
     private _tile = new Vec2(1, 1);
+
+    private _tile_offset: Vec4 = new Vec4();
 
     /**
      * @zh 图块数。
+     * @en Texture tile count.
      */
     @type(Vec2)
     @displayOrder(4)
@@ -160,10 +197,10 @@ export class Line extends Component {
 
     set tile (val) {
         this._tile.set(val);
-        if (this._materialInstance) {
+        if (this.material) {
             this._tile_offset.x = this._tile.x;
             this._tile_offset.y = this._tile.y;
-            this._materialInstance.setProperty('mainTiling_Offset', this._tile_offset);
+            this.material.setProperty('mainTiling_Offset', this._tile_offset);
         }
     }
 
@@ -179,92 +216,95 @@ export class Line extends Component {
 
     set offset (val) {
         this._offset.set(val);
-        if (this._materialInstance) {
+        if (this.material) {
             this._tile_offset.z = this._offset.x;
             this._tile_offset.w = this._offset.y;
-            this._materialInstance.setProperty('mainTiling_Offset', this._tile_offset);
+            this.material.setProperty('mainTiling_Offset', this._tile_offset);
         }
     }
-
-    @type(GradientRange)
-    private _color = new GradientRange();
-
-    /**
-     * @zh 线段颜色。
-     */
-    @type(GradientRange)
-    @displayOrder(6)
-    @tooltip('i18n:line.color')
-    get color () {
-        return this._color;
-    }
-
-    set color (val) {
-        this._color = val;
-        if (this._model) {
-            this._model.addLineVertexData(this._positions, this._width, this._color);
-        }
-    }
-
-    /**
-     * @ignore
-     */
-    private _model: LineModel | null = null;
-    private _tile_offset: Vec4 = new Vec4();
 
     constructor () {
         super();
     }
 
     public onLoad () {
-        const model = this._model = cclegacy.director.root.createModel(LineModel);
+        const model = cclegacy.director.root.createModel(LineModel);
+        if (this._models.length === 0) {
+            this._models.push(model);
+        } else {
+            this._models[0] = model;
+        }
         model.node = model.transform = this.node;
-        if (this._material === null) {
-            this._material = new Material();
-            this._material.copy(builtinResMgr.get<Material>('default-trail-material'));
-        }
         if (this._material) {
-            define[CC_USE_WORLD_SPACE] = this.worldSpace;
-            _matInsInfo.parent = this._material;
-            _matInsInfo.subModelIdx = 0;
-            this._materialInstance = new MaterialInstance(_matInsInfo);
-            _matInsInfo.parent = null!;
-            _matInsInfo.subModelIdx = 0;
-            this._materialInstance.recompileShaders(define);
+            this.lineMaterial = this._material;
+            this._material = null;
         }
-        model.updateMaterial(this._materialInstance!);
+        if (this.lineMaterial === null) {
+            const mat = builtinResMgr.get<Material>('default-trail-material');
+            this.material = mat;
+        }
+        const matIns = this.getMaterialInstance(0);
+        if (matIns) {
+            define[CC_USE_WORLD_SPACE] = this.worldSpace;
+            matIns.recompileShaders(define);
+            model.updateMaterial(matIns);
+        }
         model.setCapacity(100);
     }
 
     public onEnable () {
-        if (!this._model) {
+        super.onEnable();
+        if (this._models.length === 0 || !this._models[0]) {
             return;
         }
         this._attachToScene();
         this.texture = this._texture;
         this.tile = this._tile;
         this.offset = this._offset;
-        this._model.addLineVertexData(this._positions, this._width, this._color);
+        const lineModel = this._models[0] as LineModel;
+        lineModel.addLineVertexData(this._positions, this.width, this.color);
     }
 
     public onDisable () {
-        if (this._model) {
+        if (this._models.length > 0 && this._models[0]) {
             this._detachFromScene();
         }
     }
 
     protected _attachToScene () {
-        if (this._model && this.node && this.node.scene) {
-            if (this._model.scene) {
+        super._attachToScene();
+        if (this._models.length > 0 && this._models[0] && this.node && this.node.scene) {
+            const lineModel = this._models[0];
+            if (lineModel.scene) {
                 this._detachFromScene();
             }
-            this._getRenderScene().addModel(this._model);
+            this._getRenderScene().addModel(lineModel);
         }
     }
 
-    protected _detachFromScene () {
-        if (this._model && this._model.scene) {
-            this._model.scene.removeModel(this._model);
+    /**
+     * @engineInternal
+     */
+    public _detachFromScene () {
+        super._detachFromScene();
+        if (this._models.length > 0 && this._models[0]) {
+            const lineModel = this._models[0];
+            if (lineModel.scene) {
+                lineModel.scene.removeModel(lineModel);
+            }
+        }
+    }
+
+    protected _onMaterialModified (index: number, material: Material | null) {
+        super._onMaterialModified(index, material);
+        const matIns = this.getMaterialInstance(0);
+        if (matIns) {
+            define[CC_USE_WORLD_SPACE] = this.worldSpace;
+            matIns.recompileShaders(define);
+            if (this._models[0]) {
+                const lineModel = this._models[0] as LineModel;
+                lineModel.updateMaterial(matIns);
+            }
         }
     }
 }

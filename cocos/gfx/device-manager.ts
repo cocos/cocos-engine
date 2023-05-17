@@ -117,9 +117,8 @@ export class DeviceManager {
             } else {
                 let useWebGL2 = (!!globalThis.WebGL2RenderingContext);
                 const userAgent = globalThis.navigator.userAgent.toLowerCase();
-                if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                    || sys.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
-                ) {
+                // UC browser implementation doesn't conform to WebGL2 standard
+                if (sys.browserType === BrowserType.UC) {
                     useWebGL2 = false;
                 }
 

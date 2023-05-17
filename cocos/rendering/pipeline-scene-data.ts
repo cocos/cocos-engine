@@ -33,6 +33,8 @@ import { Material } from '../asset/assets';
 import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
 import { cclegacy } from '../core';
+import { Skin } from '../render-scene/scene/skin';
+import { ModelRenderer } from '../misc/model-renderer';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
@@ -64,12 +66,32 @@ export class PipelineSceneData {
         this._csmSupported = val;
     }
 
+    /**
+     * @engineInternal
+     * @en Get the Separable-SSS skin standard model.
+     * @zh 获取全局的4s标准模型
+     * @returns The model id
+     */
+    get standardSkinModel  () { return this._standardSkinModel; }
+
+    /**
+     * @engineInternal
+     * @en Set the Separable-SSS skin standard model.
+     * @zh 设置一个全局的4s标准模型
+     * @returns The model id
+     */
+    set standardSkinModel (val: ModelRenderer | null) {
+        if (this._standardSkinModel && this._standardSkinModel !== val) this._standardSkinModel.closedStandardSkin();
+        this._standardSkinModel = val;
+    }
+
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
     public csmLayers: CSMLayers = new CSMLayers();
     public octree: Octree = new Octree();
+    public skin: Skin = new Skin();
     public lightProbes = cclegacy.internal.LightProbes ? new cclegacy.internal.LightProbes() : null;
 
     /**
@@ -96,6 +118,7 @@ export class PipelineSceneData {
     protected _isHDR = true;
     protected _shadingScale = 1.0;
     protected _csmSupported = true;
+    private _standardSkinModel: ModelRenderer | null = null;
 
     constructor () {
         this._shadingScale = 1.0;
@@ -115,7 +138,7 @@ export class PipelineSceneData {
         for (let tech = 0; tech < GEOMETRY_RENDERER_TECHNIQUE_COUNT; tech++) {
             this._geometryRendererMaterials[tech] = new Material();
             this._geometryRendererMaterials[tech]._uuid = `geometry-renderer-material-${tech}`;
-            this._geometryRendererMaterials[tech].initialize({ effectName: 'builtin-geometry-renderer', technique: tech });
+            this._geometryRendererMaterials[tech].initialize({ effectName: 'internal/builtin-geometry-renderer', technique: tech });
 
             for (let pass = 0; pass < this._geometryRendererMaterials[tech].passes.length; ++pass) {
                 this._geometryRendererPasses[offset] = this._geometryRendererMaterials[tech].passes[pass];
@@ -141,7 +164,7 @@ export class PipelineSceneData {
         if (!this._occlusionQueryMaterial) {
             const mat = new Material();
             mat._uuid = 'default-occlusion-query-material';
-            mat.initialize({ effectName: 'builtin-occlusion-query' });
+            mat.initialize({ effectName: 'internal/builtin-occlusion-query' });
             this._occlusionQueryMaterial = mat;
             if (mat.passes.length > 0) {
                 this._occlusionQueryShader = mat.passes[0].getShaderVariant();

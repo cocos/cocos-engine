@@ -43,9 +43,7 @@ SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
     }
 }
 
-SystemWindow::~SystemWindow() {
-    setCursorEnabled(true);
-}
+SystemWindow::~SystemWindow() = default;
 
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
@@ -116,13 +114,7 @@ void SystemWindow::setCursorEnabled(bool value) {
         _pointerLock = true;
     }
     CC_ASSERT(result == kCGErrorSuccess);
-}
-
-void SystemWindow::copyTextToClipboard(const std::string &text) {
-    NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
-    [pasteboard clearContents];
-    NSString *tmp = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
-    [pasteboard setString:tmp forType:NSPasteboardTypeString];
+    events::PointerLock::broadcast(!value);
 }
 
 uintptr_t SystemWindow::getWindowHandle() const {

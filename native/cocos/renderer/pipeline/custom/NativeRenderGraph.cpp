@@ -27,11 +27,13 @@
 #include "LayoutGraphGraphs.h"
 #include "NativePipelineGraphs.h"
 #include "NativePipelineTypes.h"
+#include "NativeUtils.h"
 #include "RenderCommonNames.h"
 #include "RenderCommonTypes.h"
 #include "RenderGraphFwd.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
+#include "RenderingModule.h"
 #include "cocos/math/Utils.h"
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineUBO.h"
@@ -50,258 +52,96 @@ namespace cc {
 
 namespace render {
 
-namespace {
-
-render::NameLocalID getNameID(
-    const PmrFlatMap<ccstd::pmr::string, render::NameLocalID> &index,
-    std::string_view name) {
-    auto iter = index.find(name);
-    CC_EXPECTS(iter != index.end());
-    return iter->second;
+ccstd::string NativeRenderNode::getName() const {
+    return std::string(get(RenderGraph::NameTag{}, *renderGraph, nodeID));
 }
 
-void addMat4(
-    const LayoutGraphData &lg, std::string_view name,
-    const cc::Mat4 &v, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(Mat4) == 16 * 4, "sizeof(Mat4) is not 64 bytes");
-    data.constants[nameID.value].resize(sizeof(Mat4));
-    memcpy(data.constants[nameID.value].data(), v.m, sizeof(v));
+void NativeRenderNode::setName(const ccstd::string &name) { // NOLINT(readability-make-member-function-const)
+    get(RenderGraph::NameTag{}, *renderGraph, nodeID) = std::string_view{name};
 }
 
-void setMat4ArrayElemImpl(
-    const LayoutGraphData &lg, std::string_view name,
-    const cc::Mat4 &v, uint32_t i, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(Mat4) == 16 * 4, "sizeof(Mat4) is not 64 bytes");
-    auto &dst = data.constants[nameID.value];
-    CC_EXPECTS(sizeof(Mat4) * (i + 1) <= dst.size());
-    memcpy(dst.data() + sizeof(Mat4) * i, v.m, sizeof(v));
-}
-
-void setMat4ArraySizeImpl(
-    const LayoutGraphData &lg, std::string_view name,
-    uint32_t sz, RenderData &data) {
-    CC_EXPECTS(sz);
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(Mat4) == 16 * 4, "sizeof(Mat4) is not 64 bytes");
-    data.constants[nameID.value].resize(sizeof(Mat4) * sz);
-}
-
-void addQuaternion(const LayoutGraphData &lg, const ccstd::string &name, const Quaternion &quat, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(Quaternion) == 4 * 4, "sizeof(Quaternion) is not 16 bytes");
-    static_assert(std::is_trivially_copyable<Quaternion>::value, "Quaternion is not trivially copyable");
-    data.constants[nameID.value].resize(sizeof(Quaternion));
-    memcpy(data.constants[nameID.value].data(), &quat, sizeof(quat));
-}
-
-void addColor(const LayoutGraphData &lg, const ccstd::string &name, const gfx::Color &color, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(gfx::Color) == 4 * 4, "sizeof(Color) is not 16 bytes");
-    static_assert(std::is_trivially_copyable<gfx::Color>::value, "Color is not trivially copyable");
-    data.constants[nameID.value].resize(sizeof(gfx::Color));
-    memcpy(data.constants[nameID.value].data(), &color, sizeof(color));
-}
-
-void addVec4(const LayoutGraphData &lg, const ccstd::string &name, const Vec4 &vec, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(Vec4) == 4 * 4, "sizeof(Vec4) is not 16 bytes");
-    // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec4 is not trivially copyable");
-    data.constants[nameID.value].resize(sizeof(Vec4));
-    memcpy(data.constants[nameID.value].data(), &vec.x, sizeof(vec));
-}
-
-void setVec4ArrayElemImpl(const LayoutGraphData &lg, const ccstd::string &name,
-                          const Vec4 &vec, uint32_t i, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(Vec4) == 4 * 4, "sizeof(Vec4) is not 16 bytes");
-    // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec4 is not trivially copyable");
-    auto &dst = data.constants[nameID.value];
-    CC_EXPECTS(sizeof(Vec4) * (i + 1) <= dst.size());
-    memcpy(dst.data() + sizeof(Vec4) * i, &vec.x, sizeof(vec));
-}
-
-void setVec4ArraySizeImpl(const LayoutGraphData &lg, const ccstd::string &name,
-                          uint32_t sz, RenderData &data) {
-    CC_EXPECTS(sz);
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(Vec4) == 4 * 4, "sizeof(Vec4) is not 16 bytes");
-    // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec4 is not trivially copyable");
-    data.constants[nameID.value].resize(sizeof(Vec4) * sz);
-}
-
-void addVec2(const LayoutGraphData &lg, const ccstd::string &name, const Vec2 &vec, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(Vec2) == 2 * 4, "sizeof(Vec2) is not 8 bytes");
-    // static_assert(std::is_trivially_copyable<Vec4>::value, "Vec2 is not trivially copyable");
-    data.constants[nameID.value].resize(sizeof(Vec2));
-    memcpy(data.constants[nameID.value].data(), &vec.x, sizeof(vec));
-}
-
-void addFloat(const LayoutGraphData &lg, const ccstd::string &name, float v, RenderData &data) {
-    auto nameID = getNameID(lg.constantIndex, name);
-    static_assert(sizeof(float) == 4, "sizeof(float) is not 4 bytes");
-    data.constants[nameID.value].resize(sizeof(float));
-    memcpy(data.constants[nameID.value].data(), &v, sizeof(v));
-}
-
-void addBuffer(const LayoutGraphData &lg, const ccstd::string &name, gfx::Buffer *buffer, RenderData &data) {
-    auto nameID = getNameID(lg.attributeIndex, name);
-    data.buffers[nameID.value] = IntrusivePtr<gfx::Buffer>(buffer);
-}
-
-void addTexture(const LayoutGraphData &lg, const ccstd::string &name, gfx::Texture *texture, RenderData &data) {
-    auto nameID = getNameID(lg.attributeIndex, name);
-    data.textures[nameID.value] = IntrusivePtr<gfx::Texture>(texture);
-}
-
-void addReadWriteBuffer(const LayoutGraphData &lg, const ccstd::string &name, gfx::Buffer *buffer, RenderData &data) {
-    auto nameID = getNameID(lg.attributeIndex, name);
-    data.buffers[nameID.value] = IntrusivePtr<gfx::Buffer>(buffer);
-}
-
-void addReadWriteTexture(const LayoutGraphData &lg, const ccstd::string &name, gfx::Texture *texture, RenderData &data) {
-    auto nameID = getNameID(lg.attributeIndex, name);
-    data.textures[nameID.value] = IntrusivePtr<gfx::Texture>(texture);
-}
-
-void addSampler(const LayoutGraphData &lg, const ccstd::string &name, gfx::Sampler *sampler, RenderData &data) {
-    auto nameID = getNameID(lg.attributeIndex, name);
-    data.samplers[nameID.value].ptr = sampler;
-}
-
-} // namespace
-
-ccstd::string NativeSetter::getName() const {
-    return {};
-}
-void NativeSetter::setName(const ccstd::string &name) {
-    // noop
+void NativeRenderNode::setCustomBehavior(const ccstd::string &name) { // NOLINT(readability-make-member-function-const)
+    get(RenderGraph::DataTag{}, *renderGraph, nodeID).custom = std::string_view{name};
 }
 
 void NativeSetter::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto &data = renderData;
-    addMat4(layoutGraph, name, mat, data);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setMat4Impl(data, *layoutGraph, name, mat);
 }
 
 void NativeSetter::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto &data = renderData;
-    addQuaternion(layoutGraph, name, quat, data);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setQuaternionImpl(data, *layoutGraph, name, quat);
 }
 
 void NativeSetter::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto &data = renderData;
-    addColor(layoutGraph, name, color, data);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setColorImpl(data, *layoutGraph, name, color);
 }
 
 void NativeSetter::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto &data = renderData;
-    addVec4(layoutGraph, name, vec, data);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setVec4Impl(data, *layoutGraph, name, vec);
 }
 
 void NativeSetter::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto &data = renderData;
-    addVec2(layoutGraph, name, vec, data);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setVec2Impl(data, *layoutGraph, name, vec);
 }
 
 void NativeSetter::setFloat(const ccstd::string &name, float v) {
-    auto &data = renderData;
-    addFloat(layoutGraph, name, v, data);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setFloatImpl(data, *layoutGraph, name, v);
+}
+
+void NativeSetter::setArrayBuffer(const ccstd::string &name, const ArrayBuffer *buffer) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setArrayBufferImpl(data, *layoutGraph, name, *buffer);
 }
 
 void NativeSetter::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = renderData;
-    addBuffer(layoutGraph, name, buffer, data);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setBufferImpl(data, *layoutGraph, name, buffer);
 }
 
 void NativeSetter::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = renderData;
-    addTexture(layoutGraph, name, texture, data);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setTextureImpl(data, *layoutGraph, name, texture);
 }
 
 void NativeSetter::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = renderData;
-    addReadWriteBuffer(layoutGraph, name, buffer, data);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setReadWriteBufferImpl(data, *layoutGraph, name, buffer);
 }
 
 void NativeSetter::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = renderData;
-    addReadWriteTexture(layoutGraph, name, texture, data);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setReadWriteTextureImpl(data, *layoutGraph, name, texture);
 }
 
 void NativeSetter::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto &data = renderData;
-    addSampler(layoutGraph, name, sampler, data);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setSamplerImpl(data, *layoutGraph, name, sampler);
 }
 
 void NativeSetter::setVec4ArraySize(const ccstd::string &name, uint32_t sz) {
-    setVec4ArraySizeImpl(layoutGraph, name, sz, renderData);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setVec4ArraySizeImpl(data, *layoutGraph, name, sz);
 }
 
 void NativeSetter::setVec4ArrayElem(const ccstd::string &name, const cc::Vec4 &vec, uint32_t id) {
-    setVec4ArrayElemImpl(layoutGraph, name, vec, id, renderData);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setVec4ArrayElemImpl(data, *layoutGraph, name, vec, id);
 }
 
 void NativeSetter::setMat4ArraySize(const ccstd::string &name, uint32_t sz) {
-    setMat4ArraySizeImpl(layoutGraph, name, sz, renderData);
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setMat4ArraySizeImpl(data, *layoutGraph, name, sz);
 }
 
 void NativeSetter::setMat4ArrayElem(const ccstd::string &name, const cc::Mat4 &mat, uint32_t id) {
-    setMat4ArrayElemImpl(layoutGraph, name, mat, id, renderData);
-}
-
-ccstd::string NativeRasterPassBuilder::getName() const {
-    return std::string(get(RenderGraph::Name, *renderGraph, passID));
-}
-
-void NativeRasterPassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, passID) = std::string_view{name};
-}
-
-void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
-    auto &pass = get(RasterTag{}, passID, *renderGraph);
-    auto slotID = static_cast<uint32_t>(pass.rasterViews.size());
-    auto res = pass.rasterViews.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(name.c_str()),
-        std::forward_as_tuple(view));
-    CC_ENSURES(res.second);
-    res.first->second.slotID = slotID;
-}
-
-void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
-    CC_EXPECTS(!name.empty());
-    CC_EXPECTS(!view.name.empty());
-    auto &pass = get(RasterTag{}, passID, *renderGraph);
-    auto iter = pass.computeViews.find(name.c_str());
-    if (iter == pass.computeViews.end()) {
-        bool added = false;
-        std::tie(iter, added) = pass.computeViews.emplace(
-            std::piecewise_construct,
-            std::forward_as_tuple(name.c_str()),
-            std::forward_as_tuple());
-        CC_ENSURES(added);
-    }
-    iter->second.emplace_back(view);
-}
-
-bool NativeRasterPassBuilder::getShowStatistics() const {
-    const auto &pass = get(RasterTag{}, passID, *renderGraph);
-    return pass.showStatistics;
-}
-
-void NativeRasterPassBuilder::setShowStatistics(bool enable) {
-    auto &pass = get(RasterTag{}, passID, *renderGraph);
-    pass.showStatistics = enable;
-}
-
-ccstd::string NativeRasterQueueBuilder::getName() const {
-    return std::string(get(RenderGraph::Name, *renderGraph, queueID));
-}
-
-void NativeRasterQueueBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view{name};
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setMat4ArrayElemImpl(data, *layoutGraph, name, mat, id);
 }
 
 namespace {
@@ -312,52 +152,63 @@ uint8_t getCombineSignY(gfx::Device *device) {
     if (combineSignY < 0) {
         const float screenSpaceSignY = device->getCapabilities().screenSpaceSignY * 0.5F + 0.5F;
         const float clipSpaceSignY = device->getCapabilities().clipSpaceSignY * 0.5F + 0.5F;
-        combineSignY = static_cast<int8_t>(screenSpaceSignY) << 1 | static_cast<int8_t>(clipSpaceSignY);
+        combineSignY = static_cast<int8_t>(static_cast<int>(screenSpaceSignY) << 1 | static_cast<int>(clipSpaceSignY));
     }
     return static_cast<uint8_t>(combineSignY);
 }
 
 void setCameraUBOValues(
     const scene::Camera &camera,
+    const LayoutGraphData &layoutGraph,
     const pipeline::PipelineSceneData &cfg,
     const scene::DirectionalLight *mainLight,
-    Setter &setter) {
+    RenderData &data) {
     CC_EXPECTS(camera.getNode());
     CC_EXPECTS(cfg.getSkybox());
     const auto &skybox = *cfg.getSkybox();
     const auto &shadingScale = cfg.getShadingScale();
     // Camera
-    setter.setMat4("cc_matView", camera.getMatView());
-    setter.setMat4("cc_matViewInv", camera.getNode()->getWorldMatrix());
-    setter.setMat4("cc_matProj", camera.getMatProj());
-    setter.setMat4("cc_matProjInv", camera.getMatProjInv());
-    setter.setMat4("cc_matViewProj", camera.getMatViewProj());
-    setter.setMat4("cc_matViewProjInv", camera.getMatViewProjInv());
-    setter.setVec4("cc_cameraPos", Vec4(camera.getPosition().x,
-                                        camera.getPosition().y,
-                                        camera.getPosition().z,
-                                        getCombineSignY(cc::gfx::Device::getInstance())));
-    setter.setVec4("cc_surfaceTransform", Vec4(static_cast<float>(camera.getSurfaceTransform()),
-                                               0.0F,
-                                               cosf(static_cast<float>(mathutils::toRadian(skybox.getRotationAngle()))),
-                                               sinf(static_cast<float>(mathutils::toRadian(skybox.getRotationAngle())))));
-    setter.setVec4("cc_screenScale", Vec4(cfg.getShadingScale(),
-                                          cfg.getShadingScale(),
-                                          1.0F / cfg.getShadingScale(),
-                                          1.0F / cfg.getShadingScale()));
-    setter.setVec4("cc_exposure", Vec4(camera.getExposure(),
-                                       1.0F / camera.getExposure(),
-                                       cfg.isHDR() ? 1.0F : 0.0F,
-                                       1.0F / scene::Camera::getStandardExposureValue()));
+    setMat4Impl(data, layoutGraph, "cc_matView", camera.getMatView());
+    setMat4Impl(data, layoutGraph, "cc_matViewInv", camera.getNode()->getWorldMatrix());
+    setMat4Impl(data, layoutGraph, "cc_matProj", camera.getMatProj());
+    setMat4Impl(data, layoutGraph, "cc_matProjInv", camera.getMatProjInv());
+    setMat4Impl(data, layoutGraph, "cc_matViewProj", camera.getMatViewProj());
+    setMat4Impl(data, layoutGraph, "cc_matViewProjInv", camera.getMatViewProjInv());
+    setVec4Impl(data, layoutGraph, "cc_cameraPos",
+                Vec4(
+                    camera.getPosition().x,
+                    camera.getPosition().y,
+                    camera.getPosition().z,
+                    getCombineSignY(cc::gfx::Device::getInstance())));
+    setVec4Impl(data, layoutGraph, "cc_surfaceTransform",
+                Vec4(
+                    static_cast<float>(camera.getSurfaceTransform()),
+                    0.0F,
+                    cosf(static_cast<float>(mathutils::toRadian(skybox.getRotationAngle()))),
+                    sinf(static_cast<float>(mathutils::toRadian(skybox.getRotationAngle())))));
+    setVec4Impl(data, layoutGraph, "cc_screenScale",
+                Vec4(
+                    cfg.getShadingScale(),
+                    cfg.getShadingScale(),
+                    1.0F / cfg.getShadingScale(),
+                    1.0F / cfg.getShadingScale()));
+    setVec4Impl(data, layoutGraph, "cc_exposure",
+                Vec4(
+                    camera.getExposure(),
+                    1.0F / camera.getExposure(),
+                    cfg.isHDR() ? 1.0F : 0.0F,
+                    1.0F / scene::Camera::getStandardExposureValue()));
 
     if (mainLight) {
         const auto &shadowInfo = *cfg.getShadows();
         const bool shadowEnable = (mainLight->isShadowEnabled() &&
                                    shadowInfo.getType() == scene::ShadowType::SHADOW_MAP);
-        setter.setVec4("cc_mainLitDir", Vec4(mainLight->getDirection().x,
-                                             mainLight->getDirection().y,
-                                             mainLight->getDirection().z,
-                                             shadowEnable));
+        setVec4Impl(data, layoutGraph, "cc_mainLitDir",
+                    Vec4(
+                        mainLight->getDirection().x,
+                        mainLight->getDirection().y,
+                        mainLight->getDirection().z,
+                        shadowEnable));
         auto r = mainLight->getColor().x;
         auto g = mainLight->getColor().y;
         auto b = mainLight->getColor().z;
@@ -370,10 +221,10 @@ void setCameraUBOValues(
         if (cfg.isHDR()) {
             w *= camera.getExposure();
         }
-        setter.setVec4("cc_mainLitColor", Vec4(r, g, b, w));
+        setVec4Impl(data, layoutGraph, "cc_mainLitColor", Vec4(r, g, b, w));
     } else {
-        setter.setVec4("cc_mainLitDir", Vec4(0, 0, 1, 0));
-        setter.setVec4("cc_mainLitColor", Vec4(0, 0, 0, 0));
+        setVec4Impl(data, layoutGraph, "cc_mainLitDir", Vec4(0, 0, 1, 0));
+        setVec4Impl(data, layoutGraph, "cc_mainLitColor", Vec4(0, 0, 0, 0));
     }
 
     CC_EXPECTS(cfg.getAmbient());
@@ -384,33 +235,648 @@ void setCameraUBOValues(
     } else {
         skyColor.w = ambient.getSkyIllum();
     }
-    setter.setVec4("cc_ambientSky", Vec4(skyColor.x, skyColor.y, skyColor.z, skyColor.w));
-    setter.setVec4("cc_ambientGround", Vec4(ambient.getGroundAlbedo().x,
-                                            ambient.getGroundAlbedo().y,
-                                            ambient.getGroundAlbedo().z,
-                                            skybox.getEnvmap()
-                                                ? static_cast<float>(skybox.getEnvmap()->mipmapLevel())
-                                                : 1.0F));
+    setVec4Impl(data, layoutGraph, "cc_ambientSky",
+                Vec4(skyColor.x, skyColor.y, skyColor.z, skyColor.w));
+    setVec4Impl(data, layoutGraph, "cc_ambientGround",
+                Vec4(
+                    ambient.getGroundAlbedo().x,
+                    ambient.getGroundAlbedo().y,
+                    ambient.getGroundAlbedo().z,
+                    skybox.getEnvmap() ? static_cast<float>(skybox.getEnvmap()->mipmapLevel()) : 1.0F));
 
     CC_EXPECTS(cfg.getFog());
     const auto &fog = *cfg.getFog();
 
     const auto &colorTempRGB = fog.getColorArray();
-    setter.setVec4("cc_fogColor", Vec4(colorTempRGB.x, colorTempRGB.y, colorTempRGB.z, colorTempRGB.z));
-    setter.setVec4("cc_fogBase", Vec4(fog.getFogStart(), fog.getFogEnd(), fog.getFogDensity(), 0.0F));
-    setter.setVec4("cc_fogAdd", Vec4(fog.getFogTop(), fog.getFogRange(), fog.getFogAtten(), 0.0F));
-    setter.setVec4("cc_nearFar", Vec4(camera.getNearClip(), camera.getFarClip(), 0.0F, 0.0F));
-    setter.setVec4("cc_viewPort", Vec4(camera.getViewport().x,
-                                       camera.getViewport().y,
-                                       shadingScale * static_cast<float>(camera.getWindow()->getWidth()) * camera.getViewport().z,
-                                       shadingScale * static_cast<float>(camera.getWindow()->getHeight()) * camera.getViewport().w));
+    setVec4Impl(data, layoutGraph, "cc_fogColor",
+                Vec4(colorTempRGB.x, colorTempRGB.y, colorTempRGB.z, colorTempRGB.z));
+    setVec4Impl(data, layoutGraph, "cc_fogBase",
+                Vec4(fog.getFogStart(), fog.getFogEnd(), fog.getFogDensity(), 0.0F));
+    setVec4Impl(data, layoutGraph, "cc_fogAdd",
+                Vec4(fog.getFogTop(), fog.getFogRange(), fog.getFogAtten(), 0.0F));
+    setVec4Impl(data, layoutGraph, "cc_nearFar",
+                Vec4(camera.getNearClip(), camera.getFarClip(), 0.0F, 0.0F));
+    setVec4Impl(data, layoutGraph, "cc_viewPort",
+                Vec4(
+                    camera.getViewport().x,
+                    camera.getViewport().y,
+                    shadingScale * static_cast<float>(camera.getWindow()->getWidth()) * camera.getViewport().z,
+                    shadingScale * static_cast<float>(camera.getWindow()->getHeight()) * camera.getViewport().w));
 }
+
+} // namespace
+
+void NativeSetter::setCamera(const scene::Camera *camera) {
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+
+    setCameraUBOValues(
+        *camera,
+        *layoutGraph,
+        *pipelineRuntime->getPipelineSceneData(),
+        camera->getScene()->getMainLight(), data);
+}
+
+namespace {
+
+template <class Tag>
+void addRenderTargetImpl(
+    RenderGraph &graph,
+    RenderGraph::vertex_descriptor passID,
+    std::string_view name,
+    std::string_view slotName,
+    AccessType accessType,
+    gfx::LoadOp loadOp,
+    gfx::StoreOp storeOp,
+    const gfx::Color &color) {
+    auto &pass = get(Tag{}, passID, graph);
+    auto iter = pass.rasterViews.find(name);
+    if (iter != pass.rasterViews.end()) {
+        // no overwrite
+        return;
+    }
+    auto slotID = static_cast<uint32_t>(pass.rasterViews.size());
+    auto res = pass.rasterViews.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(name),
+        std::forward_as_tuple(
+            ccstd::pmr::string(slotName, graph.get_allocator()),
+            accessType,
+            AttachmentType::RENDER_TARGET,
+            loadOp,
+            storeOp,
+            gfx::ClearFlagBit::COLOR,
+            color,
+            gfx::ShaderStageFlagBit::NONE));
+    CC_ENSURES(res.second);
+    res.first->second.slotID = slotID;
+}
+
+template <class Tag>
+void addDepthStencilImpl(
+    RenderGraph &graph,
+    RenderGraph::vertex_descriptor passID,
+    std::string_view name,
+    std::string_view slotName,
+    AccessType accessType,
+    gfx::LoadOp loadOp,
+    gfx::StoreOp storeOp,
+    gfx::ClearFlagBit clearFlags,
+    float depth,
+    uint8_t stencil) {
+    auto &pass = get(Tag{}, passID, graph);
+    auto iter = pass.rasterViews.find(name);
+    if (iter != pass.rasterViews.end()) {
+        // no overwrite
+        return;
+    }
+    auto slotID = static_cast<uint32_t>(pass.rasterViews.size());
+    auto res = pass.rasterViews.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(name),
+        std::forward_as_tuple(
+            ccstd::pmr::string(slotName, graph.get_allocator()),
+            accessType,
+            AttachmentType::DEPTH_STENCIL,
+            loadOp,
+            storeOp,
+            clearFlags,
+            gfx::Color{depth, static_cast<float>(stencil), 0, 0},
+            gfx::ShaderStageFlagBit::NONE));
+    CC_ENSURES(res.second);
+    res.first->second.slotID = slotID;
+}
+
+} // namespace
+
+void NativeRenderPassBuilder::addRenderTarget(
+    const ccstd::string &name,
+    const ccstd::string &slotName,
+    gfx::LoadOp loadOp,
+    gfx::StoreOp storeOp,
+    const gfx::Color &color) {
+    addRenderTargetImpl<RasterPassTag>(
+        *renderGraph,
+        nodeID,
+        name,
+        slotName,
+        AccessType::WRITE,
+        loadOp,
+        storeOp,
+        color);
+}
+
+void NativeRenderPassBuilder::addDepthStencil(
+    const ccstd::string &name,
+    const ccstd::string &slotName,
+    gfx::LoadOp loadOp,
+    gfx::StoreOp storeOp,
+    float depth,
+    uint8_t stencil,
+    gfx::ClearFlagBit clearFlags) {
+    addDepthStencilImpl<RasterPassTag>(
+        *renderGraph,
+        nodeID,
+        name,
+        slotName,
+        AccessType::WRITE,
+        loadOp,
+        storeOp,
+        clearFlags,
+        depth,
+        stencil);
+}
+
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+void NativeRenderPassBuilder::addTexture(
+    const ccstd::string &name, const ccstd::string &slotName,
+    gfx::Sampler *sampler) {
+    std::ignore = sampler;
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            AccessType::READ,
+            gfx::ClearFlagBit::NONE,
+            ClearValueType::NONE,
+            ClearValue{},
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
+}
+
+void NativeRenderPassBuilder::addStorageBuffer(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            clearType,
+            clearValue,
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
+}
+
+void NativeRenderPassBuilder::addStorageImage(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            clearType,
+            clearValue,
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
+}
+
+void NativeRenderPassBuilder::setCustomShaderStages(
+    const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) {
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    {
+        auto iter = pass.rasterViews.find(std::string_view{name});
+        if (iter != pass.rasterViews.end()) {
+            auto &view = iter->second;
+            view.shaderStageFlags = stageFlags;
+        }
+    }
+    {
+        auto iter = pass.computeViews.find(std::string_view{name});
+        if (iter != pass.computeViews.end()) {
+            for (auto &view : iter->second) {
+                view.shaderStageFlags = stageFlags;
+            }
+        }
+    }
+}
+
+void NativeRenderPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    auto slotID = static_cast<uint32_t>(pass.rasterViews.size());
+    auto res = pass.rasterViews.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(view));
+    CC_ENSURES(res.second);
+    res.first->second.slotID = slotID;
+}
+
+void NativeRenderPassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
+    CC_EXPECTS(!name.empty());
+    CC_EXPECTS(!view.name.empty());
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    auto iter = pass.computeViews.find(name.c_str());
+    if (iter == pass.computeViews.end()) {
+        bool added = false;
+        std::tie(iter, added) = pass.computeViews.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(name.c_str()),
+            std::forward_as_tuple());
+        CC_ENSURES(added);
+    }
+    iter->second.emplace_back(view);
+}
+
+bool NativeRenderPassBuilder::getShowStatistics() const {
+    const auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    return pass.showStatistics;
+}
+
+void NativeRenderPassBuilder::setShowStatistics(bool enable) {
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    pass.showStatistics = enable;
+}
+
+namespace {
+
+template <class Tag>
+void addRasterViewImpl(
+    std::string_view name,
+    std::string_view slotName,
+    AccessType accessType,
+    AttachmentType attachmentType,
+    gfx::LoadOp loadOp,
+    gfx::StoreOp storeOp,
+    gfx::ClearFlagBit clearFlags,
+    gfx::Color clearColor,
+    RenderGraph::vertex_descriptor subpassID,
+    RenderGraph &renderGraph) {
+    CC_EXPECTS(!name.empty());
+    auto &subpass = get(Tag{}, subpassID, renderGraph);
+    const auto slotID = static_cast<uint32_t>(subpass.rasterViews.size());
+    const auto passID = parent(subpassID, renderGraph);
+    CC_EXPECTS(passID != RenderGraph::null_vertex());
+    CC_EXPECTS(holds<RasterPassTag>(passID, renderGraph));
+    auto &pass = get(RasterPassTag{}, passID, renderGraph);
+    CC_EXPECTS(subpass.subpassID < num_vertices(pass.subpassGraph));
+    auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
+    CC_EXPECTS(subpass.rasterViews.size() == subpassData.rasterViews.size());
+    {
+        auto res = subpassData.rasterViews.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(name),
+            std::forward_as_tuple(
+                ccstd::pmr::string(slotName, subpassData.get_allocator()),
+                accessType,
+                attachmentType,
+                loadOp,
+                storeOp,
+                clearFlags,
+                clearColor,
+                gfx::ShaderStageFlagBit::NONE));
+        CC_ENSURES(res.second);
+        res.first->second.slotID = slotID;
+    }
+    {
+        auto res = subpass.rasterViews.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(name),
+            std::forward_as_tuple(
+                ccstd::pmr::string(slotName, subpassData.get_allocator()),
+                accessType,
+                attachmentType,
+                loadOp,
+                storeOp,
+                clearFlags,
+                clearColor,
+                gfx::ShaderStageFlagBit::NONE));
+        CC_ENSURES(res.second);
+        res.first->second.slotID = slotID;
+    }
+    CC_ENSURES(subpass.rasterViews.size() == subpassData.rasterViews.size());
+}
+
+template <class Tag>
+void addComputeViewImpl(
+    const ccstd::string &name, const ComputeView &view,
+    RenderGraph::vertex_descriptor subpassID,
+    RenderGraph &renderGraph) {
+    CC_EXPECTS(!name.empty());
+    CC_EXPECTS(!view.name.empty());
+    auto &subpass = get(Tag{}, subpassID, renderGraph);
+    const auto passID = parent(subpassID, renderGraph);
+    CC_EXPECTS(passID != RenderGraph::null_vertex());
+    CC_EXPECTS(holds<RasterPassTag>(passID, renderGraph));
+    auto &pass = get(RasterPassTag{}, passID, renderGraph);
+    CC_EXPECTS(subpass.subpassID < num_vertices(pass.subpassGraph));
+    auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
+    CC_EXPECTS(subpass.computeViews.size() == subpassData.computeViews.size());
+    {
+        auto iter = subpassData.computeViews.find(name.c_str());
+        if (iter == subpassData.computeViews.end()) {
+            bool added = false;
+            std::tie(iter, added) = subpassData.computeViews.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(name.c_str()),
+                std::forward_as_tuple());
+            CC_ENSURES(added);
+        }
+        iter->second.emplace_back(view);
+    }
+    {
+        auto iter = subpass.computeViews.find(name.c_str());
+        if (iter == subpass.computeViews.end()) {
+            bool added = false;
+            std::tie(iter, added) = subpass.computeViews.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(name.c_str()),
+                std::forward_as_tuple());
+            CC_ENSURES(added);
+        }
+        iter->second.emplace_back(view);
+    }
+    CC_ENSURES(subpass.computeViews.size() == subpassData.computeViews.size());
+    CC_ENSURES(subpass.computeViews.find(std::string_view{name}) != subpass.computeViews.end());
+    CC_ENSURES(subpassData.computeViews.find(std::string_view{name}) != subpassData.computeViews.end());
+    CC_ENSURES(subpass.computeViews.find(std::string_view{name})->second.size() ==
+               subpassData.computeViews.find(std::string_view{name})->second.size());
+}
+
+} // namespace
+
+void NativeRenderSubpassBuilder::addRenderTarget(
+    const ccstd::string &name,
+    AccessType accessType,
+    const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp,
+    const gfx::Color &color) {
+    addRasterViewImpl<RasterSubpassTag>(
+        name,
+        slotName,
+        accessType,
+        AttachmentType::RENDER_TARGET,
+        loadOp,
+        storeOp,
+        gfx::ClearFlagBit::COLOR,
+        color,
+        nodeID,
+        *renderGraph);
+}
+
+void NativeRenderSubpassBuilder::addDepthStencil(
+    const ccstd::string &name,
+    AccessType accessType,
+    const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp,
+    float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) {
+    addRasterViewImpl<RasterSubpassTag>(
+        name,
+        slotName,
+        accessType,
+        AttachmentType::DEPTH_STENCIL,
+        loadOp,
+        storeOp,
+        clearFlags,
+        gfx::Color{depth, static_cast<float>(stencil)},
+        nodeID,
+        *renderGraph);
+}
+
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+void NativeRenderSubpassBuilder::addTexture(
+    const ccstd::string &name, const ccstd::string &slotName,
+    gfx::Sampler *sampler) {
+    std::ignore = sampler;
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            AccessType::READ,
+            gfx::ClearFlagBit::NONE,
+            ClearValueType::NONE,
+            ClearValue{},
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
+}
+
+void NativeRenderSubpassBuilder::addStorageBuffer(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            clearType,
+            clearValue,
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
+}
+
+void NativeRenderSubpassBuilder::addStorageImage(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            clearType,
+            clearValue,
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
+}
+
+namespace {
+
+template <class Tag>
+void setSubpassResourceShaderStages(
+    RenderGraph &rg,
+    RenderGraph::vertex_descriptor subpassID,
+    std::string_view name,
+    gfx::ShaderStageFlagBit stageFlags) {
+    auto &subpass = get(Tag{}, subpassID, rg);
+    const auto passID = parent(subpassID, rg);
+    CC_EXPECTS(passID != RenderGraph::null_vertex());
+    CC_EXPECTS(holds<RasterPassTag>(passID, rg));
+    auto &pass = get(RasterPassTag{}, passID, rg);
+    CC_EXPECTS(subpass.subpassID < num_vertices(pass.subpassGraph));
+    auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
+    CC_EXPECTS(subpass.rasterViews.size() == subpassData.rasterViews.size());
+    {
+        auto iter = subpassData.rasterViews.find(name);
+        if (iter != subpassData.rasterViews.end()) {
+            auto &view = iter->second;
+            view.shaderStageFlags = stageFlags;
+        }
+    }
+    {
+        auto iter = subpassData.computeViews.find(name);
+        if (iter != subpassData.computeViews.end()) {
+            for (auto &view : iter->second) {
+                view.shaderStageFlags = stageFlags;
+            }
+        }
+    }
+    {
+        auto iter = subpass.rasterViews.find(name);
+        if (iter != subpass.rasterViews.end()) {
+            auto &view = iter->second;
+            view.shaderStageFlags = stageFlags;
+        }
+    }
+    {
+        auto iter = subpass.computeViews.find(name);
+        if (iter != subpass.computeViews.end()) {
+            for (auto &view : iter->second) {
+                view.shaderStageFlags = stageFlags;
+            }
+        }
+    }
+}
+
+} // namespace
+
+void NativeRenderSubpassBuilder::setCustomShaderStages(
+    const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) {
+    setSubpassResourceShaderStages<RasterSubpassTag>(*renderGraph, nodeID, name, stageFlags);
+}
+
+void NativeRenderSubpassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
+    addComputeViewImpl<RasterSubpassTag>(name, view, nodeID, *renderGraph);
+}
+
+void NativeRenderSubpassBuilder::setViewport(const gfx::Viewport &viewport) {
+    auto &subpass = get(RasterSubpassTag{}, nodeID, *renderGraph);
+    subpass.viewport = viewport;
+}
+
+RenderQueueBuilder *NativeRenderSubpassBuilder::addQueue(QueueHint hint, const ccstd::string &layoutName) {
+    CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
+
+    auto phaseLayoutID = LayoutGraphData::null_vertex();
+    if (!layoutName.empty()) {
+        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
+    }
+
+    std::string_view name = "Queue";
+    auto queueID = addVertex(
+        QueueTag{},
+        std::forward_as_tuple(name),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(hint, phaseLayoutID),
+        *renderGraph, nodeID);
+
+    return new NativeRenderQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
+}
+
+bool NativeRenderSubpassBuilder::getShowStatistics() const {
+    const auto &subpass = get(RasterSubpassTag{}, nodeID, *renderGraph);
+    return subpass.showStatistics;
+}
+
+void NativeRenderSubpassBuilder::setShowStatistics(bool enable) {
+    auto &subpass = get(RasterSubpassTag{}, nodeID, *renderGraph);
+    subpass.showStatistics = enable;
+}
+
+void NativeComputeSubpassBuilder::addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) {
+    addRasterViewImpl<ComputeSubpassTag>(
+        name,
+        slotName,
+        AccessType::READ,
+        AttachmentType::RENDER_TARGET,
+        gfx::LoadOp::LOAD,
+        gfx::StoreOp::STORE,
+        gfx::ClearFlagBit::NONE,
+        gfx::Color{},
+        nodeID,
+        *renderGraph);
+}
+
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+void NativeComputeSubpassBuilder::addTexture(
+    const ccstd::string &name, const ccstd::string &slotName,
+    gfx::Sampler *sampler) {
+    std::ignore = sampler;
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            AccessType::READ,
+            gfx::ClearFlagBit::NONE,
+            ClearValueType::NONE,
+            ClearValue{},
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
+}
+
+void NativeComputeSubpassBuilder::addStorageBuffer(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            clearType,
+            clearValue,
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
+}
+
+void NativeComputeSubpassBuilder::addStorageImage(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            clearType,
+            clearValue,
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
+}
+
+void NativeComputeSubpassBuilder::setCustomShaderStages(
+    const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) {
+    setSubpassResourceShaderStages<ComputeSubpassTag>(*renderGraph, nodeID, name, stageFlags);
+}
+
+void NativeComputeSubpassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
+    addComputeViewImpl<ComputeSubpassTag>(name, view, nodeID, *renderGraph);
+}
+
+ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &layoutName) {
+    CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
+
+    auto phaseLayoutID = LayoutGraphData::null_vertex();
+    if (!layoutName.empty()) {
+        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
+    }
+
+    std::string_view name = "Queue";
+    auto queueID = addVertex(
+        QueueTag{},
+        std::forward_as_tuple(name),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(phaseLayoutID),
+        *renderGraph, nodeID);
+
+    return new NativeComputeQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
+}
+
+namespace {
 
 void setShadowUBOLightView(
     gfx::Device *device,
+    const LayoutGraphData &layoutGraph,
     const pipeline::PipelineSceneData &sceneData,
     const scene::Light &light,
-    uint32_t level, Setter &setter) {
+    uint32_t level,
+    RenderData &data) {
     const auto &shadowInfo = *sceneData.getShadows();
     const auto &csmLayers = *sceneData.getCSMLayers();
     const auto &packing = pipeline::supportsR32FloatTexture(device) ? 0.0F : 1.0F;
@@ -443,7 +909,7 @@ void setShadowUBOLightView(
                             levelCount = scene::CSMLevel::LEVEL_1;
                         }
                         vec4ShadowInfo.set(0.0F, packing, mainLight.getShadowNormalBias(), 0);
-                        setter.setVec4("cc_shadowLPNNInfo", vec4ShadowInfo);
+                        setVec4Impl(data, layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
                     } else {
                         const auto &layer = *csmLayers.getLayers()[level];
                         matShadowView = layer.getMatShadowView();
@@ -454,18 +920,34 @@ void setShadowUBOLightView(
                         far = layer.getSplitCameraFar();
                         levelCount = mainLight.getCSMLevel();
                     }
-                    setter.setMat4("cc_matLightView", matShadowView);
-                    setter.setVec4("cc_shadowProjDepthInfo", Vec4(matShadowProj.m[10], matShadowProj.m[14],
-                                                                  matShadowProj.m[11], matShadowProj.m[15]));
-                    setter.setVec4("cc_shadowProjInfo", Vec4(matShadowProj.m[00], matShadowProj.m[05],
-                                                             1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]));
-                    setter.setMat4("cc_matLightViewProj", matShadowViewProj);
+                    setMat4Impl(data, layoutGraph, "cc_matLightView", matShadowView);
+                    setVec4Impl(data, layoutGraph, "cc_shadowProjDepthInfo",
+                                Vec4(
+                                    matShadowProj.m[10],
+                                    matShadowProj.m[14],
+                                    matShadowProj.m[11],
+                                    matShadowProj.m[15]));
+                    setVec4Impl(data, layoutGraph, "cc_shadowProjInfo",
+                                Vec4(
+                                    matShadowProj.m[00],
+                                    matShadowProj.m[05],
+                                    1.0F / matShadowProj.m[00],
+                                    1.0F / matShadowProj.m[05]));
+                    setMat4Impl(data, layoutGraph, "cc_matLightViewProj", matShadowViewProj);
                     vec4ShadowInfo.set(near, far, 0, 1.0F - mainLight.getShadowSaturation());
-                    setter.setVec4("cc_shadowNFLSInfo", vec4ShadowInfo);
-                    vec4ShadowInfo.set(0.0F, packing, mainLight.getShadowNormalBias(), static_cast<float>(levelCount));
-                    setter.setVec4("cc_shadowLPNNInfo", vec4ShadowInfo);
-                    vec4ShadowInfo.set(shadowInfo.getSize().x, shadowInfo.getSize().y, static_cast<float>(mainLight.getShadowPcf()), mainLight.getShadowBias());
-                    setter.setVec4("cc_shadowWHPBInfo", vec4ShadowInfo);
+                    setVec4Impl(data, layoutGraph, "cc_shadowNFLSInfo", vec4ShadowInfo);
+                    vec4ShadowInfo.set(
+                        0.0F,
+                        packing,
+                        mainLight.getShadowNormalBias(),
+                        static_cast<float>(levelCount));
+                    setVec4Impl(data, layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
+                    vec4ShadowInfo.set(
+                        shadowInfo.getSize().x,
+                        shadowInfo.getSize().y,
+                        static_cast<float>(mainLight.getShadowPcf()),
+                        mainLight.getShadowBias());
+                    setVec4Impl(data, layoutGraph, "cc_shadowWHPBInfo", vec4ShadowInfo);
                 }
             }
             break;
@@ -475,27 +957,27 @@ void setShadowUBOLightView(
             if (shadowInfo.isEnabled() && spotLight.isShadowEnabled()) {
                 const auto &matShadowCamera = spotLight.getNode()->getWorldMatrix();
                 const auto matShadowView = matShadowCamera.getInversed();
-                setter.setMat4("cc_matLightView", matShadowView);
+                setMat4Impl(data, layoutGraph, "cc_matLightView", matShadowView);
 
                 Mat4 matShadowViewProj{};
                 Mat4::createPerspective(spotLight.getAngle(), 1.0F, 0.001F,
                                         spotLight.getRange(), true,
                                         cap.clipSpaceMinZ, cap.clipSpaceSignY, 0, &matShadowViewProj);
                 matShadowViewProj.multiply(matShadowView);
-                setter.setMat4("cc_matLightViewProj", matShadowViewProj);
+                setMat4Impl(data, layoutGraph, "cc_matLightViewProj", matShadowViewProj);
 
                 const Vec4 shadowNFLSInfos(0.01F, spotLight.getRange(), 0.0F, 0.0F);
-                setter.setVec4("cc_shadowNFLSInfo", shadowNFLSInfos);
+                setVec4Impl(data, layoutGraph, "cc_shadowNFLSInfo", shadowNFLSInfos);
 
                 const Vec4 shadowWHPBInfos(
                     shadowInfo.getSize().x,
                     shadowInfo.getSize().y,
                     spotLight.getShadowPcf(),
                     spotLight.getShadowBias());
-                setter.setVec4("cc_shadowWHPBInfo", shadowWHPBInfos);
+                setVec4Impl(data, layoutGraph, "cc_shadowWHPBInfo", shadowWHPBInfos);
 
                 const Vec4 shadowLPNNInfos(1.0F, packing, spotLight.getShadowNormalBias(), 0.0F);
-                setter.setVec4("cc_shadowLPNNInfo", shadowLPNNInfos);
+                setVec4Impl(data, layoutGraph, "cc_shadowLPNNInfo", shadowLPNNInfos);
             }
             break;
         }
@@ -503,8 +985,8 @@ void setShadowUBOLightView(
             break;
     }
 
-    const auto &data = shadowInfo.getShadowColor4f();
-    setter.setColor("cc_shadowColor", gfx::Color{data[0], data[1], data[2], data[3]});
+    const auto &color = shadowInfo.getShadowColor4f();
+    setColorImpl(data, layoutGraph, "cc_shadowColor", gfx::Color{color[0], color[1], color[2], color[3]});
 }
 
 float getPCFRadius(
@@ -528,9 +1010,10 @@ float getPCFRadius(
 
 void setShadowUBOView(
     gfx::Device &device,
+    const LayoutGraphData &layoutGraph,
     const pipeline::PipelineSceneData &sceneData,
     const scene::DirectionalLight &mainLight,
-    NativeSetter &setter) {
+    RenderData &data) {
     const auto &shadowInfo = *sceneData.getShadows();
     const auto &csmLayers = *sceneData.getCSMLayers();
     const auto &csmSupported = sceneData.getCSMSupported();
@@ -548,30 +1031,30 @@ void setShadowUBOView(
                     const auto &near = mainLight.getShadowNear();
                     const auto &far = mainLight.getShadowFar();
 
-                    setter.setMat4("cc_matLightView", matShadowView);
-                    setter.setVec4("cc_shadowProjDepthInfo",
-                                   Vec4(matShadowProj.m[10], matShadowProj.m[14],
-                                        matShadowProj.m[11], matShadowProj.m[15]));
+                    setMat4Impl(data, layoutGraph, "cc_matLightView", matShadowView);
+                    setVec4Impl(data, layoutGraph, "cc_shadowProjDepthInfo",
+                                Vec4(matShadowProj.m[10], matShadowProj.m[14],
+                                     matShadowProj.m[11], matShadowProj.m[15]));
 
-                    setter.setVec4("cc_shadowProjInfo",
-                                   Vec4(matShadowProj.m[00], matShadowProj.m[05],
-                                        1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]));
-                    setter.setMat4("cc_matLightViewProj", matShadowViewProj);
+                    setVec4Impl(data, layoutGraph, "cc_shadowProjInfo",
+                                Vec4(matShadowProj.m[00], matShadowProj.m[05],
+                                     1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]));
+                    setMat4Impl(data, layoutGraph, "cc_matLightViewProj", matShadowViewProj);
                     vec4ShadowInfo.set(near, far, 0, 1.0F - mainLight.getShadowSaturation());
-                    setter.setVec4("cc_shadowNFLSInfo", vec4ShadowInfo);
+                    setVec4Impl(data, layoutGraph, "cc_shadowNFLSInfo", vec4ShadowInfo);
                     vec4ShadowInfo.set(0.0F, packing, mainLight.getShadowNormalBias(), 0);
-                    setter.setVec4("cc_shadowLPNNInfo", vec4ShadowInfo);
+                    setVec4Impl(data, layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
                 } else {
                     { // CSM
                         const auto layerThreshold = getPCFRadius(shadowInfo, mainLight);
                         const auto numCascades = static_cast<uint32_t>(mainLight.getCSMLevel());
-                        setter.setVec4ArraySize("cc_csmViewDir0", numCascades);
-                        setter.setVec4ArraySize("cc_csmViewDir1", numCascades);
-                        setter.setVec4ArraySize("cc_csmViewDir2", numCascades);
-                        setter.setVec4ArraySize("cc_csmAtlas", numCascades);
-                        setter.setMat4ArraySize("cc_matCSMViewProj", numCascades);
-                        setter.setVec4ArraySize("cc_csmProjDepthInfo", numCascades);
-                        setter.setVec4ArraySize("cc_csmProjInfo", numCascades);
+                        setVec4ArraySizeImpl(data, layoutGraph, "cc_csmViewDir0", numCascades);
+                        setVec4ArraySizeImpl(data, layoutGraph, "cc_csmViewDir1", numCascades);
+                        setVec4ArraySizeImpl(data, layoutGraph, "cc_csmViewDir2", numCascades);
+                        setVec4ArraySizeImpl(data, layoutGraph, "cc_csmAtlas", numCascades);
+                        setMat4ArraySizeImpl(data, layoutGraph, "cc_matCSMViewProj", numCascades);
+                        setVec4ArraySizeImpl(data, layoutGraph, "cc_csmProjDepthInfo", numCascades);
+                        setVec4ArraySizeImpl(data, layoutGraph, "cc_csmProjInfo", numCascades);
 
                         Vec4 csmSplitsInfo{};
                         for (uint32_t i = 0; i < numCascades; ++i) {
@@ -579,75 +1062,77 @@ void setShadowUBOView(
 
                             const auto &matShadowView = layer.getMatShadowView();
                             vec4ShadowInfo.set(matShadowView.m[0], matShadowView.m[4], matShadowView.m[8], layerThreshold);
-                            setter.setVec4ArrayElem("cc_csmViewDir0", vec4ShadowInfo, i);
+                            setVec4ArrayElemImpl(data, layoutGraph, "cc_csmViewDir0", vec4ShadowInfo, i);
                             vec4ShadowInfo.set(matShadowView.m[1], matShadowView.m[5], matShadowView.m[9], 0.0F);
-                            setter.setVec4ArrayElem("cc_csmViewDir1", vec4ShadowInfo, i);
+                            setVec4ArrayElemImpl(data, layoutGraph, "cc_csmViewDir1", vec4ShadowInfo, i);
                             vec4ShadowInfo.set(matShadowView.m[2], matShadowView.m[6], matShadowView.m[0], 0.0F);
-                            setter.setVec4ArrayElem("cc_csmViewDir2", vec4ShadowInfo, i);
+                            setVec4ArrayElemImpl(data, layoutGraph, "cc_csmViewDir2", vec4ShadowInfo, i);
 
                             const auto &csmAtlas = layer.getCSMAtlas();
-                            setter.setVec4ArrayElem("cc_csmAtlas", csmAtlas, i);
+                            setVec4ArrayElemImpl(data, layoutGraph, "cc_csmAtlas", csmAtlas, i);
 
                             const auto &matShadowViewProj = layer.getMatShadowViewProj();
-                            setter.setMat4ArrayElem("cc_matCSMViewProj", matShadowViewProj, i);
+                            setMat4ArrayElemImpl(data, layoutGraph, "cc_matCSMViewProj", matShadowViewProj, i);
 
                             const auto &matShadowProj = layer.getMatShadowProj();
-                            setter.setVec4ArrayElem(
-                                "cc_csmProjDepthInfo",
-                                Vec4(matShadowProj.m[10], matShadowProj.m[14],
-                                     matShadowProj.m[11], matShadowProj.m[15]),
-                                i);
+                            setVec4ArrayElemImpl(data, layoutGraph,
+                                                 "cc_csmProjDepthInfo",
+                                                 Vec4(matShadowProj.m[10], matShadowProj.m[14],
+                                                      matShadowProj.m[11], matShadowProj.m[15]),
+                                                 i);
 
-                            setter.setVec4ArrayElem(
-                                "cc_csmProjInfo",
-                                Vec4(matShadowProj.m[00], matShadowProj.m[05],
-                                     1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]),
-                                i);
+                            setVec4ArrayElemImpl(data, layoutGraph,
+                                                 "cc_csmProjInfo",
+                                                 Vec4(matShadowProj.m[00], matShadowProj.m[05],
+                                                      1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]),
+                                                 i);
 
                             (&csmSplitsInfo.x)[i] = layer.getSplitCameraFar() / mainLight.getShadowDistance();
                         }
-                        setter.setVec4("cc_csmSplitsInfo", csmSplitsInfo);
+                        setVec4Impl(data, layoutGraph, "cc_csmSplitsInfo", csmSplitsInfo);
                     }
                     { // Shadow
                         vec4ShadowInfo.set(0, 0, 0, 1.0F - mainLight.getShadowSaturation());
-                        setter.setVec4("cc_shadowNFLSInfo", vec4ShadowInfo);
+                        setVec4Impl(data, layoutGraph, "cc_shadowNFLSInfo", vec4ShadowInfo);
                         vec4ShadowInfo.set(
                             0.0F, packing,
                             mainLight.getShadowNormalBias(),
                             static_cast<float>(mainLight.getCSMLevel()));
-                        setter.setVec4("cc_shadowLPNNInfo", vec4ShadowInfo);
+                        setVec4Impl(data, layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
                     }
                 }
                 { // Shadow
                     vec4ShadowInfo.set(
                         shadowInfo.getSize().x, shadowInfo.getSize().y,
                         static_cast<float>(mainLight.getShadowPcf()), mainLight.getShadowBias());
-                    setter.setVec4("cc_shadowWHPBInfo", vec4ShadowInfo);
+                    setVec4Impl(data, layoutGraph, "cc_shadowWHPBInfo", vec4ShadowInfo);
                 }
             }
         } else {
             Vec3 tempVec3 = shadowInfo.getNormal().getNormalized();
-            setter.setVec4(
-                "cc_planarNDInfo",
-                Vec4(tempVec3.x, tempVec3.y, tempVec3.z, -shadowInfo.getDistance()));
+            setVec4Impl(data, layoutGraph,
+                        "cc_planarNDInfo",
+                        Vec4(tempVec3.x, tempVec3.y, tempVec3.z, -shadowInfo.getDistance()));
         }
         {
-            const auto &data = shadowInfo.getShadowColor4f();
-            setter.setColor("cc_shadowColor", gfx::Color{data[0], data[1], data[2], data[3]});
+            const auto &color = shadowInfo.getShadowColor4f();
+            setColorImpl(data, layoutGraph, "cc_shadowColor",
+                         gfx::Color{color[0], color[1], color[2], color[3]});
         }
     }
 }
 
 void setTextureUBOView(
     gfx::Device &device,
+    const LayoutGraphData &layoutGraph,
     const pipeline::PipelineSceneData &sceneData,
-    Setter &setter) {
+    RenderData &data) {
     const auto &skybox = *sceneData.getSkybox();
     if (skybox.getReflectionMap()) {
         auto &texture = *skybox.getReflectionMap()->getGFXTexture();
         auto *sampler = device.getSampler(skybox.getReflectionMap()->getSamplerInfo());
-        setter.setTexture("cc_environment", &texture);
-        setter.setSampler("cc_environment", sampler);
+        setTextureImpl(data, layoutGraph, "cc_environment", &texture);
+        setSamplerImpl(data, layoutGraph, "cc_environment", sampler);
     } else {
         const auto *envmap =
             skybox.getEnvmap()
@@ -656,8 +1141,8 @@ void setTextureUBOView(
         if (envmap) {
             auto *texture = envmap->getGFXTexture();
             auto *sampler = device.getSampler(envmap->getSamplerInfo());
-            setter.setTexture("cc_environment", texture);
-            setter.setSampler("cc_environment", sampler);
+            setTextureImpl(data, layoutGraph, "cc_environment", texture);
+            setSamplerImpl(data, layoutGraph, "cc_environment", sampler);
         }
     }
     const auto *diffuseMap =
@@ -667,8 +1152,8 @@ void setTextureUBOView(
     if (diffuseMap) {
         auto *texture = diffuseMap->getGFXTexture();
         auto *sampler = device.getSampler(diffuseMap->getSamplerInfo());
-        setter.setTexture("cc_diffuseMap", texture);
-        setter.setSampler("cc_diffuseMap", sampler);
+        setTextureImpl(data, layoutGraph, "cc_diffuseMap", texture);
+        setSamplerImpl(data, layoutGraph, "cc_diffuseMap", sampler);
     }
     gfx::SamplerInfo samplerPointInfo{
         gfx::Filter::POINT,
@@ -678,15 +1163,15 @@ void setTextureUBOView(
         gfx::Address::CLAMP,
         gfx::Address::CLAMP};
     auto *pointSampler = device.getSampler(samplerPointInfo);
-    setter.setSampler("cc_shadowMap", pointSampler);
-    setter.setTexture("cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
-    setter.setSampler("cc_spotShadowMap", pointSampler);
-    setter.setTexture("cc_spotShadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+    setSamplerImpl(data, layoutGraph, "cc_shadowMap", pointSampler);
+    setTextureImpl(data, layoutGraph, "cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+    setSamplerImpl(data, layoutGraph, "cc_spotShadowMap", pointSampler);
+    setTextureImpl(data, layoutGraph, "cc_spotShadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
 }
 
 } // namespace
 
-void NativeRasterQueueBuilder::addSceneOfCamera(
+void NativeRenderQueueBuilder::addSceneOfCamera(
     scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
     std::string_view name = "Camera";
     auto *pLight = light.light.get();
@@ -702,55 +1187,58 @@ void NativeRasterQueueBuilder::addSceneOfCamera(
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(scene)),
-        *renderGraph, queueID);
+        *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 
-    auto &data = get(RenderGraph::Data, *renderGraph, sceneID);
-    NativeSetter setter{*layoutGraph, data};
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, sceneID);
 
     setCameraUBOValues(
         *camera,
+        *layoutGraph,
         *pipelineRuntime->getPipelineSceneData(),
-        camera->getScene()->getMainLight(), setter);
+        camera->getScene()->getMainLight(), data);
 
     if (any(sceneFlags & SceneFlags::SHADOW_CASTER)) {
         if (pLight) {
             setShadowUBOLightView(
                 pipelineRuntime->getDevice(),
+                *layoutGraph,
                 *pipelineRuntime->getPipelineSceneData(),
-                *pLight, light.level, setter);
+                *pLight, light.level, data);
         }
     } else {
         const auto *pDirLight = camera->getScene()->getMainLight();
         if (pDirLight) {
             setShadowUBOView(*pipelineRuntime->getDevice(),
+                             *layoutGraph,
                              *pipelineRuntime->getPipelineSceneData(),
-                             *pDirLight, setter);
+                             *pDirLight, data);
         }
     }
     setTextureUBOView(
         *pipelineRuntime->getDevice(),
+        *layoutGraph,
         *pipelineRuntime->getPipelineSceneData(),
-        setter);
+        data);
 }
 
-void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {
-    SceneData scene(renderGraph->get_allocator());
-    scene.name = name;
-    scene.flags = sceneFlags;
+void NativeRenderQueueBuilder::addScene(const scene::RenderScene *scene, SceneFlags sceneFlags) {
+    SceneData data(renderGraph->get_allocator());
+    data.scenes.emplace_back(scene);
+    data.flags = sceneFlags;
 
     auto sceneID = addVertex(
         SceneTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple("Scene"),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(std::move(scene)),
-        *renderGraph, queueID);
+        std::forward_as_tuple(std::move(data)),
+        *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 }
 
-void NativeRasterQueueBuilder::addFullscreenQuad(
+void NativeRenderQueueBuilder::addFullscreenQuad(
     Material *material, uint32_t passID, SceneFlags sceneFlags) {
     std::string_view name = "FullscreenQuad";
     auto drawID = addVertex(
@@ -760,11 +1248,11 @@ void NativeRasterQueueBuilder::addFullscreenQuad(
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(material, passID, sceneFlags, nullptr),
-        *renderGraph, queueID);
+        *renderGraph, nodeID);
     CC_ENSURES(drawID != RenderGraph::null_vertex());
 }
 
-void NativeRasterQueueBuilder::addCameraQuad(
+void NativeRenderQueueBuilder::addCameraQuad(
     scene::Camera *camera, cc::Material *material, uint32_t passID,
     SceneFlags sceneFlags) {
     std::string_view name = "CameraQuad";
@@ -775,33 +1263,35 @@ void NativeRasterQueueBuilder::addCameraQuad(
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(material, passID, sceneFlags, camera),
-        *renderGraph, queueID);
+        *renderGraph, nodeID);
     CC_ENSURES(drawID != RenderGraph::null_vertex());
 
-    auto &data = get(RenderGraph::Data, *renderGraph, drawID);
-    NativeSetter setter{*layoutGraph, data};
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, drawID);
 
     setCameraUBOValues(
         *camera,
+        *layoutGraph,
         *pipelineRuntime->getPipelineSceneData(),
-        camera->getScene()->getMainLight(), setter);
+        camera->getScene()->getMainLight(), data);
 
     if (any(sceneFlags & SceneFlags::SHADOW_CASTER)) {
     } else {
         const auto *pDirLight = camera->getScene()->getMainLight();
         if (pDirLight) {
             setShadowUBOView(*pipelineRuntime->getDevice(),
+                             *layoutGraph,
                              *pipelineRuntime->getPipelineSceneData(),
-                             *pDirLight, setter);
+                             *pDirLight, data);
         }
     }
     setTextureUBOView(
         *pipelineRuntime->getDevice(),
+        *layoutGraph,
         *pipelineRuntime->getPipelineSceneData(),
-        setter);
+        data);
 }
 
-void NativeRasterQueueBuilder::clearRenderTarget(const ccstd::string &name, const gfx::Color &color) {
+void NativeRenderQueueBuilder::clearRenderTarget(const ccstd::string &name, const gfx::Color &color) {
     ccstd::pmr::vector<ClearView> clears(renderGraph->get_allocator());
     clears.emplace_back(name.c_str(), gfx::ClearFlagBit::COLOR, color);
 
@@ -812,11 +1302,11 @@ void NativeRasterQueueBuilder::clearRenderTarget(const ccstd::string &name, cons
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(clears)),
-        *renderGraph, queueID);
+        *renderGraph, nodeID);
     CC_ENSURES(clearID != RenderGraph::null_vertex());
 }
 
-void NativeRasterQueueBuilder::setViewport(const gfx::Viewport &viewport) {
+void NativeRenderQueueBuilder::setViewport(const gfx::Viewport &viewport) {
     auto viewportID = addVertex(
         ViewportTag{},
         std::forward_as_tuple("Viewport"),
@@ -824,66 +1314,39 @@ void NativeRasterQueueBuilder::setViewport(const gfx::Viewport &viewport) {
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(viewport),
-        *renderGraph, queueID);
+        *renderGraph, nodeID);
     CC_ENSURES(viewportID != RenderGraph::null_vertex());
 }
 
-void NativeRasterQueueBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addMat4(*layoutGraph, name, mat, data);
+void NativeRenderQueueBuilder::addCustomCommand(std::string_view customBehavior) {
+    std::string_view name = "FullscreenQuad";
+    auto drawID = addVertex(
+        BlitTag{},
+        std::forward_as_tuple(name),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(
+            IntrusivePtr<cc::Material>{},
+            RenderGraph::null_vertex(),
+            SceneFlags::NONE,
+            nullptr),
+        *renderGraph, nodeID);
+    CC_ENSURES(drawID != RenderGraph::null_vertex());
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, drawID);
+    data.custom = customBehavior;
 }
 
-void NativeRasterQueueBuilder::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addQuaternion(*layoutGraph, name, quat, data);
-}
+RenderQueueBuilder *NativeRenderPassBuilder::addQueue(
+    QueueHint hint, const ccstd::string &layoutName) {
+    CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
-void NativeRasterQueueBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addColor(*layoutGraph, name, color, data);
-}
+    auto phaseLayoutID = LayoutGraphData::null_vertex();
+    if (!layoutName.empty()) {
+        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
+    }
 
-void NativeRasterQueueBuilder::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addVec4(*layoutGraph, name, vec, data);
-}
-
-void NativeRasterQueueBuilder::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addVec2(*layoutGraph, name, vec, data);
-}
-
-void NativeRasterQueueBuilder::setFloat(const ccstd::string &name, float v) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addFloat(*layoutGraph, name, v, data);
-}
-
-void NativeRasterQueueBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addBuffer(*layoutGraph, name, buffer, data);
-}
-
-void NativeRasterQueueBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addTexture(*layoutGraph, name, texture, data);
-}
-
-void NativeRasterQueueBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addReadWriteBuffer(*layoutGraph, name, buffer, data);
-}
-
-void NativeRasterQueueBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addReadWriteTexture(*layoutGraph, name, texture, data);
-}
-
-void NativeRasterQueueBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addSampler(*layoutGraph, name, sampler, data);
-}
-
-RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
     std::string_view name = "Queue";
     auto queueID = addVertex(
         QueueTag{},
@@ -891,86 +1354,97 @@ RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(hint),
-        *renderGraph, passID);
+        std::forward_as_tuple(hint, phaseLayoutID),
+        *renderGraph, nodeID);
 
-    return new NativeRasterQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph);
+    return new NativeRenderQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
 }
 
-void NativeRasterPassBuilder::setViewport(const gfx::Viewport &viewport) {
-    auto &pass = get(RasterTag{}, passID, *renderGraph);
+RenderSubpassBuilder *NativeRenderPassBuilder::addRenderSubpass(const ccstd::string &layoutName) {
+    std::string_view name("RasterSubpass");
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    auto &subpassGraph = pass.subpassGraph;
+    const auto subpassIndex = num_vertices(pass.subpassGraph);
+    {
+        auto id = addVertex(
+            std::piecewise_construct,
+            std::forward_as_tuple(name),
+            std::forward_as_tuple(),
+            subpassGraph);
+        CC_ENSURES(id == subpassIndex);
+    }
+
+    RasterSubpass subpass(subpassIndex, renderGraph->get_allocator());
+    subpass.viewport.width = pass.width;
+    subpass.viewport.height = pass.height;
+
+    auto subpassID = addVertex(
+        RasterSubpassTag{},
+        std::forward_as_tuple(name),
+        std::forward_as_tuple(layoutName.c_str()),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(subpass)),
+        *renderGraph, nodeID);
+
+    auto subpassLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, *layoutGraph);
+    CC_EXPECTS(subpassLayoutID != LayoutGraphData::null_vertex());
+
+    auto *builder = ccnew NativeRenderSubpassBuilder(
+        pipelineRuntime, renderGraph, subpassID, layoutGraph, subpassLayoutID);
+    updateRasterPassConstants(pass.width, pass.height, *builder);
+
+    return builder;
+}
+
+ComputeSubpassBuilder *NativeRenderPassBuilder::addComputeSubpass(const ccstd::string &layoutName) {
+    std::string_view name("ComputeSubpass");
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    auto &subpassGraph = pass.subpassGraph;
+    const auto subpassIndex = num_vertices(pass.subpassGraph);
+    {
+        auto id = addVertex(
+            std::piecewise_construct,
+            std::forward_as_tuple(name),
+            std::forward_as_tuple(),
+            subpassGraph);
+        CC_ENSURES(id == subpassIndex);
+    }
+
+    ComputeSubpass subpass(subpassIndex, renderGraph->get_allocator());
+
+    auto subpassID = addVertex(
+        ComputeSubpassTag{},
+        std::forward_as_tuple(name),
+        std::forward_as_tuple(layoutName.c_str()),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(subpass)),
+        *renderGraph, nodeID);
+
+    auto subpassLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, *layoutGraph);
+    CC_EXPECTS(subpassLayoutID != LayoutGraphData::null_vertex());
+
+    auto *builder = ccnew NativeComputeSubpassBuilder(
+        pipelineRuntime, renderGraph, subpassID, layoutGraph, subpassLayoutID);
+    updateRasterPassConstants(pass.width, pass.height, *builder);
+
+    return builder;
+}
+
+void NativeRenderPassBuilder::setViewport(const gfx::Viewport &viewport) {
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     pass.viewport = viewport;
 }
 
-void NativeRasterPassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addMat4(*layoutGraph, name, mat, data);
-}
-
-void NativeRasterPassBuilder::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addQuaternion(*layoutGraph, name, quat, data);
-}
-
-void NativeRasterPassBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addColor(*layoutGraph, name, color, data);
-}
-
-void NativeRasterPassBuilder::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addVec4(*layoutGraph, name, vec, data);
-}
-
-void NativeRasterPassBuilder::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addVec2(*layoutGraph, name, vec, data);
-}
-
-void NativeRasterPassBuilder::setFloat(const ccstd::string &name, float v) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addFloat(*layoutGraph, name, v, data);
-}
-
-void NativeRasterPassBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addBuffer(*layoutGraph, name, buffer, data);
-}
-
-void NativeRasterPassBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addTexture(*layoutGraph, name, texture, data);
-}
-
-void NativeRasterPassBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addReadWriteBuffer(*layoutGraph, name, buffer, data);
-}
-
-void NativeRasterPassBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addReadWriteTexture(*layoutGraph, name, texture, data);
-}
-
-void NativeRasterPassBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addSampler(*layoutGraph, name, sampler, data);
-}
-
-void NativeRasterPassBuilder::setVersion(const ccstd::string &name, uint64_t version) {
+void NativeRenderPassBuilder::setVersion(const ccstd::string &name, uint64_t version) {
     // noop
 }
 
 // NativeComputeQueue
-ccstd::string NativeComputeQueueBuilder::getName() const {
-    return std::string(get(RenderGraph::Name, *renderGraph, queueID));
-}
-
-void NativeComputeQueueBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view{name};
-}
-
-void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
+void NativeComputeQueueBuilder::addDispatch(
+    uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ,
+    Material *material, uint32_t passID) {
     std::string_view name("Dispatch");
     addVertex(
         DispatchTag{},
@@ -979,80 +1453,78 @@ void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(
-            shader.c_str(),
+            material,
+            passID,
             threadGroupCountX,
             threadGroupCountY,
             threadGroupCountZ),
-        *renderGraph);
+        *renderGraph, passID);
 }
 
-void NativeComputeQueueBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addMat4(*layoutGraph, name, mat, data);
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+void NativeComputePassBuilder::addTexture(
+    const ccstd::string &name, const ccstd::string &slotName,
+    gfx::Sampler *sampler) {
+    std::ignore = sampler;
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            AccessType::READ,
+            gfx::ClearFlagBit::NONE,
+            ClearValueType::NONE,
+            ClearValue{},
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
 }
 
-void NativeComputeQueueBuilder::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addQuaternion(*layoutGraph, name, quat, data);
+void NativeComputePassBuilder::addStorageBuffer(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            clearType,
+            clearValue,
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
 }
 
-void NativeComputeQueueBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addColor(*layoutGraph, name, color, data);
+void NativeComputePassBuilder::addStorageImage(
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
+    ClearValueType clearType, const ClearValue &clearValue) {
+    addComputeView(
+        name,
+        ComputeView{
+            ccstd::pmr::string(slotName, renderGraph->get_allocator()),
+            accessType,
+            gfx::ClearFlagBit::NONE,
+            clearType,
+            clearValue,
+            gfx::ShaderStageFlagBit::NONE,
+            renderGraph->get_allocator()});
 }
 
-void NativeComputeQueueBuilder::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addVec4(*layoutGraph, name, vec, data);
-}
-
-void NativeComputeQueueBuilder::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addVec2(*layoutGraph, name, vec, data);
-}
-
-void NativeComputeQueueBuilder::setFloat(const ccstd::string &name, float v) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addFloat(*layoutGraph, name, v, data);
-}
-
-void NativeComputeQueueBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addBuffer(*layoutGraph, name, buffer, data);
-}
-
-void NativeComputeQueueBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addTexture(*layoutGraph, name, texture, data);
-}
-
-void NativeComputeQueueBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addReadWriteBuffer(*layoutGraph, name, buffer, data);
-}
-
-void NativeComputeQueueBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addReadWriteTexture(*layoutGraph, name, texture, data);
-}
-
-void NativeComputeQueueBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto &data = get(RenderGraph::Data, *renderGraph, queueID);
-    addSampler(*layoutGraph, name, sampler, data);
-}
-
-ccstd::string NativeComputePassBuilder::getName() const {
-    return std::string(get(RenderGraph::Name, *renderGraph, passID));
-}
-
-void NativeComputePassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, passID) = std::string_view{name};
+void NativeComputePassBuilder::setCustomShaderStages(
+    const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) {
+    auto &pass = get(ComputeTag{}, nodeID, *renderGraph);
+    {
+        auto iter = pass.computeViews.find(std::string_view{name});
+        if (iter != pass.computeViews.end()) {
+            for (auto &view : iter->second) {
+                view.shaderStageFlags = stageFlags;
+            }
+        }
+    }
 }
 
 void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
     CC_EXPECTS(!name.empty());
     CC_EXPECTS(!view.name.empty());
-    auto &pass = get(ComputeTag{}, passID, *renderGraph);
+    auto &pass = get(ComputeTag{}, nodeID, *renderGraph);
     auto iter = pass.computeViews.find(name.c_str());
     if (iter == pass.computeViews.end()) {
         bool added = false;
@@ -1065,7 +1537,15 @@ void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const C
     iter->second.emplace_back(view);
 }
 
-ComputeQueueBuilder *NativeComputePassBuilder::addQueue() {
+ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &layoutName) {
+    CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
+
+    auto phaseLayoutID = LayoutGraphData::null_vertex();
+    if (!layoutName.empty()) {
+        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
+    }
+
     std::string_view name("Queue");
     auto queueID = addVertex(
         QueueTag{},
@@ -1073,91 +1553,10 @@ ComputeQueueBuilder *NativeComputePassBuilder::addQueue() {
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(QueueHint::NONE),
-        *renderGraph, passID);
+        std::forward_as_tuple(QueueHint::NONE, phaseLayoutID),
+        *renderGraph, nodeID);
 
-    return new NativeComputeQueueBuilder(renderGraph, queueID, layoutGraph);
-}
-
-void NativeComputePassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addMat4(*layoutGraph, name, mat, data);
-}
-
-void NativeComputePassBuilder::setQuaternion(const ccstd::string &name, const Quaternion &quat) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addQuaternion(*layoutGraph, name, quat, data);
-}
-
-void NativeComputePassBuilder::setColor(const ccstd::string &name, const gfx::Color &color) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addColor(*layoutGraph, name, color, data);
-}
-
-void NativeComputePassBuilder::setVec4(const ccstd::string &name, const Vec4 &vec) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addVec4(*layoutGraph, name, vec, data);
-}
-
-void NativeComputePassBuilder::setVec2(const ccstd::string &name, const Vec2 &vec) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addVec2(*layoutGraph, name, vec, data);
-}
-
-void NativeComputePassBuilder::setFloat(const ccstd::string &name, float v) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addFloat(*layoutGraph, name, v, data);
-}
-
-void NativeComputePassBuilder::setBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addBuffer(*layoutGraph, name, buffer, data);
-}
-
-void NativeComputePassBuilder::setTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addTexture(*layoutGraph, name, texture, data);
-}
-
-void NativeComputePassBuilder::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addReadWriteBuffer(*layoutGraph, name, buffer, data);
-}
-
-void NativeComputePassBuilder::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addReadWriteTexture(*layoutGraph, name, texture, data);
-}
-
-void NativeComputePassBuilder::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
-    auto &data = get(RenderGraph::Data, *renderGraph, passID);
-    addSampler(*layoutGraph, name, sampler, data);
-}
-
-ccstd::string NativeMovePassBuilder::getName() const {
-    return std::string(get(RenderGraph::Name, *renderGraph, passID));
-}
-
-void NativeMovePassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, passID) = std::string_view{name};
-}
-
-void NativeMovePassBuilder::addPair(const MovePair &pair) {
-    auto &movePass = get(MoveTag{}, passID, *renderGraph);
-    movePass.movePairs.emplace_back(pair);
-}
-
-ccstd::string NativeCopyPassBuilder::getName() const {
-    return std::string(get(RenderGraph::Name, *renderGraph, passID));
-}
-
-void NativeCopyPassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, passID) = std::string_view{name};
-}
-
-void NativeCopyPassBuilder::addPair(const CopyPair &pair) {
-    auto &copyPass = get(CopyTag{}, passID, *renderGraph);
-    copyPass.copyPairs.emplace_back(pair);
+    return new NativeComputeQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
 }
 
 namespace {
@@ -1220,7 +1619,7 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
         RenderGraph::vertex_descriptor vertID,
         const AddressableView<RenderGraph> &gv) const {
         const auto &g = gv.mGraph;
-        const auto &name = get(RenderGraph::Name, g, vertID);
+        const auto &name = get(RenderGraph::NameTag{}, g, vertID);
         visitObject(
             vertID, gv.mGraph,
             [&](const RasterPass &pass) {
@@ -1255,7 +1654,7 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                                 INDENT();
                                 OSS << "accessType: " << getName(computeView.accessType) << ";\n";
                                 OSS << "clearFlags: " << getName(computeView.clearFlags) << ";\n";
-                                const auto &c = computeView.clearColor;
+                                const auto &c = computeView.clearValue;
                                 if (hasAnyFlags(computeView.clearFlags, gfx::ClearFlagBit::COLOR)) {
                                     OSS << "clearColor: [" << c.x << ", " << c.y << ", " << c.z << ", " << c.z << "];\n";
                                 } else if (hasAnyFlags(computeView.clearFlags, gfx::ClearFlagBit::DEPTH_STENCIL)) {
@@ -1267,6 +1666,12 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                     }
                     OSS << "}\n";
                 }
+            },
+            [&](const RasterSubpass &subpass) {
+                std::ignore = subpass;
+            },
+            [&](const ComputeSubpass &subpass) {
+                std::ignore = subpass;
             },
             [&](const ComputePass &pass) {
                 OSS << "ComputePass \"" << name << "\" {\n";
@@ -1281,7 +1686,7 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                                 INDENT();
                                 OSS << "accessType: " << getName(computeView.accessType) << ";\n";
                                 OSS << "clearFlags: " << getName(computeView.clearFlags) << ";\n";
-                                const auto &c = computeView.clearColor;
+                                const auto &c = computeView.clearValue;
                                 if (hasAnyFlags(computeView.clearFlags, gfx::ClearFlagBit::COLOR)) {
                                     OSS << "clearColor: [" << c.x << ", " << c.y << ", " << c.z << ", " << c.z << "];\n";
                                 } else if (hasAnyFlags(computeView.clearFlags, gfx::ClearFlagBit::DEPTH_STENCIL)) {
@@ -1307,14 +1712,6 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                 for (const auto &pair : pass.movePairs) {
                     INDENT();
                     OSS << "source: \"" << pair.source << "\", target: \"" << pair.target << "\"\n";
-                }
-                indent(space);
-            },
-            [&](const PresentPass &pass) {
-                OSS << "PresentPass \"" << name << "\" {\n";
-                for (const auto &[name, present] : pass.presents) {
-                    INDENT();
-                    OSS << "present: \"" << name << "\", sync: " << present.syncInterval << ";\n";
                 }
                 indent(space);
             },
@@ -1400,6 +1797,12 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                 unindent(space);
                 OSS << "}\n";
             },
+            [&](const RasterSubpass &subpass) {
+                std::ignore = subpass;
+            },
+            [&](const ComputeSubpass &subpass) {
+                std::ignore = subpass;
+            },
             [&](const ComputePass &pass) {
                 std::ignore = pass;
                 unindent(space);
@@ -1411,11 +1814,6 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                 OSS << "}\n";
             },
             [&](const MovePass &pass) {
-                std::ignore = pass;
-                unindent(space);
-                OSS << "}\n";
-            },
-            [&](const PresentPass &pass) {
                 std::ignore = pass;
                 unindent(space);
                 OSS << "}\n";

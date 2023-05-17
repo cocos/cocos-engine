@@ -44,7 +44,7 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
         const x = vert.x;
         const y = vert.y;
         let rhw = m.m03 * x + m.m07 * y + m.m15;
-        rhw = rhw ? Math.abs(1 / rhw) : 1;
+        rhw = rhw ? 1 / rhw : 1;
         vData[vertexOffset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
         vData[vertexOffset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
         vData[vertexOffset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;

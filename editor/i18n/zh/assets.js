@@ -90,6 +90,30 @@ module.exports = {
             glsl1: 'GLSL 100 Output',
             vert: 'Vertex Shader',
             frag: 'Fragment Shader',
+            propertyTips: {
+                // macros
+                USE_DITHERED_ALPHA_TEST: '使用抖动透贴的方式来实现半透明效果，最好同时开启 TAA',
+                USE_TWOSIDE: '双面材质，通常用于单面物体，正面和背面的法线相反。还需将 Cull Mode 设为 None',
+                IS_ANISOTROPY: '各向异性材质，通常用于头发、光碟、拉丝金属等',
+                USE_VERTEX_COLOR: '使用顶点色，如果模型本身没有顶点色可能会发黑',
+                FIX_ANISOTROPIC_ROTATION_MAP: '修复各向异性旋转图黑白相接处的异常接缝，遇到此问题再开启',
+                // uniforms
+                tilingOffset: '贴图平铺和偏移，在 Surface 函数中可以用作纹理动画偏移速度',
+                alphaThreshold: '透贴阈值，用于 Mask 材质，该值越大被裁掉的像素就越多',
+                occlusion: '环境遮蔽强度，该值越大则环境遮蔽贴图的影响就越大',
+                roughness: '粗糙度，用于控制高光弥散的程度',
+                metallic: '金属性，用于控制漫反射和高光比例',
+                specularIntensity: '高光强度，该值相当于基准反射率 F0 的倍增，仅对非金属有效',
+                pbrMap: 'r: 环境遮蔽(AO) g: 粗糙度 b: 金属性 a: 高光强度',
+                normalMap: '法线贴图，g 通道需适配 GL 坐标系，尽量开启三线性过滤，否则光照会有噪点',
+                normalStrength: '法线贴图强度，过高的值可能造成光照有噪点',
+                anisotropyIntensity: '各向异性强度，用于控制各向异性高光的形状',
+                anisotropyRotation: '用于控制条状高光的朝向',
+                anisotropyMap: 'r: Anisotropy Intensity;  g: Anisotropy Rotation.',
+                anisotropyMapNearestFilter: '将 Anisotropy Map 贴图复制出来并选择 Nearest 过滤',
+                anisotropyMapResolutionHeight: 'Anisotropy Map 的分辨率高度',
+                ior: '相对折射率，该值可以影响折射角度和菲涅耳效果。水是1.33',
+            },
         },
         image: {
             type: '类型',
@@ -292,7 +316,7 @@ module.exports = {
             },
             meshOptimizer: {
                 name: 'Mesh 优化',
-                title: 'Mesh Optimizer',
+                title: 'Mesh 优化可以被用来简化导入的模型，可以在需要模型减面时使用。<br>在一些少数情况下减面后的模型可能会出现显示异常，如发生这种情况请尝试调整参数并重试。',
                 simplification: {
                     name: 'Simplification',
                     title: 'Simplification',
@@ -337,7 +361,7 @@ module.exports = {
                 simplify: {
                     targetRatio: {
                         name: 'LOD 压缩比例',
-                        title: 'Target Ratio',
+                        title: '减面之后的目标面数比例，0 代表减面至最少，1 代表没有减面的原模型。',
                     },
                     preserveSurfaceCurvature: {
                         name: '保留表面曲率',
@@ -355,17 +379,13 @@ module.exports = {
                         name: '保留 UV 折叠边',
                         title: 'Preserve UV Foldover Edges',
                     },
-                    enableSmartLink: {
-                        name: '防止破面',
-                        title: 'Smart Link',
-                    },
                     agressiveness: {
                         name: '误差距离',
-                        title: 'Agressiveness',
+                        title: '模型减面算法的激进程度。<br>当设置数值越高时，算法的减面策略会越激进，但是过于激进的策略更有可能导致结果错误。',
                     },
                     maxIterationCount: {
                         name: '计算迭代次数',
-                        title: 'Max Iteration Count',
+                        title: '最大重复计数代表减面算法运行的重复次数。<br>高数值可以使算法运行结果更接近目标，但也会增加运行时间和结果错误的概率。',
                     },
                 },
                 gltfpack: {

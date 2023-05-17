@@ -34,13 +34,14 @@ CCProgram lighting-fs %{
   #include <builtin/uniforms/cc-global>
   #include <legacy/shading-standard-base>
   #include <legacy/shading-standard-additive>
-  #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1
+#if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1
   #include <legacy/shading-cluster-additive>
-  #endif
+#endif
   #include <legacy/output-standard>
   #include <legacy/fog-base>
   #include <common/math/octahedron-transform>
   #include <common/math/coordinates>
+  #include <common/debug/debug-view-define>
 
   in vec2 v_uv;
 
@@ -100,6 +101,10 @@ CCProgram lighting-fs %{
 #endif
     CC_APPLY_FOG_BASE(color, fogFactor);
     color = CCFragOutput(color);
+
+#if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
+    color = vec4(albedoMap.rgb, 1.0);
+#endif
 
     fragColor = color;
   }

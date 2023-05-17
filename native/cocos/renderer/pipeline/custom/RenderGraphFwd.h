@@ -45,8 +45,10 @@ struct ResourceStates;
 struct ManagedBuffer;
 struct ManagedTexture;
 struct ManagedResource;
-struct RasterSubpass;
+struct Subpass;
 struct SubpassGraph;
+struct RasterSubpass;
+struct ComputeSubpass;
 struct RasterPass;
 struct PersistentRenderPassAndFramebuffer;
 struct ManagedTag;
@@ -66,7 +68,6 @@ struct QueueTag;
 struct SceneTag;
 struct DispatchTag;
 struct BlitTag;
-struct PresentTag;
 struct ClearTag;
 struct ViewportTag;
 struct ClearView;
@@ -74,8 +75,6 @@ struct RenderQueue;
 struct SceneData;
 struct Dispatch;
 struct Blit;
-struct Present;
-struct PresentPass;
 struct RenderData;
 struct RenderGraph;
 
@@ -86,8 +85,8 @@ struct RenderGraph;
 namespace ccstd {
 
 template <>
-struct hash<cc::render::RasterSubpass> {
-    hash_t operator()(const cc::render::RasterSubpass& val) const noexcept;
+struct hash<cc::render::Subpass> {
+    hash_t operator()(const cc::render::Subpass& val) const noexcept;
 };
 
 template <>

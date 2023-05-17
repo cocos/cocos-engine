@@ -42,7 +42,6 @@ const DIRECTION_THRESHOLD = Math.cos(toRadian(100));
 
 const _temp_trailEle = { position: new Vec3(), velocity: new Vec3() } as ITrailElement;
 const _temp_quat = new Quat();
-const _temp_xform = new Mat4();
 const _temp_vec3 = new Vec3();
 const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
@@ -335,6 +334,13 @@ export default class TrailModule {
     private _iBuffer: Uint16Array | null = null;
     private _needTransform = false;
     private _material: Material | null = null;
+    private _psTransform = new Mat4();
+    /**
+     * @engineInternal
+     */
+    public get inited () {
+        return this._inited;
+    }
     private _inited: boolean;
 
     constructor () {
@@ -454,7 +460,7 @@ export default class TrailModule {
         this._trailLifetime = this.lifeTime.evaluate(this._particleSystem._time, 1)!;
         if (this.space === Space.World && this._particleSystem._simulationSpace === Space.Local) {
             this._needTransform = true;
-            this._particleSystem.node.getWorldMatrix(_temp_xform);
+            this._particleSystem.node.getWorldMatrix(this._psTransform);
             this._particleSystem.node.getWorldRotation(_temp_quat);
         } else {
             this._needTransform = false;
@@ -485,7 +491,7 @@ export default class TrailModule {
         }
         let lastSeg = trail.getElement(trail.end - 1);
         if (this._needTransform) {
-            Vec3.transformMat4(_temp_vec3, p.position, _temp_xform);
+            Vec3.transformMat4(_temp_vec3, p.position, this._psTransform);
         } else {
             Vec3.copy(_temp_vec3, p.position);
         }
@@ -562,7 +568,7 @@ export default class TrailModule {
                     indexOffset, 1 - j * textCoordSeg, j, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
             }
             if (this._needTransform) {
-                Vec3.transformMat4(_temp_trailEle.position, p.position, _temp_xform);
+                Vec3.transformMat4(_temp_trailEle.position, p.position, this._psTransform);
             } else {
                 Vec3.copy(_temp_trailEle.position, p.position);
             }

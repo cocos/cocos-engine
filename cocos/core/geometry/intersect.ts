@@ -50,13 +50,11 @@ import type { Mesh } from '../../3d';
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
 const rayPlane = (function () {
-    const pt = new Vec3(0, 0, 0);
-
     return function (ray: Ray, plane: Plane): number {
         const denom = Vec3.dot(ray.d, plane.n);
         if (Math.abs(denom) < Number.EPSILON) { return 0; }
-        Vec3.multiplyScalar(pt, plane.n, plane.d);
-        const t = Vec3.dot(Vec3.subtract(pt, pt, ray.o), plane.n) / denom;
+        const d = distance.point_plane(ray.o, plane);
+        const t = -d / denom;
         if (t < 0) { return 0; }
         return t;
     };
@@ -86,16 +84,22 @@ const rayTriangle = (function () {
 
         Vec3.cross(pvec, ray.d, ac);
         const det = Vec3.dot(ab, pvec);
+
+        // 1. det < eps && det > -eps && doubleSided
+        // 2. det < eps && !doubleSided
+        // if true, the ray is parallel to the triangle plane
         if (det < Number.EPSILON && (!doubleSided || det > -Number.EPSILON)) { return 0; }
 
         const inv_det = 1 / det;
 
         Vec3.subtract(tvec, ray.o, triangle.a);
         const u = Vec3.dot(tvec, pvec) * inv_det;
+        // enlargeCoeff 1.0, compare uvLimits, if true, the ray is outside the triangle
         if (u < 0 || u > 1) { return 0; }
 
         Vec3.cross(qvec, tvec, ab);
         const v = Vec3.dot(ray.d, qvec) * inv_det;
+        // if true, the ray is outside the triangle
         if (v < 0 || u + v > 1) { return 0; }
 
         const t = Vec3.dot(ac, qvec) * inv_det;
@@ -267,12 +271,11 @@ const rayCapsule = (function () {
     const v3_6 = new Vec3();
     const sphere_0 = new Sphere();
     return function (ray: Ray, capsule: Capsule) {
-        const radiusSqr = capsule.radius * capsule.radius;
-        const vRayNorm = Vec3.normalize(v3_0, ray.d);
         const A = capsule.ellipseCenter0;
         const B = capsule.ellipseCenter1;
         const BA = Vec3.subtract(v3_1, B, A);
-        if (BA.equals(Vec3.ZERO)) {
+        if (BA.length() < EPSILON) {
+            // deduce to sphere
             sphere_0.radius = capsule.radius;
             sphere_0.center.set(capsule.ellipseCenter0);
             return intersect.raySphere(ray, sphere_0);
@@ -280,15 +283,16 @@ const rayCapsule = (function () {
 
         const O = ray.o;
         const OA = Vec3.subtract(v3_2, O, A);
+        const vRayNorm = Vec3.normalize(v3_0, ray.d);
         const VxBA = Vec3.cross(v3_3, vRayNorm, BA);
         const a = VxBA.lengthSqr();
         if (a === 0) {
             sphere_0.radius = capsule.radius;
             const BO = Vec3.subtract(v3_4, B, O);
             if (OA.lengthSqr() < BO.lengthSqr()) {
-                sphere_0.center.set(capsule.ellipseCenter0);
+                sphere_0.center.set(A);
             } else {
-                sphere_0.center.set(capsule.ellipseCenter1);
+                sphere_0.center.set(B);
             }
             return intersect.raySphere(ray, sphere_0);
         }
@@ -296,6 +300,7 @@ const rayCapsule = (function () {
         const OAxBA = Vec3.cross(v3_4, OA, BA);
         const ab2 = BA.lengthSqr();
         const b = 2 * Vec3.dot(VxBA, OAxBA);
+        const radiusSqr = capsule.radius * capsule.radius;
         const c = OAxBA.lengthSqr() - (radiusSqr * ab2);
         const d = b * b - 4 * a * c;
 
@@ -348,7 +353,7 @@ const linePlane = (function () {
 
     return function (line: Line, plane: Plane): number {
         Vec3.subtract(ab, line.e, line.s);
-        const t = (plane.d - Vec3.dot(line.s, plane.n)) / Vec3.dot(ab, plane.n);
+        const t = -distance.point_plane(line.s, plane) / Vec3.dot(ab, plane.n);
         if (t < 0 || t > 1) { return 0; }
         return t;
     };

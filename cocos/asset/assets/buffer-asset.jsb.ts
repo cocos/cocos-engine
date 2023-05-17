@@ -21,17 +21,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, override } from 'cc.decorator';
 import { cclegacy } from '../../core';
 import './asset';
+import { patch_cc_BufferAsset } from '../../native-binding/decorators';
+import type { BufferAsset as JsbBufferAsset } from './buffer-asset';
 
-export type BufferAsset = jsb.BufferAsset;
-export const BufferAsset = jsb.BufferAsset;
+declare const jsb: any;
+
+export type BufferAsset = JsbBufferAsset;
+export const BufferAsset: typeof JsbBufferAsset = jsb.BufferAsset;
 
 cclegacy.BufferAsset = jsb.BufferAsset;
 
 // handle meta data, it is generated automatically
-const BufferAssetProto = BufferAsset.prototype;
-const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(BufferAssetProto, '_nativeAsset');
-override(BufferAssetProto, '_nativeAsset', _nativeAssetDescriptor);
-ccclass('cc.BufferAsset')(BufferAsset);
+patch_cc_BufferAsset({BufferAsset});

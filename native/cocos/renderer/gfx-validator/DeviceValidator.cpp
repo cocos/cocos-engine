@@ -295,6 +295,10 @@ TextureBarrier *DeviceValidator::getTextureBarrier(const TextureBarrierInfo &inf
     return _actor->getTextureBarrier(info);
 }
 
+BufferBarrier *DeviceValidator::getBufferBarrier(const BufferBarrierInfo &info) {
+    return _actor->getBufferBarrier(info);
+}
+
 void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
     auto *textureValidator = static_cast<TextureValidator *>(dst);
     textureValidator->sanityCheck();
@@ -358,6 +362,14 @@ void DeviceValidator::getQueryPoolResults(QueryPool *queryPool) {
     auto *queryPoolValidator = static_cast<QueryPoolValidator *>(queryPool);
     std::lock_guard<std::mutex> lock(actorQueryPoolValidator->_mutex);
     queryPoolValidator->_results = actorQueryPoolValidator->_results;
+}
+
+void DeviceValidator::enableAutoBarrier(bool en) {
+    _actor->enableAutoBarrier(en);
+}
+
+void DeviceValidator::frameSync() {
+    _actor->frameSync();
 }
 
 } // namespace gfx

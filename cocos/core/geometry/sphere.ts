@@ -236,7 +236,7 @@ export class Sphere {
 
     /**
      * @en
-     * Transforms this sphere by a 4x4 matrix and a quternion, stores the result to the `out` parameter.
+     * Transforms this sphere by a 4x4 matrix and a quaternion, stores the result to the `out` parameter.
      * @zh
      * 使用一个 4x4 矩阵和一个四元数变换此球体，并将结果存储在 `out` 参数中。
      * @param m @en The 4x4 transform matrix. @zh 4x4 变换矩阵。
