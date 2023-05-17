@@ -103,7 +103,7 @@ test('Multiply/Calculate relative', () => {
         childLocal.scale = new Vec3(0.6, 0.5, 0.0);
 
         const childGlobal = new Transform();
-        expect(Transform.multiply(childGlobal, childLocal, parentGlobal)).toBe(childGlobal);
+        expect(Transform.multiply(childGlobal, parentGlobal, childLocal)).toBe(childGlobal);
         expect(Vec3.equals(
             childGlobal.scale,
             new Vec3(0.0, 2.5, 0.0),
@@ -137,7 +137,7 @@ test('Multiply/Calculate relative', () => {
 
         // Let's verify the multiply again.
         const childGlobal2 = new Transform();
-        expect(Transform.multiply(childGlobal2, childLocal2, parentGlobal)).toBe(childGlobal2);
+        expect(Transform.multiply(childGlobal2, parentGlobal, childLocal2)).toBe(childGlobal2);
         expect(Transform.equals(childGlobal, childGlobal2)).toBe(true);
     }
 
@@ -155,7 +155,7 @@ test('Multiply/Calculate relative', () => {
         childLocal.scale = new Vec3(MAGIC.charCodeAt(4), MAGIC.charCodeAt(4), MAGIC.charCodeAt(4));
 
         const childGlobal = new Transform();
-        expect(Transform.multiply(childGlobal, childLocal, parentGlobal)).toBe(childGlobal);
+        expect(Transform.multiply(childGlobal, parentGlobal, childLocal)).toBe(childGlobal);
         expect(Transform.equals(childGlobal, multiplyInFormOfMatrix(new Transform(), childLocal, parentGlobal))).toBe(true);
         expect(Vec3.equals(
             childGlobal.scale,

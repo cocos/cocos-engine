@@ -60,21 +60,50 @@ void PhysXRevolute::updateScale1() {
 void PhysXRevolute::updatePose() {
     physx::PxTransform pose0{physx::PxIdentity};
     physx::PxTransform pose1{physx::PxIdentity};
+
+    auto xAxis = _mAxis.getNormalized();
+    auto yAxis = physx::PxVec3(0, 1, 0);
+    auto zAxis = _mAxis.cross(yAxis);
+    if (zAxis.magnitude() < 0.0001) {
+        yAxis = physx::PxVec3(0, 0, 1).cross(xAxis);
+        zAxis = xAxis.cross(yAxis);
+    } else {
+        yAxis = zAxis.cross(xAxis);
+    }
+
+    yAxis = yAxis.getNormalized();
+    zAxis = zAxis.getNormalized();
+
+    Mat4 transform(
+        xAxis.x, xAxis.y, xAxis.z, 0,
+        yAxis.x, yAxis.y, yAxis.z, 0,
+        zAxis.x, zAxis.y, zAxis.z, 0,
+        0.F, 0.F, 0.F, 1.F);
+
+    auto quat = Quaternion();
+    transform.getRotation(&quat);
+
+    // pos and rot in with respect to bodyA
     auto *node0 = _mSharedBody->getNode();
     node0->updateWorldTransform();
     pose0.p = _mPivotA * node0->getWorldScale();
-    pxSetFromTwoVectors(pose0.q, physx::PxVec3{1.F, 0.F, 0.F}, _mAxis);
+    pose0.q = physx::PxQuat(quat.x, quat.y, quat.z, quat.w);
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR0, pose0);
-    pose1.q = pose0.q;
+
     if (_mConnectedBody) {
         auto *node1 = _mConnectedBody->getNode();
         node1->updateWorldTransform();
         pose1.p = _mPivotB * node1->getWorldScale();
+        const auto &rot_0 = node0->getWorldRotation();
+        const auto &rot_1_i = node1->getWorldRotation().getInversed();
+        pose1.q = physx::PxQuat(rot_1_i.x, rot_1_i.y, rot_1_i.z, rot_1_i.w) * physx::PxQuat(rot_0.x, rot_0.y, rot_0.z, rot_0.w) * pose0.q;
     } else {
-        pose1.p = _mPivotA * node0->getWorldScale();
-        pose1.p += _mPivotB + node0->getWorldPosition();
         const auto &wr = node0->getWorldRotation();
-        pose1.q *= physx::PxQuat{wr.x, wr.y, wr.z, wr.w};
+        auto rot = physx::PxQuat{wr.x, wr.y, wr.z, wr.w};
+        pose1.p = _mPivotA * node0->getWorldScale();
+        rot.rotate(pose1.p);
+        pose1.p = pose1.p + node0->getWorldPosition();
+        pose1.q = rot * pose0.q;
     }
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR1, pose1);
 }
