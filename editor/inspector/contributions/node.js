@@ -343,7 +343,7 @@ exports.template = /* html*/`
     <section class="section-missing"></section>
 
     <footer class="footer">
-        <ui-button class="add-component">
+        <ui-button class="add-component" size="medium">
             <ui-label value="i18n:ENGINE.components.add_component"></ui-label>
         </ui-button>
     </footer>
