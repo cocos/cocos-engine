@@ -25,13 +25,58 @@
 import { Format, LoadOp } from '../../gfx/base/define';
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
-import { LightInfo, QueueHint, SceneFlags } from './types';
+import { CopyPair, LightInfo, QueueHint, ResourceResidency, SceneFlags } from './types';
 import { AntiAliasing, buildBloomPass, buildForwardPass, buildFxaaPass, buildPostprocessPass, buildSSSSPass,
-    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject, buildHBAOPasses } from './define';
+    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject, buildHBAOPasses, buildCopyPass, getRenderArea } from './define';
 import { isUICamera } from './utils';
 import { RenderWindow } from '../../render-scene/core/render-window';
 
+const copyPair = new CopyPair();
+const pairs = [copyPair];
 export class CustomPipelineBuilder implements PipelineBuilder {
+    public setup (cameras: Camera[], ppl: BasicPipeline): void {
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (camera.scene === null) {
+                continue;
+            }
+            const isGameView = camera.cameraUsage === CameraUsage.GAME
+                || camera.cameraUsage === CameraUsage.GAME_VIEW;
+            if (!isGameView) {
+                // forward pass
+                buildForwardPass(camera, ppl, isGameView);
+                continue;
+            }
+            // TODO: There is currently no effective way to judge the ui camera. Let’s do this first.
+            if (!isUICamera(camera)) {
+                // forward pass
+                const forwardInfo = buildForwardPass(camera, ppl, isGameView);
+                const area = getRenderArea(camera, camera.window.width, camera.window.height);
+                const width = area.width;
+                const height = area.height;
+                if (!ppl.containsResource('copyTexTest')) {
+                    ppl.addRenderTarget('copyTexTest', Format.RGBA16F, width, height, ResourceResidency.PERSISTENT);
+                }
+                copyPair.source = forwardInfo.rtName;
+                copyPair.target = 'copyTexTest';
+                buildCopyPass(ppl, pairs);
+                // fxaa pass
+                const fxaaInfo = buildFxaaPass(camera, ppl, 'copyTexTest', forwardInfo.dsName);
+                // bloom passes
+                const bloomInfo = buildBloomPass(camera, ppl, fxaaInfo.rtName);
+                // tone map pass
+                const toneMappingInfo =  buildToneMappingPass(camera, ppl, bloomInfo.rtName, bloomInfo.dsName);
+                // Present Pass
+                buildPostprocessPass(camera, ppl, toneMappingInfo.rtName, AntiAliasing.NONE);
+                continue;
+            }
+            // render ui
+            buildUIPass(camera, ppl);
+        }
+    }
+}
+
+export class SkinPipelineBuilder implements PipelineBuilder {
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
