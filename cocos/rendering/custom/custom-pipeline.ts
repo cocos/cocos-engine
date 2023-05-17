@@ -195,8 +195,8 @@ export class TestPipelineBuilder implements PipelineBuilder {
         const scene = camera.scene;
         const pass = ppl.addRenderPass(width, height, 'default');
 
-        pass.addRenderTarget(`Color${id}`, 'color', LoadOp.CLEAR);
-        pass.addDepthStencil(`DepthStencil${id}`, '_', LoadOp.CLEAR);
+        pass.addRenderTarget(`Color${id}`, LoadOp.CLEAR);
+        pass.addDepthStencil(`DepthStencil${id}`, LoadOp.CLEAR);
 
         if (scene) {
             pass.addQueue(QueueHint.RENDER_OPAQUE, 'default')

@@ -900,7 +900,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()) {
         throw new Error('Method not implemented.');
     }
-    addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
+    addDepthStencil (name: string, accessType: AccessType, depthSlotName = '', stencilSlotName = '', loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
         throw new Error('Method not implemented.');
     }
     addTexture (name: string, slotName: string, sampler: Sampler | null = null): void {
@@ -996,7 +996,7 @@ export class WebRenderPassBuilder extends WebSetter implements RenderPassBuilder
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
-    addRenderTarget (name: string, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()) {
+    addRenderTarget (name: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()) {
         if (DEBUG) {
             assert(name && this._resourceGraph.contains(name));
         }
@@ -1004,7 +1004,7 @@ export class WebRenderPassBuilder extends WebSetter implements RenderPassBuilder
         if (loadOp === LoadOp.LOAD) {
             clearFlag = ClearFlagBit.NONE;
         }
-        const view = new RasterView(slotName,
+        const view = new RasterView('',
             AccessType.WRITE, AttachmentType.RENDER_TARGET,
             loadOp,
             storeOp,
@@ -1012,11 +1012,11 @@ export class WebRenderPassBuilder extends WebSetter implements RenderPassBuilder
             clearColor);
         this._pass.rasterViews.set(name, view);
     }
-    addDepthStencil (name: string, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
+    addDepthStencil (name: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
         if (DEBUG) {
             assert(name && this._resourceGraph.contains(name));
         }
-        const view = new RasterView(slotName,
+        const view = new RasterView('',
             AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
             loadOp,
             storeOp,
@@ -1397,7 +1397,7 @@ export class WebPipeline implements BasicPipeline {
             }
             const resDesc = this.resourceGraph.getDesc(tarVerId);
             const currRaster = this.addRenderPass(resDesc.width, resDesc.height, 'copy-pass');
-            currRaster.addRenderTarget(targetName, '_', LoadOp.CLEAR, StoreOp.STORE, new Color(0, 0, 0, 0));
+            currRaster.addRenderTarget(targetName, LoadOp.CLEAR, StoreOp.STORE, new Color(0, 0, 0, 0));
             currRaster.addTexture(pair.source, 'outputResultMap');
             currRaster.addQueue(QueueHint.NONE).addFullscreenQuad(this._copyPassMat, 0, SceneFlags.NONE);
         }

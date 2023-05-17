@@ -106,9 +106,9 @@ export interface RenderQueueBuilder extends Setter {
 }
 
 export interface RenderSubpassBuilder extends Setter {
-    addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp?: LoadOp, storeOp?: StoreOp, color?: Color): void;
-    addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp?: LoadOp, storeOp?: StoreOp, depth?: number, stencil?: number, clearFlags?: ClearFlagBit): void;
-    addTexture (name: string, slotName: string, sampler?: Sampler | null): void;
+    addRenderTarget (name: string, accessType: AccessType, slotName?: string, loadOp?: LoadOp, storeOp?: StoreOp, color?: Color): void;
+    addDepthStencil (name: string, accessType: AccessType, depthSlotName?: string, stencilSlotName?: string, loadOp?: LoadOp, storeOp?: StoreOp, depth?: number, stencil?: number, clearFlags?: ClearFlagBit): void;
+    addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
     addStorageImage (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
     /**
@@ -130,7 +130,7 @@ export interface ComputeQueueBuilder extends Setter {
 
 export interface ComputeSubpassBuilder extends Setter {
     addRenderTarget (name: string, slotName: string): void;
-    addTexture (name: string, slotName: string, sampler?: Sampler | null): void;
+    addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
     addStorageImage (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
     /**
@@ -145,9 +145,9 @@ export interface ComputeSubpassBuilder extends Setter {
 }
 
 export interface BasicRenderPassBuilder extends Setter {
-    addRenderTarget (name: string, slotName: string, loadOp?: LoadOp, storeOp?: StoreOp, color?: Color): void;
-    addDepthStencil (name: string, slotName: string, loadOp?: LoadOp, storeOp?: StoreOp, depth?: number, stencil?: number, clearFlags?: ClearFlagBit): void;
-    addTexture (name: string, slotName: string, sampler?: Sampler | null): void;
+    addRenderTarget (name: string, loadOp?: LoadOp, storeOp?: StoreOp, color?: Color): void;
+    addDepthStencil (name: string, loadOp?: LoadOp, storeOp?: StoreOp, depth?: number, stencil?: number, clearFlags?: ClearFlagBit): void;
+    addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -174,7 +174,7 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
 }
 
 export interface ComputePassBuilder extends Setter {
-    addTexture (name: string, slotName: string, sampler?: Sampler | null): void;
+    addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
     addStorageImage (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
     /**
