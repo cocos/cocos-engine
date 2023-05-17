@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
 import { cclegacy, toRadian, Vec2, Vec4 } from '../../../core';
-import { Address, ClearFlagBit, Filter, Format } from '../../../gfx';
-import { Camera } from '../../../render-scene/scene';
+import { Camera, CameraUsage } from '../../../render-scene/scene';
 import { Pipeline, QueueHint } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
@@ -34,6 +34,7 @@ import { HBAO } from '../components';
 import { Texture2D } from '../../../asset/assets/texture-2d';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { DebugViewCompositeType, DebugViewSingleType } from '../../debug-view';
+import { ClearFlagBit, Format } from '../../../gfx';
 
 const vec2 = new Vec2();
 
@@ -177,7 +178,8 @@ export class HBAOPass extends SettingPass {
     private HBAO_BLUR_X_PASS_INDEX = 1;
     private HBAO_BLUR_Y_PASS_INDEX = 2;
     private HBAO_COMBINED_PASS_INDEX = 3;
-    private _hbaoParams: HBAOParams;
+    private _hbaoParams: HBAOParams = new HBAOParams();
+    private _initialize = false;
 
     get setting () { return getSetting(HBAO); }
 
@@ -186,15 +188,11 @@ export class HBAOPass extends SettingPass {
     outputNames = ['hbaoRTName', 'hbaoBluredRTName']
 
     checkEnable (camera: Camera) {
-        const enable = super.checkEnable(camera);
-        const setting = this.setting;
-        return enable && !!setting && setting.enabledInHierarchy;
-    }
-
-    constructor () {
-        super();
-        this._hbaoParams = new HBAOParams();
-        this.material.setProperty('RandomTex', this._hbaoParams.randomTexture, 0);
+        let enable = super.checkEnable(camera);
+        if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
+            enable = false;
+        }
+        return enable;
     }
 
     public render (camera: Camera, ppl: Pipeline): void {
@@ -203,6 +201,10 @@ export class HBAOPass extends SettingPass {
         const height = passContext.passViewport.height;
 
         const setting = this.setting;
+        if (!this._initialize) {
+            passContext.material = this.material;
+            this.material.setProperty('RandomTex', this._hbaoParams.randomTexture, 0);
+        }
 
         // params
         const aoStrength = 1.0;
@@ -232,7 +234,7 @@ export class HBAOPass extends SettingPass {
         }
 
         const inputRT = this.lastPass!.slotName(camera, 0);
-        const inputDS = passContext.forwardPass.slotName(camera, 1);
+        const inputDS = this.lastPass!.slotName(camera, 1);
         const hbaoInfo = this._renderHBAOPass(camera, inputDS);
         let hbaoCombinedInputRTName = hbaoInfo.rtName;
         if (this.setting.needBlur) {
@@ -247,7 +249,6 @@ export class HBAOPass extends SettingPass {
         const cameraID = getCameraUniqueID(camera);
 
         const passIdx = this.HBAO_PASS_INDEX;
-        passContext.material = this.material;
         this.material.setProperty('uvDepthToEyePosParams',  this._hbaoParams.uvDepthToEyePosParams, passIdx);
         this.material.setProperty('radiusParam', this._hbaoParams.radiusParam, passIdx);
         this.material.setProperty('miscParam', this._hbaoParams.miscParam, passIdx);
@@ -331,7 +332,7 @@ export class HBAOPass extends SettingPass {
             passIdx);
         this.material.setProperty('blurParam', this._hbaoParams.blurParam, passIdx);
 
-        passContext.clearBlack();
+        passContext.clearFlag = ClearFlagBit.NONE;
 
         const layoutName = 'combine-pass';
         const passName = `CameraHBAOCombinedPass${cameraID}`;
