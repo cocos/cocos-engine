@@ -168,7 +168,7 @@ export class View extends Eventify(System) {
      * 仅在 Web 平台下有效。
      * @param callback - The callback function
      *
-     * @deprecated since v3.8.0, please use [[screen.o]] to listen for events.
+     * @deprecated since v3.8.0, please use [[screen.on]] to listen for events.
      */
     public setResizeCallback (callback: (() => void) | null) {
         if (typeof callback === 'function' || callback == null) {
