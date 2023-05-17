@@ -24,6 +24,12 @@
 
 import { Enum } from '../../core';
 
+/**
+ * @en
+ * Rigid body type.
+ * @zh
+ * 刚体类型。
+ */
 export enum ERigidBodyType {
     DYNAMIC = 1,
     STATIC = 2,
@@ -31,6 +37,12 @@ export enum ERigidBodyType {
 }
 Enum(ERigidBodyType);
 
+/**
+ * @en
+ * Axis Direction.
+ * @zh
+ * 轴方向。
+ */
 export enum EAxisDirection {
     X_AXIS,
     Y_AXIS,
@@ -38,6 +50,12 @@ export enum EAxisDirection {
 }
 Enum(EAxisDirection);
 
+/**
+ * @en
+ * Simplex Type.
+ * @zh
+ * 单形体类型。
+ */
 export enum ESimplexType {
     VERTEX = 1,
     LINE = 2,
@@ -46,6 +64,12 @@ export enum ESimplexType {
 }
 Enum(ESimplexType);
 
+/**
+ * @en
+ * Collider Type.
+ * @zh
+ * 碰撞体类型。
+ */
 export enum EColliderType {
     BOX,
     SPHERE,
@@ -59,6 +83,12 @@ export enum EColliderType {
 }
 Enum(EColliderType);
 
+/**
+ * @en
+ * Constraint Type.
+ * @zh
+ * 约束类型。
+ */
 export enum EConstraintType {
     POINT_TO_POINT,
     HINGE,
@@ -67,12 +97,24 @@ export enum EConstraintType {
 }
 Enum(EConstraintType);
 
+/**
+ * @en
+ * Character Controller Type.
+ * @zh
+ * 角色控制器类型。
+ */
 export enum ECharacterControllerType {
     BOX,
     CAPSULE,
 }
 Enum(ECharacterControllerType);
 
+/**
+ * @en
+ * Physics Group.
+ * @zh
+ * 物理分组。
+ */
 export enum PhysicsGroup {
     DEFAULT = 1,
 }
