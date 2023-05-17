@@ -92,6 +92,9 @@ export class Animation extends Eventify(Component) {
         this._clips = value;
     }
 
+    /** !!!!!! */
+    public test () {}
+
     /**
      * @en
      * Gets or sets the default clip.
