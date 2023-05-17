@@ -56,7 +56,7 @@ const platformMap: Record<number, Platform> = {
     // 5 is IPAD
     5: Platform.IOS,
     6: Platform.OHOS,
-	7: Platform.QNX,
+    7: Platform.QNX,
     10: Platform.OPENHARMONY,
 };
 
