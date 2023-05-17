@@ -1,7 +1,6 @@
-import { Vec3 } from '../../cocos/core';
-import { ParameterNameSpace, VFXParameterType } from '../../cocos/vfx/enum';
-import { BATCH_OPERATION_THRESHOLD_VEC3, BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, Uint32ArrayParameter, Vec3ArrayParameter, VFXParameterIdentity } from '../../cocos/vfx/vfx-parameter';
-import { RandomStream } from '../../cocos/vfx/random-stream';
+import { ParameterNameSpace } from '../../cocos/vfx';
+import { VFXParameterType, ParameterNameSpace } from '../../cocos/vfx/define';
+import { VFXParameterIdentity } from '../../cocos/vfx/vfx-parameter';
 
 describe('VFXParameterIdentity', () => {
     test('basic', () => {

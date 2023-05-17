@@ -25,7 +25,7 @@
 import { ccclass, serializable, tooltip, type } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, toDegree, toRadian, Vec3 } from '../../core';
-import { INITIAL_DIR, ParticleDataSet } from '../particle-data-set';
+import { POSITION, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { AngleBasedLocationModule } from './angle-based-location';
 import { EmitterDataSet } from '../emitter-data-set';
@@ -37,7 +37,7 @@ enum LocationMode {
 }
 
 @ccclass('cc.ConeLocationModule')
-@VFXModule.register('ConeLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
+@VFXModule.register('ConeLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
 export class ConeLocationModule extends AngleBasedLocationModule {
     static LocationMode = LocationMode;
 
@@ -97,13 +97,11 @@ export class ConeLocationModule extends AngleBasedLocationModule {
             const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
             const x = Math.cos(angle);
             const y = Math.sin(angle);
-            Vec3.set(dir, x * sinAngle, y * sinAngle, cosAngle);
             Vec3.set(pos, x * r, y * r, 0);
         } else {
             const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
             const x = Math.cos(angle);
             const y = Math.sin(angle);
-            Vec3.set(dir, x * sinAngle, y * sinAngle, cosAngle);
             Vec3.set(pos, x * r, y * r, 0);
             Vec3.scaleAndAdd(pos, pos, dir, rand.getFloat() * length);
         }

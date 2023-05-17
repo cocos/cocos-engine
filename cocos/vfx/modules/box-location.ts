@@ -22,11 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, displayOrder, serializable, tooltip, type, visible } from 'cc.decorator';
+import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, Vec3 } from '../../core';
-import { INITIAL_DIR, ParticleDataSet, POSITION } from '../particle-data-set';
+import { ParticleDataSet, POSITION } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -41,7 +41,7 @@ const tempPosition = new Vec3();
 const dir = new Vec3();
 const pos = new Vec3();
 @ccclass('cc.BoxLocationModule')
-@VFXModule.register('BoxLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
+@VFXModule.register('BoxLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
 export class BoxLocationModule extends ShapeLocationModule {
     static LocationMode = LocationMode;
 
@@ -63,15 +63,13 @@ export class BoxLocationModule extends ShapeLocationModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const thicknessPercent = this._thicknessPercent;
         const { fromIndex, toIndex } = context;
-        const initialDir = particles.getVec3Parameter(INITIAL_DIR);
         const position = particles.getVec3Parameter(POSITION);
         const rand = this.randomStream;
         switch (this.locationMode) {
         case LocationMode.VOLUME:
             for (let i = fromIndex; i < toIndex; ++i) {
-                Vec3.set(dir, 0, 0, 1);
                 Vec3.set(pos, rand.getFloat() - 0.5, rand.getFloat() - 0.5, rand.getFloat() - 0.5);
-                this.storePositionAndDirection(i, dir, pos, initialDir, position);
+                this.storePosition(i, pos, position);
             }
             break;
         case LocationMode.SHELL:
@@ -87,9 +85,8 @@ export class BoxLocationModule extends ShapeLocationModule {
                 tempPosition.x *= rand.getFloatFromRange(thicknessPercent.x, 1);
                 tempPosition.y *= rand.getFloatFromRange(thicknessPercent.y, 1);
                 tempPosition.z *= rand.getFloatFromRange(thicknessPercent.z, 1);
-                Vec3.set(dir, 0, 0, 1);
                 Vec3.set(pos, tempPosition.x - 0.5, tempPosition.y - 0.5, tempPosition.z - 0.5);
-                this.storePositionAndDirection(i, dir, pos, initialDir, position);
+                this.storePosition(i, pos, position);
             }
             break;
         case LocationMode.EDGE:
@@ -105,9 +102,8 @@ export class BoxLocationModule extends ShapeLocationModule {
                 tempPosition.x *= rand.getFloatFromRange(thicknessPercent.x, 1);
                 tempPosition.y *= rand.getFloatFromRange(thicknessPercent.y, 1);
                 tempPosition.z *= rand.getFloatFromRange(thicknessPercent.z, 1);
-                Vec3.set(dir, 0, 0, 1);
                 Vec3.set(pos, tempPosition.x - 0.5, tempPosition.y - 0.5, tempPosition.z - 0.5);
-                this.storePositionAndDirection(i, dir, pos, initialDir, position);
+                this.storePosition(i, pos, position);
             }
             break;
         default:

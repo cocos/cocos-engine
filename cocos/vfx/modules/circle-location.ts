@@ -25,14 +25,15 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Vec3 } from '../../core';
-import { INITIAL_DIR, ParticleDataSet } from '../particle-data-set';
+import { POSITION, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { AngleBasedLocationModule } from './angle-based-location';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
+const dir = new Vec3();
 @ccclass('cc.CircleLocationModule')
-@VFXModule.register('CircleLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
+@VFXModule.register('CircleLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
 export class CircleLocationModule extends AngleBasedLocationModule {
     /**
       * @zh 粒子发射器半径。
@@ -53,7 +54,7 @@ export class CircleLocationModule extends AngleBasedLocationModule {
         this._innerRadius = (1 - this.radiusThickness) ** 2;
     }
 
-    protected generatePosAndDir (index: number, angle: number, dir: Vec3, pos: Vec3) {
+    protected generatePos (index: number, angle: number, pos: Vec3) {
         const radiusRandom = Math.sqrt(this.randomStream.getFloatFromRange(this._innerRadius, 1.0));
         const r = radiusRandom * this.radius;
         dir.x = Math.cos(angle);

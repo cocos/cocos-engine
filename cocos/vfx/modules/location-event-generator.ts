@@ -28,11 +28,12 @@ import { approx, CCFloat, Color, Vec3 } from '../../core';
 import { VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { COLOR, ID, INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY } from '../particle-data-set';
-import { ModuleExecContext, VFXEventInfo } from '../base';
+import { ModuleExecContext } from '../base';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ColorArrayParameter, Vec3ArrayParameter } from '../parameters';
+import { VFXEventInfo } from '../vfx-events';
 
 const eventInfo = new VFXEventInfo();
 

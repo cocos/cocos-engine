@@ -22,11 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { DEBUG } from 'internal:constants';
-import { Color, Vec3 } from '../core';
 import { ccclass, serializable, visible } from '../core/data/decorators';
-import { assertIsTrue } from '../core/data/utils/asserts';
-import { ParameterNameSpace, ParticleHandle, VFXParameterType } from './define';
+import { VFXParameterNameSpace, ParticleHandle, VFXParameterType } from './define';
 
 const DEFAULT_CAPACITY = 16;
 export const BATCH_OPERATION_THRESHOLD_VEC3 = 330;
@@ -62,9 +59,9 @@ export class VFXParameterIdentity {
     @serializable
     private _type: VFXParameterType = VFXParameterType.FLOAT;
     @serializable
-    private _namespace: ParameterNameSpace = ParameterNameSpace.USER;
+    private _namespace: VFXParameterNameSpace = VFXParameterNameSpace.USER;
 
-    constructor (id: number, name: string, type: VFXParameterType, namespace: ParameterNameSpace) {
+    constructor (id: number, name: string, type: VFXParameterType, namespace: VFXParameterNameSpace) {
         this._id = id;
         this._name = name;
         this._type = type;

@@ -39,7 +39,7 @@ export enum VFXParameterType {
     UINT8,
 }
 
-export enum ParameterNameSpace {
+export enum VFXParameterNameSpace {
     EMITTER,
     PARTICLE,
     USER,

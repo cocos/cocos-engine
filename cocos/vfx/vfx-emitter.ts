@@ -33,7 +33,7 @@ import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMod
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component } from '../scene-graph';
-import { ParticleDataSet, POSITION, IS_DEAD, VELOCITY, BASE_VELOCITY, SCALE, BASE_SCALE, COLOR, BASE_COLOR, SPRITE_SIZE, BASE_SPRITE_SIZE, SPAWN_TIME_RATIO, SPAWN_NORMALIZED_TIME, INV_START_LIFETIME, NORMALIZED_AGE, RANDOM_SEED, INITIAL_DIR, ID, MESH_ORIENTATION } from './particle-data-set';
+import { ParticleDataSet, POSITION, IS_DEAD, VELOCITY, BASE_VELOCITY, SCALE, BASE_SCALE, COLOR, BASE_COLOR, SPRITE_SIZE, BASE_SPRITE_SIZE, INV_START_LIFETIME, NORMALIZED_AGE, RANDOM_SEED, ID, MESH_ORIENTATION } from './particle-data-set';
 import { VFXModuleStage, ModuleExecStage } from './vfx-module';
 import { vfxManager } from './vfx-manager';
 import { EventHandler } from './event-handler';
@@ -44,7 +44,6 @@ import { VFXEventInfo } from './vfx-events';
 
 const startPositionOffset = new Vec3();
 const tempPosition = new Vec3();
-const tempDir = new Vec3();
 const dir = new Vec3();
 const up = new Vec3();
 const rot = new Quat();
@@ -842,40 +841,10 @@ export class VFXEmitter extends Component {
         const toIndex = particles.count;
         const { normalizedLoopAge, normalizedPrevLoopAge, deltaTime, frameOffset } = emitter;
         const hasPosition = particles.hasParameter(POSITION);
-        const hasSpawnNormalizedTime = particles.hasParameter(SPAWN_NORMALIZED_TIME);
-        const hasSpawnTimeRatio = particles.hasParameter(SPAWN_TIME_RATIO);
         const emitterTimeInterval = 1 / numContinuous;
         if (hasPosition) {
             const initialPosition = initialTransform.getTranslation(tempPosition);
             particles.getVec3Parameter(POSITION).fill(initialPosition, fromIndex, toIndex);
-        }
-        if (hasSpawnNormalizedTime || hasSpawnTimeRatio) {
-            let noContinuousStartIndex = fromIndex;
-            if (!approx(emitterTimeInterval, 0) && numContinuousSpawned > 0) {
-                const spawnNormalizedTime = hasSpawnNormalizedTime ? particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data : null;
-                const spawnRatio = hasSpawnNormalizedTime ? particles.getFloatParameter(SPAWN_TIME_RATIO).data : null;
-                const emitterTime = normalizedLoopAge < normalizedPrevLoopAge ? normalizedLoopAge + 1 : normalizedLoopAge;
-                for (let i = fromIndex, num = 0, length = fromIndex + numContinuousSpawned; i < length; i++, num++) {
-                    const offset = clamp01((spawnFraction + num) * emitterTimeInterval);
-                    if (hasSpawnTimeRatio) {
-                        spawnRatio![i] = offset;
-                    }
-                    if (hasSpawnNormalizedTime) {
-                        let time = lerp(emitterTime, normalizedPrevLoopAge, offset);
-                        if (time > 1) {
-                            time -= 1;
-                        }
-                        spawnNormalizedTime![i] = time;
-                    }
-                }
-                noContinuousStartIndex = fromIndex + numContinuousSpawned;
-            }
-            if (hasSpawnNormalizedTime) {
-                particles.getFloatParameter(SPAWN_NORMALIZED_TIME).fill(normalizedLoopAge, noContinuousStartIndex, toIndex);
-            }
-            if (hasSpawnTimeRatio) {
-                particles.getFloatParameter(SPAWN_TIME_RATIO).fill(0, noContinuousStartIndex, toIndex);
-            }
         }
 
         if (particles.hasParameter(BASE_VELOCITY)) {
@@ -908,11 +877,6 @@ export class VFXEmitter extends Component {
             for (let i = fromIndex; i < toIndex; i++) {
                 randomSeed[i] = randomStream.getUInt32();
             }
-        }
-        if (particles.hasParameter(INITIAL_DIR)) {
-            const initialDir = particles.getVec3Parameter(INITIAL_DIR);
-            const initialDirVal = Vec3.set(tempDir, initialTransform.m02, initialTransform.m06, initialTransform.m10);
-            initialDir.fill(initialDirVal, fromIndex, toIndex);
         }
 
         const user = this._userDataSet;

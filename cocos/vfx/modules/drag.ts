@@ -24,12 +24,11 @@
  */
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
-import { lerp, Vec3, CCBoolean, Enum, Vec2 } from '../../core';
+import { Vec3, CCBoolean, Enum, Vec2 } from '../../core';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ModuleExecContext } from '../base';
 import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY } from '../particle-data-set';
-import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from '../expressions';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';

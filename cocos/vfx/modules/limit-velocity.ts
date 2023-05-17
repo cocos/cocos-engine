@@ -23,14 +23,13 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, range, type, serializable, visible, rangeMin } from 'cc.decorator';
-import { lerp, Vec3, approx } from '../../core';
+import { ccclass, type, serializable, visible, rangeMin } from 'cc.decorator';
+import { lerp, Vec3 } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
 import { ModuleExecContext } from '../base';
 import { BASE_VELOCITY, ParticleDataSet, VELOCITY } from '../particle-data-set';
-import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';

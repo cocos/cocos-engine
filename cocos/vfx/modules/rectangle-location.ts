@@ -25,7 +25,7 @@
 import { ccclass } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { INITIAL_DIR, POSITION, ParticleDataSet } from '../particle-data-set';
+import { POSITION, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -34,17 +34,15 @@ import { Vec3 } from '../../core';
 const dir = new Vec3();
 const pos = new Vec3();
 @ccclass('cc.RectangleLocationModule')
-@VFXModule.register('RectangleLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
+@VFXModule.register('RectangleLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
 export class RectangleLocationModule extends ShapeLocationModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { fromIndex, toIndex } = context;
         const position = particles.getVec3Parameter(POSITION);
-        const initialDir = particles.getVec3Parameter(INITIAL_DIR);
         const rand = this.randomStream;
         for (let i = fromIndex; i < toIndex; i++) {
-            Vec3.set(dir, 0, 0, 1);
             Vec3.set(pos, rand.getFloatFromRange(-0.5, 0.5), rand.getFloatFromRange(-0.5, 0.5), 0);
-            this.storePositionAndDirection(i, dir, pos, initialDir, position);
+            this.storePosition(i, pos, position);
         }
     }
 }

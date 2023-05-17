@@ -25,9 +25,9 @@
  */
 
 import { ccclass, tooltip, displayOrder, serializable } from 'cc.decorator';
-import { Mat4, Quat, Vec3, randomRange } from '../../core';
+import { Mat4, Quat, Vec3 } from '../../core';
 import { VFXModule } from '../vfx-module';
-import { INITIAL_DIR, ParticleDataSet, POSITION } from '../particle-data-set';
+import { ParticleDataSet, POSITION } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -45,9 +45,9 @@ export enum DistributionMode {
     RANDOM,
 
     /**
-     * 在该发射器形状上移动发射，每次移动的距离由移动速度决定。
+     * 设置一个位置发射。
      */
-    MOVE,
+    DIRECT,
 
     /**
      * 均匀分布在发射器形状上，只对 Burst 出来的粒子有效，因为此模式依赖当前发射总数进行均匀分布。
@@ -55,44 +55,28 @@ export enum DistributionMode {
     UNIFORM,
 }
 
-export enum MoveWarpMode {
-    /**
-     * 沿某一方向循环发射，每次循环方向相同。
-     */
-    LOOP,
-
-    /**
-      * 循环发射，每次循环方向相反。
-      */
-    PING_PONG,
-}
-
 @ccclass('cc.ShapeLocationModule')
 export abstract class ShapeLocationModule extends VFXModule {
     /**
      * @zh 粒子发射器位置。
      */
-    @displayOrder(13)
     @tooltip('i18n:shapeModule.position')
     get position () {
         return this._position;
     }
     set position (val) {
         this._position.set(val);
-        this._isTransformDirty = true;
     }
 
     /**
      * @zh 粒子发射器旋转角度。
      */
-    @displayOrder(14)
     @tooltip('i18n:shapeModule.rotation')
     get rotation () {
         return this._rotation;
     }
     set rotation (val) {
         this._rotation.set(val);
-        this._isTransformDirty = true;
     }
 
     /**
@@ -105,36 +89,14 @@ export abstract class ShapeLocationModule extends VFXModule {
     }
     set scale (val) {
         this._scale.set(val);
-        this._isTransformDirty = true;
     }
-
-    /**
-     * @zh 粒子生成方向随机设定。
-     */
-    @serializable
-    @displayOrder(17)
-    @tooltip('i18n:shapeModule.randomDirectionAmount')
-    public randomDirectionAmount = 0;
-
-    /**
-     * @zh 表示当前发射方向与当前位置到结点中心连线方向的插值。
-     */
-    @serializable
-    @displayOrder(18)
-    @tooltip('i18n:shapeModule.sphericalDirectionAmount')
-    public sphericalDirectionAmount = 0;
 
     @serializable
     private _position = new Vec3(0, 0, 0);
-
     @serializable
     private _rotation = new Vec3(0, 0, 0);
-
     @serializable
     private _scale = new Vec3(1, 1, 1);
-    private _mat = new Mat4();
-    private _quat = new Quat();
-    private _isTransformDirty = true;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (this._isTransformDirty) {
@@ -143,17 +105,9 @@ export abstract class ShapeLocationModule extends VFXModule {
             this._isTransformDirty = false;
         }
         particles.markRequiredParameter(POSITION);
-        particles.markRequiredParameter(INITIAL_DIR);
     }
 
-    protected storePositionAndDirection (index: number, dir: Vec3, pos: Vec3, initialDir: Vec3ArrayParameter, position: Vec3ArrayParameter) {
-        const sphericalDirectionAmount = this.sphericalDirectionAmount;
-        if (sphericalDirectionAmount > 0) {
-            const sphericalVel = Vec3.normalize(_intermediVec, pos);
-            Vec3.lerp(dir, dir, sphericalVel, sphericalDirectionAmount);
-        }
-
+    protected storePosition (index: number, pos: Vec3, position: Vec3ArrayParameter) {
         position.addVec3At(Vec3.transformMat4(pos, pos, this._mat), index);
-        initialDir.setVec3At(Vec3.transformQuat(dir, dir, this._quat), index);
     }
 }

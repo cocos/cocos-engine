@@ -26,40 +26,37 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
 import { ArrayParameter, VFXParameterIdentity } from './vfx-parameter';
-import { ParameterNameSpace, ParticleHandle, VFXParameterType } from './define';
+import { VFXParameterNameSpace, ParticleHandle, VFXParameterType } from './define';
 import { BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, Int32ArrayParameter, QuatArrayParameter, Uint32ArrayParameter, Uint8ArrayParameter, Vec2ArrayParameter, Vec3ArrayParameter, Vec4ArrayParameter } from './parameters';
 
 let builtinParameterId = 0;
-export const ID = new VFXParameterIdentity(builtinParameterId++, 'id', VFXParameterType.UINT32, ParameterNameSpace.PARTICLE);
-export const RANDOM_SEED = new VFXParameterIdentity(builtinParameterId++, 'random-seed', VFXParameterType.UINT32, ParameterNameSpace.PARTICLE);
-export const INV_START_LIFETIME = new VFXParameterIdentity(builtinParameterId++, 'inv-start-lifetime', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
-export const NORMALIZED_AGE = new VFXParameterIdentity(builtinParameterId++, 'normalized-age', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
-export const IS_DEAD = new VFXParameterIdentity(builtinParameterId++, 'is-dead', VFXParameterType.BOOL, ParameterNameSpace.PARTICLE);
-export const HAS_COLLIDED = new VFXParameterIdentity(builtinParameterId++, 'has-collided', VFXParameterType.BOOL, ParameterNameSpace.PARTICLE);
-export const POSITION = new VFXParameterIdentity(builtinParameterId++, 'position', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
-export const INITIAL_DIR = new VFXParameterIdentity(builtinParameterId++, 'initial-dir', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
-export const PHYSICS_FORCE = new VFXParameterIdentity(builtinParameterId++, 'physics-force', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
-export const BASE_VELOCITY = new VFXParameterIdentity(builtinParameterId++, 'base-velocity', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
-export const VELOCITY = new VFXParameterIdentity(builtinParameterId++, 'velocity', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
-export const SPRITE_ROTATION = new VFXParameterIdentity(builtinParameterId++, 'sprite-rotation', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
-export const MESH_ORIENTATION = new VFXParameterIdentity(builtinParameterId++, 'mesh-orientation', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
-export const SUB_UV_INDEX = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
-export const SUB_UV_INDEX2 = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index2', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
-export const SUB_UV_INDEX3 = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index3', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
-export const SUB_UV_INDEX4 = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index4', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
-export const RIBBON_ID = new VFXParameterIdentity(builtinParameterId++, 'ribbon-id', VFXParameterType.UINT32, ParameterNameSpace.PARTICLE);
-export const RIBBON_LINK_ORDER = new VFXParameterIdentity(builtinParameterId++, 'ribbon-link-order', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
-export const BASE_RIBBON_WIDTH = new VFXParameterIdentity(builtinParameterId++, 'base-ribbon-width', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
-export const RIBBON_WIDTH = new VFXParameterIdentity(builtinParameterId++, 'ribbon-width', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
-export const BASE_SPRITE_SIZE = new VFXParameterIdentity(builtinParameterId++, 'base-sprite-size', VFXParameterType.VEC2, ParameterNameSpace.PARTICLE);
-export const SPRITE_SIZE = new VFXParameterIdentity(builtinParameterId++, 'sprite-size', VFXParameterType.VEC2, ParameterNameSpace.PARTICLE);
-export const BASE_SCALE = new VFXParameterIdentity(builtinParameterId++, 'base-scale', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
-export const SCALE = new VFXParameterIdentity(builtinParameterId++, 'scale', VFXParameterType.VEC3, ParameterNameSpace.PARTICLE);
-export const BASE_COLOR = new VFXParameterIdentity(builtinParameterId++, 'base-color', VFXParameterType.COLOR, ParameterNameSpace.PARTICLE);
-export const COLOR = new VFXParameterIdentity(builtinParameterId++, 'color', VFXParameterType.COLOR, ParameterNameSpace.PARTICLE);
-export const SPAWN_TIME_RATIO = new VFXParameterIdentity(builtinParameterId++, 'spawn-time-ratio', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
-export const SPAWN_NORMALIZED_TIME = new VFXParameterIdentity(builtinParameterId++, 'spawn-normalized-time', VFXParameterType.FLOAT, ParameterNameSpace.PARTICLE);
-export const VISIBILITY_TAG = new VFXParameterIdentity(builtinParameterId++, 'visibility-tag', VFXParameterType.UINT32, ParameterNameSpace.PARTICLE);
+export const ID = new VFXParameterIdentity(builtinParameterId++, 'id', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);
+export const RANDOM_SEED = new VFXParameterIdentity(builtinParameterId++, 'random-seed', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);
+export const INV_START_LIFETIME = new VFXParameterIdentity(builtinParameterId++, 'inv-start-lifetime', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const NORMALIZED_AGE = new VFXParameterIdentity(builtinParameterId++, 'normalized-age', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const IS_DEAD = new VFXParameterIdentity(builtinParameterId++, 'is-dead', VFXParameterType.BOOL, VFXParameterNameSpace.PARTICLE);
+export const HAS_COLLIDED = new VFXParameterIdentity(builtinParameterId++, 'has-collided', VFXParameterType.BOOL, VFXParameterNameSpace.PARTICLE);
+export const POSITION = new VFXParameterIdentity(builtinParameterId++, 'position', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const PHYSICS_FORCE = new VFXParameterIdentity(builtinParameterId++, 'physics-force', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const BASE_VELOCITY = new VFXParameterIdentity(builtinParameterId++, 'base-velocity', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const VELOCITY = new VFXParameterIdentity(builtinParameterId++, 'velocity', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const SPRITE_ROTATION = new VFXParameterIdentity(builtinParameterId++, 'sprite-rotation', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const MESH_ORIENTATION = new VFXParameterIdentity(builtinParameterId++, 'mesh-orientation', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const SUB_UV_INDEX = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const SUB_UV_INDEX2 = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index2', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const SUB_UV_INDEX3 = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index3', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const SUB_UV_INDEX4 = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index4', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const RIBBON_ID = new VFXParameterIdentity(builtinParameterId++, 'ribbon-id', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);
+export const RIBBON_LINK_ORDER = new VFXParameterIdentity(builtinParameterId++, 'ribbon-link-order', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const BASE_RIBBON_WIDTH = new VFXParameterIdentity(builtinParameterId++, 'base-ribbon-width', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const RIBBON_WIDTH = new VFXParameterIdentity(builtinParameterId++, 'ribbon-width', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const BASE_SPRITE_SIZE = new VFXParameterIdentity(builtinParameterId++, 'base-sprite-size', VFXParameterType.VEC2, VFXParameterNameSpace.PARTICLE);
+export const SPRITE_SIZE = new VFXParameterIdentity(builtinParameterId++, 'sprite-size', VFXParameterType.VEC2, VFXParameterNameSpace.PARTICLE);
+export const BASE_SCALE = new VFXParameterIdentity(builtinParameterId++, 'base-scale', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const SCALE = new VFXParameterIdentity(builtinParameterId++, 'scale', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const BASE_COLOR = new VFXParameterIdentity(builtinParameterId++, 'base-color', VFXParameterType.COLOR, VFXParameterNameSpace.PARTICLE);
+export const COLOR = new VFXParameterIdentity(builtinParameterId++, 'color', VFXParameterType.COLOR, VFXParameterNameSpace.PARTICLE);
+export const VISIBILITY_TAG = new VFXParameterIdentity(builtinParameterId++, 'visibility-tag', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);
 
 export const builtinParticleParameterIdentities = [
     ID,
@@ -69,7 +66,6 @@ export const builtinParticleParameterIdentities = [
     IS_DEAD,
     HAS_COLLIDED,
     POSITION,
-    INITIAL_DIR,
     PHYSICS_FORCE,
     BASE_VELOCITY,
     VELOCITY,
@@ -89,8 +85,6 @@ export const builtinParticleParameterIdentities = [
     SCALE,
     BASE_COLOR,
     COLOR,
-    SPAWN_TIME_RATIO,
-    SPAWN_NORMALIZED_TIME,
     VISIBILITY_TAG,
 ];
 
@@ -189,7 +183,7 @@ export class ParticleDataSet {
 
     public addParameter (identity: VFXParameterIdentity) {
         if (DEBUG) {
-            assertIsTrue(identity.namespace === ParameterNameSpace.PARTICLE);
+            assertIsTrue(identity.namespace === VFXParameterNameSpace.PARTICLE);
         }
         if (this.hasParameter(identity)) {
             throw new Error('Already exist a particle parameter with same id!');

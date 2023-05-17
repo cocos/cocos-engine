@@ -22,17 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, displayOrder, range, serializable, type, visible } from 'cc.decorator';
-import { DistributionMode, MoveWarpMode, ShapeLocationModule } from './shape-location';
+import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
+import { DistributionMode, ShapeLocationModule } from './shape-location';
 import { Enum, lerp, toDegree, toRadian, Vec3 } from '../../core';
-import { INITIAL_DIR, ParticleDataSet, POSITION, SPAWN_TIME_RATIO } from '../particle-data-set';
-import { VFXEmitterState, ModuleExecContext } from '../base';
-import { FloatExpression } from '../expressions/float';
+import { ParticleDataSet, POSITION } from '../particle-data-set';
+import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
-import { ConstantFloatExpression } from '../expressions';
 
-const dir = new Vec3();
 const pos = new Vec3();
 
 @ccclass('cc.AngleBasedLocationModule')
@@ -56,24 +53,6 @@ export abstract class AngleBasedLocationModule extends ShapeLocationModule {
     @serializable
     public distributionMode = DistributionMode.RANDOM;
 
-    @type(Enum(MoveWarpMode))
-    @serializable
-    @visible(function (this: AngleBasedLocationModule) {
-        return this.distributionMode === DistributionMode.MOVE;
-    })
-    public moveWrapMode = MoveWarpMode.LOOP;
-
-    /**
-      * @zh 使用移动分布方式时的移动速度。
-      */
-    @type(FloatExpression)
-    @range([0, 1])
-    @serializable
-    @visible(function (this: AngleBasedLocationModule) {
-        return this.distributionMode === DistributionMode.MOVE;
-    })
-    public moveSpeed: FloatExpression = new ConstantFloatExpression();
-
     /**
       * @zh 控制可能产生粒子的弧周围的离散间隔。
       */
@@ -85,27 +64,9 @@ export abstract class AngleBasedLocationModule extends ShapeLocationModule {
     private _invArc = 0;
     private _arcRounded = 0;
     private _spreadStep = 0;
-    private _arcTimer = 0;
-    private _arcTimePrev = 0;
-
-    public onPlay (states: VFXEmitterState) {
-        super.onPlay(states);
-        this._arcTimer = 0;
-        this._arcTimePrev = 0;
-    }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         super.tick(particles, emitter, user, context);
-        if (this.distributionMode === DistributionMode.MOVE) {
-            particles.markRequiredParameter(SPAWN_TIME_RATIO);
-        }
-        this._arcTimePrev = this._arcTimer;
-        let deltaTime = emitter.deltaTime;
-        if (emitter.normalizedLoopAge < emitter.normalizedPrevLoopAge) {
-            this._arcTimer += (this.moveSpeed.evaluateSingle(1, 1) * (emitter.currentDuration - emitter.prevLoopAge)) * Math.PI * 2;
-            deltaTime = emitter.loopAge;
-        }
-        this._arcTimer += (this.moveSpeed.evaluateSingle(emitter.normalizedLoopAge, 1) * deltaTime) * Math.PI * 2;
         this._invArc = 1 / this._arc;
         this._spreadStep = this._arc * this.spread;
         this._arcRounded = Math.ceil(this._arc / this._spreadStep) * this._spreadStep;
@@ -120,18 +81,17 @@ export abstract class AngleBasedLocationModule extends ShapeLocationModule {
         const arcTimePrev = this._arcTimePrev;
         const arc = this._arc;
         const invArc = this._invArc;
-        const initialDir = particles.getVec3Parameter(INITIAL_DIR);
         const position = particles.getVec3Parameter(POSITION);
         if (this.distributionMode === DistributionMode.RANDOM) {
             if (this.spread > 0) {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    this.generatePosAndDir(i, arc * rand.getFloat(), dir, pos);
-                    this.storePositionAndDirection(i, dir, pos, initialDir, position);
+                    this.generatePos(i, arc * rand.getFloat(), pos);
+                    this.storePosition(i, pos, position);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    this.generatePosAndDir(i, Math.floor((arcRounded * rand.getFloat()) / spreadStep) * spreadStep, dir, pos);
-                    this.storePositionAndDirection(i, dir, pos, initialDir, position);
+                    this.generatePos(i, Math.floor((arcRounded * rand.getFloat()) / spreadStep) * spreadStep, pos);
+                    this.storePosition(i, pos, position);
                 }
             }
         } else if (this.distributionMode === DistributionMode.MOVE) {
@@ -145,8 +105,8 @@ export abstract class AngleBasedLocationModule extends ShapeLocationModule {
                         if (angle < 0) {
                             angle += arc;
                         }
-                        this.generatePosAndDir(i, angle, dir, pos);
-                        this.storePositionAndDirection(i, dir, pos, initialDir, position);
+                        this.generatePos(i, angle, pos);
+                        this.storePosition(i, pos, position);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; ++i) {
@@ -155,8 +115,8 @@ export abstract class AngleBasedLocationModule extends ShapeLocationModule {
                         if (angle < 0) {
                             angle += arc;
                         }
-                        this.generatePosAndDir(i, angle, dir, pos);
-                        this.storePositionAndDirection(i, dir, pos, initialDir, position);
+                        this.generatePos(i, angle, pos);
+                        this.storePosition(i, pos, position);
                     }
                 }
             } else {
@@ -171,8 +131,8 @@ export abstract class AngleBasedLocationModule extends ShapeLocationModule {
                         if (angle >= 1.0) {
                             angle = 2 - angle;
                         }
-                        this.generatePosAndDir(i, angle * arc, dir, pos);
-                        this.storePositionAndDirection(i, dir, pos, initialDir, position);
+                        this.generatePos(i, angle * arc, pos);
+                        this.storePosition(i, pos, position);
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; ++i) {
@@ -183,8 +143,8 @@ export abstract class AngleBasedLocationModule extends ShapeLocationModule {
                         if (angle >= 1.0) {
                             angle = 2 - angle;
                         }
-                        this.generatePosAndDir(i, angle * arc, dir, pos);
-                        this.storePositionAndDirection(i, dir, pos, initialDir, position);
+                        this.generatePos(i, angle * arc, pos);
+                        this.storePosition(i, pos, position);
                     }
                 }
             }
@@ -194,17 +154,17 @@ export abstract class AngleBasedLocationModule extends ShapeLocationModule {
                 for (let i = fromIndex; i < toIndex; ++i) {
                     let angle = i * invTotal * arc;
                     angle = Math.floor(angle / spreadStep) * spreadStep;
-                    this.generatePosAndDir(i, angle, dir, pos);
-                    this.storePositionAndDirection(i, dir, pos, initialDir, position);
+                    this.generatePos(i, angle, pos);
+                    this.storePosition(i, pos, position);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    this.generatePosAndDir(i, i * invTotal * arc, dir, pos);
-                    this.storePositionAndDirection(i, dir, pos, initialDir, position);
+                    this.generatePos(i, i * invTotal * arc, pos);
+                    this.storePosition(i, pos, position);
                 }
             }
         }
     }
 
-    protected abstract generatePosAndDir (index: number, angle: number, dir: Vec3, pos: Vec3);
+    protected abstract generatePos (index: number, angle: number, pos: Vec3);
 }

@@ -22,17 +22,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, serializable, tooltip } from 'cc.decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Vec3 } from '../../core';
-import { INITIAL_DIR, ParticleDataSet } from '../particle-data-set';
+import { POSITION, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { AngleBasedLocationModule } from './angle-based-location';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '..';
 
 @ccclass('cc.HemisphereLocationModule')
-@VFXModule.register('HemisphereLocation', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
+@VFXModule.register('HemisphereLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
 export class HemisphereLocationModule extends AngleBasedLocationModule {
     /**
       * @zh 粒子发射器半径。
@@ -41,11 +41,11 @@ export class HemisphereLocationModule extends AngleBasedLocationModule {
     public radius = 1;
 
     /**
-        * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
-        * - 0 表示从表面发射；
-        * - 1 表示从中心发射；
-        * - 0 ~ 1 之间表示在中心到表面之间发射。
-        */
+     * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
+     * - 0 表示从表面发射；
+     * - 1 表示从中心发射；
+     * - 0 ~ 1 之间表示在中心到表面之间发射。
+     */
     @serializable
     public radiusThickness = 1;
 

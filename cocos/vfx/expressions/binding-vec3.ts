@@ -25,7 +25,7 @@
 import { ccclass } from '../../core/data/decorators';
 import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
-import { ParameterNameSpace } from '../define';
+import { VFXParameterNameSpace } from '../define';
 import { ParticleDataSet } from '../particle-data-set';
 import { UserDataSet } from '../user-data-set';
 import { Vec3Expression } from './vec3';
@@ -41,7 +41,7 @@ export class BindingVec3Expression extends Vec3Expression {
     private _getVec3 = this._getConstant;
 
     public get isConstant (): boolean {
-        return !this._bindParameter || this._bindParameter.namespace !== ParameterNameSpace.PARTICLE;
+        return !this._bindParameter || this._bindParameter.namespace !== VFXParameterNameSpace.PARTICLE;
     }
 
     private _getConstant (index: number, out: Vec3): Vec3 {
@@ -59,13 +59,13 @@ export class BindingVec3Expression extends Vec3Expression {
     }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        if (this._bindParameter?.namespace === ParameterNameSpace.PARTICLE) {
+        if (this._bindParameter?.namespace === VFXParameterNameSpace.PARTICLE) {
             particles.markRequiredParameter(this._bindParameter);
         }
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        if (this._bindParameter?.namespace === ParameterNameSpace.PARTICLE) {
+        if (this._bindParameter?.namespace === VFXParameterNameSpace.PARTICLE) {
             this._data = particles.getVec3Parameter(this._bindParameter);
             this._getVec3 = this._getVec3At;
         } else {
