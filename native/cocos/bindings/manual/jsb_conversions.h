@@ -1206,6 +1206,9 @@ inline bool nativevalue_to_se(const ccstd::map<K, V> &from, se::Value &to, se::O
 template <typename T>
 inline bool nativevalue_to_se(const cc::TypedArrayTemp<T> &typedArray, se::Value &to, se::Object *ctx); // NOLINT
 
+template <typename K, typename V>
+bool nativevalue_to_se(const cc::StablePropertyMap<K, V> &from, se::Value &to, se::Object *ctx); // NOLINT
+
 /// nativevalue_to_se ccstd::optional
 template <typename T>
 bool nativevalue_to_se(const ccstd::optional<T> &from, se::Value &to, se::Object *ctx) { // NOLINT
