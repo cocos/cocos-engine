@@ -887,8 +887,8 @@ public:
     void resetRenderQueue(bool reset) override;
     bool isRenderQueueReset() const override;
 
-    PipelineType getPipelineType() const override;
-    PipelineCapabilities getPipelineCapabilities() const override;
+    PipelineType getType() const override;
+    PipelineCapabilities getCapabilities() const override;
     void beginSetup() override;
     void endSetup() override;
     bool containsResource(const ccstd::string &name) const override;
@@ -901,7 +901,6 @@ public:
     void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
     void beginFrame() override;
     void endFrame() override;
-    void addMovePass(const ccstd::vector<MovePair> &movePairs) override;
     void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) override;
     gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) override;
 
@@ -913,6 +912,7 @@ public:
     void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) override;
     RenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) override;
     ComputePassBuilder *addComputePass(const ccstd::string &layoutName) override;
+    void addMovePass(const ccstd::vector<MovePair> &movePairs) override;
     uint32_t addCustomBuffer(const ccstd::string &name, const gfx::BufferInfo &info, const std::string &type) override;
     uint32_t addCustomTexture(const ccstd::string &name, const gfx::TextureInfo &info, const std::string &type) override;
 

@@ -239,8 +239,8 @@ export class PipelineCapabilities {
 }
 
 export interface BasicPipeline extends PipelineRuntime {
-    readonly pipelineType: PipelineType;
-    readonly pipelineCapabilities: PipelineCapabilities;
+    readonly type: PipelineType;
+    readonly capabilities: PipelineCapabilities;
     beginSetup (): void;
     endSetup (): void;
     containsResource (name: string): boolean;
@@ -257,7 +257,6 @@ export interface BasicPipeline extends PipelineRuntime {
     beginFrame (): void;
     endFrame (): void;
     addRenderPass (width: number, height: number, layoutName?: string): BasicRenderPassBuilder;
-    addMovePass (movePairs: MovePair[]): void;
     addCopyPass (copyPairs: CopyPair[]): void;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
@@ -271,6 +270,7 @@ export interface Pipeline extends BasicPipeline {
     updateShadingRateTexture (name: string, width: number, height: number): void;
     addRenderPass (width: number, height: number, layoutName?: string): RenderPassBuilder;
     addComputePass (layoutName: string): ComputePassBuilder;
+    addMovePass (movePairs: MovePair[]): void;
     /**
      * @beta function signature might change
      */

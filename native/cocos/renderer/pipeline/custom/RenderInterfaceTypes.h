@@ -508,8 +508,8 @@ class BasicPipeline : public PipelineRuntime {
 public:
     BasicPipeline() noexcept = default;
 
-    virtual PipelineType getPipelineType() const = 0;
-    virtual PipelineCapabilities getPipelineCapabilities() const = 0;
+    virtual PipelineType getType() const = 0;
+    virtual PipelineCapabilities getCapabilities() const = 0;
     virtual void beginSetup() = 0;
     virtual void endSetup() = 0;
     virtual bool containsResource(const ccstd::string &name) const = 0;
@@ -526,7 +526,6 @@ public:
     virtual void beginFrame() = 0;
     virtual void endFrame() = 0;
     virtual BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) = 0;
-    virtual void addMovePass(const ccstd::vector<MovePair> &movePairs) = 0;
     virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
@@ -558,6 +557,7 @@ public:
     virtual void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) = 0;
     RenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) override = 0 /* covariant */;
     virtual ComputePassBuilder *addComputePass(const ccstd::string &layoutName) = 0;
+    virtual void addMovePass(const ccstd::vector<MovePair> &movePairs) = 0;
     /**
      * @beta function signature might change
      */

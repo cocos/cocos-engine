@@ -1278,10 +1278,10 @@ export class WebPipeline implements BasicPipeline {
     constructor (layoutGraph: LayoutGraphData) {
         this._layoutGraph = layoutGraph;
     }
-    get pipelineType () {
+    get type () {
         return PipelineType.BASIC;
     }
-    get pipelineCapabilities () {
+    get capabilities () {
         return new PipelineCapabilities();
     }
     addCustomBuffer (name: string, info: BufferInfo, type: string): number {
