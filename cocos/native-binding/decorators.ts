@@ -521,6 +521,7 @@ export function patch_cc_LightProbeInfo(ctx: cc_LightProbeInfo_Context_Args, app
   const showProbeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'showProbe');
   const showWireframeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'showWireframe');
   const showConvexDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'showConvex');
+  const lightProbeSphereVolumeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'lightProbeSphereVolume');
   apply(() => { $.displayName('GIScale')(LightProbeInfo.prototype, 'giScale',  giScaleDescriptor); }, 'displayName', 'giScale');
   apply(() => { $.tooltip('i18n:light_probe.giScale')(LightProbeInfo.prototype, 'giScale',  giScaleDescriptor); }, 'tooltip', 'giScale');
   apply(() => { $.type(CCFloat)(LightProbeInfo.prototype, 'giScale',  giScaleDescriptor); }, 'type', 'giScale');
@@ -546,6 +547,10 @@ export function patch_cc_LightProbeInfo(ctx: cc_LightProbeInfo_Context_Args, app
   apply(() => { $.editable(LightProbeInfo.prototype, 'showWireframe',  showWireframeDescriptor); }, 'editable', 'showWireframe');
   apply(() => { $.tooltip('i18n:light_probe.showConvex')(LightProbeInfo.prototype, 'showConvex',  showConvexDescriptor); }, 'tooltip', 'showConvex');
   apply(() => { $.editable(LightProbeInfo.prototype, 'showConvex',  showConvexDescriptor); }, 'editable', 'showConvex');
+  apply(() => { $.tooltip('i18n:light_probe.lightProbeSphereVolume')(LightProbeInfo.prototype, 'lightProbeSphereVolume',  lightProbeSphereVolumeDescriptor); }, 'tooltip', 'lightProbeSphereVolume');
+  apply(() => { $.type(CCFloat)(LightProbeInfo.prototype, 'lightProbeSphereVolume',  lightProbeSphereVolumeDescriptor); }, 'type', 'lightProbeSphereVolume');
+  apply(() => { $.range([0, 100, 1])(LightProbeInfo.prototype, 'lightProbeSphereVolume',  lightProbeSphereVolumeDescriptor); }, 'range', 'lightProbeSphereVolume');
+  apply(() => { $.editable(LightProbeInfo.prototype, 'lightProbeSphereVolume',  lightProbeSphereVolumeDescriptor); }, 'editable', 'lightProbeSphereVolume');
   apply(() => { $.serializable(LightProbeInfo.prototype, '_giScale',  () => { return 1.0; }); }, 'serializable', '_giScale');
   apply(() => { $.serializable(LightProbeInfo.prototype, '_giSamples',  () => { return 1024; }); }, 'serializable', '_giSamples');
   apply(() => { $.serializable(LightProbeInfo.prototype, '_bounces',  () => { return 2; }); }, 'serializable', '_bounces');
@@ -554,6 +559,7 @@ export function patch_cc_LightProbeInfo(ctx: cc_LightProbeInfo_Context_Args, app
   apply(() => { $.serializable(LightProbeInfo.prototype, '_showWireframe',  () => { return true; }); }, 'serializable', '_showWireframe');
   apply(() => { $.serializable(LightProbeInfo.prototype, '_showConvex',  () => { return false; }); }, 'serializable', '_showConvex');
   apply(() => { $.serializable(LightProbeInfo.prototype, '_data',  () => { return null; }); }, 'serializable', '_data');
+  apply(() => { $.serializable(LightProbeInfo.prototype, '_lightProbeSphereVolume',  () => { return 1.0; }); }, 'serializable', '_lightProbeSphereVolume');
   apply(() => { $.ccclass('cc.LightProbeInfo')(LightProbeInfo); }, 'ccclass', null);
 } // end of patch_cc_LightProbeInfo
 
@@ -876,10 +882,11 @@ interface cc_SceneGlobals_Context_Args {
    SkyboxInfo: any;
    FogInfo: any;
    OctreeInfo: any;
+   SkinInfo: any;
    LightProbeInfo: any;
 }
 export function patch_cc_SceneGlobals(ctx: cc_SceneGlobals_Context_Args, apply = defaultExec) {
-  const { SceneGlobals, AmbientInfo, ShadowsInfo, SkyboxInfo, FogInfo, OctreeInfo, LightProbeInfo } = { ...ctx };
+  const { SceneGlobals, AmbientInfo, ShadowsInfo, SkyboxInfo, FogInfo, OctreeInfo, SkinInfo, LightProbeInfo } = { ...ctx };
   const skyboxDescriptor = Object.getOwnPropertyDescriptor(SceneGlobals.prototype, 'skybox');
   apply(() => { $.editable(SceneGlobals.prototype, 'ambient',  () => { return new AmbientInfo(); }); }, 'editable', 'ambient');
   apply(() => { $.serializable(SceneGlobals.prototype, 'ambient',  () => { return new AmbientInfo(); }); }, 'serializable', 'ambient');
@@ -892,6 +899,8 @@ export function patch_cc_SceneGlobals(ctx: cc_SceneGlobals_Context_Args, apply =
   apply(() => { $.editable(SceneGlobals.prototype, 'skybox',  skyboxDescriptor); }, 'editable', 'skybox');
   apply(() => { $.serializable(SceneGlobals.prototype, 'octree',  () => { return new OctreeInfo(); }); }, 'serializable', 'octree');
   apply(() => { $.editable(SceneGlobals.prototype, 'octree',  () => { return new OctreeInfo(); }); }, 'editable', 'octree');
+  apply(() => { $.serializable(SceneGlobals.prototype, 'skin',  () => { return new SkinInfo(); }); }, 'serializable', 'skin');
+  apply(() => { $.editable(SceneGlobals.prototype, 'skin',  () => { return new SkinInfo(); }); }, 'editable', 'skin');
   apply(() => { $.serializable(SceneGlobals.prototype, 'lightProbeInfo',  () => { return new LightProbeInfo(); }); }, 'serializable', 'lightProbeInfo');
   apply(() => { $.editable(SceneGlobals.prototype, 'lightProbeInfo',  () => { return new LightProbeInfo(); }); }, 'editable', 'lightProbeInfo');
   apply(() => { $.serializable(SceneGlobals.prototype, 'bakedWithStationaryMainLight',  () => { return false; }); }, 'serializable', 'bakedWithStationaryMainLight');

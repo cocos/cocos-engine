@@ -80,6 +80,26 @@ CCEffect %{
         emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleAndStrenth.xyz }
         normalStrenth:  { value: 1.0, target: emissiveScaleAndStrenth.w, editor: { parent: USE_NORMAL_MAP } }
         mainTexture:    { value: white, target: baseColorMap, editor: { displayName: BaseColorMap } }
+    - &planar-shadow
+      vert: planar-shadow-vs
+      frag: planar-shadow-fs
+      phase: planar-shadow
+      propertyIndex: 0
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        stencilTestFront: true
+        stencilFuncFront: not_equal
+        stencilPassOpFront: replace
+        stencilRef: 0x80 # only use the leftmost bit
+        stencilReadMask: 0x80
+        stencilWriteMask: 0x80
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
 }%
 
 CCProgram shared-ubos %{
@@ -258,12 +278,24 @@ CCProgram toon-vs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-vs>
   #include <shared-ubos>
   #include <surface-vertex>
   #include <shading-entries/main-functions/render-to-shadowmap/vs>
 }%
+
+CCProgram planar-shadow-vs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-planar-shadow>
+  #include <surfaces/includes/common-vs>
+  #include <shared-ubos>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/render-planar-shadow/vs>
+}%
+
 
 CCProgram toon-fs %{
   // shading-model : toon
@@ -294,8 +326,10 @@ CCProgram toon-fs %{
   #include <shading-entries/main-functions/render-to-scene/fs>
 }%
 
+
 CCProgram shadow-caster-fs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-fs>
   #include <shared-ubos>
@@ -303,7 +337,15 @@ CCProgram shadow-caster-fs %{
   #include <shading-entries/main-functions/render-to-shadowmap/fs>
 }%
 
-
+CCProgram planar-shadow-fs %{
+  precision highp float;
+  #include <macro-remapping>
+  #include <surfaces/effect-macros/render-planar-shadow>
+  #include <surfaces/includes/common-fs>
+  #include <shared-ubos>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/render-planar-shadow/fs>
+}%
 
 
 

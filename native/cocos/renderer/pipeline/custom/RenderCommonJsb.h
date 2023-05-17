@@ -34,6 +34,8 @@
 
 bool nativevalue_to_se(const cc::render::RasterView &from, se::Value &to, se::Object *ctx); // NOLINT
 
+bool nativevalue_to_se(const cc::render::ClearValue &from, se::Value &to, se::Object *ctx); // NOLINT
+
 bool nativevalue_to_se(const cc::render::ComputeView &from, se::Value &to, se::Object *ctx); // NOLINT
 
 bool nativevalue_to_se(const cc::render::LightInfo &from, se::Value &to, se::Object *ctx); // NOLINT
@@ -51,6 +53,9 @@ bool nativevalue_to_se(const cc::render::MovePair &from, se::Value &to, se::Obje
 // if function overload is used, android build fails
 template <>
 bool sevalue_to_native(const se::Value &from, cc::render::RasterView *to, se::Object *ctx); // NOLINT
+
+template <>
+bool sevalue_to_native(const se::Value &from, cc::render::ClearValue *to, se::Object *ctx); // NOLINT
 
 template <>
 bool sevalue_to_native(const se::Value &from, cc::render::ComputeView *to, se::Object *ctx); // NOLINT

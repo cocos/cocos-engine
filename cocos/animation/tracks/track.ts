@@ -390,6 +390,9 @@ export class TrackBinding {
                 return null;
             }
             const runtimeProxy = proxy.forTarget(resultTarget);
+            if (!runtimeProxy) {
+                return null;
+            }
             const binding: RuntimeBinding = {
                 setValue: (value) => {
                     runtimeProxy.set(value);

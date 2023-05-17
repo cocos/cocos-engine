@@ -272,6 +272,7 @@ module.exports = {
         skinning_root: 'The skinning root, where the controlling Animation is located',
         shadow_bias: 'Bias value (world space unit) that can avoid moire artifacts with shadows for model. <br>The more the value, the more the light leakage',
         shadow_normal_bias: 'Bias value (world space unit) that can avoid moire artifacts with surfaces that parallel to the directional light',
+        standard_skin_model: 'Bias value (world space unit) that ensure globally unique standard skin model',
     },
     sprite: {
         gray_scale: 'Whether turn on grayscale rendering mode',
@@ -1148,12 +1149,32 @@ module.exports = {
             torque: 'The torque applied to the rigid body in the world coordinate system',
             localTorque: 'The torque applied to the rigid body in the local coordinate system',
         },
+        character_controller: {
+            group: 'Collision Group of the character controller.',
+            minMoveDistance: 'The minimum movement distance of the character controller.',
+            stepOffset: 'The step offset of the character controller.',
+            slopeLimit: 'The slope limit of the character controller in degree.',
+            contactOffset: 'The contact offset of the character controller.',
+            detectCollisions: 'If the character controller can collide with other objects without calling move().',
+            enableOverlapRecovery: 'If the character controller enable overlap recovery when penetrating with other colliders.',
+            center: 'The center of the character controller in local space.',
+            capsuleRadius: 'The radius of the sphere of the capsule shape of the character controller in local space.',
+            capsuleHeight: 'The height of the capsule shape of the character controller in local space.',
+            boxHalfHeight: 'The half height of the box shape of the character controller in local space.',
+            boxHalfSideExtent: 'The half side extent of box shape of the character controller in local space.',
+            boxHalfForwardExtent: 'The half forward extent of the box shape of the character controller in local space.',
+        },
     },
     octree_culling: {
         enabled: 'The switch of octree culling, only available for native platforms.',
         minPos: 'The minimum position of the world bounding box.',
         maxPos: 'The maximum position of the world bounding box.',
         depth: 'The depth of octree.',
+    },
+    skin: {
+        enabled: 'The switch of skin scattering',
+        blurRadius: 'This parameter specifies the range of subsurface scattering , in other words, scattering filter width.',
+        sssIntensity: 'This parameter specifies the intensity of subsurface scattering.',
     },
     light_probe: {
         giScale: 'The value of GI multiplier.',
@@ -1163,6 +1184,7 @@ module.exports = {
         showProbe: 'The switch of showing light probe.',
         showWireframe: 'The switch of showing connection of light probe.',
         showConvex: 'The switch of showing convex of light probe.',
+        lightProbeSphereVolume: 'The value of all light probe sphere display size',
     },
     light_probe_group: {
         method: 'The automatic generation algorithm of light probe.',
@@ -1174,5 +1196,8 @@ module.exports = {
     },
     reflection_probe: {
         fastBake: 'If checked, generating progress will ignore GGX convolution for cubemap, very fast generation.',
+    },
+    color_grading: {
+        originalMap: 'The builtin lut texture path is internal/dependencies/textures/lut/.',
     },
 };

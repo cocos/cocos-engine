@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.25",
+  "ver": "1.0.26",
   "importer": "image",
   "imported": true,
   "uuid": "9cb543ba-d152-4809-8a44-8e7bd5712123",
@@ -27,7 +27,7 @@
         "anisotropy": 0,
         "isUuid": true,
         "imageUuidOrDatabaseUri": "9cb543ba-d152-4809-8a44-8e7bd5712123",
-        "visible": true
+        "visible": false
       },
       "displayName": "directional-light",
       "id": "6c48a",

@@ -265,6 +265,10 @@ export class ReflectionProbe extends Component {
         ReflectionProbeManager.probeManager.onUpdateProbes(true);
     }
 
+    get cubemap () {
+        return this._cubemap;
+    }
+
     get probe () {
         return this._probe!;
     }
@@ -273,7 +277,7 @@ export class ReflectionProbe extends Component {
      * @en Reflection probe cube mode preview sphere
      * @zh 反射探针cube模式的预览小球
      */
-    set previewSphere (val: Node) {
+    set previewSphere (val: Node | null) {
         this._previewSphere = val;
         if (this.probe) {
             this.probe.previewSphere = val;

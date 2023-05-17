@@ -573,7 +573,7 @@ void cmdFuncGLES2ResizeBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
 void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture) {
     gpuTexture->glFormat = mapGLFormat(gpuTexture->format);
     gpuTexture->glType = formatToGLType(gpuTexture->format);
-    gpuTexture->glInternalFmt = gpuTexture->glFormat;
+    gpuTexture->glInternalFmt = mapGLInternalFormat(gpuTexture->format);
 
     if (gpuTexture->samples > SampleCount::ONE) {
         if (device->constantRegistry()->mMSRT != MSRTSupportLevel::NONE) {

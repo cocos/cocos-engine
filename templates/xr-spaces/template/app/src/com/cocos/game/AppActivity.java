@@ -128,4 +128,14 @@ public class AppActivity extends CocosActivity {
         SDKWrapper.shared().onLowMemory();
         super.onLowMemory();
     }
+
+    @Override
+    public void onWindowFocusChanged (boolean hasFocus) {
+        Log.d("ccc", "AppActivity onWindowFocusChanged:" + hasFocus);
+        //Because Spaces applications launch on glasses(secondary display) we can ignore focus lost events which allow for
+        //keyevents to still be processed by Cocos Engine for remote openxr controllers to function
+        if(hasFocus) {
+            super.onWindowFocusChanged(hasFocus);
+        }
+    }
 }

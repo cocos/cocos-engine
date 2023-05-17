@@ -25,11 +25,11 @@
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
 import { DEBUG } from 'internal:constants';
-import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp } from '../../gfx';
+import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
 import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, CopyPassBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, RasterSubpassBuilder, SceneTransversal } from './pipeline';
+import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
@@ -38,7 +38,7 @@ import { Executor } from './executor';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { isEnableEffect, supportsR32FloatTexture, UBOSkinning } from '../define';
+import { isEnableEffect, supportsR32FloatTexture, supportsRGBA16FloatTexture, UBOSkinning } from '../define';
 import { OS } from '../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
 import { PipelineUBO } from '../pipeline-ubo';
@@ -242,6 +242,8 @@ export class WebSetter {
         }
         const num = this._lg.attributeIndex.get(name)!;
         this._data.samplers.set(num, sampler);
+    }
+    public setCamera (camera: Camera): void {
     }
     public hasSampler (name: string): boolean {
         const id = this._lg.attributeIndex.get(name);
@@ -766,7 +768,7 @@ function getFirstChildLayoutName (lg: LayoutGraphData, parentID: number): string
     return '';
 }
 
-export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuilder  {
+export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuilder  {
     constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, vertID: number, queue: RenderQueue, pipeline: PipelineSceneData) {
         super(data, layoutGraph);
         this._renderGraph = renderGraph;
@@ -808,10 +810,11 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         setTextureUBOView(this, camera, this._pipeline);
         initGlobalDescBinding(this._data, layoutName);
     }
-    addScene (sceneName: string, sceneFlags = SceneFlags.NONE): void {
-        const sceneData = new SceneData(sceneName, sceneFlags);
+    addScene (scene: RenderScene, sceneFlags = SceneFlags.NONE): void {
+        const sceneData = new SceneData('Scene', sceneFlags);
+        sceneData.scenes.push(scene);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), false, this._vertID,
+            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
         );
     }
     addFullscreenQuad (material: Material, passID: number, sceneFlags = SceneFlags.NONE, name = 'Quad'): void {
@@ -853,10 +856,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         );
     }
     setViewport (viewport: Viewport) {
-        this._renderGraph.addVertex<RenderGraphValue.Viewport>(
-            RenderGraphValue.Viewport, viewport,
-            'Viewport', '', new RenderData(), false, this._vertID,
-        );
+        this._queue.viewport = new Viewport().copy(viewport);
     }
     addCustomCommand (customBehavior: string): void {
         throw new Error('Method not implemented.');
@@ -867,7 +867,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
     private _pipeline: PipelineSceneData;
 }
 
-export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassBuilder {
+export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassBuilder {
     constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData,
         vertID: number, subpass: RasterSubpass, pipeline: PipelineSceneData) {
         super(data, layoutGraph);
@@ -881,6 +881,9 @@ export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassB
             RenderGraphComponent.Layout, this._vertID,
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+    }
+    setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {
+        throw new Error('Method not implemented.');
     }
     setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
         throw new Error('Method not implemented.');
@@ -897,7 +900,7 @@ export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassB
     addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
         throw new Error('Method not implemented.');
     }
-    addTexture (name: string, slotName: string): void {
+    addTexture (name: string, slotName: string, sampler: Sampler | null = null): void {
         throw new Error('Method not implemented.');
     }
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
@@ -915,7 +918,7 @@ export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassB
     setViewport (viewport: Viewport): void {
         throw new Error('Method not implemented.');
     }
-    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default'): RasterQueueBuilder {
+    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default'): RenderQueueBuilder {
         if (DEBUG) {
             const layoutId = this._layoutGraph.locateChild(this._layoutID, layoutName);
             assert(layoutId !== 0xFFFFFFFF);
@@ -925,7 +928,7 @@ export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassB
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
             RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID,
         );
-        return new WebRasterQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
+        return new WebRenderQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }
     get showStatistics (): boolean {
         return this._subpass.showStatistics;
@@ -942,7 +945,7 @@ export class WebRasterSubpassBuilder extends WebSetter implements RasterSubpassB
     private readonly _layoutGraph: LayoutGraphData;
 }
 
-export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder {
+export class WebRenderPassBuilder extends WebSetter implements RenderPassBuilder {
     constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, resourceGraph: ResourceGraph, vertID: number, pass: RasterPass, pipeline: PipelineSceneData) {
         super(data, layoutGraph);
         this._renderGraph = renderGraph;
@@ -956,6 +959,9 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             RenderGraphComponent.Layout, this._vertID,
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+    }
+    setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {
+        throw new Error('Method not implemented.');
     }
     addRasterView (name: string, view: RasterView) {
         this._pass.rasterViews.set(name, view);
@@ -1031,7 +1037,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             this._pass.computeViews.set(name, [view]);
         }
     }
-    addTexture (name: string, slotName: string): void {
+    addTexture (name: string, slotName: string, sampler: Sampler | null = null): void {
         this._addComputeResource(name, AccessType.READ, slotName);
     }
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
@@ -1040,7 +1046,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
     addStorageImage (name: string, accessType: AccessType, slotName: string): void {
         this._addComputeResource(name, accessType, slotName);
     }
-    addRasterSubpass (layoutName = ''): RasterSubpassBuilder {
+    addRenderSubpass (layoutName = ''): RenderSubpassBuilder {
         const name = 'Raster';
         const subpassID = this._pass.subpassGraph.numVertices();
         this._pass.subpassGraph.addVertex(name, new Subpass());
@@ -1049,7 +1055,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         const vertID = this._renderGraph.addVertex<RenderGraphValue.RasterSubpass>(
             RenderGraphValue.RasterSubpass, subpass, name, layoutName, data, false,
         );
-        const result = new WebRasterSubpassBuilder(data, this._renderGraph, this._layoutGraph, vertID, subpass, this._pipeline);
+        const result = new WebRenderSubpassBuilder(data, this._renderGraph, this._layoutGraph, vertID, subpass, this._pipeline);
         return result;
     }
     addComputeSubpass (layoutName = ''): ComputeSubpassBuilder {
@@ -1065,7 +1071,7 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(
             RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID,
         );
-        return new WebRasterQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
+        return new WebRenderQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }
 
     addFullscreenQuad (material: Material, passID: number, sceneFlags = SceneFlags.NONE, name = 'FullscreenQuad') {
@@ -1162,6 +1168,9 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
+    setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {
+        throw new Error('Method not implemented.');
+    }
     setArrayBuffer (name: string, arrayBuffer: ArrayBuffer): void {
         throw new Error('Method not implemented.');
     }
@@ -1171,7 +1180,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
-    addTexture (name: string, slotName: string): void {
+    addTexture (name: string, slotName: string, sampler: Sampler | null = null): void {
         throw new Error('Method not implemented.');
     }
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
@@ -1211,7 +1220,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     private readonly _pipeline: PipelineSceneData;
 }
 
-export class WebMovePassBuilder implements MovePassBuilder {
+export class WebMovePassBuilder {
     constructor (renderGraph: RenderGraph, vertID: number, pass: MovePass) {
         this._renderGraph = renderGraph;
         this._vertID = vertID;
@@ -1234,7 +1243,7 @@ export class WebMovePassBuilder implements MovePassBuilder {
     private readonly _pass: MovePass;
 }
 
-export class WebCopyPassBuilder implements CopyPassBuilder {
+export class WebCopyPassBuilder {
     constructor (renderGraph: RenderGraph, vertID: number, pass: CopyPass) {
         this._renderGraph = renderGraph;
         this._vertID = vertID;
@@ -1262,9 +1271,21 @@ function isManaged (residency: ResourceResidency): boolean {
     || residency === ResourceResidency.MEMORYLESS;
 }
 
-export class WebPipeline implements Pipeline {
+export class WebPipeline implements BasicPipeline {
     constructor (layoutGraph: LayoutGraphData) {
         this._layoutGraph = layoutGraph;
+    }
+    get pipelineType () {
+        return PipelineType.BASIC;
+    }
+    get pipelineCapabilities () {
+        return new PipelineCapabilities();
+    }
+    addCustomBuffer (name: string, info: BufferInfo, type: string): number {
+        throw new Error('Method not implemented.');
+    }
+    addCustomTexture (name: string, info: TextureInfo, type: string): number {
+        throw new Error('Method not implemented.');
     }
     addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
         return this.addRenderWindow(name, format, width, height, renderWindow);
@@ -1351,13 +1372,10 @@ export class WebPipeline implements Pipeline {
     public addComputePass (layoutName: string): ComputePassBuilder {
         throw new Error('Method not implemented.');
     }
-    public addMovePass (): MovePassBuilder {
+    public addMovePass (movePairs: MovePair[]): void {
         throw new Error('Method not implemented.');
     }
-    public addCopyPass (): CopyPassBuilder {
-        throw new Error('Method not implemented.');
-    }
-    public createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal {
+    public addCopyPass (copyPairs: CopyPair[]): void {
         throw new Error('Method not implemented.');
     }
     protected _generateConstantMacros (clusterEnabled: boolean) {
@@ -1409,10 +1427,12 @@ export class WebPipeline implements Pipeline {
         this._globalDSManager = new GlobalDSManager(this._device);
         this._globalDescSetData = this.getGlobalDescriptorSetData()!;
         this._globalDescriptorSetLayout = this._globalDescSetData.descriptorSetLayout;
-        this._globalDescriptorSet = isEnableEffect() ? this._device.createDescriptorSet(new DescriptorSetInfo(this._globalDescriptorSetLayout!))
+        this._globalDescriptorSetInfo = new DescriptorSetInfo(this._globalDescriptorSetLayout!);
+        this._globalDescriptorSet = isEnableEffect() ? this._device.createDescriptorSet(this._globalDescriptorSetInfo)
             : this._globalDescSetData.descriptorSet;
         this._globalDSManager.globalDescriptorSet = this.globalDescriptorSet;
         this.setMacroBool('CC_USE_HDR', this._pipelineSceneData.isHDR);
+        this.setMacroBool('CC_USE_FLOAT_OUTPUT', macro.ENABLE_FLOAT_OUTPUT && supportsRGBA16FloatTexture(this._device));
         this._generateConstantMacros(false);
         this._pipelineSceneData.activate(this._device);
         this._pipelineUBO.activate(this._device, this);
@@ -1483,6 +1503,9 @@ export class WebPipeline implements Pipeline {
     }
     public get globalDescriptorSet (): DescriptorSet {
         return this._globalDescriptorSet!;
+    }
+    public get globalDescriptorSetInfo (): DescriptorSetInfo {
+        return this._globalDescriptorSetInfo!;
     }
     public get commandBuffers (): CommandBuffer[] {
         return [this._device.commandBuffer];
@@ -1709,7 +1732,7 @@ export class WebPipeline implements Pipeline {
         this.endFrame();
     }
 
-    addRasterPass (width: number, height: number, layoutName = 'default'): RasterPassBuilder {
+    addRenderPass (width: number, height: number, layoutName = 'default'): RenderPassBuilder {
         if (DEBUG) {
             const stageId = this.layoutGraph.locateChild(this.layoutGraph.nullVertex(), layoutName);
             assert(stageId !== 0xFFFFFFFF);
@@ -1726,7 +1749,7 @@ export class WebPipeline implements Pipeline {
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(
             RenderGraphValue.RasterPass, pass, name, layoutName, data, false,
         );
-        const result = new WebRasterPassBuilder(data, this._renderGraph!, this._layoutGraph, this._resourceGraph, vertID, pass, this._pipelineSceneData);
+        const result = new WebRenderPassBuilder(data, this._renderGraph!, this._layoutGraph, this._resourceGraph, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height, isEnableEffect() ? layoutName : 'default');
         initGlobalDescBinding(data, layoutName);
         return result;
@@ -1746,6 +1769,10 @@ export class WebPipeline implements Pipeline {
     }
     get layoutGraph () {
         return this._layoutGraph;
+    }
+
+    get resourceUses () {
+        return this._resourceUses;
     }
 
     protected _updateRasterPassConstants (setter: WebSetter, width: number, height: number, layoutName = 'default') {
@@ -1798,6 +1825,7 @@ export class WebPipeline implements Pipeline {
     private _device!: Device;
     private _globalDSManager!: GlobalDSManager;
     private _globalDescriptorSet: DescriptorSet | null = null;
+    private _globalDescriptorSetInfo: DescriptorSetInfo | null = null;
     private _globalDescriptorSetLayout: DescriptorSetLayout | null = null;
     private readonly _macros: MacroRecord = {};
     private readonly _pipelineSceneData: PipelineSceneData = new PipelineSceneData();
@@ -1806,6 +1834,7 @@ export class WebPipeline implements Pipeline {
     private _profiler: Model | null = null;
     private _pipelineUBO: PipelineUBO = new PipelineUBO();
     private _cameras: Camera[] = [];
+    private _resourceUses: string[] = [];
 
     private _layoutGraph: LayoutGraphData;
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();

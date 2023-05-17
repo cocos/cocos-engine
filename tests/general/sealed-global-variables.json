@@ -147,6 +147,7 @@
         "cc.NodePool",
         "cc.Object",
         "cc.OctreeInfo",
+        "cc.SkinInfo",
         "cc.PageView",
         "cc.PageViewComponent",
         "cc.PageViewIndicator",

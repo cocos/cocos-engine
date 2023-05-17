@@ -29,6 +29,7 @@ import { Node } from '../../scene-graph';
 import { RenderScene } from '../core/render-scene';
 import { RenderWindow } from '../core/render-window';
 import { GeometryRenderer } from '../../rendering/geometry-renderer';
+import { PostProcess } from '../../rendering/post-process/components/post-process';
 
 /**
  * @en The enumeration type for the fixed axis of the camera.
@@ -805,6 +806,10 @@ export class Camera {
      */
     public screenScale: number;
 
+    public postProcess: PostProcess | null = null;
+    public usePostProcess = false;
+    public pipeline = '';
+
     private _device: Device;
     private _scene: RenderScene | null = null;
     private _node: Node | null = null;
@@ -997,9 +1002,9 @@ export class Camera {
 
         let viewProjDirty = false;
         const xr = globalThis.__globalXR;
-        if (xr && xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs) {
+        if (xr && xr.isWebXR && xr.webXRWindowMap && xr.updateViewport) {
+            const x = xr.webXRMatProjs ? 1 / xr.webXRMatProjs.length : 1;
             const wndXREye = xr.webXRWindowMap.get(this._window);
-            const x = 1 / xr.webXRMatProjs.length;
             this.setViewportInOrientedSpace(new Rect(x * wndXREye, 0, x, 1));
         }
         // view matrix
@@ -1022,7 +1027,7 @@ export class Camera {
             const projectionSignY = this._device.capabilities.clipSpaceSignY;
             // Only for rendertexture processing
             if (this._proj === CameraProjection.PERSPECTIVE) {
-                if (xr && xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs && xr.webXRMatProjs.length === 2) {
+                if (xr && xr.isWebXR && xr.webXRWindowMap && xr.webXRMatProjs) {
                     const wndXREye = xr.webXRWindowMap.get(this._window);
                     this._matProj.set(xr.webXRMatProjs[wndXREye]);
                 } else {

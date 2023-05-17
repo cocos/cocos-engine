@@ -75,8 +75,8 @@ async function callMeshPreviewFunction(funcName, ...args) {
     return await Editor.Message.request('scene', 'call-preview-function', 'scene:mesh-preview', funcName, ...args);
 }
 const previewSelectType = {
-    shaded: 'shaded',
-    uv: 'uv layout',
+    shaded: 'Shaded',
+    uv: 'UV Layout',
 };
 const Elements = {
     preview: {
@@ -166,7 +166,7 @@ const Elements = {
                 panel.$.previewType.innerHTML = `<option value="${previewSelectType.shaded}">${previewSelectType.shaded}</option>`;
             } else {
                 panel.$.previewType.innerHTML = Object.values(previewSelectType).map(v => `<option value="${v}">${v}</option>`).join('');
-                panel.$.previewChannel.innerHTML = panel.previewUVs.map((_, i) => `<option value="${i}">channel ${i}</option>`).join('');
+                panel.$.previewChannel.innerHTML = panel.previewUVs.map((_, i) => `<option value="${i}">Channel ${i}</option>`).join('');
             }
 
             panel.infoUpdate(info);

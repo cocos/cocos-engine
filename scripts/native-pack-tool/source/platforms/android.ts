@@ -129,8 +129,10 @@ export class AndroidPackTool extends NativePackTool {
             const pattern = /android:screenOrientation="[^"]*"/;
             let replaceString = 'android:screenOrientation="unspecified"';
 
-            if (cfg.landscapeRight && cfg.landscapeLeft && cfg.portrait && cfg.upsideDown) {
+            if (cfg.landscapeRight && cfg.landscapeLeft && (cfg.portrait || cfg.upsideDown)) {
                 replaceString = 'android:screenOrientation="fullSensor"';
+            } else if ((cfg.landscapeRight || cfg.landscapeLeft) && (cfg.portrait || cfg.upsideDown)) {
+                replaceString = 'android:screenOrientation="unspecified"';
             } else if (cfg.landscapeRight && !cfg.landscapeLeft) {
                 replaceString = 'android:screenOrientation="landscape"';
             } else if (!cfg.landscapeRight && cfg.landscapeLeft) {
@@ -347,10 +349,10 @@ export class AndroidPackTool extends NativePackTool {
     checkConnectedDevices(adbPath: string): boolean {
         const cp = spawnSync(adbPath, ['devices'], { shell: true, env: process.env, cwd: process.cwd() });
         if (cp.stderr && cp.stderr.length > 0) {
-            console.error(cp.stderr.toString('utf8'));
+            console.log(`[adb devices] stderr: ${cp.stderr.toString('utf8')}`);
         }
         if (cp.error) {
-            console.error(cp.error);
+            console.log(`[adb devices] error: ${cp.error}`);
         }
         if (cp.output.length > 1) {
             for (const chunk of cp.output) {

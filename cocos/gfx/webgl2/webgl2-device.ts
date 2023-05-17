@@ -138,7 +138,7 @@ export class WebGL2Device extends Device {
         const gl = this._context = getContext(Device.canvas);
 
         if (!gl) {
-            console.error('This device does not support WebGL.');
+            console.error('This device does not support WebGL2.');
             return false;
         }
 

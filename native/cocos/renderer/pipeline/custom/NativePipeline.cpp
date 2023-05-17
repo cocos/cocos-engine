@@ -90,6 +90,14 @@ gfx::Device *NativePipeline::getDevice() const {
     return device;
 }
 
+PipelineType NativePipeline::getPipelineType() const {
+    return PipelineType::STANDARD;
+}
+
+PipelineCapabilities NativePipeline::getPipelineCapabilities() const {
+    return PipelineCapabilities{};
+}
+
 void NativePipeline::beginSetup() {
     renderGraph = RenderGraph(get_allocator());
 }
@@ -288,6 +296,70 @@ uint32_t NativePipeline::addShadingRateTexture(const ccstd::string &name, uint32
         resourceGraph);
 }
 
+uint32_t NativePipeline::addCustomBuffer(
+    const ccstd::string &name,
+    const gfx::BufferInfo &info, const std::string &type) {
+    if (!custom.currentContext) {
+        return ResourceGraph::null_vertex();
+    }
+    auto &ctx = *custom.currentContext;
+
+    ResourceDesc desc{};
+    desc.dimension = ResourceDimension::BUFFER;
+    desc.width = info.size;
+    desc.height = 1;
+    desc.depthOrArraySize = 1;
+    desc.mipLevels = 1;
+    desc.format = gfx::Format::UNKNOWN;
+    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.textureFlags = gfx::TextureFlagBit::NONE;
+    desc.flags = ResourceFlags::NONE;
+
+    auto ptr = ctx.createCustomBuffer(type, info);
+
+    return addVertex(
+        PersistentBufferTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(ptr)),
+        resourceGraph);
+}
+
+uint32_t NativePipeline::addCustomTexture(
+    const ccstd::string &name,
+    const gfx::TextureInfo &info, const std::string &type) {
+    if (!custom.currentContext) {
+        return ResourceGraph::null_vertex();
+    }
+    auto &ctx = *custom.currentContext;
+
+    ResourceDesc desc{};
+    desc.dimension = ResourceDimension::TEXTURE2D;
+    desc.width = info.width;
+    desc.height = info.height;
+    desc.depthOrArraySize = info.layerCount;
+    desc.mipLevels = info.levelCount;
+    desc.format = info.format;
+    desc.sampleCount = gfx::SampleCount::ONE;
+    desc.textureFlags = info.flags;
+    desc.flags = ResourceFlags::NONE;
+
+    auto ptr = ctx.createCustomTexture(type, info);
+
+    return addVertex(
+        PersistentTextureTag{},
+        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(desc),
+        std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(ptr)),
+        resourceGraph);
+}
+
 void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) {
     auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
     if (resID == ResourceGraph::null_vertex()) {
@@ -442,10 +514,9 @@ void NativePipeline::beginFrame() {
 void NativePipeline::endFrame() {
 }
 
-RasterPassBuilder *NativePipeline::addRasterPass(
+RenderPassBuilder *NativePipeline::addRenderPass(
     uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
     const ccstd::string &layoutName) {
-    std::string_view name("Raster");
     RasterPass pass(renderGraph.get_allocator());
     pass.width = width;
     pass.height = height;
@@ -454,8 +525,8 @@ RasterPassBuilder *NativePipeline::addRasterPass(
 
     auto passID = addVertex(
         RasterPassTag{},
-        std::forward_as_tuple(name),
-        std::forward_as_tuple(layoutName.c_str()),
+        std::forward_as_tuple(std::string_view{layoutName}),
+        std::forward_as_tuple(std::string_view{layoutName}),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(pass)),
@@ -464,7 +535,7 @@ RasterPassBuilder *NativePipeline::addRasterPass(
     auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, programLibrary->layoutGraph);
     CC_EXPECTS(passLayoutID != LayoutGraphData::null_vertex());
 
-    auto *builder = ccnew NativeRasterPassBuilder(this, &renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
+    auto *builder = ccnew NativeRenderPassBuilder(this, &renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
     updateRasterPassConstants(width, height, *builder);
 
     return builder;
@@ -472,11 +543,10 @@ RasterPassBuilder *NativePipeline::addRasterPass(
 
 // NOLINTNEXTLINE
 ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName) {
-    std::string_view name("Compute");
     auto passID = addVertex(
         ComputeTag{},
-        std::forward_as_tuple(name),
-        std::forward_as_tuple(layoutName.c_str()),
+        std::forward_as_tuple(std::string_view{layoutName}),
+        std::forward_as_tuple(std::string_view{layoutName}),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -487,39 +557,38 @@ ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutNa
     return ccnew NativeComputePassBuilder(this, &renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
 }
 
-// NOLINTNEXTLINE
-MovePassBuilder *NativePipeline::addMovePass() {
+void NativePipeline::addMovePass(const ccstd::vector<MovePair> &movePairs) {
+    MovePass pass(renderGraph.get_allocator());
+    pass.movePairs.reserve(movePairs.size());
+    for (auto &&pair : movePairs) {
+        pass.movePairs.emplace_back(pair);
+    }
     std::string_view name("Move");
-    auto passID = addVertex(
+    addVertex(
         MoveTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(pass)),
         renderGraph);
-
-    return ccnew NativeMovePassBuilder(this, &renderGraph, passID);
 }
 
-// NOLINTNEXTLINE
-CopyPassBuilder *NativePipeline::addCopyPass() {
+void NativePipeline::addCopyPass(const ccstd::vector<CopyPair> &copyPairs) {
+    CopyPass pass(renderGraph.get_allocator());
+    pass.copyPairs.reserve(copyPairs.size());
+    for (auto &&pair : copyPairs) {
+        pass.copyPairs.emplace_back(pair);
+    }
     std::string_view name("Copy");
-    auto passID = addVertex(
+    addVertex(
         CopyTag{},
         std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(pass)),
         renderGraph);
-
-    return ccnew NativeCopyPassBuilder(this, &renderGraph, passID);
-}
-
-// NOLINTNEXTLINE
-SceneTransversal *NativePipeline::createSceneTransversal(const scene::Camera *camera, const scene::RenderScene *scene) {
-    return ccnew NativeSceneTransversal(camera, scene);
 }
 
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {

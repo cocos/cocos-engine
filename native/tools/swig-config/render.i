@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="render") render
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -71,8 +74,8 @@ using namespace cc::render;
 %module_macro(CC_USE_GEOMETRY_RENDERER) cc::render::PipelineRuntime::geometryRenderer;
 
 // ----- Release Returned Cpp Object in GC Section ------
-%release_returned_cpp_object_in_gc(cc::render::Pipeline::addRasterPass);
-%release_returned_cpp_object_in_gc(cc::render::RasterPassBuilder::addQueue);
+%release_returned_cpp_object_in_gc(cc::render::Pipeline::addRenderPass);
+%release_returned_cpp_object_in_gc(cc::render::RenderPassBuilder::addQueue);
 
 // ----- Attribute Section ------
 // Brief: Define attributes ( JS properties with getter and setter )
@@ -102,10 +105,12 @@ using namespace cc::render;
 %attribute(cc::render::PipelineRuntime, cc::pipeline::GeometryRenderer*, geometryRenderer, getGeometryRenderer);
 %attribute(cc::render::PipelineRuntime, float, shadingScale, getShadingScale, setShadingScale);
 %attribute(cc::render::RenderNode, ccstd::string, name, getName, setName);
-%attribute(cc::render::RasterSubpassBuilder, bool, showStatistics, getShowStatistics, setShowStatistics);
-%attribute(cc::render::RasterPassBuilder, bool, showStatistics, getShowStatistics, setShowStatistics);
+%attribute(cc::render::RenderSubpassBuilder, bool, showStatistics, getShowStatistics, setShowStatistics);
+%attribute(cc::render::BasicRenderPassBuilder, bool, showStatistics, getShowStatistics, setShowStatistics);
 %attribute(cc::render::SceneVisitor, cc::pipeline::PipelineSceneData*, pipelineSceneData, getPipelineSceneData);
 %attribute(cc::render::SceneTask, cc::render::TaskType, taskType, getTaskType);
+%attribute(cc::render::BasicPipeline, cc::render::PipelineType, pipelineType, getPipelineType);
+%attribute(cc::render::BasicPipeline, cc::render::PipelineCapabilities, pipelineCapabilities, getPipelineCapabilities);
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'

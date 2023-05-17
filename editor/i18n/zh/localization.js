@@ -269,6 +269,7 @@ module.exports = {
         skinning_root: '骨骼根节点的引用，对应控制此模型的动画组件所在节点',
         shadow_bias: '模型额外增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',
         shadow_normal_bias: '模型额外增加法线深度偏移值（世界空间单位），可以消除物体表面朝向平行于阳光方向的阴影摩尔纹，<br>防止曲面出现锯齿状；但是过大的值可能会造成阴影位置偏差',
+        standard_skin_model: '模型额外设定全局唯一的标准皮肤模型',
     },
     sprite: {
         gray_scale: '是否开启灰度渲染模式',
@@ -1129,12 +1130,32 @@ module.exports = {
             torque: '在世界坐标系中，对刚体施加的扭转力',
             localTorque: '在本地坐标系中，对刚体施加的扭转力',
         },
+        character_controller: {
+            group: '碰撞分组',
+            minMoveDistance: '最小移动距离',
+            stepOffset: '最大爬台阶高度',
+            slopeLimit: '最大爬坡角度',
+            contactOffset: '接触间隙',
+            detectCollisions: '是否和其他碰撞体发生碰撞 (在不调用move方法的情况下)',
+            enableOverlapRecovery: '和其他碰撞体穿透时是否恢复',
+            center: '中心点在局部坐标系中的位置',
+            capsuleRadius: '胶囊体的球半径',
+            capsuleHeight: '胶囊体的高度 (胶囊体末端两个球心的距离)',
+            boxHalfHeight: '立方体的高度的一半',
+            boxHalfSideExtent: '立方体的横向宽度的一半',
+            boxHalfForwardExtent: '立方体的纵向宽度一半',
+        },
     },
     octree_culling: {
         enabled: '八叉树剔除开关，仅在原生平台中生效',
         minPos: '世界包围盒最小顶点的坐标',
         maxPos: '世界包围盒最大顶点的坐标',
         depth: '八叉树深度',
+    },
+    skin: {
+        enabled: '皮肤散射开关',
+        blurRadius: '该参数指定了次表面散射的范围，即卷积过滤器的宽度。',
+        sssIntensity: '该参数指定了次表面散射的强度',
     },
     light_probe: {
         giScale: 'GI乘数',
@@ -1144,6 +1165,7 @@ module.exports = {
         showProbe: '是否显示光照探针',
         showWireframe: '是否显示光照探针连线',
         showConvex: '是否显示光照探针凸包',
+        lightProbeSphereVolume:'光照探针全局显示大小',
     },
     light_probe_group: {
         method: '光照探针的自动生成算法',
@@ -1155,5 +1177,8 @@ module.exports = {
     },
     reflection_probe: {
         fastBake: '勾选则不会对生成的cubemap进行GGX卷积，烘焙速度非常快。',
+    },
+    color_grading: {
+        originalMap: '内置lut贴图路径internal/dependencies/textures/lut/。',
     },
 };
