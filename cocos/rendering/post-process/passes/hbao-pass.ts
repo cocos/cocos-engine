@@ -234,8 +234,8 @@ export class HBAOPass extends SettingPass {
             }
         }
 
-        const inputRT = passContext.forwardPass.slotName(camera, 0);
-        const inputDS = passContext.forwardPass.slotName(camera, 1);
+        const inputRT = this.lastPass!.slotName(camera, 0);
+        const inputDS = this.lastPass!.slotName(camera, 1);
         const hbaoInfo = this._renderHBAOPass(camera, inputDS);
         let hbaoCombinedInputRTName = hbaoInfo.rtName;
         if (this.setting.needBlur) {
@@ -345,7 +345,6 @@ export class HBAOPass extends SettingPass {
     }
 
     slotName (camera: Camera, index = 0) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return passContext.forwardPass.slotName(camera, index);
+        return this.lastPass!.slotName(camera, index);
     }
 }
