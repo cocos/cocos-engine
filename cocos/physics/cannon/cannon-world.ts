@@ -23,7 +23,7 @@
 */
 
 import CANNON from '@cocos/cannon';
-import { Vec3, RecyclePool, error, js, geometry, IVec3Like } from '../../core';
+import { Vec3, RecyclePool, error, js, geometry, IVec3Like, IQuatLike, warnID } from '../../core';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraints/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
@@ -74,6 +74,42 @@ export class CannonWorld implements IPhysicsWorld {
         this._world.defaultContactMaterial.frictionEquationStiffness = 1000000;
         this._world.defaultContactMaterial.contactEquationRelaxation = 3;
         this._world.defaultContactMaterial.frictionEquationRelaxation = 3;
+    }
+
+    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        warnID(9641);
+        return false;
+    }
+
+    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        warnID(9641);
+        return false;
+    }
+
+    sweepSphere (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        warnID(9641);
+        return false;
+    }
+
+    sweepSphereClosest (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
+        result: PhysicsRayResult): boolean {
+        warnID(9641);
+        return false;
+    }
+
+    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        warnID(9641);
+        return false;
+    }
+
+    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number,
+        orientation: IQuatLike, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        warnID(9641);
+        return false;
     }
 
     destroy (): void {

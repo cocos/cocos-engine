@@ -29,10 +29,10 @@ import { BulletShape } from './shapes/bullet-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, CC_V3_2, BulletCache } from './bullet-cache';
-import { bullet2CocosVec3, cocos2BulletVec3 } from './bullet-utils';
+import { bullet2CocosVec3, cocos2BulletQuat, cocos2BulletVec3 } from './bullet-utils';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicsMaterial, CharacterControllerContact } from '../framework';
-import { error, RecyclePool, Vec3, js, IVec3Like, geometry } from '../../core';
+import { error, RecyclePool, Vec3, js, IVec3Like, geometry, IQuatLike, Quat } from '../../core';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
 import { BulletCharacterController } from './character-controllers/bullet-character-controller';
@@ -127,6 +127,10 @@ export class BulletWorld implements IPhysicsWorld {
     readonly contactsDic = new TupleDictionary();
     readonly oldContactsDic = new TupleDictionary();
     readonly cctShapeEventDic = new TupleDictionary();
+
+    private static _sweepBoxGeometry: any;
+    private static _sweepSphereGeometry: any;
+    private static _sweepCapsuleGeometry: any;
 
     constructor () {
         this._broadphase = bt.DbvtBroadphase_new();
@@ -230,6 +234,140 @@ export class BulletWorld implements IPhysicsWorld {
             bullet2CocosVec3(v3_0, bt.ccClosestRayCallback_getHitPointWorld(closeHitCB));
             bullet2CocosVec3(v3_1, bt.ccClosestRayCallback_getHitNormalWorld(closeHitCB));
             const shape = BulletCache.getWrapper<BulletShape>(bt.ccClosestRayCallback_getCollisionShapePtr(closeHitCB), BulletShape.TYPE);
+            result._assign(v3_0, Vec3.distance(worldRay.o, v3_0), shape.collider, v3_1);
+            return true;
+        }
+        return false;
+    }
+
+    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        // cast shape
+        const hf = BulletCache.instance.BT_V3_0;
+        cocos2BulletVec3(hf, halfExtent);
+        if (!BulletWorld._sweepBoxGeometry) {
+            BulletWorld._sweepBoxGeometry =  bt.BoxShape_new(hf);
+        }
+        bt.BoxShape_setUnscaledHalfExtents(BulletWorld._sweepBoxGeometry, hf);
+
+        return this.sweep(worldRay, BulletWorld._sweepBoxGeometry, orientation, options, pool, results);
+    }
+
+    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        // cast shape
+        const hf = BulletCache.instance.BT_V3_0;
+        cocos2BulletVec3(hf, halfExtent);
+        if (!BulletWorld._sweepBoxGeometry) {
+            BulletWorld._sweepBoxGeometry =  bt.BoxShape_new(hf);
+        }
+        bt.BoxShape_setUnscaledHalfExtents(BulletWorld._sweepBoxGeometry, hf);
+
+        return this.sweepClosest(worldRay, BulletWorld._sweepBoxGeometry, orientation, options, result);
+    }
+
+    sweepSphere (worldRay: geometry.Ray, radius: number,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        // cast shape
+        if (!BulletWorld._sweepSphereGeometry) {
+            BulletWorld._sweepSphereGeometry =  bt.SphereShape_new(radius);
+        }
+        bt.SphereShape_setUnscaledRadius(BulletWorld._sweepSphereGeometry, radius);
+        return this.sweep(worldRay, BulletWorld._sweepSphereGeometry, Quat.IDENTITY, options, pool, results);
+    }
+
+    sweepSphereClosest (worldRay: geometry.Ray, radius: number,
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        // cast shape
+        if (!BulletWorld._sweepSphereGeometry) {
+            BulletWorld._sweepSphereGeometry =  bt.SphereShape_new(radius);
+        }
+        bt.SphereShape_setUnscaledRadius(BulletWorld._sweepSphereGeometry, radius);
+
+        return this.sweepClosest(worldRay, BulletWorld._sweepSphereGeometry, Quat.IDENTITY, options, result);
+    }
+
+    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        // cast shape
+        if (!BulletWorld._sweepCapsuleGeometry) {
+            BulletWorld._sweepCapsuleGeometry =  bt.CapsuleShape_new(radius, height);
+        }
+        bt.CapsuleShape_updateProp(BulletWorld._sweepCapsuleGeometry, radius, height * 0.5, 1);
+        return this.sweep(worldRay, BulletWorld._sweepCapsuleGeometry, orientation, options, pool, results);
+    }
+
+    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        // cast shape
+        if (!BulletWorld._sweepCapsuleGeometry) {
+            BulletWorld._sweepCapsuleGeometry =  bt.CapsuleShape_new(radius, height);
+        }
+        bt.CapsuleShape_updateProp(BulletWorld._sweepCapsuleGeometry, radius, height * 0.5, 1);
+
+        return this.sweepClosest(worldRay, BulletWorld._sweepCapsuleGeometry, orientation, options, result);
+    }
+
+    sweep (worldRay: geometry.Ray, btShapePtr: any, orientation: IQuatLike,
+        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        const BT_fromTransform = BulletCache.instance.BT_TRANSFORM_0;
+        const BT_toTransform = BulletCache.instance.BT_TRANSFORM_1;
+        const BT_orientation = BulletCache.instance.BT_QUAT_0;
+
+        // from transform
+        cocos2BulletVec3(bt.Transform_getOrigin(BT_fromTransform), worldRay.o);
+        cocos2BulletQuat(BT_orientation, orientation);
+        bt.Transform_setRotation(BT_fromTransform, BT_orientation);
+
+        // to transform
+        worldRay.computeHit(v3_0, options.maxDistance);
+        cocos2BulletVec3(bt.Transform_getOrigin(BT_toTransform), v3_0);
+        cocos2BulletQuat(BT_orientation, orientation);
+        bt.Transform_setRotation(BT_toTransform, BT_orientation);
+
+        const allHitsCB = bt.ccAllConvexCallback_static();
+        bt.ccAllConvexCallback_reset(allHitsCB, BT_fromTransform, BT_toTransform, options.mask, options.queryTrigger);
+        bt.CollisionWorld_convexSweepTest(this._world, btShapePtr, BT_fromTransform, BT_toTransform, allHitsCB, 0);
+        if (bt.ConvexCallback_hasHit(allHitsCB)) {
+            const posArray = bt.ccAllConvexCallback_getHitPointWorld(allHitsCB);
+            const normalArray = bt.ccAllConvexCallback_getHitNormalWorld(allHitsCB);
+            const ptrArray = bt.ccAllConvexCallback_getCollisionShapePtrs(allHitsCB);
+            for (let i = 0, n = bt.int_array_size(ptrArray); i < n; i++) {
+                bullet2CocosVec3(v3_0, bt.Vec3_array_at(posArray, i));
+                bullet2CocosVec3(v3_1, bt.Vec3_array_at(normalArray, i));
+                const shape = BulletCache.getWrapper<BulletShape>(bt.int_array_at(ptrArray, i), BulletShape.TYPE);
+                const r = pool.add(); results.push(r);
+                r._assign(v3_0, Vec3.distance(worldRay.o, v3_0), shape.collider, v3_1);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    sweepClosest (worldRay: geometry.Ray, btShapePtr: any, orientation: IQuatLike,
+        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        const BT_fromTransform = BulletCache.instance.BT_TRANSFORM_0;
+        const BT_toTransform = BulletCache.instance.BT_TRANSFORM_1;
+        const BT_orientation = BulletCache.instance.BT_QUAT_0;
+
+        // from transform
+        cocos2BulletVec3(bt.Transform_getOrigin(BT_fromTransform), worldRay.o);
+        cocos2BulletQuat(BT_orientation, orientation);
+        bt.Transform_setRotation(BT_fromTransform, BT_orientation);
+
+        // to transform
+        worldRay.computeHit(v3_0, options.maxDistance);
+        cocos2BulletVec3(bt.Transform_getOrigin(BT_toTransform), v3_0);
+        cocos2BulletQuat(BT_orientation, orientation);
+        bt.Transform_setRotation(BT_toTransform, BT_orientation);
+
+        const closeHitCB = bt.ccClosestConvexCallback_static();
+        bt.ccClosestConvexCallback_reset(closeHitCB, BT_fromTransform, BT_toTransform, options.mask, options.queryTrigger);
+        bt.CollisionWorld_convexSweepTest(this._world, btShapePtr, BT_fromTransform, BT_toTransform, closeHitCB, 0);
+        if (bt.ConvexCallback_hasHit(closeHitCB)) {
+            bullet2CocosVec3(v3_0, bt.ccClosestConvexCallback_getHitPointWorld(closeHitCB));
+            bullet2CocosVec3(v3_1, bt.ccClosestConvexCallback_getHitNormalWorld(closeHitCB));
+            const shape = BulletCache.getWrapper<BulletShape>(bt.ccClosestConvexCallback_getCollisionShapePtr(closeHitCB), BulletShape.TYPE);
             result._assign(v3_0, Vec3.distance(worldRay.o, v3_0), shape.collider, v3_1);
             return true;
         }
