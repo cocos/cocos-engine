@@ -23,7 +23,7 @@
 */
 
 import CANNON from '@cocos/cannon';
-import { Vec3, RecyclePool, error, js, geometry, IVec3Like, IQuatLike } from '../../core';
+import { Vec3, RecyclePool, error, js, geometry, IVec3Like, IQuatLike, warnID } from '../../core';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraints/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
@@ -78,32 +78,38 @@ export class CannonWorld implements IPhysicsWorld {
 
     sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
         options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
-        throw new Error('sweepBox not support in cannon.js.');
+        warnID(9641);
+        return false;
     }
 
     sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
         options: IRaycastOptions, result: PhysicsRayResult): boolean {
-        throw new Error('sweepBoxClosest not support in cannon.js.');
+        warnID(9641);
+        return false;
     }
 
     sweepSphere (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
         pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
-        throw new Error('sweepSphere not support in cannon.js.');
+        warnID(9641);
+        return false;
     }
 
     sweepSphereClosest (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
         result: PhysicsRayResult): boolean {
-        throw new Error('sweepSphereClosest not support in cannon.js.');
+        warnID(9641);
+        return false;
     }
 
     sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
         options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
-        throw new Error('sweepCapsule not support in cannon.js.');
+        warnID(9641);
+        return false;
     }
 
     sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number,
         orientation: IQuatLike, options: IRaycastOptions, result: PhysicsRayResult): boolean {
-        throw new Error('sweepCapsuleClosest not support in cannon.js.');
+        warnID(9641);
+        return false;
     }
 
     destroy (): void {

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec3, RecyclePool, error, js, IVec3Like, geometry, IQuatLike } from '../../core';
+import { Vec3, RecyclePool, error, js, IVec3Like, geometry, IQuatLike, warnID } from '../../core';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
@@ -50,32 +50,38 @@ const TriggerEventObject = {
 export class BuiltInWorld implements IPhysicsWorld {
     sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
         options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
-        throw new Error('sweepBox not support in builtin');
+        warnID(9640);
+        return false;
     }
 
     sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
         options: IRaycastOptions, result: PhysicsRayResult): boolean {
-        throw new Error('sweepBoxClosest not support in builtin');
+        warnID(9640);
+        return false;
     }
 
     sweepSphere (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
         pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
-        throw new Error('sweepSphere not support in builtin');
+        warnID(9640);
+        return false;
     }
 
     sweepSphereClosest (worldRay: geometry.Ray, radius: number,
         options: IRaycastOptions, result: PhysicsRayResult): boolean {
-        throw new Error('sweepSphereClosest not support in builtin');
+        warnID(9640);
+        return false;
     }
 
     sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
         options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
-        throw new Error('sweepCapsule not support in builtin');
+        warnID(9640);
+        return false;
     }
 
     sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number,
         orientation: IQuatLike, options: IRaycastOptions, result: PhysicsRayResult): boolean {
-        throw new Error('sweepCapsuleClosest not support in builtin');
+        warnID(9640);
+        return false;
     }
 
     setGravity (v: IVec3Like) { }
