@@ -25,6 +25,14 @@ System.warmup({
     defaultHandler: (urlNoSchema) => {
         require('.' + urlNoSchema);
     },
+    handlers: {
+        'plugin:': (urlNoSchema) => {
+            requirePlugin(urlNoSchema);
+        },
+        'project:': (urlNoSchema) => {
+            require(urlNoSchema);
+        },
+    },
 });
 
 System.import('<%= applicationJs %>').then(({ Application }) => {
