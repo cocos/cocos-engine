@@ -207,15 +207,9 @@ void RenderingSubMesh::enableVertexIdChannel(gfx::Device *device) {
 }
 
 bool RenderingSubMesh::destroy() {
-    for (auto *vertexBuffer : _vertexBuffers) {
-        vertexBuffer->destroy();
-    }
     _vertexBuffers.clear();
-
-    if (_indexBuffer && _isOwnerOfIndexBuffer) {
-        _indexBuffer->destroy();
-        _indexBuffer = nullptr;
-    }
+    _indexBuffer = nullptr;
+    _indirectBuffer = nullptr;
 
     if (!_jointMappedBuffers.empty() && !_jointMappedBufferIndices.empty()) {
         for (uint32_t index : _jointMappedBufferIndices) {
@@ -224,8 +218,6 @@ bool RenderingSubMesh::destroy() {
         _jointMappedBuffers.clear();
         _jointMappedBufferIndices.clear();
     }
-
-    CC_SAFE_DESTROY_NULL(_indirectBuffer);
     return true;
 }
 
