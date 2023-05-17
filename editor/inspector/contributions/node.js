@@ -272,10 +272,10 @@ exports.template = /* html*/`
     </header>
 
     <section class="component scene">
-        <ui-prop class="release" type="dump"></ui-prop>
-        <ui-prop class="ambient" type="dump"></ui-prop>
-        <ui-section class="skybox" expand>
-            <div slot="header" style="display: flex;width: 100%;justify-content: space-between;">
+        <ui-prop class="release" type="dump" ui-section-config></ui-prop>
+        <ui-prop class="ambient" type="dump" ui-section-config></ui-prop>
+        <ui-section class="skybox config" expand>
+            <div slot="header" class="component-header">
                 <span>Skybox</span>
                 <ui-link tooltip="i18n:scene.menu.help_url">
                     <ui-icon value="help"></ui-icon>
@@ -289,13 +289,13 @@ exports.template = /* html*/`
                         <ui-radio class="envmap-radio" slot="label" type="single" value="HDR" tabindex="0">
                             <ui-label value="HDR"></ui-label>
                         </ui-radio>
-                        <ui-prop slot="content" class="envmapHDR" type="dump" no-label></ui-prop>
+                        <ui-prop slot="content" class="envmapHDR" type="dump" no-label ui-section-config></ui-prop>
                     </ui-prop>
                     <ui-prop class="envmap-prop">
                         <ui-radio class="envmap-radio" slot="label" type="single" value="LDR" tabindex="0">
                             <ui-label value="LDR"></ui-label>
                         </ui-radio>
-                        <ui-prop slot="content" class="envmapLDR" type="dump" no-label></ui-prop>
+                        <ui-prop slot="content" class="envmapLDR" type="dump" no-label ui-section-config></ui-prop>
                     </ui-prop>
                 </ui-radio-group>
                 <ui-prop class="reflection">
@@ -309,14 +309,13 @@ exports.template = /* html*/`
             </ui-section>
             <div class="after"></div>
         </ui-section>
-        <ui-prop class="postProcess" type="dump"></ui-prop>
-        <ui-prop class="fog" type="dump"></ui-prop>
-        <ui-prop class="shadows" type="dump"></ui-prop>
-        <ui-prop class="octree" type="dump"></ui-prop>
-        <ui-prop class="skin" type="dump"></ui-prop>
+        <ui-prop class="fog" type="dump" ui-section-config></ui-prop>
+        <ui-prop class="shadows" type="dump" ui-section-config></ui-prop>
+        <ui-prop class="octree" type="dump" ui-section-config></ui-prop>
+        <ui-prop class="skin" type="dump" ui-section-config></ui-prop>
     </section>
 
-    <ui-section class="component node" expand>
+    <ui-section class="component node config" expand>
         <header class="component-header" slot="header">
             <span class="name">Node</span>
             <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
@@ -382,7 +381,6 @@ exports.$ = {
     sceneSkyboxReflectionBake: '.scene > .skybox .reflection .bake',
     sceneSkyboxReflectionRemove: '.scene > .skybox .reflection .remove',
     sceneSkyboxAfter: '.scene > .skybox > .after',
-    postProcess: '.scene > .postProcess',
     sceneOctree: '.scene > .octree',
     sceneSkin: '.scene > .skin',
 
@@ -867,12 +865,6 @@ const Elements = {
             panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
             panel.$.sceneSkin.render(panel.dump._globals.skin);
 
-            // TODO：这个 if 暂时配合引擎调整使用，测试调通后可以去掉
-            if (panel.dump._globals.postProcess) {
-                panel.dump._globals.postProcess.displayName = 'Post Process';
-                panel.$.postProcess.render(panel.dump._globals.postProcess);
-            }
-
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
             $skyProps.forEach(($prop) => {
                 if ($prop.dump.name === 'envLightingType') {
@@ -936,9 +928,9 @@ const Elements = {
             const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
             if (reflectionMap.value && reflectionMap.value.uuid) {
                 panel.$.sceneSkyboxReflectionBake.style.display = 'none';
-                panel.$.sceneSkyboxReflectionRemove.style.display = 'inline-block';
+                panel.$.sceneSkyboxReflectionRemove.style.display = 'inline-flex';
             } else {
-                panel.$.sceneSkyboxReflectionBake.style.display = 'inline-block';
+                panel.$.sceneSkyboxReflectionBake.style.display = 'inline-flex';
                 panel.$.sceneSkyboxReflectionRemove.style.display = 'none';
 
                 // if envmap value unexist, the column of bake button hidden;
@@ -956,7 +948,7 @@ const Elements = {
                 return;
             }
 
-            panel.$.sceneSkyboxReflectionLoading.style.display = 'inline-block';
+            panel.$.sceneSkyboxReflectionLoading.style.display = 'inline-flex';
             panel.$.sceneSkyboxReflectionBake.style.display = 'none';
 
             await Editor.Message.request('scene', 'execute-scene-script', {
@@ -1126,7 +1118,7 @@ const Elements = {
 
                     const $section = document.createElement('ui-section');
                     $section.setAttribute('expand', '');
-                    $section.setAttribute('class', 'component');
+                    $section.setAttribute('class', 'component config');
                     $section.setAttribute('cache-expand', `${component.path}:${component.type}`);
                     $section.innerHTML = `
                     <header class="component-header" slot="header">
@@ -1207,8 +1199,9 @@ const Elements = {
                         $panel.setAttribute('src', file);
                         $panel.injectionStyle(`
                             ui-prop,
-                            ui-section { margin-top: 5px; }
+                            ui-section { margin-top: 4px; }
 
+                            ui-prop > ui-section,
                             ui-prop > ui-prop,
                             ui-section > ui-prop[slot="header"],
                             ui-prop [slot="content"] ui-prop { margin-top: 0; }
@@ -1995,7 +1988,7 @@ exports.methods = {
         }
     },
     toggleShowAddComponentBtn(show) {
-        this.$.componentAdd.style.display = show ? 'inline-block' : 'none';
+        this.$.componentAdd.style.display = show ? 'inline-flex' : 'none';
     },
     isAnimationMode() {
         return Editor.EditMode.getMode() === 'animation';
