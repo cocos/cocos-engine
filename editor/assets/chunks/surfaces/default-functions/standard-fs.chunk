@@ -80,7 +80,7 @@ vec4 SurfacesFragmentModifyPBRParams()
 
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
 // depends on CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
-// scattering related parameters and colors
+// scattering related parameters and colors, shared by transmit diffuse and specular
 vec4 SurfacesFragmentModifyTransmitScatteringParams()
 {
     // x: extinction coef for out/in-scattering, 0 means disable scattering, thin object needs larger value such as 100-1000
@@ -121,7 +121,7 @@ vec4 SurfacesFragmentModifyTransmitDiffuseParams()
     //    notice: setting too small a value for thick objects, no transmit light will disappear.
     // y: transmit area mask, limit area to avoid shadowmap coverage precision artifacts, default 1.0 means enable full transmit, and gradient value makes transmit lighting look smoother
     // z: environment transmit scale, useless (env transmit is not accuracy, some material should give 0 to disable, or use area mask instead)
-    // w: shadowmap transmit distance scale, useless
+    // w: shadowmap transmit distance scale, useless (very large model is hard to control transmit lighting through extinction coef, should use small value to scale its distance)
     return vec4(1.0, 1.0, 1.0, 1.0);
 }
 #endif
