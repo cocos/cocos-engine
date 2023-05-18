@@ -194,7 +194,6 @@ export class HBAOPass extends SettingPass {
         if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
             enable = false;
         }
-        this.averageSceneScale.clear();
         return enable;
     }
 
