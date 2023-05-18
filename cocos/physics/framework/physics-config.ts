@@ -43,5 +43,5 @@ export interface IPhysicsConfig {
     collisionGroups?: ICollisionGroup[];
     autoSimulation?: boolean;
     useNodeChains?: boolean;
-    physicsEngine?: 'builtin' | 'cannon.js' | 'ammo.js' | string;
+    physicsEngine?: 'builtin' | 'cannon.js' | 'bullet' | 'physx' | string;
 }

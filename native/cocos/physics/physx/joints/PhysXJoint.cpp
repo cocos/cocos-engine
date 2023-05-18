@@ -69,16 +69,32 @@ void PhysXJoint::setConnectedBody(uint32_t rigidBodyID) {
     if (pxRigidBody == nullptr)
         return;
 
+
+    auto *oldConnectedBody = _mConnectedBody;
+    if (oldConnectedBody) {
+        oldConnectedBody->removeJoint(*this, physx::PxJointActorIndex::eACTOR1);
+    }
+
     uintptr_t nodePtr = reinterpret_cast<uintptr_t>(pxRigidBody->getSharedBody().getNode());
     if (nodePtr) {
         auto &ins = PhysXWorld::getInstance();
         _mConnectedBody = ins.getSharedBody(reinterpret_cast<Node *>(nodePtr));
+        _mConnectedBody->addJoint(*this, physx::PxJointActorIndex::eACTOR1);
     } else {
         _mConnectedBody = nullptr;
     }
     if (_mJoint) {
         _mJoint->setActors(_mSharedBody->getImpl().rigidActor, _mConnectedBody ? _mConnectedBody->getImpl().rigidActor : nullptr);
     }
+
+    if (oldConnectedBody) {
+        if (oldConnectedBody->isDynamic()) {
+            oldConnectedBody->getImpl().rigidDynamic->wakeUp();
+        }
+    }
+
+    updateScale0();
+    updateScale1();
 }
 
 void PhysXJoint::setEnableCollision(const bool v) {

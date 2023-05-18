@@ -182,8 +182,8 @@ public:
     RenderSubpassBuilder() noexcept = default;
 
     virtual void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
-    virtual void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
-    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) = 0;
+    virtual void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &depthSlotName, const ccstd::string &stencilSlotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     /**
@@ -198,6 +198,9 @@ public:
      * @beta function signature might change
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
+    void addRenderTarget(const ccstd::string &name, AccessType accessType) {
+        addRenderTarget(name, accessType, "", gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, {});
+    }
     void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
         addRenderTarget(name, accessType, slotName, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, {});
     }
@@ -207,23 +210,32 @@ public:
     void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
         addRenderTarget(name, accessType, slotName, loadOp, storeOp, {});
     }
-    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
-        addDepthStencil(name, accessType, slotName, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    void addDepthStencil(const ccstd::string &name, AccessType accessType) {
+        addDepthStencil(name, accessType, "", "", gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
-    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp) {
-        addDepthStencil(name, accessType, slotName, loadOp, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &depthSlotName) {
+        addDepthStencil(name, accessType, depthSlotName, "", gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
-    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
-        addDepthStencil(name, accessType, slotName, loadOp, storeOp, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &depthSlotName, const ccstd::string &stencilSlotName) {
+        addDepthStencil(name, accessType, depthSlotName, stencilSlotName, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
-    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth) {
-        addDepthStencil(name, accessType, slotName, loadOp, storeOp, depth, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &depthSlotName, const ccstd::string &stencilSlotName, gfx::LoadOp loadOp) {
+        addDepthStencil(name, accessType, depthSlotName, stencilSlotName, loadOp, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
-    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil) {
-        addDepthStencil(name, accessType, slotName, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
+    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &depthSlotName, const ccstd::string &stencilSlotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
+        addDepthStencil(name, accessType, depthSlotName, stencilSlotName, loadOp, storeOp, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &depthSlotName, const ccstd::string &stencilSlotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth) {
+        addDepthStencil(name, accessType, depthSlotName, stencilSlotName, loadOp, storeOp, depth, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, AccessType accessType, const ccstd::string &depthSlotName, const ccstd::string &stencilSlotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil) {
+        addDepthStencil(name, accessType, depthSlotName, stencilSlotName, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
-        addTexture(name, slotName, nullptr);
+        addTexture(name, slotName, nullptr, 0);
+    }
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
+        addTexture(name, slotName, sampler, 0);
     }
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
         addStorageBuffer(name, accessType, slotName, ClearValueType::NONE, {});
@@ -263,7 +275,7 @@ public:
     ComputeSubpassBuilder() noexcept = default;
 
     virtual void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) = 0;
-    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) = 0;
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     /**
@@ -276,7 +288,10 @@ public:
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
-        addTexture(name, slotName, nullptr);
+        addTexture(name, slotName, nullptr, 0);
+    }
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
+        addTexture(name, slotName, sampler, 0);
     }
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
         addStorageBuffer(name, accessType, slotName, ClearValueType::NONE, {});
@@ -299,9 +314,9 @@ class BasicRenderPassBuilder : public Setter {
 public:
     BasicRenderPassBuilder() noexcept = default;
 
-    virtual void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
-    virtual void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
-    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) = 0;
+    virtual void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
+    virtual void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -315,32 +330,35 @@ public:
     virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
     virtual bool getShowStatistics() const = 0;
     virtual void setShowStatistics(bool enable) = 0;
-    void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) {
-        addRenderTarget(name, slotName, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, {});
+    void addRenderTarget(const ccstd::string &name) {
+        addRenderTarget(name, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, {});
     }
-    void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp) {
-        addRenderTarget(name, slotName, loadOp, gfx::StoreOp::STORE, {});
+    void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp) {
+        addRenderTarget(name, loadOp, gfx::StoreOp::STORE, {});
     }
-    void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
-        addRenderTarget(name, slotName, loadOp, storeOp, {});
+    void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
+        addRenderTarget(name, loadOp, storeOp, {});
     }
-    void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName) {
-        addDepthStencil(name, slotName, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    void addDepthStencil(const ccstd::string &name) {
+        addDepthStencil(name, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
-    void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp) {
-        addDepthStencil(name, slotName, loadOp, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp) {
+        addDepthStencil(name, loadOp, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
-    void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
-        addDepthStencil(name, slotName, loadOp, storeOp, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
+        addDepthStencil(name, loadOp, storeOp, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
-    void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth) {
-        addDepthStencil(name, slotName, loadOp, storeOp, depth, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth) {
+        addDepthStencil(name, loadOp, storeOp, depth, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
-    void addDepthStencil(const ccstd::string &name, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil) {
-        addDepthStencil(name, slotName, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
+    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil) {
+        addDepthStencil(name, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
-        addTexture(name, slotName, nullptr);
+        addTexture(name, slotName, nullptr, 0);
+    }
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
+        addTexture(name, slotName, sampler, 0);
     }
     RenderQueueBuilder *addQueue() {
         return addQueue(QueueHint::NONE, "");
@@ -386,7 +404,7 @@ class ComputePassBuilder : public Setter {
 public:
     ComputePassBuilder() noexcept = default;
 
-    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) = 0;
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     /**
@@ -399,7 +417,10 @@ public:
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
-        addTexture(name, slotName, nullptr);
+        addTexture(name, slotName, nullptr, 0);
+    }
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
+        addTexture(name, slotName, sampler, 0);
     }
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
         addStorageBuffer(name, accessType, slotName, ClearValueType::NONE, {});
@@ -508,8 +529,8 @@ class BasicPipeline : public PipelineRuntime {
 public:
     BasicPipeline() noexcept = default;
 
-    virtual PipelineType getPipelineType() const = 0;
-    virtual PipelineCapabilities getPipelineCapabilities() const = 0;
+    virtual PipelineType getType() const = 0;
+    virtual PipelineCapabilities getCapabilities() const = 0;
     virtual void beginSetup() = 0;
     virtual void endSetup() = 0;
     virtual bool containsResource(const ccstd::string &name) const = 0;
@@ -526,7 +547,6 @@ public:
     virtual void beginFrame() = 0;
     virtual void endFrame() = 0;
     virtual BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) = 0;
-    virtual void addMovePass(const ccstd::vector<MovePair> &movePairs) = 0;
     virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
@@ -558,6 +578,7 @@ public:
     virtual void updateShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height) = 0;
     RenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) override = 0 /* covariant */;
     virtual ComputePassBuilder *addComputePass(const ccstd::string &layoutName) = 0;
+    virtual void addMovePass(const ccstd::vector<MovePair> &movePairs) = 0;
     /**
      * @beta function signature might change
      */

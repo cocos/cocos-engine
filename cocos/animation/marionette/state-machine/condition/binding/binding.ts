@@ -12,10 +12,10 @@ export enum TCBindingValueType {
     INTEGER = 3 /* VariableType.INTEGER */,
 }
 
-type TCBindingValueTypeMap = {
+interface TCBindingValueTypeMap {
     [TCBindingValueType.FLOAT]: number;
     [TCBindingValueType.INTEGER]: number;
-};
+}
 
 /**
  * @zh 描述过渡条件中的值绑定，例如，二元条件的左操作数上的绑定。

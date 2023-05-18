@@ -201,6 +201,7 @@ struct RasterView {
 
     RasterView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
     RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    RasterView(ccstd::pmr::string slotNameIn, ccstd::pmr::string slotName1In, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     RasterView(RasterView&& rhs, const allocator_type& alloc);
     RasterView(RasterView const& rhs, const allocator_type& alloc);
 
@@ -210,6 +211,7 @@ struct RasterView {
     RasterView& operator=(RasterView const& rhs) = default;
 
     ccstd::pmr::string slotName;
+    ccstd::pmr::string slotName1;
     AccessType accessType{AccessType::WRITE};
     AttachmentType attachmentType{AttachmentType::RENDER_TARGET};
     gfx::LoadOp loadOp{gfx::LoadOp::LOAD};
@@ -221,8 +223,8 @@ struct RasterView {
 };
 
 inline bool operator==(const RasterView& lhs, const RasterView& rhs) noexcept {
-    return std::forward_as_tuple(lhs.slotName, lhs.accessType, lhs.attachmentType, lhs.loadOp, lhs.storeOp, lhs.clearFlags, lhs.shaderStageFlags) ==
-           std::forward_as_tuple(rhs.slotName, rhs.accessType, rhs.attachmentType, rhs.loadOp, rhs.storeOp, rhs.clearFlags, rhs.shaderStageFlags);
+    return std::forward_as_tuple(lhs.slotName, lhs.slotName1, lhs.accessType, lhs.attachmentType, lhs.loadOp, lhs.storeOp, lhs.clearFlags, lhs.shaderStageFlags) ==
+           std::forward_as_tuple(rhs.slotName, rhs.slotName1, rhs.accessType, rhs.attachmentType, rhs.loadOp, rhs.storeOp, rhs.clearFlags, rhs.shaderStageFlags);
 }
 
 inline bool operator!=(const RasterView& lhs, const RasterView& rhs) noexcept {
@@ -266,6 +268,7 @@ struct ComputeView {
 
     ComputeView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
     ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, uint32_t planeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     ComputeView(ComputeView&& rhs, const allocator_type& alloc);
     ComputeView(ComputeView const& rhs, const allocator_type& alloc);
 
@@ -283,6 +286,7 @@ struct ComputeView {
 
     ccstd::pmr::string name;
     AccessType accessType{AccessType::READ};
+    uint32_t plane{0};
     gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::NONE};
     ClearValueType clearValueType{ClearValueType::NONE};
     ClearValue clearValue;
@@ -290,8 +294,8 @@ struct ComputeView {
 };
 
 inline bool operator==(const ComputeView& lhs, const ComputeView& rhs) noexcept {
-    return std::forward_as_tuple(lhs.name, lhs.accessType, lhs.clearFlags, lhs.clearValueType, lhs.shaderStageFlags) ==
-           std::forward_as_tuple(rhs.name, rhs.accessType, rhs.clearFlags, rhs.clearValueType, rhs.shaderStageFlags);
+    return std::forward_as_tuple(lhs.name, lhs.accessType, lhs.plane, lhs.clearFlags, lhs.clearValueType, lhs.shaderStageFlags) ==
+           std::forward_as_tuple(rhs.name, rhs.accessType, rhs.plane, rhs.clearFlags, rhs.clearValueType, rhs.shaderStageFlags);
 }
 
 inline bool operator!=(const ComputeView& lhs, const ComputeView& rhs) noexcept {
@@ -440,6 +444,7 @@ namespace ccstd {
 inline hash_t hash<cc::render::RasterView>::operator()(const cc::render::RasterView& val) const noexcept {
     hash_t seed = 0;
     hash_combine(seed, val.slotName);
+    hash_combine(seed, val.slotName1);
     hash_combine(seed, val.accessType);
     hash_combine(seed, val.attachmentType);
     hash_combine(seed, val.loadOp);
@@ -462,6 +467,7 @@ inline hash_t hash<cc::render::ComputeView>::operator()(const cc::render::Comput
     hash_t seed = 0;
     hash_combine(seed, val.name);
     hash_combine(seed, val.accessType);
+    hash_combine(seed, val.plane);
     hash_combine(seed, val.clearFlags);
     hash_combine(seed, val.clearValueType);
     hash_combine(seed, val.shaderStageFlags);

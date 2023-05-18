@@ -141,7 +141,7 @@ const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onCompl
     downloadScript(jspath, options, (err) => {
         error = err || error;
         if (++count === 2) {
-            onComplete(err, out);
+            onComplete(error, out);
         }
     });
 };

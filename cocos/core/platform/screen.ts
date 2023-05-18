@@ -30,7 +30,7 @@ import { legacyCC } from '../global-exports';
 import { Size } from '../math';
 import { Settings, settings } from '../settings';
 import { warnID } from './debug';
-
+import { PalScreenEvent } from '../../../pal/screen-adapter/enum-type';
 /**
  * @en The screen API provides an easy way to do some screen managing stuff.
  * @zh screen 单例对象提供简单的方法来做屏幕管理相关的工作。
@@ -192,7 +192,35 @@ class Screen {
     }
 
     // TODO: to support registering fullscreen change
-    // TODO: to support screen resize
+    /**
+     * @en
+     * Register screen event callback.
+     * @zh
+     * 注册screen事件回调。
+     */
+    public on (type: PalScreenEvent, callback: any, target?: any) {
+        screenAdapter.on(type, callback, target);
+    }
+
+    /**
+     * @en
+     * Register a callback of a specific screen event type once.
+     * @zh
+     * 注册单次的screen事件回调。
+     */
+    public once (type: PalScreenEvent, callback?: any, target?: any) {
+        screenAdapter.once(type, callback, target);
+    }
+
+    /**
+     * @en
+     * Unregister screen event callback.
+     * @zh
+     * 取消注册screen事件回调。
+     */
+    public off (type: PalScreenEvent, callback?: any, target?: any) {
+        screenAdapter.off(type, callback, target);
+    }
 }
 
 const screen = new Screen();

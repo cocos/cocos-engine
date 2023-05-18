@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { cclegacy, toRadian, Vec2, Vec4 } from '../../../core';
-import { Address, ClearFlagBit, Filter, Format } from '../../../gfx';
-import { Camera } from '../../../render-scene/scene';
+import { EDITOR } from 'internal:constants';
+import { cclegacy, toRadian, Vec2, Vec4, Vec3, v3 } from '../../../core';
+import { Camera, CameraUsage } from '../../../render-scene/scene';
 import { Pipeline, QueueHint } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
@@ -34,6 +34,8 @@ import { HBAO } from '../components';
 import { Texture2D } from '../../../asset/assets/texture-2d';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { DebugViewCompositeType, DebugViewSingleType } from '../../debug-view';
+import { ClearFlagBit, Format } from '../../../gfx';
+import { Scene } from '../../../scene-graph/scene';
 
 const vec2 = new Vec2();
 
@@ -177,7 +179,9 @@ export class HBAOPass extends SettingPass {
     private HBAO_BLUR_X_PASS_INDEX = 1;
     private HBAO_BLUR_Y_PASS_INDEX = 2;
     private HBAO_COMBINED_PASS_INDEX = 3;
-    private _hbaoParams: HBAOParams;
+    private _hbaoParams: HBAOParams = new HBAOParams();
+    private _initialize = false;
+    private averageSceneScale = new Map<Scene, number>();
 
     get setting () { return getSetting(HBAO); }
 
@@ -186,15 +190,22 @@ export class HBAOPass extends SettingPass {
     outputNames = ['hbaoRTName', 'hbaoBluredRTName']
 
     checkEnable (camera: Camera) {
-        const enable = super.checkEnable(camera);
-        const setting = this.setting;
-        return enable && !!setting && setting.enabledInHierarchy;
+        let enable = super.checkEnable(camera);
+        if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
+            enable = false;
+        }
+        return enable;
     }
 
-    constructor () {
-        super();
-        this._hbaoParams = new HBAOParams();
-        this.material.setProperty('RandomTex', this._hbaoParams.randomTexture, 0);
+    public getSceneScale (camera: Camera) {
+        let sceneScale = camera.nearClip;
+        if (!this.averageSceneScale.has(camera.node.scene)) {
+            this._calculateSceneScale(camera.node.scene, camera.visibility);
+        }
+        if (this.averageSceneScale.has(camera.node.scene)) {
+            sceneScale = this.averageSceneScale.get(camera.node.scene)!;
+        }
+        return sceneScale;
     }
 
     public render (camera: Camera, ppl: Pipeline): void {
@@ -203,11 +214,15 @@ export class HBAOPass extends SettingPass {
         const height = passContext.passViewport.height;
 
         const setting = this.setting;
+        if (!this._initialize) {
+            passContext.material = this.material;
+            this.material.setProperty('RandomTex', this._hbaoParams.randomTexture, 0);
+        }
 
         // params
         const aoStrength = 1.0;
         // todo: nearest object distance from camera
-        const sceneScale = camera.nearClip;
+        const sceneScale = this.getSceneScale(camera);
         // todo: Half Res Depth Tex
         this._hbaoParams.depthTexFullResolution = vec2.set(width, height);
         this._hbaoParams.depthTexResolution = vec2.set(width, height);
@@ -232,7 +247,7 @@ export class HBAOPass extends SettingPass {
         }
 
         const inputRT = this.lastPass!.slotName(camera, 0);
-        const inputDS = passContext.forwardPass.slotName(camera, 1);
+        const inputDS = this.lastPass!.slotName(camera, 1);
         const hbaoInfo = this._renderHBAOPass(camera, inputDS);
         let hbaoCombinedInputRTName = hbaoInfo.rtName;
         if (this.setting.needBlur) {
@@ -247,7 +262,6 @@ export class HBAOPass extends SettingPass {
         const cameraID = getCameraUniqueID(camera);
 
         const passIdx = this.HBAO_PASS_INDEX;
-        passContext.material = this.material;
         this.material.setProperty('uvDepthToEyePosParams',  this._hbaoParams.uvDepthToEyePosParams, passIdx);
         this.material.setProperty('radiusParam', this._hbaoParams.radiusParam, passIdx);
         this.material.setProperty('miscParam', this._hbaoParams.miscParam, passIdx);
@@ -331,7 +345,7 @@ export class HBAOPass extends SettingPass {
             passIdx);
         this.material.setProperty('blurParam', this._hbaoParams.blurParam, passIdx);
 
-        passContext.clearBlack();
+        passContext.clearFlag = ClearFlagBit.NONE;
 
         const layoutName = 'combine-pass';
         const passName = `CameraHBAOCombinedPass${cameraID}`;
@@ -340,6 +354,28 @@ export class HBAOPass extends SettingPass {
             .addRasterView(outputRT, Format.BGRA8)
             .blitScreen(passIdx)
             .version();
+    }
+
+    private _calculateSceneScale (scene: Scene, visibility: number) {
+        if (!scene || !scene.renderScene) {
+            return;
+        }
+        const sumSize = new Vec3(0);
+        let modelCount = 0;
+        const models = scene.renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            if (!model.node || !model.worldBounds) continue;
+            if (model.node.layer & visibility) {
+                sumSize.add(model.worldBounds.halfExtents);
+                modelCount++;
+            }
+        }
+        if (modelCount > 0) {
+            sumSize.divide(v3(modelCount));
+            const scale = Math.min(sumSize.x, sumSize.y, sumSize.z);
+            this.averageSceneScale.set(scene, scale);
+        }
     }
 
     slotName (camera: Camera, index = 0) {

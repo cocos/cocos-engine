@@ -35,10 +35,23 @@ namespace cc {
 namespace render {
 
 RasterView::RasterView(const allocator_type& alloc) noexcept
-: slotName(alloc) {}
+: slotName(alloc),
+  slotName1(alloc) {}
 
-RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept
+RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept // NOLINT
 : slotName(std::move(slotNameIn), alloc),
+  slotName1(alloc),
+  accessType(accessTypeIn),
+  attachmentType(attachmentTypeIn),
+  loadOp(loadOpIn),
+  storeOp(storeOpIn),
+  clearFlags(clearFlagsIn),
+  clearColor(clearColorIn),
+  shaderStageFlags(shaderStageFlagsIn) {}
+
+RasterView::RasterView(ccstd::pmr::string slotNameIn, ccstd::pmr::string slotName1In, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept // NOLINT
+: slotName(std::move(slotNameIn), alloc),
+  slotName1(std::move(slotName1In), alloc),
   accessType(accessTypeIn),
   attachmentType(attachmentTypeIn),
   loadOp(loadOpIn),
@@ -49,6 +62,7 @@ RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, A
 
 RasterView::RasterView(RasterView&& rhs, const allocator_type& alloc)
 : slotName(std::move(rhs.slotName), alloc),
+  slotName1(std::move(rhs.slotName1), alloc),
   accessType(rhs.accessType),
   attachmentType(rhs.attachmentType),
   loadOp(rhs.loadOp),
@@ -60,6 +74,7 @@ RasterView::RasterView(RasterView&& rhs, const allocator_type& alloc)
 
 RasterView::RasterView(RasterView const& rhs, const allocator_type& alloc)
 : slotName(rhs.slotName, alloc),
+  slotName1(rhs.slotName1, alloc),
   accessType(rhs.accessType),
   attachmentType(rhs.attachmentType),
   loadOp(rhs.loadOp),
@@ -80,9 +95,19 @@ ComputeView::ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx
   clearValue(clearValueIn),
   shaderStageFlags(shaderStageFlagsIn) {}
 
+ComputeView::ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, uint32_t planeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept
+: name(std::move(nameIn), alloc),
+  accessType(accessTypeIn),
+  plane(planeIn),
+  clearFlags(clearFlagsIn),
+  clearValueType(clearValueTypeIn),
+  clearValue(clearValueIn),
+  shaderStageFlags(shaderStageFlagsIn) {}
+
 ComputeView::ComputeView(ComputeView&& rhs, const allocator_type& alloc)
 : name(std::move(rhs.name), alloc),
   accessType(rhs.accessType),
+  plane(rhs.plane),
   clearFlags(rhs.clearFlags),
   clearValueType(rhs.clearValueType),
   clearValue(rhs.clearValue),
@@ -91,6 +116,7 @@ ComputeView::ComputeView(ComputeView&& rhs, const allocator_type& alloc)
 ComputeView::ComputeView(ComputeView const& rhs, const allocator_type& alloc)
 : name(rhs.name, alloc),
   accessType(rhs.accessType),
+  plane(rhs.plane),
   clearFlags(rhs.clearFlags),
   clearValueType(rhs.clearValueType),
   clearValue(rhs.clearValue),

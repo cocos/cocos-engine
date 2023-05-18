@@ -40,7 +40,33 @@ export class PhysXJoint implements IBaseConstraint {
     }
 
     setConnectedBody (v: RigidBody | null): void {
-        // TODO
+        if (this._connectedBody === v) return;
+
+        // // unregister old
+        const oldBody2 = this._connectedBody;
+        if (oldBody2) {
+            const oldSB2 = (oldBody2.body as PhysXRigidBody).sharedBody;
+            oldSB2.removeJoint(this, 1);
+        }
+
+        const sb = (this._rigidBody.body as PhysXRigidBody).sharedBody;
+        sb.removeJoint(this, 0);
+        sb.addJoint(this, 0); // add to inner body if this joint is not added to sb
+        if (v) {
+            const sb2 = (v.body as PhysXRigidBody).sharedBody;
+            setJointActors(this._impl, sb.impl, sb2.impl);
+            sb2.addJoint(this, 1); // add to new sb2
+        } else {
+            setJointActors(this._impl, sb.impl, null);
+        }
+
+        if (oldBody2) {
+            oldBody2.wakeUp(); // wake it up, or the old body will be sleep for a while
+        }
+
+        this._connectedBody = v;
+        this.updateScale0();
+        this.updateScale1();
     }
 
     setEnableCollision (v: boolean): void {
@@ -53,10 +79,12 @@ export class PhysXJoint implements IBaseConstraint {
     protected _impl!: any;
     protected _com!: Constraint;
     protected _rigidBody!: RigidBody;
+    protected _connectedBody: RigidBody | null = null;
 
     initialize (v: Constraint): void {
         this._com = v;
         this._rigidBody = v.attachedBody!;
+        this._connectedBody = v.connectedBody;
         this.onComponentSet();
         this.setEnableCollision(this._com.enableCollision);
         if (this._impl.$$) {
@@ -103,6 +131,7 @@ export class PhysXJoint implements IBaseConstraint {
         this._impl.release();
         (this._com as any) = null;
         (this._rigidBody as any) = null;
+        (this._connectedBody as any) = null;
         this._impl = null;
     }
 }
