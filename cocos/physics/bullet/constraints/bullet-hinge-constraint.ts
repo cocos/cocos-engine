@@ -26,11 +26,12 @@
 import { BulletConstraint } from './bullet-constraint';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { IVec3Like, Quat, Vec3 } from '../../../core';
-import { HingeConstraint } from '../../framework';
+import { HingeConstraint, PhysicsSystem } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
 import { BulletCache, CC_QUAT_0, CC_QUAT_1, CC_V3_0 } from '../bullet-cache';
 import { bt } from '../instantiated';
-import { cocos2BulletQuat, cocos2BulletVec3 } from '../bullet-utils';
+import { cocos2BulletQuat, cocos2BulletVec3, force2Impulse } from '../bullet-utils';
+import { toRadian } from '../../../core/math';
 
 export class BulletHingeConstraint extends BulletConstraint implements IHingeConstraint {
     setPivotA (v: IVec3Like): void {
@@ -45,6 +46,43 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         this.updateFrames();
     }
 
+    setLimitEnabled (v: boolean): void {
+        if (this.constraint.limitEnabled) {
+            bt.HingeConstraint_setLimit(this._impl, toRadian(this.constraint.lowerLimit), toRadian(this.constraint.upperLimit), 0.9, 0.3, 1.0);
+        } else {
+            bt.HingeConstraint_setLimit(this._impl, 1, 0, 0.9, 0.3, 1.0);
+        }
+    }
+    setLowerLimit (min: number): void {
+        if (this.constraint.limitEnabled) {
+            bt.HingeConstraint_setLimit(this._impl, toRadian(this.constraint.lowerLimit), toRadian(this.constraint.upperLimit), 0.9, 0.3, 1.0);
+        }
+    }
+    setUpperLimit (max: number): void {
+        if (this.constraint.limitEnabled) {
+            bt.HingeConstraint_setLimit(this._impl, toRadian(this.constraint.lowerLimit), toRadian(this.constraint.upperLimit), 0.9, 0.3, 1.0);
+        }
+    }
+    setMotorEnabled (v: boolean): void {
+        bt.HingeConstraint_enableMotor(this._impl, v);
+        const velocity = -this.constraint.motorVelocity / 60.0;
+        const impulse = force2Impulse(this.constraint.motorForceLimit, PhysicsSystem.instance.fixedTimeStep);
+        bt.HingeConstraint_setMotorVelocity(this._impl, velocity);
+        bt.HingeConstraint_setMaxMotorImpulse(this._impl, impulse);
+    }
+    setMotorVelocity (v: number): void {
+        if (this.constraint.motorEnabled) {
+            const velocity = -v / 60.0;
+            bt.HingeConstraint_setMotorVelocity(this._impl, velocity);
+        }
+    }
+    setMotorForceLimit (v: number): void {
+        if (this.constraint.motorEnabled) {
+            const impulse = force2Impulse(v, PhysicsSystem.instance.fixedTimeStep);
+            bt.HingeConstraint_setMaxMotorImpulse(this._impl, impulse);
+        }
+    }
+
     get constraint (): HingeConstraint {
         return this._com as HingeConstraint;
     }
@@ -56,6 +94,13 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         const trans0 = BulletCache.instance.BT_TRANSFORM_0;
         const trans1 = BulletCache.instance.BT_TRANSFORM_1;
         this._impl = bt.HingeConstraint_new(bodyA, bodyB, trans0, trans1);
+
+        this.setLimitEnabled(this.constraint.limitEnabled);
+        this.setLowerLimit(this.constraint.lowerLimit);
+        this.setUpperLimit(this.constraint.upperLimit);
+        this.setMotorEnabled(this.constraint.motorEnabled);
+        this.setMotorVelocity(this.constraint.motorVelocity);
+        this.setMotorForceLimit(this.constraint.motorForceLimit);
         this.updateFrames();
     }
 

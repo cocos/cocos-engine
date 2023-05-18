@@ -427,6 +427,12 @@ const ENTIRE_CONSTRAINT: IEntireConstraint = {
     setAxis: FUNC,
     setBreakForce: FUNC,
     setBreakTorque: FUNC,
+    setLimitEnabled: FUNC,
+    setLowerLimit: FUNC,
+    setUpperLimit: FUNC,
+    setMotorEnabled: FUNC,
+    setMotorVelocity: FUNC,
+    setMotorForceLimit: FUNC,
 };
 
 export function createConstraint (type: EConstraintType): IBaseConstraint {

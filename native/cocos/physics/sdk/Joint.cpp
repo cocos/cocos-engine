@@ -94,6 +94,30 @@ void RevoluteJoint::setAxis(float x, float y, float z) {
     _impl->setAxis(x, y, z);
 }
 
+void RevoluteJoint::setLimitEnabled(bool v) {
+    _impl->setLimitEnabled(v);
+}
+
+void RevoluteJoint::setLowerLimit(float v) {
+    _impl->setLowerLimit(v);
+}
+
+void RevoluteJoint::setUpperLimit(float v) {
+    _impl->setUpperLimit(v);
+}
+
+void RevoluteJoint::setMotorEnabled(bool v) {
+    _impl->setMotorEnabled(v);
+}
+
+void RevoluteJoint::setMotorVelocity(float v) {
+    _impl->setMotorVelocity(v);
+}
+
+void RevoluteJoint::setMotorForceLimit(float v) {
+    _impl->setMotorForceLimit(v);
+}
+
 void FixedJoint::setBreakForce(float force) {
     _impl->setBreakForce(force);
 }
