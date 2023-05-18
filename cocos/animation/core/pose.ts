@@ -17,9 +17,20 @@ export class Pose {
     /**
      * @internal
      */
+    public _poseTransformSpace = PoseTransformSpace.LOCAL;
+
+    /**
+     * @internal
+     */
     public static _create (transforms: TransformArray, auxiliaryCurves: Float64Array) {
         return new Pose(transforms, auxiliaryCurves);
     }
+}
+
+export enum PoseTransformSpace {
+    LOCAL,
+
+    COMPONENT,
 }
 
 export class TransformFilter {

@@ -2,7 +2,7 @@
 
 import { assertIsTrue, warn } from '../../../core';
 import { instantiate } from '../../../serialization';
-import { PoseNode } from './pose-node';
+import { PoseNode, PoseTransformSpaceRequirement } from './pose-node';
 import { PoseGraph } from './pose-graph';
 import { PureValueNode, PureValueNodeLinkContext } from './pure-value-node';
 import { NodeInputPath } from './foundation/node-shell';
@@ -42,7 +42,7 @@ class InstantiatedPoseGraph {
     }
 
     public evaluate (context: AnimationGraphEvaluationContext) {
-        return this._rootPoseNode?.evaluate(context) ?? null;
+        return this._rootPoseNode?.evaluate(context, PoseTransformSpaceRequirement.LOCAL) ?? null;
     }
 }
 
