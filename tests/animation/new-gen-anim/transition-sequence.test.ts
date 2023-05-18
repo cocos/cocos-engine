@@ -1051,7 +1051,7 @@ interface TransitionSequenceFixture {
     transitions: TransitionFixture[];
 }
 
-type StateFixtureBase = { };
+interface StateFixtureBase { }
 
 type StateFixture = StateMachineEnterStateFixture | StateMachineExitStateFixture | MotionStateFixture | EmptyStateFixture;
 

@@ -104,12 +104,15 @@ class PassVisitor implements RenderGraphVisitor {
     // output resourcetexture id
     public resID = 0xFFFFFFFF;
     public context: CompilerContext;
-    private _currPass: RasterPass | null = null;
+    private _currPass: RasterPass | CopyPass | null = null;
     constructor (context: CompilerContext) {
         this.context = context;
     }
     protected _isRasterPass (u: number): boolean {
         return !!this.context.renderGraph.tryGetRasterPass(u);
+    }
+    protected _isCopyPass (u: number): boolean {
+        return !!this.context.renderGraph.tryGetCopy(u);
     }
     protected _isQueue (u: number): boolean {
         return !!this.context.renderGraph.tryGetQueue(u);
@@ -193,7 +196,7 @@ class PassVisitor implements RenderGraphVisitor {
         const outputId = this.resID;
         const outputName = this.context.resourceGraph.vertexName(outputId);
         const readViews: Map<string, RasterView> = new Map();
-        const pass = this._currPass!;
+        const pass = this._currPass! as RasterPass;
         const validPass = rg.getValid(this.passID);
         for (const [readName, raster] of pass.rasterViews) {
             // find the pass
@@ -256,7 +259,7 @@ class PassVisitor implements RenderGraphVisitor {
     }
     applyID (id: number, resId: number): void {
         this.resID = resId;
-        if (this._isRasterPass(id)) {
+        if (this._isRasterPass(id) || this._isCopyPass(id)) {
             this.passID = id;
         } else if (this._isQueue(id)) {
             this.queueID = id;
@@ -275,7 +278,28 @@ class PassVisitor implements RenderGraphVisitor {
     rasterSubpass (value: RasterSubpass) {}
     computeSubpass (value: ComputeSubpass) {}
     compute (value: ComputePass) {}
-    copy (value: CopyPass) {}
+    copy (value: CopyPass) {
+        const rg = context.renderGraph;
+        if (rg.getValid(this.passID)) {
+            return;
+        }
+        const resourceGraph = this.context.resourceGraph;
+        this._currPass = value;
+        const outputId = this.resID;
+        const outputName = resourceGraph.vertexName(outputId);
+        let resVisitor; let vertID;
+        for (const pair of value.copyPairs) {
+            if (pair.target === outputName) {
+                rg.setValid(this.passID, true);
+                if (!resVisitor) resVisitor = new ResourceVisitor(this.context);
+                vertID = resourceGraph.find(pair.source);
+                if (vertID !== 0xFFFFFFFF) {
+                    resVisitor.resID = vertID;
+                    resourceGraph.visitVertex(resVisitor, vertID);
+                }
+            }
+        }
+    }
     move (value: MovePass) {}
     raytrace (value: RaytracePass) {}
     queue (value: RenderQueue) {}

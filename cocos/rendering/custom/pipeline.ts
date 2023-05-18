@@ -106,9 +106,9 @@ export interface RenderQueueBuilder extends Setter {
 }
 
 export interface RenderSubpassBuilder extends Setter {
-    addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp?: LoadOp, storeOp?: StoreOp, color?: Color): void;
-    addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp?: LoadOp, storeOp?: StoreOp, depth?: number, stencil?: number, clearFlags?: ClearFlagBit): void;
-    addTexture (name: string, slotName: string, sampler?: Sampler | null): void;
+    addRenderTarget (name: string, accessType: AccessType, slotName?: string, loadOp?: LoadOp, storeOp?: StoreOp, color?: Color): void;
+    addDepthStencil (name: string, accessType: AccessType, depthSlotName?: string, stencilSlotName?: string, loadOp?: LoadOp, storeOp?: StoreOp, depth?: number, stencil?: number, clearFlags?: ClearFlagBit): void;
+    addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
     addStorageImage (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
     /**
@@ -130,7 +130,7 @@ export interface ComputeQueueBuilder extends Setter {
 
 export interface ComputeSubpassBuilder extends Setter {
     addRenderTarget (name: string, slotName: string): void;
-    addTexture (name: string, slotName: string, sampler?: Sampler | null): void;
+    addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
     addStorageImage (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
     /**
@@ -145,9 +145,9 @@ export interface ComputeSubpassBuilder extends Setter {
 }
 
 export interface BasicRenderPassBuilder extends Setter {
-    addRenderTarget (name: string, slotName: string, loadOp?: LoadOp, storeOp?: StoreOp, color?: Color): void;
-    addDepthStencil (name: string, slotName: string, loadOp?: LoadOp, storeOp?: StoreOp, depth?: number, stencil?: number, clearFlags?: ClearFlagBit): void;
-    addTexture (name: string, slotName: string, sampler?: Sampler | null): void;
+    addRenderTarget (name: string, loadOp?: LoadOp, storeOp?: StoreOp, color?: Color): void;
+    addDepthStencil (name: string, loadOp?: LoadOp, storeOp?: StoreOp, depth?: number, stencil?: number, clearFlags?: ClearFlagBit): void;
+    addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -174,7 +174,7 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
 }
 
 export interface ComputePassBuilder extends Setter {
-    addTexture (name: string, slotName: string, sampler?: Sampler | null): void;
+    addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
     addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
     addStorageImage (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
     /**
@@ -239,8 +239,8 @@ export class PipelineCapabilities {
 }
 
 export interface BasicPipeline extends PipelineRuntime {
-    readonly pipelineType: PipelineType;
-    readonly pipelineCapabilities: PipelineCapabilities;
+    readonly type: PipelineType;
+    readonly capabilities: PipelineCapabilities;
     beginSetup (): void;
     endSetup (): void;
     containsResource (name: string): boolean;
@@ -257,7 +257,6 @@ export interface BasicPipeline extends PipelineRuntime {
     beginFrame (): void;
     endFrame (): void;
     addRenderPass (width: number, height: number, layoutName?: string): BasicRenderPassBuilder;
-    addMovePass (movePairs: MovePair[]): void;
     addCopyPass (copyPairs: CopyPair[]): void;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
@@ -271,6 +270,7 @@ export interface Pipeline extends BasicPipeline {
     updateShadingRateTexture (name: string, width: number, height: number): void;
     addRenderPass (width: number, height: number, layoutName?: string): RenderPassBuilder;
     addComputePass (layoutName: string): ComputePassBuilder;
+    addMovePass (movePairs: MovePair[]): void;
     /**
      * @beta function signature might change
      */

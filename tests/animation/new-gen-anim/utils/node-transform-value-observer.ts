@@ -136,10 +136,10 @@ export class NodeTransformValueObserver {
 }
 
 namespace NodeTransformValueObserver {
-    export type Value = {
+    export interface Value {
         position: number;
         rotation: number;
         scale: number;
         eulerAngles: number;
-    };
+    }
 }

@@ -3186,6 +3186,14 @@ Can't getGFXSampler with out device
 
 [Physics]: A dynamic rigid body can not have the following collider shapes: Terrain, Plane and Non-convex Mesh. Node name: %s
 
+### 9640
+
+[Physics][builtin]: sweep functions are not supported in builtin
+
+### 9641
+
+[Physics][cannon.js]: sweep functions are not supported in cannon.js
+
 ### 10001
 
 The sub-mesh contains %d vertices, which beyonds the capability (%d vertices most) of renderer of your platform.

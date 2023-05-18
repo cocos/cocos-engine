@@ -184,6 +184,7 @@ const legacyBuiltinEffectNames = [
     'deferred-lighting',
     'bloom',
     'hbao',
+    'copy-pass',
     'post-process',
     'profiler',
     'splash-screen',

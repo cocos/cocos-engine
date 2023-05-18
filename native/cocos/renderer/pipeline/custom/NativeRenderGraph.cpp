@@ -350,7 +350,6 @@ void addDepthStencilImpl(
 
 void NativeRenderPassBuilder::addRenderTarget(
     const ccstd::string &name,
-    const ccstd::string &slotName,
     gfx::LoadOp loadOp,
     gfx::StoreOp storeOp,
     const gfx::Color &color) {
@@ -358,7 +357,7 @@ void NativeRenderPassBuilder::addRenderTarget(
         *renderGraph,
         nodeID,
         name,
-        slotName,
+        "",
         AccessType::WRITE,
         loadOp,
         storeOp,
@@ -367,7 +366,6 @@ void NativeRenderPassBuilder::addRenderTarget(
 
 void NativeRenderPassBuilder::addDepthStencil(
     const ccstd::string &name,
-    const ccstd::string &slotName,
     gfx::LoadOp loadOp,
     gfx::StoreOp storeOp,
     float depth,
@@ -377,7 +375,7 @@ void NativeRenderPassBuilder::addDepthStencil(
         *renderGraph,
         nodeID,
         name,
-        slotName,
+        "",
         AccessType::WRITE,
         loadOp,
         storeOp,
@@ -389,13 +387,14 @@ void NativeRenderPassBuilder::addDepthStencil(
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void NativeRenderPassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
-    gfx::Sampler *sampler) {
+    gfx::Sampler *sampler, uint32_t plane) {
     std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             AccessType::READ,
+            plane,
             gfx::ClearFlagBit::NONE,
             ClearValueType::NONE,
             ClearValue{},
@@ -496,6 +495,7 @@ template <class Tag>
 void addRasterViewImpl(
     std::string_view name,
     std::string_view slotName,
+    std::string_view slotName1,
     AccessType accessType,
     AttachmentType attachmentType,
     gfx::LoadOp loadOp,
@@ -520,6 +520,7 @@ void addRasterViewImpl(
             std::forward_as_tuple(name),
             std::forward_as_tuple(
                 ccstd::pmr::string(slotName, subpassData.get_allocator()),
+                ccstd::pmr::string(slotName1, subpassData.get_allocator()),
                 accessType,
                 attachmentType,
                 loadOp,
@@ -600,11 +601,13 @@ void addComputeViewImpl(
 void NativeRenderSubpassBuilder::addRenderTarget(
     const ccstd::string &name,
     AccessType accessType,
-    const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp,
+    const ccstd::string &slotName,
+    gfx::LoadOp loadOp, gfx::StoreOp storeOp,
     const gfx::Color &color) {
     addRasterViewImpl<RasterSubpassTag>(
         name,
         slotName,
+        "",
         accessType,
         AttachmentType::RENDER_TARGET,
         loadOp,
@@ -618,11 +621,14 @@ void NativeRenderSubpassBuilder::addRenderTarget(
 void NativeRenderSubpassBuilder::addDepthStencil(
     const ccstd::string &name,
     AccessType accessType,
-    const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp,
+    const ccstd::string &depthSlotName,
+    const ccstd::string &stencilSlotName,
+    gfx::LoadOp loadOp, gfx::StoreOp storeOp,
     float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) {
     addRasterViewImpl<RasterSubpassTag>(
         name,
-        slotName,
+        depthSlotName,
+        stencilSlotName,
         accessType,
         AttachmentType::DEPTH_STENCIL,
         loadOp,
@@ -636,13 +642,14 @@ void NativeRenderSubpassBuilder::addDepthStencil(
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void NativeRenderSubpassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
-    gfx::Sampler *sampler) {
+    gfx::Sampler *sampler, uint32_t plane) {
     std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             AccessType::READ,
+            plane,
             gfx::ClearFlagBit::NONE,
             ClearValueType::NONE,
             ClearValue{},
@@ -780,6 +787,7 @@ void NativeComputeSubpassBuilder::addRenderTarget(const ccstd::string &name, con
     addRasterViewImpl<ComputeSubpassTag>(
         name,
         slotName,
+        "",
         AccessType::READ,
         AttachmentType::RENDER_TARGET,
         gfx::LoadOp::LOAD,
@@ -793,13 +801,14 @@ void NativeComputeSubpassBuilder::addRenderTarget(const ccstd::string &name, con
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void NativeComputeSubpassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
-    gfx::Sampler *sampler) {
+    gfx::Sampler *sampler, uint32_t plane) {
     std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             AccessType::READ,
+            plane,
             gfx::ClearFlagBit::NONE,
             ClearValueType::NONE,
             ClearValue{},
@@ -1464,13 +1473,14 @@ void NativeComputeQueueBuilder::addDispatch(
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void NativeComputePassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
-    gfx::Sampler *sampler) {
+    gfx::Sampler *sampler, uint32_t plane) {
     std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             AccessType::READ,
+            plane,
             gfx::ClearFlagBit::NONE,
             ClearValueType::NONE,
             ClearValue{},

@@ -434,8 +434,8 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
     const director = cclegacy.director;
     const pipeline = director.root.pipeline;
     const device = pipeline.device;
-    const scene = cclegacy.director.getScene().renderScene;
-    const mainLight = camera && camera.scene ? camera.scene.mainLight : scene.mainLight;
+    const scene = director.getScene();
+    const mainLight = camera && camera.scene ? camera.scene.mainLight : scene ? scene.renderScene.mainLight : null;
     const sceneData = pipeline.pipelineSceneData;
     const shadowInfo = sceneData.shadows;
     const csmLayers = sceneData.csmLayers;
@@ -631,7 +631,7 @@ function setCameraUBOValues (setter: WebSetter,
         _uboVec.set(cfg.shadingScale, cfg.shadingScale, 1.0 / cfg.shadingScale, 1.0 / cfg.shadingScale);
         setter.offsetVec4(_uboVec, uniformOffset);
     }
-    const mainLight = scene.mainLight;
+    const mainLight = scene && scene.mainLight;
     if (mainLight) {
         uniformOffset = setter.getUniformOffset('cc_mainLitDir', Type.FLOAT4);
         if (setter.hasUniform(uniformOffset)) {
@@ -799,8 +799,9 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
         );
         const layoutName = this.getLayoutName();
+        const scene = cclegacy.director.getScene();
         setCameraUBOValues(this, camera, this._pipeline,
-            camera.scene ? camera.scene : cclegacy.director.getScene().renderScene,
+            camera.scene ? camera.scene : scene ? scene.renderScene : null,
             layoutName);
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
             setShadowUBOLightView(this, camera, light.light!, light.level, layoutName);
@@ -823,8 +824,9 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             name, '', new RenderData(), false, this._vertID,
         );
         const layoutName = this.getLayoutName();
+        const scene = cclegacy.director.getScene();
         setCameraUBOValues(this, null, this._pipeline,
-            cclegacy.director.getScene().renderScene, layoutName);
+            scene ? scene.renderScene : null, layoutName);
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
             // setShadowUBOLightView(this, light.light!, light.level);
         } else {
@@ -839,8 +841,9 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             'CameraQuad', '', new RenderData(), false, this._vertID,
         );
         const layoutName = this.getLayoutName();
+        const scene = cclegacy.director.getScene();
         setCameraUBOValues(this, camera, this._pipeline,
-            camera.scene ? camera.scene : cclegacy.director.getScene().renderScene, layoutName);
+            camera.scene ? camera.scene : scene ? scene.renderScene : null, layoutName);
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
             // setShadowUBOLightView(this, light.light!, light.level);
         } else {
@@ -897,7 +900,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
     addRenderTarget (name: string, accessType: AccessType, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()) {
         throw new Error('Method not implemented.');
     }
-    addDepthStencil (name: string, accessType: AccessType, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
+    addDepthStencil (name: string, accessType: AccessType, depthSlotName = '', stencilSlotName = '', loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
         throw new Error('Method not implemented.');
     }
     addTexture (name: string, slotName: string, sampler: Sampler | null = null): void {
@@ -993,7 +996,7 @@ export class WebRenderPassBuilder extends WebSetter implements RenderPassBuilder
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
-    addRenderTarget (name: string, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()) {
+    addRenderTarget (name: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()) {
         if (DEBUG) {
             assert(name && this._resourceGraph.contains(name));
         }
@@ -1001,7 +1004,7 @@ export class WebRenderPassBuilder extends WebSetter implements RenderPassBuilder
         if (loadOp === LoadOp.LOAD) {
             clearFlag = ClearFlagBit.NONE;
         }
-        const view = new RasterView(slotName,
+        const view = new RasterView('',
             AccessType.WRITE, AttachmentType.RENDER_TARGET,
             loadOp,
             storeOp,
@@ -1009,11 +1012,11 @@ export class WebRenderPassBuilder extends WebSetter implements RenderPassBuilder
             clearColor);
         this._pass.rasterViews.set(name, view);
     }
-    addDepthStencil (name: string, slotName: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
+    addDepthStencil (name: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
         if (DEBUG) {
             assert(name && this._resourceGraph.contains(name));
         }
-        const view = new RasterView(slotName,
+        const view = new RasterView('',
             AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
             loadOp,
             storeOp,
@@ -1249,6 +1252,9 @@ export class WebCopyPassBuilder {
         this._vertID = vertID;
         this._pass = pass;
     }
+    addPair (pair: CopyPair): void {
+        throw new Error('Method not implemented.');
+    }
     setCustomBehavior (name: string): void {
         throw new Error('Method not implemented.');
     }
@@ -1257,9 +1263,6 @@ export class WebCopyPassBuilder {
     }
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
-    }
-    addPair (pair: CopyPair) {
-        this._pass.copyPairs.push(pair);
     }
     private readonly _renderGraph: RenderGraph;
     private readonly _vertID: number;
@@ -1275,10 +1278,10 @@ export class WebPipeline implements BasicPipeline {
     constructor (layoutGraph: LayoutGraphData) {
         this._layoutGraph = layoutGraph;
     }
-    get pipelineType () {
+    get type () {
         return PipelineType.BASIC;
     }
-    get pipelineCapabilities () {
+    get capabilities () {
         return new PipelineCapabilities();
     }
     addCustomBuffer (name: string, info: BufferInfo, type: string): number {
@@ -1375,8 +1378,29 @@ export class WebPipeline implements BasicPipeline {
     public addMovePass (movePairs: MovePair[]): void {
         throw new Error('Method not implemented.');
     }
-    public addCopyPass (copyPairs: CopyPair[]): void {
-        throw new Error('Method not implemented.');
+    public addCopyPass (copyPairs: CopyPair[]) {
+        // const renderData = new RenderData();
+        // const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(
+        //     RenderGraphValue.Copy, copyPass, 'copyPass', 'copy-pass', renderData, false,
+        // );
+        // const copyPass = new CopyPass();
+        // copyPass.copyPairs.splice(0, copyPass.copyPairs.length, ...copyPairs);
+        // const result = new WebCopyPassBuilder(this._renderGraph!, vertID, copyPass);
+        // return result;
+        for (const pair of copyPairs) {
+            const targetName = pair.target;
+            const tarVerId = this.resourceGraph.find(targetName);
+            if (DEBUG) {
+                const srcVerId = this.resourceGraph.find(pair.source);
+                assert(srcVerId !== 0xFFFFFFFF, `The resource named ${pair.source} was not found in Resource Graph.`);
+                assert(tarVerId !== 0xFFFFFFFF, `The resource named ${targetName} was not found in Resource Graph.`);
+            }
+            const resDesc = this.resourceGraph.getDesc(tarVerId);
+            const currRaster = this.addRenderPass(resDesc.width, resDesc.height, 'copy-pass');
+            currRaster.addRenderTarget(targetName, LoadOp.CLEAR, StoreOp.STORE, new Color(0, 0, 0, 0));
+            currRaster.addTexture(pair.source, 'outputResultMap');
+            currRaster.addQueue(QueueHint.NONE).addFullscreenQuad(this._copyPassMat, 0, SceneFlags.NONE);
+        }
     }
     protected _generateConstantMacros (clusterEnabled: boolean) {
         let str = '';
@@ -1421,6 +1445,15 @@ export class WebPipeline implements BasicPipeline {
         return this._globalDescSetData;
     }
 
+    private _compileMaterial () {
+        this._copyPassMat.initialize({
+            effectName: 'pipeline/copy-pass',
+        });
+        for (let i = 0; i < this._copyPassMat.passes.length; ++i) {
+            this._copyPassMat.passes[i].tryCompile();
+        }
+    }
+
     public activate (swapchain: Swapchain): boolean {
         this._device = deviceManager.gfxDevice;
         createGfxDescriptorSetsAndPipelines(this._device, this._layoutGraph);
@@ -1431,6 +1464,7 @@ export class WebPipeline implements BasicPipeline {
         this._globalDescriptorSet = isEnableEffect() ? this._device.createDescriptorSet(this._globalDescriptorSetInfo)
             : this._globalDescSetData.descriptorSet;
         this._globalDSManager.globalDescriptorSet = this.globalDescriptorSet;
+        this._compileMaterial();
         this.setMacroBool('CC_USE_HDR', this._pipelineSceneData.isHDR);
         this.setMacroBool('CC_USE_FLOAT_OUTPUT', macro.ENABLE_FLOAT_OUTPUT && supportsRGBA16FloatTexture(this._device));
         this._generateConstantMacros(false);
@@ -1822,6 +1856,7 @@ export class WebPipeline implements BasicPipeline {
 
     public static MAX_BLOOM_FILTER_PASS_NUM = 6;
     private _usesDeferredPipeline = false;
+    private _copyPassMat: Material = new Material();
     private _device!: Device;
     private _globalDSManager!: GlobalDSManager;
     private _globalDescriptorSet: DescriptorSet | null = null;

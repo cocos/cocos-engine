@@ -320,11 +320,6 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             continue;
         }
         const spine::Color &slotColor = slot->getColor();
-        // Early exit if slot is invisible
-        if (slotColor.a == 0) {
-            _clipper->clipEnd(*slot);
-            continue;
-        }
 
         TwoColorTriangles trianglesTwoColor;
         spine::Color attachmentColor;
