@@ -93,7 +93,7 @@ void PhysXRevolute::setMotorEnabled(bool v) {
     auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
     joint->setRevoluteJointFlag(physx::PxRevoluteJointFlag::eDRIVE_ENABLED, _motorEnabled);
     if (v) {
-        joint->setDriveVelocity(_motorVelocity * PhysXWorld::getInstance().getFixedTimeStep());
+        joint->setDriveVelocity(_motorVelocity / 60.0);
         joint->setDriveForceLimit(_motorForceLimit);
     }
 }
