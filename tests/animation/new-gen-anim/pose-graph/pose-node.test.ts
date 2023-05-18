@@ -62,12 +62,7 @@ test(`Validation on PoseNode.doEvaluate()`, () => {
         });
 
         const evalMock = new AnimationGraphEvalMock(new Node(), animationGraph);
-        
-        try {
-            evalMock.step(0.16666);
-        } catch (err) {
-            evalMock.destroy(true);
-            throw err;
-        }
+        evalMock.step(0.16666);
+        evalMock.destroy();
     }
 });

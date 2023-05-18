@@ -48,6 +48,13 @@ export class LinearRealValueAnimationFixture implements RealValueAnimationFixtur
             },
         );
     }
+
+    public setupCurve(curve: RealCurve) {
+        curve.assignSorted([
+            [0.0, this.from],
+            [this.duration, this.to],
+        ]);
+    }
 }
 
 export class ConstantRealValueAnimationFixture implements RealValueAnimationFixture {

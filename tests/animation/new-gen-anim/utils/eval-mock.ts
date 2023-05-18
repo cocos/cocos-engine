@@ -48,14 +48,24 @@ export class AnimationGraphEvalMock {
 
     public step(deltaTime: number) {
         this._current += deltaTime;
-        this._eval.update(deltaTime);
+        try {
+            this._eval.update(deltaTime);
+        } catch (err) {
+            this._eval._destroyAfterException_debugging();
+            throw err;
+        }
         this._lastDeltaTime = deltaTime;
     }
 
     public goto(time: number) {
         const deltaTime = time - this._current;
         this._current = time;
-        this._eval.update(deltaTime);
+        try {
+            this._eval.update(deltaTime);
+        } catch (err) {
+            this._eval._destroyAfterException_debugging();
+            throw err;
+        }
         this._lastDeltaTime = deltaTime;
     }
 

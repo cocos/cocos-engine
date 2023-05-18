@@ -4,7 +4,7 @@ import {
     SubStateMachine, EmptyState, EmptyStateTransition,
     PoseState, PoseTransition,
 } from '../animation-graph';
-import { MotionEval, MotionEvalContext, MotionPort } from '../motion';
+import { MotionEval, MotionPort } from '../motion';
 import { createEval } from '../create-eval';
 import { BindContext, validateVariableExistence, validateVariableType, VariableType } from '../parametric';
 import { ConditionEval, TriggerCondition } from './condition';

@@ -25,7 +25,6 @@
 import { _decorator } from '../../../core';
 import { createEval } from '../create-eval';
 import { BindableNumber, bindOr, VariableType } from '../parametric';
-import { MotionEvalContext } from './motion';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { blend1D } from './blend-1d';
 import { CLASS_NAME_PREFIX_ANIM } from '../../define';

@@ -44,10 +44,6 @@ export interface CreateClipEvalContext {
     mask?: AnimationMask;
 }
 
-export interface MotionEvalContext extends BindContext, CreateClipEvalContext {
-    clipOverrides: ReadonlyClipOverrideMap | null;
-}
-
 export interface MotionEval {
     /**
      * The runtime ID. Maybe invalid.
