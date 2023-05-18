@@ -158,8 +158,49 @@ export class Transform {
         };
     })();
 
+    /**
+     * Inverts the transform.
+     * @param out Out transform.
+     * @param transform Transform to invert.
+     */
+    public static invert (out: Transform, transform: ReadonlyTransform) {
+        const {
+            _rotation: invRotation,
+            _scale: invScale,
+            _position: invPosition,
+        } = out;
+
+        Quat.invert(invRotation, transform._rotation);
+        invScaleOrZero(invScale, transform._scale, EPSILON);
+
+        /**
+         * Let $b$ be the inverse of $a$, then for the translation term $T$(Vector), rotation term $Q$(Quaternion), scale term $S$(Vector):
+         *
+         * ```math
+         * \begin{equation}
+         * \begin{split}
+         * T_(a * b) & = T_b + (Q_b \times (S_b \times T_a) \times Q_b^{-1}) = 0 \\
+         *      T(b) & = -(Q_b \times S_b \times T_a \times Q_b^{-1}) \\
+         *           & = Q_b \times (S_b \times -T_a) \times Q_b^{-1}
+         * \end{split}
+         * \end{equation}
+         * ```
+         *
+         * Which equals to:
+         *   - Translate by $-T_a$
+         *   - Then scale by the $S_b$(ie. $S_a^{-1}$)
+         *   - Then rotate by $Q_b$(ie. $Q_a^{-1}$)
+
+         */
+        Vec3.negate(invPosition, transform._position);
+        Vec3.multiply(invPosition, invPosition, invScale);
+        Vec3.transformQuat(invPosition, invPosition, invRotation);
+
+        return out;
+    }
+
     public static fromMatrix (out: Transform, matrix: Readonly<Mat4>) {
-        Mat4.toRTS(
+        Mat4.toSRT(
             matrix,
             out._rotation,
             out._position,
@@ -169,7 +210,7 @@ export class Transform {
     }
 
     public static toMatrix (out: Mat4, transform: ReadonlyTransform) {
-        return Mat4.fromRTS(
+        return Mat4.fromSRT(
             out,
             transform._rotation,
             transform._position,
