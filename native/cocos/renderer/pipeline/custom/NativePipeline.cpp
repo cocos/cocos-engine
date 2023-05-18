@@ -90,11 +90,11 @@ gfx::Device *NativePipeline::getDevice() const {
     return device;
 }
 
-PipelineType NativePipeline::getPipelineType() const {
+PipelineType NativePipeline::getType() const {
     return PipelineType::STANDARD;
 }
 
-PipelineCapabilities NativePipeline::getPipelineCapabilities() const {
+PipelineCapabilities NativePipeline::getCapabilities() const {
     return PipelineCapabilities{};
 }
 
