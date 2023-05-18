@@ -37,7 +37,7 @@ void PhysXRevolute::onComponentSet() {
     _mlimit.stiffness = 0;
     _mlimit.damping = 0;
     _mlimit.restitution = 0.4;
-    _mlimit.contactDistance = 0.1;
+    _mlimit.contactDistance = 0.01;
 
     auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
     joint->setConstraintFlag(physx::PxConstraintFlag::ePROJECTION, true);
