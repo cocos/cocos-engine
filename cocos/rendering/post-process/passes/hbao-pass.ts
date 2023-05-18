@@ -198,6 +198,17 @@ export class HBAOPass extends SettingPass {
         return enable;
     }
 
+    public getSceneScale (camera: Camera) {
+        let sceneScale = camera.nearClip;
+        if (!this.averageSceneScale.has(camera.node.scene)) {
+            this._calculateSceneScale(camera.node.scene, camera.visibility);
+        }
+        if (this.averageSceneScale.has(camera.node.scene)) {
+            sceneScale = this.averageSceneScale.get(camera.node.scene)!;
+        }
+        return sceneScale;
+    }
+
     public render (camera: Camera, ppl: Pipeline): void {
         passContext.updatePassViewPort();
         const width = passContext.passViewport.width;
@@ -212,13 +223,7 @@ export class HBAOPass extends SettingPass {
         // params
         const aoStrength = 1.0;
         // todo: nearest object distance from camera
-        let sceneScale = camera.nearClip;
-        if (!this.averageSceneScale.has(camera.node.scene)) {
-            this._getSceneScale(camera.node.scene, camera.visibility);
-        }
-        if (this.averageSceneScale.has(camera.node.scene)) {
-            sceneScale = this.averageSceneScale.get(camera.node.scene)!;
-        }
+        const sceneScale = this.getSceneScale(camera);
         // todo: Half Res Depth Tex
         this._hbaoParams.depthTexFullResolution = vec2.set(width, height);
         this._hbaoParams.depthTexResolution = vec2.set(width, height);
@@ -352,7 +357,7 @@ export class HBAOPass extends SettingPass {
             .version();
     }
 
-    private _getSceneScale (scene: Scene, visibility: number) {
+    private _calculateSceneScale (scene: Scene, visibility: number) {
         if (!scene || !scene.renderScene) {
             return;
         }
