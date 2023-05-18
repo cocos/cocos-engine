@@ -23,7 +23,7 @@
 */
 
 import { _decorator, EditorExtendable, editorExtrasTag } from '../../../core';
-import { MotionEvalContext, Motion, MotionEval, MotionPort } from './motion';
+import { Motion, MotionEval, MotionPort } from './motion';
 import { createEval } from '../create-eval';
 import { VariableTypeMismatchedError } from '../errors';
 import { ClipStatus } from '../state-machine/state-machine-eval';

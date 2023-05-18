@@ -25,7 +25,6 @@
 import { Vec2, _decorator, ccenum, assertIsTrue, editable } from '../../../core';
 import { createEval } from '../create-eval';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
-import { MotionEvalContext } from './motion';
 import { BindableNumber, bindOr, VariableType } from '../parametric';
 import { sampleFreeformCartesian, blendSimpleDirectional, PolarSpaceGradientBandInterpolator2D } from './blend-2d';
 import { CLASS_NAME_PREFIX_ANIM } from '../../define';

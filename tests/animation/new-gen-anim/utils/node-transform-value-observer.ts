@@ -66,8 +66,8 @@ export class NodeTransformValueObserver {
         const qAngle = toDegree(Quat.getAxisAngle(qAxis, this._root.rotation));
         expect(Vec3.equals(qAxis, NodeTransformValueObserver._FIXED_ROTATION_AXIS, 1e-6));
 
-        expect(this._eulerAngleRotationNode.eulerAngles.y).toBeCloseTo(0.0, 1e-8);
-        expect(this._eulerAngleRotationNode.eulerAngles.z).toBeCloseTo(0.0, 1e-8);
+        expect(this._eulerAngleRotationNode.eulerAngles.y).toBeCloseTo(0.0, 8);
+        expect(this._eulerAngleRotationNode.eulerAngles.z).toBeCloseTo(0.0, 8);
 
         return {
             position: this._root.position.x,

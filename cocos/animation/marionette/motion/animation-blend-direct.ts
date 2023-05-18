@@ -23,13 +23,12 @@
 */
 
 import { _decorator } from '../../../core';
-import { createEval } from '.././create-eval';
-import { MotionEvalContext } from './motion';
+import { createEval } from '../create-eval';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { CLASS_NAME_PREFIX_ANIM } from '../../define';
-import type { ReadonlyClipOverrideMap } from '.././clip-overriding';
-import { BindableNumber, bindOr, VariableType } from '.././parametric';
-import { AnimationGraphBindingContext } from '.././animation-graph-context';
+import type { ReadonlyClipOverrideMap } from '../clip-overriding';
+import { BindableNumber, bindOr, VariableType } from '../parametric';
+import { AnimationGraphBindingContext } from '../animation-graph-context';
 
 const { ccclass, serializable } = _decorator;
 

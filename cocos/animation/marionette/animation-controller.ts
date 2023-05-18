@@ -32,7 +32,7 @@ import type { MotionStateStatus, TransitionStatus, ClipStatus } from './state-ma
 import { PrimitiveValue, Value } from './variable';
 import { AnimationGraphVariant, AnimationGraphVariantRunTime } from './animation-graph-variant';
 import { AnimationGraphLike } from './animation-graph-like';
-import { ReadonlyClipOverrideMap } from './clip-overriding';
+import type { ReadonlyClipOverrideMap } from './clip-overriding';
 
 const { ccclass, menu, type, serializable, editable, formerlySerializedAs } = _decorator;
 
