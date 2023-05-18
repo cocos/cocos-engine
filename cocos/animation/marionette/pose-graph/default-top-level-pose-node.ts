@@ -1,6 +1,6 @@
 import { assertIsTrue } from '../../../core';
 import { applyDeltaPose, blendPoseInto, Pose, TransformFilter } from '../../core/pose';
-import { Layer } from '../animation-graph';
+import { AnimationGraph, Layer } from '../animation-graph';
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext,
     AnimationGraphSettleContext, AnimationGraphUpdateContext } from '../animation-graph-context';
 import { AnimationMask } from '../animation-mask';
@@ -10,9 +10,23 @@ import { PoseNode } from './pose-node';
 
 export class DefaultTopLevelPoseNode extends PoseNode {
     constructor (
-        private _layerRecords: readonly LayerEvaluationRecord[],
+        graph: AnimationGraph,
+        bindingContext: AnimationGraphBindingContext,
+        clipOverrides: ReadonlyClipOverrideMap | null,
     ) {
         super();
+
+        const layerEvaluationRecords = graph.layers.map((layer) => {
+            const record = new LayerEvaluationRecord(
+                layer,
+                bindingContext,
+                clipOverrides,
+            );
+
+            return record;
+        });
+
+        this._layerRecords = layerEvaluationRecords;
     }
 
     get layerCount () {
@@ -88,18 +102,8 @@ export class DefaultTopLevelPoseNode extends PoseNode {
         }
         return finalPose;
     }
-}
 
-export function createLayerEvaluationRecord (
-    layer: Layer,
-    bindingContext: AnimationGraphBindingContext,
-    clipOverrides: ReadonlyClipOverrideMap | null,
-): LayerEvaluationRecord {
-    return new LayerEvaluationRecord(
-        layer,
-        bindingContext,
-        clipOverrides,
-    );
+    private _layerRecords: LayerEvaluationRecord[];
 }
 
 class LayerEvaluationRecord {

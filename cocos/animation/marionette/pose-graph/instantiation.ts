@@ -7,6 +7,10 @@ import { PoseGraph } from './pose-graph';
 import { PureValueNode, PureValueNodeLinkContext } from './pure-value-node';
 import { NodeInputPath } from './foundation/node-shell';
 import { PoseGraphNode } from './foundation/pose-graph-node';
+import {
+    AnimationGraphBindingContext, AnimationGraphSettleContext,
+    AnimationGraphUpdateContext, AnimationGraphEvaluationContext,
+} from '../animation-graph-context';
 
 type EvaluatableNode = PoseNode | PureValueNode;
 
@@ -14,10 +18,40 @@ function isEvaluatableNode (node: PoseGraphNode): node is EvaluatableNode {
     return (node instanceof PoseNode || node instanceof PureValueNode);
 }
 
+class InstantiatedPoseGraph {
+    constructor (
+        private _rootPoseNode: PoseNode | undefined,
+    ) {
+
+    }
+
+    public bind (context: AnimationGraphBindingContext) {
+        this._rootPoseNode?.bind(context);
+    }
+
+    public settle (context: AnimationGraphSettleContext) {
+        this._rootPoseNode?.settle(context);
+    }
+
+    public reenter () {
+        this._rootPoseNode?.reenter();
+    }
+
+    public update (context: AnimationGraphUpdateContext) {
+        this._rootPoseNode?.update(context);
+    }
+
+    public evaluate (context: AnimationGraphEvaluationContext) {
+        return this._rootPoseNode?.evaluate(context) ?? null;
+    }
+}
+
+export type { InstantiatedPoseGraph };
+
 export function instantiatePoseGraph (
     graph: PoseGraph,
     linkContext: PureValueNodeLinkContext,
-): PoseNode | undefined {
+): InstantiatedPoseGraph {
     const {
         outputNode,
     } = graph;
@@ -28,7 +62,9 @@ export function instantiatePoseGraph (
     // Output node can only has 1 or has no binding.
     assertIsTrue(bindings.length < 2);
     if (bindings.length === 0) {
-        return undefined;
+        return new InstantiatedPoseGraph(
+            undefined,
+        );
     }
     // If the output node has a binding, it must be pose node.
     const binding = bindings[0];
@@ -44,7 +80,9 @@ export function instantiatePoseGraph (
     );
     assertIsTrue(mainRecord instanceof PoseNode);
 
-    return mainRecord;
+    return new InstantiatedPoseGraph(
+        mainRecord,
+    );
 }
 
 export interface PoseNodeDependencyEvaluation {

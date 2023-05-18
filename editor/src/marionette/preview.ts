@@ -94,10 +94,7 @@ class AnimationGraphPartialPreviewer {
 
         poseLayoutMaintainer.endBind();
 
-        const evaluationContext = new AnimationGraphEvaluationContext({
-            transformCount: poseLayoutMaintainer.transformCount,
-            auxiliaryCurveCount: poseLayoutMaintainer.auxiliaryCurveCount,
-        });
+        const evaluationContext = poseLayoutMaintainer.createEvaluationContext();
 
         poseLayoutMaintainer.fetchDefaultTransforms(evaluationContext[defaultTransformsTag]);
 
