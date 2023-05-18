@@ -106,13 +106,12 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
         this.setPivotA(this.constraint.pivotA);
         this.setPivotB(this.constraint.pivotB);
 
-        const constraint = this.constraint;
-        this.setLimitEnabled(constraint.limitEnabled);
-        this.setMotorEnabled(constraint.motorEnabled);
-        this.setLowerLimit(constraint.lowerLimit);
-        this.setUpperLimit(constraint.upperLimit);
-        this.setMotorVelocity(constraint.motorVelocity);
-        this.setMotorForceLimit(constraint.motorForceLimit);
+        this.setLimitEnabled(this.constraint.limitEnabled);
+        this.setMotorEnabled(this.constraint.motorEnabled);
+        this.setLowerLimit(this.constraint.lowerLimit);
+        this.setUpperLimit(this.constraint.upperLimit);
+        this.setMotorVelocity(this.constraint.motorVelocity);
+        this.setMotorForceLimit(this.constraint.motorForceLimit);
         this.updateFrames();
     }
 
