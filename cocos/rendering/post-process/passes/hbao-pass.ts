@@ -181,7 +181,7 @@ export class HBAOPass extends SettingPass {
     private HBAO_COMBINED_PASS_INDEX = 3;
     private _hbaoParams: HBAOParams = new HBAOParams();
     private _initialize = false;
-    private averageSceneScale = new Map<Scene, number>();
+    private averageObjectSize = new Map<Scene, number>();
 
     get setting () { return getSetting(HBAO); }
 
@@ -199,11 +199,13 @@ export class HBAOPass extends SettingPass {
 
     public getSceneScale (camera: Camera) {
         let sceneScale = camera.nearClip;
-        if (!this.averageSceneScale.has(camera.node.scene)) {
-            this._calculateSceneScale(camera.node.scene, camera.visibility);
+        if (!this.averageObjectSize.has(camera.node.scene)) {
+            this._calculateObjectSize(camera.node.scene, camera.visibility);
         }
-        if (this.averageSceneScale.has(camera.node.scene)) {
-            sceneScale = this.averageSceneScale.get(camera.node.scene)!;
+        if (this.averageObjectSize.has(camera.node.scene)) {
+            const objectSize = this.averageObjectSize.get(camera.node.scene)!;
+            // simple conversion
+            sceneScale = objectSize * 0.1;
         }
         return sceneScale;
     }
@@ -356,7 +358,7 @@ export class HBAOPass extends SettingPass {
             .version();
     }
 
-    private _calculateSceneScale (scene: Scene, visibility: number) {
+    private _calculateObjectSize (scene: Scene, visibility: number) {
         if (!scene || !scene.renderScene) {
             return;
         }
@@ -374,7 +376,7 @@ export class HBAOPass extends SettingPass {
         if (modelCount > 0) {
             sumSize.divide(v3(modelCount));
             const scale = Math.min(sumSize.x, sumSize.y, sumSize.z);
-            this.averageSceneScale.set(scene, scale);
+            this.averageObjectSize.set(scene, scale);
         }
     }
 
