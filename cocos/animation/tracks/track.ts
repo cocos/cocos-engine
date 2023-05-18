@@ -42,11 +42,11 @@ const parseTrsPathTag = Symbol('ConvertAsTrsPath');
 
 export const trackBindingTag = Symbol('TrackBinding');
 
-export type RuntimeBinding<T = unknown> = {
+export interface RuntimeBinding<T = unknown> {
     setValue(value: T): void;
 
     getValue?(): T;
-};
+}
 
 export type Binder = (binding: TrackBinding) => undefined | RuntimeBinding;
 
@@ -324,7 +324,7 @@ export class TrackBinding {
     @serializable
     public proxy: IValueProxyFactory | undefined;
 
-    private static _animationFunctions = new WeakMap<Constructor, Map<string | number, { getValue:() => any, setValue: (val: any) => void}>>();
+    private static _animationFunctions = new WeakMap<Constructor, Map<string | number, { getValue: () => any, setValue: (val: any) => void}>>();
 
     public parseTrsPath () {
         if (this.proxy) {
