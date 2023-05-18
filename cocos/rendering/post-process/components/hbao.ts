@@ -93,7 +93,6 @@ export class HBAO extends PostProcessSetting {
         return this._aoSaturation;
     }
 
-    @slide
     @tooltip('i18n:hbao.needBlur')
     @type(CCBoolean)
     @editable

@@ -242,7 +242,7 @@ export class HBAOPass extends SettingPass {
             if (root.debugView.isEnabled()
                 && (root.debugView.singleMode !== DebugViewSingleType.NONE && root.debugView.singleMode !== DebugViewSingleType.AO
                 || !root.debugView.isCompositeModeEnabled(DebugViewCompositeType.AO))) {
-                this.enable = false;
+                return;
             }
         }
 
