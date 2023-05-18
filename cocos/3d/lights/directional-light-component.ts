@@ -564,7 +564,7 @@ export class DirectionalLight extends Light {
         }
         super._onUpdateReceiveDirLight();
 
-        const scene = director.getScene();
+        const scene = this.node.scene;
         if (!scene || !scene.renderScene) {
             return;
         }
