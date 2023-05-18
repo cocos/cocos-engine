@@ -62,7 +62,7 @@ interface IPhysicsWrapperObject {
     ConfigurableConstraint?: Constructor<IConfigurableConstraint>,
 }
 
-type IPhysicsBackend = { [key: string]: IPhysicsWrapperObject; }
+interface IPhysicsBackend { [key: string]: IPhysicsWrapperObject; }
 
 interface IPhysicsSelector {
     /**
@@ -454,6 +454,12 @@ const ENTIRE_CONSTRAINT: IEntireConstraint = {
     setAngularMotorVelocity: FUNC,
     setAngularMotorForceLimit: FUNC,
     setAutoPivotB: FUNC,
+    setLimitEnabled: FUNC,
+    setLowerLimit: FUNC,
+    setUpperLimit: FUNC,
+    setMotorEnabled: FUNC,
+    setMotorVelocity: FUNC,
+    setMotorForceLimit: FUNC,
 };
 
 export function createConstraint (type: EConstraintType): IBaseConstraint {

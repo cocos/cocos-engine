@@ -252,9 +252,10 @@ exports.ready = function() {
                 });
                 trackEventWithTimer('LOD', 'A100003');
             },
-            updateLODs(operator, index) {
+            async updateLODs(operator, index) {
                 const that = this;
                 const LODs = that.dump.value.LODs.value;
+                const uuid = that.dump.value.uuid.value;
                 if (operator === 'insert') {
                     // insert after
                     if (LODs.length >= 8) {
@@ -263,17 +264,21 @@ exports.ready = function() {
                     }
                     const preValue = LODs[index].value.screenUsagePercentage.value;
                     const nextValue = LODs[index + 1] ? LODs[index + 1].value.screenUsagePercentage.value : 0;
-                    Editor.Message.request('scene', 'lod-insert', that.dump.value.uuid.value, index + 1, (preValue + nextValue) / 2, null);
+                    const undoID = await Editor.Message.request('scene', 'begin-recording', uuid);
+                    await Editor.Message.request('scene', 'lod-insert', uuid, index + 1, (preValue + nextValue) / 2, null);
+                    await Editor.Message.request('scene', 'end-recording', undoID);
                     trackEventWithTimer('LOD', 'A100005');
                 } else if (operator === 'delete') {
                     if (LODs.length === 1) {
                         console.warn('At least one LOD, Can\'t delete any more');
                         return;
                     }
-                    Editor.Message.request('scene', 'lod-erase', that.dump.value.uuid.value, index);
+                    const undoID = await Editor.Message.request('scene', 'begin-recording', uuid);
+                    await Editor.Message.request('scene', 'lod-erase', uuid, index);
+                    await Editor.Message.request('scene', 'end-recording', undoID);
                     trackEventWithTimer('LOD', 'A100006');
                 }
-                Editor.Message.send('scene', 'snapshot');
+                // Editor.Message.send('scene', 'snapshot');
             },
         },
     });

@@ -152,7 +152,11 @@ function emitCCTShapeEvent (t, cct, collider, b) {
 
 class PhysicsWorld {
     get impl () { return this._impl; }
-    constructor () { this._impl = new jsbPhy.World(); }
+    constructor () {
+        this._impl = new jsbPhy.World();
+        const phy = cc.PhysicsSystem.instance;
+        this._impl.setFixedTimeStep(phy.fixedTimeStep);
+    }
 
     setGravity (v) {
         this._impl.setGravity(v.x, v.y, v.z);
@@ -762,11 +766,23 @@ class RevoluteJoint extends Joint {
     setAxis (v) { this._impl.setAxis(v.x, v.y, v.z); }
     setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
     setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
+    setLimitEnabled (v) { this._impl.setLimitEnabled(v); }
+    setLowerLimit (v) { this._impl.setLowerLimit(v); }
+    setUpperLimit (v) { this._impl.setUpperLimit(v); }
+    setMotorEnabled (v) { this._impl.setMotorEnabled(v); }
+    setMotorVelocity (v) { this._impl.setMotorVelocity(v); }
+    setMotorForceLimit (v) { this._impl.setMotorForceLimit(v); }
     onLoad () {
         super.onLoad();
         this.setAxis(this._com.axis);
         this.setPivotA(this._com.pivotA);
         this.setPivotB(this._com.pivotB);
+        this.setLimitEnabled(this._com.limitEnabled);
+        this.setLowerLimit(this._com.lowerLimit);
+        this.setUpperLimit(this._com.upperLimit);
+        this.setMotorEnabled(this._com.motorEnabled);
+        this.setMotorVelocity(this._com.motorVelocity);
+        this.setMotorForceLimit(this._com.motorForceLimit);
     }
 }
 

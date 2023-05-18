@@ -109,8 +109,8 @@ using namespace cc::render;
 %attribute(cc::render::BasicRenderPassBuilder, bool, showStatistics, getShowStatistics, setShowStatistics);
 %attribute(cc::render::SceneVisitor, cc::pipeline::PipelineSceneData*, pipelineSceneData, getPipelineSceneData);
 %attribute(cc::render::SceneTask, cc::render::TaskType, taskType, getTaskType);
-%attribute(cc::render::BasicPipeline, cc::render::PipelineType, pipelineType, getPipelineType);
-%attribute(cc::render::BasicPipeline, cc::render::PipelineCapabilities, pipelineCapabilities, getPipelineCapabilities);
+%attribute(cc::render::BasicPipeline, cc::render::PipelineType, type, getType);
+%attribute(cc::render::BasicPipeline, cc::render::PipelineCapabilities, capabilities, getCapabilities);
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'

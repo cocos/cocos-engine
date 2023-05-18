@@ -42,6 +42,12 @@ export interface IHingeConstraint extends IBaseConstraint {
     setPivotA (v: IVec3Like): void;
     setPivotB (v: IVec3Like): void;
     setAxis (v: IVec3Like): void;
+    setLimitEnabled(v: boolean): void;
+    setLowerLimit(min: number): void;
+    setUpperLimit(max: number): void;
+    setMotorEnabled(v: boolean): void;
+    setMotorVelocity (v: number): void;
+    setMotorForceLimit (v: number): void;
 }
 
 export interface IFixedConstraint extends IBaseConstraint {

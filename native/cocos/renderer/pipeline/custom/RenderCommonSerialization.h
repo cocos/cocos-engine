@@ -39,6 +39,7 @@ namespace render {
 
 inline void save(OutputArchive& ar, const RasterView& v) {
     save(ar, v.slotName);
+    save(ar, v.slotName1);
     save(ar, v.accessType);
     save(ar, v.attachmentType);
     save(ar, v.loadOp);
@@ -51,6 +52,7 @@ inline void save(OutputArchive& ar, const RasterView& v) {
 
 inline void load(InputArchive& ar, RasterView& v) {
     load(ar, v.slotName);
+    load(ar, v.slotName1);
     load(ar, v.accessType);
     load(ar, v.attachmentType);
     load(ar, v.loadOp);
@@ -78,6 +80,7 @@ inline void load(InputArchive& ar, ClearValue& v) {
 inline void save(OutputArchive& ar, const ComputeView& v) {
     save(ar, v.name);
     save(ar, v.accessType);
+    save(ar, v.plane);
     save(ar, v.clearFlags);
     save(ar, v.clearValueType);
     save(ar, v.clearValue);
@@ -87,6 +90,7 @@ inline void save(OutputArchive& ar, const ComputeView& v) {
 inline void load(InputArchive& ar, ComputeView& v) {
     load(ar, v.name);
     load(ar, v.accessType);
+    load(ar, v.plane);
     load(ar, v.clearFlags);
     load(ar, v.clearValueType);
     load(ar, v.clearValue);

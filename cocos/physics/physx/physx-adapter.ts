@@ -156,6 +156,8 @@ function initAdaptWrapper (obj: any) {
     obj.TriangleMeshGeometry = obj.PxTriangleMeshGeometry;
     obj.RigidDynamicLockFlag = obj.PxRigidDynamicLockFlag;
     obj.TolerancesScale = obj.PxTolerancesScale;
+    obj.RevoluteJointFlags = { eLIMIT_ENABLED: 1 << 0, eDRIVE_ENABLED: 1 << 1, eDRIVE_FREESPIN: 1 << 2 };
+    obj.JointAngularLimitPair = obj.PxJointAngularLimitPair;
     obj.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => obj.PxRevoluteJointCreate(PX.physics, a, b, c, d);
     obj.createFixedConstraint = (a: any, b: any, c: any, d: any): any => obj.PxFixedJointCreate(PX.physics, a, b, c, d);
     obj.createSphericalJoint = (a: any, b: any, c: any, d: any): any => obj.PxSphericalJointCreate(PX.physics, a, b, c, d);

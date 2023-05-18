@@ -5144,45 +5144,58 @@ describe('NewGen Anim', () => {
                 expect(observer.value).toBeCloseTo(6.);
             });
 
-            test(`Run into a transition, either of the source or destination state is nullish`, () => {
-                const fixture = {
-                    initial_value: 6.,
-                    source_animation: new LinearRealValueAnimationFixture(1., 2., 3.),
-                    transition_duration: 0.3,
-                };
+            describe(`States of transition yield nullish`, () => {
+                test.each([
+                    ['Source state yields nullish', true, false],
+                    ['Destination state yields nullish', false, true],
+                    [`Both yields nullish`, true, true],
+                ] as [title: string, isSourceYieldingNullish: boolean, isDestinationYieldingNullish: boolean][]
+                )(`%s`, (_title, isSourceYieldingNullish, isDestinationYieldingNullish) => {
+                    const fixture = {
+                        initial_value: 6.,
+                        non_nullish_source_animation: new LinearRealValueAnimationFixture(1., 2., 3.),
+                        transition_duration: 0.3,
+                    };
+    
+                    const observer = new SingleRealValueObserver(fixture.initial_value);
+                    const graph = new AnimationGraph();
+                    const layer = graph.addLayer();
+                    layer.additive = true;
 
-                const observer = new SingleRealValueObserver(fixture.initial_value);
-                const graph = new AnimationGraph();
-                const layer = graph.addLayer();
-                layer.additive = true;
-
-                // Adds a motion to "hold the pose" but don't connect to it.
-                const holderState = layer.stateMachine.addMotion();
-                holderState.motion = new ConstantRealValueAnimationFixture(2.).createMotion(observer.getCreateMotionContext());
-
-                const sourceState = layer.stateMachine.addMotion();
-                sourceState.motion = fixture.source_animation.createMotion(observer.getCreateMotionContext());
-                layer.stateMachine.connect(layer.stateMachine.entryState, sourceState);
-
-                const nullDestinationState = layer.stateMachine.addMotion();
-
-                const transition = layer.stateMachine.connect(sourceState, nullDestinationState);
-                transition.duration = fixture.transition_duration;
-                transition.exitConditionEnabled = true;
-                transition.exitCondition = 0.0;
-
-                const graphEval = createAnimationGraphEval(graph, observer.root);
-                const graphUpdater = new GraphUpdater(graphEval);
-                graphUpdater.step(0.2);
-
-                expect(observer.value).toBeCloseTo(fixture.initial_value +
-                    lerp(
-                        fixture.source_animation.getExpectedAdditive(0.2),
-                        0.0, // Because destination state is nullish, it's as if it's "zero delta pose".
-                        0.2 / fixture.transition_duration,
-                    ),
-                );
-            })
+                    const addState = (yieldingNullish: boolean) => {
+                        const state = layer.stateMachine.addMotion();
+                        if (!yieldingNullish) {
+                            state.motion = fixture.non_nullish_source_animation.createMotion(observer.getCreateMotionContext());
+                        }
+                        return state;
+                    };
+    
+                    // Adds a motion to "hold the pose" but don't connect to it.
+                    const holderState = layer.stateMachine.addMotion();
+                    holderState.motion = new ConstantRealValueAnimationFixture(2.).createMotion(observer.getCreateMotionContext());
+    
+                    const sourceState = addState(isSourceYieldingNullish);
+                    const destinationState = addState(isDestinationYieldingNullish);
+                    layer.stateMachine.connect(layer.stateMachine.entryState, sourceState);
+    
+                    const transition = layer.stateMachine.connect(sourceState, destinationState);
+                    transition.duration = fixture.transition_duration;
+                    transition.exitConditionEnabled = true;
+                    transition.exitCondition = 0.0;
+    
+                    const graphEval = createAnimationGraphEval(graph, observer.root);
+                    const graphUpdater = new GraphUpdater(graphEval);
+                    graphUpdater.step(0.2);
+    
+                    expect(observer.value).toBeCloseTo(fixture.initial_value +
+                        lerp(
+                            isSourceYieldingNullish ? 0.0 : fixture.non_nullish_source_animation.getExpectedAdditive(0.2),
+                            isDestinationYieldingNullish ? 0.0 : fixture.non_nullish_source_animation.getExpectedAdditive(0.2),
+                            0.2 / fixture.transition_duration,
+                        ),
+                    );
+                });
+            });
         });
     });
 

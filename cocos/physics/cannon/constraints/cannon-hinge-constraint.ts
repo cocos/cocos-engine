@@ -27,7 +27,7 @@ import { CannonConstraint } from './cannon-constraint';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { HingeConstraint } from '../../framework';
 import { CannonRigidBody } from '../cannon-rigid-body';
-import { IVec3Like, Quat, Vec3 } from '../../../core';
+import { IVec3Like, Vec3, Quat, warnID } from '../../../core';
 
 const v3_0 = new Vec3();
 const quat_0 = new Quat();
@@ -80,6 +80,25 @@ export class CannonHingeConstraint extends CannonConstraint implements IHingeCon
             Vec3.copy((equations[4] as CANNON.RotationalEquation).axisB, this.impl.axisB);
             Vec3.copy((equations[5] as CANNON.RotationalMotorEquation).axisB, this.impl.axisB);
         }
+    }
+
+    setLimitEnabled (v: boolean): void {
+        warnID(9613);
+    }
+    setLowerLimit (min: number): void {
+        warnID(9613);
+    }
+    setUpperLimit (max: number): void {
+        warnID(9613);
+    }
+    setMotorEnabled (v: boolean): void {
+        warnID(9613);
+    }
+    setMotorVelocity (v: number): void {
+        warnID(9613);
+    }
+    setMotorForceLimit (v: number): void {
+        warnID(9613);
     }
 
     onComponentSet () {

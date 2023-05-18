@@ -131,7 +131,7 @@ export class PassContext {
                 loadOp = LoadOp.LOAD;
             }
 
-            pass.addDepthStencil(name, '_', loadOp, StoreOp.STORE, this.clearDepthColor.x, this.clearDepthColor.y, clearFlag);
+            pass.addDepthStencil(name, loadOp, StoreOp.STORE, this.clearDepthColor.x, this.clearDepthColor.y, clearFlag);
         } else {
             const clearColor = new Color();
             clearColor.copy(this.clearColor);
@@ -142,7 +142,7 @@ export class PassContext {
                 loadOp = LoadOp.LOAD;
             }
 
-            pass.addRenderTarget(name, '_', loadOp, StoreOp.STORE, clearColor);
+            pass.addRenderTarget(name, loadOp, StoreOp.STORE, clearColor);
         }
         return this;
     }
