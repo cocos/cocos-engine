@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs,
-    editable, slide, rangeMin } from 'cc.decorator';
+    editable, slide, rangeMin, range } from 'cc.decorator';
 import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
 import { CCFloat, CCInteger, cclegacy } from '../../core';
