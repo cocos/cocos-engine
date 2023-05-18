@@ -4,8 +4,8 @@ import { RuntimeStash } from '../stash/runtime-stash';
 import { PoseNode } from '../pose-node';
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext } from '../../animation-graph-context';
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}UseStashedPose`)
-export class UseStashedPose extends PoseNode {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNodeUseStashedPose`)
+export class PoseNodeUseStashedPose extends PoseNode {
     @serializable
     @editable
     public stashName = '';
