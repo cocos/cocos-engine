@@ -21,16 +21,16 @@ CCEffect %{
         normalStrength:                   { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:                        { value: normal }
-        pbrMap:                           { value: grey }
+        pbrMap:                           { value: grey, editor: { displayName: PbrOrRoughnessMap } }
         occlusionMap:                     { value: white }
         emissiveMap:                      { value: grey }
         sssIntensity:                     { value: 1.0, target: scatterParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         sssMap:                           { value: black }
         cavityMap:                        { value: white, editor: { tooltip: 'cavity map or specular map' } }
         maskMap:                          { value: black, editor: { parent: USE_BACK_LIT } }
-        thickness:                        { value: 0.0, target: scatterParams.x, editor: { parent: USE_BACK_LIT, displayName: Object Thickness, range: [0, 1000.0], tooltip: 'Object thickness (world space unit), setting a too small value will cause the scattered light to disappear' } }
-        extinction:                       { value: 0.0, target: scatterParams.y, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Extinction, slide: true, range: [0, 10.0], step: 0.001 } }
-        transmitColor:                    { value: [1.0, 0.2, 0.1, 1.0], linear: true, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Color, type: color, tooltip: 'The color of scattered lighting' } }
+        thickness:                        { value: 0.0, target: scatterParams.x, editor: { parent: USE_BACK_LIT, displayName: Object Thickness, range: [0, 1000.0], tooltip: 'i18n:ENGINE.assets.effect.propertyTips.transmitThicknessWithShadowMap' } }
+        extinction:                       { value: 0.0, target: scatterParams.y, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Extinction, slide: true, range: [0, 10.0], step: 0.001, tooltip: 'i18n:ENGINE.assets.effect.propertyTips.transmitExtinctionWithShadowMap' } }
+        transmitColor:                    { value: [1.0, 0.2, 0.1, 1.0], linear: true, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Color, type: color, tooltip: 'The color of scattered lighting, red for human skin' } }
         dualLobeRoughness:                { value: 0.5, target: dualLobeParams.x, editor: { parent: USE_DUAL_LOBE_SPECULAR, range: [0, 1.0] } }
         dualLobeIntensity:                { value: 0.02, target: dualLobeParams.w, editor: { parent: USE_DUAL_LOBE_SPECULAR, slide: true, range: [0, 0.1], step: 0.001 } }
       rasterizerState:
@@ -288,6 +288,7 @@ CCProgram standard-vs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-vs>
   #include <shared-ubos>
@@ -328,6 +329,7 @@ CCProgram standard-fs %{
 
 CCProgram shadow-caster-fs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-fs>
   #include <shared-ubos>

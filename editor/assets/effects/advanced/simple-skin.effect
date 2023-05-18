@@ -10,7 +10,7 @@ CCEffect %{
         tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:                        { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
         occlusion:                        { value: 0.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         roughness:                        { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         metallic:                         { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
@@ -30,9 +30,9 @@ CCEffect %{
         sssColoration:                    { value: 1.0, target: dualLobeParams.z, editor: { parent: USE_PREINTEGRATED_SKIN, slide: true, range: [0, 10.0], step: 0.001 } }
         cavityMap:                        { value: white, editor: { tooltip: 'cavity map or specular map' } }
         maskMap:                          { value: black, editor: { parent: USE_BACK_LIT } }
-        thickness:                        { value: 0.0, target: scatterParams.x, editor: { parent: USE_BACK_LIT, displayName: Object Thickness, range: [0, 1000.0], tooltip: 'Object thickness (world space unit), setting a too small value will cause the scattered light to disappear' } }
-        extinction:                       { value: 0.0, target: scatterParams.y, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Extinction, slide: true, range: [0, 10.0], step: 0.001 } }
-        transmitColor:                    { value: [1.0, 0.2, 0.1, 1.0], linear: true, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Color, type: color, tooltip: 'The color of scattered lighting' } }
+        thickness:                        { value: 0.0, target: scatterParams.x, editor: { parent: USE_BACK_LIT, displayName: Object Thickness, range: [0, 1000.0], tooltip: 'i18n:ENGINE.assets.effect.propertyTips.transmitThicknessWithShadowMap' } }
+        extinction:                       { value: 0.0, target: scatterParams.y, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Extinction, slide: true, range: [0, 10.0], step: 0.001, tooltip: 'i18n:ENGINE.assets.effect.propertyTips.transmitExtinctionWithShadowMap' } }
+        transmitColor:                    { value: [1.0, 0.2, 0.1, 1.0], linear: true, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Color, type: color, tooltip: 'The color of scattered lighting, red for human skin' } }
         dualLobeRoughness:                { value: 0.5, target: dualLobeParams.x, editor: { parent: USE_DUAL_LOBE_SPECULAR, range: [0, 1.0] } }
         dualLobeIntensity:                { value: 0.02, target: dualLobeParams.w, editor: { parent: USE_DUAL_LOBE_SPECULAR, slide: true, range: [0, 0.1], step: 0.001 } }
       rasterizerState:
@@ -215,22 +215,28 @@ CCProgram surface-fragment %{
     return vec4(scatterParams.z, sssCurvature, dualLobeParams.z, 0.0);
   }
 
-  #include <common-functions>
-
-  #include <surfaces/data-structures/standard>
-  #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
-  void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
+  #define CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
+  vec4 SurfacesFragmentModifyPBRParams()
   {
-    float cavity = texture(cavityMap, FSInput_texcoord).x;
-    surfaceData.specularIntensity *= cavity;
-
-    // ao and metallic ignored from pbrMap
-    #if !USE_OCCLUSION_MAP
-      surfaceData.ao = 1.0;
+    vec4 pbr = pbrParams;
+    pbr.x = 1.0;
+    pbr.z = 0.0;
+    #if USE_PBR_MAP
+      // ao and metallic ignored from pbrMap
+      vec4 res = texture(pbrMap, DEFAULT_UV);
+      pbr.y *= res.ROUGHNESS_CHANNEL;
+      pbr.w *= res.SPECULAR_INTENSITY_CHANNEL;
     #endif
-    surfaceData.metallic = 0.0;
-  }
+    #if USE_OCCLUSION_MAP
+      pbr.x = mix(1.0, texture(occlusionMap, DEFAULT_UV).OCCLUSION_CHANNEL, pbrParams.x);
+    #endif
 
+    float cavity = texture(cavityMap, FSInput_texcoord).x;
+    pbr.w *= cavity;
+    return pbr;
+  }
+  
+  #include <common-functions>
   #include <lighting-models/default-functions/simple-skin>
 }%
 

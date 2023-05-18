@@ -38,7 +38,7 @@ import { errorID, IVec3Like, warn, cclegacy } from '../../core';
 import { EColliderType, EConstraintType, ECharacterControllerType } from './physics-enum';
 import { PhysicsMaterial } from '.';
 
-export type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'ammo.js' | 'physx' | string;
+export type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'bullet' | 'physx' | string;
 
 interface IPhysicsWrapperObject {
     PhysicsWorld?: Constructor<IPhysicsWorld>,
@@ -204,6 +204,12 @@ const ENTIRE_WORLD: IPhysicsWorld = {
     syncSceneToPhysics: FUNC,
     raycast: FUNC,
     raycastClosest: FUNC,
+    sweepBox: FUNC,
+    sweepBoxClosest: FUNC,
+    sweepSphere: FUNC,
+    sweepSphereClosest: FUNC,
+    sweepCapsule: FUNC,
+    sweepCapsuleClosest: FUNC,
     emitEvents: FUNC,
     destroy: FUNC,
 };
