@@ -310,6 +310,11 @@ class TrackPath {
     private _paths: TargetPath[] = [];
 }
 
+interface AnimationFunction {
+    getValue: () => any;
+    setValue: (val: any) => void
+}
+
 /**
  * Composite of track path and value proxy.
  * Not exposed to external. If there is any reason it should be exposed,
@@ -324,7 +329,7 @@ export class TrackBinding {
     @serializable
     public proxy: IValueProxyFactory | undefined;
 
-    private static _animationFunctions = new WeakMap<Constructor, Map<string | number, { getValue: () => any, setValue: (val: any) => void}>>();
+    private static _animationFunctions = new WeakMap<Constructor, Map<string | number, AnimationFunction>>();
 
     public parseTrsPath () {
         if (this.proxy) {
