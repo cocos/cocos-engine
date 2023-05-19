@@ -114,6 +114,14 @@ RaycastResult &World::raycastClosestResult() {
     return _impl->raycastClosestResult();
 }
 
+float World::getFixedTimeStep() const {
+    return _impl->getFixedTimeStep();
+}
+
+void World::setFixedTimeStep(float fixedTimeStep) {
+    _impl->setFixedTimeStep(fixedTimeStep);
+}
+
 bool World::sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
         float orientationW, float orientationX, float orientationY, float orientationZ){
     return _impl->sweepBox(opt, halfExtentX, halfExtentY, halfExtentZ, orientationW, orientationX, orientationY, orientationZ);
@@ -149,7 +157,6 @@ RaycastResult &World::sweepClosestResult() {
 ccstd::vector<RaycastResult> &World::sweepResult() {
     return _impl->sweepResult();
 }
-
 
 } // namespace physics
 } // namespace cc

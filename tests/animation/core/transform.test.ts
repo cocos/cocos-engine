@@ -192,6 +192,22 @@ test('Multiply/Calculate relative', () => {
     }
 });
 
+test('Invert', () => {
+    const a = new Transform();
+    a.position = new Vec3(1., 2., 3.);
+    a.rotation = Quat.normalize(new Quat(), new Quat(4., 5., 6., 7.));
+    a.scale = new Vec3(8., 8., 8.);
+
+    const aMat = Transform.toMatrix(new Mat4(), a);
+    const aInvMat = Mat4.invert(new Mat4(), aMat);
+
+    const inv = new Transform();
+    expect(Transform.invert(inv, a)).toBe(inv);
+    expect(
+        Transform.equals(inv, Transform.fromMatrix(new Transform(), aInvMat)),
+    ).toBe(true);
+});
+
 test('Conversion between matrix', () => {
     const transform = new Transform();
     transform.position = new Vec3(1., 2., 3.);

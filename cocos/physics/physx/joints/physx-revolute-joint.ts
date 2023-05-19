@@ -23,18 +23,56 @@
 */
 
 import { IVec3Like, Mat4, Quat, Vec3 } from '../../../core';
-import { HingeConstraint } from '../../framework';
+import { HingeConstraint, PhysicsSystem } from '../../framework';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { getTempTransform, PX, _pxtrans, _trans } from '../physx-adapter';
 import { PhysXJoint } from './physx-joint';
+import { toRadian } from '../../../core/math';
 
 const v3_0 = new Vec3();
 const v3_1 = new Vec3();
 const v3_2 = new Vec3();
+const quat_0 = new Quat();
 const mat_0 = new Mat4();
 
 export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
-    private _rot = new Quat(Quat.IDENTITY);
+    private _limitPair = new PX.PxJointAngularLimitPair(0, 0);
+
+    setLimitEnabled (v: boolean): void {
+        this._impl.setRevoluteJointFlag(PX.RevoluteJointFlags.eLIMIT_ENABLED, v);
+        if (v) {
+            this._impl.setLimit(this._limitPair);
+        }
+    }
+    setLowerLimit (min: number): void {
+        this._limitPair.lower = toRadian(this.constraint.lowerLimit);
+        if (this.constraint.limitEnabled) {
+            this._impl.setLimit(this._limitPair);
+        }
+    }
+    setUpperLimit (max: number): void {
+        this._limitPair.upper = toRadian(this.constraint.upperLimit);
+        if (this.constraint.limitEnabled) {
+            this._impl.setLimit(this._limitPair);
+        }
+    }
+    setMotorEnabled (v: boolean): void {
+        this._impl.setRevoluteJointFlag(PX.RevoluteJointFlags.eDRIVE_ENABLED, v);
+        if (v) {
+            this._impl.setDriveVelocity(this.constraint.motorVelocity / 60.0);
+            this._impl.setDriveForceLimit(this.constraint.motorForceLimit);
+        }
+    }
+    setMotorVelocity (v: number): void {
+        if (this.constraint.motorEnabled) {
+            this._impl.setDriveVelocity(v / 60.0);
+        }
+    }
+    setMotorForceLimit (v: number): void {
+        if (this.constraint.motorEnabled) {
+            this._impl.setDriveForceLimit(v);
+        }
+    }
 
     setPivotA (v: IVec3Like): void {
         this.updateFrames();
@@ -54,6 +92,26 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
 
     onComponentSet (): void {
         this._impl = PX.createRevoluteJoint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
+
+        this._limitPair.stiffness = 0;
+        this._limitPair.damping = 0;
+        this._limitPair.restitution = 0.4;
+        this._limitPair.contactDistance = 0.01;
+
+        this._impl.setConstraintFlag(6, true); // enable projection for both bodies
+        this._impl.setConstraintFlag(32, true); // enable force limit
+        this._impl.setProjectionAngularTolerance(0.2);
+        this._impl.setProjectionLinearTolerance(0.2);
+
+        this.setPivotA(this.constraint.pivotA);
+        this.setPivotB(this.constraint.pivotB);
+
+        this.setLimitEnabled(this.constraint.limitEnabled);
+        this.setMotorEnabled(this.constraint.motorEnabled);
+        this.setLowerLimit(this.constraint.lowerLimit);
+        this.setUpperLimit(this.constraint.upperLimit);
+        this.setMotorVelocity(this.constraint.motorVelocity);
+        this.setMotorForceLimit(this.constraint.motorForceLimit);
         this.updateFrames();
     }
 
@@ -83,26 +141,26 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
             0, 0, 0, 1,
         );
 
-        mat_0.getRotation(this._rot);
+        mat_0.getRotation(quat_0);
         Vec3.multiply(pos, cs.node.worldScale, cs.pivotA);
-        this._impl.setLocalPose(0, getTempTransform(pos, this._rot));
+        this._impl.setLocalPose(0, getTempTransform(pos, quat_0));
 
         if (cb) {
             // orientation of axis in local space of body1
-            Quat.multiply(this._rot, node.worldRotation, this._rot);
+            Quat.multiply(quat_0, node.worldRotation, quat_0);
             Quat.invert(rot, cb.node.worldRotation);
-            Quat.multiply(this._rot, rot, this._rot);
+            Quat.multiply(quat_0, rot, quat_0);
             // position in local space body0
             Vec3.multiply(pos, cb.node.worldScale, cs.pivotB);
         } else {
             // orientation of axis in local space of body1
-            Quat.multiply(this._rot, node.worldRotation, this._rot);
+            Quat.multiply(quat_0, node.worldRotation, quat_0);
             // position in world space
             Vec3.multiply(pos, node.worldScale, cs.pivotA);
             Vec3.transformQuat(pos, pos, node.worldRotation);
             Vec3.add(pos, pos, node.worldPosition);
         }
-        this._impl.setLocalPose(1, getTempTransform(pos, this._rot));
+        this._impl.setLocalPose(1, getTempTransform(pos, quat_0));
     }
 
     updateScale0 () {

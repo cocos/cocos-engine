@@ -10,8 +10,6 @@
     flex-direction: column;
     overflow-y: scroll;
     overflow-x: auto;
-    padding-left: 6px;
-    padding-right: 2px;
 }
 
 .container[hoving] {
@@ -44,8 +42,9 @@
 
 .header {
     display: none;
-    margin-top: 7px;
-    padding-left: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    padding-left: 2px;
 }
 
 .header > .name,
@@ -57,21 +56,8 @@
     display: none;
 }
 
-.scene > ui-prop {
-    margin: 10px 0;
-}
-
-.scene ui-section div[slot="header"] ui-link {
-    margin-right: 4px;
-}
-
-.scene .envmap .envmap-prop {
+.scene .envmap .envmap-prop ui-prop {
     margin-top: 0;
-}
-
-.scene .envmap .envmap-radio {
-    margin-top: 16px;
-    padding-left: 1px;
 }
 
 :host([type="node"][sub-type='scene']) > .container > .scene {
@@ -143,20 +129,17 @@
 }
 
 .node .node-section {
-    margin-top: 6px;
+    margin-top: 4px;
 }
 
 :host([sub-type='node']) > .container > .node {
     display: block;
 }
 
-.component {
-    margin-top: 10px;
-}
-
 .component .component-header {
     flex: 1;
     display: flex;
+    align-items: center;
 }
 
 .component .component-header ui-drag-item {
@@ -165,13 +148,15 @@
 
 .component .component-header > .menu,
 .component .component-header > .link {
-    padding: 0 5px;
-    transition: color 0.15s;
-    color: var(--color-default-contrast-emphasis);
+    padding: 0 2px;
+}
+
+.component .component-header > .menu {
+    opacity: 0.8;
 }
 
 .component .component-header > .menu:hover {
-    opacity: 0.8;
+    opacity: 1;
 }
 
 .component .component-header > .link {
@@ -182,8 +167,9 @@
     display: inline-block;
 }
 
+.scene .skybox,
 .component ui-prop {
-    margin-top: 6px;
+    margin-top: 4px;
 }
 
 .component ui-prop [slot='label'] {

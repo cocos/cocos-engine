@@ -118,6 +118,9 @@ public:
 
     uintptr_t getPXMaterialPtrWithMaterialID(uint32_t materialID);
 
+    float getFixedTimeStep() const override { return _fixedTimeStep; }
+    void setFixedTimeStep(float fixedTimeStep) override { _fixedTimeStep = fixedTimeStep; }
+
 private:
     static PhysXWorld *instance;
     physx::PxFoundation *_mFoundation;
@@ -139,6 +142,8 @@ private:
     static uint32_t _msPXObjectID;
     ccstd::unordered_map<uint32_t, uintptr_t> _mPXObjects;
     ccstd::unordered_map<uint32_t, uintptr_t> _mWrapperObjects;
+
+    float _fixedTimeStep{1 / 60.0F};
 };
 
 } // namespace physics

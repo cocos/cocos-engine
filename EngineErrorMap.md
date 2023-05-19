@@ -3178,6 +3178,10 @@ Can't getGFXSampler with out device
 
 [Physics]: builtin physics system doesn't support cylinder collider
 
+### 9613
+
+[Physics]: cannon.js physics system doesn't support hinge drive and angular limit
+
 ### 9620
 
 [Physics][Ammo]: changing the mesh is not supported after the initialization is completed

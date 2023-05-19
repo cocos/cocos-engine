@@ -38,6 +38,7 @@
 #include "physics/physx/shapes/PhysXTrimesh.h"
 
 #include "physics/physx/joints/PhysXFixedJoint.h"
+#include "physics/physx/joints/PhysXGenericJoint.h"
 #include "physics/physx/joints/PhysXRevolute.h"
 #include "physics/physx/joints/PhysXSpherical.h"
 

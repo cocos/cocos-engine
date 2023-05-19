@@ -810,7 +810,6 @@ exports.methods = {
                 break;
         }
 
-        Editor.Message.send('scene', 'snapshot');
         const dump = this.dump;
         if (horizontal) {
             if (dump.value.isAlignLeft.value !== horizontal.isAlignLeft.value || !this.isHorizontalAlignValid) {
@@ -891,6 +890,8 @@ exports.methods = {
             }
             this.dimensionVertical = this.getDimensionVertical();
         }
+
+        this.$refs.summitProp.dispatch('confirm-dump');
     },
 
     toggleLock(direction) {

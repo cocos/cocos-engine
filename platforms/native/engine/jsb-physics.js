@@ -152,7 +152,11 @@ function emitCCTShapeEvent (t, cct, collider, b) {
 
 class PhysicsWorld {
     get impl () { return this._impl; }
-    constructor () { this._impl = new jsbPhy.World(); }
+    constructor () {
+        this._impl = new jsbPhy.World();
+        const phy = cc.PhysicsSystem.instance;
+        this._impl.setFixedTimeStep(phy.fixedTimeStep);
+    }
 
     setGravity (v) {
         this._impl.setGravity(v.x, v.y, v.z);
@@ -747,7 +751,7 @@ class Joint {
 }
 
 class SphericalJoint extends Joint {
-    constructor () { super(); this._impl = new jsbPhy.DistanceJoint(); }
+    constructor () { super(); this._impl = new jsbPhy.SphericalJoint(); }
     setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
     setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
     onLoad () {
@@ -762,11 +766,23 @@ class RevoluteJoint extends Joint {
     setAxis (v) { this._impl.setAxis(v.x, v.y, v.z); }
     setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
     setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
+    setLimitEnabled (v) { this._impl.setLimitEnabled(v); }
+    setLowerLimit (v) { this._impl.setLowerLimit(v); }
+    setUpperLimit (v) { this._impl.setUpperLimit(v); }
+    setMotorEnabled (v) { this._impl.setMotorEnabled(v); }
+    setMotorVelocity (v) { this._impl.setMotorVelocity(v); }
+    setMotorForceLimit (v) { this._impl.setMotorForceLimit(v); }
     onLoad () {
         super.onLoad();
         this.setAxis(this._com.axis);
         this.setPivotA(this._com.pivotA);
         this.setPivotB(this._com.pivotB);
+        this.setLimitEnabled(this._com.limitEnabled);
+        this.setLowerLimit(this._com.lowerLimit);
+        this.setUpperLimit(this._com.upperLimit);
+        this.setMotorEnabled(this._com.motorEnabled);
+        this.setMotorVelocity(this._com.motorVelocity);
+        this.setMotorForceLimit(this._com.motorForceLimit);
     }
 }
 
@@ -781,6 +797,105 @@ class FixedJoint extends Joint {
     }
 }
 
+class ConfigurableJoint extends Joint {
+    constructor () { super(); this._impl = new jsbPhy.GenericJoint(); }
+
+    setConstraintMode (idx, v) { this._impl.setConstraintMode(idx, v); }
+    setLinearLimit (idx, upper, lower) { this._impl.setLinearLimit(idx, upper, lower); }
+    setAngularExtent (twist, swing1, swing2) { this._impl.setAngularExtent(twist, swing1, swing2); }
+    setLinearSoftConstraint (v) { this._impl.setLinearSoftConstraint(v); }
+    setLinearStiffness (v) { this._impl.setLinearStiffness(v); }
+    setLinearDamping (v) { this._impl.setLinearDamping(v); }
+    setLinearRestitution (v) { this._impl.setLinearRestitution(v); }
+
+    setSwingSoftConstraint (v) { this._impl.setSwingSoftConstraint(v); }
+    setTwistSoftConstraint (v) { this._impl.setTwistSoftConstraint(v); }
+    setSwingStiffness (v) { this._impl.setSwingStiffness(v); }
+    setSwingDamping (v) { this._impl.setSwingDamping(v); }
+    setSwingRestitution (v) { this._impl.setSwingRestitution(v); }
+    setTwistStiffness (v) { this._impl.setTwistStiffness(v); }
+    setTwistDamping (v) { this._impl.setTwistDamping(v); }
+    setTwistRestitution (v) { this._impl.setTwistRestitution(v); }
+
+    // motor
+    setDriverMode (idx, v) { this._impl.setDriverMode(idx, v); }
+    setLinearMotorTarget (v) { this._impl.setLinearMotorTarget(v.x, v.y, v.z); }
+    setLinearMotorVelocity (v) { this._impl.setLinearMotorVelocity(v.x, v.y, v.z); }
+    setLinearMotorForceLimit (v) { this._impl.setLinearMotorForceLimit(v); }
+
+    setAngularMotorTarget (v) { this._impl.setAngularMotorTarget(v.x, v.y, v.z); }
+    setAngularMotorVelocity (v) { this._impl.setAngularMotorVelocity(v.x, v.y, v.z); }
+    setAngularMotorForceLimit (v) { this._impl.setAngularMotorForceLimit(v); }
+
+    setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
+    setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
+    setAutoPivotB (v) { this._impl.setAutoPivotB(v); }
+    setAxis (v) { this._impl.setAxis(v.x, v.y, v.z); }
+    setSecondaryAxis (v) { this._impl.setSecondaryAxis(v.x, v.y, v.z); }
+
+    setBreakForce (v) { this._impl.setBreakForce(v); }
+    setBreakTorque (v) { this._impl.setBreakTorque(v); }
+
+    onLoad () {
+        super.onLoad();
+        this.setBreakForce(this._com.breakForce);
+        this.setBreakTorque(this._com.breakTorque);
+
+        const com = this._com;
+        const linearLimit = com.linearLimitSettings;
+        const angularLimit = com.angularLimitSettings;
+        this.setConstraintMode(0, linearLimit.xMotion);
+        this.setConstraintMode(1, linearLimit.yMotion);
+        this.setConstraintMode(2, linearLimit.zMotion);
+        this.setConstraintMode(3, angularLimit.twistMotion);
+        this.setConstraintMode(4, angularLimit.swingMotion1);
+        this.setConstraintMode(5, angularLimit.swingMotion2);
+
+        this.setLinearLimit(0, linearLimit.lower.x, linearLimit.upper.x);
+        this.setLinearLimit(1, linearLimit.lower.y, linearLimit.upper.y);
+        this.setLinearLimit(2, linearLimit.lower.z, linearLimit.upper.z);
+        this.setAngularExtent(angularLimit.twistExtent, angularLimit.swingExtent1, angularLimit.swingExtent2);
+
+        this.setLinearSoftConstraint(linearLimit.enableSoftConstraint);
+        this.setLinearStiffness(linearLimit.stiffness);
+        this.setLinearDamping(linearLimit.damping);
+        this.setLinearRestitution(linearLimit.restitution);
+
+        this.setSwingSoftConstraint(angularLimit.enableSoftConstraintSwing);
+        this.setTwistSoftConstraint(angularLimit.enableSoftConstraintTwist);
+        this.setSwingStiffness(angularLimit.swingStiffness);
+        this.setSwingDamping(angularLimit.swingDamping);
+        this.setSwingRestitution(angularLimit.swingRestitution);
+        this.setTwistStiffness(angularLimit.twistStiffness);
+        this.setTwistDamping(angularLimit.twistDamping);
+        this.setTwistRestitution(angularLimit.twistRestitution);
+
+        const linearMotor = com.linearDriverSettings;
+        const angularMotor = com.angularDriverSettings;
+        this.setDriverMode(0, linearMotor.xDrive);
+        this.setDriverMode(1, linearMotor.yDrive);
+        this.setDriverMode(2, linearMotor.zDrive);
+        this.setDriverMode(3, angularMotor.twistDrive);
+        this.setDriverMode(4, angularMotor.swingDrive1);
+        this.setDriverMode(5, angularMotor.swingDrive2);
+
+        this.setLinearMotorTarget(linearMotor.targetPosition);
+        this.setLinearMotorVelocity(linearMotor.targetVelocity);
+        this.setLinearMotorForceLimit(linearMotor.strength);
+
+        this.setAngularMotorTarget(angularMotor.targetOrientation);
+        this.setAngularMotorVelocity(angularMotor.targetVelocity);
+        this.setAngularMotorForceLimit(angularMotor.strength);
+
+        this.setPivotA(com.pivotA);
+        this.setPivotB(com.pivotB);
+        this.setAutoPivotB(com.autoPivotB);
+        this.setAxis(com.axis);
+        this.setSecondaryAxis(com.secondaryAxis);
+        this.setBreakForce(com.breakForce);
+        this.setBreakTorque(com.breakTorque);
+    }
+}
 class CharacterController {
     get impl () { return this._impl; }
     get characterController () { return this._com; }
@@ -880,6 +995,7 @@ cc.physics.selector.register('physx', {
     PointToPointConstraint: SphericalJoint,
     HingeConstraint: RevoluteJoint,
     FixedConstraint: FixedJoint,
+    ConfigurableConstraint: ConfigurableJoint,
     CapsuleCharacterController,
     BoxCharacterController,
 });

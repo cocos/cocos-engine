@@ -88,6 +88,58 @@ Enum(EAxisDirection);
 
 /**
  * @en
+ * Degree of freedom.
+ * @zh
+ * 自由度。
+ */
+export enum ED6Axis {
+    /**
+     * @en
+     * X axis.
+     * @zh
+     * X 轴。
+     */
+    X = 0,
+    /**
+     * @en
+     * Y axis.
+     * @zh
+     * Y 轴。
+     */
+    Y = 1,
+    /**
+     * @en
+     * Z axis.
+     * @zh
+     * Z 轴。
+     */
+    Z = 2,
+    /**
+     * @en
+     * Swing 1, directs toward the local Y axis.
+     * @zh
+     * 摆动 1，其方向朝向 Y 轴。
+     */
+    SWING1 = 3,
+    /**
+     * @en
+     * Swing 2, directs toward the local Z axis.
+     * @zh
+     * 摆动 2，其方向朝向 Z 轴。
+     */
+    SWING2 = 4,
+    /**
+     * @en
+     * Twist, directs toward the local X axis.
+     * @zh
+     * 扭转，其方向朝向 X 轴。
+     */
+    TWIST = 5,
+}
+Enum(ED6Axis);
+
+/**
+ * @en
  * Simplex Type.
  * @zh
  * 单形体类型。
@@ -232,8 +284,82 @@ export enum EConstraintType {
      * 固定约束。
      */
     FIXED,
+
+    /**
+     * @en
+     * Configurable constraint.
+     * @zh
+     * 可配置约束。
+     */
+    CONFIGURABLE,
 }
 Enum(EConstraintType);
+
+/**
+ * @en
+ * Constraint Mode for degrees of freedom.
+ * @zh
+ * 自由度约束模式。
+ */
+export enum EConstraintMode {
+    /**
+     * @en
+     * Free mode, the specified degrees of freedom are free to move.
+     * @zh
+     * 自由模式，指定的自由度可以自由移动。
+     */
+    FREE = 0,
+
+    /**
+     * @en
+     * Limited mode, the specified degrees of freedom are limited.
+     * @zh
+     * 限制模式，指定的自由度受到限制。
+     */
+    LIMITED = 1,
+
+    /**
+     * @en
+     * Locked mode, the specified degrees of freedom are locked.
+     * @zh
+     * 锁定模式，指定的自由度被锁定。
+     */
+    LOCKED = 2,
+}
+Enum(EConstraintMode);
+
+/**
+ * @en
+ * Driver Type.
+ * @zh
+ * 驱动类型。
+ */
+export enum EDriverMode {
+    /**
+     * @en
+     * Disabled.
+     * @zh
+     * 禁用。
+     */
+    DISABLED = 0,
+
+    /**
+     * @en
+     * Servo motor, which targets the specified rotation angle.
+     * @zh
+     * 伺服电机，旋转到特定角度。
+     */
+    SERVO = 1,
+
+    /**
+     * @en
+     * Induction motor, which targets the specified velocity.
+     * @zh
+     * 感应电机，旋转到特定速度。
+     */
+    INDUCTION = 2,
+}
+Enum(EDriverMode);
 
 /**
  * @en
