@@ -316,7 +316,7 @@ module.exports = {
             },
             addVertexColor: {
                 name: '填充顶点色',
-                title: '如果模型没有顶点颜色属性，添加颜色属性， 填充为白色。',
+                title: '如果模型没有顶点颜色属性，添加颜色属性，填充为白色。',
             },
             meshOptimizer: {
                 name: 'Mesh 优化',
