@@ -26,7 +26,8 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { EDITOR, TEST } from 'internal:constants';
-import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint } from '../spec/i-physics-constraint';
+import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint,
+    IConfigurableConstraint } from '../spec/i-physics-constraint';
 import {
     IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape,
     IConeShape, ITerrainShape, ISimplexShape, IPlaneShape, IBaseShape,
@@ -58,9 +59,10 @@ interface IPhysicsWrapperObject {
     HingeConstraint?: Constructor<IHingeConstraint>,
     ConeTwistConstraint?: Constructor<IConeTwistConstraint>,
     FixedConstraint?: Constructor<IFixedConstraint>,
+    ConfigurableConstraint?: Constructor<IConfigurableConstraint>,
 }
 
-type IPhysicsBackend = { [key: string]: IPhysicsWrapperObject; }
+interface IPhysicsBackend { [key: string]: IPhysicsWrapperObject; }
 
 interface IPhysicsSelector {
     /**
@@ -232,6 +234,7 @@ enum ECheckType {
     HingeConstraint,
     ConeTwistConstraint,
     FixedConstraint,
+    ConfigurableConstraint,
     // CHARACTER CONTROLLER //
     BoxCharacterController,
     CapsuleCharacterController,
@@ -412,7 +415,7 @@ function initColliderProxy () {
 
 const CREATE_CONSTRAINT_PROXY = { INITED: false };
 
-interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint { }
+interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint, IConfigurableConstraint { }
 const ENTIRE_CONSTRAINT: IEntireConstraint = {
     impl: null,
     initialize: FUNC,
@@ -425,8 +428,32 @@ const ENTIRE_CONSTRAINT: IEntireConstraint = {
     setPivotA: FUNC,
     setPivotB: FUNC,
     setAxis: FUNC,
+    setSecondaryAxis: FUNC,
     setBreakForce: FUNC,
     setBreakTorque: FUNC,
+    setConstraintMode: FUNC,
+    setLinearLimit: FUNC,
+    setAngularExtent: FUNC,
+    setLinearSoftConstraint: FUNC,
+    setLinearStiffness: FUNC,
+    setLinearDamping: FUNC,
+    setLinearRestitution: FUNC,
+    setSwingSoftConstraint: FUNC,
+    setTwistSoftConstraint: FUNC,
+    setSwingStiffness: FUNC,
+    setSwingDamping: FUNC,
+    setSwingRestitution: FUNC,
+    setTwistStiffness: FUNC,
+    setTwistDamping: FUNC,
+    setTwistRestitution: FUNC,
+    setDriverMode: FUNC,
+    setLinearMotorTarget: FUNC,
+    setLinearMotorVelocity: FUNC,
+    setLinearMotorForceLimit: FUNC,
+    setAngularMotorTarget: FUNC,
+    setAngularMotorVelocity: FUNC,
+    setAngularMotorForceLimit: FUNC,
+    setAutoPivotB: FUNC,
     setLimitEnabled: FUNC,
     setLowerLimit: FUNC,
     setUpperLimit: FUNC,
@@ -462,6 +489,11 @@ function initConstraintProxy () {
     CREATE_CONSTRAINT_PROXY[EConstraintType.FIXED] = function createFixedConstraint (): IFixedConstraint {
         if (check(selector.wrapper.FixedConstraint, ECheckType.FixedConstraint)) { return ENTIRE_CONSTRAINT; }
         return new selector.wrapper.FixedConstraint!();
+    };
+
+    CREATE_CONSTRAINT_PROXY[EConstraintType.CONFIGURABLE] = function createConfigurableConstraint (): IConfigurableConstraint {
+        if (check(selector.wrapper.ConfigurableConstraint, ECheckType.ConfigurableConstraint)) { return ENTIRE_CONSTRAINT; }
+        return new selector.wrapper.ConfigurableConstraint!();
     };
 }
 

@@ -29,6 +29,7 @@ import {
     serializable,
     formerlySerializedAs,
     type,
+    tooltip,
 } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Constraint } from './constraint';
@@ -43,11 +44,12 @@ import { legacyCC } from '../../../../core/global-exports';
 export class FixedConstraint extends Constraint {
     /**
      * @en
-     * The break force threshold of the constraint.
+     * The maximum force that can be applied to the constraint before it breaks.
      * @zh
      * 约束的断裂力阈值。
      */
     @type(CCFloat)
+    @tooltip('i18n:physics3d.constraint.breakForce')
     get breakForce (): number {
         return this._breakForce;
     }
@@ -61,11 +63,12 @@ export class FixedConstraint extends Constraint {
 
     /**
      * @en
-     * The break torque threshold of the constraint.
+     * The maximum torque that can be applied to the constraint before it breaks.
      * @zh
      * 约束的断裂扭矩阈值。
      */
     @type(CCFloat)
+    @tooltip('i18n:physics3d.constraint.breakTorque')
     get breakTorque (): number {
         return this._breakTorque;
     }

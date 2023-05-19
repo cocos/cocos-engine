@@ -165,12 +165,12 @@ export class HingeMotorData {
 export class HingeConstraint extends Constraint {
     /**
      * @en
-     * The pivot point of the hinge in the local coordinate system of the own rigid body.
+     * The pivot point of the constraint in the local coordinate system of the attached rigid body.
      * @zh
-     * 在自身刚体的本地坐标系中，旋转轴的锚点位置。
+     * 约束关节在连接刚体的本地坐标系中的锚点。
      */
     @type(Vec3)
-    @tooltip('i18n:physics3d.constraint.hinge.pivotA')
+    @tooltip('i18n:physics3d.constraint.pivotA')
     get pivotA (): Vec3 {
         return this._pivotA;
     }
@@ -184,12 +184,12 @@ export class HingeConstraint extends Constraint {
 
     /**
      * @en
-     * The pivot point of the hinge in the local coordinate system of the connected rigid body.
+     * The pivot point of the constraint in the local coordinate system of the connected rigid body.
      * @zh
-     * 在连接刚体的本地坐标系中，旋转轴的锚点位置。
+     * 约束关节在连接刚体的本地坐标系中的锚点。
      */
     @type(Vec3)
-    @tooltip('i18n:physics3d.constraint.hinge.pivotB')
+    @tooltip('i18n:physics3d.constraint.pivotB')
     get pivotB (): Vec3 {
         return this._pivotB;
     }
@@ -203,12 +203,12 @@ export class HingeConstraint extends Constraint {
 
     /**
      * @en
-     * The axis of the hinge in the local coordinate system of the own rigid body.
+     * The axis of the constraint in the local coordinate system of the attached rigid body.
      * @zh
-     * 在自身刚体的本地坐标系中，旋转轴的方向。
+     * 约束关节在连接刚体的本地坐标系中的轴。
      */
     @type(Vec3)
-    @tooltip('i18n:physics3d.constraint.hinge.axis')
+    @tooltip('i18n:physics3d.constraint.axis')
     get axis (): Vec3 {
         return this._axis;
     }
