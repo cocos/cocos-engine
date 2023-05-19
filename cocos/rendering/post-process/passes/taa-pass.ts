@@ -183,7 +183,7 @@ export class TAAPass extends SettingPass {
         }
 
         const slot0 = this.slotName(camera, 0);
-        const depthTex = passContext.forwardPass.slotName(camera, 1);
+        const depthTex = passContext.depthSlotName;
 
         const layoutName = `DeferredTAA${this.taaTextureIndex < 0 ? -1 : (this.taaTextureIndex % 2)}`;
         passContext

@@ -50,6 +50,8 @@ export class ForwardPass extends BasePass {
         const slot0 = this.slotName(camera, 0);
         const slot1 = this.slotName(camera, 1);
 
+        passContext.depthSlotName = slot1;
+
         const cameraID = getCameraUniqueID(camera);
         const isOffScreen = true;
         passContext

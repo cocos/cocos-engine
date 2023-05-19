@@ -63,11 +63,13 @@ export class PostProcessBuilder implements PipelineBuilder  {
             pp = [];
             this.pipelines.set(pipelineName, pp);
         }
-        pp.push(pass);
+        if (!pp.includes(pass)) {
+            pp.push(pass);
+        }
     }
     insertPass (pass: BasePass, passClass: typeof BasePass, pipelineName = 'forward') {
         const pp = this.pipelines.get(pipelineName);
-        if (pp) {
+        if (pp && !pp.includes(pass)) {
             const idx = pp.findIndex((p) => p instanceof passClass);
             if (idx !== -1) {
                 pp.splice(idx + 1, 0, pass);
@@ -101,6 +103,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         passContext.renderProfiler = false;
         passContext.shadowPass = undefined;
         passContext.forwardPass = undefined;
+        passContext.depthSlotName = '';
 
         let globalPP: PostProcess | undefined;
         for (let i = 0; i < PostProcess.all.length; i++) {
