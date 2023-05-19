@@ -219,7 +219,7 @@ export class Downloader {
     /**
      * @engineInternal
      */
-    public limited = !(EDITOR && !legacyCC.GAME_VIEW);
+    public limited = !EDITOR;
 
     /**
      * @en
