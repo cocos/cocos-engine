@@ -424,6 +424,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 9610, "[Physics]: cannon.js physics system doesn't support capsule collider" },
 { 9611, "[Physics]: builtin physics system doesn't support mesh collider" },
 { 9612, "[Physics]: builtin physics system doesn't support cylinder collider" },
+{ 9613, "[Physics]: cannon.js physics system doesn't support hinge drive and angular limit" },
 { 9620, "[Physics][Ammo]: changing the mesh is not supported after the initialization is completed" },
 { 9630, "[Physics]: A dynamic rigid body can not have the following collider shapes: Terrain, Plane and Non-convex Mesh. Node name: %s" },
 { 9640, "[Physics][builtin]: sweep functions are not supported in builtin" },

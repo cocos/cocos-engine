@@ -786,14 +786,14 @@ const Elements = {
                     case 'screenRatio':
                         // TODO: Min/max of the screenRatio for each level of LOD
                         panel.metaList.forEach((meta) => {
-                            meta.userData.lods.options[index].screenRatio = value;
+                            meta.userData.lods && (meta.userData.lods.options[index].screenRatio = value);
                         });
                         panel.dispatch('change');
                         break;
                     case 'faceCount':
                         // TODO: Min/max of the faceCount for each level of LOD
                         panel.metaList.forEach((meta) => {
-                            meta.userData.lods.options[index].faceCount = value;
+                            meta.userData.lods && (meta.userData.lods.options[index].faceCount = value);
                         });
                         panel.dispatch('change');
                         break;
@@ -806,6 +806,9 @@ const Elements = {
                 const path = event.target.getAttribute('path');
                 const index = Number(event.target.getAttribute('key'));
                 const lods = panel.meta.userData.lods;
+                if (!lods) {
+                    return;
+                }
                 if (path === 'insertLod') {
                     if (Object.keys(lods.options).length >= 8) {
                         console.warn('Maximum 8 LOD, Can\'t add more LOD');
@@ -856,8 +859,8 @@ const Elements = {
             const panel = this;
 
             panel.$.lodsCheckbox.value = getPropValue.call(panel, panel.meta.userData.lods, false, 'enable');
-            const lodOptions = panel.meta.userData.lods.options || [];
-            const hasBuiltinLOD = panel.meta.userData.lods.hasBuiltinLOD;
+            const lodOptions = panel.meta.userData.lods && panel.meta.userData.lods.options || [];
+            const hasBuiltinLOD = panel.meta.userData.lods && panel.meta.userData.lods.hasBuiltinLOD || false;
             panel.$.lodItems.innerHTML = getLodItemHTML(lodOptions, panel.LODTriangleCounts, hasBuiltinLOD);
             hasBuiltinLOD ? panel.$.noLodLabel.setAttribute('hidden', '') : panel.$.noLodLabel.removeAttribute('hidden');
             if (panel.$.loadMask.style.display === 'block' && this.asset.imported) {
@@ -925,6 +928,9 @@ exports.close = function() {
 };
 
 function handleLODTriangleCounts(meta) {
+    if (!meta.userData.lods) {
+        return [];
+    }
     let LODTriangleCounts = new Array(meta.userData.lods.options.length).fill(0);
     for (const key in meta.subMetas) {
         const subMeta = meta.subMetas[key];
@@ -957,7 +963,7 @@ function getLodItemHTML(lodOptions, LODTriangleCounts, hasBuiltinLOD = false) {
             </div>
             <div class="right">
                 <div class="triangles">
-                    <span> ${LODTriangleCounts[index]} Triangles</span>
+                    <span> ${LODTriangleCounts[index] || 0} Triangles</span>
                 </div>
                 <div class="operator" ${ hasBuiltinLOD ? 'hidden' : '' }>
                     <ui-icon value="add" key="${index}" path="insertLod" tooltip="insert after this LOD"></ui-icon>
