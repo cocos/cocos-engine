@@ -107,6 +107,46 @@ public:
     virtual bool isRenderQueueReset() const = 0;
 };
 
+enum class PipelineType {
+    BASIC,
+    STANDARD,
+};
+
+enum class SubpassCapabilities : uint32_t {
+    NONE = 0,
+    INPUT_DEPTH_STENCIL = 1 << 0,
+    INPUT_COLOR = 1 << 1,
+    INPUT_COLOR_MRT = 1 << 2,
+};
+
+constexpr SubpassCapabilities operator|(const SubpassCapabilities lhs, const SubpassCapabilities rhs) noexcept {
+    return static_cast<SubpassCapabilities>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+}
+
+constexpr SubpassCapabilities operator&(const SubpassCapabilities lhs, const SubpassCapabilities rhs) noexcept {
+    return static_cast<SubpassCapabilities>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+}
+
+constexpr SubpassCapabilities& operator|=(SubpassCapabilities& lhs, const SubpassCapabilities rhs) noexcept {
+    return lhs = lhs | rhs;
+}
+
+constexpr SubpassCapabilities& operator&=(SubpassCapabilities& lhs, const SubpassCapabilities rhs) noexcept {
+    return lhs = lhs & rhs;
+}
+
+constexpr bool operator!(SubpassCapabilities e) noexcept {
+    return e == static_cast<SubpassCapabilities>(0);
+}
+
+constexpr bool any(SubpassCapabilities e) noexcept {
+    return !!e;
+}
+
+struct PipelineCapabilities {
+    SubpassCapabilities subpass{SubpassCapabilities::NONE};
+};
+
 class RenderNode {
 public:
     RenderNode() noexcept = default;
@@ -174,6 +214,110 @@ public:
     }
     void clearRenderTarget(const ccstd::string &name) {
         clearRenderTarget(name, {});
+    }
+};
+
+class BasicRenderPassBuilder : public Setter {
+public:
+    BasicRenderPassBuilder() noexcept = default;
+
+    virtual void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
+    virtual void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
+    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
+    virtual void addRasterView(const ccstd::string &name, const RasterView &view) = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
+    virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
+    virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) = 0;
+    virtual void setViewport(const gfx::Viewport &viewport) = 0;
+    virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
+    virtual bool getShowStatistics() const = 0;
+    virtual void setShowStatistics(bool enable) = 0;
+    void addRenderTarget(const ccstd::string &name) {
+        addRenderTarget(name, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, {});
+    }
+    void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp) {
+        addRenderTarget(name, loadOp, gfx::StoreOp::STORE, {});
+    }
+    void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
+        addRenderTarget(name, loadOp, storeOp, {});
+    }
+    void addDepthStencil(const ccstd::string &name) {
+        addDepthStencil(name, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp) {
+        addDepthStencil(name, loadOp, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
+        addDepthStencil(name, loadOp, storeOp, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth) {
+        addDepthStencil(name, loadOp, storeOp, depth, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil) {
+        addDepthStencil(name, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
+    }
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
+        addTexture(name, slotName, nullptr, 0);
+    }
+    void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
+        addTexture(name, slotName, sampler, 0);
+    }
+    RenderQueueBuilder *addQueue() {
+        return addQueue(QueueHint::NONE, "");
+    }
+    RenderQueueBuilder *addQueue(QueueHint hint) {
+        return addQueue(hint, "");
+    }
+};
+
+class BasicPipeline : public PipelineRuntime {
+public:
+    BasicPipeline() noexcept = default;
+
+    virtual PipelineType getType() const = 0;
+    virtual PipelineCapabilities getCapabilities() const = 0;
+    virtual void beginSetup() = 0;
+    virtual void endSetup() = 0;
+    virtual bool containsResource(const ccstd::string &name) const = 0;
+    /**
+     * @deprecated method will be removed in 3.8.0
+     */
+    virtual uint32_t addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
+    virtual uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
+    virtual void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) = 0;
+    virtual uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
+    virtual uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
+    virtual void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
+    virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
+    virtual void beginFrame() = 0;
+    virtual void endFrame() = 0;
+    virtual BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) = 0;
+    virtual BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &layoutName) = 0;
+    virtual void addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) = 0;
+    virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
+    virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
+    uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
+        return addRenderTarget(name, format, width, height, ResourceResidency::MANAGED);
+    }
+    uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
+        return addDepthStencil(name, format, width, height, ResourceResidency::MANAGED);
+    }
+    void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height) {
+        updateRenderTarget(name, width, height, gfx::Format::UNKNOWN);
+    }
+    void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height) {
+        updateDepthStencil(name, width, height, gfx::Format::UNKNOWN);
+    }
+    BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height) {
+        return addRenderPass(width, height, "default");
+    }
+    BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality) {
+        return addMultisampleRenderPass(width, height, count, quality, "default");
     }
 };
 
@@ -257,6 +401,20 @@ public:
     }
 };
 
+class MultisampleRenderSubpassBuilder : public RenderSubpassBuilder {
+public:
+    MultisampleRenderSubpassBuilder() noexcept = default;
+
+    virtual void resolveRenderTarget(const ccstd::string &source, const ccstd::string &target) = 0;
+    virtual void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target, gfx::ResolveMode depthMode, gfx::ResolveMode stencilMode) = 0;
+    void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target) {
+        resolveDepthStencil(source, target, gfx::ResolveMode::SAMPLE_ZERO, gfx::ResolveMode::SAMPLE_ZERO);
+    }
+    void resolveDepthStencil(const ccstd::string &source, const ccstd::string &target, gfx::ResolveMode depthMode) {
+        resolveDepthStencil(source, target, depthMode, gfx::ResolveMode::SAMPLE_ZERO);
+    }
+};
+
 class ComputeQueueBuilder : public Setter {
 public:
     ComputeQueueBuilder() noexcept = default;
@@ -310,64 +468,6 @@ public:
     }
 };
 
-class BasicRenderPassBuilder : public Setter {
-public:
-    BasicRenderPassBuilder() noexcept = default;
-
-    virtual void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) = 0;
-    virtual void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
-    virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
-    virtual void addRasterView(const ccstd::string &name, const RasterView &view) = 0;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
-    virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
-    virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &layoutName) = 0;
-    virtual void setViewport(const gfx::Viewport &viewport) = 0;
-    virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
-    virtual bool getShowStatistics() const = 0;
-    virtual void setShowStatistics(bool enable) = 0;
-    void addRenderTarget(const ccstd::string &name) {
-        addRenderTarget(name, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, {});
-    }
-    void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp) {
-        addRenderTarget(name, loadOp, gfx::StoreOp::STORE, {});
-    }
-    void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
-        addRenderTarget(name, loadOp, storeOp, {});
-    }
-    void addDepthStencil(const ccstd::string &name) {
-        addDepthStencil(name, gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
-    }
-    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp) {
-        addDepthStencil(name, loadOp, gfx::StoreOp::STORE, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
-    }
-    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp) {
-        addDepthStencil(name, loadOp, storeOp, 1, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
-    }
-    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth) {
-        addDepthStencil(name, loadOp, storeOp, depth, 0, gfx::ClearFlagBit::DEPTH_STENCIL);
-    }
-    void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil) {
-        addDepthStencil(name, loadOp, storeOp, depth, stencil, gfx::ClearFlagBit::DEPTH_STENCIL);
-    }
-    void addTexture(const ccstd::string &name, const ccstd::string &slotName) {
-        addTexture(name, slotName, nullptr, 0);
-    }
-    void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
-        addTexture(name, slotName, sampler, 0);
-    }
-    RenderQueueBuilder *addQueue() {
-        return addQueue(QueueHint::NONE, "");
-    }
-    RenderQueueBuilder *addQueue(QueueHint hint) {
-        return addQueue(hint, "");
-    }
-};
-
 class RenderPassBuilder : public BasicRenderPassBuilder {
 public:
     RenderPassBuilder() noexcept = default;
@@ -375,6 +475,7 @@ public:
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, ClearValueType clearType, const ClearValue &clearValue) = 0;
     virtual RenderSubpassBuilder *addRenderSubpass(const ccstd::string &layoutName) = 0;
+    virtual MultisampleRenderSubpassBuilder *addMultisampleRenderSubpass(uint32_t count, uint32_t quality, const ccstd::string &layoutName) = 0;
     virtual ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &layoutName) = 0;
     /**
      * @beta function signature might change
@@ -394,6 +495,9 @@ public:
     }
     RenderSubpassBuilder *addRenderSubpass() {
         return addRenderSubpass("");
+    }
+    MultisampleRenderSubpassBuilder *addMultisampleRenderSubpass(uint32_t count, uint32_t quality) {
+        return addMultisampleRenderSubpass(count, quality, "");
     }
     ComputeSubpassBuilder *addComputeSubpass() {
         return addComputeSubpass("");
@@ -483,87 +587,6 @@ public:
     virtual ~SceneTransversal() noexcept = default;
 
     virtual SceneTask *transverse(SceneVisitor *visitor) const = 0;
-};
-
-enum class PipelineType {
-    BASIC,
-    STANDARD,
-};
-
-enum class SubpassCapabilities : uint32_t {
-    NONE = 0,
-    INPUT_DEPTH_STENCIL = 1 << 0,
-    INPUT_COLOR = 1 << 1,
-    INPUT_COLOR_MRT = 1 << 2,
-};
-
-constexpr SubpassCapabilities operator|(const SubpassCapabilities lhs, const SubpassCapabilities rhs) noexcept {
-    return static_cast<SubpassCapabilities>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
-}
-
-constexpr SubpassCapabilities operator&(const SubpassCapabilities lhs, const SubpassCapabilities rhs) noexcept {
-    return static_cast<SubpassCapabilities>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
-}
-
-constexpr SubpassCapabilities& operator|=(SubpassCapabilities& lhs, const SubpassCapabilities rhs) noexcept {
-    return lhs = lhs | rhs;
-}
-
-constexpr SubpassCapabilities& operator&=(SubpassCapabilities& lhs, const SubpassCapabilities rhs) noexcept {
-    return lhs = lhs & rhs;
-}
-
-constexpr bool operator!(SubpassCapabilities e) noexcept {
-    return e == static_cast<SubpassCapabilities>(0);
-}
-
-constexpr bool any(SubpassCapabilities e) noexcept {
-    return !!e;
-}
-
-struct PipelineCapabilities {
-    SubpassCapabilities subpass{SubpassCapabilities::NONE};
-};
-
-class BasicPipeline : public PipelineRuntime {
-public:
-    BasicPipeline() noexcept = default;
-
-    virtual PipelineType getType() const = 0;
-    virtual PipelineCapabilities getCapabilities() const = 0;
-    virtual void beginSetup() = 0;
-    virtual void endSetup() = 0;
-    virtual bool containsResource(const ccstd::string &name) const = 0;
-    /**
-     * @deprecated method will be removed in 3.8.0
-     */
-    virtual uint32_t addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
-    virtual uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
-    virtual void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) = 0;
-    virtual uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
-    virtual uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
-    virtual void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
-    virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
-    virtual void beginFrame() = 0;
-    virtual void endFrame() = 0;
-    virtual BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) = 0;
-    virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
-    virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
-    uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
-        return addRenderTarget(name, format, width, height, ResourceResidency::MANAGED);
-    }
-    uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
-        return addDepthStencil(name, format, width, height, ResourceResidency::MANAGED);
-    }
-    void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height) {
-        updateRenderTarget(name, width, height, gfx::Format::UNKNOWN);
-    }
-    void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height) {
-        updateDepthStencil(name, width, height, gfx::Format::UNKNOWN);
-    }
-    BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height) {
-        return addRenderPass(width, height, "default");
-    }
 };
 
 class Pipeline : public BasicPipeline {
