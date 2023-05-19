@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { Vec4 } from '../../../core';
 import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
 import { Pipeline } from '../../custom';
@@ -51,7 +52,7 @@ export class ToneMappingPass extends SettingPass {
         const passIndx = 0;
 
         passContext.clearFlag = ClearFlagBit.COLOR;
-        passContext.clearColor.set(camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w);
+        Vec4.set(passContext.clearColor, camera.clearColor.x, camera.clearColor.y, camera.clearColor.z, camera.clearColor.w);
         passContext.updatePassViewPort()
             .addRenderPass(layoutName, passName)
             .setPassInput(input, 'u_texSampler')
