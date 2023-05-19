@@ -177,7 +177,6 @@ export class PostProcessBuilder implements PipelineBuilder  {
 
             pass.lastPass = lastPass;
             pass.render(camera, ppl);
-            if (pass.discard) { continue; }
 
             lastPass = pass;
         }
