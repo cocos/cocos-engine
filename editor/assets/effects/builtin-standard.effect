@@ -320,7 +320,7 @@ CCProgram surface-fragment %{
     pbr.x = 1.0;
     #if USE_PBR_MAP
       vec4 res = texture(pbrMap, DEFAULT_UV);
-      pbr.x *= res.OCCLUSION_CHANNEL;
+      pbr.x = mix(1.0, res.OCCLUSION_CHANNEL, pbrParams.x);
       pbr.y *= res.ROUGHNESS_CHANNEL;
       pbr.z *= res.METALLIC_CHANNEL;
       pbr.w *= res.SPECULAR_INTENSITY_CHANNEL;
