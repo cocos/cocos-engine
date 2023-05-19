@@ -855,11 +855,19 @@ export class MeshRenderer extends ModelRenderer {
         if (!mainLight) { return; }
         const visibility = mainLight.visibility;
         if (!mainLight.node) { return; }
-        if (mainLight.node.mobility === MobilityMode.Static
-            && (this.bakeSettings.texture || (this.node.scene.globals.lightProbeInfo.data
-            && this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
-            && this._model.useLightProbe))) {
-            this.onUpdateReceiveDirLight(visibility, true);
+        
+        if (mainLight.node.mobility === MobilityMode.Static) {
+            let forceClose = false;
+            if (this.bakeSettings.texture && !this.node.scene.globals.disableLightmap) {
+                forceClose = true;
+            }
+            if (this.node.scene.globals.lightProbeInfo.data
+                && this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
+                && this._model.useLightProbe) {
+                    forceClose = true;
+            }
+
+            this.onUpdateReceiveDirLight(visibility, forceClose);
         } else {
             this.onUpdateReceiveDirLight(visibility);
         }
