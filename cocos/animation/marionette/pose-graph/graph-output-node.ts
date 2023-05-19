@@ -16,9 +16,3 @@ export class PoseGraphOutputNode extends PoseGraphNode {
 globalPoseGraphNodeInputManager.setPropertyNodeInputRecord(PoseGraphOutputNode, 'pose', {
     type: PoseGraphType.POSE,
 });
-
-if (EDITOR) {
-    PoseGraphOutputNode.prototype.getTitle = function getTitle (this: PoseGraphOutputNode) {
-        return '输出姿势';
-    };
-}

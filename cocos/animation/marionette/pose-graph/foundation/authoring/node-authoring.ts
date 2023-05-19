@@ -32,11 +32,11 @@ export interface PoseGraphNodeEditorMetadata {
 
     /**
      * @zh
-     * 此类型的结点的菜单路径。
+     * 此类型的结点的分类。
      * @en
-     * The menu path of this type of nodes.
+     * The category of this type of nodes.
      */
-    menu?: string;
+    category?: string;
 
     /**
      * @zh

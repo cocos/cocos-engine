@@ -3,7 +3,7 @@ import { poseGraphOp } from "../../../../../cocos/animation/marionette/pose-grap
 import { PoseGraphNode } from "../../../../../cocos/animation/marionette/pose-graph/foundation/pose-graph-node";
 import { Pose } from "../../../../../cocos/animation/core/pose";
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext } from "../../../../../cocos/animation/marionette/animation-graph-context";
-import { Quat, Vec3 } from "../../../../../exports/base";
+import { assertIsTrue, Quat, Vec3 } from "../../../../../exports/base";
 import { PoseNode } from "../../../../../cocos/animation/marionette/pose-graph/pose-node";
 import { PureValueNode } from "../../../../../cocos/animation/marionette/pose-graph/pure-value-node";
 
@@ -31,11 +31,13 @@ export function getTheOnlyOutputKey(node: PoseGraphNode) {
     return outputs[0];
 }
 
-export function findInputKeyHavingDisplayName(node: PoseGraphNode, displayName: string) {
-    const key = poseGraphOp.getInputKeys(node)
-        .find((inputKey) => poseGraphOp.getInputMetadata(node, inputKey)?.displayName === displayName);
-    expect(key).not.toBeUndefined();
-    return key!;
+export function composeInputKeyInternally(propertyName: string, elementIndex?: number): poseGraphOp.InputKey {
+    const result: [string, number?] = [propertyName];
+    if (typeof elementIndex === 'number') {
+        result.push(elementIndex);
+    }
+    assertIsTrue(poseGraphOp.isWellFormedInputKey(result));
+    return result;
 }
 
 export function checkZeroPose(pose: Pose) {

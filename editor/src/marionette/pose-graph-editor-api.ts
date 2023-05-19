@@ -5,11 +5,14 @@ import {
 import { js } from "../../../cocos/core/utils";
 import { PoseNode } from "../../../cocos/animation/marionette/pose-graph/pose-node";
 import { PureValueNode } from "../../../cocos/animation/marionette/pose-graph/pure-value-node";
+import { poseGraphOp } from '../../../cocos/animation/marionette/pose-graph/op';
 
 type Constructor<T = unknown> = new (...args: any[]) => T;
 
 export interface PoseGraphCreateNodeEntry {
-    menu: string;
+    category?: string;
+
+    subMenu?: string;
 
     arg: unknown;
 }
@@ -24,19 +27,25 @@ export function* getCreatePoseGraphNodeEntries(
         return;
     }
     const nodeClassMetadata = getPoseGraphNodeEditorMetadata(classConstructor as Constructor<PoseNode | PureValueNode>);
-    if (nodeClassMetadata) {
-        if (nodeClassMetadata.factory) {
-            yield* nodeClassMetadata.factory.listEntries(createNodeContext);
-            return;
-        } else if (nodeClassMetadata.menu) {
-            yield { arg: undefined, menu: nodeClassMetadata.menu };
-            return;
-        } else if (nodeClassMetadata.hide) {
-            return;
-        }
+    if (!nodeClassMetadata) {
+        yield { arg: undefined };
+        return;
     }
-    const displayName = js.getClassName(classConstructor) || classConstructor.name;
-    yield { arg: undefined, menu: displayName };
+    if (nodeClassMetadata.hide) {
+        return;
+    }
+    if (nodeClassMetadata.factory) {
+        for (const entry of nodeClassMetadata.factory.listEntries(createNodeContext)) {
+            yield {
+                category: nodeClassMetadata.category,
+                subMenu: entry.menu,
+                arg: entry.arg,
+            };
+        }
+        yield* nodeClassMetadata.factory.listEntries(createNodeContext);
+        return;
+    }
+    yield { arg: undefined, category: nodeClassMetadata.category };
 }
 
 export function createPoseGraphNode(
@@ -52,26 +61,26 @@ export function createPoseGraphNode(
 
 export type { PoseGraphCreateNodeContext };
 
-export function getNodeTitle(node: PoseGraphNode) {
-    if (node.getTitle) {
-        return node.getTitle();
-    }
-    const classConstructor = node.constructor as Constructor<PoseNode | PureValueNode>;
-    const metadata = getPoseGraphNodeEditorMetadata(classConstructor);
-    if (metadata?.menu) {
-        return metadata.menu.split('/').pop() ?? '';
-    }
-    const className = js.getClassName(node);
-    if (className) {
-        return className;
-    }
-    return classConstructor.name;
-}
-
 export type { PoseGraphNodeAppearanceOptions };
 
 export function getNodeAppearanceOptions(node: PoseGraphNode) {
     const classConstructor = node.constructor as Constructor<PoseGraphNode>;
     const metadata = getPoseGraphNodeEditorMetadata(classConstructor);
     return metadata?.appearance;
+}
+
+export function getInputConventionalI18nInfo(inputKey: poseGraphOp.InputKey): [string, Record<string, string | number>?] {
+    if (inputKey.length !== 1) {
+        return [`inputs.${inputKey[0]}`, { elementIndex: inputKey[1] }];
+    } else {
+        return [`inputs.${inputKey}`];
+    }
+}
+
+export function getInputDefaultDisplayName(inputKey: poseGraphOp.InputKey) {
+    if (inputKey.length === 1) {
+        return inputKey[0];
+    } else {
+        return `${inputKey[0]}[${inputKey[1]}]`;
+    }
 }

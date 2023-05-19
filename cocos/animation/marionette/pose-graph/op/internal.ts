@@ -9,6 +9,7 @@ import type { PoseGraph } from '../pose-graph';
 
 export type {
     PoseGraphInputKey as InputKey,
+    PoseGraphNodeInputDisplayName as InputDisplayName,
     PoseGraphNodeInputMetadata as InputMetadata,
     PoseGraphNodeInputInsertId as InputInsertId,
 } from '../foundation/authoring/input-authoring';

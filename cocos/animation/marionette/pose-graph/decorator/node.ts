@@ -26,8 +26,8 @@ function makeNodeEditorMetadataModifier (edit: (metadata: PoseGraphNodeEditorMet
     };
 }
 
-export const poseGraphNodeMenu = (menu: string) => makeNodeEditorMetadataModifier((metadata) => {
-    metadata.menu = menu;
+export const poseGraphNodeCategory = (category: string) => makeNodeEditorMetadataModifier((metadata) => {
+    metadata.category = category;
 });
 
 export const poseGraphCreateNodeFactory = (factory: PoseGraphCreateNodeFactory<any>) => makeNodeEditorMetadataModifier((metadata) => {
