@@ -1,6 +1,6 @@
 /* eslint-disable quote-props */
 const pkg = require('../../../package.json');
-const { mixin, link } = require('../../i18n-utils/mixin');
+const { mixin, link } = require('../../i18n-utils');
 const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
     return a;
 });
