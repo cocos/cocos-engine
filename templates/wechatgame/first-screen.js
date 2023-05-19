@@ -358,6 +358,9 @@ function drawProgressBar(gl, program, vertexBuffer, vertexFormatLength, progress
 }
 
 function draw() {
+    gl.disable(gl.SCISSOR_TEST);
+    gl.disable(gl.CULL_FACE);
+    gl.disable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
@@ -385,6 +388,9 @@ function tick() {
 
 function end() {
     return setProgress(1).then(() => {
+        gl.enable(gl.SCISSOR_TEST);
+        gl.enable(gl.CULL_FACE);
+        gl.enable(gl.DEPTH_TEST);
         cancelAnimationFrame(rafHandle);
         gl.useProgram(null);
         gl.bindTexture(gl.TEXTURE_2D, null);

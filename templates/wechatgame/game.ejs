@@ -64,7 +64,7 @@ function onApplicationCreated(application) {
         require('./engine-adapter');
         return application.init(cc);
     }).then(() => {
-        return firstScreen.end().then(() => application.start());
+        return firstScreen.end().then(application.start());
     });
 }
 
