@@ -785,11 +785,31 @@ void NativeRenderSubpassBuilderImpl::setShowStatistics(bool enable) {
 
 void NativeMultisampleRenderSubpassBuilder::resolveRenderTarget(
     const ccstd::string &source, const ccstd::string &target) { // NOLINT(bugprone-easily-swappable-parameters)
+    auto &subpass = get(RasterSubpassTag{}, nodeID, *renderGraph);
+    subpass.resolvePairs.emplace_back(
+        std::string_view{source},
+        std::string_view{target},
+        ResolveFlags::COLOR,
+        gfx::ResolveMode::AVERAGE);
 }
 
 void NativeMultisampleRenderSubpassBuilder::resolveDepthStencil(
     const ccstd::string &source, const ccstd::string &target,   // NOLINT(bugprone-easily-swappable-parameters)
     gfx::ResolveMode depthMode, gfx::ResolveMode stencilMode) { // NOLINT(bugprone-easily-swappable-parameters)
+    auto &subpass = get(RasterSubpassTag{}, nodeID, *renderGraph);
+    ResolveFlags flags = ResolveFlags::NONE;
+    if (depthMode != gfx::ResolveMode::NONE) {
+        flags |= ResolveFlags::DEPTH;
+    }
+    if (stencilMode != gfx::ResolveMode::NONE) {
+        flags |= ResolveFlags::STENCIL;
+    }
+    subpass.resolvePairs.emplace_back(
+        std::string_view{source},
+        std::string_view{target},
+        flags,
+        depthMode,
+        stencilMode);
 }
 
 void NativeComputeSubpassBuilder::addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) {

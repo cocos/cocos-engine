@@ -295,6 +295,7 @@ struct RasterSubpass {
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    ccstd::pmr::vector<ResolvePair> resolvePairs;
     gfx::Viewport viewport;
     uint32_t subpassID{0xFFFFFFFF};
     uint32_t count{1};

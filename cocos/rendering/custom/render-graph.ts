@@ -405,6 +405,7 @@ export class RasterSubpass {
     }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly resolvePairs: ResolvePair[] = [];
     readonly viewport: Viewport = new Viewport();
     subpassID: number;
     count: number;

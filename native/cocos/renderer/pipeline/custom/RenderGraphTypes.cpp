@@ -83,6 +83,7 @@ SubpassGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 RasterSubpass::RasterSubpass(uint32_t subpassIDIn, uint32_t countIn, uint32_t qualityIn, const allocator_type& alloc) noexcept
 : rasterViews(alloc),
   computeViews(alloc),
+  resolvePairs(alloc),
   subpassID(subpassIDIn),
   count(countIn),
   quality(qualityIn) {}
@@ -90,6 +91,7 @@ RasterSubpass::RasterSubpass(uint32_t subpassIDIn, uint32_t countIn, uint32_t qu
 RasterSubpass::RasterSubpass(RasterSubpass&& rhs, const allocator_type& alloc)
 : rasterViews(std::move(rhs.rasterViews), alloc),
   computeViews(std::move(rhs.computeViews), alloc),
+  resolvePairs(std::move(rhs.resolvePairs), alloc),
   viewport(rhs.viewport),
   subpassID(rhs.subpassID),
   count(rhs.count),
@@ -99,6 +101,7 @@ RasterSubpass::RasterSubpass(RasterSubpass&& rhs, const allocator_type& alloc)
 RasterSubpass::RasterSubpass(RasterSubpass const& rhs, const allocator_type& alloc)
 : rasterViews(rhs.rasterViews, alloc),
   computeViews(rhs.computeViews, alloc),
+  resolvePairs(rhs.resolvePairs, alloc),
   viewport(rhs.viewport),
   subpassID(rhs.subpassID),
   count(rhs.count),
