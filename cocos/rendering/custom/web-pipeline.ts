@@ -1053,16 +1053,13 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
         const name = 'Raster';
         const subpassID = this._pass.subpassGraph.numVertices();
         this._pass.subpassGraph.addVertex(name, new Subpass());
-        const subpass = new RasterSubpass(subpassID);
+        const subpass = new RasterSubpass(subpassID, 1, 0);
         const data = new RenderData();
         const vertID = this._renderGraph.addVertex<RenderGraphValue.RasterSubpass>(
             RenderGraphValue.RasterSubpass, subpass, name, layoutName, data, false,
         );
         const result = new WebRenderSubpassBuilder(data, this._renderGraph, this._layoutGraph, vertID, subpass, this._pipeline);
         return result;
-    }
-    addComputeSubpass (layoutName = ''): ComputeSubpassBuilder {
-        throw new Error('Method not implemented.');
     }
     addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default') {
         if (DEBUG) {
