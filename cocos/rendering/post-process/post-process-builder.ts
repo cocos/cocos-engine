@@ -22,7 +22,7 @@ import { CCObject } from '../../core';
 import { setCustomPipeline } from '../custom';
 
 import { CameraComponent } from '../../misc';
-import { BloomPass, ColorGradingPass, FxaaPass } from './passes';
+import { BloomPass, ColorGradingPass, FxaaPass, ToneMappingPass } from './passes';
 
 export class PostProcessBuilder implements PipelineBuilder  {
     pipelines: Map<string, BasePass[]> = new Map();
@@ -43,6 +43,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         this.addPass(forward);
 
         this.addPass(new HBAOPass());
+        this.addPass(new ToneMappingPass());
         this.addPass(new TAAPass());
         this.addPass(new FxaaPass());
         this.addPass(new ColorGradingPass());
@@ -170,6 +171,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
 
             pass.lastPass = lastPass;
             pass.render(camera, ppl);
+            if (pass.discard) { continue; }
 
             lastPass = pass;
         }
