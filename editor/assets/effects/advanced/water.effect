@@ -141,7 +141,7 @@ CCProgram surface-fragment %{
   {
   }
 
-
+  #include <common/effect/special-effects>
   vec3 GetDetailedNormal(vec2 texCoord, float tiling, sampler2D normalMap, sampler2D normalMapDetailed, vec3 N, vec3 T)
   {
     float waterSpeed = waterParam.x;
@@ -155,7 +155,7 @@ CCProgram surface-fragment %{
     vec2 uvDetailed = texCoord * detailedTiling + vec2(0.0, cc_time.w) * detailedSpeed;
     vec3 nmmpDetailed = texture(normalMapDetailed, uvDetailed).xyz - vec3(0.5);
     // normal blending
-    nmmp = normalize(vec3(nmmp.xy + nmmpDetailed.xy * detailedIntensity, nmmp.z));
+    nmmp = BlendDetailedNormalMap(nmmp, nmmpDetailed, detailedIntensity);
     return normalize(CalculateNormalFromTangentSpace(nmmp, normalIntensity, N, T, FSInput_mirrorNormal));
   }
 
@@ -165,7 +165,7 @@ CCProgram surface-fragment %{
   {
     vec3 normal = FSInput_worldNormal;
     #if USE_NORMAL_MAP
-      normal = GetDetailedNormal(NORMAL_UV, pbrParams.x, normalMap, normalMapDetailed, normal, FSInput_worldTangent);
+      normal = GetDetailedNormal(NORMAL_UV, pbrParams.x, normalMap, normalMapDetailed, normalize(normal), normalize(FSInput_worldTangent));
     #endif
 
     return normalize(normal);
@@ -237,6 +237,7 @@ CCProgram standard-vs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-vs>
   #include <shared-ubos>
@@ -277,6 +278,7 @@ CCProgram standard-fs %{
 
 CCProgram shadow-caster-fs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-fs>
   #include <shared-ubos>

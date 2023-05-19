@@ -2,16 +2,17 @@ name: <Native> Generate Code
 
 on:
   pull_request_target:
-    types: [opened, synchronize, closed]
+    types: [closed]
   # pull_request:
     paths:
     - 'templates/**'
     - 'native/**'
+    - 'cocos/**'
     - 'package.json'
     - '.github/workflows/native-bindings.yml'
 
 jobs:
-  generate-jsb:
+  autogen-code:
     # if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
     strategy:
       matrix:
@@ -81,16 +82,18 @@ jobs:
             branch-suffix: short-commit-hash
             delete-branch: true
           
-      #- name: Make PR
-      #  run: |
-      #    cd native/tools/travis-scripts && bash generate-pr.sh
-      #  env:
-      #    TRAVIS_OS_NAME: linux
-      #    TRAVIS_PULL_REQUEST: "false"
-      #    TRAVIS_BRANCH: ${{github.base_ref}}
-      #    TRAVIS_COMMIT: ${{github.sha}}
-      #    TRAVIS_COMMIT_MESSAGE: ${{github.event.head_commit.message}}
-      #    GH_EMAIL: cocos-robot@cocos.com
-      #    GH_PASSWORD: ${{ secrets.PR_TOKEN }}
-      #    GH_TOKEN: ${{ secrets.PR_TOKEN }}
-      #    GH_USER: cocos-robot
+      - name: Notify PR author on error
+        if: ${{ failure() }}
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const issue_number = context.payload.pull_request.number;
+            const pr_author = context.payload.pull_request.user.login;
+            const error_comment = `@${pr_author} :exclamation: There was an error during the execution of the tasks. Please check the logs for more details.`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: error_comment,
+            });
+          github-token: ${{ secrets.GITHUB_TOKEN }}

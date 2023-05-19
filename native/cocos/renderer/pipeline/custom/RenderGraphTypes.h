@@ -343,6 +343,7 @@ struct RasterPass {
     gfx::Viewport viewport;
     ccstd::pmr::string versionName;
     uint64_t version{0};
+    uint64_t hashValue{0};
     bool showStatistics{false};
 };
 
@@ -488,6 +489,7 @@ struct ResourceGraph {
     void mount(gfx::Device* device, vertex_descriptor vertID);
     void unmount(uint64_t completedFenceValue);
     gfx::Texture* getTexture(vertex_descriptor resID);
+    gfx::Buffer* getBuffer(vertex_descriptor resID);
     void invalidatePersistentRenderPassAndFramebuffer(gfx::Texture* pTexture);
 
     // ContinuousContainer
@@ -654,6 +656,7 @@ struct RenderQueue {
 
     QueueHint hint{QueueHint::RENDER_OPAQUE};
     uint32_t phaseID{0xFFFFFFFF};
+    gfx::Viewport viewport;
 };
 
 struct SceneData {
@@ -676,7 +679,7 @@ struct SceneData {
     scene::Camera* camera{nullptr};
     LightInfo light;
     SceneFlags flags{SceneFlags::NONE};
-    ccstd::pmr::vector<ccstd::pmr::string> scenes;
+    ccstd::pmr::vector<const scene::RenderScene*> scenes;
 };
 
 struct Dispatch {
@@ -727,6 +730,7 @@ struct RenderData {
     PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Buffer>> buffers;
     PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Texture>> textures;
     PmrUnorderedMap<uint32_t, ObserverPtr<gfx::Sampler>> samplers;
+    ccstd::pmr::string custom;
 };
 
 struct RenderGraph {

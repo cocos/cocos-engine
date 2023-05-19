@@ -29,7 +29,7 @@
 namespace cc {
 namespace physics {
 
-class PhysXSpherical final : public PhysXJoint, public IDistanceJoint {
+class PhysXSpherical final : public PhysXJoint, public ISphericalJoint {
 public:
     PhysXSpherical() : _mPivotA(physx::PxZero),
                        _mPivotB(physx::PxZero){};

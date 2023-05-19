@@ -48,6 +48,16 @@ struct TransparentStringHash {
     }
 };
 
+template <class Char>
+struct TransparentStringEqual {
+    using is_transparent = void;
+    using string_view_type = std::basic_string_view<Char>;
+    template <class T, class U>
+    bool operator()(T&& lhs, U&& rhs) const noexcept {
+        return string_view_type{lhs} == string_view_type{rhs};
+    }
+};
+
 template <class T>
 struct ObserverPtr {
     T* get() const noexcept {

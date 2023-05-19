@@ -3,4 +3,6 @@ import * as rendering from '../cocos/rendering/custom';
 
 export { rendering };
 
+export * from '../cocos/rendering/post-process';
+
 legacyCC.rendering = rendering;

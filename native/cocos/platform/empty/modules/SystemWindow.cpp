@@ -54,10 +54,6 @@ uint32_t SystemWindow::getWindowId() const {
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
-void SystemWindow::copyTextToClipboard(const ccstd::string& text) {
-    // TODO
-}
-
 int SystemWindow::init() {
     return 0;
 }

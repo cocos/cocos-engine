@@ -78,6 +78,10 @@ ccstd::vector<std::shared_ptr<ContactEventPair>> &World::getContactEventPairs() 
     return _impl->getContactEventPairs();
 }
 
+ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& World::getCCTShapeEventPairs() {
+    return _impl->getCCTShapeEventPairs();
+}
+
 void World::setCollisionMatrix(uint32_t i, uint32_t m) {
     _impl->setCollisionMatrix(i, m);
 }
@@ -108,6 +112,50 @@ bool World::raycastClosest(RaycastOptions &opt) {
 
 RaycastResult &World::raycastClosestResult() {
     return _impl->raycastClosestResult();
+}
+
+float World::getFixedTimeStep() const {
+    return _impl->getFixedTimeStep();
+}
+
+void World::setFixedTimeStep(float fixedTimeStep) {
+    _impl->setFixedTimeStep(fixedTimeStep);
+}
+
+bool World::sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
+        float orientationW, float orientationX, float orientationY, float orientationZ){
+    return _impl->sweepBox(opt, halfExtentX, halfExtentY, halfExtentZ, orientationW, orientationX, orientationY, orientationZ);
+}
+
+bool World::sweepBoxClosest(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
+        float orientationW, float orientationX, float orientationY, float orientationZ){
+    return _impl->sweepBoxClosest(opt, halfExtentX, halfExtentY, halfExtentZ, orientationW, orientationX, orientationY, orientationZ);
+}
+
+bool World::sweepSphere(RaycastOptions &opt, float radius) {
+    return _impl->sweepSphere(opt, radius);
+}
+
+bool World::sweepSphereClosest(RaycastOptions &opt, float radius) {
+    return _impl->sweepSphereClosest(opt, radius);
+}
+
+bool World::sweepCapsule(RaycastOptions &opt, float radius, float height, 
+    float orientationW, float orientationX, float orientationY, float orientationZ) {
+    return _impl->sweepCapsule(opt, radius, height, orientationW, orientationX, orientationY, orientationZ);
+}
+
+bool World::sweepCapsuleClosest(RaycastOptions &opt, float radius, float height,
+    float orientationW, float orientationX, float orientationY, float orientationZ) {
+    return _impl->sweepCapsuleClosest(opt, radius, height, orientationW, orientationX, orientationY, orientationZ);
+}
+
+RaycastResult &World::sweepClosestResult() {
+    return _impl->sweepClosestResult();
+}
+
+ccstd::vector<RaycastResult> &World::sweepResult() {
+    return _impl->sweepResult();
 }
 
 } // namespace physics

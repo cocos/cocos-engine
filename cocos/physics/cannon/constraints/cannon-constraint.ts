@@ -34,18 +34,36 @@ import { CannonSharedBody } from '../cannon-shared-body';
 
 export class CannonConstraint implements IBaseConstraint {
     setConnectedBody (v: RigidBody | null): void {
-        const oldSB = getWrap<CannonSharedBody>(this.impl.bodyB);
-        if (oldSB) oldSB.removeJoint(this, 1);
+        if (this._connectedBody === v) return;
 
-        if (v) {
-            this._impl.bodyB = (v.body as CannonRigidBody).impl;
-            const newSB = (v.body as CannonRigidBody).sharedBody;
-            newSB.addJoint(this, 1);
-        } else {
-            this._impl.bodyB = (CANNON.World as any).staticBody;
+        const oldBody2 = this._connectedBody;
+        if (oldBody2) {
+            const oldSB2 = (oldBody2.body as CannonRigidBody).sharedBody;
+            oldSB2.removeJoint(this, 1);
         }
-        const newBJ = this._impl.bodyB;
-        this._impl.equations.forEach((v: CANNON.Equation) => { v.bj = newBJ; });
+
+        const sb = (this._rigidBody.body as CannonRigidBody).sharedBody;
+        sb.removeJoint(this, 0);
+        if (this._impl) {
+            sb.wrappedWorld.removeConstraint(this);
+            delete (CANNON.World as any).idToConstraintMap[this._impl.id];
+            (this._impl as any) = null;
+        }
+
+        this._connectedBody = v;
+        const connect = this._connectedBody;
+
+        this.onComponentSet();
+        this.setEnableCollision(this._com.enableCollision);
+        (CANNON.World as any).idToConstraintMap[this._impl.id] = this._impl;
+
+        sb.wrappedWorld.addConstraint(this);
+        sb.addJoint(this, 0);
+
+        if (connect) {
+            const newSB2 = (connect.body as CannonRigidBody).sharedBody;
+            newSB2.addJoint(this, 1);
+        }
     }
 
     setEnableCollision (v: boolean): void {
@@ -58,10 +76,12 @@ export class CannonConstraint implements IBaseConstraint {
     protected _impl!: CANNON.Constraint;
     protected _com!: Constraint;
     protected _rigidBody!: RigidBody;
+    protected _connectedBody!: RigidBody | null;
 
     initialize (v: Constraint): void {
         this._com = v;
         this._rigidBody = v.attachedBody!;
+        this._connectedBody = v.connectedBody;
         this.onComponentSet();
         this.setEnableCollision(v.enableCollision);
         (CANNON.World as any).idToConstraintMap[this._impl.id] = this._impl;
@@ -78,7 +98,7 @@ export class CannonConstraint implements IBaseConstraint {
         const sb = (this._rigidBody.body as CannonRigidBody).sharedBody;
         sb.wrappedWorld.addConstraint(this);
         sb.addJoint(this, 0);
-        const connect = this.constraint.connectedBody;
+        const connect = this._connectedBody;
         if (connect) {
             const sb2 = (connect.body as CannonRigidBody).sharedBody;
             sb2.addJoint(this, 1);
@@ -89,7 +109,7 @@ export class CannonConstraint implements IBaseConstraint {
         const sb = (this._rigidBody.body as CannonRigidBody).sharedBody;
         sb.wrappedWorld.removeConstraint(this);
         sb.removeJoint(this, 0);
-        const connect = this.constraint.connectedBody;
+        const connect = this._connectedBody;
         if (connect) {
             const sb2 = (connect.body as CannonRigidBody).sharedBody;
             sb2.removeJoint(this, 1);
@@ -100,6 +120,7 @@ export class CannonConstraint implements IBaseConstraint {
         delete (CANNON.World as any).idToConstraintMap[this._impl.id];
         (this._com as any) = null;
         (this._rigidBody as any) = null;
+        (this._connectedBody as any) = null;
         (this._impl as any) = null;
     }
 }

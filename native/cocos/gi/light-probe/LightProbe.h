@@ -92,6 +92,9 @@ public:
     inline void setGIScale(float val) { _giScale = val; }
     inline float getGIScale() const { return _giScale; }
 
+    inline void setLightProbeSphereVolume(float val) { _lightProbeSphereVolume = val; }
+    inline float getLightProbeSphereVolume() const { return _lightProbeSphereVolume; }
+
     inline void setGISamples(uint32_t val) { _giSamples = val; }
     inline uint32_t getGISamples() const { return _giSamples; }
 
@@ -114,6 +117,7 @@ public:
     inline LightProbesData *getData() const { return _data.get(); }
 
     float _giScale{1.0F};
+    float _lightProbeSphereVolume{1.0F};
     uint32_t _giSamples{1024U};
     uint32_t _bounces{2U};
     float _reduceRinging{0.0F};
@@ -157,6 +161,18 @@ public:
         }
     }
     inline float getGIScale() const { return _giScale; }
+
+    inline void setLightProbeSphereVolume(float val) {
+        if (_lightProbeSphereVolume == val) {
+            return;
+        }
+
+        _lightProbeSphereVolume = val;
+        if (_resource) {
+            _resource->setLightProbeSphereVolume(val);
+        }
+    }
+    inline float getLightProbeSphereVolume() const { return _lightProbeSphereVolume; }
 
     inline void setGISamples(uint32_t val) {
         if (_giSamples == val) {
@@ -241,6 +257,7 @@ public:
 
     //cjh JSB need to bind the property, so need to make it public
     float _giScale{1.0F};
+    float _lightProbeSphereVolume{1.0F};
     uint32_t _giSamples{1024U};
     uint32_t _bounces{2U};
     float _reduceRinging{0.0F};

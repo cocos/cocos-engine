@@ -75,7 +75,9 @@ export class BulletCache {
 
 export const CC_V3_0 = new Vec3();
 export const CC_V3_1 = new Vec3();
+export const CC_V3_2 = new Vec3();
 export const CC_QUAT_0 = new Quat();
+export const CC_QUAT_1 = new Quat();
 export const CC_MAT4_0 = new Mat4();
 export const CC_MAT4_1 = new Mat4();
 

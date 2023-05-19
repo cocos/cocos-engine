@@ -147,6 +147,7 @@ export enum ModelLocalBindings {
     SAMPLER_REFLECTION_PROBE_CUBE,
     SAMPLER_REFLECTION_PROBE_PLANAR,
     SAMPLER_REFLECTION_PROBE_DATA_MAP,
+    SAMPLER_REFLECTION_PROBE_BLEND_CUBE,
 
     COUNT,
 }
@@ -376,7 +377,9 @@ export class UBOLocal {
     public static readonly LOCAL_SHADOW_BIAS = UBOLocal.LIGHTINGMAP_UVPARAM + 4;
     public static readonly REFLECTION_PROBE_DATA1 = UBOLocal.LOCAL_SHADOW_BIAS + 4;
     public static readonly REFLECTION_PROBE_DATA2 = UBOLocal.REFLECTION_PROBE_DATA1 + 4;
-    public static readonly COUNT = UBOLocal.REFLECTION_PROBE_DATA2 + 4;
+    public static readonly REFLECTION_PROBE_BLEND_DATA1 = UBOLocal.REFLECTION_PROBE_DATA2 + 4;
+    public static readonly REFLECTION_PROBE_BLEND_DATA2 = UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 4;
+    public static readonly COUNT = UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 4;
     public static readonly SIZE = UBOLocal.COUNT * 4;
 
     public static readonly NAME = 'CCLocal';
@@ -389,6 +392,8 @@ export class UBOLocal {
         new Uniform('cc_localShadowBias', Type.FLOAT4, 1),
         new Uniform('cc_reflectionProbeData1', Type.FLOAT4, 1),
         new Uniform('cc_reflectionProbeData2', Type.FLOAT4, 1),
+        new Uniform('cc_reflectionProbeBlendData1', Type.FLOAT4, 1),
+        new Uniform('cc_reflectionProbeBlendData2', Type.FLOAT4, 1),
     ], 1);
 }
 localDescriptorSetLayout.layouts[UBOLocal.NAME] = UBOLocal.LAYOUT;
@@ -744,6 +749,18 @@ const UNIFORM_REFLECTION_PROBE_DATA_MAP_LAYOUT = new UniformSamplerTexture(SetIn
 localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_DATA_MAP_NAME] = UNIFORM_REFLECTION_PROBE_DATA_MAP_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING] = UNIFORM_REFLECTION_PROBE_DATA_MAP_DESCRIPTOR;
 
+/**
+ * @en The sampler for reflection probe cubemap for blend.
+ * @zh 用于blend的反射探针立方体贴图纹理采样器。
+ */
+const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME = 'cc_reflectionProbeBlendCubemap';
+export const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING = ModelLocalBindings.SAMPLER_REFLECTION_PROBE_BLEND_CUBE;
+const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING,
+    UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME, Type.SAMPLER_CUBE, 1);
+localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME] = UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING] = UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_DESCRIPTOR;
+
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
@@ -766,6 +783,26 @@ export function supportsR16HalfFloatTexture (device: Device) {
  */
 export function supportsR32FloatTexture (device: Device) {
     return (device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
+        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+}
+
+/**
+ * @en Does the device support 4-channeled float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持4通道浮点贴图？（颜色输出和采样）
+ */
+export function supportsRGBA16FloatTexture (device: Device) {
+    return (device.getFormatFeatures(Format.RGBA16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
+        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+}
+
+/**
+ * @en Does the device support 4-channeled float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持4通道浮点贴图？（颜色输出和采样）
+ */
+export function supportsRGBA32FloatTexture (device: Device) {
+    return (device.getFormatFeatures(Format.RGBA32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
         === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
         && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
 }

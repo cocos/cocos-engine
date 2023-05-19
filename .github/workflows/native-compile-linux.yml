@@ -46,6 +46,7 @@ jobs:
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-linux/proj/cfg.cmake
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-linux/proj/cfg.cmake
           echo "set(USE_PHYSICS_PHYSX OFF)" >> build-linux/proj/cfg.cmake
+          echo "set(CC_EXECUTABLE_NAME \"\")" >> build-linux/proj/cfg.cmake
           mkdir build-linux/assets
 
           RES_DIR=$GITHUB_WORKSPACE/templates/linux/build-linux

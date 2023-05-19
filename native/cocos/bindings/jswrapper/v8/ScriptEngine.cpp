@@ -827,7 +827,7 @@ void ScriptEngine::_setDebuggerInfo(const DebuggerInfo &info) {
 }
 
 bool ScriptEngine::isValid() const {
-    return _isValid;
+    return ScriptEngine::instance != nullptr && _isValid;
 }
 
 bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Value *ret /* = nullptr */, const char *fileName /* = nullptr */) {

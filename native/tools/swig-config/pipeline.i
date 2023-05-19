@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="nr") pipeline
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -24,7 +27,6 @@
 #include "renderer/pipeline/deferred/BloomStage.h"
 #include "renderer/pipeline/deferred/PostProcessStage.h"
 #include "renderer/pipeline/PipelineSceneData.h"
-#include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/GeometryRenderer.h"
 #include "renderer/pipeline/DebugView.h"
 #include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"
@@ -245,7 +247,6 @@ using namespace cc;
 %include "renderer/pipeline/deferred/BloomStage.h"
 %include "renderer/pipeline/deferred/PostProcessStage.h"
 %include "renderer/pipeline/PipelineSceneData.h"
-%include "renderer/pipeline/BatchedBuffer.h"
 %include "renderer/pipeline/GeometryRenderer.h"
 
 %include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"

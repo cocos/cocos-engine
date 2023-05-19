@@ -156,7 +156,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         const auto &dependencies = renderPass->getDependencies();
         if (!dependencies.empty()) {
             const auto &frontBarrier = dependencies.front();
-            pipelineBarrier(frontBarrier.generalBarrier, frontBarrier.bufferBarriers, frontBarrier.buffers, frontBarrier.bufferBarrierCount, frontBarrier.textureBarriers, frontBarrier.textures, frontBarrier.textureBarrierCount);
+            //pipelineBarrier(frontBarrier.generalBarrier, frontBarrier.bufferBarriers, frontBarrier.buffers, frontBarrier.bufferBarrierCount, frontBarrier.textureBarriers, frontBarrier.textures, frontBarrier.textureBarrierCount);
         }
     }
 
@@ -236,7 +236,7 @@ void CCVKCommandBuffer::endRenderPass() {
         const auto &dependencies = _curGPURenderPass->dependencies;
         if (!dependencies.empty()) {
             const auto &rearBarrier = _curGPURenderPass->dependencies.back();
-            pipelineBarrier(rearBarrier.generalBarrier, rearBarrier.bufferBarriers, rearBarrier.buffers, rearBarrier.bufferBarrierCount, rearBarrier.textureBarriers, rearBarrier.textures, rearBarrier.textureBarrierCount);
+            //pipelineBarrier(rearBarrier.generalBarrier, rearBarrier.bufferBarriers, rearBarrier.buffers, rearBarrier.bufferBarrierCount, rearBarrier.textureBarriers, rearBarrier.textures, rearBarrier.textureBarrierCount);
         }
     }
 }
@@ -506,6 +506,50 @@ void CCVKCommandBuffer::updateBuffer(Buffer *buffer, const void *data, uint32_t 
 
 void CCVKCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
     cmdFuncCCVKCopyBuffersToTexture(CCVKDevice::getInstance(), buffers, static_cast<CCVKTexture *>(texture)->gpuTexture(), regions, count, _gpuCommandBuffer);
+}
+
+void CCVKCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    VkImageAspectFlags srcAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkImageAspectFlags dstAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkImage srcImage = VK_NULL_HANDLE;
+    VkImage dstImage = VK_NULL_HANDLE;
+
+    auto getImage = [](Texture * texture) -> auto {
+        CCVKGPUTexture *gpuTexture = static_cast<CCVKTexture *>(texture)->gpuTexture();
+        return gpuTexture->swapchain ? std::pair{gpuTexture->aspectMask, gpuTexture->swapchainVkImages[gpuTexture->swapchain->curImageIndex]} : std::pair{gpuTexture->aspectMask, gpuTexture->vkImage};
+    };
+
+    std::tie(srcAspectMask, srcImage) = getImage(srcTexture);
+    std::tie(dstAspectMask, dstImage) = getImage(dstTexture);
+
+    ccstd::vector<VkImageCopy> copyRegions(count, VkImageCopy{});
+    for (uint32_t i = 0U; i < count; ++i) {
+        const TextureCopy &region = regions[i];
+        auto &copyRegion = copyRegions[i];
+
+        copyRegion.srcSubresource.aspectMask = srcAspectMask;
+        copyRegion.srcSubresource.mipLevel = region.srcSubres.mipLevel;
+        copyRegion.srcSubresource.baseArrayLayer = region.srcSubres.baseArrayLayer;
+        copyRegion.srcSubresource.layerCount = region.srcSubres.layerCount;
+
+        copyRegion.dstSubresource.aspectMask = dstAspectMask;
+        copyRegion.dstSubresource.mipLevel = region.dstSubres.mipLevel;
+        copyRegion.dstSubresource.baseArrayLayer = region.dstSubres.baseArrayLayer;
+        copyRegion.dstSubresource.layerCount = region.dstSubres.layerCount;
+
+        copyRegion.srcOffset.x = region.srcOffset.x;
+        copyRegion.srcOffset.y = region.srcOffset.y;
+        copyRegion.srcOffset.z = region.srcOffset.z;
+
+        copyRegion.dstOffset.x = region.dstOffset.x;
+        copyRegion.dstOffset.y = region.dstOffset.y;
+        copyRegion.dstOffset.z = region.dstOffset.z;
+
+        copyRegion.extent.width = region.extent.width;
+        copyRegion.extent.height = region.extent.height;
+        copyRegion.extent.depth = region.extent.depth;
+    }
+    vkCmdCopyImage(_gpuCommandBuffer->vkCommandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, count, copyRegions.data());
 }
 
 void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
@@ -841,6 +885,10 @@ void CCVKCommandBuffer::resetQueryPool(QueryPool *queryPool) {
 
     vkCmdResetQueryPool(_gpuCommandBuffer->vkCommandBuffer, gpuQueryPool->vkPool, 0, queryPool->getMaxQueryObjects());
     vkQueryPool->_ids.clear();
+}
+
+void CCVKCommandBuffer::customCommand(CustomCommand &&cmd) {
+    cmd(reinterpret_cast<void *>(_gpuCommandBuffer->vkCommandBuffer));
 }
 
 } // namespace gfx

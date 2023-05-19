@@ -113,6 +113,9 @@ module.exports = {
                 anisotropyMapNearestFilter: '将 Anisotropy Map 贴图复制出来并选择 Nearest 过滤',
                 anisotropyMapResolutionHeight: 'Anisotropy Map 的分辨率高度',
                 ior: '相对折射率，该值可以影响折射角度和菲涅耳效果。水是1.33',
+                transmitThicknessWithShadowMap: '物体厚度（世界空间单位），注意！该值过小可能导致穿透光消失',
+                transmitExtinctionWithShadowMap: '穿透光的散射消光系数（可影响耳朵、鼻子等的背面透光强度）。该值越大则穿透光越弱、亮区范围也会更小、厚薄感变强， 反之穿透光越强越均匀、亮区更大但厚薄感变弱。有一点需要特别注意！由于是按照世界空间单位计算散射，则模型越大，该值必须相对更小才能维持同样的光照效果，或根据模型大小给一个距离缩放值在TransmitDiffuseParam中',
+                transmitExtinction: '薄片穿透光的散射消光系数（可影响叶片等的背面透光强度）。该值越大则穿透光越弱、亮区范围也会更小、厚薄感变强， 反之穿透光越强越均匀、亮区更大但厚薄感变弱。同时还需要指定薄片厚度',
             },
         },
         image: {
@@ -381,7 +384,7 @@ module.exports = {
                     },
                     agressiveness: {
                         name: '误差距离',
-                        title: '模型减面算法的激进程度。<br>当设置数值越高时，算法的减免策略会越激进，但是过于激进的策略更有可能导致结果错误。',
+                        title: '模型减面算法的激进程度。<br>当设置数值越高时，算法的减面策略会越激进，但是过于激进的策略更有可能导致结果错误。',
                     },
                     maxIterationCount: {
                         name: '计算迭代次数',

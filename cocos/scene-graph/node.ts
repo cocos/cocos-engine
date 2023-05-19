@@ -1789,11 +1789,25 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             // discard props disallow to synchronize
             const isRoot = this._prefab?.root === this;
             if (isRoot) {
-                serializationOutput.writeProperty('_objFlags', this._objFlags);
-                serializationOutput.writeProperty('_parent', this._parent);
-                serializationOutput.writeProperty('_prefab', this._prefab);
-                if (context.customArguments.keepNodeUuid) {
-                    serializationOutput.writeProperty('_id', this._id);
+                // if B prefab is in A prefab,B can be referenced by component.We should discard it.because B is not the root of prefab
+                let isNestedPrefab = false;
+                let parent = this.getParent();
+                while (parent) {
+                    const nestedRoots = parent?._prefab?.nestedPrefabInstanceRoots;
+                    if (nestedRoots && nestedRoots.length > 0) {
+                        // if this node is not in nestedPrefabInstanceRoots,it means this node is not the root of prefab,so it should be discarded.
+                        isNestedPrefab = !nestedRoots.some((root) => root === this);
+                        break;
+                    }
+                    parent = parent.getParent();
+                }
+                if (!isNestedPrefab) {
+                    serializationOutput.writeProperty('_objFlags', this._objFlags);
+                    serializationOutput.writeProperty('_parent', this._parent);
+                    serializationOutput.writeProperty('_prefab', this._prefab);
+                    if (context.customArguments.keepNodeUuid) {
+                        serializationOutput.writeProperty('_id', this._id);
+                    }
                 }
                 // TODO: editorExtrasTag may be a symbol in the future
                 serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);

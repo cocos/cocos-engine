@@ -23,6 +23,11 @@ jobs:
       run: |
         npm install -g gulp
         
+    - name: Download external
+      run: |
+        EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+        git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+
     - name: npm install
       run: |
         npm install
@@ -33,4 +38,5 @@ jobs:
         
     - name: run test
       run: |
+        export NODE_OPTIONS="--max-old-space-size=8192"
         npm test

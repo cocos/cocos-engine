@@ -156,12 +156,9 @@ void DevicePass::passDependency(gfx::RenderPassInfo &rpInfo) {
                 subpassIndex > 1 ? subpassIndex - 1 : gfx::SUBPASS_EXTERNAL,
                 subpassIndex,
                 nullptr,
-                bufferBarriers.data() + lastBufferIndex,
-                buffers.data() + lastBufferIndex,
-                static_cast<uint32_t>(buffers.size() - lastBufferIndex),
-                textureBarriers.data() + lastTextureIndex,
-                textures.data() + lastTextureIndex,
-                static_cast<uint32_t>(textures.size() - lastTextureIndex)});
+                {},
+                {},
+                });
 
             for (const auto &rearBarrier : _barriers[barrierID].get().rearBarriers) {
                 const auto &res = getBarrier(rearBarrier, &_resourceTable);
@@ -191,12 +188,9 @@ void DevicePass::passDependency(gfx::RenderPassInfo &rpInfo) {
                 _subpasses.empty() ? 0 : static_cast<uint32_t>(_subpasses.size() - 1),
                 gfx::SUBPASS_EXTERNAL,
                 nullptr,
-                bufferBarriers.data() + lastBufferIndex,
-                buffers.data() + lastBufferIndex,
-                static_cast<uint32_t>(buffers.size() - lastBufferIndex),
-                textureBarriers.data() + lastTextureIndex,
-                textures.data() + lastTextureIndex,
-                static_cast<uint32_t>(textures.size() - lastTextureIndex)});
+                {},
+                {},
+            });
         }
     }
 }

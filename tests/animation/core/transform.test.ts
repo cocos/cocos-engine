@@ -103,7 +103,7 @@ test('Multiply/Calculate relative', () => {
         childLocal.scale = new Vec3(0.6, 0.5, 0.0);
 
         const childGlobal = new Transform();
-        expect(Transform.multiply(childGlobal, childLocal, parentGlobal)).toBe(childGlobal);
+        expect(Transform.multiply(childGlobal, parentGlobal, childLocal)).toBe(childGlobal);
         expect(Vec3.equals(
             childGlobal.scale,
             new Vec3(0.0, 2.5, 0.0),
@@ -137,7 +137,7 @@ test('Multiply/Calculate relative', () => {
 
         // Let's verify the multiply again.
         const childGlobal2 = new Transform();
-        expect(Transform.multiply(childGlobal2, childLocal2, parentGlobal)).toBe(childGlobal2);
+        expect(Transform.multiply(childGlobal2, parentGlobal, childLocal2)).toBe(childGlobal2);
         expect(Transform.equals(childGlobal, childGlobal2)).toBe(true);
     }
 
@@ -155,7 +155,7 @@ test('Multiply/Calculate relative', () => {
         childLocal.scale = new Vec3(MAGIC.charCodeAt(4), MAGIC.charCodeAt(4), MAGIC.charCodeAt(4));
 
         const childGlobal = new Transform();
-        expect(Transform.multiply(childGlobal, childLocal, parentGlobal)).toBe(childGlobal);
+        expect(Transform.multiply(childGlobal, parentGlobal, childLocal)).toBe(childGlobal);
         expect(Transform.equals(childGlobal, multiplyInFormOfMatrix(new Transform(), childLocal, parentGlobal))).toBe(true);
         expect(Vec3.equals(
             childGlobal.scale,
@@ -190,6 +190,22 @@ test('Multiply/Calculate relative', () => {
         Mat4.multiply(outMat, bMat, aMat);
         return Transform.fromMatrix(out, outMat);
     }
+});
+
+test('Invert', () => {
+    const a = new Transform();
+    a.position = new Vec3(1., 2., 3.);
+    a.rotation = Quat.normalize(new Quat(), new Quat(4., 5., 6., 7.));
+    a.scale = new Vec3(8., 8., 8.);
+
+    const aMat = Transform.toMatrix(new Mat4(), a);
+    const aInvMat = Mat4.invert(new Mat4(), aMat);
+
+    const inv = new Transform();
+    expect(Transform.invert(inv, a)).toBe(inv);
+    expect(
+        Transform.equals(inv, Transform.fromMatrix(new Transform(), aInvMat)),
+    ).toBe(true);
 });
 
 test('Conversion between matrix', () => {

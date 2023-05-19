@@ -262,7 +262,7 @@ enum class CC_DLL ModelLocalBindings {
     SAMPLER_REFLECTION_PROBE_CUBE,
     SAMPLER_REFLECTION_PROBE_PLANAR,
     SAMPLER_REFLECTION_PROBE_DATA_MAP,
-
+    SAMPLER_REFLECTION_PROBE_BLEND_CUBE,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(ModelLocalBindings)
@@ -299,7 +299,9 @@ struct CC_DLL UBOLocal {
     static constexpr uint32_t LOCAL_SHADOW_BIAS = UBOLocal::LIGHTINGMAP_UVPARAM + 4;
     static constexpr uint32_t REFLECTION_PROBE_DATA1 = UBOLocal::LOCAL_SHADOW_BIAS + 4;
     static constexpr uint32_t REFLECTION_PROBE_DATA2 = UBOLocal::REFLECTION_PROBE_DATA1 + 4;
-    static constexpr uint32_t COUNT = UBOLocal::REFLECTION_PROBE_DATA2 + 4;
+    static constexpr uint32_t REFLECTION_PROBE_BLEND_DATA1 = UBOLocal::REFLECTION_PROBE_DATA2 + 4;
+    static constexpr uint32_t REFLECTION_PROBE_BLEND_DATA2 = UBOLocal::REFLECTION_PROBE_BLEND_DATA1 + 4;
+    static constexpr uint32_t COUNT = UBOLocal::REFLECTION_PROBE_BLEND_DATA2 + 4;
     static constexpr uint32_t SIZE = UBOLocal::COUNT * 4;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_LOCAL);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
@@ -555,8 +557,10 @@ const uint32_t CAMERA_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & 
 uint32_t nextPow2(uint32_t val);
 
 bool supportsR16HalfFloatTexture(const gfx::Device *device);
+bool supportsRGBA16HalfFloatTexture(const gfx::Device *device);
 
 bool supportsR32FloatTexture(const gfx::Device *device);
+bool supportsRGBA32FloatTexture(const gfx::Device *device);
 
 extern CC_DLL uint32_t skyboxFlag;
 
@@ -667,6 +671,13 @@ struct CC_DLL REFLECTIONPROBEPLANARMAP {
 
 struct CC_DLL REFLECTIONPROBEDATAMAP {
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_DATA_MAP);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL REFLECTIONPROBEBLENDCUBEMAP {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_BLEND_CUBE);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSamplerTexture LAYOUT;
     static const ccstd::string NAME;

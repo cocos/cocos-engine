@@ -1,7 +1,7 @@
 import { partition } from "../../../cocos/core/algorithm/partition";
 
 test(`Partition algorithm`, () => {
-    type Element = { /** The value. */ v: number, /** Result of the predicate function. */ p: boolean };
+    interface Element { /** The value. */ v: number, /** Result of the predicate function. */ p: boolean }
 
     const p = (array: Element[]) => {
         const nFirstGroup = partition(array, (element) => element.p);

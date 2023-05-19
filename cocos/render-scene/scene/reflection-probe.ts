@@ -253,7 +253,7 @@ export class ReflectionProbe {
      * @zh 反射探针cube模式的预览小球
      * @engineInternal
      */
-    set previewSphere (val: Node) {
+    set previewSphere (val: Node | null) {
         this._previewSphere = val;
     }
 
@@ -393,6 +393,11 @@ export class ReflectionProbe {
         return false;
     }
 
+    public isRGBE (): boolean  {
+        //todo: realtime do not use rgbe
+        return true;
+    }
+
     private _syncCameraParams (camera: Camera) {
         this.camera.projectionType = camera.projectionType;
         this.camera.orthoHeight = camera.orthoHeight;
@@ -473,7 +478,7 @@ export class ReflectionProbe {
         this._forward.normalize();
         this._forward.negative();
 
-        Vec3.transformQuat(this._up, this.node.up, sourceCamera.node.worldRotation);
+        Vec3.transformQuat(this._up, Vec3.UP, sourceCamera.node.worldRotation);
         this._reflect(this._up, this._up, this.node.up, 0);
         this._up.normalize();
 

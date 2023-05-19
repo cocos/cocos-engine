@@ -29,6 +29,7 @@
 #pragma define equalf_lowp(data1, data2) (abs(float(data1) - float(data2)) < EPSILON_LOWP)
 #pragma define equalf_epsilon(data1, data2, epsilonValue) (abs(float(data1) - float(data2)) < epsilonValue)
 #pragma define clip(value) if(value < 0.0) discard;
+#pragma define lerp(value1, value2, value2Multiplier) mix(value1, value2, value2Multiplier)
 
 // runtime constants
 #pragma define-meta CC_DEVICE_SUPPORT_FLOAT_TEXTURE default(1)
@@ -54,6 +55,10 @@
 #define REFLECTION_PROBE_TYPE_NONE 0
 #define REFLECTION_PROBE_TYPE_CUBE 1
 #define REFLECTION_PROBE_TYPE_PLANAR 2
+#define REFLECTION_PROBE_TYPE_BLEND 3
+#define REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX 4
+#pragma define IS_REFLECTION_PROBE_USE_RGBE(mipcount) mipcount > 1000.0
+#pragma define RESTORE_REFLECTION_PROBE_MIP_COUNT(mipcount) if (mipcount > 1000.0) mipcount -= 1000.0
 
 // Light Type
 #define LIGHT_TYPE_DIRECTIONAL 0.0
@@ -67,6 +72,10 @@
 #define IS_SPOT_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_SPOT)
 #define IS_POINT_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_POINT)
 #define IS_RANGED_DIRECTIONAL_LIGHT(light_type) equalf_lowp(light_type, LIGHT_TYPE_RANGED_DIRECTIONAL)
+
+// CC_TONE_MAPPING_TYPE Values
+#define TONE_MAPPING_ACES 0
+#define TONE_MAPPING_LINEAR 1
 
 // Material
 #define SURFACES_MAX_TRANSMIT_DEPTH_VALUE 999999.0

@@ -33,6 +33,7 @@
 #include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXRigidBody.h"
 #include "physics/physx/PhysXSharedBody.h"
+#include "physics/physx/character-controllers/PhysXCharacterController.h"
 #include "physics/spec/IWorld.h"
 
 namespace cc {
@@ -44,6 +45,8 @@ public:
     static physx::PxFoundation &getFundation();
     static physx::PxCooking &getCooking();
     static physx::PxPhysics &getPhysics();
+    static physx::PxControllerManager &getControllerManager();
+
     PhysXWorld();
     ~PhysXWorld() override;
     void step(float fixedTimeStep) override;
@@ -55,6 +58,22 @@ public:
     bool raycastClosest(RaycastOptions &opt) override;
     ccstd::vector<RaycastResult> &raycastResult() override;
     RaycastResult &raycastClosestResult() override;
+
+    bool sweep(RaycastOptions &opt, const physx::PxGeometry &geometry, const physx::PxQuat &orientation);
+    bool sweepClosest(RaycastOptions& opt, const physx::PxGeometry& geometry, const physx::PxQuat& orientation);
+    bool sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
+        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+    bool sweepBoxClosest(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
+        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+    bool sweepSphere(RaycastOptions &opt, float radius) override;
+    bool sweepSphereClosest(RaycastOptions &opt, float radius) override;
+    bool sweepCapsule(RaycastOptions &opt, float radius, float height,
+        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+    bool sweepCapsuleClosest(RaycastOptions &opt, float radius, float height,
+        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+    ccstd::vector<RaycastResult> &sweepResult() override;
+    RaycastResult &sweepClosestResult() override;
+
     uint32_t createConvex(ConvexDesc &desc) override;
     uint32_t createTrimesh(TrimeshDesc &desc) override;
     uint32_t createHeightField(HeightFieldDesc &desc) override;
@@ -65,6 +84,9 @@ public:
     }
     inline ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override {
         return _mEventMgr->getConatctPairs();
+    }
+    inline ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& getCCTShapeEventPairs() override {
+        return _mEventMgr->getCCTShapePairs();
     }
     void syncSceneToPhysics() override;
     void syncSceneWithCheck() override;
@@ -81,7 +103,9 @@ public:
     void syncPhysicsToScene();
     void addActor(const PhysXSharedBody &sb);
     void removeActor(const PhysXSharedBody &sb);
-
+    void addCCT(const PhysXCharacterController &cct);
+    void removeCCT(const PhysXCharacterController &cct);
+    
     //Mapping PhysX Object ID and Pointer
     uint32_t addPXObject(uintptr_t PXObjectPtr);
     void removePXObject(uint32_t pxObjectID);
@@ -94,11 +118,16 @@ public:
 
     uintptr_t getPXMaterialPtrWithMaterialID(uint32_t materialID);
 
+    float getFixedTimeStep() const override { return _fixedTimeStep; }
+    void setFixedTimeStep(float fixedTimeStep) override { _fixedTimeStep = fixedTimeStep; }
+
 private:
     static PhysXWorld *instance;
     physx::PxFoundation *_mFoundation;
     physx::PxCooking *_mCooking;
     physx::PxPhysics *_mPhysics;
+    physx::PxControllerManager *_mControllerManager = NULL;
+
 #ifdef CC_DEBUG
     physx::PxPvd *_mPvd;
 #endif
@@ -107,11 +136,14 @@ private:
     PhysXEventManager *_mEventMgr;
     uint32_t _mCollisionMatrix[31];
     ccstd::vector<PhysXSharedBody *> _mSharedBodies;
+    ccstd::vector<PhysXCharacterController *> _mCCTs;
 
     static uint32_t _msWrapperObjectID;
     static uint32_t _msPXObjectID;
     ccstd::unordered_map<uint32_t, uintptr_t> _mPXObjects;
     ccstd::unordered_map<uint32_t, uintptr_t> _mWrapperObjects;
+
+    float _fixedTimeStep{1 / 60.0F};
 };
 
 } // namespace physics

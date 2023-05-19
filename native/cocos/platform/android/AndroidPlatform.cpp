@@ -535,6 +535,7 @@ public:
                 ev.type = cc::WindowEvent::Type::SIZE_CHANGED;
                 ev.width = ANativeWindow_getWidth(_androidPlatform->_app->window);
                 ev.height = ANativeWindow_getHeight(_androidPlatform->_app->window);
+                ev.windowId = ISystemWindow::mainWindowId;
                 events::WindowEvent::broadcast(ev);
                 break;
             }

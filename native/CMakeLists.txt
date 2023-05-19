@@ -459,6 +459,8 @@ cocos_source_files(
     cocos/base/ThreadPool.cpp
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
+    cocos/base/BinaryArchive.cpp
+    cocos/base/BinaryArchive.h
     cocos/base/std/any.h
     cocos/base/std/optional.h
     cocos/base/std/variant.h
@@ -1208,6 +1210,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXTexture.cpp
                  cocos/renderer/gfx-base/GFXTexture.h
                  cocos/renderer/gfx-base/GFXDeviceObject.h
+                 cocos/renderer/gfx-base/GFXUtil.cpp
+                 cocos/renderer/gfx-base/GFXUtil.h
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.cpp
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.h
                  cocos/renderer/gfx-base/states/GFXSampler.cpp
@@ -1312,8 +1316,6 @@ cocos_source_files(
                  cocos/renderer/gfx-empty/EmptyTexture.h
                  cocos/renderer/gfx-empty/EmptyTexture.cpp
 
-                 cocos/renderer/pipeline/BatchedBuffer.cpp
-                 cocos/renderer/pipeline/BatchedBuffer.h
                  cocos/renderer/pipeline/ClusterLightCulling.cpp
                  cocos/renderer/pipeline/ClusterLightCulling.h
                  cocos/renderer/pipeline/Define.h
@@ -1326,8 +1328,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/PipelineStateManager.h
                  cocos/renderer/pipeline/RenderAdditiveLightQueue.cpp
                  cocos/renderer/pipeline/RenderAdditiveLightQueue.h
-                 cocos/renderer/pipeline/RenderBatchedQueue.cpp
-                 cocos/renderer/pipeline/RenderBatchedQueue.h
                  cocos/renderer/pipeline/RenderFlow.cpp
                  cocos/renderer/pipeline/RenderFlow.h
                  cocos/renderer/pipeline/RenderInstancedQueue.cpp
@@ -1398,6 +1398,9 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/ArchiveFwd.h
                  cocos/renderer/pipeline/custom/ArchiveTypes.cpp
                  cocos/renderer/pipeline/custom/ArchiveTypes.h
+                 cocos/renderer/pipeline/custom/CustomFwd.h
+                 cocos/renderer/pipeline/custom/CustomTypes.cpp
+                 cocos/renderer/pipeline/custom/CustomTypes.h
                  cocos/renderer/pipeline/custom/FGDispatcherGraphs.h
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h
@@ -1685,6 +1688,8 @@ if(CC_USE_GLES3)
                      cocos/renderer/gfx-gles3/GLES3Texture.h
                      cocos/renderer/gfx-gles3/GLES3Wrangler.cpp
                      cocos/renderer/gfx-gles3/GLES3Wrangler.h
+                     cocos/renderer/gfx-gles3/GLES3PipelineCache.cpp
+                     cocos/renderer/gfx-gles3/GLES3PipelineCache.h
                      cocos/renderer/gfx-gles3/states/GLES3GeneralBarrier.cpp
                      cocos/renderer/gfx-gles3/states/GLES3GeneralBarrier.h
                      cocos/renderer/gfx-gles3/states/GLES3Sampler.cpp
@@ -1782,6 +1787,8 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/volk.c
                      cocos/renderer/gfx-vulkan/volk.h
                      cocos/renderer/gfx-vulkan/VKGPURecycleBin.cpp
+                     cocos/renderer/gfx-vulkan/VKPipelineCache.cpp
+                     cocos/renderer/gfx-vulkan/VKPipelineCache.h
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.cpp
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.h
                      cocos/renderer/gfx-vulkan/states/VKSampler.cpp
@@ -1847,11 +1854,14 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/sdk/RigidBody.cpp
         cocos/physics/sdk/Joint.h
         cocos/physics/sdk/Joint.cpp
+        cocos/physics/sdk/CharacterController.h
+        cocos/physics/sdk/CharacterController.cpp
         cocos/physics/spec/IBody.h
         cocos/physics/spec/IJoint.h
         cocos/physics/spec/ILifecycle.h
         cocos/physics/spec/IShape.h
         cocos/physics/spec/IWorld.h
+        cocos/physics/spec/ICharacterController.h
         cocos/physics/physx/PhysX.h
         cocos/physics/physx/PhysXInc.h
         cocos/physics/physx/PhysXUtils.h
@@ -1892,6 +1902,14 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXFixedJoint.cpp
         cocos/physics/physx/joints/PhysXSpherical.h
         cocos/physics/physx/joints/PhysXSpherical.cpp
+        cocos/physics/physx/joints/PhysXGenericJoint.h
+        cocos/physics/physx/joints/PhysXGenericJoint.cpp
+        cocos/physics/physx/character-controllers/PhysXCharacterController.h
+        cocos/physics/physx/character-controllers/PhysXCharacterController.cpp
+        cocos/physics/physx/character-controllers/PhysXCapsuleCharacterController.h
+        cocos/physics/physx/character-controllers/PhysXCapsuleCharacterController.cpp
+        cocos/physics/physx/character-controllers/PhysXBoxCharacterController.h
+        cocos/physics/physx/character-controllers/PhysXBoxCharacterController.cpp
     )
     cocos_source_files(
         NO_WERROR NO_UBUILD ${SWIG_OUTPUT}/jsb_physics_auto.cpp

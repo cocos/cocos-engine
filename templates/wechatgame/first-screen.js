@@ -15,6 +15,23 @@ void main() {
     gl_FragColor = texture2D(u_Sampler, v_TexCoord);
 }`;
 
+const VS_BG = `
+attribute vec4 a_Position;
+attribute vec2 a_TexCoord;
+varying vec2 v_TexCoord;
+void main() {
+    gl_Position = a_Position;  
+    v_TexCoord = a_TexCoord;
+}`;
+
+const FS_BG = `
+precision mediump float;
+uniform sampler2D u_Sampler;
+varying vec2 v_TexCoord;
+void main() {
+    gl_FragColor = texture2D(u_Sampler, v_TexCoord);
+}`;
+
 const VS_PROGRESSBAR = `
 precision mediump float;
 attribute vec4 a_Position;
@@ -48,11 +65,18 @@ const options = {
 
 let gl = null;
 let image = null;
+let slogan = null;
+let bg = null;
 let program = null;
+let programBg = null;
 let programProgress = null;
 let rafHandle = null;
-let texture = null;
+let logoTexture = null;
+let sloganTexture = null;
+let bgTexture = null;
 let vertexBuffer = null;
+let sloganVertexBuffer = null;
+let bgVertexBuffer = null;
 let vertexBufferProgress = null;
 let progress = 0.0;
 let progressBarColor = [61 / 255, 197 / 255, 222 / 255, 1];
@@ -99,21 +123,48 @@ function loadShader(type, source) {
 function initVertexBuffer() {
     const widthRatio = 2 / canvas.width;
     const heightRatio = 2 / canvas.height;
+    const heightOffset = 0.225;
     const vertices = new Float32Array([
-        widthRatio, heightRatio, 1.0, 1.0,
-        widthRatio, heightRatio, 1.0, 0.0,
-        -widthRatio, heightRatio, 0.0, 1.0,
-        -widthRatio, heightRatio, 0.0, 0.0,
+        widthRatio,heightRatio + heightOffset, 1.0, 1.0,
+        widthRatio, heightRatio + heightOffset, 1.0, 0.0,
+        -widthRatio, heightRatio + heightOffset, 0.0, 1.0,
+        -widthRatio, heightRatio + heightOffset, 0.0, 0.0,
     ]);
     vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 }
 
+function initSloganVertexBuffer() {
+    const widthRatio = 2 / canvas.width;
+    const heightRatio = 2 / canvas.height;
+    const vertices = new Float32Array([
+        widthRatio, heightRatio, 1.0, 1.0,
+        widthRatio, heightRatio, 1.0, 0.0,
+        -widthRatio, heightRatio, 0.0, 1.0,
+        -widthRatio, heightRatio, 0.0, 0.0,
+    ]);
+    sloganVertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, sloganVertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+}
+
+function initBgVertexBuffer() {
+    const vertices = new Float32Array([
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 0.0, 1.0, 0.0,
+        0.0, 1.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 0.0,
+    ]);
+    bgVertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bgVertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+}
+
 function initProgressVertexBuffer() {
-    const widthRatio = 0.405;
-    const heightRatio = (window.devicePixelRatio >= 2 ? 6 : 3) / canvas.height;
-    const heightOffset = -0.25;
+    const widthRatio = 0.5;
+    const heightRatio = (window.devicePixelRatio >= 2 ? 6 : 3) / canvas.height * 1.35;
+    const heightOffset = -0.8;
     const vertices = new Float32Array([
         widthRatio, heightOffset - heightRatio, 1,
         widthRatio, heightOffset + heightRatio, 1,
@@ -128,14 +179,55 @@ function initProgressVertexBuffer() {
 function updateVertexBuffer() {
     const widthRatio = image.width / canvas.width;
     const heightRatio = image.height / canvas.height;
+    const heightOffset = 0.225;
     const vertices = new Float32Array([
-        widthRatio, -heightRatio, 1.0, 1.0,
-        widthRatio, heightRatio, 1.0, 0.0,
-        -widthRatio, -heightRatio, 0.0, 1.0,
-        -widthRatio, heightRatio, 0.0, 0.0,
+        widthRatio, heightOffset - heightRatio, 1.0, 1.0,
+        widthRatio, heightOffset + heightRatio, 1.0, 0.0,
+        -widthRatio, heightOffset - heightRatio, 0.0, 1.0,
+        -widthRatio, heightOffset + heightRatio, 0.0, 0.0,
     ]);
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+}
+
+function updateSloganVertexBuffer() {
+    const widthRatio = slogan.width / canvas.width * 0.5;
+    const heightRatio = slogan.height / canvas.height * 0.5;
+    const h = image.height / canvas.height;
+    const heightOffset = 0.175 - h;
+    const vertices = new Float32Array([
+        widthRatio, heightOffset - heightRatio, 1.0, 1.0,
+        widthRatio, heightOffset + heightRatio, 1.0, 0.0,
+        -widthRatio, heightOffset - heightRatio, 0.0, 1.0,
+        -widthRatio, heightOffset + heightRatio, 0.0, 0.0,
+    ]);
+    gl.bindBuffer(gl.ARRAY_BUFFER, sloganVertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+}
+
+function updateBgVertexBuffer() {
+    const vertices = new Float32Array([
+        1.0, 1.0, 1.0, 1.0,
+        1.0, -1.0, 1.0, 0.0,
+        -1.0, 1.0, 0.0, 1.0,
+        -1.0, -1.0, 0.0, 0.0,
+    ]);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bgVertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+}
+
+function loadBackground(bgPath) {
+    return new Promise((resolve, reject) => {
+        bg = new Image();
+        bg.premultiplyAlpha = false;
+        bg.onload = function() {
+            resolve(bg);
+        };
+        bg.onerror = function(err) {
+            reject(err);
+        };
+        bg.src = bgPath.replace('#', '%23');
+    });
 }
 
 function loadImage(imgPath) {
@@ -152,10 +244,25 @@ function loadImage(imgPath) {
     });
 }
 
-function initTexture() {
-    texture = gl.createTexture();
+function loadSlogan(sloganPath) {
+    return new Promise((resolve, reject) => {
+        slogan = new Image();
+        slogan.premultiplyAlpha = false;
+        slogan.onload = function() {
+            resolve(slogan);
+        };
+        slogan.onerror = function(err) {
+            reject(err);
+        };
+        slogan.src = sloganPath.replace('#', '%23');
+    });
+}
+
+
+function initLogoTexture() {
+    logoTexture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.bindTexture(gl.TEXTURE_2D, logoTexture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -163,9 +270,31 @@ function initTexture() {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255]));
 }
 
-function updateTexture() {
+function initSloganTexture() {
+    sloganTexture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.bindTexture(gl.TEXTURE_2D, sloganTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255]));
+}
+
+function initBgTexture() {
+    bgTexture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, bgTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255]));
+}
+
+function updateLogoTexture() {
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, logoTexture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -173,16 +302,33 @@ function updateTexture() {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 }
 
-function draw() {
-    gl.clearColor(0.0, 0.0, 0.0, 0.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+function updateSloganTexture() {
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, sloganTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, slogan);
+}
+
+function updateBgTexture() {
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, bgTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bg);
+}
+
+function drawTexture(gl, program, texture, vertexBuffer, vertexFormatLength) {
     gl.useProgram(program);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     var uSampler = gl.getUniformLocation(program, 'u_Sampler');
     gl.uniform1i(uSampler, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    var vertexFormatLength = 4;
     var aPosition = gl.getAttribLocation(program, 'a_Position');
     gl.enableVertexAttribArray(aPosition);
     gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, vertexFormatLength * 4, 0);
@@ -190,21 +336,40 @@ function draw() {
     gl.enableVertexAttribArray(aTexCoord);
     gl.vertexAttribPointer(aTexCoord, 2, gl.FLOAT, false, vertexFormatLength * 4, vertexFormatLength * 2);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    gl.useProgram(programProgress);
-    var uCurrentProgress = gl.getUniformLocation(programProgress, 'u_CurrentProgress');
+}
+
+function drawProgressBar(gl, program, vertexBuffer, vertexFormatLength, progress, progressBarColor, progressBackground) {
+    gl.useProgram(program);
+    var uCurrentProgress = gl.getUniformLocation(program, 'u_CurrentProgress');
     gl.uniform1f(uCurrentProgress, progress);
-    var uProgressBarColor = gl.getUniformLocation(programProgress, 'u_ProgressBarColor');
+    var uProgressBarColor = gl.getUniformLocation(program, 'u_ProgressBarColor');
     gl.uniform4fv(uProgressBarColor, progressBarColor);
-    var uProgressBackground = gl.getUniformLocation(programProgress, 'u_ProgressBackground');
+    var uProgressBackground = gl.getUniformLocation(program, 'u_ProgressBackground');
     gl.uniform4fv(uProgressBackground, progressBackground);
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferProgress);
-    aPosition = gl.getAttribLocation(programProgress, 'a_Position');
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    var aPosition = gl.getAttribLocation(program, 'a_Position');
     gl.enableVertexAttribArray(aPosition);
+    var vertexFormatLength = 4;
     gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, vertexFormatLength * 3, 0);
-    var aProgress = gl.getAttribLocation(programProgress, 'a_Progress');
+    var aProgress = gl.getAttribLocation(program, 'a_Progress');
     gl.enableVertexAttribArray(aProgress);
     gl.vertexAttribPointer(aProgress, 1, gl.FLOAT, false, vertexFormatLength * 3, vertexFormatLength * 2);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+function draw() {
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    // draw background
+    drawTexture(gl, programBg, bgTexture, bgVertexBuffer, 4);
+    // draw logo
+    drawTexture(gl, program, logoTexture, vertexBuffer, 4);
+    // draw slogan
+    drawTexture(gl, program, sloganTexture, sloganVertexBuffer, 4);
+    // draw progress bar
+    drawProgressBar(gl, programProgress, vertexBufferProgress, 3, progress, progressBarColor, progressBackground);
 }
 
 function tick() {
@@ -224,10 +389,15 @@ function end() {
         gl.useProgram(null);
         gl.bindTexture(gl.TEXTURE_2D, null);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.deleteTexture(texture);
+        gl.deleteTexture(logoTexture);
+        gl.deleteTexture(sloganTexture);
+        gl.deleteTexture(bgTexture);
         gl.deleteBuffer(vertexBuffer);
+        gl.deleteBuffer(bgVertexBuffer);
+        gl.deleteBuffer(sloganVertexBuffer);
         gl.deleteBuffer(vertexBufferProgress);
         gl.deleteProgram(program);
+        gl.deleteProgram(programBg);
         gl.deleteProgram(programProgress);
     });
 }
@@ -255,15 +425,33 @@ function start(alpha, antialias, useWebgl2) {
         gl = window.canvas.getContext("webgl", options);
     }
     initVertexBuffer();
+    initBgVertexBuffer();
+    initSloganVertexBuffer();
     initProgressVertexBuffer();
-    initTexture();
+
+    initLogoTexture();
+    initBgTexture();
+    initSloganTexture();
+
     program = initShaders(VS_LOGO, FS_LOGO);
+    programBg = initShaders(VS_BG, FS_BG);
     programProgress = initShaders(VS_PROGRESSBAR, FS_PROGRESSBAR);
     tick();
-    return loadImage('splash.png').then(() => {
-        updateVertexBuffer();
-        updateTexture();
+    return Promise.all([
+        loadBackground('background.png').then(() => {
+          updateBgVertexBuffer();
+          updateBgTexture();
+        }),
+        loadSlogan('slogan.png').then(() => {
+          updateSloganVertexBuffer();
+          updateSloganTexture();
+        }),
+        loadImage('logo.png').then(() => {
+            updateVertexBuffer();
+            updateLogoTexture();
+        })
+      ]).then(() => {
         return setProgress(0);
-    });
+      });
 }
 module.exports = { start, end, setProgress };

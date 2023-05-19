@@ -75,23 +75,30 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
     auto &stages = layoutGraphData.stages;
     stages.resize(layoutInfo.size());
 
+    add_vertex(layoutGraphData, RenderPhaseTag{}, "");
+    auto &layout = layoutGraphData.layouts.back();
+    auto &descPair = layout.descriptorSets.emplace(UpdateFrequency::PER_PASS, DescriptorSetData{renderGraph.get_allocator()});
+    auto &descData = (*descPair.first).second.descriptorSetLayoutData;
     for (size_t i = 0; i < layoutInfo.size(); ++i) {
         const ccstd::string passName = "pass" + std::to_string(i);
         auto layoutVtxID = add_vertex(layoutGraphData, RenderStageTag{}, passName.c_str());
-
-        for (size_t j = 0; j < layoutInfo[i].size(); ++j) {
-            const auto &renderStageInfo = layoutInfo[i];
-            for (const auto &layoutUnit : renderStageInfo) {
-                const auto &rescName = std::get<0>(layoutUnit);
-                const auto &nameID = std::get<1>(layoutUnit);
-                const auto &shaderStage = std::get<2>(layoutUnit);
-                if (layoutGraphData.attributeIndex.find(rescName) == layoutGraphData.attributeIndex.end()) {
-                    layoutGraphData.attributeIndex.emplace(std::make_pair<string, NameLocalID>(rescName.c_str(), NameLocalID{nameID}));
-                }
-                stages[i].descriptorVisibility.emplace(NameLocalID{nameID}, shaderStage);
+        const auto &renderStageInfo = layoutInfo[i];
+        for (const auto &layoutUnit : renderStageInfo) {
+            const auto &rescName = std::get<0>(layoutUnit);
+            const auto &nameID = std::get<1>(layoutUnit);
+            const auto &shaderStage = std::get<2>(layoutUnit);
+            if (layoutGraphData.attributeIndex.find(rescName) == layoutGraphData.attributeIndex.end()) {
+                layoutGraphData.attributeIndex.emplace(std::make_pair<string, NameLocalID>(rescName.c_str(), NameLocalID{nameID}));
             }
+            stages[i].descriptorVisibility.emplace(NameLocalID{nameID}, shaderStage);
+            auto &block = descData.descriptorBlocks.emplace_back();
+            block.visibility = shaderStage;
+            auto &desc = block.descriptors.emplace_back();
+            desc.count = 1;
+            desc.descriptorID = {nameID};
         }
     }
+    renderGraph.layoutNodes.emplace_back("");
 
     std::set<ccstd::string> nameSet;
     auto addRasterNode = [&](const vector<vector<vector<string>>> &subpasses, uint32_t count, uint32_t passID) {
@@ -103,6 +110,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
         bool hasSubpass = count > 1;
 
         Subpass *subpass = nullptr;
+        auto &rasterViews = raster.rasterViews;
 
         for (size_t j = 0; j < count; ++j) {
             assert(subpasses[j].size() == 2); // inputs and outputs
@@ -110,12 +118,27 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
             bool isOutput = false;
 
             Subpass *subpass = nullptr;
+            PmrTransparentMap<ccstd::pmr::string, RasterView> *subpassViews = nullptr;
             if (hasSubpass) {
                 const ccstd::string subpassName = "subpass" + std::to_string(passID);
                 auto subpassVertexID = add_vertex(subpassGraph, subpassName.c_str());
                 subpass = &get(SubpassGraph::SubpassTag{}, subpassGraph, subpassVertexID);
+
+                RasterSubpass subpassNode(j, renderGraph.get_allocator());
+                auto subpassID = addVertex(
+                    RasterSubpassTag{},
+                    std::forward_as_tuple(subpassName.c_str()),
+                    std::forward_as_tuple(),
+                    std::forward_as_tuple(),
+                    std::forward_as_tuple(),
+                    std::forward_as_tuple(std::move(subpassNode)),
+                    renderGraph, vertexID);
+
+                auto *subpassNode1 = get_if<RasterSubpass>(subpassID, &renderGraph);
+                subpassViews = &subpassNode1->rasterViews;
             }
 
+            uint32_t slot = 0;
             for (size_t k = 0; k < attachments.size(); ++k) {
                 for (size_t l = 0; l < attachments[k].size(); ++l) {
                     const auto &inputsOrOutputs = attachments[k];
@@ -126,15 +149,22 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                     }
 
                     auto &rasterViews = hasSubpass ? (*subpass).rasterViews : raster.rasterViews;
-                    rasterViews.emplace(viewName.c_str(), RasterView{
-                                                              viewName.c_str(),
-                                                              isOutput ? AccessType::WRITE : AccessType::READ,
-                                                              AttachmentType::RENDER_TARGET,
-                                                              firstMeet ? gfx::LoadOp::CLEAR : gfx::LoadOp::LOAD,
-                                                              gfx::StoreOp::STORE,
-                                                              gfx::ClearFlagBit::ALL,
-                                                              gfx::Color({1.0, 0.0, 0.0, 1.0}),
-                                                          });
+                    auto view = RasterView{
+                        viewName.c_str(),
+                        isOutput ? AccessType::WRITE : AccessType::READ,
+                        AttachmentType::RENDER_TARGET,
+                        firstMeet ? gfx::LoadOp::CLEAR : gfx::LoadOp::LOAD,
+                        gfx::StoreOp::STORE,
+                        gfx::ClearFlagBit::ALL,
+                        gfx::Color({1.0, 0.0, 0.0, 1.0}),
+                        gfx::ShaderStageFlagBit::NONE,
+                    };
+                    view.slotID = slot;
+                    rasterViews.emplace(viewName.c_str(), view);
+                    if (subpassViews) {
+                        subpassViews->emplace(viewName.c_str(), view);
+                    }
+                    ++slot;
                 }
                 isOutput = true;
             }
@@ -518,139 +548,162 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
     framegraph.reset();
 }
 
-#define TEST_CASE_DEFINE                                                                                                                                                     \
-    using namespace cc::render;                                                                                                                                              \
-    using cc::gfx::AccessFlagBit;                                                                                                                                            \
-    using cc::gfx::BarrierType;                                                                                                                                              \
-    using cc::gfx::Format;                                                                                                                                                   \
-    using cc::gfx::MemoryAccessBit;                                                                                                                                          \
-    using cc::gfx::SampleCount;                                                                                                                                              \
-    using cc::gfx::ShaderStageFlagBit;                                                                                                                                       \
-    using cc::gfx::TextureFlagBit;                                                                                                                                           \
-    ResourceInfo resources = {                                                                                                                                               \
-        {"0",                                                                                                                                                                \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"1",                                                                                                                                                                \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"2",                                                                                                                                                                \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"3",                                                                                                                                                                \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"4",                                                                                                                                                                \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"5",                                                                                                                                                                \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"6",                                                                                                                                                                \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"7",                                                                                                                                                                \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"8",                                                                                                                                                                \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"9",                                                                                                                                                                \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"10",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"11",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"12",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"13",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"14",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"15",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"16",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"17",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"18",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::MANAGED},                                                                                                                                       \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"19",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::EXTERNAL},                                                                                                                                      \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"20",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::EXTERNAL},                                                                                                                                      \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"21",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::EXTERNAL},                                                                                                                                      \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
-        {"22",                                                                                                                                                               \
-         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT}, \
-         {ResourceResidency::BACKBUFFER},                                                                                                                                      \
-         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                                                                             \
+#define TEST_CASE_DEFINE                                                                                          \
+    using namespace cc::render;                                                                                   \
+    using cc::gfx::AccessFlagBit;                                                                                 \
+    using cc::gfx::BarrierType;                                                                                   \
+    using cc::gfx::Format;                                                                                        \
+    using cc::gfx::MemoryAccessBit;                                                                               \
+    using cc::gfx::SampleCount;                                                                                   \
+    using cc::gfx::ShaderStageFlagBit;                                                                            \
+    using cc::gfx::TextureFlagBit;                                                                                \
+    ResourceInfo resources = {                                                                                    \
+        {"0",                                                                                                     \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"1",                                                                                                     \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"2",                                                                                                     \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"3",                                                                                                     \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"4",                                                                                                     \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"5",                                                                                                     \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"6",                                                                                                     \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"7",                                                                                                     \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"8",                                                                                                     \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"9",                                                                                                     \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"10",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"11",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"12",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"13",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"14",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"15",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"16",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"17",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"18",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::MANAGED},                                                                            \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"19",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::EXTERNAL},                                                                           \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"20",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::EXTERNAL},                                                                           \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"21",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::EXTERNAL},                                                                           \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
+        {"22",                                                                                                    \
+         {ResourceDimension::TEXTURE2D, 4, 960, 640, 1, 0, Format::RGBA8, SampleCount::ONE, TextureFlagBit::NONE, \
+          ResourceFlags::SAMPLED | ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT},            \
+         {ResourceResidency::BACKBUFFER},                                                                         \
+         {AccessFlagBit::FRAGMENT_SHADER_READ_TEXTURE | AccessFlagBit::COLOR_ATTACHMENT_WRITE}},                  \
     };
 
-#define TEST_CASE_1                                                      \
-    TEST_CASE_DEFINE                                                     \
-                                                                         \
-    ViewInfo rasterData = {                                              \
-        {                                                                \
-            PassType::RASTER,                                            \
-            {                                                            \
-                {{}, {"0", "1", "2"}},                                   \
-                {{"0", "1", "2"}, {"3"}},                                \
-            },                                                           \
-        },                                                               \
-        {                                                                \
-            PassType::RASTER,                                            \
-            {                                                            \
-                {{"3"}, {"22"}},                                         \
-            },                                                           \
-        },                                                               \
-    };                                                                   \
-                                                                         \
-    LayoutInfo layoutInfo = {                                            \
-        {                                                                \
-            {"0", 0, cc::gfx::ShaderStageFlagBit::VERTEX},               \
-            {"1", 1, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
-            {"2", 2, cc::gfx::ShaderStageFlagBit::VERTEX},               \
-            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},             \
-        },                                                               \
-        {                                                                \
-            {"3", 3, cc::gfx::ShaderStageFlagBit::VERTEX},               \
-            {"22", 22, cc::gfx::ShaderStageFlagBit::VERTEX},             \
+#define TEST_CASE_1                                            \
+    TEST_CASE_DEFINE                                           \
+                                                               \
+    ViewInfo rasterData = {                                    \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{}, {"0", "1", "2"}},                         \
+                {{"0", "1", "2"}, {"3"}},                      \
+            },                                                 \
+        },                                                     \
+        {                                                      \
+            PassType::RASTER,                                  \
+            {                                                  \
+                {{"3"}, {"22"}},                               \
+            },                                                 \
+        },                                                     \
+    };                                                         \
+                                                               \
+    LayoutInfo layoutInfo = {                                  \
+        {                                                      \
+            {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"1", 1, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"2", 2, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+        },                                                     \
+        {                                                      \
+            {"3", 3, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
+            {"22", 22, cc::gfx::ShaderStageFlagBit::FRAGMENT}, \
         }};
 
 #define TEST_CASE_2                                            \
@@ -987,7 +1040,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
                                                                \
     LayoutInfo layoutInfo = {                                  \
         {                                                      \
-            {"0", 0, cc::gfx::ShaderStageFlagBit::VERTEX},     \
+            {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \
         },                                                     \
         {                                                      \
             {"0", 0, cc::gfx::ShaderStageFlagBit::FRAGMENT},   \

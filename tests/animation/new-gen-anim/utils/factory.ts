@@ -1,4 +1,6 @@
 import { AnimationClip } from "../../../../cocos/animation/animation-clip";
+import { AnimationBlend1D } from "../../../../cocos/animation/marionette/animation-blend-1d";
+import { AnimationBlend2D } from "../../../../cocos/animation/marionette/animation-blend-2d";
 import { AnimationGraph, AnimationTransition, EmptyStateTransition, isAnimationTransition, State, StateMachine, SubStateMachine, Transition } from "../../../../cocos/animation/marionette/animation-graph";
 import { ClipMotion } from "../../../../cocos/animation/marionette/clip-motion";
 import { BinaryCondition, TriggerCondition, UnaryCondition } from "../../../../cocos/animation/marionette/condition";
@@ -6,6 +8,7 @@ import { Motion } from "../../../../cocos/animation/marionette/motion";
 import { MotionState } from "../../../../cocos/animation/marionette/motion-state";
 import { Bindable } from "../../../../cocos/animation/marionette/parametric";
 import { TriggerResetMode } from "../../../../cocos/animation/marionette/variable";
+import { Vec2 } from "../../../../exports/base";
 
 export function createAnimationGraph(params: AnimationGraphParams): AnimationGraph {
     const animationGraph = new AnimationGraph();
@@ -89,15 +92,15 @@ export function fillStateMachine(stateMachine: StateMachine, params: StateMachin
     });
 }
 
+function fillBindable<T> (bindable: Bindable<T>, params: BindableParams<T>) {
+    if (params.type === 'variable') {
+        bindable.variable = params.name;
+    } else {
+        bindable.value = params.value;
+    }
+}
+
 function fillTransition(transition: Transition, params: TransitionAttributes) {
-    const fillBindable = <T>(bindable: Bindable<T>, params: BindableParams<T>) => {
-        if (params.type === 'variable') {
-            bindable.variable = params.name;
-        } else {
-            bindable.value = params.value;
-        }
-    };
-    
     transition.conditions = (params.conditions ?? []).map((conditionParams) => {
         switch (conditionParams.type) {
             case 'unary': {
@@ -112,6 +115,14 @@ function fillTransition(transition: Transition, params: TransitionAttributes) {
             }
             case 'binary': {
                 const condition = new BinaryCondition();
+                switch (conditionParams.operator) {
+                    case '==': condition.operator = BinaryCondition.Operator.EQUAL_TO; break;
+                    case '!=': condition.operator = BinaryCondition.Operator.NOT_EQUAL_TO; break;
+                    case '>': condition.operator = BinaryCondition.Operator.GREATER_THAN; break;
+                    case '>=': condition.operator = BinaryCondition.Operator.GREATER_THAN_OR_EQUAL_TO; break;
+                    case '<': condition.operator = BinaryCondition.Operator.LESS_THAN; break;
+                    case '<=': condition.operator = BinaryCondition.Operator.LESS_THAN_OR_EQUAL_TO; break;
+                }
                 fillBindable(condition.lhs, conditionParams.lhs);
                 fillBindable(condition.rhs, conditionParams.rhs);
                 return condition;
@@ -192,6 +203,33 @@ export function createMotion(params: MotionParams): Motion {
                 }
             }
             return clipMotion;
+        }
+        case 'animation-blend-1d': {
+            const motion = new AnimationBlend1D();
+            fillBindable(motion.param, params.param);
+            motion.items = params.items.map((itemParams) => {
+                const item = new AnimationBlend1D.Item();
+                if (itemParams.motion) {
+                    item.motion = itemParams.motion instanceof Motion ? itemParams.motion : createMotion(itemParams.motion);
+                }
+                item.threshold = itemParams.threshold;
+                return item;
+            });
+            return motion;
+        }
+        case 'animation-blend-2d': {
+            const motion = new AnimationBlend2D();
+            fillBindable(motion.paramX, params.paramX);
+            fillBindable(motion.paramY, params.paramY);
+            motion.items = params.items.map((itemParams) => {
+                const item = new AnimationBlend2D.Item();
+                if (itemParams.motion) {
+                    item.motion = itemParams.motion instanceof Motion ? itemParams.motion : createMotion(itemParams.motion);
+                }
+                Vec2.set(item.threshold, itemParams.threshold.x, itemParams.threshold.y);
+                return item;
+            });
+            return motion;
         }
     }
 }
@@ -274,6 +312,7 @@ type TransitionConditionParams = {
     operand: BindableParams<boolean>;
 } | {
     type: 'binary';
+    operator: '==' | '!=' | '>' | '<' | '>=' | '<=';
     lhs: BindableParams<number>;
     rhs: BindableParams<number>;
 } | {
@@ -294,4 +333,19 @@ export type MotionParams = {
     clip?: AnimationClip | {
         duration: number;
     };
+} | {
+    type: 'animation-blend-1d',
+    param: BindableParams<number>;
+    items: Array<{
+        motion?: Motion | MotionParams;
+        threshold: number;
+    }>;
+} | {
+    type: 'animation-blend-2d',
+    paramX: BindableParams<number>;
+    paramY: BindableParams<number>;
+    items: Array<{
+        motion?: Motion | MotionParams;
+        threshold: { x: number; y: number; };
+    }>;
 };

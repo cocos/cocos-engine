@@ -50,6 +50,12 @@ void CCSurfacesVertexOutput(in SurfacesStandardVertexIntermediate In)
 
 #if CC_USE_REFLECTION_PROBE
   VSOutput_reflectionProbeId = In.shadowBiasAndProbeId.z;
+  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+    VSOutput_reflectionProbeBlendId = In.shadowBiasAndProbeId.w;
+  #endif
+  #if USE_INSTANCING
+    v_reflectionProbeData = a_reflectionProbeData;
+  #endif
 #endif
 
 #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD

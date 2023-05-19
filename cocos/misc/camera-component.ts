@@ -38,6 +38,8 @@ import { Layers } from '../scene-graph/layers';
 import { TransformBit } from '../scene-graph/node-enum';
 import { RenderWindow } from '../render-scene/core/render-window';
 import { ClearFlagBit } from '../gfx';
+import { PostProcess } from '../rendering/post-process/components/post-process';
+import { property } from '../core/data/class-decorator';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -167,6 +169,10 @@ export class Camera extends Component {
     protected _visibility = CAMERA_DEFAULT_MASK;
     @serializable
     protected _targetTexture: RenderTexture | null = null;
+    @serializable
+    protected _postProcess: PostProcess | null = null;
+    @serializable
+    protected _usePostProcess = false;
 
     protected _camera: scene.Camera | null = null;
     protected _inEditorMode = false;
@@ -484,6 +490,28 @@ export class Camera extends Component {
         this.node.emit(Camera.TARGET_TEXTURE_CHANGE, this);
     }
 
+    @property
+    get usePostProcess () {
+        return this._usePostProcess;
+    }
+    set usePostProcess (v) {
+        this._usePostProcess = v;
+        if (this._camera) {
+            this._camera.usePostProcess = v;
+        }
+    }
+
+    @type(PostProcess)
+    get postProcess () {
+        return this._postProcess;
+    }
+    set postProcess (v) {
+        this._postProcess = v;
+        if (this._camera) {
+            this._camera.postProcess = v;
+        }
+    }
+
     /**
      * @en Scale of the internal buffer size,
      * set to 1 to keep the same with the canvas size.
@@ -681,6 +709,8 @@ export class Camera extends Component {
             this._camera!.aperture = this._aperture;
             this._camera!.shutter = this._shutter;
             this._camera!.iso = this._iso;
+            this._camera!.postProcess = this._postProcess;
+            this._camera!.usePostProcess = this._usePostProcess;
         }
 
         this._updateTargetTexture();

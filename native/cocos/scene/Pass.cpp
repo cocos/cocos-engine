@@ -37,7 +37,6 @@
 #include "renderer/core/ProgramLib.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/gfx-base/states/GFXSampler.h"
-#include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/InstancedBuffer.h"
 #include "scene/Define.h"
@@ -296,16 +295,6 @@ pipeline::InstancedBuffer *Pass::getInstancedBuffer(int32_t extraKey) {
     return instancedBuffer;
 }
 
-pipeline::BatchedBuffer *Pass::getBatchedBuffer(int32_t extraKey) {
-    auto iter = _batchedBuffers.find(extraKey);
-    if (iter != _batchedBuffers.end()) {
-        return iter->second.get();
-    }
-    auto *batchedBuffers = ccnew pipeline::BatchedBuffer(this);
-    _batchedBuffers[extraKey] = batchedBuffers;
-    return batchedBuffers;
-}
-
 void Pass::destroy() {
     if (!_buffers.empty()) {
         for (const auto &u : _shaderInfo->blocks) {
@@ -324,11 +313,6 @@ void Pass::destroy() {
         ib.second->destroy();
     }
     _instancedBuffers.clear();
-
-    for (auto &bb : _batchedBuffers) {
-        bb.second->destroy();
-    }
-    _batchedBuffers.clear();
 
     // NOTE: There may be many passes reference the same descriptor set,
     // so here we can't use _descriptorSet->destroy() to release it.
@@ -823,12 +807,7 @@ void Pass::syncBatchingScheme() {
             _batchingScheme = BatchingSchemes::NONE;
         }
     } else {
-        auto iter = _defines.find("USE_BATCHING");
-        if (iter != _defines.end() && macroRecordAsBool(iter->second)) {
-            _batchingScheme = BatchingSchemes::VB_MERGING;
-        } else {
-            _batchingScheme = BatchingSchemes::NONE;
-        }
+        _batchingScheme = BatchingSchemes::NONE;
     }
 }
 

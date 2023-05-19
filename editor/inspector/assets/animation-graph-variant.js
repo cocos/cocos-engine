@@ -85,6 +85,10 @@ exports.methods = {
         await Editor.Message.request('scene', 'apply-animation-graph-variant', this.asset.uuid, this.animationGraphVariant);
     },
 
+    abort() {
+        this.reset();
+    },
+
     reset() {
         /**
          * reset 环节只需把 uuid 清空

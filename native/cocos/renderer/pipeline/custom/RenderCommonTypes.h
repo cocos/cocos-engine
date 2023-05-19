@@ -200,7 +200,8 @@ struct RasterView {
     }
 
     RasterView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    RasterView(ccstd::pmr::string slotNameIn, ccstd::pmr::string slotName1In, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     RasterView(RasterView&& rhs, const allocator_type& alloc);
     RasterView(RasterView const& rhs, const allocator_type& alloc);
 
@@ -210,6 +211,7 @@ struct RasterView {
     RasterView& operator=(RasterView const& rhs) = default;
 
     ccstd::pmr::string slotName;
+    ccstd::pmr::string slotName1;
     AccessType accessType{AccessType::WRITE};
     AttachmentType attachmentType{AttachmentType::RENDER_TARGET};
     gfx::LoadOp loadOp{gfx::LoadOp::LOAD};
@@ -217,11 +219,12 @@ struct RasterView {
     gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::ALL};
     gfx::Color clearColor;
     uint32_t slotID{0};
+    gfx::ShaderStageFlagBit shaderStageFlags{gfx::ShaderStageFlagBit::NONE};
 };
 
 inline bool operator==(const RasterView& lhs, const RasterView& rhs) noexcept {
-    return std::forward_as_tuple(lhs.slotName, lhs.accessType, lhs.attachmentType, lhs.loadOp, lhs.storeOp, lhs.clearFlags) ==
-           std::forward_as_tuple(rhs.slotName, rhs.accessType, rhs.attachmentType, rhs.loadOp, rhs.storeOp, rhs.clearFlags);
+    return std::forward_as_tuple(lhs.slotName, lhs.slotName1, lhs.accessType, lhs.attachmentType, lhs.loadOp, lhs.storeOp, lhs.clearFlags, lhs.shaderStageFlags) ==
+           std::forward_as_tuple(rhs.slotName, rhs.slotName1, rhs.accessType, rhs.attachmentType, rhs.loadOp, rhs.storeOp, rhs.clearFlags, rhs.shaderStageFlags);
 }
 
 inline bool operator!=(const RasterView& lhs, const RasterView& rhs) noexcept {
@@ -229,9 +232,33 @@ inline bool operator!=(const RasterView& lhs, const RasterView& rhs) noexcept {
 }
 
 enum class ClearValueType {
+    NONE,
     FLOAT_TYPE,
     INT_TYPE,
 };
+
+struct ClearValue {
+    ClearValue() = default;
+    ClearValue(double xIn, double yIn, double zIn, double wIn) noexcept // NOLINT
+    : x(xIn),
+      y(yIn),
+      z(zIn),
+      w(wIn) {}
+
+    double x{0};
+    double y{0};
+    double z{0};
+    double w{0};
+};
+
+inline bool operator==(const ClearValue& lhs, const ClearValue& rhs) noexcept {
+    return std::forward_as_tuple(lhs.x, lhs.y, lhs.z, lhs.w) ==
+           std::forward_as_tuple(rhs.x, rhs.y, rhs.z, rhs.w);
+}
+
+inline bool operator!=(const ClearValue& lhs, const ClearValue& rhs) noexcept {
+    return !(lhs == rhs);
+}
 
 struct ComputeView {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
@@ -240,7 +267,8 @@ struct ComputeView {
     }
 
     ComputeView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, ClearValueType clearValueTypeIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, uint32_t planeIn, gfx::ClearFlagBit clearFlagsIn, ClearValueType clearValueTypeIn, ClearValue clearValueIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     ComputeView(ComputeView&& rhs, const allocator_type& alloc);
     ComputeView(ComputeView const& rhs, const allocator_type& alloc);
 
@@ -258,14 +286,16 @@ struct ComputeView {
 
     ccstd::pmr::string name;
     AccessType accessType{AccessType::READ};
+    uint32_t plane{0};
     gfx::ClearFlagBit clearFlags{gfx::ClearFlagBit::NONE};
-    gfx::Color clearColor;
-    ClearValueType clearValueType{ClearValueType::FLOAT_TYPE};
+    ClearValueType clearValueType{ClearValueType::NONE};
+    ClearValue clearValue;
+    gfx::ShaderStageFlagBit shaderStageFlags{gfx::ShaderStageFlagBit::NONE};
 };
 
 inline bool operator==(const ComputeView& lhs, const ComputeView& rhs) noexcept {
-    return std::forward_as_tuple(lhs.name, lhs.accessType, lhs.clearFlags, lhs.clearValueType) ==
-           std::forward_as_tuple(rhs.name, rhs.accessType, rhs.clearFlags, rhs.clearValueType);
+    return std::forward_as_tuple(lhs.name, lhs.accessType, lhs.plane, lhs.clearFlags, lhs.clearValueType, lhs.shaderStageFlags) ==
+           std::forward_as_tuple(rhs.name, rhs.accessType, rhs.plane, rhs.clearFlags, rhs.clearValueType, rhs.shaderStageFlags);
 }
 
 inline bool operator!=(const ComputeView& lhs, const ComputeView& rhs) noexcept {
@@ -350,7 +380,7 @@ struct CopyPair {
     CopyPair(CopyPair const& rhs, const allocator_type& alloc);
 
     CopyPair(CopyPair&& rhs) noexcept = default;
-    CopyPair(CopyPair const& rhs) = delete;
+    CopyPair(CopyPair const& rhs) = default;
     CopyPair& operator=(CopyPair&& rhs) = default;
     CopyPair& operator=(CopyPair const& rhs) = default;
 
@@ -378,7 +408,7 @@ struct MovePair {
     MovePair(MovePair const& rhs, const allocator_type& alloc);
 
     MovePair(MovePair&& rhs) noexcept = default;
-    MovePair(MovePair const& rhs) = delete;
+    MovePair(MovePair const& rhs) = default;
     MovePair& operator=(MovePair&& rhs) = default;
     MovePair& operator=(MovePair const& rhs) = default;
 
@@ -414,11 +444,22 @@ namespace ccstd {
 inline hash_t hash<cc::render::RasterView>::operator()(const cc::render::RasterView& val) const noexcept {
     hash_t seed = 0;
     hash_combine(seed, val.slotName);
+    hash_combine(seed, val.slotName1);
     hash_combine(seed, val.accessType);
     hash_combine(seed, val.attachmentType);
     hash_combine(seed, val.loadOp);
     hash_combine(seed, val.storeOp);
     hash_combine(seed, val.clearFlags);
+    hash_combine(seed, val.shaderStageFlags);
+    return seed;
+}
+
+inline hash_t hash<cc::render::ClearValue>::operator()(const cc::render::ClearValue& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.x);
+    hash_combine(seed, val.y);
+    hash_combine(seed, val.z);
+    hash_combine(seed, val.w);
     return seed;
 }
 
@@ -426,8 +467,10 @@ inline hash_t hash<cc::render::ComputeView>::operator()(const cc::render::Comput
     hash_t seed = 0;
     hash_combine(seed, val.name);
     hash_combine(seed, val.accessType);
+    hash_combine(seed, val.plane);
     hash_combine(seed, val.clearFlags);
     hash_combine(seed, val.clearValueType);
+    hash_combine(seed, val.shaderStageFlags);
     return seed;
 }
 
