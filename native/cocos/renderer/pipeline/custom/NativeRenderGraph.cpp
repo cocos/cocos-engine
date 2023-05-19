@@ -784,14 +784,12 @@ void NativeRenderSubpassBuilderImpl::setShowStatistics(bool enable) {
 }
 
 void NativeMultisampleRenderSubpassBuilder::resolveRenderTarget(
-    const ccstd::string& source, const ccstd::string& target) { // NOLINT(bugprone-easily-swappable-parameters)
-
+    const ccstd::string &source, const ccstd::string &target) { // NOLINT(bugprone-easily-swappable-parameters)
 }
 
 void NativeMultisampleRenderSubpassBuilder::resolveDepthStencil(
-    const ccstd::string& source, const ccstd::string& target, // NOLINT(bugprone-easily-swappable-parameters)
+    const ccstd::string &source, const ccstd::string &target,   // NOLINT(bugprone-easily-swappable-parameters)
     gfx::ResolveMode depthMode, gfx::ResolveMode stencilMode) { // NOLINT(bugprone-easily-swappable-parameters)
-
 }
 
 void NativeComputeSubpassBuilder::addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) {
@@ -1431,8 +1429,8 @@ RenderSubpassBuilder *NativeRenderPassBuilder::addRenderSubpass(const ccstd::str
         pipelineRuntime, *renderGraph, *layoutGraph, nodeID, layoutName, 1, 0);
 }
 
-MultisampleRenderSubpassBuilder* NativeRenderPassBuilder::addMultisampleRenderSubpass(
-    uint32_t count, uint32_t quality, const ccstd::string& layoutName) { // NOLINT(bugprone-easily-swappable-parameters)
+MultisampleRenderSubpassBuilder *NativeRenderPassBuilder::addMultisampleRenderSubpass(
+    uint32_t count, uint32_t quality, const ccstd::string &layoutName) { // NOLINT(bugprone-easily-swappable-parameters)
     return addRenderSubpassImpl<NativeMultisampleRenderSubpassBuilder>(
         pipelineRuntime, *renderGraph, *layoutGraph, nodeID, layoutName, count, quality);
 }

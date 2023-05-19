@@ -517,9 +517,9 @@ void NativePipeline::endFrame() {
 namespace {
 
 RenderPassBuilder *addRenderPassImpl(
-    const PipelineRuntime* ppl,
-    RenderGraph &renderGraph, const NativeProgramLibrary& lib,
-    uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
+    const PipelineRuntime *ppl,
+    RenderGraph &renderGraph, const NativeProgramLibrary &lib,
+    uint32_t width, uint32_t height,  // NOLINT(bugprone-easily-swappable-parameters)
     uint32_t count, uint32_t quality, // NOLINT(bugprone-easily-swappable-parameters)
     const ccstd::string &layoutName) {
     RasterPass pass(renderGraph.get_allocator());
@@ -567,7 +567,7 @@ BasicRenderPassBuilder *NativePipeline::addMultisampleRenderPass(
         this, renderGraph, *programLibrary, width, height, count, quality, layoutName);
 }
 
-void NativePipeline::addResolvePass(const ccstd::vector<ResolvePair>& resolvePairs) {
+void NativePipeline::addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) {
     ResolvePass pass(renderGraph.get_allocator());
     pass.resolvePairs.reserve(resolvePairs.size());
     for (auto &&pair : resolvePairs) {

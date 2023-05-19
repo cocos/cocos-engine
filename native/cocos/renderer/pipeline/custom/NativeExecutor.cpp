@@ -1556,7 +1556,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
     void end(const gfx::Viewport& pass, RenderGraph::vertex_descriptor vertID) const {
     }
-    
+
     void mountResources(const Subpass& pass) const {
         auto& resg = ctx.resourceGraph;
         // mount managed resources
@@ -1600,7 +1600,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             resg.mount(ctx.device, resID);
         }
     }
-
 
     void mountResources(const ComputeSubpass& pass) const {
         auto& resg = ctx.resourceGraph;
@@ -2286,7 +2285,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             CustomRenderGraphContext{
                 custom.currentContext,
                 &rg,
-                submit.primaryCommandBuffer
+                submit.primaryCommandBuffer,
             },
             scratch};
 
