@@ -58,7 +58,6 @@ export abstract class BasePass {
     }
 
     enable = true;
-    discard = false;
     outputNames: string[] = []
 
     lastPass: BasePass | undefined;
