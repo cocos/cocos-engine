@@ -47,11 +47,6 @@ export class ToneMappingPass extends SettingPass {
     }
 
     public render (camera: Camera, ppl: Pipeline): void {
-        if (!ppl.pipelineSceneData.isHDR || !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
-            this.discard = true;
-            return;
-        }
-
         const cameraID = getCameraUniqueID(camera);
         passContext.material = this.material;
 
