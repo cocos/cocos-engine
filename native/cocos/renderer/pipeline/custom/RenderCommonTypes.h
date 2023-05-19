@@ -418,7 +418,7 @@ struct ResolvePair {
 
     ccstd::pmr::string source;
     ccstd::pmr::string target;
-    ResolveFlags resolveFlags{0xFFFFFFFF};
+    ResolveFlags resolveFlags{ResolveFlags::NONE};
     gfx::ResolveMode mode{gfx::ResolveMode::SAMPLE_ZERO};
     gfx::ResolveMode mode1{gfx::ResolveMode::SAMPLE_ZERO};
 };

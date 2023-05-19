@@ -442,7 +442,7 @@ export class ResolvePair {
     constructor (
         source = '',
         target = '',
-        resolveFlags: ResolveFlags = 0xFFFFFFFF,
+        resolveFlags: ResolveFlags = ResolveFlags.NONE,
         mode: ResolveMode = ResolveMode.SAMPLE_ZERO,
         mode1: ResolveMode = ResolveMode.SAMPLE_ZERO,
     ) {
