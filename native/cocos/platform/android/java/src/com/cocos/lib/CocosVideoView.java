@@ -500,6 +500,8 @@ public class CocosVideoView extends SurfaceView {
                 public void onCompletion(MediaPlayer mp) {
                     mCurrentState = State.PLAYBACK_COMPLETED;
                     CocosVideoView.this.sendEvent(EVENT_COMPLETED);
+                    //make it playable again.
+                    CocosVideoView.this.showFirstFrame();
                 }
             };
 
