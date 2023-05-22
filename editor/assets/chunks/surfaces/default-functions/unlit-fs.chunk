@@ -1,0 +1,25 @@
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+// depends on CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+vec4 SurfacesFragmentModifyBaseColorAndTransparency()
+{
+    return FSInput_vertexColor;
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+// depends on CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+// for base shape without color usage, such as render-to-shadow
+void SurfacesFragmentAlphaClipOnly()
+{
+}
+#endif
+
+#ifndef CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+// depends on CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+// some material datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
+// this function invokes at last
+// should use corresponding shading-model header: #include <surfaces/data-structures/XXX> before function define
+void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
+{
+}
+#endif

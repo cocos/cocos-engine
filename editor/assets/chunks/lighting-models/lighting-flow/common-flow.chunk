@@ -59,9 +59,8 @@
       #endif
       
       #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
-        if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_SHADOW) {
+        if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_SHADOW)
           shadow = 1.0;
-        }
       #endif
 
         lightingResult.shadow = shadow;
@@ -191,6 +190,16 @@
         lightingResult.ao *= lightmapAO;
       #endif
 
+      // apply screen-space shadow and ao
+      // lightingResult.shadow/ao *= XXX;
+      #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC
+        if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_SHADOW)
+          lightingResult.shadow = 1.0;
+        if (!IS_DEBUG_VIEW_COMPOSITE_ENABLE_AO)
+          lightingResult.ao = 1.0;
+      #endif
+
+
       // dynamic & stationary dir light
       lightingResult.directDiffuse = lightingResult.directSpecular = vec3(0.0);
       #if !CC_DISABLE_DIRECTIONAL_LIGHT && !CC_FORWARD_ADD
@@ -202,8 +211,6 @@
       // apply SSR, local probe & global probe
       CCSurfacesLightingCalculateEnvironment(lightingResult.environmentDiffuse, lightingResult.environmentSpecular, lightingData, cc_ambientSky.w);
 
-      // apply screen-space shadow and ao
-      // lightingResult.shadow/ao *= XXX;
 
       #if CC_SURFACES_LIGHTING_USE_FRESNEL
         lightingResult.fresnel = CCSurfaceLightingCalculateFresnel(lightingData);
