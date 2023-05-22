@@ -196,19 +196,19 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
             axis = BulletDofAxis.X;
             mode = ld.xDrive;
             target = ld.targetPosition.x;
-            velocity = ld.targetVelocity.x;
+            velocity = -ld.targetVelocity.x;
             break;
         case 1:
             axis = BulletDofAxis.Y;
             mode = ld.yDrive;
             target = ld.targetPosition.y;
-            velocity = ld.targetVelocity.y;
+            velocity = -ld.targetVelocity.y;
             break;
         case 2:
             axis = BulletDofAxis.Z;
             mode = ld.zDrive;
             target = ld.targetPosition.z;
-            velocity = ld.targetVelocity.z;
+            velocity = -ld.targetVelocity.z;
             break;
         case 3:
             axis = BulletDofAxis.TWIST;
@@ -231,7 +231,11 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
         const strength = index > 2 ? ad.strength : ld.strength;
         bt.Generic6DofSpring2Constraint_setServoTarget(this._impl, axis, target);
         if (mode === EDriverMode.SERVO) {
-            bt.Generic6DofSpring2Constraint_setTargetVelocity(this._impl, axis, target * strength * 0.1);
+            if (index > 2) {
+                bt.Generic6DofSpring2Constraint_setTargetVelocity(this._impl, axis, -target * strength * 0.1);
+            } else {
+                bt.Generic6DofSpring2Constraint_setTargetVelocity(this._impl, axis, target * strength * 0.1);
+            }
         } else if (mode === EDriverMode.INDUCTION) {
             bt.Generic6DofSpring2Constraint_setTargetVelocity(this._impl, axis, velocity);
         }
