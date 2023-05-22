@@ -3,7 +3,7 @@ import { Vec4 } from '../../../core';
 import { director } from '../../../game';
 
 import { ClearFlagBit, Format } from '../../../gfx';
-import { Camera } from '../../../render-scene/scene';
+import { Camera, CameraUsage } from '../../../render-scene/scene';
 import { AccessType, LightInfo, QueueHint, ResourceResidency, SceneFlags } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
@@ -81,6 +81,9 @@ export class ForwardPass extends BasePass {
                 new LightInfo(),
                 SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
                 | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+
+        pass.addQueue(QueueHint.RENDER_TRANSPARENT)
+            .addSceneOfCamera(camera, new LightInfo(), SceneFlags.UI | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
 
         passContext.forwardPass = this;
     }
