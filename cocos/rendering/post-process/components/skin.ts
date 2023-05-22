@@ -34,18 +34,10 @@ const _vec3Temp2: Vec3 = new Vec3();
 const _vec4Temp: Vec4 = new Vec4();
 const _vec4Temp2: Vec4 = new Vec4();
 
-export const COPY_INPUT_DS_PASS_INDEX = 0;
-export const SSSS_BLUR_X_PASS_INDEX = 1;
-export const SSSS_BLUR_Y_PASS_INDEX = 2;
 export const EXPONENT = 2.0;
 export const I_SAMPLES_COUNT = 25;
 
 export class SSSSBlurData {
-    ssssFov = 45.0 / 57.3;
-    ssssWidth = 0.01;
-    boundingBox = 0.4;
-    ssssScale = 5.0;
-
     get ssssStrength () {
         return this._v3SSSSStrength;
     }
@@ -203,7 +195,6 @@ export class Skin extends PostProcessSetting {
             return;
         }
         this._blurRadius = val;
-        this._ssssBlurData.ssssWidth = val;
     }
     get blurRadius () {
         return this._blurRadius;
@@ -224,7 +215,6 @@ export class Skin extends PostProcessSetting {
             return;
         }
         this._sssIntensity = val;
-        this._ssssBlurData.ssssScale = val;
     }
     get sssIntensity () {
         return this._sssIntensity;
