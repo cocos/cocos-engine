@@ -5,7 +5,7 @@ import { PipelineBuilder, Pipeline } from '../custom/pipeline';
 
 import { passContext } from './utils/pass-context';
 import { ForwardFinalPass } from './passes/forward-final-pass';
-import { getCameraUniqueID } from '../custom/define';
+import { buildReflectionProbePasss, getCameraUniqueID } from '../custom/define';
 
 import { BasePass } from './passes/base-pass';
 import { ForwardPass } from './passes/forward-pass';
@@ -131,6 +131,8 @@ export class PostProcessBuilder implements PipelineBuilder  {
             if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
                 this.applyPreviewCamera(camera);
             }
+
+            buildReflectionProbePasss(camera, ppl);
 
             passContext.postProcess = camera.postProcess || globalPP;
             this.renderCamera(camera, ppl);
