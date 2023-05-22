@@ -50,26 +50,26 @@ export const bmfontUtils = {
         data.fontSize = comp.fontSize;
         data.actualFontSize = comp.fontSize;
         data.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
-        data.hAlign = comp.horizontalAlign;
-        data.vAlign = comp.verticalAlign;
-        data.spacingX = comp.spacingX;
+        data.layout.hAlign = comp.horizontalAlign;
+        data.layout.vAlign = comp.verticalAlign;
+        data.layout.spacingX = comp.spacingX;
         const overflow = comp.overflow;
-        data.overFlow = overflow;
-        data.lineHeight = comp.lineHeight;
+        data.layout.overFlow = overflow;
+        data.layout.lineHeight = comp.lineHeight;
 
-        data.nodeContentSize.width = trans.width;
-        data.nodeContentSize.height = trans.height;
+        data.outputLayoutData.nodeContentSize.width = trans.width;
+        data.outputLayoutData.nodeContentSize.height = trans.height;
 
         // should wrap text
         if (overflow === Overflow.NONE) {
-            data.wrapping = false;
-            data.nodeContentSize.width += shareLabelInfo.margin * 2;
-            data.nodeContentSize.height += shareLabelInfo.margin * 2;
+            data.layout.wrapping = false;
+            data.outputLayoutData.nodeContentSize.width += shareLabelInfo.margin * 2;
+            data.outputLayoutData.nodeContentSize.height += shareLabelInfo.margin * 2;
         } else if (overflow === Overflow.RESIZE_HEIGHT) {
-            data.wrapping = true;
-            data.nodeContentSize.height += shareLabelInfo.margin * 2;
+            data.layout.wrapping = true;
+            data.outputLayoutData.nodeContentSize.height += shareLabelInfo.margin * 2;
         } else {
-            data.wrapping = comp.enableWrapText;
+            data.layout.wrapping = comp.enableWrapText;
         }
 
         shareLabelInfo.lineHeight = comp.lineHeight;
@@ -110,14 +110,14 @@ export const bmfontUtils = {
             processing.processingString(data);
             // generateVertex
             this.resetRenderData(comp);
-            data.quadCount = 0;
+            data.outputRenderData.quadCount = 0;
             processing.generateRenderInfo(data, this.generateVertexData);
 
-            renderData.dataLength = data.quadCount;
+            renderData.dataLength = data.outputRenderData.quadCount;
             renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
             const datalist = renderData.data;
-            for (let i = 0, l = data.quadCount; i < l; i++) {
-                datalist[i] = data.vertexBuffer[i];
+            for (let i = 0, l = data.outputRenderData.quadCount; i < l; i++) {
+                datalist[i] = data.outputRenderData.vertexBuffer[i];
             }
 
             const indexCount = renderData.indexCount;
@@ -125,7 +125,7 @@ export const bmfontUtils = {
             renderData.chunk.setIndexBuffer(QUAD_INDICES);
 
             _comp.actualFontSize = data.actualFontSize;
-            _uiTrans.setContentSize(data.nodeContentSize);
+            _uiTrans.setContentSize(data.outputLayoutData.nodeContentSize);
             this.updateUVs(comp);// dirty need
             this.updateColor(comp); // dirty need
 
@@ -190,7 +190,7 @@ export const bmfontUtils = {
         const dataOffset = offset;
         const scale = info.bmfontScale;
 
-        const dataList = info.vertexBuffer;
+        const dataList = info.outputRenderData.vertexBuffer;
         const texW = spriteFrame.width;
         const texH = spriteFrame.height;
 

@@ -49,7 +49,7 @@ export const ttf: IAssembler = {
         renderData.resize(4, 6);
 
         // hard code
-        comp.processingData.quadCount = 4;
+        comp.processingData.outputRenderData.quadCount = 4;
 
         const vData = renderData.chunk.vb;
 

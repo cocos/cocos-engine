@@ -39,56 +39,58 @@ export const ttfUtils =  {
         data.fontSize = comp.fontSize;
 
         // node info // both
-        data.nodeContentSize.width = data.canvasSize.width = trans.width;
-        data.nodeContentSize.height = data.canvasSize.height = trans.height;
+        data.outputLayoutData.nodeContentSize.width = data.outputLayoutData.canvasSize.width = trans.width;
+        data.outputLayoutData.nodeContentSize.height = data.outputLayoutData.canvasSize.height = trans.height;
         // layout info
         data.inputString = comp.string; // both
-        data.lineHeight = comp.lineHeight; // both
-        data.overFlow = comp.overflow; // layout only // but change render
+        data.layout.lineHeight = comp.lineHeight; // both
+        data.layout.overFlow = comp.overflow; // layout only // but change render
         if (comp.overflow === Overflow.NONE) {
-            data.wrapping = false;
+            data.layout.wrapping = false;
         } else if (comp.overflow === Overflow.RESIZE_HEIGHT) {
-            data.wrapping = true;
+            data.layout.wrapping = true;
         } else {
-            data.wrapping = comp.enableWrapText; // layout only // but change render
+            data.layout.wrapping = comp.enableWrapText; // layout only // but change render
         }
 
         // effect info // both
-        data.isBold = comp.isBold;
-        data.isItalic = comp.isItalic;
-        data.isUnderline = comp.isUnderline;
-        data.underlineHeight = comp.underlineHeight;
+        data.style.isBold = comp.isBold;
+        data.style.isItalic = comp.isItalic;
+        data.style.isUnderline = comp.isUnderline;
+        data.style.underlineHeight = comp.underlineHeight;
 
         // outline// both
         let outlineComp = LabelOutline && comp.getComponent(LabelOutline);
         outlineComp = (outlineComp && outlineComp.enabled && outlineComp.width > 0) ? outlineComp : null;
         if (outlineComp) {
-            data.isOutlined = true;
-            data.outlineColor.set(outlineComp.color);
-            data.outlineWidth = outlineComp.width;
+            data.style.isOutlined = true;
+            data.style.outlineColor.set(outlineComp.color);
+            data.style.outlineWidth = outlineComp.width;
         } else {
-            data.isOutlined = false;
+            data.style.isOutlined = false;
         }
 
         // shadow// both
         let shadowComp = LabelShadow && comp.getComponent(LabelShadow);
         shadowComp = (shadowComp && shadowComp.enabled) ? shadowComp : null;
         if (shadowComp) {
-            data.hasShadow = true;
-            data.shadowColor.set(shadowComp.color);
-            data.shadowBlur = shadowComp.blur;
-            data.shadowOffsetX = shadowComp.offset.x;
-            data.shadowOffsetY = shadowComp.offset.y;
+            data.style.hasShadow = true;
+            data.style.shadowColor.set(shadowComp.color);
+            data.style.shadowBlur = shadowComp.blur;
+            data.style.shadowOffsetX = shadowComp.offset.x;
+            data.style.shadowOffsetY = shadowComp.offset.y;
         } else {
-            data.hasShadow = false;
+            data.style.hasShadow = false;
         }
 
         // render info
         data.color.set(comp.color);// may opacity bug // render Only
-        data.texture = comp.spriteFrame; // render Only
+        data.outputRenderData.texture = comp.spriteFrame; // render Only
+        data.outputRenderData.uiTransAnchorX = trans.anchorX; // render Only
+        data.outputRenderData.uiTransAnchorY = trans.anchorY; // render Only
 
-        data.hAlign = comp.horizontalAlign; // render Only
-        data.vAlign = comp.verticalAlign; // render Only
+        data.layout.hAlign = comp.horizontalAlign; // render Only
+        data.layout.vAlign = comp.verticalAlign; // render Only
     },
 
     getAssemblerData () {
@@ -123,17 +125,17 @@ export const ttfUtils =  {
             this._calDynamicAtlas(comp, data);
 
             comp.actualFontSize = data.actualFontSize;
-            trans.setContentSize(data.canvasSize);
+            trans.setContentSize(data.outputLayoutData.canvasSize);
 
             const datalist = renderData.data;
-            datalist[0] = data.vertexBuffer[0];
-            datalist[1] = data.vertexBuffer[1];
-            datalist[2] = data.vertexBuffer[2];
-            datalist[3] = data.vertexBuffer[3];
+            datalist[0] = data.outputRenderData.vertexBuffer[0];
+            datalist[1] = data.outputRenderData.vertexBuffer[1];
+            datalist[2] = data.outputRenderData.vertexBuffer[2];
+            datalist[3] = data.outputRenderData.vertexBuffer[3];
 
             this.updateUVs(comp);
             comp.renderData.vertDirty = false;
-            comp.contentWidth = data.nodeContentSize.width;
+            comp.contentWidth = data.outputLayoutData.nodeContentSize.width;
         }
 
         if (comp.spriteFrame) {
@@ -144,12 +146,12 @@ export const ttfUtils =  {
 
     // callBack function
     generateVertexData (info: TextProcessData) {
-        const data = info.vertexBuffer;
+        const data = info.outputRenderData.vertexBuffer;
 
-        const width = info.canvasSize.width;
-        const height = info.canvasSize.height;
-        const appX = info.uiTransAnchorX * width;
-        const appY = info.uiTransAnchorY * height;
+        const width = info.outputLayoutData.canvasSize.width;
+        const height = info.outputLayoutData.canvasSize.height;
+        const appX = info.outputRenderData.uiTransAnchorX * width;
+        const appY = info.outputRenderData.uiTransAnchorY * height;
 
         data[0].x = -appX; // l
         data[0].y = -appY; // b
@@ -182,7 +184,7 @@ export const ttfUtils =  {
     },
 
     _calDynamicAtlas (comp: Label, data: TextProcessData) {
-        if (comp.cacheMode !== Label.CacheMode.BITMAP || data.canvasSize.width <= 0 || data.canvasSize.height <= 0) return;
+        if (comp.cacheMode !== Label.CacheMode.BITMAP || data.outputLayoutData.canvasSize.width <= 0 || data.outputLayoutData.canvasSize.height <= 0) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.packToDynamicAtlas(comp, frame);
         // TODO update material and uv
