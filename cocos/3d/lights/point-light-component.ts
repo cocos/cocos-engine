@@ -56,7 +56,6 @@ export class PointLight extends Light {
     @tooltip('i18n:lights.luminous_flux')
     @editable
     @rangeMin(0)
-    @slide
     @type(CCInteger)
     get luminousFlux () {
         const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
@@ -88,7 +87,6 @@ export class PointLight extends Light {
     @tooltip('i18n:lights.luminance')
     @editable
     @rangeMin(0)
-    @slide
     @type(CCInteger)
     get luminance () {
         const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;
@@ -120,7 +118,6 @@ export class PointLight extends Light {
     @tooltip('i18n:lights.term')
     @editable
     @rangeMin(0)
-    @slide
     @type(CCInteger)
     get term (): number {
         return this._term;
@@ -136,7 +133,6 @@ export class PointLight extends Light {
     @tooltip('i18n:lights.range')
     @editable
     @rangeMin(0)
-    @slide
     @type(CCFloat)
     get range () {
         return this._range;

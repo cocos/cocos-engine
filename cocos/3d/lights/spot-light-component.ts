@@ -145,6 +145,10 @@ export class SpotLight extends Light {
      * 光源大小。
      */
     @tooltip('i18n:lights.size')
+    @editable
+    @slide
+    @range([0.0, 10.0, 0.001])
+    @type(CCFloat)
     get size () {
         return this._size;
     }

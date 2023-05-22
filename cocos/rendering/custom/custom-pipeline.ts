@@ -25,12 +25,14 @@
 import { Format, LoadOp } from '../../gfx/base/define';
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
-import { LightInfo, QueueHint, SceneFlags } from './types';
+import { CopyPair, LightInfo, QueueHint, ResourceResidency, SceneFlags } from './types';
 import { AntiAliasing, buildBloomPass, buildForwardPass, buildFxaaPass, buildPostprocessPass, buildSSSSPass,
-    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject, buildHBAOPasses } from './define';
+    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject, buildHBAOPasses, buildCopyPass, getRenderArea } from './define';
 import { isUICamera } from './utils';
 import { RenderWindow } from '../../render-scene/core/render-window';
 
+const copyPair = new CopyPair();
+const pairs = [copyPair];
 export class CustomPipelineBuilder implements PipelineBuilder {
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
@@ -50,6 +52,16 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 const hasDeferredTransparencyObjects = hasSkinObject(ppl);
                 // forward pass
                 const forwardInfo = buildForwardPass(camera, ppl, isGameView, !hasDeferredTransparencyObjects);
+                const area = getRenderArea(camera, camera.window.width, camera.window.height);
+                const width = area.width;
+                const height = area.height;
+                if (!ppl.containsResource('copyTexTest')) {
+                    ppl.addRenderTarget('copyTexTest', Format.RGBA16F, width, height, ResourceResidency.PERSISTENT);
+                }
+                copyPair.source = forwardInfo.rtName;
+                copyPair.target = 'copyTexTest';
+                buildCopyPass(ppl, pairs);
+
                 // skin pass
                 const skinInfo = buildSSSSPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
                 // deferred transparency objects
@@ -150,8 +162,8 @@ export class TestPipelineBuilder implements PipelineBuilder {
         const scene = camera.scene;
         const pass = ppl.addRenderPass(width, height, 'default');
 
-        pass.addRenderTarget(`Color${id}`, 'color', LoadOp.CLEAR);
-        pass.addDepthStencil(`DepthStencil${id}`, '_', LoadOp.CLEAR);
+        pass.addRenderTarget(`Color${id}`, LoadOp.CLEAR);
+        pass.addDepthStencil(`DepthStencil${id}`, LoadOp.CLEAR);
 
         if (scene) {
             pass.addQueue(QueueHint.RENDER_OPAQUE, 'default')

@@ -55,6 +55,8 @@ export {
 
     Constraint,
     HingeConstraint,
+    ConfigurableConstraint,
+    FixedConstraint,
     PointToPointConstraint,
 
     CapsuleCharacterController,

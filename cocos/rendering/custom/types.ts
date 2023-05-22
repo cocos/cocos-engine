@@ -280,6 +280,7 @@ export class RasterView {
         this.shaderStageFlags = shaderStageFlags;
     }
     slotName: string;
+    slotName1 = '';
     accessType: AccessType;
     attachmentType: AttachmentType;
     loadOp: LoadOp;
@@ -340,6 +341,7 @@ export class ComputeView {
     }
     name: string;
     accessType: AccessType;
+    plane = 0;
     clearFlags: ClearFlagBit;
     clearValueType: ClearValueType;
     readonly clearValue: ClearValue;
@@ -508,6 +510,7 @@ export class PipelineStatistics {
 
 export function saveRasterView (ar: OutputArchive, v: RasterView) {
     ar.writeString(v.slotName);
+    ar.writeString(v.slotName1);
     ar.writeNumber(v.accessType);
     ar.writeNumber(v.attachmentType);
     ar.writeNumber(v.loadOp);
@@ -520,6 +523,7 @@ export function saveRasterView (ar: OutputArchive, v: RasterView) {
 
 export function loadRasterView (ar: InputArchive, v: RasterView) {
     v.slotName = ar.readString();
+    v.slotName1 = ar.readString();
     v.accessType = ar.readNumber();
     v.attachmentType = ar.readNumber();
     v.loadOp = ar.readNumber();
@@ -547,6 +551,7 @@ export function loadClearValue (ar: InputArchive, v: ClearValue) {
 export function saveComputeView (ar: OutputArchive, v: ComputeView) {
     ar.writeString(v.name);
     ar.writeNumber(v.accessType);
+    ar.writeNumber(v.plane);
     ar.writeNumber(v.clearFlags);
     ar.writeNumber(v.clearValueType);
     saveClearValue(ar, v.clearValue);
@@ -556,6 +561,7 @@ export function saveComputeView (ar: OutputArchive, v: ComputeView) {
 export function loadComputeView (ar: InputArchive, v: ComputeView) {
     v.name = ar.readString();
     v.accessType = ar.readNumber();
+    v.plane = ar.readNumber();
     v.clearFlags = ar.readNumber();
     v.clearValueType = ar.readNumber();
     loadClearValue(ar, v.clearValue);

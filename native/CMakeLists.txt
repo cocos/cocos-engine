@@ -1902,6 +1902,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXFixedJoint.cpp
         cocos/physics/physx/joints/PhysXSpherical.h
         cocos/physics/physx/joints/PhysXSpherical.cpp
+        cocos/physics/physx/joints/PhysXGenericJoint.h
+        cocos/physics/physx/joints/PhysXGenericJoint.cpp
         cocos/physics/physx/character-controllers/PhysXCharacterController.h
         cocos/physics/physx/character-controllers/PhysXCharacterController.cpp
         cocos/physics/physx/character-controllers/PhysXCapsuleCharacterController.h

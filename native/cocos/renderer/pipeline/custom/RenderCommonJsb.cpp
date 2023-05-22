@@ -41,6 +41,9 @@ bool nativevalue_to_se(const cc::render::RasterView &from, se::Value &to, se::Ob
     nativevalue_to_se(from.slotName, tmp, ctx);
     obj->setProperty("slotName", tmp);
 
+    nativevalue_to_se(from.slotName1, tmp, ctx);
+    obj->setProperty("slotName1", tmp);
+
     nativevalue_to_se(from.accessType, tmp, ctx);
     obj->setProperty("accessType", tmp);
 
@@ -98,6 +101,9 @@ bool nativevalue_to_se(const cc::render::ComputeView &from, se::Value &to, se::O
 
     nativevalue_to_se(from.accessType, tmp, ctx);
     obj->setProperty("accessType", tmp);
+
+    nativevalue_to_se(from.plane, tmp, ctx);
+    obj->setProperty("plane", tmp);
 
     nativevalue_to_se(from.clearFlags, tmp, ctx);
     obj->setProperty("clearFlags", tmp);
@@ -267,6 +273,10 @@ bool sevalue_to_native<cc::render::RasterView>(const se::Value &from, cc::render
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->slotName), ctx);
     }
+    obj->getProperty("slotName1", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->slotName1), ctx);
+    }
     obj->getProperty("accessType", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->accessType), ctx);
@@ -342,6 +352,10 @@ bool sevalue_to_native<cc::render::ComputeView>(const se::Value &from, cc::rende
     obj->getProperty("accessType", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->accessType), ctx);
+    }
+    obj->getProperty("plane", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->plane), ctx);
     }
     obj->getProperty("clearFlags", &field, true);
     if(!field.isNullOrUndefined()) {

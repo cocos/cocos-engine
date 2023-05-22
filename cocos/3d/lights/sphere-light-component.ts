@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs,
-    editable, slide, rangeMin } from 'cc.decorator';
+    editable, slide, rangeMin, range } from 'cc.decorator';
 import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
 import { CCFloat, CCInteger, cclegacy } from '../../core';
@@ -60,7 +60,6 @@ export class SphereLight extends Light {
     @tooltip('i18n:lights.luminous_flux')
     @editable
     @rangeMin(0)
-    @slide
     @type(CCInteger)
     get luminousFlux () {
         const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
@@ -91,7 +90,6 @@ export class SphereLight extends Light {
     @tooltip('i18n:lights.luminance')
     @editable
     @rangeMin(0)
-    @slide
     @type(CCInteger)
     get luminance () {
         const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
@@ -121,7 +119,6 @@ export class SphereLight extends Light {
     @tooltip('i18n:lights.term')
     @editable
     @rangeMin(0)
-    @slide
     @type(CCInteger)
     get term (): number {
         return this._term;
@@ -138,8 +135,8 @@ export class SphereLight extends Light {
      */
     @tooltip('i18n:lights.size')
     @editable
-    @rangeMin(0)
     @slide
+    @range([0.0, 10.0, 0.001])
     @type(CCFloat)
     get size () {
         return this._size;
@@ -158,7 +155,6 @@ export class SphereLight extends Light {
     @tooltip('i18n:lights.range')
     @editable
     @rangeMin(0)
-    @slide
     @type(CCFloat)
     get range () {
         return this._range;

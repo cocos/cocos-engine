@@ -325,7 +325,7 @@ export class AnimationGraphEval {
  * @en
  * Describes how to override animation clips in an animation graph.
  */
-export type ReadonlyClipOverrideMap = {
+export interface ReadonlyClipOverrideMap {
     /**
      * @zh
      * 获取指定原始动画剪辑应替换成的动画剪辑。
@@ -339,7 +339,7 @@ export type ReadonlyClipOverrideMap = {
      * If the original animation clip should not be overrode, `undefined` should be returned.
      */
     get(animationClip: AnimationClip): AnimationClip | undefined;
-};
+}
 
 /**
  * @en

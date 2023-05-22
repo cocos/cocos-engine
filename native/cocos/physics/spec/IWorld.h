@@ -159,6 +159,8 @@ public:
     virtual uint32_t createHeightField(HeightFieldDesc &desc) = 0;
     virtual bool createMaterial(uint16_t id, float f, float df, float r,
                                 uint8_t m0, uint8_t m1) = 0;
+    virtual void setFixedTimeStep(float v) = 0;
+    virtual float getFixedTimeStep() const = 0;
 };
 
 } // namespace physics

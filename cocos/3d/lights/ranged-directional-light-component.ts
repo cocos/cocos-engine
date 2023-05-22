@@ -48,7 +48,6 @@ export class RangedDirectionalLight extends Light {
     @tooltip('i18n:lights.illuminance')
     @editable
     @rangeMin(0)
-    @slide
     @type(CCInteger)
     get illuminance () {
         const isHDR = cclegacy.director.root.pipeline.pipelineSceneData.isHDR;

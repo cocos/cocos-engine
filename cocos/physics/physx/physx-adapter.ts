@@ -147,11 +147,21 @@ function initAdaptWrapper (obj: any) {
     obj.SphereGeometry = obj.PxSphereGeometry;
     obj.CapsuleGeometry = obj.PxCapsuleGeometry;
     obj.ConvexMeshGeometry = obj.PxConvexMeshGeometry;
+    obj.D6Motion = obj.PxD6Motion;
+    obj.D6Axis = obj.PxD6Axis;
+    obj.D6Drive = obj.PxD6Drive;
+    obj.D6JointDrive = obj.PxD6JointDrive;
+    obj.LinearLimitPair = obj.PxJointLinearLimitPair;
+    obj.AngularLimitPair = obj.PxJointAngularLimitPair;
     obj.TriangleMeshGeometry = obj.PxTriangleMeshGeometry;
     obj.RigidDynamicLockFlag = obj.PxRigidDynamicLockFlag;
+    obj.TolerancesScale = obj.PxTolerancesScale;
+    obj.RevoluteJointFlags = { eLIMIT_ENABLED: 1 << 0, eDRIVE_ENABLED: 1 << 1, eDRIVE_FREESPIN: 1 << 2 };
+    obj.JointAngularLimitPair = obj.PxJointAngularLimitPair;
     obj.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => obj.PxRevoluteJointCreate(PX.physics, a, b, c, d);
     obj.createFixedConstraint = (a: any, b: any, c: any, d: any): any => obj.PxFixedJointCreate(PX.physics, a, b, c, d);
     obj.createSphericalJoint = (a: any, b: any, c: any, d: any): any => obj.PxSphericalJointCreate(PX.physics, a, b, c, d);
+    obj.createD6Joint = (a: any, b: any, c: any, d: any): any => obj.PxD6JointCreate(PX.physics, a, b, c, d);
 }
 
 const _v3: IVec3Like = { x: 0, y: 0, z: 0 };

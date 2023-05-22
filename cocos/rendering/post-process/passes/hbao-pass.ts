@@ -23,7 +23,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { cclegacy, toRadian, Vec2, Vec4 } from '../../../core';
+import { cclegacy, toRadian, Vec2, Vec4, Vec3, v3 } from '../../../core';
 import { Camera, CameraUsage } from '../../../render-scene/scene';
 import { Pipeline, QueueHint } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
@@ -35,6 +35,7 @@ import { Texture2D } from '../../../asset/assets/texture-2d';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { DebugViewCompositeType, DebugViewSingleType } from '../../debug-view';
 import { ClearFlagBit, Format } from '../../../gfx';
+import { Scene } from '../../../scene-graph/scene';
 
 const vec2 = new Vec2();
 
@@ -180,6 +181,7 @@ export class HBAOPass extends SettingPass {
     private HBAO_COMBINED_PASS_INDEX = 3;
     private _hbaoParams: HBAOParams = new HBAOParams();
     private _initialize = false;
+    private averageObjectSize = new Map<Scene, number>();
 
     get setting () { return getSetting(HBAO); }
 
@@ -193,6 +195,19 @@ export class HBAOPass extends SettingPass {
             enable = false;
         }
         return enable;
+    }
+
+    public getSceneScale (camera: Camera) {
+        let sceneScale = camera.nearClip;
+        if (!this.averageObjectSize.has(camera.node.scene)) {
+            this._calculateObjectSize(camera.node.scene, camera.visibility);
+        }
+        if (this.averageObjectSize.has(camera.node.scene)) {
+            const objectSize = this.averageObjectSize.get(camera.node.scene)!;
+            // simple conversion
+            sceneScale = objectSize * 0.1;
+        }
+        return sceneScale;
     }
 
     public render (camera: Camera, ppl: Pipeline): void {
@@ -209,7 +224,7 @@ export class HBAOPass extends SettingPass {
         // params
         const aoStrength = 1.0;
         // todo: nearest object distance from camera
-        const sceneScale = camera.nearClip;
+        const sceneScale = this.getSceneScale(camera);
         // todo: Half Res Depth Tex
         this._hbaoParams.depthTexFullResolution = vec2.set(width, height);
         this._hbaoParams.depthTexResolution = vec2.set(width, height);
@@ -229,7 +244,7 @@ export class HBAOPass extends SettingPass {
             if (root.debugView.isEnabled()
                 && (root.debugView.singleMode !== DebugViewSingleType.NONE && root.debugView.singleMode !== DebugViewSingleType.AO
                 || !root.debugView.isCompositeModeEnabled(DebugViewCompositeType.AO))) {
-                this.enable = false;
+                return;
             }
         }
 
@@ -341,6 +356,28 @@ export class HBAOPass extends SettingPass {
             .addRasterView(outputRT, Format.BGRA8)
             .blitScreen(passIdx)
             .version();
+    }
+
+    private _calculateObjectSize (scene: Scene, visibility: number) {
+        if (!scene || !scene.renderScene) {
+            return;
+        }
+        const sumSize = new Vec3(0);
+        let modelCount = 0;
+        const models = scene.renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            if (!model.node || !model.worldBounds) continue;
+            if (model.node.layer & visibility) {
+                sumSize.add(model.worldBounds.halfExtents);
+                modelCount++;
+            }
+        }
+        if (modelCount > 0) {
+            sumSize.divide(v3(modelCount));
+            const scale = Math.min(sumSize.x, sumSize.y, sumSize.z);
+            this.averageObjectSize.set(scene, scale);
+        }
     }
 
     slotName (camera: Camera, index = 0) {
