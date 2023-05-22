@@ -27,7 +27,7 @@ import { Camera, CameraUsage } from '../../render-scene/scene';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { CopyPair, LightInfo, QueueHint, ResourceResidency, SceneFlags } from './types';
 import { AntiAliasing, buildBloomPass, buildForwardPass, buildFxaaPass, buildPostprocessPass, buildSSSSPass,
-    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject, buildHBAOPasses, buildCopyPass, getRenderArea } from './define';
+    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject, buildHBAOPasses, buildCopyPass, getRenderArea, buildReflectionProbePasss } from './define';
 import { isUICamera } from './utils';
 import { RenderWindow } from '../../render-scene/core/render-window';
 
@@ -45,6 +45,8 @@ export class CustomPipelineBuilder implements PipelineBuilder {
             if (!isGameView) {
                 // forward pass
                 buildForwardPass(camera, ppl, isGameView);
+                // reflection probe pass
+                buildReflectionProbePasss(camera, ppl, isGameView);
                 continue;
             }
             // TODO: There is currently no effective way to judge the ui camera. Let’s do this first.
@@ -52,6 +54,8 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 const hasDeferredTransparencyObjects = hasSkinObject(ppl);
                 // forward pass
                 const forwardInfo = buildForwardPass(camera, ppl, isGameView, !hasDeferredTransparencyObjects);
+                // reflection probe pass
+                buildReflectionProbePasss(camera, ppl, isGameView);
                 const area = getRenderArea(camera, camera.window.width, camera.window.height);
                 const width = area.width;
                 const height = area.height;
