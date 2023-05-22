@@ -2,15 +2,29 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../../asset/asset-manager';
 
 import { Material, RenderTexture } from '../../../asset/assets';
+import { macro } from '../../../core';
 import { director } from '../../../game';
-import { Rect } from '../../../gfx';
+import { Format, Rect } from '../../../gfx';
 import { MaterialInstance } from '../../../render-scene';
 import { Camera } from '../../../render-scene/scene';
 import { getCameraUniqueID, getRenderArea } from '../../custom/define';
-import { Pipeline } from '../../custom/pipeline';
+import { BasicPipeline, Pipeline } from '../../custom/pipeline';
+import { supportsRGBA16FloatTexture } from '../../define';
 import { passContext } from '../utils/pass-context';
 
 let _BasePassID = 0;
+
+function GetRTFormatBeforeToneMapping (ppl: BasicPipeline) {
+    const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
+    return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16FloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
+}
+function ForceEnableFloatOutput (ppl: BasicPipeline) {
+    if (ppl.pipelineSceneData.isHDR && !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
+        const supportFloatOutput = supportsRGBA16FloatTexture(ppl.device);
+        ppl.setMacroBool('CC_USE_FLOAT_OUTPUT', supportFloatOutput);
+        macro.ENABLE_FLOAT_OUTPUT = supportFloatOutput;
+    }
+}
 
 export abstract class BasePass {
     abstract name: string;

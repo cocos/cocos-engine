@@ -7,3 +7,4 @@ export * from './taa';
 export * from './color-grading';
 export * from './bloom';
 export * from './hbao';
+export * from './skin';
