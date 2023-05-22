@@ -1,6 +1,6 @@
 import { Pose } from "../../../../cocos/animation/core/pose";
 import { AnimationGraph, PoseGraph } from "../../../../cocos/animation/marionette/asset-creation";
-import { assertIsTrue, lerp, quat, v3 } from "../../../../cocos/core";
+import { assertIsTrue, lerp, quat, v3, Vec3 } from "../../../../cocos/core";
 import { Node } from "../../../../cocos/scene-graph";
 import { captureErrors, captureWarns } from '../../../utils/log-capture';
 import { input } from "../../../../cocos/animation/marionette/pose-graph/decorator/input";
@@ -678,6 +678,38 @@ describe(`Node`, () => {
         expect(logCapture.captured).toHaveLength(1);
         expect(logCapture.captured[0]).toStrictEqual([`Type mismatch: input has type FLOAT, output has type POSE.`]);
         logCapture.clear();
+    });
+
+    test(`Remove one binding shall not affect others`, () => {
+        class PoseNode_HavingMultipleInputs extends UnimplementedPoseNode {
+            @input({ type: PoseGraphType.POSE })
+            pose_input: Pose | null = null;
+
+            @input({ type: PoseGraphType.VEC3 })
+            vec3_input = new Vec3();
+
+            @input({ type: PoseGraphType.FLOAT })
+            float_input = 1.0;
+        }
+
+        const poseGraph = createPoseGraph();
+        const consumerNode = poseGraph.addNode(new PoseNode_HavingMultipleInputs());
+        const poseInputNode = poseGraph.addNode(new UnimplementedPoseNode());
+        const vec3InputNode = poseGraph.addNode(new UnimplementedPVNode([PoseGraphType.VEC3]));
+        const floatInputNode = poseGraph.addNode(new UnimplementedPVNode([PoseGraphType.FLOAT]));
+        poseGraphOp.connectNode(poseGraph, consumerNode, composeInputKeyInternally('pose_input'), poseInputNode);
+        poseGraphOp.connectNode(poseGraph, consumerNode, composeInputKeyInternally('vec3_input'), vec3InputNode, getTheOnlyOutputKey(vec3InputNode));
+        poseGraphOp.connectNode(poseGraph, consumerNode, composeInputKeyInternally('float_input'), floatInputNode, getTheOnlyOutputKey(floatInputNode));
+        poseGraphOp.disconnectNode(poseGraph, consumerNode, composeInputKeyInternally('vec3_input'));
+        expect(poseGraphOp.getInputBinding(poseGraph, consumerNode, composeInputKeyInternally('vec3_input'))).toBeUndefined();
+        expect(poseGraphOp.getInputBinding(poseGraph, consumerNode, composeInputKeyInternally('pose_input'))).toStrictEqual(expect.objectContaining({
+            producer: poseInputNode,
+            outputIndex: 0,
+        }));
+        expect(poseGraphOp.getInputBinding(poseGraph, consumerNode, composeInputKeyInternally('float_input'))).toStrictEqual(expect.objectContaining({
+            producer: floatInputNode,
+            outputIndex: 0,
+        }));
     });
 });
 
