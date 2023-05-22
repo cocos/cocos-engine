@@ -73,7 +73,7 @@ export class PoseGraphNodeShell extends EditorExtendable {
     public deleteBinding (inputPath: NodeInputPath) {
         const index = this._findBindingIndex(inputPath);
         if (index >= 0) {
-            this._bindings.splice(index);
+            this._bindings.splice(index, 1);
         }
     }
 
