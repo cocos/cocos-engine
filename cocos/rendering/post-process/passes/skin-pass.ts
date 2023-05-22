@@ -24,7 +24,7 @@
 
 import { EDITOR } from 'internal:constants';
 
-import { Vec4 } from '../../../core';
+import { Vec4, Vec3 } from '../../../core';
 import { Camera, CameraUsage } from '../../../render-scene/scene';
 import { BasicPipeline, QueueHint, SceneFlags } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
@@ -34,7 +34,6 @@ import { MeshRenderer } from '../../../3d';
 import { ShadowPass } from './shadow-pass';
 
 import { ForceEnableFloatOutput, GetRTFormatBeforeToneMapping, getSetting, SettingPass } from './setting-pass';
-import { Skin } from '../components';
 
 export const COPY_INPUT_DS_PASS_INDEX = 0;
 export const SSSS_BLUR_X_PASS_INDEX = 1;
@@ -45,20 +44,151 @@ function hasSkinObject (ppl: BasicPipeline) {
     return sceneData.skin.enabled && sceneData.standardSkinModel !== null;
 }
 
-export class SkinPass extends SettingPass {
-    get setting () { return getSetting(Skin); }
+const _varianceArray: number[] = [0.0484, 0.187, 0.567, 1.99, 7.41];
+const _strengthParameterArray: number[] = [0.100, 0.118, 0.113, 0.358, 0.078];
+const _vec3Temp: Vec3 = new Vec3();
+const _vec3Temp2: Vec3 = new Vec3();
+const _vec4Temp: Vec4 = new Vec4();
+const _vec4Temp2: Vec4 = new Vec4();
 
+export const EXPONENT = 2.0;
+export const I_SAMPLES_COUNT = 25;
+
+export class SSSSBlurData {
+    get ssssStrength () {
+        return this._v3SSSSStrength;
+    }
+    set ssssStrength (val: Vec3) {
+        this._v3SSSSStrength = val;
+        this._updateSampleCount();
+    }
+
+    get ssssFallOff () {
+        return this._v3SSSSFallOff;
+    }
+    set ssssFallOff (val: Vec3) {
+        this._v3SSSSFallOff = val;
+        this._updateSampleCount();
+    }
+
+    get kernel () {
+        return this._kernel;
+    }
+
+    private _v3SSSSStrength = new Vec3(0.48, 0.41, 0.28);
+    private _v3SSSSFallOff = new Vec3(1.0, 0.37, 0.3);
+    private _kernel: Vec4[] = [];
+
+    /**
+     * We use a falloff to modulate the shape of the profile. Big falloffs
+     * spreads the shape making it wider, while small falloffs make it
+     * narrower.
+     */
+    private _gaussian (out: Vec3, variance: number, r: number) {
+        const xx = r / (0.001 + this._v3SSSSFallOff.x);
+        out.x = Math.exp((-(xx * xx)) / (2.0 * variance)) / (2.0 * 3.14 * variance);
+        const yy = r / (0.001 + this._v3SSSSFallOff.y);
+        out.y = Math.exp((-(yy * yy)) / (2.0 * variance)) / (2.0 * 3.14 * variance);
+        const zz = r / (0.001 + this._v3SSSSFallOff.z);
+        out.z = Math.exp((-(zz * zz)) / (2.0 * variance)) / (2.0 * 3.14 * variance);
+    }
+
+    /**
+     * We used the red channel of the original skin profile defined in
+     * [d'Eon07] for all three channels. We noticed it can be used for green
+     * and blue channels (scaled using the falloff parameter) without
+     * introducing noticeable differences and allowing for total control over
+     * the profile. For example, it allows to create blue SSS gradients, which
+     * could be useful in case of rendering blue creatures.
+     */
+    private _profile (out: Vec3, val: number) {
+        for (let i = 0; i < 5; i++) {
+            this._gaussian(_vec3Temp2, _varianceArray[i], val);
+            _vec3Temp2.multiplyScalar(_strengthParameterArray[i]);
+            out.add(_vec3Temp2);
+        }
+    }
+
+    private _updateSampleCount () {
+        const strength = this._v3SSSSStrength;
+        const nSamples = I_SAMPLES_COUNT;
+        const range = nSamples > 20 ? 3.0 : 2.0;
+
+        // Calculate the offsets:
+        const step = 2.0 * range / (nSamples - 1);
+        for (let i = 0; i < nSamples; i++) {
+            const o = -range + i * step;
+            const sign = o < 0.0 ? -1.0 : 1.0;
+            // eslint-disable-next-line no-restricted-properties
+            this._kernel[i].w = range * sign * Math.abs(Math.pow(o, EXPONENT)) / Math.pow(range, EXPONENT);
+        }
+
+        // Calculate the weights:
+        for (let i = 0; i < nSamples; i++) {
+            const w0 = i > 0 ? Math.abs(this._kernel[i].w - this._kernel[i - 1].w) : 0.0;
+            const w1 = i < nSamples - 1 ? Math.abs(this._kernel[i].w - this._kernel[i + 1].w) : 0.0;
+            const area = (w0 + w1) / 2.0;
+            _vec3Temp.set(0);
+            this._profile(_vec3Temp, this._kernel[i].w);
+            _vec3Temp.multiplyScalar(area);
+            this._kernel[i].x = _vec3Temp.x;
+            this._kernel[i].y = _vec3Temp.y;
+            this._kernel[i].z = _vec3Temp.z;
+        }
+
+        // We want the offset 0.0 to come first:
+        const remainder = nSamples % 2;
+        _vec4Temp.set(this._kernel[(nSamples - remainder) / 2]);
+        for (let i = (nSamples - remainder) / 2; i > 0; i--) {
+            _vec4Temp2.set(this._kernel[i - 1]);
+            this._kernel[i].set(_vec4Temp2);
+        }
+        this._kernel[0].set(_vec4Temp);
+
+        // Calculate the sum of the weights, we will need to normalize them below:
+        _vec3Temp.set(0.0);
+        for (let i = 0; i < nSamples; i++) {
+            _vec3Temp.add3f(this._kernel[i].x, this._kernel[i].y, this._kernel[i].z);
+        }
+        // Normalize the weights:
+        for (let i = 0; i < nSamples; i++) {
+            this._kernel[i].x /= _vec3Temp.x;
+            this._kernel[i].y /= _vec3Temp.y;
+            this._kernel[i].z /= _vec3Temp.z;
+        }
+
+        // Tweak them using the desired strength. The first one is:
+        // lerp(1.0, kernel[0].rgb, strength)
+        this._kernel[0].x = (1.0 - strength.x) * 1.0 + strength.x * this._kernel[0].x;
+        this._kernel[0].y = (1.0 - strength.y) * 1.0 + strength.y * this._kernel[0].y;
+        this._kernel[0].z = (1.0 - strength.z) * 1.0 + strength.z * this._kernel[0].z;
+
+        // The others:
+        // lerp(0.0, kernel[0].rgb, strength)
+        for (let i = 1; i < nSamples; i++) {
+            this._kernel[i].x *= strength.x;
+            this._kernel[i].y *= strength.y;
+            this._kernel[i].z *= strength.z;
+        }
+    }
+
+    private _init () {
+        for (let i = 0; i < I_SAMPLES_COUNT; i++) {
+            this._kernel[i] = new Vec4();
+        }
+        this._updateSampleCount();
+    }
+
+    constructor () {
+        this._init();
+    }
+}
+
+export class SkinPass extends SettingPass {
     name = 'SkinPass'
     effectName = '../advanced/skin';
     outputNames = ['SSSSBlur', 'SSSSBlurDS']
-
-    checkEnable (camera: Camera) {
-        let enable = super.checkEnable(camera);
-        if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
-            enable = false;
-        }
-        return enable;
-    }
+    ssssBlurData = new SSSSBlurData();
 
     public render (camera: Camera, ppl: BasicPipeline): void {
         passContext.material = this.material;
@@ -111,11 +241,11 @@ export class SkinPass extends SettingPass {
             const halfExtents = model.worldBounds.halfExtents;
             boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
         }
-        const setting = this.setting;
+        const skin = ppl.pipelineSceneData.skin;
         const passIdx = !isY ? SSSS_BLUR_X_PASS_INDEX : SSSS_BLUR_Y_PASS_INDEX;
-        this.material.setProperty('blurInfo', new Vec4(camera.fov, setting.blurRadius,
-            boundingBox, setting.sssIntensity), passIdx);
-        this.material.setProperty('kernel',  setting.ssssBlurData.kernel, passIdx);
+        this.material.setProperty('blurInfo', new Vec4(camera.fov, skin.blurRadius,
+            boundingBox, skin.sssIntensity), passIdx);
+        this.material.setProperty('kernel',  this.ssssBlurData.kernel, passIdx);
 
         const outputRT = super.slotName(camera, 0);
         const layoutName = !isY ? 'ssss-blurX' : 'ssss-blurY';
