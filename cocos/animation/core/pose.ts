@@ -28,8 +28,14 @@ export class Pose {
 }
 
 export enum PoseTransformSpace {
+    /**
+     * Transforms are stored relative to their parent nodes.
+     */
     LOCAL,
 
+    /**
+     * Transforms are stored relative to the belonging animation controller's node's space.
+     */
     COMPONENT,
 }
 
