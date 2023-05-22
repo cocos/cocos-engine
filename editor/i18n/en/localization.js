@@ -1,11 +1,18 @@
+/* eslint-disable quote-props */
 const pkg = require('../../../package.json');
+const { mixin, link } = require('../../i18n-utils');
 const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
     return a;
 });
 
 const url = 'https://docs.cocos.com/creator';
 
-module.exports = {
+module.exports = link(mixin({
+
+    classes: {
+        'cc': { },
+    },
+
     help: {
         cc: {
             Node: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
@@ -1227,4 +1234,8 @@ module.exports = {
     color_grading: {
         originalMap: 'The builtin lut texture path is internal/dependencies/textures/lut/.',
     },
-};
+},
+
+require('./animation'),
+
+));

@@ -25,7 +25,7 @@
 import { EDITOR } from 'internal:constants';
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
     Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address } from '../../gfx';
-import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
+import { Camera, CSMLevel, DirectionalLight, Light, LightType, ProbeType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { supportsR32FloatTexture, supportsRGBA16FloatTexture } from '../define';
 import { BasicPipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo,
@@ -628,17 +628,21 @@ export function buildShadowPass (passName: Readonly<string>,
 export function buildReflectionProbePasss (camera: Camera,
     ppl: BasicPipeline,
     isOffScreen: boolean) {
+    if (!cclegacy.internal.reflectionProbeManager) return;
     const probes = cclegacy.internal.reflectionProbeManager.getProbes();
-    if (probes.length === 0) {
-        return;
-    }
+    if (probes.length === 0) return;
     for (let i = 0; i < probes.length; i++) {
         const probe = probes[i];
         if (probe.needRender) {
-            for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
-                buildReflectionProbePass(camera, ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
+            if (probes[i].probeType === ProbeType.PLANAR) {
+                buildReflectionProbePass(camera, ppl, probe, probe.realtimePlanarTexture.window!, 0);
+            } else if (EDITOR) {
+                for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
+                    probe.updateCameraDir(faceIdx);
+                    buildReflectionProbePass(camera, ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
+                }
+                probe.needRender = false;
             }
-            probe.needRender = false;
         }
     }
 }
@@ -653,8 +657,6 @@ export function buildReflectionProbePass (camera: Camera,
 
     const probePassRTName = `reflectionProbePassColor${cameraName}`;
     const probePassDSName = `reflectionProbePassDS${cameraName}`;
-
-    probe.updateCameraDir(faceIdx);
 
     if (!ppl.containsResource(probePassRTName)) {
         ppl.addRenderWindow(probePassRTName, Format.RGBA8, width, height, renderWindow);
