@@ -9,9 +9,9 @@ import { poseGraphOp } from "../../../../cocos/animation/marionette/pose-graph/o
 import { PoseGraphType } from "../../../../cocos/animation/marionette/pose-graph/foundation/type-system";
 import { PoseGraphNode } from "../../../../cocos/animation/marionette/pose-graph/foundation/pose-graph-node";
 import { AddNonFreestandingNodeError } from "../../../../cocos/animation/marionette/pose-graph/foundation/errors";
-import { poseGraphCreateNodeFactory, poseGraphNodeAppearance, poseGraphNodeHide, poseGraphNodeMenu } from "../../../../cocos/animation/marionette/pose-graph/decorator/node";
+import { poseGraphCreateNodeFactory, poseGraphNodeAppearance, poseGraphNodeHide, poseGraphNodeCategory } from "../../../../cocos/animation/marionette/pose-graph/decorator/node";
 import { PoseGraphNodeEditorMetadata, getPoseGraphNodeEditorMetadata } from "../../../../cocos/animation/marionette/pose-graph/foundation/authoring/node-authoring";
-import { createPoseGraph, findInputKeyHavingDisplayName, getTheOnlyInputKey, getTheOnlyOutputKey, normalizeNodeInputMetadata, UnimplementedPoseNode, UnimplementedPVNode } from "./utils/misc";
+import { composeInputKeyInternally, createPoseGraph, getTheOnlyInputKey, getTheOnlyOutputKey, normalizeNodeInputMetadata, UnimplementedPoseNode, UnimplementedPVNode } from "./utils/misc";
 import { PoseNode } from "../../../../cocos/animation/marionette/pose-graph/pose-node";
 
 describe(`Class PoseGraph`, () => {
@@ -165,10 +165,10 @@ describe(`Input decorator @input`, () => {
 });
 
 describe(`Node editor decorators`, () => {
-    test(`@poseGraphNodeMenu`, () => {
+    test(`@poseGraphNodeCategory`, () => {
         checkInjection(
-            poseGraphNodeMenu('some-menu-item-1/some-menu-item-2'),
-            { menu: 'some-menu-item-1/some-menu-item-2' },
+            poseGraphNodeCategory('some-menu-item-1/some-menu-item-2'),
+            { category: 'some-menu-item-1/some-menu-item-2' },
         );
     });
 
@@ -201,7 +201,7 @@ describe(`Node editor decorators`, () => {
         const errorWatcher = captureErrors();
 
         for (const decorator of [
-            poseGraphNodeMenu(''),
+            poseGraphNodeCategory(''),
             poseGraphNodeAppearance({}),
             poseGraphCreateNodeFactory({
                 listEntries: () => [],
@@ -325,7 +325,7 @@ describe(`Node`, () => {
 
     describe.each([
         [`Pose Node`, testSuitePoseNode],
-        [`X Node`, testSuitePVNode],
+        [`PV Node`, testSuitePVNode],
     ] as [title: string, suite: PoseGraphNodeTestSuite][])(`%s`, (_, {
         makeFundamental: makeMainNode,
         makeArrayInput: makeArrayNode,
@@ -347,7 +347,7 @@ describe(`Node`, () => {
             const metadataTable = rawKeys.map((k) => normalizeNodeInputMetadata(poseGraphOp.getInputMetadata(mainNode, k)));
             expect(metadataTable).toStrictEqual(expect.arrayContaining([
                 expect.objectContaining({
-                    displayName: 'pv_node_input_with_no_displayName_specified',
+                    displayName: undefined,
                     deletable: false,
                     insertPoint: false,
                     type: PoseGraphType.FLOAT,
@@ -362,7 +362,7 @@ describe(`Node`, () => {
             if (shouldContainPoseInputs) {
                 expect(metadataTable).toStrictEqual(expect.arrayContaining([
                     expect.objectContaining({
-                        displayName: 'pose_input_with_no_displayName_specified',
+                        displayName: undefined,
                         deletable: false,
                         insertPoint: false,
                     }),
@@ -378,18 +378,19 @@ describe(`Node`, () => {
             // Note: only pose node can binding poses.
             if (shouldContainPoseInputs) {
                 for (const [
+                    key,
                     expectedDisplayName,
-                    expectedPropertyName,
                 ] of [
-                    ['pose_input_with_no_displayName_specified', 'pose_input_with_no_displayName_specified'],
-                    ['SomeDisPlayName', 'pose_input_with_displayName_specified'],
+                    [composeInputKeyInternally('pose_input_with_no_displayName_specified'), undefined],
+                    [composeInputKeyInternally('pose_input_with_displayName_specified'), 'SomeDisPlayName'],
                 ] as [
-                    expectedDisplayName: string,
-                    expectedPropertyName: PosePropertyName,
+                    key: poseGraphOp.InputKey,
+                    expectedDisplayName: string | undefined,
                 ][]) {
-                    const key = rawKeys.find((k) => poseGraphOp.getInputMetadata(mainNode, k)?.displayName === expectedDisplayName);
-                    expect(key).not.toBeUndefined();
-                    assertIsTrue(key);
+                    const metadata = poseGraphOp.getInputMetadata(mainNode, key);
+                    expect(metadata).not.toBeUndefined();
+                    assertIsTrue(metadata);
+                    expect(metadata.displayName).toBe(expectedDisplayName)
                     // Initial: no binding.
                     expect(poseGraphOp.getInputBinding(poseGraph,mainNode, key)).toBeUndefined();
                     // Connect and reconnect.
@@ -411,18 +412,19 @@ describe(`Node`, () => {
 
             // PV node input binding query.
             for (const [
+                key,
                 expectedDisplayName,
-                expectedPropertyName,
             ] of [
-                ['pv_node_input_with_no_displayName_specified', 'pv_node_input_with_no_displayName_specified'],
-                ['PVNode_SomeDisPlayName', 'pv_node_input_with_displayName_specified'],
+                [composeInputKeyInternally('pv_node_input_with_no_displayName_specified'), undefined],
+                [composeInputKeyInternally('pv_node_input_with_displayName_specified'), 'PVNode_SomeDisPlayName'],
             ] as [
+                key: poseGraphOp.InputKey,
                 expectedDisplayName: string,
-                expectedPropertyName: PVNodePropertyName,
             ][]) {
-                const key = rawKeys.find((k) => poseGraphOp.getInputMetadata(mainNode, k)?.displayName === expectedDisplayName);
-                expect(key).not.toBeUndefined();
-                assertIsTrue(key);
+                const metadata = poseGraphOp.getInputMetadata(mainNode, key);
+                expect(metadata).not.toBeUndefined();
+                assertIsTrue(metadata);
+                expect(metadata.displayName).toBe(expectedDisplayName);
                 // Initial: no binding.
                 expect(poseGraphOp.getInputBinding(poseGraph,mainNode, key)).toBeUndefined();
                 // Connect and reconnect.
@@ -472,7 +474,7 @@ describe(`Node`, () => {
                 const metadataTable = keys.map((k) => normalizeNodeInputMetadata(poseGraphOp.getInputMetadata(node, k)));
                 expect(metadataTable).toStrictEqual(expect.arrayContaining(Array.from({ length: expectedElementCount }, (_, j) => {
                     return expect.objectContaining({
-                        displayName: `array_inputs ${j}`,
+                        displayName: undefined,
                         deletable: true,
                         insertPoint: true,
                     });
@@ -480,7 +482,7 @@ describe(`Node`, () => {
             }
     
             // Delete a middle element.
-            const middleInputKey = poseGraphOp.getInputKeys(node).find((k) => poseGraphOp.getInputMetadata(node, k)?.displayName === `array_inputs 3`);
+            const middleInputKey = composeInputKeyInternally('array_inputs', 3);
             expect(middleInputKey).not.toBeUndefined();
             assertIsTrue(middleInputKey);
             poseGraphOp.deleteInput(poseGraph, node, middleInputKey);
@@ -491,7 +493,7 @@ describe(`Node`, () => {
                 const metadataTable = keys.map((k) => poseGraphOp.getInputMetadata(node, k));
                 expect(metadataTable).toStrictEqual(expect.arrayContaining(Array.from({ length: 4 }, (_, j) => {
                     return expect.objectContaining({
-                        displayName: `array_inputs ${j}`,
+                        displayName: undefined,
                         deletable: true,
                         insertPoint: true,
                     });
@@ -575,7 +577,7 @@ describe(`Node`, () => {
                 poseGraphOp.deleteInput(
                     poseGraph,
                     node,
-                    findInputKeyHavingDisplayName(node, `${propName} ${deleteIndex}`),
+                    composeInputKeyInternally(propName, deleteIndex),
                 );
 
                 // The deletion should causes both all props delete its element at specified index.
@@ -615,7 +617,7 @@ describe(`Node`, () => {
         poseGraphOp.connectNode(
             poseGraph,
             poseNode1,
-            findInputKeyHavingDisplayName(poseNode1, 'pv_node_prop'),
+            composeInputKeyInternally('pv_node_prop'),
             pvNode1,
             getTheOnlyOutputKey(pvNode1),
         );
@@ -625,7 +627,7 @@ describe(`Node`, () => {
         poseGraphOp.connectNode(
             poseGraph,
             pvNode2,
-            findInputKeyHavingDisplayName(poseNode1, 'pv_node_prop'),
+            composeInputKeyInternally('pv_node_prop'),
             pvNode1,
             getTheOnlyOutputKey(pvNode1),
         );
@@ -635,7 +637,7 @@ describe(`Node`, () => {
         poseGraphOp.connectNode(
             poseGraph,
             poseNode1,
-            findInputKeyHavingDisplayName(poseNode1, 'pose_prop'),
+            composeInputKeyInternally('pose_prop'),
             pvNode1,
             getTheOnlyOutputKey(pvNode1),
         );
@@ -647,7 +649,7 @@ describe(`Node`, () => {
         poseGraphOp.connectNode(
             poseGraph,
             poseNode1,
-            findInputKeyHavingDisplayName(poseNode1, 'pose_prop'),
+            composeInputKeyInternally('pose_prop'),
             poseNode2,
             getTheOnlyOutputKey(poseNode2),
         );
@@ -657,7 +659,7 @@ describe(`Node`, () => {
         poseGraphOp.connectNode(
             poseGraph,
             poseNode1,
-            findInputKeyHavingDisplayName(poseNode1, 'pv_node_prop'),
+            composeInputKeyInternally('pv_node_prop'),
             poseNode2,
             getTheOnlyOutputKey(poseNode2),
         );
@@ -669,7 +671,7 @@ describe(`Node`, () => {
         poseGraphOp.connectNode(
             poseGraph,
             pvNode1,
-            findInputKeyHavingDisplayName(poseNode1, 'pv_node_prop'),
+            composeInputKeyInternally('pv_node_prop'),
             poseNode1,
             getTheOnlyOutputKey(poseNode1),
         );
@@ -687,8 +689,14 @@ test(`Inputs from base classes`, () => {
         @input({ type: PoseGraphType.POSE, })
         base_pose_input: Pose | null = null;
 
+        @input({ type: PoseGraphType.POSE, displayName: 'Some_base_pose_input_displayName' })
+        base_pose_input_with_displayName_specified: Pose | null = null;
+
         @input({ type: PoseGraphType.POSE })
         base_input_about_to_be_overrode: Pose | null = null;
+
+        @input({ type: PoseGraphType.POSE, displayName: 'Some_base_pose_input_displayName_to_be_overrode' })
+        base_input_about_to_be_overrode_with_display_name_specified: Pose | null = null;
     }
 
     class Sub extends Base {
@@ -700,6 +708,9 @@ test(`Inputs from base classes`, () => {
 
         @input({ type: PoseGraphType.POSE })
         base_input_about_to_be_overrode: Pose | null = null;
+
+        @input({ type: PoseGraphType.POSE, displayName: 'Some_overrode_base_pose_input_displayName' })
+        base_input_about_to_be_overrode_with_display_name_specified: Pose | null = null;
     }
 
     const poseGraph = createPoseGraph();
@@ -716,11 +727,13 @@ test(`Inputs from base classes`, () => {
             value: poseGraphOp.getInputConstantValue(node, key),
         }))).toStrictEqual([
             // Base inputs first.
-            { displayName: 'base_pvNode_input', value: 1.0 },
-            { displayName: 'base_pose_input', value: null },
-            { displayName: 'base_input_about_to_be_overrode', value: null },
-            { displayName: 'sub_pvNode_input', value: 2.0 },
-            { displayName: 'sub_pose_input', value: null },
+            { displayName: undefined, value: 1.0 },
+            { displayName: undefined, value: null },
+            { displayName: 'Some_base_pose_input_displayName', value: null },
+            { displayName: undefined, value: null },
+            { displayName: 'Some_overrode_base_pose_input_displayName', value: null },
+            { displayName: undefined, value: 2.0 },
+            { displayName: undefined, value: null },
         ]);
     }
 });

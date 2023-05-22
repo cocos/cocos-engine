@@ -18,20 +18,22 @@ interface ArrayPropertySyncGroup {
 export interface PoseGraphNodeInputMetadata {
     type: PoseGraphType;
 
-    displayName?: string;
+    displayName?: PoseGraphNodeInputDisplayName;
 
     deletable?: boolean;
 
     insertPoint?: boolean;
 }
 
+export type PoseGraphNodeInputDisplayName = string | [string, Record<string, string | number>];
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 type Constructor = Function;
 
 interface PropertyNodeInputRecord {
     type: PoseGraphType;
-    displayName?: string;
-    getArrayElementDisplayName?(index: number): string;
+    displayName?: PoseGraphNodeInputMappingOptions['displayName'];
+    getArrayElementDisplayName?: PoseGraphNodeInputMappingOptions['getArrayElementDisplayName'];
     arraySyncGroup?: ArrayPropertySyncGroup;
 }
 
@@ -56,7 +58,7 @@ export interface PoseGraphNodeInputMappingOptions {
      * @zh 此属性关联的输入的显示名称。
      * @en Display of the input(s) that the property associates.
      */
-    displayName?: string;
+    displayName?: PoseGraphNodeInputDisplayName;
 
     /**
      * @zh 若有定义，当该属性是数组时，此方法被用来获取数组各个元素所映射的输入的显示名称。
@@ -64,7 +66,7 @@ export interface PoseGraphNodeInputMappingOptions {
      * this method will be used to retrieve the display name of input mapped by each element.
      * @param index 数组元素的索引。
      */
-    getArrayElementDisplayName?(index: number): string;
+    getArrayElementDisplayName?(index: number): PoseGraphNodeInputDisplayName;
 
     /**
      * @zh 若有定义，当该属性是数组时，声明该数组属性属于指定的同步组。
@@ -196,7 +198,7 @@ class PoseGraphNodeInputManager {
                 return undefined;
             } else {
                 const displayName = propertyInputRecord.getArrayElementDisplayName?.call(object, elementIndex)
-                    ?? `${propertyInputRecord.displayName ?? propertyKey} ${elementIndex}`;
+                    ?? propertyInputRecord.displayName;
                 return {
                     type: propertyInputRecord.type,
                     displayName,
@@ -207,7 +209,7 @@ class PoseGraphNodeInputManager {
         }
         return {
             type: propertyInputRecord.type,
-            displayName: propertyInputRecord.displayName ?? propertyKey,
+            displayName: propertyInputRecord.displayName,
         };
     }
 
