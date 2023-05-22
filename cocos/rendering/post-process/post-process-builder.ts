@@ -16,9 +16,7 @@ import { BlitScreenPass } from './passes/blit-screen-pass';
 import { ShadowPass } from './passes/shadow-pass';
 import { HBAOPass } from './passes/hbao-pass';
 import { PostProcess } from './components/post-process';
-import { Node } from '../../scene-graph';
 import { director } from '../../game';
-import { CCObject } from '../../core';
 import { setCustomPipeline } from '../custom';
 
 import { CameraComponent } from '../../misc';
@@ -71,13 +69,21 @@ export class PostProcessBuilder implements PipelineBuilder  {
             pp = [];
             this.pipelines.set(pipelineName, pp);
         }
-        if (!pp.includes(pass)) {
-            pp.push(pass);
+
+        const oldIdx = pp.findIndex((p) => p.name === pass.name);
+        if (oldIdx !== -1) {
+            pp.splice(oldIdx, 1);
         }
+        pp.push(pass);
     }
     insertPass (pass: BasePass, passClass: typeof BasePass, pipelineName = 'forward') {
         const pp = this.pipelines.get(pipelineName);
-        if (pp && !pp.includes(pass)) {
+        if (pp) {
+            const oldIdx = pp.findIndex((p) => p.name === pass.name);
+            if (oldIdx !== -1) {
+                pp.splice(oldIdx, 1);
+            }
+
             const idx = pp.findIndex((p) => p instanceof passClass);
             if (idx !== -1) {
                 pp.splice(idx + 1, 0, pass);
