@@ -425,6 +425,7 @@ export class ComputeSubpass {
 export class RasterPass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly attachmentIndexMap: Map<string, number> = new Map<string, number>();
     readonly subpassGraph: SubpassGraph = new SubpassGraph();
     width = 0;
     height = 0;

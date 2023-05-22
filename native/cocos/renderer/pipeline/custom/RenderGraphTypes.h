@@ -340,6 +340,7 @@ struct RasterPass {
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, uint32_t> attachmentIndexMap;
     SubpassGraph subpassGraph;
     uint32_t width{0};
     uint32_t height{0};
