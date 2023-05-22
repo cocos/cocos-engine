@@ -22,9 +22,10 @@
  THE SOFTWARE.
 */
 
-import { ccclass, serializable } from 'cc.decorator';
+import { ccclass, editable, serializable } from 'cc.decorator';
 import { Motion } from '../motion';
 import { State, InteractiveState } from './state';
+import { AnimationGraphEventBinding } from '../event/event-binding';
 
 @ccclass('cc.animation.Motion')
 export class MotionState extends InteractiveState {
@@ -43,12 +44,32 @@ export class MotionState extends InteractiveState {
     @serializable
     public speedMultiplierEnabled = false;
 
+    /**
+     * @zh 状态进入事件绑定，此处绑定的事件会在状态机向该状态过渡时触发。
+     * @en State entered event binding. The event bound here will be triggered
+     * when the state machine starts to transition into this state.
+     */
+    @serializable
+    @editable
+    public transitionInEventBinding = new AnimationGraphEventBinding();
+
+    /**
+     * @zh 状态离开事件绑定，此处绑定的事件会在状态机从该状态离开时触发。
+     * @en State left event binding. The event bound here will be triggered
+     * when the state machine starts to transition out from this state.
+     */
+    @serializable
+    @editable
+    public transitionOutEventBinding = new AnimationGraphEventBinding();
+
     public copyTo (that: MotionState) {
         super.copyTo(that);
         that.motion = this.motion?.clone() ?? null;
         that.speed = this.speed;
         that.speedMultiplier = this.speedMultiplier;
         that.speedMultiplierEnabled = this.speedMultiplierEnabled;
+        this.transitionInEventBinding.copyTo(that.transitionInEventBinding);
+        this.transitionOutEventBinding.copyTo(that.transitionOutEventBinding);
         return this;
     }
 

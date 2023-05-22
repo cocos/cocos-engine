@@ -25,6 +25,8 @@ import { PoseNode } from '../pose-graph/pose-node';
 import { instantiatePoseGraph, InstantiatedPoseGraph } from '../pose-graph/instantiation';
 import { ConditionEvaluationContext } from './condition/condition-base';
 import { ReadonlyClipOverrideMap } from '../clip-overriding';
+import { AnimationGraphEventBinding } from '../event/event-binding';
+import { AnimationGraphCustomEventEmitter } from '../event/custom-event-emitter';
 
 /**
  * The max transitions can be matched in single frame.
@@ -123,6 +125,7 @@ class TopLevelStateMachineEvaluation {
         this._additive = context.additive;
         this.name = name;
         this._controller = context.controller;
+        this._customEventEmitter = context.customEventEmitter;
         const { entry, exit } = this._addStateMachine(
             stateMachine,
             null,
@@ -247,6 +250,7 @@ class TopLevelStateMachineEvaluation {
     }
 
     private declare _controller: AnimationController;
+    private _customEventEmitter: AnimationGraphCustomEventEmitter;
     /**
      * Preserved here for clip overriding.
      */
@@ -395,21 +399,28 @@ class TopLevelStateMachineEvaluation {
                     exitCondition: 0.0,
                     exitConditionEnabled: false,
                     activated: false,
+                    startEventBinding: undefined,
+                    endEventBinding: undefined,
                 };
 
-                if (isAnimationTransition(outgoing)) {
-                    transitionEval.duration = outgoing.duration;
-                    transitionEval.normalizedDuration = outgoing.relativeDuration;
-                    transitionEval.exitConditionEnabled = outgoing.exitConditionEnabled;
-                    transitionEval.exitCondition = outgoing.exitCondition;
-                    transitionEval.destinationStart = outgoing.destinationStart;
-                    transitionEval.relativeDestinationStart = outgoing.relativeDestinationStart;
-                } else if (outgoing instanceof EmptyStateTransition) {
+                if (isAnimationTransition(outgoing)
+                    || outgoing instanceof EmptyStateTransition
+                    || outgoing instanceof PoseTransition
+                ) {
                     transitionEval.duration = outgoing.duration;
                     transitionEval.destinationStart = outgoing.destinationStart;
                     transitionEval.relativeDestinationStart = outgoing.relativeDestinationStart;
-                } else if (outgoing instanceof PoseTransition) {
-                    transitionEval.duration = outgoing.duration;
+                    if (outgoing.startEventBinding.isBound) {
+                        transitionEval.startEventBinding = outgoing.startEventBinding;
+                    }
+                    if (outgoing.endEventBinding.isBound) {
+                        transitionEval.endEventBinding = outgoing.endEventBinding;
+                    }
+                    if (isAnimationTransition(outgoing)) {
+                        transitionEval.normalizedDuration = outgoing.relativeDuration;
+                        transitionEval.exitConditionEnabled = outgoing.exitConditionEnabled;
+                        transitionEval.exitCondition = outgoing.exitCondition;
+                    }
                 }
 
                 transitionEval.conditions.forEach((conditionEval, iCondition) => {
@@ -773,6 +784,25 @@ class TopLevelStateMachineEvaluation {
             // We're entering a state machine
             this._callEnterMethods(detailedTransition.to);
         }
+
+        // Fire transition out event on source real state.
+        assertIsTrue(this._activatedTransitions.length > 0);
+        const previousState = this._activatedTransitions.length === 1 // this activating transition
+            ? this._currentNode
+            : this._activatedTransitions[this._activatedTransitions.length - 2].destination;
+        if (previousState instanceof EventifiedStateEval) {
+            previousState.transitionOutEventBinding?.emit(this._customEventEmitter);
+        }
+
+        // Fire start event on the transition.
+        if (lastTransition.startEventBinding) {
+            lastTransition.startEventBinding.emit(this._customEventEmitter);
+        }
+
+        // Fire transition in event on destination real target.
+        if (destinationState instanceof EventifiedStateEval) {
+            destinationState.transitionInEventBinding?.emit(this._customEventEmitter);
+        }
     }
 
     /**
@@ -838,9 +868,16 @@ class TopLevelStateMachineEvaluation {
 
         const lenSubpath = lastTransitionIndex + 1;
 
-        const newCurrentState = activatedTransition[lastTransitionIndex].destination;
+        const lastTransition = activatedTransition[lastTransitionIndex];
+        const newCurrentState = lastTransition.destination;
 
         // Call exist hooks, then destroy the transition instance.
+        // Call end event binding on last transition.
+        {
+            assertIsTrue(lastTransition.path.length !== 0);
+            const lastRealTransition = lastTransition.path[lastTransition.path.length - 1];
+            lastRealTransition.endEventBinding?.emit(this._customEventEmitter);
+        }
         this._callExitMethods(this._currentNode);
         for (let iTransition = 0; iTransition <= lastTransitionIndex; ++iTransition) {
             const transition = activatedTransition[iTransition];
@@ -1066,6 +1103,22 @@ export class StateEval {
     }
 }
 
+class EventifiedStateEval extends StateEval {
+    constructor (state: MotionState | PoseState) {
+        super(state);
+        if (state.transitionInEventBinding.isBound) {
+            this.transitionInEventBinding = state.transitionInEventBinding;
+        }
+        if (state.transitionOutEventBinding.isBound) {
+            this.transitionOutEventBinding = state.transitionOutEventBinding;
+        }
+    }
+
+    public transitionInEventBinding: AnimationGraphEventBinding | undefined = undefined;
+
+    public transitionOutEventBinding: AnimationGraphEventBinding | undefined = undefined;
+}
+
 enum StateTickFlag {
     /**
      * The state has been updated in this tick?
@@ -1262,7 +1315,7 @@ class VMSMEval {
     }
 }
 
-class VMSMInternalState extends StateEval {
+class VMSMInternalState extends EventifiedStateEval {
     public readonly kind = NodeKind.animation;
 
     constructor (
@@ -1354,7 +1407,7 @@ export class EmptyStateEval extends StateEval {
     }
 }
 
-class PoseStateEval extends StateEval {
+class PoseStateEval extends EventifiedStateEval {
     public readonly kind = NodeKind.pose;
 
     public elapsedTime = 0.0;
@@ -1422,6 +1475,9 @@ interface TransitionEval {
      * Whether the transition is activated, if it has already been activated, it can not be activated(matched) again.
      */
     activated: boolean;
+
+    startEventBinding: AnimationGraphEventBinding | undefined;
+    endEventBinding: AnimationGraphEventBinding | undefined;
 }
 
 class ConditionEvaluationContextImpl implements ConditionEvaluationContext {

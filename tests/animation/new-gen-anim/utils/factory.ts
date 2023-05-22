@@ -49,6 +49,7 @@ export function fillStateMachine(stateMachine: StateMachine, params: StateMachin
         switch (stateParams.type) {
             case 'motion':
                 state = stateMachine.addMotion();
+                fillStateEventBindingSpecification(state as MotionState, stateParams);
                 if (stateParams.motion) {
                     (state as MotionState).motion = stateParams.motion instanceof Motion ? stateParams.motion : createMotion(stateParams.motion);
                 }
@@ -56,6 +57,7 @@ export function fillStateMachine(stateMachine: StateMachine, params: StateMachin
             case 'pose':
                 state = stateMachine.addPoseState();
                 fillPoseGraph((state as PoseState).graph, stateParams.graph);
+                fillStateEventBindingSpecification(state as PoseState, stateParams);
                 break;
             case 'empty':
                 state = stateMachine.addEmpty();
@@ -193,6 +195,15 @@ function fillTransition(transition: Transition, params: TransitionAttributes) {
         assertsIsEmptyOrAnimationTransition(transition);
         transition.relativeDestinationStart = params.relativeDestinationStart;
     }
+
+    if (typeof params.startEventBinding !== 'undefined') {
+        assertsIsDurableTransition(transition);
+        transition.startEventBinding.eventName = params.startEventBinding;
+    }
+    if (typeof params.endEventBinding !== 'undefined') {
+        assertsIsDurableTransition(transition);
+        transition.endEventBinding.eventName = params.endEventBinding;
+    }
 }
 
 export function createTCBinding(params: TCBindingParams) {
@@ -292,10 +303,24 @@ export interface StateMachineParams {
     transitions?: TransitionParams[];
 }
 
+type StateEventBindingSpecification = {
+    transitionInEventBinding?: string;
+    transitionOutEventBinding?: string;
+};
+
+function fillStateEventBindingSpecification(state: MotionState | PoseState, specification: StateEventBindingSpecification) {
+    if (typeof specification.transitionInEventBinding !== 'undefined') {
+        state.transitionInEventBinding.eventName = specification.transitionInEventBinding;
+    }
+    if (typeof specification.transitionOutEventBinding !== 'undefined') {
+        state.transitionOutEventBinding.eventName = specification.transitionOutEventBinding;
+    }
+}
+
 export type StateParams = ({
     type: 'motion';
     motion?: Motion | MotionParams;
-} | {
+} & StateEventBindingSpecification | {
     type: 'sub-state-machine';
     stateMachine: StateMachineParams;
 } | {
@@ -303,7 +328,7 @@ export type StateParams = ({
 } | {
     type: 'pose';
     graph: PoseGraphParams;
-}) & {
+} & StateEventBindingSpecification) & {
     name?: string;
 };
 
@@ -332,6 +357,8 @@ interface TransitionAttributes {
     relativeDuration?: boolean;
     destinationStart?: number;
     relativeDestinationStart?: boolean;
+    startEventBinding?: string;
+    endEventBinding?: string;
 }
 
 type TransitionConditionParams = {
