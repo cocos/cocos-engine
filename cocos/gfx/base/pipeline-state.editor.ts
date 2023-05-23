@@ -48,16 +48,36 @@ import {
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { RenderPassStage } from '../../rendering/define';
-import { CCString, ccenum } from '../../core';
+import { CCString, Enum } from '../../core';
 
-ccenum(PolygonMode);
-ccenum(ShadeModel);
-ccenum(CullMode);
-ccenum(ComparisonFunc);
-ccenum(StencilOp);
-ccenum(PrimitiveMode);
-ccenum(RenderPassStage);
-ccenum(DynamicStateFlagBit);
+function isNumber(obj: any) {
+    return typeof obj === 'number' && !isNaN(obj);
+}
+
+function getEnumData(enumObj: any) {
+    const enumData: any = {};
+    Object.keys(enumObj).forEach((key) => {
+        if (!isNumber(Number(key))) {
+            enumData[key] = enumObj[key];
+        }
+    });
+
+    return enumData;
+}
+
+const toEnum = (() => {
+    const copyAsCCEnum = <T>(e: T) => Enum(getEnumData(e));
+    return {
+        PolygonMode:copyAsCCEnum(PolygonMode),
+        ShadeModel:copyAsCCEnum(ShadeModel),
+        CullMode:copyAsCCEnum(CullMode),
+        ComparisonFunc:copyAsCCEnum(ComparisonFunc),
+        StencilOp:copyAsCCEnum(StencilOp),
+        PrimitiveMode:copyAsCCEnum(PrimitiveMode),
+        RenderPassStage:copyAsCCEnum(RenderPassStage),
+        DynamicStateFlagBit:copyAsCCEnum(DynamicStateFlagBit),
+    }
+})();
 
 @ccclass('RasterizerState')
 export class RasterizerStateEditor extends RasterizerState {
@@ -67,15 +87,15 @@ export class RasterizerStateEditor extends RasterizerState {
 
     @serializable
     @editable
-    @type(PolygonMode)
+    @type(toEnum.PolygonMode)
     public polygonMode = PolygonMode.FILL;
 
-    @type(ShadeModel)
+    @type(toEnum.ShadeModel)
     @serializable
     @editable
     public shadeModel = ShadeModel.GOURAND;
 
-    @type(CullMode)
+    @type(toEnum.CullMode)
     @serializable
     @editable
     public cullMode = CullMode.BACK;
@@ -119,7 +139,7 @@ export class DepthStencilStateEditor extends DepthStencilState {
     @editable
     public depthWrite = true;
 
-    @type(ComparisonFunc)
+    @type(toEnum.ComparisonFunc)
     @serializable
     @editable
     public depthFunc = ComparisonFunc.LESS;
@@ -128,7 +148,7 @@ export class DepthStencilStateEditor extends DepthStencilState {
     @editable
     public stencilTestFront = false;
 
-    @type(ComparisonFunc)
+    @type(toEnum.ComparisonFunc)
     @serializable
     @editable
     public stencilFuncFront = ComparisonFunc.ALWAYS;
@@ -141,17 +161,17 @@ export class DepthStencilStateEditor extends DepthStencilState {
     @editable
     public stencilWriteMaskFront = 0xffffffff;
 
-    @type(StencilOp)
+    @type(toEnum.StencilOp)
     @serializable
     @editable
     public stencilFailOpFront = StencilOp.KEEP;
 
-    @type(StencilOp)
+    @type(toEnum.StencilOp)
     @serializable
     @editable
     public stencilZFailOpFront = StencilOp.KEEP;
 
-    @type(StencilOp)
+    @type(toEnum.StencilOp)
     @serializable
     @editable
     public stencilPassOpFront = StencilOp.KEEP;
@@ -164,7 +184,7 @@ export class DepthStencilStateEditor extends DepthStencilState {
     @editable
     public stencilTestBack = false;
 
-    @type(ComparisonFunc)
+    @type(toEnum.ComparisonFunc)
     @serializable
     @editable
     public stencilFuncBack = ComparisonFunc.ALWAYS;
@@ -177,17 +197,17 @@ export class DepthStencilStateEditor extends DepthStencilState {
     @editable
     public stencilWriteMaskBack = 0xffffffff;
 
-    @type(StencilOp)
+    @type(toEnum.StencilOp)
     @serializable
     @editable
     public stencilFailOpBack = StencilOp.KEEP;
 
-    @type(StencilOp)
+    @type(toEnum.StencilOp)
     @serializable
     @editable
     public stencilZFailOpBack = StencilOp.KEEP;
 
-    @type(StencilOp)
+    @type(toEnum.StencilOp)
     @serializable
     @editable
     public stencilPassOpBack = StencilOp.KEEP;
@@ -278,17 +298,17 @@ export class PassStatesEditor implements EffectAsset.IPassStates {
     @editable
     public priority = 128;
 
-    @type(PrimitiveMode)
+    @type(toEnum.PrimitiveMode)
     @serializable
     @editable
     public primitive = PrimitiveMode.TRIANGLE_LIST;
 
-    @type(RenderPassStage)
+    @type(toEnum.RenderPassStage)
     @serializable
     @editable
     public stage = RenderPassStage.DEFAULT;
 
-    @type(RasterizerStateEditor)
+    @type(toEnum.RasterizerStateEditor)
     @serializable
     @editable
     public rasterizerState: RasterizerStateEditor = new RasterizerStateEditor();
@@ -303,7 +323,7 @@ export class PassStatesEditor implements EffectAsset.IPassStates {
     @editable
     public blendState: BlendStateEditor = new BlendStateEditor();
 
-    @type([DynamicStateFlagBit])
+    @type([toEnum.DynamicStateFlagBit])
     @serializable
     @editable
     public dynamics = [];
