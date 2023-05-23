@@ -36,7 +36,7 @@ import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 import { BlendFactor } from '../../gfx';
-import { TextProcessData } from '../assembler';
+import { TextProcessData } from '../assembler/label/text-process-data';
 
 const tempColor = Color.WHITE.clone();
 /**
