@@ -20,7 +20,7 @@ import { director } from '../../game';
 import { setCustomPipeline } from '../custom';
 
 import { CameraComponent } from '../../misc';
-import { BloomPass, ColorGradingPass, ForwardTransparencyPass, FxaaPass, ToneMappingPass } from './passes';
+import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, ToneMappingPass } from './passes';
 
 export class PostProcessBuilder implements PipelineBuilder  {
     pipelines: Map<string, BasePass[]> = new Map();
@@ -34,6 +34,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
 
         // default pipeline
         this.addPass(forward, 'default');
+        this.addPass(new ForwardTransparencySimplePass(), 'default');
         this.addPass(forwardFinal, 'default');
 
         // rendering dependent data generation

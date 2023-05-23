@@ -11,3 +11,4 @@ export * from './forward-final-pass';
 export * from './shadow-pass';
 export * from './tone-mapping-pass';
 export * from './forward-transparency-pass';
+export * from './forward-transparency-simple-pass';
