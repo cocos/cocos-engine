@@ -197,6 +197,24 @@ export declare namespace Mesh {
          * @zh 动态网格特有数据
          */
         dynamic?: IDynamicStruct;
+
+        /**
+         * @en Whether the mesh data is quantized to reduce memory usage
+         * @zh 此网格数据是否经过量化以减少内存占用。
+         */
+        quantized?: boolean;
+
+        /**
+         * @en Whether the mesh data is compressed to reduce memory usage
+         * @zh 此网格数据是否经过压缩以减少内存占用。
+         */
+        compressed?: boolean;
+
+        /**
+         * @en Whether the mesh is constructed as meshlet
+         * @zh 此网格是否以 meshlet 的形式构建。
+         */
+        meshlet?: boolean;
     }
 
     /**
@@ -665,7 +683,11 @@ export class Mesh extends Asset {
     public reset (info: Mesh.ICreateInfo): void {
         this.destroyRenderingMesh();
         this._struct = info.struct;
-        this._data = info.data;
+        if (this._struct.compressed) {
+            // TODO (yiwenxue): decompress the data
+        } else {
+            this._data = info.data;
+        }
         this._hash = 0;
     }
 
