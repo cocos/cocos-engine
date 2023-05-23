@@ -1,3 +1,5 @@
+import './state-machine';
+
 import './additively-blend';
 
 import './blend-in-proportion';
