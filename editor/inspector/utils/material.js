@@ -10,7 +10,7 @@ exports.buildEffect = function(index, passData) {
     const defs = passData.defines;
 
     const tree = {
-        name: `Pass ${index} - ${passData.phase ?? 'default'}`,
+        name: `Pass ${index}${passData.phase ? ' - ' + passData.phase : ''}`,
         type: 'cc.Object',
         childMap: {},
     };
