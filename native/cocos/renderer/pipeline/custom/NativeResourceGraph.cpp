@@ -250,6 +250,20 @@ void ResourceGraph::unmount(uint64_t completedFenceValue) {
     }
 }
 
+bool ResourceGraph::isTexture(vertex_descriptor resID) const noexcept {
+    return visitObject(
+        resID, *this,
+        [&](const ManagedBuffer&) {
+            return false;
+        },
+        [&](const IntrusivePtr<gfx::Buffer>&) {
+            return false
+        },
+        [&](const auto&) {
+            return true;
+        });
+}
+
 gfx::Buffer* ResourceGraph::getBuffer(vertex_descriptor resID) {
     gfx::Buffer* buffer = nullptr;
     visitObject(

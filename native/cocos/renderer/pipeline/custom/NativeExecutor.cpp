@@ -1280,51 +1280,109 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             // TODO(zhenglong.zhou): resolve
         }
     }
-    void begin(const CopyPass& pass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
+    void copyTexture(
+        const CopyPair& copy,
+        ResourceGraph::vertex_descriptor srcID,
+        ResourceGraph::vertex_descriptor dstID) const {
+        auto& resg = ctx.resourceGraph;
+        std::vector<gfx::TextureCopy> copyInfos(copy.mipLevels, gfx::TextureCopy{});
+
+        gfx::Texture* srcTexture = resg.getTexture(srcID);
+        gfx::Texture* dstTexture = resg.getTexture(dstID);
+        CC_ENSURES(srcTexture);
+        CC_ENSURES(dstTexture);
+        if (!srcTexture || !dstTexture) {
+            return;
+        }
+        const auto& srcInfo = srcTexture->getInfo();
+        const auto& dstInfo = dstTexture->getInfo();
+        CC_ENSURES(srcInfo.width == dstInfo.width);
+        CC_ENSURES(srcInfo.height == dstInfo.height);
+        CC_ENSURES(srcInfo.depth == dstInfo.depth);
+
+        for (uint32_t i = 0; i < copy.mipLevels; ++i) {
+            auto& copyInfo = copyInfos[i];
+            copyInfo.srcSubres.mipLevel = copy.sourceMostDetailedMip + i;
+            copyInfo.srcSubres.baseArrayLayer = copy.sourceFirstSlice;
+            copyInfo.srcSubres.layerCount = copy.numSlices;
+
+            copyInfo.dstSubres.mipLevel = copy.targetMostDetailedMip + i;
+            copyInfo.dstSubres.baseArrayLayer = copy.targetFirstSlice;
+            copyInfo.dstSubres.layerCount = copy.numSlices;
+
+            copyInfo.srcOffset = {0, 0, 0};
+            copyInfo.dstOffset = {0, 0, 0};
+            copyInfo.extent = {srcInfo.width, srcInfo.height, srcInfo.depth};
+        }
+
+        ctx.cmdBuff->copyTexture(srcTexture, dstTexture, copyInfos.data(), static_cast<uint32_t>(copyInfos.size()));
+    }
+    void copyBuffer( // NOLINT(readability-convert-member-functions-to-static)
+        const CopyPair& copy,
+        ResourceGraph::vertex_descriptor srcID,
+        ResourceGraph::vertex_descriptor dstID) const {
+        // TODO(zhouzhenglong): add impl
+        std::ignore = copy;
+        std::ignore = srcID;
+        std::ignore = dstID;
+    }
+    void uploadTexture( // NOLINT(readability-convert-member-functions-to-static)
+        const UploadPair& upload,
+        ResourceGraph::vertex_descriptor dstID) const {
+        // TODO(zhouzhenglong): add impl
+        std::ignore = upload;
+        std::ignore = dstID;
+    }
+    void uploadBuffer(
+        const UploadPair& upload,
+        ResourceGraph::vertex_descriptor dstID) const {
+        auto& resg = ctx.resourceGraph;
+        gfx::Buffer* dstBuffer = resg.getBuffer(dstID);
+        CC_ENSURES(dstBuffer);
+        if (!dstBuffer) {
+            return;
+        }
+        ctx.cmdBuff->updateBuffer(dstBuffer, upload.source.data(), upload.source.size());
+    }
+    void begin(const CopyPass& pass, RenderGraph::vertex_descriptor vertID) const {
         std::ignore = pass;
         std::ignore = vertID;
-
-        auto getTexture = [this](const ccstd::pmr::string& name) {
-            auto resID = findVertex(name, ctx.resourceGraph);
-            return ctx.resourceGraph.getTexture(resID);
-        };
+        auto& resg = ctx.resourceGraph;
 
         // currently, only texture to texture supported.
         for (const auto& copy : pass.copyPairs) {
-            std::vector<gfx::TextureCopy> copyInfos(copy.mipLevels, gfx::TextureCopy{});
-
-            gfx::Texture* srcTexture = getTexture(copy.source);
-            gfx::Texture* dstTexture = getTexture(copy.target);
-            CC_ENSURES(srcTexture);
-            CC_ENSURES(dstTexture);
-
-            const auto& srcInfo = srcTexture->getInfo();
-            const auto& dstInfo = dstTexture->getInfo();
-            CC_ENSURES(srcInfo.width == dstInfo.width);
-            CC_ENSURES(srcInfo.height == dstInfo.height);
-            CC_ENSURES(srcInfo.depth == dstInfo.depth);
-
-            for (uint32_t i = 0; i < copy.mipLevels; ++i) {
-                auto& copyInfo = copyInfos[i];
-                copyInfo.srcSubres.mipLevel = copy.sourceMostDetailedMip + i;
-                copyInfo.srcSubres.baseArrayLayer = copy.sourceFirstSlice;
-                copyInfo.srcSubres.layerCount = copy.numSlices;
-
-                copyInfo.dstSubres.mipLevel = copy.targetMostDetailedMip + i;
-                copyInfo.dstSubres.baseArrayLayer = copy.targetFirstSlice;
-                copyInfo.dstSubres.layerCount = copy.numSlices;
-
-                copyInfo.srcOffset = {0, 0, 0};
-                copyInfo.dstOffset = {0, 0, 0};
-                copyInfo.extent = {srcInfo.width, srcInfo.height, srcInfo.depth};
+            auto srcID = findVertex(copy.source, resg);
+            auto dstID = findVertex(copy.target, resg);
+            CC_ENSURES(srcID != RenderGraph::null_vertex());
+            CC_ENSURES(dstID != RenderGraph::null_vertex());
+            if (srcID == RenderGraph::null_vertex() || dstID == RenderGraph::null_vertex()) {
+                continue;
             }
-
-            ctx.cmdBuff->copyTexture(srcTexture, dstTexture, copyInfos.data(), static_cast<uint32_t>(copyInfos.size()));
+            const bool sourceIsTexture = resg.isTexture(srcID);
+            const bool targetIsTexture = resg.isTexture(dstID);
+            CC_ENSURES(sourceIsTexture == targetIsTexture);
+            if (sourceIsTexture != targetIsTexture) {
+                continue;
+            }
+            if (targetIsTexture) {
+                copyTexture(copy, srcID, dstID);
+            } else {
+                copyBuffer(copy, srcID, dstID);
+            }
         }
-
         // copy from cpu
         for (const auto& upload : pass.uploadPairs) {
-            // TODO(zhouzhenglong): add buffer/texture upload
+            auto dstID = findVertex(upload.target, resg);
+            CC_ENSURES(dstID != RenderGraph::null_vertex());
+            if (dstID == RenderGraph::null_vertex()) {
+                continue;
+            }
+            const bool targetIsTexture = resg.isTexture(dstID);
+            if (targetIsTexture) {
+                uploadTexture(upload, dstID);
+            } else {
+                uploadBuffer(upload, dstID);
+            }
         }
     }
     void begin(const MovePass& pass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
