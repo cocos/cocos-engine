@@ -324,7 +324,7 @@ ui-section {
 
 exports.$ = {
     container: '.container',
-    importAllAnimator: '.animator-config-import-all-animator ui-checkbox',
+    importAllAnimationsCheckbox: '.animator-config-import-all-animator ui-checkbox',
     importAllAnimatorWrap: '.animator-config-import-all-animator',
     clips: '.clips',
     editor: '.editor',
@@ -672,12 +672,12 @@ const Elements = {
             Object.assign(panel.$.controlRight.style, panel.currentClipInfo.ctrlEndStyle);
         },
     },
-    importAllAnimator: {
+    mountAllAnimationsOnPrefab: {
         ready() {
             const panel = this;
 
-            panel.$.importAllAnimator.addEventListener('change', panel.setProp.bind(panel, 'mountAllAnimationsOnPrefab', 'boolean'));
-            panel.$.importAllAnimator.addEventListener('confirm', () => {
+            panel.$.importAllAnimationsCheckbox.addEventListener('change', panel.setProp.bind(panel, 'mountAllAnimationsOnPrefab', 'boolean'));
+            panel.$.importAllAnimationsCheckbox.addEventListener('confirm', () => {
                 panel.dispatch('snapshot');
             });
         },
@@ -691,10 +691,10 @@ const Elements = {
                 panel.$.importAllAnimatorWrap.style.display = 'block';
             }
 
-            panel.$.importAllAnimator.value = getPropValue.call(panel, panel.meta.userData.mountAllAnimationsOnPrefab, true);
+            panel.$.importAllAnimationsCheckbox.value = getPropValue.call(panel, panel.meta.userData.mountAllAnimationsOnPrefab, true);
 
-            updateElementInvalid.call(panel, panel.$.importAllAnimator, 'mountAllAnimationsOnPrefab');
-            updateElementReadonly.call(panel, panel.$.importAllAnimator);
+            updateElementInvalid.call(panel, panel.$.importAllAnimationsCheckbox, 'mountAllAnimationsOnPrefab');
+            updateElementReadonly.call(panel, panel.$.importAllAnimationsCheckbox);
         },
     },
 };
