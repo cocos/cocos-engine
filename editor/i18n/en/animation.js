@@ -6,6 +6,7 @@ module.exports = {
         pose_graph_node_sub_categories: {
             pose_nodes: 'Pose Nodes',
             pose_nodes_blend: 'Blend',
+            pose_nodes_ik: 'Inverse Kinematic',
         },
     },
 
@@ -98,6 +99,124 @@ module.exports = {
                         },
                         'choice': {
                             displayName: 'Choice',
+                        },
+                    },
+                },
+                'PoseNodeModifyPoseBase': {
+                    inputs: {
+                        'pose': {
+                            displayName: 'Pose',
+                        },
+                    },
+                },
+                'PoseNodeApplyTransform': {
+                    displayName: 'Apply Transform',
+                    title: 'Transform {nodeName}',
+                    properties: {
+                        'positionOperation': {
+                            displayName: 'Position Operation',
+                            tooltip: 'Specify how to process position.',
+                        },
+                        'rotationOperation': {
+                            displayName: 'Rotation Operation',
+                            tooltip: 'Specify how to process rotation.',
+                        },
+                        'transformSpace': {
+                            displayName: 'Transform Space',
+                            tooltip: 'Specify the space of the position and rotation.',
+                        },
+                    },
+                    inputs: {
+                        __extends__: 'classes.cc.animation.PoseNodeModifyPoseBase.inputs',
+                        'position': {
+                            displayName: 'Position',
+                        },
+                        'rotation': {
+                            displayName: 'Rotation',
+                        },
+                        'intensity': {
+                            displayName: 'Intensity',
+                        },
+                    },
+                },
+                'PoseNodeCopyTransform': {
+                    displayName: 'Copy Transform',
+                    title: 'Copy {sourceNodeName}\'s transform to {targetNodeName}',
+                    properties: {
+                        'sourceNodeName': {
+                            displayName: 'Source Node',
+                            tooltip: 'Name of the source node.',
+                        },
+                        'targetNodeName': {
+                            displayName: 'Target Node',
+                            tooltip: 'Name of the target node.',
+                        },
+                        'space': {
+                            displayName: 'Space',
+                            tooltip: 'Specify the transform space in which the transform would be copied.',
+                        },
+                    },
+                    inputs: {
+                        __extends__: 'classes.cc.animation.PoseNodeModifyPoseBase.inputs',
+                    },
+                },
+                'PoseNodeSetAuxiliaryCurve': {
+                    displayName: 'Set Auxiliary Curve',
+                    title: 'Set Auxiliary Curve {curveName}',
+                    inputs: {
+                        __extends__: 'classes.cc.animation.PoseNodeModifyPoseBase.inputs',
+                        'curveValue': {
+                            displayName: 'Value',
+                        },
+                    },
+                },
+                'PoseNodeTwoBoneIKSolver': {
+                    displayName: 'Two Bone IK Solver',
+                    title: 'Solve Two Bone IK: {endEffectorBoneName}',
+                    properties: {
+                        'endEffectorBoneName': {
+                            displayName: 'End Effector Bone',
+                            tooltip: 'Name of the end effector bone.',
+                        },
+                        'endEffectorTarget': {
+                            displayName: 'End Effector Target',
+                            tooltip: 'Specify the end effector\'s target.',
+                        },
+                        'poleTarget': {
+                            displayName: 'Pole Target',
+                            tooltip: 'Specify the pole target, ie. the middle bone\'s trending location..',
+                        },
+                    },
+                    inputs: {
+                        __extends__: 'classes.cc.animation.PoseNodeModifyPoseBase.inputs',
+                        'endEffectorTargetPosition': {
+                            displayName: 'End Effector Target',
+                        },
+                        'poleTargetPosition': {
+                            displayName: 'Pole Target',
+                        },
+                        'intensityValue': {
+                            displayName: 'Intensity',
+                        },
+                    },
+                    'TargetSpecification': {
+                        properties: {
+                            'type': {
+                                displayName: 'Type',
+                                tooltip: 'Target type.',
+                            },
+                            'targetPosition': {
+                                displayName: 'Target Position',
+                                tooltip: 'Target position.',
+                            },
+                            'targetPositionSpace': {
+                                displayName: 'Target Position Space',
+                                tooltip: 'Space of the target position.',
+                            },
+                            'targetBone': {
+                                displayName: 'Target Bone',
+                                tooltip: 'Name of target bone.',
+                            },
                         },
                     },
                 },
