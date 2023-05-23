@@ -48,7 +48,16 @@ import {
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { RenderPassStage } from '../../rendering/define';
-import { CCString } from '../../core';
+import { CCString, ccenum } from '../../core';
+
+ccenum(PolygonMode);
+ccenum(ShadeModel);
+ccenum(CullMode);
+ccenum(ComparisonFunc);
+ccenum(StencilOp);
+ccenum(PrimitiveMode);
+ccenum(RenderPassStage);
+ccenum(DynamicStateFlagBit);
 
 @ccclass('RasterizerState')
 export class RasterizerStateEditor extends RasterizerState {
