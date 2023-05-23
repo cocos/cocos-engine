@@ -46,7 +46,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 // forward pass
                 buildForwardPass(camera, ppl, isGameView);
                 // reflection probe pass
-                buildReflectionProbePasss(camera, ppl, isGameView);
+                buildReflectionProbePasss(camera, ppl);
                 continue;
             }
             // TODO: There is currently no effective way to judge the ui camera. Let’s do this first.
@@ -55,7 +55,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 // forward pass
                 const forwardInfo = buildForwardPass(camera, ppl, isGameView, !hasDeferredTransparencyObjects);
                 // reflection probe pass
-                buildReflectionProbePasss(camera, ppl, isGameView);
+                buildReflectionProbePasss(camera, ppl);
                 const area = getRenderArea(camera, camera.window.width, camera.window.height);
                 const width = area.width;
                 const height = area.height;
