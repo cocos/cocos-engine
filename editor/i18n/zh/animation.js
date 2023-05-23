@@ -12,6 +12,14 @@ module.exports = {
     classes: {
         'cc': {
             'animation': {
+                'PoseNodeStateMachine': {
+                    displayName: '状态机',
+                    inputs: {
+                        'emptyStatePose': {
+                            displayName: '空状态姿势',
+                        },
+                    },
+                },
                 'PoseNodeBlendInProportion': {
                     displayName: '按占比混合',
                     inputs: {

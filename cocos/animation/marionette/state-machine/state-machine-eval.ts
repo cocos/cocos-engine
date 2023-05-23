@@ -156,6 +156,20 @@ class TopLevelStateMachineEvaluation {
         }
     }
 
+    public reenter () {
+        // Known problem: no callbacks are triggered.
+
+        for (const transition of this._activatedTransitions) {
+            transition.destination.decreaseActiveReference();
+            this._activatedTransitionPool.free(transition);
+        }
+        this._activatedTransitions.length = 0;
+
+        this._topLevelEntry.increaseActiveReference();
+        this._currentNode.decreaseActiveReference();
+        this._currentNode = this._topLevelEntry;
+    }
+
     public update (context: AnimationGraphUpdateContext) {
         assertIsTrue(!this.exited);
 
@@ -1182,9 +1196,9 @@ class InstantiatedComponents {
 
 interface StateMachineInfo {
     parent: StateMachineInfo | null;
-    entry: NodeEval;
-    exit: NodeEval;
-    any: NodeEval;
+    entry: SpecialStateEval;
+    exit: SpecialStateEval;
+    any: SpecialStateEval;
     components: InstantiatedComponents | null;
 }
 
