@@ -1,9 +1,16 @@
 'use strict';
 
-const { updateElementReadonly, updateElementInvalid } = require('../../utils/assets');
+const { updateElementReadonly, updateElementInvalid, setPropValue, getPropValue } = require('../../utils/assets');
+
 
 exports.template = /* html */`
 <div class="container">
+    <div class="animator-config">
+        <ui-prop class="animator-config-import-all-animator">
+            <ui-label slot="label" value="i18n:ENGINE.assets.fbx.GlTFUserData.mountAllAnimationsOnPrefab.name"></ui-label>
+            <ui-checkbox slot="content"></ui-checkbox>
+        </ui-prop>
+    </div>
     <div class="show-type-wrap">
         <ui-tab class="show-type" value="0">
             <ui-button value="time">Time</ui-button>
@@ -91,6 +98,10 @@ ui-section {
 
  .container[multiple-invalid] > .multiple-warn-tip {
     display: block;
+ }
+
+ .container .animator-config {
+    padding: 10px 0;
  }
 
 .container .multiple-warn-tip {
@@ -313,6 +324,8 @@ ui-section {
 
 exports.$ = {
     container: '.container',
+    importAllAnimator: '.animator-config-import-all-animator ui-checkbox',
+    importAllAnimatorWrap: '.animator-config-import-all-animator',
     clips: '.clips',
     editor: '.editor',
     clipName: '.clip-name',
@@ -657,6 +670,31 @@ const Elements = {
             Object.assign(panel.$.controlDuration.style, panel.currentClipInfo.durationStyle);
             Object.assign(panel.$.controlLeft.style, panel.currentClipInfo.ctrlStartStyle);
             Object.assign(panel.$.controlRight.style, panel.currentClipInfo.ctrlEndStyle);
+        },
+    },
+    importAllAnimator: {
+        ready() {
+            const panel = this;
+
+            panel.$.importAllAnimator.addEventListener('change', panel.setProp.bind(panel, 'mountAllAnimationsOnPrefab', 'boolean'));
+            panel.$.importAllAnimator.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            if (!panel.animationInfos) {
+                panel.$.importAllAnimatorWrap.style.display = 'none';
+                return;
+            } else {
+                panel.$.importAllAnimatorWrap.style.display = 'block';
+            }
+
+            panel.$.importAllAnimator.value = getPropValue.call(panel, panel.meta.userData.mountAllAnimationsOnPrefab, true);
+
+            updateElementInvalid.call(panel, panel.$.importAllAnimator, 'mountAllAnimationsOnPrefab');
+            updateElementReadonly.call(panel, panel.$.importAllAnimator);
         },
     },
 };
@@ -1114,6 +1152,12 @@ exports.methods = {
         Elements.editor.update.call(panel);
         panel.dispatch('change');
         panel.dispatch('snapshot');
+    },
+    setProp(prop, type, event) {
+        setPropValue.call(this, prop, type, event);
+
+        this.dispatch('change');
+        this.dispatch('track', { tab: 'model', prop, value: event.target.value });
     },
 };
 
