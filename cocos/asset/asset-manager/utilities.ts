@@ -132,7 +132,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                 } else {
                     let errorInfo = `The asset ${depend.uuid} used by ${asset.uuid} is missing! \n`;
                     errorInfo += `  Node path: ${depend.owner.node.getPathInHierarchy()}\n`;
-                    errorInfo += `  PropName: ${depend.prop}\n`;
+                    errorInfo += `  PropName: ${depend.prop}`;
                     error(errorInfo);
                 }
                 cclegacy.assetManager.dispatchAssetMissing(asset, depend.owner, depend.prop, depend.uuid);
