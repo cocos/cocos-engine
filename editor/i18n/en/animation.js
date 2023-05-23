@@ -13,6 +13,13 @@ module.exports = {
     classes: {
         'cc': {
             'animation': {
+                'PoseGraphOutputNode': {
+                    displayName: 'Output Pose',
+                },
+                'PoseNodeUseStashedPose': {
+                    displayName: 'Use Stashed Pose',
+                    title: 'Use Stashed Pose {stashName}',
+                },
                 'PoseNodeStateMachine': {
                     displayName: 'State Machine',
                     inputs: {

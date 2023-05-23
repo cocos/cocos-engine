@@ -13,6 +13,13 @@ module.exports = {
     classes: {
         'cc': {
             'animation': {
+                'PoseGraphOutputNode': {
+                    displayName: '输出姿势',
+                },
+                'PoseNodeUseStashedPose': {
+                    displayName: '使用暂存的姿势',
+                    title: '使用暂存的姿势 {stashName}',
+                },
                 'PoseNodeStateMachine': {
                     displayName: '状态机',
                     inputs: {

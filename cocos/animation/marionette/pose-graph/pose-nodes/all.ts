@@ -1,3 +1,5 @@
+import './use-stashed-pose';
+
 import './state-machine';
 
 import './additively-blend';
