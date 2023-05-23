@@ -27,7 +27,7 @@ import { systemInfo } from 'pal/system-info';
 import { DEBUG } from 'internal:constants';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo } from '../../gfx';
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
-import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
+import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -948,7 +948,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
     private readonly _layoutGraph: LayoutGraphData;
 }
 
-export class WebRenderPassBuilder extends WebSetter implements RenderPassBuilder {
+export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBuilder {
     constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, resourceGraph: ResourceGraph, vertID: number, pass: RasterPass, pipeline: PipelineSceneData) {
         super(data, layoutGraph);
         this._renderGraph = renderGraph;
@@ -1053,16 +1053,13 @@ export class WebRenderPassBuilder extends WebSetter implements RenderPassBuilder
         const name = 'Raster';
         const subpassID = this._pass.subpassGraph.numVertices();
         this._pass.subpassGraph.addVertex(name, new Subpass());
-        const subpass = new RasterSubpass(subpassID);
+        const subpass = new RasterSubpass(subpassID, 1, 0);
         const data = new RenderData();
         const vertID = this._renderGraph.addVertex<RenderGraphValue.RasterSubpass>(
             RenderGraphValue.RasterSubpass, subpass, name, layoutName, data, false,
         );
         const result = new WebRenderSubpassBuilder(data, this._renderGraph, this._layoutGraph, vertID, subpass, this._pipeline);
         return result;
-    }
-    addComputeSubpass (layoutName = ''): ComputeSubpassBuilder {
-        throw new Error('Method not implemented.');
     }
     addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default') {
         if (DEBUG) {
@@ -1372,10 +1369,8 @@ export class WebPipeline implements BasicPipeline {
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
-    public addComputePass (layoutName: string): ComputePassBuilder {
-        throw new Error('Method not implemented.');
-    }
-    public addMovePass (movePairs: MovePair[]): void {
+    public addResolvePass (resolvePairs: ResolvePair[]): void {
+        // TODO: implement resolve pass
         throw new Error('Method not implemented.');
     }
     public addCopyPass (copyPairs: CopyPair[]) {
@@ -1765,8 +1760,7 @@ export class WebPipeline implements BasicPipeline {
         this.execute();
         this.endFrame();
     }
-
-    addRenderPass (width: number, height: number, layoutName = 'default'): RenderPassBuilder {
+    addRenderPassImpl (width: number, height: number, layoutName: string, count = 1, quality = 0): BasicRenderPassBuilder  {
         if (DEBUG) {
             const stageId = this.layoutGraph.locateChild(this.layoutGraph.nullVertex(), layoutName);
             assert(stageId !== 0xFFFFFFFF);
@@ -1778,6 +1772,8 @@ export class WebPipeline implements BasicPipeline {
         const pass = new RasterPass();
         pass.viewport.width = width;
         pass.viewport.height = height;
+        pass.count = count;
+        pass.quality = quality;
 
         const data = new RenderData();
         const vertID = this._renderGraph!.addVertex<RenderGraphValue.RasterPass>(
@@ -1787,6 +1783,13 @@ export class WebPipeline implements BasicPipeline {
         this._updateRasterPassConstants(result, width, height, isEnableEffect() ? layoutName : 'default');
         initGlobalDescBinding(data, layoutName);
         return result;
+    }
+    addRenderPass (width: number, height: number, layoutName = 'default'): BasicRenderPassBuilder {
+        return this.addRenderPassImpl(width, height, layoutName);
+    }
+    addMultisampleRenderPass (width: number, height: number, count: number, quality: number, layoutName = 'default'): BasicRenderPassBuilder {
+        assert(count > 1);
+        return this.addRenderPassImpl(width, height, layoutName, count, quality);
     }
     public getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout {
         const lg = this._layoutGraph;

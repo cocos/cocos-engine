@@ -23,14 +23,14 @@
 ****************************************************************************/
 import { DEBUG } from 'internal:constants';
 import { Buffer, Framebuffer, LoadOp, StoreOp, Texture, Viewport } from '../../gfx';
-import { assert, warn } from '../../core';
+import { assert } from '../../core';
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
 import { BasicPipeline } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor,
-    RenderQueue, RenderSwapchain, ResourceGraph, ResourceGraphObject, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
+    RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
 import { AccessType, RasterView, ComputeView, ResourceResidency, SceneFlags } from './types';
 
 let hashCode = 0;
@@ -278,6 +278,7 @@ class PassVisitor implements RenderGraphVisitor {
     rasterSubpass (value: RasterSubpass) {}
     computeSubpass (value: ComputeSubpass) {}
     compute (value: ComputePass) {}
+    resolve (value: ResolvePass) {}
     copy (value: CopyPass) {
         const rg = context.renderGraph;
         if (rg.getValid(this.passID)) {

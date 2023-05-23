@@ -1269,6 +1269,13 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         tryBindPerPassDescriptorSet(vertID);
     }
+    void begin(const ResolvePass& pass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
+        std::ignore = pass;
+        std::ignore = vertID;
+        for (const auto& copy : pass.resolvePairs) {
+            // TODO(zhenglong.zhou): resolve
+        }
+    }
     void begin(const CopyPass& pass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
         std::ignore = vertID;
@@ -1505,6 +1512,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 
         std::ignore = pass;
     }
+    void end(const ResolvePass& pass, RenderGraph::vertex_descriptor vertID) const {
+    }
     void end(const CopyPass& pass, RenderGraph::vertex_descriptor vertID) const {
     }
     void end(const MovePass& pass, RenderGraph::vertex_descriptor vertID) const {
@@ -1547,7 +1556,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     }
     void end(const gfx::Viewport& pass, RenderGraph::vertex_descriptor vertID) const {
     }
-    
+
     void mountResources(const Subpass& pass) const {
         auto& resg = ctx.resourceGraph;
         // mount managed resources
@@ -1592,7 +1601,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
     }
 
-
     void mountResources(const ComputeSubpass& pass) const {
         auto& resg = ctx.resourceGraph;
         PmrFlatSet<ResourceGraph::vertex_descriptor> mounted(ctx.scratch);
@@ -1610,6 +1618,19 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             auto resID = findVertex(name, resg);
             CC_EXPECTS(resID != ResourceGraph::null_vertex());
             resg.mount(ctx.device, resID);
+        }
+    }
+
+    void mountResources(const ResolvePass& pass) const {
+        auto& resg = ctx.resourceGraph;
+        PmrFlatSet<ResourceGraph::vertex_descriptor> mounted(ctx.scratch);
+        for (const auto& pair : pass.resolvePairs) {
+            const auto& srcID = findVertex(pair.source, resg);
+            CC_EXPECTS(srcID != ResourceGraph::null_vertex());
+            resg.mount(ctx.device, srcID);
+            const auto& dstID = findVertex(pair.target, resg);
+            CC_EXPECTS(dstID != ResourceGraph::null_vertex());
+            resg.mount(ctx.device, dstID);
         }
     }
 
@@ -1720,6 +1741,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 frontBarriers(vertID);
                 begin(pass, vertID);
             },
+            [&](const ResolvePass& pass) {
+                mountResources(pass);
+                frontBarriers(vertID);
+                begin(pass, vertID);
+            },
             [&](const CopyPass& pass) {
                 mountResources(pass);
                 frontBarriers(vertID);
@@ -1757,6 +1783,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 end(subpass, vertID);
             },
             [&](const ComputePass& pass) {
+                end(pass, vertID);
+                rearBarriers(vertID);
+            },
+            [&](const ResolvePass& pass) {
                 end(pass, vertID);
                 rearBarriers(vertID);
             },
@@ -2255,7 +2285,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             CustomRenderGraphContext{
                 custom.currentContext,
                 &rg,
-                submit.primaryCommandBuffer
+                submit.primaryCommandBuffer,
             },
             scratch};
 
