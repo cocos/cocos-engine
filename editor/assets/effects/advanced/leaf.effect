@@ -25,7 +25,8 @@ CCEffect %{
         emissiveMap:                      { value: grey }
         thicknessMap:                     { value: white, editor: { parent: USE_THICKNESS_MAP }  }
         scatterColorMap:                  { value: white, editor: { parent: USE_SCATTER_MAP }  }
-        extinction:                       { value: 0.0, target: scatterParams.y, editor: { displayName: Scatter Extinction, slide: true, range: [0, 10.0], step: 0.001 } }
+        extinction:                       { value: 0.0, target: scatterParams.y, editor: { displayName: Scatter Extinction, slide: true, range: [0, 3.0], step: 0.001 } }
+        thickness:                        { value: 1.0, target: scatterParams.z, editor: { displayName: Thickness Scaling, slide: true, range: [0, 3.0], step: 0.001 } }
         scatterColor:                     { value: [0.1, 0.5, 0.1, 1.0], linear: true, editor: { displayName: Scatter Color, type: color, tooltip: 'The color of scattered lighting' } }
       rasterizerState:
         cullMode: None
@@ -179,7 +180,7 @@ CCProgram surface-fragment %{
       distance = pow(distance, 10.0) * 1.0;
     #endif
 
-    return vec4(scatterParams.y, 0.0, 1.0, distance);
+    return vec4(scatterParams.y, 0.0, 1.0, distance * scatterParams.z);
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_IN_SCATTERING_COLOR
@@ -192,7 +193,7 @@ CCProgram surface-fragment %{
   vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
   {
     vec3 col = scatterColor.rgb;
-    #if USE_THICKNESS_MAP
+    #if USE_SCATTER_MAP
       col *= texture(scatterColorMap, FSInput_texcoord).rgb;
     #elif USE_ALBEDO_MAP
       col *= texture(albedoMap, FSInput_texcoord).rgb;
