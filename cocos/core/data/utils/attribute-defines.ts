@@ -147,6 +147,11 @@ export interface IExposedAttributes {
      * @zh 用户自定义数据，可以通过 `CCClass.attr()` 接口获取自定义数据。
      */
     userData?: Record<string, any>;
+
+    /**
+     * 在允许的情况下，在编辑器中显示为一组单选按钮
+     */
+    radioGroup?: boolean;
 }
 
 export interface IAcceptableAttributes extends IExposedAttributes {

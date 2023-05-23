@@ -331,6 +331,14 @@ export const disallowAnimation: LegacyPropertyDecorator = !DEV
         propertyStash.animatable = false;
     };
 
+/**
+ *
+ * @engineInternal
+ */
+export const radioGroup: (val: NonNullable<PropertyStash['radioGroup']>) => LegacyPropertyDecorator = !DEV
+    ? emptyDecorator
+    : setPropertyStashVar1WithImplicitVisible('radioGroup');
+
 function setPropertyStashWithImplicitVisible<TKey extends keyof PropertyStash> (
     key: TKey,
     value: NonNullable<PropertyStash[TKey]>,
