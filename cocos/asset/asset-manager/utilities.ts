@@ -130,7 +130,10 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                     }
                     missingAssetReporter.stashByOwner(depend.owner, depend.prop, EditorExtends.serialize.asAsset(depend.uuid));
                 } else {
-                    error(`The asset ${depend.uuid} is missing!`);
+                    let errorInfo = `The asset ${depend.uuid} used by ${asset.uuid} is missing! \n`;
+                    errorInfo += `  Node path: ${depend.owner.node.getPathInHierarchy()}\n`;
+                    errorInfo += `  PropName: ${depend.prop}`;
+                    error(errorInfo);
                 }
                 cclegacy.assetManager.dispatchAssetMissing(asset, depend.owner, depend.prop, depend.uuid);
                 if (depend.type && depend.type !== Asset) {
