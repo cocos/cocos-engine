@@ -28,7 +28,7 @@ import { LightInfo, QueueHint, SceneFlags } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
-import { BasePass } from './base-pass';
+import { BasePass, GetRTFormatBeforeToneMapping } from './base-pass';
 import { ShadowPass } from './shadow-pass';
 
 export class ForwardTransparencyPass extends BasePass {
@@ -36,6 +36,10 @@ export class ForwardTransparencyPass extends BasePass {
 
     enableInAllEditorCamera = true;
     depthBufferShadingScale = 1;
+    enable = true;
+    checkEnable (camera: Camera) {
+        return true;
+    }
 
     slotName (camera: Camera, index = 0) {
         return this.lastPass!.slotName(camera, index);
@@ -52,7 +56,7 @@ export class ForwardTransparencyPass extends BasePass {
         passContext
             .updatePassViewPort()
             .addRenderPass('default', `${this.name}_${cameraID}`)
-            .addRasterView(output, Format.RGBA16F, isOffScreen)
+            .addRasterView(output, GetRTFormatBeforeToneMapping(ppl), isOffScreen)
             .addRasterView(outputDS, Format.DEPTH_STENCIL, isOffScreen)
             .version();
 
