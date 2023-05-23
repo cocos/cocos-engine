@@ -31,7 +31,8 @@ import { ClearFlagBit, Format } from '../../../gfx';
 import { MeshRenderer } from '../../../3d';
 import { ShadowPass } from './shadow-pass';
 
-import { ForceEnableFloatOutput, GetRTFormatBeforeToneMapping, getSetting, SettingPass } from './setting-pass';
+import { SettingPass } from './setting-pass';
+import { ForceEnableFloatOutput, GetRTFormatBeforeToneMapping } from './base-pass';
 
 export const COPY_INPUT_DS_PASS_INDEX = 0;
 export const SSSS_BLUR_X_PASS_INDEX = 1;
