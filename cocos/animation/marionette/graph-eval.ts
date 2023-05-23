@@ -86,6 +86,7 @@ export class AnimationGraphEval {
             root, poseLayoutMaintainer, this._varInstances, controller,
             customEventEmitter,
         );
+        bindingContext._setClipOverrides(clipOverrides ?? undefined);
         this._bindingContext = bindingContext;
 
         const settleContext = new AnimationGraphSettleContext(poseLayoutMaintainer);

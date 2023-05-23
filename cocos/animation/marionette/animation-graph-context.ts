@@ -16,6 +16,7 @@ import { TransformSpace } from './pose-graph/pose-nodes/transform-space';
 import { PoseStashAllocator, RuntimeStashView } from './pose-graph/stash/runtime-stash';
 import { PoseHeapAllocator } from '../core/pose-heap-allocator';
 import { RuntimeMotionSyncManager } from './pose-graph/motion-sync/runtime-motion-sync';
+import { ReadonlyClipOverrideMap } from './clip-overriding';
 
 /**
  * This module contains stuffs related to animation graph's evaluation.
@@ -102,6 +103,10 @@ export class AnimationGraphBindingContext {
      */
     get triggerResetter () {
         return this._triggerResetter;
+    }
+
+    get clipOverrides () {
+        return this._clipOverrides;
     }
 
     /**
@@ -211,6 +216,13 @@ export class AnimationGraphBindingContext {
         this._motionSyncManager = undefined;
     }
 
+    /**
+     * @internal
+     */
+    public _setClipOverrides (clipOverrides: ReadonlyClipOverrideMap | undefined) {
+        this._clipOverrides = clipOverrides;
+    }
+
     private _origin: Node;
 
     private _layoutMaintainer: AnimationGraphPoseLayoutMaintainer;
@@ -225,6 +237,8 @@ export class AnimationGraphBindingContext {
     private _isLayerWideContextPropertiesSet = false;
     private _stashView: RuntimeStashView | undefined;
     private _motionSyncManager: RuntimeMotionSyncManager | undefined;
+    private _clipOverrides: ReadonlyClipOverrideMap | undefined = undefined;
+
     private _resetTrigger (triggerName: string) {
         const varInstance = this._varRegistry[triggerName];
         if (!varInstance) {
