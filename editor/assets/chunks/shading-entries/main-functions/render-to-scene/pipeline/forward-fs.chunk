@@ -65,9 +65,7 @@ void main()  {
 
   // Lighting
   LightingResult lightingResult;
-  #if !CC_SURFACES_LIGHTING_IGNORED
-    CCSurfacesLighting(lightingResult, surfaceData, shadowBias);
-  #endif
+  CCSurfacesLighting(lightingResult, surfaceData, shadowBias);
 
 
   // Debug view

@@ -92,9 +92,6 @@
   #define CC_SURFACES_LIGHTING_2ND_LAYER_SPECULAR 0
 #endif
 
-#ifndef CC_SURFACES_LIGHTING_IGNORED
-  #define CC_SURFACES_LIGHTING_IGNORED 0
-#endif
 
 // render-to-color-map can disable functionality to avoid error data map
 #ifndef CC_SURFACES_ENABLE_DEBUG_VIEW

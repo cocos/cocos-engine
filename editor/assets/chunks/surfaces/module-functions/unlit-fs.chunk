@@ -91,3 +91,5 @@ bool CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData su
     return enableMaterialAlpha;
 }
 #endif
+
+#include <lighting-models/lighting-flow/unlit-flow>
