@@ -8,4 +8,10 @@ import './filtering-blend';
 
 import './choose-pose/index';
 
+import './apply-transform';
+import './copy-transform';
+import './set-auxiliary-curve';
+
+import './ik/two-bone-ik-solver';
+
 export {};

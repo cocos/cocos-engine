@@ -14,29 +14,29 @@ import { Transform } from '../../../core/transform';
 @poseGraphNodeHide()
 export abstract class PoseNodeModifyPoseBase extends PoseNode {
     @serializable
-    @input({ type: PoseGraphType.POSE, displayName: '输入姿势' })
-    public input: PoseNode | null = null;
+    @input({ type: PoseGraphType.POSE })
+    public pose: PoseNode | null = null;
 
     public settle (context: AnimationGraphSettleContext) {
-        this.input?.settle(context);
+        this.pose?.settle(context);
         this._spaceFlagTable = new PoseTransformSpaceFlagTable(context.transformCount);
     }
 
     public reenter () {
-        this.input?.reenter();
+        this.pose?.reenter();
     }
 
     public bind (context: AnimationGraphBindingContext): void {
-        this.input?.bind(context);
+        this.pose?.bind(context);
     }
 
     protected doUpdate (context: AnimationGraphUpdateContext) {
-        this.input?.update(context);
+        this.pose?.update(context);
     }
 
     protected doEvaluate (context: AnimationGraphEvaluationContext): Pose {
         const poseTransformSpaceRequirement = this.getPoseTransformSpaceRequirement();
-        const inputPose = this.input?.evaluate(context, poseTransformSpaceRequirement)
+        const inputPose = this.pose?.evaluate(context, poseTransformSpaceRequirement)
             ?? PoseNode.evaluateDefaultPose(context, poseTransformSpaceRequirement);
 
         const { _modificationQueue: modificationQueue } = this;
