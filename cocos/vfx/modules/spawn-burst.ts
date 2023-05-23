@@ -41,7 +41,16 @@ export class SpawnBurstModule extends VFXModule {
     @type(FloatExpression)
     @serializable
     @rangeMin(0)
-    public count: FloatExpression = new ConstantFloatExpression(0);
+    public get count () {
+        if (!this._count) {
+            this._count = new ConstantFloatExpression(1);
+        }
+        return this._count;
+    }
+
+    public set count (val) {
+        this._count = val;
+    }
 
     /**
      * @zh 粒子系统开始运行到触发此次 Burst 的时间。
@@ -49,6 +58,9 @@ export class SpawnBurstModule extends VFXModule {
     @type(FloatExpression)
     @editable
     public get time () {
+        if (!this._time) {
+            this._time = new ConstantFloatExpression(0);
+        }
         return this._time;
     }
 
@@ -57,22 +69,17 @@ export class SpawnBurstModule extends VFXModule {
     }
 
     @serializable
-    private _time: FloatExpression = new ConstantFloatExpression(0);
+    private _time: FloatExpression | null = null;
+    private _count: FloatExpression | null = null;
+
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext): void {
+        this.count.tick(particles, emitter, user, context);
+        this.time.tick(particles, emitter, user, context);
+    }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const { prevLoopAge, loopAge, normalizedLoopAge } = emitter;
-        let prevT = prevLoopAge;
-        // handle loop.
-        if (prevT > loopAge) {
-            const seed = this.randomStream.seed;
-            this._accumulateBurst(prevT, emitter.currentDuration, 1, context);
-            prevT = 0;
-            this.randomStream.seed = seed;
-        }
-        this._accumulateBurst(prevT, loopAge, normalizedLoopAge, context);
-    }
 
-    private _accumulateBurst (prevT: number, currT: number, normalizeT: number, context: ModuleExecContext) {
         if ((prevT <= this.time && currT > this.time) || (prevT > this.time && this.repeatCount > 1)) {
             const preEmitTime = Math.max(Math.floor((prevT - this.time) / this.repeatInterval), 0);
             if (preEmitTime < this.repeatCount) {

@@ -39,7 +39,6 @@ export class ScaleRibbonWidthModule extends VFXModule {
       * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
       */
     @type(FloatExpression)
-
     public get scalar () {
         if (!this._scalar) {
             this._scalar = new ConstantFloatExpression(1);

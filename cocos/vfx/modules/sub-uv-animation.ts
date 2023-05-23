@@ -159,7 +159,6 @@ export class SubUVAnimationModule extends VFXModule {
     @type(FloatExpression)
     @serializable
     @range([0, 1])
-    @tooltip('i18n:textureAnimationModule.frameOverTime')
     @visible(function (this: SubUVAnimationModule) { return this._timeMode === TimeMode.LIFETIME; })
     public frameOverTime = new FloatExpression(1, createRealCurve([
         [0.0, 0.0],
@@ -194,7 +193,7 @@ export class SubUVAnimationModule extends VFXModule {
     @serializable
     private _fps = 30;
 
-    public tick (particles: ParticleDataSet, params: VFXEmitterParams, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         if (DEBUG) {
             assertIsTrue(this.startFrame.mode === FloatExpression.Mode.CONSTANT || this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS,
                 'The mode of startFrame in texture-animation module can not be Curve and TwoCurve!');

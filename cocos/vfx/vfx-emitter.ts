@@ -33,7 +33,7 @@ import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMod
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component } from '../scene-graph';
-import { ParticleDataSet, POSITION, IS_DEAD, VELOCITY, BASE_VELOCITY, SCALE, BASE_SCALE, COLOR, BASE_COLOR, SPRITE_SIZE, BASE_SPRITE_SIZE, INV_START_LIFETIME, NORMALIZED_AGE, RANDOM_SEED, ID, MESH_ORIENTATION } from './particle-data-set';
+import { ParticleDataSet } from './particle-data-set';
 import { VFXModuleStage, ModuleExecStage } from './vfx-module';
 import { vfxManager } from './vfx-manager';
 import { EventHandler } from './event-handler';
@@ -41,6 +41,7 @@ import { ParticleRenderer } from './particle-renderer';
 import { EmitterDataSet } from './emitter-data-set';
 import { UserDataSet } from './user-data-set';
 import { VFXEventInfo } from './vfx-events';
+import { BASE_COLOR, BASE_SCALE, BASE_SPRITE_SIZE, BASE_VELOCITY, COLOR, ID, INV_START_LIFETIME, IS_DEAD, MESH_ORIENTATION, NORMALIZED_AGE, POSITION, RANDOM_SEED, SCALE, SPRITE_SIZE, VELOCITY } from './builtin-parameters';
 
 const startPositionOffset = new Vec3();
 const tempPosition = new Vec3();

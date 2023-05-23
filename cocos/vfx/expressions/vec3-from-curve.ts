@@ -25,7 +25,7 @@
 import { RealCurve, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { ModuleExecContext } from '../base';
-import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
+import { ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStage } from '../vfx-module';
 import { ConstantVec3Expression } from './constant-vec3';
 import { Vec3Expression } from './vec3';
