@@ -964,6 +964,9 @@ void overwriteShaderProgramBinding(
 
     overwriteShaderSourceBinding(shaderInfo, src->vert, scratch);
     overwriteShaderSourceBinding(shaderInfo, src->frag, scratch);
+    if (src->compute) {
+        overwriteShaderSourceBinding(shaderInfo, src->compute.value(), scratch);
+    }
 }
 
 // overwrite IProgramInfo using gfx.ShaderInfo

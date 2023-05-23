@@ -491,6 +491,16 @@ void NativeRenderPassBuilder::setShowStatistics(bool enable) {
 
 namespace {
 
+uint32_t getSlotID(RasterPass &pass, std::string_view name, AttachmentType type) {
+    if (type == AttachmentType::DEPTH_STENCIL) {
+        return 0xFF;
+    }
+
+    const auto newID = static_cast<uint32_t>(pass.attachmentIndexMap.size());
+    auto iter = pass.attachmentIndexMap.find(name);
+    return iter != pass.attachmentIndexMap.end() ? iter->second : pass.attachmentIndexMap.emplace(name, newID).first->second;
+}
+
 template <class Tag>
 void addRasterViewImpl(
     std::string_view name,
@@ -506,13 +516,13 @@ void addRasterViewImpl(
     RenderGraph &renderGraph) {
     CC_EXPECTS(!name.empty());
     auto &subpass = get(Tag{}, subpassID, renderGraph);
-    const auto slotID = static_cast<uint32_t>(subpass.rasterViews.size());
     const auto passID = parent(subpassID, renderGraph);
     CC_EXPECTS(passID != RenderGraph::null_vertex());
     CC_EXPECTS(holds<RasterPassTag>(passID, renderGraph));
     auto &pass = get(RasterPassTag{}, passID, renderGraph);
     CC_EXPECTS(subpass.subpassID < num_vertices(pass.subpassGraph));
     auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
+    const auto slotID = getSlotID(pass, name, attachmentType);
     CC_EXPECTS(subpass.rasterViews.size() == subpassData.rasterViews.size());
     {
         auto res = subpassData.rasterViews.emplace(

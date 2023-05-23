@@ -1065,7 +1065,11 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             resourceIndex.reserve(subpass.rasterViews.size() * 2);
             for (const auto& [resName, rasterView] : subpass.rasterViews) {
                 const auto resID = vertex(resName, ctx.resourceGraph);
-                auto iter = ctx.lg.attributeIndex.find(rasterView.slotName);
+                auto slotName = rasterView.slotName;
+                if (rasterView.accessType == AccessType::READ || rasterView.accessType == AccessType::READ_WRITE) {
+                    slotName = ccstd::pmr::string("__in") + slotName;
+                }
+                auto iter = ctx.lg.attributeIndex.find(slotName);
                 if (iter != ctx.lg.attributeIndex.end()) {
                     resourceIndex.emplace(iter->second, resID);
                 }

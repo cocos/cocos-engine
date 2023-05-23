@@ -272,13 +272,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     };
     findPreferredDepthFormat(depthStencilFormatPriorityList, 3, &_gpuDevice->depthStencilFormat);
 
-    _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
-    _features[toNumber(Feature::INSTANCED_ARRAYS)] = true;
-    _features[toNumber(Feature::MULTIPLE_RENDER_TARGETS)] = true;
-    _features[toNumber(Feature::BLEND_MINMAX)] = true;
-    _features[toNumber(Feature::COMPUTE_SHADER)] = true;
-    _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = true;
-
+    initDeviceFeature();
     initFormatFeature();
 
     ccstd::string compressedFmts;
@@ -320,6 +314,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _caps.maxShaderStorageBufferBindings = limits.maxDescriptorSetStorageBuffers;
     _caps.maxTextureUnits = limits.maxDescriptorSetSampledImages;
     _caps.maxVertexTextureUnits = limits.maxPerStageDescriptorSampledImages;
+    _caps.maxColorRenderTargets = limits.maxColorAttachments;
     _caps.maxTextureSize = limits.maxImageDimension2D;
     _caps.maxCubeMapTextureSize = limits.maxImageDimensionCube;
     _caps.maxArrayTextureLayers = limits.maxImageArrayLayers;
@@ -762,6 +757,18 @@ void CCVKDevice::updateBackBufferCount(uint32_t backBufferCount) {
     _gpuDevice->backBufferCount = backBufferCount;
 }
 
+void CCVKDevice::initDeviceFeature() {
+    _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
+    _features[toNumber(Feature::INSTANCED_ARRAYS)] = true;
+    _features[toNumber(Feature::MULTIPLE_RENDER_TARGETS)] = true;
+    _features[toNumber(Feature::BLEND_MINMAX)] = true;
+    _features[toNumber(Feature::COMPUTE_SHADER)] = true;
+    _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = true;
+    _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = true;
+    _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
+    _features[toNumber(Feature::RASTERIZATION_ORDER_COHERENT)] = _gpuContext->checkExtension("VK_EXT_rasterization_order_attachment_access");
+}
+
 void CCVKDevice::initFormatFeature() {
     const auto formatLen = static_cast<size_t>(Format::COUNT);
     VkFormatProperties properties = {};
@@ -940,7 +947,7 @@ void CCVKDevice::getQueryPoolResults(QueryPool *queryPool) {
     uint32_t width = bWait ? 1U : 2U;
     uint64_t stride = sizeof(uint64_t) * width;
     VkQueryResultFlagBits flag = bWait ? VK_QUERY_RESULT_WAIT_BIT : VK_QUERY_RESULT_WITH_AVAILABILITY_BIT;
-    ccstd::vector<uint64_t> results(queryCount * width, 0ULL);
+    ccstd::vector<uint64_t> results(queryCount * width, 0);
 
     if (queryCount > 0U) {
         VkResult result = vkGetQueryPoolResults(
