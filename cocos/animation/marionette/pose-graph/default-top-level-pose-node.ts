@@ -7,6 +7,7 @@ import { AnimationMask } from '../animation-mask';
 import { ReadonlyClipOverrideMap } from '../clip-overriding';
 import { TopLevelStateMachineEvaluation } from '../state-machine/state-machine-eval';
 import { PoseNode } from './pose-node';
+import { RuntimeMotionSyncManager } from './motion-sync/runtime-motion-sync';
 import { PoseStashAllocator, RuntimeStashManager } from './stash/runtime-stash';
 
 export class DefaultTopLevelPoseNode extends PoseNode {
@@ -83,7 +84,7 @@ export class DefaultTopLevelPoseNode extends PoseNode {
         const { _layerRecords: layerRecords } = this;
         const nLayers = layerRecords.length;
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
-            layerRecords[iLayer].stateMachineEvaluation.update(context);
+            layerRecords[iLayer].update(context);
         }
     }
 
@@ -124,8 +125,12 @@ class LayerEvaluationRecord {
         }
         this._stashManager = stashManager;
 
+        const motionSyncManager = new RuntimeMotionSyncManager();
+        this._motionSyncManager = motionSyncManager;
+
         bindingContext._setLayerWideContextProperties(
             stashManager,
+            motionSyncManager,
         );
 
         for (const [stashId, stash] of layer.stashes()) {
@@ -165,6 +170,8 @@ class LayerEvaluationRecord {
 
     public update (context: AnimationGraphUpdateContext) {
         this.stateMachineEvaluation.update(context);
+
+        this._motionSyncManager.sync();
     }
 
     public postEvaluate () {
@@ -179,6 +186,9 @@ class LayerEvaluationRecord {
     private _topLevelStateMachineEval: TopLevelStateMachineEvaluation;
 
     private _stashManager: RuntimeStashManager;
+
+    private _motionSyncManager: RuntimeMotionSyncManager;
+
     private _mask: AnimationMask | undefined = undefined;
 
     public transformFilter: TransformFilter | undefined = undefined;

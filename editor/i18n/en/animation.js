@@ -8,6 +8,11 @@ module.exports = {
             pose_nodes_blend: 'Blend',
             pose_nodes_ik: 'Inverse Kinematic',
         },
+        pose_graph_node_sub_menus: {
+            play_or_sample_clip_motion: 'Animation Clip',
+            play_or_sample_animation_blend_1d: 'Animation Blend 1D',
+            play_or_sample_animation_blend_2d: 'Animation Blend 2D',
+        },
     },
 
     classes: {
@@ -19,6 +24,64 @@ module.exports = {
                         'emptyStatePose': {
                             displayName: 'Empty State Pose',
                         },
+                    },
+                },
+                'ClipMotion': {
+                    properties: {
+                        'clip': {
+                            displayName: 'Clip',
+                            tooltip: 'The animation clip.',
+                        },
+                    },
+                },
+                'MotionSyncInfo': {
+                    properties: {
+                        'group': {
+                            displayName: 'Group',
+                        },
+                    },
+                },
+                'PoseNodePlayMotion': {
+                    displayName: 'Play Animation',
+                    title: 'Play {motionName}',
+                    properties: {
+                        'motion': {
+                            displayName: 'Motion',
+                            tooltip: 'The motion to play.',
+                        },
+                        'syncInfo': {
+                            displayName: 'Sync',
+                        },
+                    },
+                    inputs: {
+                        'speedMultiplier': {
+                            displayName: 'Speed Multiplier',
+                        },
+                    },
+                    createPoseNodeOnAssetDragHandler: {
+                        displayName: 'Play',
+                    },
+                },
+                'PoseNodeSampleMotion': {
+                    displayName: 'Sample Animation',
+                    title: 'Sample {motionName}',
+                    properties: {
+                        'motion': {
+                            displayName: 'Motion',
+                            tooltip: 'The motion to sample.',
+                        },
+                        'useNormalizedTime': {
+                            displayName: 'Use Normalized Time',
+                            tooltip: 'Whether to use normalized time, ie. time in range [0, 1].',
+                        },
+                    },
+                    inputs: {
+                        'time': {
+                            displayName: 'Time',
+                        },
+                    },
+                    createPoseNodeOnAssetDragHandler: {
+                        displayName: 'Sample',
                     },
                 },
                 'PoseNodeBlendInProportion': {

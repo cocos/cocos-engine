@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { editorExtrasTag, _decorator, EditorExtendable } from '../../../core';
+import { editorExtrasTag, _decorator, EditorExtendable, editable, serializable } from '../../../core';
 import { additiveSettingsTag, AnimationClip } from '../../animation-clip';
 import { cloneAnimationGraphEditorExtrasFrom } from '../animation-graph-editor-extras-clone-helper';
 import { createEval } from '../create-eval';
@@ -42,6 +42,8 @@ const { ccclass, type } = _decorator;
 @ccclass('cc.animation.ClipMotion')
 export class ClipMotion extends Motion {
     @type(AnimationClip)
+    @editable
+    @serializable
     public clip: AnimationClip | null = null;
 
     public [createEval] (context: AnimationGraphBindingContext, overrides: ReadonlyClipOverrideMap | null) {

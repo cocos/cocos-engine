@@ -15,6 +15,7 @@ import { AnimationGraphCustomEventEmitter } from './event/custom-event-emitter';
 import { TransformSpace } from './pose-graph/pose-nodes/transform-space';
 import { PoseStashAllocator, RuntimeStashView } from './pose-graph/stash/runtime-stash';
 import { PoseHeapAllocator } from '../core/pose-heap-allocator';
+import { RuntimeMotionSyncManager } from './pose-graph/motion-sync/runtime-motion-sync';
 
 /**
  * This module contains stuffs related to animation graph's evaluation.
@@ -182,15 +183,22 @@ export class AnimationGraphBindingContext {
         return this._stashView;
     }
 
+    public get motionSyncManager (): RuntimeMotionSyncManager {
+        assertIsTrue(this._motionSyncManager);
+        return this._motionSyncManager;
+    }
+
     /**
      * @internal
      */
     public _setLayerWideContextProperties (
         stashView: RuntimeStashView,
+        motionSyncManager: RuntimeMotionSyncManager,
     ) {
         assertIsTrue(!this._isLayerWideContextPropertiesSet);
         this._isLayerWideContextPropertiesSet = true;
         this._stashView = stashView;
+        this._motionSyncManager = motionSyncManager;
     }
 
     /**
@@ -200,6 +208,7 @@ export class AnimationGraphBindingContext {
         assertIsTrue(this._isLayerWideContextPropertiesSet);
         this._isLayerWideContextPropertiesSet = false;
         this._stashView = undefined;
+        this._motionSyncManager = undefined;
     }
 
     private _origin: Node;
@@ -215,6 +224,7 @@ export class AnimationGraphBindingContext {
 
     private _isLayerWideContextPropertiesSet = false;
     private _stashView: RuntimeStashView | undefined;
+    private _motionSyncManager: RuntimeMotionSyncManager | undefined;
     private _resetTrigger (triggerName: string) {
         const varInstance = this._varRegistry[triggerName];
         if (!varInstance) {

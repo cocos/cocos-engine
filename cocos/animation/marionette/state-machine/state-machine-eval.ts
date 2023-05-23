@@ -1440,6 +1440,10 @@ class PoseStateEval extends EventifiedStateEval {
         return this._statusCache;
     }
 
+    public countMotionTime () {
+        return this._instantiatedPoseGraph?.countMotionTime() ?? 0.0;
+    }
+
     private _instantiatedPoseGraph: InstantiatedPoseGraph;
 
     private readonly _statusCache: MotionStateStatus = createStateStatusCache();

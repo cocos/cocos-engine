@@ -1,5 +1,6 @@
 // cSpell:words Evaluatable
 
+import { DEBUG } from 'internal:constants';
 import { assertIsTrue, warn } from '../../../core';
 import { instantiate } from '../../../serialization';
 import { PoseNode, PoseTransformSpaceRequirement } from './pose-node';
@@ -7,6 +8,7 @@ import { PoseGraph } from './pose-graph';
 import { PureValueNode, PureValueNodeLinkContext } from './pure-value-node';
 import { NodeInputPath } from './foundation/node-shell';
 import { PoseGraphNode } from './foundation/pose-graph-node';
+import { PoseNodePlayMotion } from './pose-nodes/play-motion';
 import {
     AnimationGraphBindingContext, AnimationGraphSettleContext,
     AnimationGraphUpdateContext, AnimationGraphEvaluationContext,
@@ -21,6 +23,7 @@ function isEvaluatableNode (node: PoseGraphNode): node is EvaluatableNode {
 class InstantiatedPoseGraph {
     constructor (
         private _rootPoseNode: PoseNode | undefined,
+        private _countingPlayMotionNodes: readonly PoseNodePlayMotion[] | undefined,
     ) {
 
     }
@@ -44,6 +47,33 @@ class InstantiatedPoseGraph {
     public evaluate (context: AnimationGraphEvaluationContext) {
         return this._rootPoseNode?.evaluate(context, PoseTransformSpaceRequirement.LOCAL) ?? null;
     }
+
+    public countMotionTime () {
+        const { _countingPlayMotionNodes: playMotionNodes } = this;
+        if (!playMotionNodes) {
+            if (DEBUG) {
+                assertIsTrue(
+                    false,
+                    `Should not call countMotionTime() on this pose graph `
+                    + `since "mayCountMotionTime" was not passed to instantiatePoseGraph()`,
+                );
+            }
+            return 0.0;
+        }
+        let maxWeightedTime = 0.0;
+        let maxWeight = Number.NEGATIVE_INFINITY;
+        for (let iPlayMotionNode = 0; iPlayMotionNode < playMotionNodes.length; ++iPlayMotionNode) {
+            const {
+                elapsedMotionTime,
+                lastIndicativeWeight,
+            } = playMotionNodes[iPlayMotionNode];
+            if (lastIndicativeWeight > maxWeight) {
+                maxWeight = lastIndicativeWeight;
+                maxWeightedTime = elapsedMotionTime;
+            }
+        }
+        return maxWeightedTime;
+    }
 }
 
 export type { InstantiatedPoseGraph };
@@ -51,6 +81,7 @@ export type { InstantiatedPoseGraph };
 export function instantiatePoseGraph (
     graph: PoseGraph,
     linkContext: PureValueNodeLinkContext,
+    mayCountMotionTime = false,
 ): InstantiatedPoseGraph {
     const {
         outputNode,
@@ -64,6 +95,7 @@ export function instantiatePoseGraph (
     if (bindings.length === 0) {
         return new InstantiatedPoseGraph(
             undefined,
+            mayCountMotionTime ? [] : undefined,
         );
     }
     // If the output node has a binding, it must be pose node.
@@ -82,6 +114,9 @@ export function instantiatePoseGraph (
 
     return new InstantiatedPoseGraph(
         mainRecord,
+        mayCountMotionTime
+            ? [...instantiationMap.values()].filter((node): node is PoseNodePlayMotion => node instanceof PoseNodePlayMotion)
+            : undefined,
     );
 }
 

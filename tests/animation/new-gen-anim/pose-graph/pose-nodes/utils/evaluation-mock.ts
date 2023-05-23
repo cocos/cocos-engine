@@ -17,6 +17,7 @@ import { BindContext } from '../../../../../../cocos/animation/marionette/parame
 import { PoseGraph } from '../../../../../../cocos/animation/marionette/pose-graph/pose-graph';
 import { PoseNode, PoseTransformSpaceRequirement } from '../../../../../../cocos/animation/marionette/pose-graph/pose-node';
 import { RuntimeStashManager } from '../../../../../../cocos/animation/marionette/pose-graph/stash/runtime-stash';
+import { RuntimeMotionSyncManager } from '../../../../../../cocos/animation/marionette/pose-graph/motion-sync/runtime-motion-sync';
 import { VarInstance } from '../../../../../../cocos/animation/marionette/variable';
 import { Node } from '../../../../../../cocos/scene-graph';
 import { assertIsTrue, Vec3 } from '../../../../../../exports/base';
@@ -116,6 +117,7 @@ export class PoseNodeEvaluationMock<TAnimationResult> {
         const stashManager = new RuntimeStashManager(poseAllocator);
         bindContext._setLayerWideContextProperties(
             stashManager,
+            new RuntimeMotionSyncManager(),
         );
 
         this._resultObserver = resultFactory.create(origin, bindContext);
