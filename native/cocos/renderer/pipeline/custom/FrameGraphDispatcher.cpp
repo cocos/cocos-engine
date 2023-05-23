@@ -2231,8 +2231,8 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
 
     resourceAccessGraph.passIndex[passID] = parentRagVert;
 
-    static const uint32_t accessTypeWeight[] = {0, 1, 2};
-    static const uint32_t attachmentTypeWeight[] = {0, 2, 1};
+    static const uint32_t ACCESS_TYPE_WEIGHT[] = {0, 1, 2};
+    static const uint32_t ATTACHMENT_TYPE_WEIGHT[] = {0, 2, 1};
 
     struct SubpassRasterViewSortKey {
         uint32_t accessType;
@@ -2251,7 +2251,7 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
         auto resIter = rag.resourceIndex.find(name);
         gfx::AccessFlags prevAccess = resIter == rag.resourceIndex.end() ? gfx::AccessFlags::NONE : rag.accessRecord.at(resIter->second).currStatus.accessFlag;
         viewIndex.emplace_back(SubpassRasterViewData {
-            {accessTypeWeight[static_cast<uint32_t>(view.accessType)], attachmentTypeWeight[static_cast<uint32_t>(view.attachmentType)], view.slotName}, name, prevAccess
+            {ACCESS_TYPE_WEIGHT[static_cast<uint32_t>(view.accessType)], ATTACHMENT_TYPE_WEIGHT[static_cast<uint32_t>(view.attachmentType)], view.slotName}, name, prevAccess
         });
     }
 
@@ -2286,7 +2286,7 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
 
     uint32_t localSlot = 0;
     for (const auto &[sortKey, name, access] : viewIndex) {
-        const auto resName = name.data();
+        const auto *const resName = name.data();
         auto findByResID = [&](const AccessStatus &status) {
             return status.vertID == rag.resourceIndex.at(resName);
         };
