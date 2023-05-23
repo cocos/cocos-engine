@@ -59,13 +59,13 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
     setMotorEnabled (v: boolean): void {
         this._impl.setRevoluteJointFlag(PX.RevoluteJointFlags.eDRIVE_ENABLED, v);
         if (v) {
-            this._impl.setDriveVelocity(this.constraint.motorVelocity / 60.0);
+            this._impl.setDriveVelocity(this.constraint.motorVelocity / 60.0, true);
             this._impl.setDriveForceLimit(this.constraint.motorForceLimit);
         }
     }
     setMotorVelocity (v: number): void {
         if (this.constraint.motorEnabled) {
-            this._impl.setDriveVelocity(v / 60.0);
+            this._impl.setDriveVelocity(v / 60.0, true);
         }
     }
     setMotorForceLimit (v: number): void {

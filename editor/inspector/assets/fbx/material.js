@@ -276,10 +276,9 @@ const Elements = {
                         }
                         url = asset.source;
                     }
-
                     image.remapUuid = uuid;
                     image.remap = url;
-                    panel.meta.userData.imageMetas[index].remap = url;
+                    panel.meta.userData.imageMetas[index].remap = uuid;
 
                     const remapAsPropContentImg = remapAsPropContent.querySelector('.image');
 

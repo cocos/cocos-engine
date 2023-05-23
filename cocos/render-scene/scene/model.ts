@@ -1153,17 +1153,15 @@ export class Model {
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         let patches = this.receiveShadow ? shadowMapPatches : null;
         if (this._lightmap != null) {
-            let stationary = false;
-            if (this.node && this.node.scene) {
-                stationary = this.node.scene.globals.bakedWithStationaryMainLight;
-            }
+            if (this.node && this.node.scene && !this.node.scene.globals.disableLightmap) {
+                const mainLightIsStationary = this.node.scene.globals.bakedWithStationaryMainLight;
+                const lightmapPathes = mainLightIsStationary ? stationaryLightMapPatches : staticLightMapPatches;
 
-            const lightmapPathes = stationary ? stationaryLightMapPatches : staticLightMapPatches;
-            patches = patches ? patches.concat(lightmapPathes) : lightmapPathes;
-
-            // use highp lightmap
-            if (this.node.scene.globals.bakedWithHighpLightmap) {
-                patches = patches.concat(highpLightMapPatches);
+                patches = patches ? patches.concat(lightmapPathes) : lightmapPathes;
+                // use highp lightmap
+                if (this.node.scene.globals.bakedWithHighpLightmap) {
+                    patches = patches.concat(highpLightMapPatches);
+                }
             }
         }
         if (this._useLightProbe) {

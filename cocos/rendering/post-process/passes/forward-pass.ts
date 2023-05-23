@@ -80,11 +80,6 @@ export class ForwardPass extends BasePass {
                 SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
                 | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
 
-        pass.addQueue(QueueHint.RENDER_TRANSPARENT)
-            .addSceneOfCamera(camera,
-                new LightInfo(),
-                SceneFlags.UI | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
-
         passContext.forwardPass = this;
     }
 }
