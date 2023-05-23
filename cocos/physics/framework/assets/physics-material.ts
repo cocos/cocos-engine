@@ -35,8 +35,6 @@ import { CCFloat, math } from '../../../core';
  * 物理材质。
  */
 @ccclass('cc.PhysicsMaterial')
-@help('i18n:cc.PhysicsMaterial')
-@menu('Physics/PhysicsMaterial')
 export class PhysicsMaterial extends Asset {
     /**
      * @en

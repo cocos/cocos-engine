@@ -38,8 +38,6 @@ import { EConstraintType } from '../../physics-enum';
 import { IHingeConstraint } from '../../../spec/i-physics-constraint';
 
 @ccclass('cc.HingeLimitData')
-@help('i18n:cc.HingeLimitData')
-@menu('Physics/HingeLimitData')
 export class HingeLimitData {
     @serializable
     @formerlySerializedAs('enabled')
@@ -99,8 +97,6 @@ export class HingeLimitData {
 }
 
 @ccclass('cc.HingeMotorData')
-@help('i18n:cc.HingeMotorData')
-@menu('Physics/HingeMotorData')
 export class HingeMotorData {
     @serializable
     @formerlySerializedAs('enabled')
