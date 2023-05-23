@@ -626,8 +626,7 @@ export function buildShadowPass (passName: Readonly<string>,
 }
 
 export function buildReflectionProbePasss (camera: Camera,
-    ppl: BasicPipeline,
-    isOffScreen: boolean) {
+    ppl: BasicPipeline) {
     if (!cclegacy.internal.reflectionProbeManager) return;
     const probes = cclegacy.internal.reflectionProbeManager.getProbes();
     if (probes.length === 0) return;

@@ -124,7 +124,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                 auto subpassVertexID = add_vertex(subpassGraph, subpassName.c_str());
                 subpass = &get(SubpassGraph::SubpassTag{}, subpassGraph, subpassVertexID);
 
-                RasterSubpass subpassNode(j, renderGraph.get_allocator());
+                RasterSubpass subpassNode(j, 1, 0, renderGraph.get_allocator());
                 auto subpassID = addVertex(
                     RasterSubpassTag{},
                     std::forward_as_tuple(subpassName.c_str()),

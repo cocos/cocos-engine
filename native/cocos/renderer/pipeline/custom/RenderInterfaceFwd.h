@@ -40,24 +40,25 @@ namespace cc {
 namespace render {
 
 class PipelineRuntime;
-class RenderNode;
-class Setter;
-class RenderQueueBuilder;
-class RenderSubpassBuilder;
-class ComputeQueueBuilder;
-class ComputeSubpassBuilder;
-class BasicRenderPassBuilder;
-class RenderPassBuilder;
-class ComputePassBuilder;
-class SceneVisitor;
-class SceneTask;
-class SceneTransversal;
 
 enum class PipelineType;
 enum class SubpassCapabilities : uint32_t;
 
 struct PipelineCapabilities;
+class RenderNode;
+class Setter;
+class RenderQueueBuilder;
+class BasicRenderPassBuilder;
 class BasicPipeline;
+class RenderSubpassBuilder;
+class MultisampleRenderSubpassBuilder;
+class ComputeQueueBuilder;
+class ComputeSubpassBuilder;
+class RenderPassBuilder;
+class ComputePassBuilder;
+class SceneVisitor;
+class SceneTask;
+class SceneTransversal;
 class Pipeline;
 class PipelineBuilder;
 class RenderingModule;

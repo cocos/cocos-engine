@@ -195,6 +195,29 @@ bool nativevalue_to_se(const cc::render::DescriptorBlockIndex &from, se::Value &
     return true;
 }
 
+bool nativevalue_to_se(const cc::render::ResolvePair &from, se::Value &to, se::Object *ctx) { // NOLINT
+    se::HandleObject obj(se::Object::createPlainObject());
+    se::Value        tmp;
+
+    nativevalue_to_se(from.source, tmp, ctx);
+    obj->setProperty("source", tmp);
+
+    nativevalue_to_se(from.target, tmp, ctx);
+    obj->setProperty("target", tmp);
+
+    nativevalue_to_se(from.resolveFlags, tmp, ctx);
+    obj->setProperty("resolveFlags", tmp);
+
+    nativevalue_to_se(from.mode, tmp, ctx);
+    obj->setProperty("mode", tmp);
+
+    nativevalue_to_se(from.mode1, tmp, ctx);
+    obj->setProperty("mode1", tmp);
+
+    to.setObject(obj);
+    return true;
+}
+
 bool nativevalue_to_se(const cc::render::CopyPair &from, se::Value &to, se::Object *ctx) { // NOLINT
     se::HandleObject obj(se::Object::createPlainObject());
     se::Value        tmp;
@@ -468,6 +491,36 @@ bool sevalue_to_native<cc::render::DescriptorBlockIndex>(const se::Value &from, 
     obj->getProperty("visibility", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->visibility), ctx);
+    }
+    return ok;
+}
+
+template <>
+bool sevalue_to_native<cc::render::ResolvePair>(const se::Value &from, cc::render::ResolvePair *to, se::Object *ctx) { // NOLINT
+    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to ResolvePair failed !");
+
+    auto *obj = const_cast<se::Object *>(from.toObject());
+    bool ok = true;
+    se::Value field;
+    obj->getProperty("source", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->source), ctx);
+    }
+    obj->getProperty("target", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->target), ctx);
+    }
+    obj->getProperty("resolveFlags", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->resolveFlags), ctx);
+    }
+    obj->getProperty("mode", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->mode), ctx);
+    }
+    obj->getProperty("mode1", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->mode1), ctx);
     }
     return ok;
 }
