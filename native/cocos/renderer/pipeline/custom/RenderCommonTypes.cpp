@@ -122,6 +122,31 @@ ComputeView::ComputeView(ComputeView const& rhs, const allocator_type& alloc)
   clearValue(rhs.clearValue),
   shaderStageFlags(rhs.shaderStageFlags) {}
 
+ResolvePair::ResolvePair(const allocator_type& alloc) noexcept
+: source(alloc),
+  target(alloc) {}
+
+ResolvePair::ResolvePair(ccstd::pmr::string sourceIn, ccstd::pmr::string targetIn, ResolveFlags resolveFlagsIn, gfx::ResolveMode modeIn, gfx::ResolveMode mode1In, const allocator_type& alloc) noexcept // NOLINT
+: source(std::move(sourceIn), alloc),
+  target(std::move(targetIn), alloc),
+  resolveFlags(resolveFlagsIn),
+  mode(modeIn),
+  mode1(mode1In) {}
+
+ResolvePair::ResolvePair(ResolvePair&& rhs, const allocator_type& alloc)
+: source(std::move(rhs.source), alloc),
+  target(std::move(rhs.target), alloc),
+  resolveFlags(rhs.resolveFlags),
+  mode(rhs.mode),
+  mode1(rhs.mode1) {}
+
+ResolvePair::ResolvePair(ResolvePair const& rhs, const allocator_type& alloc)
+: source(rhs.source, alloc),
+  target(rhs.target, alloc),
+  resolveFlags(rhs.resolveFlags),
+  mode(rhs.mode),
+  mode1(rhs.mode1) {}
+
 CopyPair::CopyPair(const allocator_type& alloc) noexcept
 : source(alloc),
   target(alloc) {}

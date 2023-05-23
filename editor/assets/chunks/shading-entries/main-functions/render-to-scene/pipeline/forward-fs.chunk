@@ -4,6 +4,10 @@ void main()  {
 #if CC_DISABLE_STRUCTURE_IN_FRAGMENT_SHADER
   float NoL = dot(-cc_mainLitDir.xyz, FSInput_worldNormal.xyz); //trigger ubo binding
   vec4 color = SurfacesFragmentModifyBaseColorAndTransparency();
+  float fogFactor = 1.0;
+  #if CC_FORWARD_ADD
+    color.rgb = vec3(0.0);
+  #endif
 #else
   // Surface
   SurfacesMaterialData surfaceData;

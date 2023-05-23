@@ -60,6 +60,7 @@ inline const char* getName(const RasterPassTag& /*v*/) noexcept { return "Raster
 inline const char* getName(const RasterSubpassTag& /*v*/) noexcept { return "RasterSubpass"; }
 inline const char* getName(const ComputeSubpassTag& /*v*/) noexcept { return "ComputeSubpass"; }
 inline const char* getName(const ComputeTag& /*v*/) noexcept { return "Compute"; }
+inline const char* getName(const ResolveTag& /*v*/) noexcept { return "Resolve"; }
 inline const char* getName(const CopyTag& /*v*/) noexcept { return "Copy"; }
 inline const char* getName(const MoveTag& /*v*/) noexcept { return "Move"; }
 inline const char* getName(const RaytraceTag& /*v*/) noexcept { return "Raytrace"; }
@@ -154,6 +155,7 @@ inline const char* getName(const Descriptor& /*v*/) noexcept { return "Descripto
 inline const char* getName(const DescriptorBlock& /*v*/) noexcept { return "DescriptorBlock"; }
 inline const char* getName(const DescriptorBlockFlattened& /*v*/) noexcept { return "DescriptorBlockFlattened"; }
 inline const char* getName(const DescriptorBlockIndex& /*v*/) noexcept { return "DescriptorBlockIndex"; }
+inline const char* getName(const ResolvePair& /*v*/) noexcept { return "ResolvePair"; }
 inline const char* getName(const CopyPair& /*v*/) noexcept { return "CopyPair"; }
 inline const char* getName(const MovePair& /*v*/) noexcept { return "MovePair"; }
 inline const char* getName(const PipelineStatistics& /*v*/) noexcept { return "PipelineStatistics"; }

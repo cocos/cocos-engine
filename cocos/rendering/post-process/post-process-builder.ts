@@ -5,7 +5,7 @@ import { PipelineBuilder, Pipeline } from '../custom/pipeline';
 
 import { passContext } from './utils/pass-context';
 import { ForwardFinalPass } from './passes/forward-final-pass';
-import { getCameraUniqueID } from '../custom/define';
+import { buildReflectionProbePasss, getCameraUniqueID } from '../custom/define';
 
 import { BasePass } from './passes/base-pass';
 import { ForwardPass } from './passes/forward-pass';
@@ -16,13 +16,11 @@ import { BlitScreenPass } from './passes/blit-screen-pass';
 import { ShadowPass } from './passes/shadow-pass';
 import { HBAOPass } from './passes/hbao-pass';
 import { PostProcess } from './components/post-process';
-import { Node } from '../../scene-graph';
 import { director } from '../../game';
-import { CCObject } from '../../core';
 import { setCustomPipeline } from '../custom';
 
 import { CameraComponent } from '../../misc';
-import { BloomPass, ColorGradingPass, ForwardTransparencyPass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
+import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, ToneMappingPass } from './passes';
 
 export class PostProcessBuilder implements PipelineBuilder  {
     pipelines: Map<string, BasePass[]> = new Map();
@@ -36,6 +34,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
 
         // default pipeline
         this.addPass(forward, 'default');
+        this.addPass(new ForwardTransparencySimplePass(), 'default');
         this.addPass(forwardFinal, 'default');
 
         // rendering dependent data generation
@@ -72,11 +71,21 @@ export class PostProcessBuilder implements PipelineBuilder  {
             pp = [];
             this.pipelines.set(pipelineName, pp);
         }
+
+        const oldIdx = pp.findIndex((p) => p.name === pass.name);
+        if (oldIdx !== -1) {
+            pp.splice(oldIdx, 1);
+        }
         pp.push(pass);
     }
     insertPass (pass: BasePass, passClass: typeof BasePass, pipelineName = 'forward') {
         const pp = this.pipelines.get(pipelineName);
         if (pp) {
+            const oldIdx = pp.findIndex((p) => p.name === pass.name);
+            if (oldIdx !== -1) {
+                pp.splice(oldIdx, 1);
+            }
+
             const idx = pp.findIndex((p) => p instanceof passClass);
             if (idx !== -1) {
                 pp.splice(idx + 1, 0, pass);
@@ -110,6 +119,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         passContext.renderProfiler = false;
         passContext.shadowPass = undefined;
         passContext.forwardPass = undefined;
+        passContext.depthSlotName = '';
 
         let globalPP: PostProcess | undefined;
         for (let i = 0; i < PostProcess.all.length; i++) {
@@ -132,6 +142,8 @@ export class PostProcessBuilder implements PipelineBuilder  {
             if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
                 this.applyPreviewCamera(camera);
             }
+
+            buildReflectionProbePasss(camera, ppl);
 
             passContext.postProcess = camera.postProcess || globalPP;
             this.renderCamera(camera, ppl);

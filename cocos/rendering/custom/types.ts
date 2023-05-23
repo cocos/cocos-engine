@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { ClearFlagBit, Color, LoadOp, ShaderStageFlagBit, StoreOp, Type, UniformBlock } from '../../gfx';
+import { ClearFlagBit, Color, LoadOp, ResolveMode, ShaderStageFlagBit, StoreOp, Type, UniformBlock } from '../../gfx';
 import { Light } from '../../render-scene/scene';
 import { OutputArchive, InputArchive } from './archive';
 import { saveColor, loadColor, saveUniformBlock, loadUniformBlock } from './serialization';
@@ -431,6 +431,34 @@ export class DescriptorBlockIndex {
     visibility: ShaderStageFlagBit;
 }
 
+export enum ResolveFlags {
+    NONE = 0,
+    COLOR = 1 << 0,
+    DEPTH = 1 << 1,
+    STENCIL = 1 << 2,
+}
+
+export class ResolvePair {
+    constructor (
+        source = '',
+        target = '',
+        resolveFlags: ResolveFlags = ResolveFlags.NONE,
+        mode: ResolveMode = ResolveMode.SAMPLE_ZERO,
+        mode1: ResolveMode = ResolveMode.SAMPLE_ZERO,
+    ) {
+        this.source = source;
+        this.target = target;
+        this.resolveFlags = resolveFlags;
+        this.mode = mode;
+        this.mode1 = mode1;
+    }
+    source: string;
+    target: string;
+    resolveFlags: ResolveFlags;
+    mode: ResolveMode;
+    mode1: ResolveMode;
+}
+
 export class CopyPair {
     constructor (
         source = '',
@@ -686,6 +714,22 @@ export function loadDescriptorBlockIndex (ar: InputArchive, v: DescriptorBlockIn
     v.parameterType = ar.readNumber();
     v.descriptorType = ar.readNumber();
     v.visibility = ar.readNumber();
+}
+
+export function saveResolvePair (ar: OutputArchive, v: ResolvePair) {
+    ar.writeString(v.source);
+    ar.writeString(v.target);
+    ar.writeNumber(v.resolveFlags);
+    ar.writeNumber(v.mode);
+    ar.writeNumber(v.mode1);
+}
+
+export function loadResolvePair (ar: InputArchive, v: ResolvePair) {
+    v.source = ar.readString();
+    v.target = ar.readString();
+    v.resolveFlags = ar.readNumber();
+    v.mode = ar.readNumber();
+    v.mode1 = ar.readNumber();
 }
 
 export function saveCopyPair (ar: OutputArchive, v: CopyPair) {

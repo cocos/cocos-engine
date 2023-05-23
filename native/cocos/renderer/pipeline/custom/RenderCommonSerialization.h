@@ -163,6 +163,22 @@ inline void load(InputArchive& ar, DescriptorBlockIndex& v) {
     load(ar, v.visibility);
 }
 
+inline void save(OutputArchive& ar, const ResolvePair& v) {
+    save(ar, v.source);
+    save(ar, v.target);
+    save(ar, v.resolveFlags);
+    save(ar, v.mode);
+    save(ar, v.mode1);
+}
+
+inline void load(InputArchive& ar, ResolvePair& v) {
+    load(ar, v.source);
+    load(ar, v.target);
+    load(ar, v.resolveFlags);
+    load(ar, v.mode);
+    load(ar, v.mode1);
+}
+
 inline void save(OutputArchive& ar, const CopyPair& v) {
     save(ar, v.source);
     save(ar, v.target);

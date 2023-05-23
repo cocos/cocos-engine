@@ -514,14 +514,21 @@ void NativePipeline::beginFrame() {
 void NativePipeline::endFrame() {
 }
 
-RenderPassBuilder *NativePipeline::addRenderPass(
-    uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
+namespace {
+
+RenderPassBuilder *addRenderPassImpl(
+    const PipelineRuntime *ppl,
+    RenderGraph &renderGraph, const NativeProgramLibrary &lib,
+    uint32_t width, uint32_t height,  // NOLINT(bugprone-easily-swappable-parameters)
+    uint32_t count, uint32_t quality, // NOLINT(bugprone-easily-swappable-parameters)
     const ccstd::string &layoutName) {
     RasterPass pass(renderGraph.get_allocator());
     pass.width = width;
     pass.height = height;
     pass.viewport.width = width;
     pass.viewport.height = height;
+    pass.count = count;
+    pass.quality = quality;
 
     auto passID = addVertex(
         RasterPassTag{},
@@ -532,13 +539,49 @@ RenderPassBuilder *NativePipeline::addRenderPass(
         std::forward_as_tuple(std::move(pass)),
         renderGraph);
 
-    auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, programLibrary->layoutGraph);
+    auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, lib.layoutGraph);
     CC_EXPECTS(passLayoutID != LayoutGraphData::null_vertex());
 
-    auto *builder = ccnew NativeRenderPassBuilder(this, &renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
+    auto *builder = ccnew NativeRenderPassBuilder(
+        ppl, &renderGraph, passID, &lib.layoutGraph, passLayoutID);
     updateRasterPassConstants(width, height, *builder);
 
     return builder;
+}
+
+} // namespace
+
+RenderPassBuilder *NativePipeline::addRenderPass(
+    uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
+    const ccstd::string &layoutName) {
+    return addRenderPassImpl(
+        this, renderGraph, *programLibrary, width, height, 1, 0, layoutName);
+}
+
+BasicRenderPassBuilder *NativePipeline::addMultisampleRenderPass(
+    uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
+    uint32_t count, uint32_t quality,
+    const ccstd::string &layoutName) {
+    CC_EXPECTS(count > 1);
+    return addRenderPassImpl(
+        this, renderGraph, *programLibrary, width, height, count, quality, layoutName);
+}
+
+void NativePipeline::addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) {
+    ResolvePass pass(renderGraph.get_allocator());
+    pass.resolvePairs.reserve(resolvePairs.size());
+    for (auto &&pair : resolvePairs) {
+        pass.resolvePairs.emplace_back(pair);
+    }
+    std::string_view name("Resolve");
+    addVertex(
+        ResolveTag{},
+        std::forward_as_tuple(name),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(pass)),
+        renderGraph);
 }
 
 // NOLINTNEXTLINE
