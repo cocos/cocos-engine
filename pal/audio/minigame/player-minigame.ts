@@ -217,7 +217,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
     static load (url: string): Promise<AudioPlayerMinigame> {
         return new Promise((resolve) => {
             AudioPlayerMinigame.loadNative(url).then((innerAudioContext) => {
-                resolve(new AudioPlayerMinigame(<InnerAudioContext>innerAudioContext));
+                resolve(new AudioPlayerMinigame(innerAudioContext as InnerAudioContext));
             }).catch((e) => {});
         });
     }
