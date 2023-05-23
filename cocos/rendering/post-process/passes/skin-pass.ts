@@ -226,7 +226,7 @@ export class SkinPass extends SettingPass {
         const ssssBlurRTName = super.slotName(camera, 0);
         const ssssBlurDSName = super.slotName(camera, 1);
 
-        // ==== Copy input DS ===   
+        // ==== Copy input DS ===
         const copyInputDSPassLayoutName = 'copy-pass';
         const copyInputDSPass = `copyDS-pass${cameraID}`;
         let passIdx = COPY_INPUT_DS_PASS_INDEX;
@@ -238,7 +238,7 @@ export class SkinPass extends SettingPass {
             .addRasterView(ssssBlurDSName, Format.RGBA8)
             .blitScreen(passIdx)
             .version();
-        
+
         // ==== SSSS Blur X Pass ===
         passIdx = SSSS_BLUR_X_PASS_INDEX;
         const ssssblurXPassLayoutName = 'ssss-blurX';
