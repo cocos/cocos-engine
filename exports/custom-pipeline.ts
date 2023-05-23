@@ -6,4 +6,3 @@ export { rendering };
 export { postProcess };
 
 legacyCC.rendering = rendering;
-legacyCC.postProcess = postProcess;
