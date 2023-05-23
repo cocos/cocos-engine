@@ -1130,7 +1130,7 @@ void populatePipelineLayoutInfo(
 }
 
 template <typename T>
-static ccstd::hash_t getShaderHash(ccstd::hash_t src, const T &val) {
+ccstd::hash_t getShaderHash(ccstd::hash_t src, const T &val) {
     if (src != gfx::INVALID_SHADER_HASH) {
         ccstd::hash_combine(src, val);
     }
@@ -1548,7 +1548,7 @@ gfx::PipelineState *NativeProgramLibrary::getComputePipelineState(
     return native->pipelineState.get();
 }
 
-const ccstd::vector<int32_t> &NativeProgramLibrary::getBlockSizes(
+const ccstd::vector<int> &NativeProgramLibrary::getBlockSizes(
     uint32_t phaseID, const ccstd::string &programName) const {
     CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
     const auto &group = phases.at(phaseID);
