@@ -8,8 +8,7 @@ import { AccessType, LightInfo, QueueHint, ResourceResidency, SceneFlags } from 
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
-import { BasePass } from './base-pass';
-import { GetRTFormatBeforeToneMapping } from './setting-pass';
+import { BasePass, GetRTFormatBeforeToneMapping } from './base-pass';
 import { ShadowPass } from './shadow-pass';
 
 export class ForwardPass extends BasePass {
