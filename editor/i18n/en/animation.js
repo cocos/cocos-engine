@@ -12,6 +12,14 @@ module.exports = {
     classes: {
         'cc': {
             'animation': {
+                'PoseNodeStateMachine': {
+                    displayName: 'State Machine',
+                    inputs: {
+                        'emptyStatePose': {
+                            displayName: 'Empty State Pose',
+                        },
+                    },
+                },
                 'PoseNodeBlendInProportion': {
                     displayName: 'Blend In Proportion',
                     inputs: {
