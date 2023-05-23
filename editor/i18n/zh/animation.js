@@ -220,6 +220,11 @@ module.exports = {
                         },
                     },
                 },
+
+                'PVNodeGetVariableBase': {
+                    displayName: '获取变量',
+                    title: '变量 {variableName}',
+                },
             },
         },
     },
