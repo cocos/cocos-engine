@@ -13,10 +13,7 @@ import {
     AnimationGraphSettleContext,
     AnimationGraphUpdateContext,
 } from '../../../../../../cocos/animation/marionette/animation-graph-context';
-import { BindContext } from '../../../../../../cocos/animation/marionette/parametric';
-import { MotionCoordination } from '../../../../../../cocos/animation/marionette/pose-graph/coordination/motion-coordination';
-import { RuntimeCoordinator } from '../../../../../../cocos/animation/marionette/pose-graph/coordination/runtime-coordinator';
-import { AllPreviousLayersResultManagerImpl } from '../../../../../../cocos/animation/marionette/pose-graph/default-top-level-pose-node';
+import { BindContext } from '../../../../../../cocos/animation/marionette/parametric';;
 import { PoseGraph } from '../../../../../../cocos/animation/marionette/pose-graph/pose-graph';
 import { PoseNode, PoseTransformSpaceRequirement } from '../../../../../../cocos/animation/marionette/pose-graph/pose-node';
 import { RuntimeStashManager } from '../../../../../../cocos/animation/marionette/pose-graph/stash/runtime-stash';
@@ -115,13 +112,10 @@ export class PoseNodeEvaluationMock<TAnimationResult> {
         );
         this._poseLayoutMaintainer.startBind();
 
-        const allPreviousLayersResultManager = new AllPreviousLayersResultManagerImpl();
         const poseAllocator = new DeferredPoseStashAllocator();
         const stashManager = new RuntimeStashManager(poseAllocator);
         bindContext._setLayerWideContextProperties(
             stashManager,
-            new RuntimeCoordinator(),
-            allPreviousLayersResultManager,
         );
 
         this._resultObserver = resultFactory.create(origin, bindContext);
