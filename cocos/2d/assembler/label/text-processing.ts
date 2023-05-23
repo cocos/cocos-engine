@@ -622,7 +622,7 @@ export class TextProcessing {
             if (info.fontSize > 0 && this._isVerticalClamp(info, this)) {
                 this._shrinkLabelToContentSize(info, this._isVerticalClamp);
             }
-            if (info.fontSize > 0 && this._isHorizontalClamped(info)) {
+            if (info.fontSize > 0 && this._isHorizontalNeedShrink(info)) {
                 this._shrinkLabelToContentSize(info, this._isHorizontalClamp);
             }
         }
@@ -940,7 +940,7 @@ export class TextProcessing {
         return letterClamp;
     }
 
-    private _isHorizontalClamped (info: TextProcessData) {
+    private _isHorizontalNeedShrink (info: TextProcessData) {
         let wordWidth = 0;
         for (let ctr = 0, l = info.layout.linesWidth.length; ctr < l; ++ctr) {
             wordWidth = info.layout.linesWidth[ctr];
@@ -1035,7 +1035,7 @@ export class TextProcessing {
             const px = letterInfo.x + letterDef.w / 2 * info.bmfontScale + info.layout.linesOffsetX[lineIndex];
 
             if (info.layout.labelWidth > 0) {
-                if (this._isHorizontalClamped(info)) {
+                if (this._isHorizontalClamped(info, px, lineIndex)) {
                     if (info.layout.overFlow === Overflow.CLAMP) {
                         this._tmpRect.width = 0;
                     }
@@ -1052,6 +1052,17 @@ export class TextProcessing {
             }
         }
         return ret;
+    }
+
+    private _isHorizontalClamped (info: TextProcessData, px: number, lineIndex: number) {
+        const wordWidth = info.layout.linesWidth[lineIndex];
+        const letterOverClamp = (px > info.outputLayoutData.nodeContentSize.width || px < 0);
+
+        if (!info.layout.wrapping) {
+            return letterOverClamp;
+        } else {
+            return (wordWidth > info.outputLayoutData.nodeContentSize.width && letterOverClamp);
+        }
     }
 
     private _determineRect (info: TextProcessData) {
