@@ -32,6 +32,8 @@ export class PassContext {
     isFinalCamera = false;
     isFinalPass = false;
 
+    depthSlotName = '';
+
     shadowPass: any = undefined;
     forwardPass: any = undefined;
     postProcess: PostProcess | undefined;
