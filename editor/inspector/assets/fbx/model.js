@@ -240,6 +240,7 @@ ui-section {
 .lods .no-lod-label {
     padding-left: 20px;
     margin-top: 4px;
+    color: var(--color-default-fill-weakest)
 }
 .lods .no-lod-label[hidden] {
     display: none;
