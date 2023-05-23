@@ -76,7 +76,6 @@ export class PhysicsContact implements IPhysics2DContact {
     public colliderB: Collider2D | null = null;
 
     public disabled = false;
-    public disabledOnce = false;
 
     private _impulse: b2.ContactImpulse | null = null;
     private _inverted = false;
@@ -90,7 +89,6 @@ export class PhysicsContact implements IPhysics2DContact {
         this.colliderA = (b2contact.m_fixtureA.m_userData as b2Shape2D).collider;
         this.colliderB = (b2contact.m_fixtureB.m_userData as b2Shape2D).collider;
         this.disabled = false;
-        this.disabledOnce = false;
         this._impulse = null;
 
         this._inverted = false;
