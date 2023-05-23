@@ -108,6 +108,11 @@ export class TextProcessing {
             this.generateVertexData(info, callback);
         }
     }
+
+    public setCanvasUsed (canvas: HTMLCanvasElement, content: CanvasRenderingContext2D | null) {
+        this._canvas = canvas;
+        this._context = content;
+    }
     // -------------------- Common Part --------------------------
 
     // -------------------- Canvas Mode Part --------------------------

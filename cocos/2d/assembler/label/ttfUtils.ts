@@ -114,6 +114,8 @@ export const ttfUtils =  {
             const data = comp.processingData;
             data.isBmFont = false; // hard code
             this.updateProcessingData(data, comp, trans);
+            // use canvas in assemblerData // to do to optimize
+            processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);
             data.fontFamily = this._updateFontFamily(comp);
 
             // TextProcessing
