@@ -88,6 +88,7 @@ struct RenderSwapchain {
     : swapchain(swapchainIn) {}
 
     gfx::Swapchain* swapchain{nullptr};
+    scene::RenderWindow* renderWindow{nullptr};
     uint32_t currentID{0};
     uint32_t numBackBuffers{0};
     uint32_t generation{0xFFFFFFFF};

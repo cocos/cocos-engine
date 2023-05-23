@@ -34,6 +34,7 @@ import { Camera } from '../../render-scene/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, RenderPass, SampleCount, Sampler, SamplerInfo, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
 import { ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
+import { RenderWindow } from '../../render-scene/core/render-window';
 
 export class ResourceDesc {
     dimension: ResourceDimension = ResourceDimension.BUFFER;
@@ -60,6 +61,7 @@ export class RenderSwapchain {
         this.swapchain = swapchain;
     }
     /*pointer*/ swapchain: Swapchain | null;
+    /*pointer*/ renderWindow: RenderWindow | null = null;
     currentID = 0;
     numBackBuffers = 0;
     generation = 0xFFFFFFFF;
