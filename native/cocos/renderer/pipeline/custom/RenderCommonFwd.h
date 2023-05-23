@@ -82,6 +82,7 @@ enum class ResolveFlags : uint32_t;
 
 struct ResolvePair;
 struct CopyPair;
+struct UploadPair;
 struct MovePair;
 struct PipelineStatistics;
 

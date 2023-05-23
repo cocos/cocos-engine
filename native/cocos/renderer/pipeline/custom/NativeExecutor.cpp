@@ -1321,6 +1321,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 
             ctx.cmdBuff->copyTexture(srcTexture, dstTexture, copyInfos.data(), static_cast<uint32_t>(copyInfos.size()));
         }
+
+        // copy from cpu
+        for (const auto& upload : pass.uploadPairs) {
+            // TODO(zhouzhenglong): add buffer/texture upload
+        }
     }
     void begin(const MovePass& pass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
@@ -1645,6 +1650,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             const auto& srcID = findVertex(pair.source, resg);
             CC_EXPECTS(srcID != ResourceGraph::null_vertex());
             resg.mount(ctx.device, srcID);
+            const auto& dstID = findVertex(pair.target, resg);
+            CC_EXPECTS(dstID != ResourceGraph::null_vertex());
+            resg.mount(ctx.device, dstID);
+        }
+        for (const auto& pair : pass.uploadPairs) {
             const auto& dstID = findVertex(pair.target, resg);
             CC_EXPECTS(dstID != ResourceGraph::null_vertex());
             resg.mount(ctx.device, dstID);

@@ -634,6 +634,24 @@ void NativePipeline::addCopyPass(const ccstd::vector<CopyPair> &copyPairs) {
         renderGraph);
 }
 
+void NativePipeline::addUploadPass(ccstd::vector<UploadPair>& uploadPairs) {
+    CopyPass pass(renderGraph.get_allocator());
+    pass.uploadPairs.reserve(uploadPairs.size());
+    for (auto &&pair : uploadPairs) {
+        pass.uploadPairs.emplace_back(std::move(pair));
+    }
+    uploadPairs.clear();
+    std::string_view name("Copy");
+    addVertex(
+        CopyTag{},
+        std::forward_as_tuple(name),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(pass)),
+        renderGraph);
+}
+
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {
     const auto &lg = programLibrary->layoutGraph;
     auto iter = lg.shaderLayoutIndex.find(std::string_view{shaderName});

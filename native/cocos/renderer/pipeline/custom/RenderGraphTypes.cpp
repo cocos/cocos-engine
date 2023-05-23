@@ -242,13 +242,12 @@ ResolvePass::ResolvePass(ResolvePass const& rhs, const allocator_type& alloc)
 : resolvePairs(rhs.resolvePairs, alloc) {}
 
 CopyPass::CopyPass(const allocator_type& alloc) noexcept
-: copyPairs(alloc) {}
+: copyPairs(alloc),
+  uploadPairs(alloc) {}
 
 CopyPass::CopyPass(CopyPass&& rhs, const allocator_type& alloc)
-: copyPairs(std::move(rhs.copyPairs), alloc) {}
-
-CopyPass::CopyPass(CopyPass const& rhs, const allocator_type& alloc)
-: copyPairs(rhs.copyPairs, alloc) {}
+: copyPairs(std::move(rhs.copyPairs), alloc),
+  uploadPairs(std::move(rhs.uploadPairs), alloc) {}
 
 MovePass::MovePass(const allocator_type& alloc) noexcept
 : movePairs(alloc) {}

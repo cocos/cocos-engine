@@ -596,14 +596,14 @@ struct CopyPass {
 
     CopyPass(const allocator_type& alloc) noexcept; // NOLINT
     CopyPass(CopyPass&& rhs, const allocator_type& alloc);
-    CopyPass(CopyPass const& rhs, const allocator_type& alloc);
 
     CopyPass(CopyPass&& rhs) noexcept = default;
     CopyPass(CopyPass const& rhs) = delete;
     CopyPass& operator=(CopyPass&& rhs) = default;
-    CopyPass& operator=(CopyPass const& rhs) = default;
+    CopyPass& operator=(CopyPass const& rhs) = delete;
 
     ccstd::pmr::vector<CopyPair> copyPairs;
+    ccstd::pmr::vector<UploadPair> uploadPairs;
 };
 
 struct MovePass {

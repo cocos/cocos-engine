@@ -36,7 +36,7 @@ import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { AccessType, ClearValue, ClearValueType, ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResolvePair, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
+import { AccessType, ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResolvePair, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
@@ -179,8 +179,8 @@ export interface RenderSubpassBuilder extends Setter {
     addRenderTarget (name: string, accessType: AccessType, slotName?: string, loadOp?: LoadOp, storeOp?: StoreOp, color?: Color): void;
     addDepthStencil (name: string, accessType: AccessType, depthSlotName?: string, stencilSlotName?: string, loadOp?: LoadOp, storeOp?: StoreOp, depth?: number, stencil?: number, clearFlags?: ClearFlagBit): void;
     addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
-    addStorageImage (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -206,8 +206,8 @@ export interface ComputeQueueBuilder extends Setter {
 export interface ComputeSubpassBuilder extends Setter {
     addRenderTarget (name: string, slotName: string): void;
     addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
-    addStorageImage (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -220,8 +220,8 @@ export interface ComputeSubpassBuilder extends Setter {
 }
 
 export interface RenderPassBuilder extends BasicRenderPassBuilder {
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
-    addStorageImage (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     addRenderSubpass (layoutName?: string): RenderSubpassBuilder;
     addMultisampleRenderSubpass (count: number, quality: number, layoutName?: string): MultisampleRenderSubpassBuilder;
     addComputeSubpass (layoutName?: string): ComputeSubpassBuilder;
@@ -233,8 +233,8 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
 
 export interface ComputePassBuilder extends Setter {
     addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
-    addStorageImage (name: string, accessType: AccessType, slotName: string, clearType?: ClearValueType, clearValue?: ClearValue): void;
+    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
+    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -278,6 +278,7 @@ export interface Pipeline extends BasicPipeline {
     updateShadingRateTexture (name: string, width: number, height: number): void;
     addRenderPass (width: number, height: number, layoutName?: string): RenderPassBuilder;
     addComputePass (layoutName: string): ComputePassBuilder;
+    addUploadPass (uploadPairs: UploadPair[]): void;
     addMovePass (movePairs: MovePair[]): void;
     /**
      * @beta function signature might change

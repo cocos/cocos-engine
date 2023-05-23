@@ -157,6 +157,7 @@ inline const char* getName(const DescriptorBlockFlattened& /*v*/) noexcept { ret
 inline const char* getName(const DescriptorBlockIndex& /*v*/) noexcept { return "DescriptorBlockIndex"; }
 inline const char* getName(const ResolvePair& /*v*/) noexcept { return "ResolvePair"; }
 inline const char* getName(const CopyPair& /*v*/) noexcept { return "CopyPair"; }
+inline const char* getName(const UploadPair& /*v*/) noexcept { return "UploadPair"; }
 inline const char* getName(const MovePair& /*v*/) noexcept { return "MovePair"; }
 inline const char* getName(const PipelineStatistics& /*v*/) noexcept { return "PipelineStatistics"; }
 
