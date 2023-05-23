@@ -46,6 +46,11 @@ export class PassContext {
         return this;
     }
 
+    setClearDepthColor (x: number, y: number, z: number, w: number) {
+        Vec4.set(this.clearDepthColor, x, y, z, w);
+        return this;
+    }
+
     version () {
         if (!EDITOR) {
             this.passPathName += `_${this.pass!.name}_${this.layoutName}`;

@@ -37,6 +37,10 @@ export class ForwardTransparencyPass extends BasePass {
 
     enableInAllEditorCamera = true;
     depthBufferShadingScale = 1;
+    enable = true;
+    checkEnable (camera: Camera) {
+        return true;
+    }
 
     slotName (camera: Camera, index = 0) {
         return this.lastPass!.slotName(camera, index);

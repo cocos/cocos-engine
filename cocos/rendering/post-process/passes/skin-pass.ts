@@ -22,11 +22,9 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
-
 import { Vec4, Vec3 } from '../../../core';
-import { Camera, CameraUsage } from '../../../render-scene/scene';
-import { BasicPipeline, QueueHint, SceneFlags } from '../../custom';
+import { Camera } from '../../../render-scene/scene';
+import { BasicPipeline, LightInfo, QueueHint, SceneFlags } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 import { ClearFlagBit, Format } from '../../../gfx';
@@ -186,9 +184,15 @@ export class SSSSBlurData {
 
 export class SkinPass extends SettingPass {
     name = 'SkinPass'
-    effectName = '../advanced/skin';
+    effectName = 'pipeline/ssss-blur';
     outputNames = ['SSSSBlur', 'SSSSBlurDS']
     ssssBlurData = new SSSSBlurData();
+
+    enableInAllEditorCamera = true;
+    enable = true;
+    checkEnable (camera: Camera) {
+        return true;
+    }
 
     public render (camera: Camera, ppl: BasicPipeline): void {
         passContext.material = this.material;
@@ -204,36 +208,11 @@ export class SkinPass extends SettingPass {
         }
     }
 
-    private _buildCopyDSPass (camera: Camera,
+    private _buildSSSSBlurPass (camera: Camera,
         ppl: BasicPipeline,
         inputRT: string,
         inputDS: string) {
         const cameraID = getCameraUniqueID(camera);
-
-        const outputDS = super.slotName(camera, 1);
-        const layoutName = 'copy-pass';
-        const passName = `copyDS-pass${cameraID}`;
-        const passIdx = COPY_INPUT_DS_PASS_INDEX;
-
-        passContext.updatePassViewPort()
-            .addRenderPass(layoutName, passName)
-            .setClearFlag(ClearFlagBit.COLOR)
-            .setClearColor(1.0, 0, 0, 0)
-            .setPassInput(inputDS, 'depthRaw')
-            .addRasterView(outputDS, Format.RGBA8)
-            .blitScreen(passIdx)
-            .version();
-
-        return { rtName: inputRT, dsName: outputDS };
-    }
-
-    private _buildBlurPass (camera: Camera,
-        ppl: BasicPipeline,
-        inputRT: string,
-        inputDS: string,
-        isY: boolean) {
-        const cameraID = getCameraUniqueID(camera);
-
         let boundingBox = 0.4;
         const standardSkinModel = ppl.pipelineSceneData.standardSkinModel;
         const model = (standardSkinModel as MeshRenderer).model;
@@ -242,38 +221,64 @@ export class SkinPass extends SettingPass {
             boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
         }
         const skin = ppl.pipelineSceneData.skin;
-        const passIdx = !isY ? SSSS_BLUR_X_PASS_INDEX : SSSS_BLUR_Y_PASS_INDEX;
+
+        const ssssBlurRTName = super.slotName(camera, 0);
+        const ssssBlurDSName = super.slotName(camera, 1);
+
+        // ==== Copy input DS ===   
+        const copyInputDSPassLayoutName = 'copy-pass';
+        const copyInputDSPass = `copyDS-pass${cameraID}`;
+        let passIdx = COPY_INPUT_DS_PASS_INDEX;
+        passContext.updatePassViewPort()
+            .addRenderPass(copyInputDSPassLayoutName, copyInputDSPass)
+            .setClearFlag(ClearFlagBit.COLOR)
+            .setClearColor(1.0, 0, 0, 0)
+            .setPassInput(inputDS, 'depthRaw')
+            .addRasterView(ssssBlurDSName, Format.RGBA8)
+            .blitScreen(passIdx)
+            .version();
+        
+        // ==== SSSS Blur X Pass ===
+        passIdx = SSSS_BLUR_X_PASS_INDEX;
+        const ssssblurXPassLayoutName = 'ssss-blurX';
+        const ssssblurXPassPassName = `ssss-blurX${cameraID}`;
         this.material.setProperty('blurInfo', new Vec4(camera.fov, skin.blurRadius,
             boundingBox, skin.sssIntensity), passIdx);
         this.material.setProperty('kernel',  this.ssssBlurData.kernel, passIdx);
-
-        const outputRT = super.slotName(camera, 0);
-        const layoutName = !isY ? 'ssss-blurX' : 'ssss-blurY';
-        const passName = !isY ? `ssss-blurX${cameraID}` : `ssss-blurY${cameraID}`;
         passContext.updatePassViewPort()
-            .addRenderPass(layoutName, passName)
+            .addRenderPass(ssssblurXPassLayoutName, ssssblurXPassPassName)
             .setPassInput(inputRT, 'colorTex')
-            .setPassInput(inputDS, 'depthTex')
-            .setClearFlag(!isY ? ClearFlagBit.COLOR : ClearFlagBit.NONE)
+            .setPassInput(ssssBlurDSName, 'depthTex')
+            .setClearFlag(ClearFlagBit.COLOR)
             .setClearColor(0, 0, 0, 1)
-            .addRasterView(outputRT, GetRTFormatBeforeToneMapping(ppl))
+            .addRasterView(ssssBlurRTName, GetRTFormatBeforeToneMapping(ppl))
             .setClearFlag(ClearFlagBit.NONE)
-            .setClearColor(0, 0, 0, 0)
+            .setClearDepthColor(camera.clearDepth, camera.clearStencil, 0, 0)
             .addRasterView(inputDS, Format.DEPTH_STENCIL)
             .blitScreen(passIdx)
             .version();
 
-        return { rtName: outputRT, dsName: inputDS };
-    }
+        // === SSSS Blur Y Pass ===
+        passIdx = SSSS_BLUR_Y_PASS_INDEX;
+        const ssssblurYPassLayoutName = 'ssss-blurY';
+        const ssssblurYPassPassName = `ssss-blurY${cameraID}`;
+        this.material.setProperty('blurInfo', new Vec4(camera.fov, skin.blurRadius,
+            boundingBox, skin.sssIntensity), passIdx);
+        this.material.setProperty('kernel',  this.ssssBlurData.kernel, passIdx);
+        passContext.updatePassViewPort()
+            .addRenderPass(ssssblurYPassLayoutName, ssssblurYPassPassName)
+            .setPassInput(ssssBlurRTName, 'colorTex')
+            .setPassInput(ssssBlurDSName, 'depthTex')
+            .setClearFlag(ClearFlagBit.NONE)
+            .setClearColor(0, 0, 0, 1)
+            .addRasterView(inputRT, GetRTFormatBeforeToneMapping(ppl))
+            .setClearFlag(ClearFlagBit.NONE)
+            .setClearDepthColor(camera.clearDepth, camera.clearStencil, 0, 0)
+            .addRasterView(inputDS, Format.DEPTH_STENCIL)
+            .blitScreen(passIdx)
+            .version();
 
-    private _buildSSSSBlurPass (camera: Camera,
-        ppl: BasicPipeline,
-        inputRT: string,
-        inputDS: string) {
-        const copyPathInfo = this._buildCopyDSPass(camera, ppl, inputRT, inputDS);
-        const blurXInfo = this._buildBlurPass(camera, ppl, inputRT, copyPathInfo.dsName, false);
-        const blurYInfo = this._buildBlurPass(camera, ppl, blurXInfo.rtName, copyPathInfo.dsName, true);
-        return { rtName: blurYInfo.rtName, dsName: blurYInfo.dsName };
+        return { rtName: inputRT, dsName: inputDS };
     }
 
     private _buildSpecularPass (camera: Camera,
@@ -281,10 +286,16 @@ export class SkinPass extends SettingPass {
         inputRT: string,
         inputDS: string) {
         const cameraID = getCameraUniqueID(camera);
+        const layoutName = 'specular-pass';
+        const passName = `specular-pass${cameraID}`;
         passContext.updatePassViewPort()
-            .addRenderPass('default', `${this.name}_${cameraID}`)
-            .addRasterView(inputRT, GetRTFormatBeforeToneMapping(ppl))
-            .addRasterView(inputDS, Format.DEPTH_STENCIL)
+            .addRenderPass(layoutName, passName)
+            .setClearFlag(ClearFlagBit.NONE)
+            .setClearColor(0, 0, 0, 1)
+            .addRasterView(inputRT, GetRTFormatBeforeToneMapping(ppl), true)
+            .setClearFlag(ClearFlagBit.NONE)
+            .setClearDepthColor(camera.clearDepth, camera.clearStencil, 0, 1)
+            .addRasterView(inputDS, Format.DEPTH_STENCIL, true)
             .version();
 
         const pass = passContext.pass!;
@@ -303,7 +314,8 @@ export class SkinPass extends SettingPass {
         }
 
         pass.addQueue(QueueHint.RENDER_OPAQUE)
-            .addScene(camera.scene!,
+            .addSceneOfCamera(camera,
+                new LightInfo(),
                 SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
                 | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
     }
