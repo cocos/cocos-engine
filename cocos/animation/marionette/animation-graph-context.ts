@@ -1,7 +1,7 @@
 import { DEBUG } from 'internal:constants';
 import { Node } from '../../scene-graph';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { Pose, TransformFilter } from '../core/pose';
+import { Pose, PoseTransformSpace, TransformFilter } from '../core/pose';
 import { PoseStackAllocator } from '../core/pose-allocator';
 import { TransformArray } from '../core/transform-array';
 import { TransformHandle, AuxiliaryCurveHandle } from '../core/animation-handle';
@@ -12,6 +12,7 @@ import { error } from '../../core';
 import { partition } from '../../core/algorithm/partition';
 import { AnimationController } from './animation-controller';
 import { AnimationGraphCustomEventEmitter } from './event/custom-event-emitter';
+import { TransformSpace } from './pose-graph/pose-nodes/transform-space';
 
 /**
  * This module contains stuffs related to animation graph's evaluation.
@@ -132,6 +133,14 @@ export class AnimationGraphBindingContext {
         return boneNode.children.map((childNode) => childNode.name);
     }
 
+    public getParentBoneNameByName (bone: string) {
+        const boneNode = findBoneByNameRecursively(this._origin, bone);
+        if (!boneNode) {
+            return null;
+        }
+        return boneNode === this._origin ? '' : boneNode.parent?.name;
+    }
+
     public bindAuxiliaryCurve (name: string): AuxiliaryCurveHandle {
         return this._layoutMaintainer.getOrCreateAuxiliaryCurveBinding(name);
     }
@@ -245,7 +254,11 @@ const checkBindStatus = (bindStarted = false): MethodDecorator => (_, _propertyK
 };
 
 export class AnimationGraphPoseLayoutMaintainer {
-    constructor (private _origin: Node, auxiliaryCurveRegistry: AuxiliaryCurveRegistry) {
+    /**
+     * @param origin This node and all nodes under this node can be bound.
+     */
+    constructor (origin: Node, auxiliaryCurveRegistry: AuxiliaryCurveRegistry) {
+        this._origin = origin;
         this._auxiliaryCurveRegistry = auxiliaryCurveRegistry;
     }
 
@@ -263,6 +276,60 @@ export class AnimationGraphPoseLayoutMaintainer {
 
     @checkBindStatus(true)
     public getOrCreateTransformBinding (node: Node) {
+        const {
+            _origin: origin,
+        } = this;
+
+        // Ensure the node is origin or under origin.
+        let debugIntegrityCheckLengthOfPathToOrigin = 0;
+        let isValidNode = false;
+        for (let current: Node | null = node; current; current = current.parent) {
+            if (current === origin) {
+                isValidNode = true;
+                break;
+            }
+            if (DEBUG) {
+                ++debugIntegrityCheckLengthOfPathToOrigin;
+            }
+        }
+        if (!isValidNode) {
+            return null;
+        }
+
+        // Get or create the handle for the node.
+        const handle = this._getOrCreateTransformBinding(node);
+
+        // Also try to create handles for ancestors if we're not bounding origin.
+        // In other words, origin is not bound by default
+        // except that you explicitly bind to it.
+        if (node !== origin) {
+            if (DEBUG) {
+                --debugIntegrityCheckLengthOfPathToOrigin;
+                assertIsTrue(debugIntegrityCheckLengthOfPathToOrigin >= 0);
+            }
+
+            for (let parent: Node | null = node.parent; parent !== origin; parent = parent.parent) {
+                assertIsTrue(parent);
+                // But discard the result.
+                // eslint-disable-next-line no-void
+                void this._getOrCreateTransformBinding(parent);
+
+                if (DEBUG) {
+                    --debugIntegrityCheckLengthOfPathToOrigin;
+                    assertIsTrue(debugIntegrityCheckLengthOfPathToOrigin >= 0);
+                }
+            }
+        }
+
+        if (DEBUG) {
+            assertIsTrue(debugIntegrityCheckLengthOfPathToOrigin === 0);
+        }
+
+        return handle;
+    }
+
+    @checkBindStatus(true)
+    private _getOrCreateTransformBinding (node: Node) {
         const { _transformRecords: transformRecords } = this;
 
         const transformIndex = transformRecords.findIndex((transformRecord) => transformRecord.node === node);
@@ -322,6 +389,8 @@ export class AnimationGraphPoseLayoutMaintainer {
         return new AnimationGraphEvaluationContext(
             this.transformCount,
             this.auxiliaryCurveCount,
+            this._parentTable.slice(),
+            this._origin,
         );
     }
 
@@ -460,6 +529,30 @@ export class AnimationGraphPoseLayoutMaintainer {
             changeFlags |= LayoutChangeFlag.AUXILIARY_CURVE_COUNT;
         }
 
+        // Reconstruct the parent table.
+        const { _parentTable: parentTable, _origin: origin } = this;
+        parentTable.length = transformRecords.length;
+        for (let iTransform = 0; iTransform < transformRecords.length; ++iTransform) {
+            const { node } = transformRecords[iTransform];
+            if (node === origin) {
+                parentTable[iTransform] = -1;
+                continue;
+            }
+            const parent = node.parent;
+            if (parent === origin) {
+                // If the parent is the origin, the origin can be bound or not.
+                const parentIndex = transformRecords.findIndex((record) => record.node === parent);
+                parentTable[iTransform] = parentIndex >= 0 ? parentIndex : -1;
+            } else {
+                // In other case we have the promise: parent of a node should have also been bound.
+                const parentIndex = transformRecords.findIndex((record) => record.node === parent);
+                assertIsTrue(parentIndex >= 0, `Parent node is not bound!`);
+                // This is what we promised and what the evaluation context required.
+                assertIsTrue(parentIndex < iTransform);
+                parentTable[iTransform] = parentIndex;
+            }
+        }
+
         this._bindStarted = false;
 
         // Do some checks in debug mode.
@@ -485,9 +578,11 @@ export class AnimationGraphPoseLayoutMaintainer {
         return changeFlags;
     }
 
+    private _origin: Node;
     private _auxiliaryCurveRegistry: AuxiliaryCurveRegistry;
     private _auxiliaryCurveRecords: AuxiliaryCurveRecord[] = [];
     private _transformRecords: TransformRecord[] = [];
+    private _parentTable: number[] = [];
 
     private _bindStarted = false;
     private _transformCountBeforeBind = -1;
@@ -569,6 +664,13 @@ export class AnimationGraphSettleContext {
     }
 
     /**
+     * Gets the number of transforms in pose.
+     */
+    public get transformCount () {
+        return this._layoutMaintainer.transformCount;
+    }
+
+    /**
      * Creates a transform filter expressing specified animation mask effect.
      * @param mask Animation mask.
      * @returns Result transform filter.
@@ -578,9 +680,29 @@ export class AnimationGraphSettleContext {
     }
 }
 
+const cacheTransform_spaceConversion = new Transform();
+const cacheParentTransform_spaceConversion = new Transform();
+
 class AnimationGraphEvaluationContext {
-    constructor (transformCount: number, auxiliaryCurveCount: number) {
-        this._poseAllocator = new PoseStackAllocator(transformCount, auxiliaryCurveCount);
+    constructor (
+        transformCount: number,
+        metaValueCount: number,
+        parentTable: readonly number[],
+        componentNode: Node,
+    ) {
+        if (DEBUG) {
+            assertIsTrue(transformCount === parentTable.length);
+            // We requires all parents are in front of children in `parentTable`.
+            assertIsTrue(parentTable.every((parentIndex, currentIndex) => {
+                if (parentIndex < 0) { // Root node
+                    return true;
+                }
+                return parentIndex < currentIndex;
+            }));
+        }
+        this._poseAllocator = new PoseStackAllocator(transformCount, metaValueCount);
+        this._parentTable = parentTable;
+        this._componentNode = componentNode;
         this[defaultTransformsTag] = new TransformArray(transformCount);
     }
 
@@ -597,16 +719,28 @@ class AnimationGraphEvaluationContext {
         return this._poseAllocator.allocatedCount;
     }
 
+    get parentTable () {
+        return this._parentTable;
+    }
+
     public pushDefaultedPose () {
         const pose = this._poseAllocator.push();
         pose.transforms.set(this[defaultTransformsTag]);
+        pose._poseTransformSpace = PoseTransformSpace.LOCAL;
         pose.auxiliaryCurves.fill(0.0);
+        return pose;
+    }
+
+    public pushDefaultedPoseInComponentSpace () {
+        const pose = this.pushDefaultedPose();
+        this._poseTransformsSpaceLocalToComponent(pose);
         return pose;
     }
 
     public pushZeroDeltaPose () {
         const pose = this._poseAllocator.push();
         pose.transforms.fill(ZERO_DELTA_TRANSFORM);
+        pose._poseTransformSpace = PoseTransformSpace.LOCAL;
         pose.auxiliaryCurves.fill(0.0);
         return pose;
     }
@@ -614,6 +748,7 @@ class AnimationGraphEvaluationContext {
     public pushDuplicatedPose (src: Pose) {
         const pose = this._poseAllocator.push();
         pose.transforms.set(src.transforms);
+        pose._poseTransformSpace = src._poseTransformSpace;
         pose.auxiliaryCurves.set(src.auxiliaryCurves);
         return pose;
     }
@@ -636,7 +771,202 @@ class AnimationGraphEvaluationContext {
         return pose === this._poseAllocator.top;
     }
 
+    /** @internal */
+    public _poseTransformsSpaceLocalToComponent (pose: Pose) {
+        const { transforms } = pose;
+        const { length: nTransforms } = transforms;
+        for (let iTransform = 0; iTransform < nTransforms; ++iTransform) {
+            const parentTransformIndex = this._parentTable[iTransform];
+            if (parentTransformIndex < 0) { // Root node
+                continue;
+            }
+            const transform = transforms.getTransform(iTransform, cacheTransform_spaceConversion);
+            const parentTransform = transforms.getTransform(parentTransformIndex, cacheParentTransform_spaceConversion);
+            Transform.multiply(transform, parentTransform, transform);
+            transforms.setTransform(iTransform, transform);
+        }
+
+        pose._poseTransformSpace = PoseTransformSpace.COMPONENT;
+    }
+
+    /** @internal */
+    public _poseTransformsSpaceComponentToLocal (pose: Pose) {
+        const { transforms } = pose;
+        const { length: nTransforms } = transforms;
+        for (let iTransform = nTransforms - 1; iTransform >= 0; --iTransform) {
+            const parentTransformIndex = this._parentTable[iTransform];
+            if (parentTransformIndex < 0) { // Root node
+                continue;
+            }
+            const transform = transforms.getTransform(iTransform, cacheTransform_spaceConversion);
+            const parentTransform = transforms.getTransform(parentTransformIndex, cacheParentTransform_spaceConversion);
+            Transform.calculateRelative(transform, transform, parentTransform);
+            transforms.setTransform(iTransform, transform);
+        }
+
+        pose._poseTransformSpace = PoseTransformSpace.LOCAL;
+    }
+
+    public _convertPoseSpaceTransformToTargetSpace (
+        transform: Transform,
+        outTransformSpace: TransformSpace,
+        pose: Pose,
+        poseTransformIndex: number,
+    ) {
+        const poseSpace = pose._poseTransformSpace;
+        switch (outTransformSpace) {
+        default:
+            if (DEBUG) { assertIsTrue(false); }
+            break;
+        case TransformSpace.WORLD:
+            if (poseSpace === PoseTransformSpace.COMPONENT) {
+                // Component -> World.
+                Transform.multiply(transform, this._getComponentToWorldTransform(), transform);
+            } else {
+                assertIsTrue(poseSpace === PoseTransformSpace.LOCAL);
+                // Local -> World.
+                Transform.multiply(
+                    transform,
+                    this._getLocalToWorldTransform(cacheParentTransform_spaceConversion, pose, poseTransformIndex),
+                    transform,
+                );
+            }
+            break;
+        case TransformSpace.COMPONENT:
+            if (poseSpace === PoseTransformSpace.COMPONENT) {
+                // The transform is already in component.
+            } else {
+                assertIsTrue(poseSpace === PoseTransformSpace.LOCAL);
+                // Local -> Component.
+                Transform.multiply(
+                    transform,
+                    this._getLocalToComponentTransform(cacheParentTransform_spaceConversion, pose, poseTransformIndex),
+                    transform,
+                );
+            }
+            break;
+        case TransformSpace.PARENT: {
+            if (poseSpace === PoseTransformSpace.COMPONENT) {
+                // Component -> Parent.
+                // Parent_Component_Transform * result = Component
+                // result = inv(Component_Transform_of_Parent) * component
+                const parentTransformIndex = this._parentTable[poseTransformIndex];
+                if (parentTransformIndex >= 0) {
+                    const parentComponentTransform = pose.transforms.getTransform(parentTransformIndex, cacheParentTransform_spaceConversion);
+                    const invParentComponentTransform = Transform.invert(parentComponentTransform, parentComponentTransform);
+                    Transform.multiply(transform, invParentComponentTransform, transform);
+                }
+            } else {
+                assertIsTrue(poseSpace === PoseTransformSpace.LOCAL);
+                // Local -> Parent.
+                // The transform is already under parent.
+            }
+            break;
+        }
+        case TransformSpace.LOCAL: { // Local -> *
+            const nodeComponentTransform = pose.transforms.getTransform(poseTransformIndex, cacheParentTransform_spaceConversion);
+            const invNodeComponentTransform = Transform.invert(nodeComponentTransform, nodeComponentTransform);
+            Transform.multiply(transform, invNodeComponentTransform, transform);
+            break;
+        }
+        }
+        return transform;
+    }
+
+    public _convertTransformToPoseTransformSpace (
+        transform: Transform,
+        transformSpace: TransformSpace,
+        pose: Pose,
+        poseTransformIndex: number,
+    ) {
+        const poseSpace = pose._poseTransformSpace;
+
+        switch (transformSpace) {
+        default:
+            if (DEBUG) { assertIsTrue(false); }
+            break;
+        case TransformSpace.WORLD:
+            if (poseSpace === PoseTransformSpace.COMPONENT) {
+                // World -> Component.
+                const worldToComponent = Transform.invert(cacheParentTransform_spaceConversion, this._getComponentToWorldTransform());
+                Transform.multiply(transform, worldToComponent, transform);
+            } else {
+                assertIsTrue(poseSpace === PoseTransformSpace.LOCAL);
+                // World -> Local.
+                const localToWorld = this._getLocalToWorldTransform(cacheParentTransform_spaceConversion, pose, poseTransformIndex);
+                const worldToLocal = Transform.invert(localToWorld, localToWorld);
+                Transform.multiply(transform, worldToLocal, transform);
+            }
+            break;
+        case TransformSpace.COMPONENT:
+            if (poseSpace === PoseTransformSpace.COMPONENT) {
+                // Identity.
+            } else {
+                assertIsTrue(poseSpace === PoseTransformSpace.LOCAL);
+                // Component -> Local.
+                const localToComponent = this._getLocalToComponentTransform(cacheParentTransform_spaceConversion, pose, poseTransformIndex);
+                const componentToLocal = Transform.invert(localToComponent, localToComponent);
+                Transform.multiply(transform, componentToLocal, transform);
+            }
+            break;
+        case TransformSpace.PARENT: {
+            if (poseSpace === PoseTransformSpace.COMPONENT) {
+                // Parent -> Component.
+                const parentTransformIndex = this._parentTable[poseTransformIndex];
+                if (parentTransformIndex >= 0) {
+                    const parentTransform = pose.transforms.getTransform(parentTransformIndex, cacheParentTransform_spaceConversion);
+                    Transform.multiply(transform, parentTransform, transform);
+                }
+            } else {
+                // Parent -> Local.
+                // The transform is already in local space.
+            }
+            break;
+        }
+        case TransformSpace.LOCAL: {
+            const currentTransform = pose.transforms.getTransform(poseTransformIndex, cacheParentTransform_spaceConversion);
+            Transform.multiply(transform, currentTransform, transform);
+            break;
+        }
+        }
+
+        return transform;
+    }
+
     private _poseAllocator: PoseStackAllocator;
+
+    private _parentTable: readonly number[];
+
+    private _componentNode: Node;
+
+    private _cacheComponentToWorldTransform = new Transform();
+
+    private _getComponentToWorldTransform () {
+        const result = this._cacheComponentToWorldTransform;
+        const componentNode = this._componentNode;
+        result.position = componentNode.worldPosition;
+        result.rotation = componentNode.worldRotation;
+        result.scale = componentNode.worldScale;
+        return result;
+    }
+
+    private _getLocalToComponentTransform (out: Transform, pose: Pose, transformIndex: number) {
+        const { _parentTable: parentTable } = this;
+
+        Transform.setIdentity(out);
+        for (let iTransform = transformIndex; iTransform >= 0; iTransform = parentTable[iTransform]) {
+            const localTransform = pose.transforms.getTransform(iTransform, cacheTransform_spaceConversion);
+            Transform.multiply(out, localTransform, out);
+        }
+
+        return out;
+    }
+
+    private _getLocalToWorldTransform (out: Transform, pose: Pose, transformIndex: number) {
+        this._getLocalToComponentTransform(out, pose, transformIndex);
+        Transform.multiply(out, this._getComponentToWorldTransform(), out);
+        return out;
+    }
 }
 
 export type { AnimationGraphEvaluationContext };

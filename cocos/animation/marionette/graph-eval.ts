@@ -36,6 +36,7 @@ import {
     AnimationGraphUpdateContext, AnimationGraphUpdateContextGenerator,
     AnimationGraphSettleContext,
 } from './animation-graph-context';
+import { PoseTransformSpaceRequirement } from './pose-graph/pose-node';
 import { DefaultTopLevelPoseNode } from './pose-graph/default-top-level-pose-node';
 import {
     ClipStatus,
@@ -134,7 +135,7 @@ export class AnimationGraphEval {
         );
         rootPoseNode.update(updateContext);
 
-        const finalPose = rootPoseNode.evaluate(evaluationContext);
+        const finalPose = rootPoseNode.evaluate(evaluationContext, PoseTransformSpaceRequirement.LOCAL);
 
         if (this._hasAutoTrigger) {
             const { _varInstances: varInstances } = this;

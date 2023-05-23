@@ -17,9 +17,26 @@ export class Pose {
     /**
      * @internal
      */
+    public _poseTransformSpace = PoseTransformSpace.LOCAL;
+
+    /**
+     * @internal
+     */
     public static _create (transforms: TransformArray, auxiliaryCurves: Float64Array) {
         return new Pose(transforms, auxiliaryCurves);
     }
+}
+
+export enum PoseTransformSpace {
+    /**
+     * Transforms are stored relative to their parent nodes.
+     */
+    LOCAL,
+
+    /**
+     * Transforms are stored relative to the belonging animation controller's node's space.
+     */
+    COMPONENT,
 }
 
 export class TransformFilter {

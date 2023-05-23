@@ -24,6 +24,7 @@ import { NodeTransformValueObserver } from './new-gen-anim/utils/node-transform-
 import { SingleRealValueObserver } from './new-gen-anim/utils/single-real-value-observer';
 import { createAnimationGraph, StateParams, TransitionParams } from './new-gen-anim/utils/factory';
 import { captureWarns } from '../utils/log-capture';
+import { AnimationGraphEvalMock } from './new-gen-anim/utils/eval-mock';
 
 /**
  * Notable changes
@@ -5025,6 +5026,191 @@ describe('NewGen Anim', () => {
             expect(warnWatcher.captured[0]).toStrictEqual([`Obtaining variable "v1" is not of primitive type, `
                 + `which is currently supported experimentally and should be explicitly obtained through this.getValue_experimental()`]);
             warnWatcher.stop();
+        }
+    });
+
+    describe(`Animation involvement specification`, () => {
+        describe(`Node transform involvement`, () => {
+            test(`If any part of transform is involved in animation, the whole transition is involved`, () => {
+                /** Unique number generator. */
+                const genN = (() => {
+                    function* g(): Generator<number, number> { for (let v = 1.2; ; v += 0.2 ) yield v; }
+                    const generator = g();
+                    return () => generator.next().value;
+                })();
+
+                const fixture = {
+                    initial: {
+                        position: new Vec3(genN(), genN(), genN()),
+                        rotation: Quat.fromEuler(new Quat(), genN(), genN(), genN()),
+                        scale: Vec3.multiplyScalar(new Vec3(), Vec3.ONE, genN()), // Note we currently require uniform scale
+                    },
+                    manually_set: {
+                        position: new Vec3(genN(), genN(), genN()),
+                        rotation: Quat.fromEuler(new Quat(), genN(), genN(), genN()),
+                        scale: Vec3.multiplyScalar(new Vec3(), Vec3.ONE, genN()), // Note we currently require uniform scale
+                    },
+                    animation: {
+                        position: new ConstantRealValueAnimationFixture(genN()),
+                    },
+                };
+
+                // Create a clip motion which animates only the `position.x`.
+                const motion = fixture.animation.position.createMotion({
+                    createClipMotion(keyframes, options) {
+                        const clip = new AnimationClip();
+                        if (options.name) { clip.name = options.name; }
+                        clip.duration = options.duration;
+                        const track = new VectorTrack();
+                        track.componentsCount = 3;
+                        track.path.toProperty('position');
+                        track.channels()[0].curve.assignSorted(keyframes);
+                        clip.addTrack(track);
+                        const motion = new ClipMotion();
+                        motion.clip = clip;
+                        return motion as NonNullableClipMotion;
+                    },
+                });
+
+                const origin = new Node();
+                origin.setPosition(fixture.initial.position);
+                origin.setRotation(fixture.initial.rotation);
+                origin.setScale(fixture.initial.scale);
+
+                const evalMock = new AnimationGraphEvalMock(origin, createAnimationGraphRunningMotion(motion));
+
+                /**
+                 * Checks:
+                 * - Node's position is animated.
+                 * - Node's scale,rotation keeps initial value.
+                 */
+                const check = () => {
+                    expect(Vec3.equals(origin.position, {
+                        x: fixture.animation.position.getExpected(evalMock.current),
+                        y: fixture.initial.position.y,
+                        z: fixture.initial.position.z,
+                    })).toBeTrue();
+                    expect(Quat.equals(origin.rotation, fixture.initial.rotation)).toBeTrue();
+                    expect(Vec3.equals(origin.scale, fixture.initial.scale)).toBeTrue();
+                };
+
+                evalMock.goto(0.3 * fixture.animation.position.duration);
+                check();
+
+                // Even after manually changed, animation will write the properties back.
+                origin.setPosition(fixture.manually_set.position);
+                origin.setRotation(fixture.manually_set.rotation);
+                origin.setScale(fixture.manually_set.scale);
+                evalMock.goto(0.7 * fixture.animation.position.duration);
+                check();
+            });
+
+            describe(`If a node is involved in animation, its ancestors until origin will also be involved`, () => {
+                test.each([
+                    [`The node is a direct child of origin`, 0],
+                    [`1 ancestor`, 1],
+                    [`2 ancestors`, 2],
+                    [`3 ancestors`, 3],
+                ])(`%s`, (_title, ancestorCount) => {
+                    const fixture = {
+                        origin_initial_value: 0.5,
+                        origin_manually_set_value: 0.6,
+                        descendant_animation_value: new ConstantRealValueAnimationFixture(6.6),
+                        ancestor_count: ancestorCount,
+                    };
+    
+                    // Set up the hierarchy.
+                    const origin = new Node(`Origin`);
+                    origin.setPosition(fixture.origin_initial_value, 0.0, 0.0);
+                    const descendantNode = new Node(`Descendant`);
+                    const ancestors = Array.from({ length: fixture.ancestor_count }, (_, i) => {
+                        const initialValue = 1.0 + lerp(0.0, 1.0, i / fixture.ancestor_count);
+                        const manuallySetValue = 2.0 + lerp(0.0, 1.0, i / fixture.ancestor_count);
+                        const node = new Node(`Ancestor ${i}`);
+                        node.setPosition(initialValue, 0.0, 0.0);
+                        return {
+                            node: node,
+                            getValue() {
+                                return node.position.x;
+                            },
+                            initialValue,
+                            manuallySetValue,
+                            setManually() {
+                                node.setPosition(manuallySetValue, 0.0, 0.0);
+                            },
+                        };
+                    });
+                    origin.addChild(ancestors.length === 0 ? descendantNode : ancestors[ancestors.length - 1].node);
+                    ancestors.forEach((ancestor, i) => {
+                        if (i === 0) {
+                            ancestor.node.addChild(descendantNode);
+                        } else {
+                            ancestor.node.addChild(ancestors[i - 1].node);
+                        }
+                    });
+    
+                    // Create a clip motion which animates only the descendant.
+                    const descendantMotion = fixture.descendant_animation_value.createMotion({
+                        createClipMotion(keyframes, options) {
+                            const clip = new AnimationClip();
+                            if (options.name) { clip.name = options.name; }
+                            clip.duration = options.duration;
+                            const track = new VectorTrack();
+                            track.componentsCount = 3;
+                            for (let iAncestor = fixture.ancestor_count - 1; iAncestor >= 0; --iAncestor) {
+                                track.path.toHierarchy(ancestors[iAncestor].node.name)
+                            }
+                            track.path.toHierarchy(descendantNode.name).toProperty('position');
+                            track.channels()[0].curve.assignSorted(keyframes);
+                            clip.addTrack(track);
+                            const motion = new ClipMotion();
+                            motion.clip = clip;
+                            return motion as NonNullableClipMotion;
+                        },
+                    });
+
+    
+                    const evalMock = new AnimationGraphEvalMock(origin, createAnimationGraphRunningMotion(descendantMotion));
+    
+                    // Tick.
+                    evalMock.goto(0.3 * fixture.descendant_animation_value.duration);
+                    // The animation should take effect.
+                    expect(descendantNode.position.x).toBeCloseTo(fixture.descendant_animation_value.getExpected(evalMock.current), 5);
+                    // Ancestor nodes should keep its initial value.
+                    expect(ancestors.map((ancestor) => ancestor.getValue())).toStrictEqual(
+                        ancestors.map((ancestor) => ancestor.initialValue));
+                    // The origin should keep its initial value.
+                    expect(origin.position.x).toBe(fixture.origin_initial_value);
+                    
+                    // Manually change the origin's value.
+                    origin.setPosition(fixture.origin_manually_set_value, 0.0, 0.0);
+                    for (const ancestor of ancestors) { ancestor.setManually(); }
+                    // Verify the manually set values have been set.
+                    expect(ancestors.map((ancestor) => ancestor.getValue())).toStrictEqual(
+                        ancestors.map((ancestor) => ancestor.manuallySetValue));
+                    // Tick.
+                    evalMock.goto(0.6 * fixture.descendant_animation_value.duration);
+                    // The animation should take effect.
+                    expect(descendantNode.position.x).toBeCloseTo(fixture.descendant_animation_value.getExpected(evalMock.current), 5);
+                    // Ancestor nodes should have its initial value write back.
+                    expect(ancestors.map((ancestor) => ancestor.getValue())).toStrictEqual(
+                        ancestors.map((ancestor) => ancestor.initialValue));
+                    // But the origin should keep its initial value, since it's not involved.
+                    expect(origin.position.x).toBe(fixture.origin_manually_set_value);
+                });
+            });
+        });
+
+        function createAnimationGraphRunningMotion(motion: ClipMotion) {
+            const animationGraph = createAnimationGraph({
+                layers: [{
+                    stateMachine: {
+                        states: { 's': { type: 'motion', motion: motion } },
+                        entryTransitions: [{ to: 's' }],
+                    },
+                }],
+            });
+            return animationGraph;
         }
     });
 });

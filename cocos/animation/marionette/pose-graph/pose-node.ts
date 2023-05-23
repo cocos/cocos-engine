@@ -1,7 +1,7 @@
 import { TEST } from 'internal:constants';
-import { assertIsTrue } from '../../../core';
+import { assertIsTrue, ccenum } from '../../../core';
 import { ccclass } from '../../../core/data/decorators';
-import { Pose } from '../../core/pose';
+import { Pose, PoseTransformSpace } from '../../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../../define';
 import {
     AnimationGraphBindingContext,
@@ -11,6 +11,15 @@ import {
 } from '../animation-graph-context';
 import { PoseGraphNode } from './foundation/pose-graph-node';
 import type { PoseNodeDependencyEvaluation } from './instantiation';
+
+export enum PoseTransformSpaceRequirement {
+    NO,
+
+    LOCAL,
+
+    COMPONENT,
+}
+ccenum(PoseTransformSpaceRequirement);
 
 const POSE_NODE_EVALUATION_STACK_ORDER_DEBUG_ENABLED = !!TEST;
 
@@ -75,7 +84,7 @@ export abstract class PoseNode extends PoseGraphNode {
      *
      * @note Subclasses shall not override this method and should override `doEvaluate` instead.
      */
-    public evaluate (context: AnimationGraphEvaluationContext): Pose {
+    public evaluate (context: AnimationGraphEvaluationContext, poseTransformSpaceRequirement: PoseTransformSpaceRequirement) {
         let stackSizeBefore!: number;
         if (POSE_NODE_EVALUATION_STACK_ORDER_DEBUG_ENABLED) {
             stackSizeBefore = context._stackSize_debugging;
@@ -93,11 +102,43 @@ export abstract class PoseNode extends PoseGraphNode {
                 `PoseNode.doEvaluate() should certainly push a pose node onto the stack and return it.`);
         }
 
+        const currentSpace = pose._poseTransformSpace;
+        switch (poseTransformSpaceRequirement) {
+        default:
+            assertIsTrue(false);
+            // fallthrough
+        case PoseTransformSpaceRequirement.NO:
+            break;
+        case PoseTransformSpaceRequirement.LOCAL: {
+            if (currentSpace === PoseTransformSpace.COMPONENT) {
+                context._poseTransformsSpaceComponentToLocal(pose);
+            }
+            assertIsTrue(pose._poseTransformSpace === PoseTransformSpace.LOCAL);
+            break;
+        }
+        case PoseTransformSpaceRequirement.COMPONENT: {
+            if (currentSpace === PoseTransformSpace.LOCAL) {
+                context._poseTransformsSpaceLocalToComponent(pose);
+            }
+            assertIsTrue(pose._poseTransformSpace === PoseTransformSpace.COMPONENT);
+            break;
+        }
+        }
+
         return pose;
     }
 
-    protected static evaluateDefaultPose (context: AnimationGraphEvaluationContext) {
-        return context.pushDefaultedPose();
+    public static evaluateDefaultPose (context: AnimationGraphEvaluationContext, poseTransformSpaceRequirement: PoseTransformSpaceRequirement) {
+        switch (poseTransformSpaceRequirement) {
+        default:
+            assertIsTrue(false);
+            // fallthrough
+        case PoseTransformSpaceRequirement.NO:
+        case PoseTransformSpaceRequirement.LOCAL:
+            return context.pushDefaultedPose();
+        case PoseTransformSpaceRequirement.COMPONENT:
+            return context.pushDefaultedPoseInComponentSpace();
+        }
     }
 
     /** @internal */
@@ -122,7 +163,7 @@ export abstract class PoseNode extends PoseGraphNode {
      *
      * @returns The result pose.
      */
-    protected abstract doEvaluate (context: AnimationGraphEvaluationContext): Pose;
+    protected abstract doEvaluate(context: AnimationGraphEvaluationContext): Pose;
 
     private _dependencyEvaluation: PoseNodeDependencyEvaluation | undefined = undefined;
 }
