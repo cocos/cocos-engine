@@ -63,16 +63,16 @@ module.exports = {
                     displayName: '按布尔选择',
                     inputs: {
                         'truePose': {
-                            displayName: '真姿势',
+                            displayName: '为真时姿势',
                         },
                         'falsePose': {
-                            displayName: '假姿势',
+                            displayName: '为假时姿势',
                         },
                         'trueFadeInDuration': {
-                            displayName: '真姿势淡入时长',
+                            displayName: '为真时姿势淡入时长',
                         },
                         'falseFadeInDuration': {
-                            displayName: '假姿势淡入时长',
+                            displayName: '为假时姿势淡入时长',
                         },
                         'choice': {
                             displayName: '选择',
