@@ -13,6 +13,8 @@ import { partition } from '../../core/algorithm/partition';
 import { AnimationController } from './animation-controller';
 import { AnimationGraphCustomEventEmitter } from './event/custom-event-emitter';
 import { TransformSpace } from './pose-graph/pose-nodes/transform-space';
+import { PoseStashAllocator, RuntimeStashView } from './pose-graph/stash/runtime-stash';
+import { PoseHeapAllocator } from '../core/pose-heap-allocator';
 
 /**
  * This module contains stuffs related to animation graph's evaluation.
@@ -175,6 +177,31 @@ export class AnimationGraphBindingContext {
         return this._additiveFlagStack.length === 1;
     }
 
+    public get stashView (): RuntimeStashView {
+        assertIsTrue(this._stashView);
+        return this._stashView;
+    }
+
+    /**
+     * @internal
+     */
+    public _setLayerWideContextProperties (
+        stashView: RuntimeStashView,
+    ) {
+        assertIsTrue(!this._isLayerWideContextPropertiesSet);
+        this._isLayerWideContextPropertiesSet = true;
+        this._stashView = stashView;
+    }
+
+    /**
+     * @internal
+     */
+    public _unsetLayerWideContextProperties () {
+        assertIsTrue(this._isLayerWideContextPropertiesSet);
+        this._isLayerWideContextPropertiesSet = false;
+        this._stashView = undefined;
+    }
+
     private _origin: Node;
 
     private _layoutMaintainer: AnimationGraphPoseLayoutMaintainer;
@@ -186,6 +213,8 @@ export class AnimationGraphBindingContext {
 
     private _triggerResetter: TriggerResetter = (name: string) => this._resetTrigger(name);
 
+    private _isLayerWideContextPropertiesSet = false;
+    private _stashView: RuntimeStashView | undefined;
     private _resetTrigger (triggerName: string) {
         const varInstance = this._varRegistry[triggerName];
         if (!varInstance) {
@@ -392,6 +421,11 @@ export class AnimationGraphPoseLayoutMaintainer {
             this._parentTable.slice(),
             this._origin,
         );
+    }
+
+    public resetPoseStashAllocator (allocator: DeferredPoseStashAllocator) {
+        assertIsTrue(!this._bindStarted);
+        allocator._reset(this.transformCount, this.auxiliaryCurveCount);
     }
 
     public createTransformFilter (mask: Readonly<AnimationMask>) {
@@ -1072,6 +1106,30 @@ export class AnimationGraphUpdateContextGenerator {
 
 interface ReusableUpdateContext extends AnimationGraphUpdateContext {
     deltaTime: number;
-
     indicativeWeight: number;
+}
+
+export class DeferredPoseStashAllocator implements PoseStashAllocator {
+    get allocatedPoseCount () {
+        assertIsTrue(this._allocator);
+        return this._allocator.allocatedCount;
+    }
+
+    /** @internal */
+    public _reset (transformCount: number, auxiliaryCurveCount: number) {
+        this._allocator = new PoseHeapAllocator(transformCount, auxiliaryCurveCount);
+    }
+
+    public allocatePose (): Pose {
+        assertIsTrue(this._allocator);
+        const pose = this._allocator.allocatePose();
+        return pose;
+    }
+
+    public destroyPose (pose: Pose): void {
+        assertIsTrue(this._allocator);
+        return this._allocator.destroyPose(pose);
+    }
+
+    private _allocator: PoseHeapAllocator | null = null;
 }

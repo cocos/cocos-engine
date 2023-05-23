@@ -35,6 +35,12 @@ export function createAnimationGraph(params: AnimationGraphParams): AnimationGra
     }
     for (const layerParams of params.layers) {
         const layer = animationGraph.addLayer();
+        if (layerParams.stashes) {
+            for (const [stashId, stashParams] of Object.entries(layerParams.stashes)) {
+                const stash = layer.addStash(stashId);
+                fillPoseGraph(stash.graph, stashParams.graph);
+            }
+        }
         fillStateMachine(layer.stateMachine, layerParams.stateMachine);
         if (typeof layerParams.additive !== 'undefined') {
             layer.additive = layerParams.additive;
@@ -293,6 +299,7 @@ export type VariableDeclarationParams = {
 interface LayerParams {
     stateMachine: StateMachineParams;
     additive?: boolean;
+    stashes?: Record<string, LayerStashParams>;
 }
 
 export interface StateMachineParams {
@@ -415,6 +422,10 @@ export type MotionParams = {
         threshold: { x: number; y: number; };
     }>;
 };
+
+export interface LayerStashParams {
+    graph: PoseGraphParams;
+}
 
 interface PoseGraphParams {
     rootNode?: PoseNodeParams;
