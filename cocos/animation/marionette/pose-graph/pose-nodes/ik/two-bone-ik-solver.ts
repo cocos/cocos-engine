@@ -54,18 +54,18 @@ class TargetSpecification {
 
     @serializable
     @editable
-    @visible(function (this: TargetSpecification) { return this.type === TargetSpecificationType.VALUE; })
+    @visible(function visible(this: TargetSpecification) { return this.type === TargetSpecificationType.VALUE; })
     public targetPosition = new Vec3();
 
     @serializable
     @editable
     @type(TransformSpace)
-    @visible(function (this: TargetSpecification) { return this.type === TargetSpecificationType.VALUE; })
+    @visible(function visible(this: TargetSpecification) { return this.type === TargetSpecificationType.VALUE; })
     public targetPositionSpace = TransformSpace.WORLD;
 
     @serializable
     @editable
-    @visible(function (this: TargetSpecification) { return this.type === TargetSpecificationType.BONE; })
+    @visible(function visible(this: TargetSpecification) { return this.type === TargetSpecificationType.BONE; })
     public targetBone = '';
 
     public bind (context: AnimationGraphBindingContext, sourceBoneHandle: TransformHandle) {
@@ -183,11 +183,6 @@ export class PoseNodeTwoBoneIKSolver extends PoseNodeModifyPoseBase {
             hEndEffector: { index: iEndEffectorTransform },
         } = workspace;
 
-        // // TODO: bad performance!
-        // // Save local space pose.
-        // const localPose = context.pushDuplicatedPose(inputPose);
-        // context._poseTransformsSpaceComponentToLocal(localPose);
-
         // Fetch transforms.
         const rootTransform = inputPose.transforms.getTransform(iRootTransform, cacheRootTransform);
         const middleTransform = inputPose.transforms.getTransform(iMiddleTransform, cacheMiddleTransform);
@@ -209,31 +204,6 @@ export class PoseNodeTwoBoneIKSolver extends PoseNodeModifyPoseBase {
         modificationQueue.push(iRootTransform, rootTransform);
         modificationQueue.push(iMiddleTransform, middleTransform);
         modificationQueue.push(iEndEffectorTransform, endEffectorTransform);
-
-        // // TODO: bad performance!
-        // {
-        //     // Push transforms.
-        //     inputPose.transforms.setTransform(iRootTransform, rootTransform);
-        //     inputPose.transforms.setTransform(iMiddleTransform, middleTransform);
-        //     inputPose.transforms.setTransform(iEndEffectorTransform, endEffectorTransform);
-
-        //     // Calculate local transforms of these 3 bones.
-        //     context._poseTransformsSpaceComponentToLocal(inputPose);
-        //     inputPose._poseTransformSpace = PoseTransformSpace.COMPONENT; // TODO:!!
-        //     const rootLocalTransform = inputPose.transforms.getTransform(iRootTransform, cacheRootTransform);
-        //     const middleLocalTransform = inputPose.transforms.getTransform(iMiddleTransform, cacheMiddleTransform);
-        //     const endEffectorLocalTransform = inputPose.transforms.getTransform(iEndEffectorTransform, cacheEndEffectorTransform);
-
-        //     // Write these bones' local transforms back into original local pose.
-        //     localPose.transforms.setTransform(iRootTransform, rootLocalTransform);
-        //     localPose.transforms.setTransform(iMiddleTransform, middleLocalTransform);
-        //     localPose.transforms.setTransform(iEndEffectorTransform, endEffectorLocalTransform);
-
-        //     // Recalculate skeletal space.
-        //     context._poseTransformsSpaceLocalToComponent(localPose);
-        //     inputPose.transforms.set(localPose.transforms);
-        // }
-        // context.popPose();
     }
 
     private _workspace: Workspace | undefined = undefined;

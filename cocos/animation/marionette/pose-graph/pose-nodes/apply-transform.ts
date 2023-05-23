@@ -47,7 +47,7 @@ export class PoseNodeApplyTransform extends PoseNodeModifyPoseBase {
     @serializable
     @editable
     @input({ type: PoseGraphType.VEC3 })
-    @visible(function (this: PoseNodeApplyTransform) { return this.positionOperation !== TransformOperation.LEAVE_UNCHANGED; })
+    @visible(function visible(this: PoseNodeApplyTransform) { return this.positionOperation !== TransformOperation.LEAVE_UNCHANGED; })
     public position = new Vec3();
 
     @serializable
@@ -58,7 +58,7 @@ export class PoseNodeApplyTransform extends PoseNodeModifyPoseBase {
     @serializable
     @editable
     @input({ type: PoseGraphType.QUAT })
-    @visible(function (this: PoseNodeApplyTransform) { return this.rotationOperation !== TransformOperation.LEAVE_UNCHANGED; })
+    @visible(function visible(this: PoseNodeApplyTransform) { return this.rotationOperation !== TransformOperation.LEAVE_UNCHANGED; })
     public rotation = new Quat();
 
     @serializable
