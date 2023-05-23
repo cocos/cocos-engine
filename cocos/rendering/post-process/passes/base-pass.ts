@@ -73,9 +73,8 @@ export abstract class BasePass {
     }
 
     renderProfiler (camera) {
-        if (passContext.renderProfiler && !EDITOR) {
+        if (passContext.isFinalCamera && !EDITOR) {
             passContext.pass!.showStatistics = true;
-            passContext.renderProfiler = false;
         }
     }
 
