@@ -286,7 +286,7 @@ module.exports = {
                     title: 'Skip validation of the model file.',
                 },
                 mountAllAnimationsOnPrefab: {
-                    name: 'Import all animations in the prefab',
+                    name: 'Mount All Animations Onto Prefab',
                 },
             },
             addEvent: {
