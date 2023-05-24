@@ -20,7 +20,7 @@ exports.template = `
         <ui-button class="reset tiny red transparent" tooltip="i18n:ENGINE.assets.reset">
             <ui-icon value="reset"></ui-icon>
         </ui-button>
-        <ui-button type="icon" class="copy transparent" tooltip="i18n:ENGINE.inspector.cloneToEdit">
+        <ui-button class="copy transparent" tooltip="i18n:ENGINE.inspector.cloneToEdit">
             <ui-icon value="copy"></ui-icon>
         </ui-button>
         <ui-link value="" class="help" tooltip="i18n:ENGINE.menu.help_url">

@@ -29,7 +29,6 @@
 :host > .container > .header > .image {
     width: 20px;
     height: 20px;
-    margin-top: 2px;
     cursor: pointer;
 }
 
@@ -52,8 +51,9 @@
 }
 
 :host > .container > .header > .copy {
-    margin-left: 5px;
-    line-height: 26px;
+    padding: 0 4px;
+    height: 18px;
+    margin-left: 4px;
 }
 
 :host > .container > .header > .help {
@@ -74,10 +74,8 @@
 :host > .container > .header > .tiny {
     display: none;
     padding: 0 4px;
-    height: 20px;
-    line-height: 20px;
+    height: 18px;
     margin-left: 8px;
-    margin-top: 2px;
 }
 
 :host > .container > .header[dirty] > .tiny {

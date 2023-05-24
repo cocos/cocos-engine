@@ -374,14 +374,14 @@ exports.createTabGroup = function(dump, panel) {
         style.setAttribute('id', 'group-style');
         style.innerText = `
             .tab-group {
-                margin-top: 10px;
-                margin-bottom: 10px;
+                margin-top: 4px;
+                margin-bottom: 4px;
             }
             .tab-content {
                 display: none;
                 border: 1px dashed var(--color-normal-border);
-                padding: 10px;
-                margin-top: -9px;
+                padding: 8px;
+                margin-top: -10px;
                 border-top-right-radius: calc(var(--size-normal-radius) * 1px);
                 border-bottom-left-radius: calc(var(--size-normal-radius) * 1px);
                 border-bottom-right-radius: calc(var(--size-normal-radius) * 1px);
