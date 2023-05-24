@@ -23,6 +23,8 @@
 */
 
 import { Color } from '../../../core';
+import { IConfig } from '../../assets/bitmap-font';
+import { SpriteFrame } from '../../assets/sprite-frame';
 
 export class TextStyle {
     // ---------------ttf extra part-----------------
@@ -44,10 +46,27 @@ export class TextStyle {
     public shadowOffsetX = 0; // ttf
     public shadowOffsetY = 0; // ttf
 
-    public destroy () {
-        this.outlineColor = null!;
-        this.shadowColor = null!;
-    }
+    public color = Color.WHITE.clone(); // both
+
+    public fontSize = 40; // input fonSize // both
+    public actualFontSize = 0; // both
+
+    public isSystemFontUsed = false; // both // ttf & char
+
+    // -----------------------bitMap extra part-------------------------
+
+    public originFontSize = 0; //Layout // both
+    public bmfontScale = 1.0;// both
+
+    // font info // todo merge to font
+    public fontFamily = 'Arial'; // both
+    public fontDesc = ''; // both
+
+    // -----------------------bitMap extra part-------------------------
+
+    // font info // todo remove
+    public fntConfig: IConfig | null = null; // For char mode,not have asset
+    public spriteFrame: SpriteFrame | null = null; // For char mode,not have spriteFrame in asset
 
     public reset () {
         this.isBold = false;

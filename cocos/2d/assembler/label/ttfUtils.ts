@@ -27,6 +27,8 @@ import { UITransform } from '../../framework/ui-transform';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { TextProcessing } from './text-processing';
 import { TextProcessData } from './text-process-data';
+import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
+import { TextStyle } from './text-style';
 
 const Overflow = Label.Overflow;
 
@@ -35,8 +37,8 @@ export const ttfUtils =  {
     updateProcessingData (data: TextProcessData, comp: Label, trans: UITransform) {
         // font info // both
         // data._font = comp.font;
-        data.isSystemFontUsed = comp.useSystemFont;
-        data.fontSize = comp.fontSize;
+        data.style.isSystemFontUsed = comp.useSystemFont;
+        data.style.fontSize = comp.fontSize;
 
         // node info // both
         data.outputLayoutData.nodeContentSize.width = data.outputLayoutData.canvasSize.width = trans.width;
@@ -84,7 +86,7 @@ export const ttfUtils =  {
         }
 
         // render info
-        data.color.set(comp.color);// may opacity bug // render Only
+        data.style.color.set(comp.color);// may opacity bug // render Only
         data.outputRenderData.texture = comp.spriteFrame; // render Only
         data.outputRenderData.uiTransAnchorX = trans.anchorX; // render Only
         data.outputRenderData.uiTransAnchorY = trans.anchorY; // render Only
@@ -116,17 +118,18 @@ export const ttfUtils =  {
             this.updateProcessingData(data, comp, trans);
             // use canvas in assemblerData // to do to optimize
             processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);
-            data.fontFamily = this._updateFontFamily(comp);
+            data.style.fontFamily = this._updateFontFamily(comp);
 
             // TextProcessing
-            processing.processingString(data);
-            processing.generateRenderInfo(data, this.generateVertexData);
+            processing.processingString(data.isBmFont, data.style, data.layout, data.outputLayoutData, data.inputString);
+            processing.generateRenderInfo(data.isBmFont, data.style, data.layout, data.outputLayoutData, data.outputRenderData,
+                data.inputString, this.generateVertexData);
 
             const renderData = comp.renderData;
             renderData.textureDirty = true;
             this._calDynamicAtlas(comp, data);
 
-            comp.actualFontSize = data.actualFontSize;
+            comp.actualFontSize = data.style.actualFontSize;
             trans.setContentSize(data.outputLayoutData.canvasSize);
 
             const datalist = renderData.data;
@@ -147,13 +150,13 @@ export const ttfUtils =  {
     },
 
     // callBack function
-    generateVertexData (info: TextProcessData) {
-        const data = info.outputRenderData.vertexBuffer;
+    generateVertexData (style: TextStyle, outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData) {
+        const data = outputRenderData.vertexBuffer;
 
-        const width = info.outputLayoutData.canvasSize.width;
-        const height = info.outputLayoutData.canvasSize.height;
-        const appX = info.outputRenderData.uiTransAnchorX * width;
-        const appY = info.outputRenderData.uiTransAnchorY * height;
+        const width = outputLayoutData.canvasSize.width;
+        const height = outputLayoutData.canvasSize.height;
+        const appX = outputRenderData.uiTransAnchorX * width;
+        const appY = outputRenderData.uiTransAnchorY * height;
 
         data[0].x = -appX; // l
         data[0].y = -appY; // b

@@ -32,6 +32,8 @@ import { LetterAtlas, shareLabelInfo } from './font-utils';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { TextProcessing } from './text-processing';
 import { TextProcessData } from './text-process-data';
+import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
+import { TextStyle } from './text-style';
 
 const _defaultLetterAtlas = new LetterAtlas(64, 64);
 const _defaultFontAtlas = new FontAtlas(null);
@@ -47,9 +49,9 @@ export const bmfontUtils = {
 
     updateProcessingData (data: TextProcessData, comp: Label, trans: UITransform) {
         data.inputString = comp.string.toString();
-        data.fontSize = comp.fontSize;
-        data.actualFontSize = comp.fontSize;
-        data.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
+        data.style.fontSize = comp.fontSize;
+        data.style.actualFontSize = comp.fontSize;
+        data.style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
         data.layout.hAlign = comp.horizontalAlign;
         data.layout.vAlign = comp.verticalAlign;
         data.layout.spacingX = comp.spacingX;
@@ -75,12 +77,11 @@ export const bmfontUtils = {
         shareLabelInfo.lineHeight = comp.lineHeight;
         shareLabelInfo.fontSize = comp.fontSize;
 
-        data.spriteFrame = _spriteFrame;
-        data.fntConfig = _fntConfig;
-        data.fontAtlas = shareLabelInfo.fontAtlas;
-        data.fontFamily = shareLabelInfo.fontFamily;
+        data.style.spriteFrame = _spriteFrame;
+        data.style.fntConfig = _fntConfig;
+        data.style.fontFamily = shareLabelInfo.fontFamily;
 
-        data.color.set(comp.color);
+        data.style.color.set(comp.color);
     },
 
     updateRenderData (comp: Label) {
@@ -104,14 +105,15 @@ export const bmfontUtils = {
 
             this._updateLabelInfo(comp);
 
-            data.fontDesc = shareLabelInfo.fontDesc;
+            data.style.fontDesc = shareLabelInfo.fontDesc;
 
             // TextProcessing
-            processing.processingString(data);
+            processing.processingString(data.isBmFont, data.style, data.layout, data.outputLayoutData, data.inputString);
             // generateVertex
             this.resetRenderData(comp);
             data.outputRenderData.quadCount = 0;
-            processing.generateRenderInfo(data, this.generateVertexData);
+            processing.generateRenderInfo(data.isBmFont, data.style, data.layout, data.outputLayoutData, data.outputRenderData,
+                data.inputString, this.generateVertexData);
 
             renderData.dataLength = data.outputRenderData.quadCount;
             renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
@@ -124,7 +126,7 @@ export const bmfontUtils = {
             this.createQuadIndices(indexCount);
             renderData.chunk.setIndexBuffer(QUAD_INDICES);
 
-            _comp.actualFontSize = data.actualFontSize;
+            _comp.actualFontSize = data.style.actualFontSize;
             _uiTrans.setContentSize(data.outputLayoutData.nodeContentSize);
             this.updateUVs(comp);// dirty need
             this.updateColor(comp); // dirty need
@@ -185,12 +187,12 @@ export const bmfontUtils = {
     },
 
     // callBack function
-    generateVertexData (info: TextProcessData, offset: number,
+    generateVertexData (style: TextStyle, outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData, offset: number,
         spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number) {
         const dataOffset = offset;
-        const scale = info.bmfontScale;
+        const scale = style.bmfontScale;
 
-        const dataList = info.outputRenderData.vertexBuffer;
+        const dataList = outputRenderData.vertexBuffer;
         const texW = spriteFrame.width;
         const texH = spriteFrame.height;
 

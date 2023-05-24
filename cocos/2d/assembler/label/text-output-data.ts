@@ -43,15 +43,6 @@ export class TextOutputLayoutData {
 
     public startPosition = Vec2.ZERO.clone(); // ttf
 
-    public destroy () {
-        this.parsedString.length = 0;
-        this.nodeContentSize = null!;
-        this.canvasSize = null!;
-        this.canvasPadding = null!;
-        this.contentSizeExtend = null!;
-        this.startPosition = null!;
-    }
-
     public reset () {
         this.parsedString.length = 0;
         this.nodeContentSize.set(0, 0);
@@ -71,11 +62,6 @@ export class TextOutputRenderData {
     // anchor
     public uiTransAnchorX = 0.5; // both
     public uiTransAnchorY = 0.5; // both
-
-    public destroy () {
-        this.vertexBuffer.length = 0;
-        this.texture = null;
-    }
 
     public reset () {
         this.quadCount = 0;
