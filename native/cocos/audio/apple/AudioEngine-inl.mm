@@ -96,7 +96,7 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
         }
 
         BOOL success = [[AVAudioSession sharedInstance]
-            setCategory:AVAudioSessionCategoryPlayback
+            setCategory:AVAudioSessionCategoryAmbient
                   error:nil];
         if (!success)
             ALOGE("Fail to set audio session.");
