@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../data/utils/asserts';
 import { approx, lerp, pingPong, repeat } from '../math';
 import { KeyframeCurve } from './keyframe-curve';
@@ -401,14 +402,18 @@ export class RealCurve extends KeyframeCurve<RealKeyframeValue> {
         }
 
         const iNext = ~index;
-        assertIsTrue(iNext !== 0 && iNext !== nFrames && nFrames > 1);
+        if (DEBUG) {
+            assertIsTrue(iNext !== 0 && iNext !== nFrames && nFrames > 1);
+        }
 
         const iPre = iNext - 1;
         const preTime = times[iPre];
         const preValue = values[iPre];
         const nextTime = times[iNext];
         const nextValue = values[iNext];
-        assertIsTrue(nextTime > time && time > preTime);
+        if (DEBUG) {
+            assertIsTrue(nextTime > time && time > preTime);
+        }
         const dt = nextTime - preTime;
 
         const ratio = (time - preTime) / dt;
