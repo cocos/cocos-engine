@@ -266,32 +266,12 @@ Sampler *DeviceValidator::getSampler(const SamplerInfo &info) {
 }
 
 GeneralBarrier *DeviceValidator::getGeneralBarrier(const GeneralBarrierInfo &info) {
-    if (info.prevAccesses > AccessFlagBit::PRESENT) {
-        // Write access should appear on its own.
-        CC_ASSERT(math::isPowerOfTwo(toNumber(info.prevAccesses)));
-    }
-    if (info.nextAccesses > AccessFlagBit::PRESENT) {
-        // Write access should appear on its own.
-        CC_ASSERT(math::isPowerOfTwo(toNumber(info.nextAccesses)));
-    }
-
     /////////// execute ///////////
-
     return _actor->getGeneralBarrier(info);
 }
 
 TextureBarrier *DeviceValidator::getTextureBarrier(const TextureBarrierInfo &info) {
-    if (info.prevAccesses > AccessFlagBit::PRESENT) {
-        // Write access should appear on its own.
-        CC_ASSERT(math::isPowerOfTwo(toNumber(info.prevAccesses)));
-    }
-    if (info.nextAccesses > AccessFlagBit::PRESENT) {
-        // Write access should appear on its own.
-        CC_ASSERT(math::isPowerOfTwo(toNumber(info.nextAccesses)));
-    }
-
     /////////// execute ///////////
-
     return _actor->getTextureBarrier(info);
 }
 

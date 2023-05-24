@@ -403,31 +403,29 @@ void NativeRenderPassBuilder::addTexture(
 }
 
 void NativeRenderPassBuilder::addStorageBuffer(
-    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
-    ClearValueType clearType, const ClearValue &clearValue) {
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            clearType,
-            clearValue,
+            ClearValueType::NONE,
+            ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
 void NativeRenderPassBuilder::addStorageImage(
-    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
-    ClearValueType clearType, const ClearValue &clearValue) {
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            clearType,
-            clearValue,
+            ClearValueType::NONE,
+            ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
@@ -491,6 +489,16 @@ void NativeRenderPassBuilder::setShowStatistics(bool enable) {
 
 namespace {
 
+uint32_t getSlotID(RasterPass &pass, std::string_view name, AttachmentType type) {
+    if (type == AttachmentType::DEPTH_STENCIL) {
+        return 0xFF;
+    }
+
+    const auto newID = static_cast<uint32_t>(pass.attachmentIndexMap.size());
+    auto iter = pass.attachmentIndexMap.find(name);
+    return iter != pass.attachmentIndexMap.end() ? iter->second : pass.attachmentIndexMap.emplace(name, newID).first->second;
+}
+
 template <class Tag>
 void addRasterViewImpl(
     std::string_view name,
@@ -506,13 +514,13 @@ void addRasterViewImpl(
     RenderGraph &renderGraph) {
     CC_EXPECTS(!name.empty());
     auto &subpass = get(Tag{}, subpassID, renderGraph);
-    const auto slotID = static_cast<uint32_t>(subpass.rasterViews.size());
     const auto passID = parent(subpassID, renderGraph);
     CC_EXPECTS(passID != RenderGraph::null_vertex());
     CC_EXPECTS(holds<RasterPassTag>(passID, renderGraph));
     auto &pass = get(RasterPassTag{}, passID, renderGraph);
     CC_EXPECTS(subpass.subpassID < num_vertices(pass.subpassGraph));
     auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
+    const auto slotID = getSlotID(pass, name, attachmentType);
     CC_EXPECTS(subpass.rasterViews.size() == subpassData.rasterViews.size());
     {
         auto res = subpassData.rasterViews.emplace(
@@ -658,31 +666,29 @@ void NativeRenderSubpassBuilderImpl::addTexture(
 }
 
 void NativeRenderSubpassBuilderImpl::addStorageBuffer(
-    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
-    ClearValueType clearType, const ClearValue &clearValue) {
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            clearType,
-            clearValue,
+            ClearValueType::NONE,
+            ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
 void NativeRenderSubpassBuilderImpl::addStorageImage(
-    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
-    ClearValueType clearType, const ClearValue &clearValue) {
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            clearType,
-            clearValue,
+            ClearValueType::NONE,
+            ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
@@ -847,31 +853,29 @@ void NativeComputeSubpassBuilder::addTexture(
 }
 
 void NativeComputeSubpassBuilder::addStorageBuffer(
-    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
-    ClearValueType clearType, const ClearValue &clearValue) {
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            clearType,
-            clearValue,
+            ClearValueType::NONE,
+            ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
 void NativeComputeSubpassBuilder::addStorageImage(
-    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
-    ClearValueType clearType, const ClearValue &clearValue) {
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            clearType,
-            clearValue,
+            ClearValueType::NONE,
+            ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
@@ -1539,31 +1543,29 @@ void NativeComputePassBuilder::addTexture(
 }
 
 void NativeComputePassBuilder::addStorageBuffer(
-    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
-    ClearValueType clearType, const ClearValue &clearValue) {
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            clearType,
-            clearValue,
+            ClearValueType::NONE,
+            ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }
 
 void NativeComputePassBuilder::addStorageImage(
-    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName,
-    ClearValueType clearType, const ClearValue &clearValue) {
+    const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) {
     addComputeView(
         name,
         ComputeView{
             ccstd::pmr::string(slotName, renderGraph->get_allocator()),
             accessType,
             gfx::ClearFlagBit::NONE,
-            clearType,
-            clearValue,
+            ClearValueType::NONE,
+            ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
 }

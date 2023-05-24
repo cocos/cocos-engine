@@ -64,12 +64,10 @@ void GLES3PrimaryCommandBuffer::end() {
 void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const * /*secondaryCBs*/, uint32_t /*secondaryCBCount*/) {
     _curSubpassIdx = 0U;
 
-    GLES3GPURenderPass *gpuRenderPass = static_cast<GLES3RenderPass *>(renderPass)->gpuRenderPass();
+    auto *gpuRenderPass = static_cast<GLES3RenderPass *>(renderPass)->gpuRenderPass();
     GLES3GPUFramebuffer *gpuFramebuffer = static_cast<GLES3Framebuffer *>(fbo)->gpuFBO();
 
-    cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), _curSubpassIdx, gpuRenderPass, gpuFramebuffer,
-                                &renderArea, colors, depth, stencil);
-
+    cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), gpuRenderPass, gpuFramebuffer, &renderArea, colors, depth, stencil);
     _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
     _curDynamicStates.scissor = renderArea;
 }
@@ -79,8 +77,7 @@ void GLES3PrimaryCommandBuffer::endRenderPass() {
 }
 
 void GLES3PrimaryCommandBuffer::nextSubpass() {
-    cmdFuncGLES3EndRenderPass(GLES3Device::getInstance());
-    cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), ++_curSubpassIdx);
+    ++_curSubpassIdx;
 }
 
 void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {

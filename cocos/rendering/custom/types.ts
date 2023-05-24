@@ -495,6 +495,33 @@ export class CopyPair {
     targetPlaneSlice: number;
 }
 
+export class UploadPair {
+    constructor (
+        source: Uint8Array = new Uint8Array(0),
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ) {
+        this.source = source;
+        this.target = target;
+        this.mipLevels = mipLevels;
+        this.numSlices = numSlices;
+        this.targetMostDetailedMip = targetMostDetailedMip;
+        this.targetFirstSlice = targetFirstSlice;
+        this.targetPlaneSlice = targetPlaneSlice;
+    }
+    readonly source: Uint8Array;
+    target: string;
+    mipLevels: number;
+    numSlices: number;
+    targetMostDetailedMip: number;
+    targetFirstSlice: number;
+    targetPlaneSlice: number;
+}
+
 export class MovePair {
     constructor (
         source = '',

@@ -451,6 +451,30 @@ struct CopyPair {
     uint32_t targetPlaneSlice{0};
 };
 
+struct UploadPair {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {target.get_allocator().resource()};
+    }
+
+    UploadPair(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    UploadPair(ccstd::vector<uint8_t> sourceIn, ccstd::pmr::string targetIn, uint32_t mipLevelsIn, uint32_t numSlicesIn, uint32_t targetMostDetailedMipIn, uint32_t targetFirstSliceIn, uint32_t targetPlaneSliceIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    UploadPair(UploadPair&& rhs, const allocator_type& alloc);
+
+    UploadPair(UploadPair&& rhs) noexcept = default;
+    UploadPair(UploadPair const& rhs) = delete;
+    UploadPair& operator=(UploadPair&& rhs) = default;
+    UploadPair& operator=(UploadPair const& rhs) = delete;
+
+    ccstd::vector<uint8_t> source;
+    ccstd::pmr::string target;
+    uint32_t mipLevels{0xFFFFFFFF};
+    uint32_t numSlices{0xFFFFFFFF};
+    uint32_t targetMostDetailedMip{0};
+    uint32_t targetFirstSlice{0};
+    uint32_t targetPlaneSlice{0};
+};
+
 struct MovePair {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT

@@ -256,6 +256,35 @@ bool nativevalue_to_se(const cc::render::CopyPair &from, se::Value &to, se::Obje
     return true;
 }
 
+bool nativevalue_to_se(const cc::render::UploadPair &from, se::Value &to, se::Object *ctx) { // NOLINT
+    se::HandleObject obj(se::Object::createPlainObject());
+    se::Value        tmp;
+
+    nativevalue_to_se(from.source, tmp, ctx);
+    obj->setProperty("source", tmp);
+
+    nativevalue_to_se(from.target, tmp, ctx);
+    obj->setProperty("target", tmp);
+
+    nativevalue_to_se(from.mipLevels, tmp, ctx);
+    obj->setProperty("mipLevels", tmp);
+
+    nativevalue_to_se(from.numSlices, tmp, ctx);
+    obj->setProperty("numSlices", tmp);
+
+    nativevalue_to_se(from.targetMostDetailedMip, tmp, ctx);
+    obj->setProperty("targetMostDetailedMip", tmp);
+
+    nativevalue_to_se(from.targetFirstSlice, tmp, ctx);
+    obj->setProperty("targetFirstSlice", tmp);
+
+    nativevalue_to_se(from.targetPlaneSlice, tmp, ctx);
+    obj->setProperty("targetPlaneSlice", tmp);
+
+    to.setObject(obj);
+    return true;
+}
+
 bool nativevalue_to_se(const cc::render::MovePair &from, se::Value &to, se::Object *ctx) { // NOLINT
     se::HandleObject obj(se::Object::createPlainObject());
     se::Value        tmp;
@@ -559,6 +588,44 @@ bool sevalue_to_native<cc::render::CopyPair>(const se::Value &from, cc::render::
     obj->getProperty("sourcePlaneSlice", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->sourcePlaneSlice), ctx);
+    }
+    obj->getProperty("targetMostDetailedMip", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->targetMostDetailedMip), ctx);
+    }
+    obj->getProperty("targetFirstSlice", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->targetFirstSlice), ctx);
+    }
+    obj->getProperty("targetPlaneSlice", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->targetPlaneSlice), ctx);
+    }
+    return ok;
+}
+
+template <>
+bool sevalue_to_native<cc::render::UploadPair>(const se::Value &from, cc::render::UploadPair *to, se::Object *ctx) { // NOLINT
+    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to UploadPair failed !");
+
+    auto *obj = const_cast<se::Object *>(from.toObject());
+    bool ok = true;
+    se::Value field;
+    obj->getProperty("source", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->source), ctx);
+    }
+    obj->getProperty("target", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->target), ctx);
+    }
+    obj->getProperty("mipLevels", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->mipLevels), ctx);
+    }
+    obj->getProperty("numSlices", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->numSlices), ctx);
     }
     obj->getProperty("targetMostDetailedMip", &field, true);
     if(!field.isNullOrUndefined()) {

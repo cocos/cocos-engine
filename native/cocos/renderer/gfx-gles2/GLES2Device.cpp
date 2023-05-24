@@ -147,9 +147,16 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
         } else if (checkExtension(CC_TOSTR(GL_EXT_shader_framebuffer_fetch))) {
             // we only care about EXT_shader_framebuffer_fetch, the ARM version does not support MRT
             _gpuConstantRegistry->mFBF = FBFSupportLevel::COHERENT;
+            _features[toNumber(Feature::RASTERIZATION_ORDER_COHERENT)] = true;
             fbfLevelStr = "COHERENT";
         }
         _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = _gpuConstantRegistry->mFBF != FBFSupportLevel::NONE;
+        _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = true;
+    }
+
+    if (checkExtension(CC_TOSTR(ARM_shader_framebuffer_fetch_depth_stencil))) {
+        _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
+        fbfLevelStr                += "_DEPTH_STENCIL";
     }
 #endif
 
