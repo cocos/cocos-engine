@@ -1081,6 +1081,10 @@ module.exports = link(mixin({
             label: "Marionette Animation System",
             description: "Enable the Marionette animation system",
         },
+        procedural_animation: {
+            label: "Procedural Animation",
+            description: "Enable the procedural animation related features, such as pose graph etc.",
+        },
         xr: {
             label: "XR",
             description: "Enable the XR function system",
