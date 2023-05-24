@@ -1342,7 +1342,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         if (!dstBuffer) {
             return;
         }
-        ctx.cmdBuff->updateBuffer(dstBuffer, upload.source.data(), upload.source.size());
+        ctx.cmdBuff->updateBuffer(dstBuffer, upload.source.data(), static_cast<uint32_t>(upload.source.size()));
     }
     void begin(const CopyPass& pass, RenderGraph::vertex_descriptor vertID) const {
         std::ignore = pass;

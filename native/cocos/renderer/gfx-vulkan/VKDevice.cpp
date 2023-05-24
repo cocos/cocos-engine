@@ -61,7 +61,8 @@ CC_DISABLE_WARNINGS()
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 #define THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT
-#define THSVS_ERROR_CHECK_POTENTIAL_HAZARD
+// remote potential hazard because of programmable blend
+//#define THSVS_ERROR_CHECK_POTENTIAL_HAZARD
 #define THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_IMPLEMENTATION
 #include "thsvs_simpler_vulkan_synchronization.h"
 CC_ENABLE_WARNINGS()

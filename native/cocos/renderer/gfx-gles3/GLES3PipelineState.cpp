@@ -66,6 +66,7 @@ void updateGPUShaderSourceByRenderPass(GLES3GPUShader *gpuShader, GLES3GPURender
     }
     auto &drawBuffers = renderPass->drawBuffers.at(subpassIndex);
 
+    ccstd::string::size_type offset = 0;
     for (uint32_t i = 0; i < drawBuffers.size(); ++i) {
         const char* layoutPrefix = "layout(location = ";
 
@@ -76,14 +77,15 @@ void updateGPUShaderSourceByRenderPass(GLES3GPUShader *gpuShader, GLES3GPURender
         ss2 << layoutPrefix << i << ") inout";
 
         auto &source = iter->source;
-        auto iter = source.find(ss1.str());
-        if (iter == std::string::npos) {
-            iter = source.find(ss2.str());
+        auto sIter = source.find(ss1.str(), offset);
+        if (sIter == std::string::npos) {
+            sIter = source.find(ss2.str(), offset);
         }
 
-        if (iter != std::string::npos) {
-            auto loc = iter + strlen(layoutPrefix);
+        if (sIter != std::string::npos) {
+            auto loc = sIter + strlen(layoutPrefix);
             source[loc] = drawBuffers[i] + '0';
+            offset = loc;
         }
     }
 }

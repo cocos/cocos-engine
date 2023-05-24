@@ -253,13 +253,16 @@ void ResourceGraph::unmount(uint64_t completedFenceValue) {
 bool ResourceGraph::isTexture(vertex_descriptor resID) const noexcept {
     return visitObject(
         resID, *this,
-        [&](const ManagedBuffer&) {
+        [&](const ManagedBuffer& res) {
+            std::ignore = res;
             return false;
         },
-        [&](const IntrusivePtr<gfx::Buffer>&) {
-            return false
+        [&](const IntrusivePtr<gfx::Buffer>& res) {
+            std::ignore = res;
+            return false;
         },
-        [&](const auto&) {
+        [&](const auto& res) {
+            std::ignore = res;
             return true;
         });
 }
