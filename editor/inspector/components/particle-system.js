@@ -203,41 +203,6 @@ exports.methods = {
             return target;
         }
     },
-    /**
-     * Get the name based on the dump data
-     */
-    getName(value) {
-        if (!value) {
-            return '';
-        }
-
-        if (value.displayName) {
-            return value.displayName;
-        }
-
-        let name = value.name || '';
-
-        name = name.replace(/^\S/, (str) => str.toUpperCase());
-        name = name.replace(/_/g, (str) => ' ');
-        name = name.replace(/ \S/g, (str) => ` ${str.toUpperCase()}`);
-
-        return name.trim();
-    },
-
-    /**
-     * Get tooltip based on dump data
-     * @param value
-     */
-    getTitle(value) {
-        if (value.tooltip) {
-            if (!value.tooltip.startsWith('i18n:')) {
-                return value.tooltip;
-            }
-            return Editor.I18n.t(`ENGINE.${value.tooltip.substr(5)}`) || value.tooltip;
-        }
-
-        return this.getName(value);
-    },
 
     getEnumName(type, value) {
         for (const opt of type.enumList) {
@@ -375,23 +340,24 @@ const uiElements = {
                     header.setAttribute('type', 'dump');
                     header.setAttribute('empty', 'true');
                     header.className = 'header';
-                    header.dump = this.getObjectByKey(this.dump.value, key);
+                    const dump = this.getObjectByKey(this.dump.value, key);
+                    header.dump = dump;
                     const checkbox = document.createElement('ui-checkbox');
                     checkbox.changeEvent = (event) => {
-                        this.getObjectByKey(this.dump.value, key).value.enable.value = event.target.value;
+                        dump.value.enable.value = event.target.value;
                         header.dispatch('change-dump');
                     };
                     checkbox.addEventListener('change', checkbox.changeEvent);
-                    checkbox.setAttribute('value', this.getObjectByKey(this.dump.value, key).value.enable.value);
+                    checkbox.setAttribute('value', dump.value.enable.value);
                     const label = document.createElement('ui-label');
-                    label.setAttribute('value', this.getName(this.getObjectByKey(this.dump.value, key)));
-                    label.setAttribute('tooltip', this.getTitle(this.getObjectByKey(this.dump.value, key)));
+                    label.setAttribute('value', propUtils.getName(dump));
+                    label.setAttribute('tooltip', dump.tooltip);
                     header.replaceChildren(...[checkbox, label]);
                     children.push(header);
-                    const propMap = this.getObjectByKey(this.dump.value, key).value;
+                    const propMap = dump.value;
 
                     for (const propKey in propMap) {
-                        const dump = propMap[propKey];
+                        const propDump = propMap[propKey];
                         if (propKey === 'enable') {
                             continue;
                         }
@@ -399,9 +365,9 @@ const uiElements = {
                         const uiProp = oldProp || document.createElement('ui-prop');
                         uiProp.setAttribute('type', 'dump');
                         uiProp.setAttribute('key', propKey);
-                        const isShow = dump.visible;
+                        const isShow = propDump.visible;
                         if (isShow) {
-                            uiProp.render(dump);
+                            uiProp.render(propDump);
                             children.push(uiProp);
                         }
                     }
@@ -409,7 +375,7 @@ const uiElements = {
                     children.forEach((newChild, index) => {
                         const oldChild = oldChildren[index];
                         if (oldChild === newChild) {
-                            return true;
+                            return;
                         }
                         if (oldChild) {
                             oldChild.replaceWith(newChild);
@@ -615,8 +581,8 @@ const uiElements = {
                         const labelflag = element.getAttribute('labelflag');
                         if (labelflag) {
                             const dump = this.getObjectByKey(this.dump.value, labelflag);
-                            label.setAttribute('value', this.getName(dump));
-                            label.setAttribute('tooltip', this.getTitle(dump));
+                            label.setAttribute('value', propUtils.getName(dump));
+                            label.setAttribute('tooltip', dump.tooltip);
                         }
                     }
                     if (isHeader) {
