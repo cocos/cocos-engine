@@ -332,7 +332,7 @@ describe(`Node`, () => {
     }) => {
         test(`Fundamental`, () => {
             const animationGraph = new AnimationGraph();
-            const { graph: poseGraph } = animationGraph.addLayer().stateMachine.addPoseState();
+            const { graph: poseGraph } = animationGraph.addLayer().stateMachine.addProceduralPoseState();
 
             const {
                 node: mainNode,
@@ -446,7 +446,7 @@ describe(`Node`, () => {
     
         test(`Array input`, () => {
             const animationGraph = new AnimationGraph();
-            const { graph: poseGraph } = animationGraph.addLayer().stateMachine.addPoseState();
+            const { graph: poseGraph } = animationGraph.addLayer().stateMachine.addProceduralPoseState();
 
             const {
                 node,

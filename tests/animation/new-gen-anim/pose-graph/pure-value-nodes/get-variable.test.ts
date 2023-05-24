@@ -32,15 +32,15 @@ describe(`Pure value node`, () => {
 
         const animationGraph = new AnimationGraph();
         const layer = animationGraph.addLayer();
-        const poseState = layer.stateMachine.addPoseState();
-        const poseNodeMock = poseState.graph.addNode(new OutputNumberPoseNode());
-        const getVar = poseState.graph.addNode(new PVNodeGetVariableFloat());
+        const proceduralPoseState = layer.stateMachine.addProceduralPoseState();
+        const poseNodeMock = proceduralPoseState.graph.addNode(new OutputNumberPoseNode());
+        const getVar = proceduralPoseState.graph.addNode(new PVNodeGetVariableFloat());
         getVar.variableName = '_x';
         const keys = poseGraphOp.getInputKeys(poseNodeMock);
         expect(keys).toHaveLength(1);
-        poseGraphOp.connectNode(poseState.graph, poseNodeMock, keys[0], getVar, getTheOnlyOutputKey(getVar));
-        poseGraphOp.connectNode(poseState.graph, poseState.graph.outputNode, getTheOnlyInputKey(poseState.graph.outputNode), poseNodeMock);
-        layer.stateMachine.connect(layer.stateMachine.entryState, poseState);
+        poseGraphOp.connectNode(proceduralPoseState.graph, poseNodeMock, keys[0], getVar, getTheOnlyOutputKey(getVar));
+        poseGraphOp.connectNode(proceduralPoseState.graph, proceduralPoseState.graph.outputNode, getTheOnlyInputKey(proceduralPoseState.graph.outputNode), poseNodeMock);
+        layer.stateMachine.connect(layer.stateMachine.entryState, proceduralPoseState);
 
         animationGraph.addVariable('_x', VariableType.FLOAT, 2.);
 

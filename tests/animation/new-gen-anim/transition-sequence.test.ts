@@ -551,7 +551,7 @@ describe(`Circular transitions`, () => {
                 graph, uniformTransitionDuration,
                 enableTransition,
             } = createSelfTransitioningGraph({
-                type: 'pose',
+                type: 'procedural',
                 graph: { rootNode: new ApplyAnimationFixturePoseNode(fixture.a_animation, observer) },
             }); 
 
@@ -626,9 +626,9 @@ describe(`Circular transitions`, () => {
             layers: [{
                 stateMachine: {
                     states: {
-                        'first': { type: 'pose', graph: { rootNode: new ApplyAnimationFixturePoseNode(fixtures.first_state_animation, observer) } },
+                        'first': { type: 'procedural', graph: { rootNode: new ApplyAnimationFixturePoseNode(fixtures.first_state_animation, observer) } },
                         ...verboseLoopPrefixPathConfig.reduce((result, { stateName, animation }, verboseIndex) => {
-                            result[stateName] = { type: 'pose', graph: { rootNode: new ApplyAnimationFixturePoseNode(animation, observer) } };
+                            result[stateName] = { type: 'procedural', graph: { rootNode: new ApplyAnimationFixturePoseNode(animation, observer) } };
                             return result;
                         }, {} as Record<string, StateParams>),
                     },

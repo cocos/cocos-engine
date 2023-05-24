@@ -27,9 +27,9 @@ test(`Motion Sync`, () => {
             },
             stateMachine: {
                 states: {
-                    'f': { type: 'pose', graph: { rootNode: { type: 'use-stash', stashId: 'f' } } },
+                    'f': { type: 'procedural', graph: { rootNode: { type: 'use-stash', stashId: 'f' } } },
                     'fr': {
-                        type: 'pose',
+                        type: 'procedural',
                         graph: {
                             rootNode: {
                                 type: 'blend-in-proportion',

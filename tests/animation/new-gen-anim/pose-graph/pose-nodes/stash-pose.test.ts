@@ -29,7 +29,7 @@ test(`Stash pose`, () => {
             stateMachine: {
                 states: [0, 1].reduce((result, index) => {
                     result[`${index}`] = {
-                        type: 'pose',
+                        type: 'procedural',
                         graph: {
                             rootNode: { type: 'use-stash', stashId: 'stashed' },
                         },
@@ -67,8 +67,8 @@ describe(`Exit and reentering`, () => {
                 },
                 stateMachine: {
                     states: {
-                        'use-stash-1': { type: 'pose', graph: { rootNode: { type: 'use-stash', stashId: 'stash' } } },
-                        'use-stash-2': { type: 'pose', graph: { rootNode: { type: 'use-stash', stashId: 'stash' } } },
+                        'use-stash-1': { type: 'procedural', graph: { rootNode: { type: 'use-stash', stashId: 'stash' } } },
+                        'use-stash-2': { type: 'procedural', graph: { rootNode: { type: 'use-stash', stashId: 'stash' } } },
                     },
                     entryTransitions: [{ to: 'use-stash-1' }],
                     transitions: [{
@@ -120,7 +120,7 @@ describe(`Exit and reentering`, () => {
                 },
                 stateMachine: {
                     states: {
-                        'UseStash': { type: 'pose', graph: { rootNode: { type: 'use-stash', stashId: 'Stash' } } },
+                        'UseStash': { type: 'procedural', graph: { rootNode: { type: 'use-stash', stashId: 'Stash' } } },
                         'Empty': { type: 'empty' },
                     },
                     entryTransitions: [{ to: 'UseStash' }],
@@ -198,8 +198,8 @@ describe(`Stash update`, () => {
                 stateMachine: {
                     states: {
                         'Motion': { type: 'motion', motion: { type: 'clip-motion', clip: { duration: 1.0 } } },
-                        'UseStash1': { type: 'pose', graph: { rootNode: { type: 'use-stash', stashId: 'stash' } } },
-                        'UseStash2': { type: 'pose', graph: { rootNode: { type: 'use-stash', stashId: 'stash' } } },
+                        'UseStash1': { type: 'procedural', graph: { rootNode: { type: 'use-stash', stashId: 'stash' } } },
+                        'UseStash2': { type: 'procedural', graph: { rootNode: { type: 'use-stash', stashId: 'stash' } } },
                     },
                     entryTransitions: [{ to: 'Motion' }],
                     transitions: [{
@@ -266,8 +266,8 @@ describe(`Dependent stashes`, () => {
                     stashes,
                     stateMachine: {
                         states: {
-                            'UseStashA': { type: 'pose', graph: { rootNode: { type: 'use-stash', stashId: 'StashA' } } },
-                            'UseStashB': { type: 'pose', graph: { rootNode: { type: 'use-stash', stashId: 'StashB' } } },
+                            'UseStashA': { type: 'procedural', graph: { rootNode: { type: 'use-stash', stashId: 'StashA' } } },
+                            'UseStashB': { type: 'procedural', graph: { rootNode: { type: 'use-stash', stashId: 'StashB' } } },
                         },
                         entryTransitions: [{ to: dependingState }],
                         transitions: [{
@@ -305,7 +305,7 @@ describe(`Dependent stashes`, () => {
                 },
                 stateMachine: {
                     states: {
-                        'UseStash': { type: 'pose', graph: { rootNode: { type: 'use-stash', stashId: 'stash' } } },
+                        'UseStash': { type: 'procedural', graph: { rootNode: { type: 'use-stash', stashId: 'stash' } } },
                     },
                     entryTransitions: [{ to: 'UseStash' }],
                 },

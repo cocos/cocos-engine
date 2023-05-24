@@ -23,7 +23,7 @@
 */
 
 export { InvalidTransitionError, VariableNotDefinedError } from './errors';
-export { AnimationGraph, isAnimationTransition, StateMachine, SubStateMachine, EmptyStateTransition, EmptyState, PoseState, PoseTransition } from './animation-graph';
+export { AnimationGraph, isAnimationTransition, StateMachine, SubStateMachine, EmptyStateTransition, EmptyState, ProceduralPoseState, ProceduralPoseTransition } from './animation-graph';
 export type { Transition, AnimationTransition, Layer, State } from './animation-graph';
 export { BinaryCondition, UnaryCondition, TriggerCondition } from './state-machine/condition';
 export type { Condition } from './state-machine/condition';

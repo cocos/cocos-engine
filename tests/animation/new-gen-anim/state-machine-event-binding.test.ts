@@ -22,12 +22,12 @@ test(`State machine event binding`, () => {
                         transitionInEventBinding: 'm2-transition-in-event', transitionOutEventBinding: 'm2-transition-out-event',
                     },
                     'p1': {
-                        type: 'pose',
+                        type: 'procedural',
                         graph: { },
                         transitionInEventBinding: 'p1-transition-in-event', transitionOutEventBinding: 'p1-transition-out-event',
                     },
                     'p2': {
-                        type: 'pose',
+                        type: 'procedural',
                         graph: { },
                         transitionInEventBinding: 'p2-transition-in-event', transitionOutEventBinding: 'p2-transition-out-event',
                     },

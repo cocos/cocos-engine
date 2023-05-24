@@ -55,7 +55,7 @@ test(`Validation on PoseNode.doEvaluate()`, () => {
         const animationGraph = createAnimationGraph({
             layers: [{
                 stateMachine: {
-                    states: { 'P': { type: 'pose', graph: { rootNode: poseNode } } },
+                    states: { 'P': { type: 'procedural', graph: { rootNode: poseNode } } },
                     entryTransitions: [{ to: 'P' }],
                 },
             }],

@@ -241,10 +241,10 @@ describe(`Pose transform space`, () => {
 function createPoseNodeRunner(setup: (poseGraph: PoseGraph) => PoseNode) {
     const animationGraph = new AnimationGraph();
     const layer = animationGraph.addLayer();
-    const poseState = layer.stateMachine.addPoseState();
-    const mainNode = setup(poseState.graph);
-    poseGraphOp.connectOutputNode(poseState.graph, poseState.graph.outputNode, mainNode);
-    layer.stateMachine.connect(layer.stateMachine.entryState, poseState);
+    const proceduralPoseState = layer.stateMachine.addProceduralPoseState();
+    const mainNode = setup(proceduralPoseState.graph);
+    poseGraphOp.connectOutputNode(proceduralPoseState.graph, proceduralPoseState.graph.outputNode, mainNode);
+    layer.stateMachine.connect(layer.stateMachine.entryState, proceduralPoseState);
     return animationGraph;
 }
 

@@ -3211,7 +3211,7 @@ describe('NewGen Anim', () => {
             test(`Pose state`, () => {
                 const graph = new AnimationGraph();
                 const mainLayer = graph.addLayer();
-                const state = mainLayer.stateMachine.addPoseState();
+                const state = mainLayer.stateMachine.addProceduralPoseState();
                 state.name = `Hi Pose`;
                 mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, state);
 

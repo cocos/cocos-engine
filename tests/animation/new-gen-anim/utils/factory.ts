@@ -1,5 +1,5 @@
 import { AnimationClip } from "../../../../cocos/animation/animation-clip";
-import { AnimationGraph, AnimationTransition, EmptyStateTransition, isAnimationTransition, PoseState, PoseTransition, State, StateMachine, SubStateMachine, Transition } from "../../../../cocos/animation/marionette/animation-graph";
+import { AnimationGraph, AnimationTransition, EmptyStateTransition, isAnimationTransition, ProceduralPoseState, ProceduralPoseTransition, State, StateMachine, SubStateMachine, Transition } from "../../../../cocos/animation/marionette/animation-graph";
 import { PoseGraph, poseGraphOp, TCBinding, TCBindingValueType } from "../../../../cocos/animation/marionette/asset-creation";
 import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D } from "../../../../cocos/animation/marionette/motion";
 import { BinaryCondition, TriggerCondition, UnaryCondition } from "../../../../cocos/animation/marionette/state-machine/condition";
@@ -60,10 +60,10 @@ export function fillStateMachine(stateMachine: StateMachine, params: StateMachin
                     (state as MotionState).motion = stateParams.motion instanceof Motion ? stateParams.motion : createMotion(stateParams.motion);
                 }
                 break;
-            case 'pose':
-                state = stateMachine.addPoseState();
-                fillPoseGraph((state as PoseState).graph, stateParams.graph);
-                fillStateEventBindingSpecification(state as PoseState, stateParams);
+            case 'procedural':
+                state = stateMachine.addProceduralPoseState();
+                fillPoseGraph((state as ProceduralPoseState).graph, stateParams.graph);
+                fillStateEventBindingSpecification(state as ProceduralPoseState, stateParams);
                 break;
             case 'empty':
                 state = stateMachine.addEmpty();
@@ -166,8 +166,8 @@ function fillTransition(transition: Transition, params: TransitionAttributes) {
         }
     }
 
-    function assertsIsDurableTransition(transition: Transition): asserts transition is (AnimationTransition | EmptyStateTransition | PoseTransition) {
-        if (!isAnimationTransition(transition) && !(transition instanceof EmptyStateTransition) && !(transition instanceof PoseTransition)) {
+    function assertsIsDurableTransition(transition: Transition): asserts transition is (AnimationTransition | EmptyStateTransition | ProceduralPoseTransition) {
+        if (!isAnimationTransition(transition) && !(transition instanceof EmptyStateTransition) && !(transition instanceof ProceduralPoseTransition)) {
             throw new Error(`The transition should be animation/empty/pose transition.`);
         }
     }
@@ -315,7 +315,7 @@ type StateEventBindingSpecification = {
     transitionOutEventBinding?: string;
 };
 
-function fillStateEventBindingSpecification(state: MotionState | PoseState, specification: StateEventBindingSpecification) {
+function fillStateEventBindingSpecification(state: MotionState | ProceduralPoseState, specification: StateEventBindingSpecification) {
     if (typeof specification.transitionInEventBinding !== 'undefined') {
         state.transitionInEventBinding.eventName = specification.transitionInEventBinding;
     }
@@ -333,7 +333,7 @@ export type StateParams = ({
 } | {
     type: 'empty',
 } | {
-    type: 'pose';
+    type: 'procedural';
     graph: PoseGraphParams;
 } & StateEventBindingSpecification) & {
     name?: string;

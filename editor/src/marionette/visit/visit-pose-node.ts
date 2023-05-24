@@ -1,4 +1,4 @@
-import { Layer, PoseState, StateMachine } from "../../../../cocos/animation/marionette/animation-graph";
+import { Layer, ProceduralPoseState, StateMachine } from "../../../../cocos/animation/marionette/animation-graph";
 import { PoseNodeStateMachine } from '../../../../cocos/animation/marionette/pose-graph/pose-nodes/state-machine';
 import { PoseGraph, PoseNode } from "../../../exports/new-gen-anim";
 
@@ -22,7 +22,7 @@ export function* visitPoseNodeInPoseGraph(poseGraph: PoseGraph): Generator<PoseN
 
 export function* visitPoseNodesInStateMachine(stateMachine: StateMachine) {
     for (const state of stateMachine.states()) {
-        if (state instanceof PoseState) {
+        if (state instanceof ProceduralPoseState) {
             yield* visitPoseNodeInPoseGraph(state.graph);
         }
     }
