@@ -204,17 +204,17 @@ export interface IPhysics2DContact {
     /**
      * @en
      * If set disabled to true, the contact will be ignored until contact end.
-     * If you just want to disabled contact for current time step or sub-step, please use disabledOnce.
      * @zh
      * 如果 disabled 被设置为 true，那么直到接触结束此接触都将被忽略。
-     * 如果只是希望在当前时间步或子步中忽略此接触，请使用 disabledOnce 。
      */
     disabled: boolean;
+
     /**
      * @en
      * Disabled contact for current time step or sub-step.
      * @zh
      * 在当前时间步或子步中忽略此接触。
+     * @deprecated Since v3.8.0, disabledOnce is no longer supported.
      */
     disabledOnce: boolean;
 
