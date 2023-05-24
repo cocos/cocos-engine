@@ -206,7 +206,7 @@ class RuntimeStashRecord implements RuntimeStash {
 
         // Note: even `deltaTime < this._maxRequestedUpdateTime`(the `diffDeltaTime` becomes 0.0),
         // the `context.directiveAbsoluteWeight` might not be 0.0.
-        // We still need to trigger an update since some nodes(such as MotionNode) needs to accumulate weight.
+        // We still need to trigger an update since some nodes(such as PlayMotion) needs to accumulate weight.
         const diffDeltaTime = Math.max(0.0, deltaTime - this._maxRequestedUpdateTime);
         // We accepted two same time-length update, don't do redundant updates.
         // After PR #14990, this should always true.

@@ -2,12 +2,15 @@ import { PoseGraphNode } from "../../../cocos/animation/marionette/pose-graph/fo
 import {
     getPoseGraphNodeEditorMetadata, PoseGraphCreateNodeContext, PoseGraphNodeAppearanceOptions,
 } from "../../../cocos/animation/marionette/pose-graph/foundation/authoring/node-authoring";
-import { PoseGraph, poseGraphOp } from "../../exports/new-gen-anim";
+import { Layer, PoseGraph, poseGraphOp } from "../../exports/new-gen-anim";
 import { instantiate } from "../../../cocos/serialization";
 import { PoseGraphOutputNode } from "../../../cocos/animation/marionette/pose-graph/graph-output-node";
 import { PoseNode } from "../../../cocos/animation/marionette/pose-graph/pose-node";
 import { PureValueNode } from "../../../cocos/animation/marionette/pose-graph/pure-value-node";
 import { assertIsTrue, editorExtrasTag } from "../../../exports/base";
+import { PoseNodeUseStashedPose } from '../../../cocos/animation/marionette/pose-graph/pose-nodes/use-stashed-pose';
+import { PoseGraphStash } from "../../../cocos/animation/marionette/animation-graph";
+import { visitPoseNodeInLayer } from "./visit/visit-pose-node";
 
 type Constructor<T = unknown> = new (...args: any[]) => T;
 
@@ -44,10 +47,9 @@ export function* getCreatePoseGraphNodeEntries(
                 arg: entry.arg,
             };
         }
-        yield* nodeClassMetadata.factory.listEntries(createNodeContext);
-        return;
+    } else {
+        yield { arg: undefined, category: nodeClassMetadata.category };
     }
-    yield { arg: undefined, category: nodeClassMetadata.category };
 }
 
 export function createPoseGraphNode(
@@ -232,6 +234,74 @@ export function pastePoseGraphNodes(
     return {
         addedNodes,
     };
+}
+
+export interface StashPoseGraphResult {
+    /**
+     * Newly created stash.
+     */
+    stash: PoseGraphStash;
+
+    /**
+     * The `PoseNodeUseStashedPose` node added into the graph.
+     */
+    useStashNode: PoseGraphNode; // Don't expose the node type.
+}
+
+/**
+ * Stash specified pose graph.
+ * 
+ * Creates a stash, then move all contents in the pose graph into the stash.
+ * Then, create a "PoseNodeUseStashedPose" node to reference the newly created stash.
+ * 
+ * @param layer The layer that the pose graph belongs to.
+ * @param poseGraph The pose graph to stash.
+ * @param newStashId Id of the newStash.
+ * @returns The stash operation result, or undefined if error occurred.
+ */
+export function stashPoseGraph(
+    layer: Layer,
+    poseGraph: PoseGraph,
+    newStashId: string,
+): StashPoseGraphResult | undefined {
+    // Stash already exists.
+    if (layer.getStash(newStashId)) {
+        return undefined;
+    }
+
+    const stash = layer.addStash(newStashId);
+
+    // Copy nodes into stash graph.
+    const copyInfo = copyPoseGraphNodes(poseGraph, [...poseGraph.nodes()]);
+    pastePoseGraphNodes(stash.graph, copyInfo);
+
+    // Clear original graph.
+    for (const node of [...poseGraph.nodes()]) {
+        if (node !== poseGraph.outputNode) {
+            poseGraph.removeNode(node);
+        }
+    }
+
+    // Add a `Use stash node into original graph.`
+    const useStashNode = new PoseNodeUseStashedPose();
+    useStashNode.stashName = newStashId;
+    poseGraph.addNode(useStashNode);
+
+    return {
+        stash,
+        useStashNode: useStashNode as PoseGraphNode, // Don't expose the node type.
+    };
+}
+
+interface StashReference {
+}
+
+export function* visitStashReferences(layer: Layer, stashId: string): Generator<StashReference> {
+    for (const poseNode of visitPoseNodeInLayer(layer)) {
+        if (poseNode instanceof PoseNodeUseStashedPose && poseNode.stashName === stashId) {
+            yield poseNode;
+        }
+    }
 }
 
 export * from './pose-graph/drag';
