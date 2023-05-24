@@ -28,6 +28,7 @@ import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
 import { Device } from '../../gfx';
+import { PostProcessBuilder } from '../post-process';
 
 export * from './types';
 export * from './pipeline';
@@ -59,7 +60,8 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
-    map.set('Custom', new CustomPipelineBuilder());
+    map.set('Deprecated', new CustomPipelineBuilder());
+    map.set('Custom', new PostProcessBuilder());
     map.set('Test', new TestPipelineBuilder());
 }
 

@@ -197,4 +197,4 @@ export class PostProcessBuilder implements PipelineBuilder  {
     }
 }
 
-setCustomPipeline('PostProcess', new PostProcessBuilder());
+// setCustomPipeline('Custom', new PostProcessBuilder());

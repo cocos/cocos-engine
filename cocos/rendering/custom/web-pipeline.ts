@@ -53,6 +53,7 @@ import { DebugViewCompositeType } from '../debug-view';
 import { getUBOTypeCount } from './utils';
 import { initGlobalDescBinding } from './define';
 import { createGfxDescriptorSetsAndPipelines } from './layout-graph-utils';
+import { PostProcessBuilder } from '../post-process';
 
 const _uboVec = new Vec4();
 const _uboVec3 = new Vec3();
@@ -1496,7 +1497,7 @@ export class WebPipeline implements BasicPipeline {
 
         this._forward = new ForwardPipelineBuilder();
         this._deferred = new DeferredPipelineBuilder();
-        this.builder = new CustomPipelineBuilder();
+        this.builder = new PostProcessBuilder();
         return true;
     }
     public destroy (): boolean {

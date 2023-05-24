@@ -34,6 +34,7 @@ import { WebProgramLibrary } from './web-program-library';
 import { Device } from '../../gfx';
 import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID } from './layout-graph-utils';
 import { ProgramLibrary } from './private';
+import { PostProcessBuilder } from '../post-process';
 
 let _pipeline: WebPipeline | null = null;
 
@@ -74,7 +75,8 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
-    map.set('Custom', new CustomPipelineBuilder());
+    map.set('Deprecated', new CustomPipelineBuilder());
+    map.set('Custom', new PostProcessBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
