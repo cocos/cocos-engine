@@ -190,10 +190,6 @@ export class SkinPass extends SettingPass {
     ssssBlurData = new SSSSBlurData();
 
     enableInAllEditorCamera = true;
-    enable = true;
-    checkEnable (camera: Camera) {
-        return true;
-    }
 
     public render (camera: Camera, ppl: BasicPipeline): void {
         passContext.material = this.material;
@@ -314,11 +310,14 @@ export class SkinPass extends SettingPass {
             }
         }
 
-        pass.addQueue(QueueHint.RENDER_OPAQUE)
-            .addSceneOfCamera(camera,
-                new LightInfo(),
-                SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
-                | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+        pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'default')
+            .addSceneOfCamera(camera, new LightInfo(),
+                SceneFlags.OPAQUE_OBJECT | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
+            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING);
+        pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'forward-add')
+            .addSceneOfCamera(camera, new LightInfo(),
+                SceneFlags.OPAQUE_OBJECT | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
+            | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING);
     }
 
     slotName (camera: Camera, index = 0) {
