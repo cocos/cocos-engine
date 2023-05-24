@@ -2,6 +2,9 @@ import './use-stashed-pose';
 
 import './state-machine';
 
+import './play-motion';
+import './sample-motion';
+
 import './additively-blend';
 
 import './blend-in-proportion';

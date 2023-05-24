@@ -8,6 +8,11 @@ module.exports = {
             pose_nodes_blend: '混合',
             pose_nodes_ik: '反向动力学',
         },
+        pose_graph_node_sub_menus: {
+            play_or_sample_clip_motion: '动画剪辑',
+            play_or_sample_animation_blend_1d: '一维动画混合',
+            play_or_sample_animation_blend_2d: '二维动画混合',
+        },
     },
 
     classes: {
@@ -26,6 +31,64 @@ module.exports = {
                         'emptyStatePose': {
                             displayName: '空状态姿势',
                         },
+                    },
+                },
+                'ClipMotion': {
+                    properties: {
+                        'clip': {
+                            displayName: '剪辑',
+                            tooltip: '动画剪辑。',
+                        },
+                    },
+                },
+                'MotionSyncInfo': {
+                    properties: {
+                        'group': {
+                            displayName: '组',
+                        },
+                    },
+                },
+                'PoseNodePlayMotion': {
+                    displayName: '播放动画',
+                    title: '播放 {motionName}',
+                    properties: {
+                        'motion': {
+                            displayName: '动作',
+                            tooltip: '要播放的动作。',
+                        },
+                        'syncInfo': {
+                            displayName: '同步',
+                        },
+                    },
+                    inputs: {
+                        'speedMultiplier': {
+                            displayName: '速度乘数',
+                        },
+                    },
+                    createPoseNodeOnAssetDragHandler: {
+                        displayName: '播放',
+                    },
+                },
+                'PoseNodeSampleMotion': {
+                    displayName: '采样动画',
+                    title: '采样 {motionName}',
+                    properties: {
+                        'motion': {
+                            displayName: '动作',
+                            tooltip: '要采样的动作。',
+                        },
+                        'useNormalizedTime': {
+                            displayName: '使用标准化时间',
+                            tooltip: '是否使用标准化时间，即 [0, 1] 范围的时间。',
+                        },
+                    },
+                    inputs: {
+                        'time': {
+                            displayName: '时刻',
+                        },
+                    },
+                    createPoseNodeOnAssetDragHandler: {
+                        displayName: '采样',
                     },
                 },
                 'PoseNodeBlendInProportion': {
