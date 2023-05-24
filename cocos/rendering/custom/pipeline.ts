@@ -120,10 +120,20 @@ export interface RenderQueueBuilder extends Setter {
     /**
      * @deprecated method will be removed in 3.8.0
      */
-    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags?: SceneFlags): void;
+    addSceneOfCamera (
+        camera: Camera,
+        light: LightInfo,
+        sceneFlags?: SceneFlags): void;
     addScene (scene: RenderScene, sceneFlags?: SceneFlags): void;
-    addFullscreenQuad (material: Material, passID: number, sceneFlags?: SceneFlags): void;
-    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags?: SceneFlags): void;
+    addFullscreenQuad (
+        material: Material,
+        passID: number,
+        sceneFlags?: SceneFlags): void;
+    addCameraQuad (
+        camera: Camera,
+        material: Material,
+        passID: number,
+        sceneFlags?: SceneFlags): void;
     clearRenderTarget (name: string, color?: Color): void;
     setViewport (viewport: Viewport): void;
     /**
@@ -133,9 +143,23 @@ export interface RenderQueueBuilder extends Setter {
 }
 
 export interface BasicRenderPassBuilder extends Setter {
-    addRenderTarget (name: string, loadOp?: LoadOp, storeOp?: StoreOp, color?: Color): void;
-    addDepthStencil (name: string, loadOp?: LoadOp, storeOp?: StoreOp, depth?: number, stencil?: number, clearFlags?: ClearFlagBit): void;
-    addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
+    addRenderTarget (
+        name: string,
+        loadOp?: LoadOp,
+        storeOp?: StoreOp,
+        color?: Color): void;
+    addDepthStencil (
+        name: string,
+        loadOp?: LoadOp,
+        storeOp?: StoreOp,
+        depth?: number,
+        stencil?: number,
+        clearFlags?: ClearFlagBit): void;
+    addTexture (
+        name: string,
+        slotName: string,
+        sampler?: Sampler | null,
+        plane?: number): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -159,28 +183,89 @@ export interface BasicPipeline extends PipelineRuntime {
     /**
      * @deprecated method will be removed in 3.8.0
      */
-    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
-    addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
+    addRenderTexture (
+        name: string,
+        format: Format,
+        width: number,
+        height: number,
+        renderWindow: RenderWindow): number;
+    addRenderWindow (
+        name: string,
+        format: Format,
+        width: number,
+        height: number,
+        renderWindow: RenderWindow): number;
     updateRenderWindow (name: string, renderWindow: RenderWindow): void;
-    addRenderTarget (name: string, format: Format, width: number, height: number, residency?: ResourceResidency): number;
-    addDepthStencil (name: string, format: Format, width: number, height: number, residency?: ResourceResidency): number;
-    updateRenderTarget (name: string, width: number, height: number, format?: Format): void;
-    updateDepthStencil (name: string, width: number, height: number, format?: Format): void;
+    addRenderTarget (
+        name: string,
+        format: Format,
+        width: number,
+        height: number,
+        residency?: ResourceResidency): number;
+    addDepthStencil (
+        name: string,
+        format: Format,
+        width: number,
+        height: number,
+        residency?: ResourceResidency): number;
+    updateRenderTarget (
+        name: string,
+        width: number,
+        height: number,
+        format?: Format): void;
+    updateDepthStencil (
+        name: string,
+        width: number,
+        height: number,
+        format?: Format): void;
     beginFrame (): void;
     endFrame (): void;
-    addRenderPass (width: number, height: number, layoutName?: string): BasicRenderPassBuilder;
-    addMultisampleRenderPass (width: number, height: number, count: number, quality: number, layoutName?: string): BasicRenderPassBuilder;
+    addRenderPass (
+        width: number,
+        height: number,
+        layoutName?: string): BasicRenderPassBuilder;
+    addMultisampleRenderPass (
+        width: number,
+        height: number,
+        count: number,
+        quality: number,
+        layoutName?: string): BasicRenderPassBuilder;
     addResolvePass (resolvePairs: ResolvePair[]): void;
     addCopyPass (copyPairs: CopyPair[]): void;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
 }
 
 export interface RenderSubpassBuilder extends Setter {
-    addRenderTarget (name: string, accessType: AccessType, slotName?: string, loadOp?: LoadOp, storeOp?: StoreOp, color?: Color): void;
-    addDepthStencil (name: string, accessType: AccessType, depthSlotName?: string, stencilSlotName?: string, loadOp?: LoadOp, storeOp?: StoreOp, depth?: number, stencil?: number, clearFlags?: ClearFlagBit): void;
-    addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
-    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
+    addRenderTarget (
+        name: string,
+        accessType: AccessType,
+        slotName?: string,
+        loadOp?: LoadOp,
+        storeOp?: StoreOp,
+        color?: Color): void;
+    addDepthStencil (
+        name: string,
+        accessType: AccessType,
+        depthSlotName?: string,
+        stencilSlotName?: string,
+        loadOp?: LoadOp,
+        storeOp?: StoreOp,
+        depth?: number,
+        stencil?: number,
+        clearFlags?: ClearFlagBit): void;
+    addTexture (
+        name: string,
+        slotName: string,
+        sampler?: Sampler | null,
+        plane?: number): void;
+    addStorageBuffer (
+        name: string,
+        accessType: AccessType,
+        slotName: string): void;
+    addStorageImage (
+        name: string,
+        accessType: AccessType,
+        slotName: string): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -196,18 +281,37 @@ export interface RenderSubpassBuilder extends Setter {
 
 export interface MultisampleRenderSubpassBuilder extends RenderSubpassBuilder {
     resolveRenderTarget (source: string, target: string): void;
-    resolveDepthStencil (source: string, target: string, depthMode?: ResolveMode, stencilMode?: ResolveMode): void;
+    resolveDepthStencil (
+        source: string,
+        target: string,
+        depthMode?: ResolveMode,
+        stencilMode?: ResolveMode): void;
 }
 
 export interface ComputeQueueBuilder extends Setter {
-    addDispatch (threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, material?: Material, passID?: number): void;
+    addDispatch (
+        threadGroupCountX: number,
+        threadGroupCountY: number,
+        threadGroupCountZ: number,
+        material?: Material,
+        passID?: number): void;
 }
 
 export interface ComputeSubpassBuilder extends Setter {
     addRenderTarget (name: string, slotName: string): void;
-    addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
-    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
+    addTexture (
+        name: string,
+        slotName: string,
+        sampler?: Sampler | null,
+        plane?: number): void;
+    addStorageBuffer (
+        name: string,
+        accessType: AccessType,
+        slotName: string): void;
+    addStorageImage (
+        name: string,
+        accessType: AccessType,
+        slotName: string): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -220,10 +324,19 @@ export interface ComputeSubpassBuilder extends Setter {
 }
 
 export interface RenderPassBuilder extends BasicRenderPassBuilder {
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
-    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
+    addStorageBuffer (
+        name: string,
+        accessType: AccessType,
+        slotName: string): void;
+    addStorageImage (
+        name: string,
+        accessType: AccessType,
+        slotName: string): void;
     addRenderSubpass (layoutName?: string): RenderSubpassBuilder;
-    addMultisampleRenderSubpass (count: number, quality: number, layoutName?: string): MultisampleRenderSubpassBuilder;
+    addMultisampleRenderSubpass (
+        count: number,
+        quality: number,
+        layoutName?: string): MultisampleRenderSubpassBuilder;
     addComputeSubpass (layoutName?: string): ComputeSubpassBuilder;
     /**
      * @beta function signature might change
@@ -232,9 +345,19 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
 }
 
 export interface ComputePassBuilder extends Setter {
-    addTexture (name: string, slotName: string, sampler?: Sampler | null, plane?: number): void;
-    addStorageBuffer (name: string, accessType: AccessType, slotName: string): void;
-    addStorageImage (name: string, accessType: AccessType, slotName: string): void;
+    addTexture (
+        name: string,
+        slotName: string,
+        sampler?: Sampler | null,
+        plane?: number): void;
+    addStorageBuffer (
+        name: string,
+        accessType: AccessType,
+        slotName: string): void;
+    addStorageImage (
+        name: string,
+        accessType: AccessType,
+        slotName: string): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -270,24 +393,56 @@ export interface SceneTransversal {
 }
 
 export interface Pipeline extends BasicPipeline {
-    addStorageBuffer (name: string, format: Format, size: number, residency?: ResourceResidency): number;
-    addStorageTexture (name: string, format: Format, width: number, height: number, residency?: ResourceResidency): number;
-    addShadingRateTexture (name: string, width: number, height: number, residency?: ResourceResidency): number;
-    updateStorageBuffer (name: string, size: number, format?: Format): void;
-    updateStorageTexture (name: string, width: number, height: number, format?: Format): void;
-    updateShadingRateTexture (name: string, width: number, height: number): void;
-    addRenderPass (width: number, height: number, layoutName?: string): RenderPassBuilder;
+    addStorageBuffer (
+        name: string,
+        format: Format,
+        size: number,
+        residency?: ResourceResidency): number;
+    addStorageTexture (
+        name: string,
+        format: Format,
+        width: number,
+        height: number,
+        residency?: ResourceResidency): number;
+    addShadingRateTexture (
+        name: string,
+        width: number,
+        height: number,
+        residency?: ResourceResidency): number;
+    updateStorageBuffer (
+        name: string,
+        size: number,
+        format?: Format): void;
+    updateStorageTexture (
+        name: string,
+        width: number,
+        height: number,
+        format?: Format): void;
+    updateShadingRateTexture (
+        name: string,
+        width: number,
+        height: number): void;
+    addRenderPass (
+        width: number,
+        height: number,
+        layoutName?: string): RenderPassBuilder;
     addComputePass (layoutName: string): ComputePassBuilder;
     addUploadPass (uploadPairs: UploadPair[]): void;
     addMovePass (movePairs: MovePair[]): void;
     /**
      * @beta function signature might change
      */
-    addCustomBuffer (name: string, info: BufferInfo, type: string): number;
+    addCustomBuffer (
+        name: string,
+        info: BufferInfo,
+        type: string): number;
     /**
      * @beta function signature might change
      */
-    addCustomTexture (name: string, info: TextureInfo, type: string): number;
+    addCustomTexture (
+        name: string,
+        info: TextureInfo,
+        type: string): number;
 }
 
 export interface PipelineBuilder {
