@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="dragonBones") dragonbones
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -203,7 +206,6 @@
 %ignore dragonBones::BoneData::inheritRotation;
 %ignore dragonBones::BoneData::inheritScale;
 %ignore dragonBones::BoneData::inheritReflection;
-%ignore dragonBones::BoneData::length;
 %ignore dragonBones::BoneData::transform;
 %ignore dragonBones::BoneData::userData;
 
@@ -299,6 +301,15 @@
 %ignore dragonBones::EventObject::data;
 %ignore dragonBones::EventObject::getTypeIndex;
 %ignore dragonBones::EventObject::actionDataToInstance;
+%ignore dragonBones::EventObject::START;
+%ignore dragonBones::EventObject::LOOP_COMPLETE;
+%ignore dragonBones::EventObject::COMPLETE;
+%ignore dragonBones::EventObject::FADE_IN;
+%ignore dragonBones::EventObject::FADE_IN_COMPLETE;
+%ignore dragonBones::EventObject::FADE_OUT;
+%ignore dragonBones::EventObject::FADE_OUT_COMPLETE;
+%ignore dragonBones::EventObject::FRAME_EVENT;
+%ignore dragonBones::EventObject::SOUND_EVENT;
 
 %ignore dragonBones::TextureData::copyFrom;
 %ignore dragonBones::TextureData::rotated;

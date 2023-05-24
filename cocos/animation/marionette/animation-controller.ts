@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { Component } from '../../scene-graph/component';
 import { AnimationGraph } from './animation-graph';
 import type { AnimationGraphRunTime } from './animation-graph';
@@ -8,7 +32,7 @@ import { Value } from './variable';
 import { AnimationGraphVariant, AnimationGraphVariantRunTime } from './animation-graph-variant';
 import { AnimationGraphLike } from './animation-graph-like';
 
-const { ccclass, menu, property } = _decorator;
+const { ccclass, menu, type, serializable, editable, formerlySerializedAs } = _decorator;
 
 export type {
     MotionStateStatus,
@@ -36,8 +60,19 @@ export class AnimationController extends Component {
      * @en
      * The animation graph associated with the animation controller.
      */
-    @property(AnimationGraphLike)
-    public graph: AnimationGraphRunTime | AnimationGraphVariantRunTime | null = null;
+    @type(AnimationGraphLike)
+    @editable
+    public get graph () {
+        return this._graph;
+    }
+
+    public set graph (value) {
+        this._graph = value;
+    }
+
+    @serializable
+    @formerlySerializedAs('graph')
+    private _graph: AnimationGraphRunTime | AnimationGraphVariantRunTime | null = null;
 
     private _graphEval: AnimationGraphEval | null = null;
 
@@ -68,6 +103,10 @@ export class AnimationController extends Component {
             const graphEval = new AnimationGraphEval(originalGraph, this.node, this, clipOverrides);
             this._graphEval = graphEval;
         }
+    }
+
+    public onDestroy () {
+        this._graphEval?.destroy();
     }
 
     public update (deltaTime: number) {
@@ -236,5 +275,22 @@ export class AnimationController extends Component {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         graphEval.overrideClips(overrides);
+    }
+
+    /**
+     * @zh 获取指定辅助曲线的当前值。
+     * @en Gets the current value of specified auxiliary curve.
+     * @param curveName @en Name of the auxiliary curve. @zh 辅助曲线的名字。
+     * @returns @zh 指定辅助曲线的当前值，如果指定辅助曲线不存在或动画图为空则返回 0。
+     * @en The current value of specified auxiliary curve,
+     * or 0 if specified adjoint curve does not exist or if the animation graph is null.
+     * @experimental
+     */
+    public getAuxiliaryCurveValue_experimental (curveName: string) {
+        const { _graphEval: graphEval } = this;
+        if (!graphEval) {
+            return 0.0;
+        }
+        return graphEval.getAuxiliaryCurveValue(curveName);
     }
 }

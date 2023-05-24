@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Queue } from './queue';
 import { Buffer } from './buffer';
@@ -127,6 +126,9 @@ export enum Feature {
     // the max number of attachment limit(4) situation for many devices, and shader
     // sources inside this kind of subpass must match this behavior.
     INPUT_ATTACHMENT_BENEFIT,
+    SUBPASS_COLOR_INPUT,
+    SUBPASS_DEPTH_STENCIL_INPUT,
+    RASTERIZATION_ORDER_COHERENT,
     COUNT,
 }
 
@@ -401,6 +403,8 @@ export enum TextureFlagBit {
     NONE = 0,
     GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
+    EXTERNAL_OES = 0x4, // External oes texture
+    EXTERNAL_NORMAL = 0x8, // External normal texture
 }
 
 export enum FormatFeatureBit {
@@ -1258,6 +1262,7 @@ export class UniformBlock {
         public name: string = '',
         public members: Uniform[] = [],
         public count: number = 0,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformBlock>) {
@@ -1266,6 +1271,7 @@ export class UniformBlock {
         this.name = info.name;
         deepCopy(this.members, info.members, Uniform);
         this.count = info.count;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1279,6 +1285,7 @@ export class UniformSamplerTexture {
         public name: string = '',
         public type: Type = Type.UNKNOWN,
         public count: number = 0,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformSamplerTexture>) {
@@ -1287,6 +1294,7 @@ export class UniformSamplerTexture {
         this.name = info.name;
         this.type = info.type;
         this.count = info.count;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1299,6 +1307,7 @@ export class UniformSampler {
         public binding: number = 0,
         public name: string = '',
         public count: number = 0,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformSampler>) {
@@ -1306,6 +1315,7 @@ export class UniformSampler {
         this.binding = info.binding;
         this.name = info.name;
         this.count = info.count;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1319,6 +1329,7 @@ export class UniformTexture {
         public name: string = '',
         public type: Type = Type.UNKNOWN,
         public count: number = 0,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformTexture>) {
@@ -1327,6 +1338,7 @@ export class UniformTexture {
         this.name = info.name;
         this.type = info.type;
         this.count = info.count;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1341,6 +1353,7 @@ export class UniformStorageImage {
         public type: Type = Type.UNKNOWN,
         public count: number = 0,
         public memoryAccess: MemoryAccess = MemoryAccessBit.READ_WRITE,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformStorageImage>) {
@@ -1350,6 +1363,7 @@ export class UniformStorageImage {
         this.type = info.type;
         this.count = info.count;
         this.memoryAccess = info.memoryAccess;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1363,6 +1377,7 @@ export class UniformStorageBuffer {
         public name: string = '',
         public count: number = 0,
         public memoryAccess: MemoryAccess = MemoryAccessBit.READ_WRITE,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformStorageBuffer>) {
@@ -1371,6 +1386,7 @@ export class UniformStorageBuffer {
         this.name = info.name;
         this.count = info.count;
         this.memoryAccess = info.memoryAccess;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1383,6 +1399,7 @@ export class UniformInputAttachment {
         public binding: number = 0,
         public name: string = '',
         public count: number = 0,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformInputAttachment>) {
@@ -1390,6 +1407,7 @@ export class UniformInputAttachment {
         this.binding = info.binding;
         this.name = info.name;
         this.count = info.count;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1566,24 +1584,16 @@ export class SubpassDependency {
         public srcSubpass: number = 0,
         public dstSubpass: number = 0,
         public generalBarrier: GeneralBarrier = null!,
-        public bufferBarriers: BufferBarrier = null!,
-        public buffers: Buffer = null!,
-        public bufferBarrierCount: number = 0,
-        public textureBarriers: TextureBarrier = null!,
-        public textures: Texture = null!,
-        public textureBarrierCount: number = 0,
+        public prevAccesses: AccessFlags[] = [AccessFlagBit.NONE],
+        public nextAccesses: AccessFlags[] = [AccessFlagBit.NONE],
     ) {}
 
     public copy (info: Readonly<SubpassDependency>) {
         this.srcSubpass = info.srcSubpass;
         this.dstSubpass = info.dstSubpass;
         this.generalBarrier = info.generalBarrier;
-        this.bufferBarriers = info.bufferBarriers;
-        this.buffers = info.buffers;
-        this.bufferBarrierCount = info.bufferBarrierCount;
-        this.textureBarriers = info.textureBarriers;
-        this.textures = info.textures;
-        this.textureBarrierCount = info.textureBarrierCount;
+        this.prevAccesses = info.prevAccesses.slice();
+        this.nextAccesses = info.nextAccesses.slice();
         return this;
     }
 }

@@ -187,7 +187,9 @@
                 vec3.y = -anchorPoint.y * height;
             }
 
-            cc.Mat4.translate(worldMat, worldMat, vec3);
+            const translate = new cc.Mat4();
+            cc.Mat4.fromTranslation(translate, vec3);
+            cc.Mat4.multiply(worldMat, translate, worldMat);
 
             viewScaleX /= dpr;
             viewScaleY /= dpr;

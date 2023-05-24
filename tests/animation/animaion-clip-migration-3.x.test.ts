@@ -566,13 +566,13 @@ describe('Animation Clip Migration 3.x', () => {
             bezierPoints: [.04,.94,.53,.63],
         });
 
-        type TimeBezierTestCase = {
+        interface TimeBezierTestCase {
             t0: number;
             t1: number;
             v0: number;
             v1: number;
             bezierPoints: BezierControlPoints;
-        };
+        }
 
         function testTimeBezierCurveConversion (testCase: TimeBezierTestCase) {
             const curve = new RealCurve();

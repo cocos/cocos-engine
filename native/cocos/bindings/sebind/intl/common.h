@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -68,16 +67,16 @@ struct FunctionExactor<R(ARGS...)> {
         };
         return func;
     }
-    static R call(const se::Value &fnVal, ARGS &&...args) {
+    static R call(se::Object *jsThisObject, const se::Value &fnVal, ARGS &&...args) {
         se::AutoHandleScope scope;
         se::ValueArray jsArgs;
         jsArgs.resize(sizeof...(ARGS));
         nativevalue_to_se_args_v(jsArgs, std::forward<ARGS>(args)...);
         se::Value rval;
-        bool succ = fnVal.toObject()->call(jsArgs, nullptr, &rval);
+        bool succ = fnVal.toObject()->call(jsArgs, jsThisObject, &rval);
         if constexpr (!std::is_void_v<R>) {
             R result;
-            sevalue_to_native(rval, &result, nullptr);
+            sevalue_to_native(rval, &result, jsThisObject);
             return result;
         }
     }
@@ -331,7 +330,7 @@ ResultType mapTupleArguments(se::Object *self, TupleIn &input, std::index_sequen
     using map_tuple = typename Mapping::mapping_list::tuple_type;
     using result_type = typename Mapping::result_types_tuple_mutable;
     static_assert(std::is_same<ResultType, result_type>::value, "result_type mismatch");
-    //if constexpr (std::tuple_size<result_type>::value > 0) {
+    // if constexpr (std::tuple_size<result_type>::value > 0) {
     return result_type(ArgumentFilter::forward<map_tuple, TupleIn, indexes>(self, input)...);
     //}
     // return result_type();
@@ -466,40 +465,26 @@ struct StaticAttribute;
 template <typename T, typename... ARGS>
 struct Constructor<TypeList<T, ARGS...>> : ConstructorBase {
     // no `if constexpr`, more code is needed...
-    template <bool MapArgs>
-    struct ConstructFn;
-    template <>
-    struct ConstructFn<true> {
-        template <typename Self, typename... ARGS2, size_t... indexes>
-        static auto invoke(Self *self, se::Object *thisObj, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> n) {
-            using type_mapping = TypeMapping<TypeList<ARGS...>>;
-            using map_list_type = typename type_mapping::mapping_list;
-            using map_tuple_type = typename type_mapping::result_types_tuple_mutable;
-
-            static_assert(map_list_type::COUNT == sizeof...(ARGS), "type mapping incorrect");
-
-            map_tuple_type remapArgs = mapTupleArguments<map_tuple_type, type_mapping>(thisObj, args, std::make_index_sequence<type_mapping::FULL_ARGN>{});
-
-            return self->constructWithTuple(remapArgs, n);
-        }
-    };
-    template <>
-    struct ConstructFn<false> {
-        template <typename Self, typename... ARGS2, size_t... indexes>
-        static auto invoke(Self *self, se::Object * /*thisObj*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> n) {
-            return self->constructWithTupleValue(args, n);
-        }
-    };
-
     bool construct(se::State &state) override {
         using type_mapping = TypeMapping<TypeList<ARGS...>>;
         using args_holder_type = typename MapTypeListToTuple<typename type_mapping::input_types>::tuple;
+        constexpr auto indexes = std::make_index_sequence<type_mapping::FULL_ARGN>{};
         se::PrivateObjectBase *self{nullptr};
         se::Object *thisObj = state.thisObject();
         args_holder_type args{};
         const auto &jsArgs = state.args();
         convert_js_args_to_tuple(jsArgs, args, thisObj, std::make_index_sequence<type_mapping::NEW_ARGN>());
-        self = ConstructFn<type_mapping::NEED_REMAP>::invoke(this, thisObj, args, std::make_index_sequence<type_mapping::FULL_ARGN>{});
+        if constexpr (type_mapping::NEED_REMAP) {
+            using type_mapping = TypeMapping<TypeList<ARGS...>>;
+            using map_list_type = typename type_mapping::mapping_list;
+            using map_tuple_type = typename type_mapping::result_types_tuple_mutable;
+            static_assert(map_list_type::COUNT == sizeof...(ARGS), "type mapping incorrect");
+
+            map_tuple_type remapArgs = mapTupleArguments<map_tuple_type, type_mapping>(thisObj, args, std::make_index_sequence<type_mapping::FULL_ARGN>{});
+            self = constructWithTuple(remapArgs, indexes);
+        } else {
+            self = constructWithTupleValue(args, indexes);
+        }
         state.thisObject()->setPrivateObject(self);
         return true;
     }
@@ -558,23 +543,6 @@ struct InstanceMethod<R (T::*)(ARGS...)> : InstanceMethodBase {
 
     type func{nullptr};
 
-    template <bool>
-    struct Invoker;
-    template <>
-    struct Invoker<true> {
-        template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *method, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idx) {
-            method->callWithTuple(self, args, idx);
-        }
-    };
-    template <>
-    struct Invoker<false> {
-        template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *method, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idx) {
-            nativevalue_to_se(method->callWithTuple(self, args, idx), state.rval(), state.thisObject());
-        }
-    };
-
     template <typename... ARGS_HT, size_t... indexes>
     R callWithTuple(T *self, std::tuple<ARGS_HT...> &args, std::index_sequence<indexes...> /*unused*/) const {
         return ((reinterpret_cast<T *>(self))->*func)(std::get<indexes>(args).value()...);
@@ -591,7 +559,11 @@ struct InstanceMethod<R (T::*)(ARGS...)> : InstanceMethodBase {
         }
         std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
-        Invoker<RETURN_VOID>::invoke(this, self, state, args, indexes);
+        if constexpr (RETURN_VOID) {
+            callWithTuple(self, args, indexes);
+        } else {
+            nativevalue_to_se(callWithTuple(self, args, indexes), state.rval(), state.thisObject());
+        }
         return true;
     }
 };
@@ -606,23 +578,6 @@ struct InstanceMethod<R (T::*)(ARGS...) const> : InstanceMethodBase {
 
     type func{nullptr};
 
-    template <bool>
-    struct Invoker;
-    template <>
-    struct Invoker<true> {
-        template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *method, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idx) {
-            method->callWithTuple(self, args, idx);
-        }
-    };
-    template <>
-    struct Invoker<false> {
-        template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *method, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idx) {
-            nativevalue_to_se(method->callWithTuple(self, args, idx), state.rval(), state.thisObject());
-        }
-    };
-
     template <typename... ARGS_HT, size_t... indexes>
     R callWithTuple(T *self, std::tuple<ARGS_HT...> &args, std::index_sequence<indexes...> /*unused*/) const {
         return ((reinterpret_cast<T *>(self))->*func)(std::get<indexes>(args).value()...);
@@ -639,7 +594,11 @@ struct InstanceMethod<R (T::*)(ARGS...) const> : InstanceMethodBase {
         }
         std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
-        Invoker<RETURN_VOID>::invoke(this, self, state, args, indexes);
+        if constexpr (RETURN_VOID) {
+            callWithTuple(self, args, indexes);
+        } else {
+            nativevalue_to_se(callWithTuple(self, args, indexes), state.rval(), state.thisObject());
+        }
         return true;
     }
 };
@@ -653,23 +612,6 @@ struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
     constexpr static bool RETURN_VOID = std::is_same<void, R>::value;
 
     type func{nullptr};
-
-    template <bool>
-    struct Invoker;
-    template <>
-    struct Invoker<true> {
-        template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *method, T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idx) {
-            method->callWithTuple(self, args, idx);
-        }
-    };
-    template <>
-    struct Invoker<false> {
-        template <typename S, typename... ARGS2, size_t... indexes>
-        static void invoke(S *method, T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idx) {
-            nativevalue_to_se(method->callWithTuple(self, args, idx), state.rval(), state.thisObject());
-        }
-    };
 
     template <typename... ARGS_HT, size_t... indexes>
     R callWithTuple(T *self, std::tuple<ARGS_HT...> &args, std::index_sequence<indexes...> /*unused*/) const {
@@ -687,7 +629,11 @@ struct InstanceMethod<R (*)(T *, ARGS...)> : InstanceMethodBase {
         }
         std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, thisObject, indexes);
-        Invoker<RETURN_VOID>::invoke(this, self, state, args, indexes);
+        if constexpr (RETURN_VOID) {
+            callWithTuple(self, args, indexes);
+        } else {
+            nativevalue_to_se(callWithTuple(self, args, indexes), state.rval(), state.thisObject());
+        }
         return true;
     }
 };
@@ -816,29 +762,15 @@ struct InstanceAttribute<AttributeAccessor<T, Getter, Setter>> : InstanceAttribu
     setter_type setterPtr;
     getter_type getterPtr;
 
-    template <bool>
-    struct Invoker;
-
-    template <>
-    struct Invoker<true> {
-        static bool invoke(getter_type getterPtr, se::State &state) {
+    bool get(se::State &state) const override {
+        if constexpr (HAS_GETTER) {
             T *self = reinterpret_cast<T *>(state.nativeThisObject());
             se::Object *thisObject = state.thisObject();
             using func_type = FunctionWrapper<getter_type>;
             static_assert(!std::is_void<typename func_type::return_type>::value, "should return a value");
             return nativevalue_to_se(func_type::invoke(getterPtr, self), state.rval(), thisObject);
         }
-    };
-
-    template <>
-    struct Invoker<false> {
-        static bool invoke(getter_type /*getterPtr*/, se::State & /*state*/) {
-            return false;
-        }
-    };
-
-    bool get(se::State &state) const override {
-        return Invoker<HAS_GETTER>::invoke(getterPtr, state);
+        return false;
     }
 
     bool set(se::State &state) const override {
@@ -866,23 +798,6 @@ struct StaticMethod<R (*)(ARGS...)> : StaticMethodBase {
 
     type func{nullptr};
 
-    template <bool>
-    struct Invoker;
-    template <>
-    struct Invoker<true> {
-        template <typename T, typename... ARGS2, size_t... indexes>
-        static void invoke(T *self, se::State & /*state*/, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idxs) {
-            self->callWithTuple(args, idxs);
-        }
-    };
-    template <>
-    struct Invoker<false> {
-        template <typename T, typename... ARGS2, size_t... indexes>
-        static void invoke(T *self, se::State &state, std::tuple<ARGS2...> &args, std::index_sequence<indexes...> idxs) {
-            nativevalue_to_se(self->callWithTuple(args, idxs), state.rval(), nullptr);
-        }
-    };
-
     template <typename... ARGS_HT, size_t... indexes>
     R callWithTuple(std::tuple<ARGS_HT...> &args, std::index_sequence<indexes...> /*unused*/) const {
         return (*func)(std::get<indexes>(args).value()...);
@@ -897,7 +812,11 @@ struct StaticMethod<R (*)(ARGS...)> : StaticMethodBase {
         }
         std::tuple<HolderType<ARGS, std::is_reference<ARGS>::value>...> args{};
         convert_js_args_to_tuple(jsArgs, args, nullptr, indexes);
-        Invoker<RETURN_VOID>::invoke(this, state, args, indexes);
+        if constexpr (RETURN_VOID) {
+            callWithTuple(args, indexes);
+        } else {
+            nativevalue_to_se(callWithTuple(args, indexes), state.rval(), nullptr);
+        }
         return true;
     }
 };
@@ -976,27 +895,13 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
     setter_type setterPtr;
     getter_type getterPtr;
 
-    template <bool>
-    struct Invoker;
-
-    template <>
-    struct Invoker<true> {
-        static bool invoke(getter_type getterPtr, se::State &state) {
+    bool get(se::State &state) const override {
+        if constexpr (HAS_GETTER) {
             using func_type = StaticFunctionWrapper<getter_type>;
             static_assert(!std::is_void<typename func_type::return_type>::value, "should return a value");
             return nativevalue_to_se(func_type::invoke(getterPtr), state.rval(), nullptr);
         }
-    };
-
-    template <>
-    struct Invoker<false> {
-        static bool invoke(getter_type /*getterPtr*/, se::State & /*state*/) {
-            return false;
-        }
-    };
-
-    bool get(se::State &state) const override {
-        return Invoker<HAS_GETTER>::invoke(getterPtr, state);
+        return false;
     }
 
     bool set(se::State &state) const override {
@@ -1045,13 +950,17 @@ auto bindFunction(const se::Value &fnVal) {
 }
 
 template <typename R, typename... ARGS>
-R callFunction(const se::Value &fnVal, ARGS... args) {
+R callFunction(se::Object *jsThisObject, const se::Value &fnVal, ARGS... args) {
     using T = R(ARGS...);
     assert(fnVal.isObject() && fnVal.toObject()->isFunction());
     if constexpr (!std::is_void_v<R>) {
-        return intl::FunctionExactor<T>::call(fnVal, std::forward<ARGS>(args)...);
+        return intl::FunctionExactor<T>::call(jsThisObject, fnVal, std::forward<ARGS>(args)...);
     } else {
-        intl::FunctionExactor<T>::call(fnVal, std::forward<ARGS>(args)...);
+        intl::FunctionExactor<T>::call(jsThisObject, fnVal, std::forward<ARGS>(args)...);
     }
+}
+template <typename R, typename... ARGS>
+R callFunction(const se::Value &fnVal, ARGS... args) {
+    return callFunction<R, ARGS...>(nullptr, fnVal, args...);
 }
 } // namespace sebind

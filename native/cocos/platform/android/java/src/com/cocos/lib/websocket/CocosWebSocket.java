@@ -3,11 +3,12 @@ package com.cocos.lib.websocket;
 import android.os.Build;
 import android.util.Log;
 
-import com.cocos.lib.CocosHelper;
+import com.cocos.lib.GlobalObject;
 
 import org.cocos2dx.okhttp3.CipherSuite;
 import org.cocos2dx.okhttp3.Dispatcher;
 import org.cocos2dx.okhttp3.OkHttpClient;
+import org.cocos2dx.okhttp3.Protocol;
 import org.cocos2dx.okhttp3.Request;
 import org.cocos2dx.okhttp3.Response;
 import org.cocos2dx.okhttp3.WebSocketListener;
@@ -22,6 +23,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -163,6 +165,7 @@ public class CocosWebSocket extends WebSocketListener {
         OkHttpClient.Builder builder =
             new OkHttpClient.Builder()
                 .dispatcher(dispatcher)
+                .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                 .readTimeout(_timeout, TimeUnit.MILLISECONDS)
                 .writeTimeout(_timeout, TimeUnit.MILLISECONDS)
                 .connectTimeout(_timeout, TimeUnit.MILLISECONDS);
@@ -177,7 +180,7 @@ public class CocosWebSocket extends WebSocketListener {
                 InputStream caInput = null;
 
                 if (caFilePath.startsWith("assets/")) {
-                    caInput = CocosHelper.getActivity().getResources().getAssets().open(caFilePath);
+                    caInput = GlobalObject.getContext().getResources().getAssets().open(caFilePath);
                 } else {
                     caInput = new FileInputStream(caFilePath);
                 }

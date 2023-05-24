@@ -7,6 +7,10 @@ void main()
   CCSurfacesVertexAnimation(In);
   In.position.xyz = SurfacesVertexModifyLocalPos(In);
   In.normal.xyz = SurfacesVertexModifyLocalNormal(In);
+  #if CC_SURFACES_USE_TANGENT_SPACE
+    In.tangent = SurfacesVertexModifyLocalTangent(In);
+  #endif
+  SurfacesVertexModifyLocalSharedData(In);
 
   // World Space
   CCSurfacesVertexWorldTransform(In);
@@ -17,18 +21,22 @@ void main()
   In.clipPos = SurfacesVertexModifyClipPos(In);
 
   // Other Surfaces Function
-  SurfacesVertexModifyUV(In);
-  SurfacesVertexModifySharedData(In);
-
   vec3 viewDirect = normalize(cc_cameraPos.xyz - In.worldPos);
   In.worldNormal.w = dot(In.worldNormal.xyz, viewDirect) < 0.0 ? -1.0 : 1.0;
   In.worldNormal.xyz = SurfacesVertexModifyWorldNormal(In);
 
+  SurfacesVertexModifyUV(In);
+  SurfacesVertexModifySharedData(In);
+
   // Other Data
   CCSurfacesVertexTransformUV(In);  
   CCSurfacesVertexTransferFog(In);
-  CCSurfacesVertexTransferShadow(In);
   CCSurfacesVertexTransferLightMapUV(In);
+
+  CCSurfacesVertexTransferShadow(In);
+  #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+    In.shadowBiasAndProbeId.xy = SurfacesVertexModifyShadowBias(In, In.shadowBiasAndProbeId.xy);
+  #endif
 
   CCSurfacesVertexOutput(In);
 }

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -37,18 +36,19 @@
 #include <variant>
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/container/vector.h"
-#include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/Set.h"
+#include "cocos/renderer/pipeline/custom/details/GraphTypes.h"
+#include "cocos/renderer/pipeline/custom/details/Map.h"
+#include "cocos/renderer/pipeline/custom/details/Set.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 
 namespace render {
 
-struct NullTag {};
+struct NullTag {
+};
 
 struct ResourceLifeRecord {
     uint32_t start{0};
@@ -104,6 +104,17 @@ struct ResourceTransition {
 struct ResourceAccessNode {
     std::vector<AccessStatus> attachmentStatus;
     struct ResourceAccessNode* nextSubpass{nullptr};
+};
+
+struct LayoutAccess {
+    gfx::AccessFlagBit prevAccess{gfx::AccessFlagBit::NONE};
+    gfx::AccessFlagBit nextAccess{gfx::AccessFlagBit::NONE};
+};
+
+struct FGRenderPassInfo {
+    std::vector<LayoutAccess> colorAccesses;
+    LayoutAccess dsAccess;
+    gfx::RenderPassInfo rpInfo;
 };
 
 struct ResourceAccessGraph {
@@ -227,10 +238,8 @@ struct ResourceAccessGraph {
         ccstd::pmr::vector<InEdge> inEdges;
     };
 
-    struct PassIDTag {
-    } static constexpr PassID{}; // NOLINT
-    struct AccessNodeTag {
-    } static constexpr AccessNode{}; // NOLINT
+    struct PassIDTag {};
+    struct AccessNodeTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -248,6 +257,7 @@ struct ResourceAccessGraph {
     PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
     PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
+    PmrFlatMap<vertex_descriptor, FGRenderPassInfo> rpInfos;
 };
 
 struct RelationGraph {
@@ -357,8 +367,7 @@ struct RelationGraph {
         ccstd::pmr::vector<InEdge> inEdges;
     };
 
-    struct DescIDTag {
-    } static constexpr DescID{}; // NOLINT
+    struct DescIDTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -392,13 +401,13 @@ struct FrameGraphDispatcher {
         return {resourceAccessGraph.get_allocator().resource()};
     }
 
-    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
+    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, const LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
     FrameGraphDispatcher(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher(FrameGraphDispatcher const& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
 
-    using BarrierMap = FlatMap<ResourceAccessGraph::vertex_descriptor, BarrierNode>;
+    using BarrierMap = PmrMap<ResourceAccessGraph::vertex_descriptor, BarrierNode>;
 
     void enablePassReorder(bool enable);
 
@@ -418,7 +427,7 @@ struct FrameGraphDispatcher {
     ResourceAccessGraph resourceAccessGraph;
     ResourceGraph& resourceGraph;
     const RenderGraph& graph;
-    LayoutGraphData& layoutGraph;
+    const LayoutGraphData& layoutGraph;
     boost::container::pmr::memory_resource* scratch{nullptr};
     PmrFlatMap<ccstd::pmr::string, ResourceTransition> externalResMap;
     RelationGraph relationGraph;

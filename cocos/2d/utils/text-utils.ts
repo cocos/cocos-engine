@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -169,7 +168,9 @@ const WRAP_INSPECTION = true;
 // reference: https://en.wikipedia.org/wiki/UTF-16
 const highSurrogateRex = /[\uD800-\uDBFF]/;
 const lowSurrogateRex = /[\uDC00-\uDFFF]/;
-
+/**
+ * @deprecated since v3.7.2, this is an engine private interface that will be removed in the future.
+ */
 export function isUnicodeCJK (ch: string) {
     const __CHINESE_REG = /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/;
     const __JAPANESE_REG = /[\u3000-\u303F]|[\u3040-\u309F]|[\u30A0-\u30FF]|[\uFF00-\uFFEF]|[\u4E00-\u9FAF]|[\u2605-\u2606]|[\u2190-\u2195]|\u203B/g;
@@ -177,6 +178,9 @@ export function isUnicodeCJK (ch: string) {
     return __CHINESE_REG.test(ch) || __JAPANESE_REG.test(ch) || __KOREAN_REG.test(ch);
 }
 
+/**
+ * @deprecated since v3.7.2, this is an engine private interface that will be removed in the future.
+ */
 // Checking whether the character is a whitespace
 export function isUnicodeSpace (ch: string) {
     const chCode = ch.charCodeAt(0);
@@ -192,7 +196,9 @@ export function isUnicodeSpace (ch: string) {
     || chCode === 8287
     || chCode === 12288);
 }
-
+/**
+ * @deprecated since v3.7.2, this is an engine private interface that will be removed in the future.
+ */
 export function safeMeasureText (ctx: CanvasRenderingContext2D, string: string, desc?: string) {
     const font = desc || ctx.font;
     const key = `${font}\uD83C\uDFAE${string}`;
@@ -265,7 +271,9 @@ export function getEnglishWordPartAtLast (stringToken: string) {
     const result = LAST_ENGLISH_REG.exec(stringToken);
     return result;
 }
-
+/**
+ * @deprecated since v3.7.2, this is an engine private interface that will be removed in the future.
+ */
 export function fragmentText (stringToken: string, allWidth: number, maxWidth: number, measureText: (string: string) => number) {
     // check the first character
     const wrappedWords: string[] = [];

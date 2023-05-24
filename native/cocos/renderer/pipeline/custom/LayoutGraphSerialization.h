@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -29,12 +28,12 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 #pragma once
-#include <cocos/renderer/pipeline/custom/LayoutGraphGraphs.h>
 #include "cocos/renderer/pipeline/custom/ArchiveTypes.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/Range.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonSerialization.h"
-#include "cocos/renderer/pipeline/custom/SerializationUtils.h"
+#include "cocos/renderer/pipeline/custom/details/Range.h"
+#include "cocos/renderer/pipeline/custom/details/SerializationUtils.h"
 
 namespace cc {
 
@@ -70,8 +69,8 @@ inline void save(OutputArchive& ar, const LayoutGraph& g) {
     save(ar, static_cast<SizeT>(g.stages.size()));
     save(ar, static_cast<SizeT>(g.phases.size()));
 
-    const auto nameMap = get(Graph::Name, g);
-    const auto descriptorsMap = get(Graph::Descriptors, g);
+    const auto nameMap = get(Graph::NameTag{}, g);
+    const auto descriptorsMap = get(Graph::DescriptorsTag{}, g);
     for (const auto& v : makeRange(vertices(g))) {
         const auto typeID = static_cast<SizeT>(tag(v, g).index());
         static_assert(std::is_same_v<decltype(typeID), const SizeT>);
@@ -107,8 +106,8 @@ inline void load(InputArchive& ar, LayoutGraph& g) {
     g.stages.reserve(stages);
     g.phases.reserve(phases);
 
-    const auto nameMap = get(Graph::Name, g);
-    const auto descriptorsMap = get(Graph::Descriptors, g);
+    const auto nameMap = get(Graph::NameTag{}, g);
+    const auto descriptorsMap = get(Graph::DescriptorsTag{}, g);
     for (SizeT v = 0; v != numVertices; ++v) {
         SizeT id = std::numeric_limits<SizeT>::max();
         VertexT u = Graph::null_vertex();
@@ -118,21 +117,21 @@ inline void load(InputArchive& ar, LayoutGraph& g) {
         load(ar, u);
         load(ar, name);
         load(ar, descriptors);
-        switch(id) {
-        case 0: {
-            uint32_t val;
-            load(ar, val);
-            addVertex(std::move(name), std::move(descriptors), val, g, u);
-            break;
-        }
-        case 1: {
-            RenderPhase val(g.get_allocator());
-            load(ar, val);
-            addVertex(std::move(name), std::move(descriptors), std::move(val), g, u);
-            break;
-        }
-        default:
-            throw std::runtime_error("load graph failed");
+        switch (id) {
+            case 0: {
+                uint32_t val;
+                load(ar, val);
+                addVertex(std::move(name), std::move(descriptors), val, g, u);
+                break;
+            }
+            case 1: {
+                RenderPhase val(g.get_allocator());
+                load(ar, val);
+                addVertex(std::move(name), std::move(descriptors), std::move(val), g, u);
+                break;
+            }
+            default:
+                throw std::runtime_error("load graph failed");
         }
     }
 }
@@ -171,11 +170,13 @@ inline void load(InputArchive& ar, NameLocalID& v) {
 
 inline void save(OutputArchive& ar, const DescriptorData& v) {
     save(ar, v.descriptorID);
+    save(ar, v.type);
     save(ar, v.count);
 }
 
 inline void load(InputArchive& ar, DescriptorData& v) {
     load(ar, v.descriptorID);
+    load(ar, v.type);
     load(ar, v.count);
 }
 
@@ -198,15 +199,21 @@ inline void load(InputArchive& ar, DescriptorBlockData& v) {
 inline void save(OutputArchive& ar, const DescriptorSetLayoutData& v) {
     save(ar, v.slot);
     save(ar, v.capacity);
+    save(ar, v.uniformBlockCapacity);
+    save(ar, v.samplerTextureCapacity);
     save(ar, v.descriptorBlocks);
     save(ar, v.uniformBlocks);
+    save(ar, v.bindingMap);
 }
 
 inline void load(InputArchive& ar, DescriptorSetLayoutData& v) {
     load(ar, v.slot);
     load(ar, v.capacity);
+    load(ar, v.uniformBlockCapacity);
+    load(ar, v.samplerTextureCapacity);
     load(ar, v.descriptorBlocks);
     load(ar, v.uniformBlocks);
+    load(ar, v.bindingMap);
 }
 
 inline void save(OutputArchive& ar, const DescriptorSetData& v) {
@@ -267,10 +274,12 @@ inline void load(InputArchive& ar, EffectData& v) {
 
 inline void save(OutputArchive& ar, const ShaderProgramData& v) {
     save(ar, v.layout);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void load(InputArchive& ar, ShaderProgramData& v) {
     load(ar, v.layout);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void save(OutputArchive& ar, const RenderStageData& v) {
@@ -285,12 +294,14 @@ inline void save(OutputArchive& ar, const RenderPhaseData& v) {
     save(ar, v.rootSignature);
     save(ar, v.shaderPrograms);
     save(ar, v.shaderIndex);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void load(InputArchive& ar, RenderPhaseData& v) {
     load(ar, v.rootSignature);
     load(ar, v.shaderPrograms);
     load(ar, v.shaderIndex);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void save(OutputArchive& ar, const LayoutGraphData& g) {
@@ -307,9 +318,9 @@ inline void save(OutputArchive& ar, const LayoutGraphData& g) {
     save(ar, static_cast<SizeT>(g.stages.size()));
     save(ar, static_cast<SizeT>(g.phases.size()));
 
-    const auto nameMap = get(Graph::Name, g);
-    const auto updateMap = get(Graph::Update, g);
-    const auto layoutMap = get(Graph::Layout, g);
+    const auto nameMap = get(Graph::NameTag{}, g);
+    const auto updateMap = get(Graph::UpdateTag{}, g);
+    const auto layoutMap = get(Graph::LayoutTag{}, g);
     for (const auto& v : makeRange(vertices(g))) {
         const auto typeID = static_cast<SizeT>(tag(v, g).index());
         static_assert(std::is_same_v<decltype(typeID), const SizeT>);
@@ -351,9 +362,9 @@ inline void load(InputArchive& ar, LayoutGraphData& g) {
     g.stages.reserve(stages);
     g.phases.reserve(phases);
 
-    const auto nameMap = get(Graph::Name, g);
-    const auto updateMap = get(Graph::Update, g);
-    const auto layoutMap = get(Graph::Layout, g);
+    const auto nameMap = get(Graph::NameTag{}, g);
+    const auto updateMap = get(Graph::UpdateTag{}, g);
+    const auto layoutMap = get(Graph::LayoutTag{}, g);
     for (SizeT v = 0; v != numVertices; ++v) {
         SizeT id = std::numeric_limits<SizeT>::max();
         VertexT u = Graph::null_vertex();
@@ -365,21 +376,21 @@ inline void load(InputArchive& ar, LayoutGraphData& g) {
         load(ar, name);
         load(ar, update);
         load(ar, layout);
-        switch(id) {
-        case 0: {
-            RenderStageData val(g.get_allocator());
-            load(ar, val);
-            addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
-            break;
-        }
-        case 1: {
-            RenderPhaseData val(g.get_allocator());
-            load(ar, val);
-            addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
-            break;
-        }
-        default:
-            throw std::runtime_error("load graph failed");
+        switch (id) {
+            case 0: {
+                RenderStageData val(g.get_allocator());
+                load(ar, val);
+                addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
+                break;
+            }
+            case 1: {
+                RenderPhaseData val(g.get_allocator());
+                load(ar, val);
+                addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
+                break;
+            }
+            default:
+                throw std::runtime_error("load graph failed");
         }
     }
     load(ar, g.valueNames);

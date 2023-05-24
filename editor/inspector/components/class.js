@@ -26,12 +26,17 @@ exports.methods = {
         $group.setAttribute('class', 'tab-group');
         $group.dump = dump;
         $group.tabs = {};
+        $group.displayOrder = dump.displayOrder;
+
         $group.$header = document.createElement('ui-tab');
         $group.$header.setAttribute('class', 'tab-header');
         $group.appendChild($group.$header);
         $group.$header.addEventListener('change', (e) => {
+            active(e.target.value);
+        });
+        function active(index) {
             const tabNames = Object.keys($group.tabs);
-            const tabName = tabNames[e.target.value || 0];
+            const tabName = tabNames[index];
             $group.childNodes.forEach((child) => {
                 if (!child.classList.contains('tab-content')) {
                     return;
@@ -42,14 +47,22 @@ exports.methods = {
                     child.style.display = 'none';
                 }
             });
-        });
+        }
         setTimeout(() => {
-            const $firstTab = $group.$header.shadowRoot.querySelector('ui-button');
-            if ($firstTab) {
-                $firstTab.dispatch('confirm');
-            }
+            active(0);
         });
         return $group;
+    },
+    toggleGroups($groups) {
+        for (const key in $groups) {
+            const $props = Array.from($groups[key].querySelectorAll('.tab-content > ui-prop'));
+            const show = $props.some($prop => getComputedStyle($prop).display !== 'none');
+            if (show) {
+                $groups[key].removeAttribute('hidden');
+            } else {
+                $groups[key].setAttribute('hidden', '');
+            }
+        }
     },
     appendToTabGroup($group, tabName) {
         if ($group.tabs[tabName]) {
@@ -69,7 +82,8 @@ exports.methods = {
         $button.appendChild($label);
         $group.$header.appendChild($button);
     },
-    appendChildByDisplayOrder(parent, newChild, displayOrder = 0) {
+    appendChildByDisplayOrder(parent, newChild) {
+        const displayOrder = newChild.displayOrder || 0;
         const children = Array.from(parent.children);
         const child = children.find(child => child.dump && child.displayOrder > displayOrder);
         if (child) {
@@ -134,22 +148,22 @@ async function update(dump) {
                 }
                 if ($panel.$groups[id]) {
                     if (!$panel.$groups[id].isConnected) {
-                        $panel.appendChildByDisplayOrder($section, $panel.$groups[id], dump.groups[id].displayOrder);
+                        $panel.appendChildByDisplayOrder($section, $panel.$groups[id]);
                     }
                     if (dump.groups[id].style === 'tab') {
                         $panel.appendToTabGroup($panel.$groups[id], name);
                     }
                 }
-                $panel.appendChildByDisplayOrder($panel.$groups[id].tabs[name], $prop, $prop.displayOrder);
+                $panel.appendChildByDisplayOrder($panel.$groups[id].tabs[name], $prop);
             } else {
-                $panel.appendChildByDisplayOrder($section, $prop, $prop.displayOrder);
+                $panel.appendChildByDisplayOrder($section, $prop);
             }
         } else if (!$prop.isConnected || !$prop.parentElement) {
             if (info.group && dump.groups) {
                 const { id = 'default', name } = info.group;
-                $panel.appendChildByDisplayOrder($panel.$groups[id].tabs[name], $prop, $prop.displayOrder);
+                $panel.appendChildByDisplayOrder($panel.$groups[id].tabs[name], $prop);
             } else {
-                $panel.appendChildByDisplayOrder($section, $prop, $prop.displayOrder);
+                $panel.appendChildByDisplayOrder($section, $prop);
             }
         }
         $prop.render(info);
@@ -163,6 +177,8 @@ async function update(dump) {
             }
         }
     }
+
+    $panel.toggleGroups($panel.$groups);
 }
 exports.update = update;
 async function ready() {

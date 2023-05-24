@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,7 +25,6 @@
 #include "base/std/container/array.h"
 
 #include "Define.h"
-#include "LODModelsUtil.h"
 #include "PipelineSceneData.h"
 #include "RenderPipeline.h"
 #include "SceneCulling.h"
@@ -35,15 +33,16 @@
 #include "core/geometry/Frustum.h"
 #include "core/geometry/Intersect.h"
 #include "core/geometry/Sphere.h"
-#include "core/scene-graph/Node.h"
 #include "core/platform/Debug.h"
+#include "core/scene-graph/Node.h"
 #include "math/Quaternion.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
-#include "scene/Light.h"
 #include "scene/LODGroup.h"
+#include "scene/Light.h"
 #include "scene/Octree.h"
+#include "scene/RangedDirectionalLight.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
@@ -95,6 +94,31 @@ void validPunctualLightsCulling(const RenderPipeline *pipeline, const scene::Cam
             sceneData->addValidPunctualLight(static_cast<scene::Light *>(light));
         }
     }
+
+    for (const auto &light : scene->getPointLights()) {
+        if (light->isBaked()) {
+            continue;
+        }
+
+        sphere.setCenter(light->getPosition());
+        sphere.setRadius(light->getRange());
+        if (sphere.sphereFrustum(camera->getFrustum())) {
+            sceneData->addValidPunctualLight(static_cast<scene::Light *>(light));
+        }
+    }
+
+    for (const auto &light : scene->getRangedDirLights()) {
+        if (light->isBaked()) {
+            continue;
+        }
+
+        geometry::AABB rangedDirLightBoundingBox(0.0F, 0.0F, 0.0F, 0.5F, 0.5F, 0.5F);
+        light->getNode()->updateWorldTransform();
+        rangedDirLightBoundingBox.transform(light->getNode()->getWorldMatrix(), &rangedDirLightBoundingBox);
+        if (rangedDirLightBoundingBox.aabbFrustum(camera->getFrustum())) {
+            sceneData->addValidPunctualLight(static_cast<scene::Light *>(light));
+        }
+    }
 }
 
 // Todo If you want to optimize the cutting efficiency, you can get it from the octree
@@ -103,29 +127,44 @@ void shadowCulling(const RenderPipeline *pipeline, const scene::Camera *camera, 
     auto *csmLayers = sceneData->getCSMLayers();
     const auto *const scene = camera->getScene();
     const auto *mainLight = scene->getMainLight();
+    const uint32_t visibility = camera->getVisibility();
 
     layer->clearShadowObjects();
-    for (size_t i = 0; i < csmLayers->getLayerObjects().size(); ++i) {
-        const auto *model = csmLayers->getLayerObjects()[i].model;
-        // filter model by view visibility
-        if (model->isEnabled()) {
-            const uint32_t visibility = camera->getVisibility();
-            const auto *node = model->getNode();
-            if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
-                (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
-                // frustum culling
-                const bool accurate = model->getWorldBounds()->aabbFrustum(layer->getValidFrustum());
-                if (accurate) {
-                    layer->addShadowObject(genRenderObject(model, camera));
-                    if (layer->getLevel() < static_cast<uint32_t>(mainLight->getCSMLevel())) {
-                        if (static_cast<uint32_t>(mainLight->getCSMOptimizationMode()) == 2 &&
-                            aabbFrustumCompletelyInside(*model->getWorldBounds(), layer->getValidFrustum())) {
-                            csmLayers->getLayerObjects().erase(csmLayers->getLayerObjects().begin() + static_cast<uint32_t>(i));
-                            i--;
-                        }
-                    }
-                }
+
+    if (csmLayers->getLayerObjects().empty()) return;
+
+    for (auto it = csmLayers->getLayerObjects().begin(); it != csmLayers->getLayerObjects().end();) {
+        const auto *model = it->model;
+        if (!model || !model->isEnabled() || !model->getNode()) {
+            it = csmLayers->getLayerObjects().erase(it);
+            continue;
+        }
+        const auto *node = model->getNode();
+        if (((visibility & node->getLayer()) != node->getLayer()) && !(visibility & static_cast<uint32_t>(model->getVisFlags()))) {
+            it = csmLayers->getLayerObjects().erase(it);
+            continue;
+        }
+        if (!model->getWorldBounds() || !model->isCastShadow()) {
+            it = csmLayers->getLayerObjects().erase(it);
+            continue;
+        }
+
+        // frustum culling
+        const bool accurate = model->getWorldBounds()->aabbFrustum(layer->getValidFrustum());
+        if (!accurate) {
+            ++it;
+            continue;
+        }
+        layer->addShadowObject(genRenderObject(model, camera));
+        if (layer->getLevel() < static_cast<uint32_t>(mainLight->getCSMLevel())) {
+            if (mainLight->getCSMOptimizationMode() == scene::CSMOptimizationMode::REMOVE_DUPLICATES &&
+                aabbFrustumCompletelyInside(*model->getWorldBounds(), layer->getValidFrustum())) {
+                it = csmLayers->getLayerObjects().erase(it);
+            } else {
+                ++it;
             }
+        } else {
+            ++it;
         }
     }
 }
@@ -154,19 +193,17 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
     if (clearFlagValue & skyboxFlag) {
         if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel()) {
             sceneData->addRenderObject(genRenderObject(skyBox->getModel(), camera));
-        } else if(clearFlagValue == skyboxFlag) {
+        } else if (clearFlagValue == skyboxFlag) {
             debug::warnID(15100, camera->getName());
         }
     }
-
-    LODModelsCachedUtils::updateCachedLODModels(scene, camera);
 
     const scene::Octree *octree = scene->getOctree();
     if (octree && octree->isEnabled()) {
         for (const auto &model : scene->getModels()) {
             // filter model by view visibility
             if (model->isEnabled()) {
-                if (LODModelsCachedUtils::isLODModelCulled(model)) {
+                if (scene->isCulledByLod(camera, model)) {
                     continue;
                 }
 
@@ -193,7 +230,7 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
         models.reserve(scene->getModels().size() / 4);
         octree->queryVisibility(camera, camera->getFrustum(), false, models);
         for (const auto &model : models) {
-            if (LODModelsCachedUtils::isLODModelCulled(model)) {
+            if (scene->isCulledByLod(camera, model)) {
                 continue;
             }
             sceneData->addRenderObject(genRenderObject(model, camera));
@@ -202,7 +239,7 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
         for (const auto &model : scene->getModels()) {
             // filter model by view visibility
             if (model->isEnabled()) {
-                if (LODModelsCachedUtils::isLODModelCulled(model)) {
+                if (scene->isCulledByLod(camera, model)) {
                     continue;
                 }
                 const auto visibility = camera->getVisibility();
@@ -230,7 +267,6 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
             }
         }
     }
-    LODModelsCachedUtils::clearCachedLODModels();
 
     csmLayers = nullptr;
 }

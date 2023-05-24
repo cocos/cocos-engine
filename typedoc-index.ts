@@ -22,3 +22,4 @@ export * from './exports/tween';
 export * from './exports/ui';
 export * from './exports/video';
 export * from './exports/webview';
+export * from './exports/sorting';

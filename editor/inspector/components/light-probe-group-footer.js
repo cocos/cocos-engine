@@ -1,3 +1,5 @@
+const { trackEventWithTimer } = require('../utils/metrics');
+
 exports.template = `
 <div class="light-probe-group">
     <ui-button class="box">Edit Area Box</ui-button>
@@ -64,6 +66,7 @@ exports.ready = function() {
 
             const uuidObject = panel.dump.value.uuid;
             const uuids = uuidObject.values ? uuidObject.values : [uuidObject.value];
+            const undoID = await Editor.Message.request('scene', 'begin-recording', uuids);
             for (const uuid of uuids) {
                 Editor.Message.send('scene', 'execute-component-method', {
                     uuid: uuid,
@@ -72,12 +75,15 @@ exports.ready = function() {
                 });
             }
 
-            Editor.Message.send('scene', 'snapshot');
+            trackEventWithTimer('bakingSystem', 'A100006');
+
+            await Editor.Message.request('scene', 'end-recording', undoID);
         }
     });
 
     panel.$.edit.addEventListener('confirm', async () => {
         await Editor.Message.request('scene', 'toggle-light-probe-edit-mode', !panel.sceneProbeMode);
+        trackEventWithTimer('bakingSystem', 'A100008');
     });
 
     panel.changeProbeModeBind = panel.changeProbeMode.bind(panel);
@@ -85,6 +91,7 @@ exports.ready = function() {
 
     panel.$.box.addEventListener('confirm', async () => {
         await Editor.Message.request('scene', 'toggle-light-probe-bounding-box-edit-mode', !panel.sceneProbeBoxMode);
+        trackEventWithTimer('bakingSystem', 'A100007');
     });
 
     panel.changeProbeBoxModeBind = panel.changeProbeBoxMode.bind(panel);

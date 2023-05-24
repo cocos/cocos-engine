@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Vertex, Tetrahedron, Delaunay } from './delaunay';
@@ -76,8 +75,8 @@ export class LightProbesData {
     }
 
     public updateTetrahedrons () {
-        const delaunay = new Delaunay();
-        this._tetrahedrons = delaunay.build(this._probes);
+        const delaunay = new Delaunay(this._probes);
+        this._tetrahedrons = delaunay.build();
     }
 
     public getInterpolationSHCoefficients (tetIndex: number, weights: Vec4, coefficients: Vec3[]) {
@@ -151,7 +150,7 @@ export class LightProbesData {
         return tetIndex;
     }
 
-    private hasCoefficients () {
+    public hasCoefficients () {
         return !this.empty() && this._probes[0].coefficients.length !== 0;
     }
 
@@ -336,6 +335,17 @@ export class LightProbes {
         return this._data;
     }
 
+    /**
+     * @en The value of all light probe sphere display size
+     * @zh 光照探针全局显示大小
+     */
+    set lightProbeSphereVolume (val: number) {
+        this._lightProbeSphereVolume = val;
+    }
+    get lightProbeSphereVolume (): number {
+        return this._lightProbeSphereVolume;
+    }
+
     protected _giScale = 1.0;
     protected _giSamples = 1024;
     protected _bounces = 2;
@@ -344,6 +354,7 @@ export class LightProbes {
     protected _showWireframe = true;
     protected _showConvex = false;
     protected _data: LightProbesData | null = null;
+    protected _lightProbeSphereVolume = 1.0;
 
     public initialize (info: LightProbeInfo) {
         this._giScale = info.giScale;
@@ -354,6 +365,7 @@ export class LightProbes {
         this._showWireframe = info.showWireframe;
         this._showConvex = info.showConvex;
         this._data = info.data;
+        this._lightProbeSphereVolume = info.lightProbeSphereVolume;
     }
 
     public empty () {

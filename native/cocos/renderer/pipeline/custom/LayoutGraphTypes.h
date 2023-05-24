@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -41,11 +40,12 @@
 #include "cocos/base/std/hash/hash.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSet.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
-#include "cocos/renderer/pipeline/custom/GraphTypes.h"
+#include "cocos/renderer/gfx-base/GFXPipelineLayout.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
-#include "cocos/renderer/pipeline/custom/Set.h"
+#include "cocos/renderer/pipeline/custom/details/GraphTypes.h"
+#include "cocos/renderer/pipeline/custom/details/Map.h"
+#include "cocos/renderer/pipeline/custom/details/Set.h"
 
 namespace cc {
 
@@ -241,10 +241,8 @@ struct LayoutGraph {
         VertexHandle handle;
     };
 
-    struct NameTag {
-    } static constexpr Name{}; // NOLINT
-    struct DescriptorsTag {
-    } static constexpr Descriptors{}; // NOLINT
+    struct NameTag {};
+    struct DescriptorsTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -303,15 +301,25 @@ inline bool operator!=(const NameLocalID& lhs, const NameLocalID& rhs) noexcept 
     return !(lhs == rhs);
 }
 
+inline bool operator<(const NameLocalID& lhs, const NameLocalID& rhs) noexcept {
+    return std::forward_as_tuple(lhs.value) <
+           std::forward_as_tuple(rhs.value);
+}
+
 struct DescriptorData {
     DescriptorData() = default;
+    DescriptorData(NameLocalID descriptorIDIn, gfx::Type typeIn, uint32_t countIn) noexcept
+    : descriptorID(descriptorIDIn),
+      type(typeIn),
+      count(countIn) {}
+    DescriptorData(NameLocalID descriptorIDIn, gfx::Type typeIn) noexcept
+    : descriptorID(descriptorIDIn),
+      type(typeIn) {}
     DescriptorData(NameLocalID descriptorIDIn) noexcept // NOLINT
     : descriptorID(descriptorIDIn) {}
-    DescriptorData(NameLocalID descriptorIDIn, uint32_t countIn) noexcept
-    : descriptorID(descriptorIDIn),
-      count(countIn) {}
 
     NameLocalID descriptorID;
+    gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{1};
 };
 
@@ -345,7 +353,7 @@ struct DescriptorSetLayoutData {
     }
 
     DescriptorSetLayoutData(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
+    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, PmrUnorderedMap<NameLocalID, gfx::UniformBlock> uniformBlocksIn, PmrFlatMap<NameLocalID, uint32_t> bindingMapIn, const allocator_type& alloc) noexcept;
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc);
 
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs) noexcept = default;
@@ -355,8 +363,11 @@ struct DescriptorSetLayoutData {
 
     uint32_t slot{0xFFFFFFFF};
     uint32_t capacity{0};
+    uint32_t uniformBlockCapacity{0};
+    uint32_t samplerTextureCapacity{0};
     ccstd::pmr::vector<DescriptorBlockData> descriptorBlocks;
-    ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocks;
+    PmrUnorderedMap<NameLocalID, gfx::UniformBlock> uniformBlocks;
+    PmrFlatMap<NameLocalID, uint32_t> bindingMap;
 };
 
 struct DescriptorSetData {
@@ -481,6 +492,7 @@ struct ShaderProgramData {
     ShaderProgramData& operator=(ShaderProgramData const& rhs) = delete;
 
     PipelineLayoutData layout;
+    IntrusivePtr<gfx::PipelineLayout> pipelineLayout;
 };
 
 struct RenderStageData {
@@ -497,7 +509,7 @@ struct RenderStageData {
     RenderStageData& operator=(RenderStageData&& rhs) = default;
     RenderStageData& operator=(RenderStageData const& rhs) = delete;
 
-    ccstd::pmr::unordered_map<NameLocalID, gfx::ShaderStageFlagBit> descriptorVisibility;
+    PmrUnorderedMap<NameLocalID, gfx::ShaderStageFlagBit> descriptorVisibility;
 };
 
 struct RenderPhaseData {
@@ -517,6 +529,7 @@ struct RenderPhaseData {
     ccstd::pmr::string rootSignature;
     ccstd::pmr::vector<ShaderProgramData> shaderPrograms;
     PmrTransparentMap<ccstd::pmr::string, uint32_t> shaderIndex;
+    IntrusivePtr<gfx::PipelineLayout> pipelineLayout;
 };
 
 struct LayoutGraphData {
@@ -669,12 +682,9 @@ struct LayoutGraphData {
         VertexHandle handle;
     };
 
-    struct NameTag {
-    } static constexpr Name{}; // NOLINT
-    struct UpdateTag {
-    } static constexpr Update{}; // NOLINT
-    struct LayoutTag {
-    } static constexpr Layout{}; // NOLINT
+    struct NameTag {};
+    struct UpdateTag {};
+    struct LayoutTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -691,6 +701,7 @@ struct LayoutGraphData {
     PmrFlatMap<ccstd::pmr::string, NameLocalID> constantIndex;
     PmrFlatMap<ccstd::pmr::string, uint32_t> shaderLayoutIndex;
     PmrFlatMap<ccstd::pmr::string, EffectData> effects;
+    ccstd::string constantMacros;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };

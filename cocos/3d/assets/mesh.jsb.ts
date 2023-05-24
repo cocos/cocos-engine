@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,8 +21,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, serializable } from 'cc.decorator';
 import { cclegacy, Vec3 } from '../../core';
+import { patch_cc_Mesh } from '../../native-binding/decorators';
+import type { Mesh as JsbMesh } from './mesh';
 
 declare const jsb: any;
 
@@ -34,15 +34,15 @@ export declare namespace Mesh {
         count: number;
         stride: number;
     }
-    export type IVertexBundle = jsb.Mesh.IVertexBundle;
-    export type ISubMesh = jsb.Mesh.ISubMesh;
-    export type IDynamicInfo = jsb.Mesh.IDynamicInfo;
-    export type IDynamicStruct = jsb.Mesh.IDynamicStruct;
-    export type IStruct = jsb.Mesh.IStruct;
-    export type ICreateInfo = jsb.Mesh.ICreateInfo;
+    export type IVertexBundle = JsbMesh.IVertexBundle;
+    export type ISubMesh = JsbMesh.ISubMesh;
+    export type IDynamicInfo = JsbMesh.IDynamicInfo;
+    export type IDynamicStruct = JsbMesh.IDynamicStruct;
+    export type IStruct = JsbMesh.IStruct;
+    export type ICreateInfo = JsbMesh.ICreateInfo;
 }
-export type Mesh = jsb.Mesh;
-export const Mesh = jsb.Mesh;
+export type Mesh = JsbMesh;
+export const Mesh: typeof JsbMesh = jsb.Mesh;
 
 const IStructProto: any = jsb.Mesh.IStruct.prototype;
 
@@ -148,9 +148,13 @@ Object.defineProperty(meshAssetProto, 'maxPosition', {
 });
 
 meshAssetProto.onLoaded = function () {
-    // might be undefined
-    if (this._struct != undefined) {
-        this.setStruct(this._struct);
+    // might be undefined or null
+    const meshStruct = this._struct;
+    if (meshStruct) {
+        // Synchronize to native if the struct contains valid values.
+        if (meshStruct.vertexBundles.length !== 0 || meshStruct.primitives.length !== 0) {
+            this.setStruct(this._struct);
+        }
     }
     // Set to null to release memory in JS
     this._struct = null;
@@ -160,8 +164,4 @@ meshAssetProto.onLoaded = function () {
 cclegacy.Mesh = jsb.Mesh;
 
 // handle meta data, it is generated automatically
-const MeshProto = Mesh.prototype;
-serializable(MeshProto, '_struct');
-serializable(MeshProto, '_hash');
-serializable(MeshProto, '_allowDataAccess');
-ccclass('cc.Mesh')(Mesh);
+patch_cc_Mesh({Mesh});

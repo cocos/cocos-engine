@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { Armature, BlendMode, Matrix } from '@cocos/dragonbones-js';
 import { Texture2D } from '../asset/assets';
@@ -51,13 +50,17 @@ let _y: number;
 const PER_VERTEX_SIZE = 5;
 // x y z / u v / r g b a
 const EXPORT_VERTEX_SIZE = 9;
-
+/**
+ * @engineInternal Since v3.7.2 this is an engine private interface.
+ */
 export interface ArmatureInfo {
     curAnimationCache: AnimationCache | null;
     armature: Armature;
     animationsCache: { [key: string]: AnimationCache };
 }
-
+/**
+ * @engineInternal Since v3.7.2 this is an engine private interface.
+ */
 export interface ArmatureFrame {
     segments: ArmatureFrameSegment[];
     colors: ArmatureFrameColor[];
@@ -66,11 +69,15 @@ export interface ArmatureFrame {
     uintVert: Uint32Array;
     indices: Uint16Array;
 }
-
+/**
+ * @engineInternal Since v3.7.2 this is an engine private interface.
+ */
 export interface ArmatureFrameBoneInfo {
     globalTransformMatrix: Matrix;
 }
-
+/**
+ * @engineInternal Since v3.7.2 this is an engine private interface.
+ */
 export interface ArmatureFrameColor {
     r: number;
     g: number;
@@ -78,7 +85,9 @@ export interface ArmatureFrameColor {
     a: number;
     vfOffset?: number;
 }
-
+/**
+ * @engineInternal Since v3.7.2 this is an engine private interface.
+ */
 export interface ArmatureFrameSegment {
     indexCount: number;
     vfCount: number;
@@ -87,7 +96,11 @@ export interface ArmatureFrameSegment {
     blendMode: BlendMode;
 }
 
-// Cache all frames in an animation
+/**
+ * @engineInternal Since v3.7.2 this is an engine private class.
+ * @en Cache all frames in an animation.
+ * @zh 缓存所有动画帧。
+ */
 export class AnimationCache {
     public maxVertexCount = 0;
     public maxIndexCount = 0;
@@ -96,7 +109,7 @@ export class AnimationCache {
     _inited = false;
     _invalid = true;
     _enableCacheAttachedInfo = false;
-    frames: ArmatureFrame[] = [];
+    frames: SafeArray<ArmatureFrame> = [];
     totalTime = 0;
     isCompleted = false;
     _frameIdx = -1;
@@ -109,23 +122,35 @@ export class AnimationCache {
 
     constructor () {
     }
-
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     * @en Initialization.
+     * @zh 初始化。
+     * @param armatureInfo @en Armature info. @zh 龙骨信息。
+     * @param animationName @en Animation name. @zh 动画名称。
+     */
     init (armatureInfo: ArmatureInfo, animationName: string) {
         this._inited = true;
         this._armatureInfo = armatureInfo;
         this._animationName = animationName;
     }
 
-    // Clear texture quote.
+    /**
+     * @en Clears all animation frames cached.
+     * @zh 清除所有缓存动画帧。
+     */
     clear () {
         this._inited = false;
         for (let i = 0, n = this.frames.length; i < n; i++) {
-            const frame = this.frames[i];
+            const frame = this.frames[i]!;
             frame.segments.length = 0;
         }
         this.invalidAllFrame();
     }
-
+    /**
+     * @en Start to play cached frames.
+     * @zh 开始播放缓存动画帧。
+     */
     begin () {
         if (!this._invalid) return;
 
@@ -148,7 +173,10 @@ export class AnimationCache {
         this.totalTime = 0;
         this.isCompleted = false;
     }
-
+    /**
+     * @en Complete to play cached frames.
+     * @zh 完成播放缓存动画帧。
+     */
     end () {
         if (!this._needToUpdate()) {
             this._armatureInfo!.curAnimationCache = null;
@@ -156,7 +184,9 @@ export class AnimationCache {
             this.isCompleted = true;
         }
     }
-
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     */
     _needToUpdate (toFrameIdx?: number) {
         const armatureInfo = this._armatureInfo!;
         const armature = armatureInfo.armature;
@@ -165,7 +195,11 @@ export class AnimationCache {
             && this.totalTime < MaxCacheTime
             && (toFrameIdx === undefined || this._frameIdx < toFrameIdx);
     }
-
+    /**
+     * @en Update to specified animation frame.
+     * @zh 更新动画到指定帧序列。
+     * @param toFrameIdx @en Frame index. @zh 帧序列。
+     */
     updateToFrame (toFrameIdx?: number) {
         if (!this._inited) return;
 
@@ -186,32 +220,56 @@ export class AnimationCache {
 
         this.end();
     }
-
+    /**
+     * @en Check if initialized or not.
+     * @zh 检查是否已初始化。
+     * @returns @en True means has been initialized, false means not.
+     *          @zh True 表示已初始化完成，false 表示还没初始化。
+     */
     isInited () {
         return this._inited;
     }
-
+    /**
+     * @en Check if current state is invalid.
+     * @zh 检查当前状态是否为无效。
+     * @returns @zh True means invalid, false means valid.
+     *          @en True 表示当前数据为无效状态，false 表示当前数据有效。
+     */
     isInvalid () {
         return this._invalid;
     }
-
+    /**
+     * @en Mark all cached frames as invalid.
+     * @zh 将所有缓存帧标记为无效的。
+     */
     invalidAllFrame () {
         this.isCompleted = false;
         this._invalid = true;
     }
-
+    /**
+     * @en Update all cached frames.
+     * @zh 更新所有缓存帧。
+     */
     updateAllFrame () {
         this.invalidAllFrame();
         this.updateToFrame();
     }
-
+    /**
+     * @en Enable attached information.
+     * @zh 启用挂载附着信息。
+     */
     enableCacheAttachedInfo () {
         if (!this._enableCacheAttachedInfo) {
             this._enableCacheAttachedInfo = true;
             this.invalidAllFrame();
         }
     }
-
+    /**
+     * @en Update to specified animation frame of armature.
+     * @zh 更新龙骨动画到指定帧序列。
+     * @param armature @en Armature. @zh 指定骨架。
+     * @param index @en Frame index. @zh 帧序列。
+     */
     updateFrame (armature, index) {
         _vfOffset = 0;
         _boneInfoOffset = 0;
@@ -228,11 +286,11 @@ export class AnimationCache {
             segments: [],
             colors: [],
             boneInfos: [],
-            vertices: null,
-            uintVert: null,
-            indices: null,
+            vertices: new Float32Array(),
+            uintVert: new Uint32Array(),
+            indices: new Uint16Array(),
         };
-        const frame = this.frames[index];
+        const frame = this.frames[index]!;
 
         const segments = this._tempSegments = frame.segments;
         const colors = this._tempColors = frame.colors;
@@ -272,7 +330,7 @@ export class AnimationCache {
         if (!vertices || vertices.length < _vfOffset) {
             vertices = frame.vertices = new Float32Array(copyOutVerticeSize);
         }
-        let colorI32 : number;
+        let colorI32: number;
         for (let i = 0, j = 0; i < copyOutVerticeSize;) {
             vertices[i] = _vertices[j++]; // x
             vertices[i + 1] = _vertices[j++]; // y
@@ -302,7 +360,9 @@ export class AnimationCache {
         this.maxVertexCount = vertexCount > this.maxVertexCount ? vertexCount : this.maxVertexCount;
         this.maxIndexCount = indices.length > this.maxIndexCount ? indices.length : this.maxIndexCount;
     }
-
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     */
     _traverseArmature (armature: Armature, parentOpacity) {
         const colors = this._tempColors!;
         const segments = this._tempSegments!;
@@ -420,7 +480,10 @@ export class AnimationCache {
         }
     }
 }
-
+/**
+ * @en Cached data of armature.
+ * @zh 骨架缓存。
+ */
 export class ArmatureCache {
     protected _privateMode = false;
     protected _animationPool: Record<string, AnimationCache> = {};
@@ -428,12 +491,18 @@ export class ArmatureCache {
 
     constructor () {
     }
-
+    /**
+     * @en Enable private cache mode.
+     * @zh 启用私有缓存模式。
+     */
     enablePrivateMode () {
         this._privateMode = true;
     }
 
-    // If cache is private, cache will be destroy when dragonbones node destroy.
+    /**
+     * @en If using private cache mode, all cached data will be destroyed when corresponding dragonbone nodes are destroyed.
+     * @zh 如果为私有缓存模式，cache 数据将随组件一起销毁。
+     */
     dispose () {
         for (const key in this._armatureCache) {
             const armatureInfo = this._armatureCache[key];
@@ -445,7 +514,9 @@ export class ArmatureCache {
         this._armatureCache = {};
         this._animationPool = {};
     }
-
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     */
     _removeArmature (armatureKey: string) {
         const armatureInfo = this._armatureCache[armatureKey];
         const animationsCache = armatureInfo.animationsCache;
@@ -462,15 +533,19 @@ export class ArmatureCache {
         if (armature) armature.dispose();
         delete this._armatureCache[armatureKey];
     }
-
-    // When db assets be destroy, remove armature from db cache.
+    /**
+     * @en When dragonbones assets be destroy, remove armature from dragonbones cache.
+     * @zh 当 dragonbones assets 销毁时，从 cache 中移除骨架。
+     */
     resetArmature (uuid: string) {
         for (const armatureKey in this._armatureCache) {
             if (armatureKey.indexOf(uuid) === -1) continue;
             this._removeArmature(armatureKey);
         }
     }
-
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     */
     getArmatureCache (armatureName: string, armatureKey: string, atlasUUID: string) {
         const armatureInfo = this._armatureCache[armatureKey];
         let armature: Armature;
@@ -498,7 +573,9 @@ export class ArmatureCache {
         }
         return armature;
     }
-
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     */
     getAnimationCache (armatureKey, animationName) {
         const armatureInfo = this._armatureCache[armatureKey];
         if (!armatureInfo) return null;
@@ -506,7 +583,9 @@ export class ArmatureCache {
         const animationsCache = armatureInfo.animationsCache;
         return animationsCache[animationName];
     }
-
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     */
     initAnimationCache (armatureKey: string, animationName: string) {
         if (!animationName) return null;
 
@@ -534,7 +613,9 @@ export class ArmatureCache {
         }
         return animationCache;
     }
-
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     */
     invalidAnimationCache (armatureKey: string) {
         const armatureInfo = this._armatureCache[armatureKey];
         const armature = armatureInfo && armatureInfo.armature;
@@ -546,7 +627,9 @@ export class ArmatureCache {
             animationCache.invalidAllFrame();
         }
     }
-
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     */
     updateAnimationCache (armatureKey: string, animationName: string) {
         if (animationName) {
             const animationCache = this.initAnimationCache(armatureKey, animationName);
@@ -564,7 +647,9 @@ export class ArmatureCache {
             }
         }
     }
-
+    /**
+     * @engineInternal Since v3.7.2 this is an engine private function.
+     */
     static canCache (armature: Armature) {
         const slots = armature._slots;
         for (let i = 0, l = slots.length; i < l; i++) {

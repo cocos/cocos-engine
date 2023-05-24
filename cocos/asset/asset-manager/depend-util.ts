@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { BUILD, EDITOR } from 'internal:constants';
 import { Asset } from '../assets';
@@ -43,10 +42,10 @@ export interface IDependencies {
 
 /**
  * @en
- * Control asset's dependency list, it is a singleton. All member can be accessed with `assetManager.dependUtil`
+ * Manages asset's dependency list, it is a singleton. You can access it via [[AssetManager.dependUtil]].
  *
  * @zh
- * 控制资源的依赖列表，这是一个单例, 所有成员能通过 `assetManager.dependUtil` 访问
+ * 管理资源的依赖列表，这是一个单例, 你能通过 [[AssetManager.dependUtil]] 访问它。
  *
  */
 export class DependUtil {
@@ -54,23 +53,43 @@ export class DependUtil {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _depends: Cache<IDependencies> = new Cache<IDependencies>();
+    private static _instance: DependUtil;
+    /**
+     * @en Global singleton for [[DependUtil]]. You can access it via [[AssetManager.dependUtil]].
+     * @zh [[DependUtil]] 的全局单例. 你可以通过 [[AssetManager.dependUtil]] 访问.
+     */
+    static get instance () {
+        if (!this._instance) {
+            this._instance = new DependUtil();
+        }
+        return this._instance;
+    }
 
+    private constructor () {}
+
+    /**
+     * @engineInternal
+     */
     public init (): void {
         this._depends.clear();
     }
 
     /**
      * @en
-     * Get asset's native dependency. For example, Texture's native dependency is image.
+     * Gets asset's native dependency. For example, ImageAsset's native dependency is image.
+     * Note: You will need to have loaded this resource to query this information.
      *
      * @zh
-     * 获取资源的原生依赖，例如 Texture 的原生依赖是图片
+     * 获取资源的原生依赖，例如 ImageAsset 的原生依赖是图片。
+     * 注意：你需要加载过该资源，才能查询此信息。
      *
-     * @param uuid - asset's uuid
-     * @returns native dependency
+     * @param uuid @en asset's uuid. @zh 资源的 uuid。
+     * @returns @en The native dependency information of this asset. @zh 资源的原生依赖的信息。
      *
      * @example
      * var dep = dependUtil.getNativeDep('fcmR3XADNLgJ1ByKhqcC5Z');
+     * @deprecated Since v3.7, this is an engine internal interface.
+     * If you want to know the native dependency of the asset, use [[Asset.nativeUrl]] instead.
      */
     public getNativeDep (uuid: string): Record<string, any> | null {
         const depend = this._depends.get(uuid);
@@ -82,13 +101,15 @@ export class DependUtil {
 
     /**
      * @en
-     * Get asset's direct referencing non-native dependency list. For example, Material's non-native dependencies are Texture.
+     * Gets asset's direct referencing dependency list. For example, Material's dependencies are Texture, effect asset etc.
+     * Note: You will need to have loaded this resource to query this information.
      *
      * @zh
-     * 获取资源直接引用的非原生依赖列表，例如，材质的非原生依赖是 Texture
+     * 获取资源直接引用的依赖列表，例如，材质的直接依赖资源是 Texture, Effect 等。
+     * 注意：你需要加载过该资源，才能查询此信息。
      *
-     * @param uuid - asset's uuid
-     * @returns direct referencing non-native dependency list
+     * @param uuid @en asset's uuid. @zh 资源的 uuid。
+     * @returns @en The direct referencing dependency asset list. @zh 直接引用的依赖资源列表。
      *
      * @example
      * var deps = dependUtil.getDeps('fcmR3XADNLgJ1ByKhqcC5Z');
@@ -103,15 +124,17 @@ export class DependUtil {
 
     /**
      * @en
-     * Get non-native dependency list of the loaded asset, include indirect reference.
-     * The returned array stores the dependencies with their uuid, after retrieve dependencies,
+     * Gets dependency list of the loaded asset, include indirect reference.
+     * Note: You will need to have loaded this resource to query this information.
      *
      * @zh
-     * 获取某个已经加载好的资源的所有非原生依赖资源列表，包括间接引用的资源，并保存在数组中返回。
-     * 返回的数组将仅保存依赖资源的 uuid。
+     * 获取某个已经加载好的资源的所有依赖资源列表，包括间接引用的资源，并保存在数组中返回。
+     * 注意：你需要加载过该资源，才能查询此信息。
      *
-     * @param uuid - The asset's uuid
-     * @returns non-native dependency list
+     * @param uuid @en asset's uuid. @zh 资源的 uuid。
+     * @returns
+     * @en The all dependency list including direct reference and indirect reference.
+     * @zh 所有依赖列表，包括直接引用的与间接引用的。
      *
      * @example
      * var deps = dependUtil.getDepsRecursively('fcmR3XADNLgJ1ByKhqcC5Z');
@@ -124,13 +147,16 @@ export class DependUtil {
         return depends;
     }
 
+    /**
+     * @engineInternal
+     */
     public remove (uuid: string) {
         this._depends.remove(uuid);
     }
 
     /**
      * @en
-     * Extract dependency list from serialized data or asset and then store in cache.
+     * Extracts dependency list from serialized data or asset and then store in cache.
      *
      * @zh
      * 从序列化数据或资源中提取出依赖列表，并且存储在缓存中。
@@ -144,6 +170,7 @@ export class DependUtil {
      *     var dependencies = parse('fcmR3XADNLgJ1ByKhqcC5Z', file);
      * });
      *
+     * @engineInternal
      */
     public parse (uuid: string, json: any): IDependencies {
         let out: IDependencies | null = null;
@@ -152,8 +179,10 @@ export class DependUtil {
                 return this._depends.get(uuid)!;
             }
 
-            // @ts-expect-error unknown json
-            if (Array.isArray(json) && (!(BUILD || isCompiledJson(json)) || !hasNativeDep(json))) {
+            // TODO: json: any[] is not assigned to IFileData
+            // workaround: mark json as any
+            // issue: https://github.com/cocos/cocos-engine/issues/14642
+            if (Array.isArray(json) && (!(BUILD || isCompiledJson(json)) || !hasNativeDep(json as any))) {
                 out = {
                     deps: this._parseDepsFromJson(json),
                 };
@@ -222,4 +251,4 @@ export class DependUtil {
     }
 }
 
-export default new DependUtil();
+export default DependUtil.instance;

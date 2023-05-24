@@ -16,7 +16,12 @@ declare module 'pal/screen-adapter' {
          * Determine whether the game frame exact fits the screen.
          * Now it only works on Web platform.
          */
-        exactFitScreen: boolean,
+        exactFitScreen: boolean;
+
+        /**
+         * Determine whether use headless renderer, which means do not support some screen operations.
+         */
+        isHeadlessMode: boolean;
     }
 
     class ScreenAdapter {
@@ -112,8 +117,9 @@ declare module 'pal/screen-adapter' {
          */
         public exitFullScreen (): Promise<void>;
 
-        on (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any)=>void, target?: any);
-        off (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb?: (...args: any)=>void, target?: any);
+        on (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any) => void, target?: any);
+        once (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb: (...args: any) => void, target?: any);
+        off (event: import('pal/screen-adapter/enum-type').PalScreenEvent, cb?: (...args: any) => void, target?: any);
     }
 
     export const screenAdapter: ScreenAdapter;

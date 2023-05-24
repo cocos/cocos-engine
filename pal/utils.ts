@@ -1,5 +1,31 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { EDITOR } from 'internal:constants';
+
 /**
- * This method clones methods in minigame enviroment, sucb as `wx`, `swan` etc. to a module called minigame.
+ * This method clones methods in minigame environment, sub as `wx`, `swan` etc. to a module called minigame.
  * @param targetObject Usually it's specified as the minigame module.
  * @param originObj Original minigame environment such as `wx`, `swan` etc.
  */
@@ -31,10 +57,10 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
         // add polyfill if onPlay method doesn't work this platform
         if (polyfillConfig.onPlay) {
             const originalPlay = audioContext.play;
-            let _onPlayCB: (()=> void) | null = null;
+            let _onPlayCB: (() => void) | null = null;
             Object.defineProperty(audioContext, 'onPlay', {
                 configurable: true,
-                value (cb: ()=> void) {
+                value (cb: () => void) {
                     _onPlayCB = cb;
                 },
             });
@@ -56,10 +82,10 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
         // add polyfill if onPause method doesn't work this platform
         if (polyfillConfig.onPause) {
             const originalPause = audioContext.pause;
-            let _onPauseCB: (()=> void) | null = null;
+            let _onPauseCB: (() => void) | null = null;
             Object.defineProperty(audioContext, 'onPause', {
                 configurable: true,
-                value (cb: ()=> void) {
+                value (cb: () => void) {
                     _onPauseCB = cb;
                 },
             });
@@ -81,10 +107,10 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
         // add polyfill if onStop method doesn't work on this platform
         if (polyfillConfig.onStop) {
             const originalStop = audioContext.stop;
-            let _onStopCB: (()=> void) | null = null;
+            let _onStopCB: (() => void) | null = null;
             Object.defineProperty(audioContext, 'onStop', {
                 configurable: true,
-                value (cb: ()=> void) {
+                value (cb: () => void) {
                     _onStopCB = cb;
                 },
             });
@@ -106,10 +132,10 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
         // add polyfill if onSeeked method doesn't work on this platform
         if (polyfillConfig.onSeek) {
             const originalSeek = audioContext.seek;
-            let _onSeekCB: (()=> void) | null = null;
+            let _onSeekCB: (() => void) | null = null;
             Object.defineProperty(audioContext, 'onSeeked', {
                 configurable: true,
-                value (cb: ()=> void) {
+                value (cb: () => void) {
                     _onSeekCB = cb;
                 },
             });
@@ -156,4 +182,60 @@ export function versionCompare (versionA: string, versionB: string): number {
         }
     }
     return 0;
+}
+
+/**
+ * A custom implementation of setTimeout that uses requestAnimationFrame.
+ * @param callback The function to be executed after a delay.
+ * @param delay The delay time in milliseconds.
+ * @param args The arguments to be passed to the callback function.
+ * @returns A unique identifier for the timer.
+ */
+export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number, ...args: any[]): number {
+    const start = performance.now();
+
+    const raf = requestAnimationFrame
+    || window.requestAnimationFrame
+    || window.webkitRequestAnimationFrame
+    || window.mozRequestAnimationFrame
+    || window.oRequestAnimationFrame
+    || window.msRequestAnimationFrame;
+
+    if (EDITOR || raf === undefined || globalThis.__globalXR?.isWebXR) {
+        return setTimeout(callback, delay, ...args);
+    }
+
+    const handleRAF = () => {
+        if (performance.now() - start < delay) {
+            raf(handleRAF);
+        } else {
+            callback(...args);
+        }
+    };
+
+    return raf(handleRAF);
+}
+
+/**
+ * Cancels a timer that was created using the rafTimeout function.
+ * @param id A numeric ID that represents the timer to be canceled.
+ * @returns Nothing.
+ */
+export function clearTimeoutRAF (id) {
+    const caf = cancelAnimationFrame
+        || window.cancelAnimationFrame
+        || window.cancelRequestAnimationFrame
+        || window.msCancelRequestAnimationFrame
+        || window.mozCancelRequestAnimationFrame
+        || window.oCancelRequestAnimationFrame
+        || window.webkitCancelRequestAnimationFrame
+        || window.msCancelAnimationFrame
+        || window.mozCancelAnimationFrame
+        || window.webkitCancelAnimationFrame
+        || window.ocancelAnimationFrame;
+    if (EDITOR || caf === undefined || globalThis.__globalXR?.isWebXR) {
+        clearTimeout(id);
+    } else {
+        caf(id);
+    }
 }

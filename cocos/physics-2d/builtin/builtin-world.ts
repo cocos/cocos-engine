@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { EDITOR } from 'internal:constants';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { Graphics } from '../../2d';
@@ -61,35 +85,32 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         const index = shapes.indexOf(shape);
         if (index >= 0) {
             js.array.fastRemoveAt(shapes, index);
-
-            for (let i = 0; i < shape._contacts.length; i++) {
-                const contact = shape._contacts[i];
-                const cIndex = this._contacts.indexOf(contact);
-                if (cIndex >= 0) {
-                    //remove corresponding contact from another shape
-                    let otherShape;
-                    if (contact.shape1 === shape) {
-                        otherShape = contact.shape2;
-                    } else {
-                        otherShape = contact.shape1;
-                    }
-                    const cIndex1 = otherShape._contacts.indexOf(contact);
-                    if (cIndex1  > 0) {
-                        js.array.fastRemoveAt(otherShape._contacts, cIndex1);
-                    }
-
+            const contacts = this._contacts;
+            for (let i = contacts.length - 1; i >= 0; i--) {
+                const contact = contacts[i];
+                if (contact.shape1 === shape || contact.shape2 === shape) {
                     if (contact.touching) {
                         this._emitCollide(contact, Contact2DType.END_CONTACT);
                     }
-                    js.array.fastRemoveAt(this._contacts, cIndex);
+
+                    js.array.fastRemoveAt(contacts, i);
+
+                    const other = contact.shape1 === shape ? contact.shape2 : contact.shape1;
+                    const contactIndex = other!._contacts.indexOf(contact);
+                    if (contactIndex >= 0) {
+                        js.array.fastRemoveAt(other!._contacts, contactIndex);
+                    }
                 }
             }
         }
+        shape._contacts.length = 0;
     }
 
     updateShapeGroup (shape: BuiltinShape2D) {
         this.removeShape(shape);
-        this.addShape(shape);
+        if (shape.collider.enabledInHierarchy) {
+            this.addShape(shape);
+        }
     }
 
     step (deltaTime: number, velocityIterations = 10, positionIterations = 10) {
@@ -245,5 +266,8 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     syncSceneToPhysics () { }
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType): RaycastResult2D[] {
         return [];
+    }
+    finalizeContactEvent () {
+
     }
 }

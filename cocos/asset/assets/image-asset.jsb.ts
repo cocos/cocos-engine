@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,15 +21,20 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, override } from 'cc.decorator';
-import { ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
+
+import { ALIPAY, XIAOMI, JSB, TEST, BAIDU, EDITOR } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { PixelFormat } from './asset-enum';
 import { sys, macro, warnID, cclegacy } from '../../core';
+import { patch_cc_ImageAsset } from '../../native-binding/decorators';
 import './asset';
+import type { ImageAsset as JsbImageAsset } from './image-asset';
 
-export type ImageAsset = jsb.ImageAsset;
-export const ImageAsset = jsb.ImageAsset;
+declare const jsb: any;
+
+export type ImageAsset = JsbImageAsset;
+export const ImageAsset: typeof JsbImageAsset = jsb.ImageAsset;
+const jsbWindow = jsb.window;
 
 export interface IMemoryImageSource {
     _data: ArrayBufferView | null;
@@ -58,10 +62,11 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
         return false;
     }
 
-    return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement || isImageBitmap(imageSource);
+    return imageSource instanceof jsbWindow.HTMLImageElement || imageSource instanceof jsbWindow.HTMLCanvasElement || isImageBitmap(imageSource);
 }
 
-const imageAssetProto = ImageAsset.prototype;
+// TODO: we mark imageAssetProto as type of any, because here we have many dynamic injected property @dumganhar
+const imageAssetProto: any = ImageAsset.prototype;
 
 imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
     jsb.Asset.prototype._ctor.apply(this, arguments);
@@ -88,9 +93,8 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
         return this._nativeData;
     },
     set (value: ImageSource) {
-        if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
-            // @ts-expect-error internal API usage
-            value.format = value.format || this.format;
+        if (!(value instanceof jsbWindow.HTMLElement) && !isImageBitmap(value)) {
+            (value as IMemoryImageSource).format = (value as IMemoryImageSource).format || this.format;
         }
         this.reset(value);
     },
@@ -116,19 +120,22 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
     }
 };
 
-imageAssetProto.reset = function (data: ImageSource) {
+// TODO: Property 'format' does not exist on type 'HTMLCanvasElement'.
+// imageAssetProto.reset = function (data: ImageSource) {
+imageAssetProto.reset = function (data: any) {
     this._nativeData = data;
 
-    if (!(data instanceof HTMLElement)) {
-        // @ts-expect-error internal api usage
-        this.format = data.format;
+    if (!(data instanceof jsbWindow.HTMLElement)) {
+        if(data.format !== undefined) {
+            this.format = (data as any).format;
+        }
     }
     this._syncDataToNative();
 };
 
 const superDestroy = jsb.Asset.prototype.destroy;
 imageAssetProto.destroy = function () {
-    if(this.data && this.data instanceof HTMLImageElement) {
+    if(this.data && this.data instanceof jsbWindow.HTMLImageElement) {
         this.data.src = '';
         this._setRawAsset('');
         this.data.destroy();
@@ -163,16 +170,20 @@ imageAssetProto._syncDataToNative = function () {
     this.setHeight(this._height);
     this.url = this.nativeUrl;
 
-    if (data instanceof HTMLCanvasElement) {
+    if (data instanceof jsbWindow.HTMLCanvasElement) {
         this.setData(data._data.data);
     }
-    else if (data instanceof HTMLImageElement) {
+    else if (data instanceof jsbWindow.HTMLImageElement) {
         this.setData(data._data);
         if (data._mipmapLevelDataSize){
             this.setMipmapLevelDataSize(data._mipmapLevelDataSize);
         }
     }
     else {
+        if(!this._nativeData._data){
+            console.error(`[ImageAsset] setData bad argument ${this._nativeData}`);
+            return;
+        }
         this.setData(this._nativeData._data);
         if (this._nativeData.mipmapLevelDataSize) {
             this.setMipmapLevelDataSize(this._nativeData.mipmapLevelDataSize);
@@ -266,7 +277,5 @@ imageAssetProto._deserialize = function (data: any) {
 cclegacy.ImageAsset = jsb.ImageAsset;
 
 // handle meta data, it is generated automatically
-const ImageAssetProto = ImageAsset.prototype;
-const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(ImageAssetProto, '_nativeAsset');
-override(ImageAssetProto, '_nativeAsset', _nativeAssetDescriptor);
-ccclass('cc.ImageAsset')(ImageAsset);
+patch_cc_ImageAsset({ImageAsset});
+

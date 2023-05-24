@@ -1,19 +1,18 @@
 /****************************************************************************
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -35,7 +34,7 @@
 #include "base/Log.h"
 #include "base/memory/Memory.h"
 
-using namespace cc; //NOLINT
+using namespace cc; // NOLINT
 
 namespace {
 unsigned int gIdIndex = 0;
@@ -57,7 +56,7 @@ AudioPlayer::AudioPlayer()
 }
 
 AudioPlayer::~AudioPlayer() {
-    CC_LOG_DEBUG("~AudioPlayer() (%p), id=%u", this, _id);
+    // CC_LOG_DEBUG("~AudioPlayer() (%p), id=%u", this, _id);
     destroy();
 
     if (_streamingSource) {
@@ -70,7 +69,7 @@ void AudioPlayer::destroy() {
         return;
     }
 
-    CC_LOG_DEBUG("AudioPlayer::destroy begin, id=%u", _id);
+    // CC_LOG_DEBUG("AudioPlayer::destroy begin, id=%u", _id);
 
     _isDestroyed = true;
 
@@ -108,17 +107,17 @@ void AudioPlayer::destroy() {
         }
     } while (false);
 
-    CC_LOG_DEBUG("Before alSourceStop");
+    // CC_LOG_DEBUG("Before alSourceStop");
     alSourceStop(_alSource);
     CHECK_AL_ERROR_DEBUG();
-    CC_LOG_DEBUG("Before alSourcei");
+    // CC_LOG_DEBUG("Before alSourcei");
     alSourcei(_alSource, AL_BUFFER, 0);
     CHECK_AL_ERROR_DEBUG();
 
     _removeByAudioEngine = true;
 
     _ready = false;
-    CC_LOG_DEBUG("AudioPlayer::destroy end, id=%u", _id);
+    // CC_LOG_DEBUG("AudioPlayer::destroy end, id=%u", _id);
 }
 
 void AudioPlayer::setCache(AudioCache *cache) {
@@ -127,7 +126,7 @@ void AudioPlayer::setCache(AudioCache *cache) {
 
 bool AudioPlayer::play2d() {
     _play2dMutex.lock();
-    CC_LOG_INFO("AudioPlayer::play2d, _alSource: %u, player id=%u", _alSource, _id);
+    //CC_LOG_INFO("AudioPlayer::play2d, _alSource: %u, player id=%u", _alSource, _id);
 
     /*********************************************************************/
     /*       Note that it may be in sub thread or in main thread.       **/
@@ -203,7 +202,7 @@ bool AudioPlayer::play2d() {
         if (state != AL_PLAYING) {
             ALOGE("state isn't playing, %d, %s, cache id=%u, player id=%u", state, _audioCache->_fileFullPath.c_str(),
                   _audioCache->_id, _id);
-            //abort playing if the state is incorrect
+            // abort playing if the state is incorrect
             break;
         }
         _ready = true;

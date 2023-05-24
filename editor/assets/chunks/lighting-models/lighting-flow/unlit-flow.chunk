@@ -1,0 +1,4 @@
+// use empty lighting-flow to disable lighting
+void CCSurfacesLighting(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData, in vec2 shadowBias)
+{
+}

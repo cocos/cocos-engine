@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import CANNON from '@cocos/cannon';
 import { Vec3, Quat, IVec3Like, geometry } from '../../../core';
@@ -61,20 +60,18 @@ export class CannonShape implements IBaseShape {
     get sharedBody (): CannonSharedBody { return this._sharedBody; }
 
     setMaterial (mat: PhysicsMaterial | null) {
-        if (mat == null) {
-            (this._shape.material as unknown) = null;
-        } else {
-            if (CannonShape.idToMaterial[mat.id] == null) {
-                CannonShape.idToMaterial[mat.id] = new CANNON.Material(mat.id as any);
-            }
+        const mat1 = (mat == null) ? PhysicsSystem.instance.defaultMaterial : mat;
 
-            this._shape.material = CannonShape.idToMaterial[mat.id];
-            const smat = this._shape.material;
-            smat.friction = mat.friction;
-            smat.restitution = mat.restitution;
-            const coef = (CANNON as any).CC_CONFIG.correctInelastic;
-            (smat as any).correctInelastic = smat.restitution === 0 ? coef : 0;
+        if (CannonShape.idToMaterial[mat1.id] == null) {
+            CannonShape.idToMaterial[mat1.id] = new CANNON.Material(mat1.id as any);
         }
+
+        this._shape.material = CannonShape.idToMaterial[mat1.id];
+        const smat = this._shape.material;
+        smat.friction = mat1.friction;
+        smat.restitution = mat1.restitution;
+        const coef = (CANNON as any).CC_CONFIG.correctInelastic;
+        (smat as any).correctInelastic = smat.restitution === 0 ? coef : 0;
     }
 
     setAsTrigger (v: boolean) {

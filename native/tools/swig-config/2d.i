@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="n2d") native2d
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -156,6 +159,7 @@
 %attribute(cc::RenderDrawInfo, uint8_t, stride, getStride, setStride);
 
 %attribute(cc::RenderEntity, cc::Node*, node, getNode, setNode);
+%attribute(cc::RenderEntity, cc::Node*, renderTransform, getRenderTransform, setRenderTransform);
 %attribute(cc::RenderEntity, uint32_t, staticDrawInfoSize, getStaticDrawInfoSize, setStaticDrawInfoSize);
 %attribute(cc::RenderEntity, uint32_t, stencilStage, getStencilStage, setStencilStage);
 

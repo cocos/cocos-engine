@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -134,19 +133,24 @@ DescriptorBlockData::DescriptorBlockData(DescriptorBlockData const& rhs, const a
 
 DescriptorSetLayoutData::DescriptorSetLayoutData(const allocator_type& alloc) noexcept
 : descriptorBlocks(alloc),
-  uniformBlocks(alloc) {}
+  uniformBlocks(alloc),
+  bindingMap(alloc) {}
 
-DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
+DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, PmrUnorderedMap<NameLocalID, gfx::UniformBlock> uniformBlocksIn, PmrFlatMap<NameLocalID, uint32_t> bindingMapIn, const allocator_type& alloc) noexcept // NOLINT
 : slot(slotIn),
   capacity(capacityIn),
-  descriptorBlocks(alloc),
-  uniformBlocks(alloc) {}
+  descriptorBlocks(std::move(descriptorBlocksIn), alloc),
+  uniformBlocks(std::move(uniformBlocksIn), alloc),
+  bindingMap(std::move(bindingMapIn), alloc) {}
 
 DescriptorSetLayoutData::DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc)
 : slot(rhs.slot),
   capacity(rhs.capacity),
+  uniformBlockCapacity(rhs.uniformBlockCapacity),
+  samplerTextureCapacity(rhs.samplerTextureCapacity),
   descriptorBlocks(std::move(rhs.descriptorBlocks), alloc),
-  uniformBlocks(std::move(rhs.uniformBlocks), alloc) {}
+  uniformBlocks(std::move(rhs.uniformBlocks), alloc),
+  bindingMap(std::move(rhs.bindingMap), alloc) {}
 
 DescriptorSetData::DescriptorSetData(const allocator_type& alloc) noexcept
 : descriptorSetLayoutData(alloc) {}
@@ -198,7 +202,8 @@ ShaderProgramData::ShaderProgramData(const allocator_type& alloc) noexcept
 : layout(alloc) {}
 
 ShaderProgramData::ShaderProgramData(ShaderProgramData&& rhs, const allocator_type& alloc)
-: layout(std::move(rhs.layout), alloc) {}
+: layout(std::move(rhs.layout), alloc),
+  pipelineLayout(std::move(rhs.pipelineLayout)) {}
 
 RenderStageData::RenderStageData(const allocator_type& alloc) noexcept
 : descriptorVisibility(alloc) {}
@@ -214,7 +219,8 @@ RenderPhaseData::RenderPhaseData(const allocator_type& alloc) noexcept
 RenderPhaseData::RenderPhaseData(RenderPhaseData&& rhs, const allocator_type& alloc)
 : rootSignature(std::move(rhs.rootSignature), alloc),
   shaderPrograms(std::move(rhs.shaderPrograms), alloc),
-  shaderIndex(std::move(rhs.shaderIndex), alloc) {}
+  shaderIndex(std::move(rhs.shaderIndex), alloc),
+  pipelineLayout(std::move(rhs.pipelineLayout)) {}
 
 LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
 : _vertices(alloc),
@@ -242,6 +248,7 @@ LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& al
   constantIndex(std::move(rhs.constantIndex), alloc),
   shaderLayoutIndex(std::move(rhs.shaderLayoutIndex), alloc),
   effects(std::move(rhs.effects), alloc),
+  constantMacros(std::move(rhs.constantMacros)),
   pathIndex(std::move(rhs.pathIndex), alloc) {}
 
 // ContinuousContainer

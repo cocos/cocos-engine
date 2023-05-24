@@ -1,5 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
+ Copyright (c) 2014-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -22,30 +24,15 @@
 
 NS_CC_MATH_BEGIN
 
-inline const Quaternion Quaternion::operator*(const Quaternion& q) const
-{
+inline const Quaternion Quaternion::operator*(const Quaternion& q) const {
     Quaternion result(*this);
     result.multiply(q);
     return result;
 }
 
-inline Quaternion& Quaternion::operator*=(const Quaternion& q)
-{
+inline Quaternion& Quaternion::operator*=(const Quaternion& q) {
     multiply(q);
     return *this;
-}
-
-inline Vec3 Quaternion::operator*(const Vec3& v) const
-{
-    Vec3 uv, uuv;
-    Vec3 qvec(x, y, z);
-    Vec3::cross(qvec, v, &uv);
-    Vec3::cross(qvec, uv, &uuv);
-
-    uv *= (2.0f * w);
-    uuv *= 2.0f;
-
-    return v + uv + uuv;
 }
 
 NS_CC_MATH_END

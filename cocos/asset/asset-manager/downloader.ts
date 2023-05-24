@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { BUILD, EDITOR } from 'internal:constants';
 import { sys, js, misc, path, cclegacy } from '../../core';
@@ -29,46 +28,47 @@ import Cache from './cache';
 import downloadDomImage from './download-dom-image';
 import downloadFile from './download-file';
 import downloadScript from './download-script';
-import { CompleteCallback, CompleteCallbackNoData, IBundleOptions, IDownloadParseOptions, files } from './shared';
+import { files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { IConfigOption } from './config';
 import { CCON, parseCCONJson, decodeCCONBinary } from '../../serialization/ccon';
+import { legacyCC } from '../../core/global-exports';
 
-export type DownloadHandler = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;
+export type DownloadHandler = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void;
 
 interface IDownloadRequest {
     id: string;
     priority: number;
     url: string;
-    options: IDownloadParseOptions;
-    done: CompleteCallback;
+    options: Record<string, any>;
+    done: ((err: Error | null, data?: any | null) => void);
     handler: DownloadHandler;
 }
 
 const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
 
-const downloadImage = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
+const downloadImage = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
     const func = sys.hasFeature(sys.Feature.IMAGE_BITMAP) && cclegacy.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
     func(url, options, onComplete);
 };
 
-const downloadBlob = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
+const downloadBlob = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
     options.xhrResponseType = 'blob';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadJson = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback<Record<string, any>>) => {
+const downloadJson = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: Record<string, any> | null) => void)) => {
     options.xhrResponseType = 'json';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadArrayBuffer = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
+const downloadArrayBuffer = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
     options.xhrResponseType = 'arraybuffer';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadCCON = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback<CCON>) => {
+const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)) => {
     downloadJson(url, options, (err, json) => {
         if (err) {
             onComplete(err);
@@ -93,7 +93,7 @@ const downloadCCON = (url: string, options: IDownloadParseOptions, onComplete: C
     });
 };
 
-const downloadCCONB = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback<CCON>) => {
+const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)) => {
     downloadArrayBuffer(url, options, (err, arrayBuffer: ArrayBuffer) => {
         if (err) {
             onComplete(err);
@@ -108,12 +108,12 @@ const downloadCCONB = (url: string, options: IDownloadParseOptions, onComplete: 
     });
 };
 
-const downloadText = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
+const downloadText = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
     options.xhrResponseType = 'text';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: CompleteCallback) => {
+const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
     const bundleName = path.basename(nameOrUrl);
     let url = nameOrUrl;
     if (!REGEX.test(url)) {
@@ -123,13 +123,13 @@ const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: 
             url = `assets/${bundleName}`;
         }
     }
-    const version = options.version || downloader.bundleVers![bundleName];
+    const version = options.version || downloader.bundleVers[bundleName];
     let count = 0;
     const config = `${url}/config.${version ? `${version}.` : ''}json`;
     let out: IConfigOption | null = null;
     let error: Error | null = null;
     downloadJson(config, options, (err, response) => {
-        error = err;
+        error = err || error;
         out = response as IConfigOption;
         if (out) { out.base = `${url}/`; }
         if (++count === 2) {
@@ -139,58 +139,59 @@ const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: 
 
     const jspath = `${url}/index.${version ? `${version}.` : ''}js`;
     downloadScript(jspath, options, (err) => {
-        error = err;
+        error = err || error;
         if (++count === 2) {
-            onComplete(err, out);
+            onComplete(error, out);
         }
     });
 };
 
 /**
  * @en
- * Control all download process, it is a singleton.
- * All member can be accessed with `assetManager.downloader`, it can download several types of files:
- * 1. Text
- * 2. Image
- * 3. Audio
- * 4. Assets
- * 5. Scripts
+ * Manages all download process, it is a singleton.
+ * You can access it via [[AssetManager.downloader]], It can download various types of files.
  *
  * @zh
- * 管理所有下载过程，downloader 是个单例，所有成员能通过 `assetManager.downloader` 访问，它能下载以下几种类型的文件：
- * 1. 文本
- * 2. 图片
- * 3. 音频
- * 4. 资源
- * 5. 脚本
+ * 管理所有下载过程，downloader 是个单例，你能通过 [[AssetManager.downloader]] 访问它，它能下载各种类型的文件。
  *
  */
 export class Downloader {
     /**
-     * @en
-     * The maximum number of concurrent when downloading
-     *
-     * @zh
-     * 下载时的最大并发数
+     * @en Global singleton for [[Downloader]]. You can access it via [[AssetManager.downloader]].
+     * @zh [[Downloader]] 的全局单例. 你可以通过 [[AssetManager.downloader]] 访问.
      */
-    public maxConcurrency = 6;
+    public static get instance () {
+        if (!Downloader._instance) {
+            Downloader._instance = new Downloader();
+        }
+        return Downloader._instance;
+    }
 
     /**
      * @en
-     * The maximum number of request can be launched per frame when downloading
+     * The maximum number of concurrent when downloading.
      *
      * @zh
-     * 下载时每帧可以启动的最大请求数
-     *
+     * 下载时的最大并发数。
      */
-    public maxRequestsPerFrame = 6;
+    public maxConcurrency = 15;
 
     /**
      * @en
-     * The address of remote server
+     * The maximum number of request can be launched per frame when downloading.
      *
      * @zh
-     * 远程服务器地址
+     * 下载时每帧可以启动的最大请求数。
+     *
+     */
+    public maxRequestsPerFrame = 15;
+
+    /**
+     * @en
+     * The address of remote server.
+     *
+     * @zh
+     * 远程服务器地址。
      *
      */
     public get remoteServerAddress () {
@@ -199,40 +200,67 @@ export class Downloader {
 
     /**
      * @en
-     * The max number of retries when fail
+     * The max number of retries when fail.
      *
      * @zh
-     * 失败重试次数
+     * 失败重试次数。
      *
-     * @property maxRetryCount
-     * @type {Number}
      */
     public maxRetryCount = BUILD ? 3 : 0;
 
-    public appendTimeStamp = !!EDITOR;
+    /**
+     * Whether to automatically add a timestamp after the url.
+     * This function is mainly used to prevent the browser from using cache in editor mode.
+     * You don't need to change it at runtime.
+     * @internal
+     */
+    public appendTimeStamp = !!(EDITOR && !legacyCC.GAME_VIEW);
 
+    /**
+     * @engineInternal
+     */
     public limited = !EDITOR;
 
     /**
      * @en
-     * Wait for while before another retry, unit: ms
+     * Wait for while before another retry, unit: ms.
      *
      * @zh
-     * 重试的间隔时间
+     * 重试的间隔时间，单位为毫秒。
      *
      */
     public retryInterval = 2000;
 
-    public bundleVers: Record<string, string> | null = null;
+    /**
+     * @en Version information of all bundles.
+     * @zh 所有包的版本信息。
+     */
+    public bundleVers: Record<string, string> = {};
 
-    public remoteBundles: string[] = [];
+    /**
+     * @en The names of remote bundles.
+     * @zh 远程包名列表。
+     */
+    public remoteBundles: ReadonlyArray<string> = [];
 
+    /**
+     * @deprecated Since v3.7, this is an engine internal interface. You can easily implement the functionality of this API using HTMLImageElement.
+     */
     public downloadDomImage = downloadDomImage;
 
+    /**
+     * @deprecated Since v3.7, this is an engine internal interface. You can easily implement the functionality of this API using HTMLAudioElement.
+     */
     public downloadDomAudio: DownloadHandler | null = null;
 
+    /**
+     * @deprecated Since v3.7, this is an engine internal interface. You can easily implement the functionality of this API using XMLHttpRequest.
+     */
     public downloadFile = downloadFile;
 
+    /**
+     * @deprecated Since v3.7, this is an engine internal interface. You can easily implement the functionality of this API using XMLHttpRequest.
+     */
     public downloadScript = downloadScript;
 
     // default handler map
@@ -283,7 +311,7 @@ export class Downloader {
         default: downloadText,
     };
 
-    private _downloading = new Cache<CompleteCallback[]>();
+    private _downloading = new Cache<((err: Error | null, data?: any | null) => void)[]>();
     private _queue: IDownloadRequest[] = [];
     private _queueDirty = false;
     // the number of loading thread
@@ -296,7 +324,11 @@ export class Downloader {
     private _checkNextPeriod = false;
     private _remoteServerAddress = '';
     private _maxInterval = 1 / 30;
+    private static _instance: Downloader;
 
+    /**
+     * @engineInternal
+     */
     public init (remoteServerAddress = '', bundleVers: Record<string, string> = {}, remoteBundles: string[] = []) {
         this._downloading.clear();
         this._queue.length = 0;
@@ -307,16 +339,21 @@ export class Downloader {
 
     /**
      * @en
-     * Register custom handler if you want to change default behavior or extend downloader to download other format file
+     * Register custom handler if you want to change default behavior or extend downloader to download other format file.
      *
      * @zh
-     * 当你想修改默认行为或者拓展 downloader 来下载其他格式文件时可以注册自定义的 handler
+     * 当你想修改默认行为或者拓展 downloader 来下载其他格式文件时可以注册自定义的 handler。
      *
-     * @param type - Extension likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}
-     * @param handler - handler
-     * @param handler.url - url
-     * @param handler.options - some optional parameters will be transferred to handler.
-     * @param handler.onComplete - callback when finishing downloading
+     * @param type
+     * @en Extension name likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}.
+     * @zh 扩展名，或者形如 {'.jpg': jpgHandler, '.png': pngHandler} 的映射表。
+     * @param handler @en Customized handling for this extension. @zh 针对此扩展名的自定义的处理方法。
+     * @param handler.url @en The url to be downloaded. @zh 待下载的 url.
+     * @param handler.options @en Some optional parameters will be transferred to handler. @zh 传递到处理方法的可选参数。
+     * @param handler.onComplete
+     * @en Callback when finishing downloading. You need to call this method manually and pass in the execution result after the custom handler
+     * is executed.
+     * @zh 完成下载后的回调。你需要在自定义处理方法执行完后手动调用此方法，并将执行结果传入。
      *
      * @example
      * downloader.register('.tga', (url, options, onComplete) => onComplete(null, null));
@@ -324,9 +361,12 @@ export class Downloader {
      *                      '.ext': (url, options, onComplete) => onComplete(null, null)});
      *
      */
-    public register (type: string, handler: DownloadHandler): void;
-    public register (map: Record<string, DownloadHandler>): void;
-    public register (type: string | Record<string, DownloadHandler>, handler?: DownloadHandler) {
+    public register (type: string, handler: (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void): void;
+    public register (map: Record<string, (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void>): void;
+    public register (
+        type: string | Record<string, (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void>,
+        handler?: (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void,
+    ) {
         if (typeof type === 'object') {
             js.mixin(this._downloaders, type);
         } else {
@@ -336,29 +376,29 @@ export class Downloader {
 
     /**
      * @en
-     * Use corresponding handler to download file under limitation
+     * Use corresponding handler to download file under limitation.
      *
      * @zh
-     * 在限制下使用对应的 handler 来下载文件
+     * 在限制下使用对应的 handler 来下载文件。
      *
-     * @param id - The unique id of this download
-     * @param url - The url should be downloaded
-     * @param type - The type indicates that which handler should be used to download, such as '.jpg'
-     * @param options - some optional parameters will be transferred to the corresponding handler.
-     * @param options.onFileProgress - progressive callback will be transferred to handler.
-     * @param options.maxRetryCount - How many times should retry when download failed
-     * @param options.maxConcurrency - The maximum number of concurrent when downloading
-     * @param options.maxRequestsPerFrame - The maximum number of request can be launched per frame when downloading
-     * @param options.priority - The priority of this url, default is 0, the greater number is higher priority.
-     * @param onComplete - callback when finishing downloading
-     * @param onComplete.err - The occurred error, null indicates success
-     * @param onComplete.content - The downloaded file
+     * @param id @en The unique id of this download. @zh 本次下载的唯一 id.
+     * @param url @en The url should be downloaded. @zh 待下载的 url。
+     * @param type @en The type indicates that which handler should be used to download, such as '.jpg'. @zh 要使用的处理方法的类型，例如 '.jpg'。
+     * @param options @en Some optional parameters will be transferred to the corresponding handler. @zh 传递到处理方法的一些可选参数。
+     * @param options.onFileProgress @en Progressive callback will be transferred to handler. @zh 传递到处理方法的进度回调。
+     * @param options.maxRetryCount @en How many times should retry when download failed. @zh 下载失败后的重试数量。
+     * @param options.maxConcurrency @en The maximum number of concurrent when downloading. @zh 下载的最大并行数。
+     * @param options.maxRequestsPerFrame @en The maximum number of request can be launched per frame when downloading. @zh 每帧能发起的最大请求数量，在下载时。
+     * @param options.priority @en The priority of this url, default is 0, the greater number is higher priority. @zh 下载的优先级，值越大优先级越高。
+     * @param onComplete @en Callback when finishing downloading. @zh 完成下载后的回调。
+     * @param onComplete.err @en The occurred error, null indicates success. @zh 下载过程中出现的错误，如果为 null 则表明下载成功。
+     * @param onComplete.content @en The downloaded file. @zh 下载下来的文件内容。
      *
      * @example
      * download('http://example.com/test.tga', '.tga', { onFileProgress: (loaded, total) => console.log(loaded/total) },
      *      onComplete: (err) => console.log(err));
      */
-    public download (id: string, url: string, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
+    public download (id: string, url: string, type: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
         // if it is downloaded, don't download again
         const file = files.get(id);
         if (file) {
@@ -398,7 +438,7 @@ export class Downloader {
             // refresh
             this._updateTime();
 
-            const done: CompleteCallback = (err, data) => {
+            const done: ((err: Error | null, data?: any | null) => void) = (err, data) => {
                 // when finish downloading, update _totalNum
                 this._totalNum--;
                 this._handleQueueInNextFrame(maxConcurrency, maxRequestsPerFrame);
@@ -421,7 +461,7 @@ export class Downloader {
         // when retry finished, invoke callbacks
         const finale = (err, result) => {
             if (!err) { files.add(id, result); }
-            const callbacks = this._downloading.remove(id) as CompleteCallback[];
+            const callbacks = this._downloading.remove(id) as ((err: Error | null, data?: any | null) => void)[];
             for (let i = 0, l = callbacks.length; i < l; i++) {
                 callbacks[i](err, result);
             }
@@ -432,16 +472,18 @@ export class Downloader {
 
     /**
      * @en Load sub package with name.
-     * @zh 通过子包名加载子包代码。
-     * @param name - Sub package name
-     * @param completeCallback -  Callback invoked when sub package loaded
-     * @param {Error} completeCallback.error - error information
+     * @zh 通过子包名加载子包。
+     * @param name @en Sub package name. @zh 子包名称。
+     * @param completeCallback @en Callback invoked when sub package loaded. @zh 子包加载完成后的回调。
+     * @param completeCallback.error @en Error information. Will be null if loaded successfully. @zh 错误信息。如果加载成功则为 null。
      *
-     * @deprecated loader.downloader.loadSubpackage is deprecated, please use AssetManager.loadBundle instead
+     * @deprecated loader.downloader.loadSubpackage is deprecated, please use AssetManager.loadBundle instead.
      */
-    public loadSubpackage (name: string, completeCallback?: CompleteCallbackNoData) {
+    public loadSubpackage (name: string, completeCallback?: ((err?: Error | null) => void)) {
         cclegacy.assetManager.loadBundle(name, null, completeCallback);
     }
+
+    private constructor () {}
 
     private _updateTime () {
         const now = performance.now();
@@ -482,7 +524,5 @@ export class Downloader {
         }
     }
 }
-
-const downloader = new Downloader();
-
-export default downloader;
+const downloader = Downloader.instance;
+export default Downloader.instance;

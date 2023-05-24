@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -360,8 +359,9 @@ class Component extends CCObject {
 
     public destroy () {
         if (EDITOR) {
-            // @ts-expect-error private function access
-            const depend = this.node._getDependComponent(this);
+            // TODO: `_getDependComponent` is an injected method.
+            // issue: https://github.com/cocos/cocos-engine/issues/14643
+            const depend = (this.node as any)._getDependComponent(this);
             if (depend.length > 0) {
                 errorID(3626,
                     getClassName(this), getClassName(depend[0]));
@@ -648,48 +648,31 @@ class Component extends CCObject {
     protected onRestore? (): void;
 }
 
-const proto = Component.prototype;
-// @ts-expect-error modify prototype
-proto.update = null;
-// @ts-expect-error modify prototype
-proto.lateUpdate = null;
-// @ts-expect-error modify prototype
-proto.__preload = null;
-// @ts-expect-error modify prototype
-proto.onLoad = null;
-// @ts-expect-error modify prototype
-proto.start = null;
-// @ts-expect-error modify prototype
-proto.onEnable = null;
-// @ts-expect-error modify prototype
-proto.onDisable = null;
-// @ts-expect-error modify prototype
-proto.onDestroy = null;
-// @ts-expect-error modify prototype
-proto.onFocusInEditor = null;
-// @ts-expect-error modify prototype
-proto.onLostFocusInEditor = null;
-// @ts-expect-error modify prototype
-proto.resetInEditor = null;
-// @ts-expect-error modify prototype
-proto._getLocalBounds = null;
-// @ts-expect-error modify prototype
-proto.onRestore = null;
-// @ts-expect-error modify class
-Component._requireComponent = null;
-// @ts-expect-error modify class
-Component._executionOrder = 0;
+// NOTE: here we access the protected properties in Component, so we need to mark it as type of any.
+const proto = Component.prototype as any;
+proto.update = undefined;
+proto.lateUpdate = undefined;
+proto.__preload = undefined;
+proto.onLoad = undefined;
+proto.start = undefined;
+proto.onEnable = undefined;
+proto.onDisable = undefined;
+proto.onDestroy = undefined;
+proto.onFocusInEditor = undefined;
+proto.onLostFocusInEditor = undefined;
+proto.resetInEditor = undefined;
+proto._getLocalBounds = undefined;
+proto.onRestore = undefined;
+// NOTE: these are all injected properties
+(Component as any)._requireComponent = null;
+(Component as any)._executionOrder = 0;
 
 if (EDITOR || TEST) {
     // INHERITABLE STATIC MEMBERS
-    // @ts-expect-error modify static member
-    Component._executeInEditMode = false;
-    // @ts-expect-error modify static member
-    Component._playOnFocus = false;
-    // @ts-expect-error modify static member
-    Component._disallowMultiple = null;
-    // @ts-expect-error modify static member
-    Component._help = '';
+    (Component as any)._executeInEditMode = false;
+    (Component as any)._playOnFocus = false;
+    (Component as any)._disallowMultiple = null;
+    (Component as any)._help = '';
 
     // NON-INHERITED STATIC MEMBERS
     // (TypeScript 2.3 will still inherit them, so always check hasOwnProperty before using)

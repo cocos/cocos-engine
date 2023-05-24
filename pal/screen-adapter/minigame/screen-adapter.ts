@@ -1,4 +1,28 @@
-import { ALIPAY, BAIDU, COCOSPLAY, RUNTIME_BASED, VIVO, WECHAT } from 'internal:constants';
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, RUNTIME_BASED, VIVO, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -8,13 +32,16 @@ import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
 
+declare const my: any;
+
 // HACK: In some platform like CocosPlay or Alipay iOS end
 // the windowSize need to rotate when init screenAdapter if it's landscape
 let rotateLandscape = false;
 try {
     if (ALIPAY) {
         if (systemInfo.os === OS.IOS && !minigame.isDevTool) {
-            // @ts-expect-error TODO: use pal/fs
+            // TODO: use pal/fs
+            // issue: https://github.com/cocos/cocos-engine/issues/14647
             const fs = my.getFileSystemManager();
             const screenOrientation = JSON.parse(fs.readFileSync({
                 filePath: 'game.json',
@@ -48,6 +75,10 @@ class ScreenAdapter extends EventTarget {
         const dpr = this.devicePixelRatio;
         let screenWidth = sysInfo.windowWidth;
         let screenHeight = sysInfo.windowHeight;
+        if (BYTEDANCE) {
+            screenWidth = sysInfo.screenWidth;
+            screenHeight = sysInfo.screenHeight;
+        }
         if (ALIPAY && rotateLandscape  && screenWidth < screenHeight) {
             const temp = screenWidth;
             screenWidth = screenHeight;
@@ -125,7 +156,7 @@ class ScreenAdapter extends EventTarget {
     constructor () {
         super();
         // TODO: onResize or onOrientationChange is not supported well
-        if (WECHAT || COCOSPLAY) {
+        if (WECHAT || WECHAT_MINI_PROGRAM || COCOSPLAY) {
             minigame.onWindowResize?.(() => {
                 this.emit('window-resize', this.windowSize.width, this.windowSize.height);
             });

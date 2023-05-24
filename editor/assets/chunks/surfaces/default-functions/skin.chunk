@@ -1,0 +1,16 @@
+#include <surfaces/data-structures/standard>
+
+#define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
+{
+#if CC_SURFACES_LIGHTING_SSS
+  float sssStrength = surfaceData.sssParams.x;
+  #if !CC_SURFACES_LIGHTING_DISABLE_DIFFUSE && CC_SURFACES_LIGHTING_DISABLE_SPECULAR
+    // 0 - 0.9 is valid skin alpha without MSAA, 0 is valid skin alpha with MSAA
+    surfaceData.baseColor.a = sssStrength * 0.9;
+    // #if MSAA_ENABLE
+      // surfaceData.baseColor.a = 1.0 - step(0.5, sssStrength);
+    // #endif
+  #endif
+#endif
+}

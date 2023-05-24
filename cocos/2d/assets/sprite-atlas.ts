@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -47,14 +46,18 @@ interface ISpriteFrameList {
  */
 @ccclass('cc.SpriteAtlas')
 export class SpriteAtlas extends Asset {
+    /**
+     * @en All sprite frames in the sprite atlas.
+     * @zh 精灵图集中的所有精灵。
+     */
     @serializable
     @editable
     public spriteFrames: ISpriteFrameList = js.createMap();
 
     /**
      * @en Get the [[Texture2D]] asset of the atlas.
-     * @zh 获取精灵图集的贴图。请注意，由于结构调整优化，在 v1.1 版本之前，此函数的返回值为 imageAsset，在 v1.1 版本之后修正为 texture，想要获取 imageAsset 可使用 getTexture().image 获取
-     * @returns The texture2d asset
+     * @zh 获取精灵图集的贴图。
+     * @returns @en The texture2d asset. @zh 二维贴图资源。
      */
     public getTexture () {
         const keys = Object.keys(this.spriteFrames);
@@ -70,8 +73,8 @@ export class SpriteAtlas extends Asset {
      * @en Gets the [[SpriteFrame]] correspond to the given key in sprite atlas.
      * @zh 根据键值获取精灵。
      *
-     * @param key The SpriteFrame name
-     * @returns The SpriteFrame asset
+     * @param key @en The SpriteFrame name. @zh 精灵名字。
+     * @returns @en The SpriteFrame asset. @zh 精灵资源。
      */
     public getSpriteFrame (key: string) {
         const sf = this.spriteFrames[key];
@@ -87,7 +90,7 @@ export class SpriteAtlas extends Asset {
     /**
      * @en Returns all sprite frames in the sprite atlas.
      * @zh 获取精灵图集所有精灵。
-     * @returns All sprite frames
+     * @returns @en All sprite frames. @zh 所有的精灵资源。
      */
     public getSpriteFrames () {
         const frames: Array<SpriteFrame | null> = [];

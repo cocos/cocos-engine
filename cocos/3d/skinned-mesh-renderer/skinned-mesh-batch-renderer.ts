@@ -1,14 +1,14 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -114,7 +114,7 @@ export class SkinnedMeshUnit {
         if (!comp) { return; }
         this.mesh = comp.mesh;
         this.skeleton = comp.skeleton;
-        this.material = comp.getMaterial(0);
+        this.material = comp.getSharedMaterial(0);
         if (comp.skinningRoot) { getWorldTransformUntilRoot(comp.node, comp.skinningRoot, this._localTransform); }
     }
 
@@ -223,7 +223,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
 
     public cookMaterials () {
         if (!this._batchMaterial) {
-            this._batchMaterial = this.getMaterial(0);
+            this._batchMaterial = this.getSharedMaterial(0);
         }
         const mat = this.getMaterialInstance(0);
         if (!mat || !this._batchMaterial || !this._batchMaterial.effectAsset) {
@@ -344,7 +344,10 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
             if (!unit || !unit.mesh || !unit.mesh.data) { continue; }
             const newMesh = this._createUnitMesh(i, unit.mesh);
             const dataView = new DataView(newMesh.data.buffer);
-            Mat4.inverseTranspose(m4_local, unit._localTransform);
+
+            Mat4.invert(m4_local, unit._localTransform);
+            Mat4.transpose(m4_local, m4_local);
+
             const { offset } = unit;
             const { size } = unit;
             for (let b = 0; b < newMesh.struct.vertexBundles.length; b++) {

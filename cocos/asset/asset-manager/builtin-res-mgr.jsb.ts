@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,14 +22,15 @@
  THE SOFTWARE.
 */
 
+import { TEST, EDITOR } from 'internal:constants';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
-import type { ImageSource }  from '../assets/image-asset';
+import type { ImageSource } from '../assets/image-asset';
 import assetManager from '../asset-manager/asset-manager';
 import { BuiltinBundleName } from '../asset-manager/shared';
-import { TEST, EDITOR } from 'internal:constants';
 import Bundle from '../asset-manager/bundle';
 import { Settings, settings, cclegacy } from '../../core';
-import releaseManager from '../asset-manager/release-manager';
+import { releaseManager } from '../asset-manager/release-manager';
+import type { BuiltinResMgr as JsbBuiltinResMgr } from './builtin-res-mgr';
 
 declare const jsb: any;
 
@@ -40,16 +40,16 @@ const ImageAsset = jsb.ImageAsset;
 const BuiltinResMgr = jsb.BuiltinResMgr;
 const builtinResMgrProto = BuiltinResMgr.prototype;
 
-builtinResMgrProto.init = function (): Promise<void> {
+builtinResMgrProto.init = function () {
     this._resources = {};
     this._materialsToBeCompiled = [];
     const resources = this._resources;
     const len = 2;
     const numChannels = 4;
 
-    const blackValueView   = new Uint8Array(len * len * numChannels);
-    let offset = 0;
+    const blackValueView = new Uint8Array(len * len * numChannels);
     for (let i = 0; i < len * len; i++) {
+        const offset = i * numChannels;
         blackValueView[offset] = 0;
         blackValueView[offset + 1] = 0;
         blackValueView[offset + 2] = 0;
@@ -123,19 +123,19 @@ builtinResMgrProto.compileBuiltinMaterial = function () {
 };
 
 builtinResMgrProto.loadBuiltinAssets = function () {
-   const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
-   if (TEST || !builtinAssets) return Promise.resolve();
-   const resources = this._resources;
-   return new Promise<void>((resolve, reject) => {
-       assetManager.loadBundle(BuiltinBundleName.INTERNAL, (err, bundle) => {
-           if (err) {
-               reject(err);
-               return;
-           }
-           assetManager.loadAny(builtinAssets, (err, assets) => {
-               if (err) {
-                   reject(err);
-               } else {
+    const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
+    if (TEST || !builtinAssets) return Promise.resolve();
+    const resources = this._resources;
+    return new Promise<void>((resolve, reject) => {
+        assetManager.loadBundle(BuiltinBundleName.INTERNAL, (err, bundle) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            assetManager.loadAny(builtinAssets, (err, assets) => {
+                if (err) {
+                    reject(err);
+                } else {
                     assets.forEach((asset) => {
                         resources[asset.name] = asset;
                         const url = asset.nativeUrl;
@@ -146,12 +146,12 @@ builtinResMgrProto.loadBuiltinAssets = function () {
                             this._materialsToBeCompiled.push(asset);
                         }
                     });
-                   resolve();
-               }
-           });
-       });
-   });
+                    resolve();
+                }
+            });
+        });
+    });
 }
 
-const builtinResMgr = cclegacy.builtinResMgr = BuiltinResMgr.getInstance();
+const builtinResMgr = cclegacy.builtinResMgr = BuiltinResMgr.getInstance() as JsbBuiltinResMgr;
 export { builtinResMgr };

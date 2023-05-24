@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,9 +30,9 @@
 // clang-format off
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/bindings/auto/jsb_scene_auto.h"
-#include "cocos/renderer/pipeline/custom/JsbConversion.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonJsb.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
+#include "cocos/renderer/pipeline/custom/details/JsbConversion.h"
 
 bool nativevalue_to_se(const cc::render::RasterView &from, se::Value &to, se::Object *ctx) { // NOLINT
     se::HandleObject obj(se::Object::createPlainObject());
@@ -41,6 +40,9 @@ bool nativevalue_to_se(const cc::render::RasterView &from, se::Value &to, se::Ob
 
     nativevalue_to_se(from.slotName, tmp, ctx);
     obj->setProperty("slotName", tmp);
+
+    nativevalue_to_se(from.slotName1, tmp, ctx);
+    obj->setProperty("slotName1", tmp);
 
     nativevalue_to_se(from.accessType, tmp, ctx);
     obj->setProperty("accessType", tmp);
@@ -60,6 +62,32 @@ bool nativevalue_to_se(const cc::render::RasterView &from, se::Value &to, se::Ob
     nativevalue_to_se(from.clearColor, tmp, ctx);
     obj->setProperty("clearColor", tmp);
 
+    nativevalue_to_se(from.slotID, tmp, ctx);
+    obj->setProperty("slotID", tmp);
+
+    nativevalue_to_se(from.shaderStageFlags, tmp, ctx);
+    obj->setProperty("shaderStageFlags", tmp);
+
+    to.setObject(obj);
+    return true;
+}
+
+bool nativevalue_to_se(const cc::render::ClearValue &from, se::Value &to, se::Object *ctx) { // NOLINT
+    se::HandleObject obj(se::Object::createPlainObject());
+    se::Value        tmp;
+
+    nativevalue_to_se(from.x, tmp, ctx);
+    obj->setProperty("x", tmp);
+
+    nativevalue_to_se(from.y, tmp, ctx);
+    obj->setProperty("y", tmp);
+
+    nativevalue_to_se(from.z, tmp, ctx);
+    obj->setProperty("z", tmp);
+
+    nativevalue_to_se(from.w, tmp, ctx);
+    obj->setProperty("w", tmp);
+
     to.setObject(obj);
     return true;
 }
@@ -74,14 +102,20 @@ bool nativevalue_to_se(const cc::render::ComputeView &from, se::Value &to, se::O
     nativevalue_to_se(from.accessType, tmp, ctx);
     obj->setProperty("accessType", tmp);
 
+    nativevalue_to_se(from.plane, tmp, ctx);
+    obj->setProperty("plane", tmp);
+
     nativevalue_to_se(from.clearFlags, tmp, ctx);
     obj->setProperty("clearFlags", tmp);
 
-    nativevalue_to_se(from.clearColor, tmp, ctx);
-    obj->setProperty("clearColor", tmp);
-
     nativevalue_to_se(from.clearValueType, tmp, ctx);
     obj->setProperty("clearValueType", tmp);
+
+    nativevalue_to_se(from.clearValue, tmp, ctx);
+    obj->setProperty("clearValue", tmp);
+
+    nativevalue_to_se(from.shaderStageFlags, tmp, ctx);
+    obj->setProperty("shaderStageFlags", tmp);
 
     to.setObject(obj);
     return true;
@@ -161,6 +195,29 @@ bool nativevalue_to_se(const cc::render::DescriptorBlockIndex &from, se::Value &
     return true;
 }
 
+bool nativevalue_to_se(const cc::render::ResolvePair &from, se::Value &to, se::Object *ctx) { // NOLINT
+    se::HandleObject obj(se::Object::createPlainObject());
+    se::Value        tmp;
+
+    nativevalue_to_se(from.source, tmp, ctx);
+    obj->setProperty("source", tmp);
+
+    nativevalue_to_se(from.target, tmp, ctx);
+    obj->setProperty("target", tmp);
+
+    nativevalue_to_se(from.resolveFlags, tmp, ctx);
+    obj->setProperty("resolveFlags", tmp);
+
+    nativevalue_to_se(from.mode, tmp, ctx);
+    obj->setProperty("mode", tmp);
+
+    nativevalue_to_se(from.mode1, tmp, ctx);
+    obj->setProperty("mode1", tmp);
+
+    to.setObject(obj);
+    return true;
+}
+
 bool nativevalue_to_se(const cc::render::CopyPair &from, se::Value &to, se::Object *ctx) { // NOLINT
     se::HandleObject obj(se::Object::createPlainObject());
     se::Value        tmp;
@@ -185,6 +242,35 @@ bool nativevalue_to_se(const cc::render::CopyPair &from, se::Value &to, se::Obje
 
     nativevalue_to_se(from.sourcePlaneSlice, tmp, ctx);
     obj->setProperty("sourcePlaneSlice", tmp);
+
+    nativevalue_to_se(from.targetMostDetailedMip, tmp, ctx);
+    obj->setProperty("targetMostDetailedMip", tmp);
+
+    nativevalue_to_se(from.targetFirstSlice, tmp, ctx);
+    obj->setProperty("targetFirstSlice", tmp);
+
+    nativevalue_to_se(from.targetPlaneSlice, tmp, ctx);
+    obj->setProperty("targetPlaneSlice", tmp);
+
+    to.setObject(obj);
+    return true;
+}
+
+bool nativevalue_to_se(const cc::render::UploadPair &from, se::Value &to, se::Object *ctx) { // NOLINT
+    se::HandleObject obj(se::Object::createPlainObject());
+    se::Value        tmp;
+
+    nativevalue_to_se(from.source, tmp, ctx);
+    obj->setProperty("source", tmp);
+
+    nativevalue_to_se(from.target, tmp, ctx);
+    obj->setProperty("target", tmp);
+
+    nativevalue_to_se(from.mipLevels, tmp, ctx);
+    obj->setProperty("mipLevels", tmp);
+
+    nativevalue_to_se(from.numSlices, tmp, ctx);
+    obj->setProperty("numSlices", tmp);
 
     nativevalue_to_se(from.targetMostDetailedMip, tmp, ctx);
     obj->setProperty("targetMostDetailedMip", tmp);
@@ -239,6 +325,10 @@ bool sevalue_to_native<cc::render::RasterView>(const se::Value &from, cc::render
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->slotName), ctx);
     }
+    obj->getProperty("slotName1", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->slotName1), ctx);
+    }
     obj->getProperty("accessType", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->accessType), ctx);
@@ -263,6 +353,40 @@ bool sevalue_to_native<cc::render::RasterView>(const se::Value &from, cc::render
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->clearColor), ctx);
     }
+    obj->getProperty("slotID", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->slotID), ctx);
+    }
+    obj->getProperty("shaderStageFlags", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->shaderStageFlags), ctx);
+    }
+    return ok;
+}
+
+template <>
+bool sevalue_to_native<cc::render::ClearValue>(const se::Value &from, cc::render::ClearValue *to, se::Object *ctx) { // NOLINT
+    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to ClearValue failed !");
+
+    auto *obj = const_cast<se::Object *>(from.toObject());
+    bool ok = true;
+    se::Value field;
+    obj->getProperty("x", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->x), ctx);
+    }
+    obj->getProperty("y", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->y), ctx);
+    }
+    obj->getProperty("z", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->z), ctx);
+    }
+    obj->getProperty("w", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->w), ctx);
+    }
     return ok;
 }
 
@@ -281,17 +405,25 @@ bool sevalue_to_native<cc::render::ComputeView>(const se::Value &from, cc::rende
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->accessType), ctx);
     }
+    obj->getProperty("plane", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->plane), ctx);
+    }
     obj->getProperty("clearFlags", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->clearFlags), ctx);
     }
-    obj->getProperty("clearColor", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->clearColor), ctx);
-    }
     obj->getProperty("clearValueType", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->clearValueType), ctx);
+    }
+    obj->getProperty("clearValue", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->clearValue), ctx);
+    }
+    obj->getProperty("shaderStageFlags", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->shaderStageFlags), ctx);
     }
     return ok;
 }
@@ -393,6 +525,36 @@ bool sevalue_to_native<cc::render::DescriptorBlockIndex>(const se::Value &from, 
 }
 
 template <>
+bool sevalue_to_native<cc::render::ResolvePair>(const se::Value &from, cc::render::ResolvePair *to, se::Object *ctx) { // NOLINT
+    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to ResolvePair failed !");
+
+    auto *obj = const_cast<se::Object *>(from.toObject());
+    bool ok = true;
+    se::Value field;
+    obj->getProperty("source", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->source), ctx);
+    }
+    obj->getProperty("target", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->target), ctx);
+    }
+    obj->getProperty("resolveFlags", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->resolveFlags), ctx);
+    }
+    obj->getProperty("mode", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->mode), ctx);
+    }
+    obj->getProperty("mode1", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->mode1), ctx);
+    }
+    return ok;
+}
+
+template <>
 bool sevalue_to_native<cc::render::CopyPair>(const se::Value &from, cc::render::CopyPair *to, se::Object *ctx) { // NOLINT
     SE_PRECONDITION2(from.isObject(), false, " Convert parameter to CopyPair failed !");
 
@@ -426,6 +588,44 @@ bool sevalue_to_native<cc::render::CopyPair>(const se::Value &from, cc::render::
     obj->getProperty("sourcePlaneSlice", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->sourcePlaneSlice), ctx);
+    }
+    obj->getProperty("targetMostDetailedMip", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->targetMostDetailedMip), ctx);
+    }
+    obj->getProperty("targetFirstSlice", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->targetFirstSlice), ctx);
+    }
+    obj->getProperty("targetPlaneSlice", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->targetPlaneSlice), ctx);
+    }
+    return ok;
+}
+
+template <>
+bool sevalue_to_native<cc::render::UploadPair>(const se::Value &from, cc::render::UploadPair *to, se::Object *ctx) { // NOLINT
+    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to UploadPair failed !");
+
+    auto *obj = const_cast<se::Object *>(from.toObject());
+    bool ok = true;
+    se::Value field;
+    obj->getProperty("source", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->source), ctx);
+    }
+    obj->getProperty("target", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->target), ctx);
+    }
+    obj->getProperty("mipLevels", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->mipLevels), ctx);
+    }
+    obj->getProperty("numSlices", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->numSlices), ctx);
     }
     obj->getProperty("targetMostDetailedMip", &field, true);
     if(!field.isNullOrUndefined()) {

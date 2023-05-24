@@ -466,8 +466,8 @@ exports.methods = {
                     canvas.width = width;
                     canvas.height = height;
 
-                    panel.glPreview.initGL(canvas, { width, height });
-                    panel.glPreview.resizeGL(width, height);
+                    await panel.glPreview.initGL(canvas, { width, height });
+                    await panel.glPreview.resizeGL(width, height);
                 }
 
                 const info = await panel.glPreview.queryPreviewData({
@@ -475,7 +475,7 @@ exports.methods = {
                     height: canvas.height,
                 });
 
-                panel.glPreview.drawGL(info.buffer, info.width, info.height);
+                panel.glPreview.drawGL(info);
             } catch (e) {
                 console.warn(e);
             }
@@ -697,7 +697,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function() {
+exports.ready = function () {
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -739,7 +739,7 @@ exports.ready = function() {
     this.eventEditor.ready.call(this);
 };
 
-exports.update = async function(assetList, metaList) {
+exports.update = async function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.isMultiple = this.assetList.length > 1;
@@ -770,7 +770,7 @@ exports.update = async function(assetList, metaList) {
     this.refreshPreview();
 };
 
-exports.close = function() {
+exports.close = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {

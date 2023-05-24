@@ -38,6 +38,7 @@ class SimulatorApp {
 public:
     static SimulatorApp *getInstance();
     virtual ~SimulatorApp();
+    int init();
     int run();
 
     virtual void quit();
@@ -50,7 +51,7 @@ public:
     virtual int getPositionY();
 
     virtual int getWidth() const;
-    virtual int getHegith() const;
+    virtual int getHeight() const;
 
 protected:
     SimulatorApp();

@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="jsb") engine
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -92,12 +95,16 @@ namespace cc {
 %ignore DebugRenderer::activate;
 %ignore DebugRenderer::render;
 %ignore DebugRenderer::destroy;
+%ignore DebugRenderer::update;
 
 %ignore DebugFontInfo;
 %ignore DebugRendererInfo;
 
 %ignore JSBNativeDataHolder::getData;
 %ignore JSBNativeDataHolder::setData;
+
+%ignore CCObject::setScriptObject;
+%ignore CCObject::getScriptObject;
 
 }
 

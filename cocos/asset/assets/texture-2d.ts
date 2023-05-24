@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -35,45 +34,45 @@ import { js, cclegacy } from '../../core';
 const compressedImageAsset: ImageAsset[] = [];
 
 /**
- * @en The create information for [[Texture2D]]
+ * @en The create information for [[Texture2D]].
  * @zh 用来创建贴图的信息。
  */
 export interface ITexture2DCreateInfo {
     /**
-     * @en The pixel width
+     * @en The pixel width.
      * @zh 像素宽度。
      */
     width: number;
 
     /**
-     * @en The pixel height
+     * @en The pixel height.
      * @zh 像素高度。
      */
     height: number;
 
     /**
-     * @en The pixel format
+     * @en The pixel format.
      * @zh 像素格式。
      * @default PixelFormat.RGBA8888
      */
     format?: PixelFormat;
 
     /**
-     * @en The mipmap level count
+     * @en The mipmap level count.
      * @zh mipmap 层级。
      * @default 1
      */
     mipmapLevel?: number;
 
     /**
-     * @en The selected base mipmap level
+     * @en The selected base mipmap level.
      * @zh 选择使用的最小 mipmap 层级。
      * @default 1
      */
     baseLevel?: number;
 
     /**
-     * @en The selected maximum mipmap level
+     * @en The selected maximum mipmap level.
      * @zh 选择使用的最大 mipmap 层级。
      * @default 1000
      */
@@ -178,6 +177,9 @@ export class Texture2D extends SimpleTexture {
     @type([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
 
+    /**
+     * @engineInternal
+     */
     public initialize () {
         this.mipmaps = this._mipmaps;
     }
@@ -191,7 +193,7 @@ export class Texture2D extends SimpleTexture {
      * After reset, the gfx resource will become invalid, you must use [[uploadData]] explicitly to upload the new mipmaps to GPU resources.
      * @zh 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级。重置后，贴图的像素数据将变为未定义。
      * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 [[uploadData]] 来上传贴图数据。
-     * @param info The create information
+     * @param info @en The create information. @zh 创建贴图的相关信息。
      */
     public reset (info: ITexture2DCreateInfo) {
         this._width = info.width;
@@ -252,7 +254,7 @@ export class Texture2D extends SimpleTexture {
     /**
      * @en If the level 0 mipmap image is a HTML element, then return it, otherwise return null.
      * @zh 若此贴图 0 级 Mipmap 的图像资源的实际源存在并为 HTML 元素则返回它，否则返回 `null`。
-     * @returns HTML element or `null`
+     * @returns @en HTMLElement or `null`. @zh HTML 元素或者 null。
      * @deprecated Please use [[ImageAsset.data]] instead
      */
     public getHtmlElementObj () {
@@ -269,9 +271,9 @@ export class Texture2D extends SimpleTexture {
     }
 
     /**
-     * @en Gets the description of the 2d texture
+     * @en Gets the description of the 2d texture.
      * @zh 返回此贴图的描述。
-     * @returns The description
+     * @returns @en The description. @zh 贴图的描述信息。
      */
     public description () {
         const url = this._mipmaps[0] ? this._mipmaps[0].url : '';
@@ -281,7 +283,7 @@ export class Texture2D extends SimpleTexture {
     /**
      * @en Release used GPU resources.
      * @zh 释放占用的 GPU 资源。
-     * @deprecated please use [[destroy]] instead
+     * @deprecated please use [[destroy]] instead.
      */
     public releaseTexture () {
         this.destroy();
@@ -328,6 +330,9 @@ export class Texture2D extends SimpleTexture {
         }
     }
 
+    /**
+     * @engineInternal
+     */
     protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo) {
         const texInfo = new TextureInfo(TextureType.TEX2D);
         texInfo.width = this._width;
@@ -336,6 +341,9 @@ export class Texture2D extends SimpleTexture {
         return texInfo;
     }
 
+    /**
+     * @engineInternal
+     */
     protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo) {
         const texViewInfo = new TextureViewInfo();
         texViewInfo.type = TextureType.TEX2D;

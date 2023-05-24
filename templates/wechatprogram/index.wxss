@@ -1,0 +1,14 @@
+/**app.wxss**/
+#myCanvas {
+    height: 100%;  
+    width: 100%;  
+    position: absolute;  
+    top: 0px; 
+    bottom: 0px; 
+} 
+
+input {
+    color: transparent;
+    text-shadow: 0 0 0 #000;
+    opacity: 0;
+}

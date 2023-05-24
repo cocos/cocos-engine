@@ -5,7 +5,7 @@ CCEffect %{
   - passes:
     - vert: post-process-vs
       frag: post-process-fs
-      phase: post-process
+      pass: post-process
       depthStencilState:
         depthTest: false
         depthWrite: false
@@ -22,7 +22,7 @@ CCEffect %{
 
 CCProgram post-process-vs %{
   precision highp float;
-  #include <legacy/input-standard>
+  #include <legacy/decode-standard>
   #include <builtin/uniforms/cc-global>
   #include <common/common-define>
 
@@ -30,7 +30,7 @@ CCProgram post-process-vs %{
 
   void main () {
     StandardVertInput In;
-    CCVertInput(In);
+    CCDecode(In);
     CC_HANDLE_GET_CLIP_FLIP(In.position.xy);
     gl_Position = In.position;
     gl_Position.y = gl_Position.y;
@@ -44,6 +44,7 @@ CCProgram post-process-fs %{
   #include <post-process/anti-aliasing>
   in vec2 v_uv;
 
+  #pragma rate outputResultMap pass
   layout(binding = 0) uniform sampler2D outputResultMap;
 
   layout(location = 0) out vec4 fragColor;

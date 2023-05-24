@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="spine") spine
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -184,7 +187,6 @@ using namespace spine;
 %ignore spine::SwirlVertexEffect::transform;
 %ignore spine::SwirlVertexEffect::end;
 %ignore spine::VertexAttachment::computeWorldVertices;
-%ignore spine::VertexAttachment::getBones;
 %ignore spine::VertexAttachment::getRTTI;
 %ignore spine::SkeletonDataMgr::destroyInstance;
 %ignore spine::SkeletonDataMgr::hasSkeletonData;
@@ -268,18 +270,20 @@ using namespace spine;
 %include "editor-support/spine/AnimationStateData.h"
 %include "editor-support/spine/Attachment.h"
 %include "editor-support/spine/AttachmentTimeline.h"
+%include "editor-support/spine/VertexAttachment.h"
 %include "editor-support/spine/BoundingBoxAttachment.h"
 %include "editor-support/spine/Bone.h"
 %include "editor-support/spine/BoneData.h"
 %include "editor-support/spine/ClippingAttachment.h"
 %include "editor-support/spine/Color.h"
-%include "editor-support/spine/ColorTimeline.h"
 %include "editor-support/spine/CurveTimeline.h"
+%include "editor-support/spine/ColorTimeline.h"
 %include "editor-support/spine/DeformTimeline.h"
 %include "editor-support/spine/DrawOrderTimeline.h"
 %include "editor-support/spine/Event.h"
 %include "editor-support/spine/EventData.h"
 %include "editor-support/spine/EventTimeline.h"
+%include "editor-support/spine/ConstraintData.h"
 %include "editor-support/spine/IkConstraint.h"
 %include "editor-support/spine/IkConstraintData.h"
 %include "editor-support/spine/IkConstraintTimeline.h"
@@ -292,6 +296,8 @@ using namespace spine;
 %include "editor-support/spine/PathConstraintSpacingTimeline.h"
 %include "editor-support/spine/PointAttachment.h"
 %include "editor-support/spine/RegionAttachment.h"
+%include "editor-support/spine/TranslateTimeline.h"
+%include "editor-support/spine/TwoColorTimeline.h"
 %include "editor-support/spine/RotateTimeline.h"
 %include "editor-support/spine/ScaleTimeline.h"
 %include "editor-support/spine/ShearTimeline.h"
@@ -305,16 +311,11 @@ using namespace spine;
 %include "editor-support/spine/TransformConstraint.h"
 %include "editor-support/spine/TransformConstraintData.h"
 %include "editor-support/spine/TransformConstraintTimeline.h"
-%include "editor-support/spine/TranslateTimeline.h"
-%include "editor-support/spine/TwoColorTimeline.h"
-%include "editor-support/spine/VertexAttachment.h"
 %include "editor-support/spine/VertexEffect.h"
-%include "editor-support/spine/ConstraintData.h"
 
 %include "editor-support/spine-creator-support/VertexEffectDelegate.h"
 %include "editor-support/spine-creator-support/SkeletonRenderer.h"
 %include "editor-support/spine-creator-support/SkeletonAnimation.h"
 %include "editor-support/spine-creator-support/SkeletonDataMgr.h"
-// %include "editor-support/spine-creator-support/SkeletonCache.h"
 %include "editor-support/spine-creator-support/SkeletonCacheAnimation.h"
 %include "editor-support/spine-creator-support/SkeletonCacheMgr.h"

@@ -3,20 +3,19 @@
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2011 Zynga Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,8 +30,7 @@
 
 #include <cstdint> // To include uint8_t, uint16_t and so on.
 
-#include <cassert>
-#define CC_ASSERT(cond) assert(cond)
+#include "Assertf.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #if defined(CC_STATIC)
@@ -90,21 +88,21 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     if (cond) break
 
 /** @def CC_DEPRECATED_ATTRIBUTE
-* Only certain compilers support __attribute__((deprecated)).
-*/
+ * Only certain compilers support __attribute__((deprecated)).
+ */
 #if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
     #define CC_DEPRECATED_ATTRIBUTE __attribute__((deprecated))
-#elif _MSC_VER >= 1400 //vs 2005 or higher
+#elif _MSC_VER >= 1400 // vs 2005 or higher
     #define CC_DEPRECATED_ATTRIBUTE __declspec(deprecated)
 #else
     #define CC_DEPRECATED_ATTRIBUTE
 #endif
 
 /** @def CC_DEPRECATED(...)
-* Macro to mark things deprecated as of a particular version
-* can be used with arbitrary parameters which are thrown away.
-* e.g. CC_DEPRECATED(4.0) or CC_DEPRECATED(4.0, "not going to need this anymore") etc.
-*/
+ * Macro to mark things deprecated as of a particular version
+ * can be used with arbitrary parameters which are thrown away.
+ * e.g. CC_DEPRECATED(4.0) or CC_DEPRECATED(4.0, "not going to need this anymore") etc.
+ */
 #define CC_DEPRECATED(...) CC_DEPRECATED_ATTRIBUTE
 
 #ifdef __GNUC__

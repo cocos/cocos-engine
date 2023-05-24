@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,12 +20,12 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 import { JSB } from 'internal:constants';
 import { Color, Vec2 } from '../../../../core';
 import { Graphics } from '../../../components';
-import { MeshRenderData } from '../../../renderer/render-data';
+import { RenderData, MeshRenderData } from '../../../renderer/render-data';
 import { RenderDrawInfoType } from '../../../renderer/render-draw-info';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';
 import { LineCap, LineJoin, PointFlags } from '../types';
@@ -38,10 +37,6 @@ export class Point extends Vec2 {
     public dmy = 0;
     public flags = 0;
     public len = 0;
-    constructor (x: number, y: number) {
-        super(x, y);
-        this.reset();
-    }
 
     public reset () {
         this.dx = 0;
@@ -58,20 +53,12 @@ export class Path {
     public bevel = 0;
     public complex = true;
     public points: Point[] = [];
-    constructor () {
-        this.reset();
-    }
 
     public reset () {
         this.closed = false;
         this.bevel = 0;
         this.complex = true;
-
-        if (this.points) {
-            this.points.length = 0;
-        } else {
-            this.points = [];
-        }
+        this.points.length = 0;
     }
 }
 
@@ -210,10 +197,11 @@ export class Impl {
         this._renderDataList.push(renderData);
         if (JSB) {
             renderData.initRenderDrawInfo(this._comp, RenderDrawInfoType.MODEL);
-            // @ts-expect-error temporary no care
-            this._comp._renderData = renderData;
-            // @ts-expect-error temporary no care
-            this._comp._renderData!.material = this._comp.getMaterialInstance(0)!;// hack
+            // TODO: MeshRenderData and RenderData are both sub class of BaseRenderData, here we weirdly use MeshRenderData as RenderData
+            // please fix the type @holycanvas
+            // issue: https://github.com/cocos/cocos-engine/issues/14637
+            renderData.material = this._comp.getMaterialInstance(0)!;// hack
+            this._comp.setRenderData(renderData as unknown as RenderData);
         }
 
         return renderData;

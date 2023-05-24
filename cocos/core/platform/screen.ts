@@ -2,16 +2,16 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -30,7 +30,7 @@ import { legacyCC } from '../global-exports';
 import { Size } from '../math';
 import { Settings, settings } from '../settings';
 import { warnID } from './debug';
-
+import { PalScreenEvent } from '../../../pal/screen-adapter/enum-type';
 /**
  * @en The screen API provides an easy way to do some screen managing stuff.
  * @zh screen 单例对象提供简单的方法来做屏幕管理相关的工作。
@@ -42,7 +42,8 @@ class Screen {
     public init () {
         const exactFitScreen = settings.querySettings(Settings.Category.SCREEN, 'exactFitScreen') ?? true;
         const orientation = settings.querySettings(Settings.Category.SCREEN, 'orientation') ?? 'auto';
-        screenAdapter.init({ exactFitScreen, configOrientation: orientation }, () => {
+        const isHeadlessMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode') === 3;
+        screenAdapter.init({ exactFitScreen, configOrientation: orientation, isHeadlessMode }, () => {
             const director = legacyCC.director;
             if (!director.root?.pipeline) {
                 warnID(1220);
@@ -56,7 +57,7 @@ class Screen {
      * @en the ratio of the resolution in physical pixels to the resolution in CSS pixels for the current display device
      * NOTE: For performance reasons, the engine will limit the maximum value of DPR on some platforms.
      * This property returns the DPR after the engine limit.
-     * @zh 当前显示设备的物理像素分辨率与 CSS 像素分辨率之比
+     * @zh 当前显示设备的物理像素分辨率与 CSS 像素分辨率之比。
      * 注意：出于性能考虑，引擎在一些平台会限制 DPR 的最高值，这个属性返回的是引擎限制后的 DPR。
      */
     public get devicePixelRatio () {
@@ -107,8 +108,8 @@ class Screen {
     // }
 
     /**
-     * @en Whether it supports full screen？
-     * @zh 是否支持全屏？
+     * @en Whether it supports full screen.
+     * @zh 是否支持全屏。
      * @returns {Boolean}
      */
     public get supportsFullScreen (): boolean {
@@ -117,7 +118,7 @@ class Screen {
 
     /**
      * @en Return true if it's in full screen state now.
-     * @zh 当前是否处在全屏状态下
+     * @zh 当前是否处在全屏状态下。
      * @returns {boolean}
      */
     public fullScreen (): boolean {
@@ -130,9 +131,9 @@ class Screen {
      * If failed to request fullscreen, another attempt will be made to request fullscreen the next time a user interaction occurs.
      * @zh 尝试使当前节点进入全屏模式，很多浏览器不允许程序触发这样的行为，必须在一个用户交互回调中才会生效。
      * 如果进入全屏失败，会在下一次用户发生交互时，再次尝试进入全屏。
-     * @param element The element to request full screen state
-     * @param onFullScreenChange callback function when full screen state changed
-     * @param onFullScreenError callback function when full screen error
+     * @param element @zh 请求全屏状态的html元素。 @en The element to request full screen state.
+     * @param onFullScreenChange @zh 全屏状态改变的回调函数。 @en callback function when full screen state changed.
+     * @param onFullScreenError @zh 全屏错误的回调函数。 @en callback function when full screen error.
      * @return {Promise|undefined}
      * @deprecated since v3.3, please use `screen.requestFullScreen(): Promise<void>` instead.
      */
@@ -143,26 +144,27 @@ class Screen {
      * If failed to request fullscreen, another attempt will be made to request fullscreen the next time a user interaction occurs.
      * @zh 尝试使当前屏幕进入全屏模式，很多浏览器不允许程序触发这样的行为，必须在一个用户交互回调中才会生效。
      * 如果进入全屏失败，会在下一次用户发生交互时，再次尝试进入全屏。
+     * @param element @zh 请求全屏状态的html元素。 @en The element to request full screen state.
+     * @param onFullScreenChange @zh 全屏状态改变的回调函数。 @en callback function when full screen state changed.
+     * @param onFullScreenError @zh 全屏错误的回调函数。 @en callback function when full screen error.
      * @return {Promise}
      */
     public requestFullScreen (): Promise<void>;
-    public requestFullScreen (element?: HTMLElement, onFullScreenChange?: (this: Document, ev: any) => any, onFullScreenError?: (this: Document, ev: any) => any): Promise<any> {
+    public requestFullScreen (element?: HTMLElement, onFullScreenChange?: (this: Document, ev?: any) => any, onFullScreenError?: (this: Document, ev?: any) => any): Promise<any> {
         if (arguments.length > 0) {
             warnID(1400, 'screen.requestFullScreen(element, onFullScreenChange?, onFullScreenError?)', 'screen.requestFullScreen(): Promise');
         }
         return screenAdapter.requestFullScreen().then(() => {
-            // @ts-expect-error no parameter passed
-            onFullScreenChange?.();
+            onFullScreenChange?.call(document);  // this case is only used on Web platforms, which is deprecated since v3.3.0
         }).catch((err) => {
             console.error(err);
-            // @ts-expect-error no parameter passed
-            onFullScreenError?.();
+            onFullScreenError?.call(document);  // this case is only used on Web platforms, which is deprecated since v3.3.0
         });
     }
 
     /**
      * @en Exit the full mode.
-     * @zh 退出全屏模式
+     * @zh 退出全屏模式。
      * @return {Promise}
      */
     public exitFullScreen (): Promise<any> {
@@ -170,10 +172,10 @@ class Screen {
     }
 
     /**
-     * @en Automatically request full screen during the next touch/click event
-     * @zh 自动监听触摸、鼠标事件并在下一次事件触发时尝试进入全屏模式
-     * @param element The element to request full screen state
-     * @param onFullScreenChange callback function when full screen state changed
+     * @en Automatically request full screen during the next touch/click event.
+     * @zh 自动监听触摸、鼠标事件并在下一次事件触发时尝试进入全屏模式。
+     * @param element @zh 请求全屏状态的html元素。 @en The element to request full screen state.
+     * @param onFullScreenChange @zh 全屏状态改变的回调函数。 @en callback function when full screen state changed.
      *
      * @deprecated since v3.3, please use screen.requestFullScreen() instead.
      */
@@ -190,7 +192,35 @@ class Screen {
     }
 
     // TODO: to support registering fullscreen change
-    // TODO: to support screen resize
+    /**
+     * @en
+     * Register screen event callback.
+     * @zh
+     * 注册screen事件回调。
+     */
+    public on (type: PalScreenEvent, callback: any, target?: any) {
+        screenAdapter.on(type, callback, target);
+    }
+
+    /**
+     * @en
+     * Register a callback of a specific screen event type once.
+     * @zh
+     * 注册单次的screen事件回调。
+     */
+    public once (type: PalScreenEvent, callback?: any, target?: any) {
+        screenAdapter.once(type, callback, target);
+    }
+
+    /**
+     * @en
+     * Unregister screen event callback.
+     * @zh
+     * 取消注册screen事件回调。
+     */
+    public off (type: PalScreenEvent, callback?: any, target?: any) {
+        screenAdapter.off(type, callback, target);
+    }
 }
 
 const screen = new Screen();

@@ -4,6 +4,7 @@ const { join } = require('path');
 
 const lodItem = require('./lod-item');
 const multiLodGroup = require('./multi-lod-group');
+const { trackEventWithTimer } = require('../../utils/metrics');
 
 module.paths.push(join(Editor.App.path, 'node_modules'));
 const Vue = require('vue/dist/vue.min.js');
@@ -173,9 +174,9 @@ exports.template = `
                         @confirm="onObjectSizeConfirm($event)"
                     >
                     </ui-num-input>
-                    <ui-button @confirm="resetObjectSize">
+                    <!-- <ui-button @confirm="resetObjectSize">
                         <ui-label value="Reset Object Size"></ui-label>
-                    </ui-button>
+                    </ui-button> -->
                 </div>
             </ui-prop>
             <ui-prop ref="lod-dump" type="dump"></ui-prop>
@@ -231,6 +232,7 @@ exports.ready = function() {
                 const that = this;
                 that.$refs['lod-dump'].dump = dump;
                 that.$refs['lod-dump'].dispatch('change-dump');
+                that.$refs['lod-dump'].dispatch('confirm-dump');
             },
             recalculateBounds() {
                 const that = this;
@@ -239,6 +241,7 @@ exports.ready = function() {
                     name: 'recalculateBounds',
                     args: [],
                 });
+                trackEventWithTimer('LOD', 'A100002');
             },
             resetObjectSize() {
                 const that = this;
@@ -247,10 +250,12 @@ exports.ready = function() {
                     name: 'resetObjectSize',
                     args: [],
                 });
+                trackEventWithTimer('LOD', 'A100003');
             },
-            updateLODs(operator, index) {
+            async updateLODs(operator, index) {
                 const that = this;
                 const LODs = that.dump.value.LODs.value;
+                const uuid = that.dump.value.uuid.value;
                 if (operator === 'insert') {
                     // insert after
                     if (LODs.length >= 8) {
@@ -259,14 +264,21 @@ exports.ready = function() {
                     }
                     const preValue = LODs[index].value.screenUsagePercentage.value;
                     const nextValue = LODs[index + 1] ? LODs[index + 1].value.screenUsagePercentage.value : 0;
-                    Editor.Message.request('scene', 'lod-insert', that.dump.value.uuid.value, index + 1, (preValue + nextValue) / 2, null);
+                    const undoID = await Editor.Message.request('scene', 'begin-recording', uuid);
+                    await Editor.Message.request('scene', 'lod-insert', uuid, index + 1, (preValue + nextValue) / 2, null);
+                    await Editor.Message.request('scene', 'end-recording', undoID);
+                    trackEventWithTimer('LOD', 'A100005');
                 } else if (operator === 'delete') {
                     if (LODs.length === 1) {
                         console.warn('At least one LOD, Can\'t delete any more');
                         return;
                     }
-                    Editor.Message.request('scene', 'lod-erase', that.dump.value.uuid.value, index);
+                    const undoID = await Editor.Message.request('scene', 'begin-recording', uuid);
+                    await Editor.Message.request('scene', 'lod-erase', uuid, index);
+                    await Editor.Message.request('scene', 'end-recording', undoID);
+                    trackEventWithTimer('LOD', 'A100006');
                 }
+                // Editor.Message.send('scene', 'snapshot');
             },
         },
     });

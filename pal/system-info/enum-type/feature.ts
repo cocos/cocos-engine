@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 export enum Feature {
     /**
      * @en Feature to support Webp.
@@ -24,6 +48,12 @@ export enum Feature {
      * @zh 是否支持 Safe Area 特性。
      */
     SAFE_AREA = 'SAFE_AREA',
+
+    /**
+     * @en Feature to support HPE (high performance emulator) platforms, such as Google Play Games For PC.
+     * @zh 是否支持 HPE 平台, 比如: Android 的 Google Play Games 在 PC 上的模拟器.
+     */
+    HPE = 'HPE',
 
     /**
      * @en Feature to support Touch Input.
@@ -71,4 +101,15 @@ export enum Feature {
      * @zh 是否支持派发 EventHMD
      */
     EVENT_HMD = 'EVENT_HMD',
+    /**
+     * @en Feature to support dispatching EventHandheld.
+     * @zh 是否支持派发 EventHandheld
+     */
+    EVENT_HANDHELD = 'EVENT_HANDHELD',
+    /**
+     * @en Check whether Webassembly is supported at runtime. Generally, it needs to be checked when the constant `WASM_SUPPORT_MODE` is 2.
+     * If it is not supported, you need to fallback to the Asm solution.
+     * @zh 运行时检测是否支持 Webassembly，一般在宏 `WASM_SUPPORT_MODE` 为 2 时需要检测，如果不支持，需要回滚到 Asm 方案
+     */
+    WASM = 'WASM',
 }

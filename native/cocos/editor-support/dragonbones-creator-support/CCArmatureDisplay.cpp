@@ -1,27 +1,31 @@
-/**
- * The MIT License (MIT)
- *
- * Copyright (c) 2012-2020 DragonBones team and other contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+/****************************************************************************
+ Copyright (c) 2012-2020 DragonBones team and other contributors
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
 
 #include "dragonbones-creator-support/CCArmatureDisplay.h"
+#include "2d/renderer/RenderDrawInfo.h"
+#include "2d/renderer/RenderEntity.h"
 #include "MiddlewareMacro.h"
 #include "SharedBufferManager.h"
 #include "base/DeferredReleasePool.h"
@@ -31,8 +35,6 @@
 #include "gfx-base/GFXDef.h"
 #include "math/Math.h"
 #include "math/Vec3.h"
-#include "2d/renderer/RenderDrawInfo.h"
-#include "2d/renderer/RenderEntity.h"
 #include "renderer/core/MaterialInstance.h"
 
 USING_NS_MW;        // NOLINT(google-build-using-namespace)
@@ -65,11 +67,11 @@ CCArmatureDisplay::~CCArmatureDisplay() {
         delete _sharedBufferOffset;
         _sharedBufferOffset = nullptr;
     }
-    for (auto* draw : _drawInfoArray) {
+    for (auto *draw : _drawInfoArray) {
         CC_SAFE_DELETE(draw);
     }
 
-    for (auto& item : _materialCaches) {
+    for (auto &item : _materialCaches) {
         CC_SAFE_DELETE(item.second);
     }
 }
@@ -124,7 +126,6 @@ void CCArmatureDisplay::dbRender() {
     _preTexture = nullptr;
     _curTexture = nullptr;
     _curDrawInfo = nullptr;
-
 
     // Traverse all aramture to fill vertex and index buffer.
     traverseArmature(_armature);
@@ -301,7 +302,7 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         }
 
         if (!slot->getTexture()) continue;
-        _curTexture = static_cast<cc::Texture2D*>(slot->getTexture()->getRealTexture());
+        _curTexture = static_cast<cc::Texture2D *>(slot->getTexture()->getRealTexture());
         auto vbSize = slot->triangles.vertCount * sizeof(middleware::V3F_T2F_C4B);
         isFull |= vb.checkSpace(vbSize, true);
 
@@ -405,7 +406,7 @@ se_object_ptr CCArmatureDisplay::getSharedBufferOffset() const {
 
 void CCArmatureDisplay::setBatchEnabled(bool enabled) {
     if (enabled != _enableBatch) {
-        for (auto& item : _materialCaches) {
+        for (auto &item : _materialCaches) {
             CC_SAFE_DELETE(item.second);
         }
         _materialCaches.clear();
@@ -413,16 +414,19 @@ void CCArmatureDisplay::setBatchEnabled(bool enabled) {
     }
 }
 
-void CCArmatureDisplay::setRenderEntity(cc::RenderEntity* entity) {
+void CCArmatureDisplay::setRenderEntity(cc::RenderEntity *entity) {
     _entity = entity;
 }
 
 void CCArmatureDisplay::setMaterial(cc::Material *material) {
     _material = material;
+    for (auto &item : _materialCaches) {
+        CC_SAFE_DELETE(item.second);
+    }
+    _materialCaches.clear();
 }
 
-
-cc::RenderDrawInfo* CCArmatureDisplay::requestDrawInfo(int idx) {
+cc::RenderDrawInfo *CCArmatureDisplay::requestDrawInfo(int idx) {
     if (_drawInfoArray.size() < idx + 1) {
         cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
         draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::MIDDLEWARE));
@@ -434,11 +438,10 @@ cc::RenderDrawInfo* CCArmatureDisplay::requestDrawInfo(int idx) {
 cc::Material *CCArmatureDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
     uint32_t key = static_cast<uint32_t>(blendSrc) << 16 | static_cast<uint32_t>(blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
-        const IMaterialInstanceInfo info {
-            (Material*)_material,
-            0
-        };
-        MaterialInstance* materialInstance = new MaterialInstance(info);
+        const IMaterialInstanceInfo info{
+            (Material *)_material,
+            0};
+        MaterialInstance *materialInstance = new MaterialInstance(info);
         PassOverrides overrides;
         BlendStateInfo stateInfo;
         stateInfo.blendColor = gfx::Color{1.0F, 1.0F, 1.0F, 1.0F};
@@ -449,11 +452,11 @@ cc::Material *CCArmatureDisplay::requestMaterial(uint16_t blendSrc, uint16_t ble
         targetInfo.blendDst = (gfx::BlendFactor)blendDst;
         targetInfo.blendSrcAlpha = (gfx::BlendFactor)blendSrc;
         targetInfo.blendDstAlpha = (gfx::BlendFactor)blendDst;
-        BlendTargetInfoList targetList {targetInfo};
+        BlendTargetInfoList targetList{targetInfo};
         stateInfo.targets = targetList;
         overrides.blendState = stateInfo;
         materialInstance->overridePipelineStates(overrides);
-        const MacroRecord macros {{"USE_LOCAL", false}};
+        const MacroRecord macros{{"USE_LOCAL", false}};
         materialInstance->recompileShaders(macros);
         _materialCaches[key] = materialInstance;
     }

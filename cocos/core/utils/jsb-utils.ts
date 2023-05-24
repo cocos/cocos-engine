@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import type { Node } from '../../scene-graph';
 
 // export interface IArrayProxy {
@@ -84,25 +108,20 @@ import type { Node } from '../../scene-graph';
 //     });
 // }
 
-export function syncNodeValues (node: Node) {
-    // @ts-expect-error: jsb related codes.
+// TODO: we mark node as type of any, because the properties we access are only implemented on native. @dumganhar
+// issue: https://github.com/cocos/cocos-engine/issues/14644
+// export function syncNodeValues (node: Node) {
+export function syncNodeValues (node: any) {
     const lpos = node._lpos;
-    // @ts-expect-error: jsb related codes.
     node.setPositionForJS(lpos.x, lpos.y, lpos.z);
 
-    // @ts-expect-error: jsb related codes.
     const lscale = node._lscale;
-    // @ts-expect-error: jsb related codes.
     node.setScaleForJS(lscale.x, lscale.y, lscale.z);
 
-    // @ts-expect-error: jsb related codes.
     const lrot = node._lrot;
-    // @ts-expect-error: jsb related codes.
     node.setRotationForJS(lrot.x, lrot.y, lrot.z, lrot.w);
 
-    // @ts-expect-error: jsb related codes.
     const euler = node._euler;
-    // @ts-expect-error: jsb related codes.
     node.setRotationFromEulerForJS(euler.x, euler.y, euler.z);
 }
 
@@ -111,8 +130,7 @@ export function updateChildrenForDeserialize (node: Node) {
         return;
     }
 
-    // @ts-expect-error: jsb related codes.
-    const children = node._children;
+    const children = node.children;
     if (!children) {
         return;
     }
@@ -122,8 +140,8 @@ export function updateChildrenForDeserialize (node: Node) {
         return;
     }
 
-    // @ts-expect-error: jsb related codes.
-    node._setChildren(children);
+    // NOTE: `_setChildren` is only implemented on native platforms. @dumganhar
+    (node as any)._setChildren(children);
 
     for (let i = 0; i < len; ++i) {
         const child = children[i];

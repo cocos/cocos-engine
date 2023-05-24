@@ -98,6 +98,10 @@ extern int cocos_main(int argc, const char **argv);
 - (void)renderScene {
     _platform->runTask();
 }
+
+- (bool) isValid {
+    return [_timer valid];
+}
 #endif
 @end
 
@@ -121,6 +125,17 @@ int32_t MacPlatform::init() {
     registerInterface(std::make_shared<SystemWindowManager>());
     registerInterface(std::make_shared<Vibrator>());
     return 0;
+}
+
+bool MacPlatform::readyToExit() {
+    return _readyToExit;
+}
+
+void MacPlatform::exit() {
+    if(!_readyToExit) {
+        [[NSApplication sharedApplication] replyToApplicationShouldTerminate:true];
+        _readyToExit = true;
+    }
 }
 
 int32_t MacPlatform::loop(void) {

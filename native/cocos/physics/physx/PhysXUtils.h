@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -129,6 +128,12 @@ inline ccstd::unordered_map<uintptr_t, uint32_t> &getPxShapeMap() {
     return m;
 }
 
+//physx::PxCharacterController ptr <--> PhysxCharacterController ObjectID
+inline ccstd::unordered_map<uintptr_t, uint32_t>& getPxCCTMap() {
+    static ccstd::unordered_map<uintptr_t, uint32_t> m;
+    return m;
+}
+
 inline ccstd::unordered_map<uint16_t, uintptr_t> &getPxMaterialMap() {
     static ccstd::unordered_map<uint16_t, uintptr_t> m;
     return m;
@@ -140,6 +145,11 @@ inline physx::PxMaterial &getDefaultMaterial() {
 
 inline ccstd::vector<physx::PxRaycastHit> &getPxRaycastHitBuffer() {
     static ccstd::vector<physx::PxRaycastHit> m{12};
+    return m;
+}
+
+inline ccstd::vector<physx::PxSweepHit> &getPxSweepHitBuffer() {
+    static ccstd::vector<physx::PxSweepHit> m{12};
     return m;
 }
 

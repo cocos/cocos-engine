@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,7 +26,7 @@
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
-import { IMat4Like, IQuatLike, IVec4Like } from './type-define';
+import { IMat4Like, IQuatLike, IVec4Like, IColorLike } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 import { legacyCC } from '../global-exports';
 
@@ -39,6 +38,10 @@ export class Vec4 extends ValueType {
     public static ZERO = Object.freeze(new Vec4(0, 0, 0, 0));
     public static ONE = Object.freeze(new Vec4(1, 1, 1, 1));
     public static NEG_ONE = Object.freeze(new Vec4(-1, -1, -1, -1));
+    public static UNIT_X = Object.freeze(new Vec4(1, 0, 0, 0));
+    public static UNIT_Y = Object.freeze(new Vec4(0, 1, 0, 0));
+    public static UNIT_Z = Object.freeze(new Vec4(0, 0, 1, 0));
+    public static UNIT_W = Object.freeze(new Vec4(0, 0, 0, 1));
 
     /**
      * @en Obtains a clone of the given vector object
@@ -70,6 +73,34 @@ export class Vec4 extends ValueType {
         out.z = z;
         out.w = w;
         return out;
+    }
+
+    /**
+     * @en set value from color
+     * @zh 从颜色值设置向量
+     * @param out
+     * @param color
+     */
+    public static fromColor <Out extends IVec4Like> (out: Out, color: IColorLike) {
+        out.x = color.r;
+        out.y = color.g;
+        out.z = color.b;
+        out.w = color.a;
+        return out;
+    }
+
+    /**
+     * @en The angle between two vectors
+     * @zh 两个向量之间的夹角
+     */
+    public static angle <Out extends IVec4Like> (a: Out, b: Out) {
+        // use atan2 to get the sign of the angle correctly
+        const dx = (a.y * b.z - a.z * b.y);
+        const dy = (a.z * b.x - a.x * b.z);
+        const dz = (a.x * b.y - a.y * b.x);
+
+        const dotVal = (a.x * b.x + a.y * b.y + a.z * b.z);
+        return Math.atan2(Math.sqrt(dx * dx + dy * dy + dz * dz), dotVal);
     }
 
     /**
@@ -314,8 +345,8 @@ export class Vec4 extends ValueType {
     }
 
     /**
-     * @en Sets the normalized vector to the out vector
-     * @zh 归一化向量
+     * @en Sets the normalized vector to the out vector, returns a zero vector if input is a zero vector.
+     * @zh 归一化向量，输入零向量将会返回零向量。
      */
     public static normalize <Out extends IVec4Like> (out: Out, a: Out) {
         const x = a.x;
@@ -329,6 +360,11 @@ export class Vec4 extends ValueType {
             out.y = y * len;
             out.z = z * len;
             out.w = w * len;
+        } else {
+            out.x = 0;
+            out.y = 0;
+            out.z = 0;
+            out.w = 0;
         }
         return out;
     }
@@ -350,6 +386,18 @@ export class Vec4 extends ValueType {
         out.y = a.y + t * (b.y - a.y);
         out.z = a.z + t * (b.z - a.z);
         out.w = a.w + t * (b.w - a.w);
+        return out;
+    }
+
+    /**
+     * @en Scales all ell elements of this vector by the specified scalar value
+     * @zh 逐元素向量缩放
+     */
+    public static scale <Out extends IVec4Like> (out: Out, a: Out, b: number) {
+        out.x = a.x * b;
+        out.y = a.y * b;
+        out.z = a.z * b;
+        out.w = a.w * b;
         return out;
     }
 
@@ -410,6 +458,7 @@ export class Vec4 extends ValueType {
      * @zh 向量四元数乘法
      */
     public static transformQuat <Out extends IVec4Like, QuatLike extends IQuatLike> (out: Out, a: Out, q: QuatLike) {
+        // qpq^{-1} https://en.wikipedia.org/wiki/Quaternion#Hamilton_product
         const { x, y, z } = a;
 
         const _x = q.x;
@@ -470,7 +519,11 @@ export class Vec4 extends ValueType {
      * @zh 排除浮点数误差的向量近似等价判断
      */
     public static equals <Out extends IVec4Like> (a: Out, b: Out, epsilon = EPSILON) {
-        return (Math.abs(a.x - b.x) <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x))
+        // relative epsilon comparison with small number guard:
+        // https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+        const hasInf =  Math.abs(a.x) === Infinity || Math.abs(a.y) === Infinity || Math.abs(a.z) === Infinity || Math.abs(a.w) === Infinity
+        || Math.abs(b.x) === Infinity || Math.abs(b.y) === Infinity || Math.abs(b.z) === Infinity || Math.abs(b.w) === Infinity;
+        return !hasInf && (Math.abs(a.x - b.x) <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x))
             && Math.abs(a.y - b.y) <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y))
             && Math.abs(a.z - b.z) <= epsilon * Math.max(1.0, Math.abs(a.z), Math.abs(b.z))
             && Math.abs(a.w - b.w) <= epsilon * Math.max(1.0, Math.abs(a.w), Math.abs(b.w)));
@@ -506,7 +559,7 @@ export class Vec4 extends ValueType {
 
     constructor (x?: number | Vec4, y?: number, z?: number, w?: number) {
         super();
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
             this.z = x.z;
@@ -547,7 +600,7 @@ export class Vec4 extends ValueType {
     public set (x?: number, y?: number, z?: number, w?: number): Vec4;
 
     public set (x?: number | Vec4, y?: number, z?: number, w?: number) {
-        if (x && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
             this.z = x.z;
@@ -814,6 +867,8 @@ export class Vec4 extends ValueType {
      * @en Calculates the cross product with another vector.
      * @zh 向量叉乘。视当前向量和指定向量为三维向量（舍弃 w 分量），将当前向量左叉乘指定向量
      * @param other specified vector
+     *
+     * @deprecated since v3.8 cross product only defined in 3D space, use [[Vec3.cross]] instead.
      */
     public cross (vector: Vec4) {
         const { x: ax, y: ay, z: az } = this;
@@ -868,6 +923,18 @@ export class Vec4 extends ValueType {
             this.z = z * len;
             this.w = w * len;
         }
+        return this;
+    }
+
+    /**
+     * @en Scales the current vector by a scalar number.
+     * @zh 向量数乘。
+     */
+    public scale (scalar: number) {
+        this.x *= scalar;
+        this.y *= scalar;
+        this.z *= scalar;
+        this.w *= scalar;
         return this;
     }
 

@@ -75,8 +75,8 @@ async function callMeshPreviewFunction(funcName, ...args) {
     return await Editor.Message.request('scene', 'call-preview-function', 'scene:mesh-preview', funcName, ...args);
 }
 const previewSelectType = {
-    shaded: 'shaded',
-    uv: 'uv layout',
+    shaded: 'Shaded',
+    uv: 'UV Layout',
 };
 const Elements = {
     preview: {
@@ -166,7 +166,7 @@ const Elements = {
                 panel.$.previewType.innerHTML = `<option value="${previewSelectType.shaded}">${previewSelectType.shaded}</option>`;
             } else {
                 panel.$.previewType.innerHTML = Object.values(previewSelectType).map(v => `<option value="${v}">${v}</option>`).join('');
-                panel.$.previewChannel.innerHTML = panel.previewUVs.map((_, i) => `<option value="${i}">channel ${i}</option>`).join('');
+                panel.$.previewChannel.innerHTML = panel.previewUVs.map((_, i) => `<option value="${i}">Channel ${i}</option>`).join('');
             }
 
             panel.infoUpdate(info);
@@ -233,8 +233,8 @@ exports.methods = {
                     canvas.width = width;
                     canvas.height = height;
 
-                    panel.glPreview.initGL(canvas, { width, height });
-                    panel.glPreview.resizeGL(width, height);
+                    await panel.glPreview.initGL(canvas, { width, height });
+                    await panel.glPreview.resizeGL(width, height);
                 }
                 let info;
                 if (panel.$.previewType.value === previewSelectType.shaded) {
@@ -245,10 +245,9 @@ exports.methods = {
                 }
                 if (panel.$.previewType.value === previewSelectType.uv) {
                     info = panel.glPreview.computedUV(panel.previewUVs[panel.$.previewChannel.value], canvas.width, canvas.height);
-                    info.buffer = info.data;
                 }
 
-                panel.glPreview.drawGL(info.buffer, info.width, info.height);
+                panel.glPreview.drawGL(info);
             } catch (e) {
                 console.warn(e);
             }
@@ -261,7 +260,7 @@ exports.methods = {
     }
 };
 
-exports.ready = function() {
+exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -270,7 +269,7 @@ exports.ready = function() {
     }
 };
 
-exports.update = function(assetList, metaList) {
+exports.update = function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -284,7 +283,7 @@ exports.update = function(assetList, metaList) {
     }
 };
 
-exports.close = function() {
+exports.close = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {

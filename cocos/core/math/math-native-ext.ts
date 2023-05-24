@@ -1,15 +1,16 @@
 /*
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,7 +28,6 @@ import { Vec2 } from './vec2';
 import { Vec4 } from './vec4';
 import { Quat } from './quat';
 import { Color } from './color';
-import { ccclass } from '../data/decorators';
 
 const defineAttr = (proto, name, offset) => {
     Object.defineProperty(proto, name, {
@@ -55,7 +55,7 @@ enum MathType {
     COLOR,
 }
 
-function extendType (proto:any, parentProto:any,  typ: MathType) {
+function extendType (proto: any, parentProto: any, typ: MathType) {
     proto._data = function () {
         if (!this.__data) {
             this.__data = new Float32Array(this.underlyingData());
@@ -64,6 +64,20 @@ function extendType (proto:any, parentProto:any,  typ: MathType) {
     };
     Object.setPrototypeOf(proto, parentProto);
     Object.defineProperty(proto, 'type', { configurable: true, enumerable: true, writable: false, value: typ });
+}
+
+function inheritCCClass (ctor: Constructor, parentCtor: Constructor) {
+    for (const attrName of ['__cid__', '__classname__']) {
+        Object.defineProperty(ctor.prototype, attrName, {
+            value: parentCtor.prototype[attrName],
+            writable: false,
+            enumerable: false,
+            configurable: true,
+        });
+    }
+    for (const staticKey of ['__attrs__', '__props__', '__values__']) {
+        ctor[staticKey] = parentCtor[staticKey];
+    }
 }
 
 if (NATIVE) {
@@ -107,11 +121,11 @@ if (NATIVE) {
     Object.setPrototypeOf(jsb.Color.prototype, Color.prototype);
     Object.defineProperty(jsb.Color.prototype, 'type', { configurable: true, enumerable: true, writable: false, value: MathType.COLOR });
 
-    ccclass('cc.Vec4')(jsb.Vec4);
-    ccclass('cc.Vec3')(jsb.Vec3);
-    ccclass('cc.Vec2')(jsb.Vec2);
-    ccclass('cc.Mat4')(jsb.Mat4);
-    ccclass('cc.Mat3')(jsb.Mat3);
-    ccclass('cc.Color')(jsb.Color);
-    ccclass('cc.Quat')(jsb.Quat);
+    inheritCCClass(jsb.Vec4, Vec4);
+    inheritCCClass(jsb.Vec3, Vec3);
+    inheritCCClass(jsb.Vec2, Vec2);
+    inheritCCClass(jsb.Mat4, Mat4);
+    inheritCCClass(jsb.Mat3, Mat3);
+    inheritCCClass(jsb.Color, Color);
+    inheritCCClass(jsb.Quat, Quat);
 }

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Constraint, RigidBody } from '../../framework';
@@ -41,7 +40,33 @@ export class PhysXJoint implements IBaseConstraint {
     }
 
     setConnectedBody (v: RigidBody | null): void {
-        // TODO
+        if (this._connectedBody === v) return;
+
+        // // unregister old
+        const oldBody2 = this._connectedBody;
+        if (oldBody2) {
+            const oldSB2 = (oldBody2.body as PhysXRigidBody).sharedBody;
+            oldSB2.removeJoint(this, 1);
+        }
+
+        const sb = (this._rigidBody.body as PhysXRigidBody).sharedBody;
+        sb.removeJoint(this, 0);
+        sb.addJoint(this, 0); // add to inner body if this joint is not added to sb
+        if (v) {
+            const sb2 = (v.body as PhysXRigidBody).sharedBody;
+            setJointActors(this._impl, sb.impl, sb2.impl);
+            sb2.addJoint(this, 1); // add to new sb2
+        } else {
+            setJointActors(this._impl, sb.impl, null);
+        }
+
+        if (oldBody2) {
+            oldBody2.wakeUp(); // wake it up, or the old body will be sleep for a while
+        }
+
+        this._connectedBody = v;
+        this.updateScale0();
+        this.updateScale1();
     }
 
     setEnableCollision (v: boolean): void {
@@ -54,10 +79,12 @@ export class PhysXJoint implements IBaseConstraint {
     protected _impl!: any;
     protected _com!: Constraint;
     protected _rigidBody!: RigidBody;
+    protected _connectedBody: RigidBody | null = null;
 
     initialize (v: Constraint): void {
         this._com = v;
         this._rigidBody = v.attachedBody!;
+        this._connectedBody = v.connectedBody;
         this.onComponentSet();
         this.setEnableCollision(this._com.enableCollision);
         if (this._impl.$$) {
@@ -104,6 +131,7 @@ export class PhysXJoint implements IBaseConstraint {
         this._impl.release();
         (this._com as any) = null;
         (this._rigidBody as any) = null;
+        (this._connectedBody as any) = null;
         this._impl = null;
     }
 }

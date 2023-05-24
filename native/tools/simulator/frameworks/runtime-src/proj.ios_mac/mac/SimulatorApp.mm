@@ -249,7 +249,7 @@ std::string getCurAppName(void)
     config->setScriptFile(parser->getEntryFile());
 }
 
--(void) run
+-(void) initialize
 {
     createFileUtils();
     SIMULATOR = self;
@@ -264,7 +264,10 @@ std::string getCurAppName(void)
     {
         _project.setScriptFile(_entryPath);
     }
+}
 
+-(void) run
+{
     [self createWindowAndView];
     [self startup];
 }
@@ -735,6 +738,11 @@ SimulatorApp::~SimulatorApp() {
 
 }
 
+int SimulatorApp::init() {
+    [app initialize];
+    return 0;
+}
+
 int SimulatorApp::run() {
     [app run];
     return 0;
@@ -753,6 +761,6 @@ int SimulatorApp::getWidth() const {
     return [app getWidth];;
 }
 
-int SimulatorApp::getHegith() const {
+int SimulatorApp::getHeight() const {
     return [app getHeight];;
 }

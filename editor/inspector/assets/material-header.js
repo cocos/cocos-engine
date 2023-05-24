@@ -65,14 +65,14 @@ exports.methods = {
                     canvas.width = width;
                     canvas.height = height;
 
-                    panel.glPreview.initGL(canvas, { width, height });
-                    panel.glPreview.resizeGL(width, height);
+                    await panel.glPreview.initGL(canvas, { width, height });
+                    await panel.glPreview.resizeGL(width, height);
                 }
                 const info = await panel.glPreview.queryPreviewData({
                     width,
                     height,
                 });
-                panel.glPreview.drawGL(info.buffer, info.width, info.height);
+                panel.glPreview.drawGL(info);
             } catch (e) {
                 console.warn(e);
             }
@@ -90,7 +90,7 @@ exports.methods = {
     },
 };
 
-exports.ready = async function() {
+exports.ready = async function () {
     const panel = this;
 
     callMaterialPreviewFunction('setLightEnable', true);
@@ -149,7 +149,7 @@ exports.ready = async function() {
     Editor.Message.addBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
 };
 
-exports.update = async function(assetList, metaList) {
+exports.update = async function (assetList, metaList) {
     const panel = this;
 
     panel.assetList = assetList;
@@ -171,7 +171,7 @@ exports.update = async function(assetList, metaList) {
     panel.refreshPreview();
 };
 
-exports.close = function() {
+exports.close = function () {
     const panel = this;
     callMaterialPreviewFunction('hide');
     panel.resizeObserver.unobserve(panel.$.container);

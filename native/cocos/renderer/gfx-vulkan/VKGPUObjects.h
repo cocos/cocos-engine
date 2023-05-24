@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -52,6 +51,7 @@ public:
     VkPhysicalDeviceFeatures2 physicalDeviceFeatures2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
     VkPhysicalDeviceVulkan11Features physicalDeviceVulkan11Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES};
     VkPhysicalDeviceVulkan12Features physicalDeviceVulkan12Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
+    VkPhysicalDeviceFragmentShadingRateFeaturesKHR physicalDeviceFragmentShadingRateFeatures{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR};
     VkPhysicalDeviceDepthStencilResolveProperties physicalDeviceDepthStencilResolveProperties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES};
     VkPhysicalDeviceProperties physicalDeviceProperties{};
     VkPhysicalDeviceProperties2 physicalDeviceProperties2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
@@ -129,6 +129,7 @@ public:
     ccstd::vector<VkSampleCountFlagBits> sampleCounts; // per subpass
 
     const CCVKGPUGeneralBarrier *getBarrier(size_t index, CCVKGPUDevice *gpuDevice) const;
+    bool hasShadingAttachment(uint32_t subPassId) const;
 };
 
 struct CCVKGPUSwapchain;
@@ -163,6 +164,8 @@ struct CCVKGPUTexture : public CCVKGPUDeviceObject {
     // for barrier manager
     ccstd::vector<ThsvsAccessType> renderAccessTypes; // gathered from descriptor sets
     ThsvsAccessType transferAccess = THSVS_ACCESS_NONE;
+
+    VkImage externalVKImage = VK_NULL_HANDLE;
 };
 
 struct CCVKGPUTextureView : public CCVKGPUDeviceObject {
@@ -239,7 +242,7 @@ struct CCVKGPUBufferView : public CCVKGPUDeviceObject {
     uint32_t offset = 0U;
     uint32_t range = 0U;
 
-    uint8_t* mappedData() const {
+    uint8_t *mappedData() const {
         return gpuBuffer->mappedData + offset;
     }
 
@@ -427,7 +430,6 @@ public:
     ccstd::vector<VkLayerProperties> layers;
     ccstd::vector<VkExtensionProperties> extensions;
     VmaAllocator memoryAllocator{VK_NULL_HANDLE};
-    VkPipelineCache vkPipelineCache{VK_NULL_HANDLE};
     uint32_t minorVersion{0U};
 
     VkFormat depthFormat{VK_FORMAT_UNDEFINED};
@@ -773,9 +775,10 @@ private:
  */
 class CCVKGPUStagingBufferPool final {
 public:
-    static constexpr size_t CHUNK_SIZE = 16 * 1024 * 1024; // 16M per block by default
+    static constexpr VkDeviceSize CHUNK_SIZE = 16 * 1024 * 1024; // 16M per block by default
 
     explicit CCVKGPUStagingBufferPool(CCVKGPUDevice *device)
+
     : _device(device) {
     }
 
@@ -786,7 +789,7 @@ public:
     IntrusivePtr<CCVKGPUBufferView> alloc(uint32_t size) { return alloc(size, 1U); }
 
     IntrusivePtr<CCVKGPUBufferView> alloc(uint32_t size, uint32_t alignment) {
-        CC_ASSERT(size <= CHUNK_SIZE);
+        CC_ASSERT_LE(size, CHUNK_SIZE);
 
         size_t bufferCount = _pool.size();
         Buffer *buffer = nullptr;
@@ -794,7 +797,7 @@ public:
         for (size_t idx = 0U; idx < bufferCount; idx++) {
             Buffer *cur = &_pool[idx];
             offset = roundUp(cur->curOffset, alignment);
-            if (CHUNK_SIZE - offset >= size) {
+            if (size + offset <= CHUNK_SIZE) {
                 buffer = cur;
                 break;
             }
@@ -1070,11 +1073,11 @@ public:
     void collect(uint32_t layoutId, VkDescriptorSet set);
     void collect(const CCVKGPUBuffer *buffer);
 
-#define DEFINE_RECYCLE_BIN_COLLECT_FN(_type, typeValue, expr)                           \
+#define DEFINE_RECYCLE_BIN_COLLECT_FN(_type, typeValue, expr)                        \
     void collect(const _type *gpuRes) { /* NOLINT(bugprone-macro-parentheses) N/A */ \
-        Resource &res = emplaceBack();                                                  \
-        res.type = typeValue;                                                           \
-        expr;                                                                           \
+        Resource &res = emplaceBack();                                               \
+        res.type = typeValue;                                                        \
+        expr;                                                                        \
     }
 
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPURenderPass, RecycledType::RENDER_PASS, res.vkRenderPass = gpuRes->vkRenderPass)
@@ -1154,7 +1157,7 @@ public:
         _ias[buffer].insert(ia);
     }
 
-    void update(CCVKGPUBufferView* oldBuffer, CCVKGPUBufferView* newBuffer) {
+    void update(CCVKGPUBufferView *oldBuffer, CCVKGPUBufferView *newBuffer) {
         auto iter = _ias.find(oldBuffer);
         if (iter != _ias.end()) {
             for (const auto &ia : iter->second) {

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -70,16 +69,32 @@ void PhysXJoint::setConnectedBody(uint32_t rigidBodyID) {
     if (pxRigidBody == nullptr)
         return;
 
+
+    auto *oldConnectedBody = _mConnectedBody;
+    if (oldConnectedBody) {
+        oldConnectedBody->removeJoint(*this, physx::PxJointActorIndex::eACTOR1);
+    }
+
     uintptr_t nodePtr = reinterpret_cast<uintptr_t>(pxRigidBody->getSharedBody().getNode());
     if (nodePtr) {
         auto &ins = PhysXWorld::getInstance();
         _mConnectedBody = ins.getSharedBody(reinterpret_cast<Node *>(nodePtr));
+        _mConnectedBody->addJoint(*this, physx::PxJointActorIndex::eACTOR1);
     } else {
         _mConnectedBody = nullptr;
     }
     if (_mJoint) {
         _mJoint->setActors(_mSharedBody->getImpl().rigidActor, _mConnectedBody ? _mConnectedBody->getImpl().rigidActor : nullptr);
     }
+
+    if (oldConnectedBody) {
+        if (oldConnectedBody->isDynamic()) {
+            oldConnectedBody->getImpl().rigidDynamic->wakeUp();
+        }
+    }
+
+    updateScale0();
+    updateScale1();
 }
 
 void PhysXJoint::setEnableCollision(const bool v) {

@@ -3,33 +3,37 @@ struct LightingIntermediateData
   vec3 N, H, L, V; // normalized
   float distToLight, distToLightSqr; // (pos->light)^2
   float distToCamera, distToCameraSqr; // pos->camera
+  float angleAttenuation, distAttenuation;
 
   float NoL, NoV, NoH;//, VoH;
   float NoLSat, NoVSat, NoHSat;//, VoHSat; // clamped to 0-1
   float NoVAbsSat; // abs and clamped to 1
 
-  vec3 worldPosition;
+  HIGHP_VALUE_STRUCT_DEFINE(vec3, worldPosition);
 
   // for advanced material
   vec3 T, B;
 
   // material data
   float specularParam; // roughness or specular power
+  float ior;
+
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
   float anisotropyShape;
 #endif
-#if CC_SURFACES_LIGHTING_TRANSMITTENCE
-  vec4 shadowPosAndDepth; //xy: shadowmap uv, z: camera depth from pixel LVP, w: camera depth from shadowmap
-  vec4 transmittenceParams; //zw: min/max DepthWS for shadowmap and 0 means disable shadow transmit,  x: transmit coef, y: additional transmit depth mask, 可补充shadowmap cover不到的地方，也可以在minmax屏蔽掉shadowmap之后给专门的薄片穿透
+
+#if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  vec4 shadowPosAndDepth; //xy: shadowmap uv, z: camera depth from pixel LVP, w: camera depth from shadowmap, (z == w && z > 999998.0) means disable get distance from shadowmap
+  vec4 transmitDiffuseParams; //zw: min/max DepthWS for shadowmap,  x: transmit irradiance apply shadow, y: additional transmit mask, for shadowmap uncovered area
 #endif
-  // #if CC_SURFACES_LIGHTING_SPECULAR_2ND
-  // float specularParam2nd, specularIntensity2nd, specularRotation2nd; // for hair
-  // vec3 specularColor2nd;
-  // #endif
-  // #if CC_SURFACES_LIGHTING_CLEAR_COAT
-  // float ior;
-  // float roughnessClearCoat; // for clear coat or multi-layer pbr
-  // #endif
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  vec4 transmitScatteringParams; // xy: extinction coef for out/in-scattering, z: in-scattering coef, w: transmit distance(water depth, leaf thickness)
+  vec3 outScatteringColor, inScatteringColor;
+#endif
+#if CC_SURFACES_LIGHTING_TT
+  vec3 baseColorTT;
+  float ttIntensity, ttScatterCoef;
+#endif
 };
 
 // add overrided functions for difference shading-models in <surfaces/module-functions/>
@@ -47,19 +51,30 @@ void CCSurfacesLightingGetIntermediateData_PerPixel(inout LightingIntermediateDa
   data.distToCamera = sqrt(data.distToCameraSqr);
   data.V /= data.distToCamera;
 
+  data.angleAttenuation = data.distAttenuation = 1.0;
+
   data.NoV = dot(data.N, data.V);
   data.NoVSat = max(data.NoV, 0.0);
   data.NoVAbsSat = max(abs(data.NoV), 0.0);
 
-  data.worldPosition = worldPos;
+  HIGHP_VALUE_TO_STRUCT_DEFINED(worldPos, data.worldPosition);
   data.T = worldTangent;
   data.B = worldBinormal;
 
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
   data.anisotropyShape = anisotropyShape;
 #endif
-#if CC_SURFACES_LIGHTING_TRANSMITTENCE
-  data.shadowPosAndDepth = vec4(0.0, 0.0, 999999.0, 999999.0);
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  data.outScatteringColor = vec3(1.0);
+  data.inScatteringColor = vec3(0.0);
+  data.transmitScatteringParams = vec4(0.0);
+#endif
+#if CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE
+  data.shadowPosAndDepth = vec4(0.0, 0.0, SURFACES_MAX_TRANSMIT_DEPTH_VALUE, SURFACES_MAX_TRANSMIT_DEPTH_VALUE);
+#endif
+#if CC_SURFACES_LIGHTING_TT
+  data.baseColorTT = vec3(0.0);
+  data.ttIntensity = data.ttScatterCoef = 0.0;
 #endif
 }
 

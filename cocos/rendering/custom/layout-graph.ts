@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,7 +29,7 @@
  */
 /* eslint-disable max-len */
 import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, VertexListGraph, directional, findRelative, getPath, parallel, reindexEdgeList, traversal } from './graph';
-import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, PipelineLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency } from './types';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
@@ -581,11 +580,14 @@ export class UniformBlockData {
 }
 
 export class DescriptorData {
-    constructor (descriptorID = 0) {
+    constructor (descriptorID = 0, type: Type = Type.UNKNOWN, count = 1) {
         this.descriptorID = descriptorID;
+        this.type = type;
+        this.count = count;
     }
     descriptorID: number;
-    count = 1;
+    type: Type;
+    count: number;
 }
 
 export class DescriptorBlockData {
@@ -602,14 +604,26 @@ export class DescriptorBlockData {
 }
 
 export class DescriptorSetLayoutData {
-    constructor (slot = 0xFFFFFFFF, capacity = 0) {
+    constructor (
+        slot = 0xFFFFFFFF,
+        capacity = 0,
+        descriptorBlocks: DescriptorBlockData[] = [],
+        uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>(),
+        bindingMap: Map<number, number> = new Map<number, number>(),
+    ) {
         this.slot = slot;
         this.capacity = capacity;
+        this.descriptorBlocks = descriptorBlocks;
+        this.uniformBlocks = uniformBlocks;
+        this.bindingMap = bindingMap;
     }
     slot: number;
     capacity: number;
-    readonly descriptorBlocks: DescriptorBlockData[] = [];
-    readonly uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>();
+    uniformBlockCapacity = 0;
+    samplerTextureCapacity = 0;
+    readonly descriptorBlocks: DescriptorBlockData[];
+    readonly uniformBlocks: Map<number, UniformBlock>;
+    readonly bindingMap: Map<number, number>;
 }
 
 export class DescriptorSetData {
@@ -647,6 +661,7 @@ export class EffectData {
 
 export class ShaderProgramData {
     readonly layout: PipelineLayoutData = new PipelineLayoutData();
+    /*refcount*/ pipelineLayout: PipelineLayout | null = null;
 }
 
 export class RenderStageData {
@@ -657,6 +672,7 @@ export class RenderPhaseData {
     rootSignature = '';
     readonly shaderPrograms: ShaderProgramData[] = [];
     readonly shaderIndex: Map<string, number> = new Map<string, number>();
+    /*refcount*/ pipelineLayout: PipelineLayout | null = null;
 }
 
 //=================================================================
@@ -852,6 +868,7 @@ export class LayoutGraphData implements BidirectionalGraph
         this.constantIndex.clear();
         this.shaderLayoutIndex.clear();
         this.effects.clear();
+        this.constantMacros = '';
         // ComponentGraph
         this._names.length = 0;
         this._updateFrequencies.length = 0;
@@ -1221,6 +1238,7 @@ export class LayoutGraphData implements BidirectionalGraph
     readonly constantIndex: Map<string, number> = new Map<string, number>();
     readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
     readonly effects: Map<string, EffectData> = new Map<string, EffectData>();
+    constantMacros = '';
 }
 
 export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB) {
@@ -1363,11 +1381,13 @@ export function loadUniformBlockData (ar: InputArchive, v: UniformBlockData) {
 
 export function saveDescriptorData (ar: OutputArchive, v: DescriptorData) {
     ar.writeNumber(v.descriptorID);
+    ar.writeNumber(v.type);
     ar.writeNumber(v.count);
 }
 
 export function loadDescriptorData (ar: InputArchive, v: DescriptorData) {
     v.descriptorID = ar.readNumber();
+    v.type = ar.readNumber();
     v.count = ar.readNumber();
 }
 
@@ -1400,6 +1420,8 @@ export function loadDescriptorBlockData (ar: InputArchive, v: DescriptorBlockDat
 export function saveDescriptorSetLayoutData (ar: OutputArchive, v: DescriptorSetLayoutData) {
     ar.writeNumber(v.slot);
     ar.writeNumber(v.capacity);
+    ar.writeNumber(v.uniformBlockCapacity);
+    ar.writeNumber(v.samplerTextureCapacity);
     ar.writeNumber(v.descriptorBlocks.length); // DescriptorBlockData[]
     for (const v1 of v.descriptorBlocks) {
         saveDescriptorBlockData(ar, v1);
@@ -1409,11 +1431,18 @@ export function saveDescriptorSetLayoutData (ar: OutputArchive, v: DescriptorSet
         ar.writeNumber(k1);
         saveUniformBlock(ar, v1);
     }
+    ar.writeNumber(v.bindingMap.size); // Map<number, number>
+    for (const [k1, v1] of v.bindingMap) {
+        ar.writeNumber(k1);
+        ar.writeNumber(v1);
+    }
 }
 
 export function loadDescriptorSetLayoutData (ar: InputArchive, v: DescriptorSetLayoutData) {
     v.slot = ar.readNumber();
     v.capacity = ar.readNumber();
+    v.uniformBlockCapacity = ar.readNumber();
+    v.samplerTextureCapacity = ar.readNumber();
     let sz = 0;
     sz = ar.readNumber(); // DescriptorBlockData[]
     v.descriptorBlocks.length = sz;
@@ -1428,6 +1457,12 @@ export function loadDescriptorSetLayoutData (ar: InputArchive, v: DescriptorSetL
         const v1 = new UniformBlock();
         loadUniformBlock(ar, v1);
         v.uniformBlocks.set(k1, v1);
+    }
+    sz = ar.readNumber(); // Map<number, number>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readNumber();
+        const v1 = ar.readNumber();
+        v.bindingMap.set(k1, v1);
     }
 }
 
@@ -1552,10 +1587,12 @@ export function loadEffectData (ar: InputArchive, v: EffectData) {
 
 export function saveShaderProgramData (ar: OutputArchive, v: ShaderProgramData) {
     savePipelineLayoutData(ar, v.layout);
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function loadShaderProgramData (ar: InputArchive, v: ShaderProgramData) {
     loadPipelineLayoutData(ar, v.layout);
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function saveRenderStageData (ar: OutputArchive, v: RenderStageData) {
@@ -1587,6 +1624,7 @@ export function saveRenderPhaseData (ar: OutputArchive, v: RenderPhaseData) {
         ar.writeString(k1);
         ar.writeNumber(v1);
     }
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function loadRenderPhaseData (ar: InputArchive, v: RenderPhaseData) {
@@ -1605,6 +1643,7 @@ export function loadRenderPhaseData (ar: InputArchive, v: RenderPhaseData) {
         const v1 = ar.readNumber();
         v.shaderIndex.set(k1, v1);
     }
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function saveLayoutGraphData (ar: OutputArchive, g: LayoutGraphData) {

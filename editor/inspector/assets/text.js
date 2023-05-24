@@ -35,6 +35,19 @@ exports.methods = {
         const panel = this;
         const domMap = {
             '.txt': panel.$.code,
+            '.html': panel.$.code,
+            '.htm': panel.$.code,
+            '.xml': panel.$.code,
+            '.css': panel.$.code,
+            '.less': panel.$.code,
+            '.scss': panel.$.code,
+            '.stylus': panel.$.code,
+            '.yaml': panel.$.code,
+            '.ini': panel.$.code,
+            '.csv': panel.$.code,
+            '.proto': panel.$.code,
+            '.ts': panel.$.code,
+            '.tsx': panel.$.code,
             '.md': panel.$.markdown,
             '.markdown': panel.$.markdown,
         };
@@ -86,7 +99,7 @@ exports.update = function(assetList, metaList) {
     readLineStream.on('line', (line) => {
         const lineLength = line.length;
         if (lineLength > remainLength) {
-            line = line.substr(0, remainLength);
+            line = line.substring(0, remainLength);
             remainLength = 0;
         } else {
             remainLength -= lineLength;

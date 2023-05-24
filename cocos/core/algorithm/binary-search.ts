@@ -1,19 +1,18 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,12 +24,12 @@
 */
 
 /**
- * Searches the **sorted** number array for an element and returns the index of that element.
+ * Searches the **ascending sorted** array for an element and returns the index of that element.
  * @param array The array to search in.
  * @param value The value to search.
- * @return The index of the searched element in the sorted array, if one is found;
- * otherwise, a negative number that is the bitwise complement of the index of the next element that is large than the searched value or,
- * if there is no larger element(include the case that the array is empty), the bitwise complement of array's length.
+ * @returns The index of the searched element in the sorted array, if found;
+ * otherwise, returns the complement of the index of the next element greater than the element to be searched or,
+ * returns the complement of array's length if no element is greater than the element to be searched or the array is empty.
  * @engineInternal
  */
 export function binarySearch (array: number[], value: number) {
@@ -38,13 +37,13 @@ export function binarySearch (array: number[], value: number) {
 }
 
 /**
- * Searches the **sorted** number array for an element and returns the index of that element.
+ * Searches the **ascending sorted** number array for an element and returns the index of that element.
  * @param array The array to search in.
  * @param value The value to search.
  * @param EPSILON The epsilon to compare the numbers. Default to `1e-6`.
- * @return The index of the searched element in the sorted array, if one is found;
- * otherwise, a negative number that is the bitwise complement of the index of the next element that is large than the searched value or,
- * if there is no larger element(include the case that the array is empty), the bitwise complement of array's length.
+ * @returns The index of the searched element in the sorted array, if found;
+ * otherwise, returns the complement of the index of the next element greater than the element to be searched or,
+ * returns the complement of array's length if no element is greater than the element to be searched or the array is empty.
  * @engineInternal
  */
 export function binarySearchEpsilon (array: Readonly<ArrayLike<number>>, value: number, EPSILON = 1e-6) {
@@ -65,13 +64,13 @@ export function binarySearchEpsilon (array: Readonly<ArrayLike<number>>, value: 
 }
 
 /**
- * Searches the **sorted** array for an element and returns the index of that element.
+ * Searches the **ascending sorted** array for an element and returns the index of that element.
  * @param array The array to search in.
  * @param value The value to search.
- * @param lessThan The predicate which implements the less than semantic.
- * @return The index of the searched element in the sorted array, if one is found;
- * otherwise, a negative number that is the bitwise complement of the index of the next element that is large than the searched value or,
- * if there is no larger element(include the case that the array is empty), the bitwise complement of array's length.
+ * @param lessThan Comparison function object which returns ​true if the first argument is less than the second.
+ * @returns The index of the searched element in the sorted array, if found;
+ * otherwise, returns the complement of the index of the next element greater than the searching element or,
+ * returns the complement of array's length if no element is greater than the searching element or the array is empty.
  * @engineInternal
  */
 export function binarySearchBy<T, U> (array: T[], value: U, lessThan: (lhs: T, rhs: U) => number) {

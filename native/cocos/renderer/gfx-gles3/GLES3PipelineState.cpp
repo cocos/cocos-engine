@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -26,6 +25,7 @@
 #include "GLES3Std.h"
 
 #include "GLES3Commands.h"
+#include "GLES3Device.h"
 #include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
 #include "GLES3RenderPass.h"
@@ -51,6 +51,59 @@ const GLenum GLE_S3_PRIMITIVES[] = {
     GL_NONE,
 };
 
+namespace {
+void updateGPUShaderSourceByRenderPass(GLES3GPUShader *gpuShader, GLES3GPURenderPass *renderPass, uint32_t subpassIndex) {
+    auto iter = std::find_if(gpuShader->gpuStages.begin(), gpuShader->gpuStages.end(), [](const GLES3GPUShaderStage &stage) {
+        return stage.type == ShaderStageFlagBit::FRAGMENT;
+    });
+    if (iter == gpuShader->gpuStages.end()) {
+        return;
+    }
+
+    CC_ASSERT(subpassIndex < renderPass->subpasses.size());
+    if (renderPass->subpasses[subpassIndex].inputs.empty()) {
+        return;
+    }
+    auto &drawBuffers = renderPass->drawBuffers.at(subpassIndex);
+
+    ccstd::string::size_type offset = 0;
+    for (uint32_t i = 0; i < drawBuffers.size(); ++i) {
+        const char* layoutPrefix = "layout(location = ";
+
+        std::stringstream ss1;
+        ss1 << layoutPrefix << i << ") out";
+
+        std::stringstream ss2;
+        ss2 << layoutPrefix << i << ") inout";
+
+        auto &source = iter->source;
+        auto sIter = source.find(ss1.str(), offset);
+        if (sIter == std::string::npos) {
+            sIter = source.find(ss2.str(), offset);
+        }
+
+        if (sIter != std::string::npos) {
+            auto loc = sIter + strlen(layoutPrefix);
+            source[loc] = drawBuffers[i] + '0';
+            offset = loc;
+        }
+    }
+}
+
+void initGpuShader(GLES3GPUShader *gpuShader, GLES3GPUPipelineLayout *gpuPipelineLayout, GLES3GPURenderPass *renderPass, uint32_t subpassIndex) {
+    updateGPUShaderSourceByRenderPass(gpuShader, renderPass, subpassIndex);
+    cmdFuncGLES3CreateShader(GLES3Device::getInstance(), gpuShader, gpuPipelineLayout);
+    CC_ASSERT(gpuShader->glProgram);
+
+    // Clear shader source after they're uploaded to GPU
+    for (auto &stage : gpuShader->gpuStages) {
+        stage.source.clear();
+        stage.source.shrink_to_fit();
+    }
+}
+
+} // namespace
+
 GLES3PipelineState::GLES3PipelineState() {
     _typedID = generateObjectID<decltype(this)>();
 }
@@ -62,11 +115,16 @@ GLES3PipelineState::~GLES3PipelineState() {
 void GLES3PipelineState::doInit(const PipelineStateInfo & /*info*/) {
     _gpuPipelineState = ccnew GLES3GPUPipelineState;
     _gpuPipelineState->glPrimitive = GLE_S3_PRIMITIVES[static_cast<int>(_primitive)];
-    _gpuPipelineState->gpuShader = static_cast<GLES3Shader *>(_shader)->gpuShader();
     _gpuPipelineState->rs = _rasterizerState;
     _gpuPipelineState->dss = _depthStencilState;
     _gpuPipelineState->bs = _blendState;
     _gpuPipelineState->gpuPipelineLayout = static_cast<GLES3PipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
+    _gpuPipelineState->gpuShader = static_cast<GLES3Shader *>(_shader)->gpuShader();
+    if (_renderPass) _gpuPipelineState->gpuRenderPass = static_cast<GLES3RenderPass *>(_renderPass)->gpuRenderPass();
+    if (_gpuPipelineState->gpuShader->glProgram == 0) {
+        initGpuShader(_gpuPipelineState->gpuShader, _gpuPipelineState->gpuPipelineLayout, _gpuPipelineState->gpuRenderPass, _subpass);
+    }
+
     if (_renderPass) _gpuPipelineState->gpuRenderPass = static_cast<GLES3RenderPass *>(_renderPass)->gpuRenderPass();
 
     for (uint32_t i = 0; i < 31; i++) {

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2019-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -36,6 +35,8 @@
     // In /usr/include/X11/Xlib.h Status defined as int
     #undef Status
 #endif
+
+#define CC_USE_PIPELINE_CACHE 0
 
 /**
  * Some general guide lines:
@@ -97,6 +98,7 @@ using IndexList = ccstd::vector<uint32_t>;
 constexpr uint32_t MAX_ATTACHMENTS = 4U;
 constexpr uint32_t INVALID_BINDING = ~0U;
 constexpr uint32_t SUBPASS_EXTERNAL = ~0U;
+constexpr ccstd::hash_t INVALID_SHADER_HASH = 0xFFFFFFFFU;
 
 // Although the standard is not limited, some devices do not support up to 65536 queries
 constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 32767;
@@ -171,21 +173,11 @@ enum class Feature : uint32_t {
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
     COMPUTE_SHADER,
-    // This flag indicates whether the device can benefit from subpass-style usages.
-    // Specifically, this only differs on the GLES backends: the Framebuffer Fetch
-    // extension is used to simulate input attachments, so the flag is not set when
-    // the extension is not supported, and you should switch to the fallback branch
-    // (without the extension requirement) in GLSL shader sources accordingly.
-    // Everything else can remain the same.
-    //
-    // Another caveat when using the Framebuffer Fetch extensions in shaders is that
-    // for subpasses with exactly 4 inout attachments the output is automatically set
-    // to the last attachment (taking advantage of 'inout' property), and a separate
-    // blit operation (if needed) will be added for you afterwards to transfer the
-    // rendering result to the correct subpass output texture. This is to ameliorate
-    // the max number of attachment limit(4) situation for many devices, and shader
-    // sources inside this kind of subpass must match this behavior.
+    // @deprecated
     INPUT_ATTACHMENT_BENEFIT,
+    SUBPASS_COLOR_INPUT,
+    SUBPASS_DEPTH_STENCIL_INPUT,
+    RASTERIZATION_ORDER_COHERENT,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(Feature);
@@ -472,14 +464,17 @@ enum class TextureUsageBit : uint32_t {
     COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
+    SHADING_RATE = 0x80,
 };
 using TextureUsage = TextureUsageBit;
 CC_ENUM_BITWISE_OPERATORS(TextureUsageBit);
 
 enum class TextureFlagBit : uint32_t {
     NONE = 0,
-    GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
-    GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
+    GEN_MIPMAP = 0x1,      // Generate mipmaps using bilinear filter
+    GENERAL_LAYOUT = 0x2,  // For inout framebuffer attachments
+    EXTERNAL_OES = 0x4,    // External oes texture
+    EXTERNAL_NORMAL = 0x8, // External normal texture
 };
 using TextureFlags = TextureFlagBit;
 CC_ENUM_BITWISE_OPERATORS(TextureFlagBit);
@@ -491,6 +486,7 @@ enum class FormatFeatureBit : uint32_t {
     LINEAR_FILTER = 0x4,     // Allow linear filtering when sampling in shaders or blitting
     STORAGE_TEXTURE = 0x8,   // Allow storage reads & writes in shaders
     VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
+    SHADING_RATE = 0x20,     // Allow usages as shading rate
 };
 using FormatFeature = FormatFeatureBit;
 CC_ENUM_BITWISE_OPERATORS(FormatFeatureBit);
@@ -665,6 +661,8 @@ enum class AccessFlagBit : uint32_t {
     TRANSFER_WRITE = 1 << 24,                 // Written as the destination of a transfer operation
     HOST_PREINITIALIZED = 1 << 25,            // Data pre-filled by host before device access starts
     HOST_WRITE = 1 << 26,                     // Written on the host
+
+    SHADING_RATE = 1 << 27, // Read as a shading rate image
 };
 CC_ENUM_BITWISE_OPERATORS(AccessFlagBit);
 using AccessFlags = AccessFlagBit;
@@ -845,6 +843,8 @@ struct DeviceCaps {
     Size maxComputeWorkGroupCount;
 
     bool supportQuery{false};
+    bool supportVariableRateShading{false};
+    bool supportSubPassShading{false};
 
     float clipSpaceMinZ{-1.F};
     float screenSpaceSignY{1.F};
@@ -1118,6 +1118,7 @@ struct UniformBlock {
     ccstd::string name;
     UniformList members;
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformBlock)
 };
@@ -1130,6 +1131,7 @@ struct UniformSamplerTexture {
     ccstd::string name;
     Type type{Type::UNKNOWN};
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformSamplerTexture)
 };
@@ -1141,6 +1143,7 @@ struct UniformSampler {
     uint32_t binding{0};
     ccstd::string name;
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformSampler)
 };
@@ -1153,6 +1156,7 @@ struct UniformTexture {
     ccstd::string name;
     Type type{Type::UNKNOWN};
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformTexture)
 };
@@ -1166,6 +1170,7 @@ struct UniformStorageImage {
     Type type{Type::UNKNOWN};
     uint32_t count{0};
     MemoryAccess memoryAccess{MemoryAccessBit::READ_WRITE};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformStorageImage)
 };
@@ -1178,6 +1183,7 @@ struct UniformStorageBuffer {
     ccstd::string name;
     uint32_t count{0};
     MemoryAccess memoryAccess{MemoryAccessBit::READ_WRITE};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformStorageBuffer)
 };
@@ -1189,6 +1195,7 @@ struct UniformInputAttachment {
     uint32_t binding{0};
     ccstd::string name;
     uint32_t count{0};
+    uint32_t flattened{0};
 
     EXPOSE_COPY_FN(UniformInputAttachment)
 };
@@ -1249,6 +1256,7 @@ struct ShaderInfo {
     UniformTextureList textures;
     UniformStorageImageList images;
     UniformInputAttachmentList subpassInputs;
+    ccstd::hash_t hash = INVALID_SHADER_HASH;
 
     EXPOSE_COPY_FN(ShaderInfo)
 };
@@ -1302,6 +1310,7 @@ struct SubpassInfo {
 
     uint32_t depthStencil{INVALID_BINDING};
     uint32_t depthStencilResolve{INVALID_BINDING};
+    uint32_t shadingRate{INVALID_BINDING};
     ResolveMode depthResolveMode{ResolveMode::NONE};
     ResolveMode stencilResolveMode{ResolveMode::NONE};
 
@@ -1310,16 +1319,14 @@ struct SubpassInfo {
 
 using SubpassInfoList = ccstd::vector<SubpassInfo>;
 
+using AccessFlagList = ccstd::vector<AccessFlags>;
 struct ALIGNAS(8) SubpassDependency {
     uint32_t srcSubpass{0};
     uint32_t dstSubpass{0};
     GeneralBarrier *generalBarrier{nullptr};
-    BufferBarrier **bufferBarriers{nullptr};
-    Buffer **buffers{nullptr};
-    uint32_t bufferBarrierCount{0};
-    TextureBarrier **textureBarriers{nullptr};
-    Texture **textures{nullptr};
-    uint32_t textureBarrierCount{0};
+
+    AccessFlagList prevAccesses{};
+    AccessFlagList nextAccesses{};
 #if CC_CPU_ARCH == CC_CPU_ARCH_32
     uint32_t _padding{0};
 #endif
@@ -1413,7 +1420,7 @@ struct DescriptorSetLayoutInfo {
 };
 
 struct DescriptorSetInfo {
-    DescriptorSetLayout *layout{nullptr};
+    const DescriptorSetLayout *layout{nullptr};
 
     EXPOSE_COPY_FN(DescriptorSetInfo)
 };
@@ -1509,7 +1516,7 @@ struct BlendState {
 
     void setTarget(index_t index, const BlendTarget &target) {
         if (index >= targets.size()) {
-            targets.resize(index + 1);
+            targets.resize(static_cast<size_t>(index) + 1);
         }
         targets[index] = target;
     }
@@ -1561,14 +1568,14 @@ struct QueryPoolInfo {
 };
 
 struct FormatInfo {
-    const ccstd::string name;
-    const uint32_t size{0};
-    const uint32_t count{0};
-    const FormatType type{FormatType::NONE};
-    const bool hasAlpha{false};
-    const bool hasDepth{false};
-    const bool hasStencil{false};
-    const bool isCompressed{false};
+    ccstd::string name;
+    uint32_t size{0};
+    uint32_t count{0};
+    FormatType type{FormatType::NONE};
+    bool hasAlpha{false};
+    bool hasDepth{false};
+    bool hasStencil{false};
+    bool isCompressed{false};
 };
 
 struct MemoryStatus {

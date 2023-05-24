@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -132,7 +131,7 @@ void CommandBufferValidator::beginRenderPass(RenderPass *renderPass, Framebuffer
     CC_ASSERT(fbo && static_cast<FramebufferValidator *>(fbo)->isInited());
 
     // Command 'endRenderPass' must be recorded in primary command buffers.
-    CC_ASSERT(_type == CommandBufferType::PRIMARY);
+    CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
     CC_ASSERT(!_insideRenderPass);
 
     for (size_t i = 0; i < renderPass->getColorAttachments().size(); ++i) {
@@ -194,7 +193,7 @@ void CommandBufferValidator::endRenderPass() {
     CC_ASSERT(isInited());
 
     // Command 'endRenderPass' must be recorded in primary command buffers.
-    CC_ASSERT(_type == CommandBufferType::PRIMARY);
+    CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
     CC_ASSERT(_insideRenderPass);
     _insideRenderPass = false;
 
@@ -212,7 +211,7 @@ void CommandBufferValidator::execute(CommandBuffer *const *cmdBuffs, uint32_t co
 
     if (!count) return; // be more lenient on this for now
     // Command 'execute' must be recorded in primary command buffers.
-    CC_ASSERT(_type == CommandBufferType::PRIMARY);
+    CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
 
     for (uint32_t i = 0U; i < count; ++i) {
         CC_ASSERT(cmdBuffs[i] && static_cast<CommandBufferValidator *>(cmdBuffs[i])->isInited());
@@ -390,7 +389,7 @@ void CommandBufferValidator::updateBuffer(Buffer *buff, const void *data, uint32
     CC_ASSERT(buff && static_cast<BufferValidator *>(buff)->isInited());
 
     // Command 'updateBuffer' must be recorded in primary command buffers.
-    CC_ASSERT(_type == CommandBufferType::PRIMARY);
+    CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
     // Command 'updateBuffer' must be recorded outside render passes.
     CC_ASSERT(!_insideRenderPass);
 
@@ -407,7 +406,7 @@ void CommandBufferValidator::copyBuffersToTexture(const uint8_t *const *buffers,
     CC_ASSERT(texture && static_cast<TextureValidator *>(texture)->isInited());
 
     // Command 'copyBuffersToTexture' must be recorded in primary command buffers.
-    CC_ASSERT(_type == CommandBufferType::PRIMARY);
+    CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
     // Command 'copyBuffersToTexture' must be recorded outside render passes.
     CC_ASSERT(!_insideRenderPass);
 
@@ -417,6 +416,36 @@ void CommandBufferValidator::copyBuffersToTexture(const uint8_t *const *buffers,
     /////////// execute ///////////
 
     _actor->copyBuffersToTexture(buffers, textureValidator->getActor(), regions, count);
+}
+
+void CommandBufferValidator::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    CC_ASSERT(isInited());
+    CC_ASSERT(srcTexture && static_cast<TextureValidator *>(srcTexture)->isInited());
+    CC_ASSERT(dstTexture && static_cast<TextureValidator *>(dstTexture)->isInited());
+    const auto &srcInfo = srcTexture->getInfo();
+    const auto &dstInfo = dstTexture->getInfo();
+
+    CC_ASSERT(!_insideRenderPass);
+
+    for (uint32_t i = 0; i < count; ++i) {
+        const auto &region = regions[i];
+        CC_ASSERT(region.srcOffset.x + region.extent.width <= srcInfo.width);
+        CC_ASSERT(region.srcOffset.y + region.extent.height <= srcInfo.height);
+        CC_ASSERT(region.srcOffset.z + region.extent.depth <= srcInfo.depth);
+
+        CC_ASSERT(region.dstOffset.x + region.extent.width <= dstInfo.width);
+        CC_ASSERT(region.dstOffset.y + region.extent.height <= dstInfo.height);
+        CC_ASSERT(region.dstOffset.z + region.extent.depth <= dstInfo.depth);
+    }
+
+    /////////// execute ///////////
+
+    Texture *actorSrcTexture = nullptr;
+    Texture *actorDstTexture = nullptr;
+    if (srcTexture) actorSrcTexture = static_cast<TextureValidator *>(srcTexture)->getActor();
+    if (dstTexture) actorDstTexture = static_cast<TextureValidator *>(dstTexture)->getActor();
+
+    _actor->copyTexture(actorSrcTexture, actorDstTexture, regions, count);
 }
 
 void CommandBufferValidator::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
@@ -533,6 +562,10 @@ void CommandBufferValidator::completeQueryPool(QueryPool *queryPool) {
 
     QueryPool *actorQueryPool = static_cast<QueryPoolValidator *>(queryPool)->getActor();
     _actor->completeQueryPool(actorQueryPool);
+}
+
+void CommandBufferValidator::customCommand(CustomCommand &&cmd) {
+    _actor->customCommand(std::move(cmd));
 }
 
 } // namespace gfx

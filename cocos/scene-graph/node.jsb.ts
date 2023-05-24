@@ -1,15 +1,16 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,31 +21,30 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { ccclass, editable, serializable, type } from 'cc.decorator'
 import { legacyCC } from '../core/global-exports';
 import { errorID, getError } from '../core/platform/debug';
 import { Component } from './component';
 import { NodeEventType } from './node-event';
 import { CCObject } from '../core/data/object';
 import { NodeUIProperties } from './node-ui-properties';
-import { NodeSpace, TransformBit } from './node-enum';
+import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
 import { Mat4, Quat, Vec3 } from '../core/math';
 import { Layers } from './layers';
 import { editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { _tempFloatArray, fillMat4WithTempFloatArray } from './utils.jsb';
 import { getClassByName, isChildClassOf } from '../core/utils/js-typed';
 import { syncNodeValues } from "../core/utils/jsb-utils";
-import { property } from '../core/data/class-decorator';
 import { nodePolyfill } from './node-dev';
 import * as js from '../core/utils/js';
+import { patch_cc_Node } from '../native-binding/decorators';
+import type { Node as JsbNode } from './node';
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 
 declare const jsb: any;
 
-export const Node = jsb.Node;
-// @ts-ignore
-export type Node = jsb.Node;
+export const Node: typeof JsbNode = jsb.Node;
+export type Node = JsbNode;
 legacyCC.Node = Node;
 
 const NodeCls: any = Node;
@@ -83,9 +83,11 @@ const nodeProto: any = jsb.Node.prototype;
 export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
-Node._setTempFloatArray(_tempFloatArray.buffer);
+// TODO: `_setTempFloatArray` is only implemented on Native platforms. @dumganhar
+// issue: https://github.com/cocos/cocos-engine/issues/14644
+(Node as any)._setTempFloatArray(_tempFloatArray.buffer);
 
-function getConstructor<T> (typeOrClassName) {
+function getConstructor<T>(typeOrClassName) {
     if (!typeOrClassName) {
         return null;
     }
@@ -110,7 +112,7 @@ function getConstructor<T> (typeOrClassName) {
  * node.attr(attrs);
  * ```
  */
-nodeProto.attr = function(attrs: unknown) {
+nodeProto.attr = function (attrs: unknown) {
     js.mixin(this, attrs);
 }
 
@@ -181,15 +183,23 @@ nodeProto.addComponent = function (typeOrClassName) {
         throw TypeError(getError(3810));
     }
 
-    // if (EDITOR && (constructor as typeof constructor & { _disallowMultiple?: unknown })._disallowMultiple) {
-    //     this._checkMultipleComp!(constructor);
-    // }
+    if (EDITOR && (constructor as typeof constructor & { _disallowMultiple?: unknown })._disallowMultiple) {
+        this._checkMultipleComp!(constructor);
+    }
 
     // check requirement
 
-    const ReqComp = (constructor)._requireComponent;
-    if (ReqComp && !this.getComponent(ReqComp)) {
-        this.addComponent(ReqComp);
+    // TODO: `_requireComponent` is injected properties
+    const reqComps = (constructor as any)._requireComponent;
+    if (reqComps) {
+        const tryAdd = (c: Component) => {
+            if (!this.getComponent(c)) { this.addComponent(c); }
+        };
+        if (Array.isArray(reqComps)) {
+            reqComps.forEach((c) => tryAdd(c));
+        } else {
+            tryAdd(reqComps);
+        }
     }
 
     /// / check conflict
@@ -213,6 +223,9 @@ nodeProto.addComponent = function (typeOrClassName) {
     if (this._activeInHierarchy) {
         legacyCC.director._nodeActivator.activateComp(component);
     }
+    if (EDITOR && !legacyCC.GAME_VIEW) {
+        component.resetInEditor?.();
+    }
 
     return component;
 };
@@ -235,10 +248,10 @@ nodeProto.removeComponent = function (component) {
 
 const REGISTERED_EVENT_MASK_TRANSFORM_CHANGED = (1 << 0);
 const REGISTERED_EVENT_MASK_PARENT_CHANGED = (1 << 1);
-const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 2);
-const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 3);
-const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 4);
-const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 5);
+const REGISTERED_EVENT_MASK_MOBILITY_CHANGED = (1 << 2);
+const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 3);
+const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED = (1 << 4);
+const REGISTERED_EVENT_MASK_LIGHT_PROBE_BAKING_CHANGED = (1 << 5);
 
 nodeProto.on = function (type, callback, target, useCapture: any = false) {
     switch (type) {
@@ -255,28 +268,28 @@ nodeProto.on = function (type, callback, target, useCapture: any = false) {
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_PARENT_CHANGED;
             }
             break;
+        case NodeEventType.MOBILITY_CHANGED:
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_MOBILITY_CHANGED)) {
+                this._registerOnMobilityChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_MOBILITY_CHANGED;
+            }
+            break;
         case NodeEventType.LAYER_CHANGED:
             if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_LAYER_CHANGED)) {
                 this._registerOnLayerChanged();
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_LAYER_CHANGED;
             }
             break;
-        case NodeEventType.CHILD_REMOVED:
-            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED)) {
-                this._registerOnChildRemoved();
-                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED;
-            }
-            break;
-        case NodeEventType.CHILD_ADDED:
-            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED)) {
-                this._registerOnChildAdded();
-                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED;
-            }
-            break;
         case NodeEventType.SIBLING_ORDER_CHANGED:
-            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED)) {
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED)) {
                 this._registerOnSiblingOrderChanged();
-                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED;
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED;
+            }
+            break;
+        case NodeEventType.LIGHT_PROBE_BAKING_CHANGED:
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_LIGHT_PROBE_BAKING_CHANGED)) {
+                this._registerOnLightProbeBakingChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_LIGHT_PROBE_BAKING_CHANGED;
             }
             break;
         default:
@@ -325,11 +338,11 @@ nodeProto.targetOff = function (target: string | unknown) {
     }
 };
 
-nodeProto.pauseSystemEvents = function pauseSystemEvents (recursive: boolean): void {
+nodeProto.pauseSystemEvents = function pauseSystemEvents(recursive: boolean): void {
     this._eventProcessor.setEnabled(false, recursive);
 };
 
-nodeProto.resumeSystemEvents = function resumeSystemEvents (recursive: boolean): void {
+nodeProto.resumeSystemEvents = function resumeSystemEvents(recursive: boolean): void {
     this._eventProcessor.setEnabled(true, recursive);
 };
 
@@ -375,7 +388,9 @@ nodeProto._registerIfAttached = !EDITOR ? undefined : function (this: Node, atta
     const children = this._children;
     for (let i = 0, len = children.length; i < len; ++i) {
         const child = children[i];
-        child._registerIfAttached(attached);
+        // TODO: `_registerIfAttached` is an injected property.
+        // issue: https://github.com/cocos/cocos-engine/issues/14643
+        (child as any)._registerIfAttached(attached);
     }
 };
 
@@ -414,30 +429,31 @@ nodeProto._onDestroyComponents = function () {
     }
 };
 
+nodeProto._onMobilityChanged = function () {
+    this.emit(NodeEventType.MOBILITY_CHANGED);
+};
+
 nodeProto._onLayerChanged = function (layer) {
     this.emit(NodeEventType.LAYER_CHANGED, layer);
 };
 
 nodeProto._onChildRemoved = function (child) {
+    const removeAt = this._children.indexOf(child);
+    if (removeAt < 0) {
+        errorID(1633);
+        return;
+    }
+    this._children.splice(removeAt, 1);
     this.emit(NodeEventType.CHILD_REMOVED, child);
 };
 
 nodeProto._onChildAdded = function (child) {
+    this._children.push(child);
     this.emit(NodeEventType.CHILD_ADDED, child);
 };
 
-nodeProto._onNodeDestroyed = function () {
-    this.emit(NodeEventType.NODE_DESTROYED, this);
-    // destroy children
-    const children = this._children;
-    for (let i = 0; i < children.length; ++i) {
-        // destroy immediate so its _onPreDestroy can be called
-        children[i]._destroyImmediate();
-    }
-};
-
 const oldPreDestroy = nodeProto._onPreDestroy;
-nodeProto._onPreDestroy = function _onPreDestroy () {
+nodeProto._onPreDestroy = function _onPreDestroy() {
     const ret = oldPreDestroy.call(this);
 
     // emit node destroy event (this should before event processor destroy)
@@ -464,7 +480,7 @@ nodeProto._onPreDestroy = function _onPreDestroy () {
     return ret;
 };
 
-nodeProto.destroyAllChildren = function destroyAllChildren () {
+nodeProto.destroyAllChildren = function destroyAllChildren() {
     const children = this._children;
     for (let i = 0, len = children.length; i < len; ++i) {
         children[i].destroy();
@@ -493,6 +509,10 @@ nodeProto._onPostActivated = function (active: boolean) {
     } else { // deactivated
         this._eventProcessor.setEnabled(false);
     }
+};
+
+nodeProto._onLightProbeBakingChanged = function () {
+    this.emit(NodeEventType.LIGHT_PROBE_BAKING_CHANGED);
 };
 
 // Static functions.
@@ -580,7 +600,7 @@ NodeCls.isNode = function (obj: unknown): obj is jsb.Node {
 };
 
 let _tempQuat = new Quat();
-nodeProto.setRTS = function setRTS (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
+nodeProto.setRTS = function setRTS(rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
     if (rot) {
         let val = _tempQuat;
         if (rot instanceof Quat) {
@@ -619,14 +639,14 @@ nodeProto.setRTS = function setRTS (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3)
     this._setRTS();
 };
 
-nodeProto.getPosition = function getPosition (out?: Vec3): Vec3 {
+nodeProto.getPosition = function getPosition(out?: Vec3): Vec3 {
     if (out) {
         return Vec3.set(out, this._lpos.x, this._lpos.y, this._lpos.z);
     }
     return Vec3.copy(new Vec3(), this._lpos);
 };
 
-nodeProto.setPosition = function setPosition (val: Readonly<Vec3> | number, y?: number, z?: number) {
+nodeProto.setPosition = function setPosition(val: Readonly<Vec3> | number, y?: number, z?: number) {
     if (y === undefined && z === undefined) {
         _tempFloatArray[0] = 3;
         const pos = val as Vec3;
@@ -646,7 +666,7 @@ nodeProto.setPosition = function setPosition (val: Readonly<Vec3> | number, y?: 
     this._setPosition();
 };
 
-nodeProto.getRotation = function getRotation (out?: Quat): Quat {
+nodeProto.getRotation = function getRotation(out?: Quat): Quat {
     const lrot = this._lrot;
     if (out) {
         return Quat.set(out, lrot.x, lrot.y, lrot.z, lrot.w);
@@ -654,7 +674,7 @@ nodeProto.getRotation = function getRotation (out?: Quat): Quat {
     return Quat.copy(new Quat(), lrot);
 };
 
-nodeProto.setRotation = function setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
+nodeProto.setRotation = function setRotation(val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
     if (y === undefined || z === undefined || w === undefined) {
         const rot = val as Readonly<Quat>;
         this._lrot.x = _tempFloatArray[0] = rot.x;
@@ -671,7 +691,7 @@ nodeProto.setRotation = function setRotation (val: Readonly<Quat> | number, y?: 
     this._setRotation();
 };
 
-nodeProto.setRotationFromEuler = function setRotationFromEuler (val: Vec3 | number, y?: number, zOpt?: number): void {
+nodeProto.setRotationFromEuler = function setRotationFromEuler(val: Vec3 | number, y?: number, zOpt?: number): void {
     const z = zOpt === undefined ? this._euler.z : zOpt;
 
     if (y === undefined) {
@@ -688,14 +708,14 @@ nodeProto.setRotationFromEuler = function setRotationFromEuler (val: Vec3 | numb
     this._setRotationFromEuler();
 };
 
-nodeProto.getScale = function getScale (out?: Vec3): Vec3 {
+nodeProto.getScale = function getScale(out?: Vec3): Vec3 {
     if (out) {
         return Vec3.set(out, this._lscale.x, this._lscale.y, this._lscale.z);
     }
     return Vec3.copy(new Vec3(), this._lscale);
 };
 
-nodeProto.setScale = function setScale (val: Readonly<Vec3> | number, y?: number, z?: number) {
+nodeProto.setScale = function setScale(val: Readonly<Vec3> | number, y?: number, z?: number) {
     if (y === undefined && z === undefined) {
         _tempFloatArray[0] = 3;
         const scale = val as Vec3;
@@ -715,56 +735,56 @@ nodeProto.setScale = function setScale (val: Readonly<Vec3> | number, y?: number
     this._setScale();
 };
 
-nodeProto.getWorldPosition = function getWorldPosition (out?: Vec3): Vec3 {
+nodeProto.getWorldPosition = function getWorldPosition(out?: Vec3): Vec3 {
     this._getWorldPosition();
     out = out || new Vec3();
     return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
 };
 
-nodeProto.getWorldRotation = function getWorldRotation (out?: Quat): Quat {
+nodeProto.getWorldRotation = function getWorldRotation(out?: Quat): Quat {
     this._getWorldRotation();
     out = out || new Quat();
     return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2], _tempFloatArray[3]);
 };
 
-nodeProto.getWorldScale = function getWorldScale (out?: Vec3): Vec3 {
+nodeProto.getWorldScale = function getWorldScale(out?: Vec3): Vec3 {
     this._getWorldScale();
     out = out || new Vec3();
     return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
 };
 
-nodeProto.getWorldMatrix = function getWorldMatrix (out?: Mat4): Mat4 {
+nodeProto.getWorldMatrix = function getWorldMatrix(out?: Mat4): Mat4 {
     this._getWorldMatrix();
     out = out || new Mat4();
     fillMat4WithTempFloatArray(out);
     return out;
 };
 
-nodeProto.getEulerAngles = function getEulerAngles (out?: Vec3): Vec3 {
+nodeProto.getEulerAngles = function getEulerAngles(out?: Vec3): Vec3 {
     this._getEulerAngles();
     out = out || new Vec3();
     return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
 };
 
-nodeProto.getForward = function getForward (out?: Vec3): Vec3 {
+nodeProto.getForward = function getForward(out?: Vec3): Vec3 {
     this._getForward();
     out = out || new Vec3();
     return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
 };
 
-nodeProto.getUp = function getUp (out?: Vec3): Vec3 {
+nodeProto.getUp = function getUp(out?: Vec3): Vec3 {
     this._getUp();
     out = out || new Vec3();
     return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
 };
 
-nodeProto.getRight = function getRight (out?: Vec3): Vec3 {
+nodeProto.getRight = function getRight(out?: Vec3): Vec3 {
     this._getRight();
     out = out || new Vec3();
     return out.set(_tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
 };
 
-nodeProto.inverseTransformPoint = function inverseTransformPoint (out: Vec3, p: Vec3) : Vec3 {
+nodeProto.inverseTransformPoint = function inverseTransformPoint(out: Vec3, p: Vec3): Vec3 {
     _tempFloatArray[0] = p.x;
     _tempFloatArray[1] = p.y;
     _tempFloatArray[2] = p.z;
@@ -775,27 +795,42 @@ nodeProto.inverseTransformPoint = function inverseTransformPoint (out: Vec3, p: 
     return out;
 };
 
-nodeProto.getWorldRT = function getWorldRT (out?: Mat4): Mat4 {
+nodeProto.getWorldRT = function getWorldRT(out?: Mat4): Mat4 {
     out = out || new Mat4();
     this._getWorldRT();
     fillMat4WithTempFloatArray(out);
     return out;
 };
 
-nodeProto.getWorldRS = function getWorldRS (out?: Mat4): Mat4 {
+nodeProto.getWorldRS = function getWorldRS(out?: Mat4): Mat4 {
     out = out || new Mat4();
     this._getWorldRS();
     fillMat4WithTempFloatArray(out);
     return out;
 };
 
+nodeProto.isTransformDirty = function (): Boolean {
+    return this._transformFlags !== TransformBit.NONE;
+};
+
+Object.defineProperty(nodeProto, 'name', {
+    configurable: true,
+    enumerable: true,
+    get(): string {
+        return this._name;
+    },
+    set(v: string) {
+        this._name = v;
+    }
+});
+
 Object.defineProperty(nodeProto, 'position', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this._lpos;
     },
-    set (v: Readonly<Vec3>) {
+    set(v: Readonly<Vec3>) {
         this.setPosition(v as Vec3);
     },
 });
@@ -803,10 +838,10 @@ Object.defineProperty(nodeProto, 'position', {
 Object.defineProperty(nodeProto, 'rotation', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Quat> {
+    get(): Readonly<Quat> {
         return this._lrot;
     },
-    set (v: Readonly<Quat>) {
+    set(v: Readonly<Quat>) {
         this.setRotation(v as Quat);
     },
 });
@@ -814,10 +849,10 @@ Object.defineProperty(nodeProto, 'rotation', {
 Object.defineProperty(nodeProto, 'scale', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this._lscale;
     },
-    set (v: Readonly<Vec3>) {
+    set(v: Readonly<Vec3>) {
         this.setScale(v as Vec3);
     },
 });
@@ -825,10 +860,10 @@ Object.defineProperty(nodeProto, 'scale', {
 Object.defineProperty(nodeProto, 'worldPosition', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this.getWorldPosition();
     },
-    set (v: Readonly<Vec3>) {
+    set(v: Readonly<Vec3>) {
         this.setWorldPosition(v as Vec3);
     },
 });
@@ -836,10 +871,10 @@ Object.defineProperty(nodeProto, 'worldPosition', {
 Object.defineProperty(nodeProto, 'worldRotation', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Quat> {
+    get(): Readonly<Quat> {
         return this.getWorldRotation();
     },
-    set (v: Readonly<Quat>) {
+    set(v: Readonly<Quat>) {
         this.setWorldRotation(v as Quat);
     },
 });
@@ -847,10 +882,10 @@ Object.defineProperty(nodeProto, 'worldRotation', {
 Object.defineProperty(nodeProto, 'worldScale', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this.getWorldScale();
     },
-    set (v: Readonly<Vec3>) {
+    set(v: Readonly<Vec3>) {
         this.setWorldScale(v as Vec3);
     },
 });
@@ -858,7 +893,7 @@ Object.defineProperty(nodeProto, 'worldScale', {
 Object.defineProperty(nodeProto, '_pos', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this.getWorldPosition();
     }
 });
@@ -866,7 +901,7 @@ Object.defineProperty(nodeProto, '_pos', {
 Object.defineProperty(nodeProto, '_rot', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Quat> {
+    get(): Readonly<Quat> {
         return this.getWorldRotation();
     }
 });
@@ -874,7 +909,7 @@ Object.defineProperty(nodeProto, '_rot', {
 Object.defineProperty(nodeProto, '_scale', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this.getWorldScale();
     }
 });
@@ -882,10 +917,10 @@ Object.defineProperty(nodeProto, '_scale', {
 Object.defineProperty(nodeProto, 'eulerAngles', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this.getEulerAngles();
     },
-    set (v: Readonly<Vec3>) {
+    set(v: Readonly<Vec3>) {
         this.setRotationFromEuler(v.x, v.y, v.z);
     },
 });
@@ -893,7 +928,7 @@ Object.defineProperty(nodeProto, 'eulerAngles', {
 Object.defineProperty(nodeProto, 'worldMatrix', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Mat4> {
+    get(): Readonly<Mat4> {
         return this.getWorldMatrix();
     },
 });
@@ -901,7 +936,7 @@ Object.defineProperty(nodeProto, 'worldMatrix', {
 Object.defineProperty(nodeProto, '_mat', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Mat4> {
+    get(): Readonly<Mat4> {
         return this.getWorldMatrix();
     },
 });
@@ -909,10 +944,10 @@ Object.defineProperty(nodeProto, '_mat', {
 Object.defineProperty(nodeProto, 'activeInHierarchy', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Boolean> {
+    get(): Readonly<Boolean> {
         return this._sharedUint8Arr[0] != 0; // Uint8, 0: activeInHierarchy
     },
-    set (v) {
+    set(v) {
         this._sharedUint8Arr[0] = (v ? 1 : 0); // Uint8, 0: activeInHierarchy
     },
 });
@@ -920,10 +955,10 @@ Object.defineProperty(nodeProto, 'activeInHierarchy', {
 Object.defineProperty(nodeProto, '_activeInHierarchy', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Boolean> {
+    get(): Readonly<Boolean> {
         return this._sharedUint8Arr[0] != 0; // Uint8, 0: activeInHierarchy
     },
-    set (v) {
+    set(v) {
         this._sharedUint8Arr[0] = (v ? 1 : 0); // Uint8, 0: activeInHierarchy
     },
 });
@@ -931,10 +966,10 @@ Object.defineProperty(nodeProto, '_activeInHierarchy', {
 Object.defineProperty(nodeProto, 'layer', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this._sharedUint32Arr[1]; // Uint32, 1: layer
     },
-    set (v) {
+    set(v) {
         this._sharedUint32Arr[1] = v; // Uint32, 1: layer
         if (this._uiProps && this._uiProps.uiComp) {
             this._uiProps.uiComp.setNodeDirty();
@@ -947,10 +982,10 @@ Object.defineProperty(nodeProto, 'layer', {
 Object.defineProperty(nodeProto, '_layer', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this._sharedUint32Arr[1]; // Uint32, 1: layer
     },
-    set (v) {
+    set(v) {
         this._sharedUint32Arr[1] = v; // Uint32, 1: layer
     },
 });
@@ -958,10 +993,10 @@ Object.defineProperty(nodeProto, '_layer', {
 Object.defineProperty(nodeProto, '_eventMask', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this._sharedUint32Arr[0]; // Uint32, 0: eventMask
     },
-    set (v) {
+    set(v) {
         this._sharedUint32Arr[0] = v; // Uint32, 0: eventMask
     },
 });
@@ -969,11 +1004,23 @@ Object.defineProperty(nodeProto, '_eventMask', {
 Object.defineProperty(nodeProto, '_siblingIndex', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
     },
-    set (v) {
-        this._sharedInt32Arr[0] = v; // Int32, 0: siblingIndex
+    set(v) {
+        this.setSiblingIndex(v);
+    },
+});
+
+// External classes need to access it through getter/setter
+Object.defineProperty(nodeProto, 'siblingIndex', {
+    configurable: true,
+    enumerable: true,
+    get() {
+        return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
+    },
+    set(v) {
+        this.setSiblingIndex(v);
     },
 });
 
@@ -981,24 +1028,25 @@ nodeProto.getSiblingIndex = function getSiblingIndex() {
     return this._sharedInt32Arr[0]; // Int32, 0: siblingIndex
 };
 
-Object.defineProperty(nodeProto, '_dirtyFlags', {
+
+Object.defineProperty(nodeProto, '_transformFlags', {
     configurable: true,
     enumerable: true,
-    get () {
-        return this._sharedUint32Arr[2]; // Uint32, 2: dirtyFlags
+    get() {
+        return this._sharedUint32Arr[2]; // Uint32, 2: _transformFlags
     },
-    set (v) {
-        this._sharedUint32Arr[2] = v; // Uint32, 2: dirtyFlags
+    set(v) {
+        this._sharedUint32Arr[2] = v; // Uint32, 2: _transformFlags
     },
 });
 
 Object.defineProperty(nodeProto, '_active', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Boolean> {
+    get(): Readonly<Boolean> {
         return this._sharedUint8Arr[1] != 0; // Uint8, 1: active
     },
-    set (v) {
+    set(v) {
         this._sharedUint8Arr[1] = (v ? 1 : 0); // Uint8, 1: active
     },
 });
@@ -1006,10 +1054,10 @@ Object.defineProperty(nodeProto, '_active', {
 Object.defineProperty(nodeProto, 'active', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Boolean> {
+    get(): Readonly<Boolean> {
         return this._sharedUint8Arr[1] != 0; // Uint8, 1: active
     },
-    set (v) {
+    set(v) {
         this.setActive(!!v);
     },
 });
@@ -1017,32 +1065,21 @@ Object.defineProperty(nodeProto, 'active', {
 Object.defineProperty(nodeProto, '_static', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Boolean> {
+    get(): Readonly<Boolean> {
         return this._sharedUint8Arr[2] != 0;
     },
-    set (v) {
+    set(v) {
         this._sharedUint8Arr[2] = (v ? 1 : 0);
-    },
-});
-
-Object.defineProperty(nodeProto, 'mobility', {
-    configurable: true,
-    enumerable: true,
-    get () {
-        return this._mobility;
-    },
-    set (v) {
-        this._mobility = v;
     },
 });
 
 Object.defineProperty(nodeProto, 'forward', {
     configurable: true,
     enumerable: true,
-    get (): Vec3 {
+    get(): Vec3 {
         return this.getForward();
     },
-    set (dir: Vec3) {
+    set(dir: Vec3) {
         this.setForward(dir);
     },
 });
@@ -1050,7 +1087,7 @@ Object.defineProperty(nodeProto, 'forward', {
 Object.defineProperty(nodeProto, 'up', {
     configurable: true,
     enumerable: true,
-    get (): Vec3 {
+    get(): Vec3 {
         return this.getUp();
     },
 });
@@ -1058,7 +1095,7 @@ Object.defineProperty(nodeProto, 'up', {
 Object.defineProperty(nodeProto, 'right', {
     configurable: true,
     enumerable: true,
-    get (): Vec3 {
+    get(): Vec3 {
         return this.getRight();
     },
 });
@@ -1066,7 +1103,7 @@ Object.defineProperty(nodeProto, 'right', {
 Object.defineProperty(nodeProto, 'eventProcessor', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this._eventProcessor;
     },
 });
@@ -1074,7 +1111,7 @@ Object.defineProperty(nodeProto, 'eventProcessor', {
 Object.defineProperty(nodeProto, 'components', {
     configurable: true,
     enumerable: true,
-    get (): ReadonlyArray<Component> {
+    get(): ReadonlyArray<Component> {
         return this._components;
     },
 });
@@ -1082,11 +1119,11 @@ Object.defineProperty(nodeProto, 'components', {
 Object.defineProperty(nodeProto, '_parent', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         this._parentRef = this._parentInternal;
         return this._parentRef;
     },
-    set (v) {
+    set(v) {
         this._parentRef = this._parentInternal = v;
     },
 });
@@ -1094,11 +1131,11 @@ Object.defineProperty(nodeProto, '_parent', {
 Object.defineProperty(nodeProto, 'parent', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         this._parentRef = this.getParent();
         return this._parentRef;
     },
-    set (v) {
+    set(v) {
         this._parentRef = v;
         this.setParent(v);
     },
@@ -1107,10 +1144,10 @@ Object.defineProperty(nodeProto, 'parent', {
 Object.defineProperty(nodeProto, 'children', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this._children;
     },
-    set (v) {
+    set(v) {
         this._children = v;
     },
 });
@@ -1118,7 +1155,7 @@ Object.defineProperty(nodeProto, 'children', {
 Object.defineProperty(nodeProto, 'scene', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this._scene;
     }
 });
@@ -1157,35 +1194,35 @@ nodeProto[serializeTag] = function (serializationOutput: SerializationOutput, co
     }
 
     // Detects if this node is mounted node of `PrefabInstance`
-        // TODO: optimize
-        const isMountedChild = () => !!(this[editorExtrasTag] as any)?.mountedRoot;
-        // Returns if this node is under `PrefabInstance`
-        // eslint-disable-next-line arrow-body-style
-        const isSyncPrefab = () => {
-            // 1. Under `PrefabInstance`, but not mounted
-            // 2. If the mounted node is a `PrefabInstance`, it's also a "sync prefab".
-            return this._prefab?.root?._prefab?.instance && (this?._prefab?.instance || !isMountedChild());
-        };
-        const canDiscardByPrefabRoot = () => !(context.customArguments[(reserveContentsForAllSyncablePrefabTag) as any]
-            || !isSyncPrefab() || context.root === this);
-        if (canDiscardByPrefabRoot()) {
-            // discard props disallow to synchronize
-            const isRoot = this._prefab?.root === this;
-            if (isRoot) {
-                serializationOutput.writeProperty('_objFlags', this._objFlags);
-                serializationOutput.writeProperty('_parent', this._parent);
-                serializationOutput.writeProperty('_prefab', this._prefab);
-                if (context.customArguments.keepNodeUuid) {
-                    serializationOutput.writeProperty('_id', this._id);
-                }
-                // TODO: editorExtrasTag may be a symbol in the future
-                serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
-            } else {
-                // should not serialize child node of synchronizable prefab
+    // TODO: optimize
+    const isMountedChild = () => !!(this[editorExtrasTag] as any)?.mountedRoot;
+    // Returns if this node is under `PrefabInstance`
+    // eslint-disable-next-line arrow-body-style
+    const isSyncPrefab = () => {
+        // 1. Under `PrefabInstance`, but not mounted
+        // 2. If the mounted node is a `PrefabInstance`, it's also a "sync prefab".
+        return this._prefab?.root?._prefab?.instance && (this?._prefab?.instance || !isMountedChild());
+    };
+    const canDiscardByPrefabRoot = () => !(context.customArguments[(reserveContentsForAllSyncablePrefabTag) as any]
+        || !isSyncPrefab() || context.root === this);
+    if (canDiscardByPrefabRoot()) {
+        // discard props disallow to synchronize
+        const isRoot = this._prefab?.root === this;
+        if (isRoot) {
+            serializationOutput.writeProperty('_objFlags', this._objFlags);
+            serializationOutput.writeProperty('_parent', this._parent);
+            serializationOutput.writeProperty('_prefab', this._prefab);
+            if (context.customArguments.keepNodeUuid) {
+                serializationOutput.writeProperty('_id', this._id);
             }
+            // TODO: editorExtrasTag may be a symbol in the future
+            serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
         } else {
-            serializationOutput.writeThis();
+            // should not serialize child node of synchronizable prefab
         }
+    } else {
+        serializationOutput.writeThis();
+    }
 };
 
 nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
@@ -1194,7 +1231,7 @@ nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
 
 nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
     this.hasChangedFlags = TRANSFORMBIT_TRS;
-    this._dirtyFlags |= TRANSFORMBIT_TRS;
+    this._transformFlags |= TRANSFORMBIT_TRS;
     const children = this._children;
     const len = children.length;
     let child;
@@ -1257,7 +1294,9 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
         cloned = legacyCC.instantiate._clone(this, this);
     }
 
-    const newPrefabInfo = cloned._prefab;
+    // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
+    // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
+    const newPrefabInfo = (cloned as any)._prefab;
     if (EDITOR && newPrefabInfo) {
         if (cloned === newPrefabInfo.root) {
             // newPrefabInfo.fileId = '';
@@ -1267,19 +1306,36 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
         }
     }
     if (EDITOR && legacyCC.GAME_VIEW) {
-        const syncing = newPrefabInfo && cloned === newPrefabInfo.root && newPrefabInfo.sync;
+        // TODO: Property 'sync' does not exist on type 'PrefabInfo'.
+        // issue: https://github.com/cocos/cocos-engine/issues/14643
+        const syncing = newPrefabInfo && cloned === newPrefabInfo.root && (newPrefabInfo as any).sync;
         if (!syncing) {
-            cloned._name += ' (Clone)';
+            cloned.name += ' (Clone)';
         }
     }
 
     // reset and init
-    cloned._parent = null;
+    // NOTE: access protected property
+    (cloned as any)._parent = null;
     cloned._onBatchCreated(isSyncedNode);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return cloned;
 };
+
+nodeProto._onSiblingIndexChanged = function (index) {
+    const siblings = this._parent._children;
+    index = index !== -1 ? index : siblings.length - 1;
+    const oldIndex = siblings.indexOf(this);
+    if (index !== oldIndex) {
+        siblings.splice(oldIndex, 1);
+        if (index < siblings.length) {
+            siblings.splice(index, 0, this);
+        } else {
+            siblings.push(this);
+        }
+    }
+}
 
 //
 nodeProto._ctor = function (name?: string) {
@@ -1293,7 +1349,7 @@ nodeProto._ctor = function (name?: string) {
     this._eventProcessor = new legacyCC.NodeEventProcessor(this);
     this._uiProps = new NodeUIProperties(this);
 
-    const sharedArrayBuffer = this._getSharedArrayBufferObject();
+    const sharedArrayBuffer = this._initAndReturnSharedBuffer();
     // Uint32Array with 3 elements: eventMask, layer, dirtyFlags
     this._sharedUint32Arr = new Uint32Array(sharedArrayBuffer, 0, 3);
     // Int32Array with 1 element: siblingIndex
@@ -1308,8 +1364,6 @@ nodeProto._ctor = function (name?: string) {
     // record scene's id when set this node as persist node
     this._originalSceneId = '';
 
-    this._registerListeners();
-
     this._children = [];
     // this._isChildrenRedefined = false;
 
@@ -1319,68 +1373,16 @@ nodeProto._ctor = function (name?: string) {
     this._euler = new Vec3();
 
     this._registeredNodeEventTypeMask = 0;
-
-    this.on(NodeEventType.CHILD_ADDED, (child) => {
-        this._children.push(child);
-    });
-
-    this.on(NodeEventType.CHILD_REMOVED, (child) => {
-        const removeAt = this._children.indexOf(child);
-        if (removeAt < 0) {
-            errorID(1633);
-            return;
-        }
-        this._children.splice(removeAt, 1);
-    });
-
-    this._onSiblingIndexChanged = function (index) {
-        const siblings = this._parent._children;
-        index = index !== -1 ? index : siblings.length - 1;
-        const oldIndex = siblings.indexOf(this);
-        if (index !== oldIndex) {
-            siblings.splice(oldIndex, 1);
-            if (index < siblings.length) {
-                siblings.splice(index, 0, this);
-            } else {
-                siblings.push(this);
-            }
-        }
-    }
 };
 
-// handle meta data, it is generated automatically
-const NodeProto = Node.prototype;
-const _persistNodeDescriptor = Object.getOwnPropertyDescriptor(NodeProto, '_persistNode');
-property(NodeProto, '_persistNode', _persistNodeDescriptor);
-const nameDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'name');
-editable(NodeProto, 'name', nameDescriptor);
-const childrenDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'children');
-editable(NodeProto, 'children', childrenDescriptor);
-const activeDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'active');
-editable(NodeProto, 'active', activeDescriptor);
-const activeInHierarchyDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'activeInHierarchy');
-editable(NodeProto, 'activeInHierarchy', activeInHierarchyDescriptor);
-const parentDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'parent');
-editable(NodeProto, 'parent', parentDescriptor);
-serializable(NodeProto, '_parent');
-serializable(NodeProto, '_children');
-serializable(NodeProto, '_active');
-serializable(NodeProto, '_components');
-serializable(NodeProto, '_prefab');
-serializable(NodeProto, '_lpos');
-serializable(NodeProto, '_lrot');
-serializable(NodeProto, '_lscale');
-serializable(NodeProto, '_mobility');
-serializable(NodeProto, '_layer');
-serializable(NodeProto, '_euler');
-const eulerAnglesDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'eulerAngles');
-type(Vec3)(NodeProto, 'eulerAngles', eulerAnglesDescriptor);
-const angleDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'angle');
-editable(NodeProto, 'angle', angleDescriptor);
-const mobilityDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'mobility');
-editable(NodeProto, 'mobility', mobilityDescriptor);
-const layerDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'layer');
-editable(NodeProto, 'layer', layerDescriptor);
 
 nodePolyfill(Node);
-ccclass('cc.Node')(Node);
+
+//  handle meta data, it is generated automatically
+patch_cc_Node({
+    Node,
+    Vec3,
+    Quat,
+    MobilityMode,
+    Layers
+});

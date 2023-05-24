@@ -98,13 +98,23 @@ void SystemWindow::closeWindow() {
 }
 
 void SystemWindow::setCursorEnabled(bool value) {
-}
-
-void SystemWindow::copyTextToClipboard(const std::string &text) {
-    NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
-    [pasteboard clearContents];
-    NSString *tmp = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
-    [pasteboard setString:tmp forType:NSPasteboardTypeString];
+    CGError result;
+    if(value) {
+        result = CGAssociateMouseAndMouseCursorPosition(YES);
+        [NSCursor unhide];
+        if(_pointerLock) {
+            CGPoint point =
+                CGPointMake((float)_lastMousePosX, _lastMousePosY);
+            CGWarpMouseCursorPosition(point);
+        }
+        _pointerLock = false;
+    } else {
+        result = CGAssociateMouseAndMouseCursorPosition(NO);
+        [NSCursor hide];
+        _pointerLock = true;
+    }
+    CC_ASSERT(result == kCGErrorSuccess);
+    events::PointerLock::broadcast(!value);
 }
 
 uintptr_t SystemWindow::getWindowHandle() const {
@@ -118,6 +128,15 @@ SystemWindow::Size SystemWindow::getViewSize() const {
 
 uint32_t SystemWindow::getWindowId() const { 
     return _windowId;
+}
+
+bool SystemWindow::isPointerLock() const {
+    return _pointerLock;
+}
+
+void SystemWindow::setLastMousePos(float x, float y) {
+    _lastMousePosX = x;
+    _lastMousePosY = y;
 }
 
 } // namespace cc

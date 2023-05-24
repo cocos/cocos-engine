@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -49,6 +48,16 @@ enum class XRVendor {
     PICO,
     ROKID,
     SEED,
+    SPACESXR,
+    GSXR,
+    YVR,
+    HTC,
+    IQIYI,
+    SKYWORTH,
+    FFALCON,
+    NREAL,
+    INMO,
+    LENOVO
 };
 
 enum class XRConfigKey {
@@ -70,7 +79,7 @@ enum class XRConfigKey {
     PRESENT_ENABLE = 15,
     RENDER_EYE_FRAME_LEFT = 16,
     RENDER_EYE_FRAME_RIGHT = 17,
-    FEATURE_PASSTHROUGH= 18,
+    FEATURE_PASSTHROUGH = 18,
     IMAGE_TRACKING = 19,
     IMAGE_TRACKING_CANDIDATEIMAGE = 20,
     IMAGE_TRACKING_DATA = 21,
@@ -87,6 +96,28 @@ enum class XRConfigKey {
     HAND_TRACKING = 32,
     HAND_TRACKING_DATA = 33,
     HAND_TRACKING_SUPPORT_STATUS = 34,
+    APPLY_HAPTIC_CONTROLLER = 35,
+    STOP_HAPTIC_CONTROLLER = 36,
+    DEVICE_IPD = 37,
+    APP_COMMAND = 38,
+    ADB_COMMAND = 39,
+    ACTIVITY_LIFECYCLE = 40,
+    NATIVE_WINDOW = 41,
+    SPLIT_AR_GLASSES = 42,
+    ENGINE_VERSION = 43,
+    RECENTER_HMD = 44,
+    RECENTER_CONTROLLER = 45,
+    FOVEATION_LEVEL = 46,
+    DISPLAY_REFRESH_RATE = 47,
+    CAMERA_ACCESS = 48,
+    CAMERA_ACCESS_DATA = 49,
+    CAMERA_ACCESS_SUPPORT_STATUS = 50,
+    SPATIAL_MESHING = 51,
+    SPATIAL_MESHING_DATA = 52,
+    SPATIAL_MESHING_SUPPORT_STATUS = 53,
+    EYE_RENDER_JS_CALLBACK = 54,
+    ASYNC_LOAD_ASSETS_IMAGE = 55,
+    ASYNC_LOAD_ASSETS_IMAGE_RESULTS = 56,
     MAX_COUNT
 };
 
@@ -286,6 +317,7 @@ struct XRPose : public XRControllerInfo {
         HAND_RIGHT,
         AIM_RIGHT,
         HEAD_MIDDLE,
+        AR_MOBILE,
         UNKNOWN
     };
 
@@ -329,21 +361,32 @@ struct XRSwapchain {
 };
 
 struct XRTrackingImageData {
-  std::string friendlyName;
-  uint32_t id;
-  uint8_t *buffer;
-  uint32_t bufferSize;
-  float physicalWidth;
-  float physicalHeight;
-  uint32_t pixelSizeWidth;
-  uint32_t pixelSizeHeight;
-  float posePosition[3];
-  float poseQuaternion[4];
+    std::string friendlyName;
+    uint32_t id;
+    uint8_t *buffer;
+    uint32_t bufferSize;
+    float physicalWidth;
+    float physicalHeight;
+    uint32_t pixelSizeWidth;
+    uint32_t pixelSizeHeight;
+    float posePosition[3];
+    float poseQuaternion[4];
 };
 
 #define GraphicsApiOpenglES   "OpenGLES"
 #define GraphicsApiVulkan_1_0 "Vulkan1"
 #define GraphicsApiVulkan_1_1 "Vulkan2"
+
+enum class XRActivityLifecycleType {
+    UnKnown,
+    Created,
+    Started,
+    Resumed,
+    Paused,
+    Stopped,
+    SaveInstanceState,
+    Destroyed
+};
 
 } // namespace xr
 } // namespace cc

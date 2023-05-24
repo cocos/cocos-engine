@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -43,14 +42,14 @@ uint32_t materialSet = static_cast<uint32_t>(SetIndex::MATERIAL);
 uint32_t localSet = static_cast<uint32_t>(SetIndex::LOCAL);
 
 gfx::BindingMappingInfo bindingMappingInfo = {
-    {globalUBOCount, 0, localUBOCount},         // Uniform Buffer Counts
-    {globalSamplerCount, 0, localSamplerCount}, // Combined Sampler Texture Counts
-    {0, 0, 0},                                  // Sampler Counts
-    {0, 0, 0},                                  // Texture Counts
-    {0, 0, 0},                                  // Storage Buffer Counts
-    {0, 0, localStorageImageCount},             // Storage Image Counts
-    {0, 0, 0},                                  // Subpass Input Counts
-    {0, 2, 1},                                  // Set Order Indices
+    {globalUBOCount, 0, localUBOCount, 0},         // Uniform Buffer Counts
+    {globalSamplerCount, 0, localSamplerCount, 0}, // Combined Sampler Texture Counts
+    {0, 0, 0, 0},                                  // Sampler Counts
+    {0, 0, 0, 0},                                  // Texture Counts
+    {0, 0, 0, 0},                                  // Storage Buffer Counts
+    {0, 0, localStorageImageCount, 0},             // Storage Image Counts
+    {0, 0, 0, 0},                                  // Subpass Input Counts
+    {0, 2, 1, 3},                                  // Set Order Indices
 };
 
 DescriptorSetLayoutInfos globalDescriptorSetLayout;
@@ -71,11 +70,9 @@ const gfx::UniformBlock UBOGlobal::LAYOUT = {
         {"cc_time", gfx::Type::FLOAT4, 1},
         {"cc_screenSize", gfx::Type::FLOAT4, 1},
         {"cc_nativeSize", gfx::Type::FLOAT4, 1},
+        {"cc_probeInfo", gfx::Type::FLOAT4, 1},
 
-        {"cc_debug_view_mode", gfx::Type::FLOAT, 4},
-        {"cc_debug_view_composite_pack_1", gfx::Type::FLOAT, 4},
-        {"cc_debug_view_composite_pack_2", gfx::Type::FLOAT, 4},
-        {"cc_debug_view_composite_pack_3", gfx::Type::FLOAT, 4},
+        {"cc_debug_view_mode", gfx::Type::FLOAT4, 1},
     },
     1,
 };
@@ -191,7 +188,7 @@ const gfx::DescriptorSetLayoutBinding UBOLocal::DESCRIPTOR = {
     UBOLocal::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
-    gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::COMPUTE,
+    gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT | gfx::ShaderStageFlagBit::COMPUTE,
     {},
 };
 const gfx::UniformBlock UBOLocal::LAYOUT = {
@@ -203,6 +200,10 @@ const gfx::UniformBlock UBOLocal::LAYOUT = {
         {"cc_matWorldIT", gfx::Type::MAT4, 1},
         {"cc_lightingMapUVParam", gfx::Type::FLOAT4, 1},
         {"cc_localShadowBias", gfx::Type::FLOAT4, 1},
+        {"cc_reflectionProbeData1", gfx::Type::FLOAT4, 1},
+        {"cc_reflectionProbeData2", gfx::Type::FLOAT4, 1},
+        {"cc_reflectionProbeBlendData1", gfx::Type::FLOAT4, 1},
+        {"cc_reflectionProbeBlendData1", gfx::Type::FLOAT4, 1},
     },
     1,
 };
@@ -212,7 +213,7 @@ const gfx::DescriptorSetLayoutBinding UBOWorldBound::DESCRIPTOR = {
     UBOWorldBound::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
-    gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::COMPUTE,
+    gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT | gfx::ShaderStageFlagBit::COMPUTE,
     {},
 };
 const gfx::UniformBlock UBOWorldBound::LAYOUT = {
@@ -243,6 +244,7 @@ const gfx::UniformBlock UBOForwardLight::LAYOUT = {
         {"cc_lightColor", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
         {"cc_lightSizeRangeAngle", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
         {"cc_lightDir", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
+        {"cc_lightBoundingSizeVS", gfx::Type::FLOAT4, static_cast<uint32_t>(UBOForwardLight::LIGHTS_PER_PASS)},
     },
     1,
 };
@@ -611,6 +613,38 @@ const gfx::UniformSamplerTexture REFLECTIONPROBEPLANARMAP::LAYOUT = {
     1,
 };
 
+const ccstd::string REFLECTIONPROBEDATAMAP::NAME = "cc_reflectionProbeDataMap";
+const gfx::DescriptorSetLayoutBinding REFLECTIONPROBEDATAMAP::DESCRIPTOR = {
+    REFLECTIONPROBEDATAMAP::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformSamplerTexture REFLECTIONPROBEDATAMAP::LAYOUT = {
+    localSet,
+    REFLECTIONPROBEDATAMAP::BINDING,
+    REFLECTIONPROBEDATAMAP::NAME,
+    gfx::Type::SAMPLER2D,
+    1,
+};
+
+const ccstd::string REFLECTIONPROBEBLENDCUBEMAP::NAME = "cc_reflectionProbeBlendCubemap";
+const gfx::DescriptorSetLayoutBinding REFLECTIONPROBEBLENDCUBEMAP::DESCRIPTOR = {
+    REFLECTIONPROBEBLENDCUBEMAP::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformSamplerTexture REFLECTIONPROBEBLENDCUBEMAP::LAYOUT = {
+    localSet,
+    REFLECTIONPROBEBLENDCUBEMAP::BINDING,
+    REFLECTIONPROBEBLENDCUBEMAP::NAME,
+    gfx::Type::SAMPLER_CUBE,
+    1,
+};
+
 uint32_t skyboxFlag = static_cast<uint32_t>(gfx::ClearFlagBit::STENCIL) << 1;
 
 uint32_t nextPow2(uint32_t val) {
@@ -627,9 +661,15 @@ uint32_t nextPow2(uint32_t val) {
 bool supportsR16HalfFloatTexture(const gfx::Device* device) {
     return hasAllFlags(device->getFormatFeatures(gfx::Format::R16F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 }
+bool supportsRGBA16HalfFloatTexture(const gfx::Device* device) {
+    return hasAllFlags(device->getFormatFeatures(gfx::Format::RGBA16F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
+}
 
 bool supportsR32FloatTexture(const gfx::Device* device) {
     return hasAllFlags(device->getFormatFeatures(gfx::Format::R32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
+}
+bool supportsRGBA32FloatTexture(const gfx::Device* device) {
+    return hasAllFlags(device->getFormatFeatures(gfx::Format::RGBA32F), gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE);
 }
 
 static ccstd::unordered_map<ccstd::string, uint32_t> phases; //cjh how to clear this global variable when exiting game?

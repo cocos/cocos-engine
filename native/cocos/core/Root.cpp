@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,16 +20,21 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #include "core/Root.h"
 #include "2d/renderer/Batcher2d.h"
 #include "application/ApplicationManager.h"
 #include "bindings/event/EventDispatcher.h"
+#include "pipeline/custom/RenderingModule.h"
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/java/modules/XRInterface.h"
+#if CC_USE_DEBUG_RENDERER
+    #include "profiler/DebugRenderer.h"
+#endif
+#include "engine/EngineEvents.h"
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
@@ -44,7 +48,6 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
-#include "engine/EngineEvents.h"
 
 namespace cc {
 
@@ -86,10 +89,12 @@ void Root::initialize(gfx::Swapchain * /*swapchain*/) {
     addWindowEventListener();
     // TODO(minggo):
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
-    const uint32_t usedUBOVectorCount = (pipeline::UBOGlobal::COUNT + pipeline::UBOCamera::COUNT + pipeline::UBOShadow::COUNT + pipeline::UBOLocal::COUNT) / 4;
+    const uint32_t usedUBOVectorCount = (pipeline::UBOGlobal::COUNT + pipeline::UBOCamera::COUNT + pipeline::UBOShadow::COUNT + pipeline::UBOLocal::COUNT + pipeline::UBOWorldBound::COUNT) / 4;
     uint32_t maxJoints = (_device->getCapabilities().maxVertexUniformVectors - usedUBOVectorCount) / 3;
     maxJoints = maxJoints < 256 ? maxJoints : 256;
     pipeline::localDescriptorSetLayoutResizeMaxJoints(maxJoints);
+
+    _debugView = std::make_unique<pipeline::DebugView>();
 }
 
 render::Pipeline *Root::getCustomPipeline() const {
@@ -108,7 +113,7 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     gfx::SwapchainInfo info;
     info.width = static_cast<uint32_t>(size.width);
     info.height = static_cast<uint32_t>(size.height);
-    info.windowHandle = reinterpret_cast<void *>(handle);
+    info.windowHandle = reinterpret_cast<void *>(handle); // NOLINT
     info.windowId = window->getWindowId();
 
     gfx::Swapchain *swapchain = gfx::Device::getInstance()->createSwapchain(info);
@@ -159,11 +164,13 @@ void Root::destroy() {
     }
     _swapchains.clear();
 
+    _debugView.reset();
+
     // TODO(minggo):
     //    this.dataPoolManager.clear();
 }
 
-void Root::resize(uint32_t width, uint32_t height, uint32_t windowId) {
+void Root::resize(uint32_t width, uint32_t height, uint32_t windowId) { // NOLINT
     for (const auto &window : _renderWindows) {
         auto *swapchain = window->getSwapchain();
         if (swapchain && (swapchain->getWindowId() == windowId)) {
@@ -314,8 +321,8 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
             return false;
         }
     } else {
-        _pipelineRuntime = std::make_unique<render::NativePipeline>(
-            boost::container::pmr::get_default_resource());
+        CC_ASSERT(!_pipelineRuntime);
+        _pipelineRuntime.reset(render::Factory::createPipeline());
         if (!_pipelineRuntime->activate(_mainRenderWindow->getSwapchain())) {
             _pipelineRuntime->destroy();
             _pipelineRuntime.reset();
@@ -328,6 +335,10 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
     //    if (scene) {
     //        scene->getSceneGlobals()->activate();
     //    }
+
+#if CC_EDITOR
+    emit<PipelineChanged>();
+#endif
 
     onGlobalPipelineStateChanged();
 
@@ -356,6 +367,12 @@ void Root::activeWindow(scene::RenderWindow *window) {
 
 void Root::resetCumulativeTime() {
     _cumulativeTime = 0;
+}
+
+void Root::frameSync() {
+    if (_device) {
+        _device->frameSync();
+    }
 }
 
 void Root::frameMoveBegin() {
@@ -411,8 +428,13 @@ void Root::frameMoveEnd() {
             }
         }
     #endif
+    #if CC_USE_DEBUG_RENDERER
+        CC_DEBUG_RENDERER->update();
+    #endif
+
         emit<BeforeRender>();
         _pipelineRuntime->render(_cameraList);
+        emit<AfterRender>();
 #endif
         _device->present();
     }
@@ -422,7 +444,7 @@ void Root::frameMoveEnd() {
     }
 }
 
-void Root::frameMove(float deltaTime, int32_t totalFrames) {
+void Root::frameMove(float deltaTime, int32_t totalFrames) { // NOLINT
     CCObject::deferredDestroy();
 
     _frameTime = deltaTime;
@@ -515,6 +537,10 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
             light->getScene()->removeSphereLight(static_cast<scene::SphereLight *>(light));
         } else if (light->getType() == scene::LightType::SPOT) {
             light->getScene()->removeSpotLight(static_cast<scene::SpotLight *>(light));
+        } else if (light->getType() == scene::LightType::POINT) {
+            light->getScene()->removePointLight(static_cast<scene::PointLight *>(light));
+        } else if (light->getType() == scene::LightType::RANGED_DIRECTIONAL) {
+            light->getScene()->removeRangedDirLight(static_cast<scene::RangedDirectionalLight *>(light));
         }
     }
     light->destroy();
@@ -535,6 +561,7 @@ void Root::doXRFrameMove(int32_t totalFrames) {
     if (_xr->isRenderAllowable()) {
         bool isSceneUpdated = false;
         int viewCount = _xr->getXRConfig(xr::XRConfigKey::VIEW_COUNT).getInt();
+        bool forceUpdateSceneTwice = _xr->getXRConfig(xr::XRConfigKey::EYE_RENDER_JS_CALLBACK).getBool();
         for (int xrEye = 0; xrEye < viewCount; xrEye++) {
             _xr->beginRenderEyeFrame(xrEye);
 
@@ -557,9 +584,9 @@ void Root::doXRFrameMove(int32_t totalFrames) {
             }
 
             frameMoveBegin();
-            //condition1: mainwindow has left camera && right camera,
-            //but we only need left/right camera when in left/right eye loop
-            //condition2: main camera draw twice
+            // condition1: mainwindow has left camera && right camera,
+            // but we only need left/right camera when in left/right eye loop
+            // condition2: main camera draw twice
             for (const auto &window : _renderWindows) {
                 if (window->getSwapchain()) {
                     // not rt
@@ -568,6 +595,9 @@ void Root::doXRFrameMove(int32_t totalFrames) {
             }
 
             bool isNeedUpdateScene = xrEye == static_cast<uint32_t>(xr::XREye::LEFT) || (xrEye == static_cast<uint32_t>(xr::XREye::RIGHT) && !isSceneUpdated);
+            if (forceUpdateSceneTwice) {
+                isNeedUpdateScene = true;
+            }
             frameMoveProcess(isNeedUpdateScene, totalFrames);
             auto camIter = _cameraList.begin();
             while (camIter != _cameraList.end()) {

@@ -1,18 +1,17 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,7 +23,7 @@
 */
 
 import { Type } from '../../gfx';
-import { Color, Mat3, Mat4, Vec2, Vec3, Vec4, Quat, IVec2Like, IVec3Like, IVec4Like, IMat3Like, IMat4Like } from '../../core';
+import { Color, Mat3, Mat4, Vec2, Vec3, Vec4, Quat, IVec2Like, IVec3Like, IVec4Like, IMat3Like, IMat4Like, warnID } from '../../core';
 
 const typeMask    = 0xfc000000; //  6 bits => 64 types
 const bindingMask = 0x03f00000; //  6 bits => 64 bindings
@@ -46,7 +45,7 @@ export const customizeType = (handle: number, type: Type): number => (handle & ~
 export type MaterialProperty = number | Vec2 | Vec3 | Vec4 | Color | Mat3 | Mat4 | Quat;
 
 export const type2reader = {
-    [Type.UNKNOWN]: (a: Float32Array, v: number, idx = 0): void => console.warn('illegal uniform handle'),
+    [Type.UNKNOWN]: (a: Float32Array, v: number, idx = 0): void => warnID(12010, idx),
     [Type.INT]: (a: Int32Array, v: number, idx = 0): number => a[idx],
     [Type.INT2]: (a: Int32Array, v: IVec2Like, idx = 0): IVec2Like => Vec2.fromArray(v, a, idx),
     [Type.INT3]: (a: Int32Array, v: IVec3Like, idx = 0): IVec3Like => Vec3.fromArray(v, a, idx),
@@ -60,17 +59,30 @@ export const type2reader = {
 };
 
 export const type2writer = {
-    [Type.UNKNOWN]: (a: Float32Array, v: number, idx = 0): void => console.warn('illegal uniform handle'),
+    [Type.UNKNOWN]: (a: Float32Array, v: number, idx = 0): void => warnID(12010, idx),
     [Type.INT]: (a: Int32Array, v: number, idx = 0): number => a[idx] = v,
-    [Type.INT2]: (a: Int32Array, v: IVec2Like, idx = 0): Int32Array => Vec2.toArray(a, v, idx),
-    [Type.INT3]: (a: Int32Array, v: IVec3Like, idx = 0): Int32Array => Vec3.toArray(a, v, idx),
-    [Type.INT4]: (a: Int32Array, v: IVec4Like, idx = 0): Int32Array => Vec4.toArray(a, v, idx),
+    [Type.INT2]: (a: Int32Array, v: Vec2, idx = 0): Int32Array => Vec2.toArray(a, v, idx),
+    [Type.INT3]: (a: Int32Array, v: Vec3, idx = 0): Int32Array => Vec3.toArray(a, v, idx),
+    [Type.INT4]: (a: Int32Array, v: Vec4, idx = 0): Int32Array => Vec4.toArray(a, v, idx),
     [Type.FLOAT]: (a: Float32Array, v: number, idx = 0): number => a[idx] = v,
-    [Type.FLOAT2]: (a: Float32Array, v: IVec2Like, idx = 0): Float32Array => Vec2.toArray(a, v, idx),
-    [Type.FLOAT3]: (a: Float32Array, v: IVec3Like, idx = 0): Float32Array => Vec3.toArray(a, v, idx),
-    [Type.FLOAT4]: (a: Float32Array, v: IVec4Like, idx = 0): Float32Array => Vec4.toArray(a, v, idx),
-    [Type.MAT3]: (a: Float32Array, v: IMat3Like, idx = 0): Float32Array => Mat3.toArray(a, v, idx),
-    [Type.MAT4]: (a: Float32Array, v: IMat4Like, idx = 0): Float32Array => Mat4.toArray(a, v, idx),
+    [Type.FLOAT2]: (a: Float32Array, v: Vec2, idx = 0): Float32Array => Vec2.toArray(a, v, idx),
+    [Type.FLOAT3]: (a: Float32Array, v: Vec3, idx = 0): Float32Array => Vec3.toArray(a, v, idx),
+    [Type.FLOAT4]: (a: Float32Array, v: Vec4, idx = 0): Float32Array => Vec4.toArray(a, v, idx),
+    [Type.MAT3]: (a: Float32Array, v: Mat3, idx = 0): Float32Array => Mat3.toArray(a, v, idx),
+    [Type.MAT4]: (a: Float32Array, v: Mat4, idx = 0): Float32Array => Mat4.toArray(a, v, idx),
+};
+
+export const type2validator = {
+    [Type.INT]: (v: number): boolean => typeof v === 'number',
+    [Type.FLOAT]: (v: number): boolean => typeof v === 'number',
+    [Type.INT2]: (v: Vec2): boolean => !!(v instanceof Vec2),
+    [Type.FLOAT2]: (v: Vec2): boolean => !!(v instanceof Vec2),
+    [Type.INT3]: (v: Vec3): boolean => !!(v instanceof Vec3),
+    [Type.FLOAT3]: (v: Vec3): boolean => !!(v instanceof Vec3),
+    [Type.INT4]: (v: Vec4): boolean => !!(v instanceof Vec4),
+    [Type.FLOAT4]: (v: Vec4 | Color | Quat): boolean => !!((v instanceof Vec4) || (v instanceof Color) || (v instanceof Quat)),
+    [Type.MAT3]: (v: Mat3): boolean => !!(v instanceof Mat3),
+    [Type.MAT4]: (v: Mat4): boolean => !!(v instanceof Mat4),
 };
 
 const defaultValues = [

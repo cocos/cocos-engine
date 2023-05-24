@@ -1,3 +1,27 @@
+/****************************************************************************
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #include "GFXBarrier.h"
 #include <algorithm>
 #include <array>
@@ -8,6 +32,38 @@ namespace gfx {
 
 namespace {
 
+template <unsigned char... indices>
+constexpr uint64_t setbit() {
+    return ((1ULL << indices) | ... | 0ULL);
+}
+
+template <typename T, size_t... indices>
+constexpr uint64_t setbits(const std::integer_sequence<T, indices...>& intSeq) {
+    std::ignore = intSeq;
+    return setbit<indices...>();
+}
+
+template <std::size_t N>
+constexpr uint64_t setbits() {
+    using index_seq = std::make_index_sequence<N>;
+    return setbits(index_seq{});
+}
+
+template <unsigned char first, unsigned char end>
+constexpr uint64_t setbitBetween() {
+    static_assert(first >= end);
+    return setbits<first>() ^ setbits<end>();
+}
+
+template <uint32_t N>
+constexpr uint8_t highestBitPosOffset() {
+    if constexpr (N == 0) {
+        return 0;
+    } else {
+        return highestBitPosOffset<(N >> 1)>() + 1;
+    }
+}
+
 enum class ResourceType : uint32_t {
     UNKNOWN,
     BUFFER,
@@ -15,7 +71,7 @@ enum class ResourceType : uint32_t {
 };
 
 enum class CommonUsage : uint32_t {
-    NONE = 1 << 0,
+    NONE = 0,
     COPY_SRC = 1 << 1,
     COPY_DST = 1 << 2,
     ROM = 1 << 3, // sampled or UNIFORM
@@ -23,14 +79,14 @@ enum class CommonUsage : uint32_t {
     IB_OR_CA = 1 << 5,
     VB_OR_DS = 1 << 6,
     INDIRECT_OR_INPUT = 1 << 7,
+    SHADING_RATE = 1 << 8,
+
+    LAST_ONE = SHADING_RATE,
 };
 CC_ENUM_BITWISE_OPERATORS(CommonUsage);
 
 constexpr CommonUsage textureUsageToCommonUsage(TextureUsage usage) {
     CommonUsage res{0};
-    if (hasFlag(usage, TextureUsage::NONE)) {
-        res |= CommonUsage::NONE;
-    }
     if (hasFlag(usage, TextureUsage::TRANSFER_SRC)) {
         res |= CommonUsage::COPY_SRC;
     }
@@ -51,6 +107,9 @@ constexpr CommonUsage textureUsageToCommonUsage(TextureUsage usage) {
     }
     if (hasFlag(usage, TextureUsage::INPUT_ATTACHMENT)) {
         res |= CommonUsage::INDIRECT_OR_INPUT;
+    }
+    if (hasFlag(usage, TextureUsage::SHADING_RATE)) {
+        res |= CommonUsage::SHADING_RATE;
     }
     return res;
 }
@@ -88,42 +147,17 @@ struct AccessElem {
     uint32_t mask{0xFFFFFFFF};
     uint32_t key{0xFFFFFFFF};
     AccessFlags access{AccessFlags::NONE};
+    uint32_t mutex{0x0}; // optional mutually exclusive flag
 };
-
-// 20 and above :reserved
-// 18 ~ 19: MemoryAccess
-// 16 ~ 17: MemoryUsage
-// 14 ~ 15: ResourceType
-// 8 ~ 13: ShaderStageFlags
-// 0 ~ 7: CommonUsage
-constexpr uint32_t IGNORE_MEMACCESS = 0b00111111111111111111;
-constexpr uint32_t IGNORE_MEMUSAGE = 0b11001111111111111111;
-constexpr uint32_t IGNORE_RESTYPE = 0b11110011111111111111;
-constexpr uint32_t IGNORE_SHADERSTAGE = 0b11111100000011111111;
-constexpr uint32_t IGNORE_CMNUSAGE = 0b11111111111100000000;
-constexpr uint32_t IGNORE_NONE = 0xFFFFFFFF;
-
-constexpr uint32_t CARE_MEMACCESS = ~IGNORE_MEMACCESS;
-constexpr uint32_t CARE_MEMUSAGE = ~IGNORE_MEMUSAGE;
-constexpr uint32_t CARE_RESTYPE = ~IGNORE_RESTYPE;
-constexpr uint32_t CARE_SHADERSTAGE = ~IGNORE_SHADERSTAGE;
-constexpr uint32_t CARE_CMNUSAGE = ~IGNORE_CMNUSAGE;
-constexpr uint32_t CARE_NONE = ~IGNORE_NONE;
 
 #define OPERABLE(val) static_cast<std::underlying_type<decltype(val)>::type>(val)
 
-constexpr auto ACCESS_WRITE = OPERABLE(MemoryAccess::WRITE_ONLY) << 18;
-constexpr auto ACCESS_READ = OPERABLE(MemoryAccess::READ_ONLY) << 18;
-constexpr auto MEM_HOST = OPERABLE(MemoryUsage::HOST) << 16;
-constexpr auto MEM_DEVICE = OPERABLE(MemoryUsage::DEVICE) << 16;
-constexpr auto RES_TEXTURE = OPERABLE(ResourceType::TEXTURE) << 14;
-constexpr auto RES_BUFFER = OPERABLE(ResourceType::BUFFER) << 14;
-constexpr auto SHADERSTAGE_COMP = 1 << 13;
-constexpr auto SHADERSTAGE_FRAG = 1 << 12;
-constexpr auto SHADERSTAGE_GEOM = 1 << 11;
-constexpr auto SHADERSTAGE_EVAL = 1 << 10;
-constexpr auto SHADERSTAGE_CTRL = 1 << 9;
-constexpr auto SHADERSTAGE_VERT = 1 << 8;
+constexpr uint8_t COMMON_USAGE_COUNT = highestBitPosOffset<OPERABLE(CommonUsage::LAST_ONE)>();
+constexpr uint8_t SHADER_STAGE_RESERVE_COUNT = 6;
+constexpr uint8_t RESOURCE_TYPE_COUNT = 2;
+constexpr uint8_t MEM_TYPE_COUNT = 2;
+constexpr uint8_t ACCESS_TYPE_COUNT = 2;
+
 constexpr auto CMN_NONE = OPERABLE(CommonUsage::NONE);
 constexpr auto CMN_COPY_SRC = OPERABLE(CommonUsage::COPY_SRC);
 constexpr auto CMN_COPY_DST = OPERABLE(CommonUsage::COPY_DST);
@@ -132,8 +166,52 @@ constexpr auto CMN_STORAGE = OPERABLE(CommonUsage::STORAGE);
 constexpr auto CMN_IB_OR_CA = OPERABLE(CommonUsage::IB_OR_CA);
 constexpr auto CMN_VB_OR_DS = OPERABLE(CommonUsage::VB_OR_DS);
 constexpr auto CMN_INDIRECT_OR_INPUT = OPERABLE(CommonUsage::INDIRECT_OR_INPUT);
+constexpr auto CMN_SHADING_RATE = OPERABLE(CommonUsage::SHADING_RATE);
 
-constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
+constexpr auto SHADER_STAGE_BIT_POPS = COMMON_USAGE_COUNT;
+constexpr auto SHADERSTAGE_NONE = 0;
+constexpr auto SHADERSTAGE_VERT = 1 << (0 + SHADER_STAGE_BIT_POPS);
+constexpr auto SHADERSTAGE_CTRL = 1 << (1 + SHADER_STAGE_BIT_POPS);
+constexpr auto SHADERSTAGE_EVAL = 1 << (2 + SHADER_STAGE_BIT_POPS);
+constexpr auto SHADERSTAGE_GEOM = 1 << (3 + SHADER_STAGE_BIT_POPS);
+constexpr auto SHADERSTAGE_FRAG = 1 << (4 + SHADER_STAGE_BIT_POPS);
+constexpr auto SHADERSTAGE_COMP = 1 << (5 + SHADER_STAGE_BIT_POPS);
+
+constexpr auto RESOURCE_TYPE_BIT_POS = COMMON_USAGE_COUNT + SHADER_STAGE_RESERVE_COUNT;
+constexpr auto RES_TEXTURE = OPERABLE(ResourceType::TEXTURE) << RESOURCE_TYPE_BIT_POS;
+constexpr auto RES_BUFFER = OPERABLE(ResourceType::BUFFER) << RESOURCE_TYPE_BIT_POS;
+
+constexpr auto MEM_TYPE_BIT_POS = COMMON_USAGE_COUNT + SHADER_STAGE_RESERVE_COUNT + RESOURCE_TYPE_COUNT;
+constexpr auto MEM_HOST = OPERABLE(MemoryUsage::HOST) << MEM_TYPE_BIT_POS;
+constexpr auto MEM_DEVICE = OPERABLE(MemoryUsage::DEVICE) << MEM_TYPE_BIT_POS;
+
+constexpr auto ACCESS_TYPE_BIT_POS = COMMON_USAGE_COUNT + SHADER_STAGE_RESERVE_COUNT + RESOURCE_TYPE_COUNT + MEM_TYPE_COUNT;
+constexpr auto ACCESS_WRITE = OPERABLE(MemoryAccess::WRITE_ONLY) << ACCESS_TYPE_BIT_POS;
+constexpr auto ACCESS_READ = OPERABLE(MemoryAccess::READ_ONLY) << ACCESS_TYPE_BIT_POS;
+
+constexpr uint8_t USED_BIT_COUNT = COMMON_USAGE_COUNT + SHADER_STAGE_RESERVE_COUNT + RESOURCE_TYPE_COUNT + MEM_TYPE_COUNT + ACCESS_TYPE_COUNT;
+// 20 and above :reserved
+// 18 ~ 19: MemoryAccess
+// 16 ~ 17: MemoryUsage
+// 14 ~ 15: ResourceType
+// 8 ~ 13: ShaderStageFlags
+// 0 ~ 7: CommonUsage
+
+constexpr uint32_t CARE_NONE = 0x0;
+constexpr uint32_t CARE_CMNUSAGE = setbitBetween<SHADER_STAGE_BIT_POPS, 0>();
+constexpr uint32_t CARE_SHADERSTAGE = setbitBetween<RESOURCE_TYPE_BIT_POS, SHADER_STAGE_BIT_POPS>();
+constexpr uint32_t CARE_RESTYPE = setbitBetween<MEM_TYPE_BIT_POS, RESOURCE_TYPE_BIT_POS>();
+constexpr uint32_t CARE_MEMUSAGE = setbitBetween<ACCESS_TYPE_BIT_POS, MEM_TYPE_BIT_POS>();
+constexpr uint32_t CARE_MEMACCESS = setbitBetween<USED_BIT_COUNT, ACCESS_TYPE_BIT_POS>();
+
+constexpr uint32_t IGNORE_NONE = 0xFFFFFFFF;
+constexpr uint32_t IGNORE_CMNUSAGE = ~CARE_CMNUSAGE;
+constexpr uint32_t IGNORE_SHADERSTAGE = ~CARE_SHADERSTAGE;
+constexpr uint32_t IGNORE_RESTYPE = ~CARE_RESTYPE;
+constexpr uint32_t IGNORE_MEMUSAGE = ~CARE_MEMUSAGE;
+constexpr uint32_t IGNORE_MEMACCESS = ~CARE_MEMACCESS;
+
+constexpr AccessElem ACCESS_MAP[] = {
     {CARE_MEMACCESS,
      0x0,
      AccessFlags::NONE},
@@ -172,7 +250,8 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
 
     {IGNORE_MEMUSAGE,
      ACCESS_READ | RES_TEXTURE | SHADERSTAGE_FRAG | CMN_ROM,
-     AccessFlags::FRAGMENT_SHADER_READ_TEXTURE},
+     AccessFlags::FRAGMENT_SHADER_READ_TEXTURE,
+     CMN_STORAGE},
 
     {IGNORE_MEMUSAGE,
      ACCESS_READ | RES_TEXTURE | SHADERSTAGE_FRAG | CMN_IB_OR_CA | CMN_INDIRECT_OR_INPUT,
@@ -184,7 +263,8 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
 
     {IGNORE_MEMUSAGE & IGNORE_RESTYPE,
      ACCESS_READ | SHADERSTAGE_FRAG | CMN_STORAGE,
-     AccessFlags::FRAGMENT_SHADER_READ_OTHER},
+     AccessFlags::FRAGMENT_SHADER_READ_OTHER,
+     CMN_SHADING_RATE},
 
     //{IGNORE_MEMUSAGE,
     // ACCESS_READ | RES_TEXTURE | SHADERSTAGE_FRAG | CMN_IB_OR_CA,
@@ -202,6 +282,7 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
      ACCESS_READ | RES_TEXTURE | SHADERSTAGE_COMP | CMN_ROM,
      AccessFlags::COMPUTE_SHADER_READ_TEXTURE},
 
+    // shading rate has its own flag
     {CARE_MEMACCESS | CARE_SHADERSTAGE | CARE_CMNUSAGE,
      ACCESS_READ | SHADERSTAGE_COMP | CMN_STORAGE,
      AccessFlags::COMPUTE_SHADER_READ_OTHER},
@@ -214,9 +295,13 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
      ACCESS_READ | MEM_HOST,
      AccessFlags::HOST_READ},
 
-    {CARE_CMNUSAGE | CARE_RESTYPE,
-     RES_TEXTURE | CMN_NONE,
-     AccessFlags::PRESENT},
+    {CARE_MEMACCESS | CARE_SHADERSTAGE | CARE_CMNUSAGE,
+     ACCESS_READ | SHADERSTAGE_FRAG | CMN_SHADING_RATE,
+     AccessFlags::SHADING_RATE},
+
+    //{CARE_CMNUSAGE | CARE_RESTYPE,
+    // RES_TEXTURE | CMN_NONE,
+    // AccessFlags::PRESENT},
 
     {CARE_MEMACCESS | CARE_SHADERSTAGE | CARE_CMNUSAGE,
      ACCESS_WRITE | SHADERSTAGE_VERT | CMN_STORAGE,
@@ -245,7 +330,7 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
     {CARE_MEMACCESS | CARE_MEMUSAGE,
      ACCESS_WRITE | MEM_HOST,
      AccessFlags::HOST_WRITE},
-}};
+};
 
 constexpr bool validateAccess(ResourceType type, CommonUsage usage, MemoryAccess access, ShaderStageFlags visibility) {
     bool res = true;
@@ -265,10 +350,9 @@ constexpr bool validateAccess(ResourceType type, CommonUsage usage, MemoryAccess
         res = !(*std::max_element(std::begin(conflicts), std::end(conflicts)));
     } else if (type == ResourceType::TEXTURE) {
         uint32_t conflicts[] = {
-            hasFlag(usage, CommonUsage::ROM) && hasFlag(access, MemoryAccess::WRITE_ONLY),                                                                          // sampled texture has write access.
             hasAnyFlags(usage, CommonUsage::IB_OR_CA | CommonUsage::VB_OR_DS | CommonUsage::INDIRECT_OR_INPUT) && !hasFlag(visibility, ShaderStageFlags::FRAGMENT), // color/ds/input not in fragment
             hasFlag(usage, CommonUsage::INDIRECT_OR_INPUT) && !hasFlag(access, MemoryAccess::READ_ONLY),                                                            // input needs read
-            hasAllFlags(usage, CommonUsage::ROM | CommonUsage::STORAGE),                                                                                            // storage ^ sampled
+            hasAllFlags(usage, CommonUsage::IB_OR_CA | CommonUsage::STORAGE),                                                                                       // storage ^ sampled
             hasFlag(usage, CommonUsage::COPY_SRC) && !hasAllFlags(MemoryAccess::READ_ONLY, access),                                                                 // transfer src ==> read_only
             hasFlag(usage, CommonUsage::COPY_DST) && !hasAllFlags(MemoryAccess::WRITE_ONLY, access),
             hasFlag(usage, CommonUsage::INDIRECT_OR_INPUT) && !hasAnyFlags(usage, CommonUsage::IB_OR_CA | CommonUsage::VB_OR_DS), // input needs to specify color or ds                                                                    // transfer dst ==> write_only
@@ -287,10 +371,10 @@ constexpr AccessFlags getAccessFlagsImpl(
     CommonUsage cmnUsage = bufferUsageToCommonUsage(usage);
     if (validateAccess(ResourceType::BUFFER, cmnUsage, access, visibility)) {
         uint32_t info = 0xFFFFFFFF;
-        info &= ((OPERABLE(access) << 18) | IGNORE_MEMACCESS);
-        info &= ((OPERABLE(memUsage) << 16) | IGNORE_MEMUSAGE);
-        info &= ((OPERABLE(ResourceType::TEXTURE) << 14) | IGNORE_RESTYPE);
-        info &= ((OPERABLE(visibility) << 8) | IGNORE_SHADERSTAGE);
+        info &= ((OPERABLE(access) << ACCESS_TYPE_BIT_POS) | IGNORE_MEMACCESS);
+        info &= ((OPERABLE(memUsage) << MEM_TYPE_BIT_POS) | IGNORE_MEMUSAGE);
+        info &= ((OPERABLE(ResourceType::TEXTURE) << RESOURCE_TYPE_BIT_POS) | IGNORE_RESTYPE);
+        info &= ((OPERABLE(visibility) << SHADER_STAGE_BIT_POPS) | IGNORE_SHADERSTAGE);
         info &= OPERABLE(cmnUsage) | IGNORE_CMNUSAGE;
 
         for (const auto& elem : ACCESS_MAP) {
@@ -314,23 +398,28 @@ constexpr AccessFlags getAccessFlagsImpl(
     AccessFlags flags{AccessFlags::NONE};
     CommonUsage cmnUsage = textureUsageToCommonUsage(usage);
     if (validateAccess(ResourceType::TEXTURE, cmnUsage, access, visibility)) {
+        if (usage == gfx::TextureUsageBit::NONE) {
+            return gfx::AccessFlagBit::PRESENT;
+        }
         uint32_t info = 0xFFFFFFFF;
-        info &= ((OPERABLE(access) << 18) | IGNORE_MEMACCESS);
-        info &= ((OPERABLE(MemoryUsage::DEVICE) << 16) | IGNORE_MEMUSAGE);
-        info &= ((OPERABLE(ResourceType::TEXTURE) << 14) | IGNORE_RESTYPE);
-        info &= ((OPERABLE(visibility) << 8) | IGNORE_SHADERSTAGE);
+        info &= ((OPERABLE(access) << ACCESS_TYPE_BIT_POS) | IGNORE_MEMACCESS);
+        info &= ((OPERABLE(MemoryUsage::DEVICE) << MEM_TYPE_BIT_POS) | IGNORE_MEMUSAGE);
+        info &= ((OPERABLE(ResourceType::TEXTURE) << RESOURCE_TYPE_BIT_POS) | IGNORE_RESTYPE);
+        info &= ((OPERABLE(visibility) << (SHADER_STAGE_BIT_POPS)) | IGNORE_SHADERSTAGE);
         info &= OPERABLE(cmnUsage) | IGNORE_CMNUSAGE;
 
         for (const auto& elem : ACCESS_MAP) {
             auto testFlag = info & elem.mask;
-            // hasKey
-            if ((testFlag & elem.key) == elem.key) {
+            // hasKey && no mutex flag
+            if (((testFlag & elem.key) == elem.key) && ((testFlag & elem.mutex) == 0)) {
                 flags |= elem.access;
             }
         }
     } else {
         flags = INVALID_ACCESS_FLAGS;
     }
+
+    // CC_ASSERT(flags != INVALID_ACCESS_FLAGS);
     return flags;
 }
 
@@ -499,13 +588,6 @@ constexpr AccessFlags getDeviceAccessFlagsImpl(
     return flags;
 }
 
-// auto res = getAccessFlags(
-//     TextureUsage::TRANSFER_DST | TextureUsage::COLOR_ATTACHMENT, // cannot be sampled
-//     MemoryAccess::WRITE_ONLY,
-//     ShaderStageFlags::ALL);
-//
-// auto res2 = res;
-
 static_assert(
     (AccessFlags::VERTEX_SHADER_WRITE | AccessFlags::VERTEX_SHADER_READ_OTHER) ==
     getAccessFlagsImpl(
@@ -528,7 +610,7 @@ static_assert(
         ShaderStageFlags::COMPUTE));
 
 static_assert(
-    (AccessFlags::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT | AccessFlags::FRAGMENT_SHADER_READ_OTHER) ==
+    INVALID_ACCESS_FLAGS ==
     getAccessFlagsImpl(
         TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT | TextureUsage::STORAGE,
         MemoryAccess::READ_ONLY,
