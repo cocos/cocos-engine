@@ -54,12 +54,12 @@ export class ColorFromCurveExpression extends ColorExpression {
     }
 
     public evaluateSingle (out: Color) {
-        this.curve.evaluate(out, time);
+        this.curve.evaluateFast(out, time);
         return out;
     }
 
     public evaluate (index: number, out: Color) {
-        this.curve.evaluate(out, this._time[index]);
+        this.curve.evaluateFast(out, this._time[index]);
         return out;
     }
 }

@@ -27,11 +27,12 @@ import { ccclass, type, serializable } from 'cc.decorator';
 import { Enum, Vec3 } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_VELOCITY, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
+import { ParticleDataSet } from '../particle-data-set';
 import { ModuleExecContext } from '../base';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { BASE_VELOCITY, POSITION, VELOCITY } from '../builtin-parameters';
 
 const tempVelocity = new Vec3();
 

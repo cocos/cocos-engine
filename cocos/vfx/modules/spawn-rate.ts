@@ -48,8 +48,15 @@ export class SpawnRateModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext)  {
-        const { deltaTime } = emitter;
+        const { deltaTime } = context;
+        const { loopAge, spawnRemainder } = emitter;
         this.rate.bind(particles, emitter, user, context);
-        emitter.spawnContinuousCount += this.rate.evaluateSingle() * deltaTime;
+        const spawnRate = this.rate.evaluateSingle();
+        const intervalDt = 1 / spawnRate;
+        const interpStartDt = (1 - spawnRemainder) * intervalDt;
+        const count = spawnRemainder + (loopAge > 0 ? spawnRate : 0) * deltaTime;
+        const spawnCount = Math.floor(count);
+        emitter.spawnRemainder = count - spawnCount;
+        emitter.addSpawnInfo(spawnCount, intervalDt, interpStartDt);
     }
 }

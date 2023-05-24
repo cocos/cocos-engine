@@ -1,7 +1,30 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 import { VFXParameterNameSpace, VFXParameterType } from './define';
 import { VFXParameterIdentity } from './vfx-parameter';
 
-const MAX_PARAMETER_COUNT = 0xffffffff;
 let builtinParticleParameterId = 0;
 export const ID = new VFXParameterIdentity(builtinParticleParameterId++, 'id', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);
 export const RANDOM_SEED = new VFXParameterIdentity(builtinParticleParameterId++, 'random-seed', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);
@@ -31,36 +54,13 @@ export const BASE_COLOR = new VFXParameterIdentity(builtinParticleParameterId++,
 export const COLOR = new VFXParameterIdentity(builtinParticleParameterId++, 'color', VFXParameterType.COLOR, VFXParameterNameSpace.PARTICLE);
 export const VISIBILITY_TAG = new VFXParameterIdentity(builtinParticleParameterId++, 'visibility-tag', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);
 
-export const builtinParticleParameterIdentities = [
-    ID,
-    RANDOM_SEED,
-    INV_START_LIFETIME,
-    NORMALIZED_AGE,
-    IS_DEAD,
-    HAS_COLLIDED,
-    POSITION,
-    PHYSICS_FORCE,
-    BASE_VELOCITY,
-    VELOCITY,
-    SPRITE_ROTATION,
-    MESH_ORIENTATION,
-    SUB_UV_INDEX,
-    SUB_UV_INDEX2,
-    SUB_UV_INDEX3,
-    SUB_UV_INDEX4,
-    RIBBON_ID,
-    RIBBON_LINK_ORDER,
-    BASE_RIBBON_WIDTH,
-    RIBBON_WIDTH,
-    BASE_SPRITE_SIZE,
-    SPRITE_SIZE,
-    BASE_SCALE,
-    SCALE,
-    BASE_COLOR,
-    COLOR,
-    VISIBILITY_TAG,
-];
-
 export const customParticleParameterId = 1000;
 
-const builtinEmitterParameterId = 2000;
+let builtinEmitterParameterId = 2000;
+export const AGE = new VFXParameterIdentity(builtinEmitterParameterId++, 'age', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);
+export const IS_WORLD_SPACE = new VFXParameterIdentity(builtinEmitterParameterId++, 'is-world-space', VFXParameterType.BOOL, VFXParameterNameSpace.EMITTER);
+export const CURRENT_DELAY = new VFXParameterIdentity(builtinEmitterParameterId++, 'current-delay', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);
+export const LOOPED_AGE = new VFXParameterIdentity(builtinEmitterParameterId++, 'looped-age', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);
+export const NORMALIZED_LOOP_AGE = new VFXParameterIdentity(builtinEmitterParameterId++, 'normalized-loop-age', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);
+export const CURRENT_LOOP_COUNT = new VFXParameterIdentity(builtinEmitterParameterId++, 'current-loop-count', VFXParameterType.UINT32, VFXParameterNameSpace.EMITTER);
+export const CURRENT_DURATION = new VFXParameterIdentity(builtinEmitterParameterId++, 'current-duration', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);

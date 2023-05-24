@@ -78,18 +78,18 @@ export class SpawnBurstModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { prevLoopAge, loopAge, normalizedLoopAge } = emitter;
+        const { loopAge } = emitter;
+        const { deltaTime } = context;
 
-        if ((prevT <= this.time && currT > this.time) || (prevT > this.time && this.repeatCount > 1)) {
-            const preEmitTime = Math.max(Math.floor((prevT - this.time) / this.repeatInterval), 0);
-            if (preEmitTime < this.repeatCount) {
-                const currentEmitTime = Math.min(Math.ceil((currT - this.time) / this.repeatInterval), this.repeatCount);
-                const toEmitTime = currentEmitTime - preEmitTime;
-                if (toEmitTime === 0) { return; }
-                for (let j = 0; j < toEmitTime; j++) {
-                    context.burstCount += this.count.evaluateSingle();
-                }
-            }
+        this.count.bind(particles, emitter, user, context);
+        this.time.bind(particles, emitter, user, context);
+        const spawnCount = this.count.evaluateSingle();
+        const spawnTime = this.time.evaluateSingle();
+
+        const spawnStartDt = (spawnTime - (loopAge - deltaTime));
+
+        if (spawnStartDt >= 0 && (spawnTime - loopAge) < 0) {
+            emitter.addSpawnInfo(spawnCount, 0, spawnStartDt);
         }
     }
 }

@@ -26,23 +26,19 @@ import { assertIsTrue, Mat3, Mat4, Quat, Vec3 } from '../core';
 import { Node } from '../scene-graph';
 
 export class SpawnInfo {
-
+    count = 0;
+    intervalDt = 0;
+    interpStartDt = 0;
 }
 
 export class EmitterDataSet {
     public isWorldSpace = false;
-    public spawnFraction = 0;
     public currentDelay = 0;
     public age = 0;
     public loopAge = 0;
-    public prevLoopAge = 0;
     public normalizedLoopAge = 0;
-    public normalizedPrevLoopAge = 0;
-    public deltaTime = 0;
-    public frameOffset = 0;
     public currentLoopCount = 0;
-    public spawnContinuousCount = 0;
-    public burstCount = 0;
+    public spawnRemainder = 0;
     public currentDuration = 0;
     public velocity = new Vec3();
     public prevWorldPosition = new Vec3();
@@ -55,4 +51,21 @@ export class EmitterDataSet {
     public worldRotation = new Quat();
     public renderScale = new Vec3();
     public declare transform: Node;
+
+    public spawnInfos: SpawnInfo[] = [new SpawnInfo()];
+    public spawnInfoCount = 0;
+
+    addSpawnInfo (spawnCount: number, intervalDt: number, interpStartDt: number) {
+        if (this.spawnInfoCount >= this.spawnInfos.length) {
+            this.spawnInfos.push(new SpawnInfo());
+        }
+        const spawnInfo = this.spawnInfos[this.spawnInfoCount++];
+        spawnInfo.count = spawnCount;
+        spawnInfo.intervalDt = intervalDt;
+        spawnInfo.interpStartDt = interpStartDt;
+    }
+
+    clearSpawnInfo () {
+        this.spawnInfoCount = 0;
+    }
 }
