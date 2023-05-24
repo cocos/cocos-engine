@@ -58,8 +58,8 @@ const Elements = {
             const panel = this;
             panel.__assetChangedHandle__ = undefined;
 
-            panel.__assetChanged__ = (uuids) => {
-                if (Array.isArray(panel.uuidList) && panel.uuidList.find(e => uuids.includes(e))) {
+            panel.__assetChanged__ = (uuid) => {
+                if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
                     window.cancelAnimationFrame(panel.__assetChangedHandle__);
                     panel.__assetChangedHandle__ = window.requestAnimationFrame(async () => {
                         await panel.reset();
@@ -67,7 +67,7 @@ const Elements = {
                 }
             };
 
-            Editor.Message.__protected__.addBroadcastListener('scene:all-asset-changed', panel.__assetChanged__);
+            Editor.Message.addBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
             panel.history = new History();
         },
@@ -155,7 +155,7 @@ const Elements = {
                 panel.__assetChangedHandle__ = undefined;
             }
 
-            Editor.Message.__protected__.removeBroadcastListener('scene:all-asset-changed', panel.__assetChanged__);
+            Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
             delete panel.history;
         },
@@ -375,9 +375,9 @@ exports.methods = {
         }
 
         return {
-            uuidListStr: JSON.stringify(panel.uuidList),
-            metaListStr: JSON.stringify(panel.metaList),
-            renderDataStr: JSON.stringify(renderData),
+            uuidListStr:JSON.stringify(panel.uuidList),
+            metaListStr:JSON.stringify(panel.metaList),
+            renderDataStr:JSON.stringify(renderData),
         };
     },
     restore(record) {

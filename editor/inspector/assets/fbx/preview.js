@@ -679,11 +679,11 @@ exports.methods = {
 
     addAssetChangeListener(add = true) {
         if (!add && this.hasListenAssetsChange) {
-            Editor.Message.__protected__.removeBroadcastListener('scene:all-asset-changed', this.onAssetChangeBind);
+            Editor.Message.__protected__.removeBroadcastListener('scene:asset-applied', this.onAssetChangeBind);
             this.hasListenAssetsChange = false;
             return;
         }
-        Editor.Message.__protected__.addBroadcastListener('scene:all-asset-changed', this.onAssetChangeBind);
+        Editor.Message.__protected__.addBroadcastListener('scene:asset-applied', this.onAssetChangeBind);
         this.hasListenAssetsChange = true;
     },
 
@@ -697,7 +697,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function () {
+exports.ready = function() {
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -739,7 +739,7 @@ exports.ready = function () {
     this.eventEditor.ready.call(this);
 };
 
-exports.update = async function (assetList, metaList) {
+exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.isMultiple = this.assetList.length > 1;
@@ -770,7 +770,7 @@ exports.update = async function (assetList, metaList) {
     this.refreshPreview();
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
