@@ -1751,10 +1751,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         return this._layer;
     }
 
-    get flagChangedVersion () {
-        return this._changedVersionAndRTS >>> 3;
-    }
-
     /**
      * @zh 节点的变换改动版本号。
      * @en The transformation change version number of the node.

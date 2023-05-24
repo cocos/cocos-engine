@@ -243,15 +243,6 @@ export class Color extends ValueType {
         return out;
     }
 
-    public static fromUint32<Out extends IColorLike> (out: Out, uint32: number) {
-        out._val = uint32;
-        return out;
-    }
-
-    public static toUint32<Out extends IColorLike> (out: Out): number {
-        return out._val;
-    }
-
     /**
      * @zh 从无符号 32 位整数构造颜色，高 8 位为 alpha 通道，次高 8 位为蓝色通道，次低 8 位为绿色通道，低 8 位为红色通道。
      * @en Construct color from a unsigned 32 bit integer, the highest 8 bits is for alpha channel, the second highest 8 bits is for blue channel,
