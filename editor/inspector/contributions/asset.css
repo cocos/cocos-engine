@@ -18,6 +18,7 @@
 :host > .container > .header {
     display: flex;
     flex: 1;
+    min-width: 0;
 }
 
 :host > .container > .header > .icon {
