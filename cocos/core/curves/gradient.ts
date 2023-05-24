@@ -22,7 +22,9 @@
  THE SOFTWARE.
 */
 
-import { CCClass, Color, lerp, repeat, Enum, EPSILON, approx } from '../../core';
+import { CCClass } from '../data';
+import { Enum } from '../value-types';
+import { Color, lerp, repeat, EPSILON, approx } from '../math';
 
 const Mode = Enum({
     Blend: 0,
@@ -76,7 +78,7 @@ CCClass.Attr.setClassAttr(AlphaKey, 'time', 'visible', true);
  * @en Gradient is a component that has a lot of color keys and alpha keys to get the interpolated color value.
  * @zh 渐变曲线控件包含了颜色关键帧和透明度关键帧，在关键帧中进行插值渐变返回最终的颜色值。
  */
-export default class Gradient {
+export class Gradient {
     /**
      * @en
      * There are 2 kind of mode:
@@ -92,23 +94,17 @@ export default class Gradient {
      * @en Array of color key.
      * @zh 颜色关键帧列表。
      */
-    public colorKeys = new Array<ColorKey>();
+    public colorKeys: ColorKey[] = [];
     /**
      * @en Array of alpha key.
      * @zh 透明度关键帧列表。
      */
-    public alphaKeys = new Array<AlphaKey>();
+    public alphaKeys: AlphaKey[] = [];
     /**
      * @en Blend mode.
      * @zh 混合模式。
      */
     public mode = Mode.Blend;
-
-    private _color: Color;
-
-    constructor () {
-        this._color = Color.WHITE.clone();
-    }
 
     /**
      * @en Set color keys array and alpha keys array.
@@ -139,86 +135,113 @@ export default class Gradient {
      * @zh 根据颜色列表插值计算颜色和透明度。
      * @param time @en Normalized time to interpolate. @zh 用于插值的归一化时间。
      * @returns @en Interpolated color value. @zh 插值过后的颜色值。
+     *
+     * @deprecated since v3.8 please use [[evaluateFast]] instead.
      */
     public evaluate (time: number) {
-        this.getRGB(time);
-        this._color._set_a_unsafe(this.getAlpha(time)!);
-        return this._color;
+        return this.evaluateFast(new Color(), time);
+    }
+
+    /**
+     * @en Interpolate color and alpha from color and alpha keys.
+     * @zh 根据颜色列表插值计算颜色和透明度。
+     * @param out @en Interpolated color value. @zh 插值过后的颜色值。
+     * @param time @en Normalized time to interpolate. @zh 用于插值的归一化时间。
+     * @returns @en Interpolated color value. @zh 插值过后的颜色值。
+     */
+    public evaluateFast (out: Color, time: number) {
+        this.getRGB(out, time);
+        out._set_a_unsafe(this.getAlpha(time)!);
+        return out;
     }
 
     /**
      * @en Generates a random color and alpha.
      * @zh 随机生成颜色和透明度。
      * @returns @en Randomized color. @zh 随机生成的颜色。
+     * @deprecated since v3.8 please use [[getRandomColor]] instead.
      */
     public randomColor () {
-        const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
-        const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];
-        this._color.set(c.color);
-        this._color._set_a_unsafe(a.alpha);
-        return this._color;
+        return this.getRandomColor(new Color());
     }
 
-    private getRGB (time: number) {
-        if (this.colorKeys.length > 1) {
+    /**
+     * @en Generates a random color and alpha.
+     * @zh 随机生成颜色和透明度。
+     * @param out @en Randomized color. @zh 随机生成的颜色。
+     * @returns @en Randomized color. @zh 随机生成的颜色。
+     */
+    public getRandomColor (out: Color) {
+        const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
+        const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];
+        out.set(c.color);
+        out._set_a_unsafe(a.alpha);
+        return out;
+    }
+
+    private getRGB (out: Color, time: number) {
+        const colorKeys = this.colorKeys;
+        const length = colorKeys.length;
+        if (length > 1) {
             time = repeat(time, 1.0 + EPSILON);
-            for (let i = 1; i < this.colorKeys.length; ++i) {
-                const preTime = this.colorKeys[i - 1].time;
-                const curTime = this.colorKeys[i].time;
+            for (let i = 1; i < length; ++i) {
+                const preTime = colorKeys[i - 1].time;
+                const curTime = colorKeys[i].time;
                 if (time >= preTime && time < curTime) {
                     if (this.mode === Mode.Fixed) {
-                        return this.colorKeys[i].color;
+                        Color.copy(out, colorKeys[i].color);
+                        return out;
                     }
                     const factor = (time - preTime) / (curTime - preTime);
-                    Color.lerp(this._color, this.colorKeys[i - 1].color, this.colorKeys[i].color, factor);
-                    return this._color;
+                    Color.lerp(out, colorKeys[i - 1].color, colorKeys[i].color, factor);
+                    return out;
                 }
             }
-            const lastIndex = this.colorKeys.length - 1;
-            if (approx(time, this.colorKeys[lastIndex].time, EPSILON)) {
-                this._color.set(this.colorKeys[lastIndex].color);
-            } else if (time < this.colorKeys[0].time) {
-                Color.lerp(this._color, Color.BLACK, this.colorKeys[0].color, time / this.colorKeys[0].time);
-            } else if (time > this.colorKeys[lastIndex].time) {
-                Color.lerp(this._color, this.colorKeys[lastIndex].color, Color.BLACK, (time - this.colorKeys[lastIndex].time) / (1 - this.colorKeys[lastIndex].time));
+            const lastIndex = length - 1;
+            if (approx(time, colorKeys[lastIndex].time, EPSILON)) {
+                Color.copy(out, colorKeys[lastIndex].color);
+            } else if (time < colorKeys[0].time) {
+                Color.lerp(out, Color.BLACK, colorKeys[0].color, time / colorKeys[0].time);
+            } else if (time > colorKeys[lastIndex].time) {
+                Color.lerp(out, colorKeys[lastIndex].color, Color.BLACK, (time - colorKeys[lastIndex].time) / (1 - colorKeys[lastIndex].time));
             }
             // console.warn('something went wrong. can not get gradient color.');
-            return this._color;
-        } else if (this.colorKeys.length === 1) {
-            this._color.set(this.colorKeys[0].color);
-            return this._color;
+        } else if (length === 1) {
+            Color.copy(out, colorKeys[0].color);
         } else {
-            this._color.set(Color.WHITE);
-            return this._color;
+            Color.copy(out, Color.WHITE);
         }
+        return out;
     }
 
     private getAlpha (time: number) {
         const basicAlpha = 0; // default alpha is 0
-        if (this.alphaKeys.length > 1) {
+        const alphaKeys = this.alphaKeys;
+        const length = alphaKeys.length;
+        if (length > 1) {
             time = repeat(time, 1.0 + EPSILON);
-            for (let i = 1; i < this.alphaKeys.length; ++i) {
-                const preTime = this.alphaKeys[i - 1].time;
-                const curTime = this.alphaKeys[i].time;
+            for (let i = 1; i < length; ++i) {
+                const preTime = alphaKeys[i - 1].time;
+                const curTime = alphaKeys[i].time;
                 if (time >= preTime && time < curTime) {
                     if (this.mode === Mode.Fixed) {
-                        return this.alphaKeys[i].alpha;
+                        return alphaKeys[i].alpha;
                     }
                     const factor = (time - preTime) / (curTime - preTime);
-                    return lerp(this.alphaKeys[i - 1].alpha, this.alphaKeys[i].alpha, factor);
+                    return lerp(alphaKeys[i - 1].alpha, alphaKeys[i].alpha, factor);
                 }
             }
-            const lastIndex = this.alphaKeys.length - 1;
-            if (approx(time, this.alphaKeys[lastIndex].time, EPSILON)) {
-                return this.alphaKeys[lastIndex].alpha;
-            } else if (time < this.alphaKeys[0].time) {
-                return lerp(basicAlpha, this.alphaKeys[0].alpha, time / this.alphaKeys[0].time);
-            } else if (time > this.alphaKeys[lastIndex].time) {
-                return lerp(this.alphaKeys[lastIndex].alpha, basicAlpha, (time - this.alphaKeys[lastIndex].time) / (1 - this.alphaKeys[lastIndex].time));
+            const lastIndex = length - 1;
+            if (approx(time, alphaKeys[lastIndex].time, EPSILON)) {
+                return alphaKeys[lastIndex].alpha;
+            } else if (time < alphaKeys[0].time) {
+                return lerp(basicAlpha, alphaKeys[0].alpha, time / alphaKeys[0].time);
+            } else if (time > alphaKeys[lastIndex].time) {
+                return lerp(alphaKeys[lastIndex].alpha, basicAlpha, (time - alphaKeys[lastIndex].time) / (1 - alphaKeys[lastIndex].time));
             }
             return 255;
-        } else if (this.alphaKeys.length === 1) {
-            return this.alphaKeys[0].alpha;
+        } else if (length === 1) {
+            return alphaKeys[0].alpha;
         } else {
             return 255;
         }

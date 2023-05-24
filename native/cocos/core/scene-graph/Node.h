@@ -473,6 +473,13 @@ public:
     inline void setChangedFlags(uint32_t value) {
         _changedVersionAndRTS = (globalFlagChangeVersion << 3) | value;
     }
+    /**
+     * @zh 节点的变换改动版本号。
+     * @en The transformation change version number of the node.
+     */
+    inline uint32_t getFlagChangedVersion() const {
+        return _changedVersionAndRTS >> 3;
+    }
 
     inline bool isTransformDirty() const { return _transformFlags != static_cast<uint32_t>(TransformBit::NONE); }
     inline void setLayer(uint32_t layer) {

@@ -49,3 +49,5 @@ export {
 export type {
     ObjectCurveKeyframe,
 } from './object-curve';
+
+export * from './gradient';
