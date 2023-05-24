@@ -440,7 +440,9 @@ exports.methods = {
         const { name, type, value, default: defaultValue } = dump;
 
         if (JSON.stringify(value) === JSON.stringify(defaultValue)) {
-            delete this.cacheData[name][passIndex];
+            if (this.cacheData[name] && this.cacheData[name][passIndex] !== undefined) {
+                delete this.cacheData[name][passIndex];
+            }
         } else {
             const cacheData = this.cacheData;
             if (!cacheData[name]) {
