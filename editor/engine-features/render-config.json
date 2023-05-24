@@ -252,6 +252,13 @@
             "wechatPlugin": false,
             "category": "animation"
         },
+        "procedural-animation": {
+            "default": [],
+            "label": "i18n:ENGINE.features.procedural_animation.label",
+            "description": "i18n:ENGINE.features.procedural_animation.description",
+            "wechatPlugin": false,
+            "category": "animation"
+        },
         "custom-pipeline": {
             "default": [],
             "label": "i18n:ENGINE.features.custom_pipeline.label",
