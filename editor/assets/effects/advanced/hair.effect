@@ -15,8 +15,6 @@ CCEffect %{
         roughness:                        { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         metallic:                         { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         specularIntensity:                { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
-        emissive:                         { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
-        emissiveScale:                    { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
         normalStrength:                   { value: 0.4, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         anisotropyIntensity:              { value: 1.0, target: anisotropyParam.x, editor: { slide : true, range : [0.0, 1.0] , step : 0.0001 } }
         anisotropyRotation:               { value: 0.0, target: anisotropyParam.y, editor: { slide : true, range : [0, 1.0] , step : 0.0001 } }
@@ -25,7 +23,6 @@ CCEffect %{
         normalMap:                        { value: normal }
         pbrMap:                           { value: grey }
         occlusionMap:                     { value: white }
-        emissiveMap:                      { value: grey }
         anisotropyMap:                    { value: black }
         roughnessTRT:                     { value: 0.2, target: trtParams.x, editor: { displayName: TRT Roughness Offset, slide: true, range: [0, 1.0], step: 0.001, tooltip: 'The extend range of internal reflection lighting around the direct specular' } }
         offsetTRT:                        { value: 0.0, target: trtParams.y, editor: { displayName: TRT Lighting Offset, slide: true, range: [-0.5, 0.5], step: 0.001, tooltip: 'The position offset of internal reflection lighting compared to direct specular' } }
@@ -181,7 +178,6 @@ CCProgram shared-ubos %{
     vec4 albedo;
     vec4 albedoScaleAndCutoff;
     vec4 pbrParams;
-    vec4 emissive;
     vec4 emissiveScaleParam;
     vec4 anisotropyParam;
     vec4 trtColor;
@@ -241,10 +237,6 @@ CCProgram surface-fragment %{
   #endif
   #if USE_OCCLUSION_MAP
     uniform sampler2D occlusionMap;
-  #endif
-  #if USE_EMISSIVE_MAP
-    uniform sampler2D emissiveMap;
-    #pragma define-meta EMISSIVE_UV options([v_uv, v_uv1])
   #endif
 
   #pragma define OCCLUSION_CHANNEL          r

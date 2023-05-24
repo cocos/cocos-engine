@@ -59,18 +59,6 @@
   }
 #endif
 
-#ifndef CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
-  #define CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
-  vec3 SurfacesFragmentModifyEmissive()
-  {
-    vec3 emissive = emissive.rgb;
-    #if USE_EMISSIVE_MAP
-      emissive = SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
-    #endif
-    return emissive * emissiveScaleParam.xyz;
-  }
-#endif
-
 #ifndef CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
   #define CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
   vec4 SurfacesFragmentModifyPBRParams()
