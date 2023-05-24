@@ -2,7 +2,7 @@ import { DEBUG } from 'internal:constants';
 import {
     StateMachine, State, isAnimationTransition,
     SubStateMachine, EmptyState, EmptyStateTransition,
-    PoseState, PoseTransition,
+    ProceduralPoseState, ProceduralPoseTransition,
 } from '../animation-graph';
 import { MotionEval, MotionPort } from '../motion';
 import { createEval } from '../create-eval';
@@ -148,10 +148,10 @@ class TopLevelStateMachineEvaluation {
     }
 
     public settle (context: AnimationGraphSettleContext) {
-        const { _poseStates: poseStates } = this;
-        const nPoseStates = poseStates.length;
-        for (let iState = 0; iState < nPoseStates; ++iState) {
-            const state = poseStates[iState];
+        const { _proceduralPoseStates: proceduralPoseStates } = this;
+        const nProceduralPoseStates = proceduralPoseStates.length;
+        for (let iState = 0; iState < nProceduralPoseStates; ++iState) {
+            const state = proceduralPoseStates[iState];
             state.settle(context);
         }
     }
@@ -191,7 +191,7 @@ class TopLevelStateMachineEvaluation {
         const { _currentNode: currentNode } = this;
         if (currentNode.kind === NodeKind.animation) {
             return currentNode.getStatus();
-        } else if (currentNode.kind === NodeKind.pose) {
+        } else if (currentNode.kind === NodeKind.procedural) {
             return currentNode.getStatus();
         } else {
             return null;
@@ -231,7 +231,7 @@ class TopLevelStateMachineEvaluation {
         switch (lastState.kind) {
         default:
             break;
-        case NodeKind.pose:
+        case NodeKind.procedural:
             return lastState.getStatus();
         case NodeKind.animation:
             return lastState.getStatus();
@@ -272,7 +272,7 @@ class TopLevelStateMachineEvaluation {
     /**
      * Preserved here for settle stage.
      */
-    private readonly _poseStates: PoseStateEval[] = [];
+    private readonly _proceduralPoseStates: ProceduralPoseStateEval[] = [];
     private _topLevelEntry: NodeEval;
     private _topLevelExit: NodeEval;
     private _currentNode: NodeEval;
@@ -310,9 +310,9 @@ class TopLevelStateMachineEvaluation {
                 return anyNode = new SpecialStateEval(node, NodeKind.any, node.name);
             } else if (node instanceof EmptyState) {
                 return new EmptyStateEval(node);
-            } else if (node instanceof PoseState) {
-                const stateEval = new PoseStateEval(node, context);
-                this._poseStates.push(stateEval);
+            } else if (node instanceof ProceduralPoseState) {
+                const stateEval = new ProceduralPoseStateEval(node, context);
+                this._proceduralPoseStates.push(stateEval);
                 return stateEval;
             } else {
                 assertIsTrue(node instanceof SubStateMachine);
@@ -419,7 +419,7 @@ class TopLevelStateMachineEvaluation {
 
                 if (isAnimationTransition(outgoing)
                     || outgoing instanceof EmptyStateTransition
-                    || outgoing instanceof PoseTransition
+                    || outgoing instanceof ProceduralPoseTransition
                 ) {
                     transitionEval.duration = outgoing.duration;
                     transitionEval.destinationStart = outgoing.destinationStart;
@@ -558,7 +558,7 @@ class TopLevelStateMachineEvaluation {
         state.setTickFlag(StateTickFlag.UPDATED);
         if (state.kind === NodeKind.animation) {
             state.update(parentContext.deltaTime, this._controller);
-        } else if (state.kind === NodeKind.pose) {
+        } else if (state.kind === NodeKind.procedural) {
             const updateContext = updateContextGenerator.generate(
                 parentContext.deltaTime,
                 parentContext.indicativeWeight * state.absoluteWeight,
@@ -580,7 +580,7 @@ class TopLevelStateMachineEvaluation {
         let sumActualBlendedWeight = 0.0;
         if (currentNode.kind === NodeKind.animation) {
             finalPose = currentNode.evaluate(context) ?? this._pushNullishPose(context);
-        } else if (currentNode.kind === NodeKind.pose) {
+        } else if (currentNode.kind === NodeKind.procedural) {
             finalPose = currentNode.evaluate(context) ?? this._pushNullishPose(context);
         } else {
             passthroughWeight -= currentNode.absoluteWeight;
@@ -965,12 +965,12 @@ export { TopLevelStateMachineEvaluation };
 /**
  * A real state is a state on which the state machine can really reside.
  */
-type RealState = VMSMInternalState | PoseStateEval | EmptyStateEval;
+type RealState = VMSMInternalState | ProceduralPoseStateEval | EmptyStateEval;
 
 function isRealState (stateEval: NodeEval): stateEval is RealState  {
     return stateEval.kind === NodeKind.animation
         || stateEval.kind === NodeKind.empty
-        || stateEval.kind === NodeKind.pose;
+        || stateEval.kind === NodeKind.procedural;
 }
 
 function createStateStatusCache (): MotionStateStatus {
@@ -997,7 +997,7 @@ const emptyClipStatusesIterable: Iterable<ClipStatus> = Object.freeze({
 enum NodeKind {
     entry, exit, any, animation,
     empty,
-    pose,
+    procedural,
 }
 
 export class StateEval {
@@ -1096,7 +1096,7 @@ export class StateEval {
 }
 
 class EventifiedStateEval extends StateEval {
-    constructor (state: MotionState | PoseState) {
+    constructor (state: MotionState | ProceduralPoseState) {
         super(state);
         if (state.transitionInEventBinding.isBound) {
             this.transitionInEventBinding = state.transitionInEventBinding;
@@ -1399,14 +1399,14 @@ export class EmptyStateEval extends StateEval {
     }
 }
 
-class PoseStateEval extends EventifiedStateEval {
-    public readonly kind = NodeKind.pose;
+class ProceduralPoseStateEval extends EventifiedStateEval {
+    public readonly kind = NodeKind.procedural;
 
     public elapsedTime = 0.0;
 
     public readonly statusCache: MotionStateStatus = createStateStatusCache();
 
-    public constructor (state: PoseState, context: AnimationGraphBindingContext) {
+    public constructor (state: ProceduralPoseState, context: AnimationGraphBindingContext) {
         super(state);
         const instantiatedPoseGraph = instantiatePoseGraph(state.graph, context);
         instantiatedPoseGraph.bind(context);
@@ -1451,7 +1451,7 @@ class PoseStateEval extends EventifiedStateEval {
     private _elapsedTime = 0.0;
 }
 
-export type NodeEval = VMSMInternalState | SpecialStateEval | EmptyStateEval | PoseStateEval;
+export type NodeEval = VMSMInternalState | SpecialStateEval | EmptyStateEval | ProceduralPoseStateEval;
 
 interface TransitionEval {
     to: NodeEval;
@@ -1504,7 +1504,7 @@ class ConditionEvaluationContextImpl implements ConditionEvaluationContext {
         switch (sourceState.kind) {
         case NodeKind.animation:
             return sourceState.time;
-        case NodeKind.pose:
+        case NodeKind.procedural:
             // TODO:
             // fallthrough
         default:
@@ -1607,7 +1607,7 @@ class ActivatedTransition {
                         ? 0.0
                         : destinationStart / destinationState.duration;
                 destinationState.reenter(destinationStartRatio);
-            } else if (destinationState.kind === NodeKind.pose) {
+            } else if (destinationState.kind === NodeKind.procedural) {
                 destinationState.reenter();
             }
         }

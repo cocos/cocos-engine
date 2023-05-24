@@ -54,10 +54,10 @@ describe(`Pose node instantiation`, () => {
 
         const animationGraph = new AnimationGraph();
         const layer = animationGraph.addLayer();
-        const poseState = layer.stateMachine.addPoseState();
-        const poseNodeMock = poseState.graph.addNode(new PoseNodeMock());
-        poseGraphOp.connectNode(poseState.graph, poseState.graph.outputNode, getTheOnlyInputKey(poseState.graph.outputNode), poseNodeMock);
-        layer.stateMachine.connect(layer.stateMachine.entryState, poseState);
+        const pPoseState = layer.stateMachine.addProceduralPoseState();
+        const poseNodeMock = pPoseState.graph.addNode(new PoseNodeMock());
+        poseGraphOp.connectNode(pPoseState.graph, pPoseState.graph.outputNode, getTheOnlyInputKey(pPoseState.graph.outputNode), poseNodeMock);
+        layer.stateMachine.connect(layer.stateMachine.entryState, pPoseState);
 
         expect(PoseNodeMock.constructorMock).toBeCalledTimes(1);
         PoseNodeMock.constructorMock.mockClear();
@@ -114,11 +114,11 @@ describe(`Pose node binding and settlement`, () => {
                     states: {
                         'empty': { type: 'empty' },
                         'pose1': {
-                            type: 'pose',
+                            type: 'procedural',
                             graph: { rootNode: new PoseNode1() },
                         },
                         'pose2': {
-                            type: 'pose',
+                            type: 'procedural',
                             graph: { rootNode: new PoseNode2() },
                         },
                     },
@@ -182,22 +182,22 @@ describe(`Pose node reentering`, () => {
                 stateMachine: {
                     states: {
                         'empty': { type: 'empty' },
-                        'pose': {
-                            type: 'pose',
+                        'procedural': {
+                            type: 'procedural',
                             graph: {
                                 rootNode: poseNodeMock,
                             },
                         },
                     },
-                    entryTransitions: [{ to: 'pose' }],
+                    entryTransitions: [{ to: 'procedural' }],
                     transitions: [{
-                        from: 'pose',
+                        from: 'procedural',
                         to: 'empty',
                         duration: 0.3,
                         conditions: [{ type: 'unary', operand: { type: 'variable', name: 'OutgoingTransitionActivated' } }],
                     }, {
                         from: 'empty',
-                        to: 'pose',
+                        to: 'procedural',
                         duration: 0.3,
                         conditions: [{ type: 'unary', operand: { type: 'variable', name: 'IncomingTransitionActivated' } }],
                     }],
@@ -263,14 +263,14 @@ describe(`Pose node ticking`, () => {
     
         const animationGraph = new AnimationGraph();
         const layer = animationGraph.addLayer();
-        const poseState = layer.stateMachine.addPoseState();
-        const poseNode = poseState.graph.addNode(new ObservedPoseNode());
-        const pvNode = poseState.graph.addNode(new ObservedPVNode());
+        const pPoseState = layer.stateMachine.addProceduralPoseState();
+        const poseNode = pPoseState.graph.addNode(new ObservedPoseNode());
+        const pvNode = pPoseState.graph.addNode(new ObservedPVNode());
         const keys = poseGraphOp.getInputKeys(poseNode);
         expect(keys).toHaveLength(1);
-        poseGraphOp.connectNode(poseState.graph, poseNode, keys[0], pvNode, getTheOnlyOutputKey(pvNode));
-        poseGraphOp.connectNode(poseState.graph, poseState.graph.outputNode, getTheOnlyInputKey(poseState.graph.outputNode), poseNode);
-        layer.stateMachine.connect(layer.stateMachine.entryState, poseState);
+        poseGraphOp.connectNode(pPoseState.graph, poseNode, keys[0], pvNode, getTheOnlyOutputKey(pvNode));
+        poseGraphOp.connectNode(pPoseState.graph, pPoseState.graph.outputNode, getTheOnlyInputKey(pPoseState.graph.outputNode), poseNode);
+        layer.stateMachine.connect(layer.stateMachine.entryState, pPoseState);
     
         const node = new Node();
         for (let i = 0; i < 2; ++i) {

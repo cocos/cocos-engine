@@ -16,7 +16,7 @@ export function normalizeNodeInputMetadata(nodeInputMetadata?: poseGraphOp.Input
 }
 
 export function createPoseGraph() {
-    return new AnimationGraph().addLayer().stateMachine.addPoseState().graph;
+    return new AnimationGraph().addLayer().stateMachine.addProceduralPoseState().graph;
 }
 
 export function getTheOnlyInputKey(node: PoseGraphNode) {

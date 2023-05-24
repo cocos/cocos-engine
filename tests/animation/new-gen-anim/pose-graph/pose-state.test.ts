@@ -73,14 +73,14 @@ describe(`Pose state evaluation behaviors`, () => {
                 stateMachine: {
                     states: {
                         'Empty': { type: 'empty' },
-                        'PoseStateFoo': { type: 'pose', graph: { rootNode: poseNodeFoo } },
+                        'ProceduralPoseStateFoo': { type: 'procedural', graph: { rootNode: poseNodeFoo } },
                     },
                     entryTransitions: [{ to: 'Empty' }],
                     transitions: [{
-                        from: 'Empty', to: 'PoseStateFoo', duration: fixture.incoming_transition_duration, destinationStart: 0.5,
+                        from: 'Empty', to: 'ProceduralPoseStateFoo', duration: fixture.incoming_transition_duration, destinationStart: 0.5,
                         conditions: [{ type: 'trigger', variableName: 'StartIncomingTransition' }],
                     }, {
-                        from: 'PoseStateFoo', to: 'Empty', duration: fixture.outgoing_transition_duration,
+                        from: 'ProceduralPoseStateFoo', to: 'Empty', duration: fixture.outgoing_transition_duration,
                         conditions: [{ type: 'trigger', variableName: 'StartOutgoingTransition' }],
                     }],
                 },

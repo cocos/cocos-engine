@@ -91,10 +91,10 @@ function createPoseModifierNodeRunner(node: Node, inputPoseRecordLocalSpace: Pos
 function createPoseGraphRunner(node: Node, setup: (poseGraph: PoseGraph) => PoseNode) {
     const animationGraph = new AnimationGraph();
     const layer = animationGraph.addLayer();
-    const poseState = layer.stateMachine.addPoseState();
-    const mainNode = setup(poseState.graph);
-    poseGraphOp.connectOutputNode(poseState.graph, poseState.graph.outputNode, mainNode);
-    layer.stateMachine.connect(layer.stateMachine.entryState, poseState);
+    const proceduralPoseState = layer.stateMachine.addProceduralPoseState();
+    const mainNode = setup(proceduralPoseState.graph);
+    poseGraphOp.connectOutputNode(proceduralPoseState.graph, proceduralPoseState.graph.outputNode, mainNode);
+    layer.stateMachine.connect(layer.stateMachine.entryState, proceduralPoseState);
     const evalMock = new AnimationGraphEvalMock(node, animationGraph);
     evalMock.step(0.2);
     return evalMock;

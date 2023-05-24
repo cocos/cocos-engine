@@ -6,7 +6,7 @@ import {
     StateMachine,
     SubStateMachine,
     AnimationGraph,
-    PoseState,
+    ProceduralPoseState,
 } from "../../../cocos/animation/marionette/animation-graph";
 import { MotionState } from "../../../cocos/animation/marionette/state-machine/motion-state";
 import { EditorExtendableObject } from "../../../cocos/core/data/editor-extras-tag";
@@ -62,7 +62,7 @@ export function* visitAnimationClips(animationGraph: AnimationGraph): Generator<
                 if (motion) {
                     yield* visitMotion(motion);
                 }
-            } else if (state instanceof PoseState) {
+            } else if (state instanceof ProceduralPoseState) {
                 for (const shell of state.graph.nodes()) {
                     yield* visitPoseNode(shell);
                 }

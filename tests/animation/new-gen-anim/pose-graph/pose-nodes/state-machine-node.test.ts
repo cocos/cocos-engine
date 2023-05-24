@@ -152,7 +152,7 @@ describe(`Reentering`, () => {
                 stateMachine: {
                     states: {
                         'innerSM': {
-                            type: 'pose',
+                            type: 'procedural',
                             graph: {
                                 rootNode: {
                                     'type': 'state-machine',

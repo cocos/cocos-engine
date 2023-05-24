@@ -18,10 +18,10 @@ describe(`Use normalized time`, () => {
         const observer = new SingleRealValueObserver();
         const graph = new AnimationGraph();
         const layer = graph.addLayer();
-        const poseState = layer.stateMachine.addPoseState();
-        const poseNode = poseState.graph.addNode(new PoseNodeSampleMotion());
-        connectOutputNode(poseState.graph, poseState.graph.outputNode, poseNode);
-        layer.stateMachine.connect(layer.stateMachine.entryState, poseState);
+        const proceduralPoseState = layer.stateMachine.addProceduralPoseState();
+        const poseNode = proceduralPoseState.graph.addNode(new PoseNodeSampleMotion());
+        connectOutputNode(proceduralPoseState.graph, proceduralPoseState.graph.outputNode, poseNode);
+        layer.stateMachine.connect(layer.stateMachine.entryState, proceduralPoseState);
 
         poseNode.motion = fixture.animation.createMotion(observer.getCreateMotionContext());
         poseNode.time = 0.2;

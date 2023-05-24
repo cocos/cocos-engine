@@ -6,7 +6,7 @@ import {
     isAnimationTransition,
     EmptyState,
     SubStateMachine,
-    PoseState,
+    ProceduralPoseState,
 } from "../../../cocos/animation/marionette/animation-graph";
 import { cloneAnimationGraphEditorExtrasFrom } from "../../../cocos/animation/marionette/animation-graph-editor-extras-clone-helper";
 import { MotionState } from "../../../cocos/animation/marionette/state-machine/motion-state";
@@ -44,7 +44,7 @@ function copyTransition<T extends Transition>(lhs: T, rhs: T) {
  * The method `clone` has the signature: `(host: EditorExtendableObject) => unknown`.
  * Otherwise, if no `clone` method provide, the new editor extras would be set to undefined.
  */
-export function cloneState<TState extends MotionState | EmptyState | SubStateMachine | PoseState>(
+export function cloneState<TState extends MotionState | EmptyState | SubStateMachine | ProceduralPoseState>(
     stateMachine: StateMachine,
     state: TState,
     includeTransitions: boolean,
@@ -66,11 +66,11 @@ export function cloneState<TState extends MotionState | EmptyState | SubStateMac
  */
 export function cloneState(
     stateMachine: StateMachine,
-    state: MotionState | EmptyState | SubStateMachine | PoseState,
+    state: MotionState | EmptyState | SubStateMachine | ProceduralPoseState,
     targetStateMachine: StateMachine,
 ): SubStateMachine;
 
-export function cloneState(stateMachine: StateMachine, state: MotionState | EmptyState | SubStateMachine | PoseState, includeTransitions: boolean | StateMachine) {
+export function cloneState(stateMachine: StateMachine, state: MotionState | EmptyState | SubStateMachine | ProceduralPoseState, includeTransitions: boolean | StateMachine) {
     const newStateOwner = typeof includeTransitions === 'boolean' ? stateMachine : includeTransitions;
     let newState: State;
     if (state instanceof MotionState) {
@@ -79,11 +79,11 @@ export function cloneState(stateMachine: StateMachine, state: MotionState | Empt
     } else if (state instanceof EmptyState) {
         const newEmptyState = newState = newStateOwner.addEmpty();
         state.copyTo(newEmptyState);
-    } else if (state instanceof PoseState) {
-        const newPoseState = newState = newStateOwner.addPoseState();
-        newPoseState[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(state);
+    } else if (state instanceof ProceduralPoseState) {
+        const newProceduralPoseState = newState = newStateOwner.addProceduralPoseState();
+        newProceduralPoseState[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(state);
         const copyInfo = copyPoseGraphNodes(state.graph, [...state.graph.nodes()]);
-        pastePoseGraphNodes(newPoseState.graph, copyInfo);
+        pastePoseGraphNodes(newProceduralPoseState.graph, copyInfo);
     } else /* if (state instanceof SubStateMachine) */ {
         const newSubStateMachine = newState = newStateOwner.addSubStateMachine();
         state.copyTo(newSubStateMachine);

@@ -211,8 +211,8 @@ export class EmptyStateTransition extends DurationalTransition {
     }
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseState`)
-class PoseState extends State {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ProceduralPoseState`)
+class ProceduralPoseState extends State {
     @serializable
     public graph = new PoseGraph();
 
@@ -250,30 +250,30 @@ class PoseState extends State {
     }
 }
 
-type PoseState_ = PoseState;
-const PoseState_ = createInstanceofProxy(PoseState);
+type ProceduralPoseState_ = ProceduralPoseState;
+const ProceduralPoseState_ = createInstanceofProxy(ProceduralPoseState);
 export {
-    PoseState_ as PoseState,
+    ProceduralPoseState_ as ProceduralPoseState,
 };
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseTransition`)
-class PoseTransition extends DurationalTransition {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ProceduralPoseTransition`)
+class ProceduralPoseTransition extends DurationalTransition {
     /**
      * The transition duration, in seconds.
      */
     @serializable
     public duration = 0.3;
 
-    public copyTo (that: PoseTransition) {
+    public copyTo (that: ProceduralPoseTransition) {
         super.copyTo(that);
         that.duration = this.duration;
     }
 }
 
-type PoseTransition_ = PoseTransition;
-const PoseTransition_ = createInstanceofProxy(PoseTransition);
+type ProceduralPoseTransition_ = ProceduralPoseTransition;
+const ProceduralPoseTransition_ = createInstanceofProxy(ProceduralPoseTransition);
 export {
-    PoseTransition_ as PoseTransition,
+    ProceduralPoseTransition_ as ProceduralPoseTransition,
 };
 
 @ccclass('cc.animation.StateMachine')
@@ -304,7 +304,7 @@ export class StateMachine extends EditorExtendable {
             const state = this._states[iState];
             if (state instanceof SubStateMachine) {
                 state.stateMachine.__callOnAfterDeserializeRecursive();
-            } else if (state instanceof PoseState) {
+            } else if (state instanceof ProceduralPoseState) {
                 state.__callOnAfterDeserializeRecursive();
             }
         }
@@ -429,8 +429,8 @@ export class StateMachine extends EditorExtendable {
      * @en Adds an pose state into this state machine.
      * @returns @zh 新创建的姿势状态。 @en The newly created pose state.
      */
-    public addPoseState () {
-        return this._addState(new PoseState());
+    public addProceduralPoseState () {
+        return this._addState(new ProceduralPoseState());
     }
 
     /**
@@ -474,7 +474,7 @@ export class StateMachine extends EditorExtendable {
      * @param to Target state.
      * @param condition The transition condition.
      */
-    public connect (from: PoseState, to: State, conditions?: Condition[]): PoseTransition_;
+    public connect (from: ProceduralPoseState, to: State, conditions?: Condition[]): ProceduralPoseTransition;
 
     /**
      * Connect two states.
@@ -505,8 +505,8 @@ export class StateMachine extends EditorExtendable {
             ? new AnimationTransition(from, to, conditions)
             : from instanceof EmptyState
                 ? new EmptyStateTransition(from, to, conditions)
-                : from instanceof PoseState
-                    ? new PoseTransition(from, to, conditions)
+                : from instanceof ProceduralPoseState
+                    ? new ProceduralPoseTransition(from, to, conditions)
                     : new Transition(from, to, conditions);
 
         own(transition, this);
