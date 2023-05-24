@@ -56,7 +56,7 @@ export class ReflectionProbe {
 
     public realtimePlanarTexture: RenderTexture | null = null;
 
-    protected _resolution = 512;
+    protected _resolution = 256;
     protected _clearFlag: number = ProbeClearFlag.SKYBOX;
     protected _backgroundColor = new Color(0, 0, 0, 255);
     protected _visibility = CAMERA_DEFAULT_MASK;
@@ -253,7 +253,7 @@ export class ReflectionProbe {
      * @zh 反射探针cube模式的预览小球
      * @engineInternal
      */
-    set previewSphere (val: Node) {
+    set previewSphere (val: Node | null) {
         this._previewSphere = val;
     }
 
@@ -329,6 +329,10 @@ export class ReflectionProbe {
         return this._probeId;
     }
 
+    public updateProbeId (id) {
+        this._probeId = id;
+    }
+
     public renderArea (): Vec2 {
         if (this._probeType === ProbeType.PLANAR) {
             return new Vec2(this.realtimePlanarTexture!.width, this.realtimePlanarTexture!.height);
@@ -379,14 +383,26 @@ export class ReflectionProbe {
     }
 
     public hasFrameBuffer (framebuffer: Framebuffer) {
-        if (this.bakedCubeTextures.length === 0) return false;
-        for (let i = 0; i < this.bakedCubeTextures.length; i++) {
-            const rt = this.bakedCubeTextures[i];
-            if (rt.window?.framebuffer === framebuffer) {
+        if (this.probeType === ProbeType.PLANAR) {
+            if (!this.realtimePlanarTexture) return false;
+            if (this.realtimePlanarTexture.window?.framebuffer === framebuffer) {
                 return true;
+            }
+        } else {
+            if (this.bakedCubeTextures.length === 0) return false;
+            for (let i = 0; i < this.bakedCubeTextures.length; i++) {
+                const rt = this.bakedCubeTextures[i];
+                if (rt.window?.framebuffer === framebuffer) {
+                    return true;
+                }
             }
         }
         return false;
+    }
+
+    public isRGBE (): boolean  {
+        //todo: realtime do not use rgbe
+        return true;
     }
 
     private _syncCameraParams (camera: Camera) {
@@ -460,17 +476,17 @@ export class ReflectionProbe {
     }
 
     private _transformReflectionCamera (sourceCamera: Camera) {
-        const offset = Vec3.dot(this.node.worldPosition, Vec3.UP);
-        this._reflect(this._cameraWorldPos, sourceCamera.node.worldPosition, Vec3.UP, offset);
+        const offset = Vec3.dot(this.node.worldPosition, this.node.up);
+        this._reflect(this._cameraWorldPos, sourceCamera.node.worldPosition, this.node.up, offset);
         this.cameraNode.worldPosition = this._cameraWorldPos;
 
         Vec3.transformQuat(this._forward, Vec3.FORWARD, sourceCamera.node.worldRotation);
-        this._reflect(this._forward, this._forward, Vec3.UP, 0);
+        this._reflect(this._forward, this._forward, this.node.up, 0);
         this._forward.normalize();
         this._forward.negative();
 
         Vec3.transformQuat(this._up, Vec3.UP, sourceCamera.node.worldRotation);
-        this._reflect(this._up, this._up, Vec3.UP, 0);
+        this._reflect(this._up, this._up, this.node.up, 0);
         this._up.normalize();
 
         Quat.fromViewUp(this._cameraWorldRotation, this._forward, this._up);
@@ -480,7 +496,7 @@ export class ReflectionProbe {
         this.camera.update(true);
 
         // Transform the plane from world space to reflection camera space use the inverse transpose matrix
-        const viewSpaceProbe = new Vec4(Vec3.UP.x, Vec3.UP.y, Vec3.UP.z, -Vec3.dot(Vec3.UP, this.node.worldPosition));
+        const viewSpaceProbe = new Vec4(this.node.up.x, this.node.up.y, this.node.up.z, -Vec3.dot(this.node.up, this.node.worldPosition));
         viewSpaceProbe.transformMat4(this.camera.matView.clone().invert().transpose());
         this.camera.calculateObliqueMat(viewSpaceProbe);
     }

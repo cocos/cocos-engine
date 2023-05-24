@@ -1,0 +1,89 @@
+#include <builtin/uniforms/cc-local>
+vec4 GetTexData(sampler2D dataMap, float dataMapWidth, float x, float uv_y)
+{
+  return vec4(
+      decode32(texture(dataMap, vec2(((x + 0.5)/dataMapWidth), uv_y))),
+      decode32(texture(dataMap, vec2(((x + 1.5)/dataMapWidth), uv_y))),
+      decode32(texture(dataMap, vec2(((x + 2.5)/dataMapWidth), uv_y))),
+      decode32(texture(dataMap, vec2(((x + 3.5)/dataMapWidth), uv_y)))
+    );
+}
+void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDepthScale, out float mipCount, float probeId)
+{
+    #if USE_INSTANCING
+      float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
+      float dataMapWidth = 12.0;
+      vec4 texData1 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 0.0, uv_y);
+      vec4 texData2 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 4.0, uv_y);
+      plane.xyz = texData1.xyz;
+      plane.w = texData2.x;
+      planarReflectionDepthScale = texData2.y;
+      mipCount = texData2.z;
+    #else
+      plane = cc_reflectionProbeData1;
+      planarReflectionDepthScale = cc_reflectionProbeData2.x;
+      mipCount = cc_reflectionProbeData2.w;
+    #endif
+}
+
+void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out float mipCount, float probeId)
+{
+    #if USE_INSTANCING
+      float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
+      float dataMapWidth = 12.0;
+      vec4 texData1 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 0.0, uv_y);
+      vec4 texData2 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 4.0, uv_y);
+      vec4 texData3 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 8.0, uv_y);
+      centerPos = texData1.xyz;
+      boxHalfSize = texData2.xyz;
+      mipCount = texData3.x;
+    #else
+      centerPos = cc_reflectionProbeData1.xyz;
+      boxHalfSize = cc_reflectionProbeData2.xyz;
+      mipCount = cc_reflectionProbeData2.w;
+    #endif
+    RESTORE_REFLECTION_PROBE_MIP_COUNT(mipCount);
+}
+
+bool isReflectProbeUsingRGBE(float probeId)
+{
+  #if USE_INSTANCING
+      float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
+      float dataMapWidth = 12.0;
+      vec4 texData3 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 8.0, uv_y);
+      return IS_REFLECTION_PROBE_USE_RGBE(texData3.x);
+  #else
+    return IS_REFLECTION_PROBE_USE_RGBE(cc_reflectionProbeData2.w);
+  #endif
+}
+
+bool isBlendReflectProbeUsingRGBE(float probeId)
+{
+  #if USE_INSTANCING
+      float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
+      float dataMapWidth = 12.0;
+      vec4 texData3 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 8.0, uv_y);
+      return IS_REFLECTION_PROBE_USE_RGBE(texData3.x);
+  #else
+    return IS_REFLECTION_PROBE_USE_RGBE(cc_reflectionProbeBlendData2.w);
+  #endif
+}
+
+void GetBlendCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out float mipCount, float probeId)
+{
+    #if USE_INSTANCING
+      float uv_y = (probeId + 0.5) / cc_probeInfo.x; //align to texel center
+      float dataMapWidth = 12.0;
+      vec4 texData1 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 0.0, uv_y);
+      vec4 texData2 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 4.0, uv_y);
+      vec4 texData3 = GetTexData(cc_reflectionProbeDataMap, dataMapWidth, 8.0, uv_y);
+      centerPos = texData1.xyz;
+      boxHalfSize = texData2.xyz;
+      mipCount = texData3.x;
+    #else
+      centerPos = cc_reflectionProbeBlendData1.xyz;
+      boxHalfSize = cc_reflectionProbeBlendData2.xyz;
+      mipCount = cc_reflectionProbeBlendData2.w;
+    #endif
+    RESTORE_REFLECTION_PROBE_MIP_COUNT(mipCount);
+}

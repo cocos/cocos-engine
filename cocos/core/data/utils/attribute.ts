@@ -68,7 +68,7 @@ export function createAttrs (subclass: any) {
  * Tag the class with any meta attributes, then return all current attributes assigned to it.
  * This function holds only the attributes, not their implementations.
  * @param constructor The class or instance. If instance, the attribute will be dynamic and only available for the specified instance.
- * @param propertyName The name of property or function, used to retrieve the attributes.
+ * @param propertyName The name of the property or function, used to retrieve the attributes.
  * @private
  */
 export function attr (constructor: any, propertyName: string): { [attributeName: string]: any; } {
@@ -84,7 +84,7 @@ export function attr (constructor: any, propertyName: string): { [attributeName:
 }
 
 /**
- * Returns a readonly meta object.
+ * Returns a read-only meta-object.
  */
 export function getClassAttrs (constructor: any) {
     return (constructor.hasOwnProperty('__attrs__') && constructor.__attrs__) || createAttrs(constructor);
@@ -111,14 +111,14 @@ export class PrimitiveType<T> {
 
 /**
  * @en
- * Indicates that the editor should treats this property or array element as a Integer value.
+ * Indicates that the editor should treat this property or array element as an Integer value.
  * @zh
  * 指定编辑器以整数形式对待该属性或数组元素。
  * @example
  * ```ts
  * import { CCInteger, _decorator } from "cc";
  *
- * // in class definition:
+ * // in the class definition:
  *
  * @_decorator.property({type: CCInteger})
  * count = 0;
@@ -133,14 +133,14 @@ legacyCC.CCInteger = CCInteger;
 
 /**
  * @en
- * Indicates that the editor should treats this property or array element as a Float value.
+ * Indicates that the editor should treat this property or array element as a Float value.
  * @zh
  * 指定编辑器以浮点数形式对待该属性或数组元素。
  * @example
  * ```ts
  * import { CCFloat, _decorator } from "cc";
  *
- * // in class definition:
+ * // in the class definition:
  *
  * @_decorator.property({type: CCFloat})
  * x = 0;
@@ -162,14 +162,14 @@ if (EDITOR) {
 
 /**
  * @en
- * Indicates that the editor should treats this property or array element as a Boolean value.
+ * Indicates that the editor should treat this property or array element as a Boolean value.
  * @zh
  * 指定编辑器以布尔值形式对待该属性或数组元素。
  *
  * @example
  * ```ts
  * import { CCBoolean, _decorator } from "cc";
- * // in class definition
+ * // in the class definition
  * @_decorator.property({type: CCBoolean})
  * isTrue = false;
  *
@@ -183,14 +183,14 @@ legacyCC.CCBoolean = CCBoolean;
 
 /**
  * @en
- * Indicates that the editor should treats this property or array element as a String value.
+ * Indicates that the editor should treat this property or array element as a String value.
  * @zh
  * 指定编辑器以字符串形式对待该属性或数组元素。
  * @example
  * ```ts
  * import { CCString, _decorator } from "cc";
  *
- * // in class definition
+ * // in the class definition
  *
  * @_decorator.property({type: CCString})
  * name = '';

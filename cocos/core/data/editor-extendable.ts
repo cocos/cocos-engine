@@ -31,10 +31,10 @@ import { assertIsTrue } from './utils/asserts';
 // Functions and classes exposed from this module are useful to
 // make a class to be `EditorExtendableObject`.
 //
-// These helpers are used internally, don't expose them to user.
+// These helpers are used internally, don't expose them to the user.
 
 /**
- * Creates a mixin class which inherits from specific base class and implements the `EditorExtendableObject` interface.
+ * Creates a mixin class that inherits from the specific base class and implements the `EditorExtendableObject` interface.
  * @param Base The base class.
  * @param className Assign an optional cc class name. If the base class is not cc class, this param is required.
  * @returns The mixin class.

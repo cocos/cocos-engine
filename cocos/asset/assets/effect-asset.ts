@@ -158,8 +158,8 @@ export declare namespace EffectAsset {
     export interface IShaderInfo {
         name: string;
         hash: number;
-        glsl4: { vert: string, frag: string };
-        glsl3: { vert: string, frag: string };
+        glsl4: { vert: string, frag: string, compute?: string };
+        glsl3: { vert: string, frag: string, compute?: string };
         glsl1: { vert: string, frag: string };
         builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo, statistics: Record<string, number> };
         defines: IDefineInfo[];
@@ -183,6 +183,8 @@ const legacyBuiltinEffectNames = [
     'skybox',
     'deferred-lighting',
     'bloom',
+    'hbao',
+    'copy-pass',
     'post-process',
     'profiler',
     'splash-screen',
@@ -200,6 +202,8 @@ const legacyBuiltinEffectNames = [
     'occlusion-query',
     'geometry-renderer',
     'debug-renderer',
+    'ssss-blur',
+    'tone-mapping',
 ];
 
 /**
@@ -211,8 +215,10 @@ const legacyBuiltinEffectNames = [
 @ccclass('cc.EffectAsset')
 export class EffectAsset extends Asset {
     /**
-     * @en Register the effect asset to the static map
+     * @en Register the effect asset to the static map.
      * @zh 将指定 effect 注册到全局管理器。
+     *
+     * @param asset @en The effect asset to be registered. @zh 待注册的 effect asset。
      */
     public static register (asset: EffectAsset) {
         EffectAsset._effects[asset.name] = asset;
@@ -222,6 +228,8 @@ export class EffectAsset extends Asset {
     /**
      * @en Unregister the effect asset from the static map
      * @zh 将指定 effect 从全局管理器移除。
+     *
+     * @param asset - @en The effect asset to be removed. @zh 待移除的 effect asset。
      */
     public static remove (asset: EffectAsset | string) {
         if (typeof asset !== 'string') {
@@ -240,8 +248,11 @@ export class EffectAsset extends Asset {
     }
 
     /**
-     * @en Get the effect asset by the given name.
+     * @en Gets the effect asset by the given name.
      * @zh 获取指定名字的 effect 资源。
+     *
+     * @param name - @en The name of effect you want to get. @zh 想要获取的 effect 的名字。
+     * @returns @en The effect. @zh 你查询的 effect.
      */
     public static get (name: string) {
         if (EffectAsset._effects[name]) { return EffectAsset._effects[name]; }
@@ -257,14 +268,28 @@ export class EffectAsset extends Asset {
     }
 
     /**
-     * @en Get all registered effect assets.
+     * @en Gets all registered effect assets.
      * @zh 获取所有已注册的 effect 资源。
+     * @returns @en All registered effects. @zh 所有已注册的 effect 资源。
      */
     public static getAll () { return EffectAsset._effects; }
+
+    /**
+     * @engineInternal
+     */
     protected static _effects: Record<string, EffectAsset> = {};
 
+    /**
+     * @engineInternal
+     */
     public static isLayoutValid (): boolean { return EffectAsset._layoutValid; }
+    /**
+     * @engineInternal
+     */
     public static setLayoutValid (): void { EffectAsset._layoutValid = true; }
+    /**
+     * @engineInternal
+     */
     protected static _layoutValid = true;
 
     /**
@@ -291,13 +316,17 @@ export class EffectAsset extends Asset {
     @editable
     public combinations: EffectAsset.IPreCompileInfo[] = [];
 
+    /**
+     * @en Whether to hide in editor mode.
+     * @zh 是否在编辑器内隐藏。
+     */
     @serializable
     @editorOnly
     public hideInEditor = false;
 
     /**
-     * @en The loaded callback which should be invoked by the [[CCLoader]], will automatically register the effect.
-     * @zh 通过 [[CCLoader]] 加载完成时的回调，将自动注册 effect 资源。
+     * @en The loaded callback which should be invoked by the [[AssetManager]], will automatically register the effect.
+     * @zh 通过 [[AssetManager]] 加载完成时的回调，将自动注册 effect 资源。
      */
     public onLoaded () {
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
@@ -310,6 +339,9 @@ export class EffectAsset extends Asset {
         if (!EDITOR || cclegacy.GAME_VIEW) { cclegacy.game.once(cclegacy.Game.EVENT_RENDERER_INITED, this._precompile, this); }
     }
 
+    /**
+     * @engineInternal
+     */
     protected _precompile () {
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             (cclegacy.rendering.programLib as ProgramLibrary).precompileEffect(deviceManager.gfxDevice, this);

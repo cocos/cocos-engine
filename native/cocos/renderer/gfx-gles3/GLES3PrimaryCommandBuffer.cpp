@@ -64,12 +64,10 @@ void GLES3PrimaryCommandBuffer::end() {
 void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const * /*secondaryCBs*/, uint32_t /*secondaryCBCount*/) {
     _curSubpassIdx = 0U;
 
-    GLES3GPURenderPass *gpuRenderPass = static_cast<GLES3RenderPass *>(renderPass)->gpuRenderPass();
+    auto *gpuRenderPass = static_cast<GLES3RenderPass *>(renderPass)->gpuRenderPass();
     GLES3GPUFramebuffer *gpuFramebuffer = static_cast<GLES3Framebuffer *>(fbo)->gpuFBO();
 
-    cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), _curSubpassIdx, gpuRenderPass, gpuFramebuffer,
-                                &renderArea, colors, depth, stencil);
-
+    cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), gpuRenderPass, gpuFramebuffer, &renderArea, colors, depth, stencil);
     _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
     _curDynamicStates.scissor = renderArea;
 }
@@ -79,8 +77,7 @@ void GLES3PrimaryCommandBuffer::endRenderPass() {
 }
 
 void GLES3PrimaryCommandBuffer::nextSubpass() {
-    cmdFuncGLES3EndRenderPass(GLES3Device::getInstance());
-    cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), ++_curSubpassIdx);
+    ++_curSubpassIdx;
 }
 
 void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {
@@ -139,6 +136,29 @@ void GLES3PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffe
     if (gpuTexture) {
         cmdFuncGLES3CopyBuffersToTexture(GLES3Device::getInstance(), buffers, gpuTexture, regions, count);
     }
+}
+
+void GLES3PrimaryCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    GLES3GPUTexture *gpuTextureSrc = nullptr;
+    GLES3GPUTexture *gpuTextureDst = nullptr;
+    if (srcTexture) gpuTextureSrc = static_cast<GLES3Texture *>(srcTexture)->gpuTexture();
+    if (dstTexture) gpuTextureDst = static_cast<GLES3Texture *>(dstTexture)->gpuTexture();
+
+    ccstd::vector<TextureBlit> blitRegions(count);
+    for (uint32_t i = 0; i < count; ++i) {
+        auto &blit = blitRegions[i];
+        const auto &copy = regions[i];
+
+        blit.srcSubres = copy.srcSubres;
+        blit.dstSubres = copy.dstSubres;
+
+        blit.srcOffset = copy.srcOffset;
+        blit.dstOffset = copy.dstOffset;
+
+        blit.srcExtent = copy.extent;
+        blit.dstExtent = copy.extent;
+    }
+    cmdFuncGLES3BlitTexture(GLES3Device::getInstance(), gpuTextureSrc, gpuTextureDst, blitRegions.data(), count, Filter::POINT);
 }
 
 void GLES3PrimaryCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {

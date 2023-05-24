@@ -246,7 +246,7 @@ void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
 void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
 void cmdFuncGLES3DestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
 void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
-void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader);
+void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader, GLES3GPUPipelineLayout *pipelineLayout);
 void cmdFuncGLES3DestroyShader(GLES3Device *device, GLES3GPUShader *gpuShader);
 void cmdFuncGLES3CreateRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRenderPass);
 void cmdFuncGLES3DestroyRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRenderPass);
@@ -263,7 +263,7 @@ void completeBarrier(GLES3GPUGeneralBarrier *barrier);
 
 void cmdFuncGLES3Query(GLES3Device *device, GLES3QueryPool *query, GLES3QueryType type, uint32_t id);
 
-void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx,
+void cmdFuncGLES3BeginRenderPass(GLES3Device *device,
                                  GLES3GPURenderPass *gpuRenderPass = nullptr,
                                  GLES3GPUFramebuffer *gpuFramebuffer = nullptr,
                                  const Rect *renderArea = nullptr,

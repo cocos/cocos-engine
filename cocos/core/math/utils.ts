@@ -31,6 +31,9 @@ const _d2r = Math.PI / 180.0;
 
 const _r2d = 180.0 / Math.PI;
 
+export const HALF_PI = Math.PI * 0.5;
+export const TWO_PI = Math.PI * 2.0;
+
 export const EPSILON = 0.000001;
 
 /**
@@ -55,7 +58,7 @@ export function equals (a: number, b: number) {
  * @param maxDiff Maximum difference.
  * @return True if the numbers are approximately equal, false otherwise.
  */
-export function approx (a: number, b: number, maxDiff: number) {
+export function approx (a: number, b: number, maxDiff?: number) {
     maxDiff = maxDiff || EPSILON;
     return Math.abs(a - b) <= maxDiff;
 }
@@ -87,9 +90,11 @@ export function clamp01 (val: number) {
 }
 
 /**
- * @param from
- * @param to
- * @param ratio - The interpolation coefficient.
+ * @en Linear interpolation between two numbers
+ * @zh 两个数之间的线性插值。
+ * @param from - The starting number.
+ * @param to - The ending number.
+ * @param ratio - The interpolation coefficient, t should be in the range [0, 1].
  */
 export function lerp (from: number, to: number, ratio: number) {
     return from + (to - from) * ratio;

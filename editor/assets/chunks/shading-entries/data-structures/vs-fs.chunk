@@ -1,3 +1,4 @@
+#include <common/common-define>
 //VS->PS
 CC_SURFACES_VARING_MODIFIER highp vec3 v_worldPos;
 CC_SURFACES_VARING_MODIFIER mediump vec4 v_normal;
@@ -19,8 +20,12 @@ CC_SURFACES_VARING_MODIFIER vec2 v_uv;
   CC_SURFACES_VARING_MODIFIER mediump vec3 v_luv;
 #endif
 
-#if CC_RECEIVE_SHADOW
-  CC_SURFACES_VARING_MODIFIER mediump vec2 v_shadowBias;
+#if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+  CC_SURFACES_VARING_MODIFIER mediump vec4 v_shadowBiasAndProbeId;
+#endif
+
+#if CC_USE_REFLECTION_PROBE && USE_INSTANCING
+  CC_SURFACES_VARING_MODIFIER mediump vec4 v_reflectionProbeData;
 #endif
 
 #if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
@@ -29,6 +34,10 @@ CC_SURFACES_VARING_MODIFIER vec2 v_uv;
 
 #if CC_SURFACES_TRANSFER_LOCAL_POS
   CC_SURFACES_VARING_MODIFIER highp vec4 v_localPos;
+#endif
+
+#if CC_SURFACES_TRANSFER_CLIP_POS
+  CC_SURFACES_VARING_MODIFIER highp vec4 v_clipPos;
 #endif
 
 #if CC_USE_LIGHT_PROBE

@@ -6,4 +6,5 @@
     <string name="search" translatable="false">搜索</string>
     <string name="go" translatable="false">前往</string>
     <string name="send" translatable="false">发送</string>
+    <string name="tip_disable_safe_input_type" translatable="false">请到系统设置关闭安全键盘</string>
 </resources>

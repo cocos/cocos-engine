@@ -25,7 +25,9 @@ THE SOFTWARE.
  ****************************************************************************/
 package com.cocos.lib;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -34,6 +36,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -52,8 +55,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.app.Activity;
-import android.content.Intent;
+import android.widget.Toast;
 
 public class CocosEditBoxActivity extends Activity {
 
@@ -83,6 +85,7 @@ public class CocosEditBoxActivity extends Activity {
         private float mLineWidth = 2f;
         private boolean keyboardVisible = false;
         private int mScreenHeight;
+        private boolean mCheckKeyboardShowNormally = false;
 
         public  Cocos2dxEditText(Activity context){
             super(context);
@@ -185,6 +188,7 @@ public class CocosEditBoxActivity extends Activity {
         }
 
         private void setInputType(final String inputType, boolean isMultiLine){
+            mCheckKeyboardShowNormally = false;
             if (inputType.contentEquals("text")) {
                 if (isMultiLine)
                     this.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
@@ -197,8 +201,12 @@ public class CocosEditBoxActivity extends Activity {
                 this.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
             else if (inputType.contentEquals("phone"))
                 this.setInputType(InputType.TYPE_CLASS_PHONE);
-            else if (inputType.contentEquals("password"))
+            else if (inputType.contentEquals("password")) {
+                if (Build.BRAND.equalsIgnoreCase("oppo")) {
+                    mCheckKeyboardShowNormally = true;
+                }
                 this.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            }
             else
                 Log.e(TAG, "unknown input type " + inputType);
         }
@@ -238,6 +246,9 @@ public class CocosEditBoxActivity extends Activity {
                             keyboardVisible = true;
                         }
                     } else {
+                        if (mCheckKeyboardShowNormally && !keyboardVisible) {
+                            Toast.makeText(CocosEditBoxActivity.this, R.string.tip_disable_safe_input_type, Toast.LENGTH_SHORT).show();
+                        }
                         if (keyboardVisible) {
                             keyboardVisible = false;
                             CocosEditBoxActivity.this.hide();
@@ -425,7 +436,7 @@ public class CocosEditBoxActivity extends Activity {
 
     private static void showNative(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
 
-        GlobalObject.getActivity().runOnUiThread(new Runnable() {
+        GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Intent i = new Intent(GlobalObject.getActivity(), CocosEditBoxActivity.class);
@@ -442,7 +453,7 @@ public class CocosEditBoxActivity extends Activity {
 
     private static void hideNative() {
         if (null != CocosEditBoxActivity.sThis) {
-            GlobalObject.getActivity().runOnUiThread(new Runnable() {
+            GlobalObject.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     CocosEditBoxActivity.sThis.hide();
@@ -455,7 +466,7 @@ public class CocosEditBoxActivity extends Activity {
      Native functions invoked by UI.
      **************************************************************************************/
     private void onKeyboardInput(String text) {
-        CocosHelper.runOnGameThreadAtForeground(new Runnable() {
+        CocosHelper.runOnGameThread(new Runnable() {
             @Override
             public void run() {
                 CocosEditBoxActivity.onKeyboardInputNative(text);
@@ -464,7 +475,7 @@ public class CocosEditBoxActivity extends Activity {
     }
 
     private void onKeyboardComplete(String text) {
-        CocosHelper.runOnGameThreadAtForeground(new Runnable() {
+        CocosHelper.runOnGameThread(new Runnable() {
             @Override
             public void run() {
                 CocosEditBoxActivity.onKeyboardCompleteNative(text);
@@ -473,7 +484,7 @@ public class CocosEditBoxActivity extends Activity {
     }
 
     private void onKeyboardConfirm(String text) {
-        CocosHelper.runOnGameThreadAtForeground(new Runnable() {
+        CocosHelper.runOnGameThread(new Runnable() {
             @Override
             public void run() {
                 CocosEditBoxActivity.onKeyboardConfirmNative(text);

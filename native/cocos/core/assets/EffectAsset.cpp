@@ -23,9 +23,11 @@
 ****************************************************************************/
 
 #include "core/assets/EffectAsset.h"
+#include "ProgramUtils.h"
 #include "cocos.h"
 #include "core/Root.h"
 #include "core/platform/Debug.h"
+#include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "engine/BaseEngine.h"
 #include "renderer/core/ProgramLib.h"
 
@@ -137,6 +139,7 @@ EffectAsset *EffectAsset::get(const ccstd::string &name) {
         "skybox",
         "deferred-lighting",
         "bloom",
+        "copy-pass",
         "post-process",
         "profiler",
         "splash-screen",
@@ -164,7 +167,13 @@ EffectAsset *EffectAsset::get(const ccstd::string &name) {
 }
 
 void EffectAsset::onLoaded() {
-    ProgramLib::getInstance()->registerEffect(this);
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        render::addEffectDefaultProperties(*this);
+        programLib->addEffect(this);
+    } else {
+        ProgramLib::getInstance()->registerEffect(this);
+    }
     EffectAsset::registerAsset(this);
 #if !CC_EDITOR
     if (CC_CURRENT_ENGINE()->isInited()) {

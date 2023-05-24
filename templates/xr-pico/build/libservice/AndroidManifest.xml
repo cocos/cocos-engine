@@ -7,6 +7,12 @@
             <!-- Tell PicoNativeActivity the name of our .so -->
             <meta-data android:name="android.app.lib_name"
                 android:value="cocos" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="com.cocos.intent.category.XR" />
+            </intent-filter>
         </activity>
     </application>
 </manifest>

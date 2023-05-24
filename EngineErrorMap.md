@@ -367,6 +367,10 @@ cc.Scheduler: updateFunc parameter is deprecated in scheduleUpdate function, and
 
 cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you should do Scheduler.enableForTarget(target) before all scheduler API usage on target
 
+### 1514
+
+since v3.8.0, `Scheduler.schedule(target, callback, interval)` is deprecated, please use `Scheduler.schedule(callback, target, interval)` instead.
+
 ### 1600
 
 <!-- DEPRECATED -->
@@ -1845,6 +1849,22 @@ Previous error occurred when instantiating animation clip %s on node %s.
 
 '%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'.
 
+### 3940
+
+Error when animation attempted to bind material uniform target: target %s is not a material.
+
+### 3941
+
+Error when animation attempted to bind material uniform target: material %s has no recorded pass %s.
+
+### 3942
+
+Error when animation attempted to bind material uniform target: material %s at pass %s has no recorded uniform %s.
+
+### 3943
+
+Error when animation attempted to bind material uniform target: material %s at pass %s's uniform %s has no recorded channel %s.
+
 ### 4000
 
 <!-- DEPRECATED -->
@@ -1938,6 +1958,10 @@ Can not add a page without UITransform.
 ### 4302
 
 Can not set the scroll view content when it hasn't UITransform or its parent hasn't UITransform.
+
+### 4303
+
+The %s scrollBar on the '%s' node is not available, please check it.
 
 ### 4400
 
@@ -3154,9 +3178,25 @@ Can't getGFXSampler with out device
 
 [Physics]: builtin physics system doesn't support cylinder collider
 
+### 9613
+
+[Physics]: cannon.js physics system doesn't support hinge drive and angular limit
+
 ### 9620
 
 [Physics][Ammo]: changing the mesh is not supported after the initialization is completed
+
+### 9630
+
+[Physics]: A dynamic rigid body can not have the following collider shapes: Terrain, Plane and Non-convex Mesh. Node name: %s
+
+### 9640
+
+[Physics][builtin]: sweep functions are not supported in builtin
+
+### 9641
+
+[Physics][cannon.js]: sweep functions are not supported in cannon.js
 
 ### 10001
 
@@ -3324,3 +3364,7 @@ The asset replacing failed, can not found override asset('%s') for '%s'
 ### 16301
 
 node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first
+
+### 16302
+
+There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer.

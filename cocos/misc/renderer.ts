@@ -60,7 +60,7 @@ export class Renderer extends Component {
      * @zh 获取默认的共享材质
      */
     get sharedMaterial () {
-        return this.getMaterial(0);
+        return this.getSharedMaterial(0);
     }
 
     /**
@@ -93,7 +93,7 @@ export class Renderer extends Component {
      * @en The default material instance, it will create a new instance from the default shared material if not created yet.
      * @zh 获取默认的材质实例，如果还没有创建，将会根据默认共享材质创建一个新的材质实例
      */
-    get material (): MaterialInstance | null {
+    get material (): Material | MaterialInstance | null {
         return this.getMaterialInstance(0);
     }
 
@@ -108,7 +108,7 @@ export class Renderer extends Component {
      * @en The materials of the model.
      * @zh 所有模型材质。
      */
-    get materials (): (MaterialInstance | null)[] {
+    get materials (): (Material | MaterialInstance | null)[] {
         for (let i = 0; i < this._materials.length; i++) {
             this._materialInstances[i] = this.getMaterialInstance(i) as MaterialInstance;
         }
@@ -139,10 +139,17 @@ export class Renderer extends Component {
     protected _materialInstances: (MaterialInstance | null)[] = [];
 
     /**
+     * @deprecated Since v3.7.3, please use [[getSharedMaterial]] instead.
+     */
+    public getMaterial (idx: number): Material | null {
+        return this.getSharedMaterial(idx);
+    }
+
+    /**
      * @en Get the shared material asset of the specified sub-model.
      * @zh 获取指定子模型的共享材质资源。
      */
-    public getMaterial (idx: number): Material | null {
+    public getSharedMaterial (idx: number): Material | null {
         if (idx < 0 || idx >= this._materials.length) {
             return null;
         }
@@ -232,7 +239,10 @@ export class Renderer extends Component {
     protected _onMaterialModified (index: number, material: Material | null) {
     }
 
-    protected _onRebuildPSO (index: number, material: Material | null) {
+    /**
+     * @engineInternal
+     */
+    public _onRebuildPSO (index: number, material: Material | null) {
     }
 
     protected _clearMaterials () {

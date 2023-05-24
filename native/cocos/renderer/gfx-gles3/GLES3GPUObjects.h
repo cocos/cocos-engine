@@ -23,11 +23,13 @@
 #pragma once
 
 #include <algorithm>
+#include <unordered_map>
 
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
+#include "gfx-base/GFXDeviceObject.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 
 #include "GLES3Std.h"
@@ -279,6 +281,7 @@ struct GLES3GPUShader {
 
     GLES3GPUShaderStageList gpuStages;
     GLuint glProgram = 0;
+    ccstd::hash_t hash = INVALID_SHADER_HASH;
     GLES3GPUInputList glInputs;
     GLES3GPUUniformBufferList glBuffers;
     GLES3GPUUniformSamplerTextureList glSamplerTextures;
@@ -317,21 +320,18 @@ struct GLES3GPUGeneralBarrier {
     GLbitfield glBarriersByRegion = 0U;
 };
 
+using DrawBuffer = std::vector<GLenum>;
 struct GLES3GPURenderPass {
-    struct AttachmentStatistics {
-        uint32_t loadSubpass{SUBPASS_EXTERNAL};
-        uint32_t storeSubpass{SUBPASS_EXTERNAL};
-    };
-
     ColorAttachmentList colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
     SubpassInfoList subpasses;
     SubpassDependencyList dependencies;
 
-    ccstd::vector<AttachmentStatistics> statistics; // per attachment
-
-    ccstd::vector<GLES3GPUGeneralBarrier> subpassBarriers; // per subpass
-    GLES3GPUGeneralBarrier blockBarrier;
+    std::vector<uint32_t> colors;
+    std::vector<uint32_t> resolves;
+    uint32_t depthStencil = INVALID_BINDING;
+    std::vector<uint32_t> indices; // offsets to GL_COLOR_ATTACHMENT_0
+    std::vector<DrawBuffer> drawBuffers;
 };
 
 class GLES3GPUFramebufferCacheMap;
@@ -340,7 +340,6 @@ public:
     GLES3GPURenderPass *gpuRenderPass{nullptr};
     GLES3GPUTextureViewList gpuColorViews;
     GLES3GPUTextureView *gpuDepthStencilView{nullptr};
-    bool usesFBF{false};
 
     struct GLFramebufferInfo {
         GLuint glFramebuffer{0U};
@@ -377,16 +376,7 @@ public:
     };
 
     // one per subpass, if not using FBF
-    ccstd::vector<Framebuffer> instances;
-
-    ccstd::vector<uint32_t> uberColorAttachmentIndices;
-    uint32_t uberDepthStencil{INVALID_BINDING};
-    Framebuffer uberInstance;
-
-    // the assumed shader output, may differ from actual subpass output
-    // see Feature::INPUT_ATTACHMENT_BENEFIT for more details on this
-    uint32_t uberOnChipOutput{INVALID_BINDING};
-    uint32_t uberFinalOutput{INVALID_BINDING};
+    Framebuffer frameBuffer;
 };
 
 struct GLES3GPUDescriptorSetLayout {
@@ -396,6 +386,7 @@ struct GLES3GPUDescriptorSetLayout {
     ccstd::vector<uint32_t> bindingIndices;
     ccstd::vector<uint32_t> descriptorIndices;
     uint32_t descriptorCount = 0U;
+    ccstd::hash_t hash = 0U;
 };
 using GLES3GPUDescriptorSetLayoutList = ccstd::vector<GLES3GPUDescriptorSetLayout *>;
 
@@ -406,7 +397,8 @@ struct GLES3GPUPipelineLayout {
     ccstd::vector<ccstd::vector<int>> dynamicOffsetIndices;
     ccstd::vector<uint32_t> dynamicOffsetOffsets;
     ccstd::vector<uint32_t> dynamicOffsets;
-    uint32_t dynamicOffsetCount;
+    uint32_t dynamicOffsetCount = 0U;
+    ccstd::hash_t hash = 0U;
 };
 
 struct GLES3GPUPipelineState {
@@ -671,6 +663,13 @@ public:
 
 private:
     ccstd::unordered_map<GLES3GPUTexture *, ccstd::vector<GLES3GPUFramebuffer *>> _framebuffers;
+};
+
+struct GLES3GPUProgramBinary : public GFXDeviceObject<DefaultDeleter> {
+    ccstd::string name;
+    ccstd::hash_t hash = 0;
+    GLenum format;
+    std::vector<char> data;
 };
 
 } // namespace gfx

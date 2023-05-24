@@ -29,10 +29,16 @@
 
 import { UIRenderer } from '../framework/ui-renderer';
 
+/**
+ * @internal
+ */
 export interface IAssembler {
     [key: string]: any;
 }
 
+/**
+ * @internal
+ */
 export interface IAssemblerManager {
     getAssembler (component: UIRenderer): IAssembler;
 }

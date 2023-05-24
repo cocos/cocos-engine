@@ -1,5 +1,6 @@
 globalThis.__EDITOR__ = globalThis.process && ('electron' in globalThis.process.versions);
 
+require('./wasm');
 const jsbWindow = require('../jsbWindow');
 
 jsb.device = jsb.Device; // cc namespace will be reset to {} in creator, use jsb namespace instead.
@@ -115,19 +116,24 @@ function createTimeoutInfo (prevFuncArgs, isRepeat) {
     return info.id;
 }
 
-jsbWindow.setTimeout = function (cb) {
-    return createTimeoutInfo(arguments, false);
-};
+if (!window.oh) {
+    // In openharmony, the setTimeout function will conflict with the timer of the worker thread and cause a crash,
+    // so you need to use the default timer
+    jsbWindow.setTimeout = function (cb) {
+        return createTimeoutInfo(arguments, false);
+    };
 
-jsbWindow.clearTimeout = function (id) {
-    delete _timeoutInfos[id];
-};
+    jsbWindow.clearTimeout = function (id) {
+        delete _timeoutInfos[id];
+    };
 
-jsbWindow.setInterval = function (cb) {
-    return createTimeoutInfo(arguments, true);
-};
+    jsbWindow.setInterval = function (cb) {
+        return createTimeoutInfo(arguments, true);
+    };
 
-jsbWindow.clearInterval = jsbWindow.clearTimeout;
+    jsbWindow.clearInterval = jsbWindow.clearTimeout;
+}
+
 jsbWindow.alert = console.error.bind(console);
 
 // File utils (Temporary, won't be accessible)
@@ -202,10 +208,6 @@ jsb.generateGetSet = function (moduleObj) {
 for (const key in jsbWindow) {
     if (globalThis[key] === undefined) {
         globalThis[key] = jsbWindow[key];
-        console.debug(`[web-adapter] override window.${key}`);
-    } else {
-        // globalThis[key] = jsbWindow[key];
-        console.debug(`[web-adapter] skip window.${key}`);
     }
 }
 

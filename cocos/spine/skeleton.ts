@@ -45,13 +45,25 @@ import { Material, Texture2D } from '../asset/assets';
 import { builtinResMgr } from '../asset/asset-manager';
 import { Node } from '../scene-graph';
 
+/**
+ * @en
+ * Animation playback rate.
+ * @zh
+ * 动画播放速率。
+ */
 export const timeScale = 1.0;
 
+/**
+ * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ */
 export enum DefaultSkinsEnum {
     default = 0,
 }
 ccenum(DefaultSkinsEnum);
 
+/**
+ * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ */
 export enum DefaultAnimsEnum {
     '<None>' = 0
 }
@@ -59,7 +71,7 @@ ccenum(DefaultAnimsEnum);
 
 /**
  * @en Enum for animation cache mode type.
- * @zh Spine动画缓存类型
+ * @zh Spine 动画缓存类型。
  */
 export enum AnimationCacheMode {
     /**
@@ -94,11 +106,17 @@ interface AnimationItem {
 type TrackListener = (x: spine.TrackEntry) => void;
 type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event | number) => void;
 
+/**
+ * @internal Since v3.7.2, this is an engine private enum.
+ */
 export enum SpineMaterialType {
     COLORED_TEXTURED = 0,
     TWO_COLORED = 1,
 }
 
+/**
+ * @internal Since v3.7.2, this is an engine private interface.
+ */
 export interface SkeletonDrawData {
     material: Material | null;
     texture: Texture2D | null;
@@ -106,6 +124,13 @@ export interface SkeletonDrawData {
     indexCount: number;
 }
 
+/**
+ * @en
+ * The Sockets attached to bones, synchronous transform with spine animation.
+ * @zh
+ * Spine 挂点，可附着在目标骨骼上随 spine 动画一起运动。
+ * @class SpineSocket
+ */
 @ccclass('sp.Skeleton.SpineSocket')
 export class SpineSocket {
     /**
@@ -140,24 +165,28 @@ js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
  * (Skeleton has a reference to a SkeletonData and stores the state for skeleton instance,
  * which consists of the current pose's bone SRT, slot colors, and which slot attachments are visible. <br/>
  * Multiple skeletons can use the same SkeletonData which includes all animations, skins, and attachments.) <br/>
+ * Cocos Creator supports spine versions lower than 3.8.99.
  * @zh
  * Spine 骨骼动画 <br/>
  * <br/>
  * (Skeleton 具有对骨骼数据的引用并且存储了骨骼实例的状态，
  * 它由当前的骨骼动作，slot 颜色，和可见的 slot attachments 组成。<br/>
  * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。
- *
+ * Cocos Creator 支持 spine 版本最高到3.8.99。
  * @class Skeleton
  * @extends UIRenderer
  */
 @ccclass('sp.Skeleton')
-@help('i18n:sp.Skeleton')
+@help('i18n:cc.Spine')
 @menu('Spine/Skeleton')
 @executeInEditMode
 export class Skeleton extends UIRenderer {
     public static SpineSocket = SpineSocket;
-
     public static AnimationCacheMode = AnimationCacheMode;
+
+    /**
+     * @internal Since v3.7.2, this is an engine private interface.
+     */
     get drawList () { return this._drawList; }
 
     protected _updateBuiltinMaterial (): Material {
@@ -178,7 +207,10 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
-    protected updateMaterial () {
+    /**
+     * @engineInternal
+     */
+    public updateMaterial () {
         let mat;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
@@ -248,14 +280,13 @@ export class Skeleton extends UIRenderer {
         if (value) {
             this.setAnimation(0, value, this.loop);
             this.markForUpdateRenderData();
-        } else if (!this.isAnimationCached()) {
-            this.clearTrack(0);
-            this.setToSetupPose();
+        } else {
+            this.clearAnimation();
         }
     }
 
     /**
-     * @internal
+     * @internal Since v3.7.2, this is an engine private interface
      */
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
@@ -280,6 +311,9 @@ export class Skeleton extends UIRenderer {
         }
         return 0;
     }
+    /**
+     * @internal Since v3.7.2, this is an engine private interface.
+     */
     set _defaultSkinIndex (value: number) {
         let skinsEnum;
         if (this.skeletonData) {
@@ -327,11 +361,10 @@ export class Skeleton extends UIRenderer {
         }
         return 0;
     }
+    /**
+     * @internal
+     */
     set _animationIndex (value: number) {
-        // if (value === 0) {
-        //     this.animation = '';
-        //     return;
-        // }
         let animsEnum;
         if (this.skeletonData) {
             animsEnum = this.skeletonData.getAnimsEnum();
@@ -354,6 +387,10 @@ export class Skeleton extends UIRenderer {
         }
     }
 
+    /**
+     * @en Animation mode, with options for real-time mode, private cached, or public cached mode.
+     * @zh 动画模式，可选实时模式，私有 cached 或公共 cached 模式。
+     */
     @displayName('Animation Cache Mode')
     @tooltip('i18n:COMPONENT.skeleton.animation_cache_mode')
     @editable
@@ -367,13 +404,17 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Whether play animations in loop mode
+     * @en Whether play animations in loop mode.
      * @zh 是否循环播放当前骨骼动画。
      */
     @serializable
     @tooltip('i18n:COMPONENT.skeleton.loop')
     public loop = true;
 
+    /**
+     * @en Whether premultipliedAlpha enabled.
+     * @zh 是否启用 alpha 预乘。
+     */
     @editable
     @tooltip('i18n:COMPONENT.skeleton.premultipliedAlpha')
     get premultipliedAlpha (): boolean { return this._premultipliedAlpha; }
@@ -455,10 +496,11 @@ export class Skeleton extends UIRenderer {
             this._updateUseTint();
         }
     }
-    /*
-     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
-     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
-    */
+    /**
+     * @en If rendering a large number of identical textures and simple skeletal animations,
+     * enabling batching can reduce the number of draw calls and improve rendering performance.
+     * @zh 如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低 draw call 数量提升渲染性能。
+     */
     @editable
     @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
     get enableBatch () { return this._enableBatch; }
@@ -472,9 +514,9 @@ export class Skeleton extends UIRenderer {
     /**
      * @en
      * The bone sockets this animation component maintains.<br>
-     * Sockets have to be registered here before attaching custom nodes to animated bones.
+     * A SpineSocket object contains a path reference to bone, and a target node.
      * @zh
-     * 当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点。
+     * 当前动画组件维护的挂点数组。一个挂点组件包括动画节点路径和目标节点。
      */
     @type([SpineSocket])
     @tooltip('i18n:animation.sockets')
@@ -491,6 +533,11 @@ export class Skeleton extends UIRenderer {
         this.attachUtil._syncAttachedNode();
     }
 
+    /**
+     * @en
+     * All the target nodes been set in the array of SpineSocket.
+     * @zh 当前所有设置在 SpineSocket 数组中的 target nodes。
+     */
     get socketNodes () { return this._socketNodes; }
 
     // Frame cache
@@ -650,7 +697,7 @@ export class Skeleton extends UIRenderer {
 
     protected _socketNodes: Map<number, Node> = new Map();
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
-    private _drawInfoList : RenderDrawInfo[] = [];
+    private _drawInfoList: RenderDrawInfo[] = [];
 
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
@@ -689,9 +736,9 @@ export class Skeleton extends UIRenderer {
      */
     public setSkeletonData (skeletonData: spine.SkeletonData) {
         const uiTrans = this.node._uiProps.uiTransformComp!;
-        if (skeletonData.width != null && skeletonData.height != null) {
-            uiTrans.setContentSize(skeletonData.width, skeletonData.height);
-        }
+        if (skeletonData.width && skeletonData.height) uiTrans.setContentSize(skeletonData.width, skeletonData.height);
+        if (skeletonData.width !== 0) uiTrans.anchorX = Math.abs(skeletonData.x) / skeletonData.width;
+        if (skeletonData.height !== 0) uiTrans.anchorY = Math.abs(skeletonData.y) / skeletonData.height;
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
@@ -772,8 +819,6 @@ export class Skeleton extends UIRenderer {
 
         this._updateSkeletonData();
         this._updateDebugDraw();
-        this._indexBoneSockets();
-        this._updateSocketBindings();
 
         if (EDITOR && !legacyCC.GAME_VIEW) { this._refreshInspector(); }
     }
@@ -809,6 +854,11 @@ export class Skeleton extends UIRenderer {
         return this._cacheMode !== AnimationCacheMode.REALTIME;
     }
 
+    /**
+     * @en Update skeleton animation.
+     * @zh 更新骨骼动画。
+     * @param dt @en delta time. @zh 时间差。
+     */
     public updateAnimation (dt: number) {
         this.markForUpdateRenderData();
         if (EDITOR && !legacyCC.GAME_VIEW) return;
@@ -823,7 +873,7 @@ export class Skeleton extends UIRenderer {
                     if (frameCache && frameCache.isInvalid()) {
                         frameCache.updateToFrame();
                         const frames = frameCache.frames;
-                        this._curFrame = frames[frames.length - 1];
+                        this._curFrame = frames[frames.length - 1]!;
                     }
                     return;
                 }
@@ -847,7 +897,8 @@ export class Skeleton extends UIRenderer {
 
     /**
      * @en Sets vertex effect delegate.
-     * @zh 设置顶点动画代理
+     * @zh 设置顶点特效动画代理。
+     * @param effectDelegate @en Vertex effect delegate. @zh 顶点特效代理。
      */
     public setVertexEffectDelegate (effectDelegate: VertexEffectDelegate | null | undefined) {
         this._effectDelegate = effectDelegate;
@@ -855,7 +906,7 @@ export class Skeleton extends UIRenderer {
 
     /**
      * @en Sets the bones and slots to the setup pose.
-     * @zh 还原到起始动作
+     * @zh 还原到起始动作。
      * @method setToSetupPose
      */
     public setToSetupPose () {
@@ -869,7 +920,7 @@ export class Skeleton extends UIRenderer {
      * Sets the bones to the setup pose,
      * using the values from the `BoneData` list in the `SkeletonData`.
      * @zh
-     * 设置 bone 到起始动作
+     * 设置 bone 到起始动作。
      * 使用 SkeletonData 中的 BoneData 列表中的值。
      * @method setBonesToSetupPose
      */
@@ -915,7 +966,7 @@ export class Skeleton extends UIRenderer {
 
     /**
      * @en
-     * Invalidates the animation cache, which is then recomputed on each frame..
+     * Invalidates the animation cache, which is then recomputed on each frame.
      * @zh
      * 使动画缓存失效，之后会在每帧重新计算。
      * @method invalidAnimationCache
@@ -1029,11 +1080,12 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-    * Return the renderer of attachment.
-    * @method getTextureAtlas
-    * @param {sp.spine.RegionAttachment|spine.BoundingBoxAttachment} regionAttachment
-    * @return {sp.spine.TextureAtlasRegion}
-    */
+     * @en
+     * Get Texture Atlas used in attachments.
+     * @zh 获取附件图集。
+     * @param regionAttachment An attachment type of RegionAttachment or BoundingBoxAttachment.
+     * @return TextureRegion contains texture and atlas text information.
+     */
     public getTextureAtlas (regionAttachment: spine.RegionAttachment | spine.BoundingBoxAttachment) {
         return (regionAttachment as spine.RegionAttachment).region;
     }
@@ -1068,7 +1120,6 @@ export class Skeleton extends UIRenderer {
      */
     public setAnimation (trackIndex: number, name: string, loop: boolean) {
         this._playTimes = loop ? 0 : 1;
-        this._animationName = name;
 
         if (this.isAnimationCached()) {
             if (trackIndex !== 0) {
@@ -1080,6 +1131,7 @@ export class Skeleton extends UIRenderer {
                 cache = this._skeletonCache.initAnimationCache(this._skeletonData!._uuid, name);
             }
             if (cache) {
+                this._animationName = name;
                 this._isAniComplete = false;
                 this._accTime = 0;
                 this._playCount = 0;
@@ -1088,7 +1140,7 @@ export class Skeleton extends UIRenderer {
                     this._frameCache.enableCacheAttachedInfo();
                 }
                 this._frameCache.updateToFrame(0);
-                this._curFrame = this._frameCache.frames[0];
+                this._curFrame = this._frameCache.frames[0]!;
             }
         } else if (this._skeleton) {
             const animation = this._skeleton.data.findAnimation(name);
@@ -1096,6 +1148,7 @@ export class Skeleton extends UIRenderer {
                 logID(7509, name);
                 return null;
             }
+            this._animationName = name;
             const res = this._state!.setAnimationWith(trackIndex, animation, loop);
             this._state!.apply(this._skeleton);
             return res;
@@ -1135,7 +1188,7 @@ export class Skeleton extends UIRenderer {
 
     /**
      * @en Find animation with specified name.
-     * @zh 查找指定名称的动画
+     * @zh 查找指定名称的动画。
      * @method findAnimation
      * @param {String} name
      * @returns {sp.spine.Animation}
@@ -1145,6 +1198,17 @@ export class Skeleton extends UIRenderer {
             return this._skeleton.data.findAnimation(name);
         }
         return null;
+    }
+
+    /**
+     * @en Clear animation and set to setup pose.
+     * @zh 清除动画并还原到初始姿势。
+     */
+    public clearAnimation () {
+        if (!this.isAnimationCached()) {
+            this.clearTrack(0);
+            this.setToSetupPose();
+        }
     }
 
     /**
@@ -1197,7 +1261,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the start event listener.
+     * @en Sets the start event listener.
      * @zh 用来设置开始播放动画的事件监听。
      * @method setStartListener
      * @param {function} listener
@@ -1208,7 +1272,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the interrupt event listener.
+     * @en Sets the interrupt event listener.
      * @zh 用来设置动画被打断的事件监听。
      * @method setInterruptListener
      * @param {function} listener
@@ -1219,7 +1283,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the end event listener.
+     * @en Sets the end event listener.
      * @zh 用来设置动画播放完后的事件监听。
      * @method setEndListener
      * @param {function} listener
@@ -1230,7 +1294,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the dispose event listener.
+     * @en Sets the dispose event listener.
      * @zh 用来设置动画将被销毁的事件监听。
      * @method setDisposeListener
      * @param {function} listener
@@ -1241,7 +1305,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the complete event listener.
+     * @en Sets the complete event listener.
      * @zh 用来设置动画播放一次循环结束后的事件监听。
      * @method setCompleteListener
      * @param {function} listener
@@ -1252,7 +1316,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the animation event listener.
+     * @en Sets the animation event listener.
      * @zh 用来设置动画播放过程中帧事件的监听。
      * @method setEventListener
      * @param {function} listener
@@ -1263,7 +1327,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the start event listener for specified TrackEntry.
+     * @en Sets the start event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画开始播放的事件监听。
      * @method setTrackStartListener
      * @param {sp.spine.TrackEntry} entry
@@ -1274,7 +1338,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the interrupt event listener for specified TrackEntry.
+     * @en Sets the interrupt event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画被打断的事件监听。
      * @method setTrackInterruptListener
      * @param {sp.spine.TrackEntry} entry
@@ -1285,7 +1349,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the end event listener for specified TrackEntry.
+     * @en Sets the end event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画播放结束的事件监听。
      * @method setTrackEndListener
      * @param {sp.spine.TrackEntry} entry
@@ -1296,7 +1360,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the dispose event listener for specified TrackEntry.
+     * @en Sets the dispose event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画即将被销毁的事件监听。
      * @method setTrackDisposeListener
      * @param {sp.spine.TrackEntry} entry
@@ -1307,7 +1371,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the complete event listener for specified TrackEntry.
+     * @en Sets the complete event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。
      * @method setTrackCompleteListener
      * @param {sp.spine.TrackEntry} entry
@@ -1323,7 +1387,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Set the event listener for specified TrackEntry.
+     * @en Sets the event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画帧事件的监听。
      * @method setTrackEventListener
      * @param {sp.spine.TrackEntry} entry
@@ -1334,8 +1398,8 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Get the animation state object
-     * @zh 获取动画状态
+     * @en Gets the animation state object.
+     * @zh 获取动画状态。
      * @method getState
      * @return {sp.spine.AnimationState} state
      */
@@ -1343,35 +1407,50 @@ export class Skeleton extends UIRenderer {
         return this._state;
     }
 
+    /**
+     * @en Be called when component state becomes available.
+     * @zh 组件状态变为可用时调用。
+     */
     public onEnable () {
         super.onEnable();
         this._flushAssembler();
         SkeletonSystem.getInstance().add(this);
     }
-
+    /**
+     * @en Be called when component state becomes disabled.
+     * @zh 组件状态变为禁用状态时调用。
+     */
     public onDisable () {
         super.onDisable();
         SkeletonSystem.getInstance().remove(this);
     }
-
+    /**
+     * @en Be called before components are destroyed.
+     * @zh 组件被销毁前调用。
+     */
     public onDestroy () {
         this._cleanMaterialCache();
         this._drawList.destroy();
         super.onDestroy();
     }
-
+    /**
+     * @en Call this method to destroy the rendering data.
+     * @zh 调用该方法销毁渲染数据。
+     */
     public destroyRenderData () {
         this._drawList.reset();
         super.destroyRenderData();
     }
 
-    private getMaterialTemplate () : Material {
+    private getMaterialTemplate (): Material {
         if (this.customMaterial !== null) return this.customMaterial;
         if (this.material) return this.material;
         this.updateMaterial();
         return this.material!;
     }
-
+    /**
+     * @internal Since v3.7.2, this is an engine private interface.
+     */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
         let inst = this._materialCache[key];
@@ -1411,11 +1490,19 @@ export class Skeleton extends UIRenderer {
 
     // For Redo, Undo
     // call markForUpdateRenderData to make sure renderData will be re-built.
+    /**
+     * @internal Since v3.7.2, this is an engine private interface.
+     */
     public onRestore () {
         this.updateMaterial();
         this.markForUpdateRenderData();
     }
 
+    /**
+     * @en Query all bones that can attach sockets.
+     * @zh 查询所有可以添加挂点的所有骨骼。
+     * @return String typed array of bones's path.
+     */
     public querySockets () {
         if (!this._skeleton) {
             return [];
@@ -1441,7 +1528,10 @@ export class Skeleton extends UIRenderer {
         draw.indexCount = indexCount;
         return draw;
     }
-
+    /**
+     * @en Submit rendering data to batcher2d.
+     * @zh 提交渲染数据。
+     */
     protected _render (batcher: Batcher2D) {
         let indicesCount = 0;
         if (this.renderData && this._drawList) {
@@ -1530,7 +1620,7 @@ export class Skeleton extends UIRenderer {
             this._playCount++;
             if (this._playTimes > 0 && this._playCount >= this._playTimes) {
                 // set frame to end frame.
-                this._curFrame = frames[frames.length - 1];
+                this._curFrame = frames[frames.length - 1]!;
                 this._accTime = 0;
                 this._playCount = 0;
                 this._isAniComplete = true;
@@ -1541,7 +1631,7 @@ export class Skeleton extends UIRenderer {
             frameIdx = 0;
             this._emitCacheCompleteEvent();
         }
-        this._curFrame = frames[frameIdx];
+        this._curFrame = frames[frameIdx]!;
     }
 
     protected _updateRealtime (dt: number) {
@@ -1649,6 +1739,7 @@ export class Skeleton extends UIRenderer {
             warn(e);
         }
         this._indexBoneSockets();
+        this._updateSocketBindings();
         this.attachUtil.init(this);
         this._preCacheMode = this._cacheMode;
         this.animation = this.defaultAnimation;
@@ -1698,11 +1789,6 @@ export class Skeleton extends UIRenderer {
         }
     }
 
-    // run base class method
-    // protected _updateColor () {
-    //     // TODO
-    // }
-
     protected _updateSocketBindings () {
         if (!this._skeleton) return;
         this._socketNodes.clear();
@@ -1729,8 +1815,8 @@ export class Skeleton extends UIRenderer {
                 }
             }
         }
-        const uniqueSocketNode:Map<Node, boolean> = new Map();
-        sockets.forEach((x:SpineSocket) => {
+        const uniqueSocketNode: Map<Node, boolean> = new Map();
+        sockets.forEach((x: SpineSocket) => {
             if (x.target) {
                 if (uniqueSocketNode.get(x.target)) {
                     console.error(`Target node ${x.target.name} has existed.`);
@@ -1753,12 +1839,23 @@ export class Skeleton extends UIRenderer {
         renderEntity.setUseLocal(true);
         return renderEntity;
     }
-
+    /**
+     * @en Mark to re-update the rendering data, usually used to force refresh the display.
+     * @zh 标记重新更新渲染数据，一般用于强制刷新显示。
+     */
     public markForUpdateRenderData (enable = true) {
         super.markForUpdateRenderData(enable);
         if (this._debugRenderer) {
             this._debugRenderer.markForUpdateRenderData(enable);
         }
+    }
+
+    /**
+     * @engineInternal since v3.7.2 this is an engine private function.
+     */
+    public syncAttachedNode () {
+        // sync attached node matrix
+        this.attachUtil._syncAttachedNode();
     }
 }
 

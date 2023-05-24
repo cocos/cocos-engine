@@ -39,8 +39,9 @@ public:
     void registerProbe(scene::ReflectionProbe* probe);
     void unRegisterProbe(scene::ReflectionProbe* probe);
     const ccstd::vector<scene::ReflectionProbe*>& getAllProbes() const { return _probes; }
-
-private:
+    ReflectionProbe* getReflectionProbeById(int32_t probeId);
+    int32_t getMaxProbeId();
+private: 
     ccstd::vector<scene::ReflectionProbe*> _probes;
 };
 

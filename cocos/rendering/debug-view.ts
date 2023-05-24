@@ -63,6 +63,7 @@ export const enum DebugViewSingleType {
     METALLIC,
     ROUGHNESS,
     SPECULAR_INTENSITY,
+    IOR,
 
     DIRECT_DIFFUSE,
     DIRECT_SPECULAR,
@@ -74,6 +75,16 @@ export const enum DebugViewSingleType {
     LIGHT_MAP,
     SHADOW,
     AO,
+
+    FRESNEL,
+    DIRECT_TRANSMIT_DIFFUSE,
+    DIRECT_TRANSMIT_SPECULAR,
+    ENV_TRANSMIT_DIFFUSE,
+    ENV_TRANSMIT_SPECULAR,
+    TRANSMIT_ALL,
+    DIRECT_TRT,
+    ENV_TRT,
+    TRT_ALL,
 
     FOG,
 }
@@ -100,6 +111,13 @@ export const enum DebugViewCompositeType {
 
     TONE_MAPPING,
     GAMMA_CORRECTION,
+
+    FRESNEL,
+    TRANSMIT_DIFFUSE,
+    TRANSMIT_SPECULAR,
+    TRT,
+    TT,
+
     MAX_BIT_COUNT
 }
 
@@ -112,63 +130,45 @@ export class DebugView {
      * @en Toggle rendering single debug mode.
      * @zh 设置渲染单项调试模式。
      */
-    public get singleMode () : DebugViewSingleType {
+    public get singleMode (): DebugViewSingleType {
         return this._singleMode;
     }
-    public set singleMode (val : DebugViewSingleType) {
+    public set singleMode (val: DebugViewSingleType) {
         this._singleMode = val;
         this._updatePipeline();
-
-        if (JSB && this._nativeConfig) {
-            this._nativeConfig.singleMode = this._singleMode;
-        }
     }
 
     /**
      * @en Toggle normal / pure lighting mode.
      * @zh 切换正常光照和仅光照模式。
      */
-    public get lightingWithAlbedo () : boolean {
+    public get lightingWithAlbedo (): boolean {
         return this._lightingWithAlbedo;
     }
-    public set lightingWithAlbedo (val : boolean) {
+    public set lightingWithAlbedo (val: boolean) {
         this._lightingWithAlbedo = val;
         this._updatePipeline();
-
-        if (JSB && this._nativeConfig) {
-            this._nativeConfig.lightingWithAlbedo = this._lightingWithAlbedo;
-        }
     }
 
     /**
      * @en Toggle CSM layer coloration mode.
      * @zh 切换级联阴影染色调试模式。
      */
-    public get csmLayerColoration () : boolean {
+    public get csmLayerColoration (): boolean {
         return this._csmLayerColoration;
     }
-    public set csmLayerColoration (val : boolean) {
+    public set csmLayerColoration (val: boolean) {
         this._csmLayerColoration = val;
         this._updatePipeline();
-
-        if (JSB && this._nativeConfig) {
-            this._nativeConfig.csmLayerColoration = this._csmLayerColoration;
-        }
     }
 
     protected _singleMode = DebugViewSingleType.NONE;
     protected _compositeModeValue = 0;
     protected _lightingWithAlbedo = true;
     protected _csmLayerColoration = false;
-    protected _nativeConfig: any = null;
 
     constructor () {
         this._activate();
-        if (JSB && this._nativeConfig === null) {
-            // @ts-expect-error jsb object access
-            this._nativeConfig = new jsb.DebugViewConfig();
-            this._nativeConfig.compositeModeBitCount = DebugViewCompositeType.MAX_BIT_COUNT;
-        }
     }
 
     /**
@@ -176,7 +176,7 @@ export class DebugView {
      * @zh 获取指定的渲染组合调试模式是否开启。
      * @param Specified composite type.
      */
-    public isCompositeModeEnabled (val : number) : boolean {
+    public isCompositeModeEnabled (val: number): boolean {
         const mode = this._compositeModeValue & (1 << val);
         return mode !== 0;
     }
@@ -224,13 +224,6 @@ export class DebugView {
         this._enableAllCompositeMode(true);
         this._lightingWithAlbedo = true;
         this._csmLayerColoration = false;
-
-        if (JSB && this._nativeConfig) {
-            this._nativeConfig.singleMode = this._singleMode;
-            this._nativeConfig.compositeModeValue = this._compositeModeValue;
-            this._nativeConfig.lightingWithAlbedo = this._lightingWithAlbedo;
-            this._nativeConfig.csmLayerColoration = this._csmLayerColoration;
-        }
     }
 
     protected _updatePipeline () {
@@ -251,10 +244,6 @@ export class DebugView {
         } else {
             this._compositeModeValue &= (~(1 << val));
         }
-
-        if (JSB && this._nativeConfig) {
-            this._nativeConfig.compositeModeValue = this._compositeModeValue;
-        }
     }
 
     private _enableAllCompositeMode (enable: boolean) {
@@ -264,14 +253,10 @@ export class DebugView {
             } else {
                 this._compositeModeValue &= (~(1 << i));
             }
-
-            if (JSB && this._nativeConfig) {
-                this._nativeConfig.compositeModeValue = this._compositeModeValue;
-            }
         }
     }
 
-    private _getType () : RenderingDebugViewType {
+    private _getType (): RenderingDebugViewType {
         if (this._singleMode !== DebugViewSingleType.NONE) {
             return RenderingDebugViewType.SINGLE;
         } else if (this._lightingWithAlbedo !== true || this._csmLayerColoration !== false) {

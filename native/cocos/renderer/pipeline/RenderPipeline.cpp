@@ -23,7 +23,6 @@
 ****************************************************************************/
 
 #include "RenderPipeline.h"
-#include "BatchedBuffer.h"
 #if CC_USE_GEOMETRY_RENDERER
     #include "GeometryRenderer.h"
 #endif
@@ -33,7 +32,6 @@
 #include "PipelineStateManager.h"
 #include "PipelineUBO.h"
 #include "RenderFlow.h"
-#include "RenderPipeline.h"
 #include "base/StringUtil.h"
 #include "base/std/hash/hash.h"
 #include "frame-graph/FrameGraph.h"
@@ -42,6 +40,7 @@
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
+#include "custom/NativeUtils.h"
 #include "scene/Camera.h"
 #include "scene/Skybox.h"
 
@@ -291,31 +290,8 @@ void RenderPipeline::setShadingScale(float scale) {
     _pipelineSceneData->setShadingScale(scale);
 }
 
-void RenderPipeline::genQuadVertexData(const Vec4 &viewport, float *vbData) {
-    auto minX = static_cast<float>(viewport.x);
-    auto maxX = static_cast<float>(viewport.x + viewport.z);
-    auto minY = static_cast<float>(viewport.y);
-    auto maxY = static_cast<float>(viewport.y + viewport.w);
-    if (_device->getCapabilities().screenSpaceSignY > 0) {
-        std::swap(minY, maxY);
-    }
-    int n = 0;
-    vbData[n++] = -1.0F;
-    vbData[n++] = -1.0F;
-    vbData[n++] = minX; // uv
-    vbData[n++] = maxY;
-    vbData[n++] = 1.0F;
-    vbData[n++] = -1.0F;
-    vbData[n++] = maxX;
-    vbData[n++] = maxY;
-    vbData[n++] = -1.0F;
-    vbData[n++] = 1.0F;
-    vbData[n++] = minX;
-    vbData[n++] = minY;
-    vbData[n++] = 1.0F;
-    vbData[n++] = 1.0F;
-    vbData[n++] = maxX;
-    vbData[n++] = minY;
+void RenderPipeline::genQuadVertexData(const Vec4 &viewport, float vbData[16]) {
+    render::setupQuadVertexBuffer(*_device, viewport, vbData);
 }
 
 void RenderPipeline::generateConstantMacros() {

@@ -9,14 +9,11 @@ exports.listeners = {};
 exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
 
 exports.template = `
-<ui-section whole scrollable="false" class="container">
+<ui-section whole scrollable="false" class="container config">
     <header class="header" slot="header">
         <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
         <ui-label class="name"></ui-label>
-        <ui-link value="" class="help" tooltip="i18n:ENGINE.menu.help_url">
-            <ui-icon value="help"></ui-icon>
-        </ui-link>
         <ui-button class="save tiny green transparent" tooltip="i18n:ENGINE.assets.save">
             <ui-icon value="check"></ui-icon>
         </ui-button>
@@ -26,6 +23,9 @@ exports.template = `
         <ui-button type="icon" class="copy transparent" tooltip="i18n:ENGINE.inspector.cloneToEdit">
             <ui-icon value="copy"></ui-icon>
         </ui-button>
+        <ui-link value="" class="help" tooltip="i18n:ENGINE.menu.help_url">
+            <ui-icon value="help"></ui-icon>
+        </ui-link>
     </header>
     <section class="content">
         <section class="content-header"></section>
@@ -536,6 +536,18 @@ exports.methods = {
             Editor.Message.request('asset-db', 'save-asset-meta', uuid, content);
         });
     },
+    async abort() {
+        const panel = this;
+        panel.$.header.removeAttribute('dirty');
+
+        for (const renderName in panel.contentRenders) {
+            const { contentRender } = panel.contentRenders[renderName];
+
+            for (let i = 0; i < contentRender.__panels__.length; i++) {
+                await contentRender.__panels__[i].callMethod('abort');
+            }
+        }
+    },
     async reset() {
         const panel = this;
         panel.$.header.removeAttribute('dirty');
@@ -647,7 +659,7 @@ exports.beforeClose = async function beforeClose() {
 
     if (result === 0) {
         // abort
-        panel.$.header.removeAttribute('dirty');
+        await panel.abort();
         return true;
     }
 

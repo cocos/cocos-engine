@@ -25,7 +25,8 @@
 import { Joint2D } from './joint-2d';
 import { IRelativeJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec3, Vec2, IVec2Like, Quat, _decorator } from '../../../../core';
+import { Vec3, Vec2, IVec2Like, Quat, _decorator, CCFloat, CCBoolean } from '../../../../core';
+import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
 const tempVec3_1 = new Vec3();
 const tempVec3_2 = new Vec3();
@@ -33,6 +34,7 @@ const tempVec3_2 = new Vec3();
 const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.RelativeJoint2D')
+@help('i18n:cc.Joint2D')
 @menu('Physics2D/Joints/RelativeJoint2D')
 export class RelativeJoint2D extends Joint2D {
     TYPE = EJoint2DType.RELATIVE;
@@ -43,7 +45,8 @@ export class RelativeJoint2D extends Joint2D {
      * @zh
      * 可以应用于刚体的最大的力值。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.maxForce')
     get maxForce (): number {
         return this._maxForce;
     }
@@ -60,7 +63,8 @@ export class RelativeJoint2D extends Joint2D {
      * @zh
      * 可以应用于刚体的最大扭矩值。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.maxTorque')
     get maxTorque (): number {
         return this._maxTorque;
     }
@@ -77,7 +81,8 @@ export class RelativeJoint2D extends Joint2D {
      * @zh
      * 位置矫正系数，范围为 [0, 1]。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.correctionFactor')
     get correctionFactor (): number {
         return this._correctionFactor;
     }
@@ -94,7 +99,8 @@ export class RelativeJoint2D extends Joint2D {
      * @zh
      * 关节另一端的刚体相对于起始端刚体的位置偏移量。
      */
-    @property
+    @type(Vec2)
+    @tooltip('i18n:physics2d.joint.linearOffset')
     get linearOffset (): Vec2 {
         if (this._autoCalcOffset) {
             if (this.connectedBody) {
@@ -120,7 +126,8 @@ export class RelativeJoint2D extends Joint2D {
      * @zh
      * 关节另一端的刚体相对于起始端刚体的角度偏移量。
      */
-    @property
+    @type(CCFloat)
+    @tooltip('i18n:physics2d.joint.angularOffset')
     get angularOffset (): number {
         if (this._autoCalcOffset) {
             Quat.toEuler(tempVec3_1, this.node.worldRotation);
@@ -146,7 +153,8 @@ export class RelativeJoint2D extends Joint2D {
      * @zh
      * 自动计算关节连接的两个刚体间的 angularOffset 和 linearOffset。
      */
-    @property
+    @type(CCBoolean)
+    @tooltip('i18n:physics2d.joint.autoCalcOffset')
     get autoCalcOffset (): boolean {
         return this._autoCalcOffset;
     }
@@ -156,16 +164,21 @@ export class RelativeJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @serializable
     private _maxForce = 5;
-    @property
+
+    @serializable
     private _maxTorque = 0.7;
-    @property
+
+    @serializable
     private _correctionFactor = 0.3;
-    @property
+
+    @serializable
     private _angularOffset = 0;
-    @property
+
+    @serializable
     private _linearOffset = new Vec2();
-    @property
+
+    @serializable
     private _autoCalcOffset = true;
 }

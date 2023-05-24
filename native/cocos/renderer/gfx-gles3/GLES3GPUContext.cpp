@@ -160,7 +160,6 @@ bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstan
     uint64_t lastScore = qualityPreferred ? std::numeric_limits<uint64_t>::min() : std::numeric_limits<uint64_t>::max();
 
     for (int i = 0; i < numConfig; i++) {
-        int depthValue{0};
         eglGetConfigAttrib(eglDisplay, eglConfigs[i], EGL_RED_SIZE, &params[0]);
         eglGetConfigAttrib(eglDisplay, eglConfigs[i], EGL_GREEN_SIZE, &params[1]);
         eglGetConfigAttrib(eglDisplay, eglConfigs[i], EGL_BLUE_SIZE, &params[2]);
@@ -169,9 +168,7 @@ bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstan
         eglGetConfigAttrib(eglDisplay, eglConfigs[i], EGL_STENCIL_SIZE, &params[5]);
         eglGetConfigAttrib(eglDisplay, eglConfigs[i], EGL_SAMPLE_BUFFERS, &params[6]);
         eglGetConfigAttrib(eglDisplay, eglConfigs[i], EGL_SAMPLES, &params[7]);
-        eglGetConfigAttrib(eglDisplay, eglConfigs[i], EGL_DEPTH_ENCODING_NV, &depthValue);
-
-        int bNonLinearDepth = (depthValue == EGL_DEPTH_ENCODING_NONLINEAR_NV) ? 1 : 0;
+        int bNonLinearDepth = 0;
 
         /*------------------------------------------ANGLE's priority-----------------------------------------------*/
         // Favor EGLConfigLists by RGB, then Depth, then Non-linear Depth, then Stencil, then Alpha

@@ -32,35 +32,48 @@ const _tempMat4 = new Mat4();
 const { ccclass } = _decorator;
 
 /**
- * @en Attach node tool
- * @zh 挂点工具类
+ * @engineInternal Since v3.7.2 this is an engine private class.
+ * Users no need to call any function in this class.
+ */
+/**
+ * @en Attach node tool.
+ * @zh 挂点工具类。
  * @class dragonBones.AttachUtil
  */
 
 @ccclass('dragonBones.AttachUtil')
 export class AttachUtil {
-    _inited = false;
-    _armature: Armature | null = null;
-    _armatureNode: Node | null = null;
-    _armatureDisplay: ArmatureDisplay | null = null;
+    private _inited = false;
+    private _armature: Armature | null = null;
+    private _armatureNode: Node | null = null;
+    private _armatureDisplay: ArmatureDisplay | null = null;
     constructor () {
 
     }
-
+    /**
+     * @en Initializes parameters.
+     * @zh 初始化参数设置。
+     */
     init (armatureDisplay: ArmatureDisplay) {
         this._inited = true;
         this._armature = armatureDisplay._armature;
         this._armatureNode = armatureDisplay.node;
         this._armatureDisplay = armatureDisplay;
     }
-
+    /**
+     * @en Resets parameter values.
+     * @zh 重置参数设置。
+     */
     reset () {
         this._inited = false;
         this._armature = null;
         this._armatureNode = null;
         this._armatureDisplay = null;
     }
-
+    /**
+     * @en Synchronize transformation of nodes attached to bones.
+     * @zh 同步变换附着在骨骼上节点。
+     */
     _syncAttachedNode () {
         if (!this._inited) return;
         const rootMatrix = this._armatureNode!.worldMatrix;
@@ -75,7 +88,7 @@ export class AttachUtil {
         const sockets = this._armatureDisplay!.sockets;
         const socketNodes = this._armatureDisplay!.socketNodes;
 
-        const matrixHandle = (node: NodeExt, boneMat: Matrix) => {
+        const matrixHandle = (node: Node, boneMat: Matrix) => {
             const tm = _tempMat4;
             tm.m00 = boneMat.a;
             tm.m01 = boneMat.b;
@@ -113,8 +126,4 @@ export class AttachUtil {
             matrixHandle(boneNode, bone.globalTransformMatrix);
         }
     }
-}
-
-interface NodeExt extends Node{
-    _oldScale?:Vec3;
 }

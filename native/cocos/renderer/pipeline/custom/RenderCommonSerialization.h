@@ -39,38 +39,62 @@ namespace render {
 
 inline void save(OutputArchive& ar, const RasterView& v) {
     save(ar, v.slotName);
+    save(ar, v.slotName1);
     save(ar, v.accessType);
     save(ar, v.attachmentType);
     save(ar, v.loadOp);
     save(ar, v.storeOp);
     save(ar, v.clearFlags);
     save(ar, v.clearColor);
+    save(ar, v.slotID);
+    save(ar, v.shaderStageFlags);
 }
 
 inline void load(InputArchive& ar, RasterView& v) {
     load(ar, v.slotName);
+    load(ar, v.slotName1);
     load(ar, v.accessType);
     load(ar, v.attachmentType);
     load(ar, v.loadOp);
     load(ar, v.storeOp);
     load(ar, v.clearFlags);
     load(ar, v.clearColor);
+    load(ar, v.slotID);
+    load(ar, v.shaderStageFlags);
+}
+
+inline void save(OutputArchive& ar, const ClearValue& v) {
+    save(ar, v.x);
+    save(ar, v.y);
+    save(ar, v.z);
+    save(ar, v.w);
+}
+
+inline void load(InputArchive& ar, ClearValue& v) {
+    load(ar, v.x);
+    load(ar, v.y);
+    load(ar, v.z);
+    load(ar, v.w);
 }
 
 inline void save(OutputArchive& ar, const ComputeView& v) {
     save(ar, v.name);
     save(ar, v.accessType);
+    save(ar, v.plane);
     save(ar, v.clearFlags);
-    save(ar, v.clearColor);
     save(ar, v.clearValueType);
+    save(ar, v.clearValue);
+    save(ar, v.shaderStageFlags);
 }
 
 inline void load(InputArchive& ar, ComputeView& v) {
     load(ar, v.name);
     load(ar, v.accessType);
+    load(ar, v.plane);
     load(ar, v.clearFlags);
-    load(ar, v.clearColor);
     load(ar, v.clearValueType);
+    load(ar, v.clearValue);
+    load(ar, v.shaderStageFlags);
 }
 
 inline void save(OutputArchive& ar, const LightInfo& v) {
@@ -139,6 +163,22 @@ inline void load(InputArchive& ar, DescriptorBlockIndex& v) {
     load(ar, v.visibility);
 }
 
+inline void save(OutputArchive& ar, const ResolvePair& v) {
+    save(ar, v.source);
+    save(ar, v.target);
+    save(ar, v.resolveFlags);
+    save(ar, v.mode);
+    save(ar, v.mode1);
+}
+
+inline void load(InputArchive& ar, ResolvePair& v) {
+    load(ar, v.source);
+    load(ar, v.target);
+    load(ar, v.resolveFlags);
+    load(ar, v.mode);
+    load(ar, v.mode1);
+}
+
 inline void save(OutputArchive& ar, const CopyPair& v) {
     save(ar, v.source);
     save(ar, v.target);
@@ -183,6 +223,34 @@ inline void load(InputArchive& ar, MovePair& v) {
     load(ar, v.targetMostDetailedMip);
     load(ar, v.targetFirstSlice);
     load(ar, v.targetPlaneSlice);
+}
+
+inline void save(OutputArchive& ar, const PipelineStatistics& v) {
+    save(ar, v.numRenderPasses);
+    save(ar, v.numManagedTextures);
+    save(ar, v.totalManagedTextures);
+    save(ar, v.numUploadBuffers);
+    save(ar, v.numUploadBufferViews);
+    save(ar, v.numFreeUploadBuffers);
+    save(ar, v.numFreeUploadBufferViews);
+    save(ar, v.numDescriptorSets);
+    save(ar, v.numFreeDescriptorSets);
+    save(ar, v.numInstancingBuffers);
+    save(ar, v.numInstancingUniformBlocks);
+}
+
+inline void load(InputArchive& ar, PipelineStatistics& v) {
+    load(ar, v.numRenderPasses);
+    load(ar, v.numManagedTextures);
+    load(ar, v.totalManagedTextures);
+    load(ar, v.numUploadBuffers);
+    load(ar, v.numUploadBufferViews);
+    load(ar, v.numFreeUploadBuffers);
+    load(ar, v.numFreeUploadBufferViews);
+    load(ar, v.numDescriptorSets);
+    load(ar, v.numFreeDescriptorSets);
+    load(ar, v.numInstancingBuffers);
+    load(ar, v.numInstancingUniformBlocks);
 }
 
 } // namespace render

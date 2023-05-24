@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights to
@@ -98,12 +98,12 @@ float AmbientInfo::getSkyIllum() const {
 }
 
 void AmbientInfo::setGroundLightingColor(const Color &val) {
-    Vec4 v4(static_cast<float>(val.r) / 255.F, static_cast<float>(val.g) / 255.F, static_cast<float>(val.b) / 255.F, static_cast<float>(val.a) / 255.F);
+    const Vec4 v4(val.r, val.g, val.b, val.a);
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
         _groundAlbedoHDR.set(v4);
     } else {
-        _groundAlbedoHDR.set(v4);
+        _groundAlbedoLDR.set(v4);
     }
 
     if (_resource != nullptr) {
@@ -153,6 +153,11 @@ void Ambient::initialize(AmbientInfo *info) {
 }
 
 Vec4 &Ambient::getSkyColor() {
+    const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
+    return isHDR ? _skyColorHDR : _skyColorLDR;
+}
+
+const Vec4 &Ambient::getSkyColor() const {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     return isHDR ? _skyColorHDR : _skyColorLDR;
 }

@@ -43,7 +43,7 @@ import { StateMachineComponent } from './state-machine-component';
 import { InteractiveState } from './state';
 import {
     AnimationGraphBindingContext, AnimationGraphEvaluationContext,
-    AnimationGraphLayerWideBindingContext, AnimationGraphPoseLayoutMaintainer, defaultTransformsTag, LayoutChangeFlag, MetaValueRegistry,
+    AnimationGraphLayerWideBindingContext, AnimationGraphPoseLayoutMaintainer, defaultTransformsTag, LayoutChangeFlag, AuxiliaryCurveRegistry,
 } from './animation-graph-context';
 import { TransformArray } from '../core/transform-array';
 import { applyDeltaPose, blendPoseInto, Pose, TransformFilter } from '../core/pose';
@@ -80,7 +80,7 @@ export class AnimationGraphEval {
             this.setValue(name, false);
         };
 
-        const poseLayoutMaintainer = new AnimationGraphPoseLayoutMaintainer(this._metaValueRegistry);
+        const poseLayoutMaintainer = new AnimationGraphPoseLayoutMaintainer(this._auxiliaryCurveRegistry);
         this._poseLayoutMaintainer = poseLayoutMaintainer;
 
         const bindingContext = new AnimationGraphBindingContext(root, poseLayoutMaintainer, this._varInstances);
@@ -122,7 +122,9 @@ export class AnimationGraphEval {
         const nLayers = layerEvaluations.length;
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
             const layerEval = layerEvaluations[iLayer];
-            const layerPose = layerEval.update(deltaTime, evaluationContext);
+            layerEval.update(deltaTime);
+            const layerPose = layerEval.evaluate(evaluationContext);
+
             const layerActualWeight = layerEval.weight * layerEval.passthroughWeight;
             if (layerEval.additive) {
                 applyDeltaPose(finalPose, layerPose, layerActualWeight, layerEval.transformFilter);
@@ -224,9 +226,13 @@ export class AnimationGraphEval {
         this._updateAfterPossiblePoseLayoutChange();
     }
 
+    public getAuxiliaryCurveValue (curveName: string) {
+        return this._auxiliaryCurveRegistry.get(curveName);
+    }
+
     private _varInstances: Record<string, VarInstance> = {};
     private _hasAutoTrigger = false;
-    private _metaValueRegistry = new MetaValueRegistry();
+    private _auxiliaryCurveRegistry = new AuxiliaryCurveRegistry();
     private _poseLayoutMaintainer: AnimationGraphPoseLayoutMaintainer;
     private _bindingContext: AnimationGraphBindingContext;
     /**
@@ -248,7 +254,7 @@ export class AnimationGraphEval {
 
         const evaluationContext = new AnimationGraphEvaluationContext({
             transformCount: poseLayoutMaintainer.transformCount,
-            metaValueCount: poseLayoutMaintainer.metaValueCount,
+            auxiliaryCurveCount: poseLayoutMaintainer.auxiliaryCurveCount,
         });
         this._evaluationContext = evaluationContext;
 
@@ -274,13 +280,13 @@ export class AnimationGraphEval {
             this._createOrUpdateTransformFilters();
         }
 
-        // Either transform count or meta value count changed, we should recreate the eval context.
+        // Either transform count or auxiliary curve count changed, we should recreate the eval context.
         let evaluationContextRecreated = false;
         if ((layoutChangeFlags & LayoutChangeFlag.TRANSFORM_COUNT)
-        || (layoutChangeFlags & LayoutChangeFlag.META_VALUE_COUNT)) {
+        || (layoutChangeFlags & LayoutChangeFlag.AUXILIARY_CURVE_COUNT)) {
             const evaluationContext = new AnimationGraphEvaluationContext({
                 transformCount: poseLayoutMaintainer.transformCount,
-                metaValueCount: poseLayoutMaintainer.metaValueCount,
+                auxiliaryCurveCount: poseLayoutMaintainer.auxiliaryCurveCount,
             });
             this._evaluationContext.destroy();
             this._evaluationContext = evaluationContext;
@@ -319,7 +325,7 @@ export class AnimationGraphEval {
  * @en
  * Describes how to override animation clips in an animation graph.
  */
-export type ReadonlyClipOverrideMap = {
+export interface ReadonlyClipOverrideMap {
     /**
      * @zh
      * 获取指定原始动画剪辑应替换成的动画剪辑。
@@ -333,7 +339,7 @@ export type ReadonlyClipOverrideMap = {
      * If the original animation clip should not be overrode, `undefined` should be returned.
      */
     get(animationClip: AnimationClip): AnimationClip | undefined;
-};
+}
 
 /**
  * @en
@@ -470,15 +476,17 @@ class LayerEval {
         return this._currentNode === this._topLevelExit;
     }
 
-    public update (deltaTime: number, context: AnimationGraphEvaluationContext): Pose {
+    public update (deltaTime: number) {
+        this._transitionAlpha = 0.0;
         if (!this.exited) {
-            this._transitionAlpha = 0.0;
             this._eval(deltaTime);
-            const sampled = this._sample(context);
-            if (sampled) {
-                return sampled;
-            }
-            // fallthrough
+        }
+    }
+
+    public evaluate (context: AnimationGraphEvaluationContext): Pose {
+        const sampled = this._sample(context);
+        if (sampled) {
+            return sampled;
         }
         return this._pushNullishPose(context);
     }
@@ -532,11 +540,14 @@ class LayerEval {
     }
 
     public getNextStateStatus (): Readonly<MotionStateStatus> | null {
-        if (!this._currentTransitionToNode
-            || this._currentTransitionToNode.kind === NodeKind.empty) {
+        const {
+            _currentTransitionToNode: currentTransitionToNode,
+        } = this;
+        if (!currentTransitionToNode
+            || currentTransitionToNode.kind === NodeKind.empty) {
             return null;
         }
-        return this._currentTransitionToNode.getToPortStatus();
+        return currentTransitionToNode.getToPortStatus();
     }
 
     public getNextClipStatuses (): Iterable<ClipStatus> {
@@ -713,6 +724,7 @@ class LayerEval {
                     exitCondition: 0.0,
                     exitConditionEnabled: false,
                     interruption: TransitionInterruptionSource.NONE,
+                    activated: false,
                 };
 
                 if (isAnimationTransition(outgoing)) {
@@ -813,10 +825,7 @@ class LayerEval {
 
                 remainTimePiece -= updateRequires;
 
-                if (currentNode.kind === NodeKind.animation) {
-                    currentNode.updateFromPort(updateRequires);
-                    this._fromUpdated = true;
-                }
+                this._accumulateCurrentStateDeltaTime(updateRequires);
 
                 const ranIntoNonMotionState = this._switchTo(transition);
                 if (ranIntoNonMotionState) {
@@ -825,32 +834,37 @@ class LayerEval {
 
                 continueNextIterationForce = true;
             } else { // If no transition matched, we update current node.
-                if (currentNode.kind === NodeKind.animation) {
-                    currentNode.updateFromPort(remainTimePiece);
-                    this._fromUpdated = true;
-                    // Animation play eat all times.
-                    remainTimePiece = 0.0;
-                } else {
-                    // Happened when firstly entered the layer's top level entry
-                    // and no further transition.
-                    // I'm sure conscious of it's redundant with above statement, just emphasize.
-                    remainTimePiece = 0.0;
-                }
+                this._accumulateCurrentStateDeltaTime(remainTimePiece);
+                remainTimePiece = 0.0;
                 continue;
             }
         }
 
-        if (this._fromUpdated && this._currentNode.kind === NodeKind.animation) {
-            this._fromUpdated = false;
-            this._currentNode.triggerFromPortUpdate(this._controller);
-        }
-
-        if (this._currentTransitionToNode && this._toUpdated && this._currentTransitionToNode.kind === NodeKind.animation) {
-            this._toUpdated = false;
-            this._currentTransitionToNode.triggerToPortUpdate(this._controller);
-        }
+        this._commitStateUpdates();
 
         return remainTimePiece;
+    }
+
+    private _commitStateUpdates () {
+        if (this._fromUpdated) {
+            const {
+                _currentNode: currentState,
+            } = this;
+            this._fromUpdated = false;
+            if (currentState.kind === NodeKind.animation) {
+                currentState.triggerFromPortUpdate(this._controller);
+            }
+        }
+
+        if (this._toUpdated) {
+            const {
+                _currentTransitionToNode: currentTransitionToNode,
+            } = this;
+            this._toUpdated = false;
+            if (currentTransitionToNode && currentTransitionToNode.kind === NodeKind.animation) {
+                currentTransitionToNode.triggerToPortUpdate(this._controller);
+            }
+        }
     }
 
     private _sample (context: AnimationGraphEvaluationContext): Pose | null {
@@ -921,9 +935,9 @@ class LayerEval {
 
         this._matchTransition(
             currentNode,
+            true,
             currentNode,
             deltaTime,
-            null,
             transitionMatch,
         );
         if (transitionMatch.hasZeroCost()) {
@@ -933,6 +947,7 @@ class LayerEval {
         if (currentNode.kind === NodeKind.animation) {
             this._matchAnyScoped(
                 currentNode,
+                true,
                 deltaTime,
                 transitionMatch,
             );
@@ -952,17 +967,18 @@ class LayerEval {
      * Notes the real node is used:
      * - to determinate the starting state machine from where the any states are matched;
      * - so we can solve transitions' relative durations.
+     * @param isCurrentState See `_matchTransition`.
      */
-    private _matchAnyScoped (realNode: MotionStateEval, deltaTime: number, result: TransitionMatchCache) {
+    private _matchAnyScoped (realNode: MotionStateEval, isCurrentState: boolean, deltaTime: number, result: TransitionMatchCache) {
         let transitionMatchUpdated = false;
         for (let ancestor: StateMachineInfo | null = realNode.stateMachine;
             ancestor !== null;
             ancestor = ancestor.parent) {
             const updated = this._matchTransition(
                 ancestor.any,
+                isCurrentState,
                 realNode,
                 deltaTime,
-                null,
                 result,
             );
             if (updated) {
@@ -979,10 +995,18 @@ class LayerEval {
      * Searches for a transition which should be performed
      * if specified node updates for no more than `deltaTime` and less than `result.requires`.
      * We solve the relative durations of transitions based on duration of `realNode`.
+     *
+     * @param isCurrentState True if `node` is current state or "interruption source state"(see `getInterruptionSourceMotion`) of current state.
+     * In detail:
+     * | State machine                          | This method is used for            | `isCurrentState` should be    |
+     * | -------------------------------------- | ---------------------------------- | ----------------------------- |
+     * | No transition <br/> Current state is A | detecting transition from A        | true                          |
+     * | In transition <br/> A --> B            | detecting interruption from A or B | true for A <br/> false for B  |
+     *
      * @returns True if a transition match is updated into the `result`.
      */
     private _matchTransition (
-        node: NodeEval, realNode: NodeEval, deltaTime: Readonly<number>, except: TransitionEval | null, result: TransitionMatchCache,
+        node: NodeEval, isCurrentState: boolean, realNode: NodeEval, deltaTime: Readonly<number>, result: TransitionMatchCache,
     ) {
         assertIsTrue(node === realNode || node.kind === NodeKind.any);
         const { outgoingTransitions } = node;
@@ -990,7 +1014,7 @@ class LayerEval {
         let resultUpdated = false;
         for (let iTransition = 0; iTransition < nTransitions; ++iTransition) {
             const transition = outgoingTransitions[iTransition];
-            if (transition === except) {
+            if (transition.activated) {
                 continue;
             }
 
@@ -1015,7 +1039,8 @@ class LayerEval {
 
             if (realNode.kind === NodeKind.animation && transition.exitConditionEnabled) {
                 const exitTime = realNode.duration * transition.exitCondition;
-                deltaTimeRequired = Math.max(exitTime - realNode.fromPortTime, 0.0);
+                const currentStateTime = isCurrentState ? realNode.fromPortTime : realNode.toPortTime;
+                deltaTimeRequired = Math.max(exitTime - currentStateTime, 0.0);
                 // Note: the >= is reasonable in compare to >: we select the first-minimal requires.
                 if (deltaTimeRequired > deltaTime || deltaTimeRequired >= result.requires) {
                     continue;
@@ -1054,10 +1079,7 @@ class LayerEval {
      * @returns If the transition finally ran into entry/exit state.
      */
     private _switchTo (transition: TransitionEval) {
-        const { _currentTransitionPath: currentTransitionPath } = this;
-
         this._consumeTransition(transition);
-        currentTransitionPath.push(transition);
 
         const motionNode = this._matchTransitionPathUntilMotion();
         if (motionNode) {
@@ -1115,9 +1137,9 @@ class LayerEval {
             const transitionMatch = transitionMatchCache.reset();
             this._matchTransition(
                 tailNode,
+                false,
                 tailNode,
                 0.0,
-                null,
                 transitionMatch,
             );
             if (!transitionMatch.transition) {
@@ -1125,7 +1147,6 @@ class LayerEval {
             }
             const transition = transitionMatch.transition;
             this._consumeTransition(transition);
-            currentTransitionPath.push(transition);
             tailNode = transition.to;
         }
 
@@ -1139,6 +1160,9 @@ class LayerEval {
             // We're entering a state machine
             this._callEnterMethods(to);
         }
+
+        transition.activated = true;
+        this._currentTransitionPath.push(transition);
     }
 
     private _resetTriggersAlongThePath () {
@@ -1233,9 +1257,8 @@ class LayerEval {
         const shouldUpdatePorts = contrib !== 0;
         const hasFinished = ratio === 1.0;
 
-        if (fromNode.kind === NodeKind.animation && shouldUpdatePorts) {
-            fromNode.updateFromPort(contrib);
-            this._fromUpdated = true;
+        if (shouldUpdatePorts) {
+            this._accumulateCurrentStateDeltaTime(contrib);
         }
 
         if (toNode.kind === NodeKind.animation && shouldUpdatePorts) {
@@ -1277,23 +1300,30 @@ class LayerEval {
         }
         this._fromUpdated = this._toUpdated;
         this._toUpdated = false;
-        this._dropCurrentTransition();
+        this._dropCurrentTransition(true);
         this._currentNode = toNode;
         if (fromNode.kind === NodeKind.transitionSnapshot) {
             fromNode.clear();
         }
     }
 
-    private _dropCurrentTransition () {
+    private _dropCurrentTransition (inactivate: boolean) {
         const {
+            _currentTransitionPath: currentTransitionPath,
             _currentTransitionToNode: currentTransitionToNode,
         } = this;
         assertIsNonNullable(currentTransitionToNode);
         if (currentTransitionToNode.kind === NodeKind.animation) {
             currentTransitionToNode.finishTransition();
         }
+        if (inactivate) {
+            const nTransitions = currentTransitionPath.length;
+            for (let iTransition = 0; iTransition < nTransitions; ++iTransition) {
+                currentTransitionPath[iTransition].activated = false;
+            }
+        }
         this._currentTransitionToNode = null;
-        this._currentTransitionPath.length = 0;
+        currentTransitionPath.length = 0;
         // Make sure we won't suffer from precision problem
         this._transitionAlpha = 0.0;
     }
@@ -1332,6 +1362,7 @@ class LayerEval {
             : currentNode.first;
         let transitionMatchUpdated = this._matchAnyScoped(
             anyTransitionMeasureBaseState,
+            true,
             remainTimePiece,
             transitionMatch,
         );
@@ -1342,15 +1373,21 @@ class LayerEval {
             // TODO
         }
 
-        const motion0: MotionStateEval                = interruption === TransitionInterruptionSource.CURRENT_STATE
-                || interruption === TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE
-            ? getInterruptionSourceMotion(currentNode)
-            : currentTransitionToNode;
+        let motion0: MotionStateEval;
+        let motion0IsCurrentState = false;
+        if (interruption === TransitionInterruptionSource.CURRENT_STATE
+            || interruption === TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE) {
+            motion0 = getInterruptionSourceMotion(currentNode);
+            motion0IsCurrentState = true;
+        } else {
+            motion0 = currentTransitionToNode;
+            motion0IsCurrentState = false;
+        }
         transitionMatchUpdated = this._matchTransition(
             motion0,
+            motion0IsCurrentState,
             motion0,
             remainTimePiece,
-            currentTransition,
             transitionMatch,
         );
         if (transitionMatchUpdated) {
@@ -1360,15 +1397,21 @@ class LayerEval {
             // TODO
         }
 
-        const motion1 = interruption === TransitionInterruptionSource.NEXT_STATE_THEN_CURRENT_STATE ? getInterruptionSourceMotion(currentNode)
-            : interruption === TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE ? currentTransitionToNode
-                : null;
+        let motion1: MotionStateEval | null = null;
+        let motion1IsCurrentState = false;
+        if (interruption === TransitionInterruptionSource.NEXT_STATE_THEN_CURRENT_STATE) {
+            motion1 = getInterruptionSourceMotion(currentNode);
+            motion1IsCurrentState = true;
+        } else if (interruption === TransitionInterruptionSource.CURRENT_STATE_THEN_NEXT_STATE) {
+            motion1 = currentTransitionToNode;
+            motion1IsCurrentState = false;
+        }
         if (motion1) {
             transitionMatchUpdated = this._matchTransition(
                 motion1,
+                motion1IsCurrentState,
                 motion1,
                 remainTimePiece,
-                currentTransition,
                 transitionMatch,
             );
             if (transitionMatchUpdated) {
@@ -1405,16 +1448,17 @@ class LayerEval {
         assertIsTrue(currentNode.kind === NodeKind.animation || currentNode.kind === NodeKind.transitionSnapshot);
         // If we're interrupting motion->*,
         // we update the motion then do the first enqueue to transition snapshot.
+        this._accumulateCurrentStateDeltaTime(transitionRequires);
         if (currentNode.kind === NodeKind.animation) {
-            currentNode.updateFromPort(transitionRequires);
-            this._fromUpdated = true;
-
             const { _transitionSnapshot: transitionSnapshot } = this;
             assertIsTrue(transitionSnapshot.empty);
             transitionSnapshot.enqueue(currentNode, 1.0);
         }
         this._takeCurrentTransitionSnapshot(transitionSource);
-        this._dropCurrentTransition();
+        // Drop transitions.
+        // Do not inactivate the transitions since in snapshot mode, transitions are treated as inactivated.
+        // They will be inactivated when the snapshot is cleared.
+        this._dropCurrentTransition(false);
         // Install the snapshot as "current"
         this._currentNode = this._transitionSnapshot;
         const ranIntoNonMotionState = this._switchTo(transition);
@@ -1456,6 +1500,15 @@ class LayerEval {
         }
 
         transitionSnapshot.enqueue(currentTransitionToNode, ratio);
+        transitionSnapshot.transferTransitions(currentTransitionPath);
+    }
+
+    private _accumulateCurrentStateDeltaTime (deltaTime: number) {
+        const { _currentNode: currentNode } = this;
+        this._fromUpdated = true;
+        if (currentNode.kind === NodeKind.animation) {
+            currentNode.updateFromPort(deltaTime);
+        }
     }
 
     private _resetTriggersOnTransition (transition: TransitionEval) {
@@ -1759,6 +1812,14 @@ export class MotionStateEval extends StateEval {
         return this._fromPort.progress * this.duration;
     }
 
+    get toPortTime () {
+        if (DEBUG) {
+            // See `this.finishTransition()`
+            assertIsTrue(!Number.isNaN(this._toPort.progress));
+        }
+        return this._toPort.progress * this.duration;
+    }
+
     public updateFromPort (deltaTime: number) {
         this._fromPort.progress = calcProgressUpdate(
             this._fromPort.progress,
@@ -1962,6 +2023,12 @@ class TransitionSnapshotEval extends StateEval {
 
     public clear () {
         this._queue.length = 0;
+
+        const { _heldTransitions: heldTransitions } = this;
+        const nTransitions = heldTransitions.length;
+        for (let iTransition = 0; iTransition < nTransitions; ++iTransition) {
+            heldTransitions[iTransition].activated = false;
+        }
     }
 
     public enqueue (state: MotionStateEval, weight: number) {
@@ -1974,7 +2041,15 @@ class TransitionSnapshotEval extends StateEval {
         queue.push(new QueuedMotion(state, weight));
     }
 
+    public transferTransitions (transitions: readonly TransitionEval[]) {
+        if (DEBUG) {
+            assertIsTrue(transitions.every((transition) => transition.activated));
+        }
+        this._heldTransitions.push(...transitions);
+    }
+
     private _queue: QueuedMotion[] = [];
+    private _heldTransitions: TransitionEval[] = [];
 }
 
 export type NodeEval = MotionStateEval | SpecialStateEval | EmptyStateEval | TransitionSnapshotEval;
@@ -1993,6 +2068,11 @@ interface TransitionEval {
      */
     triggers: string[] | undefined;
     interruption: TransitionInterruptionSource;
+
+    /**
+     * Whether the transition is activated, if it has already been activated, it can not be activated(matched) again.
+     */
+    activated: boolean;
 }
 
 export type { VarInstance } from './variable';

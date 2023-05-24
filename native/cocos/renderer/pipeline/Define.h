@@ -261,7 +261,8 @@ enum class CC_DLL ModelLocalBindings {
 
     SAMPLER_REFLECTION_PROBE_CUBE,
     SAMPLER_REFLECTION_PROBE_PLANAR,
-
+    SAMPLER_REFLECTION_PROBE_DATA_MAP,
+    SAMPLER_REFLECTION_PROBE_BLEND_CUBE,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(ModelLocalBindings)
@@ -296,7 +297,11 @@ struct CC_DLL UBOLocal {
     static constexpr uint32_t MAT_WORLD_IT_OFFSET = UBOLocal::MAT_WORLD_OFFSET + 16;
     static constexpr uint32_t LIGHTINGMAP_UVPARAM = UBOLocal::MAT_WORLD_IT_OFFSET + 16;
     static constexpr uint32_t LOCAL_SHADOW_BIAS = UBOLocal::LIGHTINGMAP_UVPARAM + 4;
-    static constexpr uint32_t COUNT = UBOLocal::LOCAL_SHADOW_BIAS + 4;
+    static constexpr uint32_t REFLECTION_PROBE_DATA1 = UBOLocal::LOCAL_SHADOW_BIAS + 4;
+    static constexpr uint32_t REFLECTION_PROBE_DATA2 = UBOLocal::REFLECTION_PROBE_DATA1 + 4;
+    static constexpr uint32_t REFLECTION_PROBE_BLEND_DATA1 = UBOLocal::REFLECTION_PROBE_DATA2 + 4;
+    static constexpr uint32_t REFLECTION_PROBE_BLEND_DATA2 = UBOLocal::REFLECTION_PROBE_BLEND_DATA1 + 4;
+    static constexpr uint32_t COUNT = UBOLocal::REFLECTION_PROBE_BLEND_DATA2 + 4;
     static constexpr uint32_t SIZE = UBOLocal::COUNT * 4;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_LOCAL);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
@@ -321,7 +326,8 @@ struct CC_DLL UBOForwardLight {
     static constexpr uint32_t LIGHT_COLOR_OFFSET = UBOForwardLight::LIGHT_POS_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
     static constexpr uint32_t LIGHT_SIZE_RANGE_ANGLE_OFFSET = UBOForwardLight::LIGHT_COLOR_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
     static constexpr uint32_t LIGHT_DIR_OFFSET = UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
-    static constexpr uint32_t COUNT = UBOForwardLight::LIGHT_DIR_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
+    static constexpr uint32_t LIGHT_BOUNDING_SIZE_VS_OFFSET = UBOForwardLight::LIGHT_DIR_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
+    static constexpr uint32_t COUNT = UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
     static constexpr uint32_t SIZE = UBOForwardLight::COUNT * 4;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_FORWARD_LIGHTS);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
@@ -442,13 +448,11 @@ struct CC_DLL UBOGlobal {
     static constexpr uint32_t TIME_OFFSET = 0;
     static constexpr uint32_t SCREEN_SIZE_OFFSET = UBOGlobal::TIME_OFFSET + 4;
     static constexpr uint32_t NATIVE_SIZE_OFFSET = UBOGlobal::SCREEN_SIZE_OFFSET + 4;
+    static constexpr uint32_t PROBE_INFO_OFFSET = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
 
-    static constexpr uint32_t DEBUG_VIEW_MODE_OFFSET = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
-    static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 4;
-    static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
-    static constexpr uint32_t DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
+    static constexpr uint32_t DEBUG_VIEW_MODE_OFFSET = UBOGlobal::PROBE_INFO_OFFSET + 4;
 
-    static constexpr uint32_t COUNT = UBOGlobal::DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET + 4;
+    static constexpr uint32_t COUNT = UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 4;
 
     static constexpr uint32_t SIZE = UBOGlobal::COUNT * 4;
     static constexpr uint32_t BINDING = static_cast<uint32_t>(PipelineGlobalBindings::UBO_GLOBAL);
@@ -553,8 +557,10 @@ const uint32_t CAMERA_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & 
 uint32_t nextPow2(uint32_t val);
 
 bool supportsR16HalfFloatTexture(const gfx::Device *device);
+bool supportsRGBA16HalfFloatTexture(const gfx::Device *device);
 
 bool supportsR32FloatTexture(const gfx::Device *device);
+bool supportsRGBA32FloatTexture(const gfx::Device *device);
 
 extern CC_DLL uint32_t skyboxFlag;
 
@@ -658,6 +664,20 @@ struct CC_DLL REFLECTIONPROBECUBEMAP {
 
 struct CC_DLL REFLECTIONPROBEPLANARMAP {
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_PLANAR);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL REFLECTIONPROBEDATAMAP {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_DATA_MAP);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL REFLECTIONPROBEBLENDCUBEMAP {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_BLEND_CUBE);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSamplerTexture LAYOUT;
     static const ccstd::string NAME;

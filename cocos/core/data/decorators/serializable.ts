@@ -29,7 +29,7 @@ import { PropertyStash, PropertyStashInternalFlag } from '../class-stash';
 import { getOrCreateSerializationMetadata } from '../serialization-metadata';
 
 /**
- * True if serialization feature is enabled in current environment.
+ * True if the serialization feature is enabled in the current environment.
  * @engineInternal
  */
 const WITH_SERIALIZATION = EDITOR || TEST;
@@ -72,9 +72,9 @@ function setImplicitSerializable (propertyStash: PropertyStash) {
 /**
  * @en
  * Marks the target class as "uniquely referenced" which means, in the aspect of serialization,
- * no more than one objects should reference to same instance of that class.
+ * no more than one object should reference the same instance of that class.
  * When serializing references to objects of such class,
- * they're treated as different object even they point to actually the same.
+ * they're treated as different objects even if they point to actually the same.
  * While deserializing, these two references would point two distinct objects.
  * For example:
  * ```ts

@@ -34,7 +34,8 @@
 #include "base/std/container/queue.h"
 #include "platform/FileUtils.h"
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    // OpenHarmony and Android use the same audio playback module
     #include "audio/android/AudioEngine-inl.h"
 #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
     #include "audio/apple/AudioEngine-inl.h"
@@ -336,7 +337,7 @@ void AudioEngine::onEnterBackground() {
         }
     }
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     if (sAudioEngineImpl) {
         sAudioEngineImpl->onPause();
     }
@@ -354,7 +355,7 @@ void AudioEngine::onEnterForeground() {
     }
     sBreakAudioID.clear();
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     if (sAudioEngineImpl) {
         sAudioEngineImpl->onResume();
     }

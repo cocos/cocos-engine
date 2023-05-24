@@ -278,8 +278,10 @@ export class Input {
         this._dispatchOrPushEventTouch(eventTouch, this._eventTouchList);
     }
 
-    // TODO: public in engine
-    private _registerEventDispatcher (eventDispatcher: IEventDispatcher) {
+    /**
+     * @engineInternal
+     */
+    public _registerEventDispatcher (eventDispatcher: IEventDispatcher) {
         this._eventDispatcherList.push(eventDispatcher);
         this._eventDispatcherList.sort((a, b) => b.priority - a.priority);
     }
@@ -345,6 +347,7 @@ export class Input {
             const eventGamepadList = this._eventGamepadList;
             GamepadInputDevice._on(InputEventType.GAMEPAD_CHANGE, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
             GamepadInputDevice._on(InputEventType.GAMEPAD_INPUT, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
+            GamepadInputDevice._on(InputEventType.HANDLE_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventGamepadList); });
         }
 
         if (sys.hasFeature(sys.Feature.EVENT_HANDLE)) {
@@ -364,7 +367,10 @@ export class Input {
         }
     }
 
-    private _clearEvents () {
+    /**
+     * @engineInternal
+     */
+    public _clearEvents () {
         this._eventMouseList.length = 0;
         this._eventTouchList.length = 0;
         this._eventKeyboardList.length = 0;
@@ -396,7 +402,10 @@ export class Input {
         }
     }
 
-    private _frameDispatchEvents () {
+    /**
+     * @engineInternal
+     */
+    public _frameDispatchEvents () {
         const eventHMDList = this._eventHMDList;
         // TODO: culling event queue
         for (let i = 0, length = eventHMDList.length; i < length; ++i) {

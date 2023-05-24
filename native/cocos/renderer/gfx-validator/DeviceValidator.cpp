@@ -266,33 +266,17 @@ Sampler *DeviceValidator::getSampler(const SamplerInfo &info) {
 }
 
 GeneralBarrier *DeviceValidator::getGeneralBarrier(const GeneralBarrierInfo &info) {
-    if (info.prevAccesses > AccessFlagBit::PRESENT) {
-        // Write access should appear on its own.
-        CC_ASSERT(math::isPowerOfTwo(toNumber(info.prevAccesses)));
-    }
-    if (info.nextAccesses > AccessFlagBit::PRESENT) {
-        // Write access should appear on its own.
-        CC_ASSERT(math::isPowerOfTwo(toNumber(info.nextAccesses)));
-    }
-
     /////////// execute ///////////
-
     return _actor->getGeneralBarrier(info);
 }
 
 TextureBarrier *DeviceValidator::getTextureBarrier(const TextureBarrierInfo &info) {
-    if (info.prevAccesses > AccessFlagBit::PRESENT) {
-        // Write access should appear on its own.
-        CC_ASSERT(math::isPowerOfTwo(toNumber(info.prevAccesses)));
-    }
-    if (info.nextAccesses > AccessFlagBit::PRESENT) {
-        // Write access should appear on its own.
-        CC_ASSERT(math::isPowerOfTwo(toNumber(info.nextAccesses)));
-    }
-
     /////////// execute ///////////
-
     return _actor->getTextureBarrier(info);
+}
+
+BufferBarrier *DeviceValidator::getBufferBarrier(const BufferBarrierInfo &info) {
+    return _actor->getBufferBarrier(info);
 }
 
 void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
@@ -358,6 +342,14 @@ void DeviceValidator::getQueryPoolResults(QueryPool *queryPool) {
     auto *queryPoolValidator = static_cast<QueryPoolValidator *>(queryPool);
     std::lock_guard<std::mutex> lock(actorQueryPoolValidator->_mutex);
     queryPoolValidator->_results = actorQueryPoolValidator->_results;
+}
+
+void DeviceValidator::enableAutoBarrier(bool en) {
+    _actor->enableAutoBarrier(en);
+}
+
+void DeviceValidator::frameSync() {
+    _actor->frameSync();
 }
 
 } // namespace gfx

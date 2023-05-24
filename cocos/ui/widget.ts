@@ -699,7 +699,9 @@ export class Widget extends Component {
 
     /**
      * @zh
-     * 对齐开关，由 AlignFlags 组成
+     * 对齐标志位。
+     * @en
+     * Align flags.
      */
     @editable
     get alignFlags () {
@@ -1013,6 +1015,9 @@ export class Widget extends Component {
     }
 }
 
+/**
+ * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+ */
 export declare namespace Widget {
     export type AlignMode = EnumAlias<typeof AlignMode>;
 }

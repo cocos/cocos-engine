@@ -50,7 +50,7 @@ DescriptorSetAgent::~DescriptorSetAgent() {
 
 void DescriptorSetAgent::doInit(const DescriptorSetInfo &info) {
     DescriptorSetInfo actorInfo;
-    actorInfo.layout = static_cast<DescriptorSetLayoutAgent *>(info.layout)->getActor();
+    actorInfo.layout = static_cast<const DescriptorSetLayoutAgent *>(info.layout)->getActor();
 
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(),

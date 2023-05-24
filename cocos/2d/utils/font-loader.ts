@@ -24,7 +24,6 @@
 
 import { warnID } from '../../core';
 import { safeMeasureText } from './text-utils';
-import { CompleteCallback, IDownloadParseOptions } from '../../asset/asset-manager/shared';
 import downloader from '../../asset/asset-manager/downloader';
 import factory from '../../asset/asset-manager/factory';
 import { TTFFont } from '../assets/ttf-font';
@@ -35,7 +34,7 @@ const ccdocument = ccwindow.document;
 interface IFontLoadHandle {
     fontFamilyName: string;
     refWidth: number;
-    onComplete: CompleteCallback;
+    onComplete: ((err: Error | null, data?: any | null) => void);
     startTime: number;
 }
 
@@ -110,7 +109,7 @@ function checkFontLoaded () {
 }
 
 // refer to https://github.com/typekit/webfontloader/blob/master/src/core/nativefontwatchrunner.js
-function nativeCheckFontLoaded (start: number, font: string, callback: CompleteCallback): void {
+function nativeCheckFontLoaded (start: number, font: string, callback: ((err: Error | null, data?: any | null) => void)): void {
     const loader = new Promise<void>((resolve, reject) => {
         const check = () => {
             const now = Date.now();
@@ -151,7 +150,7 @@ function nativeCheckFontLoaded (start: number, font: string, callback: CompleteC
     });
 }
 
-export function loadFont (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
+export function loadFont (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) {
     const fontFamilyName = getFontFamily(url);
     // Already loaded fonts
     if (_fontFaces[fontFamilyName]) {
@@ -228,7 +227,7 @@ export function getFontFamily (fontHandle: string): string {
     return fontFamilyName;
 }
 
-function createFont (id: string, data: string, options: IDownloadParseOptions, onComplete: CompleteCallback<TTFFont>) {
+function createFont (id: string, data: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: TTFFont | null) => void)) {
     const out = new TTFFont();
     out._nativeUrl = id;
     out._nativeAsset = data;

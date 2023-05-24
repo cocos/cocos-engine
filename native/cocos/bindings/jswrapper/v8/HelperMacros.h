@@ -37,7 +37,7 @@
 #include "base/Macros.h"
 #include "base/std/container/string.h"
 
-//#define RECORD_JSB_INVOKING
+// #define RECORD_JSB_INVOKING
 
 #ifndef CC_DEBUG
     #undef RECORD_JSB_INVOKING
@@ -141,6 +141,7 @@ void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value> &,
 
     #define SE_BIND_FUNC_FAST(funcName)                                                                          \
         void funcName##Registry(const v8::FunctionCallbackInfo<v8::Value> &_v8args) {                            \
+            JsbInvokeScope(#funcName);                                                                           \
             auto *thisObject = static_cast<se::Object *>(_v8args.This()->GetAlignedPointerFromInternalField(0)); \
             auto *nativeObject = thisObject != nullptr ? thisObject->getPrivateData() : nullptr;                 \
             funcName(nativeObject);                                                                              \
@@ -188,7 +189,7 @@ void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value> &,
     #define SE_QUOTEME(x)  SE_QUOTEME_(x)
 
     // IDEA: implement this macro
-    //#define SE_REPORT_ERROR(fmt, ...) SE_LOGE(SE_STR_CONCAT3("[ERROR] ( %s, %d): ", fmt, "\n"), __FILE__, __LINE__, ##__VA_ARGS__)
+    // #define SE_REPORT_ERROR(fmt, ...) SE_LOGE(SE_STR_CONCAT3("[ERROR] ( %s, %d): ", fmt, "\n"), __FILE__, __LINE__, ##__VA_ARGS__)
     #define SE_REPORT_ERROR(fmt, ...) selogMessage(cc::LogLevel::ERR, "[SE_ERROR]", (" (%s, %d): " fmt), __FILE__, __LINE__, ##__VA_ARGS__)
 
     #if CC_DEBUG > 0

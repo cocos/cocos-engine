@@ -141,7 +141,7 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return null;
         }
-        return this._particleSystem.getMaterial(0) as Material;
+        return this._particleSystem.getSharedMaterial(0) as Material;
     }
 
     public set particleMaterial (val: Material | null) {
@@ -221,7 +221,7 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return null;
         }
-        return this._particleSystem.getMaterial(1) as Material;
+        return this._particleSystem.getSharedMaterial(1) as Material;
     }
 
     public set trailMaterial (val: Material | null) {

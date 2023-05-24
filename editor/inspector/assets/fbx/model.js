@@ -29,6 +29,10 @@ exports.template = /* html */`
         <ui-checkbox slot="content" class="allowMeshDataAccess-checkbox"></ui-checkbox>
     </ui-prop>
     <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.addVertexColor.name" tooltip="i18n:ENGINE.assets.fbx.addVertexColor.title"></ui-label>
+        <ui-checkbox slot="content" class="addVertexColor-checkbox"></ui-checkbox>
+    </ui-prop>
+    <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.promoteSingleRootNode.name" tooltip="i18n:ENGINE.assets.fbx.promoteSingleRootNode.title"></ui-label>
         <ui-checkbox slot="content" class="promoteSingleRootNode-checkbox"></ui-checkbox>
     </ui-prop>
@@ -96,8 +100,20 @@ exports.template = /* html */`
                 <ui-slider slot="content" class="meshOptimizer-targetRatio-slider" min="0" max="1" step="0.01"></ui-slider>
             </ui-prop>
             <ui-prop>
-                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.enableSmartLink.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.enableSmartLink.title"></ui-label>
-                <ui-checkbox slot="content" class="meshOptimizer-enableSmartLink-checkbox"></ui-checkbox>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveSurfaceCurvature.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveSurfaceCurvature.title"></ui-label>
+                <ui-checkbox slot="content" class="meshOptimizer-preserveSurfaceCurvature-checkbox"></ui-checkbox>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveBorderEdges.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveBorderEdges.title"></ui-label>
+                <ui-checkbox slot="content" class="meshOptimizer-preserveBorderEdges-checkbox"></ui-checkbox>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveUVSeamEdges.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveUVSeamEdges.title"></ui-label>
+                <ui-checkbox slot="content" class="meshOptimizer-preserveUVSeamEdges-checkbox"></ui-checkbox>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveUVFoldoverEdges.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.preserveUVFoldoverEdges.title"></ui-label>
+                <ui-checkbox slot="content" class="meshOptimizer-preserveUVFoldoverEdges-checkbox"></ui-checkbox>
             </ui-prop>
             <ui-prop>
                 <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.agressiveness.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.agressiveness.title"></ui-label>
@@ -107,6 +123,17 @@ exports.template = /* html */`
                 <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.maxIterationCount.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.maxIterationCount.title"></ui-label>
                 <ui-slider slot="content" class="meshOptimizer-maxIterationCount-slider" min="100" max="200" step="1"></ui-slider>
             </ui-prop>
+        </div>
+    </ui-section>
+    <ui-section class="lods config" cache-expand="fbx-mode-lods">
+        <div slot="header" class="lods-header">
+            <ui-checkbox class="lods-checkbox"></ui-checkbox>
+            <ui-label value="LODS" tooltip="To import LODs, please make sure the LOD mesh names are ending with _LOD#"></ui-label>
+        </div>
+        <div class="lod-items"></div>
+        <div class="no-lod-label" hidden>There is no LOD(Level of Details) group can be detected in this model.LOD levels can be automatically generated with above settings.</div>
+        <div class="load-mask">
+            <ui-loading></ui-loading>
         </div>
     </ui-section>
 </div>
@@ -130,7 +157,8 @@ ui-section {
 .mesh-optimizer .simplify-options > ui-prop {
     padding-left: 20px;
 }
-.mesh-optimizer ui-section > ui-prop {
+.mesh-optimizer ui-section > ui-prop,
+.lods ui-section > ui-prop {
     padding-left: 10px;
 }
 .mesh-optimizer .warn-words {
@@ -139,6 +167,100 @@ ui-section {
 .mesh-optimizer .gltfpack-options .warn-words {
     padding-left: 10px;
     margin-top: 0;
+}
+
+.lod-item {
+    padding-left: 20px;
+}
+.lod-item .lod-item-header {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+.lod-item .lod-item-header .left {
+    flex: 1;
+}
+.lod-item .lod-item-header .middle,
+.lod-item .lod-item-header .right {
+    display: flex;
+    flex: 2;
+    text-align: right;
+}
+.lod-item .lod-item-header .middle {
+    margin: 0 4px;
+}
+.lod-item .lod-item-header .middle[hidden] {
+    display: none;
+}
+.lod-item .lod-item-header .middle > ui-num-input {
+    width: 48px;
+    margin-left: 4px;
+}
+.lod-item .lod-item-header .middle .face-count,
+.lod-item .lod-item-header .right .triangles {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 0;
+}
+.lod-item .lod-item-header .right .operator {
+    display: none;
+    margin-left: 8px;
+    background: var(--color-default-fill);
+    border-color: var(--color-default-border);
+    border-radius: calc(var(--size-normal-radius) * 1px);
+}
+.lod-item .lod-item-header .right .operator > ui-icon {
+    padding: 0 5px;
+    transition: color 0.15s;
+    color: var(--color-default-contrast-emphasis);
+    position: relative;
+}
+.lod-item .lod-item-header .right .operator > ui-icon + ui-icon {
+    margin-left: 1px;
+}
+.lod-item .lod-item-header .right .operator > ui-icon + ui-icon::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 12px;
+    position: absolute;
+    top: 6px;
+    left: -1px;
+    background: var(--color-normal-fill-normal);
+}
+.lod-item .lod-item-header:hover .right .operator:not([hidden]) {
+    display: flex;
+}
+.lod-item .lod-item-header .right .operator > ui-icon:hover {
+    background: var(--color-hover-fill-weaker);
+    color: var(--color-focus-contrast-emphasis);
+}
+.lods .no-lod-label {
+    padding-left: 20px;
+    margin-top: 4px;
+    color: var(--color-default-fill-weakest)
+}
+.lods .no-lod-label[hidden] {
+    display: none;
+}
+.lods .load-mask {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    text-align: center;
+    background-color: #1b1d1db0;
+    z-index: 10;
+    display: none;
+}
+.lods .load-mask > ui-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 `;
 
@@ -150,6 +272,7 @@ exports.$ = {
     skipValidationCheckbox: '.skipValidation-checkbox',
     disableMeshSplitCheckbox: '.disableMeshSplit-checkbox',
     allowMeshDataAccessCheckbox: '.allowMeshDataAccess-checkbox',
+    addVertexColorCheckbox: '.addVertexColor-checkbox',
     promoteSingleRootNodeCheckbox: '.promoteSingleRootNode-checkbox',
     generateLightmapUVNodeCheckbox: '.generateLightmapUVNode-checkbox',
     meshOptimizerCheckbox: '.meshOptimizer-checkbox',
@@ -165,9 +288,17 @@ exports.$ = {
     // simplifyOptions
     meshOptimizerSimplifyOptions: '.simplify-options',
     meshOptimizerTargetRatioSlider: '.meshOptimizer-targetRatio-slider',
-    meshOptimizerEnableSmartLinkCheckbox: '.meshOptimizer-enableSmartLink-checkbox',
+    meshOptimizerPreserveSurfaceCurvatureCheckbox: '.meshOptimizer-preserveSurfaceCurvature-checkbox',
+    meshOptimizerPreserveBorderEdgesCheckbox: '.meshOptimizer-preserveBorderEdges-checkbox',
+    meshOptimizerPreserveUVSeamEdgesCheckbox: '.meshOptimizer-preserveUVSeamEdges-checkbox',
+    meshOptimizerPreserveUVFoldoverEdgesCheckbox: '.meshOptimizer-preserveUVFoldoverEdges-checkbox',
     meshOptimizerAgressivenessSlider: '.meshOptimizer-agressiveness-slider',
     meshOptimizerMaxIterationCountSlider: '.meshOptimizer-maxIterationCount-slider',
+    // lods
+    lodsCheckbox: '.lods-checkbox',
+    lodItems: '.lod-items',
+    noLodLabel: '.no-lod-label',
+    loadMask: '.load-mask',
 };
 
 const Elements = {
@@ -304,6 +435,28 @@ const Elements = {
 
             updateElementInvalid.call(panel, panel.$.allowMeshDataAccessCheckbox, 'allowMeshDataAccess');
             updateElementReadonly.call(panel, panel.$.allowMeshDataAccessCheckbox);
+        },
+    },
+    addVertexColorCheckbox: {
+        ready() {
+            const panel = this;
+
+            panel.$.addVertexColorCheckbox.addEventListener('change', panel.setProp.bind(panel, 'addVertexColor', 'boolean'));
+            panel.$.addVertexColorCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            let defaultValue = false;
+            if (panel.meta.userData) {
+                defaultValue = getPropValue.call(panel, panel.meta.userData.addVertexColor, defaultValue);
+            }
+            panel.$.addVertexColorCheckbox.value = defaultValue;
+
+            updateElementInvalid.call(panel, panel.$.addVertexColorCheckbox, 'addVertexColor');
+            updateElementReadonly.call(panel, panel.$.addVertexColorCheckbox);
         },
     },
     // move this from ./fbx.js in v3.6.0
@@ -538,21 +691,72 @@ const Elements = {
             updateElementReadonly.call(panel, panel.$.meshOptimizerTargetRatioSlider);
         },
     },
-    enableSmartLink: {
+    preserveSurfaceCurvature: {
         ready() {
             const panel = this;
-            panel.$.meshOptimizerEnableSmartLinkCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.enableSmartLink', 'boolean'));
-            panel.$.meshOptimizerEnableSmartLinkCheckbox.addEventListener('confirm', () => {
+            panel.$.meshOptimizerPreserveSurfaceCurvatureCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.preserveSurfaceCurvature', 'boolean'));
+            panel.$.meshOptimizerPreserveSurfaceCurvatureCheckbox.addEventListener('confirm', () => {
                 panel.dispatch('snapshot');
             });
         },
         update() {
             const panel = this;
 
-            panel.$.meshOptimizerEnableSmartLinkCheckbox.value = getPropValue.call(panel, panel.meta.userData, true, 'meshOptimizer.simplifyOptions.enableSmartLink');
+            panel.$.meshOptimizerPreserveSurfaceCurvatureCheckbox.value = getPropValue.call(panel, panel.meta.userData, false, 'meshOptimizer.simplifyOptions.preserveSurfaceCurvature');
 
-            updateElementInvalid.call(panel, panel.$.meshOptimizerEnableSmartLinkCheckbox, 'meshOptimizer.simplifyOptions.enableSmartLink');
-            updateElementReadonly.call(panel, panel.$.meshOptimizerEnableSmartLinkCheckbox);
+            updateElementInvalid.call(panel, panel.$.meshOptimizerPreserveSurfaceCurvatureCheckbox, 'meshOptimizer.simplifyOptions.preserveSurfaceCurvature');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerPreserveSurfaceCurvatureCheckbox);
+        },
+    },
+    preserveBorderEdges: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerPreserveBorderEdgesCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.preserveBorderEdges', 'boolean'));
+            panel.$.meshOptimizerPreserveBorderEdgesCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerPreserveBorderEdgesCheckbox.value = getPropValue.call(panel, panel.meta.userData, false, 'meshOptimizer.simplifyOptions.preserveBorderEdges');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerPreserveBorderEdgesCheckbox, 'meshOptimizer.simplifyOptions.preserveBorderEdges');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerPreserveBorderEdgesCheckbox);
+        },
+    },
+    preserveUVSeamEdges: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerPreserveUVSeamEdgesCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.preserveUVSeamEdges', 'boolean'));
+            panel.$.meshOptimizerPreserveUVSeamEdgesCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerPreserveUVSeamEdgesCheckbox.value = getPropValue.call(panel, panel.meta.userData, false, 'meshOptimizer.simplifyOptions.preserveUVSeamEdges');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerPreserveUVSeamEdgesCheckbox, 'meshOptimizer.simplifyOptions.preserveUVSeamEdges');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerPreserveUVSeamEdgesCheckbox);
+        },
+    },
+    preserveUVFoldoverEdges: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerPreserveUVFoldoverEdgesCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.preserveUVFoldoverEdges', 'boolean'));
+            panel.$.meshOptimizerPreserveUVFoldoverEdgesCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerPreserveUVFoldoverEdgesCheckbox.value = getPropValue.call(panel, panel.meta.userData, false, 'meshOptimizer.simplifyOptions.preserveUVFoldoverEdges');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerPreserveUVFoldoverEdgesCheckbox, 'meshOptimizer.simplifyOptions.preserveUVFoldoverEdges');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerPreserveUVFoldoverEdgesCheckbox);
         },
     },
     agressiveness: {
@@ -566,7 +770,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.meshOptimizerAgressivenessSlider.value = getPropValue.call(panel, panel.meta.userData, 1, 'meshOptimizer.simplifyOptions.agressiveness');
+            panel.$.meshOptimizerAgressivenessSlider.value = getPropValue.call(panel, panel.meta.userData, 7, 'meshOptimizer.simplifyOptions.agressiveness');
 
             updateElementInvalid.call(panel, panel.$.meshOptimizerAgressivenessSlider, 'meshOptimizer.simplifyOptions.agressiveness');
             updateElementReadonly.call(panel, panel.$.meshOptimizerAgressivenessSlider);
@@ -583,14 +787,121 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.meshOptimizerMaxIterationCountSlider.value = getPropValue.call(panel, panel.meta.userData, 1, 'meshOptimizer.simplifyOptions.maxIterationCount');
+            panel.$.meshOptimizerMaxIterationCountSlider.value = getPropValue.call(panel, panel.meta.userData, 100, 'meshOptimizer.simplifyOptions.maxIterationCount');
 
             updateElementInvalid.call(panel, panel.$.meshOptimizerMaxIterationCountSlider, 'meshOptimizer.simplifyOptions.maxIterationCount');
             updateElementReadonly.call(panel, panel.$.meshOptimizerMaxIterationCountSlider);
         },
     },
     // simplifyOptions end
+    // lods start
+    lods: {
+        ready() {
+            const panel = this;
 
+            // Listening lod on and off
+            panel.$.lodsCheckbox.addEventListener('change', panel.setProp.bind(panel, 'lods.enable', 'boolean'));
+            panel.$.lodsCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+            // listening for screenRatio and faceCount changes
+            panel.$.lodItems.addEventListener('change', (event) => {
+                const path = event.target.getAttribute('path');
+                const index = Number(event.target.getAttribute('key'));
+                const value = Editor.Utils.Math.divide(event.target.value, 100);
+                switch (path) {
+                    case 'screenRatio':
+                        // TODO: Min/max of the screenRatio for each level of LOD
+                        panel.metaList.forEach((meta) => {
+                            meta.userData.lods && (meta.userData.lods.options[index].screenRatio = value);
+                        });
+                        panel.dispatch('change');
+                        break;
+                    case 'faceCount':
+                        // TODO: Min/max of the faceCount for each level of LOD
+                        panel.metaList.forEach((meta) => {
+                            meta.userData.lods && (meta.userData.lods.options[index].faceCount = value);
+                        });
+                        panel.dispatch('change');
+                        break;
+                }
+            });
+            panel.$.lodItems.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.lodsCheckbox.value = getPropValue.call(panel, panel.meta.userData.lods, false, 'enable');
+            const lodOptions = panel.meta.userData.lods && panel.meta.userData.lods.options || [];
+            const hasBuiltinLOD = panel.meta.userData.lods && panel.meta.userData.lods.hasBuiltinLOD || false;
+            panel.$.lodItems.innerHTML = getLodItemHTML(lodOptions, panel.LODTriangleCounts, hasBuiltinLOD);
+            hasBuiltinLOD ? panel.$.noLodLabel.setAttribute('hidden', '') : panel.$.noLodLabel.removeAttribute('hidden');
+            if (panel.$.loadMask.style.display === 'block' && this.asset.imported) {
+                panel.$.loadMask.style.display = 'none';
+            }
+            // Listening to the addition and removal of the lod hierarchy
+            const uiIcons = panel.$.lodItems.querySelectorAll('ui-icon[value="add"], .lod-items ui-icon[value="reduce"]');
+            uiIcons.forEach((uiIcon) => {
+                uiIcon.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const path = event.target.getAttribute('path');
+                    const index = Number(event.target.getAttribute('key'));
+                    const lods = panel.meta.userData.lods;
+                    if (!lods) {
+                        return;
+                    }
+
+                    if (path === 'insertLod') {
+                        if (Object.keys(lods.options).length >= 8) {
+                            console.warn('Maximum 8 LOD, Can\'t add more LOD');
+                            return;
+                        }
+                        const preScreenRatio = lods.options[index].screenRatio;
+                        const nextScreenRatio = lods.options[index + 1] ? lods.options[index + 1].screenRatio : 0;
+                        const preFaceCount = lods.options[index].faceCount;
+                        const nextFaceCount = lods.options[index + 1] ? lods.options[index + 1].faceCount : 0;
+                        const option = {
+                            screenRatio: (preScreenRatio + nextScreenRatio) / 2,
+                            faceCount: (preFaceCount + nextFaceCount) / 2,
+                        };
+                        // Insert the specified lod level
+                        for (let keyIndex = Object.keys(lods.options).length - 1; keyIndex > index; keyIndex--) {
+                            lods.options[keyIndex + 1] = lods.options[keyIndex];
+                            panel.LODTriangleCounts[keyIndex + 1] = panel.LODTriangleCounts[keyIndex];
+                        }
+                        lods.options[index + 1] = option;
+                        panel.LODTriangleCounts[index + 1] = 0;
+                        // update panel
+                        Elements.lods.update.call(panel);
+                        panel.dispatch('change');
+                        panel.dispatch('snapshot');
+                    } else if (path === 'deleteLod') {
+                        if (Object.keys(lods.options).length <= 1) {
+                            console.warn('At least one LOD, Can\'t delete any more');
+                            return;
+                        }
+                        // Delete the specified lod level
+                        for (let key = index; key < Object.keys(lods.options).length; key++) {
+                            lods.options[key] = lods.options[key + 1];
+                            panel.LODTriangleCounts[key] = panel.LODTriangleCounts[key + 1];
+                        }
+                        lods.options.pop();
+                        panel.LODTriangleCounts.pop();
+                        // update panel
+                        Elements.lods.update.call(panel);
+                        panel.dispatch('change');
+                        panel.dispatch('snapshot');
+                    }
+                });
+            });
+
+            updateElementInvalid.call(panel, panel.$.lodsCheckbox, 'lods.enable');
+            updateElementReadonly.call(panel, panel.$.lodsCheckbox, hasBuiltinLOD);
+        },
+    },
+    // lods end
 };
 
 exports.methods = {
@@ -603,9 +914,15 @@ exports.methods = {
         this.dispatch('change');
         this.dispatch('track', { tab: 'model', prop, value: event.target.value });
     },
+    apply() {
+        this.$.loadMask.style.display = 'block';
+    }
 };
 
 exports.ready = function() {
+    this.applyFun = this.apply.bind(this);
+    Editor.Message.addBroadcastListener('fbx-inspector:apply', this.applyFun);
+
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -619,6 +936,7 @@ exports.update = function(assetList, metaList) {
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];
+    this.LODTriangleCounts = handleLODTriangleCounts(this.meta);
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -629,6 +947,8 @@ exports.update = function(assetList, metaList) {
 };
 
 exports.close = function() {
+    Editor.Message.removeBroadcastListener('fbx-inspector:apply', this.applyFun);
+
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
@@ -636,3 +956,62 @@ exports.close = function() {
         }
     }
 };
+
+function handleLODTriangleCounts(meta) {
+    if (!meta.userData.lods) {
+        return [];
+    }
+    let LODTriangleCounts = new Array(meta.userData.lods.options.length).fill(0);
+    for (const key in meta.subMetas) {
+        const subMeta = meta.subMetas[key];
+        if (subMeta.importer === 'gltf-mesh') {
+            const { lodOptions, triangleCount, lodLevel } = subMeta.userData;
+            const index = !meta.userData.lods.hasBuiltinLOD ? (lodOptions ? lodLevel : 0) : lodLevel;
+            LODTriangleCounts[index] = (LODTriangleCounts[index] || 0) + (triangleCount || 0);
+        }
+    }
+    return LODTriangleCounts;
+}
+
+function getLodItemHTML(lodOptions, LODTriangleCounts, hasBuiltinLOD = false) {
+    let lodItemsStr = '';
+    for (const index in lodOptions) {
+        const lodItem = lodOptions[index];
+        lodItemsStr += `
+<div class="lod-item">
+    <ui-section cache-expand="fbx-mode-lod-item-${index}">
+        <header slot="header" class="lod-item-header">
+            <div class="left">
+                <span>LOD ${index}</span>
+            </div>
+            <div class="middle" ${ index == 0 || lodOptions[0].faceCount == 0 ? 'hidden' : '' }>
+                <span class="face-count">Face count(%)</span>
+                <ui-num-input path="faceCount" min="0" max="100" key="${index}"
+                    value="${Editor.Utils.Math.multi(lodItem.faceCount, 100)}"
+                    ${ hasBuiltinLOD ? 'disabled' : '' }>
+                </ui-num-input>
+            </div>
+            <div class="right">
+                <div class="triangles">
+                    <span> ${LODTriangleCounts[index] || 0} Triangles</span>
+                </div>
+                <div class="operator" ${ hasBuiltinLOD ? 'hidden' : '' }>
+                    <ui-icon value="add" key="${index}" path="insertLod" tooltip="insert after this LOD"></ui-icon>
+                    <ui-icon value="reduce" key="${index}" path="deleteLod" tooltip="delete this LOD"></ui-icon>
+                </div>
+            </div>
+        </header>
+        <div class="lod-item-content">
+            <ui-prop>
+                <ui-label slot="label" value="Screen Ratio (%)"></ui-label>
+                <ui-num-input slot="content" key="${index}" path="screenRatio" min="0" max="100"
+                    value="${Editor.Utils.Math.multi(lodItem.screenRatio, 100)}">
+                </ui-num-input>
+            </ui-prop>
+        </div>
+    </ui-section>
+</div>`;
+    }
+
+    return lodItemsStr;
+}

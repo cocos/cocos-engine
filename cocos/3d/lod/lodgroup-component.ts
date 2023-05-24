@@ -248,7 +248,7 @@ export class LODGroup extends Component {
     /**
      * @engineInternal
      */
-    set localBoundaryCenter (val: Vec3) {
+    set localBoundaryCenter (val: Readonly<Vec3>) {
         this._localBoundaryCenter.set(val);
         this._lodGroup.localBoundaryCenter = val;
     }
@@ -362,6 +362,7 @@ export class LODGroup extends Component {
         lod.screenUsagePercentage = screenUsagePercentage;
         this._LODs.splice(index, 0, lod);
         this._lodGroup.insertLOD(index, lod.lodData);
+        this._updateDataToScene();
         if (this.node) {
             this._emitChangeNode(this.node);
         }
@@ -386,6 +387,7 @@ export class LODGroup extends Component {
         }
         this._LODs.splice(index, 1);
         this._lodGroup.eraseLOD(index);
+        this._updateDataToScene();
         this._emitChangeNode(this.node);
         return lod;
     }
@@ -418,6 +420,7 @@ export class LODGroup extends Component {
         this._LODs[index] = lod;
         lod.modelAddedCallback = this.onLodModelAddedCallback.bind(this);
         this.lodGroup.updateLOD(index, lod.lodData);
+        this._updateDataToScene();
     }
 
     /**
@@ -626,7 +629,6 @@ export class LODGroup extends Component {
      */
     private _emitChangeNode (node: Node) {
         if (EDITOR) {
-            // @ts-expect-error Because EditorExtends is Editor only
             EditorExtends.Node.emit('change', node.uuid, node);
         }
     }

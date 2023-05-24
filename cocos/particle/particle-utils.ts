@@ -30,10 +30,14 @@ import { ParticleSystem } from './particle-system';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
 
+/**
+ * @en Contains some util functions for particle system. Such as create and destroy particle system.
+ * @zh 该类包含一些粒子系统的工具函数，例如创建和销毁粒子系统。
+ */
 export class ParticleUtils {
     /**
-     * @en instantiate particle system from prefab
-     * @zh 从 prefab 实例化粒子系统
+     * @en Instantiate particle system from prefab.
+     * @zh 从 prefab 实例化粒子系统。
      */
     public static instantiate (prefab) {
         if (!this.registeredSceneEvent) {
@@ -47,6 +51,11 @@ export class ParticleUtils {
         return this.particleSystemPool.get(prefab._uuid)!.alloc();
     }
 
+    /**
+     * @en Destroy particle system prefab.
+     * @zh 销毁创建出来的粒子系统prefab。
+     * @param prefab @en Particle system prefab to destroy. @zh 要销毁的粒子系统prefab。
+     */
     public static destroy (prefab) {
         if (this.particleSystemPool.has(prefab._prefab.asset._uuid)) {
             this.stop(prefab);
@@ -54,12 +63,22 @@ export class ParticleUtils {
         }
     }
 
+    /**
+     * @en Play particle system.
+     * @zh 播放粒子系统。
+     * @param rootNode @en Root node contains the particle system. @zh 包含粒子系统的根节点。
+     */
     public static play (rootNode: Node) {
         for (const ps of rootNode.getComponentsInChildren(ParticleSystem)) {
             (ps).play();
         }
     }
 
+    /**
+     * @en Stop particle system.
+     * @zh 停止播放粒子系统。
+     * @param rootNode @en Root node contains the particle system. @zh 包含粒子系统的根节点。
+     */
     public static stop (rootNode: Node) {
         for (const ps of rootNode.getComponentsInChildren(ParticleSystem)) {
             (ps).stop();

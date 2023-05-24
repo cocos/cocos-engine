@@ -23,7 +23,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import { IUV, SpriteFrame } from '../../assets';
+import { IUV, SpriteFrame } from '../../assets/sprite-frame';
 import { Mat4, Vec3, Color } from '../../../core';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
@@ -34,13 +34,13 @@ import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const m = new Mat4();
 
-let origin:IUV;
-let leftInner:IUV;
-let rightInner:IUV;
-let rightOuter:IUV;
-let bottomInner:IUV;
-let topInner:IUV;
-let topOuter:IUV;
+let origin: IUV;
+let leftInner: IUV;
+let rightInner: IUV;
+let rightOuter: IUV;
+let bottomInner: IUV;
+let topInner: IUV;
+let topOuter: IUV;
 let tempRenderDataLength = 0;
 const tempRenderData: IRenderData[] = [];
 let QUAD_INDICES;
@@ -205,7 +205,7 @@ export const tiled: IAssembler = {
             const y = dataList[i].y;
             const z = dataList[i].z;
             let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
-            rhw = rhw ? Math.abs(1 / rhw) : 1;
+            rhw = rhw ? 1 / rhw : 1;
 
             const offset = i * stride;
             vData[offset] = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) * rhw;
@@ -357,8 +357,8 @@ export const tiled: IAssembler = {
         let coefV = 0;
         const hRepeat = centerWidth === 0 ? sizableWidth : sizableWidth / centerWidth;
         const vRepeat = centerHeight === 0 ? sizableHeight : sizableHeight / centerHeight;
-        const tempXVerts :any = [];
-        const tempYVerts :any = [];
+        const tempXVerts: any = [];
+        const tempYVerts: any = [];
 
         for (let yIndexUV = 0; yIndexUV < row; ++yIndexUV) {
             if (sizableHeight > centerHeight) {

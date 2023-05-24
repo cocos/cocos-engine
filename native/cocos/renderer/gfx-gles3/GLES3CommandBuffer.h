@@ -36,6 +36,7 @@ struct GLES3CmdPackage;
 struct GLES3GPUPipelineState;
 struct GLES3GPUInputAssembler;
 struct GLES3GPUDescriptorSet;
+struct GLES3GPURenderPass;
 
 class CC_GLES3_API GLES3CommandBuffer : public CommandBuffer {
 public:
@@ -62,6 +63,7 @@ public:
     void updateBuffer(Buffer *buff, const void *data, uint32_t size) override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) override;
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
+    void copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override;
     void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const * /*buffers*/, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const * /*textures*/, uint32_t textureBarrierCount) override;

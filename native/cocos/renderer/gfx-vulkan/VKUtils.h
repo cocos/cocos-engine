@@ -72,6 +72,7 @@ ccstd::string mapVendorName(uint32_t vendorID);
 
 void fullPipelineBarrier(VkCommandBuffer cmdBuff);
 const ThsvsAccessType *getAccessType(AccessFlagBit flag);
+ThsvsImageLayout getAccessLayout(AccessFlags flag);
 void getAccessTypes(AccessFlags flag, ccstd::vector<ThsvsAccessType> &v);
 VkDeviceSize roundUp(VkDeviceSize numToRound, uint32_t multiple);
 bool isLayerSupported(const char *required, const ccstd::vector<VkLayerProperties> &available);

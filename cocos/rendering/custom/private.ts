@@ -29,7 +29,7 @@
  */
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { DescriptorSetLayout, Device, PipelineLayout, Shader, ShaderInfo } from '../../gfx';
+import { DescriptorSetLayout, Device, PipelineLayout, PipelineState, Shader, ShaderInfo } from '../../gfx';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 
@@ -41,14 +41,30 @@ export interface ProgramProxy {
 export interface ProgramLibrary {
     addEffect (effectAsset: EffectAsset): void;
     precompileEffect (device: Device, effectAsset: EffectAsset): void;
-    getKey (phaseID: number, programName: string, defines: MacroRecord): string;
-    getPipelineLayout (device: Device, phaseID: number, programName: string): PipelineLayout;
-    getMaterialDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout;
-    getLocalDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout;
+    getKey (
+        phaseID: number,
+        programName: string,
+        defines: MacroRecord): string;
+    getPipelineLayout (
+        device: Device,
+        phaseID: number,
+        programName: string): PipelineLayout;
+    getMaterialDescriptorSetLayout (
+        device: Device,
+        phaseID: number,
+        programName: string): DescriptorSetLayout;
+    getLocalDescriptorSetLayout (
+        device: Device,
+        phaseID: number,
+        programName: string): DescriptorSetLayout;
     getProgramInfo (phaseID: number, programName: string): IProgramInfo;
     getShaderInfo (phaseID: number, programName: string): ShaderInfo;
-    getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null): ProgramProxy | null;
-    getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord/*, null*/): ProgramProxy | null;
+    getProgramVariant (
+        device: Device,
+        phaseID: number,
+        name: string,
+        defines: MacroRecord,
+        key?: string | null): ProgramProxy | null;
     getBlockSizes (phaseID: number, programName: string): number[];
     getHandleMap (phaseID: number, programName: string): Record<string, number>;
     getProgramID (phaseID: number, programName: string): number;

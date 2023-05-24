@@ -123,7 +123,9 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
             entity->setColorDirty(false);
             entity->setVBColorDirty(true);
         }
-        if (entity->isEnabled()) {
+        if (math::isEqualF(entity->getOpacity(), 0)) {
+            breakWalk = true;
+        } else if (entity->isEnabled()) {
             uint32_t size = entity->getRenderDrawInfosSize();
             for (uint32_t i = 0; i < size; i++) {
                 auto* drawInfo = entity->getRenderDrawInfoAt(i);
@@ -231,7 +233,7 @@ CC_FORCE_INLINE void Batcher2d::handleModelDraw(RenderEntity* entity, RenderDraw
 
     bool isMask = entity->getIsMask();
     if (isMask) {
-        //Mask Comp
+        // Mask Comp
         insertMaskBatch(entity);
     } else {
         entity->setEnumStencilStage(_stencilManager->getStencilStage());
@@ -295,7 +297,7 @@ CC_FORCE_INLINE void Batcher2d::handleSubNode(RenderEntity* entity, RenderDrawIn
     }
 }
 
-CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) { //NOLINT(misc-no-recursion)
+CC_FORCE_INLINE void Batcher2d::handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node) { // NOLINT(misc-no-recursion)
     CC_ASSERT(entity);
     CC_ASSERT(drawInfo);
     RenderDrawInfoType drawInfoType = drawInfo->getEnumDrawInfoType();
@@ -380,7 +382,7 @@ void Batcher2d::generateBatchForMiddleware(RenderEntity* entity, RenderDrawInfo*
     auto* texture = drawInfo->getTexture();
     auto* sampler = drawInfo->getSampler();
     auto* meshBuffer = drawInfo->getMeshBuffer();
-    //set meshbuffer offset
+    // set meshbuffer offset
     auto indexOffset = drawInfo->getIndexOffset();
     auto indexCount = drawInfo->getIbCount();
     indexOffset += indexCount;
@@ -425,7 +427,7 @@ void Batcher2d::resetRenderStates() {
     _currDrawInfo = nullptr;
 }
 
-gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* dsLayout) {
+gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, const gfx::DescriptorSetLayout* dsLayout) {
     ccstd::hash_t hash = 2;
     size_t textureHash;
     if (texture != nullptr) {
@@ -522,7 +524,7 @@ void Batcher2d::reset() {
             }
         }
     }
-    //meshBuffer cannot clear because it is not transported at every frame.
+    // meshBuffer cannot clear because it is not transported at every frame.
 
     _currMeshBuffer = nullptr;
     _indexStart = 0;

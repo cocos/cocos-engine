@@ -30,9 +30,12 @@ import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
+import { AABB } from '../core/geometry';
 
 const _tempVec3 = new Vec3();
 const _sphere = geometry.Sphere.create(0, 0, 0, 1);
+const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+const _tmpBoundingBox = new AABB();
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 
@@ -56,7 +59,7 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
     const { spotLights } = camera.scene!;
     for (let i = 0; i < spotLights.length; i++) {
         const light = spotLights[i];
-        if (light.baked) {
+        if (light.baked && !camera.node.scene.globals.disableLightmap) {
             continue;
         }
 
@@ -69,6 +72,18 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
     const { sphereLights } = camera.scene!;
     for (let i = 0; i < sphereLights.length; i++) {
         const light = sphereLights[i];
+        if (light.baked && !camera.node.scene.globals.disableLightmap) {
+            continue;
+        }
+        geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
+
+    const { pointLights } = camera.scene!;
+    for (let i = 0; i < pointLights.length; i++) {
+        const light = pointLights[i];
         if (light.baked) {
             continue;
         }
@@ -77,7 +92,19 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
             validPunctualLights.push(light);
         }
     }
+
+    const { rangedDirLights } = camera.scene!;
+    for (let i = 0; i < rangedDirLights.length; i++) {
+        const light = rangedDirLights[i];
+        AABB.transform(_tmpBoundingBox, _rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+        if (geometry.intersect.aabbFrustum(_tmpBoundingBox, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
+    // in jsb, std::vector is not synchronized, so we need to assign it manually
+    sceneData.validPunctualLights = validPunctualLights;
 }
+
 export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, layer: ShadowLayerVolume) {
     const scene = camera.scene!;
     const mainLight = scene.mainLight!;
@@ -88,34 +115,37 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
     dirShadowObjects.length = 0;
     const visibility = camera.visibility;
 
-    csmLayerObjects.array.forEach((obj, index) => {
+    for (let i = csmLayerObjects.length - 1; i >= 0; i--) {
+        const obj = csmLayerObjects.array[i];
         if (!obj) {
-            return;
+            csmLayerObjects.fastRemove(i);
+            continue;
         }
         const model = obj.model;
         if (!model || !model.enabled || !model.node) {
-            return;
+            csmLayerObjects.fastRemove(i);
+            continue;
         }
-        if (((visibility & model.node.layer) !== model.node.layer) && !(visibility & model.visFlags)) {
-            return;
+        if (((visibility & model.node.layer) !== model.node.layer) && (!(visibility & model.visFlags))) {
+            csmLayerObjects.fastRemove(i);
+            continue;
         }
         if (!model.worldBounds || !model.castShadow) {
-            return;
+            csmLayerObjects.fastRemove(i);
+            continue;
         }
-
-        // frustum culling
         const accurate = geometry.intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
         if (!accurate) {
-            return;
+            continue;
         }
         dirShadowObjects.push(obj);
         if (layer.level < mainLight.csmLevel) {
             if (mainLight.csmOptimizationMode === CSMOptimizationMode.RemoveDuplicates
                     && geometry.intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
-                csmLayerObjects.fastRemove(index);
+                csmLayerObjects.fastRemove(i);
             }
         }
-    });
+    }
 }
 
 export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {

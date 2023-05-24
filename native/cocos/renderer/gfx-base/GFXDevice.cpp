@@ -130,13 +130,13 @@ DefaultResource::DefaultResource(Device *device) {
     ccstd::vector<uint8_t> buffer(bufferSize, 255);
     const uint8_t *bufferData = buffer.data();
     if (device->getCapabilities().maxTextureSize >= 2) {
-        _texture2D = device->createTexture({TextureType::TEX2D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
+        _texture2D = device->createTexture({TextureType::TEX2D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED | TextureUsageBit::TRANSFER_DST,
                                             Format::RGBA8, 2, 2, TextureFlagBit::NONE});
         BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
         device->copyBuffersToTexture(&bufferData, _texture2D, &region, 1);
     }
     if (device->getCapabilities().maxTextureSize >= 2) {
-        _textureCube = device->createTexture({TextureType::CUBE, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
+        _textureCube = device->createTexture({TextureType::CUBE, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED | TextureUsageBit::TRANSFER_DST,
                                               Format::RGBA8, 2, 2, TextureFlagBit::NONE, 6});
         BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
         device->copyBuffersToTexture(&bufferData, _textureCube, &region, 1);
@@ -153,21 +153,13 @@ DefaultResource::DefaultResource(Device *device) {
     }
 
     if (device->getCapabilities().max3DTextureSize >= 2) {
-        _texture3D = device->createTexture({TextureType::TEX3D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
+        _texture3D = device->createTexture({TextureType::TEX3D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED | TextureUsageBit::TRANSFER_DST,
                                             Format::RGBA8, 2, 2, TextureFlagBit::NONE, 1, 1, SampleCount::ONE, 2});
         BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 2}, {0, 0, 1}};
         device->copyBuffersToTexture(&bufferData, _texture3D, &region, 1);
     }
     if (device->getCapabilities().maxArrayTextureLayers >= 2) {
-        _texture1DArray = device->createTexture({TextureType::TEX1D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
-                                                 Format::RGBA8, 1, 1, TextureFlagBit::NONE, 2});
-        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {1, 1, 1}, {0, 0, 1}};
-        device->copyBuffersToTexture(&bufferData, _texture1DArray, &region, 1);
-        region.texSubres.baseArrayLayer = 1;
-        device->copyBuffersToTexture(&bufferData, _texture1DArray, &region, 1);
-    }
-    if (device->getCapabilities().maxArrayTextureLayers >= 2) {
-        _texture2DArray = device->createTexture({TextureType::TEX2D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
+        _texture2DArray = device->createTexture({TextureType::TEX2D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED | TextureUsageBit::TRANSFER_DST,
                                                  Format::RGBA8, 2, 2, TextureFlagBit::NONE, 2});
         BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
         device->copyBuffersToTexture(&bufferData, _texture2DArray, &region, 1);
@@ -176,7 +168,7 @@ DefaultResource::DefaultResource(Device *device) {
     }
 }
 
-const Texture *DefaultResource::getTexture(TextureType type) const {
+Texture *DefaultResource::getTexture(TextureType type) const {
     switch (type) {
         case TextureType::TEX2D:
             return _texture2D;
@@ -184,8 +176,6 @@ const Texture *DefaultResource::getTexture(TextureType type) const {
             return _textureCube;
         case TextureType::TEX3D:
             return _texture3D;
-        case TextureType::TEX1D_ARRAY:
-            return _texture1DArray;
         case TextureType::TEX2D_ARRAY:
             return _texture2DArray;
         default:

@@ -146,6 +146,8 @@ export enum ModelLocalBindings {
 
     SAMPLER_REFLECTION_PROBE_CUBE,
     SAMPLER_REFLECTION_PROBE_PLANAR,
+    SAMPLER_REFLECTION_PROBE_DATA_MAP,
+    SAMPLER_REFLECTION_PROBE_BLEND_CUBE,
 
     COUNT,
 }
@@ -157,17 +159,18 @@ export enum SetIndex {
     GLOBAL,
     MATERIAL,
     LOCAL,
+    COUNT
 }
 // parameters passed to GFX Device
 export const bindingMappingInfo = new BindingMappingInfo(
-    [GLOBAL_UBO_COUNT, 0, LOCAL_UBO_COUNT],         // Uniform Buffer Counts
-    [GLOBAL_SAMPLER_COUNT, 0, LOCAL_SAMPLER_COUNT], // Combined Sampler Texture Counts
-    [0, 0, 0],                                      // Sampler Counts
-    [0, 0, 0],                                      // Texture Counts
-    [0, 0, 0],                                      // Storage Buffer Counts
-    [0, 0, LOCAL_STORAGE_IMAGE_COUNT],              // Storage Image Counts
-    [0, 0, 0],                                      // Subpass Input Counts
-    [0, 2, 1],                                      // Set Order Indices
+    [GLOBAL_UBO_COUNT, 0, LOCAL_UBO_COUNT, 0],         // Uniform Buffer Counts
+    [GLOBAL_SAMPLER_COUNT, 0, LOCAL_SAMPLER_COUNT, 0], // Combined Sampler Texture Counts
+    [0, 0, 0, 0],                                      // Sampler Counts
+    [0, 0, 0, 0],                                      // Texture Counts
+    [0, 0, 0, 0],                                      // Storage Buffer Counts
+    [0, 0, LOCAL_STORAGE_IMAGE_COUNT, 0],              // Storage Image Counts
+    [0, 0, 0, 0],                                      // Subpass Input Counts
+    [0, 2, 1, 3],                                      // Set Order Indices
 );
 
 /**
@@ -178,13 +181,11 @@ export class UBOGlobal {
     public static readonly TIME_OFFSET = 0;
     public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
     public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
+    public static readonly PROBE_INFO_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
 
-    public static readonly DEBUG_VIEW_MODE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
-    public static readonly DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 4;
-    public static readonly DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
-    public static readonly DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
+    public static readonly DEBUG_VIEW_MODE_OFFSET = UBOGlobal.PROBE_INFO_OFFSET + 4;
 
-    public static readonly COUNT = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET + 4;
+    public static readonly COUNT = UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 4;
     public static readonly SIZE = UBOGlobal.COUNT * 4;
 
     public static readonly NAME = 'CCGlobal';
@@ -194,11 +195,9 @@ export class UBOGlobal {
         new Uniform('cc_time', Type.FLOAT4, 1),
         new Uniform('cc_screenSize', Type.FLOAT4, 1),
         new Uniform('cc_nativeSize', Type.FLOAT4, 1),
+        new Uniform('cc_probeInfo', Type.FLOAT4, 1),
 
-        new Uniform('cc_debug_view_mode', Type.FLOAT, 4),
-        new Uniform('cc_debug_view_composite_pack_1', Type.FLOAT, 4),
-        new Uniform('cc_debug_view_composite_pack_2', Type.FLOAT, 4),
-        new Uniform('cc_debug_view_composite_pack_3', Type.FLOAT, 4),
+        new Uniform('cc_debug_view_mode', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;
@@ -376,7 +375,11 @@ export class UBOLocal {
     public static readonly MAT_WORLD_IT_OFFSET = UBOLocal.MAT_WORLD_OFFSET + 16;
     public static readonly LIGHTINGMAP_UVPARAM = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
     public static readonly LOCAL_SHADOW_BIAS = UBOLocal.LIGHTINGMAP_UVPARAM + 4;
-    public static readonly COUNT = UBOLocal.LOCAL_SHADOW_BIAS + 4;
+    public static readonly REFLECTION_PROBE_DATA1 = UBOLocal.LOCAL_SHADOW_BIAS + 4;
+    public static readonly REFLECTION_PROBE_DATA2 = UBOLocal.REFLECTION_PROBE_DATA1 + 4;
+    public static readonly REFLECTION_PROBE_BLEND_DATA1 = UBOLocal.REFLECTION_PROBE_DATA2 + 4;
+    public static readonly REFLECTION_PROBE_BLEND_DATA2 = UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 4;
+    public static readonly COUNT = UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 4;
     public static readonly SIZE = UBOLocal.COUNT * 4;
 
     public static readonly NAME = 'CCLocal';
@@ -387,6 +390,10 @@ export class UBOLocal {
         new Uniform('cc_matWorldIT', Type.MAT4, 1),
         new Uniform('cc_lightingMapUVParam', Type.FLOAT4, 1),
         new Uniform('cc_localShadowBias', Type.FLOAT4, 1),
+        new Uniform('cc_reflectionProbeData1', Type.FLOAT4, 1),
+        new Uniform('cc_reflectionProbeData2', Type.FLOAT4, 1),
+        new Uniform('cc_reflectionProbeBlendData1', Type.FLOAT4, 1),
+        new Uniform('cc_reflectionProbeBlendData2', Type.FLOAT4, 1),
     ], 1);
 }
 localDescriptorSetLayout.layouts[UBOLocal.NAME] = UBOLocal.LAYOUT;
@@ -443,7 +450,8 @@ export class UBOForwardLight {
     public static readonly LIGHT_COLOR_OFFSET = UBOForwardLight.LIGHT_POS_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
     public static readonly LIGHT_SIZE_RANGE_ANGLE_OFFSET = UBOForwardLight.LIGHT_COLOR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
     public static readonly LIGHT_DIR_OFFSET = UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
-    public static readonly COUNT = UBOForwardLight.LIGHT_DIR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static readonly LIGHT_BOUNDING_SIZE_VS_OFFSET = UBOForwardLight.LIGHT_DIR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static readonly COUNT = UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
     public static readonly SIZE = UBOForwardLight.COUNT * 4;
 
     public static readonly NAME = 'CCForwardLight';
@@ -454,6 +462,7 @@ export class UBOForwardLight {
         new Uniform('cc_lightColor', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
         new Uniform('cc_lightSizeRangeAngle', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
         new Uniform('cc_lightDir', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
+        new Uniform('cc_lightBoundingSizeVS', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
     ], 1);
 }
 localDescriptorSetLayout.layouts[UBOForwardLight.NAME] = UBOForwardLight.LAYOUT;
@@ -728,6 +737,30 @@ const UNIFORM_REFLECTION_PROBE_TEXTURE_LAYOUT = new UniformSamplerTexture(SetInd
 localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_TEXTURE_NAME] = UNIFORM_REFLECTION_PROBE_TEXTURE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING] = UNIFORM_REFLECTION_PROBE_TEXTURE_DESCRIPTOR;
 
+/**
+ * @en The sampler for reflection probe data map
+ * @zh 反射探针数据贴图采样器。
+ */
+const UNIFORM_REFLECTION_PROBE_DATA_MAP_NAME = 'cc_reflectionProbeDataMap';
+export const UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING = ModelLocalBindings.SAMPLER_REFLECTION_PROBE_DATA_MAP;
+const UNIFORM_REFLECTION_PROBE_DATA_MAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_REFLECTION_PROBE_DATA_MAP_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING,
+    UNIFORM_REFLECTION_PROBE_DATA_MAP_NAME, Type.SAMPLER2D, 1);
+localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_DATA_MAP_NAME] = UNIFORM_REFLECTION_PROBE_DATA_MAP_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING] = UNIFORM_REFLECTION_PROBE_DATA_MAP_DESCRIPTOR;
+
+/**
+ * @en The sampler for reflection probe cubemap for blend.
+ * @zh 用于blend的反射探针立方体贴图纹理采样器。
+ */
+const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME = 'cc_reflectionProbeBlendCubemap';
+export const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING = ModelLocalBindings.SAMPLER_REFLECTION_PROBE_BLEND_CUBE;
+const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING,
+    UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME, Type.SAMPLER_CUBE, 1);
+localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_NAME] = UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING] = UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_DESCRIPTOR;
+
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
@@ -750,6 +783,26 @@ export function supportsR16HalfFloatTexture (device: Device) {
  */
 export function supportsR32FloatTexture (device: Device) {
     return (device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
+        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+}
+
+/**
+ * @en Does the device support 4-channeled float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持4通道浮点贴图？（颜色输出和采样）
+ */
+export function supportsRGBA16FloatTexture (device: Device) {
+    return (device.getFormatFeatures(Format.RGBA16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
+        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+}
+
+/**
+ * @en Does the device support 4-channeled float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持4通道浮点贴图？（颜色输出和采样）
+ */
+export function supportsRGBA32FloatTexture (device: Device) {
+    return (device.getFormatFeatures(Format.RGBA32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
         === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
         && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
 }

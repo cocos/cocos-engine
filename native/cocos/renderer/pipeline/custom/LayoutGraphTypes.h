@@ -241,10 +241,8 @@ struct LayoutGraph {
         VertexHandle handle;
     };
 
-    struct NameTag {
-    } static constexpr Name{}; // NOLINT
-    struct DescriptorsTag {
-    } static constexpr Descriptors{}; // NOLINT
+    struct NameTag {};
+    struct DescriptorsTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -355,7 +353,7 @@ struct DescriptorSetLayoutData {
     }
 
     DescriptorSetLayoutData(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocksIn, PmrFlatMap<NameLocalID, uint32_t> bindingMapIn, const allocator_type& alloc) noexcept;
+    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, PmrUnorderedMap<NameLocalID, gfx::UniformBlock> uniformBlocksIn, PmrFlatMap<NameLocalID, uint32_t> bindingMapIn, const allocator_type& alloc) noexcept;
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc);
 
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs) noexcept = default;
@@ -365,8 +363,10 @@ struct DescriptorSetLayoutData {
 
     uint32_t slot{0xFFFFFFFF};
     uint32_t capacity{0};
+    uint32_t uniformBlockCapacity{0};
+    uint32_t samplerTextureCapacity{0};
     ccstd::pmr::vector<DescriptorBlockData> descriptorBlocks;
-    ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocks;
+    PmrUnorderedMap<NameLocalID, gfx::UniformBlock> uniformBlocks;
     PmrFlatMap<NameLocalID, uint32_t> bindingMap;
 };
 
@@ -509,7 +509,7 @@ struct RenderStageData {
     RenderStageData& operator=(RenderStageData&& rhs) = default;
     RenderStageData& operator=(RenderStageData const& rhs) = delete;
 
-    ccstd::pmr::unordered_map<NameLocalID, gfx::ShaderStageFlagBit> descriptorVisibility;
+    PmrUnorderedMap<NameLocalID, gfx::ShaderStageFlagBit> descriptorVisibility;
 };
 
 struct RenderPhaseData {
@@ -682,12 +682,9 @@ struct LayoutGraphData {
         VertexHandle handle;
     };
 
-    struct NameTag {
-    } static constexpr Name{}; // NOLINT
-    struct UpdateTag {
-    } static constexpr Update{}; // NOLINT
-    struct LayoutTag {
-    } static constexpr Layout{}; // NOLINT
+    struct NameTag {};
+    struct UpdateTag {};
+    struct LayoutTag {};
 
     // Vertices
     ccstd::pmr::vector<Vertex> _vertices;
@@ -704,7 +701,7 @@ struct LayoutGraphData {
     PmrFlatMap<ccstd::pmr::string, NameLocalID> constantIndex;
     PmrFlatMap<ccstd::pmr::string, uint32_t> shaderLayoutIndex;
     PmrFlatMap<ccstd::pmr::string, EffectData> effects;
-    ccstd::pmr::string constantMacros;
+    ccstd::string constantMacros;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };

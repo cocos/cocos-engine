@@ -45,9 +45,23 @@ function getShapeTypeEnumName (enumValue: number): keyof typeof ShapeType {
     return enumName as keyof typeof ShapeType;
 }
 
+/**
+ * @en
+ * This module defines the the volume or surface from which particles can be emitted, and the direction of the start velocity.
+ * The Shape property defines the shape of the emission volume, and the rest of the module properties vary depending on the Shape you choose.
+ * All shapes have properties that define their dimensions, such as the Radius property.
+ * To edit these, drag the handles on the wireframe emitter shape in the Scene view.
+ * The choice of shape affects the region from which particles can be emitted, but also the initial direction of the particles.
+ * @zh
+ * 本模块定义一个发射体或发射面，粒子将会从它进行发射，并且定义了粒子发射的初始方向和初始速度。
+ * 形状属性定义粒子系统的发射体，剩下的属性依赖于选择的形状。
+ * 所有形状都具有定义其大小的属性，例如 Radius 属性。要编辑这些属性，请在视图中拖动线框发射器形状上的控制柄。
+ * 形状的选择会影响可发射粒子的区域，但也会影响粒子的初始方向。
+ */
 @ccclass('cc.ShapeModule')
 export default class ShapeModule {
     /**
+     * @en Emitter position.
      * @zh 粒子发射器位置。
      */
     @displayOrder(13)
@@ -61,6 +75,7 @@ export default class ShapeModule {
     }
 
     /**
+     * @en Emitter rotation.
      * @zh 粒子发射器旋转角度。
      */
     @displayOrder(14)
@@ -74,6 +89,7 @@ export default class ShapeModule {
     }
 
     /**
+     * @en Emitter size scale.
      * @zh 粒子发射器缩放比例。
      */
     @displayOrder(15)
@@ -87,6 +103,7 @@ export default class ShapeModule {
     }
 
     /**
+     * @en Particles will be emitted in an arc if shape is Cone or Circle.
      * @zh 粒子发射器在一个扇形范围内发射。
      */
     @displayOrder(6)
@@ -105,6 +122,8 @@ export default class ShapeModule {
     }
 
     /**
+     * @en The angle of the Cone.<bg>
+     * Define how the cone opening and closing.
      * @zh 圆锥的轴与母线的夹角<bg>。
      * 决定圆锥发射器的开合程度。
      */
@@ -126,6 +145,7 @@ export default class ShapeModule {
     @serializable
     private _enable = false;
     /**
+     * @en Enable this module or not.
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -138,6 +158,7 @@ export default class ShapeModule {
     }
 
     /**
+     * @en Emitter [[ShapeType]].
      * @zh 粒子发射器类型 [[ShapeType]]。
      *
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -178,6 +199,7 @@ export default class ShapeModule {
     }
 
     /**
+     * @en Particles emitted from which part of the shape [[EmitLocation]] (Box Cone Sphere Hemisphere).
      * @zh 粒子从发射器哪个部位发射 [[EmitLocation]]。
      */
     @type(EmitLocation)
@@ -192,6 +214,7 @@ export default class ShapeModule {
     public emitFrom = EmitLocation.Volume;
 
     /**
+     * @en Align particle with particle direction.
      * @zh 根据粒子的初始方向决定粒子的移动方向。
      */
     @serializable
@@ -200,6 +223,7 @@ export default class ShapeModule {
     public alignToDirection = false;
 
     /**
+     * @en Particle direction random amount.
      * @zh 粒子生成方向随机设定。
      */
     @serializable
@@ -208,6 +232,7 @@ export default class ShapeModule {
     public randomDirectionAmount = 0;
 
     /**
+     * @en Blend particle directions towards a spherical direction, where they travel outwards from the center of their transform.
      * @zh 表示当前发射方向与当前位置到结点中心连线方向的插值。
      */
     @serializable
@@ -216,6 +241,7 @@ export default class ShapeModule {
     public sphericalDirectionAmount = 0;
 
     /**
+     * @en Particle position random amount.
      * @zh 粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）。
      */
     @serializable
@@ -224,6 +250,7 @@ export default class ShapeModule {
     public randomPositionAmount = 0;
 
     /**
+     * @en Emition radius (available for Circle Cone Sphere Hemisphere).
      * @zh 粒子发射器半径。
      */
     @serializable
@@ -237,6 +264,10 @@ export default class ShapeModule {
     public radius = 1;
 
     /**
+     * @en Emit position in shape (available for Circle Cone Sphere Hemisphere): <bg>
+     * - 0 Emit from surface;
+     * - 1 Emit from volume center;
+     * - 0 to 1 Emit within surface and volume center.
      * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
      * - 0 表示从表面发射；
      * - 1 表示从中心发射；
@@ -253,6 +284,7 @@ export default class ShapeModule {
     public radiusThickness = 1;
 
     /**
+     * @en Arc mode for Cone and Circle shape.
      * @zh 粒子在扇形范围内的发射方式 [[ArcMode]]。
      */
     @type(ArcMode)
@@ -267,6 +299,7 @@ export default class ShapeModule {
     public arcMode = ArcMode.Random;
 
     /**
+     * @en Control arc spread for Cone and circle shape.
      * @zh 控制可能产生粒子的弧周围的离散间隔。
      */
     @visible(function noArc (this: ShapeModule) { return this.arcMode !== ArcMode.Random; }) // Bug fix: Hide this input when arcMode is random
@@ -281,6 +314,7 @@ export default class ShapeModule {
     public arcSpread = 0;
 
     /**
+     * @en Emit speed around arc (available for Cone and Circle).
      * @zh 粒子沿圆周发射的速度。
      */
     @type(CurveRange)
@@ -297,6 +331,7 @@ export default class ShapeModule {
     public arcSpeed = new CurveRange();
 
     /**
+     * @en The length from Cone bottom to top.
      * @zh 圆锥顶部截面距离底部的轴长<bg>。
      * 决定圆锥发射器的高度。
      */
@@ -311,6 +346,7 @@ export default class ShapeModule {
     public length = 5;
 
     /**
+     * @en Shape thickness for box shape.
      * @zh 粒子发射器发射位置（针对 Box 类型的粒子发射器）。
      */
     @serializable
@@ -352,12 +388,24 @@ export default class ShapeModule {
         this.totalAngle = 0;
     }
 
+    /**
+     * @en Apply particle system to this shape and create shape transform matrix.
+     * @zh 把发射形状应用到粒子系统，并且创建发射形状变换矩阵。
+     * @param ps @en Emit shape applied to which Particle system. @zh 使用发射形状的粒子系统。
+     * @internal
+     */
     public onInit (ps: ParticleSystem) {
         this.particleSystem = ps;
         this.constructMat();
         this.lastTime = this.particleSystem._time;
     }
 
+    /**
+     * @en Emit particle by this shape.
+     * @zh 通过这个形状发射粒子。
+     * @param p @en Particle emitted. @zh 发射出来的粒子。
+     * @internal
+     */
     public emit (p) {
         switch (this.shapeType) {
         case ShapeType.Box:

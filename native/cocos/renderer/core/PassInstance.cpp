@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights to
@@ -22,16 +22,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "renderer/core/PassInstance.h"
-#include <cstdint>
-#include "renderer/core/MaterialInstance.h"
-#include "renderer/core/ProgramLib.h"
-#include "renderer/pipeline/BatchedBuffer.h"
-#include "renderer/pipeline/InstancedBuffer.h"
+#include "cocos/renderer/core/PassInstance.h"
+#include "cocos/renderer/core/MaterialInstance.h"
+#include "cocos/renderer/core/ProgramLib.h"
+#include "cocos/renderer/pipeline/InstancedBuffer.h"
+#include "cocos/renderer/pipeline/custom/RenderingModule.h"
 
 namespace cc {
 
-PassInstance::PassInstance(scene::Pass *parent, MaterialInstance *owner) : Super(parent->getRoot()), _parent(parent), _owner(owner) {
+PassInstance::PassInstance(scene::Pass *parent, MaterialInstance *owner)
+: Super(parent->getRoot()), _parent(parent), _owner(owner) {
     doInit(_parent->getPassInfoFull());
     for (const auto &b : _shaderInfo->blocks) {
         scene::IBlockRef &block = _blocks[b.binding];
@@ -42,14 +42,30 @@ PassInstance::PassInstance(scene::Pass *parent, MaterialInstance *owner) : Super
 
     _rootBufferDirty = true;
     gfx::DescriptorSet *parentDescriptorSet = _parent->getDescriptorSet();
-    for (const auto &samplerTexture : _shaderInfo->samplerTextures) {
-        for (uint32_t i = 0; i < samplerTexture.count; ++i) {
-            auto *sampler = parentDescriptorSet->getSampler(samplerTexture.binding, i);
-            auto *texture = parentDescriptorSet->getTexture(samplerTexture.binding, i);
-            _descriptorSet->bindSampler(samplerTexture.binding, sampler, i);
-            _descriptorSet->bindTexture(samplerTexture.binding, texture, i);
+
+    auto *programLib = render::getProgramLibrary();
+    if (programLib) {
+        const auto &set = _shaderInfo->descriptors.at(
+            static_cast<size_t>(pipeline::SetIndex::MATERIAL));
+        for (const auto &samplerTexture : set.samplerTextures) {
+            for (uint32_t i = 0; i < samplerTexture.count; ++i) {
+                auto *sampler = parentDescriptorSet->getSampler(samplerTexture.binding, i);
+                auto *texture = parentDescriptorSet->getTexture(samplerTexture.binding, i);
+                _descriptorSet->bindSampler(samplerTexture.binding, sampler, i);
+                _descriptorSet->bindTexture(samplerTexture.binding, texture, i);
+            }
+        }
+    } else {
+        for (const auto &samplerTexture : _shaderInfo->samplerTextures) {
+            for (uint32_t i = 0; i < samplerTexture.count; ++i) {
+                auto *sampler = parentDescriptorSet->getSampler(samplerTexture.binding, i);
+                auto *texture = parentDescriptorSet->getTexture(samplerTexture.binding, i);
+                _descriptorSet->bindSampler(samplerTexture.binding, sampler, i);
+                _descriptorSet->bindTexture(samplerTexture.binding, texture, i);
+            }
         }
     }
+
     Super::tryCompile();
 }
 
@@ -88,7 +104,6 @@ void PassInstance::endChangeStatesSilently() {
 
 void PassInstance::syncBatchingScheme() {
     _defines["USE_INSTANCING"] = false;
-    _defines["USE_BATCHING"] = false;
     _batchingScheme = scene::BatchingSchemes::NONE;
 }
 

@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { js, Color } from '../../../core';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
@@ -54,6 +55,24 @@ export const letter = {
     },
 
     appendQuad: bmfont.appendQuad,
+
+    updateColor (label: Label) {
+        if (JSB) {
+            const renderData = label.renderData!;
+            const vertexCount = renderData.vertexCount;
+            if (vertexCount === 0) return;
+            const vData = renderData.chunk.vb;
+            const stride = renderData.floatStride;
+            let colorOffset = 5;
+            for (let i = 0; i < vertexCount; i++) {
+                vData[colorOffset] = 1;
+                vData[colorOffset + 1] = 1;
+                vData[colorOffset + 2] = 1;
+                vData[colorOffset + 3] = 1;
+                colorOffset += stride;
+            }
+        }
+    },
 };
 
 js.addon(letter, letterFont);

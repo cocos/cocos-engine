@@ -31,12 +31,14 @@ import { codeAsset } from './rollup-plugins/code-asset';
 import { ModeType, PlatformType } from './constant-manager';
 import { assetUrl } from './rollup-plugins/asset-url';
 
+import * as decoratorRecorder from './babel-plugins/decorator-parser';
+
 export { IOptimizeDecorators } from './config-interface';
 export { ModeType, PlatformType, FlagType, ConstantOptions, BuildTimeConstants, CCEnvConstants } from './constant-manager';
 export { StatsQuery };
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
-function equalPathIgnoreDriverLetterCase (lhs: string, rhs: string) {
+function equalPathIgnoreDriverLetterCase(lhs: string, rhs: string) {
     if (lhs.length !== rhs.length) {
         return false;
     }
@@ -53,11 +55,11 @@ const equalPath = process.platform === 'win32'
     ? equalPathIgnoreDriverLetterCase
     : (lhs: string, rhs: string) => lhs === rhs;
 
-function makePathEqualityKey (path: string) {
+function makePathEqualityKey(path: string) {
     return process.platform === 'win32' ? path.toLocaleLowerCase() : path;
 }
 
-async function build (options: build.Options) {
+async function build(options: build.Options) {
     console.debug(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
     return doBuild({
         options,
@@ -163,6 +165,16 @@ namespace build {
         };
 
         buildTimeConstants: IBuildTimeConstants;
+
+        /**
+         * Generate cocos/native-binding/decorators.ts for native platforms
+         */
+        generateDecoratorsForJSB?: boolean;
+
+        /**
+         * Whether force SUPPORT_JIT to the specified value.
+         */
+        forceJitValue?: boolean,
     }
 
     export interface Result {
@@ -187,7 +199,7 @@ namespace build {
         hasCriticalWarns: boolean;
     }
 
-    export async function transform (code: string, moduleOption: ModuleOption, loose?: boolean) {
+    export async function transform(code: string, moduleOption: ModuleOption, loose?: boolean) {
         const babelFormat = moduleOptionsToBabelEnvModules(moduleOption);
         const babelFileResult = await babel.transformAsync(code, {
             presets: [[babelPresetEnv, { modules: babelFormat, loose: loose ?? true } as babelPresetEnv.Options]],
@@ -203,7 +215,7 @@ namespace build {
 
 export { build };
 
-async function doBuild ({
+async function doBuild({
     options,
 }: {
     options: build.Options;
@@ -263,6 +275,9 @@ async function doBuild ({
         ...intrinsicFlags,
         ...options.buildTimeConstants,
     };
+    if (typeof options.forceJitValue !== undefined) {
+        buildTimeConstants['SUPPORT_JIT'] = options.forceJitValue as boolean;
+    }
 
     const moduleOverrides = Object.entries(statsQuery.evaluateModuleOverrides({
         mode: options.mode,
@@ -277,8 +292,10 @@ async function doBuild ({
 
     // HACK: get platform, mode, flags from build time constants
     const flags: Record<string, any> = {};
-    ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE', 'WEBGPU'].forEach((key) => {
-        flags[key] = buildTimeConstants[key];
+    ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE', 'WEBGPU', 'SUPPORT_JIT'].forEach((key) => {
+        if (key !== 'SUPPORT_JIT' || typeof buildTimeConstants['SUPPORT_JIT'] !== 'undefined') {
+            flags[key] = buildTimeConstants[key];
+        }
     });
     // Wether use webgpu
     const useWebGPU = flags['WEBGPU'];
@@ -304,11 +321,12 @@ async function doBuild ({
     }
 
     const rpVirtualOptions: Record<string, string> = {};
-    
+
     const vmInternalConstants = statsQuery.constantManager.exportStaticConstants({
         platform,
         mode,
         flags,
+        forceJitValue: options.forceJitValue,
     });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
@@ -404,6 +422,13 @@ async function doBuild ({
             } as babelPresetCC.Options],
         ],
     };
+    
+    if (options.generateDecoratorsForJSB) {
+        if (!process.env.ENGINE_PATH) {
+            throw new Error('ENGINE_PATH environment variable not set');
+        }
+        babelOptions.presets?.push([() => ({ plugins: [[decoratorRecorder]] })]);
+    }
 
     const rollupPlugins: rollup.Plugin[] = [];
 
@@ -432,14 +457,14 @@ async function doBuild ({
 
         {
             name: '@cocos/build-engine|module-overrides',
-            resolveId (source, importer) {
+            resolveId(source, importer) {
                 if (moduleOverrides[source]) {
                     return source;
                 } else {
                     return null;
                 }
             },
-            load (this, id: string) {
+            load(this, id: string) {
                 const key = makePathEqualityKey(id);
                 if (!(key in moduleOverrides)) {
                     return null;
@@ -465,6 +490,7 @@ async function doBuild ({
         json({
             preferConst: true,
         }),
+
 
         commonjs({
             include: [
@@ -565,36 +591,6 @@ async function doBuild ({
         rollupOptions.perf = true;
     }
 
-    const bulletAsmJsModule = await nodeResolveAsync('@cocos/bullet/bullet.cocos.js');
-    const wasmBinaryPath = ps.join(bulletAsmJsModule, '..', 'bullet.wasm.wasm');
-    if (ammoJsWasm === true) {
-        rpVirtualOptions['@cocos/bullet'] = `
-import wasmBinaryURL from '${pathToAssetRefURL(wasmBinaryPath)}';
-export const bulletType = 'wasm';
-export default wasmBinaryURL;
-`;
-    } else if (ammoJsWasm === 'fallback') {
-        rpVirtualOptions['@cocos/bullet'] = `
-export async function initialize(isWasm) {
-    let ammo;
-    if (isWasm) {
-        ammo = await import('${pathToAssetRefURL(wasmBinaryPath)}');
-    } else {
-        ammo = await import('${filePathToModuleRequest(bulletAsmJsModule)}');
-    }
-    return ammo.default;
-}
-export const bulletType = 'fallback';
-export default initialize;
-        `;
-    } else {
-        rpVirtualOptions['@cocos/bullet'] = `
-import Bullet from '${filePathToModuleRequest(bulletAsmJsModule)}';
-export const bulletType = 'asmjs';
-export default Bullet;
-`;
-    }
-
     const rollupBuild = await rollup.rollup(rollupOptions);
 
     const timing = rollupBuild.getTimings?.();
@@ -665,7 +661,7 @@ export default Bullet;
 
     return result;
 
-    async function nodeResolveAsync (specifier: string) {
+    async function nodeResolveAsync(specifier: string) {
         return new Promise<string>((r, reject) => {
             nodeResolve(specifier, {
                 basedir: engineRoot,
@@ -680,35 +676,35 @@ export default Bullet;
     }
 }
 
-function moduleOptionsToRollupFormat (moduleOptions: ModuleOption): rollup.ModuleFormat {
+function moduleOptionsToRollupFormat(moduleOptions: ModuleOption): rollup.ModuleFormat {
     switch (moduleOptions) {
-    case ModuleOption.cjs: return 'cjs';
-    case ModuleOption.esm: return 'esm';
-    case ModuleOption.system: return 'system';
-    case ModuleOption.iife: return 'iife';
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    default: throw new Error(`Unknown module format ${moduleOptions}`);
+        case ModuleOption.cjs: return 'cjs';
+        case ModuleOption.esm: return 'esm';
+        case ModuleOption.system: return 'system';
+        case ModuleOption.iife: return 'iife';
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        default: throw new Error(`Unknown module format ${moduleOptions}`);
     }
 }
 
-function moduleOptionsToBabelEnvModules (moduleOptions: ModuleOption):
-| false
-| 'commonjs'
-| 'amd'
-| 'umd'
-| 'systemjs'
-| 'auto' {
+function moduleOptionsToBabelEnvModules(moduleOptions: ModuleOption):
+    | false
+    | 'commonjs'
+    | 'amd'
+    | 'umd'
+    | 'systemjs'
+    | 'auto' {
     switch (moduleOptions) {
-    case ModuleOption.cjs: return 'commonjs';
-    case ModuleOption.system: return 'systemjs';
-    case ModuleOption.iife:
-    case ModuleOption.esm: return false;
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    default: throw new Error(`Unknown module format ${moduleOptions}`);
+        case ModuleOption.cjs: return 'commonjs';
+        case ModuleOption.system: return 'systemjs';
+        case ModuleOption.iife:
+        case ModuleOption.esm: return false;
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        default: throw new Error(`Unknown module format ${moduleOptions}`);
     }
 }
 
-export async function isSourceChanged (incrementalFile: string) {
+export async function isSourceChanged(incrementalFile: string) {
     let record: Record<string, number>;
     try {
         record = await fs.readJSON(incrementalFile);
@@ -733,7 +729,7 @@ export async function isSourceChanged (incrementalFile: string) {
     return false;
 }
 
-async function getDefaultModuleEntries (engine: string) {
+async function getDefaultModuleEntries(engine: string) {
     type ModuleDivision = any; // import('../../scripts/module-division/tools/division-config').ModuleDivision;
     type GroupItem = any; // import('../../scripts/module-division/tools/division-config').GroupItem;
     type Item = any; // import('../../scripts/module-division/tools/division-config').Item;

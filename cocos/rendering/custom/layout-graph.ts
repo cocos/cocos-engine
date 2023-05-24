@@ -619,6 +619,8 @@ export class DescriptorSetLayoutData {
     }
     slot: number;
     capacity: number;
+    uniformBlockCapacity = 0;
+    samplerTextureCapacity = 0;
     readonly descriptorBlocks: DescriptorBlockData[];
     readonly uniformBlocks: Map<number, UniformBlock>;
     readonly bindingMap: Map<number, number>;
@@ -1418,6 +1420,8 @@ export function loadDescriptorBlockData (ar: InputArchive, v: DescriptorBlockDat
 export function saveDescriptorSetLayoutData (ar: OutputArchive, v: DescriptorSetLayoutData) {
     ar.writeNumber(v.slot);
     ar.writeNumber(v.capacity);
+    ar.writeNumber(v.uniformBlockCapacity);
+    ar.writeNumber(v.samplerTextureCapacity);
     ar.writeNumber(v.descriptorBlocks.length); // DescriptorBlockData[]
     for (const v1 of v.descriptorBlocks) {
         saveDescriptorBlockData(ar, v1);
@@ -1437,6 +1441,8 @@ export function saveDescriptorSetLayoutData (ar: OutputArchive, v: DescriptorSet
 export function loadDescriptorSetLayoutData (ar: InputArchive, v: DescriptorSetLayoutData) {
     v.slot = ar.readNumber();
     v.capacity = ar.readNumber();
+    v.uniformBlockCapacity = ar.readNumber();
+    v.samplerTextureCapacity = ar.readNumber();
     let sz = 0;
     sz = ar.readNumber(); // DescriptorBlockData[]
     v.descriptorBlocks.length = sz;

@@ -4,7 +4,7 @@ window.__globalAdapter = window.__globalAdapter || {};
 if (window.__globalAdapter) {
     let globalAdapter = window.__globalAdapter;
     // SystemInfo
-    globalAdapter.isSubContext = false;  // sub context not supported
+    globalAdapter.isSubContext = false; // sub context not supported
     globalAdapter.isDevTool = window.navigator && (/AlipayIDE/.test(window.navigator.userAgent));
     utils.cloneMethod(globalAdapter, my, 'getSystemInfoSync');
 
@@ -13,27 +13,27 @@ if (window.__globalAdapter) {
     // need to register on canvas
     globalAdapter.onTouchStart = function (cb) {
         window.canvas.addEventListener('touchstart', function (res) {
-          cb && cb(res);
+            cb && cb(res);
         });
     };
     globalAdapter.onTouchMove = function (cb) {
         window.canvas.addEventListener('touchmove', function (res) {
-          cb && cb(res);
+            cb && cb(res);
         });
     };
     globalAdapter.onTouchEnd = function (cb) {
         window.canvas.addEventListener('touchend', function (res) {
-          cb && cb(res);
+            cb && cb(res);
         });
     };
     globalAdapter.onTouchCancel = function (cb) {
         window.canvas.addEventListener('touchcancel', function (res) {
-          cb && cb(res);
+            cb && cb(res);
         });
     };
 
     // Audio
-    globalAdapter.createInnerAudioContext = function() {
+    globalAdapter.createInnerAudioContext = function () {
         let audio = my.createInnerAudioContext();
         audio.onCanplay = audio.onCanPlay.bind(audio);
         audio.offCanplay = audio.offCanPlay.bind(audio);
@@ -65,10 +65,7 @@ if (window.__globalAdapter) {
     utils.cloneMethod(globalAdapter, my, 'getSharedCanvas');
 
     // Font
-    globalAdapter.loadFont = function (url) {
-        // my.loadFont crash when url is not in user data path
-        return "Arial";
-    };
+    utils.cloneMethod(globalAdapter, my, 'loadFont');
 
     // hide show Event
     utils.cloneMethod(globalAdapter, my, 'onShow');
@@ -80,7 +77,8 @@ if (window.__globalAdapter) {
     let windowWidth = systemInfo.windowWidth;
     let windowHeight = systemInfo.windowHeight;
     let isLandscape = windowWidth > windowHeight;
-    function accelerometerChangeCallback (res, cb) {
+
+    function accelerometerChangeCallback(res, cb) {
         let resClone = {};
 
         let x = res.x;
@@ -98,12 +96,12 @@ if (window.__globalAdapter) {
         accelerometerCallback && accelerometerCallback(resClone);
     }
     Object.assign(globalAdapter, {
-        startAccelerometer (cb) {
+        startAccelerometer(cb) {
             accelerometerCallback = cb;
             my.onAccelerometerChange && my.onAccelerometerChange(accelerometerChangeCallback);
         },
 
-        stopAccelerometer () {
+        stopAccelerometer() {
             my.offAccelerometerChange && my.offAccelerometerChange(accelerometerChangeCallback);
         },
     });

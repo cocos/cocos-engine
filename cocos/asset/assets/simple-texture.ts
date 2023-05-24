@@ -59,27 +59,40 @@ function canGenerateMipmap (device: Device, w: number, h: number) {
  */
 @ccclass('cc.SimpleTexture')
 export class SimpleTexture extends TextureBase {
+    /**
+     * @engineInternal
+     */
     protected _gfxTexture: Texture | null = null;
+    /**
+     * @engineInternal
+     */
     protected _gfxTextureView: Texture | null = null;
     private _mipmapLevel = 1;
     // Cache these data to reduce JSB invoking.
     private _textureWidth = 0;
     private _textureHeight = 0;
 
+    /**
+     * @engineInternal
+     */
     protected _baseLevel = 0;
+    /**
+     * @engineInternal
+     */
     protected _maxLevel = 1000;
 
     /**
-     * @en The mipmap level of the texture
-     * @zh 贴图中的 Mipmap 层级数量
+     * @en The mipmap level of the texture.
+     * @zh 贴图中的 Mipmap 层级数量。
      */
     get mipmapLevel () {
         return this._mipmapLevel;
     }
 
     /**
-     * @en The GFX Texture resource
+     * @en The GFX Texture resource.
      * @zh 获取此贴图底层的 GFX 贴图对象。
+     * @return @en The low level gfx texture. @zh 底层的 GFX 贴图。
      */
     public getGFXTexture () {
         return this._gfxTextureView;
@@ -103,8 +116,8 @@ export class SimpleTexture extends TextureBase {
      * @en Update the given level mipmap image.
      * @zh 更新指定层级范围内的 Mipmap。当 Mipmap 数据发生了改变时应调用此方法提交更改。
      * 若指定的层级范围超出了实际已有的层级范围，只有覆盖的那些层级范围会被更新。
-     * @param firstLevel First level to be updated
-     * @param count Mipmap level count to be updated
+     * @param firstLevel @en First level to be updated. @zh 更新指定层的 mipmap。
+     * @param count @en Mipmap level count to be updated。 @zh 指定要更新层的数量。
      */
     public updateMipmaps (firstLevel = 0, count?: number) {
 
@@ -123,9 +136,9 @@ export class SimpleTexture extends TextureBase {
      * - 若图像的尺寸与 Mipmap 的尺寸相同，上传后整个 Mipmap 的数据将与图像数据一致；
      * - 若图像的尺寸小于指定层级 Mipmap 的尺寸（不管是长或宽），则从贴图左上角开始，图像尺寸范围内的 Mipmap 会被更新；
      * - 若图像的尺寸超出了指定层级 Mipmap 的尺寸（不管是长或宽），都将引起错误。
-     * @param source The source image or image data
-     * @param level Mipmap level to upload the image to
-     * @param arrayIndex The array index
+     * @param source @en The source image or image data. @zh 源图像或图像数据。
+     * @param level @en Mipmap level to upload the image to. @zh 要上传的 mipmap 层级。
+     * @param arrayIndex @en The array index. @zh 要上传的数组索引。
      */
     public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView | ImageBitmap, level = 0, arrayIndex = 0) {
         if (!this._gfxTexture || this._mipmapLevel <= level) {
@@ -159,6 +172,9 @@ export class SimpleTexture extends TextureBase {
         }
     }
 
+    /**
+     * @engineInternal
+     */
     protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number) {
         const data = image.data;
         if (!data) {
@@ -177,10 +193,16 @@ export class SimpleTexture extends TextureBase {
         }
     }
 
+    /**
+     * @engineInternal
+     */
     protected _checkTextureLoaded () {
         this._textureReady();
     }
 
+    /**
+     * @engineInternal
+     */
     protected _textureReady () {
         this.loaded = true;
         this.emit('load');
@@ -193,11 +215,16 @@ export class SimpleTexture extends TextureBase {
      * @zh
      * 设置此贴图的 mipmap 层级
      * @param value The mipmap level.
+     * @engineInternal
+     *
      */
     protected _setMipmapLevel (value: number) {
         this._mipmapLevel = value < 1 ? 1 : value;
     }
 
+    /**
+     * @engineInternal
+     */
     protected _setMipRange (baseLevel: number, maxLevel: number) {
         this._baseLevel = baseLevel < 1 ? 0 : baseLevel;
         this._maxLevel = maxLevel < 1 ? 0 : maxLevel;
@@ -206,8 +233,8 @@ export class SimpleTexture extends TextureBase {
     /**
      * @en Set mipmap level range for this texture.
      * @zh 设置当前贴图的 mipmap 范围。
-     * @param baseLevel The base mipmap level.
-     * @param maxLevel The maximum mipmap level.
+     * @param baseLevel @en The base mipmap level. @zh 最低 mipmap 等级。
+     * @param maxLevel @en The maximum mipmap level. @zh 最高 mipmap 等级。
      */
     public setMipRange (baseLevel: number, maxLevel: number) {
         assertID(baseLevel <= maxLevel, 3124);
@@ -229,6 +256,7 @@ export class SimpleTexture extends TextureBase {
      * @en This method is override by derived classes to provide GFX texture info.
      * @zh 这个方法被派生类重写以提供 GFX 纹理信息。
      * @param presumed The presumed GFX texture info.
+     * @engineInternal
      */
     protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): TextureInfo | null {
         return null;
@@ -238,11 +266,15 @@ export class SimpleTexture extends TextureBase {
      * @en This method is overrided by derived classes to provide GFX TextureViewInfo.
      * @zh 这个方法被派生类重写以提供 GFX 纹理视图信息。
      * @param presumed The presumed GFX TextureViewInfo.
+     * @engineInternal
      */
     protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo): TextureViewInfo | null {
         return null;
     }
 
+    /**
+     * @engineInternal
+     */
     protected _tryReset () {
         this._tryDestroyTextureView();
         this._tryDestroyTexture();
@@ -259,12 +291,15 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * @en Whether mipmaps are baked convolutional maps.
-     * @zh mipmaps是否为烘焙出来的卷积图。
+     * @zh mipmaps 是否为烘焙出来的卷积图。
      */
     public isUsingOfflineMipmaps (): boolean {
         return false;
     }
 
+    /**
+     * @engineInternal
+     */
     protected _createTexture (device: Device) {
         if (this._width === 0 || this._height === 0) { return; }
         let flags = TextureFlagBit.NONE;
@@ -291,6 +326,9 @@ export class SimpleTexture extends TextureBase {
         this._gfxTexture = texture;
     }
 
+    /**
+     * @engineInternal
+     */
     protected _createTextureView (device: Device): Texture | null {
         if (!this._gfxTexture) {
             return null;
@@ -309,6 +347,9 @@ export class SimpleTexture extends TextureBase {
         return device.createTexture(textureViewCreateInfo);
     }
 
+    /**
+     * @engineInternal
+     */
     protected _tryDestroyTexture () {
         if (this._gfxTexture) {
             this._gfxTexture.destroy();
@@ -316,6 +357,9 @@ export class SimpleTexture extends TextureBase {
         }
     }
 
+    /**
+     * @engineInternal
+     */
     protected _tryDestroyTextureView () {
         if (this._gfxTextureView) {
             this._gfxTextureView.destroy();

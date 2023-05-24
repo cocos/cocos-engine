@@ -218,7 +218,7 @@ public:
     void resetMeshIA();
 
     inline gfx::DescriptorSet* getLocalDes() { return _localDSBF->ds; }
-    void updateLocalDescriptorSet(Node* transform, gfx::DescriptorSetLayout* dsLayout);
+    void updateLocalDescriptorSet(Node* transform, const gfx::DescriptorSetLayout* dsLayout);
 
     inline void resetDrawInfo() {
         destroy();

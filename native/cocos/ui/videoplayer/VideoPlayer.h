@@ -61,7 +61,8 @@ public:
         COMPLETED,
         META_LOADED,
         CLICKED,
-        READY_TO_PLAY
+        READY_TO_PLAY,
+        UPDATE,
     };
 
     VideoPlayer();

@@ -25,11 +25,10 @@
 
 import { AudioPlayer } from 'pal/audio';
 import { AudioClip, AudioMeta } from './audio-clip';
-import { CompleteCallback, IDownloadParseOptions } from '../asset/asset-manager/shared';
 import downloader from '../asset/asset-manager/downloader';
 import factory from '../asset/asset-manager/factory';
 
-export function loadAudioPlayer (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
+export function loadAudioPlayer (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) {
     AudioPlayer.load(url, {
         audioLoadMode: options.audioLoadMode,
     }).then((player) => {
@@ -47,13 +46,12 @@ export function loadAudioPlayer (url: string, options: IDownloadParseOptions, on
 
 function createAudioClip (id: string,
     data: AudioMeta,
-    options: IDownloadParseOptions,
-    onComplete: CompleteCallback<AudioClip>) {
+    options: Record<string, any>,
+    onComplete: ((err: Error | null, data?: AudioClip | null) => void)) {
     const out = new AudioClip();
     out._nativeUrl = id;
     out._nativeAsset = data;
-    // @ts-expect-error assignment to private field
-    out._duration = data.duration;
+    out.duration = data.duration;
     onComplete(null, out);
 }
 

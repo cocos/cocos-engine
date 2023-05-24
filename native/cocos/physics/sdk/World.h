@@ -42,16 +42,33 @@ public:
     void syncSceneWithCheck() override;
     void setCollisionMatrix(uint32_t i, uint32_t m) override;
     ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override;
-    ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override;
+    ccstd::vector<std::shared_ptr<ContactEventPair>>& getContactEventPairs() override;
+    ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& getCCTShapeEventPairs() override;
     bool raycast(RaycastOptions &opt) override;
     bool raycastClosest(RaycastOptions &opt) override;
     ccstd::vector<RaycastResult> &raycastResult() override;
     RaycastResult &raycastClosestResult() override;
+    bool sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
+        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+    bool sweepBoxClosest(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
+        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+    bool sweepSphere(RaycastOptions &opt, float radius) override;
+    bool sweepSphereClosest(RaycastOptions &opt, float radius) override;
+    bool sweepCapsule(RaycastOptions &opt, float radius, float height,
+        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+    bool sweepCapsuleClosest(RaycastOptions &opt, float radius, float height,
+        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+    RaycastResult &sweepClosestResult() override;
+    ccstd::vector<RaycastResult> &sweepResult() override;
+
     uint32_t createConvex(ConvexDesc &desc) override;
     uint32_t createTrimesh(TrimeshDesc &desc) override;
     uint32_t createHeightField(HeightFieldDesc &desc) override;
     bool createMaterial(uint16_t id, float f, float df, float r,
                         uint8_t m0, uint8_t m1) override;
+    float getFixedTimeStep() const override;
+    void setFixedTimeStep(float fixedTimeStep) override;
+
     void destroy() override;
 
 private:

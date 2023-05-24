@@ -51,11 +51,7 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
     // _enableAutoBarrier: auto barrier in framegraph
     // barrierDeduce: deduce barrier gfx internally
     // to avoid redundant instructions, either inside or outside
-    auto opts = device->getOptions();
-    opts.enableBarrierDeduce = !gfx::ENABLE_GRAPH_AUTO_BARRIER;
-    device->setOptions(opts);
-
-    CC_ASSERT(gfx::ENABLE_GRAPH_AUTO_BARRIER ^ gfx::Device::getInstance()->getOptions().enableBarrierDeduce);
+    device->enableAutoBarrier(!gfx::ENABLE_GRAPH_AUTO_BARRIER);
 
     // Important Notice:
     // here attchment index has changed.
@@ -160,12 +156,9 @@ void DevicePass::passDependency(gfx::RenderPassInfo &rpInfo) {
                 subpassIndex > 1 ? subpassIndex - 1 : gfx::SUBPASS_EXTERNAL,
                 subpassIndex,
                 nullptr,
-                bufferBarriers.data() + lastBufferIndex,
-                buffers.data() + lastBufferIndex,
-                static_cast<uint32_t>(buffers.size() - lastBufferIndex),
-                textureBarriers.data() + lastTextureIndex,
-                textures.data() + lastTextureIndex,
-                static_cast<uint32_t>(textures.size() - lastTextureIndex)});
+                {},
+                {},
+                });
 
             for (const auto &rearBarrier : _barriers[barrierID].get().rearBarriers) {
                 const auto &res = getBarrier(rearBarrier, &_resourceTable);
@@ -195,12 +188,9 @@ void DevicePass::passDependency(gfx::RenderPassInfo &rpInfo) {
                 _subpasses.empty() ? 0 : static_cast<uint32_t>(_subpasses.size() - 1),
                 gfx::SUBPASS_EXTERNAL,
                 nullptr,
-                bufferBarriers.data() + lastBufferIndex,
-                buffers.data() + lastBufferIndex,
-                static_cast<uint32_t>(buffers.size() - lastBufferIndex),
-                textureBarriers.data() + lastTextureIndex,
-                textures.data() + lastTextureIndex,
-                static_cast<uint32_t>(textures.size() - lastTextureIndex)});
+                {},
+                {},
+            });
         }
     }
 }

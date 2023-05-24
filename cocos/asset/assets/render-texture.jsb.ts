@@ -21,11 +21,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { cclegacy } from '../../core';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './asset';
+import { patch_cc_RenderTexture } from '../../native-binding/decorators';
+import type { RenderTexture as JsbRenderTexture } from './render-texture';
 
 declare const jsb: any;
 const renderTextureProto: any = jsb.RenderTexture.prototype;
@@ -33,9 +34,8 @@ const textureBaseProto: any = jsb.TextureBase.prototype;
 
 renderTextureProto.createNode = null!;
 
-// @ts-ignore
-export type RenderTexture = jsb.RenderTexture;
-export const RenderTexture: any = jsb.RenderTexture;
+export type RenderTexture = JsbRenderTexture;
+export const RenderTexture: typeof JsbRenderTexture = jsb.RenderTexture;
 
 RenderTexture.Filter = Filter;
 RenderTexture.PixelFormat = PixelFormat;
@@ -76,4 +76,4 @@ renderTextureProto.readPixels = function readPixels (x: number, y: number, width
 cclegacy.RenderTexture = jsb.RenderTexture;
 
 // handle meta data, it is generated automatically
-ccclass('cc.RenderTexture')(RenderTexture);
+patch_cc_RenderTexture({RenderTexture});

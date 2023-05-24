@@ -461,7 +461,7 @@ public:
     /** @returns if points have fuzzy equality which means equal with some degree of variance.
      @since v2.1.4
      */
-    bool fuzzyEquals(const Vec2 &target, float variance) const;
+    bool fuzzyEquals(const Vec2 &b, float var) const;
 
     /** Calculates distance between point an origin
      @return float
@@ -510,6 +510,7 @@ public:
     /** Calculates cross product of two points.
      @return float
      @since v2.1.4
+     @deprecated since v3.8.0, There is no physical meaning.
      */
     inline float cross(const Vec2 &other) const {
         return x * other.y - y * other.x;
@@ -607,10 +608,10 @@ public:
     }
 
     /** A general line-line intersection test
-     @param a   the startpoint for the first line L1 = (a - b)
-     @param b   the endpoint for the first line L1 = (a - b)
-     @param c   the startpoint for the second line L2 = (c - d)
-     @param d   the endpoint for the second line L2 = (c - d)
+     @param a   the start point for the first line L1 = (a - b)
+     @param b   the end point for the first line L1 = (a - b)
+     @param c   the start point for the second line L2 = (c - d)
+     @param d   the end point for the second line L2 = (c - d)
      @param s   the range for a hitpoint in L1 (p = a + s*(b - a))
      @param t   the range for a hitpoint in L2 (p = c + t*(d - c))
      @return    whether these two lines intersects.
@@ -618,7 +619,7 @@ public:
      Note that to truly test intersection for segments we have to make
      sure that s & t lie within [0..1] and for rays, make sure s & t > 0
      the hit point is        c + t * (d - c);
-     the hit point also is   a + b * (b - a);
+     the hit point also is   a + s * (b - a);
      @since 3.0
      */
     static bool isLineIntersect(const Vec2 &a, const Vec2 &b,

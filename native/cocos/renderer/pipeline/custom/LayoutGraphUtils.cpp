@@ -26,12 +26,19 @@
 #include "LayoutGraphUtils.h"
 #include <tuple>
 #include <utility>
+#include "LayoutGraphGraphs.h"
+#include "LayoutGraphNames.h"
+#include "LayoutGraphTypes.h"
+#include "RenderCommonNames.h"
+#include "RenderCommonTypes.h"
 #include "cocos/base/Log.h"
+#include "cocos/base/StringUtil.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
-#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
+#include "details/DebugUtils.h"
+#include "details/GslUtils.h"
 #include "details/Map.h"
+#include "details/Range.h"
 
 namespace cc {
 
@@ -49,7 +56,7 @@ DescriptorBlockData& getDescriptorBlockData(
     iter = map.emplace(
                   std::piecewise_construct,
                   std::forward_as_tuple(index),
-                  std::forward_as_tuple())
+                  std::forward_as_tuple(index.descriptorType, index.visibility, 0))
                .first;
 
     return iter->second;
@@ -241,6 +248,13 @@ void makeDescriptorSetLayoutData(
         }
         // increate total capacity
         capacity += block.capacity;
+        data.capacity += block.capacity;
+        if (index.descriptorType == DescriptorTypeOrder::UNIFORM_BUFFER ||
+            index.descriptorType == DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER) {
+            data.uniformBlockCapacity += block.capacity;
+        } else if (index.descriptorType == DescriptorTypeOrder::SAMPLER_TEXTURE) {
+            data.samplerTextureCapacity += block.capacity;
+        }
         data.descriptorBlocks.emplace_back(std::move(block));
     }
 }
@@ -267,16 +281,22 @@ void initializeDescriptorSetLayoutInfo(
 namespace {
 
 const ccstd::unordered_map<ccstd::string, uint32_t> DEFAULT_UNIFORM_COUNTS{
-    {"cc_joints", pipeline::UBOSkinning::layout.members[0].count},
     {"cc_lightPos", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
     {"cc_lightColor", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
     {"cc_lightSizeRangeAngle", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
     {"cc_lightDir", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
+    {"cc_lightBoundingSizeVS", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
+};
+
+const TransparentSet<ccstd::string> DYNAMIC_UNIFORM_BLOCK{
+    {"CCCamera"},
+    {"CCForwardLight"},
+    {"CCUILocal"},
 };
 
 } // namespace
 
-uint32_t getSize(const ccstd::vector<gfx::Uniform>& blockMembers) {
+uint32_t getUniformBlockSize(const ccstd::vector<gfx::Uniform>& blockMembers) {
     uint32_t prevSize = 0;
     for (const auto& m : blockMembers) {
         if (m.count) {
@@ -288,9 +308,176 @@ uint32_t getSize(const ccstd::vector<gfx::Uniform>& blockMembers) {
             prevSize += getTypeSize(m.type) * iter->second;
             continue;
         }
+        if (m.name == "cc_joints") {
+            const auto sz = getTypeSize(m.type) * pipeline::UBOSkinning::layout.members[0].count;
+            CC_EXPECTS(sz == pipeline::UBOSkinning::size);
+            prevSize += sz;
+            continue;
+        }
         CC_LOG_ERROR("Invalid uniform count: %s", m.name.c_str());
     }
+    CC_ENSURES(prevSize);
     return prevSize;
+}
+
+bool isDynamicUniformBlock(std::string_view name) {
+    return DYNAMIC_UNIFORM_BLOCK.find(name) != DYNAMIC_UNIFORM_BLOCK.end();
+}
+
+gfx::DescriptorSet* getOrCreatePerPassDescriptorSet(
+    gfx::Device* device,
+    LayoutGraphData& lg, LayoutGraphData::vertex_descriptor vertID) {
+    auto& ppl = get(LayoutGraphData::LayoutTag{}, lg, vertID);
+    auto iter = ppl.descriptorSets.find(UpdateFrequency::PER_PASS);
+    if (iter == ppl.descriptorSets.end()) {
+        return nullptr;
+    }
+    auto& data = iter->second;
+    if (!data.descriptorSet) {
+        if (!data.descriptorSetLayout) {
+            data.descriptorSetLayout = device->createDescriptorSetLayout(data.descriptorSetLayoutInfo);
+        }
+        CC_ENSURES(data.descriptorSetLayout);
+        data.descriptorSet = device->createDescriptorSet(gfx::DescriptorSetInfo{data.descriptorSetLayout.get()});
+    }
+    CC_ENSURES(data.descriptorSet);
+    return data.descriptorSet;
+}
+
+void generateConstantMacros(
+    gfx::Device* device,
+    ccstd::string& constantMacros,
+    bool clusterEnabled) {
+    constantMacros = StringUtil::format(
+        R"(
+#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE %d
+#define CC_ENABLE_CLUSTERED_LIGHT_CULLING %d
+#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS %d
+#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS %d
+#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT %d
+#define CC_PLATFORM_ANDROID_AND_WEBGL 0
+#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES 0
+#define CC_JOINT_UNIFORM_CAPACITY %d
+        )",
+        hasAnyFlags(device->getFormatFeatures(gfx::Format::RGBA32F),
+                    gfx::FormatFeature::RENDER_TARGET | gfx::FormatFeature::SAMPLED_TEXTURE),
+        clusterEnabled ? 1 : 0,
+        device->getCapabilities().maxVertexUniformVectors,
+        device->getCapabilities().maxFragmentUniformVectors,
+        device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT),
+        pipeline::SkinningJointCapacity::jointUniformCapacity);
+}
+
+namespace {
+
+ccstd::string getName(gfx::ShaderStageFlagBit stage) {
+    std::ostringstream oss;
+    int count = 0;
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::VERTEX)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Vertex";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::CONTROL)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Control";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::EVALUATION)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Evaluation";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::GEOMETRY)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Geometry";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::FRAGMENT)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Fragment";
+    }
+    if (hasFlag(stage, gfx::ShaderStageFlagBit::COMPUTE)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "Compute";
+    }
+    if (hasAllFlags(stage, gfx::ShaderStageFlagBit::ALL)) {
+        if (count++) {
+            oss << " | ";
+        }
+        oss << "All";
+    }
+    return oss.str();
+}
+
+} // namespace
+
+void printLayoutGraphData(
+    const LayoutGraphData& lg, std::ostream& oss,
+    boost::container::pmr::memory_resource* scratch) {
+    ccstd::pmr::string space(scratch);
+
+    oss << "\n";
+
+    for (const auto v : makeRange(vertices(lg))) {
+        if (parent(v, lg) != LayoutGraphData::null_vertex()) {
+            continue;
+        }
+        const auto& name = get(LayoutGraphData::NameTag{}, lg, v);
+        OSS << "\"" << name << "\": ";
+
+        visit(
+            [&](auto tag) {
+                oss << getName(tag);
+            },
+            tag(v, lg));
+
+        oss << " {\n";
+        INDENT_BEG();
+        const auto& info = get(LayoutGraphData::LayoutTag{}, lg, v);
+        for (const auto& set : info.descriptorSets) {
+            OSS << "Set<" << getName(set.first) << "> {\n";
+            {
+                INDENT();
+                for (const auto& block : set.second.descriptorSetLayoutData.descriptorBlocks) {
+                    OSS << "Block<" << getName(block.type) << ", " << getName(block.visibility) << "> {\n";
+                    {
+                        INDENT();
+                        OSS << "capacity: " << block.capacity << ",\n";
+                        OSS << "count: " << block.descriptors.size() << ",\n";
+                        if (!block.descriptors.empty()) {
+                            OSS << "Descriptors{ ";
+                            int count = 0;
+                            for (const auto& d : block.descriptors) {
+                                if (count++) {
+                                    oss << ", ";
+                                }
+                                const auto& name = lg.valueNames.at(d.descriptorID.value);
+                                oss << "\"" << name;
+                                if (d.count != 1) {
+                                    oss << "[" << d.count << "]";
+                                }
+                                oss << "\"";
+                            }
+                            oss << " }\n";
+                        }
+                    }
+                    OSS << "}\n";
+                }
+            }
+            OSS << "}\n";
+        }
+        INDENT_END();
+        OSS << "}\n";
+    }
 }
 
 } // namespace render

@@ -139,9 +139,9 @@ export class View extends Eventify(System) {
         }
 
         // For now, the engine UI is adapted to resolution size, instead of window size.
-        screenAdapter.on('window-resize', this._updateAdaptResult, this);
-        screenAdapter.on('orientation-change', this._updateAdaptResult, this);
-        screenAdapter.on('fullscreen-change', this._updateAdaptResult, this);
+        screen.on('window-resize', this._updateAdaptResult, this);
+        screen.on('orientation-change', this._updateAdaptResult, this);
+        screen.on('fullscreen-change', this._updateAdaptResult, this);
     }
 
     /**
@@ -167,8 +167,10 @@ export class View extends Eventify(System) {
      * 因此你可以在这个回调函数内添加任意附加改变，
      * 仅在 Web 平台下有效。
      * @param callback - The callback function
+     *
+     * @deprecated since v3.8.0, please use [[screen.on]] to listen for events.
      */
-    public setResizeCallback (callback: (()=> void) | null) {
+    public setResizeCallback (callback: (() => void) | null) {
         if (typeof callback === 'function' || callback == null) {
             this._resizeCallback = callback;
         }
@@ -588,7 +590,8 @@ export class View extends Eventify(System) {
     }
 
     private _updateAdaptResult (width: number, height: number, windowId?: number) {
-        cclegacy.director.root.resize(width, height, windowId === undefined ? 1 : windowId);
+        // The default invalid windowId is 0
+        cclegacy.director.root.resize(width, height, (windowId === undefined || windowId === 0) ? 1 : windowId);
         // Frame size changed, do resize works
         const w = this._designResolutionSize.width;
         const h = this._designResolutionSize.height;
@@ -657,8 +660,12 @@ class ContainerStrategy {
         const locCanvas = cclegacy.game.canvas;
         if (locCanvas) {
             const windowSize = screen.windowSize;
-            locCanvas.width = windowSize.width;
-            locCanvas.height = windowSize.height;
+            if (locCanvas.width !== windowSize.width) {
+                locCanvas.width = windowSize.width;
+            }
+            if (locCanvas.height !== windowSize.height) {
+                locCanvas.height = windowSize.height;
+            }
         }
     }
 }

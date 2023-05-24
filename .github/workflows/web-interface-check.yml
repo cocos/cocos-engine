@@ -18,59 +18,57 @@ jobs:
         with:
           node-version: '14.19'
 
-      - name: clone REPO
-        run: |
-          git config --global user.name "test"
-          git config --global user.email "test@test.com"
-          git clone https://github.com/cocos-creator/engine.git
-      
-      - name: checkout BASE branch
-        working-directory: ./engine
-        run: |
-          git fetch origin ${{ github.base_ref }}
-          git checkout -b ${{ github.base_ref }}_BASE remotes/origin/${{ github.base_ref }}
-          git branch
+      - uses: actions/checkout@v3
+        name: Checkout Base Ref
+        with:
+          repository: ${{ github.event.pull_request.base.repo.full_name }}
+          ref: ${{ github.base_ref }}
+          path: './engine'
+      - run: |
+          "EXT_VERSION=$(node ./engine/.github/workflows/get-native-external-version.js)" >> $env:GITHUB_ENV
+        shell: pwsh
+      - uses: actions/checkout@v3
+        name: Download external
+        with:
+          repository: cocos/cocos-engine-external
+          path: './engine/native/external'
+          ref: "${{ env.EXT_VERSION }}"
+          fetch-depth: 1
 
-      - name: npm install BASE branch
+      - name: Build Base Declarations
         working-directory: ./engine
         run: |
-          npm install --ignore-scripts
+          npm install
 
-      - name: build BASE declaration
-        working-directory: ./engine
+      - name: Clear npm Cache
         run: |
-          npm run build-declaration
-          cp ./bin/.declarations/cc.d.ts ../cc_base.d.ts
-
-      - name: clear dependencies
-        working-directory: ./engine
-        run: |
-          git checkout .
-          git clean -xfd
           npm cache clean --force
-          ls -la
 
-      - name: merge HEAD branch
-        working-directory: ./engine
-        run: |
-          git remote add HEAD_REPO https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
-          git fetch HEAD_REPO ${{ github.head_ref }}
-          git merge remotes/HEAD_REPO/${{ github.head_ref }}
+      - uses: actions/checkout@v3
+        name: Checkout Head Ref
+        with:
+          ref: 'refs/pull/${{ github.event.pull_request.number }}/merge' # Don't check out the head commit, checkout the "merge commit" instead
+          path: './engine-HEAD'
+      - run: |
+          "EXT_VERSION_HEAD=$(node ./engine-HEAD/.github/workflows/get-native-external-version.js)" >> $env:GITHUB_ENV
+        shell: pwsh
+      - uses: actions/checkout@v3
+        name: Download external
+        with:
+          repository: cocos/cocos-engine-external
+          path: './engine-HEAD/native/external'
+          ref: "${{ env.EXT_VERSION_HEAD }}"
+          fetch-depth: 1
 
-      - name: npm install HEAD branch
-        working-directory: ./engine
+      - name: Build Head Declarations
+        working-directory: ./engine-HEAD
         run: |
-          npm install --ignore-scripts
-
-      - name: build HEAD declaration
-        working-directory: ./engine
-        run: |
-          npm run build-declaration
+          npm install
 
       - uses: LouisBrunner/diff-action@v0.1.2
         with:
-          old: ./cc_base.d.ts
-          new: ./engine/bin/.declarations/cc.d.ts
+          old: ./engine/bin/.declarations/cc.d.ts
+          new: ./engine-HEAD/bin/.declarations/cc.d.ts
           mode: addition
           tolerance: worse
           output: ./engine/interface-diff.txt

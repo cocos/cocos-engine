@@ -43,7 +43,7 @@ GLES2DescriptorSet::~GLES2DescriptorSet() {
 }
 
 void GLES2DescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
-    const GLES2GPUDescriptorSetLayout *gpuDescriptorSetLayout = static_cast<GLES2DescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
+    const GLES2GPUDescriptorSetLayout *gpuDescriptorSetLayout = static_cast<const GLES2DescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
     const size_t descriptorCount = gpuDescriptorSetLayout->descriptorCount;
     const size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
 

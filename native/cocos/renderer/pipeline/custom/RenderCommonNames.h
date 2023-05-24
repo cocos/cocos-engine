@@ -56,8 +56,11 @@ inline const char* getName(ParameterType e) noexcept {
     }
     return "";
 }
-inline const char* getName(const RasterTag& /*v*/) noexcept { return "Raster"; }
+inline const char* getName(const RasterPassTag& /*v*/) noexcept { return "RasterPass"; }
+inline const char* getName(const RasterSubpassTag& /*v*/) noexcept { return "RasterSubpass"; }
+inline const char* getName(const ComputeSubpassTag& /*v*/) noexcept { return "ComputeSubpass"; }
 inline const char* getName(const ComputeTag& /*v*/) noexcept { return "Compute"; }
+inline const char* getName(const ResolveTag& /*v*/) noexcept { return "Resolve"; }
 inline const char* getName(const CopyTag& /*v*/) noexcept { return "Copy"; }
 inline const char* getName(const MoveTag& /*v*/) noexcept { return "Move"; }
 inline const char* getName(const RaytraceTag& /*v*/) noexcept { return "Raytrace"; }
@@ -110,6 +113,7 @@ inline const char* getName(AttachmentType e) noexcept {
     switch (e) {
         case AttachmentType::RENDER_TARGET: return "RENDER_TARGET";
         case AttachmentType::DEPTH_STENCIL: return "DEPTH_STENCIL";
+        case AttachmentType::SHADING_RATE: return "SHADING_RATE";
     }
     return "";
 }
@@ -124,11 +128,13 @@ inline const char* getName(AccessType e) noexcept {
 inline const char* getName(const RasterView& /*v*/) noexcept { return "RasterView"; }
 inline const char* getName(ClearValueType e) noexcept {
     switch (e) {
+        case ClearValueType::NONE: return "NONE";
         case ClearValueType::FLOAT_TYPE: return "FLOAT_TYPE";
         case ClearValueType::INT_TYPE: return "INT_TYPE";
     }
     return "";
 }
+inline const char* getName(const ClearValue& /*v*/) noexcept { return "ClearValue"; }
 inline const char* getName(const ComputeView& /*v*/) noexcept { return "ComputeView"; }
 inline const char* getName(const LightInfo& /*v*/) noexcept { return "LightInfo"; }
 inline const char* getName(DescriptorTypeOrder e) noexcept {
@@ -149,8 +155,11 @@ inline const char* getName(const Descriptor& /*v*/) noexcept { return "Descripto
 inline const char* getName(const DescriptorBlock& /*v*/) noexcept { return "DescriptorBlock"; }
 inline const char* getName(const DescriptorBlockFlattened& /*v*/) noexcept { return "DescriptorBlockFlattened"; }
 inline const char* getName(const DescriptorBlockIndex& /*v*/) noexcept { return "DescriptorBlockIndex"; }
+inline const char* getName(const ResolvePair& /*v*/) noexcept { return "ResolvePair"; }
 inline const char* getName(const CopyPair& /*v*/) noexcept { return "CopyPair"; }
+inline const char* getName(const UploadPair& /*v*/) noexcept { return "UploadPair"; }
 inline const char* getName(const MovePair& /*v*/) noexcept { return "MovePair"; }
+inline const char* getName(const PipelineStatistics& /*v*/) noexcept { return "PipelineStatistics"; }
 
 } // namespace render
 

@@ -4,7 +4,7 @@ import { Config, IConstantConfig, IConstantInfo } from './config-interface';
 
 export type ModeType = 'EDITOR' | 'PREVIEW' | 'BUILD' | 'TEST';
 export type PlatformType = 'HTML5' | 'NATIVE' |
-        'WECHAT' | 'BAIDU' | 'XIAOMI' | 'ALIPAY' | 'TAOBAO' | 'BYTEDANCE' |
+        'WECHAT' | 'BAIDU' | 'XIAOMI' | 'ALIPAY' | 'TAOBAO' | 'TAOBAO_MINIGAME' | 'BYTEDANCE' |
         'OPPO' | 'VIVO' | 'HUAWEI' | 'COCOSPLAY' | 'QTT' | 'LINKSURE';
 export type InternalFlagType = 'SERVER_MODE' | 'NOT_PACK_PHYSX_LIBS' | 'WEBGPU';
 export type PublicFlagType = 'DEBUG' | 'NET_MODE';
@@ -15,6 +15,10 @@ export interface ConstantOptions {
     mode: ModeType;
     platform: PlatformType;
     flags: Partial<Record<FlagType, ValueType>>;
+    /**
+     * @experimental
+     */
+    forceJitValue?: boolean;
 }
 export type BuildTimeConstants = Record<PlatformType | ModeType | FlagType, ValueType>;
 export type CCEnvConstants = Record<PlatformType | ModeType | PublicFlagType, ValueType>;
@@ -99,6 +103,9 @@ export class ConstantManager {
             const info = config[key];
             jsonObj[key] = info.value as ValueType;
         }
+        if (typeof options.forceJitValue !== 'undefined') {
+            jsonObj['SUPPORT_JIT'] = options.forceJitValue;
+        }
         return jsonObj as BuildTimeConstants;
     }
 
@@ -122,6 +129,7 @@ export class ConstantManager {
         mode,
         platform,
         flags,
+        forceJitValue,
     }: ConstantOptions): string {
         const config = this._getConfig();
         // init helper
@@ -156,6 +164,10 @@ export class ConstantManager {
             if (typeof info.value === 'string') {
                 info.value = this._evalExpression(info.value, config);
             }
+        }
+        if (typeof forceJitValue !== 'undefined') {
+            const info = config['SUPPORT_JIT'];
+            info.value = forceJitValue;
         }
 
         // generate export content

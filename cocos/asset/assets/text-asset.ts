@@ -28,11 +28,11 @@ import { Asset } from './asset';
 import { cclegacy } from '../../core';
 
 /**
- * @en Class for text file.
+ * @en The asset for text file.
  * @zh 文本资源。
  */
 @ccclass('cc.TextAsset')
-export default class TextAsset extends Asset {
+export class TextAsset extends Asset {
     /**
      * @en The text content.
      * @zh 此资源包含的文本。

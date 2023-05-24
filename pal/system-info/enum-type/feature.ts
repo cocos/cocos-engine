@@ -50,6 +50,12 @@ export enum Feature {
     SAFE_AREA = 'SAFE_AREA',
 
     /**
+     * @en Feature to support HPE (high performance emulator) platforms, such as Google Play Games For PC.
+     * @zh 是否支持 HPE 平台, 比如: Android 的 Google Play Games 在 PC 上的模拟器.
+     */
+    HPE = 'HPE',
+
+    /**
      * @en Feature to support Touch Input.
      * Touch Input is only supported on some devices with touch screen.
      * This feature tells that whether the device has a touch screen.
@@ -100,4 +106,10 @@ export enum Feature {
      * @zh 是否支持派发 EventHandheld
      */
     EVENT_HANDHELD = 'EVENT_HANDHELD',
+    /**
+     * @en Check whether Webassembly is supported at runtime. Generally, it needs to be checked when the constant `WASM_SUPPORT_MODE` is 2.
+     * If it is not supported, you need to fallback to the Asm solution.
+     * @zh 运行时检测是否支持 Webassembly，一般在宏 `WASM_SUPPORT_MODE` 为 2 时需要检测，如果不支持，需要回滚到 Asm 方案
+     */
+    WASM = 'WASM',
 }

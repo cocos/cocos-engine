@@ -24,7 +24,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, visible } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, visible, range, rangeMin } from 'cc.decorator';
 import { RenderTexture } from '../asset/assets/render-texture';
 import { UITransform } from '../2d/framework';
 import { Component } from '../scene-graph';
@@ -38,26 +38,47 @@ import { Layers } from '../scene-graph/layers';
 import { TransformBit } from '../scene-graph/node-enum';
 import { RenderWindow } from '../render-scene/core/render-window';
 import { ClearFlagBit } from '../gfx';
+import { PostProcess } from '../rendering/post-process/components/post-process';
+import { property } from '../core/data/class-decorator';
 
 const _temp_vec3_1 = new Vec3();
 
-/**
- * @en The projection type.
- * @zh 投影类型。
- */
 const ProjectionType = Enum(CameraProjection);
 const FOVAxis = Enum(CameraFOVAxis);
 const Aperture = Enum(CameraAperture);
 const Shutter = Enum(CameraShutter);
 const ISO = Enum(CameraISO);
 
+/**
+ * @en Clear screen flag enumeration of the camera.
+ * @zh 相机的清屏标记枚举。
+ */
 export const ClearFlag = Enum({
+    /**
+     * @en Clear the screen with [[SceneGlobals.skybox]], will clear the depth and stencil buffer at the same time.
+     * @zh 使用指定天空盒 [[SceneGlobals.skybox]] 清屏，会同时清理深度和蒙版缓冲。
+     */
     SKYBOX: SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
+    /**
+     * @en Clear the screen with the given [[Camera.clearColor]], will clear the depth and stencil buffer at the same time.
+     * @zh 使用指定的相机清屏颜色 [[Camera.clearColor]] 来清屏，会同时清理将深度和蒙版缓冲。
+     */
     SOLID_COLOR: ClearFlagBit.ALL,
+    /**
+     * @en Only clear the depth and stencil buffer while keeping the color buffer intact. Often used in UI camera.
+     * @zh 只清理深度和蒙版缓冲，同时保留颜色缓冲不变。常用于 UI 相机。
+     */
     DEPTH_ONLY: ClearFlagBit.DEPTH_STENCIL,
+    /**
+     * @en Don't clear anything and continue rendering.
+     * @zh 不清理任何内容就开始渲染，适合多 Camera 叠加渲染。
+     */
     DONT_CLEAR: ClearFlagBit.NONE,
 });
 
+/**
+ * @internal
+ */
 export declare namespace Camera {
     export type ProjectionType = EnumAlias<typeof ProjectionType>;
     export type FOVAxis = EnumAlias<typeof FOVAxis>;
@@ -148,6 +169,10 @@ export class Camera extends Component {
     protected _visibility = CAMERA_DEFAULT_MASK;
     @serializable
     protected _targetTexture: RenderTexture | null = null;
+    @serializable
+    protected _postProcess: PostProcess | null = null;
+    @serializable
+    protected _usePostProcess = false;
 
     protected _camera: scene.Camera | null = null;
     protected _inEditorMode = false;
@@ -170,6 +195,7 @@ export class Camera extends Component {
      * @zh 相机的渲染优先级，值越小越优先渲染。
      */
     @displayOrder(0)
+    @range([0, 65535, 1])
     @tooltip('i18n:camera.priority')
     get priority () {
         return this._priority;
@@ -311,6 +337,7 @@ export class Camera extends Component {
     @visible(function (this: Camera) {
         return this._projection === ProjectionType.PERSPECTIVE;
     })
+    @range([1, 180, 1])
     @tooltip('i18n:camera.fov')
     get fov () {
         return this._fov;
@@ -329,6 +356,7 @@ export class Camera extends Component {
     @visible(function (this: Camera) {
         return this._projection === ProjectionType.ORTHO;
     })
+    @rangeMin(1)
     @tooltip('i18n:camera.ortho_height')
     get orthoHeight () {
         return this._orthoHeight;
@@ -344,6 +372,7 @@ export class Camera extends Component {
      * @zh 相机的近裁剪距离，应在可接受范围内尽量取最大。
      */
     @displayOrder(10)
+    @rangeMin(0)
     @tooltip('i18n:camera.near')
     get near () {
         return this._near;
@@ -359,6 +388,7 @@ export class Camera extends Component {
      * @zh 相机的远裁剪距离，应在可接受范围内尽量取最小。
      */
     @displayOrder(11)
+    @rangeMin(0)
     @tooltip('i18n:camera.far')
     get far () {
         return this._far;
@@ -460,6 +490,28 @@ export class Camera extends Component {
         this.node.emit(Camera.TARGET_TEXTURE_CHANGE, this);
     }
 
+    @property
+    get usePostProcess () {
+        return this._usePostProcess;
+    }
+    set usePostProcess (v) {
+        this._usePostProcess = v;
+        if (this._camera) {
+            this._camera.usePostProcess = v;
+        }
+    }
+
+    @type(PostProcess)
+    get postProcess () {
+        return this._postProcess;
+    }
+    set postProcess (v) {
+        this._postProcess = v;
+        if (this._camera) {
+            this._camera.postProcess = v;
+        }
+    }
+
     /**
      * @en Scale of the internal buffer size,
      * set to 1 to keep the same with the canvas size.
@@ -489,6 +541,9 @@ export class Camera extends Component {
         }
     }
 
+    /**
+     * @internal
+     */
     get cameraType () {
         return this._cameraType;
     }
@@ -503,6 +558,9 @@ export class Camera extends Component {
         }
     }
 
+    /**
+     * @internal
+     */
     get trackingType () {
         return this._trackingType;
     }
@@ -651,6 +709,8 @@ export class Camera extends Component {
             this._camera!.aperture = this._aperture;
             this._camera!.shutter = this._shutter;
             this._camera!.iso = this._iso;
+            this._camera!.postProcess = this._postProcess;
+            this._camera!.usePostProcess = this._usePostProcess;
         }
 
         this._updateTargetTexture();

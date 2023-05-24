@@ -94,9 +94,16 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                     }
 
                     js.array.fastRemoveAt(contacts, i);
+
+                    const other = contact.shape1 === shape ? contact.shape2 : contact.shape1;
+                    const contactIndex = other!._contacts.indexOf(contact);
+                    if (contactIndex >= 0) {
+                        js.array.fastRemoveAt(other!._contacts, contactIndex);
+                    }
                 }
             }
         }
+        shape._contacts.length = 0;
     }
 
     updateShapeGroup (shape: BuiltinShape2D) {
@@ -259,5 +266,8 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     syncSceneToPhysics () { }
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType): RaycastResult2D[] {
         return [];
+    }
+    finalizeContactEvent () {
+
     }
 }

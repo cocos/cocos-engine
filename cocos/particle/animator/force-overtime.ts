@@ -34,11 +34,20 @@ const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
 
 const _temp_v3 = new Vec3();
 
+/**
+ * @en
+ * This module will apply force to particle over life time.
+ * Force on every axis is curve so you can modify these curves to see how it animate.
+ * @zh
+ * 本模块用于在粒子生命周期内对粒子施加外力。
+ * 每个轴上的受力大小都是可以用曲线来进行编辑，修改曲线就能够看到粒子受力变化的效果了。
+ */
 @ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule extends ParticleModuleBase {
     @serializable
     _enable = false;
     /**
+     * @en Enable this module or not.
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -54,6 +63,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Force on the X axis.
      * @zh X 轴方向上的加速度分量。
      */
     @type(CurveRange)
@@ -63,6 +73,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     public x = new CurveRange();
 
     /**
+     * @en Force on the Y axis.
      * @zh Y 轴方向上的加速度分量。
      */
     @type(CurveRange)
@@ -72,6 +83,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     public y = new CurveRange();
 
     /**
+     * @en Force on the Z axis.
      * @zh Z 轴方向上的加速度分量。
      */
     @type(CurveRange)
@@ -81,6 +93,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     public z = new CurveRange();
 
     /**
+     * @en Force calculation coordinate. See [[Space]].
      * @zh 加速度计算时采用的坐标系 [[Space]]。
      */
     @type(Space)
@@ -103,10 +116,24 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
         this.needUpdate = true;
     }
 
+    /**
+     * @en Update force module calculate transform.
+     * @zh 更新模块，计算坐标变换。
+     * @param space @en Force module update space. @zh 模块更新空间。
+     * @param worldTransform @en Particle system world transform. @zh 粒子系统的世界变换矩阵。
+     * @internal
+     */
     public update (space, worldTransform) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
+    /**
+     * @en Apply force to particle.
+     * @zh 作用力到粒子上。
+     * @param p @en Particle to animate. @zh 模块需要更新的粒子。
+     * @param dt @en Update interval time. @zh 粒子系统更新的间隔时间。
+     * @internal
+     */
     public animate (p: Particle, dt) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const randX = isCurveTwoValues(this.x) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;

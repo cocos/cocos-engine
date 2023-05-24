@@ -185,10 +185,7 @@ export const MotionStreakAssembler: IAssembler = {
             this.updateWorldVertexAllData(comp);
 
             renderData.updateRenderData(comp, comp.texture!);
-            // No need update WorldMatrix, so change dirty flag
-            // A dirty hack
-            renderData.renderDrawInfo.setVertDirty(false);
-            comp.node.hasChangedFlags = 0;
+            comp.markForUpdateRenderData();
         }
     },
 
@@ -244,6 +241,13 @@ export const MotionStreakAssembler: IAssembler = {
     },
 
     updateRenderData (comp: MotionStreak) {
+        if (JSB) {
+            // A dirty hack
+            // The world matrix was updated in advance and needs to be avoided at the cpp level
+            // Need a flag to explicitly not update the world transform to solve this problem
+            comp.renderData!.renderDrawInfo.setVertDirty(false);
+            comp.node.hasChangedFlags = 0;
+        }
     },
 
     updateColor (comp: MotionStreak) {

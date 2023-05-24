@@ -242,6 +242,9 @@ export class Button extends Component {
         }
     }
 
+    /**
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     set _resizeToTarget (value: boolean) {
         if (value) {
             this._resizeNodeToTargetNode();
@@ -515,7 +518,15 @@ export class Button extends Component {
         this._updateState();
     }
 
+    /**
+     * @en Enum for transition type.
+     * @zh 过渡类型。
+     */
     public static Transition = Transition;
+    /**
+     * @en The event types of [[Button]]. All button events are distributed by the owner Node, not the component
+     * @zh [[Button]] 的事件类型，注意：事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+     */
     public static EventType = EventType;
     /**
      * @en
@@ -835,7 +846,7 @@ export class Button extends Component {
             return;
         }
 
-        const hit = this.node._uiProps.uiTransformComp!.hitTest(touch.getLocation());
+        const hit = this.node._uiProps.uiTransformComp!.hitTest(touch.getLocation(), event.windowId);
 
         if (this._transition === Transition.SCALE && this.target && this._originalScale) {
             if (hit) {

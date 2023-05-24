@@ -33,6 +33,7 @@
 #include "GLES3Framebuffer.h"
 #include "GLES3GPUObjects.h"
 #include "GLES3InputAssembler.h"
+#include "GLES3PipelineCache.h"
 #include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
 #include "GLES3PrimaryCommandBuffer.h"
@@ -119,8 +120,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
 
     ccstd::string fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
-#if 0 // CC_PLATFORM != CC_PLATFORM_WINDOWS
-    // TODO: enable fbf in the future, it is not implemented yet in gles3 backend
+//#if CC_PLATFORM != CC_PLATFORM_WINDOWS
     if (checkExtension("framebuffer_fetch")) {
         ccstd::string nonCoherent = "framebuffer_fetch_non";
 
@@ -140,11 +140,18 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         } else if (checkExtension(CC_TOSTR(GL_EXT_shader_framebuffer_fetch))) {
             // we only care about EXT_shader_framebuffer_fetch, the ARM version does not support MRT
             _gpuConstantRegistry->mFBF = FBFSupportLevel::COHERENT;
+            _features[toNumber(Feature::RASTERIZATION_ORDER_COHERENT)] = true;
             fbfLevelStr                = "COHERENT";
         }
         _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = _gpuConstantRegistry->mFBF != FBFSupportLevel::NONE;
+        _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = true;
     }
-#endif
+
+    if (checkExtension(CC_TOSTR(ARM_shader_framebuffer_fetch_depth_stencil))) {
+        _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
+        fbfLevelStr                += "_DEPTH_STENCIL";
+    }
+//#endif
 
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP
     if (checkExtension("multisampled_render_to_texture")) {
@@ -222,6 +229,11 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxImageUnits, _caps.maxUniformBufferBindings, _caps.maxShaderStorageBufferBindings, _caps.maxVertexAttributes);
 
+#if CC_USE_PIPELINE_CACHE
+    _pipelineCache = std::make_unique<GLES3PipelineCache>();
+    _pipelineCache->init();
+#endif
+
     CC_LOG_INFO("GLES3 device initialized.");
     CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
     CC_LOG_INFO("VENDOR: %s", _vendor.c_str());
@@ -249,6 +261,8 @@ void GLES3Device::doDestroy() {
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)
     CC_SAFE_DESTROY_AND_DELETE(_queue)
     CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
+
+    _pipelineCache.reset();
 }
 
 void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {

@@ -52,10 +52,22 @@ export * from './assembler';
 export { spine };
 
 /**
+* @internal Since v3.7.2, this is an engine private type.
+*/
+/**
  * @en
- * The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH
+ * The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH.
+ * [REGION] An attachment that displays a textured quadrilateral.
+ * [BOUNDING_BOX] An attachment with vertices that make up a polygon. Can be used for hit detection,
+ * creating physics bodies, spawning particle effects, and more.
+ * [MESH] An attachment that displays a textured mesh.
+ * [SKINNED_MESH] No used any more.
  * @zh
- * Attachment 类型枚举。类型包括 REGION，BOUNDING_BOX，MESH，SKINNED_MESH
+ * Attachment 类型枚举。类型包括 REGION, BOUNDING_BOX, MESH, SKINNED_MESH。
+ * [REGION] 一个用于显示 texture 四边形的附件。
+ * [BOUNDING_BOX] 一个带有顶点的附件。顶点构成的多边形可用于碰撞检测，创建物理实体，生成粒子特效等等。
+ * [MESH] 一个可以显示 texture 网格的附件。
+ * [SKINNED_MESH] 已废弃。
  */
 export enum ATTACHMENT_TYPE {
     REGION = 0,

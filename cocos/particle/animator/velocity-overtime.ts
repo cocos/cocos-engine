@@ -35,11 +35,22 @@ const VELOCITY_Z_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Z;
 
 const _temp_v3 = new Vec3();
 
+/**
+ * @en
+ * This module will modify particle velocity over life time.
+ * Open the separateAxes option you can change the velocity on XYZ axis.
+ * Velocity on every axis is curve so you can modify these curves to see how it animate.
+ * @zh
+ * 本模块用于在粒子生命周期内改变粒子的速度。
+ * 打开 separateAxes 就能够修改粒子在三个轴方向的速度大小。
+ * 每个轴上的速度大小都是可以用曲线来进行编辑，修改曲线就能够看到粒子速度变化的效果了。
+ */
 @ccclass('cc.VelocityOvertimeModule')
 export default class VelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     _enable = false;
     /**
+     * @en Enable this module or not.
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -55,6 +66,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Velocity on X axis.
      * @zh X 轴方向上的速度分量。
      */
     @type(CurveRange)
@@ -64,6 +76,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     public x = new CurveRange();
 
     /**
+     * @en Velocity on Y axis.
      * @zh Y 轴方向上的速度分量。
      */
     @type(CurveRange)
@@ -73,6 +86,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     public y = new CurveRange();
 
     /**
+     * @en Velocity on Z axis.
      * @zh Z 轴方向上的速度分量。
      */
     @type(CurveRange)
@@ -82,6 +96,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     public z = new CurveRange();
 
     /**
+     * @en Speed modifier (available for CPU particle).
      * @zh 速度修正系数（只支持 CPU 粒子）。
      */
     @type(CurveRange)
@@ -91,6 +106,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     public speedModifier = new CurveRange();
 
     /**
+     * @en Velocity [[Space]] used to calculate particle velocity.
      * @zh 速度计算时采用的坐标系[[Space]]。
      */
     @type(Space)
@@ -111,10 +127,24 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
         this.needUpdate = true;
     }
 
+    /**
+     * @en Update velocity overtime module calculate transform.
+     * @zh 更新模块，计算坐标变换。
+     * @param space @en Velocity overtime module update space @zh 模块更新空间
+     * @param worldTransform @en Particle system world transform @zh 粒子系统的世界变换矩阵
+     * @internal
+     */
     public update (space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
+    /**
+     * @en Apply velocity animation to particle.
+     * @zh 作用速度变换到粒子上。
+     * @param p @en Particle to animate @zh 模块需要更新的粒子
+     * @param dt @en Update interval time @zh 粒子系统更新的间隔时间
+     * @internal
+     */
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const randX = isCurveTwoValues(this.x) ? pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET) : 0;

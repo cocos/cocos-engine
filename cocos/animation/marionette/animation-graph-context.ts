@@ -4,7 +4,7 @@ import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Pose, TransformFilter } from '../core/pose';
 import { PoseAllocator } from '../core/pose-allocator';
 import { TransformArray } from '../core/transform-array';
-import { TransformHandle, MetaValueHandle } from '../core/animation-handle';
+import { TransformHandle, AuxiliaryCurveHandle } from '../core/animation-handle';
 import { Transform, ZERO_DELTA_TRANSFORM } from '../core/transform';
 import { VarInstance } from './variable';
 import { AnimationMask } from './animation-mask';
@@ -98,8 +98,8 @@ export class AnimationGraphBindingContext {
         return boneNode.children.map((childNode) => childNode.name);
     }
 
-    public bineMetaValue (name: string): MetaValueHandle {
-        return this._layoutMaintainer.getOrCreateMetaValueBinding(name);
+    public bindAuxiliaryCurve (name: string): AuxiliaryCurveHandle {
+        return this._layoutMaintainer.getOrCreateAuxiliaryCurveBinding(name);
     }
 
     public getVar (id: string): VarInstance | undefined {
@@ -115,7 +115,7 @@ export class AnimationGraphBindingContext {
 
 const cacheTransform = new Transform();
 
-export class MetaValueRegistry {
+export class AuxiliaryCurveRegistry {
     public names () {
         return this._namedCurves.keys();
     }
@@ -147,9 +147,9 @@ export enum LayoutChangeFlag {
     TRANSFORM_ORDER = 2,
 
     /**
-     * If this flag is set, means the meta value count has been changed.
+     * If this flag is set, means the auxiliary curve count has been changed.
      */
-    META_VALUE_COUNT = 4,
+    AUXILIARY_CURVE_COUNT = 4,
 }
 
 const checkBindStatus = (bindStarted = false): MethodDecorator => (_, _propertyKey, descriptor: TypedPropertyDescriptor<any>) => {
@@ -172,16 +172,16 @@ const checkBindStatus = (bindStarted = false): MethodDecorator => (_, _propertyK
 };
 
 export class AnimationGraphPoseLayoutMaintainer {
-    constructor (metaValueRegistry: MetaValueRegistry) {
-        this._metaValueRegistry = metaValueRegistry;
+    constructor (auxiliaryCurveRegistry: AuxiliaryCurveRegistry) {
+        this._auxiliaryCurveRegistry = auxiliaryCurveRegistry;
     }
 
     get transformCount () {
         return this._transformRecords.length;
     }
 
-    get metaValueCount () {
-        return this._metaValueRecords.length;
+    get auxiliaryCurveCount () {
+        return this._auxiliaryCurveRecords.length;
     }
 
     @checkBindStatus(true)
@@ -221,22 +221,22 @@ export class AnimationGraphPoseLayoutMaintainer {
     }
 
     @checkBindStatus(true)
-    public getOrCreateMetaValueBinding (name: string) {
-        const { _metaValueRecords: metaValueRecords } = this;
+    public getOrCreateAuxiliaryCurveBinding (name: string) {
+        const { _auxiliaryCurveRecords: auxiliaryCurveRecords } = this;
 
-        const metaValueIndex = metaValueRecords.findIndex((record) => record.name === name);
-        if (metaValueIndex >= 0) {
-            const metaValueRecord = metaValueRecords[metaValueIndex];
-            ++metaValueRecord.refCount;
-            return metaValueRecord.handle;
+        const auxiliaryCurveIndex = auxiliaryCurveRecords.findIndex((record) => record.name === name);
+        if (auxiliaryCurveIndex >= 0) {
+            const auxiliaryCurveRecord = auxiliaryCurveRecords[auxiliaryCurveIndex];
+            ++auxiliaryCurveRecord.refCount;
+            return auxiliaryCurveRecord.handle;
         } else {
-            const newMetaValueIndex = metaValueRecords.length;
-            const metaValueRecord = new MetaValueRecord(
-                new MetaValueHandleInternal(this, newMetaValueIndex),
+            const newAuxiliaryCurveIndex = auxiliaryCurveRecords.length;
+            const auxiliaryCurveRecord = new AuxiliaryCurveRecord(
+                new AuxiliaryCurveHandleInternal(this, newAuxiliaryCurveIndex),
                 name,
             );
-            metaValueRecords.push(metaValueRecord);
-            return metaValueRecord.handle;
+            auxiliaryCurveRecords.push(auxiliaryCurveRecord);
+            return auxiliaryCurveRecord.handle;
         }
     }
 
@@ -281,7 +281,7 @@ export class AnimationGraphPoseLayoutMaintainer {
     public apply (pose: Pose) {
         const {
             transforms,
-            metaValues,
+            auxiliaryCurves,
         } = pose;
 
         const nTransforms = this._transformRecords.length;
@@ -296,11 +296,11 @@ export class AnimationGraphPoseLayoutMaintainer {
             );
         }
 
-        const nMetaValues = this._metaValueRecords.length;
-        for (let iMetaValue = 0; iMetaValue < nMetaValues; ++iMetaValue) {
-            const { name: curveName } = this._metaValueRecords[iMetaValue];
-            const curveValue = metaValues[iMetaValue];
-            this._metaValueRegistry.set(curveName, curveValue);
+        const nAuxiliaryCurves = this._auxiliaryCurveRecords.length;
+        for (let iAuxiliaryCurve = 0; iAuxiliaryCurve < nAuxiliaryCurves; ++iAuxiliaryCurve) {
+            const { name: curveName } = this._auxiliaryCurveRecords[iAuxiliaryCurve];
+            const curveValue = auxiliaryCurves[iAuxiliaryCurve];
+            this._auxiliaryCurveRegistry.set(curveName, curveValue);
         }
     }
 
@@ -319,9 +319,9 @@ export class AnimationGraphPoseLayoutMaintainer {
      * @engineInternal
      */
     @checkBindStatus(true)
-    public _destroyMetaValueHandle (index: number) {
-        assertIsTrue(index >= 0 && index < this._metaValueRecords.length, `Invalid meta value handle.`);
-        const record = this._metaValueRecords[index];
+    public _destroyAuxiliaryCurveHandle (index: number) {
+        assertIsTrue(index >= 0 && index < this._auxiliaryCurveRecords.length, `Invalid auxiliary value handle.`);
+        const record = this._auxiliaryCurveRecords[index];
         assertIsTrue(record.refCount > 0, `Something work wrong: refCount mismatch.`);
         --record.refCount;
     }
@@ -330,14 +330,14 @@ export class AnimationGraphPoseLayoutMaintainer {
     public startBind () {
         this._bindStarted = true;
         this._transformCountBeforeBind = this._transformRecords.length;
-        this._metaValueCountBeforeBind = this._metaValueRecords.length;
+        this._auxiliaryCurveCountBeforeBind = this._auxiliaryCurveRecords.length;
     }
 
     @checkBindStatus(true)
     public endBind () {
         const {
             _transformRecords: transformRecords,
-            _metaValueRecords: metaValueRecords,
+            _auxiliaryCurveRecords: auxiliaryCurveRecords,
         } = this;
 
         let changeFlags = 0;
@@ -368,10 +368,10 @@ export class AnimationGraphPoseLayoutMaintainer {
             }
         }
 
-        // Detect changes in meta values.
-        trimRecords(metaValueRecords);
-        if (metaValueRecords.length !== this._metaValueCountBeforeBind) {
-            changeFlags |= LayoutChangeFlag.META_VALUE_COUNT;
+        // Detect changes in auxiliary values.
+        trimRecords(auxiliaryCurveRecords);
+        if (auxiliaryCurveRecords.length !== this._auxiliaryCurveCountBeforeBind) {
+            changeFlags |= LayoutChangeFlag.AUXILIARY_CURVE_COUNT;
         }
 
         this._bindStarted = false;
@@ -393,19 +393,19 @@ export class AnimationGraphPoseLayoutMaintainer {
             });
 
             this._transformCountBeforeBind = -1;
-            this._metaValueCountBeforeBind = -1;
+            this._auxiliaryCurveCountBeforeBind = -1;
         }
 
         return changeFlags;
     }
 
-    private _metaValueRegistry: MetaValueRegistry;
-    private _metaValueRecords: MetaValueRecord[] = [];
+    private _auxiliaryCurveRegistry: AuxiliaryCurveRegistry;
+    private _auxiliaryCurveRecords: AuxiliaryCurveRecord[] = [];
     private _transformRecords: TransformRecord[] = [];
 
     private _bindStarted = false;
     private _transformCountBeforeBind = -1;
-    private _metaValueCountBeforeBind = -1;
+    private _auxiliaryCurveCountBeforeBind = -1;
 }
 
 interface AnimationRecord<THandle extends { index: number; }> {
@@ -437,15 +437,15 @@ class TransformRecord implements AnimationRecord<TransformHandleInternal> {
     public readonly defaultTransform: Readonly<Transform>;
 }
 
-class MetaValueRecord implements AnimationRecord<MetaValueHandleInternal> {
-    constructor (handle: MetaValueHandleInternal, name: string) {
+class AuxiliaryCurveRecord implements AnimationRecord<AuxiliaryCurveHandleInternal> {
+    constructor (handle: AuxiliaryCurveHandleInternal, name: string) {
         this.handle = handle;
         this.name = name;
     }
 
     public refCount = 1;
 
-    public readonly handle: MetaValueHandleInternal;
+    public readonly handle: AuxiliaryCurveHandleInternal;
 
     public readonly name: string;
 }
@@ -474,7 +474,7 @@ export const defaultTransformsTag = Symbol('[[DefaultTransforms]]');
 
 export class AnimationGraphEvaluationContext {
     constructor (layout: PoseLayout) {
-        this._poseAllocator = new PoseAllocator(layout.transformCount, layout.metaValueCount);
+        this._poseAllocator = new PoseAllocator(layout.transformCount, layout.auxiliaryCurveCount);
         this[defaultTransformsTag] = new TransformArray(layout.transformCount);
     }
 
@@ -494,21 +494,21 @@ export class AnimationGraphEvaluationContext {
     public pushDefaultedPose () {
         const pose = this._poseAllocator.push();
         pose.transforms.set(this[defaultTransformsTag]);
-        pose.metaValues.fill(0.0);
+        pose.auxiliaryCurves.fill(0.0);
         return pose;
     }
 
     public pushZeroDeltaPose () {
         const pose = this._poseAllocator.push();
         pose.transforms.fill(ZERO_DELTA_TRANSFORM);
-        pose.metaValues.fill(0.0);
+        pose.auxiliaryCurves.fill(0.0);
         return pose;
     }
 
     public pushDuplicatedPose (src: Pose) {
         const pose = this._poseAllocator.push();
         pose.transforms.set(src.transforms);
-        pose.metaValues.set(src.metaValues);
+        pose.auxiliaryCurves.set(src.auxiliaryCurves);
         return pose;
     }
 
@@ -522,7 +522,7 @@ export class AnimationGraphEvaluationContext {
 export interface PoseLayout {
     transformCount: number;
 
-    metaValueCount: number;
+    auxiliaryCurveCount: number;
 }
 
 class TransformHandleInternal implements TransformHandle {
@@ -542,18 +542,18 @@ class TransformHandleInternal implements TransformHandle {
     private _host: AnimationGraphPoseLayoutMaintainer;
 }
 
-class MetaValueHandleInternal implements MetaValueHandle {
+class AuxiliaryCurveHandleInternal implements AuxiliaryCurveHandle {
     constructor (host: AnimationGraphPoseLayoutMaintainer, index: number) {
         this._host = host;
         this.index = index;
     }
 
-    declare __brand: MetaValueHandle['__brand'];
+    declare __brand: AuxiliaryCurveHandle['__brand'];
 
     public index = -1;
 
     public destroy () {
-        this._host._destroyMetaValueHandle(this.index);
+        this._host._destroyAuxiliaryCurveHandle(this.index);
     }
 
     private _host: AnimationGraphPoseLayoutMaintainer;

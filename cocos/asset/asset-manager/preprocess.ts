@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 
-import { CompleteCallbackNoData, RequestType, transformPipeline } from './shared';
+import { RequestType, transformPipeline } from './shared';
 import Task from './task';
 
-export default function preprocess (task: Task, done: CompleteCallbackNoData) {
+export default function preprocess (task: Task, done: ((err?: Error | null) => void)) {
     const options = task.options;
     const subOptions = Object.create(null);
     const leftOptions = Object.create(null);

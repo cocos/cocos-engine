@@ -136,7 +136,7 @@ DescriptorSetLayoutData::DescriptorSetLayoutData(const allocator_type& alloc) no
   uniformBlocks(alloc),
   bindingMap(alloc) {}
 
-DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocksIn, PmrFlatMap<NameLocalID, uint32_t> bindingMapIn, const allocator_type& alloc) noexcept // NOLINT
+DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, PmrUnorderedMap<NameLocalID, gfx::UniformBlock> uniformBlocksIn, PmrFlatMap<NameLocalID, uint32_t> bindingMapIn, const allocator_type& alloc) noexcept // NOLINT
 : slot(slotIn),
   capacity(capacityIn),
   descriptorBlocks(std::move(descriptorBlocksIn), alloc),
@@ -146,6 +146,8 @@ DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capac
 DescriptorSetLayoutData::DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc)
 : slot(rhs.slot),
   capacity(rhs.capacity),
+  uniformBlockCapacity(rhs.uniformBlockCapacity),
+  samplerTextureCapacity(rhs.samplerTextureCapacity),
   descriptorBlocks(std::move(rhs.descriptorBlocks), alloc),
   uniformBlocks(std::move(rhs.uniformBlocks), alloc),
   bindingMap(std::move(rhs.bindingMap), alloc) {}
@@ -232,7 +234,6 @@ LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
   constantIndex(alloc),
   shaderLayoutIndex(alloc),
   effects(alloc),
-  constantMacros(alloc),
   pathIndex(alloc) {}
 
 LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc)
@@ -247,7 +248,7 @@ LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& al
   constantIndex(std::move(rhs.constantIndex), alloc),
   shaderLayoutIndex(std::move(rhs.shaderLayoutIndex), alloc),
   effects(std::move(rhs.effects), alloc),
-  constantMacros(std::move(rhs.constantMacros), alloc),
+  constantMacros(std::move(rhs.constantMacros)),
   pathIndex(std::move(rhs.pathIndex), alloc) {}
 
 // ContinuousContainer

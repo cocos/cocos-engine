@@ -22,13 +22,16 @@
  THE SOFTWARE.
 */
 
-import { ccclass, type, serializable } from 'cc.decorator';
 import { CCString, cclegacy, Mat4 } from '../../core';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { Asset } from '../../asset/assets/asset';
+import { patch_cc_Skeleton } from '../../native-binding/decorators';
+import type { Skeleton as JsbSkeleton } from './skeleton';
 
-export const Skeleton = jsb.Skeleton;
-export type Skeleton = jsb.Skeleton;
+declare const jsb: any;
+
+export const Skeleton: typeof JsbSkeleton = jsb.Skeleton;
+export type Skeleton = JsbSkeleton;
 cclegacy.Skeleton = Skeleton;
 const skeletonProto: any = Skeleton.prototype;
 
@@ -62,8 +65,4 @@ skeletonProto.onLoaded = function () {
 };
 
 // handle meta data, it is generated automatically
-const SkeletonProto = Skeleton.prototype;
-type([CCString])(SkeletonProto, '_joints', () => []);
-type([Mat4])(SkeletonProto, '_bindposes', () => []);
-serializable(SkeletonProto, '_hash', () => 0);
-ccclass('cc.Skeleton')(Skeleton);
+patch_cc_Skeleton({Skeleton, CCString, Mat4});

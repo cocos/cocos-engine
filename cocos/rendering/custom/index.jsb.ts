@@ -25,10 +25,8 @@
 declare const render: any;
 
 import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
-import { buildDeferredLayout, buildForwardLayout } from './effect';
-import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
-import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
+import { CustomPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
 import { Device } from '../../gfx';
 
 export * from './types';
@@ -36,21 +34,12 @@ export * from './pipeline';
 export * from './archive';
 
 export const INVALID_ID = 0xFFFFFFFF;
-export const enableEffectImport = false;
+export const enableEffectImport = true;
 
 let _renderModule: RenderingModule;
 
 export function createCustomPipeline (): Pipeline {
-    const ppl = render.Factory.createPipeline();
-    const pplName = macro.CUSTOM_PIPELINE_NAME;
-    if (!enableEffectImport) {
-        if (pplName === 'Deferred') {
-            buildDeferredLayout(ppl);
-        } else {
-            buildForwardLayout(ppl);
-        }
-    }
-    return ppl;
+    return render.Factory.createPipeline();
 }
 
 export const customPipelineBuilderMap = new Map<string, PipelineBuilder>();
@@ -71,13 +60,17 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Custom', new CustomPipelineBuilder());
-    map.set('Native', new NativePipelineBuilder());
+    map.set('Test', new TestPipelineBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function init (device: Device, arrayBuffer: ArrayBuffer) {
-    _renderModule = render.Factory.init(device, arrayBuffer);
+export function init (device: Device, arrayBuffer: ArrayBuffer | null) {
+    if (arrayBuffer) {
+        _renderModule = render.Factory.init(device, arrayBuffer);
+    } else {
+        _renderModule = render.Factory.init(device, new ArrayBuffer(0));
+    }
 }
 
 export function destroy () {

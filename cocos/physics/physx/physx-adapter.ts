@@ -30,18 +30,23 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable import/order */
 
-import { PhysX } from './physx.asmjs';
-import { BYTEDANCE, DEBUG, EDITOR, TEST } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings } from '../../core';
+import { asmFactory } from './physx.asmjs';
+import { wasmFactory, PhysXWasmUrl } from './physx.wasmjs';
+import { WebAssemblySupportMode } from '../../misc/webassembly-support';
+import { instantiateWasm } from 'pal/wasm';
+import { BYTEDANCE, DEBUG, EDITOR, TEST, WASM_SUPPORT_MODE } from 'internal:constants';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
-import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem } from '../framework';
+import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem, CharacterControllerContact } from '../framework';
 import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
 import { Node } from '../../scene-graph';
 import { Director, director, game } from '../../game';
+import { degreesToRadians } from '../../core/utils/misc';
+import { PhysXCharacterController } from './character-controllers/physx-character-controller';
 
 export const PX = {} as any;
 const globalThis = cclegacy._global;
@@ -54,30 +59,65 @@ game.onPostInfrastructureInitDelegate.add(InitPhysXLibs);
 
 export function InitPhysXLibs () {
     if (USE_BYTEDANCE) {
-        if (!EDITOR && !TEST) console.info('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
+        if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
         Object.assign(PX, globalThis.nativePhysX);
         Object.assign(_pxtrans, new PX.Transform(_v3, _v4));
         _pxtrans.setPosition = PX.Transform.prototype.setPosition.bind(_pxtrans);
         _pxtrans.setQuaternion = PX.Transform.prototype.setQuaternion.bind(_pxtrans);
         initConfigAndCacheObject(PX);
     } else {
-        if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
-        return initPhysXWithJsModule();
+        if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+            if (sys.hasFeature(sys.Feature.WASM)) {
+                return initWASM();
+            } else {
+                return initASM();
+            }
+        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+            return initWASM();
+        } else {
+            return initASM();
+        }
     }
 }
 
-function initPhysXWithJsModule () {
-    // If external PHYSX not given, then try to use internal PhysX libs.
-    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : PhysX;
+function initASM () {
+    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : asmFactory;
     if (globalThis.PhysX != null) {
         return globalThis.PhysX().then((Instance: any) => {
-            if (!EDITOR && !TEST) console.info('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX libs loaded.`);
+            if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX asm libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
             Object.assign(PX, Instance);
-        }, (reason: any) => { console.error('[PHYSICS]:', `PhysX load failed: ${reason}`); });
+        }, (reason: any) => { console.error('[PHYSICS]:', `PhysX asm load failed: ${reason}`); });
     } else {
-        if (!EDITOR) console.error('[PHYSICS]:', 'Not Found PhysX js or wasm Libs.');
+        if (!EDITOR && !TEST) console.error('[PHYSICS]:', 'Failed to load PhysX js libs, package may be not found.');
+        return new Promise<void>((resolve, reject) => {
+            resolve();
+        });
+    }
+}
+
+function initWASM () {
+    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : wasmFactory;
+    if (globalThis.PhysX != null) {
+        return globalThis.PhysX({
+            instantiateWasm (importObject: WebAssembly.Imports,
+                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
+                return instantiateWasm(PhysXWasmUrl, importObject).then((result: any) => {
+                    receiveInstance(result.instance, result.module);
+                });
+            },
+        }).then((Instance: any) => {
+            if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX wasm libs loaded.`);
+            initAdaptWrapper(Instance);
+            initConfigAndCacheObject(Instance);
+            Object.assign(PX, Instance);
+        }, (reason: any) => { console.error('[PHYSICS]:', `PhysX wasm load failed: ${reason}`); });
+    } else {
+        if (!EDITOR && !TEST) console.error('[PHYSICS]:', 'Failed to load PhysX wasm libs, package may be not found.');
+        return new Promise<void>((resolve, reject) => {
+            resolve();
+        });
     }
 }
 
@@ -107,11 +147,21 @@ function initAdaptWrapper (obj: any) {
     obj.SphereGeometry = obj.PxSphereGeometry;
     obj.CapsuleGeometry = obj.PxCapsuleGeometry;
     obj.ConvexMeshGeometry = obj.PxConvexMeshGeometry;
+    obj.D6Motion = obj.PxD6Motion;
+    obj.D6Axis = obj.PxD6Axis;
+    obj.D6Drive = obj.PxD6Drive;
+    obj.D6JointDrive = obj.PxD6JointDrive;
+    obj.LinearLimitPair = obj.PxJointLinearLimitPair;
+    obj.AngularLimitPair = obj.PxJointAngularLimitPair;
     obj.TriangleMeshGeometry = obj.PxTriangleMeshGeometry;
     obj.RigidDynamicLockFlag = obj.PxRigidDynamicLockFlag;
+    obj.TolerancesScale = obj.PxTolerancesScale;
+    obj.RevoluteJointFlags = { eLIMIT_ENABLED: 1 << 0, eDRIVE_ENABLED: 1 << 1, eDRIVE_FREESPIN: 1 << 2 };
+    obj.JointAngularLimitPair = obj.PxJointAngularLimitPair;
     obj.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => obj.PxRevoluteJointCreate(PX.physics, a, b, c, d);
     obj.createFixedConstraint = (a: any, b: any, c: any, d: any): any => obj.PxFixedJointCreate(PX.physics, a, b, c, d);
     obj.createSphericalJoint = (a: any, b: any, c: any, d: any): any => obj.PxSphericalJointCreate(PX.physics, a, b, c, d);
+    obj.createD6Joint = (a: any, b: any, c: any, d: any): any => obj.PxD6JointCreate(PX.physics, a, b, c, d);
 }
 
 const _v3: IVec3Like = { x: 0, y: 0, z: 0 };
@@ -552,6 +602,66 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
     return false;
 }
 
+export function sweepAll (world: PhysXWorld, worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
+    options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    const maxDistance = options.maxDistance;
+    const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
+    const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER);
+    const queryFlags = PxQueryFlag.eSTATIC | PxQueryFlag.eDYNAMIC | PxQueryFlag.ePREFILTER | PxQueryFlag.eNO_BLOCK;
+    const queryfilterData = PhysXInstance.queryfilterData;
+    const queryFilterCB = PhysXInstance.queryFilterCB;//?
+    const mutipleResults = PhysXInstance.mutipleSweepResults;
+    const mutipleResultSize = PhysXInstance.mutipleResultSize;
+
+    queryfilterData.setWords(options.mask >>> 0, 0);
+    queryfilterData.setWords(word3, 3);
+    queryfilterData.setFlags(queryFlags);
+    const blocks = mutipleResults;
+    const r = world.scene.sweepMultiple(geometry, getTempTransform(worldRay.o, geometryRotation), worldRay.d, maxDistance, flags,
+        blocks, blocks.size(), queryfilterData, queryFilterCB, null, 0);
+
+    if (r > 0) {
+        for (let i = 0; i < r; i++) {
+            const block = blocks.get(i);
+            const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+            const result = pool.add();
+            result._assign(block.position, block.distance, collider, block.normal);
+            results.push(result);
+        }
+        return true;
+    } if (r === -1) {
+        // eslint-disable-next-line no-console
+        console.error('not enough memory.');
+    }
+
+    return false;
+}
+
+export function sweepClosest (world: PhysXWorld, worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
+    options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    const maxDistance = options.maxDistance;
+    const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
+    const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER)
+            | EFilterDataWord3.QUERY_SINGLE_HIT;
+    const queryFlags = PxQueryFlag.eSTATIC | PxQueryFlag.eDYNAMIC | PxQueryFlag.ePREFILTER;
+    const queryfilterData = PhysXInstance.queryfilterData;
+    queryfilterData.setWords(options.mask >>> 0, 0);
+    queryfilterData.setWords(word3, 3);
+    queryfilterData.setFlags(queryFlags);
+    const queryFilterCB = PhysXInstance.queryFilterCB;
+
+    const block = PhysXInstance.singleSweepResult;
+    const r = world.scene.sweepSingle(geometry, getTempTransform(worldRay.o, geometryRotation), worldRay.d, maxDistance,
+        flags, block, queryfilterData, queryFilterCB, null, 0);
+    if (r) {
+        const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+        result._assign(block.position, block.distance, collider, block.normal);
+        return true;
+    }
+
+    return false;
+}
+
 export function initializeWorld (world: any) {
     if (USE_BYTEDANCE) {
         // construct PhysX instance object only once
@@ -603,10 +713,14 @@ export function initializeWorld (world: any) {
             PhysXInstance.queryfilterData = new PX.PxQueryFilterData();
             PhysXInstance.simulationCB = PX.PxSimulationEventCallback.implement(world.callback.eventCallback);
             PhysXInstance.queryFilterCB = PX.PxQueryFilterCallback.implement(world.callback.queryCallback);
+            PhysXInstance.singleSweepResult = new PX.PxSweepHit();
+            PhysXInstance.mutipleSweepResults = new PX.PxSweepHitVector();
+            PhysXInstance.mutipleSweepResults.resize(PhysXInstance.mutipleResultSize, PhysXInstance.singleSweepResult);
         }
 
         const sceneDesc = PX.getDefaultSceneDesc(PhysXInstance.physics.getTolerancesScale(), 0, PhysXInstance.simulationCB);
         world.scene = PhysXInstance.physics.createScene(sceneDesc);
+        world.controllerManager = PX.PxCreateControllerManager(world.scene, false);
     }
 }
 

@@ -28,6 +28,7 @@
 #include "LayoutGraphSerialization.h"
 #include "NativePipelineTypes.h"
 #include "RenderInterfaceTypes.h"
+#include "RenderingModule.h"
 #include "details/GslUtils.h"
 #include "pipeline/custom/LayoutGraphTypes.h"
 #include "pipeline/custom/details/Pmr.h"
@@ -39,12 +40,11 @@ namespace render {
 namespace {
 
 NativeRenderingModule* sRenderingModule = nullptr;
+NativePipeline* sPipeline = nullptr;
 
 } // namespace
 
 RenderingModule* Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn) {
-    std::ignore = deviceIn;
-
     std::shared_ptr<NativeProgramLibrary> ptr(
         allocatePmrUniquePtr<NativeProgramLibrary>(
             boost::container::pmr::get_default_resource()));
@@ -54,6 +54,7 @@ RenderingModule* Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsign
         BinaryInputArchive ar(iss, boost::container::pmr::get_default_resource());
         load(ar, ptr->layoutGraph);
     }
+    ptr->init(deviceIn);
 
     sRenderingModule = ccnew NativeRenderingModule(std::move(ptr));
     return sRenderingModule;
@@ -63,11 +64,31 @@ void Factory::destroy(RenderingModule* renderingModule) noexcept {
     auto* ptr = dynamic_cast<NativeRenderingModule*>(renderingModule);
     if (ptr) {
         ptr->programLibrary.reset();
+        CC_EXPECTS(sRenderingModule == renderingModule);
+        sRenderingModule = nullptr;
+        sPipeline = nullptr;
     }
 }
 
 Pipeline* Factory::createPipeline() {
-    return ccnew NativePipeline(boost::container::pmr::get_default_resource());
+    if (sPipeline) {
+        return sPipeline;
+    }
+    sPipeline = ccnew NativePipeline(boost::container::pmr::get_default_resource());
+    CC_EXPECTS(sRenderingModule);
+    sRenderingModule->programLibrary->pipeline = sPipeline;
+    return sPipeline;
+}
+
+ProgramLibrary* getProgramLibrary() {
+    if (!sRenderingModule) {
+        return nullptr;
+    }
+    return sRenderingModule->programLibrary.get();
+}
+
+RenderingModule* getRenderingModule() {
+    return sRenderingModule;
 }
 
 } // namespace render

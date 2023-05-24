@@ -24,13 +24,13 @@
 import { EDITOR, NATIVE, PREVIEW, TEST } from 'internal:constants';
 import { assert, Settings, settings } from '../../core';
 import { fetchPipeline, pipeline } from './shared';
-import Task, { TaskCompleteCallback } from './task';
+import Task from './task';
 
 declare const Editor: any;
 if ((EDITOR || PREVIEW) && !TEST) {
     const cache: {[uuid: string]: string | null} = {};
     const resolveMap: { [uuid: string]: Function[] } = {};
-    const replaceExtension  = (task: Task, done: TaskCompleteCallback) => {
+    const replaceExtension  = (task: Task, done) => {
         task.output = task.input;
         (async () => {
             for (let i = 0; i < task.input.length; i++) {

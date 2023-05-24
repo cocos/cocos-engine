@@ -23,6 +23,10 @@
 */
 
 import { cclegacy } from "../../core";
+import type { MorphModel as JsbMorphModel } from './morph-model';
 
-export const MorphModel = jsb.MorphModel;
+declare const jsb: any;
+
+export const MorphModel: typeof JsbMorphModel = jsb.MorphModel;
+export type MorphModel = JsbMorphModel;
 cclegacy.MorphModel = jsb.MorphModel;

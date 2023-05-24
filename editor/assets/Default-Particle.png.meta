@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.25",
+  "ver": "1.0.26",
   "importer": "image",
   "imported": true,
   "uuid": "b5b27ab1-e740-4398-b407-848fc2b2c897",
@@ -27,7 +27,7 @@
         "anisotropy": 0,
         "isUuid": true,
         "imageUuidOrDatabaseUri": "b5b27ab1-e740-4398-b407-848fc2b2c897",
-        "visible": true
+        "visible": false
       },
       "displayName": "Default-Particle",
       "id": "6c48a",

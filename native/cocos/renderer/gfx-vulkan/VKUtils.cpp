@@ -238,6 +238,7 @@ VkImageUsageFlagBits mapVkImageUsageFlagBits(TextureUsage usage) {
     if (hasFlag(usage, TextureUsage::COLOR_ATTACHMENT)) flags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     if (hasFlag(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) flags |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     if (hasFlag(usage, TextureUsage::INPUT_ATTACHMENT)) flags |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    if (hasFlag(usage, TextureUsage::SHADING_RATE)) flags |= VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR;
     return static_cast<VkImageUsageFlagBits>(flags);
 }
 
@@ -559,10 +560,19 @@ static constexpr ThsvsAccessType THSVS_ACCESS_TYPES[] = {
     THSVS_ACCESS_TRANSFER_WRITE,                                             // TRANSFER_WRITE
     THSVS_ACCESS_HOST_PREINITIALIZED,                                        // HOST_PREINITIALIZED
     THSVS_ACCESS_HOST_WRITE,                                                 // HOST_WRITE
+    THSVS_ACCESS_SHADING_RATE_READ_NV,                                       // SHADING_RATE
 };
 
 const ThsvsAccessType *getAccessType(AccessFlagBit flag) {
     return &THSVS_ACCESS_TYPES[utils::getBitPosition(toNumber(flag))];
+}
+
+ThsvsImageLayout getAccessLayout(AccessFlags flag) {
+    if (hasAnyFlags(flag, AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT | AccessFlagBit::COLOR_ATTACHMENT_WRITE) ||
+        hasAnyFlags(flag, AccessFlagBit::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT | AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE)) {
+        return THSVS_IMAGE_LAYOUT_GENERAL;
+    }
+    return THSVS_IMAGE_LAYOUT_OPTIMAL;
 }
 
 void getAccessTypes(AccessFlags flag, ccstd::vector<ThsvsAccessType> &v) {

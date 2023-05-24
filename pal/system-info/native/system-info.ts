@@ -22,9 +22,24 @@
  THE SOFTWARE.
 */
 
-import { IFeatureMap } from 'pal/system-info';
+import { OPEN_HARMONY } from 'internal:constants';
 import { EventTarget } from '../../../cocos/core/event';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
+
+type IFeatureMap = {
+    [feature in Feature]: boolean;
+};
+
+// NOTE: these methods are implemented on native.
+declare function __getPlatform(): string;
+declare function __getCurrentLanguageCode(): string;
+declare function __getCurrentLanguage(): Language;
+declare function __getOS(): OS;
+declare function __getOSVersion(): string;
+declare const __supportHPE: (() => boolean) | undefined;
+declare function __restartVM(): void;
+declare function __close(): void;
+declare function __exit(): void;
 
 const networkTypeMap: Record<string, NetworkType> = {
     0: NetworkType.NONE,
@@ -41,6 +56,7 @@ const platformMap: Record<number, Platform> = {
     // 5 is IPAD
     5: Platform.IOS,
     6: Platform.OHOS,
+    7: Platform.OPENHARMONY,
 };
 
 class SystemInfo extends EventTarget {
@@ -70,9 +86,9 @@ class SystemInfo extends EventTarget {
         this.isNative = true;
         this.isBrowser = false;
 
-        // @ts-expect-error __getPlatform()
         this.platform = platformMap[__getPlatform()];
-        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS || this.platform === Platform.OHOS;
+        // eslint-disable-next-line max-len
+        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS || this.platform === Platform.OHOS || this.platform === Platform.OPENHARMONY;
 
         // init isLittleEndian
         this.isLittleEndian = (() => {
@@ -83,15 +99,11 @@ class SystemInfo extends EventTarget {
         })();
 
         // init languageCode and language
-        // @ts-expect-error __getCurrentLanguageCode() defined in JSB
         const currLanguage = __getCurrentLanguageCode();
         this.nativeLanguage = currLanguage ? currLanguage.toLowerCase() : Language.UNKNOWN;
-        // @ts-expect-error __getCurrentLanguage() defined in JSB
         this.language = __getCurrentLanguage();
 
-        // @ts-expect-error __getOS() defined in JSB
         this.os = __getOS();
-        // @ts-expect-error __getOSVersion() defined in JSB
         this.osVersion = __getOSVersion();
         this.osMainVersion = parseInt(this.osVersion);
 
@@ -101,12 +113,15 @@ class SystemInfo extends EventTarget {
 
         this.isXR = (typeof xr !== 'undefined' && typeof xr.XrEntry !== 'undefined');
 
+        const isHPE: boolean = typeof __supportHPE === 'function' ? __supportHPE() : false;
+
         this._featureMap = {
             [Feature.WEBP]: true,
             [Feature.IMAGE_BITMAP]: false,
             [Feature.WEB_VIEW]: this.isMobile,
             [Feature.VIDEO_PLAYER]: this.isMobile,
             [Feature.SAFE_AREA]: this.isMobile,
+            [Feature.HPE]: isHPE,
 
             [Feature.INPUT_TOUCH]: this.isMobile,
             [Feature.EVENT_KEYBOARD]: true,
@@ -117,6 +132,7 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_HANDLE]: this.isXR,
             [Feature.EVENT_HMD]: this.isXR,
             [Feature.EVENT_HANDHELD]: (typeof xr !== 'undefined' && typeof xr.ARModule !== 'undefined'),
+            [Feature.WASM]: !OPEN_HARMONY,
         };
 
         this._initPromise = [];
@@ -165,13 +181,15 @@ class SystemInfo extends EventTarget {
         return +(new Date());
     }
     public restartJSVM (): void {
-        // @ts-expect-error __restartVM() is defined in JSB
         __restartVM();
     }
 
     public close () {
-        // @ts-expect-error __close() is defined in JSB
         __close();
+    }
+
+    public exit () {
+        __exit();
     }
 }
 

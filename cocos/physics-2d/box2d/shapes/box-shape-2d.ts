@@ -54,7 +54,7 @@ export class b2BoxShape extends b2Shape2D implements IBoxShape {
         return wps;
     }
 
-    _createShapes (scaleX: number, scaleY: number) {
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number) {
         scaleX = Math.abs(scaleX);
         scaleY = Math.abs(scaleY);
 
@@ -62,8 +62,8 @@ export class b2BoxShape extends b2Shape2D implements IBoxShape {
 
         const width = comp.size.width / 2 / PHYSICS_2D_PTM_RATIO * scaleX;
         const height = comp.size.height / 2 / PHYSICS_2D_PTM_RATIO * scaleY;
-        const offsetX = comp.offset.x / PHYSICS_2D_PTM_RATIO * scaleX;
-        const offsetY = comp.offset.y / PHYSICS_2D_PTM_RATIO * scaleY;
+        const offsetX = (relativePositionX + comp.offset.x * scaleX) / PHYSICS_2D_PTM_RATIO;
+        const offsetY = (relativePositionY + comp.offset.y * scaleY) / PHYSICS_2D_PTM_RATIO;
 
         const shape = new b2.PolygonShape();
         shape.SetAsBox(width, height, new b2.Vec2(offsetX, offsetY), 0);

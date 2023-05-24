@@ -13,9 +13,9 @@ exports.template = `
                 :value="multiObjectSizeInvalid && dump.value && dump.value.objectSize ? null : dump.value.objectSize.values[0]"
                 @confirm="onMultiObjectSizeConfirm($event)"
             ></ui-num-input>
-            <ui-button @confirm="resetMultiObjectSize">
+            <!-- <ui-button @confirm="resetMultiObjectSize">
                 <ui-label value="Reset Object Size"></ui-label>
-            </ui-button>
+            </ui-button> -->
         </div>
     </ui-prop>
     <template v-for="(screenSize, index) in multiLODs">

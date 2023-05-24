@@ -103,3 +103,26 @@ declare type Setter = (value: any) => void;
 declare const Buffer: any;
 
 declare type EnumAlias<EnumT> = EnumT[keyof EnumT];
+
+declare module 'internal:native' {}
+
+/**
+ * Only declare on minigame platforms.
+ */
+declare const GameGlobal: any;
+
+/**
+ * only implemented on Editor.
+ */
+declare const Editor: any;
+
+/**
+ * To provide a safe Record type, if you want to enable checking index access on Object, please use SafeRecord instead of Record.
+ * we provide this type because we don't want to enable `noUncheckedIndexedAccess` in tsconfig.json for it's noisy for a lot of code.
+ */
+type SafeRecord<T extends (string | number | symbol), K> = Record<T, K | undefined>;
+/**
+ * To provide a safe Array type, if you want to enable checking index access on Array, please use SafeArray instead of Array.
+ * we provide this type because we don't want to enable `noUncheckedIndexedAccess` in tsconfig.json for it's noisy for a lot of code.
+ */
+type SafeArray<T> = Array<T | undefined>;

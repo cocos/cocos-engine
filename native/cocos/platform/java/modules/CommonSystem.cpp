@@ -95,4 +95,8 @@ bool CommonSystem::openURL(const ccstd::string &url) {
     return openURLJNI(url);
 }
 
+void CommonSystem::copyTextToClipboard(const ccstd::string &text) {
+    copyTextToClipboardJNI(text);
+}
+
 } // namespace cc
