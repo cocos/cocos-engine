@@ -308,7 +308,7 @@ export class PassStatesEditor implements EffectAsset.IPassStates {
     @editable
     public stage = RenderPassStage.DEFAULT;
 
-    @type(toEnum.RasterizerStateEditor)
+    @type(RasterizerStateEditor)
     @serializable
     @editable
     public rasterizerState: RasterizerStateEditor = new RasterizerStateEditor();
