@@ -44,7 +44,6 @@ export const ttfUtils =  {
         data.outputLayoutData.nodeContentSize.width = data.outputLayoutData.canvasSize.width = trans.width;
         data.outputLayoutData.nodeContentSize.height = data.outputLayoutData.canvasSize.height = trans.height;
         // layout info
-        data.inputString = comp.string; // both
         data.layout.lineHeight = comp.lineHeight; // both
         data.layout.overFlow = comp.overflow; // layout only // but change render
         if (comp.overflow === Overflow.NONE) {
@@ -114,16 +113,15 @@ export const ttfUtils =  {
             const trans = comp.node._uiProps.uiTransformComp!;
             const processing = TextProcessing.instance;
             const data = comp.processingData;
-            data.isBmFont = false; // hard code
             this.updateProcessingData(data, comp, trans);
             // use canvas in assemblerData // to do to optimize
             processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);
             data.style.fontFamily = this._updateFontFamily(comp);
 
             // TextProcessing
-            processing.processingString(data.isBmFont, data.style, data.layout, data.outputLayoutData, data.inputString);
-            processing.generateRenderInfo(data.isBmFont, data.style, data.layout, data.outputLayoutData, data.outputRenderData,
-                data.inputString, this.generateVertexData);
+            processing.processingString(false, data.style, data.layout, data.outputLayoutData, comp.string);
+            processing.generateRenderInfo(false, data.style, data.layout, data.outputLayoutData, data.outputRenderData,
+                comp.string, this.generateVertexData);
 
             const renderData = comp.renderData;
             renderData.textureDirty = true;

@@ -45,13 +45,6 @@ export class TextProcessData {
         return this._outputLayoutData;
     }
 
-    // ---------------Common part-----------------
-    // type
-    public isBmFont = false;
-
-    // string before process
-    public inputString = ''; // both
-
     // -----------------------Common part-------------------------
 
     private _style = new TextStyle();
@@ -64,8 +57,6 @@ export class TextProcessData {
 
     // for change state
     public reset () {
-        this.isBmFont = false;
-
         this.style.fontFamily = 'Arial';
         this.style.isSystemFontUsed = false;
 
@@ -74,8 +65,6 @@ export class TextProcessData {
         this.style.actualFontSize = 0;
 
         this.style.color.set();
-
-        this.inputString = '';
 
         this.outputLayoutData.reset();
         this.outputRenderData.reset();

@@ -48,7 +48,6 @@ let QUAD_INDICES;
 export const bmfontUtils = {
 
     updateProcessingData (data: TextProcessData, comp: Label, trans: UITransform) {
-        data.inputString = comp.string.toString();
         data.style.fontSize = comp.fontSize;
         data.style.actualFontSize = comp.fontSize;
         data.style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
@@ -98,7 +97,6 @@ export const bmfontUtils = {
 
             const processing = TextProcessing.instance;
             const data = comp.processingData;
-            data.isBmFont = true; // hard code
             this._updateFontFamily(comp);
 
             this.updateProcessingData(data, comp, _uiTrans);
@@ -108,12 +106,12 @@ export const bmfontUtils = {
             data.style.fontDesc = shareLabelInfo.fontDesc;
 
             // TextProcessing
-            processing.processingString(data.isBmFont, data.style, data.layout, data.outputLayoutData, data.inputString);
+            processing.processingString(true, data.style, data.layout, data.outputLayoutData, comp.string);
             // generateVertex
             this.resetRenderData(comp);
             data.outputRenderData.quadCount = 0;
-            processing.generateRenderInfo(data.isBmFont, data.style, data.layout, data.outputLayoutData, data.outputRenderData,
-                data.inputString, this.generateVertexData);
+            processing.generateRenderInfo(true, data.style, data.layout, data.outputLayoutData, data.outputRenderData,
+                comp.string, this.generateVertexData);
 
             renderData.dataLength = data.outputRenderData.quadCount;
             renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
