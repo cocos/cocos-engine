@@ -28,7 +28,8 @@ export function* getCreatePoseGraphNodeEntries(
 ): Iterable<PoseGraphCreateNodeEntry> {
     type AbstractedConstructor<T = unknown> = abstract new (...args: any[]) => T;
 
-    if ((classConstructor as AbstractedConstructor) === PoseNode || (classConstructor as AbstractedConstructor) === PureValueNode) {
+    if ((classConstructor as AbstractedConstructor) === PoseNode || (classConstructor as AbstractedConstructor) === PureValueNode ||
+        classConstructor === PoseGraphOutputNode) {
         return;
     }
     const nodeClassMetadata = getPoseGraphNodeEditorMetadata(classConstructor as Constructor<PoseNode | PureValueNode>);
