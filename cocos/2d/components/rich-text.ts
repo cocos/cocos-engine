@@ -97,6 +97,7 @@ function getSegmentByPool (type: string, content: string | SpriteFrame) {
         node = new Node(type);
     }
     node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
+    node.active = true; // Reset node state when use node
     if (type === RichTextChildImageName) {
         seg.comp = node.getComponent(Sprite) || node.addComponent(Sprite);
         seg.comp.spriteFrame = content as SpriteFrame;
