@@ -28,7 +28,6 @@ import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
 import { Device } from '../../gfx';
-import { PostProcessBuilder } from '../post-process';
 
 export * from './types';
 export * from './pipeline';
