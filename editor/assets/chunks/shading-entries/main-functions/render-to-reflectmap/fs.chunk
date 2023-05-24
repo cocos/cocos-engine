@@ -7,6 +7,10 @@ layout(location = 0) out vec4 fragColorX;
   #if CC_DISABLE_STRUCTURE_IN_FRAGMENT_SHADER
     float NoL = dot(-cc_mainLitDir.xyz, FSInput_worldNormal.xyz); //trigger ubo binding
     vec4 color = SurfacesFragmentModifyBaseColorAndTransparency();
+    float fogFactor = 1.0;
+    #if CC_FORWARD_ADD
+      color.rgb = vec3(0.0);
+    #endif
   #else
     // Surface
     SurfacesMaterialData surfaceData;
@@ -38,11 +42,11 @@ layout(location = 0) out vec4 fragColorX;
   
     // Shading
     vec4 color = CCSurfacesShading(surfaceData, lightingResult);
+  #endif
   
     #if !CC_FORWARD_ADD
       CC_APPLY_FOG_BASE(color, fogFactor);
     #endif
-  #endif
   
     // Color output (RGBE)
     fragColorX = packRGBE(color.rgb);

@@ -7,6 +7,7 @@
     <!-- Tell the system this app uses experimental extensions -->
     <uses-feature android:name="com.oculus.experimental.enabled" android:required="true" />
     <uses-feature android:name="com.oculus.feature.PASSTHROUGH" android:required="true" />
+    <uses-permission android:name="com.oculus.permission.USE_ANCHOR_API" />
 
     <application>
         <meta-data

@@ -320,21 +320,18 @@ struct GLES3GPUGeneralBarrier {
     GLbitfield glBarriersByRegion = 0U;
 };
 
+using DrawBuffer = std::vector<GLenum>;
 struct GLES3GPURenderPass {
-    struct AttachmentStatistics {
-        uint32_t loadSubpass{SUBPASS_EXTERNAL};
-        uint32_t storeSubpass{SUBPASS_EXTERNAL};
-    };
-
     ColorAttachmentList colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
     SubpassInfoList subpasses;
     SubpassDependencyList dependencies;
 
-    ccstd::vector<AttachmentStatistics> statistics; // per attachment
-
-    ccstd::vector<GLES3GPUGeneralBarrier> subpassBarriers; // per subpass
-    GLES3GPUGeneralBarrier blockBarrier;
+    std::vector<uint32_t> colors;
+    std::vector<uint32_t> resolves;
+    uint32_t depthStencil = INVALID_BINDING;
+    std::vector<uint32_t> indices; // offsets to GL_COLOR_ATTACHMENT_0
+    std::vector<DrawBuffer> drawBuffers;
 };
 
 class GLES3GPUFramebufferCacheMap;
@@ -343,7 +340,6 @@ public:
     GLES3GPURenderPass *gpuRenderPass{nullptr};
     GLES3GPUTextureViewList gpuColorViews;
     GLES3GPUTextureView *gpuDepthStencilView{nullptr};
-    bool usesFBF{false};
 
     struct GLFramebufferInfo {
         GLuint glFramebuffer{0U};
@@ -380,16 +376,7 @@ public:
     };
 
     // one per subpass, if not using FBF
-    ccstd::vector<Framebuffer> instances;
-
-    ccstd::vector<uint32_t> uberColorAttachmentIndices;
-    uint32_t uberDepthStencil{INVALID_BINDING};
-    Framebuffer uberInstance;
-
-    // the assumed shader output, may differ from actual subpass output
-    // see Feature::INPUT_ATTACHMENT_BENEFIT for more details on this
-    uint32_t uberOnChipOutput{INVALID_BINDING};
-    uint32_t uberFinalOutput{INVALID_BINDING};
+    Framebuffer frameBuffer;
 };
 
 struct GLES3GPUDescriptorSetLayout {

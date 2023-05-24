@@ -113,6 +113,9 @@ module.exports = {
                 anisotropyMapNearestFilter: '将 Anisotropy Map 贴图复制出来并选择 Nearest 过滤',
                 anisotropyMapResolutionHeight: 'Anisotropy Map 的分辨率高度',
                 ior: '相对折射率，该值可以影响折射角度和菲涅耳效果。水是1.33',
+                transmitThicknessWithShadowMap: '物体厚度（世界空间单位），注意！该值过小可能导致穿透光消失',
+                transmitExtinctionWithShadowMap: '穿透光的散射消光系数（可影响耳朵、鼻子等的背面透光强度）。该值越大则穿透光越弱、亮区范围也会更小、厚薄感变强， 反之穿透光越强越均匀、亮区更大但厚薄感变弱。有一点需要特别注意！由于是按照世界空间单位计算散射，则模型越大，该值必须相对更小才能维持同样的光照效果，或根据模型大小给一个距离缩放值在TransmitDiffuseParam中',
+                transmitExtinction: '薄片穿透光的散射消光系数（可影响叶片等的背面透光强度）。该值越大则穿透光越弱、亮区范围也会更小、厚薄感变强， 反之穿透光越强越均匀、亮区更大但厚薄感变弱。同时还需要指定薄片厚度',
             },
         },
         image: {
@@ -313,6 +316,10 @@ module.exports = {
                 title:
                     '标识此模型中的所有网格的数据是否可被读写，此接口只对静态网格资源生效，<br> ' +
                     '若不勾选，网格数据被提交到 GPU 后会被自动释放。<br>',
+            },
+            addVertexColor: {
+                name: '填充顶点色',
+                title: '如果模型没有顶点颜色属性，添加颜色属性，填充为白色。',
             },
             meshOptimizer: {
                 name: 'Mesh 优化',

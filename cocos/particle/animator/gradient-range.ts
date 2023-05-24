@@ -170,11 +170,11 @@ export default class GradientRange {
             Color.lerp(this._color, this.colorMin, this.colorMax, rndRatio);
             return this._color;
         case Mode.RandomColor:
-            return this.gradient.randomColor(this._color);
+            return this.gradient.getRandomColor(this._color);
         case Mode.Gradient:
-            return this.gradient.evaluate(this._color, time);
+            return this.gradient.evaluateFast(this._color, time);
         case Mode.TwoGradients:
-            Color.lerp(this._color, this.gradientMin.evaluate(tempColor, time), this.gradientMax.evaluate(tempColor2, time), rndRatio);
+            Color.lerp(this._color, this.gradientMin.evaluateFast(tempColor, time), this.gradientMax.evaluateFast(tempColor2, time), rndRatio);
             return this._color;
         default:
             return this.color;
@@ -196,11 +196,11 @@ function evaluateGradient (gr: GradientRange, time: number, index: number) {
     case Mode.TwoColors:
         return index === 0 ? gr.colorMin : gr.colorMax;
     case Mode.RandomColor:
-        return gr.gradient.randomColor(tempColor);
+        return gr.gradient.getRandomColor(tempColor);
     case Mode.Gradient:
-        return gr.gradient.evaluate(tempColor, time);
+        return gr.gradient.evaluateFast(tempColor, time);
     case Mode.TwoGradients:
-        return index === 0 ? gr.gradientMin.evaluate(tempColor, time) : gr.gradientMax.evaluate(tempColor, time);
+        return index === 0 ? gr.gradientMin.evaluateFast(tempColor, time) : gr.gradientMax.evaluateFast(tempColor, time);
     default:
         return gr.color;
     }

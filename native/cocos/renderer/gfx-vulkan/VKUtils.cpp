@@ -567,6 +567,14 @@ const ThsvsAccessType *getAccessType(AccessFlagBit flag) {
     return &THSVS_ACCESS_TYPES[utils::getBitPosition(toNumber(flag))];
 }
 
+ThsvsImageLayout getAccessLayout(AccessFlags flag) {
+    if (hasAnyFlags(flag, AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT | AccessFlagBit::COLOR_ATTACHMENT_WRITE) ||
+        hasAnyFlags(flag, AccessFlagBit::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT | AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE)) {
+        return THSVS_IMAGE_LAYOUT_GENERAL;
+    }
+    return THSVS_IMAGE_LAYOUT_OPTIMAL;
+}
+
 void getAccessTypes(AccessFlags flag, ccstd::vector<ThsvsAccessType> &v) {
     for (uint32_t mask = toNumber(flag); mask; mask = utils::clearLowestBit(mask)) {
         v.push_back(THSVS_ACCESS_TYPES[utils::getBitPosition(utils::getLowestBit(mask))]);

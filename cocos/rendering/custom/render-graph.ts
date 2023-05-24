@@ -32,8 +32,9 @@ import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, Mut
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, RenderPass, SampleCount, Sampler, SamplerInfo, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
-import { ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
+import { ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
+import { RenderWindow } from '../../render-scene/core/render-window';
 
 export class ResourceDesc {
     dimension: ResourceDimension = ResourceDimension.BUFFER;
@@ -60,6 +61,7 @@ export class RenderSwapchain {
         this.swapchain = swapchain;
     }
     /*pointer*/ swapchain: Swapchain | null;
+    /*pointer*/ renderWindow: RenderWindow | null = null;
     currentID = 0;
     numBackBuffers = 0;
     generation = 0xFFFFFFFF;
@@ -398,13 +400,18 @@ export class SubpassGraph implements BidirectionalGraph
 }
 
 export class RasterSubpass {
-    constructor (subpassID: number) {
+    constructor (subpassID: number, count: number, quality: number) {
         this.subpassID = subpassID;
+        this.count = count;
+        this.quality = quality;
     }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
-    subpassID: number;
+    readonly resolvePairs: ResolvePair[] = [];
     readonly viewport: Viewport = new Viewport();
+    subpassID: number;
+    count: number;
+    quality: number;
     showStatistics = false;
 }
 
@@ -420,9 +427,12 @@ export class ComputeSubpass {
 export class RasterPass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly attachmentIndexMap: Map<string, number> = new Map<string, number>();
     readonly subpassGraph: SubpassGraph = new SubpassGraph();
     width = 0;
     height = 0;
+    count = 1;
+    quality = 0;
     readonly viewport: Viewport = new Viewport();
     versionName = '';
     version = 0;
@@ -1070,8 +1080,13 @@ export class ComputePass {
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
+export class ResolvePass {
+    readonly resolvePairs: ResolvePair[] = [];
+}
+
 export class CopyPass {
     readonly copyPairs: CopyPair[] = [];
+    readonly uploadPairs: UploadPair[] = [];
 }
 
 export class MovePass {
@@ -1167,6 +1182,7 @@ export const enum RenderGraphValue {
     RasterSubpass,
     ComputeSubpass,
     Compute,
+    Resolve,
     Copy,
     Move,
     Raytrace,
@@ -1184,6 +1200,7 @@ export function getRenderGraphValueName (e: RenderGraphValue): string {
     case RenderGraphValue.RasterSubpass: return 'RasterSubpass';
     case RenderGraphValue.ComputeSubpass: return 'ComputeSubpass';
     case RenderGraphValue.Compute: return 'Compute';
+    case RenderGraphValue.Resolve: return 'Resolve';
     case RenderGraphValue.Copy: return 'Copy';
     case RenderGraphValue.Move: return 'Move';
     case RenderGraphValue.Raytrace: return 'Raytrace';
@@ -1202,6 +1219,7 @@ export interface RenderGraphValueType {
     [RenderGraphValue.RasterSubpass]: RasterSubpass
     [RenderGraphValue.ComputeSubpass]: ComputeSubpass
     [RenderGraphValue.Compute]: ComputePass
+    [RenderGraphValue.Resolve]: ResolvePass
     [RenderGraphValue.Copy]: CopyPass
     [RenderGraphValue.Move]: MovePass
     [RenderGraphValue.Raytrace]: RaytracePass
@@ -1218,6 +1236,7 @@ export interface RenderGraphVisitor {
     rasterSubpass(value: RasterSubpass): unknown;
     computeSubpass(value: ComputeSubpass): unknown;
     compute(value: ComputePass): unknown;
+    resolve(value: ResolvePass): unknown;
     copy(value: CopyPass): unknown;
     move(value: MovePass): unknown;
     raytrace(value: RaytracePass): unknown;
@@ -1233,6 +1252,7 @@ export type RenderGraphObject = RasterPass
 | RasterSubpass
 | ComputeSubpass
 | ComputePass
+| ResolvePass
 | CopyPass
 | MovePass
 | RaytracePass
@@ -1691,6 +1711,8 @@ export class RenderGraph implements BidirectionalGraph
             return visitor.computeSubpass(vert._object as ComputeSubpass);
         case RenderGraphValue.Compute:
             return visitor.compute(vert._object as ComputePass);
+        case RenderGraphValue.Resolve:
+            return visitor.resolve(vert._object as ResolvePass);
         case RenderGraphValue.Copy:
             return visitor.copy(vert._object as CopyPass);
         case RenderGraphValue.Move:
@@ -1737,6 +1759,13 @@ export class RenderGraph implements BidirectionalGraph
     getCompute (v: number): ComputePass {
         if (this._vertices[v]._id === RenderGraphValue.Compute) {
             return this._vertices[v]._object as ComputePass;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getResolve (v: number): ResolvePass {
+        if (this._vertices[v]._id === RenderGraphValue.Resolve) {
+            return this._vertices[v]._object as ResolvePass;
         } else {
             throw Error('value id not match');
         }
@@ -1828,6 +1857,13 @@ export class RenderGraph implements BidirectionalGraph
     tryGetCompute (v: number): ComputePass | null {
         if (this._vertices[v]._id === RenderGraphValue.Compute) {
             return this._vertices[v]._object as ComputePass;
+        } else {
+            return null;
+        }
+    }
+    tryGetResolve (v: number): ResolvePass | null {
+        if (this._vertices[v]._id === RenderGraphValue.Resolve) {
+            return this._vertices[v]._object as ResolvePass;
         } else {
             return null;
         }

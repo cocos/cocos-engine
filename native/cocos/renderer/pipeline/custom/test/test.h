@@ -118,13 +118,14 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
             bool isOutput = false;
 
             Subpass *subpass = nullptr;
+            RasterSubpass *subpassNode1 = nullptr;
             PmrTransparentMap<ccstd::pmr::string, RasterView> *subpassViews = nullptr;
             if (hasSubpass) {
                 const ccstd::string subpassName = "subpass" + std::to_string(passID);
                 auto subpassVertexID = add_vertex(subpassGraph, subpassName.c_str());
                 subpass = &get(SubpassGraph::SubpassTag{}, subpassGraph, subpassVertexID);
 
-                RasterSubpass subpassNode(j, renderGraph.get_allocator());
+                RasterSubpass subpassNode(j, 1, 0, renderGraph.get_allocator());
                 auto subpassID = addVertex(
                     RasterSubpassTag{},
                     std::forward_as_tuple(subpassName.c_str()),
@@ -134,7 +135,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                     std::forward_as_tuple(std::move(subpassNode)),
                     renderGraph, vertexID);
 
-                auto *subpassNode1 = get_if<RasterSubpass>(subpassID, &renderGraph);
+                subpassNode1 = get_if<RasterSubpass>(subpassID, &renderGraph);
                 subpassViews = &subpassNode1->rasterViews;
             }
 
@@ -163,6 +164,12 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                     rasterViews.emplace(viewName.c_str(), view);
                     if (subpassViews) {
                         subpassViews->emplace(viewName.c_str(), view);
+
+                        const auto newID = static_cast<uint32_t>(raster.attachmentIndexMap.size());
+                        auto iter = raster.attachmentIndexMap.find(viewName);
+                        if (iter == raster.attachmentIndexMap.end()) {
+                            raster.attachmentIndexMap.emplace(viewName, newID);
+                        }
                     }
                     ++slot;
                 }

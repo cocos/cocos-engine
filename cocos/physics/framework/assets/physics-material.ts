@@ -22,9 +22,11 @@
  THE SOFTWARE.
 */
 
-import { ccclass, editable, serializable } from 'cc.decorator';
+// @ts-check
+
+import { ccclass, editable, help, menu, serializable, tooltip, type } from 'cc.decorator';
 import { Asset } from '../../../asset/assets/asset';
-import { math } from '../../../core';
+import { CCFloat, math } from '../../../core';
 
 /**
  * @en
@@ -58,6 +60,8 @@ export class PhysicsMaterial extends Asset {
      * 此材质的摩擦系数。
      */
     @editable
+    @type(CCFloat)
+    @tooltip('i18n:physics3d.material.friction')
     get friction () {
         return this._friction;
     }
@@ -76,6 +80,8 @@ export class PhysicsMaterial extends Asset {
      * 此材质的滚动摩擦系数。
      */
     @editable
+    @type(CCFloat)
+    @tooltip('i18n:physics3d.material.rollingFriction')
     get rollingFriction () {
         return this._rollingFriction;
     }
@@ -94,6 +100,8 @@ export class PhysicsMaterial extends Asset {
      * 此材质的自旋摩擦系数。
      */
     @editable
+    @type(CCFloat)
+    @tooltip('i18n:physics3d.material.spinningFriction')
     get spinningFriction () {
         return this._spinningFriction;
     }
@@ -112,6 +120,8 @@ export class PhysicsMaterial extends Asset {
      * 此材质的回弹系数。
      */
     @editable
+    @type(CCFloat)
+    @tooltip('i18n:physics3d.material.restitution')
     get restitution () {
         return this._restitution;
     }

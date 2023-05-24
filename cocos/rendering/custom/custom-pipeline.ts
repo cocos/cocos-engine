@@ -24,14 +24,15 @@
 
 import { Format, LoadOp } from '../../gfx/base/define';
 import { Camera, CameraUsage } from '../../render-scene/scene';
-import { buildFxaaPass, buildBloomPass as buildBloomPasses, buildForwardPass,
-    buildPostprocessPass,
-    AntiAliasing, buildUIPass } from './define';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
-import { LightInfo, QueueHint, SceneFlags } from './types';
+import { CopyPair, LightInfo, QueueHint, ResourceResidency, SceneFlags } from './types';
+import { AntiAliasing, buildBloomPass, buildForwardPass, buildFxaaPass, buildPostprocessPass, buildSSSSPass,
+    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject, buildHBAOPasses, buildCopyPass, getRenderArea, buildReflectionProbePasss } from './define';
 import { isUICamera } from './utils';
 import { RenderWindow } from '../../render-scene/core/render-window';
 
+const copyPair = new CopyPair();
+const pairs = [copyPair];
 export class CustomPipelineBuilder implements PipelineBuilder {
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
@@ -44,16 +45,40 @@ export class CustomPipelineBuilder implements PipelineBuilder {
             if (!isGameView) {
                 // forward pass
                 buildForwardPass(camera, ppl, isGameView);
+                // reflection probe pass
+                buildReflectionProbePasss(camera, ppl);
                 continue;
             }
             // TODO: There is currently no effective way to judge the ui camera. Let’s do this first.
             if (!isUICamera(camera)) {
+                const hasDeferredTransparencyObjects = hasSkinObject(ppl);
                 // forward pass
-                const forwardInfo = buildForwardPass(camera, ppl, isGameView);
+                const forwardInfo = buildForwardPass(camera, ppl, isGameView, !hasDeferredTransparencyObjects);
+                // reflection probe pass
+                buildReflectionProbePasss(camera, ppl);
+                const area = getRenderArea(camera, camera.window.width, camera.window.height);
+                const width = area.width;
+                const height = area.height;
+                if (!ppl.containsResource('copyTexTest')) {
+                    ppl.addRenderTarget('copyTexTest', Format.RGBA16F, width, height, ResourceResidency.PERSISTENT);
+                }
+                copyPair.source = forwardInfo.rtName;
+                copyPair.target = 'copyTexTest';
+                buildCopyPass(ppl, pairs);
+
+                // skin pass
+                const skinInfo = buildSSSSPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
+                // deferred transparency objects
+                const deferredTransparencyInfo = buildTransparencyPass(camera, ppl, skinInfo.rtName, skinInfo.dsName, hasDeferredTransparencyObjects);
+                // hbao pass
+                const hbaoInfo = buildHBAOPasses(camera, ppl, deferredTransparencyInfo.rtName, deferredTransparencyInfo.dsName);
+                // tone map pass
+                const toneMappingInfo =  buildToneMappingPass(camera, ppl, hbaoInfo.rtName, hbaoInfo.dsName);
                 // fxaa pass
-                const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName);
+                const fxaaInfo = buildFxaaPass(camera, ppl, toneMappingInfo.rtName, toneMappingInfo.dsName);
                 // bloom passes
-                const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
+                // todo: bloom need to be rendered before tone-mapping
+                const bloomInfo = buildBloomPass(camera, ppl, fxaaInfo.rtName);
                 // Present Pass
                 buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
                 continue;
@@ -139,10 +164,10 @@ export class TestPipelineBuilder implements PipelineBuilder {
     }
     private buildForward (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number) {
         const scene = camera.scene;
-        const pass = ppl.addRasterPass(width, height, 'default');
+        const pass = ppl.addRenderPass(width, height, 'default');
 
-        pass.addRenderTarget(`Color${id}`, 'color', LoadOp.CLEAR);
-        pass.addDepthStencil(`DepthStencil${id}`, '_', LoadOp.CLEAR);
+        pass.addRenderTarget(`Color${id}`, LoadOp.CLEAR);
+        pass.addDepthStencil(`DepthStencil${id}`, LoadOp.CLEAR);
 
         if (scene) {
             pass.addQueue(QueueHint.RENDER_OPAQUE, 'default')

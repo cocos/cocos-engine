@@ -10,6 +10,7 @@ android {
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
     buildToolsVersion PROP_BUILD_TOOLS_VERSION
     ndkPath PROP_NDK_PATH
+    namespace APPLICATION_ID
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -22,6 +23,7 @@ android {
         targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
+        resValue  "string", "app_name", PROP_APP_NAME
 
         externalNativeBuild {
             cmake {
@@ -46,6 +48,7 @@ android {
 
     externalNativeBuild {
         cmake {
+            version "3.22.1"
             path "../CMakeLists.txt"
             buildStagingDirectory "${RES_PATH}/proj/build"
         }
@@ -86,7 +89,6 @@ android {
                 getIsDefault().set(true)
             }
 
-            // resValue  "string", "app_name", PROP_APP_NAME
         }
 
         debug {
@@ -117,6 +119,6 @@ dependencies {
     implementation project(':libxrcommon')
     implementation project(':libcocos')
     if (Boolean.parseBoolean(PROP_ENABLE_INPUTSDK)) {
-        implementation 'com.google.android.libraries.play.games:inputmapping:1.0.0-beta'
+        implementation 'com.google.android.libraries.play.games:inputmapping:1.1.0-beta'
     }
 }

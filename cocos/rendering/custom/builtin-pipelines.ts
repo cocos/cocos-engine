@@ -39,7 +39,7 @@ export class ForwardPipelineBuilder implements PipelineBuilder {
             // forward pass
             buildForwardPass(camera, ppl, false);
             if (EDITOR) {
-                buildReflectionProbePasss(camera, ppl, false);
+                buildReflectionProbePasss(camera, ppl);
             }
         }
     }

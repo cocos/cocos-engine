@@ -48,7 +48,7 @@ import { PipelineInputAssemblerData } from '../render-pipeline';
 import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
 import { BasicPipeline, SceneVisitor } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
-    RasterPass, RasterSubpass, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResourceDesc,
+    RasterPass, RasterSubpass, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResolvePass, ResourceDesc,
     ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
 import { AttachmentType, ComputeView, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
@@ -1885,6 +1885,7 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
     rasterSubpass (value: RasterSubpass) {}
     computeSubpass (value: ComputeSubpass) {}
     compute (value: ComputePass) {}
+    resolve (value: ResolvePass) {}
     copy (value: CopyPass) {}
     move (value: MovePass) {}
     raytrace (value: RaytracePass) {}
@@ -1940,6 +1941,7 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
     }
     rasterSubpass (value: RasterSubpass) {}
     computeSubpass (value: ComputeSubpass) {}
+    resolve (value: ResolvePass) {}
     compute (value: ComputePass) {}
     copy (value: CopyPass) {}
     move (value: MovePass) {}

@@ -27,9 +27,10 @@ import { CannonConstraint } from './cannon-constraint';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { HingeConstraint } from '../../framework';
 import { CannonRigidBody } from '../cannon-rigid-body';
-import { IVec3Like, Vec3 } from '../../../core';
+import { IVec3Like, Vec3, Quat, warnID } from '../../../core';
 
 const v3_0 = new Vec3();
+const quat_0 = new Quat();
 
 export class CannonHingeConstraint extends CannonConstraint implements IHingeConstraint {
     public get impl () {
@@ -54,28 +55,50 @@ export class CannonHingeConstraint extends CannonConstraint implements IHingeCon
         } else {
             const node = this.constraint.node;
             Vec3.multiply(v3_0, node.worldScale, cs.pivotA);
+            Vec3.transformQuat(v3_0, v3_0, node.worldRotation);
             Vec3.add(v3_0, v3_0, node.worldPosition);
-            Vec3.add(v3_0, v3_0, cs.pivotB);
             Vec3.copy(this.impl.pivotB, v3_0);
         }
     }
 
     setAxis (v: IVec3Like): void {
+        const equations = this.impl.equations;
         Vec3.copy(this.impl.axisA, v);
-        Vec3.copy((this.impl.equations[3] as CANNON.RotationalEquation).axisA, v);
-        Vec3.copy((this.impl.equations[4] as CANNON.RotationalEquation).axisA, v);
-        Vec3.copy((this.impl.equations[5] as CANNON.RotationalMotorEquation).axisA, v);
+        Vec3.copy((equations[3] as CANNON.RotationalEquation).axisA, v);
+        Vec3.copy((equations[4] as CANNON.RotationalEquation).axisA, v);
+        Vec3.copy((equations[5] as CANNON.RotationalMotorEquation).axisA, v);
         if (this.constraint.connectedBody) {
-            Vec3.copy(this.impl.axisB, v);
-            Vec3.copy((this.impl.equations[3] as CANNON.RotationalEquation).axisB, v);
-            Vec3.copy((this.impl.equations[4] as CANNON.RotationalEquation).axisB, v);
-            Vec3.copy((this.impl.equations[5] as CANNON.RotationalMotorEquation).axisB, v);
+            Vec3.transformQuat(this.impl.axisB, v, this.constraint.node.worldRotation);
+            Quat.invert(quat_0, this.constraint.connectedBody.node.worldRotation);
+            Vec3.transformQuat(this.impl.axisB, this.impl.axisB, quat_0);
+            Vec3.copy((equations[3] as CANNON.RotationalEquation).axisB, this.impl.axisB);
+            Vec3.copy((equations[4] as CANNON.RotationalEquation).axisB, this.impl.axisB);
+            Vec3.copy((equations[5] as CANNON.RotationalMotorEquation).axisB, this.impl.axisB);
         } else {
             Vec3.transformQuat(this.impl.axisB, v, this.constraint.node.worldRotation);
-            Vec3.copy((this.impl.equations[3] as CANNON.RotationalEquation).axisB, this.impl.axisB);
-            Vec3.copy((this.impl.equations[4] as CANNON.RotationalEquation).axisB, this.impl.axisB);
-            Vec3.copy((this.impl.equations[5] as CANNON.RotationalMotorEquation).axisB, this.impl.axisB);
+            Vec3.copy((equations[3] as CANNON.RotationalEquation).axisB, this.impl.axisB);
+            Vec3.copy((equations[4] as CANNON.RotationalEquation).axisB, this.impl.axisB);
+            Vec3.copy((equations[5] as CANNON.RotationalMotorEquation).axisB, this.impl.axisB);
         }
+    }
+
+    setLimitEnabled (v: boolean): void {
+        warnID(9613);
+    }
+    setLowerLimit (min: number): void {
+        warnID(9613);
+    }
+    setUpperLimit (max: number): void {
+        warnID(9613);
+    }
+    setMotorEnabled (v: boolean): void {
+        warnID(9613);
+    }
+    setMotorVelocity (v: number): void {
+        warnID(9613);
+    }
+    setMotorForceLimit (v: number): void {
+        warnID(9613);
     }
 
     onComponentSet () {

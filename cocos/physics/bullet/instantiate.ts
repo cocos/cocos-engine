@@ -38,6 +38,10 @@ import { BulletPlaneShape } from './shapes/bullet-plane-shape';
 import { BulletP2PConstraint } from './constraints/bullet-p2p-constraint';
 import { BulletFixedConstraint } from './constraints/bullet-fixed-constraint';
 import { BulletHingeConstraint } from './constraints/bullet-hinge-constraint';
+import { BulletConfigurableConstraint } from './constraints/bullet-configurable-constraint';
+
+import { BulletCapsuleCharacterController } from './character-controllers/bullet-capsule-character-controller';
+import { BulletBoxCharacterController } from './character-controllers/bullet-box-character-controller';
 
 game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
     selector.register('bullet', {
@@ -57,5 +61,9 @@ game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
         PointToPointConstraint: BulletP2PConstraint,
         HingeConstraint: BulletHingeConstraint,
         FixedConstraint: BulletFixedConstraint,
+        ConfigurableConstraint: BulletConfigurableConstraint,
+
+        BoxCharacterController: BulletBoxCharacterController,
+        CapsuleCharacterController: BulletCapsuleCharacterController,
     });
 });

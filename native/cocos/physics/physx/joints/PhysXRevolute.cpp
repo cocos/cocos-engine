@@ -24,14 +24,26 @@
 
 #include "physics/physx/joints/PhysXRevolute.h"
 #include "math/Quaternion.h"
+#include "math/Utils.h"
 #include "physics/physx/PhysXSharedBody.h"
 #include "physics/physx/PhysXUtils.h"
+#include "physics/physx/PhysXWorld.h"
 
 namespace cc {
 namespace physics {
 
 void PhysXRevolute::onComponentSet() {
     _mJoint = PxRevoluteJointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});
+    _mlimit.stiffness = 0;
+    _mlimit.damping = 0;
+    _mlimit.restitution = 0.4;
+    _mlimit.contactDistance = 0.01;
+
+    auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+    joint->setConstraintFlag(physx::PxConstraintFlag::ePROJECTION, true);
+    joint->setConstraintFlag(physx::PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES, true);
+    joint->setProjectionAngularTolerance(0.2);
+    joint->setProjectionLinearTolerance(0.2);
 }
 
 void PhysXRevolute::setPivotA(float x, float y, float z) {
@@ -49,6 +61,59 @@ void PhysXRevolute::setAxis(float x, float y, float z) {
     updatePose();
 }
 
+void PhysXRevolute::setLimitEnabled(bool v) {
+    _limitEnabled = v;
+    auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+    joint->setRevoluteJointFlag(physx::PxRevoluteJointFlag::eLIMIT_ENABLED, _limitEnabled);
+    if (v) {
+        joint->setLimit(_mlimit);
+    }
+}
+
+void PhysXRevolute::setLowerLimit(float v) {
+    _lowerLimit = v;
+    _mlimit.lower = mathutils::toRadian(_lowerLimit);
+    if (_limitEnabled) {
+        auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+        joint->setLimit(_mlimit);
+    }
+}
+
+void PhysXRevolute::setUpperLimit(float v) {
+    _upperLimit = v;
+    _mlimit.upper = mathutils::toRadian(_upperLimit);
+    if (_limitEnabled) {
+        auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+        joint->setLimit(_mlimit);
+    }
+}
+
+void PhysXRevolute::setMotorEnabled(bool v) {
+    _motorEnabled = v;
+    auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+    joint->setRevoluteJointFlag(physx::PxRevoluteJointFlag::eDRIVE_ENABLED, _motorEnabled);
+    if (v) {
+        joint->setDriveVelocity(_motorVelocity / 60.0);
+        joint->setDriveForceLimit(_motorForceLimit);
+    }
+}
+
+void PhysXRevolute::setMotorVelocity(float v) {
+    _motorVelocity = v;
+    if (_motorEnabled) {
+        auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+        joint->setDriveVelocity(_motorVelocity / 60.0);
+    }
+}
+
+void PhysXRevolute::setMotorForceLimit(float v) {
+    _motorForceLimit = v;
+    if (_motorEnabled) {
+        auto *joint = static_cast<physx::PxRevoluteJoint *>(_mJoint);
+        joint->setDriveForceLimit(_motorForceLimit);
+    }
+}
+
 void PhysXRevolute::updateScale0() {
     updatePose();
 }
@@ -60,21 +125,50 @@ void PhysXRevolute::updateScale1() {
 void PhysXRevolute::updatePose() {
     physx::PxTransform pose0{physx::PxIdentity};
     physx::PxTransform pose1{physx::PxIdentity};
+
+    auto xAxis = _mAxis.getNormalized();
+    auto yAxis = physx::PxVec3(0, 1, 0);
+    auto zAxis = _mAxis.cross(yAxis);
+    if (zAxis.magnitude() < 0.0001) {
+        yAxis = physx::PxVec3(0, 0, 1).cross(xAxis);
+        zAxis = xAxis.cross(yAxis);
+    } else {
+        yAxis = zAxis.cross(xAxis);
+    }
+
+    yAxis = yAxis.getNormalized();
+    zAxis = zAxis.getNormalized();
+
+    Mat4 transform(
+        xAxis.x, xAxis.y, xAxis.z, 0,
+        yAxis.x, yAxis.y, yAxis.z, 0,
+        zAxis.x, zAxis.y, zAxis.z, 0,
+        0.F, 0.F, 0.F, 1.F);
+
+    auto quat = Quaternion();
+    transform.getRotation(&quat);
+
+    // pos and rot in with respect to bodyA
     auto *node0 = _mSharedBody->getNode();
     node0->updateWorldTransform();
     pose0.p = _mPivotA * node0->getWorldScale();
-    pxSetFromTwoVectors(pose0.q, physx::PxVec3{1.F, 0.F, 0.F}, _mAxis);
+    pose0.q = physx::PxQuat(quat.x, quat.y, quat.z, quat.w);
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR0, pose0);
-    pose1.q = pose0.q;
+
     if (_mConnectedBody) {
         auto *node1 = _mConnectedBody->getNode();
         node1->updateWorldTransform();
         pose1.p = _mPivotB * node1->getWorldScale();
+        const auto &rot_0 = node0->getWorldRotation();
+        const auto &rot_1_i = node1->getWorldRotation().getInversed();
+        pose1.q = physx::PxQuat(rot_1_i.x, rot_1_i.y, rot_1_i.z, rot_1_i.w) * physx::PxQuat(rot_0.x, rot_0.y, rot_0.z, rot_0.w) * pose0.q;
     } else {
-        pose1.p = _mPivotA * node0->getWorldScale();
-        pose1.p += _mPivotB + node0->getWorldPosition();
         const auto &wr = node0->getWorldRotation();
-        pose1.q *= physx::PxQuat{wr.x, wr.y, wr.z, wr.w};
+        auto rot = physx::PxQuat{wr.x, wr.y, wr.z, wr.w};
+        pose1.p = _mPivotA * node0->getWorldScale();
+        rot.rotate(pose1.p);
+        pose1.p = pose1.p + node0->getWorldPosition();
+        pose1.q = rot * pose0.q;
     }
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR1, pose1);
 }

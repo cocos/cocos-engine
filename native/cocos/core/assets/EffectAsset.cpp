@@ -139,6 +139,7 @@ EffectAsset *EffectAsset::get(const ccstd::string &name) {
         "skybox",
         "deferred-lighting",
         "bloom",
+        "copy-pass",
         "post-process",
         "profiler",
         "splash-screen",

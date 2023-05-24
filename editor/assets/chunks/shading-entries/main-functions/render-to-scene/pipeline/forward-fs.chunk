@@ -4,6 +4,10 @@ void main()  {
 #if CC_DISABLE_STRUCTURE_IN_FRAGMENT_SHADER
   float NoL = dot(-cc_mainLitDir.xyz, FSInput_worldNormal.xyz); //trigger ubo binding
   vec4 color = SurfacesFragmentModifyBaseColorAndTransparency();
+  float fogFactor = 1.0;
+  #if CC_FORWARD_ADD
+    color.rgb = vec3(0.0);
+  #endif
 #else
   // Surface
   SurfacesMaterialData surfaceData;
@@ -69,7 +73,7 @@ void main()  {
     vec4 debugColor = vec4(0.0, 0.0, 0.0, 1.0);
     float materialTransparency = CCSurfacesShading(surfaceData, lightingResult).a;
 
-    #if !CC_FORWARD_ADD
+    #if !CC_FORWARD_ADD && !CC_SURFACES_LIGHTING_DISABLE_DIFFUSE
       CCSurfacesDebugViewMeshData(debugColor);
       if (CCSurfacesDebugViewSurfaceData(debugColor, surfaceData))
       {

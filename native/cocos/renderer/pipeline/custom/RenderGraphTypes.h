@@ -88,6 +88,7 @@ struct RenderSwapchain {
     : swapchain(swapchainIn) {}
 
     gfx::Swapchain* swapchain{nullptr};
+    scene::RenderWindow* renderWindow{nullptr};
     uint32_t currentID{0};
     uint32_t numBackBuffers{0};
     uint32_t generation{0xFFFFFFFF};
@@ -284,7 +285,7 @@ struct RasterSubpass {
         return {rasterViews.get_allocator().resource()};
     }
 
-    RasterSubpass(uint32_t subpassIDIn, const allocator_type& alloc) noexcept;
+    RasterSubpass(uint32_t subpassIDIn, uint32_t countIn, uint32_t qualityIn, const allocator_type& alloc) noexcept;
     RasterSubpass(RasterSubpass&& rhs, const allocator_type& alloc);
     RasterSubpass(RasterSubpass const& rhs, const allocator_type& alloc);
 
@@ -295,8 +296,11 @@ struct RasterSubpass {
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
-    uint32_t subpassID{0xFFFFFFFF};
+    ccstd::pmr::vector<ResolvePair> resolvePairs;
     gfx::Viewport viewport;
+    uint32_t subpassID{0xFFFFFFFF};
+    uint32_t count{1};
+    uint32_t quality{0};
     bool showStatistics{false};
 };
 
@@ -337,9 +341,12 @@ struct RasterPass {
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, uint32_t> attachmentIndexMap;
     SubpassGraph subpassGraph;
     uint32_t width{0};
     uint32_t height{0};
+    uint32_t count{1};
+    uint32_t quality{0};
     gfx::Viewport viewport;
     ccstd::pmr::string versionName;
     uint64_t version{0};
@@ -348,8 +355,8 @@ struct RasterPass {
 };
 
 inline bool operator==(const RasterPass& lhs, const RasterPass& rhs) noexcept {
-    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height) ==
-           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height);
+    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height, lhs.count, lhs.quality) ==
+           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height, rhs.count, rhs.quality);
 }
 
 inline bool operator!=(const RasterPass& lhs, const RasterPass& rhs) noexcept {
@@ -488,6 +495,7 @@ struct ResourceGraph {
     void validateSwapchains();
     void mount(gfx::Device* device, vertex_descriptor vertID);
     void unmount(uint64_t completedFenceValue);
+    bool isTexture(vertex_descriptor resID) const noexcept;
     gfx::Texture* getTexture(vertex_descriptor resID);
     gfx::Buffer* getBuffer(vertex_descriptor resID);
     void invalidatePersistentRenderPassAndFramebuffer(gfx::Texture* pTexture);
@@ -564,6 +572,24 @@ struct ComputePass {
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
 };
 
+struct ResolvePass {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {resolvePairs.get_allocator().resource()};
+    }
+
+    ResolvePass(const allocator_type& alloc) noexcept; // NOLINT
+    ResolvePass(ResolvePass&& rhs, const allocator_type& alloc);
+    ResolvePass(ResolvePass const& rhs, const allocator_type& alloc);
+
+    ResolvePass(ResolvePass&& rhs) noexcept = default;
+    ResolvePass(ResolvePass const& rhs) = delete;
+    ResolvePass& operator=(ResolvePass&& rhs) = default;
+    ResolvePass& operator=(ResolvePass const& rhs) = default;
+
+    ccstd::pmr::vector<ResolvePair> resolvePairs;
+};
+
 struct CopyPass {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -572,14 +598,14 @@ struct CopyPass {
 
     CopyPass(const allocator_type& alloc) noexcept; // NOLINT
     CopyPass(CopyPass&& rhs, const allocator_type& alloc);
-    CopyPass(CopyPass const& rhs, const allocator_type& alloc);
 
     CopyPass(CopyPass&& rhs) noexcept = default;
     CopyPass(CopyPass const& rhs) = delete;
     CopyPass& operator=(CopyPass&& rhs) = default;
-    CopyPass& operator=(CopyPass const& rhs) = default;
+    CopyPass& operator=(CopyPass const& rhs) = delete;
 
     ccstd::pmr::vector<CopyPair> copyPairs;
+    ccstd::pmr::vector<UploadPair> uploadPairs;
 };
 
 struct MovePass {
@@ -852,14 +878,15 @@ struct RenderGraph {
     }
 
     // PolymorphicGraph
-    using VertexTag         = ccstd::variant<RasterPassTag, RasterSubpassTag, ComputeSubpassTag, ComputeTag, CopyTag, MoveTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag, ClearTag, ViewportTag>;
-    using VertexValue       = ccstd::variant<RasterPass*, RasterSubpass*, ComputeSubpass*, ComputePass*, CopyPass*, MovePass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, ccstd::pmr::vector<ClearView>*, gfx::Viewport*>;
-    using VertexConstValue = ccstd::variant<const RasterPass*, const RasterSubpass*, const ComputeSubpass*, const ComputePass*, const CopyPass*, const MovePass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const ccstd::pmr::vector<ClearView>*, const gfx::Viewport*>;
+    using VertexTag         = ccstd::variant<RasterPassTag, RasterSubpassTag, ComputeSubpassTag, ComputeTag, ResolveTag, CopyTag, MoveTag, RaytraceTag, QueueTag, SceneTag, BlitTag, DispatchTag, ClearTag, ViewportTag>;
+    using VertexValue       = ccstd::variant<RasterPass*, RasterSubpass*, ComputeSubpass*, ComputePass*, ResolvePass*, CopyPass*, MovePass*, RaytracePass*, RenderQueue*, SceneData*, Blit*, Dispatch*, ccstd::pmr::vector<ClearView>*, gfx::Viewport*>;
+    using VertexConstValue = ccstd::variant<const RasterPass*, const RasterSubpass*, const ComputeSubpass*, const ComputePass*, const ResolvePass*, const CopyPass*, const MovePass*, const RaytracePass*, const RenderQueue*, const SceneData*, const Blit*, const Dispatch*, const ccstd::pmr::vector<ClearView>*, const gfx::Viewport*>;
     using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RasterPassTag, vertex_descriptor>,
         impl::ValueHandle<RasterSubpassTag, vertex_descriptor>,
         impl::ValueHandle<ComputeSubpassTag, vertex_descriptor>,
         impl::ValueHandle<ComputeTag, vertex_descriptor>,
+        impl::ValueHandle<ResolveTag, vertex_descriptor>,
         impl::ValueHandle<CopyTag, vertex_descriptor>,
         impl::ValueHandle<MoveTag, vertex_descriptor>,
         impl::ValueHandle<RaytraceTag, vertex_descriptor>,
@@ -934,6 +961,7 @@ struct RenderGraph {
     ccstd::pmr::vector<RasterSubpass> rasterSubpasses;
     ccstd::pmr::vector<ComputeSubpass> computeSubpasses;
     ccstd::pmr::vector<ComputePass> computePasses;
+    ccstd::pmr::vector<ResolvePass> resolvePasses;
     ccstd::pmr::vector<CopyPass> copyPasses;
     ccstd::pmr::vector<MovePass> movePasses;
     ccstd::pmr::vector<RaytracePass> raytracePasses;
@@ -974,6 +1002,8 @@ inline hash_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterP
     hash_combine(seed, val.subpassGraph);
     hash_combine(seed, val.width);
     hash_combine(seed, val.height);
+    hash_combine(seed, val.count);
+    hash_combine(seed, val.quality);
     return seed;
 }
 

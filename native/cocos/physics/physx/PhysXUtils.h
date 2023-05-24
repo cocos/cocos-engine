@@ -128,6 +128,12 @@ inline ccstd::unordered_map<uintptr_t, uint32_t> &getPxShapeMap() {
     return m;
 }
 
+//physx::PxCharacterController ptr <--> PhysxCharacterController ObjectID
+inline ccstd::unordered_map<uintptr_t, uint32_t>& getPxCCTMap() {
+    static ccstd::unordered_map<uintptr_t, uint32_t> m;
+    return m;
+}
+
 inline ccstd::unordered_map<uint16_t, uintptr_t> &getPxMaterialMap() {
     static ccstd::unordered_map<uint16_t, uintptr_t> m;
     return m;
@@ -139,6 +145,11 @@ inline physx::PxMaterial &getDefaultMaterial() {
 
 inline ccstd::vector<physx::PxRaycastHit> &getPxRaycastHitBuffer() {
     static ccstd::vector<physx::PxRaycastHit> m{12};
+    return m;
+}
+
+inline ccstd::vector<physx::PxSweepHit> &getPxSweepHitBuffer() {
+    static ccstd::vector<physx::PxSweepHit> m{12};
     return m;
 }
 

@@ -44,6 +44,7 @@ struct RasterPassTag;
 struct RasterSubpassTag;
 struct ComputeSubpassTag;
 struct ComputeTag;
+struct ResolveTag;
 struct CopyTag;
 struct MoveTag;
 struct RaytraceTag;
@@ -76,7 +77,12 @@ struct Descriptor;
 struct DescriptorBlock;
 struct DescriptorBlockFlattened;
 struct DescriptorBlockIndex;
+
+enum class ResolveFlags : uint32_t;
+
+struct ResolvePair;
 struct CopyPair;
+struct UploadPair;
 struct MovePair;
 struct PipelineStatistics;
 

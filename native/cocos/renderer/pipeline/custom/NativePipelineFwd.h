@@ -39,14 +39,14 @@ namespace render {
 
 class NativeRenderNode;
 class NativeSetter;
-class NativeRasterQueueBuilder;
-class NativeRasterSubpassBuilder;
+class NativeRenderSubpassBuilderImpl;
+class NativeRenderQueueBuilder;
+class NativeRenderSubpassBuilder;
+class NativeMultisampleRenderSubpassBuilder;
 class NativeComputeSubpassBuilder;
-class NativeRasterPassBuilder;
+class NativeRenderPassBuilder;
 class NativeComputeQueueBuilder;
 class NativeComputePassBuilder;
-class NativeMovePassBuilder;
-class NativeCopyPassBuilder;
 class NativeSceneTransversal;
 struct RenderInstancingQueue;
 struct DrawInstance;

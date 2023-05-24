@@ -383,11 +383,18 @@ export class ReflectionProbe {
     }
 
     public hasFrameBuffer (framebuffer: Framebuffer) {
-        if (this.bakedCubeTextures.length === 0) return false;
-        for (let i = 0; i < this.bakedCubeTextures.length; i++) {
-            const rt = this.bakedCubeTextures[i];
-            if (rt.window?.framebuffer === framebuffer) {
+        if (this.probeType === ProbeType.PLANAR) {
+            if (!this.realtimePlanarTexture) return false;
+            if (this.realtimePlanarTexture.window?.framebuffer === framebuffer) {
                 return true;
+            }
+        } else {
+            if (this.bakedCubeTextures.length === 0) return false;
+            for (let i = 0; i < this.bakedCubeTextures.length; i++) {
+                const rt = this.bakedCubeTextures[i];
+                if (rt.window?.framebuffer === framebuffer) {
+                    return true;
+                }
             }
         }
         return false;
@@ -478,7 +485,7 @@ export class ReflectionProbe {
         this._forward.normalize();
         this._forward.negative();
 
-        Vec3.transformQuat(this._up, this.node.up, sourceCamera.node.worldRotation);
+        Vec3.transformQuat(this._up, Vec3.UP, sourceCamera.node.worldRotation);
         this._reflect(this._up, this._up, this.node.up, 0);
         this._up.normalize();
 

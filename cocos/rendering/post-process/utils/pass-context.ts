@@ -1,11 +1,13 @@
 import { EDITOR } from 'internal:constants';
 
 import { AccessType, AttachmentType, ComputeView, QueueHint, RasterView, ResourceResidency, SceneFlags } from '../../custom/types';
-import { ClearFlagBit, Color, Format, LoadOp, StoreOp, Viewport } from '../../../gfx';
-import { Pipeline, RasterPassBuilder } from '../../custom/pipeline';
+import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
+import { Pipeline, RenderPassBuilder } from '../../custom/pipeline';
 import { Camera } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
 import { PostProcess } from '../components';
+import { getRenderArea } from '../../custom/define';
+import { Vec4 } from '../../../core';
 
 export class PassContext {
     clearFlag: ClearFlagBit = ClearFlagBit.COLOR;
@@ -14,10 +16,14 @@ export class PassContext {
     ppl: Pipeline| undefined
     camera: Camera| undefined
     material: Material| undefined
-    pass: RasterPassBuilder| undefined
+    pass: RenderPassBuilder| undefined
     rasterWidth = 0
     rasterHeight = 0
     layoutName = ''
+
+    shadingScale = 1;
+    viewport = new Rect();
+    passViewport = new Rect();
 
     renderProfiler = false;
     passPathName = '';
@@ -26,8 +32,26 @@ export class PassContext {
     isFinalCamera = false;
     isFinalPass = false;
 
+    depthSlotName = '';
+
+    shadowPass: any = undefined;
     forwardPass: any = undefined;
     postProcess: PostProcess | undefined;
+
+    setClearFlag (clearFlag: ClearFlagBit) {
+        this.clearFlag = clearFlag;
+        return this;
+    }
+
+    setClearColor (x: number, y: number, z: number, w: number) {
+        Vec4.set(this.clearColor, x, y, z, w);
+        return this;
+    }
+
+    setClearDepthColor (x: number, y: number, z: number, w: number) {
+        Vec4.set(this.clearDepthColor, x, y, z, w);
+        return this;
+    }
 
     version () {
         if (!EDITOR) {
@@ -37,19 +61,56 @@ export class PassContext {
         return this;
     }
 
-    addRasterPass (width: number, height: number, layoutName: string, passName: string) {
-        const pass = this.ppl!.addRasterPass(width, height, layoutName);
+    clearBlack () {
+        this.clearFlag = ClearFlagBit.COLOR;
+        Vec4.set(passContext.clearColor, 0, 0, 0, 1);
+    }
+
+    addRenderPass (layoutName: string, passName: string) {
+        const passViewport = this.passViewport;
+
+        const pass = this.ppl!.addRenderPass(passViewport.width, passViewport.height, layoutName);
         pass.name = passName;
         this.pass = pass;
-        this.rasterWidth = width;
-        this.rasterHeight = height;
         this.layoutName = layoutName;
+
+        this.rasterWidth = passViewport.width;
+        this.rasterHeight = passViewport.height;
+
+        pass.setViewport(new Viewport(passViewport.x, passViewport.y, passViewport.width, passViewport.height));
+
         return this;
     }
-    setViewport (x: number, y: number, w: number, h: number) {
-        this.pass!.setViewport(new Viewport(x, y, w, h));
+
+    updateViewPort () {
+        const camera = this.camera;
+        if (!camera) {
+            return;
+        }
+
+        let shadingScale = 1;
+        if (this.postProcess && (!EDITOR || this.postProcess.enableShadingScaleInEditor)) {
+            shadingScale *= this.postProcess.shadingScale;
+        }
+        this.shadingScale = shadingScale;
+
+        const area = getRenderArea(camera, camera.window.width * shadingScale, camera.window.height * shadingScale, null, 0, this.viewport);
+        area.width = Math.floor(area.width);
+        area.height = Math.floor(area.height);
+    }
+    updatePassViewPort (shadingScale = 1, offsetScale = 0) {
+        this.passViewport.width = this.viewport.width * shadingScale;
+        this.passViewport.height = this.viewport.height * shadingScale;
+
+        this.passViewport.x = this.viewport.x * offsetScale;
+        this.passViewport.y = this.viewport.y * offsetScale;
         return this;
     }
+
+    // setViewport (x: number, y: number, w: number, h: number) {
+    //     this.pass!.setViewport(new Viewport(x, y, w, h));
+    //     return this;
+    // }
 
     addRasterView (name: string, format: Format, offscreen = true, residency?: ResourceResidency) {
         const ppl = this.ppl;
@@ -65,7 +126,7 @@ export class PassContext {
             } else if (offscreen) {
                 ppl.addRenderTarget(name, format, this.rasterWidth, this.rasterHeight, residency || ResourceResidency.MANAGED);
             } else {
-                ppl.addRenderTexture(name, format, this.rasterWidth, this.rasterHeight, camera.window);
+                ppl.addRenderWindow(name, format, this.rasterWidth, this.rasterHeight, camera.window);
             }
         }
 
@@ -79,39 +140,27 @@ export class PassContext {
             ppl.updateDepthStencil(name, this.rasterWidth, this.rasterHeight);
         }
 
-        const clearColor = new Color();
-        let view: RasterView;
+        // let view: RasterView;
         if (format === Format.DEPTH_STENCIL) {
-            clearColor.copy(this.clearDepthColor);
-
             const clearFlag = this.clearFlag & ClearFlagBit.DEPTH_STENCIL;
-            let clearOp = LoadOp.CLEAR;
+            let loadOp = LoadOp.CLEAR;
             if (clearFlag === ClearFlagBit.NONE) {
-                clearOp = LoadOp.LOAD;
+                loadOp = LoadOp.LOAD;
             }
 
-            view = new RasterView('_',
-                AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
-                clearOp, StoreOp.STORE,
-                clearFlag,
-                clearColor);
+            pass.addDepthStencil(name, loadOp, StoreOp.STORE, this.clearDepthColor.x, this.clearDepthColor.y, clearFlag);
         } else {
+            const clearColor = new Color();
             clearColor.copy(this.clearColor);
 
             const clearFlag = this.clearFlag & ClearFlagBit.COLOR;
-            let clearOp = LoadOp.CLEAR;
+            let loadOp = LoadOp.CLEAR;
             if (clearFlag === ClearFlagBit.NONE) {
-                clearOp = LoadOp.LOAD;
+                loadOp = LoadOp.LOAD;
             }
 
-            view = new RasterView('_',
-                AccessType.WRITE, AttachmentType.RENDER_TARGET,
-                clearOp,
-                StoreOp.STORE,
-                clearFlag,
-                clearColor);
+            pass.addRenderTarget(name, loadOp, StoreOp.STORE, clearColor);
         }
-        pass.addRasterView(name, view);
         return this;
     }
     setPassInput (inputName: string, shaderName: string) {

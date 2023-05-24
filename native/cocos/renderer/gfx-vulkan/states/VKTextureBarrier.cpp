@@ -41,7 +41,8 @@ CCVKTextureBarrier::CCVKTextureBarrier(const TextureBarrierInfo &info) : Texture
     _gpuBarrier->barrier.nextAccessCount = utils::toUint(_gpuBarrier->nextAccesses.size());
     _gpuBarrier->barrier.pNextAccesses = _gpuBarrier->nextAccesses.data();
 
-    _gpuBarrier->barrier.prevLayout = _gpuBarrier->barrier.nextLayout = THSVS_IMAGE_LAYOUT_OPTIMAL;
+    _gpuBarrier->barrier.prevLayout = getAccessLayout(info.prevAccesses);
+    _gpuBarrier->barrier.nextLayout = getAccessLayout(info.nextAccesses);
     _gpuBarrier->barrier.discardContents = !!info.discardContents;
     _gpuBarrier->barrier.subresourceRange.baseMipLevel = 0U;
     _gpuBarrier->barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;

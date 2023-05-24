@@ -356,6 +356,7 @@ export class MeshRenderer extends ModelRenderer {
     @tooltip('i18n:model.shadow_casting_model')
     @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
+    @visible(false)
     get shadowCastingMode () {
         return this._shadowCastingMode;
     }
@@ -363,6 +364,16 @@ export class MeshRenderer extends ModelRenderer {
     set shadowCastingMode (val) {
         this._shadowCastingMode = val;
         this._updateCastShadow();
+    }
+
+    @tooltip('i18n:model.shadow_casting_model')
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
+    @disallowAnimation
+    get shadowCastingModeBool (): boolean {
+        return this.shadowCastingMode === ModelShadowCastingMode.ON;
+    }
+    set shadowCastingModeBool (val) {
+        this.shadowCastingMode = val === true ? ModelShadowCastingMode.ON : ModelShadowCastingMode.OFF;
     }
 
     /**
@@ -497,6 +508,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateBakeToReflectionProbe();
         this._updateUseReflectionProbe();
         this._updateReceiveDirLight();
+        this._updateStandardSkin();
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -513,6 +525,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateBakeToReflectionProbe();
         this._updateUseReflectionProbe();
         this._updateReceiveDirLight();
+        this._updateStandardSkin();
     }
 
     public onEnable () {
@@ -537,6 +550,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateReceiveDirLight();
         this._onUpdateReflectionProbeDataMap();
         this._onUpdateLocalReflectionProbeData();
+        this._updateStandardSkin();
         this._attachToScene();
     }
 
@@ -852,11 +866,19 @@ export class MeshRenderer extends ModelRenderer {
         if (!mainLight) { return; }
         const visibility = mainLight.visibility;
         if (!mainLight.node) { return; }
-        if (mainLight.node.mobility === MobilityMode.Static
-            && (this.bakeSettings.texture || (this.node.scene.globals.lightProbeInfo.data
-            && this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
-            && this._model.useLightProbe))) {
-            this.onUpdateReceiveDirLight(visibility, true);
+        
+        if (mainLight.node.mobility === MobilityMode.Static) {
+            let forceClose = false;
+            if (this.bakeSettings.texture && !this.node.scene.globals.disableLightmap) {
+                forceClose = true;
+            }
+            if (this.node.scene.globals.lightProbeInfo.data
+                && this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
+                && this._model.useLightProbe) {
+                    forceClose = true;
+            }
+
+            this.onUpdateReceiveDirLight(visibility, forceClose);
         } else {
             this.onUpdateReceiveDirLight(visibility);
         }

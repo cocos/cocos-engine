@@ -140,3 +140,6 @@ rules:
     '@typescript-eslint/consistent-type-assertions': [error, {
         assertionStyle: 'as'
     }]
+
+    # Prefer the interface style.
+    '@typescript-eslint/consistent-type-definitions': [error, interface]

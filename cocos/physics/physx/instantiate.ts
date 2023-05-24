@@ -39,6 +39,11 @@ import { PhysXConeShape } from './shapes/physx-cone-shape';
 import { PhysXFixedJoint } from './joints/physx-fixed-joint';
 import { PhysXSphericalJoint } from './joints/physx-spherical-joint';
 import { PhysXRevoluteJoint } from './joints/physx-revolute-joint';
+import { PhysXConfigurableJoint } from './joints/physx-configurable-joint';
+
+import { PhysXBoxCharacterController } from './character-controllers/physx-box-character-controller';
+import { PhysXCapsuleCharacterController } from './character-controllers/physx-capsule-character-controller';
+
 import { Game, game } from '../../game';
 
 game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
@@ -60,5 +65,10 @@ game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
         // PointToPointConstraint: PhysXFixedJoint,
         HingeConstraint: PhysXRevoluteJoint,
         FixedConstraint: PhysXFixedJoint,
+        ConfigurableConstraint: PhysXConfigurableJoint,
+
+        BoxCharacterController: PhysXBoxCharacterController,
+        CapsuleCharacterController: PhysXCapsuleCharacterController,
+
     });
 });

@@ -39,6 +39,7 @@ export enum EBulletType{
     EBulletTypeMotionState,
     EBulletTypeCollisionObject,
     EBulletTypeCollisionShape,
+    EBulletTypeCharacterController,
     EBulletTypeStridingMeshInterface,
     EBulletTypeTriangleMesh,
     EBulletTypeCollisionDispatcher,
@@ -60,11 +61,13 @@ export enum EBulletTriangleRaycastFlag {
 interface instanceExt extends Bullet.instance {
     CACHE: any,
     BODY_CACHE_NAME: string,
+    CCT_CACHE_NAME: string,
 }
 
 export const bt: instanceExt = {} as any;
 globalThis.Bullet = bt;
 bt.BODY_CACHE_NAME = 'body';
+bt.CCT_CACHE_NAME = 'cct';
 
 function initWasm (wasmUrl: string) {
     console.debug('[Physics][Bullet]: Using wasm Bullet libs.');

@@ -157,6 +157,7 @@ bool RenderScene::isCulledByLod(const Camera *camera, const Model *model) const 
 
 void RenderScene::setMainLight(DirectionalLight *dl) {
     _mainLight = dl;
+    if (_mainLight) _mainLight->activate();
 }
 
 void RenderScene::update(uint32_t stamp) {

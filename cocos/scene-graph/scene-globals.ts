@@ -33,6 +33,7 @@ import { Ambient } from '../render-scene/scene/ambient';
 import { Shadows, ShadowType, ShadowSize } from '../render-scene/scene/shadows';
 import { Skybox, EnvironmentLightingType } from '../render-scene/scene/skybox';
 import { Octree } from '../render-scene/scene/octree';
+import { Skin } from '../render-scene/scene/skin';
 import { Fog, FogType } from '../render-scene/scene/fog';
 import { LightProbesData, LightProbes } from '../gi/light-probe/light-probe';
 import { Node } from './node';
@@ -40,9 +41,10 @@ import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
-import { cclegacy } from '../core';
+import { cclegacy, macro } from '../core';
 import { Scene } from './scene';
 import { NodeEventType } from './node-event';
+import { property } from '../core/data/class-decorator';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -1079,6 +1081,96 @@ export class OctreeInfo {
 }
 legacyCC.OctreeInfo = OctreeInfo;
 
+/**
+ * @en Global skin in the render scene.
+ * @zh 渲染场景中的全局皮肤后处理设置。
+ */
+@ccclass('cc.SkinInfo')
+export class SkinInfo {
+    /**
+     * @en Enable skip.
+     * @zh 是否开启皮肤后效。
+     */
+    @editable
+    @tooltip('i18n:skin.enabled')
+    set enabled (val: boolean) {
+        if (this._enabled === val) return;
+        this._enabled = val;
+        if (val && !macro.ENABLE_FLOAT_OUTPUT) {
+            console.warn('Separable-SSS skin filter need float output, please open ENABLE_FLOAT_OUTPUT define...');
+        }
+        if (this._resource) {
+            this._resource.enabled = val;
+        }
+    }
+    get enabled () {
+        return this._enabled;
+    }
+
+    /**
+     * @en Getter/Setter sampler width.
+     * @zh 设置或者获取采样宽度。
+     */
+    @visible(false)
+    @editable
+    @range([0.0, 0.1, 0.001])
+    @slide
+    @type(CCFloat)
+    @tooltip('i18n:skin.blurRadius')
+    set blurRadius (val: number) {
+        if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
+            console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
+            return;
+        }
+        this._blurRadius = val;
+        if (this._resource) { this._resource.blurRadius = val; }
+    }
+    get blurRadius () {
+        return this._blurRadius;
+    }
+
+    /**
+     * @en Getter/Setter depth unit scale.
+     * @zh 设置或者获取深度单位比例。
+     */
+    @editable
+    @range([0.0, 10.0, 0.1])
+    @slide
+    @type(CCFloat)
+    @tooltip('i18n:skin.sssIntensity')
+    set sssIntensity (val: number) {
+        if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
+            console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
+            return;
+        }
+        this._sssIntensity = val;
+        if (this._resource) { this._resource.sssIntensity = val; }
+    }
+    get sssIntensity () {
+        return this._sssIntensity;
+    }
+
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _blurRadius = 0.01;
+    @serializable
+    protected _sssIntensity = 5.0;
+
+    protected _resource: Skin | null = null;
+
+    /**
+     * @en Activate the skin configuration in the render scene, no need to invoke manually.
+     * @zh 在渲染场景中启用八叉树设置，不需要手动调用
+     * @param resource The skin configuration object in the render scene
+     */
+    public activate (resource: Skin) {
+        this._resource = resource;
+        this._resource.initialize(this);
+    }
+}
+legacyCC.SkinInfo = SkinInfo;
+
 export interface ILightProbeNode {
     node: Node;
     probes: Vec3[] | null;
@@ -1494,6 +1586,14 @@ export class SceneGlobals {
     public octree = new OctreeInfo();
 
     /**
+     * @en Octree related configuration
+     * @zh 八叉树相关配置
+     */
+    @editable
+    @serializable
+    public skin = new SkinInfo();
+
+    /**
      * @en Light probe related configuration
      * @zh 光照探针相关配置
      */
@@ -1510,12 +1610,18 @@ export class SceneGlobals {
     public bakedWithStationaryMainLight = false;
 
     /**
-    * @en bake lightmap with highp mode
-    * @zh 是否使用高精度模式烘培光照图
-    */
+     * @en bake lightmap with highp mode
+     * @zh 是否使用高精度模式烘培光照图
+     */
     @editable
     @serializable
     public bakedWithHighpLightmap = false;
+
+    /**
+     * @en disable light map
+     * @zh 关闭光照图效果
+     */
+    public disableLightmap = false;
 
     /**
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.
@@ -1529,6 +1635,7 @@ export class SceneGlobals {
         this.shadows.activate(sceneData.shadows);
         this.fog.activate(sceneData.fog);
         this.octree.activate(sceneData.octree);
+        this.skin.activate(sceneData.skin);
         if (this.lightProbeInfo && sceneData.lightProbes) {
             this.lightProbeInfo.activate(scene, sceneData.lightProbes);
         }
