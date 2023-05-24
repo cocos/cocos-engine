@@ -29,6 +29,14 @@ import { Contact2DType, PhysicsSystem2D } from '../../framework';
 import { PhysicsContact } from '../physics-contact';
 import { b2Shape2D } from '../shapes/shape-2d';
 
+/**
+ * @en
+ * The contact listener responsible for all contact events between colliders.
+ * @zh
+ * 负责处理所有碰撞体之间的触发事件。
+ * @class PhysicsContactListener
+ * @extends b2.ContactListener
+ */
 export class PhysicsContactListener extends b2.ContactListener {
     static readonly _contactMap = new Map<string, PhysicsContact>();
 
