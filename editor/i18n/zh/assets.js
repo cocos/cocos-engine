@@ -286,7 +286,7 @@ module.exports = {
                     title: '跳过对模型文件的验证。',
                 },
                 mountAllAnimationsOnPrefab: {
-                    name: '挂载全部动画',
+                    name: '挂载全部动画到预制体',
                 }
             },
             addEvent: {
