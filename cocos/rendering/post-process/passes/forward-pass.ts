@@ -80,7 +80,7 @@ export class ForwardPass extends BasePass {
             .addSceneOfCamera(camera,
                 new LightInfo(),
                 SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
-                | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+                | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING | SceneFlags.GEOMETRY);
 
         passContext.forwardPass = this;
     }

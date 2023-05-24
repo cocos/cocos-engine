@@ -697,6 +697,14 @@ export class TMXMapInfo {
 
                     this.parentGID = (fgid + (parseInt(tile.getAttribute('id')!) || 0)) as any;
                     const tileImages = tile.getElementsByTagName('image');
+                    if (tile.hasAttribute('x') && tile.hasAttribute('y')) {
+                        tileset.imageOffset = new Vec2(parseFloat(tile.getAttribute('x')!) || 0, parseFloat(tile.getAttribute('y')!) || 0);
+                    }
+                    const hastilesize = tile.hasAttribute('width') && tile.hasAttribute('height');
+                    if (hastilesize) {
+                        tileset._tileSize.width = parseFloat(tile.getAttribute('width')!) || 0;
+                        tileset._tileSize.height = parseFloat(tile.getAttribute('height')!) || 0;
+                    }
                     if (tileImages && tileImages.length > 0) {
                         const image = tileImages[0];
                         let imageName = image.getAttribute('source')!;
@@ -706,8 +714,10 @@ export class TMXMapInfo {
                         tileset.imageSize.width = parseFloat(image.getAttribute('width')!) || 0;
                         tileset.imageSize.height = parseFloat(image.getAttribute('height')!) || 0;
 
-                        tileset._tileSize.width = tileset.imageSize.width;
-                        tileset._tileSize.height = tileset.imageSize.height;
+                        if (!hastilesize) {
+                            tileset._tileSize.width = tileset.imageSize.width;
+                            tileset._tileSize.height = tileset.imageSize.height;
+                        }
 
                         tileset.sourceImage = this._spriteFrameMap![imageName];
                         if (!tileset.sourceImage) {

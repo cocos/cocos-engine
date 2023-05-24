@@ -29,6 +29,14 @@ import { Contact2DType, PhysicsSystem2D } from '../../framework';
 import { PhysicsContact } from '../physics-contact';
 import { b2Shape2D } from '../shapes/shape-2d';
 
+/**
+ * @en
+ * The contact listener responsible for all contact events between colliders.
+ * @zh
+ * 负责处理所有碰撞体之间的触发事件。
+ * @class PhysicsContactListener
+ * @extends b2.ContactListener
+ */
 export class PhysicsContactListener extends b2.ContactListener {
     static readonly _contactMap = new Map<string, PhysicsContact>();
 
@@ -87,17 +95,26 @@ export class PhysicsContactListener extends b2.ContactListener {
     public finalizeContactEvent () {
         PhysicsContactListener._contactMap.forEach((contact: PhysicsContact, key: string) => {
             //console.log('forEach', key, collision);
+
+            // emit collision event
+            if (!contact.disabled || contact.status === Contact2DType.BEGIN_CONTACT) { //BEGIN_CONTACT always emits
+                if (contact.status === Contact2DType.END_CONTACT) {
+                    //console.log('   report end collision', key, 'current ref is:', contact.ref);
+                    this.emit(Contact2DType.END_CONTACT, contact);
+                } else if (contact.status === Contact2DType.BEGIN_CONTACT) {
+                    //console.log('   report enter collision', key, 'current ref is:', contact.ref);
+                    this.emit(Contact2DType.BEGIN_CONTACT, contact);
+                } else if (contact.status === Contact2DType.STAY_CONTACT) {
+                    //console.log('   report stay collision', key, 'current ref is:', contact.ref);
+                    this.emit(Contact2DType.STAY_CONTACT, contact);
+                }
+            }
+
+            // extra processing
             if (contact.status === Contact2DType.END_CONTACT) {
                 PhysicsContactListener._contactMap.delete(key);
-                //console.log('   report end collision', key, 'current ref is:', contact.ref);
-                this.emit(Contact2DType.END_CONTACT, contact);
             } else if (contact.status === Contact2DType.BEGIN_CONTACT) {
                 contact.status = Contact2DType.STAY_CONTACT;
-                //console.log('   report enter collision', key, 'current ref is:', contact.ref);
-                this.emit(Contact2DType.BEGIN_CONTACT, contact);
-            } else if (contact.status === Contact2DType.STAY_CONTACT) {
-                //console.log('   report stay collision', key, 'current ref is:', contact.ref);
-                this.emit(Contact2DType.STAY_CONTACT, contact);
             }
         });
     }
@@ -129,11 +146,6 @@ export class PhysicsContactListener extends b2.ContactListener {
 
         if ((bodyA && bodyA.enabledContactListener) || (bodyB && bodyB.enabledContactListener) || !bodyA || !bodyB) {
             PhysicsSystem2D.instance.emit(contactType, colliderA, colliderB, contact);
-        }
-
-        if (contact.disabled || contact.disabledOnce) {
-            contact.setEnabled(false);
-            contact.disabledOnce = false;
         }
     }
 }

@@ -95,7 +95,7 @@ export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextur
 
         tileset.rectForGID(gid as unknown as GID, grid);
 
-        if (!spFrame || count > 1) {
+        if (!spFrame || count > 1 || tileset.imageOffset) {
             if (spFrame) {
                 grid._name = spFrame.name;
                 const lm = spFrame.unbiasUV[0];

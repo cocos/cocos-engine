@@ -368,6 +368,8 @@ export class TMXTilesetInfo {
 
     imageName: string | null = null;
 
+    imageOffset: Vec2 | null = null;
+
     imageSize = new Size(0, 0);
 
     tileOffset = new Vec2(0, 0);
@@ -383,9 +385,14 @@ export class TMXTilesetInfo {
         let gid = gid_ as unknown as number;
         gid &= TileFlag.FLIPPED_MASK;
         gid -= (this.firstGid as unknown as number);
-        const max_x = Math.floor((this.imageSize.width - this.margin * 2 + this.spacing) / (this._tileSize.width + this.spacing));
-        rect.x = Math.round((gid % max_x) * (this._tileSize.width + this.spacing) + this.margin);
-        rect.y = Math.round(Math.floor(gid / max_x) * (this._tileSize.height + this.spacing) + this.margin);
+        if (this.imageOffset) {
+            rect.x = this.imageOffset.x;
+            rect.y = this.imageOffset.y;
+        } else {
+            const max_x = Math.floor((this.imageSize.width - this.margin * 2 + this.spacing) / (this._tileSize.width + this.spacing));
+            rect.x = Math.round((gid % max_x) * (this._tileSize.width + this.spacing) + this.margin);
+            rect.y = Math.round(Math.floor(gid / max_x) * (this._tileSize.height + this.spacing) + this.margin);
+        }
         return rect;
     }
 }
