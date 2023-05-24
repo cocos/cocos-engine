@@ -1312,6 +1312,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const newPrefabInfo = cloned._prefab;
         if (EDITOR && newPrefabInfo) {
             if (cloned === newPrefabInfo.root) {
+                // when instantiate prefab in Editor,should add prefab instance info for root node
+                EditorExtends.PrefabUtils.addPrefabInstance?.(cloned);
                 // newPrefabInfo.fileId = '';
             } else {
                 // var PrefabUtils = Editor.require('scene://utils/prefab');
