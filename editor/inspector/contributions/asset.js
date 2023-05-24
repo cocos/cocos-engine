@@ -330,7 +330,7 @@ const Elements = {
                 try {
                     await Promise.all(
                         contentRender.__panels__.map(($panel) => {
-                            $panel.injectionStyle(`ui-prop { margin-top: 5px; }`);
+                            $panel.injectionStyle(`ui-prop { margin-top: 4px; }`);
                             return $panel.update(panel.assetList, panel.metaList);
                         }),
                     );

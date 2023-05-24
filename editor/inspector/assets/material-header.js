@@ -21,6 +21,8 @@ exports.template = /* html */`
 exports.style = /* css */`
 :host > .section {
     height: 200px;
+    padding: 8px 0;
+    box-sizing: border-box;
     display: flex;
     background: var(--color-normal-fill);
     border-bottom: 1px solid var(--color-normal-border);
@@ -90,7 +92,7 @@ exports.methods = {
     },
 };
 
-exports.ready = async function () {
+exports.ready = async function() {
     const panel = this;
 
     callMaterialPreviewFunction('setLightEnable', true);
@@ -149,7 +151,7 @@ exports.ready = async function () {
     Editor.Message.addBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
 };
 
-exports.update = async function (assetList, metaList) {
+exports.update = async function(assetList, metaList) {
     const panel = this;
 
     panel.assetList = assetList;
@@ -171,7 +173,7 @@ exports.update = async function (assetList, metaList) {
     panel.refreshPreview();
 };
 
-exports.close = function () {
+exports.close = function() {
     const panel = this;
     callMaterialPreviewFunction('hide');
     panel.resizeObserver.unobserve(panel.$.container);

@@ -102,12 +102,12 @@ ui-section {
     text-align: center;
 }
 .container > .clips {
-    padding: 5px;
+    padding: 4px;
     border-radius: calc(var(--size-normal-radius) * 1px);
     overflow-y: auto;
     max-height: 250px;
     background: var(--color-normal-fill-emphasis);
-    margin-bottom: 20px;
+    margin-bottom: 8px;
 }
 .container > .clips > .clip {}
 .container > .clips > .clip > .table {

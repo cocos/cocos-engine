@@ -98,7 +98,6 @@ exports.style = /* css */`
         flex-direction: column;
      }
     .asset-sprite-frame > .content {
-        padding-bottom: 15px;
         flex: 1;
     }
     .asset-sprite-frame > .content > ui-prop {

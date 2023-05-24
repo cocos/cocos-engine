@@ -9,6 +9,7 @@
     flex: 1;
     flex-direction: column;
     overflow: hidden;
+    margin-top: -1px;
 }
 
 :host > .container[whole] {

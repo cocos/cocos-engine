@@ -265,6 +265,7 @@ exports.methods = {
 
                 $container.$children[i] = document.createElement('ui-prop');
                 $container.$children[i].setAttribute('type', 'dump');
+                $container.$children[i].setAttribute('ui-section-config', '');
                 $container.$children[i].setAttribute('pass-index', i);
                 $container.appendChild($container.$children[i]);
                 $container.$children[i].render(pass);
