@@ -22,10 +22,9 @@
  THE SOFTWARE.
 */
 
-import { cclegacy, Vec4 } from '../../../core';
+import { Vec4 } from '../../../core';
 import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
-import { Root } from '../../../root';
 import { Pipeline } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
@@ -37,13 +36,10 @@ export class ToneMappingPass extends SettingPass {
     effectName = 'pipeline/tone-mapping';
     outputNames = ['ToneMapping']
 
+    enableInAllEditorCamera = true;
+    enable = true;
     checkEnable (camera: Camera) {
-        let enable = true;
-        const ppl = (cclegacy.director.root as Root).pipeline;
-        if (!ppl.pipelineSceneData.isHDR || !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
-            enable = false;
-        }
-        return enable;
+        return true;
     }
 
     public render (camera: Camera, ppl: Pipeline): void {

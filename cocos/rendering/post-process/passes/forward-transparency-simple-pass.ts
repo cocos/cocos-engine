@@ -28,53 +28,19 @@ import { LightInfo, QueueHint, SceneFlags } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
-import { BasePass, GetRTFormatBeforeToneMapping } from './base-pass';
+import { BasePass } from './base-pass';
+import { ForwardPass } from './forward-pass';
 import { ShadowPass } from './shadow-pass';
 
-export class ForwardTransparencyPass extends BasePass {
-    name = 'ForwardTransparencyPass';
-
-    enableInAllEditorCamera = true;
-    depthBufferShadingScale = 1;
-    enable = true;
-    checkEnable (camera: Camera) {
-        return true;
-    }
+export class ForwardTransparencySimplePass extends BasePass {
+    name = 'ForwardTransparencySimplePass';
 
     slotName (camera: Camera, index = 0) {
-        return this.lastPass!.slotName(camera, index);
+        return (passContext.forwardPass as ForwardPass)!.slotName(camera, index);
     }
 
     public render (camera: Camera, ppl: Pipeline) {
-        passContext.clearFlag = ClearFlagBit.NONE;
-
-        const output = this.lastPass!.slotName(camera, 0);
-        const outputDS = passContext.depthSlotName;
-
-        const cameraID = getCameraUniqueID(camera);
-        const isOffScreen = true;
-        passContext
-            .updatePassViewPort()
-            .addRenderPass('default', `${this.name}_${cameraID}`)
-            .addRasterView(output, GetRTFormatBeforeToneMapping(ppl), isOffScreen)
-            .addRasterView(outputDS, Format.DEPTH_STENCIL, isOffScreen)
-            .version();
-
         const pass = passContext.pass!;
-        const shadowPass = passContext.shadowPass as ShadowPass;
-        if (shadowPass) {
-            for (const dirShadowName of shadowPass.mainLightShadows) {
-                if (ppl.containsResource(dirShadowName)) {
-                    pass.addTexture(dirShadowName, 'cc_shadowMap');
-                }
-            }
-            for (const spotShadowName of shadowPass.spotLightShadows) {
-                if (ppl.containsResource(spotShadowName)) {
-                    pass.addTexture(spotShadowName, 'cc_spotShadowMap');
-                }
-            }
-        }
-
         pass.addQueue(QueueHint.RENDER_TRANSPARENT)
             .addSceneOfCamera(camera,
                 new LightInfo(),
