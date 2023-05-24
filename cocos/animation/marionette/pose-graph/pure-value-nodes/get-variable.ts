@@ -2,7 +2,7 @@ import { EDITOR } from 'internal:constants';
 import { editable, Quat, serializable, Vec3 } from '../../../../core';
 import { ccclass } from '../../../../core/data/class-decorator';
 import { VariableType, VarInstance } from '../../variable';
-import { CLASS_NAME_PREFIX_PV_NODES } from './builtin/prefix';
+import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { SingleOutputPVNode, PureValueNodeLinkContext } from '../pure-value-node';
 import {
     PoseGraphCreateNodeEntry, PoseGraphCreateNodeFactory, poseGraphCreateNodeFactory, poseGraphNodeAppearance, poseGraphNodeHide,
@@ -80,7 +80,7 @@ const createNodeFactory: PoseGraphCreateNodeFactory<CreateNodeArg> = {
     },
 };
 
-@ccclass(`${CLASS_NAME_PREFIX_PV_NODES}PVNodeGetVariableBase`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PVNodeGetVariableBase`)
 @poseGraphCreateNodeFactory(createNodeFactory)
 export abstract class PVNodeGetVariableBase<T> extends SingleOutputPVNode<T> {
     @editable
@@ -99,11 +99,11 @@ if (EDITOR) {
         if (!this.variableName) {
             return undefined;
         }
-        return [`ENGINE.classes.${CLASS_NAME_PREFIX_PV_NODES}PVNodeGetVariableBase.title`, { variableName: this.variableName }];
+        return [`ENGINE.classes.${CLASS_NAME_PREFIX_ANIM}PVNodeGetVariableBase.title`, { variableName: this.variableName }];
     };
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_PV_NODES}PVNodeGetVariableFloat`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PVNodeGetVariableFloat`)
 @poseGraphNodeHide()
 @poseGraphNodeAppearance({
     inline: true,
@@ -119,7 +119,7 @@ export class PVNodeGetVariableFloat extends PVNodeGetVariableBase<number> {
     }
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_PV_NODES}PVNodeGetVariableInteger`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PVNodeGetVariableInteger`)
 @poseGraphNodeHide()
 @poseGraphNodeAppearance({
     inline: true,
@@ -135,7 +135,7 @@ export class PVNodeGetVariableInteger extends PVNodeGetVariableBase<number> {
     }
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_PV_NODES}PVNodeGetVariableBoolean`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PVNodeGetVariableBoolean`)
 @poseGraphNodeHide()
 @poseGraphNodeAppearance({
     inline: true,
@@ -151,7 +151,7 @@ export class PVNodeGetVariableBoolean extends PVNodeGetVariableBase<boolean> {
     }
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_PV_NODES}PVNodeGetVariableVec3`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PVNodeGetVariableVec3`)
 @poseGraphNodeHide()
 @poseGraphNodeAppearance({
     inline: true,
@@ -167,7 +167,7 @@ export class PVNodeGetVariableVec3 extends PVNodeGetVariableBase<Readonly<Vec3>>
     }
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_PV_NODES}PVNodeGetVariableQuat`)
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}PVNodeGetVariableQuat`)
 @poseGraphNodeHide()
 @poseGraphNodeAppearance({
     inline: true,
