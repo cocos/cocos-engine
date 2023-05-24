@@ -26,72 +26,72 @@ import { ISharedLabelData } from './font-utils';
 import { UITransform } from '../../framework/ui-transform';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { TextProcessing } from './text-processing';
-import { TextProcessData } from './text-process-data';
 import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
 import { TextStyle } from './text-style';
+import { TextLayout } from './text-layout';
 
 const Overflow = Label.Overflow;
 
 export const ttfUtils =  {
 
-    updateProcessingData (data: TextProcessData, comp: Label, trans: UITransform) {
+    updateProcessingData (style: TextStyle, layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData, comp: Label, trans: UITransform) {
         // font info // both
-        // data._font = comp.font;
-        data.style.isSystemFontUsed = comp.useSystemFont;
-        data.style.fontSize = comp.fontSize;
+        style.isSystemFontUsed = comp.useSystemFont;
+        style.fontSize = comp.fontSize;
 
         // node info // both
-        data.outputLayoutData.nodeContentSize.width = data.outputLayoutData.canvasSize.width = trans.width;
-        data.outputLayoutData.nodeContentSize.height = data.outputLayoutData.canvasSize.height = trans.height;
+        outputLayoutData.nodeContentSize.width = outputLayoutData.canvasSize.width = trans.width;
+        outputLayoutData.nodeContentSize.height = outputLayoutData.canvasSize.height = trans.height;
         // layout info
-        data.layout.lineHeight = comp.lineHeight; // both
-        data.layout.overFlow = comp.overflow; // layout only // but change render
+        layout.lineHeight = comp.lineHeight; // both
+        layout.overFlow = comp.overflow; // layout only // but change render
         if (comp.overflow === Overflow.NONE) {
-            data.layout.wrapping = false;
+            layout.wrapping = false;
         } else if (comp.overflow === Overflow.RESIZE_HEIGHT) {
-            data.layout.wrapping = true;
+            layout.wrapping = true;
         } else {
-            data.layout.wrapping = comp.enableWrapText; // layout only // but change render
+            layout.wrapping = comp.enableWrapText; // layout only // but change render
         }
 
         // effect info // both
-        data.style.isBold = comp.isBold;
-        data.style.isItalic = comp.isItalic;
-        data.style.isUnderline = comp.isUnderline;
-        data.style.underlineHeight = comp.underlineHeight;
+        style.isBold = comp.isBold;
+        style.isItalic = comp.isItalic;
+        style.isUnderline = comp.isUnderline;
+        style.underlineHeight = comp.underlineHeight;
 
         // outline// both
         let outlineComp = LabelOutline && comp.getComponent(LabelOutline);
         outlineComp = (outlineComp && outlineComp.enabled && outlineComp.width > 0) ? outlineComp : null;
         if (outlineComp) {
-            data.style.isOutlined = true;
-            data.style.outlineColor.set(outlineComp.color);
-            data.style.outlineWidth = outlineComp.width;
+            style.isOutlined = true;
+            style.outlineColor.set(outlineComp.color);
+            style.outlineWidth = outlineComp.width;
         } else {
-            data.style.isOutlined = false;
+            style.isOutlined = false;
         }
 
         // shadow// both
         let shadowComp = LabelShadow && comp.getComponent(LabelShadow);
         shadowComp = (shadowComp && shadowComp.enabled) ? shadowComp : null;
         if (shadowComp) {
-            data.style.hasShadow = true;
-            data.style.shadowColor.set(shadowComp.color);
-            data.style.shadowBlur = shadowComp.blur;
-            data.style.shadowOffsetX = shadowComp.offset.x;
-            data.style.shadowOffsetY = shadowComp.offset.y;
+            style.hasShadow = true;
+            style.shadowColor.set(shadowComp.color);
+            style.shadowBlur = shadowComp.blur;
+            style.shadowOffsetX = shadowComp.offset.x;
+            style.shadowOffsetY = shadowComp.offset.y;
         } else {
-            data.style.hasShadow = false;
+            style.hasShadow = false;
         }
 
         // render info
-        data.style.color.set(comp.color);// may opacity bug // render Only
-        data.outputRenderData.texture = comp.spriteFrame; // render Only
-        data.outputRenderData.uiTransAnchorX = trans.anchorX; // render Only
-        data.outputRenderData.uiTransAnchorY = trans.anchorY; // render Only
+        style.color.set(comp.color);// may opacity bug // render Only
+        outputRenderData.texture = comp.spriteFrame; // render Only
+        outputRenderData.uiTransAnchorX = trans.anchorX; // render Only
+        outputRenderData.uiTransAnchorY = trans.anchorY; // render Only
 
-        data.layout.hAlign = comp.horizontalAlign; // render Only
-        data.layout.vAlign = comp.verticalAlign; // render Only
+        layout.hAlign = comp.horizontalAlign; // render Only
+        layout.vAlign = comp.verticalAlign; // render Only
     },
 
     getAssemblerData () {
@@ -112,33 +112,36 @@ export const ttfUtils =  {
         if (comp.renderData.vertDirty) {
             const trans = comp.node._uiProps.uiTransformComp!;
             const processing = TextProcessing.instance;
-            const data = comp.processingData;
-            this.updateProcessingData(data, comp, trans);
+            const style = comp.textStyle;
+            const layout = comp.textLayout;
+            const outputLayoutData = comp.textLayoutData;
+            const outputRenderData = comp.textRenderData;
+            this.updateProcessingData(style, layout, outputLayoutData, outputRenderData, comp, trans);
             // use canvas in assemblerData // to do to optimize
             processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);
-            data.style.fontFamily = this._updateFontFamily(comp);
+            style.fontFamily = this._updateFontFamily(comp);
 
             // TextProcessing
-            processing.processingString(false, data.style, data.layout, data.outputLayoutData, comp.string);
-            processing.generateRenderInfo(false, data.style, data.layout, data.outputLayoutData, data.outputRenderData,
+            processing.processingString(false, style, layout, outputLayoutData, comp.string);
+            processing.generateRenderInfo(false, style, layout, outputLayoutData, outputRenderData,
                 comp.string, this.generateVertexData);
 
             const renderData = comp.renderData;
             renderData.textureDirty = true;
-            this._calDynamicAtlas(comp, data);
+            this._calDynamicAtlas(comp, outputLayoutData);
 
-            comp.actualFontSize = data.style.actualFontSize;
-            trans.setContentSize(data.outputLayoutData.canvasSize);
+            comp.actualFontSize = style.actualFontSize;
+            trans.setContentSize(outputLayoutData.canvasSize);
 
             const datalist = renderData.data;
-            datalist[0] = data.outputRenderData.vertexBuffer[0];
-            datalist[1] = data.outputRenderData.vertexBuffer[1];
-            datalist[2] = data.outputRenderData.vertexBuffer[2];
-            datalist[3] = data.outputRenderData.vertexBuffer[3];
+            datalist[0] = outputRenderData.vertexBuffer[0];
+            datalist[1] = outputRenderData.vertexBuffer[1];
+            datalist[2] = outputRenderData.vertexBuffer[2];
+            datalist[3] = outputRenderData.vertexBuffer[3];
 
             this.updateUVs(comp);
             comp.renderData.vertDirty = false;
-            comp.contentWidth = data.outputLayoutData.nodeContentSize.width;
+            comp.contentWidth = outputLayoutData.nodeContentSize.width;
         }
 
         if (comp.spriteFrame) {
@@ -186,8 +189,8 @@ export const ttfUtils =  {
         return _fontFamily;
     },
 
-    _calDynamicAtlas (comp: Label, data: TextProcessData) {
-        if (comp.cacheMode !== Label.CacheMode.BITMAP || data.outputLayoutData.canvasSize.width <= 0 || data.outputLayoutData.canvasSize.height <= 0) return;
+    _calDynamicAtlas (comp: Label, outputLayoutData: TextOutputLayoutData) {
+        if (comp.cacheMode !== Label.CacheMode.BITMAP || outputLayoutData.canvasSize.width <= 0 || outputLayoutData.canvasSize.height <= 0) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.packToDynamicAtlas(comp, frame);
         // TODO update material and uv

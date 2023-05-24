@@ -36,7 +36,9 @@ import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 import { BlendFactor } from '../../gfx';
-import { TextProcessData } from '../assembler/label/text-process-data';
+import { TextStyle } from '../assembler/label/text-style';
+import { TextLayout } from '../assembler/label/text-layout';
+import { TextOutputLayoutData, TextOutputRenderData } from '../assembler/label/text-output-data';
 
 const tempColor = Color.WHITE.clone();
 /**
@@ -647,9 +649,26 @@ export class Label extends UIRenderer {
     /**
      * @engineInternal
      */
-    // Processing Data
-    get processingData () {
-        return this._textProcessingData!;
+    get textStyle () {
+        return this._textStyle!;
+    }
+    /**
+     * @engineInternal
+     */
+    get textLayout () {
+        return this._textLayout!;
+    }
+    /**
+     * @engineInternal
+     */
+    get textRenderData () {
+        return this._textRenderData!;
+    }
+    /**
+     * @engineInternal
+     */
+    get textLayoutData () {
+        return this._textLayoutData!;
     }
 
     @serializable
@@ -699,7 +718,10 @@ export class Label extends UIRenderer {
 
     protected _contentWidth = 0;
 
-    protected _textProcessingData: TextProcessData | null = null;
+    protected _textStyle: TextStyle | null = null;
+    protected _textLayout: TextLayout | null = null;
+    protected _textRenderData: TextOutputRenderData | null = null;
+    protected _textLayoutData: TextOutputLayoutData | null = null;
 
     /**
      * @engineInternal
@@ -722,7 +744,10 @@ export class Label extends UIRenderer {
         }
 
         this._ttfSpriteFrame = null;
-        this._textProcessingData = new TextProcessData();
+        this._textStyle = new TextStyle();
+        this._textLayout = new TextLayout();
+        this._textLayoutData = new TextOutputLayoutData();
+        this._textRenderData = new TextOutputRenderData();
     }
 
     public onEnable () {
@@ -760,7 +785,10 @@ export class Label extends UIRenderer {
             this._ttfSpriteFrame = null;
         }
 
-        this._textProcessingData = null;
+        this._textStyle = null;
+        this._textLayout = null;
+        this._textRenderData = null;
+        this._textLayoutData = null;
 
         // texture cannot be destroyed in here, lettertexture image source is public.
         this._letterTexture = null;
@@ -833,7 +861,10 @@ export class Label extends UIRenderer {
         if (this._assembler !== assembler) {
             this.destroyRenderData();
             this._assembler = assembler;
-            this.processingData.reset();
+            this.textStyle.reset();
+            this.textLayout.reset();
+            this.textLayoutData.reset();
+            this.textRenderData.reset();
         }
 
         if (!this.renderData) {

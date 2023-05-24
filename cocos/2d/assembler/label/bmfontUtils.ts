@@ -31,9 +31,9 @@ import { UITransform } from '../../framework/ui-transform';
 import { LetterAtlas, shareLabelInfo } from './font-utils';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { TextProcessing } from './text-processing';
-import { TextProcessData } from './text-process-data';
 import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
 import { TextStyle } from './text-style';
+import { TextLayout } from './text-layout';
 
 const _defaultLetterAtlas = new LetterAtlas(64, 64);
 const _defaultFontAtlas = new FontAtlas(null);
@@ -47,40 +47,41 @@ let QUAD_INDICES;
 
 export const bmfontUtils = {
 
-    updateProcessingData (data: TextProcessData, comp: Label, trans: UITransform) {
-        data.style.fontSize = comp.fontSize;
-        data.style.actualFontSize = comp.fontSize;
-        data.style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
-        data.layout.hAlign = comp.horizontalAlign;
-        data.layout.vAlign = comp.verticalAlign;
-        data.layout.spacingX = comp.spacingX;
+    updateProcessingData (style: TextStyle, layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData, comp: Label, trans: UITransform) {
+        style.fontSize = comp.fontSize;
+        style.actualFontSize = comp.fontSize;
+        style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
+        layout.hAlign = comp.horizontalAlign;
+        layout.vAlign = comp.verticalAlign;
+        layout.spacingX = comp.spacingX;
         const overflow = comp.overflow;
-        data.layout.overFlow = overflow;
-        data.layout.lineHeight = comp.lineHeight;
+        layout.overFlow = overflow;
+        layout.lineHeight = comp.lineHeight;
 
-        data.outputLayoutData.nodeContentSize.width = trans.width;
-        data.outputLayoutData.nodeContentSize.height = trans.height;
+        outputLayoutData.nodeContentSize.width = trans.width;
+        outputLayoutData.nodeContentSize.height = trans.height;
 
         // should wrap text
         if (overflow === Overflow.NONE) {
-            data.layout.wrapping = false;
-            data.outputLayoutData.nodeContentSize.width += shareLabelInfo.margin * 2;
-            data.outputLayoutData.nodeContentSize.height += shareLabelInfo.margin * 2;
+            layout.wrapping = false;
+            outputLayoutData.nodeContentSize.width += shareLabelInfo.margin * 2;
+            outputLayoutData.nodeContentSize.height += shareLabelInfo.margin * 2;
         } else if (overflow === Overflow.RESIZE_HEIGHT) {
-            data.layout.wrapping = true;
-            data.outputLayoutData.nodeContentSize.height += shareLabelInfo.margin * 2;
+            layout.wrapping = true;
+            outputLayoutData.nodeContentSize.height += shareLabelInfo.margin * 2;
         } else {
-            data.layout.wrapping = comp.enableWrapText;
+            layout.wrapping = comp.enableWrapText;
         }
 
         shareLabelInfo.lineHeight = comp.lineHeight;
         shareLabelInfo.fontSize = comp.fontSize;
 
-        data.style.spriteFrame = _spriteFrame;
-        data.style.fntConfig = _fntConfig;
-        data.style.fontFamily = shareLabelInfo.fontFamily;
+        style.spriteFrame = _spriteFrame;
+        style.fntConfig = _fntConfig;
+        style.fontFamily = shareLabelInfo.fontFamily;
 
-        data.style.color.set(comp.color);
+        style.color.set(comp.color);
     },
 
     updateRenderData (comp: Label) {
@@ -96,36 +97,39 @@ export const bmfontUtils = {
             const renderData = comp.renderData;
 
             const processing = TextProcessing.instance;
-            const data = comp.processingData;
+            const style = comp.textStyle;
+            const layout = comp.textLayout;
+            const outputLayoutData = comp.textLayoutData;
+            const outputRenderData = comp.textRenderData;
             this._updateFontFamily(comp);
 
-            this.updateProcessingData(data, comp, _uiTrans);
+            this.updateProcessingData(style, layout, outputLayoutData, comp, _uiTrans);
 
             this._updateLabelInfo(comp);
 
-            data.style.fontDesc = shareLabelInfo.fontDesc;
+            style.fontDesc = shareLabelInfo.fontDesc;
 
             // TextProcessing
-            processing.processingString(true, data.style, data.layout, data.outputLayoutData, comp.string);
+            processing.processingString(true, style, layout, outputLayoutData, comp.string);
             // generateVertex
             this.resetRenderData(comp);
-            data.outputRenderData.quadCount = 0;
-            processing.generateRenderInfo(true, data.style, data.layout, data.outputLayoutData, data.outputRenderData,
+            outputRenderData.quadCount = 0;
+            processing.generateRenderInfo(true, style, layout, outputLayoutData, outputRenderData,
                 comp.string, this.generateVertexData);
 
-            renderData.dataLength = data.outputRenderData.quadCount;
+            renderData.dataLength = outputRenderData.quadCount;
             renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
             const datalist = renderData.data;
-            for (let i = 0, l = data.outputRenderData.quadCount; i < l; i++) {
-                datalist[i] = data.outputRenderData.vertexBuffer[i];
+            for (let i = 0, l = outputRenderData.quadCount; i < l; i++) {
+                datalist[i] = outputRenderData.vertexBuffer[i];
             }
 
             const indexCount = renderData.indexCount;
             this.createQuadIndices(indexCount);
             renderData.chunk.setIndexBuffer(QUAD_INDICES);
 
-            _comp.actualFontSize = data.style.actualFontSize;
-            _uiTrans.setContentSize(data.outputLayoutData.nodeContentSize);
+            _comp.actualFontSize = style.actualFontSize;
+            _uiTrans.setContentSize(outputLayoutData.nodeContentSize);
             this.updateUVs(comp);// dirty need
             this.updateColor(comp); // dirty need
 
