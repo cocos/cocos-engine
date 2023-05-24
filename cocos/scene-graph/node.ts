@@ -1312,6 +1312,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const newPrefabInfo = cloned._prefab;
         if (EDITOR && newPrefabInfo) {
             if (cloned === newPrefabInfo.root) {
+                // when instantiate prefab in Editor,should add prefab instance info for root node
+                EditorExtends.PrefabUtils.addPrefabInstance?.(cloned);
                 // newPrefabInfo.fileId = '';
             } else {
                 // var PrefabUtils = Editor.require('scene://utils/prefab');
@@ -1747,6 +1749,16 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     get layer () {
         return this._layer;
+    }
+
+    /**
+     * @zh 节点的变换改动版本号。
+     * @en The transformation change version number of the node.
+     * @engineInternal
+     * @internal
+     */
+    get flagChangedVersion () {
+        return this._changedVersionAndRTS >>> 3;
     }
 
     /**

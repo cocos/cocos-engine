@@ -290,6 +290,7 @@ using namespace cc;
 %attribute(cc::Node, float, angle, getAngle, setAngle);
 %attribute_writeonly(cc::Node, Mat4&, matrix, setMatrix);
 %attribute(cc::Node, uint32_t, hasChangedFlags, getChangedFlags, setChangedFlags);
+%attribute(cc::Node, uint32_t, flagChangedVersion, getFlagChangedVersion);
 %attribute(cc::Node, bool, _persistNode, isPersistNode, setPersistNode);
 %attribute(cc::Node, cc::MobilityMode, mobility, getMobility, setMobility);
 

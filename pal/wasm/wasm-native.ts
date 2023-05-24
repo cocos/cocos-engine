@@ -34,7 +34,7 @@ export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Impo
             return WebAssembly.instantiate(arrayBuffer, importObject);
         }) as Promise<any>;
     }
-    wasmUrl = `/src/cocos-js/${wasmUrl}`;
+    wasmUrl = `src/cocos-js/${wasmUrl}`;
     const arrayBuffer = native.fileUtils.getDataFromFile(wasmUrl);
     return WebAssembly.instantiate(arrayBuffer, importObject);
 }

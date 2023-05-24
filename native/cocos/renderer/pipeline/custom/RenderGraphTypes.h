@@ -88,6 +88,7 @@ struct RenderSwapchain {
     : swapchain(swapchainIn) {}
 
     gfx::Swapchain* swapchain{nullptr};
+    scene::RenderWindow* renderWindow{nullptr};
     uint32_t currentID{0};
     uint32_t numBackBuffers{0};
     uint32_t generation{0xFFFFFFFF};
@@ -494,6 +495,7 @@ struct ResourceGraph {
     void validateSwapchains();
     void mount(gfx::Device* device, vertex_descriptor vertID);
     void unmount(uint64_t completedFenceValue);
+    bool isTexture(vertex_descriptor resID) const noexcept;
     gfx::Texture* getTexture(vertex_descriptor resID);
     gfx::Buffer* getBuffer(vertex_descriptor resID);
     void invalidatePersistentRenderPassAndFramebuffer(gfx::Texture* pTexture);
@@ -596,14 +598,14 @@ struct CopyPass {
 
     CopyPass(const allocator_type& alloc) noexcept; // NOLINT
     CopyPass(CopyPass&& rhs, const allocator_type& alloc);
-    CopyPass(CopyPass const& rhs, const allocator_type& alloc);
 
     CopyPass(CopyPass&& rhs) noexcept = default;
     CopyPass(CopyPass const& rhs) = delete;
     CopyPass& operator=(CopyPass&& rhs) = default;
-    CopyPass& operator=(CopyPass const& rhs) = default;
+    CopyPass& operator=(CopyPass const& rhs) = delete;
 
     ccstd::pmr::vector<CopyPair> copyPairs;
+    ccstd::pmr::vector<UploadPair> uploadPairs;
 };
 
 struct MovePass {

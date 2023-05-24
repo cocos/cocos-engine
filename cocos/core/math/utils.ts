@@ -58,7 +58,7 @@ export function equals (a: number, b: number) {
  * @param maxDiff Maximum difference.
  * @return True if the numbers are approximately equal, false otherwise.
  */
-export function approx (a: number, b: number, maxDiff: number) {
+export function approx (a: number, b: number, maxDiff?: number) {
     maxDiff = maxDiff || EPSILON;
     return Math.abs(a - b) <= maxDiff;
 }

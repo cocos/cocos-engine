@@ -8,5 +8,8 @@ export * from './color-grading-pass';
 export * from './bloom-pass';
 export * from './fxaa-pass';
 export * from './forward-final-pass';
+export * from './shadow-pass';
 export * from './tone-mapping-pass';
 export * from './forward-transparency-pass';
+export * from './forward-transparency-simple-pass';
+export * from './skin-pass';

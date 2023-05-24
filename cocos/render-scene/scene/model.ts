@@ -836,8 +836,10 @@ export class Model {
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
-        this._modelBounds = geometry.AABB.fromPoints(geometry.AABB.create(), minPos, maxPos);
-        this._worldBounds = geometry.AABB.clone(this._modelBounds);
+        if (!this._modelBounds) { this._modelBounds = geometry.AABB.create(); }
+        if (!this._worldBounds) { this._worldBounds = geometry.AABB.create(); }
+        geometry.AABB.fromPoints(this._modelBounds, minPos, maxPos);
+        geometry.AABB.copy(this._worldBounds, this._modelBounds);
     }
 
     private _createSubModel () {

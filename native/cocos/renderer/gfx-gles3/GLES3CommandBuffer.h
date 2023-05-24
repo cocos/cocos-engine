@@ -36,6 +36,7 @@ struct GLES3CmdPackage;
 struct GLES3GPUPipelineState;
 struct GLES3GPUInputAssembler;
 struct GLES3GPUDescriptorSet;
+struct GLES3GPURenderPass;
 
 class CC_GLES3_API GLES3CommandBuffer : public CommandBuffer {
 public:

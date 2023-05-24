@@ -120,8 +120,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
 
     ccstd::string fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
-#if 0 // CC_PLATFORM != CC_PLATFORM_WINDOWS
-    // TODO: enable fbf in the future, it is not implemented yet in gles3 backend
+//#if CC_PLATFORM != CC_PLATFORM_WINDOWS
     if (checkExtension("framebuffer_fetch")) {
         ccstd::string nonCoherent = "framebuffer_fetch_non";
 
@@ -141,11 +140,18 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         } else if (checkExtension(CC_TOSTR(GL_EXT_shader_framebuffer_fetch))) {
             // we only care about EXT_shader_framebuffer_fetch, the ARM version does not support MRT
             _gpuConstantRegistry->mFBF = FBFSupportLevel::COHERENT;
+            _features[toNumber(Feature::RASTERIZATION_ORDER_COHERENT)] = true;
             fbfLevelStr                = "COHERENT";
         }
         _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = _gpuConstantRegistry->mFBF != FBFSupportLevel::NONE;
+        _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = true;
     }
-#endif
+
+    if (checkExtension(CC_TOSTR(ARM_shader_framebuffer_fetch_depth_stencil))) {
+        _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
+        fbfLevelStr                += "_DEPTH_STENCIL";
+    }
+//#endif
 
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP
     if (checkExtension("multisampled_render_to_texture")) {
