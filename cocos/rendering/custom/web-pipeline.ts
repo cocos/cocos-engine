@@ -53,7 +53,6 @@ import { DebugViewCompositeType } from '../debug-view';
 import { getUBOTypeCount } from './utils';
 import { initGlobalDescBinding } from './define';
 import { createGfxDescriptorSetsAndPipelines } from './layout-graph-utils';
-import { PostProcessBuilder } from '../post-process';
 
 const _uboVec = new Vec4();
 const _uboVec3 = new Vec3();
