@@ -1497,7 +1497,7 @@ export class WebPipeline implements BasicPipeline {
 
         this._forward = new ForwardPipelineBuilder();
         this._deferred = new DeferredPipelineBuilder();
-        this.builder = new PostProcessBuilder();
+        this.builder = new CustomPipelineBuilder();
         return true;
     }
     public destroy (): boolean {

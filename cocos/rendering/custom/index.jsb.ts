@@ -61,7 +61,6 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Deprecated', new CustomPipelineBuilder());
-    map.set('Custom', new PostProcessBuilder());
     map.set('Test', new TestPipelineBuilder());
 }
 
