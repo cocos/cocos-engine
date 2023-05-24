@@ -760,9 +760,6 @@ export class Label extends UIRenderer {
             this._ttfSpriteFrame = null;
         }
 
-        if (this._textProcessingData) {
-            this._textProcessingData.destroy();
-        }
         this._textProcessingData = null;
 
         // texture cannot be destroyed in here, lettertexture image source is public.
