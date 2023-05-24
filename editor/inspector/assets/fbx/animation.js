@@ -1157,7 +1157,7 @@ exports.methods = {
         setPropValue.call(this, prop, type, event);
 
         this.dispatch('change');
-        this.dispatch('track', { tab: 'model', prop, value: event.target.value });
+        this.dispatch('track', { tab: 'animation', prop, value: event.target.value });
     },
 };
 
