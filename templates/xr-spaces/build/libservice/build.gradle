@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 
 android {
+    namespace 'com.cocos.service'
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
 
     defaultConfig {
