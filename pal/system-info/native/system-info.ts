@@ -56,8 +56,8 @@ const platformMap: Record<number, Platform> = {
     // 5 is IPAD
     5: Platform.IOS,
     6: Platform.OHOS,
-    7: Platform.QNX,
-    10: Platform.OPENHARMONY,
+    7: Platform.OPENHARMONY,
+    8: Platform.QNX,
 };
 
 class SystemInfo extends EventTarget {
