@@ -699,7 +699,7 @@ export class TMXMapInfo {
                     this.parentGID = (fgid + (parseInt(tile.getAttribute('id')!) || 0)) as any;
                     const tileImages = tile.getElementsByTagName('image');
                     if (tile.hasAttribute('x') && tile.hasAttribute('y')) {
-                        tileset.imagexy = new Vec2(parseFloat(tile.getAttribute('x')!) || 0, parseFloat(tile.getAttribute('y')!) || 0);
+                        tileset.imageOffset = new Vec2(parseFloat(tile.getAttribute('x')!) || 0, parseFloat(tile.getAttribute('y')!) || 0);
                     }
                     const hastilesize = tile.hasAttribute('width') && tile.hasAttribute('height');
                     if (hastilesize) {
