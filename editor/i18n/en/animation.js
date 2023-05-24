@@ -227,6 +227,11 @@ module.exports = {
                         },
                     },
                 },
+
+                'PVNodeGetVariableBase': {
+                    displayName: 'Get Variable',
+                    title: 'Variable {variableName}',
+                },
             },
         },
     },
