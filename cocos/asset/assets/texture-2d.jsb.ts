@@ -50,8 +50,9 @@ export interface ITexture2DSerializeData {
 }
 
 texture2DProto._ctor = function () {
-    // @ts-expect-error TODO: Property '_ctor' does not exist on type 'SimpleTexture'.
-    SimpleTexture.prototype._ctor.apply(this, arguments);
+    // TODO: Property '_ctor' does not exist on type 'SimpleTexture'.
+    // issue: https://github.com/cocos/cocos-engine/issues/14644
+    (SimpleTexture.prototype as any)._ctor.apply(this, arguments);
     this._mipmaps = [];
 };
 
@@ -77,7 +78,8 @@ texture2DProto._serialize = function (ctxForExporting: any) {
 
 texture2DProto._deserialize = function (serializedData: any, handle: any) {
     const data = serializedData as ITexture2DSerializeData;
-    TextureBase.prototype._deserialize.call(this, data.base);
+    // NOTE: _deserialize expect 3 arguments
+    TextureBase.prototype._deserialize.call(this, data.base, undefined);
 
     this._mipmaps = new Array(data.mipmaps.length);
     for (let i = 0; i < data.mipmaps.length; ++i) {

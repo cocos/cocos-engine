@@ -246,12 +246,13 @@ export class AudioPlayerWeb implements OperationQueueable {
     destroy () {
         this._audioTimer.destroy();
         if (this._audioBuffer) {
-            // @ts-expect-error need to release AudioBuffer instance
-            this._audioBuffer = null;
+            // NOTE: need to release AudioBuffer instance
+            this._audioBuffer = null as any;
         }
         audioBufferManager.tryReleasingCache(this._src);
         game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
         game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
+        this.offRunning();
     }
     static load (url: string): Promise<AudioPlayerWeb> {
         return new Promise((resolve) => {
@@ -293,8 +294,8 @@ export class AudioPlayerWeb implements OperationQueueable {
     static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudioWeb> {
         return new Promise((resolve, reject) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
-                // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                const oneShotAudio = new OneShotAudioWeb(audioBuffer, volume, url);
+                // HACK: AudioPlayer should be a friend class in OneShotAudio
+                const oneShotAudio = new (OneShotAudioWeb as any)(audioBuffer, volume, url);
                 resolve(oneShotAudio);
             }).catch(reject);
         });

@@ -9,6 +9,7 @@
                 "bcd64cc6-2dd9-43f6-abbe-66318d332032",
                 "d930590d-bb92-4cc8-8bd1-23cd027f9edf",
                 "a3cd009f-0ab0-420d-9278-b9fdab939bbc",
+                "5c601d96-e4c7-4698-991b-7ee674b11079",
                 "9361fd90-ba52-4f84-aa93-6e878fd576ca"
             ]
         },
@@ -30,7 +31,9 @@
                 "28d6d6b8-3f66-4a73-9795-17a0852ba2d4",
                 "ec8106fe-05bf-4e94-943c-e0d3b7bb5e45",
                 "620b6bf3-0369-4560-837f-2a2c00b73c26",
-                "2df0a40b-26c2-47ce-be0d-4d3cd4164737"
+                "2df0a40b-26c2-47ce-be0d-4d3cd4164737",
+                "39f74202-ead5-4a45-b966-273d526adbf1",
+                "8f6ac413-2f1e-4b88-b26f-54556b5dd510"
             ]
         },
         "animation": {
@@ -180,7 +183,16 @@
             }
         },
         "custom-pipeline": {
-            "modules": ["custom-pipeline"]
+            "modules": ["custom-pipeline"],
+            "dependentAssets": [
+                "15049ccd-4dd7-451e-a8ae-af66735c929e",
+                "4c3ce6de-e6d1-47f7-aa36-36b9b58f72d3",
+                "4361db28-3f24-44cc-8e51-32ee5fd651ac",
+                "cafd95c9-c558-46f9-9812-1224b65c09ee",
+                "28d6d6b8-3f66-4a73-9795-17a0852ba2d4",
+                "2df0a40b-26c2-47ce-be0d-4d3cd4164737",
+                "dace6a58-1705-48c7-a275-70afc9534e88"
+            ]
         },
         "websocket": {
             "modules": [],
@@ -204,14 +216,14 @@
             "overrides": {}
         },
         {
-            "test": "context.platform !== 'NATIVE'",
+            "test": "!context.buildTimeConstants.NATIVE",
             "isVirtualModule": false,
             "overrides": {
                 "cocos/2d/renderer/native-2d.ts": "cocos/2d/renderer/native-2d-empty.ts"
             }
         },
         {
-            "test": "context.platform === 'NATIVE'",
+            "test": "context.buildTimeConstants.NATIVE",
             "isVirtualModule": false,
             "overrides": {
                 "cocos/rendering/index.ts": "cocos/rendering/index.jsb.ts",
@@ -283,7 +295,8 @@
                 "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
                 "pal/input": "pal/input/web/index.ts",
                 "pal/env": "pal/env/web/env.ts",
-                "pal/pacer": "pal/pacer/pacer-web.ts"
+                "pal/pacer": "pal/pacer/pacer-web.ts",
+                "pal/wasm": "pal/wasm/wasm-web.ts"
             }
         },
         {
@@ -296,7 +309,8 @@
                 "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
                 "pal/input": "pal/input/native/index.ts",
                 "pal/env": "pal/env/native/env.ts",
-                "pal/pacer": "pal/pacer/pacer-native.ts"
+                "pal/pacer": "pal/pacer/pacer-native.ts",
+                "pal/wasm": "pal/wasm/wasm-native.ts"
             }
         },
         {
@@ -309,7 +323,8 @@
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/minigame/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts"
+                "pal/pacer": "pal/pacer/pacer-minigame.ts",
+                "pal/wasm": "pal/wasm/wasm-minigame.ts"
             }
         },
         {
@@ -322,7 +337,8 @@
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/runtime/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts"
+                "pal/pacer": "pal/pacer/pacer-minigame.ts",
+                "pal/wasm": "pal/wasm/wasm-minigame.ts"
             }
         },
         {
@@ -358,15 +374,70 @@
         "NATIVE": {
             "comment": "Running in native platform (mobile app, desktop app, or simulator).",
             "type": "boolean",
-            "value": false,
+            "value": "$ANDROID || $IOS || $MAC || $WINDOWS || $LINUX || $OHOS || $OPEN_HARMONY",
             "internal": false,
             "dynamic": true
+        },
+        "ANDROID": {
+            "comment": "Running in ANDROID platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "IOS": {
+            "comment": "Running in IOS platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "MAC": {
+            "comment": "Running in MAC platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "WINDOWS": {
+            "comment": "Running in WINDOWS platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "LINUX": {
+            "comment": "Running in LINUX platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },        
+        "OHOS": {
+            "comment": "Running in OHOS platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
+        },
+        "OPEN_HARMONY": {
+            "comment": "Running in OPEN_HARMONY platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": false
         },
         "WECHAT": {
             "comment": "Running in the Wechat's mini game.",
             "type": "boolean",
             "value": false,
             "ccGlobal": true,
+            "internal": false
+        },
+        "WECHAT_MINI_PROGRAM": {
+            "comment": "Running in the Wechat's mini program.",
+            "type": "boolean",
+            "value": false,
             "internal": false
         },
         "BAIDU": {
@@ -511,7 +582,7 @@
         "MINIGAME": {
             "comment": "Running in mini game.",
             "type": "boolean",
-            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $TAOBAO_MINIGAME || $BYTEDANCE",
+            "value": "$WECHAT || $WECHAT_MINI_PROGRAM || $BAIDU || $XIAOMI || $ALIPAY || $TAOBAO || $TAOBAO_MINIGAME || $BYTEDANCE",
             "ccGlobal": true,
             "internal": false
         },
@@ -525,7 +596,7 @@
         "SUPPORT_JIT": {
             "comment": "Support JIT.",
             "type": "boolean",
-            "value": "!(($PREVIEW && !$NATIVE) || $MINIGAME || $RUNTIME_BASED)",
+            "value": "!(($PREVIEW && !$NATIVE) || $MINIGAME || $RUNTIME_BASED || $OPEN_HARMONY)",
             "ccGlobal": true,
             "internal": false
         },
@@ -553,6 +624,12 @@
             "comment": "Running with webgpu rendering backend.",
             "type": "boolean",
             "value": false,
+            "internal": true
+        },
+        "WASM_SUPPORT_MODE": {
+            "comment": "Whether support wasm, here we provide 3 options:\n0: The platform doesn't support WASM\n1: The platform supports WASM\n2: The platform may support WASM, especially on Web platform",
+            "type": "number",
+            "value": "$HTML5 ? 2 : ($NATIVE ? ($OPEN_HARMONY?0:1): ($MINIGAME? ($WECHAT?1:0) :0))",
             "internal": true
         }
     },

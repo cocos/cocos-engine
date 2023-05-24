@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="jsb") scene
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -262,13 +265,12 @@ using namespace cc;
 %attribute(cc::scene::Pass, cc::IProgramInfo*, shaderInfo, getShaderInfo);
 %attribute(cc::scene::Pass, cc::gfx::DescriptorSetLayout*, localSetLayout, getLocalSetLayout);
 %attribute(cc::scene::Pass, ccstd::string&, program, getProgram);
-%attribute(cc::scene::Pass, %arg(Record<ccstd::string, cc::IPropertyInfo> &), properties, getProperties);
+%attribute(cc::scene::Pass, cc::PassPropertyInfoMap& , properties, getProperties);
 %attribute(cc::scene::Pass, cc::MacroRecord&, defines, getDefines);
 %attribute(cc::scene::Pass, index_t, passIndex, getPassIndex);
 %attribute(cc::scene::Pass, index_t, propertyIndex, getPropertyIndex);
 %attribute(cc::scene::Pass, cc::scene::IPassDynamics &, dynamics, getDynamics);
 %attribute(cc::scene::Pass, bool, rootBufferDirty, isRootBufferDirty);
-%attribute(cc::scene::Pass, bool, _rootBufferDirty, isRootBufferDirty, _setRootBufferDirty);
 %attribute(cc::scene::Pass, cc::pipeline::RenderPriority, priority, getPriority);
 %attribute(cc::scene::Pass, cc::gfx::PrimitiveMode, primitive, getPrimitive);
 %attribute(cc::scene::Pass, cc::pipeline::RenderPassStage, stage, getStage);
@@ -472,9 +474,11 @@ using namespace cc;
 %attribute(cc::scene::Model, int32_t, tetrahedronIndex, getTetrahedronIndex, setTetrahedronIndex);
 %attribute(cc::scene::Model, bool, useLightProbe, getUseLightProbe, setUseLightProbe);
 %attribute(cc::scene::Model, bool, bakeToReflectionProbe, getBakeToReflectionProbe, setBakeToReflectionProbe);
-%attribute(cc::scene::Model, uint32_t, reflectionProbeType, getReflectionProbeType, setReflectionProbeType);
+%attribute(cc::scene::Model, cc::scene::UseReflectionProbeType, reflectionProbeType, getReflectionProbeType, setReflectionProbeType);
 %attribute(cc::scene::Model, bool, receiveDirLight, isReceiveDirLight, setReceiveDirLight);
 %attribute(cc::scene::Model, int32_t, reflectionProbeId, getReflectionProbeId, setReflectionProbeId);
+%attribute(cc::scene::Model, int32_t, reflectionProbeBlendId, getReflectionProbeBlendId, setReflectionProbeBlendId);
+%attribute(cc::scene::Model, float, reflectionProbeBlendWeight, getReflectionProbeBlendWeight, setReflectionProbeBlendWeight);
 
 %attribute(cc::scene::SubModel, std::shared_ptr<ccstd::vector<cc::IntrusivePtr<cc::scene::Pass>>> &, passes, getPasses, setPasses);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::IntrusivePtr<cc::gfx::Shader>> &, shaders, getShaders, setShaders);
@@ -483,8 +487,6 @@ using namespace cc;
 %attribute(cc::scene::SubModel, cc::gfx::InputAssembler *, inputAssembler, getInputAssembler, setInputAssembler);
 %attribute(cc::scene::SubModel, cc::gfx::DescriptorSet *, descriptorSet, getDescriptorSet, setDescriptorSet);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::scene::IMacroPatch> &, patches, getPatches);
-%attribute(cc::scene::SubModel, cc::gfx::Shader*, planarInstanceShader, getPlanarInstanceShader, setPlanarInstanceShader);
-%attribute(cc::scene::SubModel, cc::gfx::Shader*, planarShader, getPlanarShader, setPlanarShader);
 
 %attribute(cc::scene::ShadowsInfo, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::scene::ShadowsInfo, cc::scene::ShadowType, type, getType, setType);

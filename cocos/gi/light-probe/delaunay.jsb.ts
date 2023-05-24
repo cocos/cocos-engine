@@ -23,13 +23,18 @@
 */
 import { Mat3, Vec3, _decorator } from "../../core";
 import { patch_cc_CircumSphere, patch_cc_Tetrahedron, patch_cc_Vertex } from "../../native-binding/decorators";
+import type { Vertex as JsbVertex, CircumSphere as JsbCircumSphere, Tetrahedron as JsbTetrahedron } from './delaunay';
 
+declare const jsb: any;
 
-export const Vertex = jsb.Vertex;
+export const Vertex: typeof JsbVertex = jsb.Vertex;
+export type Vertex = JsbVertex;
 patch_cc_Vertex({Vertex, Vec3});
 
-export const CircumSphere = jsb.CircumSphere;
+export const CircumSphere: typeof JsbCircumSphere = jsb.CircumSphere;
+export type CircumSphere = JsbCircumSphere;
 patch_cc_CircumSphere({CircumSphere, Vec3});
 
-export const Tetrahedron = jsb.Tetrahedron;
+export const Tetrahedron: typeof JsbTetrahedron = jsb.Tetrahedron;
+export type Tetrahedron = JsbTetrahedron;
 patch_cc_Tetrahedron({Tetrahedron, Mat3, Vec3, CircumSphere});

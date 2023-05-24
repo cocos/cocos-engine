@@ -80,9 +80,11 @@ TEST(simpleClosedBarrierTest, test11) {
     ExpectEq(node3.blockBarrier.rearBarriers.size() == 2, true);
     ExpectEq(node3.subpassBarriers.empty(), true);
 
-    ExpectEq(node3.blockBarrier.frontBarriers[0].type == cc::gfx::BarrierType::SPLIT_END, true);
-    ExpectEq(node3.blockBarrier.frontBarriers[0].beginStatus.vertID == 1, true);
-    ExpectEq(node3.blockBarrier.frontBarriers[0].endStatus.vertID == 3, true);
+    const auto& res1Index = std::find_if(node3.blockBarrier.frontBarriers.begin(), node3.blockBarrier.frontBarriers.end(), [](const Barrier& barrier) { return barrier.resourceID == 1; });
+    ExpectEq(res1Index != node3.blockBarrier.frontBarriers.end(), true);
+    ExpectEq(res1Index->type == cc::gfx::BarrierType::SPLIT_END, true);
+    ExpectEq(res1Index->beginStatus.vertID == 1, true);
+    ExpectEq(res1Index->endStatus.vertID == 3, true);
     // res 5
     ExpectEq(node3.blockBarrier.rearBarriers[0].type == cc::gfx::BarrierType::FULL, true);
     ExpectEq(node3.blockBarrier.rearBarriers[0].beginStatus.vertID == 3, true);
@@ -97,10 +99,11 @@ TEST(simpleClosedBarrierTest, test11) {
     ExpectEq(node4.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node4.subpassBarriers.empty(), true);
 
-    ExpectEq(node4.blockBarrier.frontBarriers[0].resourceID == 3, true);
-    ExpectEq(node4.blockBarrier.frontBarriers[0].type == cc::gfx::BarrierType::SPLIT_END, true);
-    ExpectEq(node4.blockBarrier.frontBarriers[0].beginStatus.vertID == 2, true);
-    ExpectEq(node4.blockBarrier.frontBarriers[0].endStatus.vertID == 4, true);
+    const auto& res3Index = std::find_if(node4.blockBarrier.frontBarriers.begin(), node4.blockBarrier.frontBarriers.end(), [](const Barrier& barrier) { return barrier.resourceID == 3; });
+    ExpectEq(res3Index != node4.blockBarrier.frontBarriers.end(), true);
+    ExpectEq(res3Index->type == cc::gfx::BarrierType::SPLIT_END, true);
+    ExpectEq(res3Index->beginStatus.vertID == 2, true);
+    ExpectEq(res3Index->endStatus.vertID == 4, true);
 
     ExpectEq(node4.blockBarrier.rearBarriers[0].resourceID == 6, true);
     ExpectEq(node4.blockBarrier.rearBarriers[0].type == cc::gfx::BarrierType::FULL, true);
@@ -112,14 +115,16 @@ TEST(simpleClosedBarrierTest, test11) {
     ExpectEq(node5.blockBarrier.rearBarriers.size() == 1, true);
     ExpectEq(node5.subpassBarriers.empty(), true);
 
-    ExpectEq(node5.blockBarrier.frontBarriers[0].resourceID == 2, true);
-    ExpectEq(node5.blockBarrier.frontBarriers[0].type == cc::gfx::BarrierType::SPLIT_END, true);
-    ExpectEq(node5.blockBarrier.frontBarriers[0].beginStatus.vertID == 2, true);
-    ExpectEq(node5.blockBarrier.frontBarriers[0].endStatus.vertID == 5, true);
-    ExpectEq(node5.blockBarrier.frontBarriers[2].resourceID == 4, true);
-    ExpectEq(node5.blockBarrier.frontBarriers[2].type == cc::gfx::BarrierType::SPLIT_END, true);
-    ExpectEq(node5.blockBarrier.frontBarriers[2].beginStatus.vertID == 3, true);
-    ExpectEq(node5.blockBarrier.frontBarriers[2].endStatus.vertID == 5, true);
+    const auto& res2Index = std::find_if(node5.blockBarrier.frontBarriers.begin(), node5.blockBarrier.frontBarriers.end(), [](const Barrier& barrier) { return barrier.resourceID == 2; });
+    ExpectEq(res2Index != node5.blockBarrier.frontBarriers.end(), true);
+    ExpectEq(res2Index->type == cc::gfx::BarrierType::SPLIT_END, true);
+    ExpectEq(res2Index->beginStatus.vertID == 2, true);
+    ExpectEq(res2Index->endStatus.vertID == 5, true);
+    const auto& res4Index = std::find_if(node5.blockBarrier.frontBarriers.begin(), node5.blockBarrier.frontBarriers.end(), [](const Barrier& barrier) { return barrier.resourceID == 4; });
+    ExpectEq(res4Index != node5.blockBarrier.frontBarriers.end(), true);
+    ExpectEq(res4Index->type == cc::gfx::BarrierType::SPLIT_END, true);
+    ExpectEq(res4Index->beginStatus.vertID == 3, true);
+    ExpectEq(res4Index->endStatus.vertID == 5, true);
 
     ExpectEq(node5.blockBarrier.rearBarriers[0].resourceID == 7, true);
     ExpectEq(node5.blockBarrier.rearBarriers[0].type == cc::gfx::BarrierType::SPLIT_BEGIN, true);

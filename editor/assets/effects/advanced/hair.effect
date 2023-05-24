@@ -17,22 +17,28 @@ CCEffect %{
         specularIntensity:                { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         emissive:                         { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveScale:                    { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
-        normalStrength:                   { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
+        normalStrength:                   { value: 0.4, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
         anisotropyIntensity:              { value: 1.0, target: anisotropyParam.x, editor: { slide : true, range : [0.0, 1.0] , step : 0.0001 } }
         anisotropyRotation:               { value: 0.0, target: anisotropyParam.y, editor: { slide : true, range : [0, 1.0] , step : 0.0001 } }
         mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        transparencyMap:                  { value: white, editor: { parent: USE_TRANSPRENCY_MAP, displayName: TransparencyMap } }
         normalMap:                        { value: normal }
         pbrMap:                           { value: grey }
         occlusionMap:                     { value: white }
         emissiveMap:                      { value: grey }
         anisotropyMap:                    { value: black }
         roughnessTRT:                     { value: 0.2, target: trtParams.x, editor: { displayName: TRT Roughness Offset, slide: true, range: [0, 1.0], step: 0.001, tooltip: 'The extend range of internal reflection lighting around the direct specular' } }
-        rotationTRT:                      { value: 0.0, target: trtParams.y, editor: { displayName: TRT Lighting Offset, slide: true, range: [0, 1.0], step: 0.001, tooltip: 'The position offset of internal reflection lighting compared to direct specular' } }
+        offsetTRT:                        { value: 0.0, target: trtParams.y, editor: { displayName: TRT Lighting Offset, slide: true, range: [-0.5, 0.5], step: 0.001, tooltip: 'The position offset of internal reflection lighting compared to direct specular' } }
         IntensityTRT:                     { value: 1.0, target: trtParams.w, editor: { displayName: TRT Intensity, slide: true, range: [0, 5.0], step: 0.01 } }
         baseColorTRT:                     { value: [0.5, 0.33, 0.18, 1.0], target: trtColor, linear: true, editor: { displayName: TRT Albedo, type: color, tooltip: 'The color of internal reflection lighting' } }
         ScatterCoefTT:                    { value: 0.0, target: ttParams.x, editor: { displayName: TT Scatter Coef, slide: true, range: [0, 1.0], step: 0.01, tooltip: 'The saturation of internal transmit lighting color' } }
         IntensityTT:                      { value: 1.0, target: ttParams.w, editor: { displayName: TT Intensity, slide: true, range: [0, 1.0], step: 0.01 } }
         baseColorTT:                      { value: [0.5, 0.33, 0.18, 1.0], target: ttColor, linear: true, editor: { displayName: TT Albedo, type: color, tooltip: 'The color of internal transmit lighting, allow the light color to vary between backlit and light-facing areas' } }
+        thickness:                        { value: 1.0, target: ttParams.y, editor: { parent: USE_BACK_LIT, displayName: Scatter Thickness, slide: true, range: [0, 1.0], step: 0.001, tooltip: 'The extend range of internal reflection lighting around the direct specular' } }
+        extinction:                       { value: 0.0, target: ttParams.z, editor: { parent: USE_BACK_LIT, displayName: Scatter Extinction, slide: true, range: [0, 10.0], step: 0.001, tooltip: 'The position offset of internal reflection lighting compared to direct specular' } }
+        transmitColor:                    { value: [0.7, 0.5, 0.3, 1.0], linear: true, editor: { parent: USE_BACK_LIT, displayName: Transmit Scatter Color, type: color, tooltip: 'The color of scattered lighting' } }
+        thicknessMap:                     { value: white, editor: { parent: USE_BACK_LIT } }
+        selfShadowMap:                    { value: white, editor: { parent: USE_SELF_SHADOW_MAP } }
       rasterizerState:
         cullMode: None
       depthStencilState:
@@ -139,11 +145,12 @@ CCEffect %{
       rasterizerState:
         cullMode: front
       properties:
-        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
-        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        tilingOffset:    { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:       { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:     { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold:  { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:     { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        transparencyMap: { value: white, editor: { parent: USE_TRANSPRENCY_MAP, displayName: TransparencyMap } }
     - &reflect-map
       vert: standard-vs
       frag: reflect-map-fs
@@ -181,6 +188,7 @@ CCProgram shared-ubos %{
     vec4 trtParams;
     vec4 ttColor;
     vec4 ttParams;
+    vec4 transmitColor;
   };
 }%
 
@@ -191,12 +199,15 @@ CCProgram macro-remapping %{
   #pragma define IS_ANISOTROPY 1
   #pragma define-meta USE_VERTEX_COLOR
   #pragma define-meta USE_DITHERED_ALPHA_TEST
+  #pragma define-meta USE_BACK_LIT
+  #pragma define-meta USE_HIGH_QUALITY_REFLECTION
 
   #define CC_SURFACES_USE_SECOND_UV HAS_SECOND_UV
   #define CC_SURFACES_USE_TWO_SIDED USE_TWOSIDE
   #define CC_SURFACES_LIGHTING_ANISOTROPIC IS_ANISOTROPY
   #define CC_SURFACES_USE_VERTEX_COLOR USE_VERTEX_COLOR
   
+  #define CC_SURFACES_LIGHTING_TRANSMIT_DIFFUSE USE_BACK_LIT
   #define CC_SURFACES_LIGHTING_TRT 1
   #define CC_SURFACES_LIGHTING_TT 1
   #define CC_SURFACES_TRANSFER_CLIP_POS 1
@@ -207,51 +218,15 @@ CCProgram macro-remapping %{
 #endif
 
   // functionality for each effect
-  #define CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT 31
+#if USE_HIGH_QUALITY_REFLECTION
+  #define CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT 9
+#endif
 }%
 
 CCProgram surface-vertex %{
-  /*#define CC_SURFACES_VERTEX_MODIFY_WORLD_POS
-  vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
-  {
-    vec3 worldPos = In.worldPos;
-    worldPos.x += sin(cc_time.x * worldPos.z);
-    worldPos.y += cos(cc_time.x * worldPos.z);
-    return worldPos;
-  }
-  
-  #define CC_SURFACES_VERTEX_MODIFY_WORLD_NORMAL
-  vec3 SurfacesVertexModifyWorldNormal(in SurfacesStandardVertexIntermediate In)
-  {
-    vec3 worldNormal = In.worldNormal.xyz;
-    worldNormal.x += sin(cc_time.x * 3.0);
-    worldNormal.y += cos(cc_time.x * 3.0);
-  #if CC_SURFACES_USE_TWO_SIDED
-      worldNormal.xyz *= In.worldNormal.w;
-  #endif
-    return normalize(worldNormal);
-  }
-  
-  // see <surfaces/default-functions/common-vs> for more overrided functions
-  #define CC_SURFACES_VERTEX_MODIFY_SHARED_DATA
-  void SurfacesVertexModifySharedData(inout SurfacesStandardVertexIntermediate In)
-  {
-  }
-*/
-  
-  #define CC_SURFACES_VERTEX_MODIFY_UV
-  void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
-  {
-    In.texCoord = In.texCoord * tilingOffset.xy + tilingOffset.zw;
-  #if CC_SURFACES_USE_SECOND_UV
-    In.texCoord1 = In.texCoord1 * tilingOffset.xy + tilingOffset.zw;
-  #endif
-  }
 }%
 
 CCProgram surface-fragment %{
-  #include <common/effect/special-effects>
-
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
     #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
@@ -271,9 +246,6 @@ CCProgram surface-fragment %{
     uniform sampler2D emissiveMap;
     #pragma define-meta EMISSIVE_UV options([v_uv, v_uv1])
   #endif
-  #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
-    uniform sampler2D anisotropyMap;
-  #endif
 
   #pragma define OCCLUSION_CHANNEL          r
   #pragma define ROUGHNESS_CHANNEL          g
@@ -284,6 +256,21 @@ CCProgram surface-fragment %{
     #pragma define-meta ALPHA_TEST_CHANNEL options([a, r])
   #endif
 
+  //////////////////User Defines
+  #include <common/effect/special-effects>
+  #if USE_TRANSPRENCY_MAP
+    uniform sampler2D transparencyMap;
+  #endif
+  #if IS_ANISOTROPY && USE_ANISOTROPY_MAP
+    uniform sampler2D anisotropyMap;
+  #endif
+
+  #if USE_BACK_LIT && USE_THICKNESS_MAP
+    uniform sampler2D thicknessMap;
+  #endif
+  #if USE_SELF_SHADOW_MAP
+    uniform sampler2D selfShadowMap;
+  #endif
 
   #define CC_SURFACES_FRAGMENT_MODIFY_TRT_PARAMS
   vec4 SurfacesFragmentModifyTRTParams()
@@ -303,9 +290,49 @@ CCProgram surface-fragment %{
       return ttParams;
   }
   #define CC_SURFACES_FRAGMENT_MODIFY_TT_COLOR
-  vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor, in vec3 trtColor)
+  vec3 SurfacesFragmentModifyTTColor(in vec3 baseColor)
   {
       return mix(baseColor.rgb, ttColor.rgb, ttColor.a); //ttColor can be (0.992, 0.808, 0.516)
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_SCATTERING_PARAMS
+  vec4 SurfacesFragmentModifyTransmitScatteringParams()
+  {
+    float depth = SURFACES_MAX_TRANSMIT_DEPTH_VALUE;
+    depth = ttParams.y;
+  #if USE_BACK_LIT && USE_THICKNESS_MAP
+    // depth = texture(thicknessMap, FSInput_texcoord).x;
+    // depth = pow(depth, 1.0);
+    // depth = 1.0 - depth;
+    // depth *= ttParams.y;
+  #endif
+    return vec4(ttParams.z, 0.0, 0.0, depth);
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_DIFFUSE_PARAMS
+  vec4 SurfacesFragmentModifyTransmitDiffuseParams()
+  {
+    float mask = 1.0;
+  #if USE_BACK_LIT && USE_THICKNESS_MAP
+    mask = texture(thicknessMap, FSInput_texcoord).x;
+    mask = pow(mask, 1.0);
+    mask = 1.0 - mask;
+    mask *= 10.0;
+    // depth *= ttParams.y;
+  #endif
+    return vec4(1.0, mask, 0.0, 1.0);
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_IN_SCATTERING_COLOR
+  vec3 SurfacesFragmentModifyTransmitInScatteringColor()
+  {
+    return vec3(0.0);
+  }
+  
+  #define CC_SURFACES_FRAGMENT_MODIFY_TRANSMIT_OUT_SCATTERING_COLOR
+  vec3 SurfacesFragmentModifyTransmitOutScatteringColor()
+  {
+    return transmitColor.rgb;
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
@@ -322,6 +349,10 @@ CCProgram surface-fragment %{
       vec4 texColor = texture(albedoMap, ALBEDO_UV);
       texColor.rgb = SRGBToLinear(texColor.rgb);
       baseColor *= texColor;
+    #endif
+
+    #if USE_TRANSPRENCY_MAP
+      baseColor.a = texture(transparencyMap, ALBEDO_UV).x;
     #endif
 
     #if USE_DITHERED_ALPHA_TEST
@@ -353,21 +384,12 @@ CCProgram surface-fragment %{
       #if USE_ALBEDO_MAP
         alpha = texture(albedoMap, ALBEDO_UV).ALPHA_TEST_CHANNEL;
       #endif
-  
+      #if USE_TRANSPRENCY_MAP
+        alpha = texture(transparencyMap, ALBEDO_UV).x;
+      #endif
+
       if (alpha < albedoScaleAndCutoff.w) discard;
     #endif
-  }
-
-  #define CC_SURFACES_FRAGMENT_MODIFY_WORLD_NORMAL
-  vec3 SurfacesFragmentModifyWorldNormal()
-  {
-    vec3 normal = FSInput_worldNormal;
-    #if USE_NORMAL_MAP
-      vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
-      normal = CalculateNormalFromTangentSpace(nmmp, emissiveScaleParam.w, normal.xyz, FSInput_worldTangent, FSInput_mirrorNormal);
-    #endif
-
-    return normalize(normal);
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_ANISOTROPY_PARAMS
@@ -386,52 +408,21 @@ CCProgram surface-fragment %{
     isRotation = 1.0;
     return vec4(anisotropyShape, anisotropyRotation, 0.0, 0.0);
   }
+  
+  #include <common-functions>
 
-  #define CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
-  vec3 SurfacesFragmentModifyEmissive()
-  {
-    vec3 emissive = emissive.rgb;
-    #if USE_EMISSIVE_MAP
-      emissive = SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
-    #endif
-    return emissive * emissiveScaleParam.xyz;
-  }
-
-  #define CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
-  vec4 SurfacesFragmentModifyPBRParams()
-  {
-    vec4 pbr = pbrParams;
-    pbr.x = 1.0;
-    #if USE_PBR_MAP
-      vec4 res = texture(pbrMap, DEFAULT_UV);
-      pbr.x *= res.OCCLUSION_CHANNEL;
-      pbr.y *= res.ROUGHNESS_CHANNEL;
-      pbr.z *= res.METALLIC_CHANNEL;
-      pbr.w *= res.SPECULAR_INTENSITY_CHANNEL;
-    #endif
-    #if USE_OCCLUSION_MAP
-      pbr.x = mix(1.0, texture(occlusionMap, DEFAULT_UV).OCCLUSION_CHANNEL, pbrParams.x);
-    #endif
-
-    return pbr;
-  }
-
-  /*
   // definition of SurfacesMaterialData structure with corresponding shading-model
   #include <surfaces/data-structures/standard>
-
-  //see <surfaces/default-functions/XXXX> for more overrided functions, XXXX is shading-model name
-  #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
-  void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
-  {
-  }
 
   // see <lighting-models/default-functions/XXXX> for more overrided functions, XXXX is lighting-model name
   #include <lighting-models/includes/common>
   #define CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
   void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, in LightingMiscData miscData)
   {
-  }*/
+    #if USE_SELF_SHADOW_MAP
+      result.shadow *= texture(selfShadowMap, DEFAULT_UV).x;
+    #endif
+  }
 }%
 
 CCProgram standard-vs %{
@@ -459,6 +450,7 @@ CCProgram standard-vs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-vs>
   #include <shared-ubos>
@@ -499,6 +491,7 @@ CCProgram standard-fs %{
 
 CCProgram shadow-caster-fs %{
   precision highp float;
+  #include <macro-remapping>
   #include <surfaces/effect-macros/render-to-shadowmap>
   #include <surfaces/includes/common-fs>
   #include <shared-ubos>

@@ -8,7 +8,8 @@ import {
 } from '../../../cocos/animation/marionette/animation-blend';
 import type { RuntimeID } from '../../../cocos/animation/marionette/graph-debug';
 import {
-    AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphPoseLayoutMaintainer, defaultTransformsTag, MetaValueRegistry,
+    AnimationGraphBindingContext, AnimationGraphEvaluationContext,
+    AnimationGraphLayerWideBindingContext, AnimationGraphPoseLayoutMaintainer, defaultTransformsTag, AuxiliaryCurveRegistry,
 } from '../../../cocos/animation/marionette/animation-graph-context';
 import { blendPoseInto, Pose } from '../../../cocos/animation/core/pose';
 
@@ -58,9 +59,9 @@ class AnimationGraphPartialPreviewer {
         return null;
     }
 
-    private _poseLayoutMaintainer: AnimationGraphPoseLayoutMaintainer;
-
-    private _evaluationContext: AnimationGraphEvaluationContext;
+    // NOTE: these two properties rely on lazy initialization.
+    private _poseLayoutMaintainer!: AnimationGraphPoseLayoutMaintainer;
+    private _evaluationContext!: AnimationGraphEvaluationContext;
 
     private _varInstances: Record<string, VarInstance> = {};
 
@@ -69,7 +70,7 @@ class AnimationGraphPartialPreviewer {
     private _motionRecords: MotionEvalRecord[] = [];
 
     private _updateAllRecords() {
-        const poseLayoutMaintainer = new AnimationGraphPoseLayoutMaintainer(new MetaValueRegistry());
+        const poseLayoutMaintainer = new AnimationGraphPoseLayoutMaintainer(new AuxiliaryCurveRegistry());
         this._poseLayoutMaintainer = poseLayoutMaintainer;
 
         const bindingContext = new AnimationGraphBindingContext(this._root, this._poseLayoutMaintainer, this._varInstances);
@@ -84,7 +85,7 @@ class AnimationGraphPartialPreviewer {
 
         const evaluationContext = new AnimationGraphEvaluationContext({
             transformCount: poseLayoutMaintainer.transformCount,
-            metaValueCount: poseLayoutMaintainer.metaValueCount,
+            auxiliaryCurveCount: poseLayoutMaintainer.auxiliaryCurveCount,
         });
 
         poseLayoutMaintainer.fetchDefaultTransforms(evaluationContext[defaultTransformsTag]);
@@ -419,10 +420,12 @@ class MotionEvalRecord {
     }
 
     public rebind(bindContext: AnimationGraphBindingContext) {
+        // TODO: please fix type @Leslie Leigh
+        // Tracking issue: https://github.com/cocos/cocos-engine/issues/14640
         const motionEval = this._motion[createEval]({
             additive: false,
             up: bindContext,
-        }, null);
+        } as unknown as AnimationGraphLayerWideBindingContext, null);
 
         if (!motionEval) {
             return;

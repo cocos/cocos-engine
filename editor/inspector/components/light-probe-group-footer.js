@@ -66,6 +66,7 @@ exports.ready = function() {
 
             const uuidObject = panel.dump.value.uuid;
             const uuids = uuidObject.values ? uuidObject.values : [uuidObject.value];
+            const undoID = await Editor.Message.request('scene', 'begin-recording', uuids);
             for (const uuid of uuids) {
                 Editor.Message.send('scene', 'execute-component-method', {
                     uuid: uuid,
@@ -76,7 +77,7 @@ exports.ready = function() {
 
             trackEventWithTimer('bakingSystem', 'A100006');
 
-            Editor.Message.send('scene', 'snapshot');
+            await Editor.Message.request('scene', 'end-recording', undoID);
         }
     });
 

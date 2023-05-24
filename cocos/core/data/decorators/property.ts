@@ -199,8 +199,7 @@ function mergePropertyOptions (
     if (options) {
         fullOptions = getFullFormOfProperty(options, isGetset);
     }
-    // @ts-expect-error enum PropertyStashInternalFlag is used as number
-    const propertyRecord: PropertyStash = mixin(propertyStash, fullOptions || options || {});
+    const propertyRecord: PropertyStash = mixin(propertyStash, fullOptions || options || {}) as PropertyStash;
 
     if (isGetset) {
         // typescript or babel

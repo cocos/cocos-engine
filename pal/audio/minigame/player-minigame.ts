@@ -59,8 +59,8 @@ export class OneShotAudioMinigame {
         nativeAudio.onEnded(() => {
             this._onEndCb?.();
             nativeAudio.destroy();
-            // @ts-expect-error Type 'null' is not assignable to type 'InnerAudioContext'.
-            this._innerAudioContext = null;
+            // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'.
+            this._innerAudioContext = null as any;
         });
     }
     public play (): void {
@@ -152,7 +152,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
             }
 
             // TaoBao iOS: After calling pause or stop, when seek is called, it will automatically play and call onPlay.
-            if (TAOBAO && systemInfo.os === OS.IOS && (this._state === AudioState.PAUSED || this._state === AudioState.STOPPED)) {
+            if ((TAOBAO || TAOBAO_MINIGAME) && systemInfo.os === OS.IOS
+                && (this._state === AudioState.PAUSED || this._state === AudioState.STOPPED)) {
                 innerAudioContext.pause();
             }
         };
@@ -174,8 +175,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
             // NOTE: innewAudioContext might not stop the audio playing, have to call it explicitly.
             this._innerAudioContext.stop();
             this._innerAudioContext.destroy();
-            // @ts-expect-error Type 'null' is not assignable to type 'InnerAudioContext'
-            this._innerAudioContext = null;
+            // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'
+            this._innerAudioContext = null as any;
         }
     }
     private _onInterruptedBegin () {
@@ -216,7 +217,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
     static load (url: string): Promise<AudioPlayerMinigame> {
         return new Promise((resolve) => {
             AudioPlayerMinigame.loadNative(url).then((innerAudioContext) => {
-                resolve(new AudioPlayerMinigame(<InnerAudioContext>innerAudioContext));
+                resolve(new AudioPlayerMinigame(innerAudioContext as InnerAudioContext));
             }).catch((e) => {});
         });
     }
@@ -250,8 +251,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
     static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudioMinigame> {
         return new Promise((resolve, reject) => {
             AudioPlayerMinigame.loadNative(url).then((innerAudioContext) => {
-                // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                resolve(new OneShotAudioMinigame(innerAudioContext, volume));
+                // HACK: AudioPlayer should be a friend class in OneShotAudio
+                resolve(new (OneShotAudioMinigame as any)(innerAudioContext, volume));
             }).catch(reject);
         });
     }

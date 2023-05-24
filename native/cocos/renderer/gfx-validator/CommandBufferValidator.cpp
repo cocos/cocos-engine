@@ -418,6 +418,36 @@ void CommandBufferValidator::copyBuffersToTexture(const uint8_t *const *buffers,
     _actor->copyBuffersToTexture(buffers, textureValidator->getActor(), regions, count);
 }
 
+void CommandBufferValidator::copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) {
+    CC_ASSERT(isInited());
+    CC_ASSERT(srcTexture && static_cast<TextureValidator *>(srcTexture)->isInited());
+    CC_ASSERT(dstTexture && static_cast<TextureValidator *>(dstTexture)->isInited());
+    const auto &srcInfo = srcTexture->getInfo();
+    const auto &dstInfo = dstTexture->getInfo();
+
+    CC_ASSERT(!_insideRenderPass);
+
+    for (uint32_t i = 0; i < count; ++i) {
+        const auto &region = regions[i];
+        CC_ASSERT(region.srcOffset.x + region.extent.width <= srcInfo.width);
+        CC_ASSERT(region.srcOffset.y + region.extent.height <= srcInfo.height);
+        CC_ASSERT(region.srcOffset.z + region.extent.depth <= srcInfo.depth);
+
+        CC_ASSERT(region.dstOffset.x + region.extent.width <= dstInfo.width);
+        CC_ASSERT(region.dstOffset.y + region.extent.height <= dstInfo.height);
+        CC_ASSERT(region.dstOffset.z + region.extent.depth <= dstInfo.depth);
+    }
+
+    /////////// execute ///////////
+
+    Texture *actorSrcTexture = nullptr;
+    Texture *actorDstTexture = nullptr;
+    if (srcTexture) actorSrcTexture = static_cast<TextureValidator *>(srcTexture)->getActor();
+    if (dstTexture) actorDstTexture = static_cast<TextureValidator *>(dstTexture)->getActor();
+
+    _actor->copyTexture(actorSrcTexture, actorDstTexture, regions, count);
+}
+
 void CommandBufferValidator::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     CC_ASSERT(isInited());
     CC_ASSERT(srcTexture && static_cast<TextureValidator *>(srcTexture)->isInited());
@@ -532,6 +562,10 @@ void CommandBufferValidator::completeQueryPool(QueryPool *queryPool) {
 
     QueryPool *actorQueryPool = static_cast<QueryPoolValidator *>(queryPool)->getActor();
     _actor->completeQueryPool(actorQueryPool);
+}
+
+void CommandBufferValidator::customCommand(CustomCommand &&cmd) {
+    _actor->customCommand(std::move(cmd));
 }
 
 } // namespace gfx

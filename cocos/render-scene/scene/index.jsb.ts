@@ -22,9 +22,12 @@
  THE SOFTWARE.
 */
 import { Vec3, Enum, cclegacy } from '../../core';
+import type { LODData as JsbLODData, LODGroup as JsbLODGroup } from './lod-group';
 
-export const LODData = jsb.LODData;
-export const LODGroup = jsb.LODGroup;
+export const LODData: typeof JsbLODData = jsb.LODData;
+export type LODData = JsbLODData;
+export const LODGroup: typeof JsbLODGroup = jsb.LODGroup;
+export type LODGroup = JsbLODGroup;
 
 import type {
     Ambient as JsbAmbient,
@@ -50,6 +53,18 @@ declare const jsb: any;
 export type Ambient = JsbAmbient;
 export const Ambient: typeof JsbAmbient = jsb.Ambient;
 cclegacy.Ambient = Ambient;
+
+/**
+ * @en Default sun illuminance
+ * @zh 默认太阳亮度
+ */
+Ambient.SUN_ILLUM = 65000.0;
+/**
+ * @en Default sky illuminance
+ * @zh 默认天空亮度
+ */
+Ambient.SKY_ILLUM = 20000.0;
+
 
 /**
  * Light related.
@@ -319,9 +334,37 @@ export const EnvironmentLightingType = Enum({
 
 export const ShadowsInfo: typeof JsbShadowsInfo = jsb.ShadowsInfo;
 export type ShadowsInfo = JsbShadowsInfo;
-export const Shadows: typeof JsbShadows = jsb.Shadow;
+export const Shadows: typeof JsbShadows = jsb.Shadows;
 export type Shadows = JsbShadows;
 cclegacy.Shadows = Shadows;
+
+/**
+ * @en MAX_FAR. This is shadow camera max far.
+ * @zh 阴影相机的最远视距。
+ */
+
+Object.defineProperty(Shadows, "MAX_FAR", {
+    configurable: true,
+    enumerable: true,
+    get() {
+        return 2000.0;
+    }
+});
+
+const COEFFICIENT_OF_EXPANSION = 2.0 * Math.sqrt(3.0);
+/**
+ * @en EXPANSION_RATIO. This is shadow boundingBox Coefficient of expansion.
+ * @zh 阴影包围盒扩大系数。
+ */
+Object.defineProperty(Shadows, 'COEFFICIENT_OF_EXPANSION', {
+    configurable: true,
+    enumerable: true,
+    get() {
+        return COEFFICIENT_OF_EXPANSION;
+    }
+});
+
+
 
 export const Skybox: typeof JsbSkybox = jsb.Skybox;
 export type Skybox = JsbSkybox;

@@ -1,8 +1,69 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+module.paths.push(path.join(Editor.App.path, 'node_modules'));
+const { throttle } = require('lodash');
 const utils = require('./utils');
 const { trackEventWithTimer } = require('../utils/metrics');
+
+const lockList = [];
+let lockPerform = false;
+let lastSnapShot = null;
+async function performLock() {
+    if (lockPerform) return;
+    if (lockList.length === 0) return;
+    lockPerform = true;
+    const params = lockList.shift();
+    const { snapshotLock, lock, uuids, cancel } = params;
+    if (snapshotLock && !lock) {
+        
+        if (lastSnapShot) {
+            await endRecording(lastSnapShot,cancel);
+            lastSnapShot = null;
+        }
+    // start snapshot
+    } else if(!snapshotLock && lock) {
+        lastSnapShot = await beginRecording(uuids);
+    }
+    lockPerform = false;
+    await performLock();
+}
+/**
+ * 替换之前的snapshotLock,由于UI层的事件是同步的，
+ * 而新的beginRecording是异步的，所以需要使用队列来保证顺序
+ * @param {*} lock 
+ * @param {*} uuids 
+ * @param {*} cancel 
+ */
+function snapshotLock(panel,lock,uuids,cancel=false) {
+    // 保存当前状态，放到队列中
+    const params = {
+        snapshotLock:panel.snapshotLock,
+        lock,
+        uuids,
+        cancel
+    }
+    lockList.push(params);
+    // 执行队列中的操作;
+    performLock();
+    panel.snapshotLock = lock;
+}
+
+// 不传options时，会自动记录到undo队列，不需要调用endRecording
+async function beginRecording(uuids,options) {
+    if (!uuids) return;
+    const undoID = await Editor.Message.request('scene', 'begin-recording', uuids,options);
+    return undoID;
+}
+
+async function endRecording(undoID,cancel) {
+    if(!undoID) return;
+    if(cancel){
+        await Editor.Message.request('scene', 'cancel-recording', undoID);
+    }else{
+        await Editor.Message.request('scene', 'end-recording', undoID);
+    }
+}
 
 exports.listeners = {
     async 'change-dump'(event) {
@@ -12,10 +73,8 @@ exports.listeners = {
         if (!target) {
             return;
         }
-
         if (!panel.snapshotLock) {
-            Editor.Message.send('scene', 'snapshot');
-            panel.snapshotLock = true;
+            snapshotLock(panel, true, panel.uuidList);
         }
 
         const dump = event.target.dump;
@@ -25,8 +84,6 @@ exports.listeners = {
 
         let setChildrenLayer = false;
         if (dump.path === 'layer') {
-            const newValue = Number(panel.$.nodeLayerSelect.value);
-
             if (panel.dumps && panel.dumps.some((perdump) => perdump.children && perdump.children.length > 0)) {
                 // 只修改自身节点
                 let choose = 1;
@@ -47,24 +104,21 @@ exports.listeners = {
 
                 // 取消，需要还原数值
                 if (choose === 2) {
+                    dump.value = panel.$.nodeLayerSelect.prevValues[0];
+                    if (dump.values) {
+                        dump.values = panel.$.nodeLayerSelect.prevValues;
+                    }
                     Elements.layer.update.call(panel);
                     return;
                 } else {
                     setChildrenLayer = choose === 0 ? true : false;
-
-                    dump.value = newValue;
-                    if (setChildrenLayer && 'values' in dump) {
-                        dump.values.forEach((val, index) => {
-                            dump.values[index] = newValue;
-                        });
-                    }
                 }
-            } else {
-                dump.value = newValue;
             }
         }
 
         try {
+            panel.readyToUpdate = false;
+
             for (let i = 0; i < panel.uuidList.length; i++) {
                 const uuid = panel.uuidList[i];
                 const { path, type, isArray } = dump;
@@ -97,15 +151,18 @@ exports.listeners = {
             }
         } catch (error) {
             console.error(error);
+        } finally {
+            if (!panel.snapshotLock) {
+                snapshotLock(panel,false);
+            }
+            panel.readyToUpdate = true;
         }
     },
     'confirm-dump'() {
         const panel = this;
-
-        panel.snapshotLock = false;
-
+        snapshotLock(panel,false);
         // In combination with change-dump, snapshot only generated once after ui-elements continuously changed.
-        Editor.Message.send('scene', 'snapshot');
+        // Editor.Message.send('scene', 'snapshot');
     },
     async 'create-dump'(event) {
         const panel = this;
@@ -115,10 +172,10 @@ exports.listeners = {
             return;
         }
 
-        Editor.Message.send('scene', 'snapshot');
-
+        // Editor.Message.send('scene', 'snapshot');
+        const undoID = await beginRecording(panel.uuidList);
         const dump = event.target.dump;
-
+        let cancel = false;
         try {
             for (let i = 0; i < panel.uuidList.length; i++) {
                 const uuid = panel.uuidList[i];
@@ -132,10 +189,12 @@ exports.listeners = {
                 });
             }
 
-            Editor.Message.send('scene', 'snapshot');
+            // Editor.Message.send('scene', 'snapshot');
         } catch (error) {
+            cancel = true;
             console.error(error);
         }
+        await endRecording(undoID,cancel);
     },
     async 'reset-dump'(event) {
         const panel = this;
@@ -145,11 +204,10 @@ exports.listeners = {
             return;
         }
 
-        Editor.Message.send('scene', 'snapshot');
-
+        const undoID = await beginRecording(panel.uuidList);
         const dump = event.target.dump;
-
         try {
+            // Editor.Message.send('scene', 'snapshot');
             for (let i = 0; i < panel.uuidList.length; i++) {
                 const uuid = panel.uuidList[i];
                 if (i > 0) {
@@ -161,9 +219,8 @@ exports.listeners = {
                     path: dump.path,
                 });
             }
-
-            Editor.Message.send('scene', 'snapshot');
         } catch (error) {
+            await endRecording(undoID,true);
             console.error(error);
         }
     },
@@ -273,10 +330,10 @@ exports.template = /* html*/`
     </header>
 
     <section class="component scene">
-        <ui-prop class="release" type="dump"></ui-prop>
-        <ui-prop class="ambient" type="dump"></ui-prop>
-        <ui-section class="skybox" expand>
-            <div slot="header" style="display: flex;width: 100%;justify-content: space-between;">
+        <ui-prop class="release" type="dump" ui-section-config></ui-prop>
+        <ui-prop class="ambient" type="dump" ui-section-config></ui-prop>
+        <ui-section class="skybox config" expand>
+            <div slot="header" class="component-header">
                 <span>Skybox</span>
                 <ui-link tooltip="i18n:scene.menu.help_url">
                     <ui-icon value="help"></ui-icon>
@@ -290,13 +347,13 @@ exports.template = /* html*/`
                         <ui-radio class="envmap-radio" slot="label" type="single" value="HDR" tabindex="0">
                             <ui-label value="HDR"></ui-label>
                         </ui-radio>
-                        <ui-prop slot="content" class="envmapHDR" type="dump" no-label></ui-prop>
+                        <ui-prop slot="content" class="envmapHDR" type="dump" no-label ui-section-config></ui-prop>
                     </ui-prop>
                     <ui-prop class="envmap-prop">
                         <ui-radio class="envmap-radio" slot="label" type="single" value="LDR" tabindex="0">
                             <ui-label value="LDR"></ui-label>
                         </ui-radio>
-                        <ui-prop slot="content" class="envmapLDR" type="dump" no-label></ui-prop>
+                        <ui-prop slot="content" class="envmapLDR" type="dump" no-label ui-section-config></ui-prop>
                     </ui-prop>
                 </ui-radio-group>
                 <ui-prop class="reflection">
@@ -310,13 +367,13 @@ exports.template = /* html*/`
             </ui-section>
             <div class="after"></div>
         </ui-section>
-        <ui-prop class="postProcess" type="dump"></ui-prop>
-        <ui-prop class="fog" type="dump"></ui-prop>
-        <ui-prop class="shadows" type="dump"></ui-prop>
-        <ui-prop class="octree" type="dump"></ui-prop>
+        <ui-prop class="fog" type="dump" ui-section-config></ui-prop>
+        <ui-prop class="shadows" type="dump" ui-section-config></ui-prop>
+        <ui-prop class="octree" type="dump" ui-section-config></ui-prop>
+        <ui-prop class="skin" type="dump" ui-section-config></ui-prop>
     </section>
 
-    <ui-section class="component node" expand>
+    <ui-section class="component node config" expand>
         <header class="component-header" slot="header">
             <span class="name">Node</span>
             <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
@@ -329,10 +386,10 @@ exports.template = /* html*/`
         <ui-prop class="rotation" type="dump"></ui-prop>
         <ui-prop class="scale" type="dump"></ui-prop>
         <ui-prop class="mobility" type="dump"></ui-prop>
-        <ui-prop class="layer" type="dump" html="false">
+        <ui-prop class="layer">
             <ui-label slot="label" value="Layer"></ui-label>
             <div class="layer-content" slot="content">
-                <ui-select class="layer-select"></ui-select>
+                <ui-prop class="layer-select" type="dump" no-label></ui-prop>
                 <ui-button class="layer-edit">Edit</ui-button>
             </div>
         </ui-prop>
@@ -343,7 +400,7 @@ exports.template = /* html*/`
     <section class="section-missing"></section>
 
     <footer class="footer">
-        <ui-button class="add-component">
+        <ui-button class="add-component" size="medium">
             <ui-label value="i18n:ENGINE.components.add_component"></ui-label>
         </ui-button>
     </footer>
@@ -382,8 +439,8 @@ exports.$ = {
     sceneSkyboxReflectionBake: '.scene > .skybox .reflection .bake',
     sceneSkyboxReflectionRemove: '.scene > .skybox .reflection .remove',
     sceneSkyboxAfter: '.scene > .skybox > .after',
-    postProcess: '.scene > .postProcess',
     sceneOctree: '.scene > .octree',
+    sceneSkin: '.scene > .skin',
 
     node: '.node',
     nodeHeader: '.node > header',
@@ -395,7 +452,6 @@ exports.$ = {
     nodeRotation: '.node > .rotation',
     nodeScale: '.node > .scale',
     nodeMobility: '.node > .mobility',
-    nodeLayer: '.node > .layer',
     nodeLayerSelect: '.node > .layer .layer-select',
     nodeLayerButton: '.node > .layer .layer-edit',
 
@@ -411,22 +467,22 @@ const Elements = {
     panel: {
         ready() {
             const panel = this;
-            panel.__nodeChangedHandle__ = undefined;
+
+            panel.throttleUpdate = throttle(async () => {
+                if (!panel.readyToUpdate) {
+                    return;
+                }
+                for (const prop in Elements) {
+                    const element = Elements[prop];
+                    if (element.update) {
+                        await element.update.call(panel);
+                    }
+                }
+            }, 100, { leading: false, trailing: true });
 
             panel.__nodeChanged__ = (uuid) => {
                 if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
-                    window.cancelAnimationFrame(panel.__nodeChangedHandle__);
-                    panel.__nodeChangedHandle__ = window.requestAnimationFrame(async () => {
-                        for (const prop in Elements) {
-                            if (!panel.ready) {
-                                return;
-                            }
-                            const element = Elements[prop];
-                            if (element.update) {
-                                await element.update.call(panel);
-                            }
-                        }
-                    });
+                    panel.throttleUpdate();
                 }
             };
 
@@ -483,17 +539,31 @@ const Elements = {
                     additional.push({ value, type });
                 }
 
-                Editor.Message.send('scene', 'snapshot');
-
+                // Todo
+                // await beginRecording(panel.uuidList);
                 for (const info of additional) {
                     const config = panel.dropConfig[info.type];
                     if (config) {
                         await Editor.Message.request(config.package, config.message, info, panel.dumps, panel.uuidList);
                     }
                 }
-
-                Editor.Message.send('scene', 'snapshot');
             });
+
+            panel._readyToUpdate = true;
+            if (panel.readyToUpdate === undefined) {
+                Object.defineProperty(panel, 'readyToUpdate', {
+                    enumerable: true,
+                    get() {
+                        return panel._readyToUpdate;
+                    },
+                    set(val) {
+                        panel._readyToUpdate = val;
+                        if (val) {
+                            panel.throttleUpdate();
+                        }
+                    },
+                });
+            }
         },
         async update() {
             const panel = this;
@@ -540,10 +610,8 @@ const Elements = {
         close() {
             const panel = this;
 
-            if (panel.__nodeChangedHandle__) {
-                window.cancelAnimationFrame(panel.__nodeChangedHandle__);
-                panel.__nodeChangedHandle__ = undefined;
-            }
+            panel.throttleUpdate.cancel();
+            panel.throttleUpdate = undefined;
 
             Editor.Message.removeBroadcastListener('scene:change-node', panel.__nodeChanged__);
             Editor.Message.removeBroadcastListener('scene:animation-time-change', panel.__animationTimeChange__);
@@ -561,7 +629,7 @@ const Elements = {
                     return;
                 }
 
-                Editor.Message.send('scene', 'snapshot');
+                // Editor.Message.send('scene', 'snapshot');
 
                 const role = button.getAttribute('role');
 
@@ -569,8 +637,18 @@ const Elements = {
                     const prefab = dump.__prefab__;
 
                     switch (role) {
+                        case 'edit': {
+                            const assetId = prefab.prefabStateInfo?.assetUuid;
+                            if (!assetId) {
+                                return;
+                            }
+                            Editor.Message.request('asset-db', 'open-asset', assetId);
+                            break;
+                        }
                         case 'unlink': {
+                            const undoID = await beginRecording( prefab.rootUuid);
                             await Editor.Message.request('scene', 'unlink-prefab', prefab.rootUuid, false);
+                            await endRecording(undoID);
                             break;
                         }
                         case 'local': {
@@ -578,25 +656,18 @@ const Elements = {
                             break;
                         }
                         case 'reset': {
+                            const undoID = await beginRecording( prefab.rootUuid);
                             await Editor.Message.request('scene', 'restore-prefab', prefab.rootUuid, prefab.uuid);
+                            await endRecording(undoID);
                             break;
                         }
                         case 'save': {
+                            // apply-prefab是自定义的undo,在场景中实现了undo
                             await Editor.Message.request('scene', 'apply-prefab', prefab.rootUuid);
                             break;
                         }
                     }
                 }
-
-                Editor.Message.send('scene', 'snapshot');
-            });
-
-            panel.$.prefabEdit.addEventListener('click', () => {
-                const assetId = panel.dump?.__prefab__?.prefabStateInfo?.assetUuid;
-                if (!assetId) {
-                    return;
-                }
-                Editor.Message.request('asset-db', 'open-asset', assetId);
             });
         },
         async update() {
@@ -668,7 +739,7 @@ const Elements = {
                 panel.$.active.dispatch('change-dump');
             });
             panel.$.active.addEventListener('confirm', () => {
-                panel.snapshotLock = false;
+                panel.$.active.dispatch('confirm-dump');
             });
 
             panel.$.name.addEventListener('change', (event) => {
@@ -685,7 +756,7 @@ const Elements = {
                 panel.$.name.dispatch('change-dump');
             });
             panel.$.name.addEventListener('confirm', () => {
-                panel.snapshotLock = false;
+                panel.$.active.dispatch('confirm-dump');
             });
         },
         update() {
@@ -846,11 +917,9 @@ const Elements = {
             panel.dump._globals.octree.help = panel.getHelpUrl({ help: 'i18n:cc.OctreeCulling' });
             panel.$.sceneOctree.render(panel.dump._globals.octree);
 
-            // TODO：这个 if 暂时配合引擎调整使用，测试调通后可以去掉
-            if (panel.dump._globals.postProcess) {
-                panel.dump._globals.postProcess.displayName = 'Post Process';
-                panel.$.postProcess.render(panel.dump._globals.postProcess);
-            }
+            panel.dump._globals.skin.displayName = 'Skin';
+            panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
+            panel.$.sceneSkin.render(panel.dump._globals.skin);
 
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
             $skyProps.forEach(($prop) => {
@@ -892,7 +961,12 @@ const Elements = {
                 });
             }
         },
-        async setReflectionConvolutionMap(uuid) {
+        async setEnvMapAndConvolutionMap(uuid) {
+            await Editor.Message.request('scene', 'execute-scene-script', {
+                name: 'inspector',
+                method: 'setSkyboxEnvMap',
+                args: [uuid],
+            });
             if (uuid) {
                 await Editor.Message.request('scene', 'execute-scene-script', {
                     name: 'inspector',
@@ -910,9 +984,9 @@ const Elements = {
             const reflectionMap = panel.dump._globals.skybox.value['reflectionMap'];
             if (reflectionMap.value && reflectionMap.value.uuid) {
                 panel.$.sceneSkyboxReflectionBake.style.display = 'none';
-                panel.$.sceneSkyboxReflectionRemove.style.display = 'inline-block';
+                panel.$.sceneSkyboxReflectionRemove.style.display = 'inline-flex';
             } else {
-                panel.$.sceneSkyboxReflectionBake.style.display = 'inline-block';
+                panel.$.sceneSkyboxReflectionBake.style.display = 'inline-flex';
                 panel.$.sceneSkyboxReflectionRemove.style.display = 'none';
 
                 // if envmap value unexist, the column of bake button hidden;
@@ -930,7 +1004,7 @@ const Elements = {
                 return;
             }
 
-            panel.$.sceneSkyboxReflectionLoading.style.display = 'inline-block';
+            panel.$.sceneSkyboxReflectionLoading.style.display = 'inline-flex';
             panel.$.sceneSkyboxReflectionBake.style.display = 'none';
 
             await Editor.Message.request('scene', 'execute-scene-script', {
@@ -982,7 +1056,7 @@ const Elements = {
 
             const $prop = useHDR ? panel.$.sceneSkyboxEnvmapHDR : panel.$.sceneSkyboxEnvmapLDR;
             const uuid = $prop.dump.value.uuid;
-            Elements.scene.setReflectionConvolutionMap.call(panel, uuid);
+            Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
         },
         skyboxEnvmapChange(useHDR, event) {
             const panel = this;
@@ -993,7 +1067,7 @@ const Elements = {
 
             const $prop = event.currentTarget;
             const uuid = $prop.dump.value.uuid;
-            Elements.scene.setReflectionConvolutionMap.call(panel, uuid);
+            Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
         },
     },
     node: {
@@ -1029,7 +1103,6 @@ const Elements = {
             panel.$.nodeRotation.render(panel.dump.rotation);
             panel.$.nodeScale.render(panel.dump.scale);
             panel.$.nodeMobility.render(panel.dump.mobility);
-            panel.$.nodeLayer.render(panel.dump.layer);
 
             // 查找需要渲染的 component 列表
             const componentList = [];
@@ -1101,7 +1174,7 @@ const Elements = {
 
                     const $section = document.createElement('ui-section');
                     $section.setAttribute('expand', '');
-                    $section.setAttribute('class', 'component');
+                    $section.setAttribute('class', 'component config');
                     $section.setAttribute('cache-expand', `${component.path}:${component.type}`);
                     $section.innerHTML = `
                     <header class="component-header" slot="header">
@@ -1182,8 +1255,9 @@ const Elements = {
                         $panel.setAttribute('src', file);
                         $panel.injectionStyle(`
                             ui-prop,
-                            ui-section { margin-top: 5px; }
+                            ui-section { margin-top: 4px; }
 
+                            ui-prop > ui-section,
                             ui-prop > ui-prop,
                             ui-section > ui-prop[slot="header"],
                             ui-prop [slot="content"] ui-prop { margin-top: 0; }
@@ -1360,31 +1434,20 @@ const Elements = {
                 Editor.Message.send('project', 'open-settings', 'project', 'layer');
             });
         },
-        async update() {
+        update() {
             const panel = this;
 
             if (!panel.dump || panel.dump.isScene) {
                 return;
             }
 
-            const layerDump = panel.dump.layer;
-            const enumList = layerDump.enumList || [];
+            panel.$.nodeLayerSelect.render(panel.dump.layer);
 
-            let optionHtml = '';
-            if (enumList) {
-                for (const item of enumList) {
-                    optionHtml += `<option value="${item.value}">${item.name}</option>`;
-                }
+            let prevValues = [panel.dump.layer.value];
+            if (panel.dump.layer.values) {
+                prevValues = panel.dump.layer.values.slice();
             }
-            panel.$.nodeLayerSelect.innerHTML = optionHtml;
-            panel.$.nodeLayerSelect.value = layerDump.value;
-
-            if (layerDump.values && layerDump.values.some((value) => value !== layerDump.value)) {
-                panel.$.nodeLayerSelect.invalid = true;
-            } else {
-                panel.$.nodeLayerSelect.invalid = false;
-            }
-            panel.$.nodeLayer.setReadonly(layerDump, panel.$.nodeLayerSelect);
+            panel.$.nodeLayerSelect.prevValues = prevValues;
         },
     },
     footer: {
@@ -1401,8 +1464,10 @@ const Elements = {
                     ],
                     listeners: {
                         async confirm(detail/* info */) {
-                            Editor.Message.send('scene', 'snapshot');
+                            if (!detail) return;
 
+                            // 批量调用request意味着编辑操作在很多帧后才会完成，所以不能自动记录undo
+                            const undoID = await beginRecording(panel.uuidList)
                             for (const uuid of panel.uuidList) {
                                 await Editor.Message.request('scene', 'create-component', {
                                     uuid,
@@ -1412,8 +1477,7 @@ const Elements = {
                             if (detail.info.name) {
                                 trackEventWithTimer('laber', `A100000_${detail.info.name}`);
                             }
-
-                            Editor.Message.send('scene', 'snapshot');
+                            await endRecording(undoID)
                         },
                     },
                 });
@@ -1595,77 +1659,78 @@ exports.methods = {
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_component'),
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
                         const values = dump.value.uuid.values || [dump.value.uuid.value];
+                        const undoID = await beginRecording(values)
                         for (const compUuid of values) {
                             await Editor.Message.request('scene', 'reset-component', {
                                 uuid: compUuid,
                             });
                         }
-
-                        Editor.Message.send('scene', 'snapshot');
+                        await endRecording(undoID);
                     },
                 },
                 { type: 'separator' },
                 {
                     label: Editor.I18n.t('ENGINE.menu.remove_component'),
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
+                        // Editor.Message.send('scene', 'snapshot');
 
                         const values = dump.value.uuid.values || [dump.value.uuid.value];
-
+                        // 收集待修改的uuids
+                        const uuids = [];
+                        const indexes = [];
                         for (const value of values) {
                             for (const nodeDump of nodeDumps) {
                                 const uuid = nodeDump.uuid.value;
                                 const index = nodeDump.__comps__.findIndex((dumpData) => dumpData.value.uuid.value === value);
                                 if (index !== -1) {
-                                    await Editor.Message.request('scene', 'remove-array-element', {
-                                        uuid,
-                                        path: '__comps__',
-                                        index,
-                                    });
-
+                                    uuids.push(uuid);
+                                    indexes.push(index);
                                     if (nodeDump.__comps__[index].type) {
                                         trackEventWithTimer('laber', `A100001_${nodeDump.__comps__[index].type}`);
                                     }
                                 }
                             }
                         }
-
-                        Editor.Message.send('scene', 'snapshot');
+                        if (!uuids.length > 0) return;
+                        const undoID = await beginRecording(uuids);
+                        for (let index = 0; index < uuids.length; index++) {
+                            await Editor.Message.request('scene', 'remove-array-element', {
+                                uuid: uuids[index],
+                                path: '__comps__',
+                                index:indexes[index],
+                            });
+                        }
+                        await endRecording(undoID);
+                        // Editor.Message.send('scene', 'snapshot');
                     },
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.move_up_component'),
                     enabled: !isMultiple && index !== 0,
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
+                        const undoID = await beginRecording(uuid);
                         await Editor.Message.request('scene', 'move-array-element', {
                             uuid,
                             path: '__comps__',
                             target: index,
                             offset: -1,
                         });
-
-                        Editor.Message.send('scene', 'snapshot');
+                        await endRecording(undoID);
                     },
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.move_down_component'),
                     enabled: !isMultiple && index !== total - 1,
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
+                        const undoID = await beginRecording(uuid);
                         await Editor.Message.request('scene', 'move-array-element', {
                             uuid,
                             path: '__comps__',
                             target: index,
                             offset: 1,
                         });
-
-                        Editor.Message.send('scene', 'snapshot');
+                        await endRecording(undoID);
                     },
                 },
                 { type: 'separator' },
@@ -1685,24 +1750,31 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.paste_component_values'),
                     enabled: !!(clipboardComponentInfo && clipboardComponentInfo.cid === dump.cid),
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
                         const values = dump.value.uuid.values || [dump.value.uuid.value];
+                        const uuids = [];
+                        const indexes = [];
                         for (const value of values) {
                             for (const nodeDump of nodeDumps) {
                                 const uuid = nodeDump.uuid.value;
                                 const index = nodeDump.__comps__.findIndex((dumpData) => dumpData.value.uuid.value === value);
                                 if (index !== -1) {
-                                    await Editor.Message.request('scene', 'set-property', {
-                                        uuid,
-                                        path: nodeDump.__comps__[index].path,
-                                        dump: clipboardComponentInfo.dump,
-                                    });
+                                    uuids.push(uuid);
+                                    indexes.push(index);
                                 }
                             }
                         }
-
-                        Editor.Message.send('scene', 'snapshot');
+                        const undoID = await beginRecording(uuids);
+                        // 遍历uuids
+                        for (let index = 0; index < uuids.length; index++) {
+                            const uuid = uuids[index];
+                            const index = indexes[index];
+                            await Editor.Message.request('scene', 'set-property', {
+                                uuid,
+                                path: nodeDumps[index].__comps__[index].path,
+                                dump: clipboardComponentInfo.dump,
+                            });
+                        }
+                        await endRecording(undoID); 
                     },
                 },
                 { type: 'separator' },
@@ -1711,8 +1783,7 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.paste_component'),
                     enabled: !!clipboardComponentInfo,
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
+                        const undoID = await beginRecording(uuidList)
                         const values = dump.value.uuid.values || [dump.value.uuid.value];
                         let index = 0;
                         for (const dump of values) {
@@ -1740,6 +1811,7 @@ exports.methods = {
 
                             index++;
                         }
+                        await endRecording(undoID);
                     },
                 },
             ],
@@ -1768,15 +1840,13 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.reset_node'),
                     enabled: !dump.position.readonly && !dump.rotation.readonly && !dump.scale.readonly,
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
+                        const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
                             await Editor.Message.request('scene', 'reset-node', {
                                 uuid,
                             });
                         }
-
-                        Editor.Message.send('scene', 'snapshot');
+                        await endRecording(undoID);
                     },
                 },
                 { type: 'separator' },
@@ -1795,8 +1865,7 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.paste_node_value'),
                     enabled: !!clipboardNodeInfo,
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
+                        const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
                             for (const attr of clipboardNodeInfo.attrs) {
                                 await Editor.Message.request('scene', 'set-property', {
@@ -1806,8 +1875,7 @@ exports.methods = {
                                 });
                             }
                         }
-
-                        Editor.Message.send('scene', 'snapshot');
+                        await endRecording(undoID);
                     },
                 },
                 { type: 'separator' },
@@ -1832,9 +1900,8 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.paste_node_world_transform'),
                     enabled: !!clipboardNodeWorldTransform,
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
                         if (clipboardNodeWorldTransform.data) {
+                            const undoID = await beginRecording(uuidList);
                             for (const uuid of uuidList) {
                                 await Editor.Message.request('scene', 'execute-scene-script', {
                                     name: 'inspector',
@@ -1842,8 +1909,7 @@ exports.methods = {
                                     args: [uuid, clipboardNodeWorldTransform.data],
                                 });
                             }
-
-                            Editor.Message.send('scene', 'snapshot');
+                            await endRecording(undoID);
                         }
                     },
                 },
@@ -1852,8 +1918,7 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.paste_component'),
                     enabled: !!clipboardComponentInfo,
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
+                        const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
                             await Editor.Message.request('scene', 'create-component', {
                                 uuid,
@@ -1876,8 +1941,7 @@ exports.methods = {
                                 }
                             }
                         }
-
-                        Editor.Message.send('scene', 'snapshot');
+                        await endRecording(undoID);
                     },
                 },
                 { type: 'separator' },
@@ -1885,64 +1949,56 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_position'),
                     enabled: !dump.position.readonly && notEqualDefaultValueVec3('position'),
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
+                        const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
                             await Editor.Message.request('scene', 'reset-property', {
                                 uuid,
                                 path: 'position',
                             });
                         }
-
-                        Editor.Message.send('scene', 'snapshot');
+                        await endRecording(undoID);
                     },
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_rotation'),
                     enabled: !dump.rotation.readonly && notEqualDefaultValueVec3('rotation'),
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
+                        const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
                             await Editor.Message.request('scene', 'reset-property', {
                                 uuid,
                                 path: 'rotation',
                             });
                         }
-
-                        Editor.Message.send('scene', 'snapshot');
+                        await endRecording(undoID);
                     },
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_scale'),
                     enabled: !dump.scale.readonly && notEqualDefaultValueVec3('scale'),
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
+                        const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
                             await Editor.Message.request('scene', 'reset-property', {
                                 uuid,
                                 path: 'scale',
                             });
                         }
-
-                        Editor.Message.send('scene', 'snapshot');
+                        await endRecording(undoID);
                     },
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_mobility'),
                     enabled: !dump.mobility.readonly && dump.mobility.value !== dump.mobility.default,
                     async click() {
-                        Editor.Message.send('scene', 'snapshot');
-
+                        const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
                             await Editor.Message.request('scene', 'reset-property', {
                                 uuid,
                                 path: 'mobility',
                             });
                         }
-
-                        Editor.Message.send('scene', 'snapshot');
+                        await endRecording(undoID);
                     },
                 },
             ],
@@ -1957,8 +2013,7 @@ exports.methods = {
         }
 
         try {
-            Editor.Message.send('scene', 'snapshot');
-
+            const undoID = await beginRecording(panel.uuidList);
             for (const dumpPath in materialUuids[assetUuid]) {
                 const dumpData = materialUuids[assetUuid][dumpPath];
                 for (let i = 0; i < panel.uuidList.length; i++) {
@@ -1973,14 +2028,13 @@ exports.methods = {
                     });
                 }
             }
-
-            Editor.Message.send('scene', 'snapshot');
+            await endRecording(undoID);
         } catch (error) {
             console.error(error);
         }
     },
     toggleShowAddComponentBtn(show) {
-        this.$.componentAdd.style.display = show ? 'inline-block' : 'none';
+        this.$.componentAdd.style.display = show ? 'inline-flex' : 'none';
     },
     isAnimationMode() {
         return Editor.EditMode.getMode() === 'animation';
@@ -2021,7 +2075,6 @@ exports.ready = async function ready() {
 
     // 为了避免把 ui-num-input, ui-color 的连续 change 进行 snapshot
     panel.snapshotLock = false;
-    panel.ready = true;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -2038,7 +2091,6 @@ exports.ready = async function ready() {
 
 exports.close = async function close() {
     const panel = this;
-    panel.ready = false;
 
     for (const prop in Elements) {
         const element = Elements[prop];

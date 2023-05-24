@@ -44,6 +44,8 @@
     #include "platform/linux/modules/CanvasRenderingContext2DDelegate.h"
 #elif (CC_PLATFORM == CC_PLATFORM_QNX)
     #include "platform/qnx/modules/CanvasRenderingContext2DDelegate.h"
+#elif (CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
+    #include "platform/openharmony/modules/CanvasRenderingContext2DDelegate.h"
 #endif
 
 using Vec2 = ccstd::array<float, 2>;
@@ -293,7 +295,7 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
         //SE_LOGD("CanvasRenderingContext2D::set_font: %s, Size: %f, isBold: %b\n", fontName.c_str(), fontSize, isBold);
         _delegate->updateFont(fontName, fontSize, isBold, isItalic, false, false);
     }
-#elif CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
+#elif CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     if (_font != font) {
         _font = font;
         ccstd::string fontName = "sans-serif";

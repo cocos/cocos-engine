@@ -18,14 +18,15 @@ const sys = cc.sys;
 if (sys.platform === sys.Platform.BAIDU_MINI_GAME) {
     require = __baiduRequire;
 }
+if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
+    require = globalThis.__taobaoRequire;
+}
 
 function downloadScript (url, options, onComplete) {
     if (REGEX.test(url)) {
         onComplete && onComplete(new Error('Can not load remote scripts'));
     } else {
-        if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
-            __taobaoRequire(`../../../${url}`);
-        } else if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) { //Can't load scripts dynamically on Taobao platform
+        if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) { //Can't load scripts dynamically on Taobao platform
             require(`../../../${url}`);
         }
         onComplete && onComplete(null);
@@ -253,7 +254,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             js = `assets/${bundleName}/index.${suffix}js`;
         }
         if (sys.platform === sys.Platform.TAOBAO_MINI_GAME) {
-            __taobaoRequire(js);
+            require(js);
         } else if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) { // Can't load scripts dynamically on Taobao platform
             require(`./${js}`);
         }

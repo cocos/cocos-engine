@@ -134,11 +134,11 @@ Assignments.pool = new js.Pool((obj: any) => {
     obj._exps.length = 0;
     obj._targetExp = null;
 }, 1);
-// @ts-expect-error
-Assignments.pool.get = function (targetExpression) {
+// HACK: here we've changed the signature of get method
+(Assignments.pool.get as any) = function (this: any, targetExpression) {
     const cache: any = this._get() || new Assignments();
     cache._targetExp = targetExpression;
-    return cache;
+    return cache as Assignments;
 };
 
 // HELPER FUNCTIONS
@@ -277,8 +277,8 @@ class Parser {
     }
 
     public setValueType (codeArray, defaultValue, srcValue, targetExpression) {
-        // @ts-expect-error
-        const assignments: any = Assignments.pool.get(targetExpression);
+        // HACK: here we've changed the signature of get method.
+        const assignments: any = (Assignments.pool.get as any)(targetExpression);
         let fastDefinedProps = defaultValue.constructor.__props__;
         if (!fastDefinedProps) {
             fastDefinedProps = Object.keys(defaultValue);

@@ -139,9 +139,9 @@ export class View extends Eventify(System) {
         }
 
         // For now, the engine UI is adapted to resolution size, instead of window size.
-        screenAdapter.on('window-resize', this._updateAdaptResult, this);
-        screenAdapter.on('orientation-change', this._updateAdaptResult, this);
-        screenAdapter.on('fullscreen-change', this._updateAdaptResult, this);
+        screen.on('window-resize', this._updateAdaptResult, this);
+        screen.on('orientation-change', this._updateAdaptResult, this);
+        screen.on('fullscreen-change', this._updateAdaptResult, this);
     }
 
     /**
@@ -167,6 +167,8 @@ export class View extends Eventify(System) {
      * 因此你可以在这个回调函数内添加任意附加改变，
      * 仅在 Web 平台下有效。
      * @param callback - The callback function
+     *
+     * @deprecated since v3.8.0, please use [[screen.on]] to listen for events.
      */
     public setResizeCallback (callback: (() => void) | null) {
         if (typeof callback === 'function' || callback == null) {

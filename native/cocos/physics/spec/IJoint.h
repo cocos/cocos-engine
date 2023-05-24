@@ -40,9 +40,9 @@ public:
     virtual uint32_t getObjectID() const = 0;
 };
 
-class IDistanceJoint : virtual public IBaseJoint {
+class ISphericalJoint : virtual public IBaseJoint {
 public:
-    ~IDistanceJoint() override = default;
+    ~ISphericalJoint() override = default;
     virtual void setPivotA(float x, float y, float z) = 0;
     virtual void setPivotB(float x, float y, float z) = 0;
 };
@@ -53,11 +53,58 @@ public:
     virtual void setPivotA(float x, float y, float z) = 0;
     virtual void setPivotB(float x, float y, float z) = 0;
     virtual void setAxis(float x, float y, float z) = 0;
+    virtual void setLimitEnabled(bool v) = 0;
+    virtual void setLowerLimit(float v) = 0;
+    virtual void setUpperLimit(float v) = 0;
+    virtual void setMotorEnabled(bool v) = 0;
+    virtual void setMotorVelocity(float v) = 0;
+    virtual void setMotorForceLimit(float v) = 0;
 };
 
 class IFixedJoint : virtual public IBaseJoint {
 public:
     ~IFixedJoint() override = default;
+    virtual void setBreakForce(float force) = 0;
+    virtual void setBreakTorque(float torque) = 0;
+};
+
+class IGenericJoint : virtual public IBaseJoint {
+public:
+    ~IGenericJoint() override = default;
+
+    virtual void setConstraintMode(uint32_t index, uint32_t mode) = 0;
+    virtual void setLinearLimit(uint32_t index, float lower, float upper) = 0;
+    virtual void setAngularExtent(float twist, float swing1, float swing2) = 0;
+    virtual void setLinearSoftConstraint(bool enable) = 0;
+    virtual void setLinearStiffness(float stiffness) = 0;
+    virtual void setLinearDamping(float damping) = 0;
+    virtual void setLinearRestitution(float restitution) = 0;
+
+    virtual void setSwingSoftConstraint(bool enable) = 0;
+    virtual void setTwistSoftConstraint(bool enable) = 0;
+    virtual void setSwingStiffness(float stiffness) = 0;
+    virtual void setSwingDamping(float damping) = 0;
+    virtual void setSwingRestitution(float restitution) = 0;
+    virtual void setTwistStiffness(float stiffness) = 0;
+    virtual void setTwistDamping(float damping) = 0;
+    virtual void setTwistRestitution(float restitution) = 0;
+
+    // motor
+    virtual void setDriverMode(uint32_t index, uint32_t mode) = 0;
+    virtual void setLinearMotorTarget(float x, float y, float z) = 0;
+    virtual void setLinearMotorVelocity(float x, float y, float z) = 0;
+    virtual void setLinearMotorForceLimit(float limit) = 0;
+
+    virtual void setAngularMotorTarget(float x, float y, float z) = 0;
+    virtual void setAngularMotorVelocity(float x, float y, float z) = 0;
+    virtual void setAngularMotorForceLimit(float limit) = 0;
+
+    virtual void setPivotA(float x, float y, float z) = 0;
+    virtual void setPivotB(float x, float y, float z) = 0;
+    virtual void setAutoPivotB(bool enable) = 0;
+    virtual void setAxis(float x, float y, float z) = 0;
+    virtual void setSecondaryAxis(float x, float y, float z) = 0;
+
     virtual void setBreakForce(float force) = 0;
     virtual void setBreakTorque(float torque) = 0;
 };

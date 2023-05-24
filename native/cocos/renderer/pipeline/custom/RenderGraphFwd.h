@@ -61,6 +61,7 @@ struct SwapchainTag;
 struct SamplerTag;
 struct ResourceGraph;
 struct ComputePass;
+struct ResolvePass;
 struct CopyPass;
 struct MovePass;
 struct RaytracePass;

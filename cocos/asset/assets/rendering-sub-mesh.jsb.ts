@@ -77,9 +77,9 @@ export interface IFlatBuffer {
 export type RenderingSubMesh = JsbRenderingSubMesh;
 export const RenderingSubMesh: typeof JsbRenderingSubMesh = jsb.RenderingSubMesh;
 
-const renderingSubMeshProto = RenderingSubMesh.prototype;
+// TODO: we mark renderingSubMeshProto as type of any, because here we have many dynamic injected property @dumganhar
+const renderingSubMeshProto: any = RenderingSubMesh.prototype;
 
-// @ts-expect-error TODO: Property '_ctor' does not exist on type 'RenderingSubMesh'.
 renderingSubMeshProto._ctor = function (vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
     indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null) {
     jsb.Asset.prototype._ctor.apply(this, arguments);

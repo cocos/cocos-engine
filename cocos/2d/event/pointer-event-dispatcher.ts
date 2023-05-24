@@ -53,7 +53,6 @@ class PointerEventDispatcher implements IEventDispatcher {
     private _processorListToRemove: NodeEventProcessor[] = [];
 
     constructor () {
-        // @ts-expect-error Property '_registerEventDispatcher' is private and only accessible within class 'Input'.
         input._registerEventDispatcher(this);
 
         NodeEventProcessor.callbacksInvoker.on(DispatcherEventType.ADD_POINTER_EVENT_PROCESSOR, this.addPointerEventProcessor, this);
@@ -102,7 +101,6 @@ class PointerEventDispatcher implements IEventDispatcher {
         for (let i = 0; i < length; ++i) {
             const pointerEventProcessor = pointerEventProcessorList[i];
             if (pointerEventProcessor.isEnabled && pointerEventProcessor.shouldHandleEventMouse
-                // @ts-expect-error access private method
                 && pointerEventProcessor._handleEventMouse(eventMouse)) {
                 dispatchToNextEventDispatcher = false;
                 if (!eventMouse.preventSwallow) {
@@ -129,7 +127,6 @@ class PointerEventDispatcher implements IEventDispatcher {
             const pointerEventProcessor = pointerEventProcessorList[i];
             if (pointerEventProcessor.isEnabled && pointerEventProcessor.shouldHandleEventTouch) {
                 if (eventTouch.type === InputEventType.TOUCH_START) {
-                    // @ts-expect-error access private method
                     if (pointerEventProcessor._handleEventTouch(eventTouch)) {
                         pointerEventProcessor.claimedTouchIdList.push(touch.getID());
                         dispatchToNextEventDispatcher = false;
@@ -142,7 +139,6 @@ class PointerEventDispatcher implements IEventDispatcher {
                 } else if (pointerEventProcessor.claimedTouchIdList.length > 0) {
                     const index = pointerEventProcessor.claimedTouchIdList.indexOf(touch.getID());
                     if (index !== -1) {
-                        // @ts-expect-error access private method
                         pointerEventProcessor._handleEventTouch(eventTouch);
                         if (eventTouch.type === InputEventType.TOUCH_END || eventTouch.type === InputEventType.TOUCH_CANCEL) {
                             js.array.removeAt(pointerEventProcessor.claimedTouchIdList, index);
@@ -210,20 +206,16 @@ class PointerEventDispatcher implements IEventDispatcher {
             return p2.cachedCameraPriority - p1.cachedCameraPriority;
         }
         let n1: Node | null = node1; let n2: Node | null = node2; let ex = false;
-        // @ts-expect-error _id is a protected property
-        while (n1.parent?._id !== n2.parent?._id) {
+        while (n1!.parent?.uuid !== n2!.parent?.uuid) {
             n1 = n1?.parent?.parent === null ? (ex = true) && node2 : n1 && n1.parent;
             n2 = n2?.parent?.parent === null ? (ex = true) && node1 : n2 && n2.parent;
         }
 
-        // @ts-expect-error protected property _id
-        if (n1._id === n2._id) {
-            // @ts-expect-error protected property _id
-            if (n1._id === node2._id) {
+        if (n1!.uuid === n2!.uuid) {
+            if (n1!.uuid === node2.uuid) {
                 return -1;
             }
-            // @ts-expect-error protected property _id
-            if (n1._id === node1._id) {
+            if (n1!.uuid === node1.uuid) {
                 return 1;
             }
         }

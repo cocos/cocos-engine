@@ -47,8 +47,7 @@ export interface ProgramLibrary {
     getLocalDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout;
     getProgramInfo (phaseID: number, programName: string): IProgramInfo;
     getShaderInfo (phaseID: number, programName: string): ShaderInfo;
-    getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null): ProgramProxy | null;
-    getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord/*, null*/): ProgramProxy | null;
+    getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key?: string | null): ProgramProxy | null;
     getBlockSizes (phaseID: number, programName: string): number[];
     getHandleMap (phaseID: number, programName: string): Record<string, number>;
     getProgramID (phaseID: number, programName: string): number;

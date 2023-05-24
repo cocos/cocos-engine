@@ -109,7 +109,7 @@ public class CocosHttpURLConnection
             }else {
                 String assetString = "assets/";
                 String assetsfilenameString = sslFilename.substring(assetString.length());
-                caInput = new BufferedInputStream(GlobalObject.getActivity().getAssets().open(assetsfilenameString));
+                caInput = new BufferedInputStream(GlobalObject.getContext().getAssets().open(assetsfilenameString));
             }
 
             CertificateFactory cf = CertificateFactory.getInstance("X.509");

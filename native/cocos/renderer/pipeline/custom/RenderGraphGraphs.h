@@ -1269,6 +1269,25 @@ struct property_map<cc::render::RenderGraph, T cc::render::RenderData::*> {
         T cc::render::RenderData::*>;
 };
 
+// Vertex ComponentMember(String)
+template <>
+struct property_map<cc::render::RenderGraph, ccstd::pmr::string cc::render::RenderData::*> {
+    using const_type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
+        read_write_property_map_tag,
+        const cc::render::RenderGraph,
+        const ccstd::pmr::vector<cc::render::RenderData>,
+        std::string_view,
+        const ccstd::pmr::string&,
+        const ccstd::pmr::string cc::render::RenderData::*>;
+    using type = cc::render::impl::VectorVertexComponentMemberPropertyMap<
+        read_write_property_map_tag,
+        cc::render::RenderGraph,
+        ccstd::pmr::vector<cc::render::RenderData>,
+        std::string_view,
+        ccstd::pmr::string&,
+        ccstd::pmr::string cc::render::RenderData::*>;
+};
+
 // Vertex Component
 template <>
 struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::ValidTag> {
@@ -2426,6 +2445,9 @@ id(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
             [](const impl::ValueHandle<ComputeTag, vertex_descriptor>& h) {
                 return h.value;
             },
+            [](const impl::ValueHandle<ResolveTag, vertex_descriptor>& h) {
+                return h.value;
+            },
             [](const impl::ValueHandle<CopyTag, vertex_descriptor>& h) {
                 return h.value;
             },
@@ -2472,6 +2494,9 @@ tag(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
             },
             [](const impl::ValueHandle<ComputeTag, vertex_descriptor>&) {
                 return RenderGraph::VertexTag{ComputeTag{}};
+            },
+            [](const impl::ValueHandle<ResolveTag, vertex_descriptor>&) {
+                return RenderGraph::VertexTag{ResolveTag{}};
             },
             [](const impl::ValueHandle<CopyTag, vertex_descriptor>&) {
                 return RenderGraph::VertexTag{CopyTag{}};
@@ -2520,6 +2545,9 @@ value(RenderGraph::vertex_descriptor u, RenderGraph& g) noexcept {
             [&](const impl::ValueHandle<ComputeTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexValue{&g.computePasses[h.value]};
             },
+            [&](const impl::ValueHandle<ResolveTag, vertex_descriptor>& h) {
+                return RenderGraph::VertexValue{&g.resolvePasses[h.value]};
+            },
             [&](const impl::ValueHandle<CopyTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexValue{&g.copyPasses[h.value]};
             },
@@ -2566,6 +2594,9 @@ value(RenderGraph::vertex_descriptor u, const RenderGraph& g) noexcept {
             },
             [&](const impl::ValueHandle<ComputeTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexConstValue{&g.computePasses[h.value]};
+            },
+            [&](const impl::ValueHandle<ResolveTag, vertex_descriptor>& h) {
+                return RenderGraph::VertexConstValue{&g.resolvePasses[h.value]};
             },
             [&](const impl::ValueHandle<CopyTag, vertex_descriptor>& h) {
                 return RenderGraph::VertexConstValue{&g.copyPasses[h.value]};
@@ -2630,6 +2661,14 @@ inline bool
 holds<ComputeTag>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept {
     return ccstd::holds_alternative<
         impl::ValueHandle<ComputeTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+}
+
+template <>
+inline bool
+holds<ResolveTag>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept {
+    return ccstd::holds_alternative<
+        impl::ValueHandle<ResolveTag, RenderGraph::vertex_descriptor>>(
         g._vertices[v].handle);
 }
 
@@ -2743,6 +2782,14 @@ holds_alternative<ComputePass>(RenderGraph::vertex_descriptor v, const RenderGra
 
 template <>
 inline bool
+holds_alternative<ResolvePass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
+    return ccstd::holds_alternative<
+        impl::ValueHandle<ResolveTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+}
+
+template <>
+inline bool
 holds_alternative<CopyPass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) noexcept { // NOLINT
     return ccstd::holds_alternative<
         impl::ValueHandle<CopyTag, RenderGraph::vertex_descriptor>>(
@@ -2851,6 +2898,15 @@ get<ComputePass>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
         impl::ValueHandle<ComputeTag, RenderGraph::vertex_descriptor>>(
         g._vertices[v].handle);
     return g.computePasses[handle.value];
+}
+
+template <>
+inline ResolvePass&
+get<ResolvePass>(RenderGraph::vertex_descriptor v, RenderGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<ResolveTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.resolvePasses[handle.value];
 }
 
 template <>
@@ -2975,6 +3031,15 @@ get<ComputePass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
 }
 
 template <>
+inline const ResolvePass&
+get<ResolvePass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<ResolveTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.resolvePasses[handle.value];
+}
+
+template <>
 inline const CopyPass&
 get<CopyPass>(RenderGraph::vertex_descriptor v, const RenderGraph& g) {
     const auto& handle = ccstd::get<
@@ -3087,6 +3152,14 @@ get(ComputeTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     return g.computePasses[handle.value];
 }
 
+inline ResolvePass&
+get(ResolveTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<ResolveTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.resolvePasses[handle.value];
+}
+
 inline CopyPass&
 get(CopyTag /*tag*/, RenderGraph::vertex_descriptor v, RenderGraph& g) {
     auto& handle = ccstd::get<
@@ -3189,6 +3262,14 @@ get(ComputeTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) 
         impl::ValueHandle<ComputeTag, RenderGraph::vertex_descriptor>>(
         g._vertices[v].handle);
     return g.computePasses[handle.value];
+}
+
+inline const ResolvePass&
+get(ResolveTag /*tag*/, RenderGraph::vertex_descriptor v, const RenderGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<ResolveTag, RenderGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.resolvePasses[handle.value];
 }
 
 inline const CopyPass&
@@ -3331,6 +3412,23 @@ get_if<ComputePass>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexc
         &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.computePasses[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline ResolvePass*
+get_if<ResolvePass>(RenderGraph::vertex_descriptor v, RenderGraph* pGraph) noexcept { // NOLINT
+    ResolvePass* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    auto& g       = *pGraph;
+    auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<ResolveTag, RenderGraph::vertex_descriptor>>(
+        &g._vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.resolvePasses[pHandle->value];
     }
     return ptr;
 }
@@ -3556,6 +3654,23 @@ get_if<ComputePass>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph)
         &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.computePasses[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline const ResolvePass*
+get_if<ResolvePass>(RenderGraph::vertex_descriptor v, const RenderGraph* pGraph) noexcept { // NOLINT
+    const ResolvePass* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    const auto& g       = *pGraph;
+    const auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<ResolveTag, RenderGraph::vertex_descriptor>>(
+        &g._vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.resolvePasses[pHandle->value];
     }
     return ptr;
 }
@@ -3813,6 +3928,13 @@ inline void remove_vertex_value_impl(const RenderGraph::VertexHandle& h, RenderG
                 }
                 impl::reindexVectorHandle<ComputeTag>(g._vertices, h.value);
             },
+            [&](const impl::ValueHandle<ResolveTag, vertex_descriptor>& h) {
+                g.resolvePasses.erase(g.resolvePasses.begin() + static_cast<std::ptrdiff_t>(h.value));
+                if (h.value == g.resolvePasses.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<ResolveTag>(g._vertices, h.value);
+            },
             [&](const impl::ValueHandle<CopyTag, vertex_descriptor>& h) {
                 g.copyPasses.erase(g.copyPasses.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.copyPasses.size()) {
@@ -3927,6 +4049,15 @@ void addVertexImpl( // NOLINT
     vert.handle = impl::ValueHandle<ComputeTag, RenderGraph::vertex_descriptor>{
         gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.computePasses.size())};
     g.computePasses.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, RenderGraph &g, RenderGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ResolvePass>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<ResolveTag, RenderGraph::vertex_descriptor>{
+        gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.resolvePasses.size())};
+    g.resolvePasses.emplace_back(std::forward<ValueT>(val));
 }
 
 template <class ValueT>
@@ -4074,6 +4205,17 @@ void addVertexImpl(ComputeTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph:
             vert.handle = impl::ValueHandle<ComputeTag, RenderGraph::vertex_descriptor>{
                 gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.computePasses.size())};
             g.computePasses.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(ResolveTag /*tag*/, Tuple &&val, RenderGraph &g, RenderGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<ResolveTag, RenderGraph::vertex_descriptor>{
+                gsl::narrow_cast<RenderGraph::vertex_descriptor>(g.resolvePasses.size())};
+            g.resolvePasses.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Tuple>(val));
 }

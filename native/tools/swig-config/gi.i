@@ -4,6 +4,9 @@
 // Note: doesn't support number prefix
 %module(target_namespace="jsb") gi
 
+// Disable some swig warnings, find warning number reference here ( https://www.swig.org/Doc4.1/Warnings.html )
+#pragma SWIG nowarn=503,302,401,317,402
+
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
@@ -93,12 +96,14 @@ using namespace cc::gi;
 %attribute(cc::gi::LightProbes, float, reduceRinging, getReduceRinging, setReduceRinging);
 %attribute(cc::gi::LightProbes, bool, showProbe, isShowProbe, setShowProbe);
 %attribute(cc::gi::LightProbes, bool, showWireframe, isShowWireframe, setShowWireframe);
+%attribute(cc::gi::LightProbes, float, lightProbeSphereVolume, getLightProbeSphereVolume, setLightProbeSphereVolume);
 %attribute(cc::gi::LightProbes, bool, showConvex, isShowConvex, setShowConvex);
 %attribute(cc::gi::LightProbes, cc::gi::LightProbesData*, data, getData, setData);
 
 %attribute(cc::gi::LightProbeInfo, float, giScale, getGIScale, setGIScale);
 %attribute(cc::gi::LightProbeInfo, uint32_t, giSamples, getGISamples, setGISamples);
 %attribute(cc::gi::LightProbeInfo, uint32_t, bounces, getBounces, setBounces);
+%attribute(cc::gi::LightProbeInfo, float, lightProbeSphereVolume, getLightProbeSphereVolume, setLightProbeSphereVolume);
 %attribute(cc::gi::LightProbeInfo, float, reduceRinging, getReduceRinging, setReduceRinging);
 %attribute(cc::gi::LightProbeInfo, bool, showProbe, isShowProbe, setShowProbe);
 %attribute(cc::gi::LightProbeInfo, bool, showWireframe, isShowWireframe, setShowWireframe);

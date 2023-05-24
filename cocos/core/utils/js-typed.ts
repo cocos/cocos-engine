@@ -141,7 +141,8 @@ export const getset = (() => {
             setter = undefined;
         }
         descriptor.get = getter;
-        descriptor.set = setter;
+        // TODO: on OH platform, strictNullCheck compiler option is false, so we need to force inferring as Setter type. @PP_Pro
+        descriptor.set = setter as Setter;
         descriptor.enumerable = enumerable;
         descriptor.configurable = configurable;
         Object.defineProperty(object, propertyName, descriptor);

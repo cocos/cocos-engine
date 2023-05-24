@@ -188,8 +188,8 @@
             }
 
             const translate = new cc.Mat4();
-            cc.Mat4.fromTranslate(translate, vec3);
-            cc.Mat4.multiple(worldMat, translate, worldMat);
+            cc.Mat4.fromTranslation(translate, vec3);
+            cc.Mat4.multiply(worldMat, translate, worldMat);
 
             viewScaleX /= dpr;
             viewScaleY /= dpr;

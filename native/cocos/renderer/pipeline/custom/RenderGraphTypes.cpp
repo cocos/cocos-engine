@@ -80,23 +80,32 @@ SubpassGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 
-RasterSubpass::RasterSubpass(uint32_t subpassIDIn, const allocator_type& alloc) noexcept
+RasterSubpass::RasterSubpass(uint32_t subpassIDIn, uint32_t countIn, uint32_t qualityIn, const allocator_type& alloc) noexcept
 : rasterViews(alloc),
   computeViews(alloc),
-  subpassID(subpassIDIn) {}
+  resolvePairs(alloc),
+  subpassID(subpassIDIn),
+  count(countIn),
+  quality(qualityIn) {}
 
 RasterSubpass::RasterSubpass(RasterSubpass&& rhs, const allocator_type& alloc)
 : rasterViews(std::move(rhs.rasterViews), alloc),
   computeViews(std::move(rhs.computeViews), alloc),
-  subpassID(rhs.subpassID),
+  resolvePairs(std::move(rhs.resolvePairs), alloc),
   viewport(rhs.viewport),
+  subpassID(rhs.subpassID),
+  count(rhs.count),
+  quality(rhs.quality),
   showStatistics(rhs.showStatistics) {}
 
 RasterSubpass::RasterSubpass(RasterSubpass const& rhs, const allocator_type& alloc)
 : rasterViews(rhs.rasterViews, alloc),
   computeViews(rhs.computeViews, alloc),
-  subpassID(rhs.subpassID),
+  resolvePairs(rhs.resolvePairs, alloc),
   viewport(rhs.viewport),
+  subpassID(rhs.subpassID),
+  count(rhs.count),
+  quality(rhs.quality),
   showStatistics(rhs.showStatistics) {}
 
 ComputeSubpass::ComputeSubpass(uint32_t subpassIDIn, const allocator_type& alloc) noexcept
@@ -117,29 +126,38 @@ ComputeSubpass::ComputeSubpass(ComputeSubpass const& rhs, const allocator_type& 
 RasterPass::RasterPass(const allocator_type& alloc) noexcept
 : rasterViews(alloc),
   computeViews(alloc),
+  attachmentIndexMap(alloc),
   subpassGraph(alloc),
   versionName(alloc) {}
 
 RasterPass::RasterPass(RasterPass&& rhs, const allocator_type& alloc)
 : rasterViews(std::move(rhs.rasterViews), alloc),
   computeViews(std::move(rhs.computeViews), alloc),
+  attachmentIndexMap(std::move(rhs.attachmentIndexMap), alloc),
   subpassGraph(std::move(rhs.subpassGraph), alloc),
   width(rhs.width),
   height(rhs.height),
+  count(rhs.count),
+  quality(rhs.quality),
   viewport(rhs.viewport),
   versionName(std::move(rhs.versionName), alloc),
   version(rhs.version),
+  hashValue(rhs.hashValue),
   showStatistics(rhs.showStatistics) {}
 
 RasterPass::RasterPass(RasterPass const& rhs, const allocator_type& alloc)
 : rasterViews(rhs.rasterViews, alloc),
   computeViews(rhs.computeViews, alloc),
+  attachmentIndexMap(rhs.attachmentIndexMap, alloc),
   subpassGraph(rhs.subpassGraph, alloc),
   width(rhs.width),
   height(rhs.height),
+  count(rhs.count),
+  quality(rhs.quality),
   viewport(rhs.viewport),
   versionName(rhs.versionName, alloc),
   version(rhs.version),
+  hashValue(rhs.hashValue),
   showStatistics(rhs.showStatistics) {}
 
 PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept
@@ -214,6 +232,15 @@ ComputePass::ComputePass(ComputePass&& rhs, const allocator_type& alloc)
 ComputePass::ComputePass(ComputePass const& rhs, const allocator_type& alloc)
 : computeViews(rhs.computeViews, alloc) {}
 
+ResolvePass::ResolvePass(const allocator_type& alloc) noexcept
+: resolvePairs(alloc) {}
+
+ResolvePass::ResolvePass(ResolvePass&& rhs, const allocator_type& alloc)
+: resolvePairs(std::move(rhs.resolvePairs), alloc) {}
+
+ResolvePass::ResolvePass(ResolvePass const& rhs, const allocator_type& alloc)
+: resolvePairs(rhs.resolvePairs, alloc) {}
+
 CopyPass::CopyPass(const allocator_type& alloc) noexcept
 : copyPairs(alloc) {}
 
@@ -287,13 +314,15 @@ RenderData::RenderData(const allocator_type& alloc) noexcept
 : constants(alloc),
   buffers(alloc),
   textures(alloc),
-  samplers(alloc) {}
+  samplers(alloc),
+  custom(alloc) {}
 
 RenderData::RenderData(RenderData&& rhs, const allocator_type& alloc)
 : constants(std::move(rhs.constants), alloc),
   buffers(std::move(rhs.buffers), alloc),
   textures(std::move(rhs.textures), alloc),
-  samplers(std::move(rhs.samplers), alloc) {}
+  samplers(std::move(rhs.samplers), alloc),
+  custom(std::move(rhs.custom), alloc) {}
 
 RenderGraph::RenderGraph(const allocator_type& alloc) noexcept
 : objects(alloc),
@@ -306,6 +335,7 @@ RenderGraph::RenderGraph(const allocator_type& alloc) noexcept
   rasterSubpasses(alloc),
   computeSubpasses(alloc),
   computePasses(alloc),
+  resolvePasses(alloc),
   copyPasses(alloc),
   movePasses(alloc),
   raytracePasses(alloc),
@@ -328,6 +358,7 @@ RenderGraph::RenderGraph(RenderGraph&& rhs, const allocator_type& alloc)
   rasterSubpasses(std::move(rhs.rasterSubpasses), alloc),
   computeSubpasses(std::move(rhs.computeSubpasses), alloc),
   computePasses(std::move(rhs.computePasses), alloc),
+  resolvePasses(std::move(rhs.resolvePasses), alloc),
   copyPasses(std::move(rhs.copyPasses), alloc),
   movePasses(std::move(rhs.movePasses), alloc),
   raytracePasses(std::move(rhs.raytracePasses), alloc),

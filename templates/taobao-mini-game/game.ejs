@@ -1,3 +1,9 @@
+globalThis.__taobaoRequire = (urlNoSchema) => {
+    if (urlNoSchema.startsWith('./')) {
+        urlNoSchema = urlNoSchema.replace('./', '');
+    }
+    require('./' + urlNoSchema);
+};
 loadCC();
 
 function loadCC() {
@@ -45,6 +51,10 @@ function loadCC() {
         handlers: {
             'plugin:': (urlNoSchema) => {
                 requirePlugin(urlNoSchema);
+            },
+            'project:': (urlNoSchema) => {
+                urlNoSchema = urlNoSchema.replace("//", "");
+                require("./" + urlNoSchema);
             },
         },
     });

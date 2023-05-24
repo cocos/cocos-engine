@@ -3,7 +3,7 @@ import * as ps from 'path';
 import { CocosParams, NativePackTool } from "../base/default";
 import { cchelper, Paths } from "../utils";
 import * as URL from 'url';
-import { spawn } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 
 export interface IOrientation {
     landscapeLeft: boolean;
@@ -129,8 +129,10 @@ export class AndroidPackTool extends NativePackTool {
             const pattern = /android:screenOrientation="[^"]*"/;
             let replaceString = 'android:screenOrientation="unspecified"';
 
-            if (cfg.landscapeRight && cfg.landscapeLeft && cfg.portrait && cfg.upsideDown) {
+            if (cfg.landscapeRight && cfg.landscapeLeft && (cfg.portrait || cfg.upsideDown)) {
                 replaceString = 'android:screenOrientation="fullSensor"';
+            } else if ((cfg.landscapeRight || cfg.landscapeLeft) && (cfg.portrait || cfg.upsideDown)) {
+                replaceString = 'android:screenOrientation="unspecified"';
             } else if (cfg.landscapeRight && !cfg.landscapeLeft) {
                 replaceString = 'android:screenOrientation="landscape"';
             } else if (!cfg.landscapeRight && cfg.landscapeLeft) {
@@ -198,6 +200,7 @@ export class AndroidPackTool extends NativePackTool {
             content = content.replace(/PROP_MIN_SDK_VERSION=.*/, `PROP_MIN_SDK_VERSION=${Math.min(apiLevel, minimalSDKVersion)}`);
             content = content.replace(/PROP_APP_NAME=.*/, `PROP_APP_NAME=${this.params.projectName}`);
             content = content.replace(/PROP_ENABLE_INSTANT_APP=.*/, `PROP_ENABLE_INSTANT_APP=${options.androidInstant ? "true" : "false"}`);
+            content = content.replace(/PROP_ENABLE_INPUTSDK=.*/, `PROP_ENABLE_INPUTSDK=${options.inputSDK ? "true" : "false"}`);
             content = content.replace(/PROP_IS_DEBUG=.*/, `PROP_IS_DEBUG=${this.params.debug ? "true" : "false"}`);
 
             content = content.replace(/RES_PATH=.*/, `RES_PATH=${cchelper.fixPath(this.paths.buildDir)}`);
@@ -226,7 +229,7 @@ export class AndroidPackTool extends NativePackTool {
                 content = content.replace(/:/g, '\\:');
             }
 
-            fs.writeFileSync(cchelper.join(ps.dirname(gradlePropertyPath), 'local.properties'), content);
+            fs.writeFileSync(cchelper.join(ps.dirname(gradlePropertyPath), 'local.properties'), content, {encoding: 'utf8'});
         } else {
             console.log(`warning: ${gradlePropertyPath} not found!`);
         }
@@ -330,7 +333,11 @@ export class AndroidPackTool extends NativePackTool {
             throw new Error(`can not find adb at ${adbPath}`);
         }
 
-        if (await this.checkApkInstalled()) {
+        if (!this.checkConnectedDevices(adbPath)) {
+            throw new Error(`can not find any connected devices, please connect you device or start an Android emulator`);
+        }
+
+        if (await this.checkApkInstalled(adbPath)) {
             await cchelper.runCmd(
                 adbPath, ['uninstall', this.params.platformParams.packageName], false);
         }
@@ -339,9 +346,33 @@ export class AndroidPackTool extends NativePackTool {
         return true;
     }
 
-    async checkApkInstalled() {
+    checkConnectedDevices(adbPath: string): boolean {
+        const cp = spawnSync(adbPath, ['devices'], { shell: true, env: process.env, cwd: process.cwd() });
+        if (cp.stderr && cp.stderr.length > 0) {
+            console.log(`[adb devices] stderr: ${cp.stderr.toString('utf8')}`);
+        }
+        if (cp.error) {
+            console.log(`[adb devices] error: ${cp.error}`);
+        }
+        if (cp.output.length > 1) {
+            for (const chunk of cp.output) {
+                if (chunk) {
+                    const chunkAny: any = chunk;
+                    const chuckStr: string = typeof chunk === 'string' ? chunk : (chunkAny.buffer && chunkAny.buffer instanceof ArrayBuffer ? chunkAny.toString() : chunkAny.toString());
+                    const lines = chuckStr.split('\n');
+                    for (let line of lines) {
+                        if (/^[0-9a-fA-F]+\s+\w+/.test(line)) {
+                            return true; // device connected
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    async checkApkInstalled(adbPath: string) {
         const ret: string = await new Promise((resolve, reject) => {
-            const adbPath = this.getAdbPath();
             const cp = spawn(
                 adbPath,
                 [

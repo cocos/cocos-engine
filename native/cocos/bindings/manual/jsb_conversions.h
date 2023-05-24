@@ -780,11 +780,13 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T> *to, se::Object *
 
     if (array->isTypedArray()) {
         CC_ASSERT(std::is_arithmetic<T>::value);
-        uint8_t *data = nullptr;
-        size_t dataLen = 0;
-        array->getTypedArrayData(&data, &dataLen);
-        to->assign(reinterpret_cast<T *>(data), reinterpret_cast<T *>(data + dataLen));
-        return true;
+        if constexpr (std::is_arithmetic<T>::value) {
+            uint8_t *data = nullptr;
+            size_t dataLen = 0;
+            array->getTypedArrayData(&data, &dataLen);
+            to->assign(reinterpret_cast<T *>(data), reinterpret_cast<T *>(data + dataLen));
+            return true;
+        }
     }
 
     SE_LOGE("[warn] failed to convert to ccstd::vector\n");
@@ -1204,6 +1206,9 @@ inline bool nativevalue_to_se(const ccstd::map<K, V> &from, se::Value &to, se::O
 template <typename T>
 inline bool nativevalue_to_se(const cc::TypedArrayTemp<T> &typedArray, se::Value &to, se::Object *ctx); // NOLINT
 
+template <typename K, typename V>
+bool nativevalue_to_se(const cc::StablePropertyMap<K, V> &from, se::Value &to, se::Object *ctx); // NOLINT
+
 /// nativevalue_to_se ccstd::optional
 template <typename T>
 bool nativevalue_to_se(const ccstd::optional<T> &from, se::Value &to, se::Object *ctx) { // NOLINT
@@ -1230,8 +1235,6 @@ inline bool nativevalue_to_se(const ccstd::vector<T> &from, se::Value &to, se::O
         if constexpr (!std::is_pointer<T>::value && is_jsb_object_v<T>) {
             auto *pFrom = ccnew T(from[i]);
             nativevalue_to_se(pFrom, tmp, ctx);
-            tmp.toObject()->clearPrivateData();
-            tmp.toObject()->setPrivateData(pFrom);
         } else {
             nativevalue_to_se(from[i], tmp, ctx);
         }

@@ -359,8 +359,9 @@ class Component extends CCObject {
 
     public destroy () {
         if (EDITOR) {
-            // @ts-expect-error private function access
-            const depend = this.node._getDependComponent(this);
+            // TODO: `_getDependComponent` is an injected method.
+            // issue: https://github.com/cocos/cocos-engine/issues/14643
+            const depend = (this.node as any)._getDependComponent(this);
             if (depend.length > 0) {
                 errorID(3626,
                     getClassName(this), getClassName(depend[0]));
@@ -647,45 +648,31 @@ class Component extends CCObject {
     protected onRestore? (): void;
 }
 
-const proto = Component.prototype;
-// @ts-expect-error modify prototype
+// NOTE: here we access the protected properties in Component, so we need to mark it as type of any.
+const proto = Component.prototype as any;
 proto.update = undefined;
-// @ts-expect-error modify prototype
 proto.lateUpdate = undefined;
-// @ts-expect-error modify prototype
 proto.__preload = undefined;
-// @ts-expect-error modify prototype
 proto.onLoad = undefined;
-// @ts-expect-error modify prototype
 proto.start = undefined;
-// @ts-expect-error modify prototype
 proto.onEnable = undefined;
-// @ts-expect-error modify prototype
 proto.onDisable = undefined;
-// @ts-expect-error modify prototype
 proto.onDestroy = undefined;
 proto.onFocusInEditor = undefined;
 proto.onLostFocusInEditor = undefined;
 proto.resetInEditor = undefined;
-// @ts-expect-error modify prototype
 proto._getLocalBounds = undefined;
-// @ts-expect-error modify prototype
 proto.onRestore = undefined;
-// @ts-expect-error modify class
-Component._requireComponent = null;
-// @ts-expect-error modify class
-Component._executionOrder = 0;
+// NOTE: these are all injected properties
+(Component as any)._requireComponent = null;
+(Component as any)._executionOrder = 0;
 
 if (EDITOR || TEST) {
     // INHERITABLE STATIC MEMBERS
-    // @ts-expect-error modify static member
-    Component._executeInEditMode = false;
-    // @ts-expect-error modify static member
-    Component._playOnFocus = false;
-    // @ts-expect-error modify static member
-    Component._disallowMultiple = null;
-    // @ts-expect-error modify static member
-    Component._help = '';
+    (Component as any)._executeInEditMode = false;
+    (Component as any)._playOnFocus = false;
+    (Component as any)._disallowMultiple = null;
+    (Component as any)._help = '';
 
     // NON-INHERITED STATIC MEMBERS
     // (TypeScript 2.3 will still inherit them, so always check hasOwnProperty before using)

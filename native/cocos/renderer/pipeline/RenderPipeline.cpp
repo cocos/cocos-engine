@@ -23,7 +23,6 @@
 ****************************************************************************/
 
 #include "RenderPipeline.h"
-#include "BatchedBuffer.h"
 #if CC_USE_GEOMETRY_RENDERER
     #include "GeometryRenderer.h"
 #endif

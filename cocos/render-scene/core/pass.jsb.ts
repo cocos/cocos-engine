@@ -43,7 +43,6 @@ export interface IMacroPatch {
 export enum BatchingSchemes {
     NONE = 0,
     INSTANCING = 1,
-    VB_MERGING = 2,
 }
 
 export const Pass: typeof JsbPass = jsb.Pass;

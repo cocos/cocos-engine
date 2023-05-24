@@ -28,8 +28,7 @@ import { cloneObject } from '../utils';
 
 declare let my: any;
 
-// @ts-expect-error can't init minigame when it's declared
-const minigame: IMiniGame = {};
+const minigame: IMiniGame = {} as IMiniGame;
 cloneObject(minigame, my);
 
 // #region SystemInfo
@@ -80,24 +79,15 @@ minigame.onTouchCancel = function (cb) {
 // #endregion TouchEvent
 
 minigame.createInnerAudioContext = function (): InnerAudioContext {
-    const audio: InnerAudioContext = my.createInnerAudioContext();
-    // @ts-expect-error InnerAudioContext has onCanPlay
+    // NOTE: `onCanPlay` and `offCanPlay` is not standard minigame interface,
+    // so here we mark audio as type of any
+    const audio: any = my.createInnerAudioContext();
     audio.onCanplay = audio.onCanPlay.bind(audio);
-    // @ts-expect-error InnerAudioContext has offCanPlay
     audio.offCanplay = audio.offCanPlay.bind(audio);
-    // @ts-expect-error InnerAudioContext has onCanPlay
     delete audio.onCanPlay;
-    // @ts-expect-error InnerAudioContext has offCanPlay
     delete audio.offCanPlay;
-    return audio;
+    return audio as InnerAudioContext;
 };
-
-// #region Font
-minigame.loadFont = function (url) {
-    // my.loadFont crash when url is not in user data path
-    return 'Arial';
-};
-// #endregion Font
 
 // #region Accelerometer
 let _accelerometerCb: AccelerometerChangeCallback | undefined;

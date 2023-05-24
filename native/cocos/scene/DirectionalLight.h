@@ -99,10 +99,9 @@ public:
     inline float getCSMTransitionRange() const { return _csmTransitionRange; }
     float getIlluminance() const;
     void setIlluminance(float value);
-
-private:
     void activate() const;
 
+private:
     // shadow info
     bool _shadowEnabled{false};
     bool _isCSMNeedUpdate{false};

@@ -1,11 +1,18 @@
+/* eslint-disable quote-props */
 const pkg = require('../../../package.json');
+const { mixin, link } = require('../../i18n-utils');
 const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
     return a;
 });
 
 const url = 'https://docs.cocos.com/creator';
 
-module.exports = {
+module.exports = link(mixin({
+
+    classes: {
+        'cc': { },
+    },
+
     help: {
         cc: {
             Node: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
@@ -58,11 +65,20 @@ module.exports = {
             RigidBody2D: `${url}/${version}/manual/en/physics-2d/physics-2d-rigid-body.html`,
             Joint2D: `${url}/${version}/manual/en/physics-2d/physics-2d-joint.html`,
             BoxCollider: `${url}/${version}/manual/en/physics/physics-collider.html`,
-            SphereCollider: `${url}/${version}/manual/en/physics/physics-component.html`,
-            CapsuleCollider: `${url}/${version}/manual/en/physics/physics-component.html`,
-            CylinderCollider: `${url}/${version}/manual/en/physics/physics-component.html`,
-            MeshCollider: `${url}/${version}/manual/en/physics/physics-component.html`,
+            CapsuleCollider: `${url}/${version}/manual/en/physics/physics-collider.html`,
+            ConeCollider: `${url}/${version}/manual/en/physics/physics-collider.html`,
+            CylinderCollider: `${url}/${version}/manual/en/physics/physics-collider.html`,
+            MeshCollider: `${url}/${version}/manual/en/physics/physics-collider.html`,
+            PlaneCollider: `${url}/${version}/manual/en/physics/physics-collider.html`,
+            SphereCollider: `${url}/${version}/manual/en/physics/physics-collider.html`,
+            SimplexCollider: `${url}/${version}/manual/en/physics/physics-collider.html`,
+            TerrainCollider: `${url}/${version}/manual/en/physics/physics-collider.html`,
+            ConfigurableConstraint: `${url}/${version}/manual/en/physics/physics-constraint.html`,
+            FixedConstraint: `${url}/${version}/manual/en/physics/physics-constraint.html`,
+            HingeConstraint: `${url}/${version}/manual/en/physics/physics-constraint.html`,
+            PointToPointConstraint: `${url}/${version}/manual/en/physics/physics-constraint.html`,
             RigidBody: `${url}/${version}/manual/en/physics/physics-rigidbody.html`,
+            PhysicsMaterial: `${url}/${version}/manual/en/physics/physics-material.html`,
             ConstantForce: `${url}/${version}/manual/en/physics/physics-component.html`,
             VideoPlayer: `${url}/${version}/manual/en/ui-system/components/editor/videoplayer.html`,
             WebView: `${url}/${version}/manual/en/ui-system/components/editor/webview.html`,
@@ -229,6 +245,7 @@ module.exports = {
         skinning_root: 'The skinning root, where the controlling Animation is located',
         shadow_bias: 'Bias value (world space unit) that can avoid moire artifacts with shadows for model. <br>The more the value, the more the light leakage',
         shadow_normal_bias: 'Bias value (world space unit) that can avoid moire artifacts with surfaces that parallel to the directional light',
+        standard_skin_model: 'Bias value (world space unit) that ensure globally unique standard skin model',
     },
     sprite: {
         gray_scale: 'Whether turn on grayscale rendering mode',
@@ -1105,12 +1122,93 @@ module.exports = {
             torque: 'The torque applied to the rigid body in the world coordinate system',
             localTorque: 'The torque applied to the rigid body in the local coordinate system',
         },
+        constraint: {
+            attachedBody: 'The rigid body where the constraint is attached to',
+            connectedBody: 'The rigid body connected to the constraint, <br>if not set, the world object will be used',
+            enableCollision: 'Whether to enable collision between the two rigid bodies',
+            pivotA: 'The pivot point of the constraint in the local coordinate system of the attached rigid body',
+            pivotB: 'The pivot point of the constraint in the local coordinate system of the connected rigid body',
+            breakForce: 'The maximum force that can be applied to the constraint before it breaks',
+            breakTorque: 'The maximum torque that can be applied to the constraint before it breaks',
+            axis: 'The axis of the constraint in the local coordinate system of the attached rigid body',
+            secondaryAxis: 'The secondary axis of the constraint in the local coordinate system of the attached rigid body',
+            autoCalculatePivotB: 'Automatically derivate the pivotB from the pivotA and the relative transform of the two rigid bodies',
+            linearLimit: {
+                xMotion: 'The constraint mode along the x axis',
+                yMotion: 'The constraint mode along the y axis',
+                zMotion: 'The constraint mode along the z axis',
+                upper: 'The upper limit of the constraint',
+                lower: 'The lower limit of the constraint',
+                enableSoftConstraint: 'Whether to enable soft constraint',
+                stiffness: 'The stiffness factor of the constraint',
+                damping: 'The damping factor of the constraint',
+                restitution: 'The restitution factor of the constraint',
+            },
+            angularLimit: {
+                twistMotion: 'The constraint mode of the twist angle',
+                swingMotion1: 'The constraint mode of the swing y angle',
+                swingMotion2: 'The constraint mode of the swing z angle',
+                twistExtent: 'The twist angle limit',
+                swingExtent1: 'The swing y angle limit',
+                swingExtent2: 'The swing z angle limit',
+                enableSoftConstraintSwing: 'Whether to enable soft constraint for the swing constraint',
+                swingStiffness: 'The stiffness factor of the swing constraint',
+                swingDamping: 'The damping factor of the swing constraint',
+                swingRestitution: 'The restitution factor of the swing constraint',
+                enableSoftConstraintTwist: 'Whether to enable soft constraint for the twist constraint',
+                twistStiffness: 'The stiffness factor of the twist constraint',
+                twistDamping: 'The damping factor of the twist constraint',
+                twistRestitution: 'The restitution factor of the twist constraint',
+            },
+            linearDriver: {
+                xMode: 'The driver mode along the x axis',
+                yMode: 'The driver mode along the y axis',
+                zMode: 'The driver mode along the z axis',
+                targetPosition: 'The target position of the driver',
+                targetVelocity: 'The target velocity of the driver',
+                strength: 'The strength of the driver',
+            },
+            angularDriver: {
+                twistMode: 'The driver mode along the twist axis',
+                swingMode1: 'The driver mode along the swing y axis',
+                swingMode2: 'The driver mode along the swing z axis',
+                targetOrientation: 'The target orientation of the driver',
+                targetAngularVelocity: 'The target angular velocity of the driver',
+                strength: 'The strength of the driver',
+            },
+        },
+        material: {
+            friction: 'The friction coefficient of the material',
+            rollingFriction: 'The rolling friction coefficient of the material',
+            spinningFriction: 'The spinning friction coefficient of the material',
+            restitution: 'The coefficient of restitution of the material',
+        },
+        character_controller: {
+            group: 'Collision Group of the character controller.',
+            minMoveDistance: 'The minimum movement distance of the character controller.',
+            stepOffset: 'The step offset of the character controller.',
+            slopeLimit: 'The slope limit of the character controller in degree.',
+            contactOffset: 'The contact offset of the character controller.',
+            detectCollisions: 'If the character controller can collide with other objects without calling move().',
+            enableOverlapRecovery: 'If the character controller enable overlap recovery when penetrating with other colliders.',
+            center: 'The center of the character controller in local space.',
+            capsuleRadius: 'The radius of the sphere of the capsule shape of the character controller in local space.',
+            capsuleHeight: 'The height of the capsule shape of the character controller in local space.',
+            boxHalfHeight: 'The half height of the box shape of the character controller in local space.',
+            boxHalfSideExtent: 'The half side extent of box shape of the character controller in local space.',
+            boxHalfForwardExtent: 'The half forward extent of the box shape of the character controller in local space.',
+        },
     },
     octree_culling: {
         enabled: 'The switch of octree culling, only available for native platforms.',
         minPos: 'The minimum position of the world bounding box.',
         maxPos: 'The maximum position of the world bounding box.',
         depth: 'The depth of octree.',
+    },
+    skin: {
+        enabled: 'The switch of skin scattering',
+        blurRadius: 'This parameter specifies the range of subsurface scattering , in other words, scattering filter width.',
+        sssIntensity: 'This parameter specifies the intensity of subsurface scattering.',
     },
     light_probe: {
         giScale: 'The value of GI multiplier.',
@@ -1120,6 +1218,7 @@ module.exports = {
         showProbe: 'The switch of showing light probe.',
         showWireframe: 'The switch of showing connection of light probe.',
         showConvex: 'The switch of showing convex of light probe.',
+        lightProbeSphereVolume: 'The value of all light probe sphere display size',
     },
     light_probe_group: {
         method: 'The automatic generation algorithm of light probe.',
@@ -1132,4 +1231,11 @@ module.exports = {
     reflection_probe: {
         fastBake: 'If checked, generating progress will ignore GGX convolution for cubemap, very fast generation.',
     },
-};
+    color_grading: {
+        originalMap: 'The builtin lut texture path is internal/dependencies/textures/lut/.',
+    },
+},
+
+require('./animation'),
+
+));

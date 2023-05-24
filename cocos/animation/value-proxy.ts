@@ -56,6 +56,8 @@ export interface IValueProxyFactory {
      * @zh
      * 返回指定目标的曲线值代理。
      * @param target The target acquiring the value proxy.
+     * @returns The value proxy, or undefined if the proxy could not be created.
+     * In later case, a warn should be given before returning.
      */
-    forTarget (target: any): IValueProxy;
+    forTarget (target: any): IValueProxy | undefined;
 }

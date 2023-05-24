@@ -54,6 +54,26 @@ CCEffect %{
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+    - &planar-shadow
+      vert: planar-shadow-vs:vert
+      frag: planar-shadow-fs:frag
+      phase: planar-shadow
+      propertyIndex: 0
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        stencilTestFront: true
+        stencilFuncFront: not_equal
+        stencilPassOpFront: replace
+        stencilRef: 0x80 # only use the leftmost bit
+        stencilReadMask: 0x80
+        stencilWriteMask: 0x80
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
   - name: transparent
     passes:
     - vert: standard-vs
@@ -71,6 +91,7 @@ CCEffect %{
       properties: *props
     - *forward-add
     - *shadow-caster
+    - *planar-shadow
 }%
 
 CCProgram shared-ubos %{
@@ -111,6 +132,10 @@ CCProgram standard-vs %{
     out mediump vec4 v_shadowBiasAndProbeId;
   #endif
 
+  #if CC_USE_REFLECTION_PROBE && USE_INSTANCING
+    out mediump vec4 v_reflectionProbeData;
+  #endif
+
   #if USE_NORMAL_MAP
     out mediump vec4 v_tangent;
   #endif
@@ -144,6 +169,9 @@ CCProgram standard-vs %{
       #else
         v_shadowBiasAndProbeId.zw = cc_localShadowBias.zw;
       #endif
+    #endif
+    #if CC_USE_REFLECTION_PROBE && USE_INSTANCING
+        v_reflectionProbeData = a_reflectionProbeData;
     #endif
 
     #if USE_TWOSIDE
@@ -202,6 +230,10 @@ CCProgram standard-fs %{
 
   #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
     in mediump vec4 v_shadowBiasAndProbeId;
+  #endif
+
+  #if CC_USE_REFLECTION_PROBE && USE_INSTANCING
+    in mediump vec4 v_reflectionProbeData;
   #endif
 
   #if USE_VERTEX_COLOR
@@ -268,6 +300,15 @@ CCProgram standard-fs %{
       s.reflectionProbeId = v_shadowBiasAndProbeId.z;
     #endif
 
+    #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND || CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_BLEND_AND_SKYBOX
+      s.reflectionProbeBlendId = v_shadowBiasAndProbeId.w;    
+      #if USE_INSTANCING
+        s.reflectionProbeBlendFactor = v_reflectionProbeData.x;
+      #else
+        s.reflectionProbeBlendFactor = cc_reflectionProbeBlendData1.w;
+      #endif
+    #endif
+
 
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
@@ -288,7 +329,7 @@ CCProgram standard-fs %{
     pbr.x = 1.0;
     #if USE_PBR_MAP
       vec4 res = texture(pbrMap, PBR_UV);
-      pbr.x *= res.OCCLUSION_CHANNEL;
+      pbr.x = mix(1.0, res.OCCLUSION_CHANNEL, pbrParams.x);
       pbr.y *= res.ROUGHNESS_CHANNEL;
       pbr.z *= res.METALLIC_CHANNEL;
       pbr.w *= res.SPECULAR_INTENSITY_CHANNEL;
@@ -390,17 +431,55 @@ CCProgram shadow-caster-fs %{
 
     highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
     // spot use linear
-    if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
-      // enabled linear depth
-      #if CC_SHADOWMAP_USE_LINEAR_DEPTH
+    #if CC_SHADOWMAP_USE_LINEAR_DEPTH
+      if (IS_SPOT_LIGHT(cc_shadowLPNNInfo.x)) {
         clipDepth = CCGetLinearDepth(v_worldPos.xyz);
-      #endif
-    }
+      }
+    #endif
 
     #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
       return packDepthToRGBA(clipDepth);
     #else
       return vec4(clipDepth, 1.0, 1.0, 1.0);
     #endif
+  }
+}%
+
+CCProgram planar-shadow-vs %{
+  precision highp float;
+  #include <legacy/input>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
+  #include <builtin/uniforms/cc-shadow>
+  #include <common/lighting/functions>
+
+  out float v_dist;
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+    // World Space
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+    vec3 worldPos = (matWorld * position).xyz;
+    vec4 shadowPos = CalculatePlanarShadowPos(worldPos, cc_cameraPos.xyz, cc_mainLitDir.xyz, cc_planarNDInfo);
+    position = cc_matProj * cc_matView * vec4(shadowPos.xyz, 1.0);
+    v_dist = shadowPos.w;
+    return position;
+  }
+}%
+
+CCProgram planar-shadow-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-shadow>
+  #include <legacy/output>
+
+  in float v_dist;
+
+  vec4 frag () {
+    if(v_dist < 0.0)
+      discard;
+    return CCFragOutput(cc_shadowColor);
   }
 }%

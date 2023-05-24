@@ -345,7 +345,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     const vertStep3 = vertStep * 3;
 
     const vertices = comp.vertices;
-    let rowData: { [key: number]: { left: number, bottom: number; index: number }, maxCol: number, minCol: number };
+    let rowData: { maxCol: number, minCol: number } & SafeRecord<number, { left: number, bottom: number; index: number }>;
     let col: number;
     let cols: number;
     let row: number;
@@ -387,7 +387,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     const vertexBuf = _tempBuffers;
     // traverse row
     for (; (rows - row) * rowMoveDir >= 0; row += rowMoveDir) {
-        rowData = vertices[row];
+        rowData = vertices[row]!;
         colNodesCount = comp.getNodesCountByRow(row);
         isCheckColRange = rowData && colNodesCount === 0;
 
@@ -402,7 +402,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
 
         // traverse col
         for (; (cols - col) * colMoveDir >= 0; col += colMoveDir) {
-            colData = rowData && rowData[col];
+            colData = rowData && rowData[col]!;
 
             if (colNodesCount > 0) {
                 packRenderData();

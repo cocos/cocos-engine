@@ -37,7 +37,6 @@
 #include "base/Macros.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
-#include "platform/java/jni/glue/JniNativeGlue.h"
 
 namespace {
 #ifndef JCLS_COCOSACTIVITY
@@ -51,10 +50,6 @@ SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
 }
 
 void SystemWindow::setCursorEnabled(bool value) {
-}
-
-void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
-    copyTextToClipboardJNI(text);
 }
 
 void SystemWindow::setWindowHandle(void *handle) {

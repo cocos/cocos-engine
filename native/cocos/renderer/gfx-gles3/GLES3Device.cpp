@@ -33,6 +33,7 @@
 #include "GLES3Framebuffer.h"
 #include "GLES3GPUObjects.h"
 #include "GLES3InputAssembler.h"
+#include "GLES3PipelineCache.h"
 #include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
 #include "GLES3PrimaryCommandBuffer.h"
@@ -222,6 +223,11 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxImageUnits, _caps.maxUniformBufferBindings, _caps.maxShaderStorageBufferBindings, _caps.maxVertexAttributes);
 
+#if CC_USE_PIPELINE_CACHE
+    _pipelineCache = std::make_unique<GLES3PipelineCache>();
+    _pipelineCache->init();
+#endif
+
     CC_LOG_INFO("GLES3 device initialized.");
     CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
     CC_LOG_INFO("VENDOR: %s", _vendor.c_str());
@@ -249,6 +255,8 @@ void GLES3Device::doDestroy() {
     CC_SAFE_DESTROY_AND_DELETE(_queryPool)
     CC_SAFE_DESTROY_AND_DELETE(_queue)
     CC_SAFE_DESTROY_AND_DELETE(_gpuContext)
+
+    _pipelineCache.reset();
 }
 
 void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {

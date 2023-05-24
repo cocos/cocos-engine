@@ -27,6 +27,7 @@
 #include "GLES3Commands.h"
 #include "GLES3Device.h"
 #include "GLES3Shader.h"
+#include "base/std/hash/hash_fwd.hpp"
 
 namespace cc {
 namespace gfx {
@@ -39,25 +40,7 @@ GLES3Shader::~GLES3Shader() {
     destroy();
 }
 
-namespace {
-
-void initGpuShader(GLES3GPUShader *gpuShader) {
-    cmdFuncGLES3CreateShader(GLES3Device::getInstance(), gpuShader);
-    CC_ASSERT(gpuShader->glProgram);
-
-    // Clear shader source after they're uploaded to GPU
-    for (auto &stage : gpuShader->gpuStages) {
-        stage.source.clear();
-        stage.source.shrink_to_fit();
-    }
-}
-
-} // namespace
-
 GLES3GPUShader *GLES3Shader::gpuShader() const {
-    if (!_gpuShader->glProgram) {
-        initGpuShader(_gpuShader);
-    }
     return _gpuShader;
 }
 
@@ -72,6 +55,7 @@ void GLES3Shader::doInit(const ShaderInfo & /*info*/) {
     _gpuShader->textures = _textures;
     _gpuShader->images = _images;
     _gpuShader->subpassInputs = _subpassInputs;
+    _gpuShader->hash = _hash;
     for (const auto &stage : _stages) {
         GLES3GPUShaderStage gpuShaderStage = {stage.stage, stage.source};
         _gpuShader->gpuStages.emplace_back(std::move(gpuShaderStage));

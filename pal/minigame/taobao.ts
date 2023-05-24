@@ -37,8 +37,7 @@ const languageMap: Record<string, Language> = {
 
 declare let my: any;
 
-// @ts-expect-error can't init minigame when it's declared
-const minigame: IMiniGame = {};
+const minigame: IMiniGame = {} as IMiniGame;
 cloneObject(minigame, my);
 
 // #region SystemInfo
@@ -75,17 +74,15 @@ Object.defineProperty(minigame, 'orientation', {
 });
 // #endregion SystemInfo
 
-// @ts-expect-error TODO: move into minigame.d.ts
-minigame.isSupportLandscape = function () {
+function detectLandscapeSupport () {
     const locSysInfo = minigame.getSystemInfoSync();
     if (typeof locSysInfo.deviceOrientation === 'string' && locSysInfo.deviceOrientation.startsWith('landscape')) {
         if (versionCompare(locSysInfo.version, '10.15.10') < 0) {
             console.warn('The current Taobao client version does not support Landscape, the minimum requirement is 10.15.10');
         }
     }
-};
-// @ts-expect-error TODO: Check whether the landscape screen is supported
-minigame.isSupportLandscape();
+}
+detectLandscapeSupport();
 
 // #region Audio
 const polyfilledCreateInnerAudio = createInnerAudioContextPolyfill(my, {
@@ -95,12 +92,12 @@ const polyfilledCreateInnerAudio = createInnerAudioContextPolyfill(my, {
     onSeek: false,
 }, true);
 minigame.createInnerAudioContext = function (): InnerAudioContext {
-    const audio: InnerAudioContext = polyfilledCreateInnerAudio();
-    // @ts-expect-error InnerAudioContext has onCanPlay
+    // NOTE: `onCanPlay` is not standard minigame interface,
+    // so here we mark audio as type of any
+    const audio: any = polyfilledCreateInnerAudio();
     audio.onCanplay = audio.onCanPlay.bind(audio);
-    // @ts-expect-error InnerAudioContext has onCanPlay
     delete audio.onCanPlay;
-    return audio;
+    return audio as InnerAudioContext;
 };
 // #region Audio
 
@@ -173,9 +170,10 @@ minigame.getSafeArea = function () {
 };
 // #endregion SafeArea
 
+declare const $global: any;  // global variable on Taobao platform.
+
 // TODO: A filpY operation will be performed after ReadPixels on Taobao.
 if (!my.isIDE) {
-    // @ts-expect-error canvas defined in global
     const locCanvas = $global.screencanvas;
     if (locCanvas) {
         const originalGetContext = locCanvas.getContext.bind(locCanvas);

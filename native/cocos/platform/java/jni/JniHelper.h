@@ -35,7 +35,7 @@
 #include "base/std/container/vector.h"
 #include "math/Vec3.h"
 
-//The macro must be used this way to find the native method. The principle is not well understood.
+// The macro must be used this way to find the native method. The principle is not well understood.
 #define JNI_METHOD2(CLASS2, FUNC2) Java_##CLASS2##_##FUNC2
 #define JNI_METHOD1(CLASS1, FUNC1) JNI_METHOD2(CLASS1, FUNC1)
 
@@ -47,7 +47,7 @@
             CC_LOG_DEBUG("deleteLocalRef file: %s, func: %s, line: %d", __FILE__, __FUNCTION__, __LINE__); \
         } while (0)
 #else
-    #define ccDeleteLocalRef(jenv, ref) jenv->DeleteLocalRef(ref); //NOLINT
+    #define ccDeleteLocalRef(jenv, ref) jenv->DeleteLocalRef(ref); // NOLINT
 #endif
 #define CLEAR_EXCEPTON(env)           \
     do {                              \
@@ -61,7 +61,7 @@ struct android_app;
 
 namespace cc {
 
-using JniMethodInfo = struct JniMethodInfo_ { //NOLINT(readability-identifier-naming)
+using JniMethodInfo = struct JniMethodInfo_ { // NOLINT(readability-identifier-naming)
     JNIEnv *env;
     jclass classID;
     jmethodID methodID;
@@ -74,16 +74,18 @@ public:
     static JavaVM *getJavaVM();
     static JNIEnv *getEnv();
     static jobject getActivity();
-    static void init(JNIEnv *env, jobject activity);
+    static jobject getContext();
+
+    static void init(JNIEnv *env, jobject context);
     static void onDestroy();
 
-    //NOLINTNEXTLINE
+    // NOLINTNEXTLINE
     static bool getStaticMethodInfo(JniMethodInfo &methodInfo,
                                     const char *className,
                                     const char *methodName,
                                     const char *paramCode);
 
-    //NOLINTNEXTLINE
+    // NOLINTNEXTLINE
     static bool getMethodInfo(JniMethodInfo &methodInfo,
                               const char *className,
                               const char *methodName,
@@ -388,14 +390,14 @@ public:
         }
         return ret;
     }
-    static bool setClassLoaderFrom(jobject activityInstance);
+    static bool setClassLoaderFrom(jobject contextInstance);
 
 private:
-    static jobject sActivity;
+    static jobject sContext;
     static JavaVM *sJavaVM;
 
     static JNIEnv *cacheEnv();
-    //NOLINTNEXTLINE
+    // NOLINTNEXTLINE
     static bool getMethodInfoDefaultClassLoader(JniMethodInfo &methodinfo,
                                                 const char *className,
                                                 const char *methodName,

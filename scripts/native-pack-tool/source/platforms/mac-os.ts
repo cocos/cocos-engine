@@ -3,6 +3,7 @@ import * as fs from 'fs-extra';
 import * as ps from 'path';
 import * as os from 'os';
 import { execSync } from "child_process";
+import { toolHelper } from "../utils";
 
 export interface IOrientation {
     landscapeLeft: boolean;
@@ -70,7 +71,7 @@ export abstract class MacOSPackTool extends NativePackTool {
             await this.xcodeFixAssetsReferences();
         }
     }
-    
+
     /**
      * When "Skip Xcode Project Update" is checked, changes to the contents of the "data" directory
      * still need to be synchronized with Xcode. One way to achieve this is to modify the Xcode
@@ -165,5 +166,25 @@ export abstract class MacOSPackTool extends NativePackTool {
                 console.error(e);
             }
         }
+    }
+
+    async checkIfXcodeInstalled() {
+        let xcodeFound = false;
+        const xcodeInstalled = await toolHelper.runCommand('xcode-select', ['-p'], (code, stdout, stderr) => {
+            if (code === 0) {
+                console.log(`[xcode-select] ${stdout}`);
+                if (stdout.indexOf('Xcode.app') > 0) {
+                    xcodeFound = true;
+                }
+            } else {
+                console.log(`[xcode-select] ${stdout}`);
+                console.error(`[xcode-select] ${stderr}`);
+            }
+        });
+        if (!xcodeInstalled) {
+            toolHelper.runCommand('xcode-select', ['--install']);
+            return false;
+        }
+        return xcodeFound;
     }
 }

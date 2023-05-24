@@ -113,6 +113,9 @@ module.exports = {
                 anisotropyMapNearestFilter: 'Duplicate the Anisotropy Map and select the Nearest filter.',
                 anisotropyMapResolutionHeight: 'The height of Anisotropy Map texture resolution.',
                 ior: 'Relative refractive index, which can affect the refraction angle and Fresnel effect. Water is 1.33',
+                transmitThicknessWithShadowMap: 'Object thickness (world space unit), setting a too small value will cause the scattered light to disappear',
+                transmitExtinctionWithShadowMap: 'Scatter extinction coefficient for back-transmitted light (such as ears and nose), larger value cause transmitted light to become weaker, and smaller value makes bright area bigger and average lighting. caution! the larger model size needs smaller extinction value to maintain the same lighting result, or give a distance scale to TransmitDiffuseParam from model size',
+                transmitExtinction: 'Thin object scatter extinction coefficient for back-transmitted light (such as leaves), larger value cause transmitted light to become weaker, and smaller value makes bright area bigger and average lighting. Need specified thickness',
             },
         },
         image: {
@@ -315,6 +318,10 @@ module.exports = {
                 title:
                     'Indicate whether the mesh data in this model could be read or write.<br>' +
                     'If it is unchecked, the mesh data will be released after it is uploaded to GPU',
+            },
+            addVertexColor: {
+                name: 'Add Vertex Color',
+                title: 'Fill vertex color with white if the model file does not contain vertex color attribute.',
             },
             meshOptimizer: {
                 name: 'Mesh Optimizer',

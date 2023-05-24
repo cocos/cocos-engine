@@ -39,7 +39,10 @@ layout(location = 2) in vec2 a_texCoord;
     in vec4 a_lightingMapUVParam;
   #endif
   #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
-    in vec4 a_localShadowBiasAndProbeId; // x:shadow bias, y:shadow normal bias, z: reflection probe id, w: reserved for blend reflection probe id
+    in vec4 a_localShadowBiasAndProbeId; // x:shadow bias, y:shadow normal bias, z: reflection probe id, w: blend reflection probe id
+  #endif
+  #if CC_USE_REFLECTION_PROBE
+    in vec4 a_reflectionProbeData; // x:reflection probe blend weight
   #endif
   #if CC_USE_LIGHT_PROBE
     in vec4 a_sh_linear_const_r;
