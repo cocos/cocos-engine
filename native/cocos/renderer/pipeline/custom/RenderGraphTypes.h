@@ -402,6 +402,7 @@ struct FormatView {
 };
 
 struct SubresourceView {
+    IntrusivePtr<gfx::Texture> textureView;
     gfx::Format format{gfx::Format::UNKNOWN};
     uint16_t indexOrFirstMipLevel{0};
     uint16_t numMipLevels{0};

@@ -457,6 +457,7 @@ export class FormatView {
 }
 
 export class SubresourceView {
+    /*refcount*/ textureView: Texture | null = null;
     format: Format = Format.UNKNOWN;
     indexOrFirstMipLevel = 0;
     numMipLevels = 0;
