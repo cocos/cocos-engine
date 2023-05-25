@@ -204,7 +204,7 @@ export const createInstanceofProxy = ((): CreateInstanceofProxySignature => {
 })();
 
 // May be hacky?
-type ExcludeConstructor<T> = Omit<T, never>;
+type ExcludeConstructor<T> = T;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type CreateInstanceofProxySignature = <TConstructor extends Function> (constructor: TConstructor) => ExcludeConstructor<TConstructor>;

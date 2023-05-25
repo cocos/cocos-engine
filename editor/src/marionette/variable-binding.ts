@@ -11,6 +11,8 @@ import {
     SubStateMachine,
     VariableType,
 } from '../../../cocos/animation/marionette/asset-creation';
+import { TCBindingValueType } from '../../../cocos/animation/marionette/state-machine/condition/binding/binding';
+import { TCVariableBinding } from '../../../cocos/animation/marionette/state-machine/condition/binding/variable-binding';
 
 export interface VariableBindingView {
     /**
@@ -33,6 +35,11 @@ export interface VariableBindingView {
      * Unbinds the variable.
      */
     unbind(): void;
+}
+
+interface VariableTypeToTCBindingValueTypeMapping {
+    [VariableType.FLOAT]: TCBindingValueType.FLOAT;
+    [VariableType.INTEGER]: TCBindingValueType.INTEGER;
 }
 
 export function* viewVariableBindings(animationGraph: AnimationGraph): Generator<VariableBindingView> {
@@ -62,14 +69,30 @@ export function* viewVariableBindings(animationGraph: AnimationGraph): Generator
         };
     }
 
+    function createTCVariableBindingView<TAcceptableType extends VariableType.FLOAT | VariableType.INTEGER>(
+        binding: TCVariableBinding<VariableTypeToTCBindingValueTypeMapping[TAcceptableType]>,
+        acceptableTypes: TAcceptableType[],
+    ) {
+        return {
+            get name() { return binding.variableName; },
+            get acceptableTypes() { return acceptableTypes; },
+            rebind(newVariableName: string) { binding.variableName = newVariableName; },
+            unbind() { binding.variableName = ''; },
+        };
+    }
+
     function* visitStateMachine(stateMachine: StateMachine): Generator<VariableBindingView> {
         for (const transition of stateMachine.transitions()) {
             for (const condition of transition.conditions) {
                 if (condition instanceof UnaryCondition) {
                     yield createVariableBindingView(condition.operand, 'variable', VariableType.BOOLEAN);
                 } else if (condition instanceof BinaryCondition) {
-                    yield createVariableBindingView(condition.lhs, 'variable', [VariableType.FLOAT, VariableType.INTEGER]);
-                    yield createVariableBindingView(condition.rhs, 'variable', [VariableType.FLOAT, VariableType.INTEGER]);
+                    if (condition.lhsBinding instanceof TCVariableBinding) {
+                        yield createTCVariableBindingView<VariableType.FLOAT | VariableType.INTEGER>(
+                            condition.lhsBinding,
+                            [VariableType.FLOAT, VariableType.INTEGER],
+                        );
+                    }
                 } else if (condition instanceof TriggerCondition) {
                     yield createVariableBindingView(condition, 'trigger', VariableType.TRIGGER);
                 }

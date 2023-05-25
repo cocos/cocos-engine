@@ -449,7 +449,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 13102, "CCON Format error." },
 { 13103, "Can not encode CCON binary: lack of text encoder." },
 { 13104, "Can not decode CCON binary: lack of text decoder." },
-{ 14000, "Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame." },
+{ 14000, "State machine matched too many transitions(greater than %s) during this frame: %s." },
 { 14100, "Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead" },
 { 14200, "Can not update a static mesh." },
 { 14201, "The primitiveIndex is out of range." },

@@ -24,6 +24,7 @@
 
 import { _decorator } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { AnimationGraphBindingContext } from './animation-graph-context';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import type { VarInstance } from './graph-eval';
 import { VariableType } from './variable';
@@ -85,9 +86,7 @@ export type BindCallback<TValue, TThis, TArgs extends any[]> =
 
 export type VariableTypeValidator = () => void;
 
-export interface BindContext {
-    getVar(id: string): VarInstance | undefined;
-}
+export type BindContext = AnimationGraphBindingContext;
 
 export function bindOr<TValue, TThis, TArgs extends any[]> (
     context: BindContext,

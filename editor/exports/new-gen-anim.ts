@@ -1,17 +1,17 @@
 
 export {
     blend1D,
-} from '../../cocos/animation/marionette/blend-1d';
+} from '../../cocos/animation/marionette/motion/blend-1d';
 
 export {
     blendSimpleDirectional,
     validateSimpleDirectionalSamples,
     SimpleDirectionalIssueSameDirection,
-} from '../../cocos/animation/marionette/blend-2d';
+} from '../../cocos/animation/marionette/motion/blend-2d';
 
 export type {
     SimpleDirectionalSampleIssue,
-} from '../../cocos/animation/marionette/blend-2d';
+} from '../../cocos/animation/marionette/motion/blend-2d';
 
 export * from '../../cocos/animation/marionette/asset-creation';
 
@@ -43,3 +43,5 @@ export {
 export {
     getVariableValueAttributes,
 } from '../src/marionette/get-variable-value-attributes';
+
+export * from '../src/marionette/pose-graph-editor-api';

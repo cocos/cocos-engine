@@ -10,7 +10,46 @@ const url = 'https://docs.cocos.com/creator';
 module.exports = link(mixin({
 
     classes: {
-        'cc': { },
+        'cc': {
+            'animation': {
+                'TCVariableBinding': {
+                    menu: 'Variable Binding',
+                    tooltip: 'Use the variable\'s value as condition value.',
+                    properties: {
+                        'variableName': {
+                            label: 'Variable',
+                            tooltip: 'Variable name.',
+                        },
+                    },
+                },
+                'TCAuxiliaryCurveBinding': {
+                    menu: 'Auxiliary Curve Binding',
+                    tooltip: 'Use the auxiliary curve \'s current value as condition value.',
+                    properties: {
+                        'curveName': {
+                            label: 'Curve',
+                            tooltip: 'Auxiliary curve name.',
+                        },
+                    },
+                },
+                'TCStateWeightBinding': {
+                    menu: 'State Weight Binding',
+                    tooltip: 'Use the state \'s weight as condition value.',
+                    abbr: {
+                        label: 'State Weight',
+                        tooltip: 'The current weight of transition source state.',
+                    },
+                },
+                'TCStateMotionTimeBinding': {
+                    menu: 'Motion Time Binding',
+                    tooltip: 'Use the elapsed (normalized) time of motions in state as condition value.',
+                    abbr: {
+                        label: 'Motion Elapsed Time',
+                        tooltip: 'The elapsed (normalized) time of motions in transition source state.',
+                    },
+                },
+            },
+        },
     },
 
     help: {
@@ -1041,6 +1080,10 @@ module.exports = link(mixin({
         marionette: {
             label: "Marionette Animation System",
             description: "Enable the Marionette animation system",
+        },
+        procedural_animation: {
+            label: "Procedural Animation",
+            description: "Enable the procedural animation related features, such as pose graph etc.",
         },
         xr: {
             label: "XR",

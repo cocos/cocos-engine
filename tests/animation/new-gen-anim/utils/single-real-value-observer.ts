@@ -1,7 +1,10 @@
 import { VectorTrack } from "../../../../cocos/animation/animation";
 import { AnimationClip } from "../../../../cocos/animation/animation-clip";
-import { ClipMotion } from "../../../../cocos/animation/marionette/clip-motion";
+import { Pose } from "../../../../cocos/animation/core/pose";
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from "../../../../cocos/animation/marionette/animation-graph-context";
+import { ClipMotion } from "../../../../cocos/animation/marionette/motion";
 import { Node } from "../../../../cocos/scene-graph";
+import { Vec3 } from "../../../../exports/base";
 import { CreateMotionContext } from "./fixtures";
 
 type NonNullableClipMotion = Omit<ClipMotion, 'clip'> & { 'clip': NonNullable<ClipMotion['clip']> };
@@ -40,6 +43,20 @@ export class SingleRealValueObserver {
                 const clipMotion = new ClipMotion();
                 clipMotion.clip = clip;
                 return clipMotion as NonNullableClipMotion;
+            },
+        };
+    }
+
+    public createPoseWriter(bindingContext: AnimationGraphBindingContext): {
+        write(value: number, context: AnimationGraphEvaluationContext): Pose;
+    } {
+        const handle = bindingContext.bindTransform('');
+        expect(handle).not.toBeNull();
+        return {
+            write(value, context) {
+                const pose = context.pushDefaultedPose();
+                pose.transforms.setPosition(handle!.index, new Vec3(value));
+                return pose;
             },
         };
     }

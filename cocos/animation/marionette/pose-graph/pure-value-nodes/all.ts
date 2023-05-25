@@ -1,0 +1,3 @@
+import './get-variable';
+
+export {};
