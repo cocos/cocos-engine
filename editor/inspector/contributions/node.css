@@ -50,6 +50,9 @@
 .header > .name,
 .component-header .name {
     flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .scene {
@@ -138,6 +141,8 @@
 
 .component .component-header {
     flex: 1;
+    min-width: 0;
+
     display: flex;
     align-items: center;
 }
