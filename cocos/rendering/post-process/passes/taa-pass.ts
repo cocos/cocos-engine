@@ -150,10 +150,6 @@ export class TAAPass extends SettingPass {
 
     firstRender = true;
     public render (camera: Camera, ppl: Pipeline): void {
-        if (!this.checkEnable(camera)) {
-            return;
-        }
-
         const cameraID = getCameraUniqueID(camera);
 
         passContext.clearFlag = ClearFlagBit.COLOR;
