@@ -25,11 +25,11 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ModuleExecContext } from '../base';
+import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
 import { FloatExpression } from '../expressions/float';
 import { ParticleDataSet } from '../particle-data-set';
 import { ConstantFloatExpression } from '../expressions';
-import { EmitterDataSet } from '../emitter-data-set';
+import { EmitterDataSet, VELOCITY } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
 @ccclass('cc.SpawnPerUnitModule')
@@ -47,7 +47,8 @@ export class SpawnPerUnitModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { deltaTime, velocity } = emitter;
+        const velocity = emitter.getVec3Parameter(VELOCITY);
+        const deltaTime = context.getFloatParameter(DELTA_TIME);
         this.spawnSpacing.bind(particles, emitter, user, context);
         emitter.spawnContinuousCount += velocity.length() * (1 / this.spawnSpacing.evaluateSingle()) * deltaTime;
     }

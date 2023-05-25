@@ -28,11 +28,12 @@ import { Enum, clamp, Vec2, Vec3, RealCurve } from '../../core';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet, PHYSICS_FORCE, POSITION, VELOCITY } from '../particle-data-set';
-import { VFXEmitterState, ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { VFXEmitterState } from '../vfx-emitter';
 
 export class PerlinNoise1DCache {
     i0 = 0;

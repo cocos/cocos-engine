@@ -24,13 +24,14 @@
  */
 import { lerp } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
-import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
+import { ParticleDataSet, RANDOM_SEED } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
+import { ModuleExecStage } from '../vfx-module';
 
 @ccclass('cc.RandomRangeFloat')
 export class RandomRangeFloatExpression extends FloatExpression {
@@ -53,14 +54,20 @@ export class RandomRangeFloatExpression extends FloatExpression {
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this.maximum.tick(particles, emitter, user, context);
         this.minimum.tick(particles, emitter, user, context);
-        particles.markRequiredParameter(RANDOM_SEED);
+        if (context.executionStage === ModuleExecStage.UPDATE) {
+            particles.markRequiredParameter(RANDOM_SEED);
+        }
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this.maximum.bind(particles, emitter, user, context);
         this.minimum.bind(particles, emitter, user, context);
-        this._seed = particles.getUint32Parameter(RANDOM_SEED).data;
-        this._randomOffset = context.moduleRandomSeed;
+        if (context.executionStage === ModuleExecStage.UPDATE) {
+            this._seed = particles.getUint32Parameter(RANDOM_SEED).data;
+            this._randomOffset = context.moduleRandomSeed;
+        } else {
+            this._randomStream = context.moduleRandomStream;
+        }
     }
 
     public evaluate (index: number): number {

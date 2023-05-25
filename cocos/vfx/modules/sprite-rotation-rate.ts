@@ -23,10 +23,10 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, type, serializable } from 'cc.decorator';
+import { ccclass, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { ModuleExecContext } from '../base';
+import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
 import { ParticleDataSet, SPRITE_ROTATION } from '../particle-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -57,7 +57,8 @@ export class SpriteRotationRateModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const spriteRotation = particles.getFloatParameter(SPRITE_ROTATION);
-        const { fromIndex, toIndex, deltaTime } = context;
+        const deltaTime = context.getFloatParameter(DELTA_TIME);
+        const { fromIndex, toIndex } = context;
         const exp = this._rate as FloatExpression;
         exp.bind(particles, emitter, user, context);
         if (exp.isConstant) {

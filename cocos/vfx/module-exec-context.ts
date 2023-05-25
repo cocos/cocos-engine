@@ -23,51 +23,19 @@
  THE SOFTWARE.
  */
 
-import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { DelayMode, LoopMode, PlayingState } from './define';
-import { Vec3, Vec2, assertIsTrue } from '../core';
+import { assertIsTrue } from '../core';
 import { ModuleExecStage } from './vfx-module';
 import { RandomStream } from './random-stream';
 import { VFXEvents } from './vfx-events';
+import { VFXParameterIdentity } from './vfx-parameter';
+import { VFXParameterNameSpace, VFXParameterType } from './define';
 
-@ccclass('cc.VFXEmitterLifeCycleParams')
-export class VFXEmitterLifeCycleParams {
-    @serializable
-    public loopMode = LoopMode.INFINITE;
-    @serializable
-    public loopCount = 1;
-    @serializable
-    public duration = 5;
-    @serializable
-    public prewarm = false;
-    @serializable
-    public prewarmTime = 5;
-    @serializable
-    public prewarmTimeStep = 0.03;
-    @serializable
-    public simulationSpeed = 1.0;
-    @serializable
-    public playOnAwake = true;
-    @serializable
-    public delayMode = DelayMode.NONE;
-    @serializable
-    public delayRange = new Vec2(0, 0);
-}
+let builtinContextParameterId = 50000;
 
-export class VFXEmitterState {
-    public accumulatedTime = 0;
-    public playingState = PlayingState.STOPPED;
-    public needRestart = false;
-    public isSimulating = true;
-    public isEmitting = true;
-    public lastSimulateFrame = 0;
-    public maxParticleId = 0;
-    public boundsMin = new Vec3();
-    public boundsMax = new Vec3();
-    public randomStream = new RandomStream();
-    public lastTransformChangedVersion = 0xffffffff;
-}
+export const DELTA_TIME = new VFXParameterIdentity(builtinContextParameterId++, 'delta-time', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);
+
+export const CUSTOM_CONTEXT_PARAMETER_ID = 60000;
 
 export class ModuleExecContext {
     public get events (): VFXEvents {
@@ -112,6 +80,14 @@ export class ModuleExecContext {
     private _deltaTime = 0;
     private _executionStage = ModuleExecStage.UNKNOWN;
     private _events: VFXEvents | null = null;
+
+    getFloatParameter (id: VFXParameterIdentity): number {
+        return 0;
+    }
+
+    setFloatParameter (id: VFXParameterIdentity, value: number) {
+
+    }
 
     setExecutionStage (stage: ModuleExecStage) {
         this._executionStage = stage;

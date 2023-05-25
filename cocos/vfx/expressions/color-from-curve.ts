@@ -24,12 +24,14 @@
  */
 import { Color, Gradient, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/decorators';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { NORMALIZED_AGE, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStage } from '../vfx-module';
 import { ColorExpression } from './color';
-import { EmitterDataSet } from '../emitter-data-set';
+import { EmitterDataSet, NORMALIZED_LOOP_AGE } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { FloatExpression } from './float';
+import { BindingFloatExpression } from './binding-float';
 
 @ccclass('cc.ColorFromCurveExpression')
 export class ColorFromCurveExpression extends ColorExpression {
@@ -37,29 +39,29 @@ export class ColorFromCurveExpression extends ColorExpression {
     @serializable
     public curve = new Gradient();
 
-    private declare _time: Float32Array;
+    @type(FloatExpression)
+    @serializable
+    public curveIndex: FloatExpression = new BindingFloatExpression(NORMALIZED_LOOP_AGE);
 
     public get isConstant (): boolean {
-        return false;
+        return this.curveIndex.isConstant;
     }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        if (context.executionStage === ModuleExecStage.UPDATE) {
-            particles.markRequiredParameter(NORMALIZED_AGE);
-        }
+        this.curveIndex.tick(particles, emitter, user, context);
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        this._time = context.executionStage === ModuleExecStage.UPDATE ? particles.getFloatParameter(NORMALIZED_AGE).data : particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
+        this.curveIndex.bind(particles, emitter, user, context);
     }
 
     public evaluateSingle (out: Color) {
-        this.curve.evaluateFast(out, time);
+        this.curve.evaluateFast(out, this.curveIndex.evaluateSingle());
         return out;
     }
 
     public evaluate (index: number, out: Color) {
-        this.curve.evaluateFast(out, this._time[index]);
+        this.curve.evaluateFast(out, this.curveIndex.evaluate(index));
         return out;
     }
 }

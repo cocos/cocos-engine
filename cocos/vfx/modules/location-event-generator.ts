@@ -28,7 +28,7 @@ import { approx, CCFloat, Color, Vec3 } from '../../core';
 import { VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { COLOR, ID, INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY } from '../particle-data-set';
-import { ModuleExecContext } from '../base';
+import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -58,7 +58,8 @@ export class LocationEventGeneratorModule extends VFXModule {
         const invStartLifeTime = particles.getFloatParameter(INV_START_LIFETIME).data;
         const id = particles.getUint32Parameter(ID).data;
         const randomOffset = this.randomSeed;
-        const { fromIndex, toIndex, deltaTime, events } = context;
+        const { fromIndex, toIndex, events } = context;
+        const deltaTime = context.getFloatParameter(DELTA_TIME);
         const { localToWorld } = emitter;
         const hasVelocity = particles.hasParameter(VELOCITY);
         const hasColor = particles.hasParameter(COLOR);
@@ -82,8 +83,6 @@ export class LocationEventGeneratorModule extends VFXModule {
                 }
                 Vec3.zero(eventInfo.position);
                 Vec3.zero(eventInfo.velocity);
-                Vec3.copy(eventInfo.scale, Vec3.ONE);
-                Vec3.zero(eventInfo.rotation);
                 Color.copy(eventInfo.color, Color.WHITE);
                 if (hasPosition) {
                     (position as Vec3ArrayParameter).getVec3At(eventInfo.position, i);

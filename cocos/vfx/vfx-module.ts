@@ -23,13 +23,14 @@
  THE SOFTWARE.
  */
 
-import { ModuleExecContext, VFXEmitterState } from './base';
+import { ModuleExecContext } from './module-exec-context';
 import { ParticleDataSet } from './particle-data-set';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { assertIsTrue, CCBoolean, CCString } from '../core';
 import { EmitterDataSet } from './emitter-data-set';
 import { UserDataSet } from './user-data-set';
 import { RandomStream } from './random-stream';
+import { VFXEmitterState } from './vfx-emitter';
 
 export enum ModuleExecStage {
     UNKNOWN = -1,

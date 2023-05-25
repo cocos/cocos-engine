@@ -24,15 +24,13 @@
  */
 import { Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { Vec3Expression } from './vec3';
-
-const ratio = new Vec3();
 
 @ccclass('cc.Vec3FromFloatExpression')
 export class Vec3FromFloatExpression extends Vec3Expression {

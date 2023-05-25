@@ -27,7 +27,7 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ModuleExecContext } from '../base';
+import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
 import { MESH_ORIENTATION, ParticleDataSet } from '../particle-data-set';
 import { Vec3Expression } from '../expressions/vec3';
 import { ConstantVec3Expression } from '../expressions';
@@ -64,11 +64,11 @@ export class UpdateMeshOrientationModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const meshOrientation = particles.getVec3Parameter(MESH_ORIENTATION);
+        const deltaTime = context.getFloatParameter(DELTA_TIME);
         const { fromIndex, toIndex } = context;
 
         const exp = this._rotationRate as Vec3Expression;
         exp.bind(particles, emitter, user, context);
-        const { deltaTime } = context;
 
         if (exp.isConstant) {
             exp.evaluate(0, eulerAngle);

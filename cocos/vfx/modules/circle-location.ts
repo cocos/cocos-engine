@@ -24,19 +24,18 @@
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { Enum, Vec3 } from '../../core';
+import { Enum, TWO_PI, Vec3 } from '../../core';
 import { POSITION, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext } from '../base';
-import { AngleBasedLocationModule } from './angle-based-location';
+import { ModuleExecContext } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
-import { DistributionMode } from './shape-location';
+import { DistributionMode, ShapeLocationModule } from './shape-location';
 
-const dir = new Vec3();
+const pos = new Vec3();
 @ccclass('cc.CircleLocationModule')
 @VFXModule.register('CircleLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
-export class CircleLocationModule extends AngleBasedLocationModule {
+export class CircleLocationModule extends ShapeLocationModule {
     /**
       * @zh 粒子发射器半径。
       */
@@ -119,6 +118,36 @@ export class CircleLocationModule extends AngleBasedLocationModule {
         this._radiusPosition = val;
     }
 
+    @type(FloatExpression)
+    @visible(function (this: CircleLocationModule) {
+        return this.distributionMode === DistributionMode.UNIFORM;
+    })
+    public get uniformSpiralAmount () {
+        if (!this._uniformSpiralAmount) {
+            this._uniformSpiralAmount = new ConstantFloatExpression(1);
+        }
+        return this._uniformSpiralAmount;
+    }
+
+    public set uniformSpiralAmount (val) {
+        this._uniformSpiralAmount = val;
+    }
+
+    @type(FloatExpression)
+    @visible(function (this: CircleLocationModule) {
+        return this.distributionMode === DistributionMode.UNIFORM;
+    })
+    public get uniformSpiralFalloff () {
+        if (!this._uniformSpiralFalloff) {
+            this._uniformSpiralFalloff = new ConstantFloatExpression(1);
+        }
+        return this._uniformSpiralFalloff;
+    }
+
+    public set uniformSpiralFalloff (val) {
+        this._uniformSpiralFalloff = val;
+    }
+
     @serializable
     private _radius: FloatExpression | null = null;
     @serializable
@@ -129,6 +158,10 @@ export class CircleLocationModule extends AngleBasedLocationModule {
     private _theta: FloatExpression | null = null;
     @serializable
     private _radiusPosition: FloatExpression | null = null;
+    @serializable
+    private _uniformSpiralAmount: FloatExpression | null = null;
+    @serializable
+    private _uniformSpiralFalloff: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         super.tick(particles, emitter, user, context);
@@ -142,12 +175,54 @@ export class CircleLocationModule extends AngleBasedLocationModule {
         }
     }
 
-    protected generatePos (index: number, angle: number, pos: Vec3) {
-        const radiusRandom = Math.sqrt(this.randomStream.getFloatFromRange(this._innerRadius, 1.0));
-        const r = radiusRandom * this.radius;
-        dir.x = Math.cos(angle);
-        dir.y = Math.sin(angle);
-        dir.z = 0;
-        Vec3.multiplyScalar(pos, dir, r);
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        super.execute(particles, emitter, user, context);
+        const { fromIndex, toIndex } = context;
+        const radius = this._radius as FloatExpression;
+        radius.bind(particles, emitter, user, context);
+        const position = particles.getVec3Parameter(POSITION);
+        if (this.distributionMode === DistributionMode.RANDOM) {
+            const radiusCoverage = this._radiusCoverage as FloatExpression;
+            const thetaCoverage = this._thetaCoverage as FloatExpression;
+            radiusCoverage.bind(particles, emitter, user, context);
+            thetaCoverage.bind(particles, emitter, user, context);
+            const randomStream = this.randomStream;
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const r = Math.sqrt(randomStream.getFloatFromRange(1 - radiusCoverage.evaluate(i), 1)) * radius.evaluate(i);
+                const theta = randomStream.getFloatFromRange(1 - thetaCoverage.evaluate(i), 1) * Math.PI * 2;
+                pos.x = Math.cos(theta) * r;
+                pos.y = Math.sin(theta) * r;
+                pos.z = 0;
+                this.storePosition(i, pos, position);
+            }
+        } else if (this.distributionMode === DistributionMode.DIRECT) {
+            const theta = this._theta as FloatExpression;
+            const radiusPosition = this._radiusPosition as FloatExpression;
+            theta.bind(particles, emitter, user, context);
+            radiusPosition.bind(particles, emitter, user, context);
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const r = radiusPosition.evaluate(i) * radius.evaluate(i);
+                const t = theta.evaluate(i) * Math.PI * 2;
+                pos.x = Math.cos(t) * r;
+                pos.y = Math.sin(t) * r;
+                pos.z = 0;
+                this.storePosition(i, pos, position);
+            }
+        } else {
+            const uniformSpiralAmount = this._uniformSpiralAmount as FloatExpression;
+            const uniformSpiralFalloff = this._uniformSpiralFalloff as FloatExpression;
+            uniformSpiralAmount.bind(particles, emitter, user, context);
+            uniformSpiralFalloff.bind(particles, emitter, user, context);
+            const executionCount = toIndex - fromIndex;
+            for (let i = fromIndex; i < toIndex; ++i) {
+                const t = Math.sqrt((i - fromIndex) / executionCount);
+                const r = t ** uniformSpiralFalloff.evaluate(i) * radius.evaluate(i);
+                const theta = (i - fromIndex) * 1.618034 * (TWO_PI / uniformSpiralAmount.evaluate(i));
+                pos.x = Math.cos(theta) * r;
+                pos.y = Math.sin(theta) * r;
+                pos.z = 0;
+                this.storePosition(i, pos, position);
+            }
+        }
     }
 }

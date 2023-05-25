@@ -26,12 +26,11 @@ import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { CCBoolean, Vec3 } from '../../core';
-import { ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext } from '../base';
+import { ParticleDataSet, POSITION } from '../particle-data-set';
+import { ModuleExecContext } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
-import { POSITION } from '../builtin-parameters';
 
 const tempPosition = new Vec3();
 const pos = new Vec3();

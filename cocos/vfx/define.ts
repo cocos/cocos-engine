@@ -43,6 +43,7 @@ export enum VFXParameterNameSpace {
     EMITTER,
     PARTICLE,
     USER,
+    CONTEXT
 }
 
 export enum CoordinateSpace {

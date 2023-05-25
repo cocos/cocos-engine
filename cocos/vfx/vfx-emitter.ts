@@ -26,14 +26,14 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, displayName, serializable, visible, rangeMin } from 'cc.decorator';
 import { DEBUG, EDITOR } from 'internal:constants';
-import { approx, clamp01, Color, lerp, Mat4, Quat, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { approx, Color, lerp, Mat4, Quat, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { VFXEmitterState, ModuleExecContext, VFXEmitterLifeCycleParams } from './base';
+import { DELTA_TIME, ModuleExecContext } from './module-exec-context';
 import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, PlayingState, ScalingMode } from './define';
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component } from '../scene-graph';
-import { ParticleDataSet } from './particle-data-set';
+import { ParticleDataSet, BASE_COLOR, BASE_SCALE, BASE_SPRITE_SIZE, BASE_VELOCITY, COLOR, ID, INV_START_LIFETIME, IS_DEAD, MESH_ORIENTATION, NORMALIZED_AGE, POSITION, RANDOM_SEED, SCALE, SPRITE_SIZE, VELOCITY } from './particle-data-set';
 import { VFXModuleStage, ModuleExecStage } from './vfx-module';
 import { vfxManager } from './vfx-manager';
 import { EventHandler } from './event-handler';
@@ -41,7 +41,7 @@ import { ParticleRenderer } from './particle-renderer';
 import { EmitterDataSet } from './emitter-data-set';
 import { UserDataSet } from './user-data-set';
 import { VFXEventInfo } from './vfx-events';
-import { BASE_COLOR, BASE_SCALE, BASE_SPRITE_SIZE, BASE_VELOCITY, COLOR, ID, INV_START_LIFETIME, IS_DEAD, MESH_ORIENTATION, NORMALIZED_AGE, POSITION, RANDOM_SEED, SCALE, SPRITE_SIZE, VELOCITY } from './builtin-parameters';
+import { RandomStream } from './random-stream';
 
 const startPositionOffset = new Vec3();
 const tempPosition = new Vec3();
@@ -50,6 +50,44 @@ const up = new Vec3();
 const rot = new Quat();
 const tempEmitterTransform = new Mat4();
 const eventInfo = new VFXEventInfo();
+
+@ccclass('cc.VFXEmitterLifeCycleParams')
+export class VFXEmitterLifeCycleParams {
+    @serializable
+    public loopMode = LoopMode.INFINITE;
+    @serializable
+    public loopCount = 1;
+    @serializable
+    public duration = 5;
+    @serializable
+    public prewarm = false;
+    @serializable
+    public prewarmTime = 5;
+    @serializable
+    public prewarmTimeStep = 0.03;
+    @serializable
+    public simulationSpeed = 1.0;
+    @serializable
+    public playOnAwake = true;
+    @serializable
+    public delayMode = DelayMode.NONE;
+    @serializable
+    public delayRange = new Vec2(0, 0);
+}
+
+export class VFXEmitterState {
+    public accumulatedTime = 0;
+    public playingState = PlayingState.STOPPED;
+    public needRestart = false;
+    public isSimulating = true;
+    public isEmitting = true;
+    public lastSimulateFrame = 0;
+    public maxParticleId = 0;
+    public boundsMin = new Vec3();
+    public boundsMax = new Vec3();
+    public randomStream = new RandomStream();
+    public lastTransformChangedVersion = 0xffffffff;
+}
 
 @ccclass('cc.VFXEmitter')
 @help('i18n:cc.VFXEmitter')
@@ -445,7 +483,6 @@ export class VFXEmitter extends Component {
         if (this._state.playingState === PlayingState.STOPPED) {
             this._state.randomStream.seed = this.useAutoRandomSeed ? randomRangeInt(0, INT_MAX) : this.randomSeed;
             this._emitterDataSet.currentDelay = Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.randomStream.getFloat()), 0);
-            this._emitterDataSet.transform = this.node;
             this._emitterStage.onPlay(this._state);
             this._spawnStage.onPlay(this._state);
             this._updateStage.onPlay(this._state);
@@ -627,7 +664,7 @@ export class VFXEmitter extends Component {
      */
     public updateEmitterTime (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const params = this._lifeCycleParams;
-        const deltaTime = context.deltaTime;
+        const deltaTime = context.getFloatParameter(DELTA_TIME);
         if (DEBUG) {
             assertIsTrue(deltaTime < params.duration,
                 'The delta time should not exceed the duration of the particle system. please adjust the duration of the particle system.');
@@ -675,7 +712,7 @@ export class VFXEmitter extends Component {
 
     private updateEmitterTransform (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         emitter.isWorldSpace = !this._localSpace;
-        const { transform } = emitter;
+        const transform = this.node;
         Vec3.copy(emitter.prevWorldPosition, emitter.worldPosition);
         Vec3.copy(emitter.worldPosition, transform.worldPosition);
         if (transform.flagChangedVersion !== this._state.lastTransformChangedVersion) {
@@ -865,12 +902,12 @@ export class VFXEmitter extends Component {
         this._spawnStage.execute(particles, emitter, user, context);
         this.resetAnimatedState(particles, fromIndex, toIndex);
         const interval = intervalDt;
-        const deltaTime = context.deltaTime;
+        const deltaTime = context.getFloatParameter(DELTA_TIME);
         if (!approx(interval, 0) || interpStartDt > 0) {
             const needPositionOffset = hasPosition && !initialVelocity.equals(Vec3.ZERO);
             const position = needPositionOffset ? particles.getVec3Parameter(POSITION) : null;
             const updateStage = this._updateStage;
-           
+
             // |------ Delay ------|-----------Duration-----------------------|
             //                     |-----------PrevTime----------|
             //                     |------------currentTime-------------------|

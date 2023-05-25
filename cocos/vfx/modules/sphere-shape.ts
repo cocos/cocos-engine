@@ -22,42 +22,115 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, serializable, tooltip } from 'cc.decorator';
+import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { Vec3 } from '../../core';
-import { INITIAL_DIR, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext } from '../base';
-import { AngleBasedLocationModule } from './angle-based-location';
+import { clamp, Enum, TWO_PI, Vec2, Vec3 } from '../../core';
+import { ParticleDataSet, POSITION } from '../particle-data-set';
+import { ModuleExecContext } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { ConstantFloatExpression, ConstantVec2Expression, FloatExpression, Vec2Expression } from '../expressions';
+import { DistributionMode, ShapeLocationModule } from './shape-location';
+import { degreesToRadians } from '../../core/utils/misc';
 
-const temp = new Vec3();
+const pos = new Vec3();
+const distrib = new Vec2();
 
 @ccclass('cc.SphereShapeModule')
-@VFXModule.register('SphereShape', ModuleExecStageFlags.SPAWN, [INITIAL_DIR.name])
-export class SphereShapeModule extends AngleBasedLocationModule {
+@VFXModule.register('SphereShape', ModuleExecStageFlags.SPAWN, [POSITION.name])
+export class SphereShapeModule extends ShapeLocationModule {
     /**
       * @zh 粒子发射器半径。
       */
-    @serializable
-    @tooltip('i18n:shapeModule.radius')
-    public radius = 1;
+    @type(FloatExpression)
+    public get radius () {
+        if (!this._radius) {
+            this._radius = new ConstantFloatExpression(1);
+        }
+        return this._radius;
+    }
 
-    /**
-       * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
-       * - 0 表示从表面发射；
-       * - 1 表示从中心发射；
-       * - 0 ~ 1 之间表示在中心到表面之间发射。
-       */
-    @serializable
-    @tooltip('i18n:shapeModule.radiusThickness')
-    public radiusThickness = 1;
+    public set radius (val) {
+        this._radius = val;
+    }
 
-    private _innerRadius = 0;
+    @type(Enum(DistributionMode))
+    @serializable
+    public distributionMode = DistributionMode.RANDOM;
+
+    @type(FloatExpression)
+    @visible(function (this: SphereShapeModule) { return this.distributionMode === DistributionMode.RANDOM; })
+    public get surfaceDistribution () {
+        if (!this._surfaceDistribution) {
+            this._surfaceDistribution = new ConstantFloatExpression(1);
+        }
+        return this._surfaceDistribution;
+    }
+
+    public set surfaceDistribution (val) {
+        this._surfaceDistribution = val;
+    }
+
+    @type(Vec2Expression)
+    @visible(function (this: SphereShapeModule) { return this.distributionMode === DistributionMode.RANDOM; })
+    public get hemisphereDistribution () {
+        if (!this._hemisphereDistribution) {
+            this._hemisphereDistribution = new ConstantVec2Expression(new Vec2(360, 360));
+        }
+        return this._hemisphereDistribution;
+    }
+
+    public set hemisphereDistribution (val) {
+        this._hemisphereDistribution = val;
+    }
+
+    @serializable
+    private _radius: FloatExpression | null = null;
+    @serializable
+    private _surfaceDistribution: FloatExpression | null = null;
+    @serializable
+    private _hemisphereDistribution: Vec2Expression | null = null;
+    @serializable
+    private _uPosition: FloatExpression | null = null;
+    @serializable
+    private _vPosition: FloatExpression | null = null;
+    @serializable
+    private _radiusPosition: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         super.tick(particles, emitter, user, context);
-        this._innerRadius = (1 - this.radiusThickness) ** 3;
+        this.radius.tick(particles, emitter, user, context);
+        if (this.distributionMode === DistributionMode.RANDOM) {
+            this.surfaceDistribution.tick(particles, emitter, user, context);
+            this.hemisphereDistribution.tick(particles, emitter, user, context);
+        }
+    }
+
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        super.execute(particles, emitter, user, context);
+        const { fromIndex, toIndex } = context;
+        const radius = this._radius as FloatExpression;
+        radius.bind(particles, emitter, user, context);
+        if (this.distributionMode === DistributionMode.RANDOM) {
+            const surfaceDistribution = this._surfaceDistribution as FloatExpression;
+            const hemisphereDistribution = this._hemisphereDistribution as Vec2Expression;
+            surfaceDistribution.bind(particles, emitter, user, context);
+            hemisphereDistribution.bind(particles, emitter, user, context);
+            const random = this.randomStream;
+            for (let i = fromIndex; i < toIndex; ++i) {
+                hemisphereDistribution.evaluate(i, distrib);
+                const surfaceDistrib = Math.max(surfaceDistribution.evaluate(i), 0);
+                const radialAngle = clamp(degreesToRadians(distrib.x), 0, TWO_PI);
+                const angle = Math.acos(random.getFloatFromRange(Math.cos(degreesToRadians(distrib.y * 0.5)), 1));
+                const theta = random.getFloatFromRange(0, radialAngle);
+                Vec3.set(pos, Math.cos(theta), Math.sin(theta), 0);
+                Vec3.multiplyScalar(pos, pos, Math.sin(angle));
+                pos.z = Math.cos(angle);
+                Vec3.multiplyScalar(pos, pos, random.getFloatFromRange(surfaceDistrib, 1.0) ** 0.3333 * radius.evaluate(i));
+            }
+        } else if (this.distributionMode === DistributionMode.DIRECT) {
+
+        }
     }
 
     protected generatePosAndDir (index: number, angle: number, dir: Vec3, pos: Vec3) {

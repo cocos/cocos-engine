@@ -24,13 +24,14 @@
  */
 import { RealCurve, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStage } from '../vfx-module';
 import { ConstantVec3Expression } from './constant-vec3';
 import { Vec3Expression } from './vec3';
-import { EmitterDataSet } from '../emitter-data-set';
+import { EmitterDataSet, NORMALIZED_LOOP_AGE } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { BindingFloatExpression, FloatExpression } from '../../../exports/vfx';
 
 const ratio = new Vec3();
 
@@ -52,11 +53,13 @@ export class Vec3FromCurveExpression extends Vec3Expression {
     @serializable
     public scale: Vec3Expression = new ConstantVec3Expression(Vec3.ONE);
 
+    @type(FloatExpression)
+    @serializable
+    public curveIndex: FloatExpression = new BindingFloatExpression(NORMALIZED_LOOP_AGE);
+
     public get isConstant (): boolean {
         return false;
     }
-
-    private declare _time: Float32Array;
 
     constructor (x?: RealCurve, y?: RealCurve, z?: RealCurve) {
         super();
@@ -72,19 +75,18 @@ export class Vec3FromCurveExpression extends Vec3Expression {
     }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        particles.markRequiredParameter(context.executionStage === ModuleExecStage.UPDATE
-            ? NORMALIZED_AGE : SPAWN_NORMALIZED_TIME);
+        this.curveIndex.tick(particles, emitter, user, context);
         this.scale.tick(particles, emitter, user, context);
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        this._time = context.executionStage === ModuleExecStage.UPDATE ? particles.getFloatParameter(NORMALIZED_AGE).data : particles.getFloatParameter(SPAWN_NORMALIZED_TIME).data;
+        this.curveIndex.bind(particles, emitter, user, context);
         this.scale.bind(particles, emitter, user, context);
     }
 
     public evaluate (index: number, out: Vec3) {
         this.scale.evaluate(index, ratio);
-        const time = this._time[index];
+        const time = this.curveIndex.evaluate(index);
         out.x = this.x.evaluate(time) * ratio.x;
         out.y = this.y.evaluate(time) * ratio.y;
         out.z = this.z.evaluate(time) * ratio.z;
@@ -93,6 +95,7 @@ export class Vec3FromCurveExpression extends Vec3Expression {
 
     public evaluateSingle (out: Vec3): Vec3 {
         this.scale.evaluateSingle(ratio);
+        const time = this.curveIndex.evaluateSingle();
         out.x = this.x.evaluate(time) * ratio.x;
         out.y = this.y.evaluate(time) * ratio.y;
         out.z = this.z.evaluate(time) * ratio.z;

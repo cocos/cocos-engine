@@ -26,13 +26,13 @@ import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { Enum } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { INV_START_LIFETIME, IS_DEAD, NORMALIZED_AGE, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext } from '../base';
+import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
 import { UserDataSet } from '../user-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 
 export enum LifetimeElapsedOperation {
-    KILL = 0,
-    LOOP_LIFETIME = 1,
+    KILL,
+    LOOP_LIFETIME,
     KEEP
 }
 
@@ -52,7 +52,8 @@ export class StateModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
         const invStartLifeTime = particles.getFloatParameter(INV_START_LIFETIME).data;
-        const { fromIndex, toIndex, deltaTime } = context;
+        const deltaTime = context.getFloatParameter(DELTA_TIME);
+        const { fromIndex, toIndex } = context;
         if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.LOOP_LIFETIME) {
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
                 normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];

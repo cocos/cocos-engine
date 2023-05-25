@@ -27,9 +27,9 @@ import { ccclass, serializable, type, range, editable, rangeMin } from 'cc.decor
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext } from '../base';
+import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
 import { ConstantFloatExpression } from '../expressions';
-import { EmitterDataSet } from '../emitter-data-set';
+import { EmitterDataSet, LOOPED_AGE } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
 @ccclass('cc.SpawnBurstModule')
@@ -78,8 +78,8 @@ export class SpawnBurstModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { loopAge } = emitter;
-        const { deltaTime } = context;
+        const loopAge = emitter.getFloatParameter(LOOPED_AGE);
+        const deltaTime = context.getFloatParameter(DELTA_TIME);
 
         this.count.bind(particles, emitter, user, context);
         this.time.bind(particles, emitter, user, context);

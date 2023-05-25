@@ -27,7 +27,7 @@ import { ccclass, serializable, type } from 'cc.decorator';
 import { Mat4, Quat, Vec3 } from '../../core';
 import { VFXModule } from '../vfx-module';
 import { ParticleDataSet, POSITION } from '../particle-data-set';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { Vec3ArrayParameter } from '../parameters';
@@ -54,7 +54,7 @@ export enum DistributionMode {
     DIRECT,
 
     /**
-     * 均匀分布在发射器形状上，只对 Burst 出来的粒子有效，因为此模式依赖当前发射总数进行均匀分布。
+     * 均匀分布在发射器形状上，依赖此帧发射的粒子总数。可以与 burst 配合使用。
      */
     UNIFORM,
 }

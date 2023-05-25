@@ -1,5 +1,5 @@
 import { DEBUG } from 'internal:constants';
-import { assertIsTrue } from '../core';
+import { assertIsTrue, Vec2, Vec3 } from '../core';
 
 export class RandomStream {
     public get seed () {
@@ -15,6 +15,14 @@ export class RandomStream {
     public static getFloat (seed: number) {
         this._gRand.seed = seed;
         return this._gRand.getFloat();
+    }
+
+    public static get2Float (seed: number, out: Vec2) {
+        const gRand = this._gRand;
+        gRand._seed = seed;
+        out.x = gRand.getFloat();
+        out.y = gRand.getFloat();
+        return out;
     }
 
     public static get3Float (seed: number, out: Vec3) {

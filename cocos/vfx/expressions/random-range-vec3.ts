@@ -24,13 +24,14 @@
  */
 import { lerp, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
-import { BuiltinParticleParameterFlags, ParticleDataSet } from '../particle-data-set';
+import { ParticleDataSet, RANDOM_SEED } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 import { UserDataSet } from '../user-data-set';
 import { ConstantVec3Expression } from './constant-vec3';
 import { Vec3Expression } from './vec3';
+import { ModuleExecStage } from '../vfx-module';
 
 const temp = new Vec3();
 const tempRatio = new Vec3();
@@ -51,18 +52,25 @@ export class RandomRangeVec3Expression extends Vec3Expression {
 
     private declare _seed: Uint32Array;
     private _randomOffset = 0;
+    private declare _randomStream: RandomStream;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this.maximum.tick(particles, emitter, user, context);
         this.minimum.tick(particles, emitter, user, context);
-        particles.markRequiredParameter(RANDOM_SEED);
+        if (context.executionStage === ModuleExecStage.UPDATE) {
+            particles.markRequiredParameter(RANDOM_SEED);
+        }
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         this.maximum.bind(particles, emitter, user, context);
         this.minimum.bind(particles, emitter, user, context);
-        this._seed = particles.getUint32Parameter(RANDOM_SEED).data;
-        this._randomOffset = context.moduleRandomSeed;
+        if (context.executionStage === ModuleExecStage.UPDATE) {
+            this._seed = particles.getUint32Parameter(RANDOM_SEED).data;
+            this._randomOffset = context.moduleRandomSeed;
+        } else {
+            this._randomStream = context.moduleRandomStream;
+        }
     }
 
     public evaluate (index: number, out: Vec3) {
@@ -75,12 +83,12 @@ export class RandomRangeVec3Expression extends Vec3Expression {
         return out;
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream, out: Vec3) {
-        this.minimum.evaluateSingle(time, randomStream, out);
-        this.maximum.evaluateSingle(time, randomStream, temp);
-        out.x = lerp(out.x, temp.x, randomStream.getFloat());
-        out.y = lerp(out.y, temp.y, randomStream.getFloat());
-        out.z = lerp(out.z, temp.z, randomStream.getFloat());
+    public evaluateSingle (out: Vec3) {
+        this.minimum.evaluateSingle(out);
+        this.maximum.evaluateSingle(temp);
+        out.x = lerp(out.x, temp.x, this._randomStream.getFloat());
+        out.y = lerp(out.y, temp.y, this._randomStream.getFloat());
+        out.z = lerp(out.z, temp.z, this._randomStream.getFloat());
         return out;
     }
 }

@@ -24,7 +24,7 @@
  */
 import { Enum, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
@@ -88,8 +88,8 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
         return this._getChannel(temp);
     }
 
-    public evaluateSingle (time: number, randomStream: RandomStream): number {
-        this.vec3.evaluateSingle(time, randomStream, temp);
+    public evaluateSingle (): number {
+        this.vec3.evaluateSingle(temp);
         switch (this.channel) {
         case Vec3Channel.X: return temp.x;
         case Vec3Channel.Y: return temp.y;

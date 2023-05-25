@@ -28,7 +28,7 @@ import { approx, CCFloat, Color, EPSILON, Vec3 } from '../../core';
 import { VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { COLOR, ID, IS_DEAD, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY } from '../particle-data-set';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -85,8 +85,6 @@ export class DeathEventGeneratorModule extends VFXModule {
 
                 Vec3.zero(eventInfo.position);
                 Vec3.zero(eventInfo.velocity);
-                Vec3.copy(eventInfo.scale, Vec3.ONE);
-                Vec3.zero(eventInfo.rotation);
                 Color.copy(eventInfo.color, Color.WHITE);
                 if (hasPosition) {
                     (position as Vec3ArrayParameter).getVec3At(eventInfo.position, i);

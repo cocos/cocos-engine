@@ -24,10 +24,9 @@
  */
 import { CCFloat } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/class-decorator';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
-import { RandomStream } from '../random-stream';
 import { UserDataSet } from '../user-data-set';
 import { FloatExpression } from './float';
 
