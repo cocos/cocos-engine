@@ -43,12 +43,11 @@ import {
     ColorMask,
     PrimitiveMode,
     DynamicStateFlagBit,
-    Color,
 } from './define';
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { RenderPassStage } from '../../rendering/define';
-import { CCString, Enum } from '../../core';
+import { CCString, Enum, Color } from '../../core';
 
 function isNumber(obj: any) {
     return typeof obj === 'number' && !isNaN(obj);
@@ -261,7 +260,7 @@ export class BlendTargetEditor extends BlendTarget {
 }
 
 @ccclass('BlendState')
-export class BlendStateEditor extends BlendState {
+export class BlendStateEditor {
     @serializable
     @editable
     public isA2C = false;
@@ -273,7 +272,7 @@ export class BlendStateEditor extends BlendState {
     @type(Color)
     @serializable
     @editable
-    public blendColor: Color = new Color();
+    public blendColor: Color = Color.WHITE;
 
     @type([BlendTargetEditor])
     @serializable
