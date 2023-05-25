@@ -7,6 +7,7 @@ module.exports = {
             pose_nodes: 'Pose Nodes',
             pose_nodes_blend: 'Blend',
             pose_nodes_ik: 'Inverse Kinematic',
+            pose_nodes_choose: 'Choose',
         },
         pose_graph_node_sub_menus: {
             play_or_sample_clip_motion: 'Animation Clip',

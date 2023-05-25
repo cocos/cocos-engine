@@ -7,6 +7,7 @@ module.exports = {
             pose_nodes: '姿势结点',
             pose_nodes_blend: '混合',
             pose_nodes_ik: '反向动力学',
+            pose_nodes_choose: '选择',
         },
         pose_graph_node_sub_menus: {
             play_or_sample_clip_motion: '动画剪辑',
