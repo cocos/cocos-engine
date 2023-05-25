@@ -149,9 +149,6 @@ public:
     inline void setHideFlags(Flags hideFlags);
     inline Flags getHideFlags() const;
 
-    inline void setReplicated(bool value);
-    inline bool isReplicated() const;
-
     /**
      * @en
      * Indicates whether the object is not yet destroyed. (It will not be available after being destroyed)<br>
@@ -251,18 +248,6 @@ inline void CCObject::setHideFlags(Flags hideFlags) {
 
 inline CCObject::Flags CCObject::getHideFlags() const {
     return _objFlags & Flags::ALL_HIDE_MASKS;
-}
-
-inline void CCObject::setReplicated(bool value) {
-    if (value) {
-        _objFlags |= Flags::IS_REPLICATED;
-    } else {
-        _objFlags &= ~Flags::IS_REPLICATED;
-    }
-}
-
-inline bool CCObject::isReplicated() const {
-    return !!(_objFlags & Flags::IS_REPLICATED);
 }
 
 /*
