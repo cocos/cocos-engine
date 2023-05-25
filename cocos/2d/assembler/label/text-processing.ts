@@ -370,15 +370,15 @@ export class TextProcessing {
 
         this._context!.font = style.fontDesc;
         // align
-        this._context!.textAlign = Alignment[layout.hAlign] as any;
+        this._context!.textAlign = Alignment[layout.horizontalAlign] as any;
         this._context!.textBaseline = 'alphabetic';
     }
 
     private _calculateFillTextStartPosition (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData) {
         let labelX = 0;
-        if (layout.hAlign === HorizontalTextAlignment.RIGHT) {
+        if (layout.horizontalAlign === HorizontalTextAlignment.RIGHT) {
             labelX = outputLayoutData.canvasSize.width - outputLayoutData.canvasPadding.width;
-        } else if (layout.hAlign === HorizontalTextAlignment.CENTER) {
+        } else if (layout.horizontalAlign === HorizontalTextAlignment.CENTER) {
             labelX = (outputLayoutData.canvasSize.width - outputLayoutData.canvasPadding.width) / 2;
         }
 
@@ -386,10 +386,10 @@ export class TextProcessing {
         const drawStartY = lineHeight * (outputLayoutData.parsedString.length - 1);
         // TOP
         let firstLinelabelY = style.actualFontSize * (1 - BASELINE_RATIO / 2);
-        if (layout.vAlign !== VerticalTextAlignment.TOP) {
+        if (layout.verticalAlign !== VerticalTextAlignment.TOP) {
             // free space in vertical direction
             let blank = drawStartY + outputLayoutData.canvasPadding.height + style.actualFontSize - outputLayoutData.canvasSize.height;
-            if (layout.vAlign === VerticalTextAlignment.BOTTOM) {
+            if (layout.verticalAlign === VerticalTextAlignment.BOTTOM) {
                 // Unlike BMFont, needs to reserve space below.
                 blank += BASELINE_RATIO / 2 * style.actualFontSize;
                 // BOTTOM
@@ -514,9 +514,9 @@ export class TextProcessing {
             if (style.isUnderline) {
                 const _drawUnderlineWidth = measureText(outputLayoutData.parsedString[i]);
                 const _drawUnderlinePos = new Vec2();
-                if (layout.hAlign === HorizontalTextAlignment.RIGHT) {
+                if (layout.horizontalAlign === HorizontalTextAlignment.RIGHT) {
                     _drawUnderlinePos.x = startPosition.x - _drawUnderlineWidth;
-                } else if (layout.hAlign === HorizontalTextAlignment.CENTER) {
+                } else if (layout.horizontalAlign === HorizontalTextAlignment.CENTER) {
                     _drawUnderlinePos.x = startPosition.x - (_drawUnderlineWidth / 2);
                 } else {
                     _drawUnderlinePos.x = startPosition.x;
@@ -590,10 +590,10 @@ export class TextProcessing {
             newHeight = 0;
         }
 
-        layout.labelWidth = newWidth;
-        layout.labelHeight = newHeight;
-        layout.labelDimensions.width = newWidth;
-        layout.labelDimensions.height = newHeight;
+        layout.textWidthTemp = newWidth;
+        layout.textHeightTemp = newHeight;
+        layout.textDimensions.width = newWidth;
+        layout.textDimensions.height = newHeight;
         layout.maxLineWidth = newWidth;
     }
 
@@ -779,12 +779,12 @@ export class TextProcessing {
             layout.textDesiredHeight += (layout.numberOfLines - 1) * _lineSpacing;
         }
 
-        outputLayoutData.nodeContentSize.width = layout.labelWidth;
-        outputLayoutData.nodeContentSize.height = layout.labelHeight;
-        if (layout.labelWidth <= 0) {
+        outputLayoutData.nodeContentSize.width = layout.textWidthTemp;
+        outputLayoutData.nodeContentSize.height = layout.textHeightTemp;
+        if (layout.textWidthTemp <= 0) {
             outputLayoutData.nodeContentSize.width = parseFloat(longestLine.toFixed(2)) + shareLabelInfo.margin * 2;
         }
-        if (layout.labelHeight <= 0) {
+        if (layout.textHeightTemp <= 0) {
             outputLayoutData.nodeContentSize.height = parseFloat(layout.textDesiredHeight.toFixed(2)) + shareLabelInfo.margin * 2;
         }
 
@@ -873,7 +873,7 @@ export class TextProcessing {
         layout.linesOffsetX.length = 0;
         layout.letterOffsetY = 0;
 
-        switch (layout.hAlign) {
+        switch (layout.horizontalAlign) {
         case HorizontalTextAlignment.LEFT:
             for (let i = 0; i < layout.numberOfLines; ++i) {
                 layout.linesOffsetX.push(0);
@@ -895,10 +895,10 @@ export class TextProcessing {
 
         // TOP
         layout.letterOffsetY = outputLayoutData.nodeContentSize.height;
-        if (layout.vAlign !== VerticalTextAlignment.TOP) {
+        if (layout.verticalAlign !== VerticalTextAlignment.TOP) {
             const blank = outputLayoutData.nodeContentSize.height - layout.textDesiredHeight
             + layout.lineHeight * this._getFontScale(style, layout) - style.originFontSize * style.bmfontScale;
-            if (layout.vAlign === VerticalTextAlignment.BOTTOM) {
+            if (layout.verticalAlign === VerticalTextAlignment.BOTTOM) {
                 // BOTTOM
                 layout.letterOffsetY -= blank;
             } else {
@@ -935,7 +935,7 @@ export class TextProcessing {
 
                 const px = letterInfo.x + letterDef.w * style.bmfontScale;
                 const lineIndex = letterInfo.line;
-                if (layout.labelWidth > 0) {
+                if (layout.textWidthTemp > 0) {
                     if (!layout.wrapping) {
                         if (px > outputLayoutData.nodeContentSize.width) {
                             letterClamp = true;
@@ -1036,7 +1036,7 @@ export class TextProcessing {
 
             let py = letterInfo.y + layout.letterOffsetY;
 
-            if (layout.labelHeight > 0) {
+            if (layout.textHeightTemp > 0) {
                 if (py > layout.tailoredTopY) {
                     const clipTop = py - layout.tailoredTopY;
                     this._tmpRect.y += clipTop;
@@ -1052,7 +1052,7 @@ export class TextProcessing {
             const lineIndex = letterInfo.line;
             const px = letterInfo.x + letterDef.w / 2 * style.bmfontScale + layout.linesOffsetX[lineIndex];
 
-            if (layout.labelWidth > 0) {
+            if (layout.textWidthTemp > 0) {
                 if (this._isHorizontalClamped(layout, outputLayoutData, px, lineIndex)) {
                     if (layout.overFlow === Overflow.CLAMP) {
                         this._tmpRect.width = 0;

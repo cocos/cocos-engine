@@ -27,8 +27,8 @@ import { Size } from '../../../core';
 export class TextLayout {
     // Layout common
     // alignment
-    public hAlign = 0;// Enum  // both
-    public vAlign = 0;// Enum // both
+    public horizontalAlign = 0;// Enum  // both
+    public verticalAlign = 0;// Enum // both
 
     public wrapping = true; // both
     public overFlow = 0;// Enum  // both
@@ -40,9 +40,9 @@ export class TextLayout {
     public spacingX = 0; // bmfont
 
     // bmfont used temp value
-    public labelWidth = 0;
-    public labelHeight = 0;
-    public labelDimensions = new Size();
+    public textWidthTemp = 0;
+    public textHeightTemp = 0;
+    public textDimensions = new Size();
 
     public horizontalKerning: number[] = [];
     public numberOfLines = 1;
@@ -57,16 +57,16 @@ export class TextLayout {
     public linesWidth: number[] = [];
 
     public reset () {
-        this.hAlign = 0;
-        this.vAlign = 0;
+        this.horizontalAlign = 0;
+        this.verticalAlign = 0;
         this.wrapping = true;
         this.overFlow = 0;
         this.lineHeight = 10;
         this.maxLineWidth = 0;
         this.spacingX = 0;
-        this.labelWidth = 0;
-        this.labelHeight = 0;
-        this.labelDimensions.set();
+        this.textWidthTemp = 0;
+        this.textHeightTemp = 0;
+        this.textDimensions.set();
         this.horizontalKerning.length = 0;
         this.numberOfLines = 1;
         this.linesOffsetX.length = 0;

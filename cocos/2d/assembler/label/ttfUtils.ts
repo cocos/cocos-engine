@@ -90,8 +90,8 @@ export const ttfUtils =  {
         outputRenderData.uiTransAnchorX = trans.anchorX; // render Only
         outputRenderData.uiTransAnchorY = trans.anchorY; // render Only
 
-        layout.hAlign = comp.horizontalAlign; // render Only
-        layout.vAlign = comp.verticalAlign; // render Only
+        layout.horizontalAlign = comp.horizontalAlign; // render Only
+        layout.verticalAlign = comp.verticalAlign; // render Only
     },
 
     getAssemblerData () {
