@@ -260,7 +260,7 @@ export class BlendTargetEditor extends BlendTarget {
 }
 
 @ccclass('BlendState')
-export class BlendStateEditor extends BlendState {
+export class BlendStateEditor {
     @serializable
     @editable
     public isA2C = false;
