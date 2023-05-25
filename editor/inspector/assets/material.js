@@ -265,6 +265,7 @@ exports.methods = {
 
                 $container.$children[i] = document.createElement('ui-prop');
                 $container.$children[i].setAttribute('type', 'dump');
+                $container.$children[i].setAttribute('ui-section-config', '');
                 $container.$children[i].setAttribute('pass-index', i);
                 $container.appendChild($container.$children[i]);
                 $container.$children[i].render(pass);
@@ -439,7 +440,9 @@ exports.methods = {
         const { name, type, value, default: defaultValue } = dump;
 
         if (JSON.stringify(value) === JSON.stringify(defaultValue)) {
-            delete this.cacheData[name][passIndex];
+            if (this.cacheData[name] && this.cacheData[name][passIndex] !== undefined) {
+                delete this.cacheData[name][passIndex];
+            }
         } else {
             const cacheData = this.cacheData;
             if (!cacheData[name]) {

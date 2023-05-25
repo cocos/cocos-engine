@@ -184,6 +184,12 @@
                 "MARIONETTE": true
             }
         },
+        "procedural-animation": {
+            "modules": [],
+            "intrinsicFlags": {
+                "PROCEDURAL_ANIMATION": true
+            }
+        },
         "custom-pipeline": {
             "modules": ["custom-pipeline"],
             "dependentAssets": [
@@ -355,6 +361,13 @@
             "isVirtualModule": false,
             "overrides": {
                 "cocos/animation/marionette/runtime-exports.ts": "cocos/animation/marionette/index-empty.ts"
+            }
+        },
+        {
+            "test": "!context.buildTimeConstants.PROCEDURAL_ANIMATION",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/animation/marionette/pose-graph/runtime-exports.ts": "cocos/animation/marionette/pose-graph/runtime-exports-empty.ts"
             }
         }
     ],

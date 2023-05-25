@@ -39,7 +39,6 @@ describe(`Interruption matching`, () => {
                     entryTransitions: [{ to: 'motion_1' }],
                     transitions: [{
                         from: 'motion_1', to: 'motion_2', exitTimeEnabled: false, duration: originalTransitionDuration,
-                        interruptible: true,
                         conditions: [{ type: 'unary', operator: 'to-be-true', operand: { type: 'variable', name: 'original_transition_activated' } }],
                     }, {
                         from: 'motion_2', to: 'motion_3',
@@ -55,19 +54,19 @@ describe(`Interruption matching`, () => {
         const evalMock = new AnimationGraphEvalMock(valueObserver.root, animationGraph);
     
         // Satisfies interruption's exit time condition.
-        evalMock.step(exitTimeAbsolute * 1.01);
+        evalMock.step(exitTimeAbsolute + 1e-6); // Past the exit condition
+        evalMock.step(exitTimeAbsolute * 0.01);
     
         // Satisfies interruption's condition.
-        const timeBeforeInterruptionEnabled = evalMock.current;
         evalMock.controller.setValue('interruption_enabled', true);
         evalMock.step(0.1);
         // The interruption should have taken place.
         expect(valueObserver.value).toBeCloseTo(
             lerp(
                 lerp(
-                    fixture.motion_1.getExpected(timeBeforeInterruptionEnabled),
-                    fixture.motion_2.getExpected(timeBeforeInterruptionEnabled),
-                    timeBeforeInterruptionEnabled / originalTransitionDuration,
+                    fixture.motion_1.getExpected(evalMock.current),
+                    fixture.motion_2.getExpected(evalMock.current),
+                    evalMock.current / originalTransitionDuration,
                 ),
                 fixture.motion_3.getExpected(evalMock.lastDeltaTime),
                 evalMock.lastDeltaTime / interruptingTransitionDuration,

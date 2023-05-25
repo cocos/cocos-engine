@@ -1,14 +1,16 @@
 import { Vec2 } from "../../cocos/core";
 import { AnimationClip } from "../../cocos/animation/animation-clip";
-import { AnimationBlend1D } from "../../cocos/animation/marionette/animation-blend-1d";
-import { AnimationBlend2D } from "../../cocos/animation/marionette/animation-blend-2d";
+import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D } from "../../cocos/animation/marionette/motion";
 import { AnimationGraph, AnimationTransition, EmptyState, EmptyStateTransition, StateMachine, SubStateMachine, Transition } from "../../cocos/animation/marionette/animation-graph";
-import { ClipMotion } from "../../cocos/animation/marionette/clip-motion";
-import { BinaryCondition, Condition, TriggerCondition, UnaryCondition } from "../../cocos/animation/marionette/condition";
-import { Motion } from "../../cocos/animation/marionette/motion";
-import { MotionState } from "../../cocos/animation/marionette/motion-state";
+import { BinaryCondition, Condition, TriggerCondition, UnaryCondition } from "../../cocos/animation/marionette/state-machine/condition";
+import { MotionState } from "../../cocos/animation/marionette/state-machine/motion-state";
 import { Bindable } from "../../cocos/animation/marionette/parametric";
 import { assertIsTrue } from "../../cocos/core/data/utils/asserts";
+import { TCBindingParams, createTCBinding } from "./new-gen-anim/utils/factory";
+import { TCBinding, TCBindingValueType } from "../../cocos/animation/marionette/asset-creation";
+import { TCVariableBinding } from "../../cocos/animation/marionette/state-machine/condition/binding/variable-binding";
+import { TCAuxiliaryCurveBinding } from "../../cocos/animation/marionette/state-machine/condition/binding/auxiliary-curve-binding";
+import { TCStateWeightBinding } from "../../cocos/animation/marionette/state-machine/condition/binding/state-weight-binding";
 
 describe('Animation graph asset', () => {
     test('Asset operation: clone or copy', () => {
@@ -97,15 +99,14 @@ describe('Animation graph asset', () => {
             const t1 = mainLayer.stateMachine.connect(m1, m2);
             const [cond] = t1.conditions = [new BinaryCondition()];
             cond.operator = BinaryCondition.Operator.GREATER_THAN_OR_EQUAL_TO;
-            cond.lhs.variable = 'Lhs';
-            cond.rhs.value = 0.618;
+            cond.lhsBinding = createTCBinding({ type: 'variable', variableName: 'Lhs' });
+            cond.rhs = 0.618;
             t1.duration = 0.1;
             t1.relativeDuration = true;
             t1.exitConditionEnabled = true;
             t1.exitCondition = 0.2;
             t1.destinationStart = 0.3;
             t1.relativeDestinationStart = true;
-            t1.interruptible = true;
             const t2 = mainLayer.stateMachine.connect(m1, m2);
             // @ts-expect-error Type mismatch
             t1.copyTo(t2);
@@ -119,8 +120,8 @@ describe('Animation graph asset', () => {
             const t1 = mainLayer.stateMachine.connect(m1, m2);
             const [cond] = t1.conditions = [new BinaryCondition()];
             cond.operator = BinaryCondition.Operator.GREATER_THAN_OR_EQUAL_TO;
-            cond.lhs.variable = 'Lhs';
-            cond.rhs.value = 0.618;
+            cond.lhsBinding = createTCBinding({ type: 'variable', variableName: 'Lhs' });
+            cond.rhs = 0.618;
             t1.duration = 0.1;
             t1.destinationStart = 0.3;
             t1.relativeDestinationStart = true;
@@ -135,8 +136,8 @@ describe('Animation graph asset', () => {
             const t1 = mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, m2);
             const [cond] = t1.conditions = [new BinaryCondition()];
             cond.operator = BinaryCondition.Operator.GREATER_THAN_OR_EQUAL_TO;
-            cond.lhs.variable = 'Lhs';
-            cond.rhs.value = 0.618;
+            cond.lhsBinding = createTCBinding({ type: 'variable', variableName: 'Lhs' });
+            cond.rhs = 0.618;
             const t2 = mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, m2);
             t1.copyTo(t2);
             assertsEqualBaseTransition(t1, t2);
@@ -154,14 +155,19 @@ describe('Animation graph asset', () => {
 
         // Binary condition
         {
-            const binaryCondition = new BinaryCondition();
-            binaryCondition.operator = BinaryCondition.Operator.GREATER_THAN_OR_EQUAL_TO;
-            binaryCondition.lhs.value = 0.618;
-            binaryCondition.lhs.variable = 'BinaryConditionLhs';
-            binaryCondition.rhs.value = 6666;
-            binaryCondition.rhs.variable = 'BinaryConditionRhs';
-            const newBinaryCondition = binaryCondition.clone();
-            assertsEqualBinaryCondition(newBinaryCondition, binaryCondition);
+            for (const tcBindingParams of [
+                { type: 'variable', variableName: 'BinaryConditionLhs' },
+                { type: 'auxiliary-curve', variableName: 'AuxiliaryCurve1' },
+                { type: 'state-weight' },
+            ] as TCBindingParams[]) {
+                const binaryCondition = new BinaryCondition();
+                binaryCondition.operator = BinaryCondition.Operator.GREATER_THAN_OR_EQUAL_TO;
+                binaryCondition.lhs = 0.618;
+                binaryCondition.lhsBinding = createTCBinding(tcBindingParams);
+                binaryCondition.rhs = 6666;
+                const newBinaryCondition = binaryCondition.clone();
+                assertsEqualBinaryCondition(newBinaryCondition, binaryCondition);
+            }
         }
 
         // Trigger condition
@@ -214,7 +220,6 @@ describe('Animation graph asset', () => {
             expect(lhs.exitCondition).toBe(rhs.exitCondition);
             expect(lhs.destinationStart).toBe(rhs.destinationStart);
             expect(lhs.relativeDestinationStart).toBe(rhs.relativeDestinationStart);
-            expect(lhs.interruptible).toBe(rhs.interruptible);
         }
 
         function assertsEqualEmptyStateTransition(lhs: EmptyStateTransition, rhs: EmptyStateTransition) {
@@ -244,10 +249,24 @@ describe('Animation graph asset', () => {
             assertsEqualBindable(lhs.operand, rhs.operand);
         }
 
+        function assertsEqualTCBinding<TValueType extends TCBindingValueType>(lhs: TCBinding<TValueType>, rhs: TCBinding<TValueType>) {
+            if (lhs instanceof TCVariableBinding) {
+                expect(rhs).toBeInstanceOf(TCVariableBinding);
+                expect(lhs.variableName).toStrictEqual((rhs as TCVariableBinding<TValueType>).variableName);
+                expect(lhs.type).toStrictEqual((rhs as TCVariableBinding<TValueType>).type);
+            } else if (lhs instanceof TCAuxiliaryCurveBinding) {
+                expect(rhs).toBeInstanceOf(TCAuxiliaryCurveBinding);
+                expect(lhs.curveName).toStrictEqual((rhs as unknown as TCAuxiliaryCurveBinding).curveName);
+            } else if (lhs instanceof TCStateWeightBinding) {
+                expect(rhs).toBeInstanceOf(TCStateWeightBinding);
+            }
+        }
+
         function assertsEqualBinaryCondition(lhs: BinaryCondition, rhs: BinaryCondition) {
             expect(lhs.operator).toBe(rhs.operator);
-            assertsEqualBindable(lhs.lhs, rhs.lhs);
-            assertsEqualBindable(lhs.rhs, rhs.rhs);
+            expect(lhs.lhs).toStrictEqual(rhs.lhs);
+            assertsEqualTCBinding(lhs.lhsBinding, rhs.lhsBinding);
+            expect(lhs.rhs).toStrictEqual(rhs.rhs);
         }
 
         function assertsEqualTriggerCondition(lhs: TriggerCondition, rhs: TriggerCondition) {

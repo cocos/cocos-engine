@@ -3,7 +3,7 @@ import { Pose } from './pose';
 import { TransformArray } from './transform-array';
 import { SharedStackBasedAllocator, SharedStackBasedAllocatorManager } from './shared-stack-based-allocator';
 
-export class PoseAllocator {
+export class PoseStackAllocator {
     constructor (transformCount: number, auxiliaryCurveCount: number) {
         this._transformCount = transformCount;
         this._auxiliaryCurveCount = auxiliaryCurveCount;
@@ -52,7 +52,7 @@ export class PoseAllocator {
     }
 
     public pop () {
-        assertIsTrue(this.allocatedCount > 0, `PoseAllocator: push/pop does not match.`);
+        assertIsTrue(this._allocatedCount > 0, `PoseStackAllocator: push/pop does not match.`);
 
         --this._allocatedCount;
 
@@ -63,6 +63,11 @@ export class PoseAllocator {
 
         // Note: we don't actually free the pose -- only destroy() will free the pose.
         // This does not cause big problem since all pose allocators share the same stack memory.
+    }
+
+    get top () {
+        assertIsTrue(this._allocatedCount > 0);
+        return this._poses[this._allocatedCount - 1];
     }
 
     private _poses: Pose[] = [];

@@ -285,6 +285,9 @@ module.exports = {
                     name: '跳过验证',
                     title: '跳过对模型文件的验证。',
                 },
+                mountAllAnimationsOnPrefab: {
+                    name: '挂载全部动画到预制体',
+                }
             },
             addEvent: {
                 shouldSave: '新建的 Clip 需要先提交修改后，才能添加/编辑事件',

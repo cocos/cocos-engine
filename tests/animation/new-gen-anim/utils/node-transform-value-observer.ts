@@ -1,6 +1,6 @@
 import { QuatTrack, VectorTrack } from "../../../../cocos/animation/animation";
 import { AnimationClip } from "../../../../cocos/animation/animation-clip";
-import { ClipMotion } from "../../../../cocos/animation/marionette/clip-motion";
+import { ClipMotion } from "../../../../cocos/animation/marionette/motion";
 import { Quat, toDegree, toRadian, Vec3 } from "../../../../cocos/core";
 import { Node } from "../../../../cocos/scene-graph";
 import { CreateMotionContext } from "./fixtures";
@@ -66,8 +66,8 @@ export class NodeTransformValueObserver {
         const qAngle = toDegree(Quat.getAxisAngle(qAxis, this._root.rotation));
         expect(Vec3.equals(qAxis, NodeTransformValueObserver._FIXED_ROTATION_AXIS, 1e-6));
 
-        expect(this._eulerAngleRotationNode.eulerAngles.y).toBeCloseTo(0.0, 1e-8);
-        expect(this._eulerAngleRotationNode.eulerAngles.z).toBeCloseTo(0.0, 1e-8);
+        expect(this._eulerAngleRotationNode.eulerAngles.y).toBeCloseTo(0.0, 8);
+        expect(this._eulerAngleRotationNode.eulerAngles.z).toBeCloseTo(0.0, 8);
 
         return {
             position: this._root.position.x,

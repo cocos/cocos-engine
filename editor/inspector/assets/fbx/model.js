@@ -150,28 +150,15 @@ ui-section {
     line-height: 1.7;
     color: var(--color-warn-fill);
 }
-.mesh-optimizer .algorithm {
-    margin-top: 10px;
-    padding-left: 20px;
-}
-.mesh-optimizer .simplify-options > ui-prop {
-    padding-left: 20px;
-}
 .mesh-optimizer ui-section > ui-prop,
 .lods ui-section > ui-prop {
     padding-left: 10px;
-}
-.mesh-optimizer .warn-words {
-    padding-left: 20px;
 }
 .mesh-optimizer .gltfpack-options .warn-words {
     padding-left: 10px;
     margin-top: 0;
 }
 
-.lod-item {
-    padding-left: 20px;
-}
 .lod-item .lod-item-header {
     flex: 1;
     display: flex;
@@ -238,8 +225,6 @@ ui-section {
     color: var(--color-focus-contrast-emphasis);
 }
 .lods .no-lod-label {
-    padding-left: 20px;
-    margin-top: 4px;
     color: var(--color-default-fill-weakest)
 }
 .lods .no-lod-label[hidden] {
@@ -916,7 +901,7 @@ exports.methods = {
     },
     apply() {
         this.$.loadMask.style.display = 'block';
-    }
+    },
 };
 
 exports.ready = function() {

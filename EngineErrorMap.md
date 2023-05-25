@@ -3285,7 +3285,7 @@ Can not decode CCON binary: lack of text decoder.
 
 ### 14000
 
-Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame.
+State machine matched too many transitions(greater than %s) during this frame: %s.
 
 ### 14100
 

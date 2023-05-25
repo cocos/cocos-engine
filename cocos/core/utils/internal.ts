@@ -71,9 +71,12 @@ export function renameObjectProperty<T extends Record<PropertyKey, any>> (
     originalPropertyKey: keyof T,
     newPropertyKey: keyof T,
 ): T {
-    if (!Object.prototype.propertyIsEnumerable.call(object, originalPropertyKey)) {
+    const { propertyIsEnumerable } = Object.prototype;
+
+    if (!propertyIsEnumerable.call(object, originalPropertyKey)) {
         return object;
     }
+
     if (newPropertyKey in object) {
         return object;
     }
@@ -85,6 +88,9 @@ export function renameObjectProperty<T extends Record<PropertyKey, any>> (
             result[k as keyof T] = v;
         });
         Object.getOwnPropertySymbols(object).forEach((k) => {
+            if (!propertyIsEnumerable.call(object, k)) {
+                return;
+            }
             result[k === originalPropertyKey ? newPropertyKey : k as keyof T] = object[k as keyof T];
         });
     } else {
@@ -92,6 +98,9 @@ export function renameObjectProperty<T extends Record<PropertyKey, any>> (
             result[k === originalPropertyKey ? newPropertyKey : k as keyof T] = v;
         });
         Object.getOwnPropertySymbols(object).forEach((k) => {
+            if (!propertyIsEnumerable.call(object, k)) {
+                return;
+            }
             result[k as keyof T] = object[k as keyof T];
         });
     }
@@ -195,7 +204,7 @@ export const createInstanceofProxy = ((): CreateInstanceofProxySignature => {
 })();
 
 // May be hacky?
-type ExcludeConstructor<T> = Omit<T, never>;
+type ExcludeConstructor<T> = T;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type CreateInstanceofProxySignature = <TConstructor extends Function> (constructor: TConstructor) => ExcludeConstructor<TConstructor>;

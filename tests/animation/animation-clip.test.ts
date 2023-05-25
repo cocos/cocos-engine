@@ -6,8 +6,8 @@ import { captureErrorIDs, captureWarnIDs } from '../utils/log-capture';
 import { Node,Component } from '../../cocos/scene-graph';
 import { LegacyBlendStateBuffer } from '../../cocos/3d/skeletal-animation/skeletal-animation-blending';
 import { AnimationGraph } from '../../cocos/animation/marionette/animation-graph';
-import { ClipMotion } from '../../cocos/animation/marionette/clip-motion';
-import { AnimationGraphEval } from '../../cocos/animation/marionette/graph-eval';
+import { ClipMotion } from '../../cocos/animation/marionette/motion';
+import { AnimationGraphEvalMock } from './new-gen-anim/utils/eval-mock';
 
 test('Common target', () => {
     @ccclass('TestComponent')
@@ -456,7 +456,6 @@ function evaluateClipSingleFrameMarionette (clip: AnimationClip, node: Node, tim
     const clipMotion = motion.motion = new ClipMotion();
     clipMotion.clip = clip;
     layer.stateMachine.connect(layer.stateMachine.entryState, motion);
-    const controller = node.addComponent(AnimationController) as AnimationController;
-    const graphEval = new AnimationGraphEval(animationGraph, node, controller);
-    graphEval.update(time);
+    const graphEval = new AnimationGraphEvalMock(node, animationGraph);
+    graphEval.step(time);
 }

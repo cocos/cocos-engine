@@ -94,6 +94,7 @@ exports.ready = function() {
                 const label = document.createElement('ui-label');
                 label.setAttribute('slot', 'label');
                 label.value = getName(dump);
+                label.setAttribute('tooltip', dump.tooltip);
 
                 const content = createRadioGroup({
                     enumList: dump.enumList,
@@ -137,6 +138,7 @@ exports.ready = function() {
                 const label = document.createElement('ui-label');
                 label.setAttribute('slot', 'label');
                 label.value = getName(dump);
+                label.setAttribute('tooltip', dump.tooltip);
 
                 const content = createRadioGroup({
                     enumList: dump.enumList,

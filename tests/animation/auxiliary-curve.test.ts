@@ -1,5 +1,5 @@
 import { AnimationClip, AnimationState } from "../../cocos/animation";
-import { ClipMotion } from "../../cocos/animation/marionette/clip-motion";
+import { ClipMotion } from "../../cocos/animation/marionette/motion";
 import { Node } from "../../cocos/scene-graph";
 import { createAnimationGraph } from './new-gen-anim/utils/factory';
 import { LinearRealValueAnimationFixture } from "./new-gen-anim/utils/fixtures";
