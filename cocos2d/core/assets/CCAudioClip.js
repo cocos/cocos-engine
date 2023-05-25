@@ -127,7 +127,11 @@ var AudioClip = cc.Class({
                 let self = this;
                 cc.assetManager.postLoadNative(this, function (err) {
                     self._loading = false;
-                    self.loaded = true;
+                    if (err) {
+                        cc.error(err);
+                    } else {
+                        self.loaded = true;
+                    }
                 });
             }
         }
