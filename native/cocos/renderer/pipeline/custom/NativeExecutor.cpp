@@ -231,6 +231,16 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                     },
                     [&](const RenderSwapchain& sc) {
                         fbInfo.colorTextures.emplace_back(sc.swapchain->getColorTexture());
+                    },
+                    [&](const FormatView& view) {
+                        // TODO(zhouzhenglong): add ImageView support
+                        std::ignore = view;
+                        CC_EXPECTS(false);
+                    },
+                    [&](const SubresourceView& view) {
+                        // TODO(zhouzhenglong): add ImageView support
+                        std::ignore = view;
+                        CC_EXPECTS(false);
                     });
             } else if (view.attachmentType == AttachmentType::DEPTH_STENCIL) { // DepthStencil
                 data.clearDepth = view.clearColor.x;
@@ -248,6 +258,14 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                         [&](const IntrusivePtr<gfx::Texture>& tex) {
                             CC_EXPECTS(!fbInfo.depthStencilTexture);
                             fbInfo.depthStencilTexture = tex.get();
+                        },
+                        [&](const FormatView& view) {
+                            std::ignore = view;
+                            CC_EXPECTS(false);
+                        },
+                        [&](const SubresourceView& view) {
+                            std::ignore = view;
+                            CC_EXPECTS(false);
                         },
                         [](const auto& /*unused*/) {
                             CC_EXPECTS(false);

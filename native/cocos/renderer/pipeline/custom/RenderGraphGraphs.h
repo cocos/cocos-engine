@@ -375,340 +375,90 @@ inline void remove_edge(ResourceGraph::edge_descriptor e, ResourceGraph& g) noex
     remove_edge(ResourceGraph::out_edge_iterator(outIter, u), g);
 }
 
-// MutableGraph(Vertex)
-inline void clear_out_edges(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept { // NOLINT
-    // Bidirectional (OutEdges)
-    auto& outEdgeList = g.getOutEdgeList(u);
-    auto  outEnd      = outEdgeList.end();
-    for (auto iter = outEdgeList.begin(); iter != outEnd; ++iter) {
-        auto& inEdgeList = g.getInEdgeList((*iter).get_target());
-        // eraseFromIncidenceList
-        impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-            return e.get_target() == u;
-        });
+// AddressableGraph
+inline ResourceGraph::vertex_descriptor
+parent(const ResourceGraph::ownership_descriptor& e, const ResourceGraph& /*g*/) noexcept {
+    return e.source;
+}
+
+inline ResourceGraph::vertex_descriptor
+child(const ResourceGraph::ownership_descriptor& e, const ResourceGraph& /*g*/) noexcept {
+    return e.target;
+}
+
+inline std::pair<ResourceGraph::children_iterator, ResourceGraph::children_iterator>
+children(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
+    return std::make_pair(
+        ResourceGraph::children_iterator(const_cast<ResourceGraph&>(g).getChildrenList(u).begin(), u),
+        ResourceGraph::children_iterator(const_cast<ResourceGraph&>(g).getChildrenList(u).end(), u));
+}
+
+inline ResourceGraph::children_size_type
+numChildren(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
+    return gsl::narrow_cast<ResourceGraph::children_size_type>(g.getChildrenList(u).size());
+}
+
+inline std::pair<ResourceGraph::ownership_descriptor, bool>
+reference(ResourceGraph::vertex_descriptor u, ResourceGraph::vertex_descriptor v, ResourceGraph& g) noexcept {
+    auto& outEdgeList = g.getChildrenList(u);
+    auto  iter        = std::find(outEdgeList.begin(), outEdgeList.end(), ResourceGraph::OutEdge(v));
+    bool  hasEdge     = (iter != outEdgeList.end());
+    return {ResourceGraph::ownership_descriptor(u, v), hasEdge};
+}
+
+inline std::pair<ResourceGraph::parent_iterator, ResourceGraph::parent_iterator>
+parents(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
+    return std::make_pair(
+        ResourceGraph::parent_iterator(const_cast<ResourceGraph&>(g).getParentsList(u).begin(), u),
+        ResourceGraph::parent_iterator(const_cast<ResourceGraph&>(g).getParentsList(u).end(), u));
+}
+
+inline ResourceGraph::children_size_type
+numParents(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
+    return gsl::narrow_cast<ResourceGraph::children_size_type>(g.getParentsList(u).size());
+}
+
+inline ResourceGraph::vertex_descriptor
+parent(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
+    auto r = parents(u, g);
+    if (r.first == r.second) {
+        return ResourceGraph::null_vertex();
     }
-    outEdgeList.clear();
+    return parent(*r.first, g);
 }
 
-inline void clear_in_edges(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept { // NOLINT
-    // Bidirectional (InEdges)
-    auto& inEdgeList = g.getInEdgeList(u);
-    auto  inEnd      = inEdgeList.end();
-    for (auto iter = inEdgeList.begin(); iter != inEnd; ++iter) {
-        auto& outEdgeList = g.getOutEdgeList((*iter).get_target());
-        // eraseFromIncidenceList
-        impl::sequenceEraseIf(outEdgeList, [u](const auto& e) {
-            return e.get_target() == u;
-        });
-    }
-    inEdgeList.clear();
-}
-
-inline void clear_vertex(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept { // NOLINT
-    clear_out_edges(u, g);
-    clear_in_edges(u, g);
-}
-
-inline void remove_vertex_value_impl(const ResourceGraph::VertexHandle& h, ResourceGraph& g) noexcept { // NOLINT
-    using vertex_descriptor = ResourceGraph::vertex_descriptor;
-    ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<ManagedTag, vertex_descriptor>& h) {
-                g.resources.erase(g.resources.begin() + static_cast<std::ptrdiff_t>(h.value));
-                if (h.value == g.resources.size()) {
-                    return;
-                }
-                impl::reindexVectorHandle<ManagedTag>(g._vertices, h.value);
-            },
-            [&](const impl::ValueHandle<ManagedBufferTag, vertex_descriptor>& h) {
-                g.managedBuffers.erase(g.managedBuffers.begin() + static_cast<std::ptrdiff_t>(h.value));
-                if (h.value == g.managedBuffers.size()) {
-                    return;
-                }
-                impl::reindexVectorHandle<ManagedBufferTag>(g._vertices, h.value);
-            },
-            [&](const impl::ValueHandle<ManagedTextureTag, vertex_descriptor>& h) {
-                g.managedTextures.erase(g.managedTextures.begin() + static_cast<std::ptrdiff_t>(h.value));
-                if (h.value == g.managedTextures.size()) {
-                    return;
-                }
-                impl::reindexVectorHandle<ManagedTextureTag>(g._vertices, h.value);
-            },
-            [&](const impl::ValueHandle<PersistentBufferTag, vertex_descriptor>& h) {
-                g.buffers.erase(g.buffers.begin() + static_cast<std::ptrdiff_t>(h.value));
-                if (h.value == g.buffers.size()) {
-                    return;
-                }
-                impl::reindexVectorHandle<PersistentBufferTag>(g._vertices, h.value);
-            },
-            [&](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>& h) {
-                g.textures.erase(g.textures.begin() + static_cast<std::ptrdiff_t>(h.value));
-                if (h.value == g.textures.size()) {
-                    return;
-                }
-                impl::reindexVectorHandle<PersistentTextureTag>(g._vertices, h.value);
-            },
-            [&](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
-                g.framebuffers.erase(g.framebuffers.begin() + static_cast<std::ptrdiff_t>(h.value));
-                if (h.value == g.framebuffers.size()) {
-                    return;
-                }
-                impl::reindexVectorHandle<FramebufferTag>(g._vertices, h.value);
-            },
-            [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
-                g.swapchains.erase(g.swapchains.begin() + static_cast<std::ptrdiff_t>(h.value));
-                if (h.value == g.swapchains.size()) {
-                    return;
-                }
-                impl::reindexVectorHandle<SwapchainTag>(g._vertices, h.value);
-            }),
-        h);
-}
-
-inline void remove_vertex(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept { // NOLINT
-    // preserve vertex' iterators
-    auto& vert = g._vertices[u];
-    remove_vertex_value_impl(vert.handle, g);
-    { // UuidGraph
-        const auto& key = g.names[u];
-        auto num = g.valueIndex.erase(key);
-        CC_ENSURES(num == 1);
-        for (auto&& pair : g.valueIndex) {
-            auto& v = pair.second;
-            if (v > u) {
-                --v;
-            }
+inline bool
+ancestor(ResourceGraph::vertex_descriptor u, ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept {
+    CC_EXPECTS(u != v);
+    bool isAncestor = false;
+    auto r          = parents(v, g);
+    while (r.first != r.second) {
+        v = parent(*r.first, g);
+        if (u == v) {
+            isAncestor = true;
+            break;
         }
+        r = parents(v, g);
     }
-    impl::removeVectorVertex(const_cast<ResourceGraph&>(g), u, ResourceGraph::directed_category{});
-
-    // remove components
-    g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
-    g.descs.erase(g.descs.begin() + static_cast<std::ptrdiff_t>(u));
-    g.traits.erase(g.traits.begin() + static_cast<std::ptrdiff_t>(u));
-    g.states.erase(g.states.begin() + static_cast<std::ptrdiff_t>(u));
-    g.samplerInfo.erase(g.samplerInfo.begin() + static_cast<std::ptrdiff_t>(u));
+    return isAncestor;
 }
 
-// MutablePropertyGraph(Vertex)
-template <class ValueT>
-void addVertexImpl( // NOLINT
-    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ManagedResource>::value>* dummy = nullptr) { // NOLINT
-    vert.handle = impl::ValueHandle<ManagedTag, ResourceGraph::vertex_descriptor>{
-        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.resources.size())};
-    g.resources.emplace_back(std::forward<ValueT>(val));
+inline std::pair<ResourceGraph::ownership_iterator, ResourceGraph::ownership_iterator>
+references(const ResourceGraph& g0) noexcept {
+    auto& g = const_cast<ResourceGraph&>(g0);
+    return std::make_pair(
+        ResourceGraph::ownership_iterator(g.getVertexList().begin(), g.getVertexList().begin(), g.getVertexList().end(), g),
+        ResourceGraph::ownership_iterator(g.getVertexList().begin(), g.getVertexList().end(), g.getVertexList().end(), g));
 }
 
-template <class ValueT>
-void addVertexImpl( // NOLINT
-    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ManagedBuffer>::value>* dummy = nullptr) { // NOLINT
-    vert.handle = impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>{
-        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.managedBuffers.size())};
-    g.managedBuffers.emplace_back(std::forward<ValueT>(val));
-}
-
-template <class ValueT>
-void addVertexImpl( // NOLINT
-    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ManagedTexture>::value>* dummy = nullptr) { // NOLINT
-    vert.handle = impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>{
-        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.managedTextures.size())};
-    g.managedTextures.emplace_back(std::forward<ValueT>(val));
-}
-
-template <class ValueT>
-void addVertexImpl( // NOLINT
-    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, IntrusivePtr<gfx::Buffer>>::value>* dummy = nullptr) { // NOLINT
-    vert.handle = impl::ValueHandle<PersistentBufferTag, ResourceGraph::vertex_descriptor>{
-        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.buffers.size())};
-    g.buffers.emplace_back(std::forward<ValueT>(val));
-}
-
-template <class ValueT>
-void addVertexImpl( // NOLINT
-    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, IntrusivePtr<gfx::Texture>>::value>* dummy = nullptr) { // NOLINT
-    vert.handle = impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>{
-        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.textures.size())};
-    g.textures.emplace_back(std::forward<ValueT>(val));
-}
-
-template <class ValueT>
-void addVertexImpl( // NOLINT
-    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, IntrusivePtr<gfx::Framebuffer>>::value>* dummy = nullptr) { // NOLINT
-    vert.handle = impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>{
-        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.framebuffers.size())};
-    g.framebuffers.emplace_back(std::forward<ValueT>(val));
-}
-
-template <class ValueT>
-void addVertexImpl( // NOLINT
-    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, RenderSwapchain>::value>* dummy = nullptr) { // NOLINT
-    vert.handle = impl::ValueHandle<SwapchainTag, ResourceGraph::vertex_descriptor>{
-        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.swapchains.size())};
-    g.swapchains.emplace_back(std::forward<ValueT>(val));
-}
-
-template <class Component0, class Component1, class Component2, class Component3, class Component4, class ValueT>
-inline ResourceGraph::vertex_descriptor
-addVertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, Component4&& c4, ValueT&& val, ResourceGraph& g) {
-    auto v = gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g._vertices.size());
-
-    g._vertices.emplace_back();
-    auto& vert = g._vertices.back();
-
-    { // UuidGraph
-        const auto& uuid = c0;
-        auto res = g.valueIndex.emplace(uuid, v);
-        CC_ENSURES(res.second);
+inline ResourceGraph::ownerships_size_type
+numReferences(const ResourceGraph& g) noexcept {
+    ResourceGraph::ownerships_size_type numEdges = 0;
+    auto                                range    = vertices(g);
+    for (auto iter = range.first; iter != range.second; ++iter) {
+        numEdges += numChildren(*iter, g);
     }
-    g.names.emplace_back(std::forward<Component0>(c0));
-    g.descs.emplace_back(std::forward<Component1>(c1));
-    g.traits.emplace_back(std::forward<Component2>(c2));
-    g.states.emplace_back(std::forward<Component3>(c3));
-    g.samplerInfo.emplace_back(std::forward<Component4>(c4));
-
-    // PolymorphicGraph
-    // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
-    addVertexImpl(std::forward<ValueT>(val), g, vert);
-
-    return v;
-}
-
-template <class Tuple>
-void addVertexImpl(ManagedTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
-    std::apply(
-        [&](auto&&... args) {
-            vert.handle = impl::ValueHandle<ManagedTag, ResourceGraph::vertex_descriptor>{
-                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.resources.size())};
-            g.resources.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Tuple>(val));
-}
-
-template <class Tuple>
-void addVertexImpl(ManagedBufferTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
-    std::apply(
-        [&](auto&&... args) {
-            vert.handle = impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>{
-                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.managedBuffers.size())};
-            g.managedBuffers.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Tuple>(val));
-}
-
-template <class Tuple>
-void addVertexImpl(ManagedTextureTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
-    std::apply(
-        [&](auto&&... args) {
-            vert.handle = impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>{
-                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.managedTextures.size())};
-            g.managedTextures.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Tuple>(val));
-}
-
-template <class Tuple>
-void addVertexImpl(PersistentBufferTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
-    std::apply(
-        [&](auto&&... args) {
-            vert.handle = impl::ValueHandle<PersistentBufferTag, ResourceGraph::vertex_descriptor>{
-                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.buffers.size())};
-            g.buffers.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Tuple>(val));
-}
-
-template <class Tuple>
-void addVertexImpl(PersistentTextureTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
-    std::apply(
-        [&](auto&&... args) {
-            vert.handle = impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>{
-                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.textures.size())};
-            g.textures.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Tuple>(val));
-}
-
-template <class Tuple>
-void addVertexImpl(FramebufferTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
-    std::apply(
-        [&](auto&&... args) {
-            vert.handle = impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>{
-                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.framebuffers.size())};
-            g.framebuffers.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Tuple>(val));
-}
-
-template <class Tuple>
-void addVertexImpl(SwapchainTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
-    std::apply(
-        [&](auto&&... args) {
-            vert.handle = impl::ValueHandle<SwapchainTag, ResourceGraph::vertex_descriptor>{
-                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.swapchains.size())};
-            g.swapchains.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Tuple>(val));
-}
-
-template <class Component0, class Component1, class Component2, class Component3, class Component4, class Tag, class ValueT>
-inline ResourceGraph::vertex_descriptor
-addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, Component4&& c4, ValueT&& val, ResourceGraph& g) {
-    auto v = gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g._vertices.size());
-
-    g._vertices.emplace_back();
-    auto& vert = g._vertices.back();
-
-    { // UuidGraph
-        std::apply(
-            [&](const auto&... args) {
-                auto res = g.valueIndex.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
-                CC_ENSURES(res.second);
-            },
-            c0);
-    }
-
-    std::apply(
-        [&](auto&&... args) {
-            g.names.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Component0>(c0));
-
-    std::apply(
-        [&](auto&&... args) {
-            g.descs.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Component1>(c1));
-
-    std::apply(
-        [&](auto&&... args) {
-            g.traits.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Component2>(c2));
-
-    std::apply(
-        [&](auto&&... args) {
-            g.states.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Component3>(c3));
-
-    std::apply(
-        [&](auto&&... args) {
-            g.samplerInfo.emplace_back(std::forward<decltype(args)>(args)...);
-        },
-        std::forward<Component4>(c4));
-
-    // PolymorphicGraph
-    // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
-    addVertexImpl(tag, std::forward<ValueT>(val), g, vert);
-
-    return v;
+    return numEdges;
 }
 
 // IncidenceGraph
@@ -1552,6 +1302,12 @@ id(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
             },
             [](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
                 return h.value;
+            },
+            [](const impl::ValueHandle<FormatViewTag, vertex_descriptor>& h) {
+                return h.value;
+            },
+            [](const impl::ValueHandle<SubresourceViewTag, vertex_descriptor>& h) {
+                return h.value;
             }),
         g._vertices[u].handle);
 }
@@ -1581,6 +1337,12 @@ tag(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
             },
             [](const impl::ValueHandle<SwapchainTag, vertex_descriptor>&) {
                 return ResourceGraph::VertexTag{SwapchainTag{}};
+            },
+            [](const impl::ValueHandle<FormatViewTag, vertex_descriptor>&) {
+                return ResourceGraph::VertexTag{FormatViewTag{}};
+            },
+            [](const impl::ValueHandle<SubresourceViewTag, vertex_descriptor>&) {
+                return ResourceGraph::VertexTag{SubresourceViewTag{}};
             }),
         g._vertices[u].handle);
 }
@@ -1610,6 +1372,12 @@ value(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept {
             },
             [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexValue{&g.swapchains[h.value]};
+            },
+            [&](const impl::ValueHandle<FormatViewTag, vertex_descriptor>& h) {
+                return ResourceGraph::VertexValue{&g.formatViews[h.value]};
+            },
+            [&](const impl::ValueHandle<SubresourceViewTag, vertex_descriptor>& h) {
+                return ResourceGraph::VertexValue{&g.subresourceViews[h.value]};
             }),
         g._vertices[u].handle);
 }
@@ -1639,6 +1407,12 @@ value(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) noexcept {
             },
             [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
                 return ResourceGraph::VertexConstValue{&g.swapchains[h.value]};
+            },
+            [&](const impl::ValueHandle<FormatViewTag, vertex_descriptor>& h) {
+                return ResourceGraph::VertexConstValue{&g.formatViews[h.value]};
+            },
+            [&](const impl::ValueHandle<SubresourceViewTag, vertex_descriptor>& h) {
+                return ResourceGraph::VertexConstValue{&g.subresourceViews[h.value]};
             }),
         g._vertices[u].handle);
 }
@@ -1703,6 +1477,22 @@ holds<SwapchainTag>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) 
         g._vertices[v].handle);
 }
 
+template <>
+inline bool
+holds<FormatViewTag>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept {
+    return ccstd::holds_alternative<
+        impl::ValueHandle<FormatViewTag, ResourceGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+}
+
+template <>
+inline bool
+holds<SubresourceViewTag>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept {
+    return ccstd::holds_alternative<
+        impl::ValueHandle<SubresourceViewTag, ResourceGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+}
+
 template <class ValueT>
 inline bool
 holds_alternative(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept; // NOLINT
@@ -1760,6 +1550,22 @@ inline bool
 holds_alternative<RenderSwapchain>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
     return ccstd::holds_alternative<
         impl::ValueHandle<SwapchainTag, ResourceGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+}
+
+template <>
+inline bool
+holds_alternative<FormatView>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
+    return ccstd::holds_alternative<
+        impl::ValueHandle<FormatViewTag, ResourceGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+}
+
+template <>
+inline bool
+holds_alternative<SubresourceView>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
+    return ccstd::holds_alternative<
+        impl::ValueHandle<SubresourceViewTag, ResourceGraph::vertex_descriptor>>(
         g._vertices[v].handle);
 }
 
@@ -1830,6 +1636,24 @@ get<RenderSwapchain>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
     return g.swapchains[handle.value];
 }
 
+template <>
+inline FormatView&
+get<FormatView>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<FormatViewTag, ResourceGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.formatViews[handle.value];
+}
+
+template <>
+inline SubresourceView&
+get<SubresourceView>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<SubresourceViewTag, ResourceGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.subresourceViews[handle.value];
+}
+
 template <class ValueT>
 inline const ValueT&
 get(ResourceGraph::vertex_descriptor /*v*/, const ResourceGraph& /*g*/);
@@ -1897,6 +1721,24 @@ get<RenderSwapchain>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g)
     return g.swapchains[handle.value];
 }
 
+template <>
+inline const FormatView&
+get<FormatView>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<FormatViewTag, ResourceGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.formatViews[handle.value];
+}
+
+template <>
+inline const SubresourceView&
+get<SubresourceView>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<SubresourceViewTag, ResourceGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.subresourceViews[handle.value];
+}
+
 inline ManagedResource&
 get(ManagedTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
     auto& handle = ccstd::get<
@@ -1953,6 +1795,22 @@ get(SwapchainTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) 
     return g.swapchains[handle.value];
 }
 
+inline FormatView&
+get(FormatViewTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<FormatViewTag, ResourceGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.formatViews[handle.value];
+}
+
+inline SubresourceView&
+get(SubresourceViewTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+    auto& handle = ccstd::get<
+        impl::ValueHandle<SubresourceViewTag, ResourceGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.subresourceViews[handle.value];
+}
+
 inline const ManagedResource&
 get(ManagedTag /*tag*/, ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
     const auto& handle = ccstd::get<
@@ -2007,6 +1865,22 @@ get(SwapchainTag /*tag*/, ResourceGraph::vertex_descriptor v, const ResourceGrap
         impl::ValueHandle<SwapchainTag, ResourceGraph::vertex_descriptor>>(
         g._vertices[v].handle);
     return g.swapchains[handle.value];
+}
+
+inline const FormatView&
+get(FormatViewTag /*tag*/, ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<FormatViewTag, ResourceGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.formatViews[handle.value];
+}
+
+inline const SubresourceView&
+get(SubresourceViewTag /*tag*/, ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+    const auto& handle = ccstd::get<
+        impl::ValueHandle<SubresourceViewTag, ResourceGraph::vertex_descriptor>>(
+        g._vertices[v].handle);
+    return g.subresourceViews[handle.value];
 }
 
 template <class ValueT>
@@ -2128,6 +2002,40 @@ get_if<RenderSwapchain>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGrap
         &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.swapchains[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline FormatView*
+get_if<FormatView>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGraph) noexcept { // NOLINT
+    FormatView* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    auto& g       = *pGraph;
+    auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<FormatViewTag, ResourceGraph::vertex_descriptor>>(
+        &g._vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.formatViews[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline SubresourceView*
+get_if<SubresourceView>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGraph) noexcept { // NOLINT
+    SubresourceView* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    auto& g       = *pGraph;
+    auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<SubresourceViewTag, ResourceGraph::vertex_descriptor>>(
+        &g._vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.subresourceViews[pHandle->value];
     }
     return ptr;
 }
@@ -2255,6 +2163,40 @@ get_if<RenderSwapchain>(ResourceGraph::vertex_descriptor v, const ResourceGraph*
     return ptr;
 }
 
+template <>
+inline const FormatView*
+get_if<FormatView>(ResourceGraph::vertex_descriptor v, const ResourceGraph* pGraph) noexcept { // NOLINT
+    const FormatView* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    const auto& g       = *pGraph;
+    const auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<FormatViewTag, ResourceGraph::vertex_descriptor>>(
+        &g._vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.formatViews[pHandle->value];
+    }
+    return ptr;
+}
+
+template <>
+inline const SubresourceView*
+get_if<SubresourceView>(ResourceGraph::vertex_descriptor v, const ResourceGraph* pGraph) noexcept { // NOLINT
+    const SubresourceView* ptr = nullptr;
+    if (!pGraph) {
+        return ptr;
+    }
+    const auto& g       = *pGraph;
+    const auto* pHandle = ccstd::get_if<
+        impl::ValueHandle<SubresourceViewTag, ResourceGraph::vertex_descriptor>>(
+        &g._vertices[v].handle);
+    if (pHandle) {
+        ptr = &g.subresourceViews[pHandle->value];
+    }
+    return ptr;
+}
+
 // Vertex Constant Getter
 template <class Tag>
 inline decltype(auto)
@@ -2317,6 +2259,413 @@ inline bool
 contains(const KeyLike& key, const ResourceGraph& g) noexcept {
     auto iter = g.valueIndex.find(key);
     return iter != g.valueIndex.end();
+}
+
+// MutableGraph(Vertex)
+inline void addPathImpl(ResourceGraph::vertex_descriptor u, ResourceGraph::vertex_descriptor v, ResourceGraph& g) { // NOLINT
+    // add to parent
+    if (u != ResourceGraph::null_vertex()) {
+        auto& outEdgeList = g.getChildrenList(u);
+        outEdgeList.emplace_back(v);
+
+        auto& inEdgeList = g.getParentsList(v);
+        inEdgeList.emplace_back(u);
+    }
+}
+
+inline void clear_out_edges(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept { // NOLINT
+    // Bidirectional (OutEdges)
+    auto& outEdgeList = g.getOutEdgeList(u);
+    auto  outEnd      = outEdgeList.end();
+    for (auto iter = outEdgeList.begin(); iter != outEnd; ++iter) {
+        auto& inEdgeList = g.getInEdgeList((*iter).get_target());
+        // eraseFromIncidenceList
+        impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
+            return e.get_target() == u;
+        });
+    }
+    outEdgeList.clear();
+}
+
+inline void clear_in_edges(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept { // NOLINT
+    // Bidirectional (InEdges)
+    auto& inEdgeList = g.getInEdgeList(u);
+    auto  inEnd      = inEdgeList.end();
+    for (auto iter = inEdgeList.begin(); iter != inEnd; ++iter) {
+        auto& outEdgeList = g.getOutEdgeList((*iter).get_target());
+        // eraseFromIncidenceList
+        impl::sequenceEraseIf(outEdgeList, [u](const auto& e) {
+            return e.get_target() == u;
+        });
+    }
+    inEdgeList.clear();
+}
+
+inline void clear_vertex(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept { // NOLINT
+    clear_out_edges(u, g);
+    clear_in_edges(u, g);
+}
+
+inline void remove_vertex_value_impl(const ResourceGraph::VertexHandle& h, ResourceGraph& g) noexcept { // NOLINT
+    using vertex_descriptor = ResourceGraph::vertex_descriptor;
+    ccstd::visit(
+        overload(
+            [&](const impl::ValueHandle<ManagedTag, vertex_descriptor>& h) {
+                g.resources.erase(g.resources.begin() + static_cast<std::ptrdiff_t>(h.value));
+                if (h.value == g.resources.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<ManagedTag>(g._vertices, h.value);
+            },
+            [&](const impl::ValueHandle<ManagedBufferTag, vertex_descriptor>& h) {
+                g.managedBuffers.erase(g.managedBuffers.begin() + static_cast<std::ptrdiff_t>(h.value));
+                if (h.value == g.managedBuffers.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<ManagedBufferTag>(g._vertices, h.value);
+            },
+            [&](const impl::ValueHandle<ManagedTextureTag, vertex_descriptor>& h) {
+                g.managedTextures.erase(g.managedTextures.begin() + static_cast<std::ptrdiff_t>(h.value));
+                if (h.value == g.managedTextures.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<ManagedTextureTag>(g._vertices, h.value);
+            },
+            [&](const impl::ValueHandle<PersistentBufferTag, vertex_descriptor>& h) {
+                g.buffers.erase(g.buffers.begin() + static_cast<std::ptrdiff_t>(h.value));
+                if (h.value == g.buffers.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<PersistentBufferTag>(g._vertices, h.value);
+            },
+            [&](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>& h) {
+                g.textures.erase(g.textures.begin() + static_cast<std::ptrdiff_t>(h.value));
+                if (h.value == g.textures.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<PersistentTextureTag>(g._vertices, h.value);
+            },
+            [&](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
+                g.framebuffers.erase(g.framebuffers.begin() + static_cast<std::ptrdiff_t>(h.value));
+                if (h.value == g.framebuffers.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<FramebufferTag>(g._vertices, h.value);
+            },
+            [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
+                g.swapchains.erase(g.swapchains.begin() + static_cast<std::ptrdiff_t>(h.value));
+                if (h.value == g.swapchains.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<SwapchainTag>(g._vertices, h.value);
+            },
+            [&](const impl::ValueHandle<FormatViewTag, vertex_descriptor>& h) {
+                g.formatViews.erase(g.formatViews.begin() + static_cast<std::ptrdiff_t>(h.value));
+                if (h.value == g.formatViews.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<FormatViewTag>(g._vertices, h.value);
+            },
+            [&](const impl::ValueHandle<SubresourceViewTag, vertex_descriptor>& h) {
+                g.subresourceViews.erase(g.subresourceViews.begin() + static_cast<std::ptrdiff_t>(h.value));
+                if (h.value == g.subresourceViews.size()) {
+                    return;
+                }
+                impl::reindexVectorHandle<SubresourceViewTag>(g._vertices, h.value);
+            }),
+        h);
+}
+
+inline void remove_vertex(ResourceGraph::vertex_descriptor u, ResourceGraph& g) noexcept { // NOLINT
+    // preserve vertex' iterators
+    auto& vert = g._vertices[u];
+    remove_vertex_value_impl(vert.handle, g);
+    { // UuidGraph
+        const auto& key = g.names[u];
+        auto num = g.valueIndex.erase(key);
+        CC_ENSURES(num == 1);
+        for (auto&& pair : g.valueIndex) {
+            auto& v = pair.second;
+            if (v > u) {
+                --v;
+            }
+        }
+    }
+    impl::removeVectorVertex(const_cast<ResourceGraph&>(g), u, ResourceGraph::directed_category{});
+
+    // remove components
+    g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
+    g.descs.erase(g.descs.begin() + static_cast<std::ptrdiff_t>(u));
+    g.traits.erase(g.traits.begin() + static_cast<std::ptrdiff_t>(u));
+    g.states.erase(g.states.begin() + static_cast<std::ptrdiff_t>(u));
+    g.samplerInfo.erase(g.samplerInfo.begin() + static_cast<std::ptrdiff_t>(u));
+}
+
+// MutablePropertyGraph(Vertex)
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ManagedResource>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<ManagedTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.resources.size())};
+    g.resources.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ManagedBuffer>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.managedBuffers.size())};
+    g.managedBuffers.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, ManagedTexture>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.managedTextures.size())};
+    g.managedTextures.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, IntrusivePtr<gfx::Buffer>>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<PersistentBufferTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.buffers.size())};
+    g.buffers.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, IntrusivePtr<gfx::Texture>>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.textures.size())};
+    g.textures.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, IntrusivePtr<gfx::Framebuffer>>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.framebuffers.size())};
+    g.framebuffers.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, RenderSwapchain>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<SwapchainTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.swapchains.size())};
+    g.swapchains.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, FormatView>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<FormatViewTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.formatViews.size())};
+    g.formatViews.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class ValueT>
+void addVertexImpl( // NOLINT
+    ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, SubresourceView>::value>* dummy = nullptr) { // NOLINT
+    vert.handle = impl::ValueHandle<SubresourceViewTag, ResourceGraph::vertex_descriptor>{
+        gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.subresourceViews.size())};
+    g.subresourceViews.emplace_back(std::forward<ValueT>(val));
+}
+
+template <class Component0, class Component1, class Component2, class Component3, class Component4, class ValueT>
+inline ResourceGraph::vertex_descriptor
+addVertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, Component4&& c4, ValueT&& val, ResourceGraph& g, ResourceGraph::vertex_descriptor u = ResourceGraph::null_vertex()) {
+    auto v = gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g._vertices.size());
+
+    g._vertices.emplace_back();
+    auto& vert = g._vertices.back();
+
+    { // UuidGraph
+        const auto& uuid = c0;
+        auto res = g.valueIndex.emplace(uuid, v);
+        CC_ENSURES(res.second);
+    }
+    g.names.emplace_back(std::forward<Component0>(c0));
+    g.descs.emplace_back(std::forward<Component1>(c1));
+    g.traits.emplace_back(std::forward<Component2>(c2));
+    g.states.emplace_back(std::forward<Component3>(c3));
+    g.samplerInfo.emplace_back(std::forward<Component4>(c4));
+
+    // PolymorphicGraph
+    // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
+    addVertexImpl(std::forward<ValueT>(val), g, vert);
+
+    // ReferenceGraph
+    addPathImpl(u, v, g);
+
+    return v;
+}
+
+template <class Tuple>
+void addVertexImpl(ManagedTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<ManagedTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.resources.size())};
+            g.resources.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(ManagedBufferTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<ManagedBufferTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.managedBuffers.size())};
+            g.managedBuffers.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(ManagedTextureTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<ManagedTextureTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.managedTextures.size())};
+            g.managedTextures.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(PersistentBufferTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<PersistentBufferTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.buffers.size())};
+            g.buffers.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(PersistentTextureTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.textures.size())};
+            g.textures.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(FramebufferTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<FramebufferTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.framebuffers.size())};
+            g.framebuffers.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(SwapchainTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<SwapchainTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.swapchains.size())};
+            g.swapchains.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(FormatViewTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<FormatViewTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.formatViews.size())};
+            g.formatViews.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Tuple>
+void addVertexImpl(SubresourceViewTag /*tag*/, Tuple &&val, ResourceGraph &g, ResourceGraph::Vertex &vert) {
+    std::apply(
+        [&](auto&&... args) {
+            vert.handle = impl::ValueHandle<SubresourceViewTag, ResourceGraph::vertex_descriptor>{
+                gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.subresourceViews.size())};
+            g.subresourceViews.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Tuple>(val));
+}
+
+template <class Component0, class Component1, class Component2, class Component3, class Component4, class Tag, class ValueT>
+inline ResourceGraph::vertex_descriptor
+addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, Component4&& c4, ValueT&& val, ResourceGraph& g, ResourceGraph::vertex_descriptor u = ResourceGraph::null_vertex()) {
+    auto v = gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g._vertices.size());
+
+    g._vertices.emplace_back();
+    auto& vert = g._vertices.back();
+
+    { // UuidGraph
+        std::apply(
+            [&](const auto&... args) {
+                auto res = g.valueIndex.emplace(std::piecewise_construct, std::forward_as_tuple(args...), std::forward_as_tuple(v));
+                CC_ENSURES(res.second);
+            },
+            c0);
+    }
+
+    std::apply(
+        [&](auto&&... args) {
+            g.names.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component0>(c0));
+
+    std::apply(
+        [&](auto&&... args) {
+            g.descs.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component1>(c1));
+
+    std::apply(
+        [&](auto&&... args) {
+            g.traits.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component2>(c2));
+
+    std::apply(
+        [&](auto&&... args) {
+            g.states.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component3>(c3));
+
+    std::apply(
+        [&](auto&&... args) {
+            g.samplerInfo.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component4>(c4));
+
+    // PolymorphicGraph
+    // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
+    addVertexImpl(tag, std::forward<ValueT>(val), g, vert);
+
+    // ReferenceGraph
+    addPathImpl(u, v, g);
+
+    return v;
 }
 
 // MutableGraph(Vertex)
