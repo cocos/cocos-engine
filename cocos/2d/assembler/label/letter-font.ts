@@ -87,8 +87,4 @@ export const letterFont = js.mixin(bmfontUtils, {
 
         return fontDesc;
     },
-    _computeHorizontalKerningForText () {},
-    _determineRect (tempRect) {
-        return false;
-    },
 });
