@@ -85,6 +85,13 @@ export class PipelineSceneData {
         this._standardSkinModel = val;
     }
 
+    get hasSkinModel () {
+        return this._hasSkinModel;
+    }
+    set hasSkinModel (val: boolean) {
+        this._hasSkinModel = val;
+    }
+
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
@@ -119,6 +126,7 @@ export class PipelineSceneData {
     protected _shadingScale = 1.0;
     protected _csmSupported = true;
     private _standardSkinModel: ModelRenderer | null = null;
+    private _hasSkinModel = false;
 
     constructor () {
         this._shadingScale = 1.0;

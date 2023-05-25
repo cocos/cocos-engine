@@ -28,7 +28,7 @@ import { Texture2D, TextureCube } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
 import { Vec4, Enum, cclegacy, CCBoolean, CCFloat, assertIsTrue, _decorator, CCInteger, EventTarget, warnID } from '../../core';
-import { scene } from '../../render-scene';
+import { MaterialInstance, scene } from '../../render-scene';
 import { MorphModel } from '../models/morph-model';
 import { Root } from '../../root';
 import { MobilityMode, TransformBit } from '../../scene-graph/node-enum';
@@ -521,6 +521,16 @@ export class MeshRenderer extends ModelRenderer {
         this._updateStandardSkin();
     }
 
+    // set material (val: Material | MaterialInstance | null) {
+    //     super.material = val;
+    //     this._updateStandardSkin();
+    // }
+
+    // set materials (val: (Material | MaterialInstance | null)[]) {
+    //     super.materials = val;
+    //     this._updateStandardSkin();
+    // }
+
     // Redo, Undo, Prefab restore, etc.
     public onRestore () {
         this._updateModels();
@@ -876,7 +886,7 @@ export class MeshRenderer extends ModelRenderer {
         if (!mainLight) { return; }
         const visibility = mainLight.visibility;
         if (!mainLight.node) { return; }
-        
+
         if (mainLight.node.mobility === MobilityMode.Static) {
             let forceClose = false;
             if (this.bakeSettings.texture && !this.node.scene.globals.disableLightmap) {
@@ -885,7 +895,7 @@ export class MeshRenderer extends ModelRenderer {
             if (this.node.scene.globals.lightProbeInfo.data
                 && this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
                 && this._model.useLightProbe) {
-                    forceClose = true;
+                forceClose = true;
             }
 
             this.onUpdateReceiveDirLight(visibility, forceClose);

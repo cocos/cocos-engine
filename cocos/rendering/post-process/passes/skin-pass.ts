@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec4, Vec3 } from '../../../core';
+import { Vec4, Vec3, cclegacy } from '../../../core';
 import { Camera } from '../../../render-scene/scene';
 import { BasicPipeline, LightInfo, QueueHint, SceneFlags } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
@@ -33,6 +33,7 @@ import { ShadowPass } from './shadow-pass';
 
 import { SettingPass } from './setting-pass';
 import { ForceEnableFloatOutput, GetRTFormatBeforeToneMapping } from './base-pass';
+import { Root } from '../../../root';
 
 export const COPY_INPUT_DS_PASS_INDEX = 0;
 export const SSSS_BLUR_X_PASS_INDEX = 1;
@@ -190,6 +191,10 @@ export class SkinPass extends SettingPass {
     ssssBlurData = new SSSSBlurData();
 
     enableInAllEditorCamera = true;
+
+    checkEnable (camera: Camera) {
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.hasSkinModel;
+    }
 
     public render (camera: Camera, ppl: BasicPipeline): void {
         passContext.material = this.material;
