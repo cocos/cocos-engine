@@ -2,7 +2,7 @@
 // depends on CC_SURFACES_VERTEX_MODIFY_LOCAL_POS
 vec3 SurfacesVertexModifyLocalPos(in SurfacesStandardVertexIntermediate In)
 {
-  return In.position.xyz;
+  return vec3(In.position.xyz);
 }
 #endif
 
