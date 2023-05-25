@@ -29,7 +29,7 @@ import { lerp, repeat, Enum, assertIsTrue, CCFloat, CCInteger } from '../../core
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
 import { INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, RANDOM_SEED, SUB_UV_INDEX } from '../particle-data-set';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';

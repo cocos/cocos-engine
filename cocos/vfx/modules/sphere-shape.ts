@@ -84,6 +84,19 @@ export class SphereShapeModule extends ShapeLocationModule {
         this._hemisphereDistribution = val;
     }
 
+    @type(FloatExpression)
+    @visible(function (this: SphereShapeModule) { return this.distributionMode === DistributionMode.DIRECT; })
+    public get uPosition () {
+        if (!this._uPosition) {
+            this._uPosition = new ConstantFloatExpression(0);
+        }
+        return this._uPosition;
+    }
+
+    public set uPosition (val) {
+        this._uPosition = val;
+    }
+
     @serializable
     private _radius: FloatExpression | null = null;
     @serializable

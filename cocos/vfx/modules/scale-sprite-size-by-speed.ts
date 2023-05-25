@@ -28,7 +28,7 @@ import { lerp, math, Vec2, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
 import { ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY } from '../particle-data-set';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec2Expression, ConstantVec3Expression, Vec2Expression, Vec3Expression } from '../expressions';

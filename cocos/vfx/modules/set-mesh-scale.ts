@@ -26,7 +26,7 @@
 import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, SCALE } from '../particle-data-set';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { FloatExpression } from '../expressions/float';
 import { Vec3 } from '../../core';
 import { EmitterDataSet } from '../emitter-data-set';

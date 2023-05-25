@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass } from '../core/data/decorators';
-import { ModuleExecContext } from './base';
+import { ModuleExecContext } from './module-exec-context';
 import { EmitterDataSet } from './emitter-data-set';
 import { VFXParameterType } from './define';
 import { ParticleDataSet } from './particle-data-set';

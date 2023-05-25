@@ -24,7 +24,7 @@
  */
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { ColorExpression } from '../expressions/color';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { COLOR, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { Color, math, Vec3 } from '../../core';

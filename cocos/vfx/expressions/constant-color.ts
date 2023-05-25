@@ -24,7 +24,7 @@
  */
 import { Color, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/class-decorator';
-import { ModuleExecContext } from '../base';
+import { ModuleExecContext } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
 import { UserDataSet } from '../user-data-set';
