@@ -577,6 +577,8 @@ export class Button extends Component {
     private _originalScale: Vec3 | null = null;
     private _sprite: Sprite | null = null;
     private _targetScale: Vec3 = new Vec3();
+    private _pendingStartAnim = false;
+    private _pendingEndAnim = false;
 
     public __preload () {
         if (!this.target) {
@@ -635,6 +637,7 @@ export class Button extends Component {
         }
 
         if (this._transition !== Transition.COLOR && this._transition !== Transition.SCALE) {
+            this._updateTransitionState();
             return;
         }
 
@@ -662,7 +665,24 @@ export class Button extends Component {
         }
 
         if (ratio === 1) {
-            this._transitionFinished = true;
+            this._updateTransitionState();
+        }
+    }
+
+    protected _updateTransitionState() {
+        if (this._pendingStartAnim) {
+            this._pendingStartAnim = false;
+            this._transitionFinished = this._pendingEndAnim ? false : true;
+        }
+        else if (this._pendingEndAnim) {
+            if (this._pressed) {
+                this._pressed = false;
+                this._updateState();
+            }
+            else {
+                this._pendingEndAnim = false;
+                this._transitionFinished = true;
+            }
         }
     }
 
@@ -694,6 +714,8 @@ export class Button extends Component {
             target.setScale(this._originalScale);
         }
         this._transitionFinished = true;
+        this._pendingStartAnim = false;
+        this._pendingEndAnim = false;
     }
 
     protected _registerNodeEvent () {
@@ -826,6 +848,8 @@ export class Button extends Component {
     protected _onTouchBegan (event?: EventTouch) {
         if (!this._interactable || !this.enabledInHierarchy) { return; }
 
+        this._pendingStartAnim = true;
+        this._pendingEndAnim = false;
         this._pressed = true;
         this._updateState();
         if (event) {
@@ -848,24 +872,18 @@ export class Button extends Component {
 
         const hit = this.node._uiProps.uiTransformComp!.hitTest(touch.getLocation(), event.windowId);
 
-        if (this._transition === Transition.SCALE && this.target && this._originalScale) {
-            if (hit) {
-                Vec3.copy(this._fromScale, this._originalScale);
-                Vec3.multiplyScalar(this._toScale, this._originalScale, this._zoomScale);
-                this._transitionFinished = false;
-            } else {
+        if (!hit) {
+            if (this._transition === Transition.SCALE && this.target && this._originalScale) {
                 this._time = 0;
                 this._transitionFinished = true;
                 this.target.setScale(this._originalScale);
+                this._pressed = false;
+                this._pendingEndAnim = false;
             }
-        } else {
-            let state;
-            if (hit) {
-                state = State.PRESSED;
-            } else {
-                state = State.NORMAL;
+            else {
+                this._pressed = false;
+                this._applyTransition(State.NORMAL);
             }
-            this._applyTransition(state);
         }
 
         if (event) {
@@ -882,8 +900,12 @@ export class Button extends Component {
             ComponentEventHandler.emitEvents(this.clickEvents, event);
             this.node.emit(EventType.CLICK, this);
         }
-        this._pressed = false;
-        this._updateState();
+
+        this._pendingEndAnim = true;
+        if (!this._pendingStartAnim) {
+            this._pressed = false;
+            this._updateState();
+        }
 
         if (event) {
             event.propagationStopped = true;
@@ -954,6 +976,7 @@ export class Button extends Component {
         const sprite = this[`${state}Sprite`];
         if (this._sprite && sprite) {
             this._sprite.spriteFrame = sprite;
+            this._transitionFinished = false;
         }
     }
 
