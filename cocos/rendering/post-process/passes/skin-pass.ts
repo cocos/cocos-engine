@@ -30,10 +30,9 @@ import { passContext } from '../utils/pass-context';
 import { ClearFlagBit, Format } from '../../../gfx';
 import { MeshRenderer } from '../../../3d';
 import { ShadowPass } from './shadow-pass';
-
-import { SettingPass } from './setting-pass';
-import { ForceEnableFloatOutput, GetRTFormatBeforeToneMapping } from './base-pass';
 import { Root } from '../../../root';
+
+import { BasePass, ForceEnableFloatOutput, GetRTFormatBeforeToneMapping } from './base-pass';
 
 export const COPY_INPUT_DS_PASS_INDEX = 0;
 export const SSSS_BLUR_X_PASS_INDEX = 1;
@@ -184,7 +183,7 @@ export class SSSSBlurData {
     }
 }
 
-export class SkinPass extends SettingPass {
+export class SkinPass extends BasePass {
     name = 'SkinPass'
     effectName = 'pipeline/ssss-blur';
     outputNames = ['SSSSBlur', 'SSSSBlurDS']
@@ -192,21 +191,19 @@ export class SkinPass extends SettingPass {
 
     enableInAllEditorCamera = true;
 
-    checkEnable (camera: Camera) {
-        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.hasSkinModel;
-    }
-
     public render (camera: Camera, ppl: BasicPipeline): void {
         passContext.material = this.material;
 
         const inputRT = this.lastPass?.slotName(camera, 0);
         const inputDS = this.lastPass?.slotName(camera, 1);
-        if (hasSkinObject(ppl)) {
-            ForceEnableFloatOutput(ppl);
-            const blurInfo = this._buildSSSSBlurPass(camera, ppl, inputRT!, inputDS!);
-            this._buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
-        } else {
-            this._buildSpecularPass(camera, ppl, inputRT!, inputDS!);
+        if ((cclegacy.director.root as Root).pipeline.pipelineSceneData.hasSkinModel) {
+            if (hasSkinObject(ppl)) {
+                ForceEnableFloatOutput(ppl);
+                const blurInfo = this._buildSSSSBlurPass(camera, ppl, inputRT!, inputDS!);
+                this._buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
+            } else {
+                this._buildSpecularPass(camera, ppl, inputRT!, inputDS!);
+            }
         }
     }
 

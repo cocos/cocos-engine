@@ -521,16 +521,6 @@ export class MeshRenderer extends ModelRenderer {
         this._updateStandardSkin();
     }
 
-    // set material (val: Material | MaterialInstance | null) {
-    //     super.material = val;
-    //     this._updateStandardSkin();
-    // }
-
-    // set materials (val: (Material | MaterialInstance | null)[]) {
-    //     super.materials = val;
-    //     this._updateStandardSkin();
-    // }
-
     // Redo, Undo, Prefab restore, etc.
     public onRestore () {
         this._updateModels();
@@ -1019,6 +1009,7 @@ export class MeshRenderer extends ModelRenderer {
     protected _onMaterialModified (idx: number, material: Material | null) {
         if (!this._model || !this._model.inited) { return; }
         this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
+        this._updateStandardSkin();
     }
 
     /**
