@@ -224,7 +224,7 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_EXPECTS(queue.swapchain);
             std::ignore = queue;
         },
-        [&](const FormatView& view) {
+        [&](const FormatView& view) { // NOLINT(misc-no-recursion)
             std::ignore = view;
             auto parentID = parent(vertID, resg);
             CC_EXPECTS(parentID != resg.null_vertex());
@@ -236,7 +236,7 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_ENSURES(!resg.isTextureView(parentID));
             mount(device, parentID);
         },
-        [&](const SubresourceView& view) {
+        [&](const SubresourceView& view) { // NOLINT(misc-no-recursion)
             std::ignore = view;
             auto parentID = parent(vertID, resg);
             CC_EXPECTS(parentID != resg.null_vertex());
