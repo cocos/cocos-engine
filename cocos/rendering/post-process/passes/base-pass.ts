@@ -7,7 +7,7 @@ import { BasicPipeline, Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
 import { Format } from '../../../gfx';
 import { supportsRGBA16FloatTexture } from '../../define';
-import { macro } from '../../../core';
+import { cclegacy, macro } from '../../../core';
 
 let _BasePassID = 0;
 
@@ -21,6 +21,11 @@ export function ForceEnableFloatOutput (ppl: BasicPipeline) {
         ppl.setMacroBool('CC_USE_FLOAT_OUTPUT', supportFloatOutput);
         macro.ENABLE_FLOAT_OUTPUT = supportFloatOutput;
     }
+}
+
+export function DisablePostProcessForDebugView () {
+    const debugView = cclegacy.director.root.debugView;
+    return debugView.singleMode as number > 0;
 }
 
 export abstract class BasePass {
