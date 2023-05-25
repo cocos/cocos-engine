@@ -28,7 +28,7 @@ import { Texture2D, TextureCube } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
 import { Vec4, Enum, cclegacy, CCBoolean, CCFloat, assertIsTrue, _decorator, CCInteger, EventTarget, warnID } from '../../core';
-import { MaterialInstance, scene } from '../../render-scene';
+import { scene } from '../../render-scene';
 import { MorphModel } from '../models/morph-model';
 import { Root } from '../../root';
 import { MobilityMode, TransformBit } from '../../scene-graph/node-enum';
