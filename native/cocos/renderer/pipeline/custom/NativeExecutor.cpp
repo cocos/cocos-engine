@@ -1503,8 +1503,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         //        auto* perInstanceSet = ctx.perInstanceDescriptorSets.at(vertID);
         // execution
         ctx.cmdBuff->bindPipelineState(pso);
-        //        ctx.cmdBuff->bindDescriptorSet(
-        //            static_cast<uint32_t>(pipeline::SetIndex::MATERIAL), pass.getDescriptorSet());
+        ctx.cmdBuff->bindDescriptorSet(
+            static_cast<uint32_t>(pipeline::SetIndex::MATERIAL), pass.getDescriptorSet());
         //        ctx.cmdBuff->bindDescriptorSet(
         //            static_cast<uint32_t>(pipeline::SetIndex::LOCAL), perInstanceSet);
         ctx.cmdBuff->dispatch(gfx::DispatchInfo{

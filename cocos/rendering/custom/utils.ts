@@ -30,7 +30,7 @@ import { Camera } from '../../render-scene/scene/camera';
 export function isUICamera (camera: Camera): boolean {
     const scene = camera.scene!;
     const batches = scene.batches;
-    for (let i = 0; i < batches.length; i++) {
+    for (let i = 0; batches && i < batches.length; i++) {
         const batch = batches[i];
         if (camera.visibility & batch.visFlags) {
             return true;

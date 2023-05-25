@@ -1521,7 +1521,7 @@ void NativeComputeQueueBuilder::addDispatch(
             threadGroupCountX,
             threadGroupCountY,
             threadGroupCountZ),
-        *renderGraph, passID);
+        *renderGraph, nodeID);
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
