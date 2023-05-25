@@ -182,6 +182,7 @@ void ResourceGraph::validateSwapchains() {
     }
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
     std::ignore = device;
     auto& resg = *this;
