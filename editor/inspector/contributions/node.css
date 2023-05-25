@@ -19,7 +19,7 @@
 
 .prefab {
     display: flex;
-    padding: 5px 0 10px 0;
+    padding: 4px 0 4px 2px;
 }
 
 .prefab[hidden] {
@@ -43,8 +43,7 @@
 .header {
     display: none;
     margin-top: 4px;
-    margin-bottom: 4px;
-    padding-left: 2px;
+    margin-bottom: 6px;
 }
 
 .header > .name,
@@ -57,6 +56,10 @@
 
 .scene {
     display: none;
+}
+
+.scene ui-prop[ui-section-config] ui-section.config [slot="header"] {
+    justify-content: space-between;
 }
 
 .scene .envmap .envmap-prop ui-prop {

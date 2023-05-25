@@ -10,19 +10,19 @@ const lockList = [];
 let lockPerform = false;
 let lastSnapShot = null;
 async function performLock() {
-    if (lockPerform) return;
-    if (lockList.length === 0) return;
+    if (lockPerform) { return; }
+    if (lockList.length === 0) { return; }
     lockPerform = true;
     const params = lockList.shift();
     const { snapshotLock, lock, uuids, cancel } = params;
     if (snapshotLock && !lock) {
-        
+
         if (lastSnapShot) {
-            await endRecording(lastSnapShot,cancel);
+            await endRecording(lastSnapShot, cancel);
             lastSnapShot = null;
         }
     // start snapshot
-    } else if(!snapshotLock && lock) {
+    } else if (!snapshotLock && lock) {
         lastSnapShot = await beginRecording(uuids);
     }
     lockPerform = false;
@@ -35,14 +35,14 @@ async function performLock() {
  * @param {*} uuids 
  * @param {*} cancel 
  */
-function snapshotLock(panel,lock,uuids,cancel=false) {
+function snapshotLock(panel, lock, uuids, cancel = false) {
     // 保存当前状态，放到队列中
     const params = {
         snapshotLock:panel.snapshotLock,
         lock,
         uuids,
-        cancel
-    }
+        cancel,
+    };
     lockList.push(params);
     // 执行队列中的操作;
     performLock();
@@ -50,17 +50,17 @@ function snapshotLock(panel,lock,uuids,cancel=false) {
 }
 
 // 不传options时，会自动记录到undo队列，不需要调用endRecording
-async function beginRecording(uuids,options) {
-    if (!uuids) return;
-    const undoID = await Editor.Message.request('scene', 'begin-recording', uuids,options);
+async function beginRecording(uuids, options) {
+    if (!uuids) { return; }
+    const undoID = await Editor.Message.request('scene', 'begin-recording', uuids, options);
     return undoID;
 }
 
-async function endRecording(undoID,cancel) {
-    if(!undoID) return;
-    if(cancel){
+async function endRecording(undoID, cancel) {
+    if (!undoID) { return; }
+    if (cancel) {
         await Editor.Message.request('scene', 'cancel-recording', undoID);
-    }else{
+    } else {
         await Editor.Message.request('scene', 'end-recording', undoID);
     }
 }
@@ -153,14 +153,14 @@ exports.listeners = {
             console.error(error);
         } finally {
             if (!panel.snapshotLock) {
-                snapshotLock(panel,false);
+                snapshotLock(panel, false);
             }
             panel.readyToUpdate = true;
         }
     },
     'confirm-dump'() {
         const panel = this;
-        snapshotLock(panel,false);
+        snapshotLock(panel, false);
         // In combination with change-dump, snapshot only generated once after ui-elements continuously changed.
         // Editor.Message.send('scene', 'snapshot');
     },
@@ -194,7 +194,7 @@ exports.listeners = {
             cancel = true;
             console.error(error);
         }
-        await endRecording(undoID,cancel);
+        await endRecording(undoID, cancel);
     },
     async 'reset-dump'(event) {
         const panel = this;
@@ -220,7 +220,7 @@ exports.listeners = {
                 });
             }
         } catch (error) {
-            await endRecording(undoID,true);
+            await endRecording(undoID, true);
             console.error(error);
         }
     },
@@ -646,7 +646,7 @@ const Elements = {
                             break;
                         }
                         case 'unlink': {
-                            const undoID = await beginRecording( prefab.rootUuid);
+                            const undoID = await beginRecording(prefab.rootUuid);
                             await Editor.Message.request('scene', 'unlink-prefab', prefab.rootUuid, false);
                             await endRecording(undoID);
                             break;
@@ -656,7 +656,7 @@ const Elements = {
                             break;
                         }
                         case 'reset': {
-                            const undoID = await beginRecording( prefab.rootUuid);
+                            const undoID = await beginRecording(prefab.rootUuid);
                             await Editor.Message.request('scene', 'restore-prefab', prefab.rootUuid, prefab.uuid);
                             await endRecording(undoID);
                             break;
@@ -1464,10 +1464,10 @@ const Elements = {
                     ],
                     listeners: {
                         async confirm(detail/* info */) {
-                            if (!detail) return;
+                            if (!detail) { return; }
 
                             // 批量调用request意味着编辑操作在很多帧后才会完成，所以不能自动记录undo
-                            const undoID = await beginRecording(panel.uuidList)
+                            const undoID = await beginRecording(panel.uuidList);
                             for (const uuid of panel.uuidList) {
                                 await Editor.Message.request('scene', 'create-component', {
                                     uuid,
@@ -1477,7 +1477,7 @@ const Elements = {
                             if (detail.info.name) {
                                 trackEventWithTimer('laber', `A100000_${detail.info.name}`);
                             }
-                            await endRecording(undoID)
+                            await endRecording(undoID);
                         },
                     },
                 });
@@ -1660,7 +1660,7 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.reset_component'),
                     async click() {
                         const values = dump.value.uuid.values || [dump.value.uuid.value];
-                        const undoID = await beginRecording(values)
+                        const undoID = await beginRecording(values);
                         for (const compUuid of values) {
                             await Editor.Message.request('scene', 'reset-component', {
                                 uuid: compUuid,
@@ -1692,7 +1692,7 @@ exports.methods = {
                                 }
                             }
                         }
-                        if (!uuids.length > 0) return;
+                        if (!uuids.length > 0) { return; }
                         const undoID = await beginRecording(uuids);
                         for (let index = 0; index < uuids.length; index++) {
                             await Editor.Message.request('scene', 'remove-array-element', {
@@ -1774,7 +1774,7 @@ exports.methods = {
                                 dump: clipboardComponentInfo.dump,
                             });
                         }
-                        await endRecording(undoID); 
+                        await endRecording(undoID);
                     },
                 },
                 { type: 'separator' },
@@ -1783,7 +1783,7 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.paste_component'),
                     enabled: !!clipboardComponentInfo,
                     async click() {
-                        const undoID = await beginRecording(uuidList)
+                        const undoID = await beginRecording(uuidList);
                         const values = dump.value.uuid.values || [dump.value.uuid.value];
                         let index = 0;
                         for (const dump of values) {
