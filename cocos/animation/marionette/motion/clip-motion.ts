@@ -46,11 +46,15 @@ export class ClipMotion extends Motion {
     @serializable
     public clip: AnimationClip | null = null;
 
-    public [createEval] (context: AnimationGraphBindingContext, overrides: ReadonlyClipOverrideMap | null) {
+    public [createEval] (
+        context: AnimationGraphBindingContext,
+        overrides: ReadonlyClipOverrideMap | null,
+        ignoreEmbeddedPlayers: boolean,
+    ) {
         if (!this.clip) {
             return null;
         }
-        const clipMotionEval = new ClipMotionEval(context, this.clip, overrides);
+        const clipMotionEval = new ClipMotionEval(context, this.clip, overrides, ignoreEmbeddedPlayers);
         if (RUNTIME_ID_ENABLED) {
             clipMotionEval.runtimeId = getMotionRuntimeID(this);
         }
@@ -75,8 +79,14 @@ class ClipMotionEval implements MotionEval {
 
     public declare runtimeId?: number;
 
-    constructor (context: AnimationGraphBindingContext, clip: AnimationClip, clipOverrides: ReadonlyClipOverrideMap | null) {
+    constructor (
+        context: AnimationGraphBindingContext,
+        clip: AnimationClip,
+        clipOverrides: ReadonlyClipOverrideMap | null,
+        ignoreEmbeddedPlayers: boolean,
+    ) {
         this._originalClip = clip;
+        this._ignoreEmbeddedPlayers = ignoreEmbeddedPlayers;
         const overriding = clipOverrides?.get(clip) ?? clip;
         this._setClip(overriding, context);
     }
@@ -150,10 +160,8 @@ class ClipMotionEval implements MotionEval {
             context.popPose();
         }
 
-        // TODO: Evaluate root motions.
-
-        // TODO: Evaluate embedded players.
-        // this._clipEmbeddedPlayerEval?.evaluate();
+        // Evaluate embedded players.
+        this._clipEmbeddedPlayerEval?.evaluate(clipTime, Math.trunc(wrapInfo.iterations));
 
         return pose;
     }
@@ -179,6 +187,7 @@ class ClipMotionEval implements MotionEval {
     private _wrapInfo = new WrappedInfo();
     private _baseClipEval: AnimationClipAGEvaluation | null = null;
     private _duration = 0.0;
+    private _ignoreEmbeddedPlayers: boolean;
 
     private _setClip (clip: AnimationClip, context: AnimationGraphBindingContext) {
         this._clipEval?.destroy();
@@ -193,7 +202,7 @@ class ClipMotionEval implements MotionEval {
             : clip.duration / clip.speed; // TODO, a test for `clip.speed === 0` is required!
         const clipEval = new AnimationClipAGEvaluation(clip, context);
         this._clipEval = clipEval;
-        if (clip.containsAnyEmbeddedPlayer()) {
+        if (!this._ignoreEmbeddedPlayers && clip.containsAnyEmbeddedPlayer()) {
             this._clipEmbeddedPlayerEval = clip.createEmbeddedPlayerEvaluator(context.origin);
         }
         if (context.additive) {

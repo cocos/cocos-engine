@@ -67,7 +67,11 @@ export interface MotionEval {
 // since we ever made a historical mistaken: take a look at `MotionState`'s class name...
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}MotionBase`)
 export abstract class Motion extends EditorExtendable {
-    abstract [createEval] (context: AnimationGraphBindingContext, clipOverrides: ReadonlyClipOverrideMap | null): MotionEval | null;
+    abstract [createEval] (
+        context: AnimationGraphBindingContext,
+        clipOverrides: ReadonlyClipOverrideMap | null,
+        ignoreEmbeddedPlayers: boolean,
+    ): MotionEval | null;
 
     abstract clone(): Motion;
 }
