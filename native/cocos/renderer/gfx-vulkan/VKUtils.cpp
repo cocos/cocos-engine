@@ -568,8 +568,8 @@ const ThsvsAccessType *getAccessType(AccessFlagBit flag) {
 }
 
 ThsvsImageLayout getAccessLayout(AccessFlags flag) {
-    if (hasAnyFlags(flag, AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT | AccessFlagBit::COLOR_ATTACHMENT_WRITE) ||
-        hasAnyFlags(flag, AccessFlagBit::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT | AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE)) {
+    if (hasAllFlags(flag, AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT | AccessFlagBit::COLOR_ATTACHMENT_WRITE) ||
+        hasAllFlags(flag, AccessFlagBit::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT | AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE)) {
         return THSVS_IMAGE_LAYOUT_GENERAL;
     }
     return THSVS_IMAGE_LAYOUT_OPTIMAL;
