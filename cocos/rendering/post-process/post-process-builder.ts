@@ -116,10 +116,11 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
 
         passContext.ppl = ppl;
-        passContext.renderProfiler = false;
         passContext.shadowPass = undefined;
         passContext.forwardPass = undefined;
         passContext.depthSlotName = '';
+        passContext.isFinalCamera = false;
+        passContext.isFinalPass = false;
 
         let globalPP: PostProcess | undefined;
         for (let i = 0; i < PostProcess.all.length; i++) {
