@@ -28,9 +28,9 @@ import { lerp, Vec3 } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { ModuleExecContext } from '../module-exec-context';
+import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { BASE_VELOCITY, ParticleDataSet, VELOCITY } from '../particle-data-set';
-import { EmitterDataSet } from '../emitter-data-set';
+import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 
@@ -104,18 +104,19 @@ export class LimitVelocityModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { fromIndex, toIndex } = context;
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
         const velocity = particles.getVec3Parameter(VELOCITY);
         const baseVelocity = particles.getVec3Parameter(BASE_VELOCITY);
-        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.isWorldSpace;
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.getBoolParameter(IS_WORLD_SPACE).data;
         if (this.separateAxes) {
             const exp = this._limit as Vec3Expression;
             exp.bind(particles, emitter, user, context);
             const dampen = this.dampen;
             dampen.bind(particles, emitter, user, context);
             if (needTransform) {
-                const transform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
-                const invTransform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.worldToLocalRS : emitter.localToWorldRS;
+                const transform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
+                const invTransform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? WORLD_TO_LOCAL_RS : LOCAL_TO_WORLD_RS).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     exp.evaluate(i, limit);
                     velocity.getVec3At(srcVelocity, i);
@@ -148,8 +149,8 @@ export class LimitVelocityModule extends VFXModule {
             const dampen = this.dampen;
             dampen.bind(particles, emitter, user, context);
             if (needTransform) {
-                const transform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
-                const invTransform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.worldToLocalRS : emitter.localToWorldRS;
+                const transform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
+                const invTransform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? WORLD_TO_LOCAL_RS : LOCAL_TO_WORLD_RS).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const limit = exp.evaluate(i);
                     velocity.getVec3At(srcVelocity, i);

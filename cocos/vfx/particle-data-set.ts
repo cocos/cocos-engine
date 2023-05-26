@@ -25,9 +25,10 @@
 
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
-import { ArrayParameter, VFXParameterIdentity } from './vfx-parameter';
+import { ArrayParameter, VFXParameter, VFXParameterIdentity } from './vfx-parameter';
 import { VFXParameterNameSpace, ParticleHandle, VFXParameterType } from './define';
 import { BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, Int32ArrayParameter, QuatArrayParameter, Uint32ArrayParameter, Uint8ArrayParameter, Vec2ArrayParameter, Vec3ArrayParameter, Vec4ArrayParameter } from './parameters';
+import { VFXDataSet } from './vfx-data-set';
 
 let builtinParticleParameterId = 0;
 export const ID = new VFXParameterIdentity(builtinParticleParameterId++, 'id', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);
@@ -60,7 +61,7 @@ export const VISIBILITY_TAG = new VFXParameterIdentity(builtinParticleParameterI
 
 export const CUSTOM_PARTICLE_PARAMETER_ID = 10000;
 
-export class ParticleDataSet {
+export class ParticleDataSet extends VFXDataSet {
     public get capacity () {
         return this._capacity;
     }
@@ -69,20 +70,17 @@ export class ParticleDataSet {
         return this._count;
     }
 
-    public get parameterCount () {
-        return this._parameterCount;
-    }
-
     private _count = 0;
     private _capacity = 16;
-    private _parameterCount = 0;
     private _parameters: ArrayParameter[] = [];
-    private _parameterMap: Record<number, ArrayParameter | null> = {};
+
+    constructor () {
+        super(VFXParameterNameSpace.PARTICLE);
+    }
 
     public getFloatParameter (identity: VFXParameterIdentity) {
         if (DEBUG) {
             assertIsTrue(identity.type === VFXParameterType.FLOAT);
-            assertIsTrue(identity.namespace === VFXParameterNameSpace.PARTICLE);
         }
         return this.getParameterUnsafe<FloatArrayParameter>(identity);
     }
@@ -90,7 +88,6 @@ export class ParticleDataSet {
     public getVec2Parameter (identity: VFXParameterIdentity) {
         if (DEBUG) {
             assertIsTrue(identity.type === VFXParameterType.VEC2);
-            assertIsTrue(identity.namespace === VFXParameterNameSpace.PARTICLE);
         }
         return this.getParameterUnsafe<Vec2ArrayParameter>(identity);
     }
@@ -98,7 +95,6 @@ export class ParticleDataSet {
     public getVec3Parameter (identity: VFXParameterIdentity) {
         if (DEBUG) {
             assertIsTrue(identity.type === VFXParameterType.VEC3);
-            assertIsTrue(identity.namespace === VFXParameterNameSpace.PARTICLE);
         }
         return this.getParameterUnsafe<Vec3ArrayParameter>(identity);
     }
@@ -106,7 +102,6 @@ export class ParticleDataSet {
     public getVec4Parameter (identity: VFXParameterIdentity) {
         if (DEBUG) {
             assertIsTrue(identity.type === VFXParameterType.VEC4);
-            assertIsTrue(identity.namespace === VFXParameterNameSpace.PARTICLE);
         }
         return this.getParameterUnsafe<Vec4ArrayParameter>(identity);
     }
@@ -114,7 +109,6 @@ export class ParticleDataSet {
     public getColorParameter (identity: VFXParameterIdentity) {
         if (DEBUG) {
             assertIsTrue(identity.type === VFXParameterType.COLOR);
-            assertIsTrue(identity.namespace === VFXParameterNameSpace.PARTICLE);
         }
         return this.getParameterUnsafe<ColorArrayParameter>(identity);
     }
@@ -122,7 +116,6 @@ export class ParticleDataSet {
     public getUint32Parameter (identity: VFXParameterIdentity) {
         if (DEBUG) {
             assertIsTrue(identity.type === VFXParameterType.UINT32);
-            assertIsTrue(identity.namespace === VFXParameterNameSpace.PARTICLE);
         }
         return this.getParameterUnsafe<Uint32ArrayParameter>(identity);
     }
@@ -130,7 +123,6 @@ export class ParticleDataSet {
     public getBoolParameter (identity: VFXParameterIdentity) {
         if (DEBUG) {
             assertIsTrue(identity.type === VFXParameterType.BOOL);
-            assertIsTrue(identity.namespace === VFXParameterNameSpace.PARTICLE);
         }
         return this.getParameterUnsafe<BoolArrayParameter>(identity);
     }
@@ -138,29 +130,62 @@ export class ParticleDataSet {
     public getUint8Parameter (identity: VFXParameterIdentity) {
         if (DEBUG) {
             assertIsTrue(identity.type === VFXParameterType.UINT8);
-            assertIsTrue(identity.namespace === VFXParameterNameSpace.PARTICLE);
         }
         return this.getParameterUnsafe<Uint8ArrayParameter>(identity);
     }
 
-    private getParameterUnsafe<T extends ArrayParameter> (identity: VFXParameterIdentity) {
+    public addParticles (count: number) {
         if (DEBUG) {
-            assertIsTrue(this.hasParameter(identity));
+            assertIsTrue(count >= 0);
         }
-        return this._parameterMap[identity.id] as T;
+        let reservedCount = this.capacity;
+        while (this._count + count > reservedCount) {
+            reservedCount *= 2;
+        }
+        this.reserve(reservedCount);
+        this._count += count;
     }
 
-    public hasParameter (identity: VFXParameterIdentity) {
-        return identity.id in this._parameterMap;
+    public removeParticle (handle: ParticleHandle) {
+        if (DEBUG) {
+            assertIsTrue(handle >= 0 && handle < this._count);
+        }
+        const lastParticle = this._count - 1;
+        if (lastParticle !== handle) {
+            const parameters = this._parameters;
+            for (let i = 0, length = this.parameterCount; i < length; i++) {
+                parameters[i].move(lastParticle, handle);
+            }
+        }
+        this._count -= 1;
     }
 
-    public addParameter (identity: VFXParameterIdentity) {
-        if (DEBUG) {
-            assertIsTrue(identity.namespace === VFXParameterNameSpace.PARTICLE);
+    public reserve (capacity: number) {
+        if (capacity <= this._capacity) return;
+        this._capacity = capacity;
+        const parameters = this._parameters;
+        for (let i = 0, length = this.parameterCount; i < length; i++) {
+            parameters[i].reserve(capacity);
         }
-        if (this.hasParameter(identity)) {
-            throw new Error('Already exist a particle parameter with same id!');
+    }
+
+    public clear () {
+        this._count = 0;
+    }
+
+    public reset () {
+        this._count = 0;
+        this._parameters.length = 0;
+        super.reset();
+    }
+
+    public markRequiredParameter (identity: VFXParameterIdentity) {
+        if (!this.hasParameter(identity)) {
+            this.addParameter(identity);
         }
+    }
+
+    protected doAddParameter (identity: VFXParameterIdentity) {
         switch (identity.type) {
         case VFXParameterType.FLOAT:
             this.addParameter_internal(identity.id, new FloatArrayParameter());
@@ -195,78 +220,13 @@ export class ParticleDataSet {
         default:
             throw new Error('Unknown particle parameter type!');
         }
-    }
-
-    public removeParameter (identity: VFXParameterIdentity) {
-        if (!this.hasParameter(identity)) {
-            return;
-        }
-        const parameter = this._parameterMap[identity.id];
-        if (DEBUG) {
-            assertIsTrue(parameter);
-        }
-        delete this._parameterMap[identity.id];
-        const index = this._parameters.indexOf(parameter!);
-        this._parameters.splice(index, 1);
-        this._parameterCount--;
-    }
-
-    public addParticles (count: number) {
-        if (DEBUG) {
-            assertIsTrue(count >= 0);
-        }
-        let reservedCount = this.capacity;
-        while (this._count + count > reservedCount) {
-            reservedCount *= 2;
-        }
-        this.reserve(reservedCount);
-        this._count += count;
-    }
-
-    public removeParticle (handle: ParticleHandle) {
-        if (DEBUG) {
-            assertIsTrue(handle >= 0 && handle < this._count);
-        }
-        const lastParticle = this._count - 1;
-        if (lastParticle !== handle) {
-            const parameters = this._parameters;
-            for (let i = 0, length = this._parameterCount; i < length; i++) {
-                parameters[i].move(lastParticle, handle);
-            }
-        }
-        this._count -= 1;
-    }
-
-    public reserve (capacity: number) {
-        if (capacity <= this._capacity) return;
-        this._capacity = capacity;
-        const parameters = this._parameters;
-        for (let i = 0, length = this._parameterCount; i < length; i++) {
-            parameters[i].reserve(capacity);
-        }
-    }
-
-    public clear () {
-        this._count = 0;
-    }
-
-    public reset () {
-        this._count = 0;
-        this._parameters.length = 0;
-        this._parameterMap = {};
-        this._parameterCount = 0;
-    }
-
-    public markRequiredParameter (identity: VFXParameterIdentity) {
-        if (!this.hasParameter(identity)) {
-            this.addParameter(identity);
-        }
-    }
-
-    private addParameter_internal (id: number, parameter: ArrayParameter) {
-        this._parameterCount++;
+        const parameter = this.getParameterUnsafe<ArrayParameter>(identity);
         this._parameters.push(parameter);
-        this._parameterMap[id] = parameter;
         parameter.reserve(this._capacity);
+    }
+
+    protected doRemoveParameter (parameter: VFXParameter) {
+        const index = this._parameters.indexOf(parameter as ArrayParameter);
+        this._parameters.splice(index, 1);
     }
 }

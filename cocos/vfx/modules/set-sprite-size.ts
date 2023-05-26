@@ -26,7 +26,7 @@
 import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BASE_SPRITE_SIZE, NORMALIZED_AGE, ParticleDataSet, SPRITE_SIZE } from '../particle-data-set';
-import { ModuleExecContext } from '../module-exec-context';
+import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { FloatExpression } from '../expressions/float';
 import { Vec2 } from '../../core';
 import { EmitterDataSet } from '../emitter-data-set';
@@ -88,7 +88,8 @@ export class SetSpriteSizeModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.getVec2Parameter(BASE_SPRITE_SIZE) : particles.getVec2Parameter(SPRITE_SIZE);
-        const { fromIndex, toIndex } = context;
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
         if (this.separateAxes) {
             const exp = this._size as Vec2Expression;
             exp.bind(particles, emitter, user, context);

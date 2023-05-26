@@ -28,7 +28,7 @@ import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
 import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, SCALE } from '../particle-data-set';
-import { ModuleExecContext } from '../module-exec-context';
+import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
@@ -92,7 +92,8 @@ export class ScaleMeshSizeModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const scale = particles.getVec3Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_SCALE : SCALE);
-        const { fromIndex, toIndex } = context;
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
         if (!this.separateAxes) {
             const exp = this.uniformScalar;
             exp.bind(particles, emitter, user, context);

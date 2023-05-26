@@ -26,7 +26,7 @@
 import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, SCALE } from '../particle-data-set';
-import { ModuleExecContext } from '../module-exec-context';
+import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { FloatExpression } from '../expressions/float';
 import { Vec3 } from '../../core';
 import { EmitterDataSet } from '../emitter-data-set';
@@ -87,7 +87,8 @@ export class SetMeshScaleModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const scale = particles.getVec3Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_SCALE : SCALE);
-        const { fromIndex, toIndex } = context;
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
         if (this.separateAxes) {
             const exp = this._scale as Vec3Expression;
             exp.bind(particles, emitter, user, context);

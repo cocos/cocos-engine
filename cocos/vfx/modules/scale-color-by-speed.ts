@@ -24,7 +24,7 @@
  */
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { ColorExpression } from '../expressions/color';
-import { ModuleExecContext } from '../module-exec-context';
+import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { COLOR, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { Color, math, Vec3 } from '../../core';
@@ -67,7 +67,8 @@ export class ScaleColorBySpeedModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { fromIndex, toIndex } = context;
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
         const hasVelocity = particles.hasParameter(VELOCITY);
         if (!hasVelocity) { return; }
         const minSpeedThreshold = this.minSpeedThreshold;

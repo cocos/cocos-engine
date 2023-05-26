@@ -48,7 +48,7 @@ export class SpawnPerUnitModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const velocity = emitter.getVec3Parameter(VELOCITY);
-        const deltaTime = context.getFloatParameter(DELTA_TIME);
+        const deltaTime = context.getFloatParameter(DELTA_TIME).data;
         this.spawnSpacing.bind(particles, emitter, user, context);
         emitter.spawnContinuousCount += velocity.length() * (1 / this.spawnSpacing.evaluateSingle()) * deltaTime;
     }

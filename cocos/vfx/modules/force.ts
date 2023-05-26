@@ -27,11 +27,11 @@ import { ccclass, tooltip, type, serializable } from 'cc.decorator';
 import { Vec3, Enum } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ModuleExecContext } from '../module-exec-context';
+import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { UserDataSet } from '../user-data-set';
-import { EmitterDataSet } from '../emitter-data-set';
+import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../emitter-data-set';
 
 const _temp_v3 = new Vec3();
 
@@ -74,12 +74,13 @@ export class ForceModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
-        const { fromIndex, toIndex } = context;
-        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace === CoordinateSpace.WORLD) !== emitter.isWorldSpace;
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace === CoordinateSpace.WORLD) !== emitter.getBoolParameter(IS_WORLD_SPACE).data;
         const exp = this._force as Vec3Expression;
         exp.bind(particles, emitter, user, context);
         if (needTransform) {
-            const transform = this.coordinateSpace === CoordinateSpace.LOCAL ? emitter.localToWorldRS : emitter.worldToLocalRS;
+            const transform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
             if (exp.isConstant) {
                 const force = Vec3.transformMat3(_temp_v3, exp.evaluate(0, _temp_v3), transform);
                 for (let i = fromIndex; i < toIndex; i++) {

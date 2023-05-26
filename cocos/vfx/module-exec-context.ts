@@ -28,12 +28,15 @@ import { assertIsTrue } from '../core';
 import { ModuleExecStage } from './vfx-module';
 import { RandomStream } from './random-stream';
 import { VFXEvents } from './vfx-events';
-import { VFXParameterIdentity } from './vfx-parameter';
+import { VFXParameter, VFXParameterIdentity } from './vfx-parameter';
 import { VFXParameterNameSpace, VFXParameterType } from './define';
+import { BoolParameter, FloatParameter, Uint32Parameter, Vec3Parameter } from './parameters';
 
 let builtinContextParameterId = 50000;
 
-export const DELTA_TIME = new VFXParameterIdentity(builtinContextParameterId++, 'delta-time', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);
+export const DELTA_TIME = new VFXParameterIdentity(builtinContextParameterId++, 'delta-time', VFXParameterType.FLOAT, VFXParameterNameSpace.CONTEXT);
+export const FROM_INDEX = new VFXParameterIdentity(builtinContextParameterId++, 'from-index', VFXParameterType.UINT32, VFXParameterNameSpace.CONTEXT);
+export const TO_INDEX = new VFXParameterIdentity(builtinContextParameterId++, 'to-index', VFXParameterType.UINT32, VFXParameterNameSpace.CONTEXT);
 
 export const CUSTOM_CONTEXT_PARAMETER_ID = 60000;
 
@@ -43,14 +46,6 @@ export class ModuleExecContext {
             this._events = new VFXEvents();
         }
         return this._events;
-    }
-
-    public get fromIndex () {
-        return this._fromIndex;
-    }
-
-    public get toIndex () {
-        return this._toIndex;
     }
 
     public get executionStage () {
@@ -65,47 +60,64 @@ export class ModuleExecContext {
         return this._moduleRandomStream;
     }
 
-    public get deltaTime () {
-        return this._deltaTime;
-    }
-
-    public set deltaTime (value: number) {
-        this._deltaTime = value;
-    }
-
-    private _fromIndex = 0;
-    private _toIndex = 0;
     private _moduleRandomSeed = 0;
     private declare _moduleRandomStream: RandomStream
-    private _deltaTime = 0;
     private _executionStage = ModuleExecStage.UNKNOWN;
     private _events: VFXEvents | null = null;
 
-    getFloatParameter (id: VFXParameterIdentity): number {
-        return 0;
+    private _parameterMap: Record<number, VFXParameter> = {
+        [DELTA_TIME.id]: new FloatParameter(),
+        [FROM_INDEX.id]: new Uint32Parameter(),
+        [TO_INDEX.id]: new Uint32Parameter(),
+    };
+
+    getFloatParameter (identity: VFXParameterIdentity): FloatParameter {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.FLOAT);
+        }
+        return this.getParameterUnsafe<FloatParameter>(identity);
     }
 
-    setFloatParameter (id: VFXParameterIdentity, value: number) {
+    getVec3Parameter (identity: VFXParameterIdentity): Vec3Parameter {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.VEC3);
+        }
+        return this.getParameterUnsafe<Vec3Parameter>(identity);
+    }
 
+    getBoolParameter (identity: VFXParameterIdentity): BoolParameter {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.BOOL);
+        }
+        return this.getParameterUnsafe<BoolParameter>(identity);
+    }
+
+    getUint32Parameter (identity: VFXParameterIdentity): Uint32Parameter {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.UINT32);
+        }
+        return this.getParameterUnsafe<Uint32Parameter>(identity);
+    }
+
+    private getParameterUnsafe<T extends VFXParameter> (identity: VFXParameterIdentity) {
+        if (DEBUG) {
+            assertIsTrue(this.hasParameter(identity));
+            assertIsTrue(identity.namespace === VFXParameterNameSpace.CONTEXT);
+        }
+        return this._parameterMap[identity.id] as T;
+    }
+
+    hasParameter (identity: VFXParameterIdentity) {
+        return identity.id in this._parameterMap;
     }
 
     setExecutionStage (stage: ModuleExecStage) {
         this._executionStage = stage;
     }
 
-    setExecuteRange (fromIndex: number, toIndex: number) {
-        if (DEBUG) {
-            assertIsTrue(fromIndex <= toIndex);
-            assertIsTrue(fromIndex >= 0);
-        }
-        this._fromIndex = fromIndex;
-        this._toIndex = toIndex;
-    }
-
     reset () {
         this._events?.clear();
         this._executionStage = ModuleExecStage.UNKNOWN;
-        this.setExecuteRange(0, 0);
     }
 
     setModuleRandomSeed (seed: number) {

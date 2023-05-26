@@ -1,7 +1,7 @@
 import { DEBUG } from 'internal:constants';
 import { Vec2, assertIsTrue } from '../../core';
 import { ParticleHandle, VFXParameterType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3 } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, VFXParameter } from '../vfx-parameter';
 
 const tempVec2 = new Vec2();
 export class Vec2ArrayParameter extends ArrayParameter {
@@ -162,4 +162,23 @@ export class Vec2ArrayParameter extends ArrayParameter {
             data[i + 1] = y;
         }
     }
+}
+
+export class Vec2Parameter extends VFXParameter {
+    get isArray (): boolean {
+        return false;
+    }
+    get type (): VFXParameterType {
+        return VFXParameterType.VEC2;
+    }
+
+    get data (): Readonly<Vec2> {
+        return this._data;
+    }
+
+    set data (val: Readonly<Vec2>) {
+        Vec2.copy(this._data, val);
+    }
+
+    private _data = new Vec2();
 }

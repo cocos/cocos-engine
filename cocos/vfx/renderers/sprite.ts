@@ -22,15 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, displayName, displayOrder, serializable, tooltip, type, visible } from 'cc.decorator';
+import { ccclass, displayOrder, serializable, tooltip, type, visible } from 'cc.decorator';
 import { Material, RenderingSubMesh } from '../../asset/assets';
 import { Enum, Quat, Vec3, Vec4 } from '../../core';
 import { Buffer, BufferInfo, BufferUsageBit, deviceManager, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../gfx';
-import { MacroRecord, MaterialInstance } from '../../render-scene';
-import { AlignmentSpace, ScalingMode } from '../define';
+import { MacroRecord } from '../../render-scene';
+import { AlignmentSpace } from '../define';
 import { COLOR, ParticleDataSet, POSITION, SCALE, SUB_UV_INDEX, VELOCITY } from '../particle-data-set';
 import { CC_PARTICLE_COLOR, CC_PARTICLE_FRAME_INDEX, CC_PARTICLE_POSITION, CC_PARTICLE_ROTATION, CC_PARTICLE_SIZE, CC_PARTICLE_VELOCITY, CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, ROTATION_OVER_TIME_MODULE_ENABLE, ParticleRenderer } from '../particle-renderer';
-import { EmitterDataSet } from '../emitter-data-set';
+import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_ROTATION, RENDER_SCALE, WORLD_ROTATION } from '../emitter-data-set';
 
 const fixedVertexBuffer = new Float32Array([
     0, 0, 0, 0, 0, 0, // bottom-left
@@ -176,9 +176,9 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     private _updateRotation (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let currentRotation: Quat;
         if (this._alignmentSpace === AlignmentSpace.LOCAL) {
-            currentRotation = emitter.localRotation;
+            currentRotation = emitter.getQuatParameter(LOCAL_ROTATION).data;
         } else if (this._alignmentSpace === AlignmentSpace.WORLD) {
-            currentRotation = emitter.worldRotation;
+            currentRotation = emitter.getQuatParameter(WORLD_ROTATION).data;
         } else if (this._alignmentSpace === AlignmentSpace.VIEW) {
             currentRotation = Quat.IDENTITY;
         } else {
@@ -191,8 +191,9 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     }
 
     private _updateRenderScale (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
-        if (!Vec3.equals(emitter.renderScale, this._renderScale) || this._isMaterialDirty) {
-            this._renderScale.set(emitter.renderScale.x, emitter.renderScale.y, emitter.renderScale.z);
+        const renderScale = emitter.getVec3Parameter(RENDER_SCALE).data;
+        if (!Vec3.equals(renderScale, this._renderScale) || this._isMaterialDirty) {
+            this._renderScale.set(renderScale.x, renderScale.y, renderScale.z);
             material.setProperty('scale', this._renderScale);
         }
     }
@@ -200,8 +201,9 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     private _compileMaterial (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let needRecompile = this._isMaterialDirty;
         const define = this._defines;
-        if (define[CC_USE_WORLD_SPACE] !== emitter.isWorldSpace) {
-            define[CC_USE_WORLD_SPACE] = emitter.isWorldSpace;
+        const isWorldSpace = emitter.getBoolParameter(IS_WORLD_SPACE).data;
+        if (define[CC_USE_WORLD_SPACE] !== isWorldSpace) {
+            define[CC_USE_WORLD_SPACE] = isWorldSpace;
             needRecompile = true;
         }
 

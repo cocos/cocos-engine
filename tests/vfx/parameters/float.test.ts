@@ -1,11 +1,12 @@
 import { VFXParameterType } from "../../../cocos/vfx/define";
-import { FloatArrayParameter } from "../../../cocos/vfx/parameters/float";
+import { FloatArrayParameter, FloatParameter } from "../../../cocos/vfx/parameters/float";
 import { RandomStream } from "../../../cocos/vfx/random-stream";
 
 describe('FloatArrayParameter', () => {
     const floatParameter = new FloatArrayParameter();
     test('basic', () => {
         expect(floatParameter.type).toBe(VFXParameterType.FLOAT);
+        expect(floatParameter.isArray).toBeTruthy();
         expect(floatParameter.stride).toBe(1);
     });
     
@@ -92,6 +93,32 @@ describe('FloatArrayParameter', () => {
         }
         for (let i = 0; i < floatParameter.capacity; i++) {
             const random = randomStream2.getFloat() * 100 + 1;
+            expect(floatParameter.getFloatAt(i)).toBeCloseTo(random, 4);
+        }
+    });
+
+    test('multiplyFloatAt', () => {
+        expect(() => floatParameter.multiplyFloatAt(0, -1)).toThrowError();
+        expect(() => floatParameter.multiplyFloatAt(0, 200)).toThrowError();
+        const randomIndex = Math.floor(Math.random() * floatParameter.capacity);
+        const val = Math.random() * 100;
+        floatParameter.data.fill(1);
+        floatParameter.multiplyFloatAt(val, randomIndex);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            if (i === randomIndex) {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(val, 4);
+            } else {
+                expect(floatParameter.getFloatAt(i)).toBeCloseTo(1, 4);
+            }
+        }
+        floatParameter.setFloatAt(1, randomIndex);
+        const randomStream = new RandomStream(Math.random() * 10000);
+        const randomStream2 = new RandomStream(randomStream.seed);
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            floatParameter.multiplyFloatAt(randomStream.getFloat() * 100, i);
+        }
+        for (let i = 0; i < floatParameter.capacity; i++) {
+            const random = randomStream2.getFloat() * 100;
             expect(floatParameter.getFloatAt(i)).toBeCloseTo(random, 4);
         }
     });
@@ -247,5 +274,20 @@ describe('FloatArrayParameter', () => {
         for (let i = 100 + floatParameter.capacity; i < typedArray.length; i++) {
             expect(typedArray[i]).toBeCloseTo(0, 4);
         }
+    });
+});
+
+describe('FloatParameter', () => {
+    const floatParameter = new FloatParameter();
+    test('basic', () => {
+        expect(floatParameter.type).toBe(VFXParameterType.FLOAT);
+        expect(floatParameter.isArray).toBeFalsy();
+    });
+
+    test('data', () => {
+        expect(floatParameter.data).toBe(0);
+        const val = Math.random() * 1000 - 500;
+        floatParameter.data = val;
+        expect(floatParameter.data).toBeCloseTo(val, 4);
     });
 });

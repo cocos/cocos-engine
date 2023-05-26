@@ -32,7 +32,7 @@ import { MacroRecord } from '../../render-scene';
 import { AlignmentSpace } from '../define';
 import { COLOR, MESH_ORIENTATION, ParticleDataSet, POSITION, SCALE, SUB_UV_INDEX, VELOCITY } from '../particle-data-set';
 import { CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshColorRGBA8, meshNormal, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, RENDER_MODE_MESH, ROTATION_OVER_TIME_MODULE_ENABLE, ParticleRenderer } from '../particle-renderer';
-import { EmitterDataSet } from '../emitter-data-set';
+import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_ROTATION, RENDER_SCALE, WORLD_ROTATION } from '../emitter-data-set';
 
 @ccclass('cc.MeshParticleRenderer')
 export class MeshParticleRenderer extends ParticleRenderer {
@@ -163,9 +163,9 @@ export class MeshParticleRenderer extends ParticleRenderer {
     private _updateRotation (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let currentRotation: Quat;
         if (this._alignmentSpace === AlignmentSpace.LOCAL) {
-            currentRotation = emitter.localRotation;
+            currentRotation = emitter.getQuatParameter(LOCAL_ROTATION).data;
         } else if (this._alignmentSpace === AlignmentSpace.WORLD) {
-            currentRotation = emitter.worldRotation;
+            currentRotation = emitter.getQuatParameter(WORLD_ROTATION).data;
         } else if (this._alignmentSpace === AlignmentSpace.VIEW) {
             currentRotation = Quat.IDENTITY;
             // const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
@@ -190,16 +190,18 @@ export class MeshParticleRenderer extends ParticleRenderer {
     }
 
     private _updateRenderScale (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
-        if (!Vec3.equals(emitter.renderScale, this._renderScale)) {
-            this._renderScale.set(emitter.renderScale.x, emitter.renderScale.y, emitter.renderScale.z);
+        const renderScale = emitter.getVec3Parameter(RENDER_SCALE).data;
+        if (!Vec3.equals(renderScale, this._renderScale)) {
+            this._renderScale.set(renderScale.x, renderScale.y, renderScale.z);
             material.setProperty('scale', this._renderScale);
         }
     }
 
     private _compileMaterial (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let needRecompile = false;
-        if (this._defines[CC_USE_WORLD_SPACE] !== emitter.isWorldSpace) {
-            this._defines[CC_USE_WORLD_SPACE] = emitter.isWorldSpace;
+        const isWorldSpace = emitter.getBoolParameter(IS_WORLD_SPACE).data;
+        if (this._defines[CC_USE_WORLD_SPACE] !== isWorldSpace) {
+            this._defines[CC_USE_WORLD_SPACE] = isWorldSpace;
             needRecompile = true;
         }
 

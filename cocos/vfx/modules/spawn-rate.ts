@@ -29,7 +29,7 @@ import { ParticleDataSet } from '../particle-data-set';
 import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
 import { FloatExpression } from '../expressions/float';
 import { ConstantFloatExpression } from '../expressions';
-import { EmitterDataSet } from '../emitter-data-set';
+import { EmitterDataSet, LOOPED_AGE, SPAWN_REMAINDER } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 
 @ccclass('cc.SpawnRateModule')
@@ -48,15 +48,16 @@ export class SpawnRateModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext)  {
-        const deltaTime = context.getFloatParameter(DELTA_TIME);
-        const { loopAge, spawnRemainder } = emitter;
+        const deltaTime = context.getFloatParameter(DELTA_TIME).data;
+        const spawnRemainder = emitter.getFloatParameter(SPAWN_REMAINDER);
+        const loopedAge = emitter.getFloatParameter(LOOPED_AGE).data;
         this.rate.bind(particles, emitter, user, context);
         const spawnRate = this.rate.evaluateSingle();
         const intervalDt = 1 / spawnRate;
-        const interpStartDt = (1 - spawnRemainder) * intervalDt;
-        const count = spawnRemainder + (loopAge > 0 ? spawnRate : 0) * deltaTime;
+        const interpStartDt = (1 - spawnRemainder.data) * intervalDt;
+        const count = spawnRemainder.data + (loopedAge > 0 ? spawnRate : 0) * deltaTime;
         const spawnCount = Math.floor(count);
-        emitter.spawnRemainder = count - spawnCount;
+        spawnRemainder.data = count - spawnCount;
         emitter.addSpawnInfo(spawnCount, intervalDt, interpStartDt);
     }
 }

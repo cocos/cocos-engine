@@ -26,7 +26,7 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BASE_COLOR, COLOR, NORMALIZED_AGE, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext } from '../module-exec-context';
+import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { ColorExpression } from '../expressions/color';
 import { Color } from '../../core';
 import { EmitterDataSet } from '../emitter-data-set';
@@ -55,7 +55,8 @@ export class SetColorModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const color = particles.getColorParameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_COLOR : COLOR);
-        const { fromIndex, toIndex } = context;
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
         this.color.bind(particles, emitter, user, context);
         if (this.color.isConstant) {
             color.fill(this.color.evaluate(0, tempColor), fromIndex, toIndex);

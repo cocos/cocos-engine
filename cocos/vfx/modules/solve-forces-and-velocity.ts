@@ -26,7 +26,7 @@
 import { ccclass } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { POSITION, ParticleDataSet, VELOCITY, PHYSICS_FORCE } from '../particle-data-set';
-import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
+import { DELTA_TIME, FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { Vec3ArrayParameter } from '../parameters';
@@ -35,8 +35,9 @@ import { Vec3ArrayParameter } from '../parameters';
 @VFXModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [POSITION.name], [VELOCITY.name])
 export class SolveForceAndVelocityModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const { fromIndex, toIndex } = context;
-        const deltaTime = context.getFloatParameter(DELTA_TIME);
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+        const deltaTime = context.getFloatParameter(DELTA_TIME).data;
         if (particles.hasParameter(PHYSICS_FORCE) && particles.hasParameter(VELOCITY)) {
             const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
             const velocity = particles.getVec3Parameter(VELOCITY);

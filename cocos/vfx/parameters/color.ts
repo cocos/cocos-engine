@@ -1,7 +1,7 @@
 import { DEBUG } from 'internal:constants';
 import { Color, assertIsTrue } from '../../core';
 import { ParticleHandle, VFXParameterType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD, VFXParameter } from '../vfx-parameter';
 
 const tempColor = new Color();
 
@@ -90,4 +90,24 @@ export class ColorArrayParameter extends ArrayParameter {
             }
         }
     }
+}
+
+export class ColorParameter extends VFXParameter {
+    get isArray (): boolean {
+        return false;
+    }
+
+    get type (): VFXParameterType {
+        return VFXParameterType.COLOR;
+    }
+
+    get data (): Readonly<Color> {
+        return this._data;
+    }
+
+    set data (val: Readonly<Color>) {
+        Color.copy(this._data, val);
+    }
+
+    private _data = new Color();
 }

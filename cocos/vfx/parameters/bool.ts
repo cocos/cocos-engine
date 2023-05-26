@@ -1,7 +1,7 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../../core';
 import { ParticleHandle, VFXParameterType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD, VFXParameter } from '../vfx-parameter';
 
 export class BoolArrayParameter extends ArrayParameter {
     get data () {
@@ -85,6 +85,9 @@ export class BoolArrayParameter extends ArrayParameter {
     }
 
     fill (val: boolean, fromIndex: number, toIndex: number) {
+        if (DEBUG) {
+            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+        }
         const valNum = val ? 1 : 0;
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.fill(valNum, fromIndex, toIndex);
@@ -95,4 +98,24 @@ export class BoolArrayParameter extends ArrayParameter {
             }
         }
     }
+}
+
+export class BoolParameter extends VFXParameter {
+    get isArray (): boolean {
+        return false;
+    }
+
+    get type (): VFXParameterType {
+        return VFXParameterType.BOOL;
+    }
+
+    get data (): boolean {
+        return this._data;
+    }
+
+    set data (val: boolean) {
+        this._data = val;
+    }
+
+    private _data = false;
 }

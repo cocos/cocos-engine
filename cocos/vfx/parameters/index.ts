@@ -8,3 +8,5 @@ export * from './color';
 export * from './vec2';
 export * from './vec4';
 export * from './quat';
+export * from './mat4';
+export * from './mat3';

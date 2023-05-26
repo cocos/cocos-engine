@@ -26,7 +26,7 @@ import { ccclass, serializable, type } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { POSITION, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext } from '../module-exec-context';
+import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { Vec2, Vec3 } from '../../core';
@@ -79,7 +79,8 @@ export class PlaneLocationModule extends ShapeLocationModule {
         const planeCenter = this._planeCenter as Vec2Expression;
         planeSize.bind(particles, emitter, user, context);
         planeCenter.bind(particles, emitter, user, context);
-        const { fromIndex, toIndex } = context;
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
         const position = particles.getVec3Parameter(POSITION);
         const rand = this.randomStream;
         for (let i = fromIndex; i < toIndex; i++) {

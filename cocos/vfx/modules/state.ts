@@ -26,7 +26,7 @@ import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { Enum } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { INV_START_LIFETIME, IS_DEAD, NORMALIZED_AGE, ParticleDataSet } from '../particle-data-set';
-import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
+import { DELTA_TIME, FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { UserDataSet } from '../user-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 
@@ -45,6 +45,9 @@ export class StateModule extends VFXModule {
     public lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+        if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.KILL) {
+            particles.markRequiredParameter(IS_DEAD);
+        }
         particles.markRequiredParameter(NORMALIZED_AGE);
         particles.markRequiredParameter(INV_START_LIFETIME);
     }
@@ -52,8 +55,9 @@ export class StateModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
         const invStartLifeTime = particles.getFloatParameter(INV_START_LIFETIME).data;
-        const deltaTime = context.getFloatParameter(DELTA_TIME);
-        const { fromIndex, toIndex } = context;
+        const deltaTime = context.getFloatParameter(DELTA_TIME).data;
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
         if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.LOOP_LIFETIME) {
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
                 normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
@@ -68,23 +72,13 @@ export class StateModule extends VFXModule {
                     normalizedAge[particleHandle] = 1;
                 }
             }
-            // if has isDead parameter, deferred to remove particle until rendering.
-        } else if (particles.hasParameter(IS_DEAD)) {
+        } else {
             const isDead = particles.getBoolParameter(IS_DEAD).data;
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
                 normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
                 if (normalizedAge[particleHandle] > 1) {
                     normalizedAge[particleHandle] = 1;
                     isDead[particleHandle] = 1;
-                }
-            }
-        } else {
-            for (let particleHandle = toIndex - 1; particleHandle >= fromIndex; particleHandle--) {
-                normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
-                if (normalizedAge[particleHandle] > 1) {
-                    normalizedAge[particleHandle] = 1;
-                    particles.removeParticle(particleHandle);
-                    context.setExecuteRange(fromIndex, context.toIndex - 1);
                 }
             }
         }

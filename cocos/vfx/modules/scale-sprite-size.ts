@@ -28,7 +28,7 @@ import { CCBoolean, Vec2 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
 import { BASE_SPRITE_SIZE, NORMALIZED_AGE, ParticleDataSet, SPRITE_SIZE } from '../particle-data-set';
-import { ModuleExecContext } from '../module-exec-context';
+import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
@@ -94,7 +94,8 @@ export class ScaleSpriteSizeModule extends VFXModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
         const spriteSize = particles.getVec2Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_SPRITE_SIZE : SPRITE_SIZE);
-        const { fromIndex, toIndex } = context;
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
         if (!this.separateAxes) {
             const exp = this.uniformScalar;
             exp.bind(particles, emitter, user, context);

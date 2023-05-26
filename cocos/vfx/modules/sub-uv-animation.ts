@@ -29,7 +29,7 @@ import { lerp, repeat, Enum, assertIsTrue, CCFloat, CCInteger } from '../../core
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
 import { INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, RANDOM_SEED, SUB_UV_INDEX } from '../particle-data-set';
-import { ModuleExecContext } from '../module-exec-context';
+import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -217,8 +217,9 @@ export class SubUVAnimationModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const subUVIndex = particles.subUVIndex.data;
-        const { fromIndex, toIndex } = context;
+        const subUVIndex = particles.getFloatParameter(SUB_UV_INDEX);
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
 
         if (this._timeMode === TimeMode.LIFETIME) {
             const cycleCount = this.cycleCount;

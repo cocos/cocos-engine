@@ -1,7 +1,7 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../../core';
 import { ParticleHandle, VFXParameterType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD, VFXParameter } from '../vfx-parameter';
 
 export class Int32ArrayParameter extends ArrayParameter {
     get data () {
@@ -73,4 +73,23 @@ export class Int32ArrayParameter extends ArrayParameter {
             }
         }
     }
+}
+
+export class Int32Parameter extends VFXParameter {
+    get isArray (): boolean {
+        return false;
+    }
+    get type (): VFXParameterType {
+        return VFXParameterType.INT32;
+    }
+
+    get data (): number {
+        return this._data;
+    }
+
+    set data (val: number) {
+        this._data = val;
+    }
+
+    private _data = 0;
 }

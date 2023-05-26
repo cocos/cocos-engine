@@ -27,7 +27,7 @@ import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { CCBoolean, Vec3 } from '../../core';
 import { ParticleDataSet, POSITION } from '../particle-data-set';
-import { ModuleExecContext } from '../module-exec-context';
+import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
@@ -104,7 +104,8 @@ export class BoxLocationModule extends ShapeLocationModule {
         const boxCenter = this._boxCenter as Vec3Expression;
         boxSize.bind(particles, emitter, user, context);
         boxCenter.bind(particles, emitter, user, context);
-        const { fromIndex, toIndex } = context;
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
         const position = particles.getVec3Parameter(POSITION);
         const rand = this.randomStream;
         if (!this.surfaceOnly) {

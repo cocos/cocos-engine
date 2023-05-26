@@ -28,9 +28,9 @@ import { approx, CCFloat, Color, Vec3 } from '../../core';
 import { VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { COLOR, ID, INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY } from '../particle-data-set';
-import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
+import { DELTA_TIME, FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
 import { RandomStream } from '../random-stream';
-import { EmitterDataSet } from '../emitter-data-set';
+import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ColorArrayParameter, Vec3ArrayParameter } from '../parameters';
 import { VFXEventInfo } from '../vfx-events';
@@ -58,9 +58,12 @@ export class LocationEventGeneratorModule extends VFXModule {
         const invStartLifeTime = particles.getFloatParameter(INV_START_LIFETIME).data;
         const id = particles.getUint32Parameter(ID).data;
         const randomOffset = this.randomSeed;
-        const { fromIndex, toIndex, events } = context;
-        const deltaTime = context.getFloatParameter(DELTA_TIME);
-        const { localToWorld } = emitter;
+        const { events } = context;
+        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+        const deltaTime = context.getFloatParameter(DELTA_TIME).data;
+        const localToWorld = emitter.getMat4Parameter(LOCAL_TO_WORLD).data;
+        const isWorldSpace = emitter.getBoolParameter(IS_WORLD_SPACE).data;
         const hasVelocity = particles.hasParameter(VELOCITY);
         const hasColor = particles.hasParameter(COLOR);
         const hasPosition = particles.hasParameter(POSITION);
@@ -93,7 +96,7 @@ export class LocationEventGeneratorModule extends VFXModule {
                 if (hasColor) {
                     (color as ColorArrayParameter).getColorAt(eventInfo.color, i);
                 }
-                if (!emitter.isWorldSpace) {
+                if (!isWorldSpace) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);
                     Vec3.transformMat4(eventInfo.velocity, eventInfo.velocity, localToWorld);
                 }

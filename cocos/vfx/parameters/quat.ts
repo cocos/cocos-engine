@@ -1,7 +1,7 @@
 import { DEBUG } from 'internal:constants';
 import { Quat, Vec3, assertIsTrue } from '../../core';
 import { ParticleHandle, VFXParameterType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3 } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, VFXParameter } from '../vfx-parameter';
 
 const tempQuat = new Quat();
 export class QuatArrayParameter extends ArrayParameter {
@@ -141,4 +141,24 @@ export class QuatArrayParameter extends ArrayParameter {
             data[i + 2] = z;
         }
     }
+}
+
+export class QuatParameter extends VFXParameter {
+    get isArray (): boolean {
+        return false;
+    }
+
+    get type (): VFXParameterType {
+        return VFXParameterType.QUAT;
+    }
+
+    get data (): Readonly<Quat> {
+        return this._data;
+    }
+
+    set data (val: Readonly<Quat>) {
+        Quat.copy(this._data, val);
+    }
+
+    private _data = new Quat();
 }

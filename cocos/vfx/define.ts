@@ -37,6 +37,8 @@ export enum VFXParameterType {
     INT32,
     UINT32,
     UINT8,
+    MAT3,
+    MAT4,
 }
 
 export enum VFXParameterNameSpace {

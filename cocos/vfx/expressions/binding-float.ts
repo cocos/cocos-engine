@@ -84,15 +84,15 @@ export class BindingFloatExpression extends FloatExpression {
             this._getFloat = this._getFloatAt;
             break;
         case VFXParameterNameSpace.EMITTER:
-            this._constant = emitter.getFloatParameter(this._bindingParameter);
+            this._constant = emitter.getFloatParameter(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
         case VFXParameterNameSpace.USER:
-            this._constant = user.getFloatParameter(this._bindingParameter);
+            this._constant = user.getFloatParameter(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
         case VFXParameterNameSpace.CONTEXT:
-            this._constant = context.getFloatParameter(this._bindingParameter);
+            this._constant = context.getFloatParameter(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
         default:
