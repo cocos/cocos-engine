@@ -7,6 +7,7 @@ import { Pipeline, ResourceResidency } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { TAA } from '../components/taa';
 import { passContext } from '../utils/pass-context';
+import { DisablePostProcessForDebugView } from './base-pass';
 import { getSetting, SettingPass } from './setting-pass';
 
 const tempVec4 = new Vec4();
@@ -98,6 +99,9 @@ export class TAAPass extends SettingPass {
         if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
             enable = false;
         }
+        if (DisablePostProcessForDebugView()) {
+            enable = false;
+        }
         return enable;
     }
 
@@ -146,10 +150,6 @@ export class TAAPass extends SettingPass {
 
     firstRender = true;
     public render (camera: Camera, ppl: Pipeline): void {
-        if (!this.checkEnable(camera)) {
-            return;
-        }
-
         const cameraID = getCameraUniqueID(camera);
 
         passContext.clearFlag = ClearFlagBit.COLOR;
