@@ -27,10 +27,11 @@ import { ccclass, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
 import { BASE_RIBBON_WIDTH, NORMALIZED_AGE, ParticleDataSet, RIBBON_WIDTH, SPRITE_SIZE } from '../particle-data-set';
-import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression } from '../expressions';
+import { FloatArrayParameter, Uint32Parameter } from '../parameters';
 
 @ccclass('cc.ScaleRibbonWidthModule')
 @VFXModule.register('ScaleRibbonWidth', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [SPRITE_SIZE.name], [NORMALIZED_AGE.name])
@@ -53,7 +54,7 @@ export class ScaleRibbonWidthModule extends VFXModule {
     @serializable
     private _scalar: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(RIBBON_WIDTH);
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.markRequiredParameter(BASE_RIBBON_WIDTH);
@@ -61,10 +62,10 @@ export class ScaleRibbonWidthModule extends VFXModule {
         this.scalar.tick(particles, emitter, user, context);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const ribbonWidth = particles.getFloatParameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_RIBBON_WIDTH : RIBBON_WIDTH);
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const ribbonWidth = particles.getParameterUnsafe<FloatArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? BASE_RIBBON_WIDTH : RIBBON_WIDTH);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const exp = this._scalar as FloatExpression;
         exp.bind(particles, emitter, user, context);
         if (exp.isConstant) {

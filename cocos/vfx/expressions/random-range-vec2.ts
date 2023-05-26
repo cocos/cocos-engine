@@ -24,13 +24,13 @@
  */
 import { lerp, Vec2 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ModuleExecContext } from '../module-exec-context';
+import { ContextDataSet } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet, RANDOM_SEED } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
 import { UserDataSet } from '../user-data-set';
 import { ModuleExecStage } from '../vfx-module';
-import { ConstantVec2Expression, Vec2Expression } from '../../../exports/vfx';
+import { ConstantVec2Expression, Uint32ArrayParameter, Vec2Expression } from '../../../exports/vfx';
 
 const temp = new Vec2();
 const tempRatio = new Vec2();
@@ -53,7 +53,7 @@ export class RandomRangeVec2Expression extends Vec2Expression {
     private _randomOffset = 0;
     private declare _randomStream: RandomStream;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.maximum.tick(particles, emitter, user, context);
         this.minimum.tick(particles, emitter, user, context);
         if (context.executionStage === ModuleExecStage.UPDATE) {
@@ -61,11 +61,11 @@ export class RandomRangeVec2Expression extends Vec2Expression {
         }
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.maximum.bind(particles, emitter, user, context);
         this.minimum.bind(particles, emitter, user, context);
         if (context.executionStage === ModuleExecStage.UPDATE) {
-            this._seed = particles.getUint32Parameter(RANDOM_SEED).data;
+            this._seed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
             this._randomOffset = context.moduleRandomSeed;
         } else {
             this._randomStream = context.moduleRandomStream;

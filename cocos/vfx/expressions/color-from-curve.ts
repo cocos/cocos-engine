@@ -24,7 +24,7 @@
  */
 import { Color, Gradient, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/decorators';
-import { ModuleExecContext } from '../module-exec-context';
+import { ContextDataSet } from '../context-data-set';
 import { NORMALIZED_AGE, ParticleDataSet } from '../particle-data-set';
 import { ModuleExecStage } from '../vfx-module';
 import { ColorExpression } from './color';
@@ -47,11 +47,11 @@ export class ColorFromCurveExpression extends ColorExpression {
         return this.curveIndex.isConstant;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.curveIndex.tick(particles, emitter, user, context);
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.curveIndex.bind(particles, emitter, user, context);
     }
 

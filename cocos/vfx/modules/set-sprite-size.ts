@@ -26,12 +26,13 @@
 import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BASE_SPRITE_SIZE, NORMALIZED_AGE, ParticleDataSet, SPRITE_SIZE } from '../particle-data-set';
-import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { FloatExpression } from '../expressions/float';
 import { Vec2 } from '../../core';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
+import { Vec2ArrayParameter, Uint32Parameter } from '../parameters';
 
 const tempSize = new Vec2();
 
@@ -73,7 +74,7 @@ export class SetSpriteSizeModule extends VFXModule {
     @serializable
     private _size: Vec2Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.markRequiredParameter(BASE_SPRITE_SIZE);
         }
@@ -86,10 +87,10 @@ export class SetSpriteSizeModule extends VFXModule {
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.getVec2Parameter(BASE_SPRITE_SIZE) : particles.getVec2Parameter(SPRITE_SIZE);
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.getParameterUnsafe<Vec2ArrayParameter>(BASE_SPRITE_SIZE) : particles.getParameterUnsafe<Vec2ArrayParameter>(SPRITE_SIZE);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         if (this.separateAxes) {
             const exp = this._size as Vec2Expression;
             exp.bind(particles, emitter, user, context);

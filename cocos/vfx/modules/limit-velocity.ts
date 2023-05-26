@@ -28,11 +28,12 @@ import { lerp, Vec3 } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { BASE_VELOCITY, ParticleDataSet, VELOCITY } from '../particle-data-set';
 import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { Uint32Parameter, Vec3ArrayParameter, BoolParameter, Mat3Parameter } from '../parameters';
 
 const limit = new Vec3();
 const tempVelocity = new Vec3();
@@ -98,25 +99,25 @@ export class LimitVelocityModule extends VFXModule {
     @serializable
     private _limit: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(VELOCITY);
         particles.markRequiredParameter(BASE_VELOCITY);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
-        const velocity = particles.getVec3Parameter(VELOCITY);
-        const baseVelocity = particles.getVec3Parameter(BASE_VELOCITY);
-        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.getBoolParameter(IS_WORLD_SPACE).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
+        const baseVelocity = particles.getParameterUnsafe<Vec3ArrayParameter>(BASE_VELOCITY);
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
         if (this.separateAxes) {
             const exp = this._limit as Vec3Expression;
             exp.bind(particles, emitter, user, context);
             const dampen = this.dampen;
             dampen.bind(particles, emitter, user, context);
             if (needTransform) {
-                const transform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
-                const invTransform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? WORLD_TO_LOCAL_RS : LOCAL_TO_WORLD_RS).data;
+                const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
+                const invTransform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? WORLD_TO_LOCAL_RS : LOCAL_TO_WORLD_RS).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     exp.evaluate(i, limit);
                     velocity.getVec3At(srcVelocity, i);
@@ -149,8 +150,8 @@ export class LimitVelocityModule extends VFXModule {
             const dampen = this.dampen;
             dampen.bind(particles, emitter, user, context);
             if (needTransform) {
-                const transform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
-                const invTransform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? WORLD_TO_LOCAL_RS : LOCAL_TO_WORLD_RS).data;
+                const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
+                const invTransform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? WORLD_TO_LOCAL_RS : LOCAL_TO_WORLD_RS).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const limit = exp.evaluate(i);
                     velocity.getVec3At(srcVelocity, i);

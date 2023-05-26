@@ -26,12 +26,13 @@ import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { clamp, Enum, TWO_PI, Vec2, Vec3 } from '../../core';
 import { ParticleDataSet, POSITION } from '../particle-data-set';
-import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec2Expression, FloatExpression, Vec2Expression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
 import { degreesToRadians } from '../../core/utils/misc';
+import { Uint32Parameter } from '../parameters';
 
 const pos = new Vec3();
 const distrib = new Vec2();
@@ -110,7 +111,7 @@ export class SphereShapeModule extends ShapeLocationModule {
     @serializable
     private _radiusPosition: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.tick(particles, emitter, user, context);
         this.radius.tick(particles, emitter, user, context);
         if (this.distributionMode === DistributionMode.RANDOM) {
@@ -119,10 +120,10 @@ export class SphereShapeModule extends ShapeLocationModule {
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const radius = this._radius as FloatExpression;
         radius.bind(particles, emitter, user, context);
         if (this.distributionMode === DistributionMode.RANDOM) {

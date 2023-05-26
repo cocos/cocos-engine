@@ -72,66 +72,9 @@ export class ParticleDataSet extends VFXDataSet {
 
     private _count = 0;
     private _capacity = 16;
-    private _parameters: ArrayParameter[] = [];
 
     constructor () {
-        super(VFXParameterNameSpace.PARTICLE);
-    }
-
-    public getFloatParameter (identity: VFXParameterIdentity) {
-        if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.FLOAT);
-        }
-        return this.getParameterUnsafe<FloatArrayParameter>(identity);
-    }
-
-    public getVec2Parameter (identity: VFXParameterIdentity) {
-        if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.VEC2);
-        }
-        return this.getParameterUnsafe<Vec2ArrayParameter>(identity);
-    }
-
-    public getVec3Parameter (identity: VFXParameterIdentity) {
-        if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.VEC3);
-        }
-        return this.getParameterUnsafe<Vec3ArrayParameter>(identity);
-    }
-
-    public getVec4Parameter (identity: VFXParameterIdentity) {
-        if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.VEC4);
-        }
-        return this.getParameterUnsafe<Vec4ArrayParameter>(identity);
-    }
-
-    public getColorParameter (identity: VFXParameterIdentity) {
-        if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.COLOR);
-        }
-        return this.getParameterUnsafe<ColorArrayParameter>(identity);
-    }
-
-    public getUint32Parameter (identity: VFXParameterIdentity) {
-        if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.UINT32);
-        }
-        return this.getParameterUnsafe<Uint32ArrayParameter>(identity);
-    }
-
-    public getBoolParameter (identity: VFXParameterIdentity) {
-        if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.BOOL);
-        }
-        return this.getParameterUnsafe<BoolArrayParameter>(identity);
-    }
-
-    public getUint8Parameter (identity: VFXParameterIdentity) {
-        if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.UINT8);
-        }
-        return this.getParameterUnsafe<Uint8ArrayParameter>(identity);
+        super(VFXParameterNameSpace.PARTICLE, true);
     }
 
     public addParticles (count: number) {
@@ -152,9 +95,9 @@ export class ParticleDataSet extends VFXDataSet {
         }
         const lastParticle = this._count - 1;
         if (lastParticle !== handle) {
-            const parameters = this._parameters;
+            const parameters = this.parameters;
             for (let i = 0, length = this.parameterCount; i < length; i++) {
-                parameters[i].move(lastParticle, handle);
+                (parameters[i] as ArrayParameter).move(lastParticle, handle);
             }
         }
         this._count -= 1;
@@ -163,9 +106,9 @@ export class ParticleDataSet extends VFXDataSet {
     public reserve (capacity: number) {
         if (capacity <= this._capacity) return;
         this._capacity = capacity;
-        const parameters = this._parameters;
+        const parameters = this.parameters;
         for (let i = 0, length = this.parameterCount; i < length; i++) {
-            parameters[i].reserve(capacity);
+            (parameters[i] as ArrayParameter).reserve(capacity);
         }
     }
 
@@ -175,7 +118,6 @@ export class ParticleDataSet extends VFXDataSet {
 
     public reset () {
         this._count = 0;
-        this._parameters.length = 0;
         super.reset();
     }
 
@@ -186,47 +128,7 @@ export class ParticleDataSet extends VFXDataSet {
     }
 
     protected doAddParameter (identity: VFXParameterIdentity) {
-        switch (identity.type) {
-        case VFXParameterType.FLOAT:
-            this.addParameter_internal(identity.id, new FloatArrayParameter());
-            break;
-        case VFXParameterType.VEC3:
-            this.addParameter_internal(identity.id, new Vec3ArrayParameter());
-            break;
-        case VFXParameterType.COLOR:
-            this.addParameter_internal(identity.id, new ColorArrayParameter());
-            break;
-        case VFXParameterType.UINT32:
-            this.addParameter_internal(identity.id, new Uint32ArrayParameter());
-            break;
-        case VFXParameterType.BOOL:
-            this.addParameter_internal(identity.id, new BoolArrayParameter());
-            break;
-        case VFXParameterType.VEC2:
-            this.addParameter_internal(identity.id, new Vec2ArrayParameter());
-            break;
-        case VFXParameterType.VEC4:
-            this.addParameter_internal(identity.id, new Vec4ArrayParameter());
-            break;
-        case VFXParameterType.INT32:
-            this.addParameter_internal(identity.id, new Int32ArrayParameter());
-            break;
-        case VFXParameterType.UINT8:
-            this.addParameter_internal(identity.id, new Uint8ArrayParameter());
-            break;
-        case VFXParameterType.QUAT:
-            this.addParameter_internal(identity.id, new QuatArrayParameter());
-            break;
-        default:
-            throw new Error('Unknown particle parameter type!');
-        }
         const parameter = this.getParameterUnsafe<ArrayParameter>(identity);
-        this._parameters.push(parameter);
         parameter.reserve(this._capacity);
-    }
-
-    protected doRemoveParameter (parameter: VFXParameter) {
-        const index = this._parameters.indexOf(parameter as ArrayParameter);
-        this._parameters.splice(index, 1);
     }
 }

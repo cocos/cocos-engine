@@ -26,11 +26,12 @@ import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, TWO_PI, Vec3 } from '../../core';
 import { POSITION, ParticleDataSet } from '../particle-data-set';
-import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
+import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 
 const pos = new Vec3();
 @ccclass('cc.CircleLocationModule')
@@ -163,7 +164,7 @@ export class CircleLocationModule extends ShapeLocationModule {
     @serializable
     private _uniformSpiralFalloff: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.tick(particles, emitter, user, context);
         this.radius.tick(particles, emitter, user, context);
         if (this.distributionMode === DistributionMode.RANDOM) {
@@ -175,13 +176,13 @@ export class CircleLocationModule extends ShapeLocationModule {
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const radius = this._radius as FloatExpression;
         radius.bind(particles, emitter, user, context);
-        const position = particles.getVec3Parameter(POSITION);
+        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
         if (this.distributionMode === DistributionMode.RANDOM) {
             const radiusCoverage = this._radiusCoverage as FloatExpression;
             const thetaCoverage = this._thetaCoverage as FloatExpression;

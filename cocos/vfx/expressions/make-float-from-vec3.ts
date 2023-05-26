@@ -24,7 +24,7 @@
  */
 import { Enum, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ModuleExecContext } from '../module-exec-context';
+import { ContextDataSet } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
@@ -69,7 +69,7 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
         return vec3.z;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.vec3.tick(particles, emitter, user, context);
         switch (this.channel) {
         case Vec3Channel.X: this._getChannel = this._getX; break;
@@ -79,7 +79,7 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
         }
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.vec3.bind(particles, emitter, user, context);
     }
 

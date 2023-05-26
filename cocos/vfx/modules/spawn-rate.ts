@@ -26,11 +26,12 @@
 import { ccclass, serializable, type, rangeMin } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet } from '../particle-data-set';
-import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
+import { DELTA_TIME, ContextDataSet } from '../context-data-set';
 import { FloatExpression } from '../expressions/float';
 import { ConstantFloatExpression } from '../expressions';
 import { EmitterDataSet, LOOPED_AGE, SPAWN_REMAINDER } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { FloatParameter } from '../parameters';
 
 @ccclass('cc.SpawnRateModule')
 @VFXModule.register('SpawnRate', ModuleExecStageFlags.EMITTER | ModuleExecStageFlags.EVENT_HANDLER)
@@ -43,14 +44,14 @@ export class SpawnRateModule extends VFXModule {
     @rangeMin(0)
     public rate: FloatExpression = new ConstantFloatExpression(10);
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.rate.tick(particles, emitter, user, context);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext)  {
-        const deltaTime = context.getFloatParameter(DELTA_TIME).data;
-        const spawnRemainder = emitter.getFloatParameter(SPAWN_REMAINDER);
-        const loopedAge = emitter.getFloatParameter(LOOPED_AGE).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet)  {
+        const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
+        const spawnRemainder = emitter.getParameterUnsafe<FloatParameter>(SPAWN_REMAINDER);
+        const loopedAge = emitter.getParameterUnsafe<FloatParameter>(LOOPED_AGE).data;
         this.rate.bind(particles, emitter, user, context);
         const spawnRate = this.rate.evaluateSingle();
         const intervalDt = 1 / spawnRate;

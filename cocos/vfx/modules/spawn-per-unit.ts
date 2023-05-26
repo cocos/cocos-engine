@@ -25,12 +25,13 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
+import { DELTA_TIME, ContextDataSet } from '../context-data-set';
 import { FloatExpression } from '../expressions/float';
 import { ParticleDataSet } from '../particle-data-set';
 import { ConstantFloatExpression } from '../expressions';
 import { EmitterDataSet, VELOCITY } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { Vec3Parameter, FloatParameter } from '../parameters';
 
 @ccclass('cc.SpawnPerUnitModule')
 @VFXModule.register('SpawnPerUnit', ModuleExecStageFlags.EMITTER)
@@ -42,13 +43,13 @@ export class SpawnPerUnitModule extends VFXModule {
     @serializable
     public spawnSpacing: FloatExpression = new ConstantFloatExpression(0.2);
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.spawnSpacing.tick(particles, emitter, user, context);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const velocity = emitter.getVec3Parameter(VELOCITY);
-        const deltaTime = context.getFloatParameter(DELTA_TIME).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const velocity = emitter.getParameterUnsafe<Vec3Parameter>(VELOCITY).data;
+        const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
         this.spawnSpacing.bind(particles, emitter, user, context);
         emitter.spawnContinuousCount += velocity.length() * (1 / this.spawnSpacing.evaluateSingle()) * deltaTime;
     }

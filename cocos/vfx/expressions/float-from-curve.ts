@@ -24,7 +24,7 @@
  */
 import { RealCurve } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ModuleExecContext } from '../module-exec-context';
+import { ContextDataSet } from '../context-data-set';
 import { ParticleDataSet } from '../particle-data-set';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
@@ -57,12 +57,12 @@ export class FloatFromCurveExpression extends FloatExpression {
         }
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.scale.tick(particles, emitter, user, context);
         this.curveIndex.tick(particles, emitter, user, context);
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.curveIndex.bind(particles, emitter, user, context);
         this.scale.bind(particles, emitter, user, context);
     }

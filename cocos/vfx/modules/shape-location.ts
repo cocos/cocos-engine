@@ -27,7 +27,7 @@ import { ccclass, serializable, type } from 'cc.decorator';
 import { Mat4, Quat, Vec3 } from '../../core';
 import { VFXModule } from '../vfx-module';
 import { ParticleDataSet, POSITION } from '../particle-data-set';
-import { ModuleExecContext } from '../module-exec-context';
+import { ContextDataSet } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { Vec3ArrayParameter } from '../parameters';
@@ -116,7 +116,7 @@ export abstract class ShapeLocationModule extends VFXModule {
     private _mat = new Mat4();
     protected storePosition = this.storePositionFast;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.position.tick(particles, emitter, user, context);
         this.rotation.tick(particles, emitter, user, context);
         this.scale.tick(particles, emitter, user, context);
@@ -124,7 +124,7 @@ export abstract class ShapeLocationModule extends VFXModule {
         particles.markRequiredParameter(POSITION);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         const position = this._position as Vec3Expression;
         const rotation = this._rotation as Vec3Expression;
         const scale = this._scale as Vec3Expression;

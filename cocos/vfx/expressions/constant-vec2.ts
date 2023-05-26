@@ -24,7 +24,7 @@
  */
 import { CCFloat, Vec3, serializable, Vec2 } from '../../core';
 import { ccclass, type } from '../../core/data/class-decorator';
-import { ModuleExecContext } from '../module-exec-context';
+import { ContextDataSet } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -50,8 +50,8 @@ export class ConstantVec2Expression extends Vec2Expression {
         this.y = val.y;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {}
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {}
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
 
     public evaluate (index: number, out: Vec2) {
         out.x = this.x;

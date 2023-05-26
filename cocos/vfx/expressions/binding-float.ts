@@ -24,13 +24,14 @@
  */
 
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ModuleExecContext } from '../module-exec-context';
+import { ContextDataSet } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { VFXParameterNameSpace } from '../define';
 import { ParticleDataSet } from '../particle-data-set';
 import { UserDataSet } from '../user-data-set';
 import { FloatExpression } from './float';
 import { VFXParameterIdentity } from '../vfx-parameter';
+import { FloatArrayParameter, FloatParameter } from '../parameters';
 
 @ccclass('cc.BindingFloatExpression')
 export class BindingFloatExpression extends FloatExpression {
@@ -66,13 +67,13 @@ export class BindingFloatExpression extends FloatExpression {
         this._bindingParameter = vfxParameterIdentity;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (this._bindingParameter?.namespace === VFXParameterNameSpace.PARTICLE) {
             particles.markRequiredParameter(this._bindingParameter);
         }
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (!this._bindingParameter) {
             this._getFloat = this._getConstant;
             this._constant = 0;
@@ -80,19 +81,19 @@ export class BindingFloatExpression extends FloatExpression {
         }
         switch (this._bindingParameter.namespace) {
         case VFXParameterNameSpace.PARTICLE:
-            this._data = particles.getFloatParameter(this._bindingParameter).data;
+            this._data = particles.getParameterUnsafe<FloatArrayParameter>(this._bindingParameter).data;
             this._getFloat = this._getFloatAt;
             break;
         case VFXParameterNameSpace.EMITTER:
-            this._constant = emitter.getFloatParameter(this._bindingParameter).data;
+            this._constant = emitter.getParameterUnsafe<FloatParameter>(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
         case VFXParameterNameSpace.USER:
-            this._constant = user.getFloatParameter(this._bindingParameter).data;
+            this._constant = user.getParameterUnsafe<FloatParameter>(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
         case VFXParameterNameSpace.CONTEXT:
-            this._constant = context.getFloatParameter(this._bindingParameter).data;
+            this._constant = context.getParameterUnsafe<FloatParameter>(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
         default:

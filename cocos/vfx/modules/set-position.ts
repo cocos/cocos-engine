@@ -26,11 +26,12 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { POSITION, ParticleDataSet } from '../particle-data-set';
-import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { Vec3 } from '../../core';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { Vec3ArrayParameter, Uint32Parameter } from '../parameters';
 
 const tempPos = new Vec3();
 
@@ -44,15 +45,15 @@ export class SetPositionModule extends VFXModule {
     @serializable
     public position: Vec3Expression = new ConstantVec3Expression();
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(POSITION);
         this.position.tick(particles, emitter, user, context);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const position = particles.getVec3Parameter(POSITION);
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const exp = this.position;
         exp.bind(particles, emitter, user, context);
         if (exp.isConstant) {

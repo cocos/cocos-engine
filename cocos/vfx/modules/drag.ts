@@ -27,12 +27,12 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3, CCBoolean, Enum, Vec2 } from '../../core';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY } from '../particle-data-set';
 import { ConstantFloatExpression } from '../expressions';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
-import { Vec2ArrayParameter, Vec3ArrayParameter } from '../parameters';
+import { Uint32Parameter, Vec2ArrayParameter, Vec3ArrayParameter } from '../parameters';
 
 const _tempVec3 = new Vec3();
 const _tempVec2 = new Vec2();
@@ -78,7 +78,7 @@ export class DragModule extends VFXModule {
     @serializable
     private _radius: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(POSITION);
         particles.markRequiredParameter(BASE_VELOCITY);
         particles.markRequiredParameter(VELOCITY);
@@ -86,19 +86,19 @@ export class DragModule extends VFXModule {
         this.drag.tick(particles, emitter, user, context);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(PHYSICS_FORCE);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const exp = this.drag;
         exp.bind(particles, emitter, user, context);
         const multiplyByRadius = this.multiplyByRadius;
         const radiusSource = this.radiusSource;
-        const spriteSize = multiplyByRadius && radiusSource === RadiusSource.SPRITE_SIZE ? particles.getVec2Parameter(SPRITE_SIZE) : null;
-        const scale = multiplyByRadius && radiusSource === RadiusSource.MESH_SCALE ? particles.getVec3Parameter(SCALE) : null;
+        const spriteSize = multiplyByRadius && radiusSource === RadiusSource.SPRITE_SIZE ? particles.getParameterUnsafe<Vec2ArrayParameter>(SPRITE_SIZE) : null;
+        const scale = multiplyByRadius && radiusSource === RadiusSource.MESH_SCALE ? particles.getParameterUnsafe<Vec3ArrayParameter>(SCALE) : null;
         const radius = multiplyByRadius && radiusSource === RadiusSource.CUSTOM ? this.radius : null;
         const multiplyBySpeed = this.multiplyBySpeed;
-        const velocity = particles.getVec3Parameter(VELOCITY);
+        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
 
         for (let i = fromIndex; i < toIndex; i++) {
             let drag = exp.evaluate(i);

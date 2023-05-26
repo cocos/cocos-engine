@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ModuleExecContext } from './module-exec-context';
+import { ContextDataSet } from './context-data-set';
 import { ParticleDataSet } from './particle-data-set';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { assertIsTrue, CCBoolean, CCString } from '../core';
@@ -198,12 +198,12 @@ export abstract class VFXModule {
      * @engineInternal
      * @internal
      */
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {}
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
     /**
      * @engineInternal
      * @internal
      */
-    public abstract execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext);
+    public abstract execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet);
     /**
      * @engineInternal
      * @internal
@@ -333,7 +333,7 @@ export class VFXModuleStage {
      * @engineInternal
      * @internal
      */
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         context.setExecutionStage(this._execStage);
         const modules = this._modules;
         for (let i = 0, length = modules.length; i < length; i++) {
@@ -351,7 +351,7 @@ export class VFXModuleStage {
      * @engineInternal
      * @internal
      */
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         context.setExecutionStage(this._execStage);
         const modules = this._modules;
         for (let i = 0, length = modules.length; i < length; i++) {

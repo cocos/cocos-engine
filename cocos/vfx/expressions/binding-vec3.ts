@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass } from '../../core/data/decorators';
-import { ModuleExecContext } from '../module-exec-context';
+import { ContextDataSet } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { VFXParameterNameSpace } from '../define';
 import { ParticleDataSet } from '../particle-data-set';
@@ -58,15 +58,15 @@ export class BindingVec3Expression extends Vec3Expression {
         this._bindParameter = vfxParameterIdentity;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (this._bindParameter?.namespace === VFXParameterNameSpace.PARTICLE) {
             particles.markRequiredParameter(this._bindParameter);
         }
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (this._bindParameter?.namespace === VFXParameterNameSpace.PARTICLE) {
-            this._data = particles.getVec3Parameter(this._bindParameter);
+            this._data = particles.getParameterUnsafe<Vec3ArrayParameter>(this._bindParameter);
             this._getVec3 = this._getVec3At;
         } else {
             this._getVec3 = this._getConstant;

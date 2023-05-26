@@ -26,11 +26,12 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
-import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { EmitterDataSet, IS_WORLD_SPACE, WORLD_TO_LOCAL_RS } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { Vec3ArrayParameter, Uint32Parameter, BoolParameter, Mat3Parameter } from '../parameters';
 
 const gravity = new Vec3();
 @ccclass('cc.GravityModule')
@@ -51,7 +52,7 @@ export class GravityModule extends VFXModule {
     @serializable
     private _gravity: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(POSITION);
         particles.markRequiredParameter(BASE_VELOCITY);
         particles.markRequiredParameter(VELOCITY);
@@ -59,15 +60,15 @@ export class GravityModule extends VFXModule {
         this.gravity.tick(particles, emitter, user, context);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
-        const needTransform = !emitter.getBoolParameter(IS_WORLD_SPACE).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(PHYSICS_FORCE);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const needTransform = !emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
         const exp = this._gravity as Vec3Expression;
         exp.bind(particles, emitter, user, context);
         if (needTransform) {
-            const transform = emitter.getMat3Parameter(WORLD_TO_LOCAL_RS).data;
+            const transform = emitter.getParameterUnsafe<Mat3Parameter>(WORLD_TO_LOCAL_RS).data;
             if (exp.isConstant) {
                 const force = Vec3.transformMat3(gravity, exp.evaluate(0, gravity), transform);
                 for (let i = fromIndex; i < toIndex; i++) {

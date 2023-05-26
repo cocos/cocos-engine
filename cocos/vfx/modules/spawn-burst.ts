@@ -27,10 +27,11 @@ import { ccclass, serializable, type, range, editable, rangeMin } from 'cc.decor
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet } from '../particle-data-set';
-import { DELTA_TIME, ModuleExecContext } from '../module-exec-context';
+import { DELTA_TIME, ContextDataSet } from '../context-data-set';
 import { ConstantFloatExpression } from '../expressions';
 import { EmitterDataSet, LOOPED_AGE } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { FloatParameter } from '../parameters';
 
 @ccclass('cc.SpawnBurstModule')
 @VFXModule.register('SpawnBurst', ModuleExecStageFlags.EMITTER)
@@ -72,14 +73,14 @@ export class SpawnBurstModule extends VFXModule {
     private _time: FloatExpression | null = null;
     private _count: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext): void {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet): void {
         this.count.tick(particles, emitter, user, context);
         this.time.tick(particles, emitter, user, context);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const loopAge = emitter.getFloatParameter(LOOPED_AGE).data;
-        const deltaTime = context.getFloatParameter(DELTA_TIME).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const loopAge = emitter.getParameterUnsafe<FloatParameter>(LOOPED_AGE).data;
+        const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
 
         this.count.bind(particles, emitter, user, context);
         this.time.bind(particles, emitter, user, context);

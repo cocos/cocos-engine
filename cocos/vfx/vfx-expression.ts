@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass } from '../core/data/decorators';
-import { ModuleExecContext } from './module-exec-context';
+import { ContextDataSet } from './context-data-set';
 import { EmitterDataSet } from './emitter-data-set';
 import { VFXParameterType } from './define';
 import { ParticleDataSet } from './particle-data-set';
@@ -33,6 +33,6 @@ import { UserDataSet } from './user-data-set';
 export abstract class VFXExpression {
     public abstract get valueType (): VFXParameterType;
     public abstract get isConstant (): boolean;
-    public abstract tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext): void;
-    public abstract bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext): void;
+    public abstract tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet): void;
+    public abstract bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet): void;
 }

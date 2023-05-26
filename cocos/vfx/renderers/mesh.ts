@@ -33,6 +33,7 @@ import { AlignmentSpace } from '../define';
 import { COLOR, MESH_ORIENTATION, ParticleDataSet, POSITION, SCALE, SUB_UV_INDEX, VELOCITY } from '../particle-data-set';
 import { CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshColorRGBA8, meshNormal, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, RENDER_MODE_MESH, ROTATION_OVER_TIME_MODULE_ENABLE, ParticleRenderer } from '../particle-renderer';
 import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_ROTATION, RENDER_SCALE, WORLD_ROTATION } from '../emitter-data-set';
+import { Vec3ArrayParameter, FloatArrayParameter, ColorArrayParameter, QuatParameter, Vec3Parameter, BoolParameter } from '../parameters';
 
 @ccclass('cc.MeshParticleRenderer')
 export class MeshParticleRenderer extends ParticleRenderer {
@@ -88,7 +89,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
         const dynamicBufferUintView = this._dynamicBufferUintView;
         const vertexStreamSizeDynamic = this._vertexStreamSize;
         if (particles.hasParameter(POSITION)) {
-            const position = particles.getVec3Parameter(POSITION).data;
+            const position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION).data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 const xOffset = i * 3;
@@ -100,7 +101,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
             }
         }
         if (particles.hasParameter(MESH_ORIENTATION)) {
-            const rotation = particles.getVec3Parameter(MESH_ORIENTATION).data;
+            const rotation = particles.getParameterUnsafe<Vec3ArrayParameter>(MESH_ORIENTATION).data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 const xOffset = i * 3;
@@ -112,7 +113,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
             }
         }
         if (particles.hasParameter(SCALE)) {
-            const scale = particles.getVec3Parameter(SCALE).data;
+            const scale = particles.getParameterUnsafe<Vec3ArrayParameter>(SCALE).data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 const xOffset = i * 3;
@@ -124,21 +125,21 @@ export class MeshParticleRenderer extends ParticleRenderer {
             }
         }
         if (particles.hasParameter(SUB_UV_INDEX)) {
-            const subUVIndex = particles.getFloatParameter(SUB_UV_INDEX);
+            const subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(SUB_UV_INDEX);
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 dynamicBuffer[offset + 9] = subUVIndex[i];
             }
         }
         if (particles.hasParameter(COLOR)) {
-            const color = particles.getColorParameter(COLOR).data;
+            const color = particles.getParameterUnsafe<ColorArrayParameter>(COLOR).data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 dynamicBufferUintView[offset + 10] = color[i];
             }
         }
         if (particles.hasParameter(VELOCITY)) {
-            const velocity = particles.getVec3Parameter(VELOCITY);
+            const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
             const velocityData = velocity.data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
@@ -163,9 +164,9 @@ export class MeshParticleRenderer extends ParticleRenderer {
     private _updateRotation (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let currentRotation: Quat;
         if (this._alignmentSpace === AlignmentSpace.LOCAL) {
-            currentRotation = emitter.getQuatParameter(LOCAL_ROTATION).data;
+            currentRotation = emitter.getParameterUnsafe<QuatParameter>(LOCAL_ROTATION).data;
         } else if (this._alignmentSpace === AlignmentSpace.WORLD) {
-            currentRotation = emitter.getQuatParameter(WORLD_ROTATION).data;
+            currentRotation = emitter.getParameterUnsafe<QuatParameter>(WORLD_ROTATION).data;
         } else if (this._alignmentSpace === AlignmentSpace.VIEW) {
             currentRotation = Quat.IDENTITY;
             // const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
@@ -190,7 +191,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
     }
 
     private _updateRenderScale (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
-        const renderScale = emitter.getVec3Parameter(RENDER_SCALE).data;
+        const renderScale = emitter.getParameterUnsafe<Vec3Parameter>(RENDER_SCALE).data;
         if (!Vec3.equals(renderScale, this._renderScale)) {
             this._renderScale.set(renderScale.x, renderScale.y, renderScale.z);
             material.setProperty('scale', this._renderScale);
@@ -199,7 +200,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
 
     private _compileMaterial (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let needRecompile = false;
-        const isWorldSpace = emitter.getBoolParameter(IS_WORLD_SPACE).data;
+        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
         if (this._defines[CC_USE_WORLD_SPACE] !== isWorldSpace) {
             this._defines[CC_USE_WORLD_SPACE] = isWorldSpace;
             needRecompile = true;

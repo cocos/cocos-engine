@@ -26,9 +26,10 @@ import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { Enum } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { INV_START_LIFETIME, IS_DEAD, NORMALIZED_AGE, ParticleDataSet } from '../particle-data-set';
-import { DELTA_TIME, FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { UserDataSet } from '../user-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
+import { FloatArrayParameter, FloatParameter, Uint32Parameter, BoolArrayParameter } from '../parameters';
 
 export enum LifetimeElapsedOperation {
     KILL,
@@ -44,7 +45,7 @@ export class StateModule extends VFXModule {
     @serializable
     public lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.KILL) {
             particles.markRequiredParameter(IS_DEAD);
         }
@@ -52,12 +53,12 @@ export class StateModule extends VFXModule {
         particles.markRequiredParameter(INV_START_LIFETIME);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const normalizedAge = particles.getFloatParameter(NORMALIZED_AGE).data;
-        const invStartLifeTime = particles.getFloatParameter(INV_START_LIFETIME).data;
-        const deltaTime = context.getFloatParameter(DELTA_TIME).data;
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(NORMALIZED_AGE).data;
+        const invStartLifeTime = particles.getParameterUnsafe<FloatArrayParameter>(INV_START_LIFETIME).data;
+        const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.LOOP_LIFETIME) {
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
                 normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
@@ -73,7 +74,7 @@ export class StateModule extends VFXModule {
                 }
             }
         } else {
-            const isDead = particles.getBoolParameter(IS_DEAD).data;
+            const isDead = particles.getParameterUnsafe<BoolArrayParameter>(IS_DEAD).data;
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
                 normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
                 if (normalizedAge[particleHandle] > 1) {

@@ -27,10 +27,11 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { BASE_VELOCITY, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
-import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { EmitterDataSet, IS_WORLD_SPACE, VELOCITY as EMITTER_VELOCITY } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { BoolParameter, Uint32Parameter, Vec3Parameter, Vec3ArrayParameter } from '../parameters';
 
 const tempVelocity = new Vec3();
 const scale = new Vec3();
@@ -51,8 +52,8 @@ export class InheritVelocityModule extends VFXModule {
     @serializable
     private _scale: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        if (!emitter.getBoolParameter(IS_WORLD_SPACE).data) { return; }
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        if (!emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data) { return; }
         this.scale.tick(particles, emitter, user, context);
         particles.markRequiredParameter(POSITION);
         particles.markRequiredParameter(VELOCITY);
@@ -61,12 +62,12 @@ export class InheritVelocityModule extends VFXModule {
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
-        const initialVelocity = emitter.getVec3Parameter(EMITTER_VELOCITY).data;
-        if (!emitter.getBoolParameter(IS_WORLD_SPACE).data) { return; }
-        const velocity = particles.getVec3Parameter(context.executionStage === ModuleExecStage.SPAWN ? BASE_VELOCITY : VELOCITY);
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const initialVelocity = emitter.getParameterUnsafe<Vec3Parameter>(EMITTER_VELOCITY).data;
+        if (!emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data) { return; }
+        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? BASE_VELOCITY : VELOCITY);
         const exp = this._scale as Vec3Expression;
         exp.bind(particles, emitter, user, context);
         if (exp.isConstant) {

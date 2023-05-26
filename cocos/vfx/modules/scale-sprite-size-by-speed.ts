@@ -28,10 +28,11 @@ import { lerp, math, Vec2, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
 import { ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY } from '../particle-data-set';
-import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec2Expression, ConstantVec3Expression, Vec2Expression, Vec3Expression } from '../expressions';
+import { Uint32Parameter, Vec2ArrayParameter, Vec3ArrayParameter } from '../parameters';
 
 const tempVelocity = new Vec3();
 const tempScalar = new Vec2();
@@ -121,7 +122,7 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
     @serializable
     private _maxScalar: Vec2Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(SCALE);
         if (this.separateAxes) {
             this.maxScalar.tick(particles, emitter, user, context);
@@ -134,13 +135,13 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
         this.maxSpeedThreshold.tick(particles, emitter, user, context);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const hasVelocity = particles.hasParameter(VELOCITY);
         if (!hasVelocity) { return; }
-        const spriteSize = particles.getVec2Parameter(SPRITE_SIZE);
-        const velocity = particles.getVec3Parameter(VELOCITY);
+        const spriteSize = particles.getParameterUnsafe<Vec2ArrayParameter>(SPRITE_SIZE);
+        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
         const minSpeedThreshold = this.minSpeedThreshold;
         const maxSpeedThreshold = this.maxSpeedThreshold;
         minSpeedThreshold.bind(particles, emitter, user, context);

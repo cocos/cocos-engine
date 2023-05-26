@@ -1,5 +1,5 @@
 import { ConstantFloatExpression } from "../../../cocos/vfx/expressions/constant-float";
-import { ModuleExecContext } from "../../../cocos/vfx/base";
+import { ContextDataSet } from "../../../cocos/vfx/base";
 import { ParticleDataSet } from "../../../cocos/vfx/particle-data-set";
 import { RandomStream } from "../../../cocos/vfx/random-stream";
 
@@ -8,7 +8,7 @@ describe('ConstantFloatExpression', () => {
         const particles = new ParticleDataSet();
         particles.addParticles(5);
         const params = new VFXEmitterParams();
-        const context = new ModuleExecContext();
+        const context = new ContextDataSet();
         for (let i = 0; i < 100; ++i) {
             const val = Math.random() * 100;
             const expression = new ConstantFloatExpression(val);
@@ -24,7 +24,7 @@ describe('ConstantFloatExpression', () => {
     test('evaluateSingle', () => {
         const val = Math.random() * 100;
         const expression = new ConstantFloatExpression(val);
-        const context = new ModuleExecContext();
+        const context = new ContextDataSet();
         const randomStream = new RandomStream();
         expect(expression.evaluateSingle(-0.5, randomStream, context)).toBe(val);
         expect(expression.evaluateSingle(0, randomStream, context)).toBe(val);

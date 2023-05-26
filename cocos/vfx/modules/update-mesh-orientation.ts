@@ -27,12 +27,13 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { DELTA_TIME, FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { MESH_ORIENTATION, ParticleDataSet } from '../particle-data-set';
 import { Vec3Expression } from '../expressions/vec3';
 import { ConstantVec3Expression } from '../expressions';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
+import { Vec3ArrayParameter, FloatParameter, Uint32Parameter } from '../parameters';
 
 const eulerAngle = new Vec3();
 
@@ -57,16 +58,16 @@ export class UpdateMeshOrientationModule extends VFXModule {
     @serializable
     private _rotationRate: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(MESH_ORIENTATION);
         this.rotationRate.tick(particles, emitter, user, context);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const meshOrientation = particles.getVec3Parameter(MESH_ORIENTATION);
-        const deltaTime = context.getFloatParameter(DELTA_TIME).data;
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const meshOrientation = particles.getParameterUnsafe<Vec3ArrayParameter>(MESH_ORIENTATION);
+        const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
 
         const exp = this._rotationRate as Vec3Expression;
         exp.bind(particles, emitter, user, context);

@@ -24,7 +24,7 @@
  */
 import { Vec3, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/class-decorator';
-import { ModuleExecContext } from '../module-exec-context';
+import { ContextDataSet } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet } from '../particle-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -50,12 +50,12 @@ export class MakeVec3Expression extends Vec3Expression {
         return this.x.isConstant && this.y.isConstant && this.z.isConstant;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.x.tick(particles, emitter, user, context);
         this.y.tick(particles, emitter, user, context);
         this.z.tick(particles, emitter, user, context);
     }
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.x.bind(particles, emitter, user, context);
         this.y.bind(particles, emitter, user, context);
         this.z.bind(particles, emitter, user, context);

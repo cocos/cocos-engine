@@ -24,7 +24,7 @@
  */
 import { lerp } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ModuleExecContext } from '../module-exec-context';
+import { ContextDataSet } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { ParticleDataSet, RANDOM_SEED } from '../particle-data-set';
 import { RandomStream } from '../random-stream';
@@ -32,6 +32,7 @@ import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { ModuleExecStage } from '../vfx-module';
+import { Uint32ArrayParameter } from '../parameters';
 
 @ccclass('cc.RandomRangeFloat')
 export class RandomRangeFloatExpression extends FloatExpression {
@@ -51,7 +52,7 @@ export class RandomRangeFloatExpression extends FloatExpression {
     private _randomOffset = 0;
     private declare _randomStream: RandomStream;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.maximum.tick(particles, emitter, user, context);
         this.minimum.tick(particles, emitter, user, context);
         if (context.executionStage === ModuleExecStage.UPDATE) {
@@ -59,11 +60,11 @@ export class RandomRangeFloatExpression extends FloatExpression {
         }
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.maximum.bind(particles, emitter, user, context);
         this.minimum.bind(particles, emitter, user, context);
         if (context.executionStage === ModuleExecStage.UPDATE) {
-            this._seed = particles.getUint32Parameter(RANDOM_SEED).data;
+            this._seed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
             this._randomOffset = context.moduleRandomSeed;
         } else {
             this._randomStream = context.moduleRandomStream;

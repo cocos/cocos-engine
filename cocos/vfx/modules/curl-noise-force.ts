@@ -28,12 +28,13 @@ import { Enum, clamp, Vec2, Vec3, RealCurve } from '../../core';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet, PHYSICS_FORCE, POSITION, VELOCITY } from '../particle-data-set';
-import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXEmitterState } from '../vfx-emitter';
+import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 
 export class PerlinNoise1DCache {
     i0 = 0;
@@ -515,7 +516,7 @@ export class CurlNoiseForceModule extends VFXModule {
         this._offset.multiplyScalar(100);
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(POSITION);
         particles.markRequiredParameter(VELOCITY);
         particles.markRequiredParameter(PHYSICS_FORCE);
@@ -527,15 +528,15 @@ export class CurlNoiseForceModule extends VFXModule {
         this.panSpeed.tick(particles, emitter, user, context);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const frequencyExp = this._frequency as FloatExpression;
         const offset = this._offset;
-        const samplePosition = particles.getVec3Parameter(POSITION);
+        const samplePosition = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
         const separateAxes = this.separateAxes;
         const remap = this.enableRemap;
-        const physicsForce = particles.getVec3Parameter(PHYSICS_FORCE);
+        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(PHYSICS_FORCE);
         if (separateAxes) {
             (this._strength as Vec3Expression).bind(particles, emitter, user, context);
         } else {

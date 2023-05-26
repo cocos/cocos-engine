@@ -26,7 +26,7 @@ import { ccclass, serializable, tooltip, type } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, toDegree, toRadian, Vec3 } from '../../core';
 import { POSITION, ParticleDataSet } from '../particle-data-set';
-import { ModuleExecContext } from '../module-exec-context';
+import { ContextDataSet } from '../context-data-set';
 import { AngleBasedLocationModule } from './angle-based-location';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
@@ -79,7 +79,7 @@ export class ConeLocationModule extends AngleBasedLocationModule {
     private _cosAngle = 0;
     private _innerRadius = 0;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.tick(particles, emitter, user, context);
         this._sinAngle = Math.sin(this._angle);
         this._cosAngle = Math.cos(this._angle);

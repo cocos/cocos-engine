@@ -27,10 +27,11 @@ import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { CCBoolean, Vec3 } from '../../core';
 import { ParticleDataSet, POSITION } from '../particle-data-set';
-import { FROM_INDEX, ModuleExecContext, TO_INDEX } from '../module-exec-context';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
 import { EmitterDataSet } from '../emitter-data-set';
 import { UserDataSet } from '../user-data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
+import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 
 const tempPosition = new Vec3();
 const pos = new Vec3();
@@ -89,7 +90,7 @@ export class BoxLocationModule extends ShapeLocationModule {
     @serializable
     private _boxCenter: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.tick(particles, emitter, user, context);
         this.boxSize.tick(particles, emitter, user, context);
         this.boxCenter.tick(particles, emitter, user, context);
@@ -98,15 +99,15 @@ export class BoxLocationModule extends ShapeLocationModule {
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ModuleExecContext) {
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
         const boxSize = this._boxSize as Vec3Expression;
         const boxCenter = this._boxCenter as Vec3Expression;
         boxSize.bind(particles, emitter, user, context);
         boxCenter.bind(particles, emitter, user, context);
-        const fromIndex = context.getUint32Parameter(FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(TO_INDEX).data;
-        const position = particles.getVec3Parameter(POSITION);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
         const rand = this.randomStream;
         if (!this.surfaceOnly) {
             for (let i = fromIndex; i < toIndex; ++i) {
