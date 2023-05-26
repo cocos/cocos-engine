@@ -28,7 +28,7 @@ import { LightInfo, QueueHint, SceneFlags } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
 import { passContext } from '../utils/pass-context';
-import { BasePass, GetRTFormatBeforeToneMapping } from './base-pass';
+import { BasePass, getRTFormatBeforeToneMapping } from './base-pass';
 import { ShadowPass } from './shadow-pass';
 
 export class ForwardTransparencyPass extends BasePass {
@@ -52,7 +52,7 @@ export class ForwardTransparencyPass extends BasePass {
         passContext
             .updatePassViewPort()
             .addRenderPass('default', `${this.name}_${cameraID}`)
-            .addRasterView(output, GetRTFormatBeforeToneMapping(ppl), isOffScreen)
+            .addRasterView(output, getRTFormatBeforeToneMapping(ppl), isOffScreen)
             .addRasterView(outputDS, Format.DEPTH_STENCIL, isOffScreen)
             .version();
 

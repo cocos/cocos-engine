@@ -7,6 +7,7 @@ import { passContext } from '../utils/pass-context';
 
 import { getSetting, SettingPass } from './setting-pass';
 import { Bloom } from '../components';
+import { disablePostProcessForDebugView } from './base-pass';
 
 const MAX_BLOOM_FILTER_PASS_NUM = 6;
 const BLOOM_DOWNSAMPLEPASS_INDEX = 1;
@@ -14,6 +15,14 @@ const BLOOM_UPSAMPLEPASS_INDEX = BLOOM_DOWNSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_P
 const BLOOM_COMBINEPASS_INDEX = BLOOM_UPSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_PASS_NUM;
 export class BloomPass extends SettingPass {
     get setting () { return getSetting(Bloom); }
+
+    checkEnable (camera: Camera) {
+        let enable = super.checkEnable(camera);
+        if (disablePostProcessForDebugView()) {
+            enable = false;
+        }
+        return enable;
+    }
 
     name = 'BloomPass'
     effectName = 'pipeline/post-process/bloom';
