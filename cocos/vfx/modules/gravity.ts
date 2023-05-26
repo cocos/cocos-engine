@@ -25,12 +25,12 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
+import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY } from '../data-set/particle';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
 import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { EmitterDataSet, IS_WORLD_SPACE, WORLD_TO_LOCAL_RS } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet, IS_WORLD_SPACE, WORLD_TO_LOCAL_RS } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { Vec3ArrayParameter, Uint32Parameter, BoolParameter, Mat3Parameter } from '../parameters';
 
 const gravity = new Vec3();

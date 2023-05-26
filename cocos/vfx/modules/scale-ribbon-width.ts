@@ -26,10 +26,10 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { BASE_RIBBON_WIDTH, NORMALIZED_AGE, ParticleDataSet, RIBBON_WIDTH, SPRITE_SIZE } from '../particle-data-set';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
-import { EmitterDataSet } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { BASE_RIBBON_WIDTH, NORMALIZED_AGE, ParticleDataSet, RIBBON_WIDTH, SPRITE_SIZE } from '../data-set/particle';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { EmitterDataSet } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { ConstantFloatExpression } from '../expressions';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
 

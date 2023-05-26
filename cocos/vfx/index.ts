@@ -48,5 +48,4 @@ export * from './modules';
 export * from './expressions';
 export * from './renderers';
 export * from './parameters';
-export * from './emitter-data-set';
-export * from './user-data-set';
+export * from './data-set';

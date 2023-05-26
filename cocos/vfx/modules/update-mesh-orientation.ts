@@ -27,12 +27,12 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
-import { MESH_ORIENTATION, ParticleDataSet } from '../particle-data-set';
+import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { MESH_ORIENTATION, ParticleDataSet } from '../data-set/particle';
 import { Vec3Expression } from '../expressions/vec3';
 import { ConstantVec3Expression } from '../expressions';
-import { EmitterDataSet } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { Vec3ArrayParameter, FloatParameter, Uint32Parameter } from '../parameters';
 
 const eulerAngle = new Vec3();

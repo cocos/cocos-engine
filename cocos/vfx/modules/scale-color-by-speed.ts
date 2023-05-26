@@ -24,12 +24,12 @@
  */
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { ColorExpression } from '../expressions/color';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { COLOR, ParticleDataSet, VELOCITY } from '../particle-data-set';
+import { COLOR, ParticleDataSet, VELOCITY } from '../data-set/particle';
 import { Color, math, Vec3 } from '../../core';
-import { UserDataSet } from '../user-data-set';
-import { EmitterDataSet } from '../emitter-data-set';
+import { UserDataSet } from '../data-set/user';
+import { EmitterDataSet } from '../data-set/emitter';
 import { ConstantColorExpression, ConstantFloatExpression, FloatExpression } from '../expressions';
 import { Uint32Parameter, Vec3ArrayParameter, ColorArrayParameter } from '../parameters';
 

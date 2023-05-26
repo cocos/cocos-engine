@@ -27,11 +27,11 @@ import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, EPSILON, Vec3 } from '../../core';
 import { VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { COLOR, ID, IS_DEAD, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY } from '../particle-data-set';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
+import { COLOR, ID, IS_DEAD, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY } from '../data-set/particle';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
 import { RandomStream } from '../random-stream';
-import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { Vec3ArrayParameter, ColorArrayParameter, Uint32Parameter, Mat4Parameter, Uint32ArrayParameter, BoolArrayParameter, BoolParameter } from '../parameters';
 import { VFXEventInfo } from '../vfx-events';
 

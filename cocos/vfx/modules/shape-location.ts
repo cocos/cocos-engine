@@ -26,10 +26,10 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Mat4, Quat, Vec3 } from '../../core';
 import { VFXModule } from '../vfx-module';
-import { ParticleDataSet, POSITION } from '../particle-data-set';
-import { ContextDataSet } from '../context-data-set';
-import { EmitterDataSet } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { ParticleDataSet, POSITION } from '../data-set/particle';
+import { ContextDataSet } from '../data-set/context';
+import { EmitterDataSet } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { Vec3ArrayParameter } from '../parameters';
 import { BindingVec3Expression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 

@@ -23,12 +23,12 @@
  THE SOFTWARE.
  */
 
-import { ModuleExecStage } from './vfx-module';
-import { RandomStream } from './random-stream';
-import { VFXEvents } from './vfx-events';
-import { VFXParameterIdentity } from './vfx-parameter';
-import { VFXParameterNameSpace, VFXParameterType } from './define';
-import { VFXDataSet } from './vfx-data-set';
+import { ModuleExecStage } from '../vfx-module';
+import { RandomStream } from '../random-stream';
+import { VFXEvents } from '../vfx-events';
+import { VFXParameterIdentity } from '../vfx-parameter';
+import { VFXParameterNameSpace, VFXParameterType } from '../define';
+import { VFXDataSet } from '../vfx-data-set';
 
 let builtinContextParameterId = 50000;
 

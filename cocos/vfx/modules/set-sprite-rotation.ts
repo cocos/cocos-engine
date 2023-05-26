@@ -25,12 +25,12 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, SPRITE_ROTATION } from '../particle-data-set';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
+import { ParticleDataSet, SPRITE_ROTATION } from '../data-set/particle';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
 import { FloatExpression } from '../expressions/float';
 import { ConstantFloatExpression } from '../expressions';
-import { EmitterDataSet } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
 
 @ccclass('cc.SetSpriteRotationModule')

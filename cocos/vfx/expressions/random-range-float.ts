@@ -24,11 +24,11 @@
  */
 import { lerp } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet } from '../context-data-set';
-import { EmitterDataSet } from '../emitter-data-set';
-import { ParticleDataSet, RANDOM_SEED } from '../particle-data-set';
+import { ContextDataSet } from '../data-set/context';
+import { EmitterDataSet } from '../data-set/emitter';
+import { ParticleDataSet, RANDOM_SEED } from '../data-set/particle';
 import { RandomStream } from '../random-stream';
-import { UserDataSet } from '../user-data-set';
+import { UserDataSet } from '../data-set/user';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { ModuleExecStage } from '../vfx-module';

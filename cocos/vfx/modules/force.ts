@@ -27,11 +27,11 @@ import { ccclass, tooltip, type, serializable } from 'cc.decorator';
 import { Vec3, Enum } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
-import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY } from '../data-set/particle';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { UserDataSet } from '../user-data-set';
-import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../emitter-data-set';
+import { UserDataSet } from '../data-set/user';
+import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../data-set/emitter';
 import { Vec3ArrayParameter, Uint32Parameter, BoolParameter, Mat3Parameter } from '../parameters';
 
 const _temp_v3 = new Vec3();

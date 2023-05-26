@@ -24,12 +24,12 @@
  */
 import { RealCurve } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet } from '../context-data-set';
-import { ParticleDataSet } from '../particle-data-set';
+import { ContextDataSet } from '../data-set/context';
+import { ParticleDataSet } from '../data-set/particle';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
-import { EmitterDataSet, NORMALIZED_LOOP_AGE } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet, NORMALIZED_LOOP_AGE } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { BindingFloatExpression } from '../../../exports/vfx';
 
 @ccclass('cc.FloatFromCurveExpression')

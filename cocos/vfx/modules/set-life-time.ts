@@ -25,11 +25,11 @@
 
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { INV_START_LIFETIME, ParticleDataSet } from '../particle-data-set';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
+import { INV_START_LIFETIME, ParticleDataSet } from '../data-set/particle';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
 import { FloatExpression } from '../expressions/float';
-import { EmitterDataSet } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { ConstantFloatExpression } from '../expressions/constant-float';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
 

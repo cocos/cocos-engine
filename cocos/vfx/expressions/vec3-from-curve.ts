@@ -24,13 +24,13 @@
  */
 import { RealCurve, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet } from '../context-data-set';
-import { ParticleDataSet } from '../particle-data-set';
+import { ContextDataSet } from '../data-set/context';
+import { ParticleDataSet } from '../data-set/particle';
 import { ModuleExecStage } from '../vfx-module';
 import { ConstantVec3Expression } from './constant-vec3';
 import { Vec3Expression } from './vec3';
-import { EmitterDataSet, NORMALIZED_LOOP_AGE } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet, NORMALIZED_LOOP_AGE } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { BindingFloatExpression, FloatExpression } from '../../../exports/vfx';
 
 const ratio = new Vec3();

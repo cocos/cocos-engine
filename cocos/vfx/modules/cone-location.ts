@@ -25,11 +25,11 @@
 import { ccclass, serializable, tooltip, type } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, toDegree, toRadian, Vec3 } from '../../core';
-import { POSITION, ParticleDataSet } from '../particle-data-set';
-import { ContextDataSet } from '../context-data-set';
+import { POSITION, ParticleDataSet } from '../data-set/particle';
+import { ContextDataSet } from '../data-set/context';
 import { AngleBasedLocationModule } from './angle-based-location';
-import { EmitterDataSet } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 
 enum LocationMode {
     BASE = 0,

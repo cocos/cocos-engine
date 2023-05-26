@@ -30,9 +30,9 @@ import { ccclass, serializable, type } from '../../core/data/decorators';
 import { BufferInfo, BufferUsageBit, deviceManager, MemoryUsageBit, Buffer, FormatInfos, PrimitiveMode, AttributeName } from '../../gfx';
 import { MacroRecord } from '../../render-scene';
 import { AlignmentSpace } from '../define';
-import { COLOR, MESH_ORIENTATION, ParticleDataSet, POSITION, SCALE, SUB_UV_INDEX, VELOCITY } from '../particle-data-set';
+import { COLOR, MESH_ORIENTATION, ParticleDataSet, POSITION, SCALE, SUB_UV_INDEX, VELOCITY } from '../data-set/particle';
 import { CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshColorRGBA8, meshNormal, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, RENDER_MODE_MESH, ROTATION_OVER_TIME_MODULE_ENABLE, ParticleRenderer } from '../particle-renderer';
-import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_ROTATION, RENDER_SCALE, WORLD_ROTATION } from '../emitter-data-set';
+import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_ROTATION, RENDER_SCALE, WORLD_ROTATION } from '../data-set/emitter';
 import { Vec3ArrayParameter, FloatArrayParameter, ColorArrayParameter, QuatParameter, Vec3Parameter, BoolParameter } from '../parameters';
 
 @ccclass('cc.MeshParticleRenderer')

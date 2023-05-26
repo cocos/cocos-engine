@@ -26,11 +26,11 @@
 import { ccclass, serializable, type, range, editable, rangeMin } from 'cc.decorator';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet } from '../particle-data-set';
-import { DELTA_TIME, ContextDataSet } from '../context-data-set';
+import { ParticleDataSet } from '../data-set/particle';
+import { DELTA_TIME, ContextDataSet } from '../data-set/context';
 import { ConstantFloatExpression } from '../expressions';
-import { EmitterDataSet, LOOPED_AGE } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet, LOOPED_AGE } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { FloatParameter } from '../parameters';
 
 @ccclass('cc.SpawnBurstModule')

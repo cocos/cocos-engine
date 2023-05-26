@@ -28,10 +28,10 @@ import { lerp, Vec3 } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
-import { BASE_VELOCITY, ParticleDataSet, VELOCITY } from '../particle-data-set';
-import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { BASE_VELOCITY, ParticleDataSet, VELOCITY } from '../data-set/particle';
+import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Uint32Parameter, Vec3ArrayParameter, BoolParameter, Mat3Parameter } from '../parameters';
 

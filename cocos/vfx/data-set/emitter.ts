@@ -22,9 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { VFXParameterNameSpace, VFXParameterType } from './define';
-import { VFXDataSet } from './vfx-data-set';
-import { VFXParameterIdentity } from './vfx-parameter';
+import { VFXParameterNameSpace, VFXParameterType } from '../define';
+import { VFXDataSet } from '../vfx-data-set';
+import { VFXParameterIdentity } from '../vfx-parameter';
 
 let builtinEmitterParameterId = 20000;
 export const AGE = new VFXParameterIdentity(builtinEmitterParameterId++, 'age', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);

@@ -24,11 +24,11 @@
  */
 import { Enum, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet } from '../context-data-set';
-import { EmitterDataSet } from '../emitter-data-set';
-import { ParticleDataSet } from '../particle-data-set';
+import { ContextDataSet } from '../data-set/context';
+import { EmitterDataSet } from '../data-set/emitter';
+import { ParticleDataSet } from '../data-set/particle';
 import { RandomStream } from '../random-stream';
-import { UserDataSet } from '../user-data-set';
+import { UserDataSet } from '../data-set/user';
 import { ConstantVec3Expression } from './constant-vec3';
 import { FloatExpression } from './float';
 import { Vec3Expression } from './vec3';

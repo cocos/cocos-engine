@@ -27,11 +27,11 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3, CCBoolean, Enum, Vec2 } from '../../core';
 import { FloatExpression } from '../expressions/float';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
-import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY } from '../particle-data-set';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY } from '../data-set/particle';
 import { ConstantFloatExpression } from '../expressions';
-import { EmitterDataSet } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { Uint32Parameter, Vec2ArrayParameter, Vec3ArrayParameter } from '../parameters';
 
 const _tempVec3 = new Vec3();

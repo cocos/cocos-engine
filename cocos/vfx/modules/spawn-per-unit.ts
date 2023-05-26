@@ -25,12 +25,12 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { DELTA_TIME, ContextDataSet } from '../context-data-set';
+import { DELTA_TIME, ContextDataSet } from '../data-set/context';
 import { FloatExpression } from '../expressions/float';
-import { ParticleDataSet } from '../particle-data-set';
+import { ParticleDataSet } from '../data-set/particle';
 import { ConstantFloatExpression } from '../expressions';
-import { EmitterDataSet, VELOCITY } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet, VELOCITY } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { Vec3Parameter, FloatParameter } from '../parameters';
 
 @ccclass('cc.SpawnPerUnitModule')

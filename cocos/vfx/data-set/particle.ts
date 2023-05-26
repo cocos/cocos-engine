@@ -24,11 +24,10 @@
  */
 
 import { DEBUG } from 'internal:constants';
-import { assertIsTrue } from '../core';
-import { ArrayParameter, VFXParameter, VFXParameterIdentity } from './vfx-parameter';
-import { VFXParameterNameSpace, ParticleHandle, VFXParameterType } from './define';
-import { BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, Int32ArrayParameter, QuatArrayParameter, Uint32ArrayParameter, Uint8ArrayParameter, Vec2ArrayParameter, Vec3ArrayParameter, Vec4ArrayParameter } from './parameters';
-import { VFXDataSet } from './vfx-data-set';
+import { assertIsTrue } from '../../core';
+import { ArrayParameter, VFXParameterIdentity } from '../vfx-parameter';
+import { VFXParameterNameSpace, ParticleHandle, VFXParameterType } from '../define';
+import { VFXDataSet } from '../vfx-data-set';
 
 let builtinParticleParameterId = 0;
 export const ID = new VFXParameterIdentity(builtinParticleParameterId++, 'id', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);

@@ -23,11 +23,11 @@
  THE SOFTWARE.
  */
 import { ccclass } from '../core/data/decorators';
-import { ContextDataSet } from './context-data-set';
-import { EmitterDataSet } from './emitter-data-set';
+import { ContextDataSet } from './data-set/context';
+import { EmitterDataSet } from './data-set/emitter';
 import { VFXParameterType } from './define';
-import { ParticleDataSet } from './particle-data-set';
-import { UserDataSet } from './user-data-set';
+import { ParticleDataSet } from './data-set/particle';
+import { UserDataSet } from './data-set/user';
 
 @ccclass('cc.VFXExpression')
 export abstract class VFXExpression {

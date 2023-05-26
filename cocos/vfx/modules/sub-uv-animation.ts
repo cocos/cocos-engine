@@ -28,11 +28,11 @@ import { DEBUG } from 'internal:constants';
 import { lerp, repeat, Enum, assertIsTrue, CCFloat, CCInteger } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, RANDOM_SEED, SUB_UV_INDEX } from '../particle-data-set';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
+import { INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, RANDOM_SEED, SUB_UV_INDEX } from '../data-set/particle';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
 import { RandomStream } from '../random-stream';
-import { EmitterDataSet } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
 

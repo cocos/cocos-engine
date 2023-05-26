@@ -23,11 +23,11 @@
  THE SOFTWARE.
  */
 import { ccclass } from '../../core/data/decorators';
-import { ContextDataSet } from '../context-data-set';
-import { EmitterDataSet } from '../emitter-data-set';
+import { ContextDataSet } from '../data-set/context';
+import { EmitterDataSet } from '../data-set/emitter';
 import { VFXParameterNameSpace } from '../define';
-import { ParticleDataSet } from '../particle-data-set';
-import { UserDataSet } from '../user-data-set';
+import { ParticleDataSet } from '../data-set/particle';
+import { UserDataSet } from '../data-set/user';
 import { Vec3Expression } from './vec3';
 import { VFXParameterIdentity } from '../vfx-parameter';
 import { Vec3ArrayParameter } from '../parameters';

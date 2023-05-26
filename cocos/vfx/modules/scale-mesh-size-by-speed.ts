@@ -27,10 +27,10 @@ import { ccclass, type, serializable, range, visible, rangeMin } from 'cc.decora
 import { lerp, math, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { ParticleDataSet, SCALE, VELOCITY } from '../particle-data-set';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
-import { EmitterDataSet } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { ParticleDataSet, SCALE, VELOCITY } from '../data-set/particle';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { EmitterDataSet } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 

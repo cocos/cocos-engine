@@ -26,11 +26,11 @@
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_VELOCITY, POSITION, ParticleDataSet, VELOCITY } from '../particle-data-set';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
+import { BASE_VELOCITY, POSITION, ParticleDataSet, VELOCITY } from '../data-set/particle';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { EmitterDataSet, IS_WORLD_SPACE, VELOCITY as EMITTER_VELOCITY } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { EmitterDataSet, IS_WORLD_SPACE, VELOCITY as EMITTER_VELOCITY } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { BoolParameter, Uint32Parameter, Vec3Parameter, Vec3ArrayParameter } from '../parameters';
 
 const tempVelocity = new Vec3();

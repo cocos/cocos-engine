@@ -25,8 +25,8 @@
 import { ccclass, displayName, serializable, type } from 'cc.decorator';
 import { CCBoolean } from '../core';
 import { AttributeName, Format, Attribute } from '../gfx';
-import { EmitterDataSet } from './emitter-data-set';
-import { ParticleDataSet } from './particle-data-set';
+import { EmitterDataSet } from './data-set/emitter';
+import { ParticleDataSet } from './data-set/particle';
 import { Model } from '../render-scene/scene';
 import { Material, RenderingSubMesh } from '../asset/assets';
 import { MaterialInstance } from '../render-scene';

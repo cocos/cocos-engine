@@ -27,10 +27,10 @@ import { ccclass, type, serializable } from 'cc.decorator';
 import { Enum, Vec3 } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, BASE_VELOCITY, POSITION, VELOCITY } from '../particle-data-set';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
-import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { ParticleDataSet, BASE_VELOCITY, POSITION, VELOCITY } from '../data-set/particle';
+import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { BoolParameter, Vec3ArrayParameter, Uint32Parameter, Mat3Parameter } from '../parameters';
 

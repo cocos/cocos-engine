@@ -26,10 +26,10 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX } from '../context-data-set';
-import { ParticleDataSet, SPRITE_ROTATION } from '../particle-data-set';
-import { EmitterDataSet } from '../emitter-data-set';
-import { UserDataSet } from '../user-data-set';
+import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { ParticleDataSet, SPRITE_ROTATION } from '../data-set/particle';
+import { EmitterDataSet } from '../data-set/emitter';
+import { UserDataSet } from '../data-set/user';
 import { ConstantFloatExpression } from '../expressions';
 import { FloatArrayParameter, FloatParameter, Uint32Parameter } from '../parameters';
 
