@@ -87,7 +87,34 @@ export default class XMLHttpRequest extends EventTarget {
   }
 
   send(data = '') {
-    console.error("XMLHttpRequest invalid, my.tb.request does not support http!");
+    if (this.readyState !== XMLHttpRequest.OPENED) {
+      throw new Error("Failed to execute 'send' on 'XMLHttpRequest': The object's state must be OPENED.")
+    } else {
+      let myRequestTask = my.tb.request({
+        body: JSON.stringify(data),
+        url: _url.get(this),
+        method: _method.get(this),
+        headers: _requestHeader.get(this),
+        options: {timeout: this.timeout, enableSystemParams: true},
+        success: (res) => {
+          this.status = res.code;
+          this.responseText = this.response = res.content;
+          _responseHeader.set(this, _requestHeader.get(this))
+          _triggerEvent.call(this, 'loadstart')
+          _changeReadyState.call(this, XMLHttpRequest.HEADERS_RECEIVED)
+          _changeReadyState.call(this, XMLHttpRequest.LOADING)
+          _changeReadyState.call(this, XMLHttpRequest.DONE)
+          _triggerEvent.call(this, 'load')
+          _triggerEvent.call(this, 'loadend')
+        },
+        fail: (res) => {
+          _triggerEvent.call(this, 'error', res)
+          _triggerEvent.call(this, 'loadend')
+        }
+      })
+
+      _requestTask.set(this, myRequestTask);
+    }
   }
 
   setRequestHeader(header, value) {
