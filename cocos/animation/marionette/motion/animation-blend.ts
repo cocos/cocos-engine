@@ -38,7 +38,11 @@ import { blendPoseInto, Pose } from '../../core/pose';
 const { ccclass, serializable } = _decorator;
 
 export interface AnimationBlend extends Motion, EditorExtendable {
-    [createEval] (_context: AnimationGraphBindingContext, overrides: ReadonlyClipOverrideMap | null): MotionEval | null;
+    [createEval] (
+        _context: AnimationGraphBindingContext,
+        overrides: ReadonlyClipOverrideMap | null,
+        ignoreEmbeddedPlayers: boolean,
+    ): MotionEval | null;
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendItem`)
@@ -79,11 +83,12 @@ export class AnimationBlendEval implements MotionEval {
     constructor (
         context: AnimationGraphBindingContext,
         overrides: ReadonlyClipOverrideMap | null,
+        ignoreEmbeddedPlayers: boolean,
         base: AnimationBlend,
         children: AnimationBlendItem[],
         inputs: number[],
     ) {
-        this._childEvaluators = children.map((child) => child.motion?.[createEval](context, overrides) ?? null);
+        this._childEvaluators = children.map((child) => child.motion?.[createEval](context, overrides, ignoreEmbeddedPlayers) ?? null);
         this._weights = new Array(this._childEvaluators.length).fill(0);
         this._inputs = [...inputs];
         if (RUNTIME_ID_ENABLED) {

@@ -60,7 +60,7 @@ export class PoseNodePlayMotion extends PoseNode {
         if (!motion) {
             return;
         }
-        const motionEval = motion[createEval](context, context.clipOverrides ?? null);
+        const motionEval = motion[createEval](context, context.clipOverrides ?? null, false);
         if (!motionEval) {
             return;
         }

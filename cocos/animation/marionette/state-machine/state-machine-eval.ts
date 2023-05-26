@@ -1223,7 +1223,7 @@ class VMSMEval {
             }
         }
 
-        const sourceEval = state.motion?.[createEval](context, overrides) ?? null;
+        const sourceEval = state.motion?.[createEval](context, overrides, false) ?? null;
         if (sourceEval) {
             Object.defineProperty(sourceEval, '__DEBUG_ID__', { value: name });
         }
