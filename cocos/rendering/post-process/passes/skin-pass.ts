@@ -32,7 +32,8 @@ import { MeshRenderer } from '../../../3d';
 import { ShadowPass } from './shadow-pass';
 import { Root } from '../../../root';
 
-import { BasePass, ForceEnableFloatOutput, GetRTFormatBeforeToneMapping } from './base-pass';
+import { ForceEnableFloatOutput, GetRTFormatBeforeToneMapping } from './base-pass';
+import { SettingPass } from './setting-pass';
 
 export const COPY_INPUT_DS_PASS_INDEX = 0;
 export const SSSS_BLUR_X_PASS_INDEX = 1;
@@ -183,28 +184,26 @@ export class SSSSBlurData {
     }
 }
 
-export class SkinPass extends BasePass {
+export class SkinPass extends SettingPass {
     name = 'SkinPass'
     effectName = 'pipeline/ssss-blur';
     outputNames = ['SSSSBlur', 'SSSSBlurDS']
     ssssBlurData = new SSSSBlurData();
 
     enableInAllEditorCamera = true;
+    checkEnable (camera: Camera) {
+        const pipelineSceneData = (cclegacy.director.root as Root).pipeline.pipelineSceneData;
+        return pipelineSceneData.skin.enabled && pipelineSceneData.skinMaterialModel !== null;
+    }
 
     public render (camera: Camera, ppl: BasicPipeline): void {
         passContext.material = this.material;
 
         const inputRT = this.lastPass?.slotName(camera, 0);
         const inputDS = this.lastPass?.slotName(camera, 1);
-        if ((cclegacy.director.root as Root).pipeline.pipelineSceneData.hasSkinModel) {
-            if (hasSkinObject(ppl)) {
-                ForceEnableFloatOutput(ppl);
-                const blurInfo = this._buildSSSSBlurPass(camera, ppl, inputRT!, inputDS!);
-                this._buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
-            } else {
-                this._buildSpecularPass(camera, ppl, inputRT!, inputDS!);
-            }
-        }
+        ForceEnableFloatOutput(ppl);
+        const blurInfo = this._buildSSSSBlurPass(camera, ppl, inputRT!, inputDS!);
+        this._buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
     }
 
     private _buildSSSSBlurPass (camera: Camera,
@@ -212,14 +211,19 @@ export class SkinPass extends BasePass {
         inputRT: string,
         inputDS: string) {
         const cameraID = getCameraUniqueID(camera);
-        let boundingBox = 0.4;
-        const standardSkinModel = ppl.pipelineSceneData.standardSkinModel;
-        const model = (standardSkinModel as MeshRenderer).model;
-        if (model) {
-            const halfExtents = model.worldBounds.halfExtents;
-            boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
+        const pipelineSceneData = ppl.pipelineSceneData;
+
+        let halfExtents = new Vec3(0.2, 0.2, 0.2);
+        const standardSkinModel = pipelineSceneData.standardSkinModel;
+        const skinMaterialModel = pipelineSceneData.skinMaterialModel;
+        if (standardSkinModel && (standardSkinModel as MeshRenderer).model) {
+            halfExtents = (standardSkinModel as MeshRenderer).model!.worldBounds.halfExtents;
+        } else if (skinMaterialModel) {
+            halfExtents = skinMaterialModel.worldBounds.halfExtents;
         }
-        const skin = ppl.pipelineSceneData.skin;
+        const boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
+
+        const skin = pipelineSceneData.skin;
 
         const ssssBlurRTName = super.slotName(camera, 0);
         const ssssBlurDSName = super.slotName(camera, 1);

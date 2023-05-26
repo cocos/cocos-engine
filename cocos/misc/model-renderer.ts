@@ -30,14 +30,15 @@ import { Layers } from '../scene-graph/layers';
 import { Renderer } from './renderer';
 import { CCBoolean, cclegacy, _decorator } from '../core';
 import { getPhaseID } from '../rendering';
-import { SubModel } from '../render-scene/scene';
+import { Model, SubModel } from '../render-scene/scene';
 import { isEnableEffect } from '../rendering/define';
+import { Root } from '../root';
 
 let _phaseID = getPhaseID('specular-pass');
 function getSkinPassIndex (subModel: SubModel): number {
     const passes = subModel.passes;
     const r = cclegacy.rendering;
-    if (isEnableEffect()) _phaseID = r.getPhaseID(r.getPassID('default'), 'specular-pass');
+    if (isEnableEffect()) _phaseID = r.getPhaseID(r.getPassID('specular-pass'), 'default');
     for (let k = 0; k < passes.length; k++) {
         if (((!r || !r.enableEffectImport) && passes[k].phase === _phaseID)
         || (isEnableEffect() && passes[k].phaseID === _phaseID)) {
@@ -144,18 +145,18 @@ export class ModelRenderer extends Renderer {
     }
 
     protected _updateStandardSkin () {
-        const pipelineSceneData = cclegacy.director.root.pipeline.pipelineSceneData;
+        const pipelineSceneData = (cclegacy.director.root as Root).pipeline.pipelineSceneData;
         if (this._enabledStandardSkin) {
             pipelineSceneData.standardSkinModel = this;
         }
-        if (!pipelineSceneData.hasSkinModel) {
+        if (!pipelineSceneData.skinMaterialModel) {
             for (let i = 0; i < this._models.length; i++) {
                 const subModels = this._models[i].subModels;
                 for (let j = 0; j < subModels.length; j++) {
                     const subModel = subModels[j];
                     const skinPassIdx = getSkinPassIndex(subModel);
                     if (skinPassIdx < 0) { continue; }
-                    pipelineSceneData.hasSkinModel = true;
+                    pipelineSceneData.skinMaterialModel = this._models[i];
                     return;
                 }
             }
