@@ -200,10 +200,10 @@ export class SkinPass extends SettingPass {
         passContext.material = this.material;
 
         const inputRT = this.lastPass?.slotName(camera, 0);
-        const inputDS = this.lastPass?.slotName(camera, 1);
+        const inputDS = passContext.depthSlotName;
         ForceEnableFloatOutput(ppl);
-        const blurInfo = this._buildSSSSBlurPass(camera, ppl, inputRT!, inputDS!);
-        this._buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
+        this._buildSSSSBlurPass(camera, ppl, inputRT!, inputDS);
+        this._buildSpecularPass(camera, ppl, inputRT!, inputDS);
     }
 
     private _buildSSSSBlurPass (camera: Camera,
@@ -280,8 +280,6 @@ export class SkinPass extends SettingPass {
             .addRasterView(inputDS, Format.DEPTH_STENCIL)
             .blitScreen(passIdx)
             .version();
-
-        return { rtName: inputRT, dsName: inputDS };
     }
 
     private _buildSpecularPass (camera: Camera,
@@ -316,13 +314,13 @@ export class SkinPass extends SettingPass {
             }
         }
 
-        pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'default')
+        pass.addQueue(QueueHint.RENDER_OPAQUE, 'default')
             .addSceneOfCamera(camera, new LightInfo(),
-                SceneFlags.OPAQUE_OBJECT | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
+                SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
             | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING);
         pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'forward-add')
             .addSceneOfCamera(camera, new LightInfo(),
-                SceneFlags.OPAQUE_OBJECT | SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
+                SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING | SceneFlags.PLANAR_SHADOW
             | SceneFlags.CUTOUT_OBJECT | SceneFlags.DRAW_INSTANCING);
     }
 
