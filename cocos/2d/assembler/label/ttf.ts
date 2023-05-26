@@ -48,6 +48,9 @@ export const ttf: IAssembler = {
         renderData.dataLength = 4;
         renderData.resize(4, 6);
 
+        // hard code
+        comp.textRenderData.quadCount = 4;
+
         const vData = renderData.chunk.vb;
 
         vData[3] = vData[21] = vData[22] = vData[31] = 0;

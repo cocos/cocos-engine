@@ -346,6 +346,8 @@ nodeProto.resumeSystemEvents = function resumeSystemEvents(recursive: boolean): 
     this._eventProcessor.setEnabled(true, recursive);
 };
 
+nodeProto.getWritableComponents = function (this: JsbNode) { return this._components; }
+
 nodeProto._removeComponent = function (component: Component) {
     if (!component) {
         errorID(3814);

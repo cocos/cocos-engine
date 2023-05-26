@@ -28,6 +28,7 @@ import { IAssemblerManager } from '../../renderer/base';
 import { bmfont } from './bmfont';
 import { letter } from './letter';
 import { ttf } from './ttf';
+import { TextProcessing } from './text-processing';
 
 const labelAssembler: IAssemblerManager = {
     getAssembler (comp: Label) {
@@ -53,6 +54,7 @@ export {
     ttf,
     bmfont,
     letter,
+    TextProcessing,
 };
 
 Label.Assembler = labelAssembler;

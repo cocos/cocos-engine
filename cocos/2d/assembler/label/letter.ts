@@ -27,7 +27,6 @@ import { js, Color } from '../../../core';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { fillMeshVertices3D } from '../utils';
-import { bmfont } from './bmfont';
 import { letterFont } from './letter-font';
 
 const tempColor = new Color(255, 255, 255, 255);
@@ -53,8 +52,6 @@ export const letter = {
         // Fill All
         fillMeshVertices3D(node, renderer, comp.renderData, tempColor);
     },
-
-    appendQuad: bmfont.appendQuad,
 
     updateColor (label: Label) {
         if (JSB) {

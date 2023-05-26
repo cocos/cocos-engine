@@ -154,8 +154,6 @@ class PhysicsWorld {
     get impl () { return this._impl; }
     constructor () {
         this._impl = new jsbPhy.World();
-        const phy = cc.PhysicsSystem.instance;
-        this._impl.setFixedTimeStep(phy.fixedTimeStep);
     }
 
     setGravity (v) {
