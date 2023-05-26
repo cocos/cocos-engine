@@ -11,11 +11,11 @@ import { cclegacy, macro } from '../../../core';
 
 let _BasePassID = 0;
 
-export function GetRTFormatBeforeToneMapping (ppl: BasicPipeline) {
+export function getRTFormatBeforeToneMapping (ppl: BasicPipeline) {
     const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16FloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
 }
-export function ForceEnableFloatOutput (ppl: BasicPipeline) {
+export function forceEnableFloatOutput (ppl: BasicPipeline) {
     if (ppl.pipelineSceneData.isHDR && !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
         const supportFloatOutput = supportsRGBA16FloatTexture(ppl.device);
         ppl.setMacroBool('CC_USE_FLOAT_OUTPUT', supportFloatOutput);
@@ -23,7 +23,7 @@ export function ForceEnableFloatOutput (ppl: BasicPipeline) {
     }
 }
 
-export function DisablePostProcessForDebugView () {
+export function disablePostProcessForDebugView () {
     const debugView = cclegacy.director.root.debugView;
     return debugView.singleMode as number > 0;
 }

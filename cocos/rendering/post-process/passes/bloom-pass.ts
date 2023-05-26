@@ -7,7 +7,7 @@ import { passContext } from '../utils/pass-context';
 
 import { getSetting, SettingPass } from './setting-pass';
 import { Bloom } from '../components';
-import { DisablePostProcessForDebugView } from './base-pass';
+import { disablePostProcessForDebugView } from './base-pass';
 
 const MAX_BLOOM_FILTER_PASS_NUM = 6;
 const BLOOM_DOWNSAMPLEPASS_INDEX = 1;
@@ -18,7 +18,7 @@ export class BloomPass extends SettingPass {
 
     checkEnable (camera: Camera) {
         let enable = super.checkEnable(camera);
-        if (DisablePostProcessForDebugView()) {
+        if (disablePostProcessForDebugView()) {
             enable = false;
         }
         return enable;

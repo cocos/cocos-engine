@@ -7,7 +7,7 @@ import { Pipeline, ResourceResidency } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { TAA } from '../components/taa';
 import { passContext } from '../utils/pass-context';
-import { DisablePostProcessForDebugView } from './base-pass';
+import { disablePostProcessForDebugView } from './base-pass';
 import { getSetting, SettingPass } from './setting-pass';
 
 const tempVec4 = new Vec4();
@@ -99,7 +99,7 @@ export class TAAPass extends SettingPass {
         if (EDITOR && camera.cameraUsage === CameraUsage.PREVIEW) {
             enable = false;
         }
-        if (DisablePostProcessForDebugView()) {
+        if (disablePostProcessForDebugView()) {
             enable = false;
         }
         return enable;

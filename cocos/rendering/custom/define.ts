@@ -52,11 +52,11 @@ export enum AntiAliasing {
     FXAAHQ,
 }
 
-function GetRTFormatBeforeToneMapping (ppl: BasicPipeline) {
+function getRTFormatBeforeToneMapping (ppl: BasicPipeline) {
     const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16FloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
 }
-function ForceEnableFloatOutput (ppl: BasicPipeline) {
+function forceEnableFloatOutput (ppl: BasicPipeline) {
     if (ppl.pipelineSceneData.isHDR && !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
         const supportFloatOutput = supportsRGBA16FloatTexture(ppl.device);
         ppl.setMacroBool('CC_USE_FLOAT_OUTPUT', supportFloatOutput);
@@ -539,7 +539,7 @@ export function buildForwardPass (camera: Camera,
         if (!isOffScreen) {
             ppl.addRenderWindow(forwardPassRTName, Format.BGRA8, width, height, camera.window);
         } else {
-            ppl.addRenderTarget(forwardPassRTName, GetRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.PERSISTENT);
+            ppl.addRenderTarget(forwardPassRTName, getRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.PERSISTENT);
         }
         ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
@@ -1459,7 +1459,7 @@ function _buildSSSSBlurPass (camera: Camera,
     const ssssBlurRTName = `dsSSSSBlurColor${cameraName}`;
     const ssssBlurDSName = `dsSSSSBlurDSColor${cameraName}`;
     if (!ppl.containsResource(ssssBlurRTName)) {
-        ppl.addRenderTarget(ssssBlurRTName, GetRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(ssssBlurRTName, getRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.MANAGED);
         ppl.addRenderTarget(ssssBlurDSName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(ssssBlurRTName, width, height);
@@ -1782,7 +1782,7 @@ export function buildSSSSPass (camera: Camera,
     inputRT: string,
     inputDS: string) {
     if (hasSkinObject(ppl)) {
-        ForceEnableFloatOutput(ppl);
+        forceEnableFloatOutput(ppl);
         const blurInfo = _buildSSSSBlurPass(camera, ppl, inputRT, inputDS);
         const specularInfo = _buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
         return { rtName: specularInfo.rtName, dsName: specularInfo.dsName };
@@ -2079,7 +2079,7 @@ function _buildHBAOCombinedPass (camera: Camera,
 
     const outputRTName = outputRT;
     if (!ppl.containsResource(outputRTName)) {
-        ppl.addRenderTarget(outputRTName, GetRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(outputRTName, getRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(outputRTName, width, height);
     const hbaoPass = ppl.addRenderPass(width, height, 'combine-pass');
