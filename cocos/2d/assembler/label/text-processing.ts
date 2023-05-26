@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 import { JSB } from 'internal:constants';
+import { screenAdapter } from 'pal/screen-adapter';
 import { Texture2D } from '../../../asset/assets';
 import { WrapMode } from '../../../asset/assets/asset-enum';
 import { cclegacy, Color, Pool, Rect, Vec2 } from '../../../core';
@@ -78,6 +79,7 @@ export class TextProcessing {
         this._canvasData = CanvasPool.getInstance().get();
         this._canvas = this._canvasData.canvas;
         this._context = this._canvasData.context;
+        this._dpr = screenAdapter.devicePixelRatio || 1;
     }
 
     public destroy () {
@@ -128,6 +130,8 @@ export class TextProcessing {
 
     private _lettersInfo: LetterInfo[] = [];
     private _tmpRect = new Rect();
+
+    private _dpr = 1;
 
     private _calculateLabelFont (style: TextStyle, layout: TextLayout,
         outputLayoutData: TextOutputLayoutData, inputString: string) {
@@ -365,8 +369,9 @@ export class TextProcessing {
         outputLayoutData.canvasSize.width = Math.min(outputLayoutData.canvasSize.width, MAX_SIZE);
         outputLayoutData.canvasSize.height = Math.min(outputLayoutData.canvasSize.height, MAX_SIZE);
 
-        this._canvas!.width = outputLayoutData.canvasSize.width;
-        this._canvas!.height = outputLayoutData.canvasSize.height;
+        const dpr = this._dpr;
+        this._canvas!.width = Math.min(outputLayoutData.canvasSize.width * dpr, MAX_SIZE);
+        this._canvas!.height = Math.min(outputLayoutData.canvasSize.height * dpr, MAX_SIZE);
 
         this._context!.font = style.fontDesc;
         // align
@@ -409,12 +414,16 @@ export class TextProcessing {
         if (!this._context || !this._canvas) {
             return;
         }
+        const dpr = this._dpr;
 
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
-        this._context.font = style.fontDesc;
+        this._context.font = style.fontDesc.replace(
+            /(\d+)(\.\d+)?(px|em|rem|pt)/g,
+            (w, m: string, n: string, u: string) => (+m * dpr + (+n || 0) * dpr).toString() + u,
+        );
 
         this._calculateFillTextStartPosition(style, layout, outputLayoutData);
-        const lineHeight = this._getLineHeight(layout.lineHeight, style.actualFontSize, style.fontSize);
+        const lineHeight = this._getLineHeight(layout.lineHeight, style.actualFontSize, style.fontSize) * dpr;
         // use round for line join to avoid sharp intersect point
         this._context.lineJoin = 'round';
 
@@ -427,13 +436,15 @@ export class TextProcessing {
             this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
         }
         this._context.fillStyle = `rgb(${style.color.r}, ${style.color.g}, ${style.color.b})`;
-        const drawTextPosX = outputLayoutData.startPosition.x;
+        // Use the value that has been amplified by dpr
+        const tempPos = new Vec2(outputLayoutData.startPosition.x * dpr, outputLayoutData.startPosition.y * dpr);
+        const drawTextPosX = tempPos.x;
         let drawTextPosY = 0;
         // draw shadow and underline
-        this._drawTextEffect(outputLayoutData.startPosition, lineHeight, style, layout, outputLayoutData);
+        this._drawTextEffect(tempPos, lineHeight, style, layout, outputLayoutData);
         // draw text and outline
         for (let i = 0; i < outputLayoutData.parsedString.length; ++i) {
-            drawTextPosY = outputLayoutData.startPosition.y + i * lineHeight;
+            drawTextPosY = tempPos.y + i * lineHeight;
             if (style.isOutlined) {
                 this._context.strokeText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
             }
@@ -512,7 +523,7 @@ export class TextProcessing {
 
             // draw underline
             if (style.isUnderline) {
-                const _drawUnderlineWidth = measureText(outputLayoutData.parsedString[i]);
+                const _drawUnderlineWidth = measureText(outputLayoutData.parsedString[i]) * this._dpr;
                 const _drawUnderlinePos = new Vec2();
                 if (layout.horizontalAlign === HorizontalTextAlignment.RIGHT) {
                     _drawUnderlinePos.x = startPosition.x - _drawUnderlineWidth;
@@ -521,8 +532,8 @@ export class TextProcessing {
                 } else {
                     _drawUnderlinePos.x = startPosition.x;
                 }
-                _drawUnderlinePos.y = drawTextPosY + style.actualFontSize / 8;
-                this._context!.fillRect(_drawUnderlinePos.x, _drawUnderlinePos.y, _drawUnderlineWidth, style.underlineHeight);
+                _drawUnderlinePos.y = drawTextPosY + style.actualFontSize / 8 * this._dpr;
+                this._context!.fillRect(_drawUnderlinePos.x, _drawUnderlinePos.y, _drawUnderlineWidth, style.underlineHeight * this._dpr);
             }
         }
 
@@ -533,14 +544,15 @@ export class TextProcessing {
 
     private _setupOutline (style: TextStyle) {
         this._context!.strokeStyle = `rgba(${style.outlineColor.r}, ${style.outlineColor.g}, ${style.outlineColor.b}, ${style.outlineColor.a / 255})`;
-        this._context!.lineWidth = style.outlineWidth * 2;
+        this._context!.lineWidth = style.outlineWidth * 2 * this._dpr;
     }
 
     private _setupShadow (style: TextStyle) {
+        const dpr = this._dpr;
         this._context!.shadowColor = `rgba(${style.shadowColor.r}, ${style.shadowColor.g}, ${style.shadowColor.b}, ${style.shadowColor.a / 255})`;
-        this._context!.shadowBlur = style.shadowBlur;
-        this._context!.shadowOffsetX = style.shadowOffsetX;
-        this._context!.shadowOffsetY = -style.shadowOffsetY;
+        this._context!.shadowBlur = style.shadowBlur * dpr;
+        this._context!.shadowOffsetX = style.shadowOffsetX * dpr;
+        this._context!.shadowOffsetY = -style.shadowOffsetY * dpr;
     }
 
     // -------------------- Render Processing Part --------------------------
