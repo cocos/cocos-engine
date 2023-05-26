@@ -64,7 +64,12 @@ function onApplicationCreated(application) {
         require('./engine-adapter');
         return application.init(cc);
     }).then(() => {
-        return firstScreen.end().then(() => application.start());
+        return firstScreen.setProgress(0.8).then(() => {
+            cc.director.once(cc.Director.EVENT_BEGIN_FRAME, () => {
+                firstScreen.end();
+            });
+            application.start();
+        });
     });
 }
 
