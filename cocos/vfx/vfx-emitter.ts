@@ -627,7 +627,7 @@ export class VFXEmitter extends Component {
         const emitter = this._emitterDataSet;
         const user = this._userDataSet;
         const state = this._state;
-        context.reset();
+        context.clearEvents();
         context.getFloatParameter(DELTA_TIME).data = deltaTime;
         this.preTick(particles, emitter, user, context);
 

@@ -25,7 +25,7 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
 import { VFXParameterNameSpace, VFXParameterType } from './define';
-import { BoolParameter, ColorParameter, FloatParameter, Int32Parameter, Mat3Parameter, Mat4Parameter, QuatParameter, Uint32Parameter, Uint8Parameter, Vec2Parameter, Vec3Parameter, Vec4Parameter } from './parameters';
+import { FloatParameter, Vec2Parameter, Vec3Parameter, BoolParameter, Uint32Parameter, QuatParameter, Mat3Parameter, Mat4Parameter, ColorParameter, Vec4Parameter, Int32Parameter, Uint8Parameter } from './parameters';
 import { VFXDataSet } from './vfx-data-set';
 import { VFXParameter, VFXParameterIdentity } from './vfx-parameter';
 
@@ -78,11 +78,32 @@ export class EmitterDataSet extends VFXDataSet {
         this.addParameter(RENDER_SCALE);
     }
 
+    addSpawnInfo (spawnCount: number, intervalDt: number, interpStartDt: number) {
+        if (this.spawnInfoCount >= this.spawnInfos.length) {
+            this.spawnInfos.push(new SpawnInfo());
+        }
+        const spawnInfo = this.spawnInfos[this.spawnInfoCount++];
+        spawnInfo.count = spawnCount;
+        spawnInfo.intervalDt = intervalDt;
+        spawnInfo.interpStartDt = interpStartDt;
+    }
+
+    clearSpawnInfo () {
+        this.spawnInfoCount = 0;
+    }
+
     getFloatParameter (identity: VFXParameterIdentity): FloatParameter {
         if (DEBUG) {
             assertIsTrue(identity.type === VFXParameterType.FLOAT);
         }
         return this.getParameterUnsafe<FloatParameter>(identity);
+    }
+
+    getVec2Parameter (identity: VFXParameterIdentity): Vec2Parameter {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.VEC2);
+        }
+        return this.getParameterUnsafe<Vec2Parameter>(identity);
     }
 
     getVec3Parameter (identity: VFXParameterIdentity): Vec3Parameter {
@@ -171,19 +192,5 @@ export class EmitterDataSet extends VFXDataSet {
     }
 
     protected doRemoveParameter (parameter: VFXParameter) {
-    }
-
-    addSpawnInfo (spawnCount: number, intervalDt: number, interpStartDt: number) {
-        if (this.spawnInfoCount >= this.spawnInfos.length) {
-            this.spawnInfos.push(new SpawnInfo());
-        }
-        const spawnInfo = this.spawnInfos[this.spawnInfoCount++];
-        spawnInfo.count = spawnCount;
-        spawnInfo.intervalDt = intervalDt;
-        spawnInfo.interpStartDt = interpStartDt;
-    }
-
-    clearSpawnInfo () {
-        this.spawnInfoCount = 0;
     }
 }

@@ -1,14 +1,15 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
-import { VFXParameterNameSpace } from './define';
+import { VFXParameterNameSpace, VFXParameterType } from './define';
+import { BoolParameter, ColorParameter, FloatParameter, Int32Parameter, Mat3Parameter, Mat4Parameter, QuatParameter, Uint32Parameter, Uint8Parameter, Vec2Parameter, Vec3Parameter, Vec4Parameter } from './parameters';
 import { VFXParameter, VFXParameterIdentity } from './vfx-parameter';
 
 export abstract class VFXDataSet {
     public get parameterCount () {
         return this._parameterCount;
     }
-    protected _parameterMap: Record<number, VFXParameter> = {};
-    protected _namespace = VFXParameterNameSpace.PARTICLE;
+    private _parameterMap: Record<number, VFXParameter> = {};
+    private _namespace = VFXParameterNameSpace.PARTICLE;
     private _parameterCount = 0;
 
     constructor (namespace: VFXParameterNameSpace) {

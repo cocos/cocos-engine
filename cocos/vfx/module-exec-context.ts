@@ -24,13 +24,14 @@
  */
 
 import { DEBUG } from 'internal:constants';
-import { assertIsTrue } from '../core';
 import { ModuleExecStage } from './vfx-module';
 import { RandomStream } from './random-stream';
 import { VFXEvents } from './vfx-events';
 import { VFXParameter, VFXParameterIdentity } from './vfx-parameter';
 import { VFXParameterNameSpace, VFXParameterType } from './define';
-import { BoolParameter, FloatParameter, Uint32Parameter, Vec3Parameter } from './parameters';
+import { VFXDataSet } from './vfx-data-set';
+import { assertIsTrue } from '../core';
+import { FloatParameter, Vec2Parameter, Vec3Parameter, BoolParameter, Uint32Parameter, QuatParameter, Mat3Parameter, Mat4Parameter, ColorParameter, Vec4Parameter, Int32Parameter, Uint8Parameter } from './parameters';
 
 let builtinContextParameterId = 50000;
 
@@ -40,7 +41,7 @@ export const TO_INDEX = new VFXParameterIdentity(builtinContextParameterId++, 't
 
 export const CUSTOM_CONTEXT_PARAMETER_ID = 60000;
 
-export class ModuleExecContext {
+export class ModuleExecContext extends VFXDataSet {
     public get events (): VFXEvents {
         if (!this._events) {
             this._events = new VFXEvents();
@@ -65,17 +66,41 @@ export class ModuleExecContext {
     private _executionStage = ModuleExecStage.UNKNOWN;
     private _events: VFXEvents | null = null;
 
-    private _parameterMap: Record<number, VFXParameter> = {
-        [DELTA_TIME.id]: new FloatParameter(),
-        [FROM_INDEX.id]: new Uint32Parameter(),
-        [TO_INDEX.id]: new Uint32Parameter(),
-    };
+    constructor () {
+        super(VFXParameterNameSpace.CONTEXT);
+        this.addParameter(DELTA_TIME);
+        this.addParameter(FROM_INDEX);
+        this.addParameter(TO_INDEX);
+    }
+
+    setExecutionStage (stage: ModuleExecStage) {
+        this._executionStage = stage;
+    }
+
+    clearEvents () {
+        this._events?.clear();
+    }
+
+    setModuleRandomSeed (seed: number) {
+        this._moduleRandomSeed = seed;
+    }
+
+    setModuleRandomStream (stream: RandomStream) {
+        this._moduleRandomStream = stream;
+    }
 
     getFloatParameter (identity: VFXParameterIdentity): FloatParameter {
         if (DEBUG) {
             assertIsTrue(identity.type === VFXParameterType.FLOAT);
         }
         return this.getParameterUnsafe<FloatParameter>(identity);
+    }
+
+    getVec2Parameter (identity: VFXParameterIdentity): Vec2Parameter {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.VEC2);
+        }
+        return this.getParameterUnsafe<Vec2Parameter>(identity);
     }
 
     getVec3Parameter (identity: VFXParameterIdentity): Vec3Parameter {
@@ -99,32 +124,70 @@ export class ModuleExecContext {
         return this.getParameterUnsafe<Uint32Parameter>(identity);
     }
 
-    private getParameterUnsafe<T extends VFXParameter> (identity: VFXParameterIdentity) {
+    getQuatParameter (identity: VFXParameterIdentity): QuatParameter {
         if (DEBUG) {
-            assertIsTrue(this.hasParameter(identity));
-            assertIsTrue(identity.namespace === VFXParameterNameSpace.CONTEXT);
+            assertIsTrue(identity.type === VFXParameterType.QUAT);
         }
-        return this._parameterMap[identity.id] as T;
+        return this.getParameterUnsafe<QuatParameter>(identity);
     }
 
-    hasParameter (identity: VFXParameterIdentity) {
-        return identity.id in this._parameterMap;
+    getMat3Parameter (identity: VFXParameterIdentity): Mat3Parameter {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.MAT3);
+        }
+        return this.getParameterUnsafe<Mat3Parameter>(identity);
     }
 
-    setExecutionStage (stage: ModuleExecStage) {
-        this._executionStage = stage;
+    getMat4Parameter (identity: VFXParameterIdentity): Mat4Parameter {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXParameterType.MAT4);
+        }
+        return this.getParameterUnsafe<Mat4Parameter>(identity);
     }
 
-    reset () {
-        this._events?.clear();
-        this._executionStage = ModuleExecStage.UNKNOWN;
+    protected doAddParameter (identity: VFXParameterIdentity) {
+        switch (identity.type) {
+        case VFXParameterType.FLOAT:
+            this.addParameter_internal(identity.id, new FloatParameter());
+            break;
+        case VFXParameterType.VEC3:
+            this.addParameter_internal(identity.id, new Vec3Parameter());
+            break;
+        case VFXParameterType.COLOR:
+            this.addParameter_internal(identity.id, new ColorParameter());
+            break;
+        case VFXParameterType.UINT32:
+            this.addParameter_internal(identity.id, new Uint32Parameter());
+            break;
+        case VFXParameterType.BOOL:
+            this.addParameter_internal(identity.id, new BoolParameter());
+            break;
+        case VFXParameterType.VEC2:
+            this.addParameter_internal(identity.id, new Vec2Parameter());
+            break;
+        case VFXParameterType.VEC4:
+            this.addParameter_internal(identity.id, new Vec4Parameter());
+            break;
+        case VFXParameterType.INT32:
+            this.addParameter_internal(identity.id, new Int32Parameter());
+            break;
+        case VFXParameterType.UINT8:
+            this.addParameter_internal(identity.id, new Uint8Parameter());
+            break;
+        case VFXParameterType.QUAT:
+            this.addParameter_internal(identity.id, new QuatParameter());
+            break;
+        case VFXParameterType.MAT3:
+            this.addParameter_internal(identity.id, new Mat3Parameter());
+            break;
+        case VFXParameterType.MAT4:
+            this.addParameter_internal(identity.id, new Mat4Parameter());
+            break;
+        default:
+            throw new Error('Does not support these parameter type in this data set!');
+        }
     }
 
-    setModuleRandomSeed (seed: number) {
-        this._moduleRandomSeed = seed;
-    }
-
-    setModuleRandomStream (stream: RandomStream) {
-        this._moduleRandomStream = stream;
+    protected doRemoveParameter (parameter: VFXParameter) {
     }
 }
