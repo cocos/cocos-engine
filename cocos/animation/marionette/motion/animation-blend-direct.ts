@@ -72,10 +72,15 @@ export class AnimationBlendDirect extends AnimationBlend {
         return that;
     }
 
-    public [createEval] (context: AnimationGraphBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
+    public [createEval] (
+        context: AnimationGraphBindingContext,
+        clipOverrides: ReadonlyClipOverrideMap | null,
+        ignoreEmbeddedPlayers: boolean,
+    ) {
         const myEval: AnimationBlendDirectEval = new AnimationBlendDirectEval(
             context,
             clipOverrides,
+            ignoreEmbeddedPlayers,
             this,
             this._items,
             new Array<number>(this._items.length).fill(0.0),

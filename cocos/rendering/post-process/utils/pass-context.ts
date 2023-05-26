@@ -25,7 +25,6 @@ export class PassContext {
     viewport = new Rect();
     passViewport = new Rect();
 
-    renderProfiler = false;
     passPathName = '';
     passVersion = 0;
 
