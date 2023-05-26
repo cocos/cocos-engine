@@ -282,7 +282,7 @@ exports.methods = {
         $label.setAttribute('value', type);
         const $panel = $section.querySelector('ui-panel');
         $panel.setAttribute('src', join(__dirname, `./${asset.importer}.js`));
-        $panel.update(assetList, metaList);
+        $panel.update(assetList, metaList, this.assetList);
     },
 
     checkSpriteFrameChange(srcType, destType) {
