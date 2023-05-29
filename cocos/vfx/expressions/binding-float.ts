@@ -24,11 +24,8 @@
  */
 
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
+import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { VFXParameterNameSpace } from '../define';
-import { ParticleDataSet } from '../data-set/particle';
-import { UserDataSet } from '../data-set/user';
 import { FloatExpression } from './float';
 import { VFXParameterIdentity } from '../vfx-parameter';
 import { FloatArrayParameter, FloatParameter } from '../parameters';

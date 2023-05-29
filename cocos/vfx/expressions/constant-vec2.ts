@@ -22,12 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { CCFloat, Vec3, serializable, Vec2 } from '../../core';
+import { CCFloat, serializable, Vec2 } from '../../core';
 import { ccclass, type } from '../../core/data/class-decorator';
-import { ContextDataSet } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { ParticleDataSet } from '../data-set/particle';
-import { UserDataSet } from '../data-set/user';
+import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { Vec2Expression } from './vec2';
 
 @ccclass('cc.ConstantVec2Expression')

@@ -52,7 +52,7 @@ export * from './scale-mesh-size-by-speed';
 export * from './scale-sprite-size-by-speed';
 export * from './inherit-velocity';
 export * from './cone-location';
-export * from './sphere-shape';
+export * from './sphere-location';
 export * from './donut-location';
 export * from './circle-location';
 export * from './plane-location';

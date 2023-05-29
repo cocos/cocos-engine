@@ -23,12 +23,9 @@
  THE SOFTWARE.
  */
 
-import { ContextDataSet } from './data-set/context';
-import { ParticleDataSet } from './data-set/particle';
+import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from './data-set';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { assertIsTrue, CCBoolean, CCString } from '../core';
-import { EmitterDataSet } from './data-set/emitter';
-import { UserDataSet } from './data-set/user';
 import { RandomStream } from './random-stream';
 import { VFXEmitterState } from './vfx-emitter';
 

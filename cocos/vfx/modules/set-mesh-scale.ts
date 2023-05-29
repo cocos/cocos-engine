@@ -23,15 +23,11 @@
  THE SOFTWARE.
  */
 
-import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
+import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, SCALE } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { FloatExpression } from '../expressions/float';
+import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, SCALE, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3 } from '../../core';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
-import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3ArrayParameter, Uint32Parameter } from '../parameters';
 
 const tempScale = new Vec3();
@@ -39,7 +35,6 @@ const tempScale = new Vec3();
 @VFXModule.register('SetMeshScale', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [SCALE.name], [NORMALIZED_AGE.name])
 export class SetMeshScaleModule extends VFXModule {
     @serializable
-    @tooltip('i18n:particle_system.startSize3D')
     public separateAxes = false;
 
     @type(FloatExpression)
@@ -91,27 +86,27 @@ export class SetMeshScaleModule extends VFXModule {
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         if (this.separateAxes) {
-            const exp = this._scale as Vec3Expression;
-            exp.bind(particles, emitter, user, context);
-            if (exp.isConstant) {
-                const srcScale = exp.evaluate(0, tempScale);
+            const scaleExp = this._scale as Vec3Expression;
+            scaleExp.bind(particles, emitter, user, context);
+            if (scaleExp.isConstant) {
+                const srcScale = scaleExp.evaluate(0, tempScale);
                 scale.fill(srcScale, fromIndex, toIndex);
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    exp.evaluate(i, tempScale);
+                    scaleExp.evaluate(i, tempScale);
                     scale.setVec3At(tempScale, i);
                 }
             }
         } else {
-            const exp = this._uniformScale as FloatExpression;
-            exp.bind(particles, emitter, user, context);
-            if (exp.isConstant) {
-                const srcScale = exp.evaluate(0);
+            const uniformScaleExp = this._uniformScale as FloatExpression;
+            uniformScaleExp.bind(particles, emitter, user, context);
+            if (uniformScaleExp.isConstant) {
+                const srcScale = uniformScaleExp.evaluate(0);
                 Vec3.set(tempScale, srcScale, srcScale, srcScale);
                 scale.fill(tempScale, fromIndex, toIndex);
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    const srcScale = exp.evaluate(i);
+                    const srcScale = uniformScaleExp.evaluate(i);
                     scale.setUniformFloatAt(srcScale, i);
                 }
             }

@@ -24,10 +24,7 @@
  */
 import { Color, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/class-decorator';
-import { ContextDataSet } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { ParticleDataSet } from '../data-set/particle';
-import { UserDataSet } from '../data-set/user';
+import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { ColorExpression } from './color';
 
 @ccclass('cc.ConstantColorExpression')
@@ -40,7 +37,7 @@ export class ConstantColorExpression extends ColorExpression {
         return true;
     }
 
-    constructor (val: Color = Color.WHITE.clone()) {
+    constructor (val: Color = Color.WHITE) {
         super();
         Color.copy(this.color, val);
     }

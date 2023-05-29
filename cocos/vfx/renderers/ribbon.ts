@@ -22,8 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { EmitterDataSet } from '../data-set/emitter';
-import { ParticleDataSet } from '../data-set/particle';
+import { EmitterDataSet, ParticleDataSet } from '../data-set';
 import { ParticleRenderer } from '../particle-renderer';
 
 export class RibbonParticleRenderer extends ParticleRenderer {

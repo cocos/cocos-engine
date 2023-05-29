@@ -23,14 +23,10 @@
  THE SOFTWARE.
  */
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
-import { ColorExpression } from '../expressions/color';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { ColorExpression, ConstantColorExpression, ConstantFloatExpression, FloatExpression } from '../expressions';
+import { FROM_INDEX, ContextDataSet, TO_INDEX, COLOR, ParticleDataSet, VELOCITY, UserDataSet, EmitterDataSet } from '../data-set';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { COLOR, ParticleDataSet, VELOCITY } from '../data-set/particle';
 import { Color, math, Vec3 } from '../../core';
-import { UserDataSet } from '../data-set/user';
-import { EmitterDataSet } from '../data-set/emitter';
-import { ConstantColorExpression, ConstantFloatExpression, FloatExpression } from '../expressions';
 import { Uint32Parameter, Vec3ArrayParameter, ColorArrayParameter } from '../parameters';
 
 const tempVelocity = new Vec3();
@@ -42,22 +38,55 @@ const tempColor3 = new Color();
 @VFXModule.register('ScaleColorBySpeed', ModuleExecStageFlags.UPDATE, [COLOR.name], [VELOCITY.name])
 export class ScaleColorBySpeedModule extends VFXModule {
     @type(ColorExpression)
-    @serializable
-    public minScalar: ColorExpression = new ConstantColorExpression(Color.TRANSPARENT);
+    public get minScalar () {
+        if (!this._minScalar) { this._minScalar = new ConstantColorExpression(Color.TRANSPARENT); }
+        return this._minScalar;
+    }
+
+    public set minScalar (val) {
+        this._minScalar = val;
+    }
 
     @type(ColorExpression)
-    @serializable
-    public maxScalar: ColorExpression = new ConstantColorExpression(Color.WHITE);
+    public get maxScalar () {
+        if (!this._maxScalar) { this._maxScalar = new ConstantColorExpression(Color.WHITE); }
+        return this._maxScalar;
+    }
+
+    public set maxScalar (val) {
+        this._maxScalar = val;
+    }
 
     @type(FloatExpression)
-    @serializable
     @rangeMin(0)
-    public minSpeedThreshold: FloatExpression = new ConstantFloatExpression();
+    public get minSpeedThreshold () {
+        if (!this._minSpeedThreshold) { this._minSpeedThreshold = new ConstantFloatExpression(); }
+        return this._minSpeedThreshold;
+    }
+
+    public set minSpeedThreshold (val) {
+        this._minSpeedThreshold = val;
+    }
 
     @type(FloatExpression)
-    @serializable
     @rangeMin(0)
-    public maxSpeedThreshold: FloatExpression = new ConstantFloatExpression(1);
+    public get maxSpeedThreshold () {
+        if (!this._maxSpeedThreshold) { this._maxSpeedThreshold = new ConstantFloatExpression(1); }
+        return this._maxSpeedThreshold;
+    }
+
+    public set maxSpeedThreshold (val) {
+        this._maxSpeedThreshold = val;
+    }
+
+    @serializable
+    private _minScalar: ColorExpression | null = null;
+    @serializable
+    private _maxScalar: ColorExpression | null = null;
+    @serializable
+    private _minSpeedThreshold: FloatExpression | null = null;
+    @serializable
+    private _maxSpeedThreshold: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(COLOR);
@@ -68,33 +97,34 @@ export class ScaleColorBySpeedModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const hasVelocity = particles.hasParameter(VELOCITY);
         if (!hasVelocity) { return; }
-        const minSpeedThreshold = this.minSpeedThreshold;
-        const maxSpeedThreshold = this.maxSpeedThreshold;
-        const minScalar = this.minScalar;
-        const maxScalar = this.maxScalar;
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
         const color = particles.getParameterUnsafe<ColorArrayParameter>(COLOR);
-        if (minSpeedThreshold.isConstant && maxSpeedThreshold.isConstant) {
-            const min = minSpeedThreshold.evaluate(0);
-            const speedScale = 1 / Math.abs(min - maxSpeedThreshold.evaluate(0));
+        const minSpeedThresholdExp = this._minSpeedThreshold as FloatExpression;
+        const maxSpeedThresholdExp = this._maxSpeedThreshold as FloatExpression;
+        const minScalarExp = this._minScalar as ColorExpression;
+        const maxScalarExp = this._maxScalar as ColorExpression;
+
+        if (minSpeedThresholdExp.isConstant && maxSpeedThresholdExp.isConstant) {
+            const min = minSpeedThresholdExp.evaluate(0);
+            const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(0));
             const speedOffset = -min * speedScale;
             for (let i = fromIndex; i < toIndex; i++) {
                 velocity.getVec3At(tempVelocity, i);
                 const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                color.multiplyColorAt(Color.lerp(tempColor3, minScalar.evaluate(i, tempColor), maxScalar.evaluate(i, tempColor2), ratio), i);
+                color.multiplyColorAt(Color.lerp(tempColor3, minScalarExp.evaluate(i, tempColor), maxScalarExp.evaluate(i, tempColor2), ratio), i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                const min = minSpeedThreshold.evaluate(i);
-                const speedScale = 1 / Math.abs(min - maxSpeedThreshold.evaluate(i));
+                const min = minSpeedThresholdExp.evaluate(i);
+                const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(i));
                 const speedOffset = -min * speedScale;
                 velocity.getVec3At(tempVelocity, i);
                 const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                color.multiplyColorAt(Color.lerp(tempColor3, minScalar.evaluate(i, tempColor), maxScalar.evaluate(i, tempColor2), ratio), i);
+                color.multiplyColorAt(Color.lerp(tempColor3, minScalarExp.evaluate(i, tempColor), maxScalarExp.evaluate(i, tempColor2), ratio), i);
             }
         }
     }

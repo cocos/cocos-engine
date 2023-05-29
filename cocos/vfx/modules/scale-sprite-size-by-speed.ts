@@ -23,15 +23,11 @@
  THE SOFTWARE.
  */
 
-import { ccclass, type, serializable, range, visible, rangeMin } from 'cc.decorator';
+import { ccclass, type, serializable, visible, rangeMin } from 'cc.decorator';
 import { lerp, math, Vec2, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { FloatExpression } from '../expressions/float';
-import { ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
-import { ConstantFloatExpression, ConstantVec2Expression, ConstantVec3Expression, Vec2Expression, Vec3Expression } from '../expressions';
+import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression, Vec3Expression } from '../expressions';
+import { ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { Uint32Parameter, Vec2ArrayParameter, Vec3ArrayParameter } from '../parameters';
 
 const tempVelocity = new Vec3();
@@ -50,7 +46,6 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
        * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
        */
     @type(FloatExpression)
-    @range([0, 1])
     @visible(function (this: ScaleSpriteSizeBySpeedModule): boolean { return !this.separateAxes; })
     public get uniformMinScalar () {
         if (!this._uniformMinScalar) {
@@ -64,7 +59,6 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
     }
 
     @type(FloatExpression)
-    @range([0, 1])
     @visible(function (this: ScaleSpriteSizeBySpeedModule): boolean { return !this.separateAxes; })
     public get uniformMaxScalar () {
         if (!this._uniformMaxScalar) {
@@ -104,15 +98,35 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
     }
 
     @type(FloatExpression)
-    @serializable
     @rangeMin(0)
-    public minSpeedThreshold: FloatExpression = new ConstantFloatExpression();
+    public get minSpeedThreshold () {
+        if (!this._minSpeedThreshold) {
+            this._minSpeedThreshold = new ConstantFloatExpression();
+        }
+        return this._minSpeedThreshold;
+    }
+
+    public set minSpeedThreshold (val) {
+        this._minSpeedThreshold = val;
+    }
 
     @type(FloatExpression)
-    @serializable
     @rangeMin(0)
-    public maxSpeedThreshold: FloatExpression = new ConstantFloatExpression(1);
+    public get maxSpeedThreshold () {
+        if (!this._maxSpeedThreshold) {
+            this._maxSpeedThreshold = new ConstantFloatExpression(1);
+        }
+        return this._maxSpeedThreshold;
+    }
 
+    public set maxSpeedThreshold (val) {
+        this._maxSpeedThreshold = val;
+    }
+
+    @serializable
+    private _minSpeedThreshold: FloatExpression | null = null;
+    @serializable
+    private _maxSpeedThreshold: FloatExpression | null = null;
     @serializable
     private _uniformMinScalar: FloatExpression | null = null;
     @serializable
@@ -136,62 +150,62 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const hasVelocity = particles.hasParameter(VELOCITY);
         if (!hasVelocity) { return; }
         const spriteSize = particles.getParameterUnsafe<Vec2ArrayParameter>(SPRITE_SIZE);
         const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
-        const minSpeedThreshold = this.minSpeedThreshold;
-        const maxSpeedThreshold = this.maxSpeedThreshold;
-        minSpeedThreshold.bind(particles, emitter, user, context);
-        maxSpeedThreshold.bind(particles, emitter, user, context);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const minSpeedThresholdExp = this._minSpeedThreshold as FloatExpression;
+        const maxSpeedThresholdExp = this._maxSpeedThreshold as FloatExpression;
+        minSpeedThresholdExp.bind(particles, emitter, user, context);
+        maxSpeedThresholdExp.bind(particles, emitter, user, context);
         if (!this.separateAxes) {
-            const uniformMinScalar = this.uniformMinScalar;
-            const uniformMaxScalar = this.uniformMaxScalar;
-            uniformMinScalar.bind(particles, emitter, user, context);
-            uniformMaxScalar.bind(particles, emitter, user, context);
-            if (minSpeedThreshold.isConstant && maxSpeedThreshold.isConstant) {
-                const min = minSpeedThreshold.evaluate(0);
-                const speedScale = 1 / Math.abs(min - maxSpeedThreshold.evaluate(0));
+            const uniformMinScalarExp = this._uniformMinScalar as FloatExpression;
+            const uniformMaxScalarExp = this._uniformMaxScalar as FloatExpression;
+            uniformMinScalarExp.bind(particles, emitter, user, context);
+            uniformMaxScalarExp.bind(particles, emitter, user, context);
+            if (minSpeedThresholdExp.isConstant && maxSpeedThresholdExp.isConstant) {
+                const min = minSpeedThresholdExp.evaluate(0);
+                const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(0));
                 const speedOffset = -min * speedScale;
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.getVec3At(tempVelocity, i);
                     const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                    spriteSize.multiplyScalarAt(lerp(uniformMinScalar.evaluate(i), uniformMaxScalar.evaluate(i), ratio), i);
+                    spriteSize.multiplyScalarAt(lerp(uniformMinScalarExp.evaluate(i), uniformMaxScalarExp.evaluate(i), ratio), i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const min = minSpeedThreshold.evaluate(i);
-                    const speedScale = 1 / Math.abs(min - maxSpeedThreshold.evaluate(0));
+                    const min = minSpeedThresholdExp.evaluate(i);
+                    const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(i));
                     const speedOffset = -min * speedScale;
                     velocity.getVec3At(tempVelocity, i);
                     const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                    spriteSize.multiplyScalarAt(lerp(uniformMinScalar.evaluate(i), uniformMaxScalar.evaluate(i), ratio), i);
+                    spriteSize.multiplyScalarAt(lerp(uniformMinScalarExp.evaluate(i), uniformMaxScalarExp.evaluate(i), ratio), i);
                 }
             }
         } else {
-            const minScalar = this.minScalar;
-            const maxScalar = this.maxScalar;
-            minScalar.bind(particles, emitter, user, context);
-            maxScalar.bind(particles, emitter, user, context);
-            if (minSpeedThreshold.isConstant && maxSpeedThreshold.isConstant) {
-                const min = minSpeedThreshold.evaluate(0);
-                const speedScale = 1 / Math.abs(min - maxSpeedThreshold.evaluate(0));
+            const minScalarExp = this._minScalar as Vec2Expression;
+            const maxScalarExp = this._maxScalar as Vec2Expression;
+            minScalarExp.bind(particles, emitter, user, context);
+            maxScalarExp.bind(particles, emitter, user, context);
+            if (minSpeedThresholdExp.isConstant && maxSpeedThresholdExp.isConstant) {
+                const min = minSpeedThresholdExp.evaluate(0);
+                const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(0));
                 const speedOffset = -min * speedScale;
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.getVec3At(tempVelocity, i);
                     const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                    spriteSize.multiplyVec2At(Vec2.lerp(tempScalar, minScalar.evaluate(i, tempScalar), maxScalar.evaluate(i, tempScalar2), ratio), i);
+                    spriteSize.multiplyVec2At(Vec2.lerp(tempScalar, minScalarExp.evaluate(i, tempScalar), maxScalarExp.evaluate(i, tempScalar2), ratio), i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const min = minSpeedThreshold.evaluate(0);
-                    const speedScale = 1 / Math.abs(min - maxSpeedThreshold.evaluate(0));
+                    const min = minSpeedThresholdExp.evaluate(i);
+                    const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(i));
                     const speedOffset = -min * speedScale;
                     velocity.getVec3At(tempVelocity, i);
                     const ratio = math.clamp01(tempVelocity.length() * speedScale + speedOffset);
-                    spriteSize.multiplyVec2At(Vec2.lerp(tempScalar, minScalar.evaluate(i, tempScalar), maxScalar.evaluate(i, tempScalar2), ratio), i);
+                    spriteSize.multiplyVec2At(Vec2.lerp(tempScalar, minScalarExp.evaluate(i, tempScalar), maxScalarExp.evaluate(i, tempScalar2), ratio), i);
                 }
             }
         }

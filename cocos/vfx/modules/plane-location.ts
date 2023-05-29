@@ -25,10 +25,7 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { POSITION, ParticleDataSet } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
+import { POSITION, ParticleDataSet, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec2, Vec3 } from '../../core';
 import { ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
@@ -76,17 +73,18 @@ export class PlaneLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const planeSize = this._planeSize as Vec2Expression;
-        const planeCenter = this._planeCenter as Vec2Expression;
-        planeSize.bind(particles, emitter, user, context);
-        planeCenter.bind(particles, emitter, user, context);
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
+        const planeSizeExp = this._planeSize as Vec2Expression;
+        const planeCenterExp = this._planeCenter as Vec2Expression;
+        planeSizeExp.bind(particles, emitter, user, context);
+        planeCenterExp.bind(particles, emitter, user, context);
+
         const rand = this.randomStream;
         for (let i = fromIndex; i < toIndex; i++) {
-            planeCenter.evaluate(i, center);
-            planeSize.evaluate(i, size);
+            planeCenterExp.evaluate(i, center);
+            planeSizeExp.evaluate(i, size);
             Vec2.set(pos, rand.getFloatFromRange(0, size.x), rand.getFloatFromRange(0, size.y));
             pos.x -= size.x * center.x;
             pos.y -= size.y * center.y;

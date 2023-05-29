@@ -26,15 +26,12 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Vec3 } from '../../core';
-import { POSITION, ParticleDataSet } from '../data-set/particle';
-import { ContextDataSet } from '../data-set/context';
-import { AngleBasedLocationModule } from './angle-based-location';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
+import { POSITION, ParticleDataSet, EmitterDataSet, ContextDataSet, UserDataSet } from '../data-set';
+import { ShapeLocationModule } from './shape-location';
 
 @ccclass('cc.DonutLocationModule')
 @VFXModule.register('DonutLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
-export class DonutLocationModule extends AngleBasedLocationModule {
+export class DonutLocationModule extends ShapeLocationModule {
     /**
        * @zh 粒子发射器半径。
        */

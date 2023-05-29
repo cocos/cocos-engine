@@ -26,10 +26,7 @@ import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { CCBoolean, Vec3 } from '../../core';
-import { ParticleDataSet, POSITION } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
+import { ParticleDataSet, POSITION, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 
@@ -101,24 +98,26 @@ export class BoxLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const boxSize = this._boxSize as Vec3Expression;
-        const boxCenter = this._boxCenter as Vec3Expression;
-        boxSize.bind(particles, emitter, user, context);
-        boxCenter.bind(particles, emitter, user, context);
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
+        const boxSizeExp = this._boxSize as Vec3Expression;
+        const boxCenterExp = this._boxCenter as Vec3Expression;
+        boxSizeExp.bind(particles, emitter, user, context);
+        boxCenterExp.bind(particles, emitter, user, context);
+
         const rand = this.randomStream;
         if (!this.surfaceOnly) {
             for (let i = fromIndex; i < toIndex; ++i) {
-                boxSize.evaluate(i, tempBoxSize);
-                boxCenter.evaluate(i, tempBoxCenter);
+                boxSizeExp.evaluate(i, tempBoxSize);
+                boxCenterExp.evaluate(i, tempBoxCenter);
                 Vec3.set(pos, (rand.getFloat() - tempBoxCenter.x) * tempBoxSize.x,
                     (rand.getFloat() - tempBoxCenter.y) * tempBoxSize.y, (rand.getFloat() - tempBoxCenter.z) * tempBoxSize.z);
                 this.storePosition(i, pos, position);
             }
         } else {
-            const surfaceThickness = this._surfaceThickness as FloatExpression;
+            const surfaceThicknessExp = this._surfaceThickness as FloatExpression;
+            surfaceThicknessExp.bind(particles, emitter, user, context);
             for (let i = fromIndex; i < toIndex; ++i) {
                 const x = rand.getFloat();
                 const y = rand.getFloat();
@@ -128,9 +127,9 @@ export class BoxLocationModule extends ShapeLocationModule {
                     face === 0 ? (x >= 0.5 ? 1 : 0) : x,
                     face === 1 ? (y >= 0.5 ? 1 : 0) : y,
                     face === 2 ? (z >= 0.5 ? 1 : 0) : z);
-                boxSize.evaluate(i, tempBoxSize);
-                boxCenter.evaluate(i, tempBoxCenter);
-                const thickness = surfaceThickness.evaluate(i);
+                boxSizeExp.evaluate(i, tempBoxSize);
+                boxCenterExp.evaluate(i, tempBoxCenter);
+                const thickness = surfaceThicknessExp.evaluate(i);
                 tempPosition.x *= rand.getFloatFromRange(tempBoxSize.x - thickness, tempBoxSize.x);
                 tempPosition.y *= rand.getFloatFromRange(tempBoxSize.y - thickness, tempBoxSize.y);
                 tempPosition.z *= rand.getFloatFromRange(tempBoxSize.z - thickness, tempBoxSize.z);

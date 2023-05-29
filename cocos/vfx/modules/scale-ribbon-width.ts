@@ -25,12 +25,8 @@
 
 import { ccclass, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { FloatExpression } from '../expressions/float';
-import { BASE_RIBBON_WIDTH, NORMALIZED_AGE, ParticleDataSet, RIBBON_WIDTH, SPRITE_SIZE } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
-import { ConstantFloatExpression } from '../expressions';
+import { FloatExpression, ConstantFloatExpression } from '../expressions';
+import { BASE_RIBBON_WIDTH, NORMALIZED_AGE, ParticleDataSet, RIBBON_WIDTH, SPRITE_SIZE, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
 
 @ccclass('cc.ScaleRibbonWidthModule')
@@ -66,16 +62,16 @@ export class ScaleRibbonWidthModule extends VFXModule {
         const ribbonWidth = particles.getParameterUnsafe<FloatArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? BASE_RIBBON_WIDTH : RIBBON_WIDTH);
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const exp = this._scalar as FloatExpression;
-        exp.bind(particles, emitter, user, context);
-        if (exp.isConstant) {
-            const scalar = exp.evaluate(0);
+        const scalarExp = this._scalar as FloatExpression;
+        scalarExp.bind(particles, emitter, user, context);
+        if (scalarExp.isConstant) {
+            const scalar = scalarExp.evaluate(0);
             for (let i = fromIndex; i < toIndex; i++) {
                 ribbonWidth.multiplyFloatAt(scalar, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                const scalar = exp.evaluate(i);
+                const scalar = scalarExp.evaluate(i);
                 ribbonWidth.multiplyFloatAt(scalar, i);
             }
         }

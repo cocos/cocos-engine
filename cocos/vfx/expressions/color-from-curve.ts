@@ -24,12 +24,8 @@
  */
 import { Color, Gradient, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/decorators';
-import { ContextDataSet } from '../data-set/context';
-import { NORMALIZED_AGE, ParticleDataSet } from '../data-set/particle';
-import { ModuleExecStage } from '../vfx-module';
+import { ContextDataSet, ParticleDataSet, EmitterDataSet, NORMALIZED_LOOP_AGE, UserDataSet } from '../data-set';
 import { ColorExpression } from './color';
-import { EmitterDataSet, NORMALIZED_LOOP_AGE } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
 import { FloatExpression } from './float';
 import { BindingFloatExpression } from './binding-float';
 

@@ -25,12 +25,8 @@
 
 import { ccclass, serializable, type, rangeMin } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet } from '../data-set/particle';
-import { DELTA_TIME, ContextDataSet } from '../data-set/context';
-import { FloatExpression } from '../expressions/float';
-import { ConstantFloatExpression } from '../expressions';
-import { EmitterDataSet, LOOPED_AGE, SPAWN_REMAINDER } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
+import { ParticleDataSet, DELTA_TIME, ContextDataSet, EmitterDataSet, LOOPED_AGE, SPAWN_REMAINDER, UserDataSet } from '../data-set';
+import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { FloatParameter } from '../parameters';
 
 @ccclass('cc.SpawnRateModule')
@@ -40,9 +36,20 @@ export class SpawnRateModule extends VFXModule {
      * @zh 每秒发射的粒子数。
      */
     @type(FloatExpression)
-    @serializable
     @rangeMin(0)
-    public rate: FloatExpression = new ConstantFloatExpression(10);
+    public get rate () {
+        if (!this._rate) {
+            this._rate = new ConstantFloatExpression(10);
+        }
+        return this._rate;
+    }
+
+    public set rate (val) {
+        this._rate = val;
+    }
+
+    @serializable
+    private _rate: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.rate.tick(particles, emitter, user, context);
@@ -52,8 +59,9 @@ export class SpawnRateModule extends VFXModule {
         const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
         const spawnRemainder = emitter.getParameterUnsafe<FloatParameter>(SPAWN_REMAINDER);
         const loopedAge = emitter.getParameterUnsafe<FloatParameter>(LOOPED_AGE).data;
-        this.rate.bind(particles, emitter, user, context);
-        const spawnRate = this.rate.evaluateSingle();
+        const rateExp = this._rate as FloatExpression;
+        rateExp.bind(particles, emitter, user, context);
+        const spawnRate = rateExp.evaluateSingle();
         const intervalDt = 1 / spawnRate;
         const interpStartDt = (1 - spawnRemainder.data) * intervalDt;
         const count = spawnRemainder.data + (loopedAge > 0 ? spawnRate : 0) * deltaTime;

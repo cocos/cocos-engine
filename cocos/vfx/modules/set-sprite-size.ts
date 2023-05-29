@@ -25,13 +25,9 @@
 
 import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_SPRITE_SIZE, NORMALIZED_AGE, ParticleDataSet, SPRITE_SIZE } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { FloatExpression } from '../expressions/float';
+import { BASE_SPRITE_SIZE, NORMALIZED_AGE, ParticleDataSet, SPRITE_SIZE, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { Vec2 } from '../../core';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
-import { ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { Vec2ArrayParameter, Uint32Parameter } from '../parameters';
 
 const tempSize = new Vec2();
@@ -92,27 +88,27 @@ export class SetSpriteSizeModule extends VFXModule {
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         if (this.separateAxes) {
-            const exp = this._size as Vec2Expression;
-            exp.bind(particles, emitter, user, context);
-            if (exp.isConstant) {
-                const srcScale = exp.evaluate(0, tempSize);
+            const sizeExp = this._size as Vec2Expression;
+            sizeExp.bind(particles, emitter, user, context);
+            if (sizeExp.isConstant) {
+                const srcScale = sizeExp.evaluate(0, tempSize);
                 scale.fill(srcScale, fromIndex, toIndex);
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    exp.evaluate(i, tempSize);
+                    sizeExp.evaluate(i, tempSize);
                     scale.setVec2At(tempSize, i);
                 }
             }
         } else {
-            const exp = this.uniformSize;
-            exp.bind(particles, emitter, user, context);
-            if (exp.isConstant) {
-                const srcScale = exp.evaluate(0);
+            const uniformSizeExp = this._uniformSize as FloatExpression;
+            uniformSizeExp.bind(particles, emitter, user, context);
+            if (uniformSizeExp.isConstant) {
+                const srcScale = uniformSizeExp.evaluate(0);
                 Vec2.set(tempSize, srcScale, srcScale);
                 scale.fill(tempSize, fromIndex, toIndex);
             } else {
                 for (let i = fromIndex; i < toIndex; ++i) {
-                    const srcScale = exp.evaluate(i);
+                    const srcScale = uniformSizeExp.evaluate(i);
                     scale.setUniformFloatAt(srcScale, i);
                 }
             }

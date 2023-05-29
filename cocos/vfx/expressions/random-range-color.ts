@@ -24,11 +24,8 @@
  */
 import { Color } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { ParticleDataSet, RANDOM_SEED } from '../data-set/particle';
+import { ContextDataSet, EmitterDataSet, ParticleDataSet, RANDOM_SEED, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
-import { UserDataSet } from '../data-set/user';
 import { ColorExpression } from './color';
 import { ConstantColorExpression } from './constant-color';
 import { ModuleExecStage } from '../vfx-module';

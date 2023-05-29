@@ -27,11 +27,8 @@ import { ccclass, tooltip, type, serializable } from 'cc.decorator';
 import { Vec3, Enum } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY } from '../data-set/particle';
+import { FROM_INDEX, ContextDataSet, TO_INDEX, BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY, UserDataSet, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { UserDataSet } from '../data-set/user';
-import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../data-set/emitter';
 import { Vec3ArrayParameter, Uint32Parameter, BoolParameter, Mat3Parameter } from '../parameters';
 
 const _temp_v3 = new Vec3();
@@ -78,29 +75,29 @@ export class ForceModule extends VFXModule {
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace === CoordinateSpace.WORLD) !== emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
-        const exp = this._force as Vec3Expression;
-        exp.bind(particles, emitter, user, context);
+        const forceExp = this._force as Vec3Expression;
+        forceExp.bind(particles, emitter, user, context);
         if (needTransform) {
             const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
-            if (exp.isConstant) {
-                const force = Vec3.transformMat3(_temp_v3, exp.evaluate(0, _temp_v3), transform);
+            if (forceExp.isConstant) {
+                const force = Vec3.transformMat3(_temp_v3, forceExp.evaluate(0, _temp_v3), transform);
                 for (let i = fromIndex; i < toIndex; i++) {
                     physicsForce.addVec3At(force, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const force = Vec3.transformMat3(_temp_v3, exp.evaluate(i, _temp_v3), transform);
+                    const force = Vec3.transformMat3(_temp_v3, forceExp.evaluate(i, _temp_v3), transform);
                     physicsForce.addVec3At(force, i);
                 }
             }
-        } else if (exp.isConstant) {
-            const force = exp.evaluate(0, _temp_v3);
+        } else if (forceExp.isConstant) {
+            const force = forceExp.evaluate(0, _temp_v3);
             for (let i = fromIndex; i < toIndex; i++) {
                 physicsForce.addVec3At(force, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                physicsForce.addVec3At(exp.evaluate(i, _temp_v3), i);
+                physicsForce.addVec3At(forceExp.evaluate(i, _temp_v3), i);
             }
         }
     }

@@ -24,10 +24,7 @@
  */
 import { Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { ParticleDataSet } from '../data-set/particle';
-import { UserDataSet } from '../data-set/user';
+import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { Vec3Expression } from './vec3';

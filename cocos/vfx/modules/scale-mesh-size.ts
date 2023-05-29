@@ -23,15 +23,11 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable, visible } from 'cc.decorator';
+import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { FloatExpression } from '../expressions/float';
-import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, SCALE } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
-import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, SCALE, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec3ArrayParameter, Uint32Parameter } from '../parameters';
 
 const tempScalar = new Vec3();
@@ -96,30 +92,30 @@ export class ScaleMeshSizeModule extends VFXModule {
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         if (!this.separateAxes) {
-            const exp = this.uniformScalar;
-            exp.bind(particles, emitter, user, context);
-            if (exp.isConstant) {
-                const scalar = exp.evaluate(0);
+            const uniformScalarExp = this._uniformScalar as FloatExpression;
+            uniformScalarExp.bind(particles, emitter, user, context);
+            if (uniformScalarExp.isConstant) {
+                const scalar = uniformScalarExp.evaluate(0);
                 for (let i = fromIndex; i < toIndex; i++) {
                     scale.multiplyScalarAt(scalar, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const scalar = exp.evaluate(i);
+                    const scalar = uniformScalarExp.evaluate(i);
                     scale.multiplyScalarAt(scalar, i);
                 }
             }
         } else {
-            const exp = this.scalar;
-            exp.bind(particles, emitter, user, context);
-            if (exp.isConstant) {
-                const scalar = exp.evaluate(0, tempScalar);
+            const scalarExp = this._scalar as Vec3Expression;
+            scalarExp.bind(particles, emitter, user, context);
+            if (scalarExp.isConstant) {
+                const scalar = scalarExp.evaluate(0, tempScalar);
                 for (let i = fromIndex; i < toIndex; i++) {
                     scale.multiplyVec3At(scalar, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const scalar = exp.evaluate(i, tempScalar);
+                    const scalar = scalarExp.evaluate(i, tempScalar);
                     scale.multiplyVec3At(scalar, i);
                 }
             }

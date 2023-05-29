@@ -27,11 +27,8 @@ import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, Vec3 } from '../../core';
 import { VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { COLOR, ID, INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY } from '../data-set/particle';
-import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { COLOR, ID, INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY, DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
-import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
 import { BoolParameter, ColorArrayParameter, FloatArrayParameter, FloatParameter, Mat4Parameter, Uint32ArrayParameter, Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { VFXEventInfo } from '../vfx-events';
 
@@ -67,18 +64,9 @@ export class LocationEventGeneratorModule extends VFXModule {
         const hasVelocity = particles.hasParameter(VELOCITY);
         const hasColor = particles.hasParameter(COLOR);
         const hasPosition = particles.hasParameter(POSITION);
-        let velocity: Vec3ArrayParameter | null = null;
-        let color: ColorArrayParameter | null = null;
-        let position: Vec3ArrayParameter | null = null;
-        if (hasVelocity) {
-            velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
-        }
-        if (hasColor) {
-            color = particles.getParameterUnsafe<ColorArrayParameter>(COLOR);
-        }
-        if (hasPosition) {
-            position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
-        }
+        const velocity = hasVelocity ? particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY) : null;
+        const color = hasColor ? particles.getParameterUnsafe<ColorArrayParameter>(COLOR) : null;
+        const position = hasPosition ? particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION) : null;
         if (!approx(this.probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
                 if (RandomStream.getFloat(randomSeed[i] + randomOffset) > this.probability) {
@@ -88,13 +76,13 @@ export class LocationEventGeneratorModule extends VFXModule {
                 Vec3.zero(eventInfo.velocity);
                 Color.copy(eventInfo.color, Color.WHITE);
                 if (hasPosition) {
-                    (position as Vec3ArrayParameter).getVec3At(eventInfo.position, i);
+                    position!.getVec3At(eventInfo.position, i);
                 }
                 if (hasVelocity) {
-                    (velocity as Vec3ArrayParameter).getVec3At(eventInfo.velocity, i);
+                    velocity!.getVec3At(eventInfo.velocity, i);
                 }
                 if (hasColor) {
-                    (color as ColorArrayParameter).getColorAt(eventInfo.color, i);
+                    color!.getColorAt(eventInfo.color, i);
                 }
                 if (!isWorldSpace) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);

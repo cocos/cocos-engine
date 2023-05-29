@@ -26,11 +26,8 @@
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_VELOCITY, POSITION, ParticleDataSet, VELOCITY } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { BASE_VELOCITY, POSITION, ParticleDataSet, VELOCITY, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, IS_WORLD_SPACE, VELOCITY as EMITTER_VELOCITY, UserDataSet } from '../data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { EmitterDataSet, IS_WORLD_SPACE, VELOCITY as EMITTER_VELOCITY } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
 import { BoolParameter, Uint32Parameter, Vec3Parameter, Vec3ArrayParameter } from '../parameters';
 
 const tempVelocity = new Vec3();
@@ -68,16 +65,16 @@ export class InheritVelocityModule extends VFXModule {
         const initialVelocity = emitter.getParameterUnsafe<Vec3Parameter>(EMITTER_VELOCITY).data;
         if (!emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data) { return; }
         const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? BASE_VELOCITY : VELOCITY);
-        const exp = this._scale as Vec3Expression;
-        exp.bind(particles, emitter, user, context);
-        if (exp.isConstant) {
-            Vec3.multiply(tempVelocity, initialVelocity, exp.evaluate(0, scale));
+        const scaleExp = this._scale as Vec3Expression;
+        scaleExp.bind(particles, emitter, user, context);
+        if (scaleExp.isConstant) {
+            Vec3.multiply(tempVelocity, initialVelocity, scaleExp.evaluate(0, scale));
             for (let i = fromIndex; i < toIndex; i++) {
                 velocity.addVec3At(tempVelocity, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                Vec3.multiply(tempVelocity, initialVelocity, exp.evaluate(i, scale));
+                Vec3.multiply(tempVelocity, initialVelocity, scaleExp.evaluate(i, scale));
                 velocity.addVec3At(tempVelocity, i);
             }
         }

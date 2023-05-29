@@ -27,11 +27,8 @@ import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, EPSILON, Vec3 } from '../../core';
 import { VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { COLOR, ID, IS_DEAD, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { COLOR, ID, IS_DEAD, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
-import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
 import { Vec3ArrayParameter, ColorArrayParameter, Uint32Parameter, Mat4Parameter, Uint32ArrayParameter, BoolArrayParameter, BoolParameter } from '../parameters';
 import { VFXEventInfo } from '../vfx-events';
 
@@ -54,28 +51,20 @@ export class DeathEventGeneratorModule extends VFXModule {
         const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
         const id = particles.getParameterUnsafe<Uint32ArrayParameter>(ID).data;
         const isDead = particles.getParameterUnsafe<BoolArrayParameter>(IS_DEAD).data;
-        const { events } = context;
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const localToWorld = emitter.getParameterUnsafe<Mat4Parameter>(LOCAL_TO_WORLD).data;
         const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
+        const { events } = context;
         const randomOffset = this.randomSeed;
         const hasVelocity = particles.hasParameter(VELOCITY);
         const hasColor = particles.hasParameter(COLOR);
         const hasPosition = particles.hasParameter(POSITION);
         const probability = this.probability;
-        let velocity: Vec3ArrayParameter | null = null;
-        let color: ColorArrayParameter | null = null;
-        let position: Vec3ArrayParameter | null = null;
-        if (hasVelocity) {
-            velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
-        }
-        if (hasColor) {
-            color = particles.getParameterUnsafe<ColorArrayParameter>(COLOR);
-        }
-        if (hasPosition) {
-            position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
-        }
+        const velocity = hasVelocity ? particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY) : null;
+        const color = hasColor ? particles.getParameterUnsafe<ColorArrayParameter>(COLOR) : null;
+        const position = hasPosition ? particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION) : null;
+
         if (!approx(probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
                 if (!isDead[i]) {
@@ -89,13 +78,13 @@ export class DeathEventGeneratorModule extends VFXModule {
                 Vec3.zero(eventInfo.velocity);
                 Color.copy(eventInfo.color, Color.WHITE);
                 if (hasPosition) {
-                    (position as Vec3ArrayParameter).getVec3At(eventInfo.position, i);
+                    position!.getVec3At(eventInfo.position, i);
                 }
                 if (hasVelocity) {
-                    (velocity as Vec3ArrayParameter).getVec3At(eventInfo.velocity, i);
+                    velocity!.getVec3At(eventInfo.velocity, i);
                 }
                 if (hasColor) {
-                    (color as ColorArrayParameter).getColorAt(eventInfo.color, i);
+                    color!.getColorAt(eventInfo.color, i);
                 }
                 if (!isWorldSpace) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);

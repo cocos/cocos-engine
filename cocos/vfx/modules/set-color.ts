@@ -25,13 +25,9 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_COLOR, COLOR, NORMALIZED_AGE, ParticleDataSet } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { ColorExpression } from '../expressions/color';
+import { BASE_COLOR, COLOR, NORMALIZED_AGE, ParticleDataSet, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ColorExpression, ConstantColorExpression } from '../expressions';
 import { Color } from '../../core';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
-import { ConstantColorExpression } from '../expressions';
 import { ColorArrayParameter, Uint32Parameter } from '../parameters';
 
 const tempColor = new Color();
@@ -43,8 +39,19 @@ export class SetColorModule extends VFXModule {
        * @zh 设置粒子颜色。
        */
     @type(ColorExpression)
+    public get color () {
+        if (!this._color) {
+            this._color = new ConstantColorExpression();
+        }
+        return this._color;
+    }
+
+    public set color (val) {
+        this._color = val;
+    }
+
     @serializable
-    public color: ColorExpression = new ConstantColorExpression();
+    private _color: ColorExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(COLOR);
@@ -58,14 +65,14 @@ export class SetColorModule extends VFXModule {
         const color = particles.getParameterUnsafe<ColorArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? BASE_COLOR : COLOR);
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        this.color.bind(particles, emitter, user, context);
-        if (this.color.isConstant) {
-            color.fill(this.color.evaluate(0, tempColor), fromIndex, toIndex);
+        const colorExp = this._color as ColorExpression;
+        colorExp.bind(particles, emitter, user, context);
+        if (colorExp.isConstant) {
+            color.fill(colorExp.evaluate(0, tempColor), fromIndex, toIndex);
         } else {
             const dest = color.data;
-            const exp = this.color;
             for (let i = fromIndex; i < toIndex; i++) {
-                dest[i] = Color.toUint32(exp.evaluate(i, tempColor));
+                dest[i] = Color.toUint32(colorExp.evaluate(i, tempColor));
             }
         }
     }

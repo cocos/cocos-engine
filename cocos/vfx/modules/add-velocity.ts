@@ -27,10 +27,7 @@ import { ccclass, type, serializable } from 'cc.decorator';
 import { Enum, Vec3 } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, BASE_VELOCITY, POSITION, VELOCITY } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
+import { ParticleDataSet, BASE_VELOCITY, POSITION, VELOCITY, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS, UserDataSet } from '../data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { BoolParameter, Vec3ArrayParameter, Uint32Parameter, Mat3Parameter } from '../parameters';
 
@@ -69,14 +66,14 @@ export class AddVelocityModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
         const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(context.executionStage === ModuleExecStage.UPDATE ? VELOCITY : BASE_VELOCITY);
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const exp = this._velocity as Vec3Expression;
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
+        const velocityExp = this._velocity as Vec3Expression;
 
-        if (exp.isConstant) {
-            exp.evaluate(0, tempVelocity);
+        if (velocityExp.isConstant) {
+            velocityExp.evaluate(0, tempVelocity);
             if (needTransform) {
                 const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
                 Vec3.transformMat3(tempVelocity, tempVelocity, transform);
@@ -87,13 +84,13 @@ export class AddVelocityModule extends VFXModule {
         } else if (needTransform) {
             const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
             for (let i = fromIndex; i < toIndex; i++) {
-                exp.evaluate(i, tempVelocity);
+                velocityExp.evaluate(i, tempVelocity);
                 Vec3.transformMat3(tempVelocity, tempVelocity, transform);
                 velocity.addVec3At(tempVelocity, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                exp.evaluate(i, tempVelocity);
+                velocityExp.evaluate(i, tempVelocity);
                 velocity.addVec3At(tempVelocity, i);
             }
         }

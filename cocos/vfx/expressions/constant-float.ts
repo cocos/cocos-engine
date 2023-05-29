@@ -24,10 +24,7 @@
  */
 import { CCFloat } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/class-decorator';
-import { ContextDataSet } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { ParticleDataSet } from '../data-set/particle';
-import { UserDataSet } from '../data-set/user';
+import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { FloatExpression } from './float';
 
 @ccclass('cc.ConstantFloatExpression')

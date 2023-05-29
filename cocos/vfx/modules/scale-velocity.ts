@@ -25,13 +25,9 @@
 
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { CCBoolean, Enum, Vec3 } from '../../core';
-import { FloatExpression } from '../expressions/float';
+import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, VELOCITY } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
-import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { ParticleDataSet, VELOCITY, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS, UserDataSet } from '../data-set';
 import { CoordinateSpace } from '../define';
 import { Vec3ArrayParameter, BoolParameter, Uint32Parameter, Mat3Parameter } from '../parameters';
 
@@ -101,13 +97,13 @@ export class ScaleVelocityModule extends VFXModule {
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         if (this.separateAxes) {
-            const exp = this.scalar;
-            exp.bind(particles, emitter, user, context);
+            const scalarExp = this._scalar as Vec3Expression;
+            scalarExp.bind(particles, emitter, user, context);
             if (needTransform) {
                 const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
                 const invTransform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? WORLD_TO_LOCAL_RS : LOCAL_TO_WORLD_RS).data;
-                if (exp.isConstant) {
-                    const scalar = exp.evaluate(0, tempScalar);
+                if (scalarExp.isConstant) {
+                    const scalar = scalarExp.evaluate(0, tempScalar);
                     for (let i = fromIndex; i < toIndex; i++) {
                         velocity.getVec3At(tempVelocity, i);
                         Vec3.transformMat3(tempVelocity, tempVelocity, transform);
@@ -117,7 +113,7 @@ export class ScaleVelocityModule extends VFXModule {
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; i++) {
-                        const scalar = exp.evaluate(i, tempScalar);
+                        const scalar = scalarExp.evaluate(i, tempScalar);
                         velocity.getVec3At(tempVelocity, i);
                         Vec3.transformMat3(tempVelocity, tempVelocity, transform);
                         Vec3.multiply(tempVelocity, tempVelocity, scalar);
@@ -125,25 +121,25 @@ export class ScaleVelocityModule extends VFXModule {
                         velocity.setVec3At(tempVelocity, i);
                     }
                 }
-            } else if (exp.isConstant) {
-                const scalar = exp.evaluate(0, tempScalar);
+            } else if (scalarExp.isConstant) {
+                const scalar = scalarExp.evaluate(0, tempScalar);
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.multiplyVec3At(scalar, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const scalar = exp.evaluate(i, tempScalar);
+                    const scalar = scalarExp.evaluate(i, tempScalar);
                     velocity.multiplyVec3At(scalar, i);
                 }
             }
         } else {
-            const exp = this.uniformScalar;
-            exp.bind(particles, emitter, user, context);
+            const uniformExp = this._uniformScalar as FloatExpression;
+            uniformExp.bind(particles, emitter, user, context);
             if (needTransform) {
                 const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
                 const invTransform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? WORLD_TO_LOCAL_RS : LOCAL_TO_WORLD_RS).data;
-                if (exp.isConstant) {
-                    const scalar = exp.evaluate(0);
+                if (uniformExp.isConstant) {
+                    const scalar = uniformExp.evaluate(0);
                     for (let i = fromIndex; i < toIndex; i++) {
                         velocity.getVec3At(tempVelocity, i);
                         Vec3.transformMat3(tempVelocity, tempVelocity, transform);
@@ -153,7 +149,7 @@ export class ScaleVelocityModule extends VFXModule {
                     }
                 } else {
                     for (let i = fromIndex; i < toIndex; i++) {
-                        const scalar = exp.evaluate(i);
+                        const scalar = uniformExp.evaluate(i);
                         velocity.getVec3At(tempVelocity, i);
                         Vec3.transformMat3(tempVelocity, tempVelocity, transform);
                         Vec3.multiplyScalar(tempVelocity, tempVelocity, scalar);
@@ -161,14 +157,14 @@ export class ScaleVelocityModule extends VFXModule {
                         velocity.setVec3At(tempVelocity, i);
                     }
                 }
-            } else if (exp.isConstant) {
-                const scalar = exp.evaluate(0);
+            } else if (uniformExp.isConstant) {
+                const scalar = uniformExp.evaluate(0);
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.multiplyScalarAt(scalar, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const scalar = exp.evaluate(i);
+                    const scalar = uniformExp.evaluate(i);
                     velocity.multiplyScalarAt(scalar, i);
                 }
             }

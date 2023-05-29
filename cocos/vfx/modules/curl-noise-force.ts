@@ -25,14 +25,10 @@
 
 import { ccclass, type, serializable, rangeMin, visible } from 'cc.decorator';
 import { Enum, clamp, Vec2, Vec3, RealCurve } from '../../core';
-import { FloatExpression } from '../expressions/float';
+import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, PHYSICS_FORCE, POSITION, VELOCITY } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { ParticleDataSet, PHYSICS_FORCE, POSITION, VELOCITY, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
-import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXEmitterState } from '../vfx-emitter';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 
@@ -531,25 +527,27 @@ export class CurlNoiseForceModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const frequencyExp = this._frequency as FloatExpression;
-        const offset = this._offset;
         const samplePosition = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
+        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(PHYSICS_FORCE);
+        const frequencyExp = this._frequency as FloatExpression;
+        const strengthExp = this._strength as Vec3Expression;
+        const uniformStrengthExp = this._uniformStrength as FloatExpression;
+        const panSpeedExp = this._panSpeed as Vec3Expression;
+        const offset = this._offset;
         const separateAxes = this.separateAxes;
         const remap = this.enableRemap;
-        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(PHYSICS_FORCE);
         if (separateAxes) {
-            (this._strength as Vec3Expression).bind(particles, emitter, user, context);
+            strengthExp.bind(particles, emitter, user, context);
         } else {
-            (this._uniformStrength as FloatExpression).bind(particles, emitter, user, context);
+            uniformStrengthExp.bind(particles, emitter, user, context);
         }
-        const panSpeed = this._panSpeed as Vec3Expression;
-        panSpeed.bind(particles, emitter, user, context);
+        panSpeedExp.bind(particles, emitter, user, context);
         frequencyExp.bind(particles, emitter, user, context);
 
         // eslint-disable-next-line no-lonely-if
         if (this.quality === Quality.HIGH) {
             for (let i = fromIndex; i < toIndex; i++) {
-                panSpeed.evaluate(i, tempPanOffset);
+                panSpeedExp.evaluate(i, tempPanOffset);
                 samplePosition.getVec3At(pos, i);
                 const frequency = frequencyExp.evaluate(i);
                 pos.add(offset);
@@ -562,7 +560,7 @@ export class CurlNoiseForceModule extends VFXModule {
             }
         } else if (this.quality === Quality.MIDDLE) {
             for (let i = fromIndex; i < toIndex; i++) {
-                panSpeed.evaluate(i, tempPanOffset);
+                panSpeedExp.evaluate(i, tempPanOffset);
                 samplePosition.getVec3At(pos, i);
                 const frequency = frequencyExp.evaluate(i);
                 pos.add(offset);
@@ -575,7 +573,7 @@ export class CurlNoiseForceModule extends VFXModule {
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                panSpeed.evaluate(i, tempPanOffset);
+                panSpeedExp.evaluate(i, tempPanOffset);
                 samplePosition.getVec3At(pos, i);
                 const frequency = frequencyExp.evaluate(i);
                 pos.add(offset);

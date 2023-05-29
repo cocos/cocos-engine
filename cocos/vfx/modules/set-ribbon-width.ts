@@ -25,12 +25,8 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_RIBBON_WIDTH, NORMALIZED_AGE, ParticleDataSet, RIBBON_WIDTH } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { FloatExpression } from '../expressions/float';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
-import { ConstantFloatExpression } from '../expressions';
+import { BASE_RIBBON_WIDTH, NORMALIZED_AGE, ParticleDataSet, RIBBON_WIDTH, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
 
 @ccclass('cc.SetRibbonWidthModule')
@@ -64,14 +60,14 @@ export class SetRibbonWidthModule extends VFXModule {
         const ribbonWidth = particles.getParameterUnsafe<FloatArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? BASE_RIBBON_WIDTH : RIBBON_WIDTH);
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const exp = this._width as FloatExpression;
-        exp.bind(particles, emitter, user, context);
-        if (exp.isConstant) {
-            const width = exp.evaluate(0);
+        const widthExp = this._width as FloatExpression;
+        widthExp.bind(particles, emitter, user, context);
+        if (widthExp.isConstant) {
+            const width = widthExp.evaluate(0);
             ribbonWidth.fill(width, fromIndex, toIndex);
         } else {
             for (let i = fromIndex; i < toIndex; ++i) {
-                const width = exp.evaluate(i);
+                const width = widthExp.evaluate(i);
                 ribbonWidth.setFloatAt(width, i);
             }
         }

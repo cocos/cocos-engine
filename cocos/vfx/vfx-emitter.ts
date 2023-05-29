@@ -28,18 +28,15 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, 
 import { DEBUG, EDITOR } from 'internal:constants';
 import { approx, Color, lerp, Mat4, Quat, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX } from './data-set/context';
+import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX, ParticleDataSet, BASE_COLOR, BASE_SCALE, BASE_SPRITE_SIZE, BASE_VELOCITY, COLOR, ID, INV_START_LIFETIME, IS_DEAD, MESH_ORIENTATION, NORMALIZED_AGE, POSITION, RANDOM_SEED, SCALE, SPRITE_SIZE, VELOCITY, AGE, CURRENT_DELAY, CURRENT_LOOP_COUNT, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD, LOOPED_AGE, NORMALIZED_LOOP_AGE, RENDER_SCALE, VELOCITY as EMITTER_VELOCITY, WORLD_TO_LOCAL, WORLD_TO_LOCAL_RS, UserDataSet } from './data-set';
 import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, PlayingState, ScalingMode } from './define';
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component } from '../scene-graph';
-import { ParticleDataSet, BASE_COLOR, BASE_SCALE, BASE_SPRITE_SIZE, BASE_VELOCITY, COLOR, ID, INV_START_LIFETIME, IS_DEAD, MESH_ORIENTATION, NORMALIZED_AGE, POSITION, RANDOM_SEED, SCALE, SPRITE_SIZE, VELOCITY } from './data-set/particle';
 import { VFXModuleStage, ModuleExecStage } from './vfx-module';
 import { vfxManager } from './vfx-manager';
 import { EventHandler } from './event-handler';
 import { ParticleRenderer } from './particle-renderer';
-import { AGE, CURRENT_DELAY, CURRENT_LOOP_COUNT, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD, LOOPED_AGE, NORMALIZED_LOOP_AGE, RENDER_SCALE, VELOCITY as EMITTER_VELOCITY, WORLD_TO_LOCAL, WORLD_TO_LOCAL_RS } from './data-set/emitter';
-import { UserDataSet } from './data-set/user';
 import { VFXEventInfo } from './vfx-events';
 import { RandomStream } from './random-stream';
 import { BoolArrayParameter, BoolParameter, ColorArrayParameter, FloatArrayParameter, FloatParameter, Mat3Parameter, Mat4Parameter, Uint32ArrayParameter, Uint32Parameter, Vec2ArrayParameter, Vec3ArrayParameter, Vec3Parameter } from './parameters';
@@ -353,7 +350,7 @@ export class VFXEmitter extends Component {
     }
 
     public get particles () {
-        return this._particleDataSet;
+        return this._particles;
     }
 
     public get isPlaying () {
@@ -467,9 +464,9 @@ export class VFXEmitter extends Component {
     @serializable
     private _scalingMode = ScalingMode.LOCAL;
     private _state = new VFXEmitterState();
-    private _particleDataSet = new ParticleDataSet();
-    private _emitterDataSet = new EmitterDataSet();
-    private _userDataSet = new UserDataSet();
+    private _particles = new ParticleDataSet();
+    private _emitter = new EmitterDataSet();
+    private _user = new UserDataSet();
     private _context = new ContextDataSet();
 
     /**
@@ -485,7 +482,7 @@ export class VFXEmitter extends Component {
         }
         if (this._state.playingState === PlayingState.STOPPED) {
             this._state.randomStream.seed = this.useAutoRandomSeed ? randomRangeInt(0, INT_MAX) : this.randomSeed;
-            this._emitterDataSet.getParameterUnsafe<FloatParameter>(CURRENT_DELAY).data = Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.randomStream.getFloat()), 0);
+            this._emitter.getParameterUnsafe<FloatParameter>(CURRENT_DELAY).data = Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.randomStream.getFloat()), 0);
             this._emitterStage.onPlay(this._state);
             this._spawnStage.onPlay(this._state);
             this._updateStage.onPlay(this._state);
@@ -526,7 +523,7 @@ export class VFXEmitter extends Component {
         this._state.isEmitting = false;
         if (clear) {
             this._state.playingState = PlayingState.STOPPED;
-            this._particleDataSet.reset();
+            this._particles.reset();
             vfxManager.removeEmitter(this);
         }
     }
@@ -536,14 +533,14 @@ export class VFXEmitter extends Component {
      * @zh 将所有粒子从粒子系统中清除。
      */
     public clear () {
-        this._particleDataSet.clear();
+        this._particles.clear();
     }
 
     /**
      * @zh 获取当前粒子数量
      */
     public getParticleCount () {
-        return this._particleDataSet.count;
+        return this._particles.count;
     }
 
     public addEventHandler () {
@@ -615,7 +612,7 @@ export class VFXEmitter extends Component {
         if (this.isPlaying) {
             this.tick(scaledDeltaTime);
 
-            if (this._particleDataSet.count === 0 && !this.isEmitting) {
+            if (this._particles.count === 0 && !this.isEmitting) {
                 this.stop();
             }
         }
@@ -623,10 +620,10 @@ export class VFXEmitter extends Component {
 
     // internal function
     private tick (deltaTime: number) {
-        const particles = this._particleDataSet;
+        const particles = this._particles;
         const context = this._context;
-        const emitter = this._emitterDataSet;
-        const user = this._userDataSet;
+        const emitter = this._emitter;
+        const user = this._user;
         const state = this._state;
         context.clearEvents();
         context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data = deltaTime;
@@ -750,7 +747,7 @@ export class VFXEmitter extends Component {
      */
     public render () {
         for (let i = 0, length = this._renderers.length; i < length; i++) {
-            this._renderers[i].render(this._particleDataSet, this._emitterDataSet);
+            this._renderers[i].render(this._particles, this._emitter);
         }
     }
 
@@ -863,7 +860,7 @@ export class VFXEmitter extends Component {
         if (spawnCount === 0) {
             return;
         }
-        const { _particleDataSet: particles, _context: context, _emitterDataSet: emitter, _userDataSet: user } = this;
+        const { _particles: particles, _context: context, _emitter: emitter, _user: user } = this;
         const fromIndex = particles.count;
         this.addNewParticles(particles, context, spawnCount);
         const numSpawned = particles.count - fromIndex;

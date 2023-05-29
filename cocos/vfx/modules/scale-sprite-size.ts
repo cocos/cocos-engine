@@ -26,14 +26,9 @@
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { CCBoolean, Vec2 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { FloatExpression } from '../expressions/float';
-import { BASE_SPRITE_SIZE, NORMALIZED_AGE, ParticleDataSet, SPRITE_SIZE } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
-import { ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
-import { Vec2ArrayParameter } from '../parameters/vec2';
-import { Uint32Parameter } from '../parameters';
+import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
+import { BASE_SPRITE_SIZE, NORMALIZED_AGE, ParticleDataSet, SPRITE_SIZE, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { Vec2ArrayParameter, Uint32Parameter } from '../parameters';
 
 const tempVec2 = new Vec2();
 
@@ -98,28 +93,28 @@ export class ScaleSpriteSizeModule extends VFXModule {
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         if (!this.separateAxes) {
-            const exp = this.uniformScalar;
-            exp.bind(particles, emitter, user, context);
-            if (exp.isConstant) {
-                const scalar = exp.evaluate(0);
+            const uniformScalarExp = this._uniformScalar as FloatExpression;
+            uniformScalarExp.bind(particles, emitter, user, context);
+            if (uniformScalarExp.isConstant) {
+                const scalar = uniformScalarExp.evaluate(0);
                 Vec2ArrayParameter.multiplyScalar(spriteSize, spriteSize, scalar, fromIndex, toIndex);
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const scalar = exp.evaluate(i);
+                    const scalar = uniformScalarExp.evaluate(i);
                     spriteSize.multiplyScalarAt(scalar, i);
                 }
             }
         } else {
-            const exp = this.scalar;
-            exp.bind(particles, emitter, user, context);
-            if (exp.isConstant) {
-                const scalar = exp.evaluate(0, tempVec2);
+            const scalarExp = this._scalar as Vec2Expression;
+            scalarExp.bind(particles, emitter, user, context);
+            if (scalarExp.isConstant) {
+                const scalar = scalarExp.evaluate(0, tempVec2);
                 for (let i = fromIndex; i < toIndex; i++) {
                     spriteSize.multiplyVec2At(scalar, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const scalar = exp.evaluate(i, tempVec2);
+                    const scalar = scalarExp.evaluate(i, tempVec2);
                     spriteSize.multiplyVec2At(scalar, i);
                 }
             }

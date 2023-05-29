@@ -22,68 +22,114 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass, serializable, tooltip, type } from 'cc.decorator';
+import { ccclass, serializable, type } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { Enum, toDegree, toRadian, Vec3 } from '../../core';
-import { POSITION, ParticleDataSet } from '../data-set/particle';
-import { ContextDataSet } from '../data-set/context';
-import { AngleBasedLocationModule } from './angle-based-location';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
-
-enum LocationMode {
-    BASE = 0,
-    VOLUME = 1,
-}
+import { Vec3 } from '../../core';
+import { POSITION, ParticleDataSet, ContextDataSet, FROM_INDEX, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ShapeLocationModule } from './shape-location';
+import { ConstantFloatExpression, FloatExpression } from '../expressions';
+import { Uint32Parameter } from '../parameters';
 
 @ccclass('cc.ConeLocationModule')
 @VFXModule.register('ConeLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
-export class ConeLocationModule extends AngleBasedLocationModule {
-    static LocationMode = LocationMode;
+export class ConeLocationModule extends ShapeLocationModule {
+    @type(FloatExpression)
+    get length () {
+        if (!this._length) {
+            this._length = new ConstantFloatExpression(0.5);
+        }
+        return this._length;
+    }
 
+    set length (val) {
+        this._length = val;
+    }
+
+    @type(FloatExpression)
     get angle () {
-        return Math.round(toDegree(this._angle) * 100) / 100;
+        if (!this._angle) {
+            this._angle = new ConstantFloatExpression(30);
+        }
+        return this._angle;
     }
 
     set angle (val) {
-        this._angle = toRadian(val);
+        this._angle = val;
     }
 
-    /**
-     * @zh 粒子发射器半径。
-     */
-    @serializable
-    @tooltip('i18n:shapeModule.radius')
-    public radius = 1;
+    @type(FloatExpression)
+    get innerAngle () {
+        if (!this._innerAngle) {
+            this._innerAngle = new ConstantFloatExpression(0);
+        }
+        return this._innerAngle;
+    }
+
+    set innerAngle (val) {
+        this._innerAngle = val;
+    }
+
+    @type(FloatExpression)
+    get radialAngle () {
+        if (!this._radialAngle) {
+            this._radialAngle = new ConstantFloatExpression(360);
+        }
+        return this._radialAngle;
+    }
+
+    set radialAngle (val) {
+        this._radialAngle = val;
+    }
+
+    @type(FloatExpression)
+    get surfaceDistribution () {
+        if (!this._surfaceDistribution) {
+            this._surfaceDistribution = new ConstantFloatExpression(0);
+        }
+        return this._surfaceDistribution;
+    }
+
+    set surfaceDistribution (val) {
+        this._surfaceDistribution = val;
+    }
 
     @serializable
-    public length = 5;
-
-    /**
-      * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
-      * - 0 表示从表面发射；
-      * - 1 表示从中心发射；
-      * - 0 ~ 1 之间表示在中心到表面之间发射。
-      */
+    private _length: FloatExpression | null = null;
     @serializable
-    @tooltip('i18n:shapeModule.radiusThickness')
-    public radiusThickness = 1;
-
-    @type(Enum(LocationMode))
+    private _angle: FloatExpression | null = null;
     @serializable
-    public locationMode = LocationMode.BASE;
-
+    private _innerAngle: FloatExpression | null = null;
     @serializable
-    private _angle = toRadian(25);
-    private _sinAngle = 0;
-    private _cosAngle = 0;
-    private _innerRadius = 0;
+    private _radialAngle: FloatExpression | null = null;
+    @serializable
+    private _surfaceDistribution: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.tick(particles, emitter, user, context);
-        this._sinAngle = Math.sin(this._angle);
-        this._cosAngle = Math.cos(this._angle);
-        this._innerRadius = (1 - this.radiusThickness) ** 2;
+        this.length.tick(particles, emitter, user, context);
+        this.angle.tick(particles, emitter, user, context);
+        this.innerAngle.tick(particles, emitter, user, context);
+        this.radialAngle.tick(particles, emitter, user, context);
+        this.surfaceDistribution.tick(particles, emitter, user, context);
+    }
+
+    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+        super.execute(particles, emitter, user, context);
+        const lengthExp = this._length as FloatExpression;
+        const angleExp = this._angle as FloatExpression;
+        const innerAngleExp = this._innerAngle as FloatExpression;
+        const radialAngleExp = this._radialAngle as FloatExpression;
+        const surfaceDistributionExp = this._surfaceDistribution as FloatExpression;
+        lengthExp.bind(particles, emitter, user, context);
+        angleExp.bind(particles, emitter, user, context);
+        innerAngleExp.bind(particles, emitter, user, context);
+        radialAngleExp.bind(particles, emitter, user, context);
+        surfaceDistributionExp.bind(particles, emitter, user, context);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        for (let i = fromIndex; i < toIndex; ++i) {
+            const leng;
+        }
     }
 
     protected generatePosAndDir (index: number, angle: number, dir: Vec3, pos: Vec3) {

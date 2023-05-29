@@ -25,12 +25,9 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, IS_WORLD_SPACE, WORLD_TO_LOCAL_RS, UserDataSet } from '../data-set';
 import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { EmitterDataSet, IS_WORLD_SPACE, WORLD_TO_LOCAL_RS } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
 import { Vec3ArrayParameter, Uint32Parameter, BoolParameter, Mat3Parameter } from '../parameters';
 
 const gravity = new Vec3();
@@ -65,29 +62,29 @@ export class GravityModule extends VFXModule {
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const needTransform = !emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
-        const exp = this._gravity as Vec3Expression;
-        exp.bind(particles, emitter, user, context);
+        const gravityExp = this._gravity as Vec3Expression;
+        gravityExp.bind(particles, emitter, user, context);
         if (needTransform) {
             const transform = emitter.getParameterUnsafe<Mat3Parameter>(WORLD_TO_LOCAL_RS).data;
-            if (exp.isConstant) {
-                const force = Vec3.transformMat3(gravity, exp.evaluate(0, gravity), transform);
+            if (gravityExp.isConstant) {
+                const force = Vec3.transformMat3(gravity, gravityExp.evaluate(0, gravity), transform);
                 for (let i = fromIndex; i < toIndex; i++) {
                     physicsForce.addVec3At(force, i);
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const force = Vec3.transformMat3(gravity, exp.evaluate(i, gravity), transform);
+                    const force = Vec3.transformMat3(gravity, gravityExp.evaluate(i, gravity), transform);
                     physicsForce.addVec3At(force, i);
                 }
             }
-        } else if (exp.isConstant) {
-            const force = exp.evaluate(0, gravity);
+        } else if (gravityExp.isConstant) {
+            const force = gravityExp.evaluate(0, gravity);
             for (let i = fromIndex; i < toIndex; i++) {
                 physicsForce.addVec3At(force, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                physicsForce.addVec3At(exp.evaluate(i, gravity), i);
+                physicsForce.addVec3At(gravityExp.evaluate(i, gravity), i);
             }
         }
     }

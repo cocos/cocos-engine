@@ -23,14 +23,10 @@
  THE SOFTWARE.
  */
 
-import { ccclass, serializable, type, range, editable, rangeMin } from 'cc.decorator';
-import { FloatExpression } from '../expressions/float';
+import { ccclass, serializable, type, rangeMin } from 'cc.decorator';
+import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet } from '../data-set/particle';
-import { DELTA_TIME, ContextDataSet } from '../data-set/context';
-import { ConstantFloatExpression } from '../expressions';
-import { EmitterDataSet, LOOPED_AGE } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
+import { ParticleDataSet, DELTA_TIME, ContextDataSet, EmitterDataSet, LOOPED_AGE, UserDataSet } from '../data-set';
 import { FloatParameter } from '../parameters';
 
 @ccclass('cc.SpawnBurstModule')
@@ -40,7 +36,6 @@ export class SpawnBurstModule extends VFXModule {
       * @zh 发射的粒子的数量。
       */
     @type(FloatExpression)
-    @serializable
     @rangeMin(0)
     public get count () {
         if (!this._count) {
@@ -57,7 +52,6 @@ export class SpawnBurstModule extends VFXModule {
      * @zh 粒子系统开始运行到触发此次 Burst 的时间。
      */
     @type(FloatExpression)
-    @editable
     public get time () {
         if (!this._time) {
             this._time = new ConstantFloatExpression(0);
@@ -71,6 +65,7 @@ export class SpawnBurstModule extends VFXModule {
 
     @serializable
     private _time: FloatExpression | null = null;
+    @serializable
     private _count: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet): void {
@@ -81,11 +76,12 @@ export class SpawnBurstModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         const loopAge = emitter.getParameterUnsafe<FloatParameter>(LOOPED_AGE).data;
         const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
-
-        this.count.bind(particles, emitter, user, context);
-        this.time.bind(particles, emitter, user, context);
-        const spawnCount = this.count.evaluateSingle();
-        const spawnTime = this.time.evaluateSingle();
+        const countExp = this._count as FloatExpression;
+        const timeExp = this._time as FloatExpression;
+        countExp.bind(particles, emitter, user, context);
+        timeExp.bind(particles, emitter, user, context);
+        const spawnCount = countExp.evaluateSingle();
+        const spawnTime = timeExp.evaluateSingle();
 
         const spawnStartDt = (spawnTime - (loopAge - deltaTime));
 

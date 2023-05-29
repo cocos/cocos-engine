@@ -25,10 +25,7 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, TWO_PI, Vec3 } from '../../core';
-import { POSITION, ParticleDataSet } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
+import { POSITION, ParticleDataSet, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
@@ -93,15 +90,15 @@ export class CircleLocationModule extends ShapeLocationModule {
     @visible(function (this: CircleLocationModule) {
         return this.distributionMode === DistributionMode.DIRECT;
     })
-    public get theta () {
-        if (!this._theta) {
-            this._theta = new ConstantFloatExpression(0);
+    public get uPosition () {
+        if (!this._uPosition) {
+            this._uPosition = new ConstantFloatExpression(0);
         }
-        return this._theta;
+        return this._uPosition;
     }
 
-    public set theta (val) {
-        this._theta = val;
+    public set uPosition (val) {
+        this._uPosition = val;
     }
 
     @type(FloatExpression)
@@ -156,7 +153,7 @@ export class CircleLocationModule extends ShapeLocationModule {
     @serializable
     private _thetaCoverage: FloatExpression | null = null;
     @serializable
-    private _theta: FloatExpression | null = null;
+    private _uPosition: FloatExpression | null = null;
     @serializable
     private _radiusPosition: FloatExpression | null = null;
     @serializable
@@ -171,7 +168,7 @@ export class CircleLocationModule extends ShapeLocationModule {
             this.radiusCoverage.tick(particles, emitter, user, context);
             this.thetaCoverage.tick(particles, emitter, user, context);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
-            this.theta.tick(particles, emitter, user, context);
+            this.uPosition.tick(particles, emitter, user, context);
             this.radiusPosition.tick(particles, emitter, user, context);
         }
     }
@@ -180,46 +177,46 @@ export class CircleLocationModule extends ShapeLocationModule {
         super.execute(particles, emitter, user, context);
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const radius = this._radius as FloatExpression;
-        radius.bind(particles, emitter, user, context);
         const position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
+        const radiusExp = this._radius as FloatExpression;
+        radiusExp.bind(particles, emitter, user, context);
         if (this.distributionMode === DistributionMode.RANDOM) {
-            const radiusCoverage = this._radiusCoverage as FloatExpression;
-            const thetaCoverage = this._thetaCoverage as FloatExpression;
-            radiusCoverage.bind(particles, emitter, user, context);
-            thetaCoverage.bind(particles, emitter, user, context);
+            const radiusCoverageExp = this._radiusCoverage as FloatExpression;
+            const thetaCoverageExp = this._thetaCoverage as FloatExpression;
+            radiusCoverageExp.bind(particles, emitter, user, context);
+            thetaCoverageExp.bind(particles, emitter, user, context);
             const randomStream = this.randomStream;
             for (let i = fromIndex; i < toIndex; ++i) {
-                const r = Math.sqrt(randomStream.getFloatFromRange(1 - radiusCoverage.evaluate(i), 1)) * radius.evaluate(i);
-                const theta = randomStream.getFloatFromRange(1 - thetaCoverage.evaluate(i), 1) * Math.PI * 2;
+                const r = Math.sqrt(randomStream.getFloatFromRange(1 - radiusCoverageExp.evaluate(i), 1)) * radiusExp.evaluate(i);
+                const theta = randomStream.getFloatFromRange(1 - thetaCoverageExp.evaluate(i), 1) * TWO_PI;
                 pos.x = Math.cos(theta) * r;
                 pos.y = Math.sin(theta) * r;
                 pos.z = 0;
                 this.storePosition(i, pos, position);
             }
         } else if (this.distributionMode === DistributionMode.DIRECT) {
-            const theta = this._theta as FloatExpression;
-            const radiusPosition = this._radiusPosition as FloatExpression;
-            theta.bind(particles, emitter, user, context);
-            radiusPosition.bind(particles, emitter, user, context);
+            const uPositionExp = this._uPosition as FloatExpression;
+            const radiusPositionExp = this._radiusPosition as FloatExpression;
+            uPositionExp.bind(particles, emitter, user, context);
+            radiusPositionExp.bind(particles, emitter, user, context);
             for (let i = fromIndex; i < toIndex; ++i) {
-                const r = radiusPosition.evaluate(i) * radius.evaluate(i);
-                const t = theta.evaluate(i) * Math.PI * 2;
+                const r = radiusPositionExp.evaluate(i) * radiusExp.evaluate(i);
+                const t = uPositionExp.evaluate(i) * TWO_PI;
                 pos.x = Math.cos(t) * r;
                 pos.y = Math.sin(t) * r;
                 pos.z = 0;
                 this.storePosition(i, pos, position);
             }
         } else {
-            const uniformSpiralAmount = this._uniformSpiralAmount as FloatExpression;
-            const uniformSpiralFalloff = this._uniformSpiralFalloff as FloatExpression;
-            uniformSpiralAmount.bind(particles, emitter, user, context);
-            uniformSpiralFalloff.bind(particles, emitter, user, context);
+            const uniformSpiralAmountExp = this._uniformSpiralAmount as FloatExpression;
+            const uniformSpiralFalloffExp = this._uniformSpiralFalloff as FloatExpression;
+            uniformSpiralAmountExp.bind(particles, emitter, user, context);
+            uniformSpiralFalloffExp.bind(particles, emitter, user, context);
             const executionCount = toIndex - fromIndex;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const t = Math.sqrt((i - fromIndex) / executionCount);
-                const r = t ** uniformSpiralFalloff.evaluate(i) * radius.evaluate(i);
-                const theta = (i - fromIndex) * 1.618034 * (TWO_PI / uniformSpiralAmount.evaluate(i));
+                const r = t ** uniformSpiralFalloffExp.evaluate(i) * radiusExp.evaluate(i);
+                const theta = (i - fromIndex) * 1.618034 * (TWO_PI / uniformSpiralAmountExp.evaluate(i));
                 pos.x = Math.cos(theta) * r;
                 pos.y = Math.sin(theta) * r;
                 pos.z = 0;

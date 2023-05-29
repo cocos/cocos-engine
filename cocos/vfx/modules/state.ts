@@ -25,10 +25,7 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { Enum } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { INV_START_LIFETIME, IS_DEAD, NORMALIZED_AGE, ParticleDataSet } from '../data-set/particle';
-import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { UserDataSet } from '../data-set/user';
-import { EmitterDataSet } from '../data-set/emitter';
+import { INV_START_LIFETIME, IS_DEAD, NORMALIZED_AGE, ParticleDataSet, DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX, UserDataSet, EmitterDataSet } from '../data-set';
 import { FloatArrayParameter, FloatParameter, Uint32Parameter, BoolArrayParameter } from '../parameters';
 
 export enum LifetimeElapsedOperation {

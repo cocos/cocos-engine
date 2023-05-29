@@ -28,9 +28,8 @@ import { Enum, Quat, Vec3, Vec4 } from '../../core';
 import { Buffer, BufferInfo, BufferUsageBit, deviceManager, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../gfx';
 import { MacroRecord } from '../../render-scene';
 import { AlignmentSpace } from '../define';
-import { COLOR, ParticleDataSet, POSITION, SCALE, SUB_UV_INDEX, VELOCITY } from '../data-set/particle';
+import { COLOR, ParticleDataSet, POSITION, SCALE, SUB_UV_INDEX, VELOCITY, EmitterDataSet, IS_WORLD_SPACE, LOCAL_ROTATION, RENDER_SCALE, WORLD_ROTATION } from '../data-set';
 import { CC_PARTICLE_COLOR, CC_PARTICLE_FRAME_INDEX, CC_PARTICLE_POSITION, CC_PARTICLE_ROTATION, CC_PARTICLE_SIZE, CC_PARTICLE_VELOCITY, CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, ROTATION_OVER_TIME_MODULE_ENABLE, ParticleRenderer } from '../particle-renderer';
-import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_ROTATION, RENDER_SCALE, WORLD_ROTATION } from '../data-set/emitter';
 import { Vec3ArrayParameter, ColorArrayParameter, FloatArrayParameter, QuatParameter, Vec3Parameter, BoolParameter } from '../parameters';
 
 const fixedVertexBuffer = new Float32Array([

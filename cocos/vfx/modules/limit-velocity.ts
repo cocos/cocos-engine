@@ -27,12 +27,8 @@ import { ccclass, type, serializable, visible, rangeMin } from 'cc.decorator';
 import { lerp, Vec3 } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { FloatExpression } from '../expressions/float';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { BASE_VELOCITY, ParticleDataSet, VELOCITY } from '../data-set/particle';
-import { EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
-import { ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { FROM_INDEX, ContextDataSet, TO_INDEX, BASE_VELOCITY, ParticleDataSet, VELOCITY, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS, UserDataSet } from '../data-set';
 import { Uint32Parameter, Vec3ArrayParameter, BoolParameter, Mat3Parameter } from '../parameters';
 
 const limit = new Vec3();
@@ -90,10 +86,16 @@ export class LimitVelocityModule extends VFXModule {
      * @zh 当前速度与速度下限的插值。
      */
     @type(FloatExpression)
-    @serializable
     @rangeMin(0)
-    public dampen = new ConstantFloatExpression(0.3);
+    public get dampen () {
+        if (!this._dampen) {
+            this._dampen = new ConstantFloatExpression(0.3);
+        }
+        return this._dampen;
+    }
 
+    @serializable
+    private _dampen: FloatExpression | null = null;
     @serializable
     private _uniformLimit: FloatExpression | null = null;
     @serializable
@@ -102,6 +104,12 @@ export class LimitVelocityModule extends VFXModule {
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(VELOCITY);
         particles.markRequiredParameter(BASE_VELOCITY);
+        if (this.separateAxes) {
+            this.limit.bind(particles, emitter, user, context);
+        } else {
+            this.uniformLimit.bind(particles, emitter, user, context);
+        }
+        this.dampen.bind(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
@@ -110,19 +118,19 @@ export class LimitVelocityModule extends VFXModule {
         const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
         const baseVelocity = particles.getParameterUnsafe<Vec3ArrayParameter>(BASE_VELOCITY);
         const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
+        const dampenExp = this._dampen as FloatExpression;
+        dampenExp.bind(particles, emitter, user, context);
         if (this.separateAxes) {
-            const exp = this._limit as Vec3Expression;
-            exp.bind(particles, emitter, user, context);
-            const dampen = this.dampen;
-            dampen.bind(particles, emitter, user, context);
+            const limitExp = this._limit as Vec3Expression;
+            limitExp.bind(particles, emitter, user, context);
             if (needTransform) {
                 const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
                 const invTransform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? WORLD_TO_LOCAL_RS : LOCAL_TO_WORLD_RS).data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    exp.evaluate(i, limit);
+                    limitExp.evaluate(i, limit);
                     velocity.getVec3At(srcVelocity, i);
                     Vec3.transformMat3(tempVelocity, srcVelocity, transform);
-                    const dampenRatio = dampen.evaluate(i);
+                    const dampenRatio = dampenExp.evaluate(i);
                     Vec3.set(tempVelocity,
                         dampenBeyondLimit(tempVelocity.x, limit.x, dampenRatio),
                         dampenBeyondLimit(tempVelocity.y, limit.y, dampenRatio),
@@ -133,9 +141,9 @@ export class LimitVelocityModule extends VFXModule {
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    exp.evaluate(i, limit);
+                    limitExp.evaluate(i, limit);
                     velocity.getVec3At(tempVelocity, i);
-                    const dampenRatio = dampen.evaluate(i);
+                    const dampenRatio = dampenExp.evaluate(i);
                     Vec3.set(tempVelocity,
                         dampenBeyondLimit(tempVelocity.x, limit.x, dampenRatio),
                         dampenBeyondLimit(tempVelocity.y, limit.y, dampenRatio),
@@ -145,18 +153,16 @@ export class LimitVelocityModule extends VFXModule {
                 }
             }
         } else {
-            const exp = this._uniformLimit as FloatExpression;
-            exp.bind(particles, emitter, user, context);
-            const dampen = this.dampen;
-            dampen.bind(particles, emitter, user, context);
+            const uniformLimitExp = this._uniformLimit as FloatExpression;
+            uniformLimitExp.bind(particles, emitter, user, context);
             if (needTransform) {
                 const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
                 const invTransform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? WORLD_TO_LOCAL_RS : LOCAL_TO_WORLD_RS).data;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const limit = exp.evaluate(i);
+                    const limit = uniformLimitExp.evaluate(i);
                     velocity.getVec3At(srcVelocity, i);
                     Vec3.transformMat3(tempVelocity, srcVelocity, transform);
-                    const dampenRatio = dampen.evaluate(i);
+                    const dampenRatio = dampenExp.evaluate(i);
                     const oldLength = tempVelocity.length();
                     const newLength = dampenBeyondLimit(oldLength, limit, dampenRatio);
                     tempVelocity.multiplyScalar(newLength / oldLength);
@@ -166,9 +172,9 @@ export class LimitVelocityModule extends VFXModule {
                 }
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
-                    const limit = exp.evaluate(i);
+                    const limit = uniformLimitExp.evaluate(i);
                     velocity.getVec3At(tempVelocity, i);
-                    const dampenRatio = dampen.evaluate(i);
+                    const dampenRatio = dampenExp.evaluate(i);
                     const oldLength = tempVelocity.length();
                     const newLength = dampenBeyondLimit(oldLength, limit, dampenRatio);
                     tempVelocity.multiplyScalar(newLength / oldLength);

@@ -25,12 +25,8 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, SPRITE_ROTATION } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { FloatExpression } from '../expressions/float';
-import { ConstantFloatExpression } from '../expressions';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
+import { ParticleDataSet, SPRITE_ROTATION, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
 
 @ccclass('cc.SetSpriteRotationModule')
@@ -60,15 +56,15 @@ export class SetSpriteRotationModule extends VFXModule {
         const spriteRotation = particles.getParameterUnsafe<FloatArrayParameter>(SPRITE_ROTATION);
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const exp = this._rotation as FloatExpression;
-        exp.bind(particles, emitter, user, context);
+        const rotationExp = this._rotation as FloatExpression;
+        rotationExp.bind(particles, emitter, user, context);
 
-        if (exp.isConstant) {
-            const rotation = exp.evaluate(0);
+        if (rotationExp.isConstant) {
+            const rotation = rotationExp.evaluate(0);
             spriteRotation.fill(rotation, fromIndex, toIndex);
         } else {
             for (let i = fromIndex; i < toIndex; ++i) {
-                spriteRotation.setFloatAt(exp.evaluate(i), i);
+                spriteRotation.setFloatAt(rotationExp.evaluate(i), i);
             }
         }
     }

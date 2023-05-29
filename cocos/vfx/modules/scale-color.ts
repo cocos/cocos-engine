@@ -23,28 +23,35 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, type, serializable } from 'cc.decorator';
 import { Color } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { ColorExpression } from '../expressions/color';
-import { BASE_COLOR, COLOR, NORMALIZED_AGE, ParticleDataSet } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { ConstantColorExpression } from '../expressions';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
+import { ColorExpression, ConstantColorExpression } from '../expressions';
+import { BASE_COLOR, COLOR, NORMALIZED_AGE, ParticleDataSet, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { Uint32Parameter, ColorArrayParameter } from '../parameters';
 
 const tempColor = new Color();
 
-@ccclass('cc.ScaleColor')
-@VFXModule.register('MultiplyColor', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], [NORMALIZED_AGE.name])
+@ccclass('cc.ScaleColorModule')
+@VFXModule.register('ScaleColor', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], [NORMALIZED_AGE.name])
 export class ScaleColorModule extends VFXModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
      */
     @type(ColorExpression)
+    public get scalar () {
+        if (!this._scalar) {
+            this._scalar = new ConstantColorExpression(Color.WHITE);
+        }
+        return this._scalar;
+    }
+
+    public set scalar (val) {
+        this._scalar = val;
+    }
+
     @serializable
-    public scalar: ColorExpression = new ConstantColorExpression();
+    private _scalar: ColorExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
@@ -58,16 +65,16 @@ export class ScaleColorModule extends VFXModule {
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
         const color = particles.getParameterUnsafe<ColorArrayParameter>(context.executionStage === ModuleExecStage.UPDATE ? COLOR : BASE_COLOR);
-        const exp = this.scalar;
-        exp.bind(particles, emitter, user, context);
-        if (exp.isConstant) {
-            const colorVal = exp.evaluate(0, tempColor);
+        const scalarExp = this.scalar;
+        scalarExp.bind(particles, emitter, user, context);
+        if (scalarExp.isConstant) {
+            const colorVal = scalarExp.evaluate(0, tempColor);
             for (let i = fromIndex; i < toIndex; i++) {
                 color.multiplyColorAt(colorVal, i);
             }
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                const colorVal = exp.evaluate(0, tempColor);
+                const colorVal = scalarExp.evaluate(i, tempColor);
                 color.multiplyColorAt(colorVal, i);
             }
         }

@@ -25,10 +25,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { POSITION, ParticleDataSet, VELOCITY, PHYSICS_FORCE } from '../data-set/particle';
-import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
+import { POSITION, ParticleDataSet, VELOCITY, PHYSICS_FORCE, DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatParameter, Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 
 @ccclass('cc.SolveForcesAndVelocityModule')

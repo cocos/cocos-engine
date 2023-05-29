@@ -25,12 +25,8 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { DELTA_TIME, ContextDataSet } from '../data-set/context';
-import { FloatExpression } from '../expressions/float';
-import { ParticleDataSet } from '../data-set/particle';
-import { ConstantFloatExpression } from '../expressions';
-import { EmitterDataSet, VELOCITY } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
+import { DELTA_TIME, ContextDataSet, ParticleDataSet, EmitterDataSet, LOOPED_AGE, SPAWN_REMAINDER_PER_UNIT, VELOCITY, UserDataSet } from '../data-set';
+import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { Vec3Parameter, FloatParameter } from '../parameters';
 
 @ccclass('cc.SpawnPerUnitModule')
@@ -40,8 +36,19 @@ export class SpawnPerUnitModule extends VFXModule {
       * @zh 每移动单位距离发射的粒子数。
       */
     @type(FloatExpression)
+    public get spawnSpacing () {
+        if (!this._spawnSpacing) {
+            this._spawnSpacing = new ConstantFloatExpression(0.2);
+        }
+        return this._spawnSpacing;
+    }
+
+    public set spawnSpacing (val) {
+        this._spawnSpacing = val;
+    }
+
     @serializable
-    public spawnSpacing: FloatExpression = new ConstantFloatExpression(0.2);
+    private _spawnSpacing: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         this.spawnSpacing.tick(particles, emitter, user, context);
@@ -50,7 +57,18 @@ export class SpawnPerUnitModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         const velocity = emitter.getParameterUnsafe<Vec3Parameter>(VELOCITY).data;
         const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
-        this.spawnSpacing.bind(particles, emitter, user, context);
-        emitter.spawnContinuousCount += velocity.length() * (1 / this.spawnSpacing.evaluateSingle()) * deltaTime;
+        const loopedAge = emitter.getParameterUnsafe<FloatParameter>(LOOPED_AGE).data;
+        const spawnRemainderPerUnit = emitter.getParameterUnsafe<FloatParameter>(SPAWN_REMAINDER_PER_UNIT);
+        const spawnSpacingExp = this._spawnSpacing as FloatExpression;
+        spawnSpacingExp.bind(particles, emitter, user, context);
+        let spawnSpacing = spawnSpacingExp.evaluateSingle();
+        spawnSpacing = spawnSpacing <= 0 ? 0 : (1 / Math.max(spawnSpacing, 1e-6));
+        spawnSpacing *= velocity.length();
+        const spawnCount =  spawnRemainderPerUnit.data + spawnSpacing * deltaTime;
+        const intervalDt =  1 / spawnSpacing;
+        const interpStartDt = (1 - spawnRemainderPerUnit.data) * intervalDt;
+        const spawnCountFloor = Math.floor(spawnCount);
+        spawnRemainderPerUnit.data = spawnCount - spawnCountFloor;
+        emitter.addSpawnInfo(loopedAge > 0 ? spawnCountFloor : 0, interpStartDt, intervalDt);
     }
 }

@@ -25,13 +25,9 @@
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3, CCBoolean, Enum, Vec2 } from '../../core';
-import { FloatExpression } from '../expressions/float';
+import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
-import { BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY } from '../data-set/particle';
-import { ConstantFloatExpression } from '../expressions';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
+import { FROM_INDEX, ContextDataSet, TO_INDEX, BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY, EmitterDataSet, UserDataSet } from '../data-set';
 import { Uint32Parameter, Vec2ArrayParameter, Vec3ArrayParameter } from '../parameters';
 
 const _tempVec3 = new Vec3();
@@ -47,8 +43,16 @@ export enum RadiusSource {
 export class DragModule extends VFXModule {
     @type(FloatExpression)
     @visible(true)
-    @serializable
-    public drag: FloatExpression = new ConstantFloatExpression();
+    public get drag () {
+        if (!this._drag) {
+            this._drag = new ConstantFloatExpression(0);
+        }
+        return this._drag;
+    }
+
+    public set drag (val) {
+        this._drag = val;
+    }
 
     @type(CCBoolean)
     @serializable
@@ -76,6 +80,8 @@ export class DragModule extends VFXModule {
     @serializable
     public multiplyBySpeed = true;
     @serializable
+    private _drag: FloatExpression | null = null;
+    @serializable
     private _radius: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
@@ -84,27 +90,33 @@ export class DragModule extends VFXModule {
         particles.markRequiredParameter(VELOCITY);
         particles.markRequiredParameter(PHYSICS_FORCE);
         this.drag.tick(particles, emitter, user, context);
+        if (this.multiplyByRadius && this.radiusSource === RadiusSource.CUSTOM) {
+            this.radius.tick(particles, emitter, user, context);
+        }
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(PHYSICS_FORCE);
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const exp = this.drag;
-        exp.bind(particles, emitter, user, context);
+        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
         const multiplyByRadius = this.multiplyByRadius;
         const radiusSource = this.radiusSource;
+        const multiplyBySpeed = this.multiplyBySpeed;
         const spriteSize = multiplyByRadius && radiusSource === RadiusSource.SPRITE_SIZE ? particles.getParameterUnsafe<Vec2ArrayParameter>(SPRITE_SIZE) : null;
         const scale = multiplyByRadius && radiusSource === RadiusSource.MESH_SCALE ? particles.getParameterUnsafe<Vec3ArrayParameter>(SCALE) : null;
-        const radius = multiplyByRadius && radiusSource === RadiusSource.CUSTOM ? this.radius : null;
-        const multiplyBySpeed = this.multiplyBySpeed;
-        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
+        const dragExp = this._drag as FloatExpression;
+        const radiusExp = this._radius as FloatExpression;
+        dragExp.bind(particles, emitter, user, context);
+        if (multiplyByRadius && radiusSource === RadiusSource.CUSTOM) {
+            radiusExp.bind(particles, emitter, user, context);
+        }
 
         for (let i = fromIndex; i < toIndex; i++) {
-            let drag = exp.evaluate(i);
+            let drag = dragExp.evaluate(i);
             const length = velocity.getVec3At(_tempVec3, i).length();
 
-            drag = this.scaleDrag(multiplyByRadius, radiusSource, multiplyBySpeed, length, drag, i, spriteSize, scale, radius);
+            drag = this.scaleDrag(multiplyByRadius, radiusSource, multiplyBySpeed, length, drag, i, spriteSize, scale, radiusExp);
             Vec3.multiplyScalar(_tempVec3, _tempVec3, -drag / length);
             physicsForce.addVec3At(_tempVec3, i);
         }

@@ -24,11 +24,8 @@
  */
 import { lerp, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet } from '../data-set/context';
-import { EmitterDataSet } from '../data-set/emitter';
-import { ParticleDataSet, RANDOM_SEED } from '../data-set/particle';
+import { ContextDataSet, EmitterDataSet, ParticleDataSet, RANDOM_SEED, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
-import { UserDataSet } from '../data-set/user';
 import { ConstantVec3Expression } from './constant-vec3';
 import { Vec3Expression } from './vec3';
 import { ModuleExecStage } from '../vfx-module';
