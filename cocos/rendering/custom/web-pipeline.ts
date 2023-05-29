@@ -1712,7 +1712,7 @@ export class WebPipeline implements BasicPipeline {
             throw new Error('RenderGraph cannot be built without being created');
         }
         if (!this._compiler) {
-            this._compiler = new Compiler(this, this._resourceGraph, this._layoutGraph);
+            this._compiler = new Compiler(this, this._renderGraph, this._resourceGraph, this._layoutGraph);
         }
         this._compiler.compile(this._renderGraph);
     }
