@@ -145,7 +145,6 @@
 .component .component-header {
     flex: 1;
     min-width: 0;
-
     display: flex;
     align-items: center;
 }
@@ -196,10 +195,6 @@
 }
 
 .section-asset > ui-panel[type="asset"] {
-    margin-bottom: 4px;
-    border-radius: 2px;
-}
-
-.section-asset > ui-panel[type="asset"][focused] {
-    box-shadow: var(--color-primary-contrast-weakest) 0 0 4px;
+    --asset-container-margin-top: 0;
+    --asset-container-content-section-overflow: visible;
 }

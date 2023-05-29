@@ -125,3 +125,11 @@
     top: 0;
     z-index: 1;
 }
+
+:host-context(ui-panel[type="asset"]) > .container {
+    margin-top: var(--asset-container-margin-top);
+}
+
+:host-context(ui-panel[type="asset"]) > .container > .content > .content-section {
+    overflow: var(--asset-container-content-section-overflow);
+}
