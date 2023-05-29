@@ -737,8 +737,6 @@ export class Skeleton extends UIRenderer {
     public setSkeletonData (skeletonData: spine.SkeletonData) {
         const uiTrans = this.node._uiProps.uiTransformComp!;
         if (skeletonData.width && skeletonData.height) uiTrans.setContentSize(skeletonData.width, skeletonData.height);
-        if (skeletonData.width !== 0) uiTrans.anchorX = Math.abs(skeletonData.x) / skeletonData.width;
-        if (skeletonData.height !== 0) uiTrans.anchorY = Math.abs(skeletonData.y) / skeletonData.height;
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
