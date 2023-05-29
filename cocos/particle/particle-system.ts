@@ -1027,8 +1027,6 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     private reset () {
-        this.clear();
-
         this._time = 0.0;
         this._emitRateTimeCounter = 0.0;
         this._emitRateDistanceCounter = 0.0;
