@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { Vec4, Vec3, cclegacy } from '../../../core';
+import { Vec4, Vec3, cclegacy, warnID } from '../../../core';
 import { Camera } from '../../../render-scene/scene';
-import { BasicPipeline, LightInfo, QueueHint, SceneFlags } from '../../custom';
+import { BasicPipeline, LightInfo, PipelineRuntime, QueueHint, SceneFlags } from '../../custom';
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 import { ClearFlagBit, Format } from '../../../gfx';
@@ -39,7 +39,7 @@ export const COPY_INPUT_DS_PASS_INDEX = 0;
 export const SSSS_BLUR_X_PASS_INDEX = 1;
 export const SSSS_BLUR_Y_PASS_INDEX = 2;
 
-function hasSkinObject (ppl: BasicPipeline) {
+function hasSkinObject (ppl: PipelineRuntime) {
     const sceneData = ppl.pipelineSceneData;
     return sceneData.skin.enabled && sceneData.standardSkinModel !== null;
 }
@@ -190,10 +190,25 @@ export class SkinPass extends SettingPass {
     outputNames = ['SSSSBlur', 'SSSSBlurDS']
     ssssBlurData = new SSSSBlurData();
 
+    private _activate = false;
+
     enableInAllEditorCamera = true;
     checkEnable (camera: Camera) {
-        const pipelineSceneData = (cclegacy.director.root as Root).pipeline.pipelineSceneData;
-        return pipelineSceneData.skin.enabled && pipelineSceneData.skinMaterialModel !== null;
+        const ppl = (cclegacy.director.root as Root).pipeline;
+        let enable = hasSkinObject(ppl);
+        if (enable) {
+            if (!this._activate) {
+                if (!ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
+                    warnID(16303);
+                }
+                if (!ppl.pipelineSceneData.standardSkinModel) {
+                    warnID(16304);
+                }
+                this._activate = true;
+            }
+            enable = forceEnableFloatOutput(ppl);
+        }
+        return enable;
     }
 
     public render (camera: Camera, ppl: BasicPipeline): void {
@@ -201,7 +216,6 @@ export class SkinPass extends SettingPass {
 
         const inputRT = this.lastPass?.slotName(camera, 0);
         const inputDS = passContext.depthSlotName;
-        forceEnableFloatOutput(ppl);
         this._buildSSSSBlurPass(camera, ppl, inputRT!, inputDS);
         this._buildSpecularPass(camera, ppl, inputRT!, inputDS);
     }

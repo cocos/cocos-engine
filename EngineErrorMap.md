@@ -3164,31 +3164,19 @@ Can't getGFXSampler with out device
 
 ### 9600
 
-[Physics]: please check to see if physics modules are included
-
 ### 9610
-
-[Physics]: cannon.js physics system doesn't support capsule collider
 
 ### 9611
 
-[Physics]: builtin physics system doesn't support mesh collider
-
 ### 9612
 
-[Physics]: builtin physics system doesn't support cylinder collider
-
 ### 9613
-
-[Physics]: cannon.js physics system doesn't support hinge drive and angular limit
 
 ### 9620
 
 [Physics][Ammo]: changing the mesh is not supported after the initialization is completed
 
 ### 9630
-
-[Physics]: A dynamic rigid body can not have the following collider shapes: Terrain, Plane and Non-convex Mesh. Node name: %s
 
 ### 9640
 
@@ -3331,7 +3319,7 @@ The shadow visible distance is so small that CSM stratification is not effective
 
 ### 15004
 
-The native folder may be generated from older versions, please refer https://docs.cocos.com/creator/manual/en/release-notes/ to upgrade.
+The native folder may be generated from older versions, please refer <https://docs.cocos.com/creator/manual/en/release-notes/> to upgrade.
 
 ### 15100
 
@@ -3355,11 +3343,11 @@ Camera '%s' clear flag is skybox, but skybox is disabled,  may cause strange bac
 
 ### 16101
 
-The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html
+The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to <https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html>
 
 ### 16201
 
-The asset replacing failed, can not found override asset('%s') for '%s' 
+The asset replacing failed, can not found override asset('%s') for '%s'
 
 ### 16301
 
@@ -3368,3 +3356,11 @@ node '%s' doesn't have any ModelRenderer component, this component will not work
 ### 16302
 
 There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer.
+
+### 16303
+
+Separable-SSS skin filter need float output, please open ENABLE_FLOAT_OUTPUT define...
+
+### 16304
+
+Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.
