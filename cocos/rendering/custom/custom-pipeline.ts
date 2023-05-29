@@ -71,7 +71,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 buildCopyPass(ppl, pairs);
 
                 // skin pass
-                const skinInfo = buildSSSSPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
+                const skinInfo = buildSSSSPass(camera, ppl, 'copyTexTest', forwardInfo.dsName);
                 // deferred transparency objects
                 const deferredTransparencyInfo = buildTransparencyPass(camera, ppl, skinInfo.rtName, skinInfo.dsName, hasDeferredTransparencyObjects);
                 // hbao pass
@@ -84,7 +84,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 // todo: bloom need to be rendered before tone-mapping
                 const bloomInfo = buildBloomPass(camera, ppl, fxaaInfo.rtName);
                 // Present Pass
-                buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
+                buildPostprocessPass(camera, ppl, bloomInfo.rtName);
                 continue;
             }
             // render ui

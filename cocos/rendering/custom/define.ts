@@ -56,7 +56,7 @@ export enum AntiAliasing {
     FXAAHQ,
 }
 
-function GetRTFormatBeforeToneMapping (ppl: BasicPipeline) {
+export function GetRTFormatBeforeToneMapping (ppl: BasicPipeline) {
     const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16FloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
 }
@@ -450,7 +450,7 @@ export function buildBloomPass (camera: Camera,
     return { rtName: bloomPassCombineRTName, dsName: bloomPassCombineDSName };
 }
 
-class PostInfo {
+export class PostInfo {
     declare postMaterial: Material;
     antiAliasing: AntiAliasing = AntiAliasing.NONE;
     private _init () {
@@ -476,14 +476,13 @@ class PostInfo {
     }
 }
 
-let postInfo: PostInfo | null = null;
+let postInfo: PostInfo;
 
 export function buildPostprocessPass (camera: Camera,
     ppl: BasicPipeline,
-    inputTex: string,
-    antiAliasing: AntiAliasing = AntiAliasing.NONE) {
-    if (!postInfo || (postInfo && postInfo.antiAliasing !== antiAliasing)) {
-        postInfo = new PostInfo(antiAliasing);
+    inputTex: string) {
+    if (!postInfo) {
+        postInfo = new PostInfo();
     }
     const cameraID = getCameraUniqueID(camera);
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
@@ -532,7 +531,7 @@ export function buildForwardPass (camera: Camera,
     }
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
-    const cameraInfo = buildShadowPasses(cameraName, camera, ppl);
+    const shadowInfo = buildShadowPasses(cameraName, camera, ppl);
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
     const height = area.height;
@@ -557,12 +556,12 @@ export function buildForwardPass (camera: Camera,
     const forwardPass = ppl.addRenderPass(width, height, 'default');
     forwardPass.name = `CameraForwardPass${cameraID}`;
     forwardPass.setViewport(new Viewport(area.x, area.y, width, height));
-    for (const dirShadowName of cameraInfo.mainLightShadowNames) {
+    for (const dirShadowName of shadowInfo.mainLightShadowNames) {
         if (ppl.containsResource(dirShadowName)) {
             forwardPass.addTexture(dirShadowName, 'cc_shadowMap');
         }
     }
-    for (const spotShadowName of cameraInfo.spotLightShadowNames) {
+    for (const spotShadowName of shadowInfo.spotLightShadowNames) {
         if (ppl.containsResource(spotShadowName)) {
             forwardPass.addTexture(spotShadowName, 'cc_spotShadowMap');
         }
@@ -680,30 +679,36 @@ export function buildReflectionProbePass (camera: Camera,
     updateCameraUBO(passBuilder as unknown as any, probeCamera, ppl);
 }
 
-class CameraInfo {
+export class ShadowInfo {
     shadowEnabled = false;
     mainLightShadowNames = new Array<string>();
     spotLightShadowNames = new Array<string>();
+    validLights: Light[] = [];
+    reset () {
+        this.shadowEnabled = false;
+        this.mainLightShadowNames.length = 0;
+        this.spotLightShadowNames.length = 0;
+        this.validLights.length = 0;
+    }
 }
 
-export function buildShadowPasses (cameraName: string, camera: Camera, ppl: BasicPipeline): CameraInfo {
+export function buildShadowPasses (cameraName: string, camera: Camera, ppl: BasicPipeline): ShadowInfo {
     validPunctualLightsCulling(ppl, camera);
     const pipeline = ppl;
-    const shadowInfo = pipeline.pipelineSceneData.shadows;
+    const shadow = pipeline.pipelineSceneData.shadows;
     const validPunctualLights = ppl.pipelineSceneData.validPunctualLights;
-    const cameraInfo = new CameraInfo();
+    shadowInfo.reset();
     const shadows = ppl.pipelineSceneData.shadows;
-    if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return cameraInfo; }
-    cameraInfo.shadowEnabled = true;
-    const _validLights: Light[] = [];
+    if (!shadow.enabled || shadow.type !== ShadowType.ShadowMap) { return shadowInfo; }
+    shadowInfo.shadowEnabled = true;
     let n = 0;
     let m = 0;
-    for (;n < shadowInfo.maxReceived && m < validPunctualLights.length;) {
+    for (;n < shadow.maxReceived && m < validPunctualLights.length;) {
         const light = validPunctualLights[m];
         if (light.type === LightType.SPOT) {
             const spotLight = light as SpotLight;
             if (spotLight.shadowEnabled) {
-                _validLights.push(light);
+                shadowInfo.validLights.push(light);
                 n++;
             }
         }
@@ -715,29 +720,30 @@ export function buildShadowPasses (cameraName: string, camera: Camera, ppl: Basi
     const mapWidth = shadows.size.x;
     const mapHeight = shadows.size.y;
     if (mainLight && mainLight.shadowEnabled) {
-        cameraInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
+        shadowInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
         if (mainLight.shadowFixedArea) {
-            buildShadowPass(cameraInfo.mainLightShadowNames[0], ppl,
+            buildShadowPass(shadowInfo.mainLightShadowNames[0], ppl,
                 camera, mainLight, 0, mapWidth, mapHeight);
         } else {
             const csmLevel = pipeline.pipelineSceneData.csmSupported ? mainLight.csmLevel : 1;
-            cameraInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
+            shadowInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
             for (let i = 0; i < csmLevel; i++) {
-                buildShadowPass(cameraInfo.mainLightShadowNames[0], ppl,
+                buildShadowPass(shadowInfo.mainLightShadowNames[0], ppl,
                     camera, mainLight, i, mapWidth, mapHeight);
             }
         }
     }
 
-    for (let l = 0; l < _validLights.length; l++) {
-        const light = _validLights[l];
+    for (let l = 0; l < shadowInfo.validLights.length; l++) {
+        const light = shadowInfo.validLights[l];
         const passName = `SpotLightShadow${l.toString()}${cameraName}`;
-        cameraInfo.spotLightShadowNames[l] = passName;
+        shadowInfo.spotLightShadowNames[l] = passName;
         buildShadowPass(passName, ppl,
             camera, light, 0, mapWidth, mapHeight);
     }
-    return cameraInfo;
+    return shadowInfo;
 }
+const shadowInfo = new ShadowInfo();
 
 export class GBufferInfo {
     color!: string;
@@ -796,7 +802,7 @@ export function buildGBufferPass (camera: Camera,
     return gBufferInfo;
 }
 
-class LightingInfo {
+export class LightingInfo {
     declare deferredLightingMaterial: Material;
     private _init () {
         this.deferredLightingMaterial = new Material();
@@ -814,7 +820,7 @@ class LightingInfo {
     }
 }
 
-let lightingInfo: LightingInfo | null = null;
+let lightingInfo: LightingInfo;
 
 // deferred lighting pass
 export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: GBufferInfo) {
