@@ -1,4 +1,7 @@
+import { Transform, __applyDeltaTransform } from "../../../../../cocos/animation/core/transform";
 import { PoseNodeAdditivelyBlend } from "../../../../../cocos/animation/marionette/pose-graph/pose-nodes/additively-blend";
+import { BlendTwoOperator } from "../../utils/abstract-operators";
+import { includeTestsFor_BlendTwoPoseLike_PoseNode } from "./blend-two-pose-shared";
 import { createAdditivityCheckMock, createPoseNodeBindContextMock_WithAdditive, invokePoseNodeBindMethod as invokePoseNodeBindMethod } from "./utils/additive";
 
 test(`Additivity inheritance`, () => {
@@ -29,3 +32,21 @@ test(`Additivity inheritance`, () => {
         expect(addition_AdditivityCheckMock.bindMock.mock.calls[0][0]).toBe(true);
     }
 });
+
+const AdditivelyBlend_ExpectedOperator: BlendTwoOperator = {
+    blendTransform (transform1: Transform, transform2: Transform, ratio: number): Transform {
+        return __applyDeltaTransform(new Transform(), transform1, transform2, ratio);
+    },
+
+    blendAuxiliaryCurve (value1: number, value2: number, ratio: number): number {
+        return value1 + value2 * ratio;
+    },
+};
+
+includeTestsFor_BlendTwoPoseLike_PoseNode(
+    PoseNodeAdditivelyBlend,
+    'basePose',
+    'additivePose',
+    'ratio',
+    AdditivelyBlend_ExpectedOperator,
+);
