@@ -939,6 +939,8 @@ export class ParticleSystem extends ModelRenderer {
      * @zh 播放粒子效果。
      */
     public play () {
+        this.reset();
+
         if (this._isPaused) {
             this._isPaused = false;
         }
@@ -1018,6 +1020,20 @@ export class ParticleSystem extends ModelRenderer {
 
         // if stop emit modify the refresh flag to true
         this._needRefresh = true;
+
+        for (const burst of this.bursts) {
+            burst.reset();
+        }
+    }
+
+    private reset () {
+        this.clear();
+
+        this._time = 0.0;
+        this._emitRateTimeCounter = 0.0;
+        this._emitRateDistanceCounter = 0.0;
+        this._oldWPos = new Vec3();
+        this._curWPos = new Vec3();
 
         for (const burst of this.bursts) {
             burst.reset();
