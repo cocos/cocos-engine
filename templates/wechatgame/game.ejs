@@ -6,10 +6,11 @@ const firstScreen = require('./first-screen');
 <%- include(cocosTemplate, {}) %>
 
 // Adapt for IOS, swap if opposite
+const info = wx.getSystemInfoSync();
 if (canvas){
     var _w = canvas.width;
     var _h = canvas.height;
-    if (screen.width < screen.height) {
+    if (info.screenWidth < info.screenHeight) {
         if (canvas.width > canvas.height) {
             _w = canvas.height;
             _h = canvas.width;
@@ -24,7 +25,7 @@ if (canvas){
     canvas.height = _h;
 }
 // Adjust initial canvas size
-if (canvas && window.devicePixelRatio >= 2) {canvas.width *= 2; canvas.height *= 2;}
+if (canvas && window.devicePixelRatio >= 2) {canvas.width *= info.devicePixelRatio; canvas.height *= info.devicePixelRatio;}
 
 const importMap = require("<%= importMapFile%>").default;
 System.warmup({
