@@ -165,6 +165,7 @@ function initBgVertexBuffer() {
 }
 
 function initProgressVertexBuffer() {
+    // the ratio value may be adjusted according to the image pixels
     const widthRatio = 0.5;
     const heightRatio = (window.devicePixelRatio >= 2 ? 6 : 3) / canvas.height * 1.35;
     const heightOffset = -0.8;
@@ -180,7 +181,8 @@ function initProgressVertexBuffer() {
 }
 
 function updateVertexBuffer() {
-    const widthRatio = image.width / canvas.width * 1.35;
+    // the ratio value may be adjusted according to the expected image display effect
+    const widthRatio = image.width / canvas.width * 1.35; 
     const heightRatio = image.height / canvas.height * 1.35;
     const heightOffset = 0.225;
     const vertices = new Float32Array([
@@ -194,6 +196,7 @@ function updateVertexBuffer() {
 }
 
 function updateSloganVertexBuffer() {
+    // the ratio value may be adjusted according to the image pixels
     const widthRatio = slogan.width / canvas.width * 0.75;
     const heightRatio = slogan.height / canvas.height * 0.75;
     const h = image.height / canvas.height;
