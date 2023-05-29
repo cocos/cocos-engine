@@ -32,7 +32,7 @@ import { MeshRenderer } from '../../../3d';
 import { ShadowPass } from './shadow-pass';
 
 import { SettingPass } from './setting-pass';
-import { ForceEnableFloatOutput, GetRTFormatBeforeToneMapping } from './base-pass';
+import { forceEnableFloatOutput, getRTFormatBeforeToneMapping } from './base-pass';
 
 export const COPY_INPUT_DS_PASS_INDEX = 0;
 export const SSSS_BLUR_X_PASS_INDEX = 1;
@@ -197,7 +197,7 @@ export class SkinPass extends SettingPass {
         const inputRT = this.lastPass?.slotName(camera, 0);
         const inputDS = this.lastPass?.slotName(camera, 1);
         if (hasSkinObject(ppl)) {
-            ForceEnableFloatOutput(ppl);
+            forceEnableFloatOutput(ppl);
             const blurInfo = this._buildSSSSBlurPass(camera, ppl, inputRT!, inputDS!);
             this._buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
         } else {
@@ -248,7 +248,7 @@ export class SkinPass extends SettingPass {
             .setPassInput(ssssBlurDSName, 'depthTex')
             .setClearFlag(ClearFlagBit.COLOR)
             .setClearColor(0, 0, 0, 1)
-            .addRasterView(ssssBlurRTName, GetRTFormatBeforeToneMapping(ppl))
+            .addRasterView(ssssBlurRTName, getRTFormatBeforeToneMapping(ppl))
             .setClearFlag(ClearFlagBit.NONE)
             .setClearDepthColor(camera.clearDepth, camera.clearStencil, 0, 0)
             .addRasterView(inputDS, Format.DEPTH_STENCIL)
@@ -268,7 +268,7 @@ export class SkinPass extends SettingPass {
             .setPassInput(ssssBlurDSName, 'depthTex')
             .setClearFlag(ClearFlagBit.NONE)
             .setClearColor(0, 0, 0, 1)
-            .addRasterView(inputRT, GetRTFormatBeforeToneMapping(ppl))
+            .addRasterView(inputRT, getRTFormatBeforeToneMapping(ppl))
             .setClearFlag(ClearFlagBit.NONE)
             .setClearDepthColor(camera.clearDepth, camera.clearStencil, 0, 0)
             .addRasterView(inputDS, Format.DEPTH_STENCIL)
@@ -289,7 +289,7 @@ export class SkinPass extends SettingPass {
             .addRenderPass(layoutName, passName)
             .setClearFlag(ClearFlagBit.NONE)
             .setClearColor(0, 0, 0, 1)
-            .addRasterView(inputRT, GetRTFormatBeforeToneMapping(ppl), true)
+            .addRasterView(inputRT, getRTFormatBeforeToneMapping(ppl), true)
             .setClearFlag(ClearFlagBit.NONE)
             .setClearDepthColor(camera.clearDepth, camera.clearStencil, 0, 1)
             .addRasterView(inputDS, Format.DEPTH_STENCIL, true)
