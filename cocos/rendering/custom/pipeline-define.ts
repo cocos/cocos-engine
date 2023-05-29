@@ -4,7 +4,7 @@ import { ClearFlagBit, Color, Format, LoadOp, StoreOp, Viewport } from '../../gf
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Camera, Light, LightType, ProbeType, ReflectionProbe, ShadowType } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
-import { AntiAliasing, GBufferInfo, GetRTFormatBeforeToneMapping, LightingInfo, PostInfo, ShadowInfo, getLoadOpOfClearFlag,
+import { AntiAliasing, GBufferInfo, getRTFormatBeforeToneMapping, LightingInfo, PostInfo, ShadowInfo, getLoadOpOfClearFlag,
     getRenderArea, updateCameraUBO, validPunctualLightsCulling } from './define';
 import { BasicPipeline } from './pipeline';
 import { AttachmentType, LightInfo, QueueHint, ResourceResidency, SceneFlags } from './types';
@@ -201,7 +201,7 @@ export function setupForwardRes (ppl: BasicPipeline, cameraInfo: CameraInfo, isO
     if (!isOffScreen) {
         ppl.addRenderWindow(`ForwardColor${cameraInfo.id}`, Format.BGRA8, width, height, cameraInfo.camera.window);
     } else {
-        ppl.addRenderTarget(`ForwardColor${cameraInfo.id}`, GetRTFormatBeforeToneMapping(ppl),
+        ppl.addRenderTarget(`ForwardColor${cameraInfo.id}`, getRTFormatBeforeToneMapping(ppl),
             width, height, ResourceResidency.PERSISTENT);
     }
     ppl.addDepthStencil(`ForwardDepthStencil${cameraInfo.id}`, Format.DEPTH_STENCIL, width, height);
