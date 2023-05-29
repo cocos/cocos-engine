@@ -59,6 +59,7 @@
 }
 
 .scene ui-prop[ui-section-config] ui-section.config [slot="header"] {
+    flex: 1;
     justify-content: space-between;
 }
 
@@ -177,6 +178,10 @@
 .scene .skybox,
 .component ui-prop {
     margin-top: 4px;
+}
+
+.scene .skybox > [slot="header"] {
+    justify-content: space-between;
 }
 
 .component ui-prop [slot='label'] {

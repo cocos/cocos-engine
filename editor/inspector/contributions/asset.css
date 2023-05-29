@@ -77,6 +77,7 @@
     display: none;
     padding: 0 4px;
     height: 18px;
+    line-height: 16px;
     margin-left: 8px;
 }
 
@@ -86,7 +87,7 @@
 
 :host > .container > .content {
     display: flex;
-    padding-top: 5px;
+    padding-top: 4px;
     flex: 1;
     min-height: 0;
     flex-direction: column;
@@ -127,9 +128,9 @@
 }
 
 :host-context(ui-panel[type="asset"]) > .container {
-    margin-top: var(--asset-container-margin-top);
+    margin-top: var(--asset-container-margin-top, -1px);
 }
 
 :host-context(ui-panel[type="asset"]) > .container > .content > .content-section {
-    overflow: var(--asset-container-content-section-overflow);
+    overflow: var(--asset-container-content-section-overflow, scroll);
 }
