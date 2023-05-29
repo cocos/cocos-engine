@@ -204,11 +204,11 @@ function fillTransition(transition: Transition, params: TransitionAttributes) {
 
     if (typeof params.startEventBinding !== 'undefined') {
         assertsIsDurableTransition(transition);
-        transition.startEventBinding.eventName = params.startEventBinding;
+        transition.startEventBinding.methodName = params.startEventBinding;
     }
     if (typeof params.endEventBinding !== 'undefined') {
         assertsIsDurableTransition(transition);
-        transition.endEventBinding.eventName = params.endEventBinding;
+        transition.endEventBinding.methodName = params.endEventBinding;
     }
 }
 
@@ -317,10 +317,10 @@ type StateEventBindingSpecification = {
 
 function fillStateEventBindingSpecification(state: MotionState | ProceduralPoseState, specification: StateEventBindingSpecification) {
     if (typeof specification.transitionInEventBinding !== 'undefined') {
-        state.transitionInEventBinding.eventName = specification.transitionInEventBinding;
+        state.transitionInEventBinding.methodName = specification.transitionInEventBinding;
     }
     if (typeof specification.transitionOutEventBinding !== 'undefined') {
-        state.transitionOutEventBinding.eventName = specification.transitionOutEventBinding;
+        state.transitionOutEventBinding.methodName = specification.transitionOutEventBinding;
     }
 }
 
