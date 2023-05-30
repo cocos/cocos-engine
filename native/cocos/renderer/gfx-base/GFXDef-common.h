@@ -1265,7 +1265,6 @@ struct InputAssemblerInfo {
     AttributeList attributes;
     BufferList vertexBuffers;
     Buffer *indexBuffer{nullptr};    // @ts-nullable
-    Buffer *indirectBuffer{nullptr}; // @ts-nullable
 
     EXPOSE_COPY_FN(InputAssemblerInfo)
 };

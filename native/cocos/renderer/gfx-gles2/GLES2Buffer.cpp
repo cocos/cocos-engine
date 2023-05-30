@@ -48,10 +48,6 @@ void GLES2Buffer::doInit(const BufferInfo & /*info*/) {
     _gpuBuffer->stride = _stride;
     _gpuBuffer->count = _count;
 
-    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
-        _gpuBuffer->indirects.resize(_count);
-    }
-
     cmdFuncGLES2CreateBuffer(GLES2Device::getInstance(), _gpuBuffer);
     GLES2Device::getInstance()->getMemoryStatus().bufferSize += _size;
     CC_PROFILE_MEMORY_INC(Buffer, _size);

@@ -658,10 +658,6 @@ void cmdFuncGLES3CreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
         }
     } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
         gpuBuffer->glTarget = GL_NONE;
-    } else if ((hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_DST)) ||
-               (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC))) {
-        gpuBuffer->buffer = static_cast<uint8_t *>(CC_MALLOC(gpuBuffer->size));
-        gpuBuffer->glTarget = GL_NONE;
     } else {
         CC_ABORT();
         gpuBuffer->glTarget = GL_NONE;
@@ -785,7 +781,6 @@ void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             device->stateCache()->glUniformBuffer = 0;
         }
     } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
-        gpuBuffer->indirects.resize(gpuBuffer->count);
         gpuBuffer->glTarget = GL_NONE;
     } else if ((hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_DST)) ||
                (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC))) {
@@ -2657,46 +2652,43 @@ void cmdFuncGLES3Draw(GLES3Device *device, const DrawInfo &drawInfo) {
     GLenum glPrimitive = gfxStateCache.glPrimitive;
 
     if (gpuInputAssembler && gpuPipelineState) {
-        if (!gpuInputAssembler->gpuIndirectBuffer) {
-            if (gpuInputAssembler->gpuIndexBuffer) {
-                if (drawInfo.indexCount > 0) {
-                    uint8_t *offset = nullptr;
-                    offset += drawInfo.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
-                    if (drawInfo.instanceCount == 0) {
-                        GL_CHECK(glDrawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler->glIndexType, offset));
-                    } else {
-                        GL_CHECK(glDrawElementsInstanced(glPrimitive, drawInfo.indexCount, gpuInputAssembler->glIndexType, offset, drawInfo.instanceCount));
-                    }
-                }
-            } else if (drawInfo.vertexCount > 0) {
+        if (gpuInputAssembler->gpuIndexBuffer) {
+            if (drawInfo.indexCount > 0) {
+                uint8_t *offset = nullptr;
+                offset += drawInfo.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
                 if (drawInfo.instanceCount == 0) {
-                    GL_CHECK(glDrawArrays(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount));
+                    GL_CHECK(glDrawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler->glIndexType, offset));
                 } else {
-                    GL_CHECK(glDrawArraysInstanced(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount, drawInfo.instanceCount));
+                    GL_CHECK(glDrawElementsInstanced(glPrimitive, drawInfo.indexCount, gpuInputAssembler->glIndexType, offset, drawInfo.instanceCount));
                 }
             }
-        } else {
-            for (size_t j = 0; j < gpuInputAssembler->gpuIndirectBuffer->indirects.size(); ++j) {
-                const DrawInfo &draw = gpuInputAssembler->gpuIndirectBuffer->indirects[j];
-                if (gpuInputAssembler->gpuIndexBuffer) {
-                    if (draw.indexCount > 0) {
-                        uint8_t *offset = nullptr;
-                        offset += draw.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
-                        if (draw.instanceCount == 0) {
-                            GL_CHECK(glDrawElements(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset));
-                        } else {
-                            GL_CHECK(glDrawElementsInstanced(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset, draw.instanceCount));
-                        }
-                    }
-                } else if (draw.vertexCount > 0) {
-                    if (draw.instanceCount == 0) {
-                        GL_CHECK(glDrawArrays(glPrimitive, draw.firstVertex, draw.vertexCount));
-                    } else {
-                        GL_CHECK(glDrawArraysInstanced(glPrimitive, draw.firstVertex, draw.vertexCount, draw.instanceCount));
-                    }
-                }
+        } else if (drawInfo.vertexCount > 0) {
+            if (drawInfo.instanceCount == 0) {
+                GL_CHECK(glDrawArrays(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount));
+            } else {
+                GL_CHECK(glDrawArraysInstanced(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount, drawInfo.instanceCount));
             }
         }
+        // for (size_t j = 0; j < gpuInputAssembler->gpuIndirectBuffer->indirects.size(); ++j) {
+        //     const DrawInfo &draw = gpuInputAssembler->gpuIndirectBuffer->indirects[j];
+        //     if (gpuInputAssembler->gpuIndexBuffer) {
+        //         if (draw.indexCount > 0) {
+        //             uint8_t *offset = nullptr;
+        //             offset += draw.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
+        //             if (draw.instanceCount == 0) {
+        //                 GL_CHECK(glDrawElements(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset));
+        //             } else {
+        //                 GL_CHECK(glDrawElementsInstanced(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset, draw.instanceCount));
+        //             }
+        //         }
+        //     } else if (draw.vertexCount > 0) {
+        //         if (draw.instanceCount == 0) {
+        //             GL_CHECK(glDrawArrays(glPrimitive, draw.firstVertex, draw.vertexCount));
+        //         } else {
+        //             GL_CHECK(glDrawArraysInstanced(glPrimitive, draw.firstVertex, draw.vertexCount, draw.instanceCount));
+        //         }
+        //     }
+        // }
     }
 }
 
@@ -2735,9 +2727,7 @@ static void uploadBufferData(GLenum target, GLintptr offset, GLsizeiptr length, 
 
 void cmdFuncGLES3UpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, const void *buffer, uint32_t offset, uint32_t size) {
     GLES3ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
-    if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
-        memcpy(reinterpret_cast<uint8_t *>(gpuBuffer->indirects.data()) + offset, buffer, size);
-    } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC)) {
+    if (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC)) {
         memcpy(gpuBuffer->buffer + offset, buffer, size);
     } else {
         switch (gpuBuffer->glTarget) {
