@@ -1,6 +1,6 @@
 'use strict';
 
-const { updateElementReadonly, updateElementInvalid, setPropValue } = require('../../utils/assets');
+const { updateElementReadonly, updateElementInvalid, setPropValue, getPropValue } = require('../../utils/assets');
 
 
 exports.template = /* html */`
@@ -691,7 +691,7 @@ const Elements = {
                 panel.$.importAllAnimatorWrap.style.display = 'block';
             }
 
-            panel.$.importAllAnimationsCheckbox.value = panel.meta.userData.mountAllAnimationsOnPrefab ?? false;
+            panel.$.importAllAnimationsCheckbox.value = getPropValue.call(panel, panel.meta.userData.mountAllAnimationsOnPrefab, false);
 
             updateElementInvalid.call(panel, panel.$.importAllAnimationsCheckbox, 'mountAllAnimationsOnPrefab');
             updateElementReadonly.call(panel, panel.$.importAllAnimationsCheckbox);
