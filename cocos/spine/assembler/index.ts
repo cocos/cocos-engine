@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -32,6 +32,7 @@ import { simple } from './simple';
  */
 export const simpleSpineAssembler: IAssemblerManager = {
     getAssembler () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return simple;
     },
 };

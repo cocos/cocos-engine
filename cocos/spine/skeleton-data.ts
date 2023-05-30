@@ -26,13 +26,11 @@ import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { CCString, Enum } from '../core';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
-import { SkeletonTexture } from './skeleton-texture';
 import spine from './lib/spine-core.js';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { legacyCC } from '../core/global-exports';
 import { Texture2D, Asset } from '../asset/assets';
 import { Node } from '../scene-graph';
-
 /**
  * @en The skeleton data of spine.
  * @zh Spine 的骨骼数据。
@@ -148,8 +146,6 @@ export class SkeletonData extends Asset {
 
     private _skeletonCache: spine.SkeletonData | null = null;
 
-    private _atlasCache: spine.TextureAtlas | null = null;
-
     private _skinsEnum: { [key: string]: number } | null = null;
     private _animsEnum: { [key: string]: number } | null = null;
 
@@ -175,7 +171,6 @@ export class SkeletonData extends Asset {
      */
     public reset () {
         this._skeletonCache = null;
-        this._atlasCache = null;
         if (EDITOR_NOT_IN_PREVIEW) {
             this._skinsEnum = null;
             this._animsEnum = null;
@@ -212,26 +207,20 @@ export class SkeletonData extends Asset {
             }
             return null;
         }
-
-        const atlas = this._getAtlas(quiet);
-        if (!atlas) {
-            return null;
-        }
-        const attachmentLoader = new spine.AtlasAttachmentLoader(atlas);
-
-        let resData: spine.SkeletonJson | Uint8Array | null = null;
-        let reader: spine.SkeletonJson | spine.SkeletonBinary | null = null;
-        if (this.skeletonJson) {
-            reader = new spine.SkeletonJson(attachmentLoader);
-            resData = this.skeletonJson;
+        const spData = spine.wasmUtil.querySpineSkeletonDataByUUID(this._uuid);
+        if (spData) {
+            this._skeletonCache = spData;
         } else {
-            reader = new spine.SkeletonBinary(attachmentLoader);
-            resData = new Uint8Array(this._nativeAsset);
+            this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithJson(this.skeletonJsonStr, this._atlasText);
+            spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
         }
-
-        reader.scale = this.scale;
-        this._skeletonCache = reader.readSkeletonData(resData as any);
-        atlas.dispose();
+        // if (this.skeletonJson) {
+        //     reader = new spine.SkeletonJson(attachmentLoader);
+        //     resData = this.skeletonJson;
+        // } else {
+        //     // reader = new spine.SkeletonBinary(attachmentLoader);
+        //     // resData = new Uint8Array(this._nativeAsset);
+        // }
 
         return this._skeletonCache;
     }
@@ -279,44 +268,11 @@ export class SkeletonData extends Asset {
      * @zh 销毁 skeleton data。
      */
     public destroy () {
-        SkeletonCache.sharedCache.removeSkeleton(this._uuid);
+        SkeletonCache.sharedCache.destroyCachedAnimations(this._uuid);
+        if (this._skeletonCache) {
+            spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
+        }
         return super.destroy();
-    }
-
-    // PRIVATE
-    private _getTexture (line: string) {
-        const names = this.textureNames;
-        for (let i = 0; i < names.length; i++) {
-            if (names[i] === line) {
-                const texture = this.textures[i];
-                const tex = new SkeletonTexture({ width: texture.width, height: texture.height } as ImageBitmap);
-                tex.setRealTexture(texture);
-                return tex;
-            }
-        }
-        console.error(`${this.name} no textures found!`);
-        return null;
-    }
-
-    /**
-     * @method _getAtlas
-     * @param {boolean} [quiet=false]
-     * @return {sp.spine.Atlas}
-     * @private
-     */
-    private _getAtlas (quiet?: boolean) {
-        if (this._atlasCache) {
-            return this._atlasCache;
-        }
-
-        if (!this.atlasText) {
-            if (!quiet) {
-                console.error(`${this.name} no atlas found!`);
-            }
-            return null;
-        }
-
-        return this._atlasCache = new spine.TextureAtlas(this.atlasText, this._getTexture.bind(this));
     }
 }
 
