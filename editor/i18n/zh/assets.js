@@ -428,14 +428,14 @@ module.exports = {
             },
             animationSetting: {
                 additive: {
-                    header: '加性动画导入设置',
+                    header: '叠加动画导入设置',
                     enabled: {
-                        label: '导入为加性',
-                        tooltip: '勾选后，该动画将被导入为加性动画。',
+                        label: '导入为叠加动画',
+                        tooltip: '勾选后，该动画将被导入为叠加动画。',
                     },
                     refClip: {
                         label: '参考剪辑',
-                        tooltip: '若设置，将参考该动画第 0 帧的姿势计算加性动画；否则，则将参考第动画本身第 0 帧的姿势进行计算。',
+                        tooltip: '若设置，将参考该动画第 0 帧的姿态计算叠加动画；否则，则将参考第动画本身第 0 帧的姿态进行计算。',
                     },
                 },
             },
