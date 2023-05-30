@@ -24,7 +24,7 @@ module.exports = {
                 },
                 'PoseNodeUseStashedPose': {
                     displayName: '使用暂存的姿势',
-                    title: '使用暂存的姿势 {stashName}',
+                    title: '使用暂存 {stashName}',
                 },
                 'PoseNodeStateMachine': {
                     displayName: '状态机',
