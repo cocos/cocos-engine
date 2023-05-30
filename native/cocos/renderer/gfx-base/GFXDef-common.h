@@ -1082,9 +1082,7 @@ struct ALIGNAS(8) TextureViewInfo {
     uint32_t levelCount{1};
     uint32_t baseLayer{0};
     uint32_t layerCount{1};
-#if CC_CPU_ARCH == CC_CPU_ARCH_32
-    uint32_t _padding{0};
-#endif
+    uint32_t mask{0};
 
     EXPOSE_COPY_FN(TextureViewInfo)
 };

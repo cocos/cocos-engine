@@ -155,6 +155,7 @@ struct GLES3GPUTextureView {
     Format format = Format::UNKNOWN;
     uint32_t baseLevel = 0U;
     uint32_t levelCount = 1U;
+    uint32_t mask = 0U;
 };
 
 using GLES3GPUTextureViewList = ccstd::vector<GLES3GPUTextureView *>;

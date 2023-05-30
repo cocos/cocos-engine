@@ -1993,7 +1993,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
     return lastVertID;
 }
 
-gfx::ShaderStageFlagBit getVisibilityByDescName(const RenderGraph &renderGraph, const LGD &lgd, uint32_t passID, const PmrString &resName) {
+gfx::ShaderStageFlagBit getVisibilityByDescName(const RenderGraph &renderGraph, const LGD &lgd, uint32_t passID, const PmrString &resName) { // NOLINT
     auto iter = lgd.attributeIndex.find(resName);
     if (iter == lgd.attributeIndex.end()) {
         iter = lgd.constantIndex.find(resName);
@@ -2016,10 +2016,12 @@ gfx::ShaderStageFlagBit getVisibilityByDescName(const RenderGraph &renderGraph, 
             }
         }
     }
-
     // unreachable
     CC_EXPECTS(false);
-    return gfx::ShaderStageFlagBit::NONE;
+
+    auto subpassSlotVis = gfx::ShaderStageFlagBit::NONE;
+    subpassSlotVis = getVisibilityByDescName(renderGraph, lgd, passID, "__in" + resName);
+    return subpassSlotVis;
 };
 
 bool checkRasterViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, PassType passType, ResourceAccessNode &node, const RasterViewsMap &rasterViews) {

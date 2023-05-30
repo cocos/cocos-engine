@@ -344,6 +344,8 @@ void addDepthStencilImpl(
             gfx::ShaderStageFlagBit::NONE));
     CC_ENSURES(res.second);
     res.first->second.slotID = slotID;
+
+
 }
 
 } // namespace
