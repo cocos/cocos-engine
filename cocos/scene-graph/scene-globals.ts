@@ -1118,6 +1118,7 @@ export class SkinInfo {
     @type(CCFloat)
     @tooltip('i18n:skin.blurRadius')
     set blurRadius (val: number) {
+        if (this._blurRadius === val) return;
         if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
             console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
             return;
@@ -1139,6 +1140,7 @@ export class SkinInfo {
     @type(CCFloat)
     @tooltip('i18n:skin.sssIntensity')
     set sssIntensity (val: number) {
+        if (this._sssIntensity === val) return;
         if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
             console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
             return;
