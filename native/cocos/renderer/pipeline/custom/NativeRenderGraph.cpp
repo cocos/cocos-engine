@@ -1407,7 +1407,7 @@ template <class SubpassBuilder>
 SubpassBuilder *addRenderSubpassImpl(
     const PipelineRuntime *pipelineRuntime,
     RenderGraph &renderGraph, RenderGraph::vertex_descriptor passID,
-    const LayoutGraphData &layoutGraph,
+    const LayoutGraphData &layoutGraph, LayoutGraphData::vertex_descriptor passLayoutID,
     const ccstd::string &subpassName,
     uint32_t count, uint32_t quality) { // NOLINT(bugprone-easily-swappable-parameters)
     auto &pass = get(RasterPassTag{}, passID, renderGraph);
@@ -1435,7 +1435,13 @@ SubpassBuilder *addRenderSubpassImpl(
         std::forward_as_tuple(std::move(subpass)),
         renderGraph, passID);
 
-    auto subpassLayoutID = locate(LayoutGraphData::null_vertex(), subpassName, layoutGraph);
+    auto subpassLayoutID = LayoutGraphData::null_vertex();
+    if constexpr (ENABLE_SUBPASS) {
+        subpassLayoutID = locate(passLayoutID, subpassName, layoutGraph);
+    } else {
+        subpassLayoutID = locate(LayoutGraphData::null_vertex(), subpassName, layoutGraph);
+    }
+
     CC_EXPECTS(subpassLayoutID != LayoutGraphData::null_vertex());
 
     auto *builder = ccnew SubpassBuilder(
@@ -1450,13 +1456,13 @@ SubpassBuilder *addRenderSubpassImpl(
 
 RenderSubpassBuilder *NativeRenderPassBuilder::addRenderSubpass(const ccstd::string &subpassName) {
     return addRenderSubpassImpl<NativeRenderSubpassBuilder>(
-        pipelineRuntime, *renderGraph, nodeID, *layoutGraph, subpassName, 1, 0);
+        pipelineRuntime, *renderGraph, nodeID, *layoutGraph, layoutID, subpassName, 1, 0);
 }
 
 MultisampleRenderSubpassBuilder *NativeRenderPassBuilder::addMultisampleRenderSubpass(
     uint32_t count, uint32_t quality, const ccstd::string &subpassName) { // NOLINT(bugprone-easily-swappable-parameters)
     return addRenderSubpassImpl<NativeMultisampleRenderSubpassBuilder>(
-        pipelineRuntime, *renderGraph, nodeID, *layoutGraph, subpassName, count, quality);
+        pipelineRuntime, *renderGraph, nodeID, *layoutGraph, layoutID, subpassName, count, quality);
 }
 
 ComputeSubpassBuilder *NativeRenderPassBuilder::addComputeSubpass(const ccstd::string &subpassName) {
@@ -1483,7 +1489,12 @@ ComputeSubpassBuilder *NativeRenderPassBuilder::addComputeSubpass(const ccstd::s
         std::forward_as_tuple(std::move(subpass)),
         *renderGraph, nodeID);
 
-    auto subpassLayoutID = locate(LayoutGraphData::null_vertex(), subpassName, *layoutGraph);
+    auto subpassLayoutID = LayoutGraphData::null_vertex();
+    if constexpr (ENABLE_SUBPASS) {
+        subpassLayoutID = locate(layoutID, subpassName, *layoutGraph);
+    } else {
+        subpassLayoutID = locate(LayoutGraphData::null_vertex(), subpassName, *layoutGraph);
+    }
     CC_EXPECTS(subpassLayoutID != LayoutGraphData::null_vertex());
 
     auto *builder = ccnew NativeComputeSubpassBuilder(
