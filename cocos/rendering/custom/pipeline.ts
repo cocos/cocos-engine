@@ -168,7 +168,7 @@ export interface BasicRenderPassBuilder extends Setter {
      * @deprecated method will be removed in 3.8.0
      */
     addComputeView (name: string, view: ComputeView): void;
-    addQueue (hint?: QueueHint, layoutName?: string): RenderQueueBuilder;
+    addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
     setViewport (viewport: Viewport): void;
     setVersion (name: string, version: number): void;
     showStatistics: boolean;
@@ -223,13 +223,13 @@ export interface BasicPipeline extends PipelineRuntime {
     addRenderPass (
         width: number,
         height: number,
-        layoutName?: string): BasicRenderPassBuilder;
+        passName?: string): BasicRenderPassBuilder;
     addMultisampleRenderPass (
         width: number,
         height: number,
         count: number,
         quality: number,
-        layoutName?: string): BasicRenderPassBuilder;
+        passName?: string): BasicRenderPassBuilder;
     addResolvePass (resolvePairs: ResolvePair[]): void;
     addCopyPass (copyPairs: CopyPair[]): void;
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
@@ -271,7 +271,7 @@ export interface RenderSubpassBuilder extends Setter {
      */
     addComputeView (name: string, view: ComputeView): void;
     setViewport (viewport: Viewport): void;
-    addQueue (hint?: QueueHint, layoutName?: string): RenderQueueBuilder;
+    addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
     showStatistics: boolean;
     /**
      * @beta function signature might change
@@ -316,7 +316,7 @@ export interface ComputeSubpassBuilder extends Setter {
      * @deprecated method will be removed in 3.8.0
      */
     addComputeView (name: string, view: ComputeView): void;
-    addQueue (layoutName?: string): ComputeQueueBuilder;
+    addQueue (phaseName?: string): ComputeQueueBuilder;
     /**
      * @beta function signature might change
      */
@@ -332,12 +332,12 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
         name: string,
         accessType: AccessType,
         slotName: string): void;
-    addRenderSubpass (layoutName?: string): RenderSubpassBuilder;
+    addRenderSubpass (subpassName: string): RenderSubpassBuilder;
     addMultisampleRenderSubpass (
         count: number,
         quality: number,
-        layoutName?: string): MultisampleRenderSubpassBuilder;
-    addComputeSubpass (layoutName?: string): ComputeSubpassBuilder;
+        subpassName: string): MultisampleRenderSubpassBuilder;
+    addComputeSubpass (subpassName?: string): ComputeSubpassBuilder;
     /**
      * @beta function signature might change
      */
@@ -362,7 +362,7 @@ export interface ComputePassBuilder extends Setter {
      * @deprecated method will be removed in 3.8.0
      */
     addComputeView (name: string, view: ComputeView): void;
-    addQueue (layoutName?: string): ComputeQueueBuilder;
+    addQueue (phaseName?: string): ComputeQueueBuilder;
     /**
      * @beta function signature might change
      */
@@ -425,8 +425,8 @@ export interface Pipeline extends BasicPipeline {
     addRenderPass (
         width: number,
         height: number,
-        layoutName?: string): RenderPassBuilder;
-    addComputePass (layoutName: string): ComputePassBuilder;
+        passName: string): RenderPassBuilder;
+    addComputePass (passName: string): ComputePassBuilder;
     addUploadPass (uploadPairs: UploadPair[]): void;
     addMovePass (movePairs: MovePair[]): void;
     /**

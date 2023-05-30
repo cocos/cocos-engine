@@ -757,20 +757,20 @@ void NativeRenderSubpassBuilderImpl::setViewport(const gfx::Viewport &viewport) 
     subpass.viewport = viewport;
 }
 
-RenderQueueBuilder *NativeRenderSubpassBuilderImpl::addQueue(QueueHint hint, const ccstd::string &layoutName) {
+RenderQueueBuilder *NativeRenderSubpassBuilderImpl::addQueue(
+    QueueHint hint, const ccstd::string &phaseName) {
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
     auto phaseLayoutID = LayoutGraphData::null_vertex();
-    if (!layoutName.empty()) {
-        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+    if (!phaseName.empty()) {
+        phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
         CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
     }
 
-    std::string_view name = "Queue";
     auto queueID = addVertex(
         QueueTag{},
-        std::forward_as_tuple(name),
-        std::forward_as_tuple(),
+        std::forward_as_tuple(phaseName),
+        std::forward_as_tuple(phaseName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(hint, phaseLayoutID),
@@ -889,20 +889,19 @@ void NativeComputeSubpassBuilder::addComputeView(const ccstd::string &name, cons
     addComputeViewImpl<ComputeSubpassTag>(name, view, nodeID, *renderGraph);
 }
 
-ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &layoutName) {
+ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &phaseName) {
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
     auto phaseLayoutID = LayoutGraphData::null_vertex();
-    if (!layoutName.empty()) {
-        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+    if (!phaseName.empty()) {
+        phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
         CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
     }
 
-    std::string_view name = "Queue";
     auto queueID = addVertex(
         QueueTag{},
-        std::forward_as_tuple(name),
-        std::forward_as_tuple(),
+        std::forward_as_tuple(phaseName),
+        std::forward_as_tuple(phaseName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(phaseLayoutID),
@@ -1381,20 +1380,19 @@ void NativeRenderQueueBuilder::addCustomCommand(std::string_view customBehavior)
 }
 
 RenderQueueBuilder *NativeRenderPassBuilder::addQueue(
-    QueueHint hint, const ccstd::string &layoutName) {
+    QueueHint hint, const ccstd::string &phaseName) {
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
     auto phaseLayoutID = LayoutGraphData::null_vertex();
-    if (!layoutName.empty()) {
-        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+    if (!phaseName.empty()) {
+        phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
         CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
     }
 
-    std::string_view name = "Queue";
     auto queueID = addVertex(
         QueueTag{},
-        std::forward_as_tuple(name),
-        std::forward_as_tuple(),
+        std::forward_as_tuple(phaseName),
+        std::forward_as_tuple(phaseName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(hint, phaseLayoutID),
@@ -1409,7 +1407,7 @@ template <class SubpassBuilder>
 SubpassBuilder *addRenderSubpassImpl(
     const PipelineRuntime *pipelineRuntime,
     RenderGraph &renderGraph, const LayoutGraphData &layoutGraph,
-    uint32_t nodeID, const ccstd::string &layoutName,
+    uint32_t nodeID, const ccstd::string &subpassName,
     uint32_t count, uint32_t quality) { // NOLINT(bugprone-easily-swappable-parameters)
     auto &pass = get(RasterPassTag{}, nodeID, renderGraph);
     auto &subpassGraph = pass.subpassGraph;
@@ -1417,7 +1415,7 @@ SubpassBuilder *addRenderSubpassImpl(
     {
         auto id = addVertex(
             std::piecewise_construct,
-            std::forward_as_tuple(std::string_view{layoutName}),
+            std::forward_as_tuple(subpassName),
             std::forward_as_tuple(),
             subpassGraph);
         CC_ENSURES(id == subpassIndex);
@@ -1429,14 +1427,14 @@ SubpassBuilder *addRenderSubpassImpl(
 
     auto subpassID = addVertex(
         RasterSubpassTag{},
-        std::forward_as_tuple(std::string_view{layoutName}),
-        std::forward_as_tuple(std::string_view{layoutName}),
+        std::forward_as_tuple(subpassName),
+        std::forward_as_tuple(subpassName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(subpass)),
         renderGraph, nodeID);
 
-    auto subpassLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, layoutGraph);
+    auto subpassLayoutID = locate(LayoutGraphData::null_vertex(), subpassName, layoutGraph);
     CC_EXPECTS(subpassLayoutID != LayoutGraphData::null_vertex());
 
     auto *builder = ccnew SubpassBuilder(
@@ -1449,26 +1447,25 @@ SubpassBuilder *addRenderSubpassImpl(
 
 } // namespace
 
-RenderSubpassBuilder *NativeRenderPassBuilder::addRenderSubpass(const ccstd::string &layoutName) {
+RenderSubpassBuilder *NativeRenderPassBuilder::addRenderSubpass(const ccstd::string &subpassName) {
     return addRenderSubpassImpl<NativeRenderSubpassBuilder>(
-        pipelineRuntime, *renderGraph, *layoutGraph, nodeID, layoutName, 1, 0);
+        pipelineRuntime, *renderGraph, *layoutGraph, nodeID, subpassName, 1, 0);
 }
 
 MultisampleRenderSubpassBuilder *NativeRenderPassBuilder::addMultisampleRenderSubpass(
-    uint32_t count, uint32_t quality, const ccstd::string &layoutName) { // NOLINT(bugprone-easily-swappable-parameters)
+    uint32_t count, uint32_t quality, const ccstd::string &subpassName) { // NOLINT(bugprone-easily-swappable-parameters)
     return addRenderSubpassImpl<NativeMultisampleRenderSubpassBuilder>(
-        pipelineRuntime, *renderGraph, *layoutGraph, nodeID, layoutName, count, quality);
+        pipelineRuntime, *renderGraph, *layoutGraph, nodeID, subpassName, count, quality);
 }
 
-ComputeSubpassBuilder *NativeRenderPassBuilder::addComputeSubpass(const ccstd::string &layoutName) {
-    std::string_view name("ComputeSubpass");
+ComputeSubpassBuilder *NativeRenderPassBuilder::addComputeSubpass(const ccstd::string &subpassName) {
     auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     auto &subpassGraph = pass.subpassGraph;
     const auto subpassIndex = num_vertices(pass.subpassGraph);
     {
         auto id = addVertex(
             std::piecewise_construct,
-            std::forward_as_tuple(name),
+            std::forward_as_tuple(subpassName),
             std::forward_as_tuple(),
             subpassGraph);
         CC_ENSURES(id == subpassIndex);
@@ -1478,14 +1475,14 @@ ComputeSubpassBuilder *NativeRenderPassBuilder::addComputeSubpass(const ccstd::s
 
     auto subpassID = addVertex(
         ComputeSubpassTag{},
-        std::forward_as_tuple(name),
-        std::forward_as_tuple(layoutName.c_str()),
+        std::forward_as_tuple(subpassName),
+        std::forward_as_tuple(subpassName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(subpass)),
         *renderGraph, nodeID);
 
-    auto subpassLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, *layoutGraph);
+    auto subpassLayoutID = locate(LayoutGraphData::null_vertex(), subpassName, *layoutGraph);
     CC_EXPECTS(subpassLayoutID != LayoutGraphData::null_vertex());
 
     auto *builder = ccnew NativeComputeSubpassBuilder(
@@ -1599,20 +1596,19 @@ void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const C
     iter->second.emplace_back(view);
 }
 
-ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &layoutName) {
+ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &phaseName) {
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
     auto phaseLayoutID = LayoutGraphData::null_vertex();
-    if (!layoutName.empty()) {
-        phaseLayoutID = locate(layoutID, layoutName, *layoutGraph);
+    if (!phaseName.empty()) {
+        phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
         CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
     }
 
-    std::string_view name("Queue");
     auto queueID = addVertex(
         QueueTag{},
-        std::forward_as_tuple(name),
-        std::forward_as_tuple(),
+        std::forward_as_tuple(phaseName),
+        std::forward_as_tuple(phaseName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(QueueHint::NONE, phaseLayoutID),

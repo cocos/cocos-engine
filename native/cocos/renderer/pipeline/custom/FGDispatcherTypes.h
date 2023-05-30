@@ -258,7 +258,7 @@ struct ResourceAccessGraph {
     PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
     PmrFlatMap<vertex_descriptor, FGRenderPassInfo> rpInfos;
-    PmrUnorderedMap<vertex_descriptor, uint32_t> subpassIndex;
+    PmrFlatMap<RenderGraph::vertex_descriptor, uint32_t> subpassIndex;
 };
 
 struct RelationGraph {
@@ -410,8 +410,6 @@ struct FrameGraphDispatcher {
 
     using BarrierMap = PmrMap<ResourceAccessGraph::vertex_descriptor, BarrierNode>;
 
-    const ResourceAccessNode& getAttachmentStatus(RenderGraph::vertex_descriptor renderGraphVertID) const;
-
     void enablePassReorder(bool enable);
 
     // how much paralell-execution weights during pass reorder,
@@ -422,6 +420,8 @@ struct FrameGraphDispatcher {
     void enableMemoryAliasing(bool enable);
 
     void run();
+
+    const ResourceAccessNode& getAttachmentStatus(RenderGraph::vertex_descriptor renderGraphVertID) const;
 
     inline const BarrierMap& getBarriers() const { return barrierMap; }
 
