@@ -26,6 +26,7 @@
 #import "MTLDevice.h"
 #import "MTLGPUObjects.h"
 #import "MTLShader.h"
+#import "MTLRenderPass.h"
 #import <Metal/MTLDevice.h>
 #import "gfx-base/SPIRVUtils.h"
 #include "base/Log.h"
@@ -43,14 +44,16 @@ CCMTLShader::~CCMTLShader() {
     destroy();
 }
 
-void CCMTLShader::doInit(const ShaderInfo& info) {
+const CCMTLGPUShader *CCMTLShader::gpuShader(CCMTLRenderPass *renderPass, uint32_t subPass)
+{
+    if (_gpuShader != nullptr) {
+        return _gpuShader;
+    }
     _gpuShader = ccnew CCMTLGPUShader;
-    _specializedFragFuncs = [[NSMutableDictionary alloc] init];
-
     for (const auto& stage : _stages) {
-        if (!createMTLFunction(stage)) {
+        if (!createMTLFunction(stage, renderPass, subPass)) {
             destroy();
-            return;
+            return nullptr;
         }
     }
 
@@ -62,6 +65,16 @@ void CCMTLShader::doInit(const ShaderInfo& info) {
     for (auto &stage : _stages) {
         stage.source.clear();
         stage.source.shrink_to_fit();
+    }
+    return _gpuShader;
+}
+
+void CCMTLShader::doInit(const ShaderInfo& info) {
+    _specializedFragFuncs = [[NSMutableDictionary alloc] init];
+    // spirv-cross for input attachment needs RenderPass to build [[color(index)]],
+    // build gpu shader only when there is no subPass input.
+    if (!checkInputAttachment(info)) {
+        gpuShader(nullptr, 0);
     }
 }
 
@@ -123,7 +136,11 @@ void CCMTLShader::doDestroy() {
     CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
-bool CCMTLShader::createMTLFunction(const ShaderStage& stage) {
+bool CCMTLShader::checkInputAttachment(const ShaderInfo& info) const {
+    return !info.subpassInputs.empty();
+}
+
+bool CCMTLShader::createMTLFunction(const ShaderStage& stage, CCMTLRenderPass *renderPass, uint32_t subPass) {
     bool isVertexShader = false;
     bool isFragmentShader = false;
     bool isComputeShader = false;
@@ -147,7 +164,12 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage) {
 
     auto* spvData = spirv->getOutputData();
     size_t unitSize = sizeof(std::remove_pointer<decltype(spvData)>::type);
-    ccstd::string mtlShaderSrc = mu::spirv2MSL(spirv->getOutputData(), spirv->getOutputSize() / unitSize, stage.stage, _gpuShader);
+
+    static const std::vector<uint32_t> emptyBuffer;
+    const auto &drawBuffer = renderPass != nullptr ? renderPass->getDrawBuffer(subPass) : emptyBuffer;
+    const auto &readBuffer = renderPass != nullptr ? renderPass->getReadBuffer(subPass) : emptyBuffer;
+    ccstd::string mtlShaderSrc = mu::spirv2MSL(spirv->getOutputData(), spirv->getOutputSize() / unitSize, stage.stage,
+        _gpuShader, drawBuffer, readBuffer);
 
     NSString* shader = [NSString stringWithUTF8String:mtlShaderSrc.c_str()];
     NSError* error = nil;

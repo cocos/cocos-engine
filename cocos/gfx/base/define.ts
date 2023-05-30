@@ -1509,7 +1509,6 @@ export class ColorAttachment {
         public loadOp: LoadOp = LoadOp.CLEAR,
         public storeOp: StoreOp = StoreOp.STORE,
         public barrier: GeneralBarrier = null!,
-        public isGeneralLayout: boolean = false,
     ) {}
 
     public copy (info: Readonly<ColorAttachment>) {
@@ -1518,7 +1517,6 @@ export class ColorAttachment {
         this.loadOp = info.loadOp;
         this.storeOp = info.storeOp;
         this.barrier = info.barrier;
-        this.isGeneralLayout = info.isGeneralLayout;
         return this;
     }
 }
@@ -1534,7 +1532,6 @@ export class DepthStencilAttachment {
         public stencilLoadOp: LoadOp = LoadOp.CLEAR,
         public stencilStoreOp: StoreOp = StoreOp.STORE,
         public barrier: GeneralBarrier = null!,
-        public isGeneralLayout: boolean = false,
     ) {}
 
     public copy (info: Readonly<DepthStencilAttachment>) {
@@ -1545,7 +1542,6 @@ export class DepthStencilAttachment {
         this.stencilLoadOp = info.stencilLoadOp;
         this.stencilStoreOp = info.stencilStoreOp;
         this.barrier = info.barrier;
-        this.isGeneralLayout = info.isGeneralLayout;
         return this;
     }
 }

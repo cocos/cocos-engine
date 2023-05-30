@@ -1433,7 +1433,7 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
         std::vector<bool> visited(gpuRenderPass->colorAttachments.size());
         for (auto &input : sub.inputs) {
             visited[input] = true;
-            drawBuffer.emplace_back(input);
+            drawBuffer.emplace_back(gpuRenderPass->indices[input]);
         }
 
         for (auto &color : sub.colors) {
@@ -1443,7 +1443,7 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
                 gpuRenderPass->colors.emplace_back(color);
             }
             if (!visited[color]) {
-                drawBuffer.emplace_back(color);
+                drawBuffer.emplace_back(index);
             }
         }
 

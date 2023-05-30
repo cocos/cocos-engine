@@ -177,7 +177,7 @@ enum class Feature : uint32_t {
     INPUT_ATTACHMENT_BENEFIT,
     SUBPASS_COLOR_INPUT,
     SUBPASS_DEPTH_STENCIL_INPUT,
-    RASTERIZATION_ORDER_COHERENT,
+    RASTERIZATION_ORDER_NOCOHERENT,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(Feature);
@@ -1276,10 +1276,6 @@ struct ALIGNAS(8) ColorAttachment {
     LoadOp loadOp{LoadOp::CLEAR};
     StoreOp storeOp{StoreOp::STORE};
     GeneralBarrier *barrier{nullptr};
-    uint32_t isGeneralLayout{0}; // @ts-boolean
-#if CC_CPU_ARCH == CC_CPU_ARCH_64
-    uint32_t _padding{0};
-#endif
 
     EXPOSE_COPY_FN(ColorAttachment)
 };
@@ -1294,10 +1290,6 @@ struct ALIGNAS(8) DepthStencilAttachment {
     LoadOp stencilLoadOp{LoadOp::CLEAR};
     StoreOp stencilStoreOp{StoreOp::STORE};
     GeneralBarrier *barrier{nullptr};
-    uint32_t isGeneralLayout{0}; // @ts-boolean
-#if CC_CPU_ARCH == CC_CPU_ARCH_64
-    uint32_t _padding{0};
-#endif
 
     EXPOSE_COPY_FN(DepthStencilAttachment)
 };
@@ -1319,17 +1311,13 @@ struct SubpassInfo {
 
 using SubpassInfoList = ccstd::vector<SubpassInfo>;
 
-using AccessFlagList = ccstd::vector<AccessFlags>;
 struct ALIGNAS(8) SubpassDependency {
     uint32_t srcSubpass{0};
     uint32_t dstSubpass{0};
     GeneralBarrier *generalBarrier{nullptr};
 
-    AccessFlagList prevAccesses{};
-    AccessFlagList nextAccesses{};
-#if CC_CPU_ARCH == CC_CPU_ARCH_32
-    uint32_t _padding{0};
-#endif
+    AccessFlags prevAccesses{};
+    AccessFlags nextAccesses{};
 
     EXPOSE_COPY_FN(SubpassDependency)
 };

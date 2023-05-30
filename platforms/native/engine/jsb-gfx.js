@@ -148,8 +148,8 @@ descriptorSetProto.bindBuffer = function (binding, buffer, index) {
 descriptorSetProto.bindSampler = function (binding, sampler, index) {
     this.dirtyJSB = descriptorSetProto.bindSamplerJSB.call(this, binding, sampler, index || 0);
 };
-descriptorSetProto.bindTexture = function (bindding, texture, index) {
-    this.dirtyJSB = descriptorSetProto.bindTextureJSB.call(this, bindding, texture, index || 0);
+descriptorSetProto.bindTexture = function (bindding, texture, index, flags) {
+    this.dirtyJSB = descriptorSetProto.bindTextureJSB.call(this, bindding, texture, index || 0, flags || 0);
 };
 const oldDSUpdate = descriptorSetProto.update;
 descriptorSetProto.update = function () {

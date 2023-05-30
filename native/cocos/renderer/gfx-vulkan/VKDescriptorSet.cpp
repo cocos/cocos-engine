@@ -192,7 +192,7 @@ void CCVKDescriptorSet::update() {
                         }
                         if (textureView) {
                             descriptorHub->connect(_gpuDescriptorSet, textureView, &descriptorInfo.image);
-                            descriptorHub->update(textureView, &descriptorInfo.image);
+                            descriptorHub->update(textureView, &descriptorInfo.image, _textures[i].flags);
                             layoutMgr->checkIn(textureView->gpuTexture, binding.accessTypes.data(), utils::toUint(binding.accessTypes.size()));
                         }
                     }
