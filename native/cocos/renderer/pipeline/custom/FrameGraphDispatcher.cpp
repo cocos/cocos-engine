@@ -90,6 +90,23 @@ void FrameGraphDispatcher::setParalellWeight(float paralellExecWeight) {
     _paralellExecWeight = clampf(paralellExecWeight, 0.0F, 1.0F);
 }
 
+const ResourceAccessNode &FrameGraphDispatcher::getAttachmentStatus(RenderGraph::vertex_descriptor renderGraphVertID) const {
+    auto iter = resourceAccessGraph.subpassIndex.find(renderGraphVertID);
+    auto ragVertID = resourceAccessGraph.passIndex.at(renderGraphVertID);
+    const ResourceAccessNode* accessNode = &resourceAccessGraph.access.at(ragVertID);
+    if( iter != resourceAccessGraph.subpassIndex.end()) {
+        auto subpassIndex = iter->second;
+        accessNode = accessNode->nextSubpass;
+        CC_ASSERT(accessNode);
+        while(subpassIndex) {
+            accessNode = accessNode->nextSubpass;
+            --subpassIndex;
+            CC_ASSERT(accessNode);
+        }
+    }
+    return *accessNode;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////INTERNAL⚡IMPLEMENTATION/////////////////////////////////////////////////////////////////////////////////////////////
 
 //---------------------------------------------------------------predefine------------------------------------------------------------------
@@ -491,8 +508,8 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                             auto &dsDep = subpassDependencies.emplace_back();
                             dsDep.srcSubpass = dependency.srcSubpass;
                             dsDep.dstSubpass = dependency.dstSubpass;
-                            dsDep.prevAccesses.emplace_back(barrier.beginStatus.accessFlag);
-                            dsDep.nextAccesses.emplace_back(barrier.endStatus.accessFlag);
+                            dsDep.prevAccesses |= barrier.beginStatus.accessFlag;
+                            dsDep.nextAccesses |= barrier.endStatus.accessFlag;
                         }
                     } else {
                         bool isWriteAccess = !isReadOnlyAccess(barrier.endStatus.accessFlag);
@@ -500,22 +517,22 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                             auto &dep = subpassDependencies.emplace_back();
                             dep.srcSubpass = dependency.srcSubpass;
                             dep.dstSubpass = dependency.dstSubpass;
-                            dep.prevAccesses.emplace_back(barrier.beginStatus.accessFlag);
-                            dep.nextAccesses.emplace_back(barrier.endStatus.accessFlag);
-                            if (hasReadAccess(barrier.endStatus.accessFlag) && !cc::gfx::Device::getInstance()->hasFeature(gfx::Feature::RASTERIZATION_ORDER_COHERENT)) {
+                            dep.prevAccesses |= barrier.beginStatus.accessFlag;
+                            dep.nextAccesses |= barrier.endStatus.accessFlag;
+                            if (hasReadAccess(barrier.endStatus.accessFlag)) {
                                 auto &selfDep = subpassDependencies.emplace_back();
                                 selfDep.srcSubpass = dependency.dstSubpass;
                                 selfDep.dstSubpass = dependency.dstSubpass;
-                                selfDep.prevAccesses.emplace_back(barrier.endStatus.accessFlag);
-                                selfDep.nextAccesses.emplace_back(barrier.endStatus.accessFlag);
+                                selfDep.prevAccesses |= barrier.endStatus.accessFlag;
+                                selfDep.nextAccesses |= barrier.endStatus.accessFlag;
                             }
                         } else {
-                            dependency.prevAccesses.emplace_back(barrier.beginStatus.accessFlag);
-                            dependency.nextAccesses.emplace_back(barrier.endStatus.accessFlag);
+                            dependency.prevAccesses |= barrier.beginStatus.accessFlag;
+                            dependency.nextAccesses |= barrier.endStatus.accessFlag;
                         }
                     }
                 }
-                if (!dependency.prevAccesses.empty()) {
+                if (dependency.prevAccesses != gfx::AccessFlagBit::NONE) {
                     subpassDependencies.emplace_back(dependency);
                 }
             }
@@ -537,8 +554,8 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                             auto &dsDep = subpassDependencies.emplace_back();
                             dsDep.srcSubpass = dependency.srcSubpass;
                             dsDep.dstSubpass = dependency.dstSubpass;
-                            dsDep.prevAccesses.emplace_back(barrier.beginStatus.accessFlag);
-                            dsDep.nextAccesses.emplace_back(barrier.endStatus.accessFlag);
+                            dsDep.prevAccesses |= barrier.beginStatus.accessFlag;
+                            dsDep.nextAccesses |= barrier.endStatus.accessFlag;
                         }
                     } else {
                         bool isWriteAccess = !isReadOnlyAccess(barrier.endStatus.accessFlag);
@@ -546,22 +563,22 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                             auto &dep = subpassDependencies.emplace_back();
                             dep.srcSubpass = dependency.srcSubpass;
                             dep.dstSubpass = dependency.dstSubpass;
-                            dep.prevAccesses.emplace_back(barrier.beginStatus.accessFlag);
-                            dep.nextAccesses.emplace_back(barrier.endStatus.accessFlag);
-                            if (hasReadAccess(barrier.endStatus.accessFlag) && !cc::gfx::Device::getInstance()->hasFeature(gfx::Feature::RASTERIZATION_ORDER_COHERENT)) {
+                            dep.prevAccesses |= barrier.beginStatus.accessFlag;
+                            dep.nextAccesses |= barrier.endStatus.accessFlag;
+                            if (hasReadAccess(barrier.endStatus.accessFlag)) {
                                 auto &selfDep = subpassDependencies.emplace_back();
                                 selfDep.srcSubpass = dependency.dstSubpass;
                                 selfDep.dstSubpass = dependency.dstSubpass;
-                                selfDep.prevAccesses.emplace_back(barrier.endStatus.accessFlag);
-                                selfDep.nextAccesses.emplace_back(barrier.endStatus.accessFlag);
+                                selfDep.prevAccesses |= barrier.endStatus.accessFlag;
+                                selfDep.nextAccesses |= barrier.endStatus.accessFlag;
                             }
                         } else {
-                            dependency.prevAccesses.emplace_back(barrier.beginStatus.accessFlag);
-                            dependency.nextAccesses.emplace_back(barrier.endStatus.accessFlag);
+                            dependency.prevAccesses |= barrier.beginStatus.accessFlag;
+                            dependency.nextAccesses |= barrier.endStatus.accessFlag;
                         }
                     }
                 }
-                if (!dependency.prevAccesses.empty()) {
+                if (dependency.prevAccesses != gfx::AccessFlagBit::NONE) {
                     subpassDependencies.emplace_back(dependency);
                 }
 
@@ -2069,7 +2086,6 @@ void fillRenderPassInfo(const RasterView &view, gfx::RenderPassInfo &rpInfo, uin
         colorAttachment.loadOp = view.loadOp;
         colorAttachment.storeOp = view.storeOp;
         colorAttachment.sampleCount = viewDesc.sampleCount;
-        colorAttachment.isGeneralLayout = gfx::hasFlag(viewDesc.textureFlags, gfx::TextureFlags::GENERAL_LAYOUT);
         // colorAttachment.barrier = getGeneralBarrier(gfx::Device::getInstance(), view, prevAccess, nextAccess);
     } else {
         auto &depthStencilAttachment = rpInfo.depthStencilAttachment;
@@ -2079,7 +2095,6 @@ void fillRenderPassInfo(const RasterView &view, gfx::RenderPassInfo &rpInfo, uin
         depthStencilAttachment.stencilLoadOp = view.loadOp;
         depthStencilAttachment.stencilStoreOp = view.storeOp;
         depthStencilAttachment.sampleCount = viewDesc.sampleCount;
-        depthStencilAttachment.isGeneralLayout = gfx::hasFlag(viewDesc.textureFlags, gfx::TextureFlags::GENERAL_LAYOUT);
         // depthStencilAttachment.barrier = getGeneralBarrier(gfx::Device::getInstance(), view, prevAccess, nextAccess);
     }
 }
@@ -2270,10 +2285,13 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
     auto &rpInfo = fgRenderpassInfo.rpInfo;
     auto &subpassInfo = rpInfo.subpasses.emplace_back();
     auto *lastNode = &node;
+    uint32_t subpassIndex = 0;
     while (lastNode->nextSubpass) {
         lastNode = lastNode->nextSubpass;
+        ++subpassIndex;
     }
     lastNode->nextSubpass = new ResourceAccessNode;
+    resourceAccessGraph.subpassIndex.emplace(passID, subpassIndex);
     auto *head = lastNode->nextSubpass;
     bool dependent{false};
     dependent |= checkRasterViews(graphs, parentRagVert, passID, PassType::RASTER, *head, pass.rasterViews);
