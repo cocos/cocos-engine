@@ -116,7 +116,6 @@ struct GLES3GPUBuffer {
     GLuint glBuffer = 0;
     GLuint glOffset = 0;
     uint8_t *buffer = nullptr;
-    DrawInfoList indirects;
 };
 using GLES3GPUBufferList = ccstd::vector<GLES3GPUBuffer *>;
 
@@ -306,7 +305,6 @@ struct GLES3GPUInputAssembler {
     AttributeList attributes;
     GLES3GPUBufferList gpuVertexBuffers;
     GLES3GPUBuffer *gpuIndexBuffer = nullptr;
-    GLES3GPUBuffer *gpuIndirectBuffer = nullptr;
     GLES3GPUAttributeList glAttribs;
     GLenum glIndexType = 0;
     ccstd::unordered_map<size_t, GLuint> glVAOs;

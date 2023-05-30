@@ -60,10 +60,6 @@ void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {
         CC_ASSERT(static_cast<BufferValidator *>(info.indexBuffer)->isInited());
         CC_ASSERT(hasFlag(info.indexBuffer->getUsage(), BufferUsageBit::INDEX));
     }
-    if (info.indirectBuffer) {
-        CC_ASSERT(static_cast<BufferValidator *>(info.indirectBuffer)->isInited());
-        CC_ASSERT(hasFlag(info.indirectBuffer->getUsage(), BufferUsageBit::INDIRECT));
-    }
 
     /////////// execute ///////////
 
@@ -73,9 +69,6 @@ void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {
     }
     if (actorInfo.indexBuffer) {
         actorInfo.indexBuffer = static_cast<BufferValidator *>(actorInfo.indexBuffer)->getActor();
-    }
-    if (actorInfo.indirectBuffer) {
-        actorInfo.indirectBuffer = static_cast<BufferValidator *>(actorInfo.indirectBuffer)->getActor();
     }
 
     _actor->initialize(actorInfo);

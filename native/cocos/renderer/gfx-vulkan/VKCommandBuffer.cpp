@@ -407,71 +407,70 @@ void CCVKCommandBuffer::draw(const DrawInfo &info) {
         bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS);
     }
 
-    const auto *gpuIndirectBuffer = _curGPUInputAssembler->gpuIndirectBuffer.get();
+//    const auto *gpuIndirectBuffer = _curGPUInputAssembler->gpuIndirectBuffer.get();
+//
+//    if (gpuIndirectBuffer) {
+//        uint32_t drawInfoCount = gpuIndirectBuffer->range / gpuIndirectBuffer->gpuBuffer->stride;
+//        CCVKGPUDevice *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
+//        VkDeviceSize offset = gpuIndirectBuffer->getStartOffset(gpuDevice->curBackBufferIndex);
+//        if (gpuDevice->useMultiDrawIndirect) {
+//            if (gpuIndirectBuffer->gpuBuffer->isDrawIndirectByIndex) {
+//                vkCmdDrawIndexedIndirect(_gpuCommandBuffer->vkCommandBuffer,
+//                                         gpuIndirectBuffer->gpuBuffer->vkBuffer,
+//                                         offset,
+//                                         drawInfoCount,
+//                                         sizeof(VkDrawIndexedIndirectCommand));
+//            } else {
+//                vkCmdDrawIndirect(_gpuCommandBuffer->vkCommandBuffer,
+//                                  gpuIndirectBuffer->gpuBuffer->vkBuffer,
+//                                  offset,
+//                                  drawInfoCount,
+//                                  sizeof(VkDrawIndirectCommand));
+//            }
+//        } else {
+//            if (gpuIndirectBuffer->gpuBuffer->isDrawIndirectByIndex) {
+//                for (VkDeviceSize j = 0U; j < drawInfoCount; ++j) {
+//                    vkCmdDrawIndexedIndirect(_gpuCommandBuffer->vkCommandBuffer,
+//                                             gpuIndirectBuffer->gpuBuffer->vkBuffer,
+//                                             offset + j * sizeof(VkDrawIndexedIndirectCommand),
+//                                             1,
+//                                             sizeof(VkDrawIndexedIndirectCommand));
+//                }
+//            } else {
+//                for (VkDeviceSize j = 0U; j < drawInfoCount; ++j) {
+//                    vkCmdDrawIndirect(_gpuCommandBuffer->vkCommandBuffer,
+//                                      gpuIndirectBuffer->gpuBuffer->vkBuffer,
+//                                      offset + j * sizeof(VkDrawIndirectCommand),
+//                                      1,
+//                                      sizeof(VkDrawIndirectCommand));
+//                }
+//            }
+//        }
+//    }
+    uint32_t instanceCount = std::max(info.instanceCount, 1U);
+    bool hasIndexBuffer = _curGPUInputAssembler->gpuIndexBuffer && info.indexCount > 0;
 
-    if (gpuIndirectBuffer) {
-        uint32_t drawInfoCount = gpuIndirectBuffer->range / gpuIndirectBuffer->gpuBuffer->stride;
-        CCVKGPUDevice *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
-        VkDeviceSize offset = gpuIndirectBuffer->getStartOffset(gpuDevice->curBackBufferIndex);
-        if (gpuDevice->useMultiDrawIndirect) {
-            if (gpuIndirectBuffer->gpuBuffer->isDrawIndirectByIndex) {
-                vkCmdDrawIndexedIndirect(_gpuCommandBuffer->vkCommandBuffer,
-                                         gpuIndirectBuffer->gpuBuffer->vkBuffer,
-                                         offset,
-                                         drawInfoCount,
-                                         sizeof(VkDrawIndexedIndirectCommand));
-            } else {
-                vkCmdDrawIndirect(_gpuCommandBuffer->vkCommandBuffer,
-                                  gpuIndirectBuffer->gpuBuffer->vkBuffer,
-                                  offset,
-                                  drawInfoCount,
-                                  sizeof(VkDrawIndirectCommand));
-            }
-        } else {
-            if (gpuIndirectBuffer->gpuBuffer->isDrawIndirectByIndex) {
-                for (VkDeviceSize j = 0U; j < drawInfoCount; ++j) {
-                    vkCmdDrawIndexedIndirect(_gpuCommandBuffer->vkCommandBuffer,
-                                             gpuIndirectBuffer->gpuBuffer->vkBuffer,
-                                             offset + j * sizeof(VkDrawIndexedIndirectCommand),
-                                             1,
-                                             sizeof(VkDrawIndexedIndirectCommand));
-                }
-            } else {
-                for (VkDeviceSize j = 0U; j < drawInfoCount; ++j) {
-                    vkCmdDrawIndirect(_gpuCommandBuffer->vkCommandBuffer,
-                                      gpuIndirectBuffer->gpuBuffer->vkBuffer,
-                                      offset + j * sizeof(VkDrawIndirectCommand),
-                                      1,
-                                      sizeof(VkDrawIndirectCommand));
-                }
-            }
-        }
+    if (hasIndexBuffer) {
+        vkCmdDrawIndexed(_gpuCommandBuffer->vkCommandBuffer, info.indexCount, instanceCount,
+                         info.firstIndex, info.vertexOffset, info.firstInstance);
     } else {
-        uint32_t instanceCount = std::max(info.instanceCount, 1U);
-        bool hasIndexBuffer = _curGPUInputAssembler->gpuIndexBuffer && info.indexCount > 0;
+        vkCmdDraw(_gpuCommandBuffer->vkCommandBuffer, info.vertexCount, instanceCount,
+                  info.firstVertex, info.firstInstance);
+    }
 
-        if (hasIndexBuffer) {
-            vkCmdDrawIndexed(_gpuCommandBuffer->vkCommandBuffer, info.indexCount, instanceCount,
-                             info.firstIndex, info.vertexOffset, info.firstInstance);
-        } else {
-            vkCmdDraw(_gpuCommandBuffer->vkCommandBuffer, info.vertexCount, instanceCount,
-                      info.firstVertex, info.firstInstance);
-        }
-
-        ++_numDrawCalls;
-        _numInstances += info.instanceCount;
-        if (_curGPUPipelineState) {
-            uint32_t indexCount = hasIndexBuffer ? info.indexCount : info.vertexCount;
-            switch (_curGPUPipelineState->primitive) {
-                case PrimitiveMode::TRIANGLE_LIST:
-                    _numTriangles += indexCount / 3 * instanceCount;
-                    break;
-                case PrimitiveMode::TRIANGLE_STRIP:
-                case PrimitiveMode::TRIANGLE_FAN:
-                    _numTriangles += (indexCount - 2) * instanceCount;
-                    break;
-                default: break;
-            }
+    ++_numDrawCalls;
+    _numInstances += info.instanceCount;
+    if (_curGPUPipelineState) {
+        uint32_t indexCount = hasIndexBuffer ? info.indexCount : info.vertexCount;
+        switch (_curGPUPipelineState->primitive) {
+            case PrimitiveMode::TRIANGLE_LIST:
+                _numTriangles += indexCount / 3 * instanceCount;
+                break;
+            case PrimitiveMode::TRIANGLE_STRIP:
+            case PrimitiveMode::TRIANGLE_FAN:
+                _numTriangles += (indexCount - 2) * instanceCount;
+                break;
+            default: break;
         }
     }
 }
