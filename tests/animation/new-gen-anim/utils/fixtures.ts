@@ -1,9 +1,7 @@
 import { Track, VectorTrack } from "../../../../cocos/animation/animation";
 import { AnimationClip } from "../../../../cocos/animation/animation-clip";
-import { AnimationBlend1D } from "../../../../cocos/animation/marionette/animation-blend-1d";
-import { blend1D } from "../../../../cocos/animation/marionette/blend-1d";
-import { ClipMotion } from "../../../../cocos/animation/marionette/clip-motion";
-import { Motion } from "../../../../cocos/animation/marionette/motion";
+import { ClipMotion, AnimationBlend1D } from "../../../../cocos/animation/marionette/motion";
+import { blend1D } from "../../../../cocos/animation/marionette/motion/blend-1d";
 import { lerp, RealCurve } from "../../../../cocos/core";
 
 export interface CreateMotionContext {
@@ -49,6 +47,13 @@ export class LinearRealValueAnimationFixture implements RealValueAnimationFixtur
                 duration: this.duration,
             },
         );
+    }
+
+    public setupCurve(curve: RealCurve) {
+        curve.assignSorted([
+            [0.0, this.from],
+            [this.duration, this.to],
+        ]);
     }
 }
 

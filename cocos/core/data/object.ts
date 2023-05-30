@@ -57,10 +57,6 @@ const IsAnchorLocked = 1 << 19;
 const IsSizeLocked = 1 << 20;
 const IsPositionLocked = 1 << 21;
 
-// Distributed
-const IsReplicated = 1 << 22;
-export const IsClientLoad = 1 << 23;
-
 // var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating
@@ -242,17 +238,6 @@ class CCObject implements EditorExtendableObject {
     }
     public get hideFlags () {
         return this._objFlags & CCObject.Flags.AllHideMasks;
-    }
-
-    public set replicated (value: boolean) {
-        if (value) {
-            this._objFlags |= IsReplicated;
-        } else {
-            this._objFlags &= ~IsReplicated;
-        }
-    }
-    public get replicated () {
-        return !!(this._objFlags & IsReplicated);
     }
 
     /**
@@ -470,7 +455,6 @@ if (EDITOR) {
 
 CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
 CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
-CCClass.Attr.setClassAttr(CCObject, 'replicated', 'visible', false);
 
 /**
  * Bit mask that controls object states.
@@ -607,9 +591,6 @@ declare namespace CCObject {
         IsScaleLocked,
         IsAnchorLocked,
         IsSizeLocked,
-
-        IsReplicated,
-        IsClientLoad,
     }
 
     // for @ccclass
@@ -684,7 +665,7 @@ declare const jsb: any;
 if (JSB) {
     copyAllProperties(CCObject, jsb.CCObject, ['prototype', 'length', 'name']);
     copyAllProperties(CCObject.prototype, jsb.CCObject.prototype,
-        ['constructor', 'name', 'hideFlags', 'replicated', 'isValid']);
+        ['constructor', 'name', 'hideFlags', 'isValid']);
 
     (CCObject as unknown as any) = jsb.CCObject;
 }

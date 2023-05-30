@@ -25,11 +25,11 @@ exports.template = /* html */`
         <ui-label slot="label" value="i18n:ENGINE.assets.image.isRGBE" tooltip="i18n:ENGINE.assets.image.isRGBETip"></ui-label>
         <ui-checkbox slot="content" class="isRGBE-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-section expand class="sub-panel-section" cache-expand="image-sub-panel-section">
+    <ui-section expand class="sub-panel-section config" cache-expand="image-sub-panel-section">
         <ui-label slot="header"></ui-label>
         <ui-panel></ui-panel>
     </ui-section>
-    <ui-section expand class="sub-texture-panel-section" cache-expand="image-sub-panel-section" hidden>
+    <ui-section expand class="sub-texture-panel-section config" cache-expand="image-sub-panel-section" hidden>
         <ui-label slot="header"></ui-label>
         <ui-panel></ui-panel>
     </ui-section>
@@ -42,9 +42,6 @@ exports.style = /* css */`
     }
     .asset-image > ui-section {
         margin: 4px 0;
-    }
-    .asset-image > ui-section > ui-panel {
-        margin-top: 5px;
     }
 `;
 
@@ -323,7 +320,7 @@ exports.methods = {
                 const subMeta = meta.subMetas[subUuid];
                 if (!subMeta || subMeta.importer === '*') {
                     continue;
-                } 
+                }
                 if (subMeta.importer === imageImporter) {
                     if (spriteFrameChange === 'othersToSpriteFrame' && subMeta.userData.mipfilter !== 'none') {
                         // imageAsset type change to spriteFrame，disabled mipmaps
@@ -344,7 +341,7 @@ exports.methods = {
                 Editor.Message.request('asset-db', 'save-asset-meta', meta.uuid, content);
             }
         });
-    }
+    },
 };
 
 exports.ready = function() {

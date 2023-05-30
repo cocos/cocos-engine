@@ -29,11 +29,10 @@ exports.template = /* html */`
 
 exports.style = /* css */`
 .preview {
-    margin-top: 10px;
     border-top: 1px solid var(--color-normal-border);
 }
 .preview > .info {
-    padding-top: 8px;
+    padding-top: 4px;
 }
 .preview > .info > ui-label {
     margin-right: 6px;
@@ -43,13 +42,14 @@ exports.style = /* css */`
     overflow: hidden;
     display: flex;
     flex: 1;
-    margin-right: 10px;
+    margin-right: 4px;
 }
 .preview >.image > .canvas {
     flex: 1;
 }
 .select-box {
     float: right;
+    margin-right: 4px;
 }
 .preview-channel {
     visibility: hidden;
@@ -257,10 +257,10 @@ exports.methods = {
         panel.animationId = requestAnimationFrame(() => {
             panel.refreshPreview();
         });
-    }
+    },
 };
 
-exports.ready = function () {
+exports.ready = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -269,7 +269,7 @@ exports.ready = function () {
     }
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -283,7 +283,7 @@ exports.update = function (assetList, metaList) {
     }
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {

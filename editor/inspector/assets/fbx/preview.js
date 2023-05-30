@@ -74,7 +74,6 @@ exports.style = /* css*/`
 }
 .preview-container {
     min-height: 200px;
-    margin-top: 10px;
     border-top: 1px solid var(--color-normal-border);
 }
 .preview[hoving] > .preview-container {
@@ -86,7 +85,7 @@ exports.style = /* css*/`
     outline-offset: -2px;
 }
 .preview-container > .model-info {
-    padding-top: 5px;
+    padding-top: 4px;
     display: none;
 }
 .preview-container > .model-info > ui-label {
@@ -97,14 +96,15 @@ exports.style = /* css*/`
     overflow: hidden;
     display: flex;
     flex: 1;
-    margin: 2px;
+    margin-right: 4px;
 }
 .preview-container >.image > .canvas {
     flex: 1;
 }
 .preview-container .toolbar {
     display: flex;
-    margin-top: 10px;
+    margin-top: 4px;
+    margin-right: 4px;
     justify-content: space-between;
 }
 
@@ -113,8 +113,7 @@ exports.style = /* css*/`
     flex: 1;
 }
 .preview-container .toolbar > * {
-    line-height: 25px;
-    margin-right: 5px;
+    margin-left: 4px;
 }
 
 ui-icon {
@@ -123,6 +122,7 @@ ui-icon {
 
 .time-line {
     position: relative;
+    padding: 4px;
 }
 
 .time-line .events {
@@ -679,16 +679,16 @@ exports.methods = {
 
     addAssetChangeListener(add = true) {
         if (!add && this.hasListenAssetsChange) {
-            Editor.Message.removeBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
+            Editor.Message.__protected__.removeBroadcastListener('scene:asset-applied', this.onAssetChangeBind);
             this.hasListenAssetsChange = false;
             return;
         }
-        Editor.Message.addBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
+        Editor.Message.__protected__.addBroadcastListener('scene:asset-applied', this.onAssetChangeBind);
         this.hasListenAssetsChange = true;
     },
 
-    async onAssetChange(uuid) {
-        if (this.asset.uuid === uuid) {
+    async onAssetChange(uuids) {
+        if (uuids.includes(this.asset.uuid)) {
             // Update the animation dump when the parent assets changes
             this.meta = await Editor.Message.request('asset-db', 'query-asset-meta', this.asset.uuid);
             const clipInfo = animation.methods.getCurClipInfo.call(this);
@@ -697,7 +697,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function () {
+exports.ready = function() {
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -739,7 +739,7 @@ exports.ready = function () {
     this.eventEditor.ready.call(this);
 };
 
-exports.update = async function (assetList, metaList) {
+exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.isMultiple = this.assetList.length > 1;
@@ -770,7 +770,7 @@ exports.update = async function (assetList, metaList) {
     this.refreshPreview();
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {

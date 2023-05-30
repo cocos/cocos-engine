@@ -175,7 +175,6 @@ namespace cc {
 
 %attribute(cc::CCObject, ccstd::string&, name, getName, setName);
 %attribute(cc::CCObject, cc::CCObject::Flags, hideFlags, getHideFlags, setHideFlags);
-%attribute(cc::CCObject, bool, replicated, isReplicated, setReplicated);
 %attribute(cc::CCObject, bool, isValid, isValid);
 
 // ----- Import Section ------

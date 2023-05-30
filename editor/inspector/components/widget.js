@@ -11,20 +11,24 @@ exports.template = `
 <style>
 .widget-component {
     position: relative;
-    line-height: 22px;
-    margin-bottom: 15px;
+    margin-bottom: 4px;
+    margin-left: 4px;
+}
+
+.widget-component[layout='horizontal'] {
+    margin-left: 8px;
 }
 
 .widget-component[layout='vertical']>.layout {
     padding-left: 0;
-    padding-top: 10px;
+    padding-top: 8px;
 }
 
 .widget-component[layout='vertical']>.layout .rect {
     position: relative;
     top: 0;
     left: 0;
-    height: 165px;
+    height: 154px;
     width: 150px;
     margin: 0 auto;
 }
@@ -40,8 +44,8 @@ exports.template = `
 .widget-component>.layout {
     position: relative;
     padding-left: 140px;
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 .widget-component>.layout .ui-prop {
@@ -95,7 +99,7 @@ exports.template = `
 .widget-component>.layout .rect>.left {
     position: absolute;
     top: 140px;
-    left: -5px;
+    left: -2px;
     width: 140px;
     text-align: center;
     height: 20px;

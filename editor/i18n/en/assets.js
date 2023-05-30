@@ -285,6 +285,9 @@ module.exports = {
                     name: 'Skip Validation',
                     title: 'Skip validation of the model file.',
                 },
+                mountAllAnimationsOnPrefab: {
+                    name: 'Mount All Animations Onto Prefab',
+                },
             },
             addEvent: {
                 shouldSave: 'The newly created clip needs to be submitted for modification before adding/editing events',

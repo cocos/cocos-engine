@@ -10,7 +10,46 @@ const url = 'https://docs.cocos.com/creator';
 module.exports = link(mixin({
 
     classes: {
-        'cc': { },
+        'cc': {
+            'animation': {
+                'TCVariableBinding': {
+                    menu: '变量绑定',
+                    tooltip: '使用变量的值作为条件值。',
+                    properties: {
+                        'variableName': {
+                            label: '变量',
+                            tooltip: '变量名称。',
+                        },
+                    },
+                },
+                'TCAuxiliaryCurveBinding': {
+                    menu: '曲线值绑定',
+                    tooltip: '使用辅助曲线当前的值作为条件值。',
+                    properties: {
+                        'curveName': {
+                            label: '曲线',
+                            tooltip: '辅助曲线名称。',
+                        },
+                    },
+                },
+                'TCStateWeightBinding': {
+                    menu: '状态权重绑定',
+                    tooltip: '使用状态的权重作为条件值。',
+                    abbr: {
+                        label: '状态权重',
+                        tooltip: '过渡源状态的当前权重。',
+                    },
+                },
+                'TCStateMotionTimeBinding': {
+                    menu: '动画流逝时间绑定',
+                    tooltip: '使用状态中动画的（标准化的）流逝时间作为条件值。',
+                    abbr: {
+                        label: '动画流逝时间',
+                        tooltip: '过渡源状态中，动画的（标准化的）流逝时间。',
+                    },
+                },
+            },
+        },
     },
 
     help: {
@@ -1022,6 +1061,10 @@ module.exports = link(mixin({
         marionette: {
             label: "Marionette 动画系统",
             description: "启用 Marionette 动画系统。",
+        },
+        procedural_animation: {
+            label: "程序化动画",
+            description: "启用程序化动画相关的功能，例如姿态图等。",
         },
         xr: {
             label: "XR",

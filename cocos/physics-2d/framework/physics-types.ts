@@ -127,10 +127,43 @@ export enum ERaycast2DType {
     All
 }
 
+/**
+ * @en
+ * Physics2D contact event types.
+ * @zh
+ * 2D物理接触事件类型。
+ */
 export const Contact2DType = {
+    /**
+     * @en
+     * The event type of non contact.
+     * @zh
+     * 无接触的事件类型。
+     */
     None: 'none-contact',
+
+    /**
+     * @en
+     * The event type of the contact start.
+     * @zh
+     * 开始接触的事件类型。
+     */
     BEGIN_CONTACT: 'begin-contact',
+
+    /**
+     * @en
+     * The event type of the contact stay.
+     * @zh
+     * 保持接触的事件类型。
+     */
     STAY_CONTACT: 'stay-contact',
+
+    /**
+     * @en
+     * The event type of the contact end.
+     * @zh
+     * 结束接触的事件类型。
+     */
     END_CONTACT: 'end-contact',
 
     /**

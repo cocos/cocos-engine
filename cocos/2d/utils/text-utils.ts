@@ -73,7 +73,7 @@ pool.get = function () {
     };
 };
 
-class LRUCache {
+export class LRUCache {
     private count = 0;
     private limit = 0;
     private datas: Record<string, ICacheNode> = {};

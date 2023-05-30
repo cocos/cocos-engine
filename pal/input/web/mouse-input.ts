@@ -39,9 +39,9 @@ export class MouseInputSource {
     private _isPressed = false;
     private _preMousePos: Vec2 = new Vec2();
 
-    private _handleMouseDown!: (event: MouseEvent) => void;
-    private _handleMouseMove!: (event: MouseEvent) => void;
-    private _handleMouseUp!: (event: MouseEvent) => void;
+    private _handleMouseDown!: (event: PointerEvent) => void;
+    private _handleMouseMove!: (event: PointerEvent) => void;
+    private _handleMouseUp!: (event: PointerEvent) => void;
 
     constructor () {
         if (systemInfo.hasFeature(Feature.EVENT_MOUSE)) {
@@ -90,17 +90,18 @@ export class MouseInputSource {
 
     private _registerEvent () {
         // register mouse down event
-        window.addEventListener('mousedown', () => {
+        window.addEventListener('pointerdown', () => {
             this._isPressed = true;
         });
-        this._canvas?.addEventListener('mousedown', this._handleMouseDown);
+        this._canvas?.addEventListener('pointerdown', this._handleMouseDown);
 
         // register mouse move event
-        this._canvas?.addEventListener('mousemove', this._handleMouseMove);
+        this._canvas?.addEventListener('pointermove', this._handleMouseMove);
 
         // register mouse up event
-        window.addEventListener('mouseup', this._handleMouseUp);
-        this._canvas?.addEventListener('mouseup', this._handleMouseUp);
+        const handleMouseUp = this._handleMouseUp;
+        window.addEventListener('pointerup', handleMouseUp);
+        this._canvas?.addEventListener('pointerup', handleMouseUp);
 
         // register wheel event
         this._canvas?.addEventListener('wheel', this._handleMouseWheel.bind(this));
@@ -127,9 +128,9 @@ export class MouseInputSource {
     }
 
     private _createCallback (eventType: InputEventType) {
-        return (mouseEvent: MouseEvent) => {
-            const location = this._getLocation(mouseEvent);
-            const { button, buttons } = mouseEvent;
+        return (pointerEvent: PointerEvent) => {
+            const location = this._getLocation(pointerEvent);
+            const { button, buttons } = pointerEvent;
             let targetButton = button;
             switch (eventType) {
             case InputEventType.MOUSE_DOWN:
@@ -159,14 +160,14 @@ export class MouseInputSource {
             const eventMouse = new EventMouse(eventType, false, this._preMousePos);
             eventMouse.setLocation(location.x, location.y);
             eventMouse.setButton(targetButton);
-            eventMouse.movementX = mouseEvent.movementX;
-            eventMouse.movementY = mouseEvent.movementY;
+            eventMouse.movementX = pointerEvent.movementX;
+            eventMouse.movementY = pointerEvent.movementY;
 
             // update previous mouse position.
             this._preMousePos.set(location.x, location.y);
-            mouseEvent.stopPropagation();
-            if (mouseEvent.target === this._canvas) {
-                mouseEvent.preventDefault();
+            pointerEvent.stopPropagation();
+            if (pointerEvent.target === this._canvas) {
+                pointerEvent.preventDefault();
             }
             this._eventTarget.emit(eventType, eventMouse);
         };

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
+const i18nPrefix = 'i18n:';
 /*
  * Returns the ordered PropMap
  * @param {*} value of dump
@@ -305,13 +306,9 @@ exports.isMultipleInvalid = function(dump) {
 
     return invalid;
 };
+
 /**
  * Get the name based on the dump data
- */
-/**
- *
- * @param {string} dump
- * @returns
  */
 exports.getName = function(dump) {
     if (!dump) {
@@ -319,7 +316,14 @@ exports.getName = function(dump) {
     }
 
     if (dump.displayName) {
-        return dump.displayName;
+        if (dump.displayName.startsWith(i18nPrefix)) {
+            const key = dump.displayName.substring(i18nPrefix.length);
+            if (Editor.I18n.t(key)) {
+                return dump.displayName;
+            }
+        } else {
+            return dump.displayName;
+        }
     }
 
     let name = dump.name || '';
@@ -370,14 +374,14 @@ exports.createTabGroup = function(dump, panel) {
         style.setAttribute('id', 'group-style');
         style.innerText = `
             .tab-group {
-                margin-top: 10px;
-                margin-bottom: 10px;
+                margin-top: 4px;
+                margin-bottom: 4px;
             }
             .tab-content {
                 display: none;
                 border: 1px dashed var(--color-normal-border);
-                padding: 10px;
-                margin-top: -9px;
+                padding: 8px;
+                margin-top: -10px;
                 border-top-right-radius: calc(var(--size-normal-radius) * 1px);
                 border-bottom-left-radius: calc(var(--size-normal-radius) * 1px);
                 border-bottom-right-radius: calc(var(--size-normal-radius) * 1px);
@@ -417,7 +421,7 @@ exports.appendToTabGroup = function($group, tabName) {
     $group.appendChild($content);
 
     const $label = document.createElement('ui-label');
-    $label.value = exports.getName(tabName);
+    $label.value = exports.getName({ name: tabName });
 
     const $button = document.createElement('ui-button');
     $button.setAttribute('name', tabName);

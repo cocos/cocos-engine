@@ -17,7 +17,6 @@ exports.style = /* css */`
     display: flex;
     flex: 1;
     flex-direction: column;
-    padding-top: 5px;
 }
 
 .asset-fbx > .header {
@@ -101,7 +100,7 @@ const Elements = {
 exports.methods = {
     apply() {
         Editor.Message.broadcast('fbx-inspector:apply');
-    }
+    },
 };
 
 exports.listeners = {

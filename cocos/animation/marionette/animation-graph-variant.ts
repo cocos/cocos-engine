@@ -28,7 +28,7 @@ import { AnimationClip } from '../animation-clip';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { AnimationGraph } from './animation-graph';
 import { AnimationGraphLike } from './animation-graph-like';
-import { ReadonlyClipOverrideMap } from './graph-eval';
+import type { ReadonlyClipOverrideMap } from './clip-overriding';
 
 /**
  * @en

@@ -1,38 +1,46 @@
 import { AnimationClip } from "../../../../cocos/animation/animation-clip";
-import { AnimationBlend1D } from "../../../../cocos/animation/marionette/animation-blend-1d";
-import { AnimationBlend2D } from "../../../../cocos/animation/marionette/animation-blend-2d";
-import { AnimationGraph, AnimationTransition, EmptyStateTransition, isAnimationTransition, State, StateMachine, SubStateMachine, Transition } from "../../../../cocos/animation/marionette/animation-graph";
-import { ClipMotion } from "../../../../cocos/animation/marionette/clip-motion";
-import { BinaryCondition, TriggerCondition, UnaryCondition } from "../../../../cocos/animation/marionette/condition";
-import { Motion } from "../../../../cocos/animation/marionette/motion";
-import { MotionState } from "../../../../cocos/animation/marionette/motion-state";
+import { AnimationGraph, AnimationTransition, EmptyStateTransition, isAnimationTransition, ProceduralPoseState, ProceduralPoseTransition, State, StateMachine, SubStateMachine, Transition } from "../../../../cocos/animation/marionette/animation-graph";
+import { PoseGraph, poseGraphOp, TCBinding, TCBindingValueType } from "../../../../cocos/animation/marionette/asset-creation";
+import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D } from "../../../../cocos/animation/marionette/motion";
+import { BinaryCondition, TriggerCondition, UnaryCondition } from "../../../../cocos/animation/marionette/state-machine/condition";
+import { MotionState } from "../../../../cocos/animation/marionette/state-machine/motion-state";
 import { Bindable } from "../../../../cocos/animation/marionette/parametric";
-import { TriggerResetMode } from "../../../../cocos/animation/marionette/variable";
-import { Vec2 } from "../../../../exports/base";
+import { TriggerResetMode, VariableType } from "../../../../cocos/animation/marionette/variable";
+import { assertIsTrue, Vec2 } from "../../../../exports/base";
+import { TCVariableBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/variable-binding";
+import { TCAuxiliaryCurveBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/auxiliary-curve-binding";
+import { TCStateWeightBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/state-weight-binding";
+import { PoseNode } from "../../../../cocos/animation/marionette/pose-graph/pose-node";
 
 export function createAnimationGraph(params: AnimationGraphParams): AnimationGraph {
     const animationGraph = new AnimationGraph();
     if (params.variableDeclarations) {
         for (const [id, variableDeclarationParams] of Object.entries(params.variableDeclarations)) {
             switch (variableDeclarationParams.type) {
-                case 'float': animationGraph.addFloat(id, variableDeclarationParams.value); break;
-                case 'int': animationGraph.addInteger(id, variableDeclarationParams.value); break;
-                case 'boolean': animationGraph.addBoolean(id, variableDeclarationParams.value); break;
-                case 'trigger': animationGraph.addTrigger(
-                    id,
-                    false,
-                    variableDeclarationParams.resetMode == 'after-consumed'
-                        ? TriggerResetMode.AFTER_CONSUMED
-                        : variableDeclarationParams.resetMode === 'next-frame-or-after-consumed'
-                            ? TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED
-                            : undefined,
-                    );
+                case 'float': animationGraph.addVariable(id, VariableType.FLOAT, variableDeclarationParams.value); break;
+                case 'int': animationGraph.addVariable(id, VariableType.INTEGER, variableDeclarationParams.value); break;
+                case 'boolean': animationGraph.addVariable(id, VariableType.BOOLEAN, variableDeclarationParams.value); break;
+                case 'trigger': {
+                    const triggerVar = animationGraph.addVariable(id, VariableType.TRIGGER, false);
+                    assertIsTrue(triggerVar.type === VariableType.TRIGGER);
+                    if (variableDeclarationParams.resetMode === 'after-consumed') {
+                        triggerVar.resetMode = TriggerResetMode.AFTER_CONSUMED;
+                    } else if (variableDeclarationParams.resetMode === 'next-frame-or-after-consumed') {
+                        triggerVar.resetMode = TriggerResetMode.NEXT_FRAME_OR_AFTER_CONSUMED;
+                    }
                     break;
+                }
             }
         }
     }
     for (const layerParams of params.layers) {
         const layer = animationGraph.addLayer();
+        if (layerParams.stashes) {
+            for (const [stashId, stashParams] of Object.entries(layerParams.stashes)) {
+                const stash = layer.addStash(stashId);
+                fillPoseGraph(stash.graph, stashParams.graph);
+            }
+        }
         fillStateMachine(layer.stateMachine, layerParams.stateMachine);
         if (typeof layerParams.additive !== 'undefined') {
             layer.additive = layerParams.additive;
@@ -47,9 +55,15 @@ export function fillStateMachine(stateMachine: StateMachine, params: StateMachin
         switch (stateParams.type) {
             case 'motion':
                 state = stateMachine.addMotion();
+                fillStateEventBindingSpecification(state as MotionState, stateParams);
                 if (stateParams.motion) {
                     (state as MotionState).motion = stateParams.motion instanceof Motion ? stateParams.motion : createMotion(stateParams.motion);
                 }
+                break;
+            case 'procedural':
+                state = stateMachine.addProceduralPoseState();
+                fillPoseGraph((state as ProceduralPoseState).graph, stateParams.graph);
+                fillStateEventBindingSpecification(state as ProceduralPoseState, stateParams);
                 break;
             case 'empty':
                 state = stateMachine.addEmpty();
@@ -123,8 +137,13 @@ function fillTransition(transition: Transition, params: TransitionAttributes) {
                     case '<': condition.operator = BinaryCondition.Operator.LESS_THAN; break;
                     case '<=': condition.operator = BinaryCondition.Operator.LESS_THAN_OR_EQUAL_TO; break;
                 }
-                fillBindable(condition.lhs, conditionParams.lhs);
-                fillBindable(condition.rhs, conditionParams.rhs);
+                if (typeof conditionParams.lhs !== 'undefined') {
+                    condition.lhs = conditionParams.lhs;
+                }
+                if (conditionParams.lhsBinding) {
+                    condition.lhsBinding = createTCBinding(conditionParams.lhsBinding) as BinaryCondition['lhsBinding'];
+                }
+                condition.rhs = conditionParams.rhs;
                 return condition;
             }
             case 'trigger': {
@@ -147,9 +166,9 @@ function fillTransition(transition: Transition, params: TransitionAttributes) {
         }
     }
 
-    function assertsIsDurableTransition(transition: Transition): asserts transition is (AnimationTransition | EmptyStateTransition) {
-        if (!isAnimationTransition(transition) && !(transition instanceof EmptyStateTransition)) {
-            throw new Error(`The transition should be animation/empty transition.`);
+    function assertsIsDurableTransition(transition: Transition): asserts transition is (AnimationTransition | EmptyStateTransition | ProceduralPoseTransition) {
+        if (!isAnimationTransition(transition) && !(transition instanceof EmptyStateTransition) && !(transition instanceof ProceduralPoseTransition)) {
+            throw new Error(`The transition should be animation/empty/pose transition.`);
         }
     }
 
@@ -183,9 +202,33 @@ function fillTransition(transition: Transition, params: TransitionAttributes) {
         transition.relativeDestinationStart = params.relativeDestinationStart;
     }
 
-    if (typeof params.interruptible !== 'undefined') {
-        assertsIsMotionTransition(transition);
-        transition.interruptible = params.interruptible;
+    if (typeof params.startEventBinding !== 'undefined') {
+        assertsIsDurableTransition(transition);
+        transition.startEventBinding.eventName = params.startEventBinding;
+    }
+    if (typeof params.endEventBinding !== 'undefined') {
+        assertsIsDurableTransition(transition);
+        transition.endEventBinding.eventName = params.endEventBinding;
+    }
+}
+
+export function createTCBinding(params: TCBindingParams) {
+    switch (params.type) {
+        case 'variable': {
+            const binding = new TCVariableBinding();
+            binding.variableName = params.variableName;
+            binding.type = TCBindingValueType.FLOAT;
+            return binding;
+        }
+        case 'auxiliary-curve': {
+            const binding = new TCAuxiliaryCurveBinding();
+            binding.curveName = params.curveName;
+            return binding;
+        }
+        case 'state-weight': {
+            const binding = new TCStateWeightBinding();
+            return binding;
+        }
     }
 }
 
@@ -256,6 +299,7 @@ export type VariableDeclarationParams = {
 interface LayerParams {
     stateMachine: StateMachineParams;
     additive?: boolean;
+    stashes?: Record<string, LayerStashParams>;
 }
 
 export interface StateMachineParams {
@@ -266,32 +310,49 @@ export interface StateMachineParams {
     transitions?: TransitionParams[];
 }
 
+type StateEventBindingSpecification = {
+    transitionInEventBinding?: string;
+    transitionOutEventBinding?: string;
+};
+
+function fillStateEventBindingSpecification(state: MotionState | ProceduralPoseState, specification: StateEventBindingSpecification) {
+    if (typeof specification.transitionInEventBinding !== 'undefined') {
+        state.transitionInEventBinding.eventName = specification.transitionInEventBinding;
+    }
+    if (typeof specification.transitionOutEventBinding !== 'undefined') {
+        state.transitionOutEventBinding.eventName = specification.transitionOutEventBinding;
+    }
+}
+
 export type StateParams = ({
     type: 'motion';
     motion?: Motion | MotionParams;
-} | {
+} & StateEventBindingSpecification | {
     type: 'sub-state-machine';
     stateMachine: StateMachineParams;
 } | {
     type: 'empty',
-}) & {
+} | {
+    type: 'procedural';
+    graph: PoseGraphParams;
+} & StateEventBindingSpecification) & {
     name?: string;
 };
 
-type TransitionParams = {
+export type TransitionParams = {
     from: string;
     to: string;
 } & TransitionAttributes;
 
-interface EntryTransitionParams extends TransitionAttributes {
+export interface EntryTransitionParams extends TransitionAttributes {
     to: string;
 }
 
-interface AnyTransitionParams extends TransitionAttributes {
+export interface AnyTransitionParams extends TransitionAttributes {
     to: string;
 }
 
-interface ExitTransitionParams extends TransitionAttributes {
+export interface ExitTransitionParams extends TransitionAttributes {
     from: string;
 }
 
@@ -303,7 +364,8 @@ interface TransitionAttributes {
     relativeDuration?: boolean;
     destinationStart?: number;
     relativeDestinationStart?: boolean;
-    interruptible?: boolean;
+    startEventBinding?: string;
+    endEventBinding?: string;
 }
 
 type TransitionConditionParams = {
@@ -313,11 +375,22 @@ type TransitionConditionParams = {
 } | {
     type: 'binary';
     operator: '==' | '!=' | '>' | '<' | '>=' | '<=';
-    lhs: BindableParams<number>;
-    rhs: BindableParams<number>;
+    lhs?: number;
+    lhsBinding?: TCBindingParams;
+    rhs: number;
 } | {
     type: 'trigger';
     variableName: string;
+};
+
+export type TCBindingParams = {
+    type: 'variable';
+    variableName: string;
+} | {
+    type: 'auxiliary-curve';
+    curveName: string;
+} | {
+    type: 'state-weight';
 };
 
 type BindableParams<T> = {
@@ -349,3 +422,49 @@ export type MotionParams = {
         threshold: { x: number; y: number; };
     }>;
 };
+
+export interface LayerStashParams {
+    graph: PoseGraphParams;
+}
+
+interface PoseGraphParams {
+    rootNode?: PoseNodeParams;
+}
+
+export type PoseNodeParams = PoseNode | Node_;
+
+function fillPoseGraph(poseGraph: PoseGraph, params: PoseGraphParams) {
+    if (params.rootNode) {
+        const root = createPoseNode(poseGraph, params.rootNode);
+        poseGraphOp.connectOutputNode(poseGraph, poseGraph.outputNode, root);
+    }
+}
+
+declare global {
+    interface PoseNodeFactoryRegistry {
+    }
+}
+
+type Map_ = {
+    [k in keyof PoseNodeFactoryRegistry]: PoseNodeFactoryRegistry[k] & { type: k };
+}
+
+const poseNodeFactoryMap: Record<string, (poseGraph: PoseGraph, params: any) => PoseNode> = {};
+
+export function addPoseNodeFactory<T extends keyof PoseNodeFactoryRegistry> (
+    type: T, factory: (poseGraph: PoseGraph, params: PoseNodeFactoryRegistry[T]) => PoseNode) {
+    poseNodeFactoryMap[type] = factory;
+}
+
+export type Node_ = Map_[keyof Map_];
+
+export function createPoseNode(poseGraph: PoseGraph, params: PoseNodeParams): PoseNode {
+    if (params instanceof PoseNode) {
+        return poseGraph.addNode(params);
+    } else if (!(params.type in poseNodeFactoryMap)) {
+        throw new Error(`${params.type} factory does not exist.`);
+    } else {
+        return poseNodeFactoryMap[params.type](poseGraph, params);
+    }
+}
+

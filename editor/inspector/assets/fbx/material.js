@@ -157,7 +157,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.useVertexColorsCheckbox.value = panel.getDefault(panel.meta.userData.useVertexColors, true);
+            panel.$.useVertexColorsCheckbox.value = panel.getDefault(panel.meta.userData.useVertexColors, false);
 
             updateElementInvalid.call(panel, panel.$.useVertexColorsCheckbox, 'useVertexColors');
             updateElementReadonly.call(panel, panel.$.useVertexColorsCheckbox);

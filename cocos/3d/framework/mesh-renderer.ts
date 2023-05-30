@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 import { JSB } from 'internal:constants';
-import { displayOrder, group, range } from 'cc.decorator';
+import { displayName, displayOrder, group, range } from 'cc.decorator';
 import { Texture2D, TextureCube } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
@@ -366,13 +366,14 @@ export class MeshRenderer extends ModelRenderer {
         this._updateCastShadow();
     }
 
+    @displayName('Shadow Casting Mode')
     @tooltip('i18n:model.shadow_casting_model')
     @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
-    get shadowCastingModeBool (): boolean {
+    get shadowCastingModeForInspector (): boolean {
         return this.shadowCastingMode === ModelShadowCastingMode.ON;
     }
-    set shadowCastingModeBool (val) {
+    set shadowCastingModeForInspector (val) {
         this.shadowCastingMode = val === true ? ModelShadowCastingMode.ON : ModelShadowCastingMode.OFF;
     }
 
@@ -400,15 +401,24 @@ export class MeshRenderer extends ModelRenderer {
      * @zh 实时光照下是否接受阴影。
      */
     @type(ModelShadowReceivingMode)
-    @tooltip('i18n:model.shadow_receiving_model')
-    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
-    @disallowAnimation
+    @visible(false)
     get receiveShadow () {
         return this._shadowReceivingMode;
     }
-
     set receiveShadow (val) {
         this._shadowReceivingMode = val;
+        this._updateReceiveShadow();
+    }
+
+    @displayName('Receive Shadow')
+    @tooltip('i18n:model.shadow_receiving_model')
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
+    @disallowAnimation
+    get receiveShadowForInspector () {
+        return this._shadowReceivingMode === ModelShadowReceivingMode.ON;
+    }
+    set receiveShadowForInspector (val: boolean) {
+        this._shadowReceivingMode = val === true ? ModelShadowReceivingMode.ON : ModelShadowReceivingMode.OFF;
         this._updateReceiveShadow();
     }
 

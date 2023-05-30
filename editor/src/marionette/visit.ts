@@ -1,18 +1,16 @@
 
 import { AnimationClip } from "../../../cocos/animation/animation-clip";
-import { AnimationBlend1D } from "../../../cocos/animation/marionette/animation-blend-1d";
-import { AnimationBlend2D } from "../../../cocos/animation/marionette/animation-blend-2d";
-import { AnimationBlendDirect } from "../../../cocos/animation/marionette/animation-blend-direct";
+import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D, AnimationBlendDirect } from "../../../cocos/animation/marionette/motion";
 import { AnimationController } from "../../../cocos/animation/marionette/animation-controller";
 import {
     StateMachine,
     SubStateMachine,
     AnimationGraph,
+    ProceduralPoseState,
 } from "../../../cocos/animation/marionette/animation-graph";
-import { ClipMotion } from "../../../cocos/animation/marionette/clip-motion";
-import { Motion } from "../../../cocos/animation/marionette/motion";
-import { MotionState } from "../../../cocos/animation/marionette/motion-state";
+import { MotionState } from "../../../cocos/animation/marionette/state-machine/motion-state";
 import { EditorExtendableObject } from "../../../cocos/core/data/editor-extras-tag";
+import { PoseGraphNode } from "../../../cocos/animation/marionette/pose-graph/foundation/pose-graph-node";
 
 export function* visitAnimationGraphEditorExtras(animationGraph: AnimationGraph): Generator<EditorExtendableObject> {
     for (const layer of animationGraph.layers) {
@@ -64,6 +62,10 @@ export function* visitAnimationClips(animationGraph: AnimationGraph): Generator<
                 if (motion) {
                     yield* visitMotion(motion);
                 }
+            } else if (state instanceof ProceduralPoseState) {
+                for (const shell of state.graph.nodes()) {
+                    yield* visitPoseNode(shell);
+                }
             } else if (state instanceof SubStateMachine) {
                 yield* visitStateMachine(state.stateMachine);
             }
@@ -80,6 +82,15 @@ export function* visitAnimationClips(animationGraph: AnimationGraph): Generator<
                 if (childMotion) {
                     yield* visitMotion(childMotion);
                 }
+            }
+        }
+    }
+
+    function* visitPoseNode(node: PoseGraphNode): Generator<AnimationClip> {
+        // FIXME: HACK HERE
+        for (const [_, v] of Object.entries(node)) {
+            if (v instanceof Motion) {
+                yield* visitMotion(v);
             }
         }
     }
