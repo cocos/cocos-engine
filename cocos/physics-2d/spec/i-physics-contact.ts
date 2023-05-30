@@ -214,7 +214,7 @@ export interface IPhysics2DContact {
      * Disabled contact for current time step or sub-step.
      * @zh
      * 在当前时间步或子步中忽略此接触。
-     * @deprecated Since v3.8.0, disabledOnce is no longer supported.
+     * @deprecated Since v3.7.4, disabledOnce is no longer supported.
      */
     disabledOnce: boolean;
 
