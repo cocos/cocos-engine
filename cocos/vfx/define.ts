@@ -23,6 +23,8 @@
  THE SOFTWARE.
  */
 
+import { VFXParameterIdentity } from './vfx-parameter';
+
 export type ParticleHandle = number;
 export const INVALID_HANDLE = -1;
 
@@ -129,8 +131,66 @@ export enum VFXEventType {
     UNKNOWN,
     LOCATION,
     DEATH,
-    BIRTH,
     COLLISION,
-    TRIGGER,
-    MANUAL,
 }
+
+let builtinParameterId = 1;
+// #region emitter
+export const E_AGE = new VFXParameterIdentity(builtinParameterId++, 'age', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);
+export const E_IS_WORLD_SPACE = new VFXParameterIdentity(builtinParameterId++, 'is-world-space', VFXParameterType.BOOL, VFXParameterNameSpace.EMITTER);
+export const E_CURRENT_DELAY = new VFXParameterIdentity(builtinParameterId++, 'current-delay', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);
+export const E_LOOPED_AGE = new VFXParameterIdentity(builtinParameterId++, 'looped-age', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);
+export const E_NORMALIZED_LOOP_AGE = new VFXParameterIdentity(builtinParameterId++, 'normalized-loop-age', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);
+export const E_SPAWN_REMAINDER = new VFXParameterIdentity(builtinParameterId++, 'spawn-remainder', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);
+export const E_SPAWN_REMAINDER_PER_UNIT = new VFXParameterIdentity(builtinParameterId++, 'spawn-remainder-per-unit', VFXParameterType.FLOAT, VFXParameterNameSpace.EMITTER);
+export const E_CURRENT_LOOP_COUNT = new VFXParameterIdentity(builtinParameterId++, 'current-loop-count', VFXParameterType.UINT32, VFXParameterNameSpace.EMITTER);
+export const E_VELOCITY = new VFXParameterIdentity(builtinParameterId++, 'velocity', VFXParameterType.VEC3, VFXParameterNameSpace.EMITTER);
+export const E_SIMULATION_POSITION = new VFXParameterIdentity(builtinParameterId++, 'simulation-position', VFXParameterType.VEC3, VFXParameterNameSpace.EMITTER);
+export const E_POSITION = new VFXParameterIdentity(builtinParameterId++, 'position', VFXParameterType.VEC3, VFXParameterNameSpace.EMITTER);
+export const E_LOCAL_TO_WORLD = new VFXParameterIdentity(builtinParameterId++, 'local-to-world', VFXParameterType.MAT4, VFXParameterNameSpace.EMITTER);
+export const E_WORLD_TO_LOCAL = new VFXParameterIdentity(builtinParameterId++, 'world-to-local', VFXParameterType.MAT4, VFXParameterNameSpace.EMITTER);
+export const E_LOCAL_TO_WORLD_RS = new VFXParameterIdentity(builtinParameterId++, 'local-to-world-rs', VFXParameterType.MAT3, VFXParameterNameSpace.EMITTER);
+export const E_WORLD_TO_LOCAL_RS = new VFXParameterIdentity(builtinParameterId++, 'world-to-local-rs', VFXParameterType.MAT3, VFXParameterNameSpace.EMITTER);
+export const E_LOCAL_ROTATION = new VFXParameterIdentity(builtinParameterId++, 'local-rotation', VFXParameterType.QUAT, VFXParameterNameSpace.EMITTER);
+export const E_WORLD_ROTATION = new VFXParameterIdentity(builtinParameterId++, 'world-rotation', VFXParameterType.QUAT, VFXParameterNameSpace.EMITTER);
+export const E_RENDER_SCALE = new VFXParameterIdentity(builtinParameterId++, 'render-scale', VFXParameterType.VEC3, VFXParameterNameSpace.EMITTER);
+// #endregion emitter
+
+builtinParameterId = 1000;
+// #region context
+export const C_DELTA_TIME = new VFXParameterIdentity(builtinParameterId++, 'delta-time', VFXParameterType.FLOAT, VFXParameterNameSpace.CONTEXT);
+export const C_FROM_INDEX = new VFXParameterIdentity(builtinParameterId++, 'from-index', VFXParameterType.UINT32, VFXParameterNameSpace.CONTEXT);
+export const C_TO_INDEX = new VFXParameterIdentity(builtinParameterId++, 'to-index', VFXParameterType.UINT32, VFXParameterNameSpace.CONTEXT);
+// #endregion context
+
+builtinParameterId = 2000;
+// #region particle
+export const P_ID = new VFXParameterIdentity(builtinParameterId++, 'id', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);
+export const P_RANDOM_SEED = new VFXParameterIdentity(builtinParameterId++, 'random-seed', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);
+export const P_INV_LIFETIME = new VFXParameterIdentity(builtinParameterId++, 'inv-lifetime', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const P_NORMALIZED_AGE = new VFXParameterIdentity(builtinParameterId++, 'normalized-age', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const P_IS_DEAD = new VFXParameterIdentity(builtinParameterId++, 'is-dead', VFXParameterType.BOOL, VFXParameterNameSpace.PARTICLE);
+export const P_HAS_COLLIDED = new VFXParameterIdentity(builtinParameterId++, 'has-collided', VFXParameterType.BOOL, VFXParameterNameSpace.PARTICLE);
+export const P_POSITION = new VFXParameterIdentity(builtinParameterId++, 'position', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const P_PHYSICS_FORCE = new VFXParameterIdentity(builtinParameterId++, 'physics-force', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const P_BASE_VELOCITY = new VFXParameterIdentity(builtinParameterId++, 'base-velocity', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const P_VELOCITY = new VFXParameterIdentity(builtinParameterId++, 'velocity', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const P_SPRITE_ROTATION = new VFXParameterIdentity(builtinParameterId++, 'sprite-rotation', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const P_MESH_ORIENTATION = new VFXParameterIdentity(builtinParameterId++, 'mesh-orientation', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const P_SUB_UV_INDEX = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const P_SUB_UV_INDEX2 = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index2', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const P_SUB_UV_INDEX3 = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index3', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const P_SUB_UV_INDEX4 = new VFXParameterIdentity(builtinParameterId++, 'sub-uv-index4', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const P_RIBBON_ID = new VFXParameterIdentity(builtinParameterId++, 'ribbon-id', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);
+export const P_RIBBON_LINK_ORDER = new VFXParameterIdentity(builtinParameterId++, 'ribbon-link-order', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const P_BASE_RIBBON_WIDTH = new VFXParameterIdentity(builtinParameterId++, 'base-ribbon-width', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const P_RIBBON_WIDTH = new VFXParameterIdentity(builtinParameterId++, 'ribbon-width', VFXParameterType.FLOAT, VFXParameterNameSpace.PARTICLE);
+export const P_BASE_SPRITE_SIZE = new VFXParameterIdentity(builtinParameterId++, 'base-sprite-size', VFXParameterType.VEC2, VFXParameterNameSpace.PARTICLE);
+export const P_SPRITE_SIZE = new VFXParameterIdentity(builtinParameterId++, 'sprite-size', VFXParameterType.VEC2, VFXParameterNameSpace.PARTICLE);
+export const P_BASE_SCALE = new VFXParameterIdentity(builtinParameterId++, 'base-scale', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const P_SCALE = new VFXParameterIdentity(builtinParameterId++, 'scale', VFXParameterType.VEC3, VFXParameterNameSpace.PARTICLE);
+export const P_BASE_COLOR = new VFXParameterIdentity(builtinParameterId++, 'base-color', VFXParameterType.P_COLOR, VFXParameterNameSpace.PARTICLE);
+export const P_COLOR = new VFXParameterIdentity(builtinParameterId++, 'color', VFXParameterType.P_COLOR, VFXParameterNameSpace.PARTICLE);
+export const P_VISIBILITY_TAG = new VFXParameterIdentity(builtinParameterId++, 'visibility-tag', VFXParameterType.UINT32, VFXParameterNameSpace.PARTICLE);
+
+//#endregion particle

@@ -25,14 +25,15 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, TWO_PI, Vec3 } from '../../core';
-import { POSITION, ParticleDataSet, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
+import { C_FROM_INDEX, C_TO_INDEX, P_POSITION } from '../define';
 
 const pos = new Vec3();
 @ccclass('cc.CircleLocationModule')
-@VFXModule.register('CircleLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
+@VFXModule.register('CircleLocation', ModuleExecStageFlags.SPAWN, [P_POSITION.name])
 export class CircleLocationModule extends ShapeLocationModule {
     /**
       * @zh 粒子发射器半径。
@@ -175,9 +176,9 @@ export class CircleLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
         const radiusExp = this._radius as FloatExpression;
         radiusExp.bind(particles, emitter, user, context);
         if (this.distributionMode === DistributionMode.RANDOM) {

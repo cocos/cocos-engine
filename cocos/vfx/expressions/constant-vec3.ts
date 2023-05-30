@@ -45,11 +45,11 @@ export class ConstantVec3Expression extends Vec3Expression {
         return true;
     }
 
-    constructor (val: Vec3 = Vec3.ZERO) {
+    constructor (x = 0, y = 0, z = 0) {
         super();
-        this.x = val.x;
-        this.y = val.y;
-        this.z = val.z;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}

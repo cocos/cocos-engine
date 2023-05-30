@@ -26,17 +26,8 @@
 import { ModuleExecStage } from '../vfx-module';
 import { RandomStream } from '../random-stream';
 import { VFXEvents } from '../vfx-events';
-import { VFXParameterIdentity } from '../vfx-parameter';
-import { VFXParameterNameSpace, VFXParameterType } from '../define';
+import { C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX, VFXParameterNameSpace } from '../define';
 import { VFXDataSet } from '../vfx-data-set';
-
-let builtinContextParameterId = 50000;
-
-export const DELTA_TIME = new VFXParameterIdentity(builtinContextParameterId++, 'delta-time', VFXParameterType.FLOAT, VFXParameterNameSpace.CONTEXT);
-export const FROM_INDEX = new VFXParameterIdentity(builtinContextParameterId++, 'from-index', VFXParameterType.UINT32, VFXParameterNameSpace.CONTEXT);
-export const TO_INDEX = new VFXParameterIdentity(builtinContextParameterId++, 'to-index', VFXParameterType.UINT32, VFXParameterNameSpace.CONTEXT);
-
-export const CUSTOM_CONTEXT_PARAMETER_ID = 60000;
 
 export class ContextDataSet extends VFXDataSet {
     public get events (): VFXEvents {
@@ -65,9 +56,9 @@ export class ContextDataSet extends VFXDataSet {
 
     constructor () {
         super(VFXParameterNameSpace.CONTEXT, false);
-        this.addParameter(DELTA_TIME);
-        this.addParameter(FROM_INDEX);
-        this.addParameter(TO_INDEX);
+        this.addParameter(C_DELTA_TIME);
+        this.addParameter(C_FROM_INDEX);
+        this.addParameter(C_TO_INDEX);
     }
 
     setExecutionStage (stage: ModuleExecStage) {

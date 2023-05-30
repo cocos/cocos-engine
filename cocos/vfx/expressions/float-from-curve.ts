@@ -24,10 +24,11 @@
  */
 import { RealCurve } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet, ParticleDataSet, EmitterDataSet, NORMALIZED_LOOP_AGE, UserDataSet } from '../data-set';
+import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { BindingFloatExpression } from '../../../exports/vfx';
+import { E_NORMALIZED_LOOP_AGE } from '../define';
 
 @ccclass('cc.FloatFromCurveExpression')
 export class FloatFromCurveExpression extends FloatExpression {
@@ -41,7 +42,7 @@ export class FloatFromCurveExpression extends FloatExpression {
 
     @type(FloatExpression)
     @serializable
-    public curveIndex: FloatExpression = new BindingFloatExpression(NORMALIZED_LOOP_AGE);
+    public curveIndex: FloatExpression = new BindingFloatExpression(E_NORMALIZED_LOOP_AGE);
 
     public get isConstant (): boolean {
         return this.curveIndex.isConstant && this.scale.isConstant;

@@ -27,13 +27,13 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { CCBoolean, Vec2 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
-import { BASE_SPRITE_SIZE, NORMALIZED_AGE, ParticleDataSet, SPRITE_SIZE, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { P_BASE_SPRITE_SIZE, P_NORMALIZED_AGE, ParticleDataSet, P_SPRITE_SIZE, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec2ArrayParameter, Uint32Parameter } from '../parameters';
 
 const tempVec2 = new Vec2();
 
 @ccclass('cc.ScaleSpriteSizeModule')
-@VFXModule.register('ScaleSpriteSize', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [SPRITE_SIZE.name], [NORMALIZED_AGE.name])
+@VFXModule.register('ScaleSpriteSize', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [P_SPRITE_SIZE.name], [P_NORMALIZED_AGE.name])
 export class ScaleSpriteSizeModule extends VFXModule {
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。
@@ -77,9 +77,9 @@ export class ScaleSpriteSizeModule extends VFXModule {
     private _scalar: Vec2Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(SPRITE_SIZE);
+        particles.markRequiredParameter(P_SPRITE_SIZE);
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(BASE_SPRITE_SIZE);
+            particles.markRequiredParameter(P_BASE_SPRITE_SIZE);
         }
         if (!this.separateAxes) {
             this.uniformScalar.tick(particles, emitter, user, context);
@@ -89,9 +89,9 @@ export class ScaleSpriteSizeModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const spriteSize = particles.getParameterUnsafe<Vec2ArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? BASE_SPRITE_SIZE : SPRITE_SIZE);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const spriteSize = particles.getParameterUnsafe<Vec2ArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_SPRITE_SIZE : P_SPRITE_SIZE);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
         if (!this.separateAxes) {
             const uniformScalarExp = this._uniformScalar as FloatExpression;
             uniformScalarExp.bind(particles, emitter, user, context);

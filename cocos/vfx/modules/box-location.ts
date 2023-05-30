@@ -26,21 +26,22 @@ import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { CCBoolean, Vec3 } from '../../core';
-import { ParticleDataSet, POSITION, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
+import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempPosition = new Vec3();
 const pos = new Vec3();
 const tempBoxSize = new Vec3();
 const tempBoxCenter = new Vec3();
 @ccclass('cc.BoxLocationModule')
-@VFXModule.register('BoxLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
+@VFXModule.register('BoxLocation', ModuleExecStageFlags.SPAWN, [P_POSITION.name])
 export class BoxLocationModule extends ShapeLocationModule {
     @type(Vec3Expression)
     public get boxSize () {
         if (!this._boxSize) {
-            this._boxSize = new ConstantVec3Expression(Vec3.ONE);
+            this._boxSize = new ConstantVec3Expression(1, 1, 1);
         }
         return this._boxSize;
     }
@@ -52,7 +53,7 @@ export class BoxLocationModule extends ShapeLocationModule {
     @type(Vec3Expression)
     public get boxCenter () {
         if (!this._boxCenter) {
-            this._boxCenter = new ConstantVec3Expression(new Vec3(0.5, 0.5, 0.5));
+            this._boxCenter = new ConstantVec3Expression(0.5, 0.5, 0.5);
         }
         return this._boxCenter;
     }
@@ -98,9 +99,9 @@ export class BoxLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
         const boxSizeExp = this._boxSize as Vec3Expression;
         const boxCenterExp = this._boxCenter as Vec3Expression;
         boxSizeExp.bind(particles, emitter, user, context);

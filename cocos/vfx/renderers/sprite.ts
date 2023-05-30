@@ -28,7 +28,7 @@ import { Enum, Quat, Vec3, Vec4 } from '../../core';
 import { Buffer, BufferInfo, BufferUsageBit, deviceManager, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../gfx';
 import { MacroRecord } from '../../render-scene';
 import { AlignmentSpace } from '../define';
-import { COLOR, ParticleDataSet, POSITION, SCALE, SUB_UV_INDEX, VELOCITY, EmitterDataSet, IS_WORLD_SPACE, LOCAL_ROTATION, RENDER_SCALE, WORLD_ROTATION } from '../data-set';
+import { P_COLOR, ParticleDataSet, P_POSITION, P_SCALE, P_SUB_UV_INDEX, P_VELOCITY, EmitterDataSet, E_IS_WORLD_SPACE, E_LOCAL_ROTATION, E_RENDER_SCALE, E_WORLD_ROTATION } from '../data-set';
 import { CC_PARTICLE_COLOR, CC_PARTICLE_FRAME_INDEX, CC_PARTICLE_POSITION, CC_PARTICLE_ROTATION, CC_PARTICLE_SIZE, CC_PARTICLE_VELOCITY, CC_RENDER_MODE, CC_USE_WORLD_SPACE, meshPosition, meshUv, particleColor, particleFrameIndex, particlePosition, particleRotation, particleSize, particleVelocity, ROTATION_OVER_TIME_MODULE_ENABLE, ParticleRenderer } from '../particle-renderer';
 import { Vec3ArrayParameter, ColorArrayParameter, FloatArrayParameter, QuatParameter, Vec3Parameter, BoolParameter } from '../parameters';
 
@@ -139,7 +139,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         let offset = 0;
         const define = this._defines;
         if (define[CC_PARTICLE_POSITION]) {
-            particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         if (define[CC_PARTICLE_ROTATION]) {
@@ -147,19 +147,19 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             offset += 3;
         }
         if (define[CC_PARTICLE_SIZE]) {
-            particles.getParameterUnsafe<Vec3ArrayParameter>(SCALE).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getParameterUnsafe<Vec3ArrayParameter>(P_SCALE).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         if (define[CC_PARTICLE_COLOR]) {
-            particles.getParameterUnsafe<ColorArrayParameter>(COLOR).copyToTypedArray(dynamicBufferUintView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getParameterUnsafe<ColorArrayParameter>(P_COLOR).copyToTypedArray(dynamicBufferUintView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_PARTICLE_FRAME_INDEX]) {
-            particles.getParameterUnsafe<FloatArrayParameter>(SUB_UV_INDEX).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_PARTICLE_VELOCITY]) {
-            particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         this._dynamicBuffer.update(dynamicBufferFloatView); // update dynamic buffer
@@ -176,9 +176,9 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     private _updateRotation (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let currentRotation: Quat;
         if (this._alignmentSpace === AlignmentSpace.LOCAL) {
-            currentRotation = emitter.getParameterUnsafe<QuatParameter>(LOCAL_ROTATION).data;
+            currentRotation = emitter.getParameterUnsafe<QuatParameter>(E_LOCAL_ROTATION).data;
         } else if (this._alignmentSpace === AlignmentSpace.WORLD) {
-            currentRotation = emitter.getParameterUnsafe<QuatParameter>(WORLD_ROTATION).data;
+            currentRotation = emitter.getParameterUnsafe<QuatParameter>(E_WORLD_ROTATION).data;
         } else if (this._alignmentSpace === AlignmentSpace.VIEW) {
             currentRotation = Quat.IDENTITY;
         } else {
@@ -191,7 +191,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     }
 
     private _updateRenderScale (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
-        const renderScale = emitter.getParameterUnsafe<Vec3Parameter>(RENDER_SCALE).data;
+        const renderScale = emitter.getParameterUnsafe<Vec3Parameter>(E_RENDER_SCALE).data;
         if (!Vec3.equals(renderScale, this._renderScale) || this._isMaterialDirty) {
             this._renderScale.set(renderScale.x, renderScale.y, renderScale.z);
             material.setProperty('scale', this._renderScale);
@@ -201,7 +201,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     private _compileMaterial (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let needRecompile = this._isMaterialDirty;
         const define = this._defines;
-        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
+        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
         if (define[CC_USE_WORLD_SPACE] !== isWorldSpace) {
             define[CC_USE_WORLD_SPACE] = isWorldSpace;
             needRecompile = true;
@@ -217,7 +217,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             needRecompile = true;
         }
 
-        const hasPosition = particles.hasParameter(POSITION);
+        const hasPosition = particles.hasParameter(P_POSITION);
         if (define[CC_PARTICLE_POSITION] !== hasPosition) {
             define[CC_PARTICLE_POSITION] = hasPosition;
             needRecompile = true;
@@ -229,25 +229,25 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             needRecompile = true;
         }
 
-        const hasSize = particles.hasParameter(SCALE);
+        const hasSize = particles.hasParameter(P_SCALE);
         if (define[CC_PARTICLE_SIZE] !== hasSize) {
             define[CC_PARTICLE_SIZE] = hasSize;
             needRecompile = true;
         }
 
-        const hasColor = particles.hasParameter(COLOR);
+        const hasColor = particles.hasParameter(P_COLOR);
         if (define[CC_PARTICLE_COLOR] !== hasColor) {
             define[CC_PARTICLE_COLOR] = hasColor;
             needRecompile = true;
         }
 
-        const hasFrameIndex = particles.hasParameter(SUB_UV_INDEX);
+        const hasFrameIndex = particles.hasParameter(P_SUB_UV_INDEX);
         if (define[CC_PARTICLE_FRAME_INDEX] !== hasFrameIndex) {
             define[CC_PARTICLE_FRAME_INDEX] = hasFrameIndex;
             needRecompile = true;
         }
 
-        const hasVelocity = particles.hasParameter(VELOCITY);
+        const hasVelocity = particles.hasParameter(P_VELOCITY);
         if (define[CC_PARTICLE_VELOCITY] !== hasVelocity) {
             define[CC_PARTICLE_VELOCITY] = hasVelocity;
             needRecompile = true;

@@ -27,14 +27,14 @@ import { ccclass, tooltip, type, serializable } from 'cc.decorator';
 import { Vec3, Enum } from '../../core';
 import { CoordinateSpace } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { FROM_INDEX, ContextDataSet, TO_INDEX, BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, VELOCITY, UserDataSet, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS } from '../data-set';
+import { C_FROM_INDEX, ContextDataSet, C_TO_INDEX, P_BASE_VELOCITY, P_PHYSICS_FORCE, P_POSITION, ParticleDataSet, P_VELOCITY, UserDataSet, EmitterDataSet, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS } from '../data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3ArrayParameter, Uint32Parameter, BoolParameter, Mat3Parameter } from '../parameters';
 
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.ForceModule')
-@VFXModule.register('Force', ModuleExecStageFlags.UPDATE, [VELOCITY.name])
+@VFXModule.register('Force', ModuleExecStageFlags.UPDATE, [P_VELOCITY.name])
 export class ForceModule extends VFXModule {
     /**
      * @zh 加速度计算时采用的坐标系 [[Space]]。
@@ -63,22 +63,22 @@ export class ForceModule extends VFXModule {
     private _force: Vec3Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(POSITION);
-        particles.markRequiredParameter(BASE_VELOCITY);
-        particles.markRequiredParameter(VELOCITY);
-        particles.markRequiredParameter(PHYSICS_FORCE);
+        particles.markRequiredParameter(P_POSITION);
+        particles.markRequiredParameter(P_BASE_VELOCITY);
+        particles.markRequiredParameter(P_VELOCITY);
+        particles.markRequiredParameter(P_PHYSICS_FORCE);
         this.force.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(PHYSICS_FORCE);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace === CoordinateSpace.WORLD) !== emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
+        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(P_PHYSICS_FORCE);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace === CoordinateSpace.WORLD) !== emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
         const forceExp = this._force as Vec3Expression;
         forceExp.bind(particles, emitter, user, context);
         if (needTransform) {
-            const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
+            const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
             if (forceExp.isConstant) {
                 const force = Vec3.transformMat3(_temp_v3, forceExp.evaluate(0, _temp_v3), transform);
                 for (let i = fromIndex; i < toIndex; i++) {

@@ -26,11 +26,11 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
-import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX, ParticleDataSet, SPRITE_ROTATION, EmitterDataSet, UserDataSet } from '../data-set';
+import { C_DELTA_TIME, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, ParticleDataSet, P_SPRITE_ROTATION, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatArrayParameter, FloatParameter, Uint32Parameter } from '../parameters';
 
 @ccclass('cc.SpriteRotationRateModule')
-@VFXModule.register('SpriteRotationRate', ModuleExecStageFlags.UPDATE, [SPRITE_ROTATION.name], [])
+@VFXModule.register('SpriteRotationRate', ModuleExecStageFlags.UPDATE, [P_SPRITE_ROTATION.name], [])
 export class SpriteRotationRateModule extends VFXModule {
     @type(FloatExpression)
     public get rate () {
@@ -48,15 +48,15 @@ export class SpriteRotationRateModule extends VFXModule {
     private _rate: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(SPRITE_ROTATION);
+        particles.markRequiredParameter(P_SPRITE_ROTATION);
         this.rate.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const spriteRotation = particles.getParameterUnsafe<FloatArrayParameter>(SPRITE_ROTATION);
-        const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const spriteRotation = particles.getParameterUnsafe<FloatArrayParameter>(P_SPRITE_ROTATION);
+        const deltaTime = context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data;
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
         const rateExp = this._rate as FloatExpression;
         rateExp.bind(particles, emitter, user, context);
         if (rateExp.isConstant) {

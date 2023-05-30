@@ -24,7 +24,7 @@
  */
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { ColorExpression, ConstantColorExpression, ConstantFloatExpression, FloatExpression } from '../expressions';
-import { FROM_INDEX, ContextDataSet, TO_INDEX, COLOR, ParticleDataSet, VELOCITY, UserDataSet, EmitterDataSet } from '../data-set';
+import { C_FROM_INDEX, ContextDataSet, C_TO_INDEX, P_COLOR, ParticleDataSet, P_VELOCITY, UserDataSet, EmitterDataSet } from '../data-set';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Color, math, Vec3 } from '../../core';
 import { Uint32Parameter, Vec3ArrayParameter, ColorArrayParameter } from '../parameters';
@@ -35,7 +35,7 @@ const tempColor2 = new Color();
 const tempColor3 = new Color();
 
 @ccclass('cc.ScaleColorBySpeedModule')
-@VFXModule.register('ScaleColorBySpeed', ModuleExecStageFlags.UPDATE, [COLOR.name], [VELOCITY.name])
+@VFXModule.register('ScaleColorBySpeed', ModuleExecStageFlags.UPDATE, [P_COLOR.name], [P_VELOCITY.name])
 export class ScaleColorBySpeedModule extends VFXModule {
     @type(ColorExpression)
     public get minScalar () {
@@ -89,7 +89,7 @@ export class ScaleColorBySpeedModule extends VFXModule {
     private _maxSpeedThreshold: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(COLOR);
+        particles.markRequiredParameter(P_COLOR);
         this.maxScalar.tick(particles, emitter, user, context);
         this.minScalar.tick(particles, emitter, user, context);
         this.minSpeedThreshold.tick(particles, emitter, user, context);
@@ -97,12 +97,12 @@ export class ScaleColorBySpeedModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const hasVelocity = particles.hasParameter(VELOCITY);
+        const hasVelocity = particles.hasParameter(P_VELOCITY);
         if (!hasVelocity) { return; }
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
-        const color = particles.getParameterUnsafe<ColorArrayParameter>(COLOR);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
+        const color = particles.getParameterUnsafe<ColorArrayParameter>(P_COLOR);
         const minSpeedThresholdExp = this._minSpeedThreshold as FloatExpression;
         const maxSpeedThresholdExp = this._maxSpeedThreshold as FloatExpression;
         const minScalarExp = this._minScalar as ColorExpression;

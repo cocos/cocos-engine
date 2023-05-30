@@ -27,14 +27,14 @@ import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, EPSILON, Vec3 } from '../../core';
 import { VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { COLOR, ID, IS_DEAD, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD, UserDataSet } from '../data-set';
+import { P_COLOR, P_ID, P_IS_DEAD, P_NORMALIZED_AGE, ParticleDataSet, P_POSITION, P_RANDOM_SEED, P_VELOCITY, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
 import { Vec3ArrayParameter, ColorArrayParameter, Uint32Parameter, Mat4Parameter, Uint32ArrayParameter, BoolArrayParameter, BoolParameter } from '../parameters';
 import { VFXEventInfo } from '../vfx-events';
 
 const eventInfo = new VFXEventInfo();
 @ccclass('cc.DeathEventGeneratorModule')
-@VFXModule.register('DeathEventGenerator', ModuleExecStageFlags.UPDATE, [], [POSITION.name, VELOCITY.name, NORMALIZED_AGE.name, COLOR.name])
+@VFXModule.register('DeathEventGenerator', ModuleExecStageFlags.UPDATE, [], [P_POSITION.name, P_VELOCITY.name, P_NORMALIZED_AGE.name, P_COLOR.name])
 export class DeathEventGeneratorModule extends VFXModule {
     @type(CCFloat)
     @range([0, 1])
@@ -42,28 +42,28 @@ export class DeathEventGeneratorModule extends VFXModule {
     public probability = 1;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(RANDOM_SEED);
-        particles.markRequiredParameter(ID);
-        particles.markRequiredParameter(IS_DEAD);
+        particles.markRequiredParameter(P_RANDOM_SEED);
+        particles.markRequiredParameter(P_ID);
+        particles.markRequiredParameter(P_IS_DEAD);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
-        const id = particles.getParameterUnsafe<Uint32ArrayParameter>(ID).data;
-        const isDead = particles.getParameterUnsafe<BoolArrayParameter>(IS_DEAD).data;
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const localToWorld = emitter.getParameterUnsafe<Mat4Parameter>(LOCAL_TO_WORLD).data;
-        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
+        const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
+        const id = particles.getParameterUnsafe<Uint32ArrayParameter>(P_ID).data;
+        const isDead = particles.getParameterUnsafe<BoolArrayParameter>(P_IS_DEAD).data;
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const localToWorld = emitter.getParameterUnsafe<Mat4Parameter>(E_LOCAL_TO_WORLD).data;
+        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
         const { events } = context;
         const randomOffset = this.randomSeed;
-        const hasVelocity = particles.hasParameter(VELOCITY);
-        const hasColor = particles.hasParameter(COLOR);
-        const hasPosition = particles.hasParameter(POSITION);
+        const hasVelocity = particles.hasParameter(P_VELOCITY);
+        const hasColor = particles.hasParameter(P_COLOR);
+        const hasPosition = particles.hasParameter(P_POSITION);
         const probability = this.probability;
-        const velocity = hasVelocity ? particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY) : null;
-        const color = hasColor ? particles.getParameterUnsafe<ColorArrayParameter>(COLOR) : null;
-        const position = hasPosition ? particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION) : null;
+        const velocity = hasVelocity ? particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY) : null;
+        const color = hasColor ? particles.getParameterUnsafe<ColorArrayParameter>(P_COLOR) : null;
+        const position = hasPosition ? particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION) : null;
 
         if (!approx(probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {

@@ -28,7 +28,7 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, 
 import { DEBUG, EDITOR } from 'internal:constants';
 import { approx, Color, lerp, Mat4, Quat, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX, ParticleDataSet, BASE_COLOR, BASE_SCALE, BASE_SPRITE_SIZE, BASE_VELOCITY, COLOR, ID, INV_START_LIFETIME, IS_DEAD, MESH_ORIENTATION, NORMALIZED_AGE, POSITION, RANDOM_SEED, SCALE, SPRITE_SIZE, VELOCITY, AGE, CURRENT_DELAY, CURRENT_LOOP_COUNT, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD, LOOPED_AGE, NORMALIZED_LOOP_AGE, RENDER_SCALE, VELOCITY as EMITTER_VELOCITY, WORLD_TO_LOCAL, WORLD_TO_LOCAL_RS, UserDataSet } from './data-set';
+import { C_DELTA_TIME, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, ParticleDataSet, P_BASE_COLOR, P_BASE_SCALE, P_BASE_SPRITE_SIZE, P_BASE_VELOCITY, P_COLOR, P_ID, P_INV_LIFETIME, P_IS_DEAD, P_MESH_ORIENTATION, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, E_AGE, E_CURRENT_DELAY, E_CURRENT_LOOP_COUNT, EmitterDataSet, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, E_RENDER_SCALE, P_VELOCITY as EMITTER_VELOCITY, E_WORLD_TO_LOCAL, E_WORLD_TO_LOCAL_RS, UserDataSet } from './data-set';
 import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, PlayingState, ScalingMode } from './define';
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
@@ -482,7 +482,7 @@ export class VFXEmitter extends Component {
         }
         if (this._state.playingState === PlayingState.STOPPED) {
             this._state.randomStream.seed = this.useAutoRandomSeed ? randomRangeInt(0, INT_MAX) : this.randomSeed;
-            this._emitter.getParameterUnsafe<FloatParameter>(CURRENT_DELAY).data = Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.randomStream.getFloat()), 0);
+            this._emitter.getParameterUnsafe<FloatParameter>(E_CURRENT_DELAY).data = Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.randomStream.getFloat()), 0);
             this._emitterStage.onPlay(this._state);
             this._spawnStage.onPlay(this._state);
             this._updateStage.onPlay(this._state);
@@ -626,22 +626,22 @@ export class VFXEmitter extends Component {
         const user = this._user;
         const state = this._state;
         context.clearEvents();
-        context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data = deltaTime;
+        context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data = deltaTime;
         this.preTick(particles, emitter, user, context);
 
         this.updateEmitterState(particles, emitter, user, context);
         this._emitterStage.execute(particles, emitter, user, context);
         const particleCount = particles.count;
         if (particleCount > 0) {
-            context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data = 0;
-            context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data = particleCount;
+            context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data = 0;
+            context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data = particleCount;
             this.resetAnimatedState(particles, 0, particleCount);
             this._updateStage.execute(particles, emitter, user, context);
         }
 
         if (state.isEmitting) {
-            const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
-            const initialTransform = isWorldSpace ? emitter.getParameterUnsafe<Mat4Parameter>(LOCAL_TO_WORLD).data : Mat4.IDENTITY;
+            const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
+            const initialTransform = isWorldSpace ? emitter.getParameterUnsafe<Mat4Parameter>(E_LOCAL_TO_WORLD).data : Mat4.IDENTITY;
             const initialVelocity = isWorldSpace ? emitter.getParameterUnsafe<Vec3Parameter>(EMITTER_VELOCITY).data : Vec3.ZERO;
             for (let i = 0; i < emitter.spawnInfoCount; i++) {
                 const spawnInfo = emitter.spawnInfos[i];
@@ -667,7 +667,7 @@ export class VFXEmitter extends Component {
      */
     public updateEmitterTime (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         const params = this._lifeCycleParams;
-        const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
+        const deltaTime = context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data;
         if (DEBUG) {
             assertIsTrue(deltaTime < params.duration,
                 'The delta time should not exceed the duration of the particle system. please adjust the duration of the particle system.');
@@ -675,12 +675,12 @@ export class VFXEmitter extends Component {
         }
 
         const delayMode = params.delayMode;
-        const delay = emitter.getParameterUnsafe<FloatParameter>(CURRENT_DELAY).data;
+        const delay = emitter.getParameterUnsafe<FloatParameter>(E_CURRENT_DELAY).data;
         const loopMode = params.loopMode;
         const loopCount = params.loopCount;
         const duration = params.duration;
 
-        const age = emitter.getParameterUnsafe<FloatParameter>(AGE);
+        const age = emitter.getParameterUnsafe<FloatParameter>(E_AGE);
         let prevTime = age.data;
         age.data += deltaTime;
         let currentTime = age.data;
@@ -695,7 +695,7 @@ export class VFXEmitter extends Component {
         if (count < expectedLoopCount) {
             prevTime %= durationAndDelay;
             currentTime %= durationAndDelay;
-            emitter.getParameterUnsafe<Uint32Parameter>(CURRENT_LOOP_COUNT).data = count;
+            emitter.getParameterUnsafe<Uint32Parameter>(E_CURRENT_LOOP_COUNT).data = count;
         } else {
             if (Math.floor(prevTime * invDurationAndDelay) >= expectedLoopCount) {
                 prevTime = durationAndDelay;
@@ -703,41 +703,41 @@ export class VFXEmitter extends Component {
                 prevTime %= durationAndDelay;
             }
             currentTime = durationAndDelay;
-            emitter.getParameterUnsafe<Uint32Parameter>(CURRENT_LOOP_COUNT).data = expectedLoopCount;
+            emitter.getParameterUnsafe<Uint32Parameter>(E_CURRENT_LOOP_COUNT).data = expectedLoopCount;
         }
         if (delayMode === DelayMode.EVERY_LOOP) {
             prevTime = Math.max(prevTime - delay, 0);
             currentTime = Math.max(currentTime - delay, 0);
         }
 
-        emitter.getParameterUnsafe<FloatParameter>(LOOPED_AGE).data = currentTime;
-        emitter.getParameterUnsafe<FloatParameter>(NORMALIZED_LOOP_AGE).data = currentTime * invDuration;
+        emitter.getParameterUnsafe<FloatParameter>(E_LOOPED_AGE).data = currentTime;
+        emitter.getParameterUnsafe<FloatParameter>(E_NORMALIZED_LOOP_AGE).data = currentTime * invDuration;
     }
 
     private updateEmitterTransform (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data = !this._localSpace;
+        emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data = !this._localSpace;
         const transform = this.node;
         Vec3.copy(this._state.prevWorldPosition, this._state.worldPosition);
         Vec3.copy(this._state.worldPosition, transform.worldPosition);
         if (transform.flagChangedVersion !== this._state.lastTransformChangedVersion) {
             switch (this._scalingMode) {
             case ScalingMode.LOCAL:
-                emitter.getParameterUnsafe<Vec3Parameter>(RENDER_SCALE).data = transform.scale;
+                emitter.getParameterUnsafe<Vec3Parameter>(E_RENDER_SCALE).data = transform.scale;
                 break;
             case ScalingMode.HIERARCHY:
-                emitter.getParameterUnsafe<Vec3Parameter>(RENDER_SCALE).data = transform.worldScale;
+                emitter.getParameterUnsafe<Vec3Parameter>(E_RENDER_SCALE).data = transform.worldScale;
                 break;
             default:
-                emitter.getParameterUnsafe<Vec3Parameter>(RENDER_SCALE).data = Vec3.ONE;
+                emitter.getParameterUnsafe<Vec3Parameter>(E_RENDER_SCALE).data = Vec3.ONE;
                 break;
             }
-            emitter.getParameterUnsafe<Mat4Parameter>(LOCAL_TO_WORLD).data = transform.worldMatrix;
-            emitter.getParameterUnsafe<Mat4Parameter>(WORLD_TO_LOCAL).data = Mat4.invert(new Mat4(), transform.worldMatrix);
-            emitter.getParameterUnsafe<Mat3Parameter>(WORLD_TO_LOCAL_RS).data = Mat3.fromMat4(new Mat3(),  emitter.getParameterUnsafe<Mat4Parameter>(WORLD_TO_LOCAL).data);
+            emitter.getParameterUnsafe<Mat4Parameter>(E_LOCAL_TO_WORLD).data = transform.worldMatrix;
+            emitter.getParameterUnsafe<Mat4Parameter>(E_WORLD_TO_LOCAL).data = Mat4.invert(new Mat4(), transform.worldMatrix);
+            emitter.getParameterUnsafe<Mat3Parameter>(E_WORLD_TO_LOCAL_RS).data = Mat3.fromMat4(new Mat3(),  emitter.getParameterUnsafe<Mat4Parameter>(E_WORLD_TO_LOCAL).data);
             this._state.lastTransformChangedVersion = transform.flagChangedVersion;
         }
         const distance = Vec3.subtract(new Vec3(), this._state.worldPosition, this._state.prevWorldPosition);
-        Vec3.multiplyScalar(distance, distance, 1 / context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data);
+        Vec3.multiplyScalar(distance, distance, 1 / context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data);
         emitter.getParameterUnsafe<Vec3Parameter>(EMITTER_VELOCITY).data = distance;
     }
 
@@ -759,10 +759,10 @@ export class VFXEmitter extends Component {
             for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
                 this._eventHandlers[i].tick(particles, emitter, user, context);
             }
-            particles.markRequiredParameter(POSITION);
+            particles.markRequiredParameter(P_POSITION);
         }
-        if (emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data) {
-            particles.markRequiredParameter(POSITION);
+        if (emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data) {
+            particles.markRequiredParameter(P_POSITION);
         }
     }
 
@@ -774,8 +774,8 @@ export class VFXEmitter extends Component {
     }
 
     private removeDeadParticles (particles: ParticleDataSet) {
-        if (particles.hasParameter(IS_DEAD)) {
-            const isDead = particles.getParameterUnsafe<BoolArrayParameter>(IS_DEAD).data;
+        if (particles.hasParameter(P_IS_DEAD)) {
+            const isDead = particles.getParameterUnsafe<BoolArrayParameter>(P_IS_DEAD).data;
             for (let i = particles.count - 1; i >= 0; i--) {
                 if (isDead[i]) {
                     particles.removeParticle(i);
@@ -789,8 +789,8 @@ export class VFXEmitter extends Component {
      * @engineInternal
      */
     public processEvents (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
-        const worldToLocal = emitter.getParameterUnsafe<Mat4Parameter>(WORLD_TO_LOCAL).data;
+        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
+        const worldToLocal = emitter.getParameterUnsafe<Mat4Parameter>(E_WORLD_TO_LOCAL).data;
         for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
             const eventHandler = this._eventHandlers[i];
             const target = eventHandler.target;
@@ -822,32 +822,32 @@ export class VFXEmitter extends Component {
      * @engineInternal
      */
     public resetAnimatedState (particles: ParticleDataSet, fromIndex: number, toIndex: number) {
-        if (particles.hasParameter(VELOCITY)) {
-            if (particles.hasParameter(BASE_VELOCITY)) {
-                particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY).copyFrom(particles.getParameterUnsafe<Vec3ArrayParameter>(BASE_VELOCITY), fromIndex, toIndex);
+        if (particles.hasParameter(P_VELOCITY)) {
+            if (particles.hasParameter(P_BASE_VELOCITY)) {
+                particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY).copyFrom(particles.getParameterUnsafe<Vec3ArrayParameter>(P_BASE_VELOCITY), fromIndex, toIndex);
             } else {
-                particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY).fill(Vec3.ZERO, fromIndex, toIndex);
+                particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY).fill(Vec3.ZERO, fromIndex, toIndex);
             }
         }
-        if (particles.hasParameter(SCALE)) {
-            if (particles.hasParameter(BASE_SCALE)) {
-                particles.getParameterUnsafe<Vec3ArrayParameter>(SCALE).copyFrom(particles.getParameterUnsafe<Vec3ArrayParameter>(BASE_SCALE), fromIndex, toIndex);
+        if (particles.hasParameter(P_SCALE)) {
+            if (particles.hasParameter(P_BASE_SCALE)) {
+                particles.getParameterUnsafe<Vec3ArrayParameter>(P_SCALE).copyFrom(particles.getParameterUnsafe<Vec3ArrayParameter>(P_BASE_SCALE), fromIndex, toIndex);
             } else {
-                particles.getParameterUnsafe<Vec3ArrayParameter>(SCALE).fill(Vec3.ONE, fromIndex, toIndex);
+                particles.getParameterUnsafe<Vec3ArrayParameter>(P_SCALE).fill(Vec3.ONE, fromIndex, toIndex);
             }
         }
-        if (particles.hasParameter(SPRITE_SIZE)) {
-            if (particles.hasParameter(BASE_SPRITE_SIZE)) {
-                particles.getParameterUnsafe<Vec2ArrayParameter>(SPRITE_SIZE).copyFrom(particles.getParameterUnsafe<Vec2ArrayParameter>(BASE_SPRITE_SIZE), fromIndex, toIndex);
+        if (particles.hasParameter(P_SPRITE_SIZE)) {
+            if (particles.hasParameter(P_BASE_SPRITE_SIZE)) {
+                particles.getParameterUnsafe<Vec2ArrayParameter>(P_SPRITE_SIZE).copyFrom(particles.getParameterUnsafe<Vec2ArrayParameter>(P_BASE_SPRITE_SIZE), fromIndex, toIndex);
             } else {
-                particles.getParameterUnsafe<Vec2ArrayParameter>(SPRITE_SIZE).fill(Vec2.ONE, fromIndex, toIndex);
+                particles.getParameterUnsafe<Vec2ArrayParameter>(P_SPRITE_SIZE).fill(Vec2.ONE, fromIndex, toIndex);
             }
         }
-        if (particles.hasParameter(COLOR)) {
-            if (particles.hasParameter(BASE_COLOR)) {
-                particles.getParameterUnsafe<ColorArrayParameter>(COLOR).copyFrom(particles.getParameterUnsafe<ColorArrayParameter>(BASE_COLOR), fromIndex, toIndex);
+        if (particles.hasParameter(P_COLOR)) {
+            if (particles.hasParameter(P_BASE_COLOR)) {
+                particles.getParameterUnsafe<ColorArrayParameter>(P_COLOR).copyFrom(particles.getParameterUnsafe<ColorArrayParameter>(P_BASE_COLOR), fromIndex, toIndex);
             } else {
-                particles.getParameterUnsafe<ColorArrayParameter>(COLOR).fill(Color.WHITE, fromIndex, toIndex);
+                particles.getParameterUnsafe<ColorArrayParameter>(P_COLOR).fill(Color.WHITE, fromIndex, toIndex);
             }
         }
     }
@@ -865,56 +865,56 @@ export class VFXEmitter extends Component {
         this.addNewParticles(particles, context, spawnCount);
         const numSpawned = particles.count - fromIndex;
         const toIndex = particles.count;
-        const hasPosition = particles.hasParameter(POSITION);
+        const hasPosition = particles.hasParameter(P_POSITION);
         if (hasPosition) {
             const initialPosition = initialTransform.getTranslation(tempPosition);
-            particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION).fill(initialPosition, fromIndex, toIndex);
+            particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION).fill(initialPosition, fromIndex, toIndex);
         }
 
-        if (particles.hasParameter(BASE_VELOCITY)) {
-            particles.getParameterUnsafe<Vec3ArrayParameter>(BASE_VELOCITY).fill(Vec3.ZERO, fromIndex, toIndex);
+        if (particles.hasParameter(P_BASE_VELOCITY)) {
+            particles.getParameterUnsafe<Vec3ArrayParameter>(P_BASE_VELOCITY).fill(Vec3.ZERO, fromIndex, toIndex);
         }
-        if (particles.hasParameter(MESH_ORIENTATION)) {
-            particles.getParameterUnsafe<Vec3ArrayParameter>(MESH_ORIENTATION).fill(Vec3.ZERO, fromIndex, toIndex);
+        if (particles.hasParameter(P_MESH_ORIENTATION)) {
+            particles.getParameterUnsafe<Vec3ArrayParameter>(P_MESH_ORIENTATION).fill(Vec3.ZERO, fromIndex, toIndex);
         }
-        if (particles.hasParameter(BASE_SCALE)) {
-            particles.getParameterUnsafe<Vec3ArrayParameter>(BASE_SCALE).fill(Vec3.ONE, fromIndex, toIndex);
+        if (particles.hasParameter(P_BASE_SCALE)) {
+            particles.getParameterUnsafe<Vec3ArrayParameter>(P_BASE_SCALE).fill(Vec3.ONE, fromIndex, toIndex);
         }
-        if (particles.hasParameter(BASE_COLOR)) {
-            particles.getParameterUnsafe<ColorArrayParameter>(BASE_COLOR).fill(initialColor, fromIndex, toIndex);
+        if (particles.hasParameter(P_BASE_COLOR)) {
+            particles.getParameterUnsafe<ColorArrayParameter>(P_BASE_COLOR).fill(initialColor, fromIndex, toIndex);
         }
-        if (particles.hasParameter(INV_START_LIFETIME)) {
-            particles.getParameterUnsafe<FloatArrayParameter>(INV_START_LIFETIME).fill(1, fromIndex, toIndex);
+        if (particles.hasParameter(P_INV_LIFETIME)) {
+            particles.getParameterUnsafe<FloatArrayParameter>(P_INV_LIFETIME).fill(1, fromIndex, toIndex);
         }
-        if (particles.hasParameter(NORMALIZED_AGE)) {
-            particles.getParameterUnsafe<FloatArrayParameter>(NORMALIZED_AGE).fill(0, fromIndex, toIndex);
+        if (particles.hasParameter(P_NORMALIZED_AGE)) {
+            particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).fill(0, fromIndex, toIndex);
         }
-        if (particles.hasParameter(ID)) {
-            const id = particles.getParameterUnsafe<Uint32ArrayParameter>(ID).data;
+        if (particles.hasParameter(P_ID)) {
+            const id = particles.getParameterUnsafe<Uint32ArrayParameter>(P_ID).data;
             for (let i = fromIndex; i < toIndex; i++) {
                 id[i] = ++this._state.maxParticleId;
             }
         }
-        if (particles.hasParameter(RANDOM_SEED)) {
-            const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
+        if (particles.hasParameter(P_RANDOM_SEED)) {
+            const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
             const randomStream = this._state.randomStream;
             for (let i = fromIndex; i < toIndex; i++) {
                 randomSeed[i] = randomStream.getUInt32();
             }
         }
 
-        const fi = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX);
-        const ti = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX);
+        const fi = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX);
+        const ti = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX);
         fi.data = fromIndex;
         ti.data = toIndex;
         this._spawnStage.execute(particles, emitter, user, context);
         this.resetAnimatedState(particles, fromIndex, toIndex);
         const interval = intervalDt;
-        const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME);
+        const deltaTime = context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME);
         const dt = deltaTime.data;
         if (!approx(interval, 0) || interpStartDt > 0) {
             const needPositionOffset = hasPosition && !initialVelocity.equals(Vec3.ZERO);
-            const position = needPositionOffset ? particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION) : null;
+            const position = needPositionOffset ? particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION) : null;
             const updateStage = this._updateStage;
 
             // |------ Delay ------|-----------Duration-----------------------|

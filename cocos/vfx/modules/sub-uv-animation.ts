@@ -25,14 +25,16 @@
 
 import { ccclass, tooltip, type, serializable, range, visible } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { lerp, repeat, Enum, assertIsTrue, CCFloat, CCInteger } from '../../core';
+import { lerp, repeat, Enum, assertIsTrue, CCFloat, CCInteger, Vec2 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression } from '../expressions/float';
-import { INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, RANDOM_SEED, SUB_UV_INDEX } from '../data-set/particle';
-import { FROM_INDEX, ContextDataSet, TO_INDEX } from '../data-set/context';
+import { P_INV_LIFETIME, P_NORMALIZED_AGE, ParticleDataSet, P_RANDOM_SEED, P_SUB_UV_INDEX, P_VELOCITY } from '../data-set/particle';
+import { C_FROM_INDEX, ContextDataSet, C_TO_INDEX } from '../data-set/context';
 import { RandomStream } from '../random-stream';
 import { EmitterDataSet } from '../data-set/emitter';
 import { UserDataSet } from '../data-set/user';
+import { FloatArrayParameter, Uint32Parameter, Uint32ArrayParameter } from '../parameters';
+import { ConstantVec2Expression, Vec2Expression } from '../expressions';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
 
@@ -58,44 +60,19 @@ export enum Animation {
 }
 
 @ccclass('cc.SubUVAnimationModule')
-@VFXModule.register('SubUVAnimation', ModuleExecStageFlags.UPDATE, [], [VELOCITY.name, NORMALIZED_AGE.name])
+@VFXModule.register('SubUVAnimation', ModuleExecStageFlags.UPDATE, [], [P_VELOCITY.name, P_NORMALIZED_AGE.name])
 export class SubUVAnimationModule extends VFXModule {
-    /**
-     * @zh X 方向动画帧数。
-     */
-    @type(CCInteger)
-    @range([0, Number.MAX_SAFE_INTEGER])
-    @tooltip('i18n:textureAnimationModule.numTilesX')
-    get numTilesX () {
-        return this._numTilesX;
-    }
-
-    set numTilesX (val) {
-        this._numTilesX = val;
-        if (this.animation === Animation.WHOLE_SHEET) {
-            this.frameOverTime.constant = this._numTilesX * this._numTilesY;
-        } else {
-            this.frameOverTime.constant = this._numTilesX;
+    @type(Vec2Expression)
+    public get subImageSize () {
+        if (!this._subImageSize) {
+            this._subImageSize = new ConstantVec2Expression(new Vec2(8, 8));
         }
+        return this._subImageSize;
     }
 
-    /**
-     * @zh Y 方向动画帧数。
-     */
-    @type(CCInteger)
-    @range([0, Number.MAX_SAFE_INTEGER])
-    @tooltip('i18n:textureAnimationModule.numTilesY')
-    get numTilesY () {
-        return this._numTilesY;
+    public set subImageSize (val) {
+        this._subImageSize = val;
     }
-
-    set numTilesY (val) {
-        this._numTilesY = val;
-        if (this.animation === Animation.WHOLE_SHEET) {
-            this.frameOverTime.constant = this._numTilesX * this._numTilesY;
-        }
-    }
-
     /**
      * @zh 动画播放方式 [[Animation]]。
      */
@@ -183,9 +160,7 @@ export class SubUVAnimationModule extends VFXModule {
     public cycleCount = 1;
 
     @serializable
-    private _numTilesX = 1;
-    @serializable
-    private _numTilesY = 1;
+    private _subImageSize: Vec2Expression | null = null;
     @serializable
     private _animation = Animation.WHOLE_SHEET;
     @serializable
@@ -198,28 +173,28 @@ export class SubUVAnimationModule extends VFXModule {
             assertIsTrue(this.startFrame.mode === FloatExpression.Mode.CONSTANT || this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS,
                 'The mode of startFrame in texture-animation module can not be Curve and TwoCurve!');
         }
-        particles.markRequiredParameter(SUB_UV_INDEX);
+        particles.markRequiredParameter(P_SUB_UV_INDEX);
         if (this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS || (this.animation === Animation.SINGLE_ROW && this.randomRow)) {
-            particles.markRequiredParameter(RANDOM_SEED);
+            particles.markRequiredParameter(P_RANDOM_SEED);
         }
         if (this._timeMode === TimeMode.LIFETIME && (this.frameOverTime.mode === FloatExpression.Mode.TWO_CONSTANTS
             || this.frameOverTime.mode === FloatExpression.Mode.TWO_CURVES)) {
-            particles.markRequiredParameter(RANDOM_SEED);
+            particles.markRequiredParameter(P_RANDOM_SEED);
         }
         if (this._timeMode === TimeMode.LIFETIME && (this.frameOverTime.mode === FloatExpression.Mode.TWO_CURVES
             || this.frameOverTime.mode === FloatExpression.Mode.CURVE)) {
-            particles.markRequiredParameter(NORMALIZED_AGE);
+            particles.markRequiredParameter(P_NORMALIZED_AGE);
         }
         if (this._timeMode === TimeMode.FPS) {
-            particles.markRequiredParameter(NORMALIZED_AGE);
-            particles.markRequiredParameter(INV_START_LIFETIME);
+            particles.markRequiredParameter(P_NORMALIZED_AGE);
+            particles.markRequiredParameter(P_INV_LIFETIME);
         }
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(SUB_UV_INDEX);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
 
         if (this._timeMode === TimeMode.LIFETIME) {
             const cycleCount = this.cycleCount;
@@ -233,21 +208,21 @@ export class SubUVAnimationModule extends VFXModule {
                         subUVIndex[i] = frame;
                     }
                 } else if (this.frameOverTime.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                    const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
+                    const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
                     const { constantMin, constantMax } = this.frameOverTime;
                     for (let i = fromIndex; i < toIndex; i++) {
                         subUVIndex[i] = repeat(cycleCount * (lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) + startFrame) * invRange, 1);
                     }
                 } else if (this.frameOverTime.mode === FloatExpression.Mode.CURVE) {
                     const { spline, multiplier } = this.frameOverTime;
-                    const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(NORMALIZED_AGE).data;
+                    const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         subUVIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAge[i]) * multiplier + startFrame) * invRange, 1);
                     }
                 } else {
-                    const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
+                    const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
                     const { splineMin, splineMax, multiplier } = this.frameOverTime;
-                    const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(NORMALIZED_AGE).data;
+                    const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const time = normalizedAge[i];
                         subUVIndex[i] = repeat(cycleCount * (lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) * multiplier + startFrame) * invRange, 1);
@@ -255,7 +230,7 @@ export class SubUVAnimationModule extends VFXModule {
                 }
             } else if (this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS) {
                 const { constantMin, constantMax } = this.startFrame;
-                const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
+                const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
                 if (this.frameOverTime.mode === FloatExpression.Mode.CONSTANT) {
                     const frame = this.frameOverTime.constant;
                     for (let i = fromIndex; i < toIndex; i++) {
@@ -270,14 +245,14 @@ export class SubUVAnimationModule extends VFXModule {
                     }
                 } else if (this.frameOverTime.mode === FloatExpression.Mode.CURVE) {
                     const { spline, multiplier } = this.frameOverTime;
-                    const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(NORMALIZED_AGE).data;
+                    const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const startFrame = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
                         subUVIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAge[i]) * multiplier + startFrame) * invRange, 1);
                     }
                 } else {
                     const { splineMin, splineMax, multiplier } = this.frameOverTime;
-                    const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(NORMALIZED_AGE).data;
+                    const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const startFrame = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
                         const time = normalizedAge[i];
@@ -290,7 +265,7 @@ export class SubUVAnimationModule extends VFXModule {
                 const rowLength = 1 / this.numTilesY;
                 if (this.randomRow) {
                     const rows = this.numTilesY;
-                    const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
+                    const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const startRow = Math.floor(RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET) * rows);
                         const from = startRow * rowLength;
@@ -307,27 +282,27 @@ export class SubUVAnimationModule extends VFXModule {
             }
         } else {
             const invRange = 1 / (this.animation === Animation.WHOLE_SHEET ? (this._numTilesX * this._numTilesY) : this._numTilesX);
-            const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(NORMALIZED_AGE).data;
-            const invStartLifeTime = particles.getParameterUnsafe<FloatArrayParameter>(INV_START_LIFETIME).data;
+            const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
+            const invLifeTime = particles.getParameterUnsafe<FloatArrayParameter>(P_INV_LIFETIME).data;
             // use subUVIndex to cache lerp ratio
             if (this.startFrame.mode === FloatExpression.Mode.CONSTANT) {
                 const startFrame = this.startFrame.constant;
                 for (let i = fromIndex; i < toIndex; i++) {
-                    subUVIndex[i] = repeat((normalizedAge[i] / invStartLifeTime[i] * this._fps + startFrame) * invRange, 1);
+                    subUVIndex[i] = repeat((normalizedAge[i] / invLifeTime[i] * this._fps + startFrame) * invRange, 1);
                 }
             } else if (this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
+                const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
                 const { constantMin, constantMax } = this.startFrame;
                 for (let i = fromIndex; i < toIndex; i++) {
                     const startFrame = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
-                    subUVIndex[i] = repeat((normalizedAge[i] / invStartLifeTime[i] * this._fps + startFrame) * invRange, 1);
+                    subUVIndex[i] = repeat((normalizedAge[i] / invLifeTime[i] * this._fps + startFrame) * invRange, 1);
                 }
             }
 
             if (this.animation === Animation.SINGLE_ROW) {
                 const rowLength = 1 / this.numTilesY;
                 if (this.randomRow) {
-                    const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
+                    const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
                     const rows = this.numTilesY;
                     for (let i = fromIndex; i < toIndex; i++) {
                         const startRow = Math.floor(RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET) * rows);

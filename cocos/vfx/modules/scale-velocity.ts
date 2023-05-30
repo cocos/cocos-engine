@@ -27,7 +27,7 @@ import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { CCBoolean, Enum, Vec3 } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, VELOCITY, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD_RS, WORLD_TO_LOCAL_RS, UserDataSet } from '../data-set';
+import { ParticleDataSet, P_VELOCITY, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, UserDataSet } from '../data-set';
 import { CoordinateSpace } from '../define';
 import { Vec3ArrayParameter, BoolParameter, Uint32Parameter, Mat3Parameter } from '../parameters';
 
@@ -35,7 +35,7 @@ const tempScalar = new Vec3();
 const tempVelocity = new Vec3();
 
 @ccclass('cc.ScaleVelocityModule')
-@VFXModule.register('ScaleVelocity', ModuleExecStageFlags.UPDATE, [VELOCITY.name], [VELOCITY.name])
+@VFXModule.register('ScaleVelocity', ModuleExecStageFlags.UPDATE, [P_VELOCITY.name], [P_VELOCITY.name])
 export class ScaleVelocityModule extends VFXModule {
     @type(Enum(CoordinateSpace))
     @serializable
@@ -55,7 +55,7 @@ export class ScaleVelocityModule extends VFXModule {
     @visible(function (this: ScaleVelocityModule): boolean { return this.separateAxes; })
     public get scalar () {
         if (!this._scalar) {
-            this._scalar = new ConstantVec3Expression(Vec3.ONE);
+            this._scalar = new ConstantVec3Expression(1, 1, 1);
         }
         return this._scalar;
     }
@@ -83,7 +83,7 @@ export class ScaleVelocityModule extends VFXModule {
     private _uniformScalar: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(VELOCITY);
+        particles.markRequiredParameter(P_VELOCITY);
         if (this.separateAxes) {
             this.scalar.tick(particles, emitter, user, context);
         } else {
@@ -92,16 +92,16 @@ export class ScaleVelocityModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const velocity  = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
-        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const velocity  = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
         if (this.separateAxes) {
             const scalarExp = this._scalar as Vec3Expression;
             scalarExp.bind(particles, emitter, user, context);
             if (needTransform) {
-                const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
-                const invTransform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? WORLD_TO_LOCAL_RS : LOCAL_TO_WORLD_RS).data;
+                const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
+                const invTransform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? E_WORLD_TO_LOCAL_RS : E_LOCAL_TO_WORLD_RS).data;
                 if (scalarExp.isConstant) {
                     const scalar = scalarExp.evaluate(0, tempScalar);
                     for (let i = fromIndex; i < toIndex; i++) {
@@ -136,8 +136,8 @@ export class ScaleVelocityModule extends VFXModule {
             const uniformExp = this._uniformScalar as FloatExpression;
             uniformExp.bind(particles, emitter, user, context);
             if (needTransform) {
-                const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? LOCAL_TO_WORLD_RS : WORLD_TO_LOCAL_RS).data;
-                const invTransform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? WORLD_TO_LOCAL_RS : LOCAL_TO_WORLD_RS).data;
+                const transform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
+                const invTransform = emitter.getParameterUnsafe<Mat3Parameter>(this.coordinateSpace === CoordinateSpace.LOCAL ? E_WORLD_TO_LOCAL_RS : E_LOCAL_TO_WORLD_RS).data;
                 if (uniformExp.isConstant) {
                     const scalar = uniformExp.evaluate(0);
                     for (let i = fromIndex; i < toIndex; i++) {

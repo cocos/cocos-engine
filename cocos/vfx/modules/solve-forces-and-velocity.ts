@@ -25,24 +25,24 @@
 
 import { ccclass } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { POSITION, ParticleDataSet, VELOCITY, PHYSICS_FORCE, DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { P_POSITION, ParticleDataSet, P_VELOCITY, P_PHYSICS_FORCE, C_DELTA_TIME, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatParameter, Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 
 @ccclass('cc.SolveForcesAndVelocityModule')
-@VFXModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [POSITION.name], [VELOCITY.name])
+@VFXModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [P_POSITION.name], [P_VELOCITY.name])
 export class SolveForceAndVelocityModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
-        if (particles.hasParameter(PHYSICS_FORCE) && particles.hasParameter(VELOCITY)) {
-            const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(PHYSICS_FORCE);
-            const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const deltaTime = context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data;
+        if (particles.hasParameter(P_PHYSICS_FORCE) && particles.hasParameter(P_VELOCITY)) {
+            const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(P_PHYSICS_FORCE);
+            const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
             Vec3ArrayParameter.scaleAndAdd(velocity, velocity, physicsForce, deltaTime, fromIndex, toIndex);
         }
-        if (particles.hasParameter(VELOCITY) && particles.hasParameter(POSITION)) {
-            const position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
-            const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
+        if (particles.hasParameter(P_VELOCITY) && particles.hasParameter(P_POSITION)) {
+            const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
+            const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
             Vec3ArrayParameter.scaleAndAdd(position, position, velocity, deltaTime, fromIndex, toIndex);
         }
     }

@@ -27,14 +27,14 @@ import { ccclass, type, serializable, visible, rangeMin } from 'cc.decorator';
 import { lerp, math, Vec2, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression, Vec3Expression } from '../expressions';
-import { ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { Uint32Parameter, Vec2ArrayParameter, Vec3ArrayParameter } from '../parameters';
 
 const tempVelocity = new Vec3();
 const tempScalar = new Vec2();
 const tempScalar2 = new Vec2();
 @ccclass('cc.ScaleSpriteSizeBySpeedModule')
-@VFXModule.register('ScaleSpriteSizeBySpeed', ModuleExecStageFlags.UPDATE, [SPRITE_SIZE.name], [SPRITE_SIZE.name, VELOCITY.name])
+@VFXModule.register('ScaleSpriteSizeBySpeed', ModuleExecStageFlags.UPDATE, [P_SPRITE_SIZE.name], [P_SPRITE_SIZE.name, P_VELOCITY.name])
 export class ScaleSpriteSizeBySpeedModule extends VFXModule {
     /**
        * @zh 决定是否在每个轴上独立控制粒子大小。
@@ -137,7 +137,7 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
     private _maxScalar: Vec2Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(SCALE);
+        particles.markRequiredParameter(P_SCALE);
         if (this.separateAxes) {
             this.maxScalar.tick(particles, emitter, user, context);
             this.minScalar.tick(particles, emitter, user, context);
@@ -150,12 +150,12 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const hasVelocity = particles.hasParameter(VELOCITY);
+        const hasVelocity = particles.hasParameter(P_VELOCITY);
         if (!hasVelocity) { return; }
-        const spriteSize = particles.getParameterUnsafe<Vec2ArrayParameter>(SPRITE_SIZE);
-        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const spriteSize = particles.getParameterUnsafe<Vec2ArrayParameter>(P_SPRITE_SIZE);
+        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
         const minSpeedThresholdExp = this._minSpeedThreshold as FloatExpression;
         const maxSpeedThresholdExp = this._maxSpeedThreshold as FloatExpression;
         minSpeedThresholdExp.bind(particles, emitter, user, context);

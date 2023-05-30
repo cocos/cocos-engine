@@ -27,7 +27,7 @@ import { ccclass, type, serializable, rangeMin, visible } from 'cc.decorator';
 import { Enum, clamp, Vec2, Vec3, RealCurve } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, PHYSICS_FORCE, POSITION, VELOCITY, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, P_PHYSICS_FORCE, P_POSITION, P_VELOCITY, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
 import { VFXEmitterState } from '../vfx-emitter';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
@@ -374,7 +374,7 @@ export enum Quality {
 }
 
 @ccclass('cc.CurlNoiseForceModule')
-@VFXModule.register('CurlNoiseForce', ModuleExecStageFlags.UPDATE, [VELOCITY.name], [])
+@VFXModule.register('CurlNoiseForce', ModuleExecStageFlags.UPDATE, [P_VELOCITY.name], [])
 export class CurlNoiseForceModule extends VFXModule {
     @serializable
     @visible(true)
@@ -384,7 +384,7 @@ export class CurlNoiseForceModule extends VFXModule {
     @visible(function (this: CurlNoiseForceModule) { return this.separateAxes; })
     public get strength () {
         if (!this._strength) {
-            this._strength = new ConstantVec3Expression(Vec3.ONE);
+            this._strength = new ConstantVec3Expression(1, 1, 1);
         }
         return this._strength;
     }
@@ -421,7 +421,7 @@ export class CurlNoiseForceModule extends VFXModule {
     @type(Vec3Expression)
     public get panSpeed () {
         if (!this._panSpeed) {
-            this._panSpeed = new ConstantVec3Expression(Vec3.ZERO);
+            this._panSpeed = new ConstantVec3Expression(0, 0, 0);
         }
         return this._panSpeed;
     }
@@ -513,9 +513,9 @@ export class CurlNoiseForceModule extends VFXModule {
     }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(POSITION);
-        particles.markRequiredParameter(VELOCITY);
-        particles.markRequiredParameter(PHYSICS_FORCE);
+        particles.markRequiredParameter(P_POSITION);
+        particles.markRequiredParameter(P_VELOCITY);
+        particles.markRequiredParameter(P_PHYSICS_FORCE);
         if (this.separateAxes) {
             this.strength.tick(particles, emitter, user, context);
         } else {
@@ -525,10 +525,10 @@ export class CurlNoiseForceModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const samplePosition = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
-        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(PHYSICS_FORCE);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const samplePosition = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
+        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(P_PHYSICS_FORCE);
         const frequencyExp = this._frequency as FloatExpression;
         const strengthExp = this._strength as Vec3Expression;
         const uniformStrengthExp = this._uniformStrength as FloatExpression;

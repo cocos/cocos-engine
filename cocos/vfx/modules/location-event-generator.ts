@@ -27,7 +27,7 @@ import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, Vec3 } from '../../core';
 import { VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { COLOR, ID, INV_START_LIFETIME, NORMALIZED_AGE, ParticleDataSet, POSITION, RANDOM_SEED, VELOCITY, DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, IS_WORLD_SPACE, LOCAL_TO_WORLD, UserDataSet } from '../data-set';
+import { P_COLOR, P_ID, P_INV_LIFETIME, P_NORMALIZED_AGE, ParticleDataSet, P_POSITION, P_RANDOM_SEED, P_VELOCITY, C_DELTA_TIME, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
 import { BoolParameter, ColorArrayParameter, FloatArrayParameter, FloatParameter, Mat4Parameter, Uint32ArrayParameter, Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { VFXEventInfo } from '../vfx-events';
@@ -35,7 +35,7 @@ import { VFXEventInfo } from '../vfx-events';
 const eventInfo = new VFXEventInfo();
 
 @ccclass('cc.LocationEventGeneratorModule')
-@VFXModule.register('LocationEventGenerator', ModuleExecStageFlags.UPDATE, [], [POSITION.name, VELOCITY.name, COLOR.name])
+@VFXModule.register('LocationEventGenerator', ModuleExecStageFlags.UPDATE, [], [P_POSITION.name, P_VELOCITY.name, P_COLOR.name])
 export class LocationEventGeneratorModule extends VFXModule {
     @type(CCFloat)
     @range([0, 1])
@@ -43,30 +43,30 @@ export class LocationEventGeneratorModule extends VFXModule {
     public probability = 1;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(INV_START_LIFETIME);
-        particles.markRequiredParameter(RANDOM_SEED);
-        particles.markRequiredParameter(NORMALIZED_AGE);
-        particles.markRequiredParameter(ID);
+        particles.markRequiredParameter(P_INV_LIFETIME);
+        particles.markRequiredParameter(P_RANDOM_SEED);
+        particles.markRequiredParameter(P_NORMALIZED_AGE);
+        particles.markRequiredParameter(P_ID);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(NORMALIZED_AGE).data;
-        const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
-        const invStartLifeTime = particles.getParameterUnsafe<FloatArrayParameter>(INV_START_LIFETIME).data;
-        const id = particles.getParameterUnsafe<Uint32ArrayParameter>(ID).data;
+        const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
+        const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
+        const invLifeTime = particles.getParameterUnsafe<FloatArrayParameter>(P_INV_LIFETIME).data;
+        const id = particles.getParameterUnsafe<Uint32ArrayParameter>(P_ID).data;
         const randomOffset = this.randomSeed;
         const { events } = context;
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
-        const localToWorld = emitter.getParameterUnsafe<Mat4Parameter>(LOCAL_TO_WORLD).data;
-        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(IS_WORLD_SPACE).data;
-        const hasVelocity = particles.hasParameter(VELOCITY);
-        const hasColor = particles.hasParameter(COLOR);
-        const hasPosition = particles.hasParameter(POSITION);
-        const velocity = hasVelocity ? particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY) : null;
-        const color = hasColor ? particles.getParameterUnsafe<ColorArrayParameter>(COLOR) : null;
-        const position = hasPosition ? particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION) : null;
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const deltaTime = context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data;
+        const localToWorld = emitter.getParameterUnsafe<Mat4Parameter>(E_LOCAL_TO_WORLD).data;
+        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
+        const hasVelocity = particles.hasParameter(P_VELOCITY);
+        const hasColor = particles.hasParameter(P_COLOR);
+        const hasPosition = particles.hasParameter(P_POSITION);
+        const velocity = hasVelocity ? particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY) : null;
+        const color = hasColor ? particles.getParameterUnsafe<ColorArrayParameter>(P_COLOR) : null;
+        const position = hasPosition ? particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION) : null;
         if (!approx(this.probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
                 if (RandomStream.getFloat(randomSeed[i] + randomOffset) > this.probability) {
@@ -89,7 +89,7 @@ export class LocationEventGeneratorModule extends VFXModule {
                     Vec3.transformMat4(eventInfo.velocity, eventInfo.velocity, localToWorld);
                 }
                 eventInfo.particleId = id[i];
-                eventInfo.currentTime = 1 / invStartLifeTime[i] * normalizedAge[i];
+                eventInfo.currentTime = 1 / invLifeTime[i] * normalizedAge[i];
                 eventInfo.prevTime = eventInfo.currentTime - deltaTime;
                 eventInfo.randomSeed = randomSeed[i];
                 eventInfo.type = VFXEventType.LOCATION;

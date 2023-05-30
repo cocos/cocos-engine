@@ -24,12 +24,13 @@
  */
 import { Color } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, RANDOM_SEED, UserDataSet } from '../data-set';
+import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
 import { ColorExpression } from './color';
 import { ConstantColorExpression } from './constant-color';
 import { ModuleExecStage } from '../vfx-module';
 import { Uint32ArrayParameter } from '../parameters';
+import { P_RANDOM_SEED } from '../define';
 
 const tempColor = new Color();
 
@@ -55,7 +56,7 @@ export class RandomRangeColorExpression extends ColorExpression {
         this.maximum.tick(particles, emitter, user, context);
         this.minimum.tick(particles, emitter, user, context);
         if (context.executionStage === ModuleExecStage.UPDATE) {
-            particles.markRequiredParameter(RANDOM_SEED);
+            particles.markRequiredParameter(P_RANDOM_SEED);
         }
     }
 
@@ -63,7 +64,7 @@ export class RandomRangeColorExpression extends ColorExpression {
         this.maximum.bind(particles, emitter, user, context);
         this.minimum.bind(particles, emitter, user, context);
         if (context.executionStage === ModuleExecStage.UPDATE) {
-            this._seed = particles.getParameterUnsafe<Uint32ArrayParameter>(RANDOM_SEED).data;
+            this._seed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
             this._randomOffset = context.moduleRandomSeed;
         } else {
             this._randomStream = context.moduleRandomStream;

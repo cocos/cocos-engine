@@ -27,13 +27,13 @@ import { ccclass, type, serializable } from 'cc.decorator';
 import { Color } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { ColorExpression, ConstantColorExpression } from '../expressions';
-import { BASE_COLOR, COLOR, NORMALIZED_AGE, ParticleDataSet, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { P_BASE_COLOR, P_COLOR, P_NORMALIZED_AGE, ParticleDataSet, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { Uint32Parameter, ColorArrayParameter } from '../parameters';
 
 const tempColor = new Color();
 
 @ccclass('cc.ScaleColorModule')
-@VFXModule.register('ScaleColor', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], [NORMALIZED_AGE.name])
+@VFXModule.register('ScaleColor', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], [P_NORMALIZED_AGE.name])
 export class ScaleColorModule extends VFXModule {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
@@ -55,16 +55,16 @@ export class ScaleColorModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(BASE_COLOR);
+            particles.markRequiredParameter(P_BASE_COLOR);
         }
-        particles.markRequiredParameter(COLOR);
+        particles.markRequiredParameter(P_COLOR);
         this.scalar.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const color = particles.getParameterUnsafe<ColorArrayParameter>(context.executionStage === ModuleExecStage.UPDATE ? COLOR : BASE_COLOR);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const color = particles.getParameterUnsafe<ColorArrayParameter>(context.executionStage === ModuleExecStage.UPDATE ? P_COLOR : P_BASE_COLOR);
         const scalarExp = this.scalar;
         scalarExp.bind(particles, emitter, user, context);
         if (scalarExp.isConstant) {

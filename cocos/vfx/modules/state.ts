@@ -25,7 +25,7 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { Enum } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { INV_START_LIFETIME, IS_DEAD, NORMALIZED_AGE, ParticleDataSet, DELTA_TIME, FROM_INDEX, ContextDataSet, TO_INDEX, UserDataSet, EmitterDataSet } from '../data-set';
+import { P_INV_LIFETIME, P_IS_DEAD, P_NORMALIZED_AGE, ParticleDataSet, C_DELTA_TIME, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, UserDataSet, EmitterDataSet } from '../data-set';
 import { FloatArrayParameter, FloatParameter, Uint32Parameter, BoolArrayParameter } from '../parameters';
 
 export enum LifetimeElapsedOperation {
@@ -35,7 +35,7 @@ export enum LifetimeElapsedOperation {
 }
 
 @ccclass('cc.StateModule')
-@VFXModule.register('State', ModuleExecStageFlags.UPDATE, [NORMALIZED_AGE.name])
+@VFXModule.register('State', ModuleExecStageFlags.UPDATE, [P_NORMALIZED_AGE.name])
 export class StateModule extends VFXModule {
     @type(Enum(LifetimeElapsedOperation))
     @visible(true)
@@ -44,36 +44,36 @@ export class StateModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.KILL) {
-            particles.markRequiredParameter(IS_DEAD);
+            particles.markRequiredParameter(P_IS_DEAD);
         }
-        particles.markRequiredParameter(NORMALIZED_AGE);
-        particles.markRequiredParameter(INV_START_LIFETIME);
+        particles.markRequiredParameter(P_NORMALIZED_AGE);
+        particles.markRequiredParameter(P_INV_LIFETIME);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(NORMALIZED_AGE).data;
-        const invStartLifeTime = particles.getParameterUnsafe<FloatArrayParameter>(INV_START_LIFETIME).data;
-        const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
+        const invLifeTime = particles.getParameterUnsafe<FloatArrayParameter>(P_INV_LIFETIME).data;
+        const deltaTime = context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data;
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
         if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.LOOP_LIFETIME) {
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
+                normalizedAge[particleHandle] += deltaTime * invLifeTime[particleHandle];
                 if (normalizedAge[particleHandle] > 1) {
                     normalizedAge[particleHandle] -= 1;
                 }
             }
         } else if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.KEEP) {
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
+                normalizedAge[particleHandle] += deltaTime * invLifeTime[particleHandle];
                 if (normalizedAge[particleHandle] > 1) {
                     normalizedAge[particleHandle] = 1;
                 }
             }
         } else {
-            const isDead = particles.getParameterUnsafe<BoolArrayParameter>(IS_DEAD).data;
+            const isDead = particles.getParameterUnsafe<BoolArrayParameter>(P_IS_DEAD).data;
             for (let particleHandle = fromIndex; particleHandle < toIndex; particleHandle++) {
-                normalizedAge[particleHandle] += deltaTime * invStartLifeTime[particleHandle];
+                normalizedAge[particleHandle] += deltaTime * invLifeTime[particleHandle];
                 if (normalizedAge[particleHandle] > 1) {
                     normalizedAge[particleHandle] = 1;
                     isDead[particleHandle] = 1;

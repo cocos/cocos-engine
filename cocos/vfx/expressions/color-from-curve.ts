@@ -24,10 +24,11 @@
  */
 import { Color, Gradient, serializable } from '../../core';
 import { ccclass, type } from '../../core/data/decorators';
-import { ContextDataSet, ParticleDataSet, EmitterDataSet, NORMALIZED_LOOP_AGE, UserDataSet } from '../data-set';
+import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ColorExpression } from './color';
 import { FloatExpression } from './float';
 import { BindingFloatExpression } from './binding-float';
+import { E_NORMALIZED_LOOP_AGE } from '../define';
 
 @ccclass('cc.ColorFromCurveExpression')
 export class ColorFromCurveExpression extends ColorExpression {
@@ -37,7 +38,7 @@ export class ColorFromCurveExpression extends ColorExpression {
 
     @type(FloatExpression)
     @serializable
-    public curveIndex: FloatExpression = new BindingFloatExpression(NORMALIZED_LOOP_AGE);
+    public curveIndex: FloatExpression = new BindingFloatExpression(E_NORMALIZED_LOOP_AGE);
 
     public get isConstant (): boolean {
         return this.curveIndex.isConstant;

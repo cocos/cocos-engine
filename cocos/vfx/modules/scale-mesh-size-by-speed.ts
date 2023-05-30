@@ -27,14 +27,14 @@ import { ccclass, type, serializable, range, visible, rangeMin } from 'cc.decora
 import { lerp, math, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { ParticleDataSet, SCALE, VELOCITY, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, P_SCALE, P_VELOCITY, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 
 const tempVelocity = new Vec3();
 const tempScalar = new Vec3();
 const tempScalar2 = new Vec3();
 @ccclass('cc.ScaleMeshSizeBySpeedModule')
-@VFXModule.register('ScaleMeshSizeBySpeed', ModuleExecStageFlags.UPDATE, [SCALE.name], [SCALE.name, VELOCITY.name])
+@VFXModule.register('ScaleMeshSizeBySpeed', ModuleExecStageFlags.UPDATE, [P_SCALE.name], [P_SCALE.name, P_VELOCITY.name])
 export class ScaleMeshSizeBySpeedModule extends VFXModule {
     /**
       * @zh 决定是否在每个轴上独立控制粒子大小。
@@ -90,7 +90,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     @visible(function (this: ScaleMeshSizeBySpeedModule): boolean { return this.separateAxes; })
     public get maxScalar () {
         if (!this._maxScalar) {
-            this._maxScalar = new ConstantVec3Expression(Vec3.ONE);
+            this._maxScalar = new ConstantVec3Expression(1, 1, 1);
         }
         return this._maxScalar;
     }
@@ -139,7 +139,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     private _maxSpeedThreshold: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(SCALE);
+        particles.markRequiredParameter(P_SCALE);
         if (this.separateAxes) {
             this.maxScalar.tick(particles, emitter, user, context);
             this.minScalar.tick(particles, emitter, user, context);
@@ -152,12 +152,12 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const hasVelocity = particles.hasParameter(VELOCITY);
+        const hasVelocity = particles.hasParameter(P_VELOCITY);
         if (!hasVelocity) { return; }
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const scale = particles.getParameterUnsafe<Vec3ArrayParameter>(SCALE);
-        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const scale = particles.getParameterUnsafe<Vec3ArrayParameter>(P_SCALE);
+        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
         const minSpeedThresholdExp = this._minSpeedThreshold as FloatExpression;
         const maxSpeedThresholdExp = this._maxSpeedThreshold as FloatExpression;
         minSpeedThresholdExp.bind(particles, emitter, user, context);

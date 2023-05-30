@@ -25,7 +25,7 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { DELTA_TIME, ContextDataSet, ParticleDataSet, EmitterDataSet, LOOPED_AGE, SPAWN_REMAINDER_PER_UNIT, VELOCITY, UserDataSet } from '../data-set';
+import { C_DELTA_TIME, ContextDataSet, ParticleDataSet, EmitterDataSet, E_LOOPED_AGE, E_SPAWN_REMAINDER_PER_UNIT, P_VELOCITY, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { Vec3Parameter, FloatParameter } from '../parameters';
 
@@ -55,10 +55,10 @@ export class SpawnPerUnitModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const velocity = emitter.getParameterUnsafe<Vec3Parameter>(VELOCITY).data;
-        const deltaTime = context.getParameterUnsafe<FloatParameter>(DELTA_TIME).data;
-        const loopedAge = emitter.getParameterUnsafe<FloatParameter>(LOOPED_AGE).data;
-        const spawnRemainderPerUnit = emitter.getParameterUnsafe<FloatParameter>(SPAWN_REMAINDER_PER_UNIT);
+        const velocity = emitter.getParameterUnsafe<Vec3Parameter>(P_VELOCITY).data;
+        const deltaTime = context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data;
+        const loopedAge = emitter.getParameterUnsafe<FloatParameter>(E_LOOPED_AGE).data;
+        const spawnRemainderPerUnit = emitter.getParameterUnsafe<FloatParameter>(E_SPAWN_REMAINDER_PER_UNIT);
         const spawnSpacingExp = this._spawnSpacing as FloatExpression;
         spawnSpacingExp.bind(particles, emitter, user, context);
         let spawnSpacing = spawnSpacingExp.evaluateSingle();

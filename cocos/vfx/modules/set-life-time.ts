@@ -25,7 +25,7 @@
 
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { INV_START_LIFETIME, ParticleDataSet, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { P_INV_LIFETIME, ParticleDataSet, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
 
@@ -39,7 +39,7 @@ export class SetLifeTimeModule extends VFXModule {
     @rangeMin(0)
     public get lifetime () {
         if (!this._lifetime) {
-            this._lifetime = new ConstantFloatExpression(5);
+            this._lifetime = new ConstantFloatExpression(1);
         }
         return this._lifetime;
     }
@@ -52,21 +52,20 @@ export class SetLifeTimeModule extends VFXModule {
     private _lifetime: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(INV_START_LIFETIME);
+        particles.markRequiredParameter(P_INV_LIFETIME);
         this.lifetime.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const invStartLifeTime = particles.getParameterUnsafe<FloatArrayParameter>(INV_START_LIFETIME);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const invLifeTime = particles.getParameterUnsafe<FloatArrayParameter>(P_INV_LIFETIME);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
         const lifetimeExp = this._lifetime as FloatExpression;
         lifetimeExp.bind(particles, emitter, user, context);
         if (lifetimeExp.isConstant) {
-            const invLifeTime = 1 / lifetimeExp.evaluate(0);
-            invStartLifeTime.fill(invLifeTime, fromIndex, toIndex);
+            invLifeTime.fill(1 / lifetimeExp.evaluate(0), fromIndex, toIndex);
         } else {
-            const dest = invStartLifeTime.data;
+            const dest = invLifeTime.data;
             for (let i = fromIndex; i < toIndex; ++i) {
                 dest[i] = 1 / lifetimeExp.evaluate(i);
             }

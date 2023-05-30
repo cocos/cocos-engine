@@ -245,7 +245,7 @@ describe('particle-data-set', () => {
         expect(() => particles.getParameterUnsafe<Vec3ArrayParameter>(SCALE)).toThrowError();
         expect(() => particles.rotation).toThrowError();
         expect(() => particles.getParameterUnsafe<FloatArrayParameter>(NORMALIZED_AGE)).toThrowError();
-        expect(() => particles.getParameterUnsafe<FloatArrayParameter>(INV_START_LIFETIME)).toThrowError();
+        expect(() => particles.getParameterUnsafe<FloatArrayParameter>(INV_LIFETIME)).toThrowError();
         expect(() => particles.baseColor).toThrowError();
         expect(() => particles.getParameterUnsafe<Vec3ArrayParameter>(BASE_SCALE)).toThrowError();
         expect(() => particles.getParameterUnsafe<Vec3ArrayParameter>(BASE_VELOCITY)).toThrowError();
@@ -270,7 +270,7 @@ describe('particle-data-set', () => {
         expect(particles.getParameterUnsafe<Vec3ArrayParameter>(SCALE)).toBeInstanceOf(Vec3ArrayParameter);
         expect(particles.rotation).toBeInstanceOf(Vec3ArrayParameter);
         expect(particles.getParameterUnsafe<FloatArrayParameter>(NORMALIZED_AGE)).toBeInstanceOf(FloatArrayParameter);
-        expect(particles.getParameterUnsafe<FloatArrayParameter>(INV_START_LIFETIME)).toBeInstanceOf(FloatArrayParameter);
+        expect(particles.getParameterUnsafe<FloatArrayParameter>(INV_LIFETIME)).toBeInstanceOf(FloatArrayParameter);
         expect(particles.baseColor).toBeInstanceOf(ColorArrayParameter);
         expect(particles.getParameterUnsafe<Vec3ArrayParameter>(BASE_SCALE)).toBeInstanceOf(Vec3ArrayParameter);
         expect(particles.getParameterUnsafe<Vec3ArrayParameter>(BASE_VELOCITY)).toBeInstanceOf(Vec3ArrayParameter);

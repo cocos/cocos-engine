@@ -24,7 +24,8 @@
  */
 import { RealCurve, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet, ParticleDataSet, EmitterDataSet, NORMALIZED_LOOP_AGE, UserDataSet } from '../data-set';
+import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
+import { E_NORMALIZED_LOOP_AGE } from '../define';
 import { BindingFloatExpression } from './binding-float';
 import { ConstantVec3Expression } from './constant-vec3';
 import { FloatExpression } from './float';
@@ -48,11 +49,11 @@ export class Vec3FromCurveExpression extends Vec3Expression {
 
     @type(Vec3Expression)
     @serializable
-    public scale: Vec3Expression = new ConstantVec3Expression(Vec3.ONE);
+    public scale: Vec3Expression = new ConstantVec3Expression(1, 1, 1);
 
     @type(FloatExpression)
     @serializable
-    public curveIndex: FloatExpression = new BindingFloatExpression(NORMALIZED_LOOP_AGE);
+    public curveIndex: FloatExpression = new BindingFloatExpression(E_NORMALIZED_LOOP_AGE);
 
     public get isConstant (): boolean {
         return false;

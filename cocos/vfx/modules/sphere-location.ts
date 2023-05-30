@@ -25,7 +25,7 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { clamp, Enum, TWO_PI, Vec2, Vec3 } from '../../core';
-import { ParticleDataSet, POSITION, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, P_POSITION, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression, ConstantVec2Expression, FloatExpression, Vec2Expression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
 import { degreesToRadians } from '../../core/utils/misc';
@@ -35,7 +35,7 @@ const pos = new Vec3();
 const distrib = new Vec2();
 
 @ccclass('cc.SphereLocationModule')
-@VFXModule.register('SphereLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
+@VFXModule.register('SphereLocation', ModuleExecStageFlags.SPAWN, [P_POSITION.name])
 export class SphereLocationModule extends ShapeLocationModule {
     @type(FloatExpression)
     public get radius () {
@@ -179,9 +179,9 @@ export class SphereLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
         const radiusExp = this._radius as FloatExpression;
         radiusExp.bind(particles, emitter, user, context);
         if (this.distributionMode === DistributionMode.RANDOM) {
@@ -239,6 +239,7 @@ export class SphereLocationModule extends ShapeLocationModule {
                 const sinAzimuthalAngle = Math.sin(azimuthalAngle);
                 Vec3.set(pos, cosPolarAngle * sinAzimuthalAngle, sinPolarAngle * sinAzimuthalAngle, cosAzimuthalAngle);
                 Vec3.multiplyScalar(pos, pos, radiusExp.evaluate(i));
+                this.storePosition(i, pos, position);
             }
         }
     }

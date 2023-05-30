@@ -25,12 +25,12 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_RIBBON_WIDTH, NORMALIZED_AGE, ParticleDataSet, RIBBON_WIDTH, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { P_BASE_RIBBON_WIDTH, P_NORMALIZED_AGE, ParticleDataSet, P_RIBBON_WIDTH, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
 
 @ccclass('cc.SetRibbonWidthModule')
-@VFXModule.register('SetRibbonWidth', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [RIBBON_WIDTH.name], [NORMALIZED_AGE.name])
+@VFXModule.register('SetRibbonWidth', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [P_RIBBON_WIDTH.name], [P_NORMALIZED_AGE.name])
 export class SetRibbonWidthModule extends VFXModule {
     @type(FloatExpression)
     public get width () {
@@ -49,17 +49,17 @@ export class SetRibbonWidthModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(BASE_RIBBON_WIDTH);
+            particles.markRequiredParameter(P_BASE_RIBBON_WIDTH);
         }
 
-        particles.markRequiredParameter(RIBBON_WIDTH);
+        particles.markRequiredParameter(P_RIBBON_WIDTH);
         this.width.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const ribbonWidth = particles.getParameterUnsafe<FloatArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? BASE_RIBBON_WIDTH : RIBBON_WIDTH);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const ribbonWidth = particles.getParameterUnsafe<FloatArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
         const widthExp = this._width as FloatExpression;
         widthExp.bind(particles, emitter, user, context);
         if (widthExp.isConstant) {

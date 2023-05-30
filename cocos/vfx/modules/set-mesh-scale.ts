@@ -25,14 +25,14 @@
 
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_SCALE, NORMALIZED_AGE, ParticleDataSet, SCALE, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { P_BASE_SCALE, P_NORMALIZED_AGE, ParticleDataSet, P_SCALE, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3 } from '../../core';
 import { Vec3ArrayParameter, Uint32Parameter } from '../parameters';
 
 const tempScale = new Vec3();
 @ccclass('cc.SetMeshScaleModule')
-@VFXModule.register('SetMeshScale', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [SCALE.name], [NORMALIZED_AGE.name])
+@VFXModule.register('SetMeshScale', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [P_SCALE.name], [P_NORMALIZED_AGE.name])
 export class SetMeshScaleModule extends VFXModule {
     @serializable
     public separateAxes = false;
@@ -54,7 +54,7 @@ export class SetMeshScaleModule extends VFXModule {
     @visible(function (this: SetMeshScaleModule): boolean { return this.separateAxes; })
     public get scale () {
         if (!this._scale) {
-            this._scale = new ConstantVec3Expression(new Vec3(1, 1, 1));
+            this._scale = new ConstantVec3Expression(1, 1, 1);
         }
         return this._scale;
     }
@@ -70,10 +70,10 @@ export class SetMeshScaleModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(BASE_SCALE);
+            particles.markRequiredParameter(P_BASE_SCALE);
         }
 
-        particles.markRequiredParameter(SCALE);
+        particles.markRequiredParameter(P_SCALE);
         if (this.separateAxes) {
             this.scale.tick(particles, emitter, user, context);
         } else {
@@ -82,9 +82,9 @@ export class SetMeshScaleModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const scale = particles.getParameterUnsafe<Vec3ArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? BASE_SCALE : SCALE);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const scale = particles.getParameterUnsafe<Vec3ArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_SCALE : P_SCALE);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
         if (this.separateAxes) {
             const scaleExp = this._scale as Vec3Expression;
             scaleExp.bind(particles, emitter, user, context);

@@ -27,19 +27,19 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3, CCBoolean, Enum, Vec2 } from '../../core';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { FROM_INDEX, ContextDataSet, TO_INDEX, BASE_VELOCITY, PHYSICS_FORCE, POSITION, ParticleDataSet, SCALE, SPRITE_SIZE, VELOCITY, EmitterDataSet, UserDataSet } from '../data-set';
+import { C_FROM_INDEX, ContextDataSet, C_TO_INDEX, P_BASE_VELOCITY, P_PHYSICS_FORCE, P_POSITION, ParticleDataSet, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, EmitterDataSet, UserDataSet } from '../data-set';
 import { Uint32Parameter, Vec2ArrayParameter, Vec3ArrayParameter } from '../parameters';
 
 const _tempVec3 = new Vec3();
 const _tempVec2 = new Vec2();
 
 export enum RadiusSource {
-    SPRITE_SIZE,
+    P_SPRITE_SIZE,
     MESH_SCALE,
     CUSTOM,
 }
 @ccclass('cc.DragModule')
-@VFXModule.register('Drag', ModuleExecStageFlags.UPDATE, [VELOCITY.name], [VELOCITY.name, SCALE.name, SPRITE_SIZE.name])
+@VFXModule.register('Drag', ModuleExecStageFlags.UPDATE, [P_VELOCITY.name], [P_VELOCITY.name, P_SCALE.name, P_SPRITE_SIZE.name])
 export class DragModule extends VFXModule {
     @type(FloatExpression)
     @visible(true)
@@ -54,91 +54,30 @@ export class DragModule extends VFXModule {
         this._drag = val;
     }
 
-    @type(CCBoolean)
-    @serializable
-    public multiplyByRadius = true;
-
-    @type(Enum(RadiusSource))
-    @visible(function (this: DragModule) { return this.multiplyByRadius; })
-    @serializable
-    public radiusSource = RadiusSource.SPRITE_SIZE;
-
-    @type(FloatExpression)
-    @visible(function (this: DragModule) { return this.multiplyByRadius && this.radiusSource === RadiusSource.CUSTOM; })
-    public get radius () {
-        if (!this._radius) {
-            this._radius = new ConstantFloatExpression(1);
-        }
-        return this._radius;
-    }
-
-    public set radius (val) {
-        this._radius = val;
-    }
-
-    @type(CCBoolean)
-    @serializable
-    public multiplyBySpeed = true;
     @serializable
     private _drag: FloatExpression | null = null;
-    @serializable
-    private _radius: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(POSITION);
-        particles.markRequiredParameter(BASE_VELOCITY);
-        particles.markRequiredParameter(VELOCITY);
-        particles.markRequiredParameter(PHYSICS_FORCE);
+        particles.markRequiredParameter(P_POSITION);
+        particles.markRequiredParameter(P_BASE_VELOCITY);
+        particles.markRequiredParameter(P_VELOCITY);
+        particles.markRequiredParameter(P_PHYSICS_FORCE);
         this.drag.tick(particles, emitter, user, context);
-        if (this.multiplyByRadius && this.radiusSource === RadiusSource.CUSTOM) {
-            this.radius.tick(particles, emitter, user, context);
-        }
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(PHYSICS_FORCE);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(VELOCITY);
-        const multiplyByRadius = this.multiplyByRadius;
-        const radiusSource = this.radiusSource;
-        const multiplyBySpeed = this.multiplyBySpeed;
-        const spriteSize = multiplyByRadius && radiusSource === RadiusSource.SPRITE_SIZE ? particles.getParameterUnsafe<Vec2ArrayParameter>(SPRITE_SIZE) : null;
-        const scale = multiplyByRadius && radiusSource === RadiusSource.MESH_SCALE ? particles.getParameterUnsafe<Vec3ArrayParameter>(SCALE) : null;
+        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(P_PHYSICS_FORCE);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
         const dragExp = this._drag as FloatExpression;
-        const radiusExp = this._radius as FloatExpression;
         dragExp.bind(particles, emitter, user, context);
-        if (multiplyByRadius && radiusSource === RadiusSource.CUSTOM) {
-            radiusExp.bind(particles, emitter, user, context);
-        }
 
         for (let i = fromIndex; i < toIndex; i++) {
-            let drag = dragExp.evaluate(i);
+            const drag = dragExp.evaluate(i);
             const length = velocity.getVec3At(_tempVec3, i).length();
-
-            drag = this.scaleDrag(multiplyByRadius, radiusSource, multiplyBySpeed, length, drag, i, spriteSize, scale, radiusExp);
             Vec3.multiplyScalar(_tempVec3, _tempVec3, -drag / length);
             physicsForce.addVec3At(_tempVec3, i);
         }
-    }
-
-    private scaleDrag (multiplyByRadius: boolean, radiusSource: RadiusSource, multiplyBySpeed: boolean, speed: number, drag: number, index: number, spriteSize: Vec2ArrayParameter | null, scale: Vec3ArrayParameter | null, radius: FloatExpression | null) {
-        if (multiplyByRadius) {
-            if (radiusSource === RadiusSource.SPRITE_SIZE) {
-                spriteSize!.getVec2At(_tempVec2, index);
-                const maxDimension = Math.max(_tempVec2.x, _tempVec2.y) * 0.5;
-                drag *= maxDimension ** 2 * Math.PI;
-            } else if (radiusSource === RadiusSource.MESH_SCALE) {
-                scale!.getVec3At(_tempVec3, index);
-                const maxDimension = Math.max(_tempVec3.x, _tempVec3.y, _tempVec3.z);
-                drag *= maxDimension ** 2 * Math.PI;
-            } else {
-                drag *= radius!.evaluate(index) ** 2 * Math.PI;
-            }
-        }
-        if (multiplyBySpeed) {
-            drag *= speed;
-        }
-        return drag;
     }
 }

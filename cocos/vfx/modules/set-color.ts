@@ -25,7 +25,7 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { BASE_COLOR, COLOR, NORMALIZED_AGE, ParticleDataSet, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { P_BASE_COLOR, P_COLOR, P_NORMALIZED_AGE, ParticleDataSet, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { ColorExpression, ConstantColorExpression } from '../expressions';
 import { Color } from '../../core';
 import { ColorArrayParameter, Uint32Parameter } from '../parameters';
@@ -33,7 +33,7 @@ import { ColorArrayParameter, Uint32Parameter } from '../parameters';
 const tempColor = new Color();
 
 @ccclass('cc.SetColorModule')
-@VFXModule.register('SetColor', ModuleExecStageFlags.SPAWN, [COLOR.name], [NORMALIZED_AGE.name])
+@VFXModule.register('SetColor', ModuleExecStageFlags.SPAWN, [P_COLOR.name], [P_NORMALIZED_AGE.name])
 export class SetColorModule extends VFXModule {
     /**
        * @zh 设置粒子颜色。
@@ -54,17 +54,17 @@ export class SetColorModule extends VFXModule {
     private _color: ColorExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(COLOR);
+        particles.markRequiredParameter(P_COLOR);
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(BASE_COLOR);
+            particles.markRequiredParameter(P_BASE_COLOR);
         }
         this.color.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const color = particles.getParameterUnsafe<ColorArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? BASE_COLOR : COLOR);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const color = particles.getParameterUnsafe<ColorArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_COLOR : P_COLOR);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
         const colorExp = this._color as ColorExpression;
         colorExp.bind(particles, emitter, user, context);
         if (colorExp.isConstant) {

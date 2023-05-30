@@ -26,7 +26,7 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Mat4, Quat, Vec3 } from '../../core';
 import { VFXModule } from '../vfx-module';
-import { ParticleDataSet, POSITION, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, P_POSITION, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec3ArrayParameter } from '../parameters';
 import { BindingVec3Expression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 
@@ -63,7 +63,7 @@ export abstract class ShapeLocationModule extends VFXModule {
      */
     @type(Vec3Expression)
     get position () {
-        if (!this._position) this._position = new ConstantVec3Expression(Vec3.ZERO);
+        if (!this._position) this._position = new ConstantVec3Expression();
         return this._position;
     }
     set position (val) {
@@ -75,7 +75,7 @@ export abstract class ShapeLocationModule extends VFXModule {
      */
     @type(Vec3Expression)
     get rotation () {
-        if (!this._rotation) this._rotation = new ConstantVec3Expression(Vec3.ZERO);
+        if (!this._rotation) this._rotation = new ConstantVec3Expression();
         return this._rotation;
     }
     set rotation (val) {
@@ -87,7 +87,7 @@ export abstract class ShapeLocationModule extends VFXModule {
      */
     @type(Vec3Expression)
     get scale () {
-        if (!this._scale) this._scale = new ConstantVec3Expression(Vec3.ONE);
+        if (!this._scale) this._scale = new ConstantVec3Expression(1, 1, 1);
         return this._scale;
     }
     set scale (val) {
@@ -95,7 +95,7 @@ export abstract class ShapeLocationModule extends VFXModule {
     }
 
     get origin () {
-        if (!this._origin) this._origin = new BindingVec3Expression(POSITION);
+        if (!this._origin) this._origin = new BindingVec3Expression(P_POSITION);
         return this._origin;
     }
     set origin (val) {
@@ -118,7 +118,7 @@ export abstract class ShapeLocationModule extends VFXModule {
         this.rotation.tick(particles, emitter, user, context);
         this.scale.tick(particles, emitter, user, context);
         this.origin.tick(particles, emitter, user, context);
-        particles.markRequiredParameter(POSITION);
+        particles.markRequiredParameter(P_POSITION);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {

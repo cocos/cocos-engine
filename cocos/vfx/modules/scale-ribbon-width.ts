@@ -26,11 +26,11 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
-import { BASE_RIBBON_WIDTH, NORMALIZED_AGE, ParticleDataSet, RIBBON_WIDTH, SPRITE_SIZE, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { P_BASE_RIBBON_WIDTH, P_NORMALIZED_AGE, ParticleDataSet, P_RIBBON_WIDTH, P_SPRITE_SIZE, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
 
 @ccclass('cc.ScaleRibbonWidthModule')
-@VFXModule.register('ScaleRibbonWidth', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [SPRITE_SIZE.name], [NORMALIZED_AGE.name])
+@VFXModule.register('ScaleRibbonWidth', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [P_SPRITE_SIZE.name], [P_NORMALIZED_AGE.name])
 export class ScaleRibbonWidthModule extends VFXModule {
     /**
       * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
@@ -51,17 +51,17 @@ export class ScaleRibbonWidthModule extends VFXModule {
     private _scalar: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(RIBBON_WIDTH);
+        particles.markRequiredParameter(P_RIBBON_WIDTH);
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(BASE_RIBBON_WIDTH);
+            particles.markRequiredParameter(P_BASE_RIBBON_WIDTH);
         }
         this.scalar.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const ribbonWidth = particles.getParameterUnsafe<FloatArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? BASE_RIBBON_WIDTH : RIBBON_WIDTH);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
+        const ribbonWidth = particles.getParameterUnsafe<FloatArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
         const scalarExp = this._scalar as FloatExpression;
         scalarExp.bind(particles, emitter, user, context);
         if (scalarExp.isConstant) {

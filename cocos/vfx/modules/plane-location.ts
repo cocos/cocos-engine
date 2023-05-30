@@ -25,7 +25,7 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { POSITION, ParticleDataSet, FROM_INDEX, ContextDataSet, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { P_POSITION, ParticleDataSet, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec2, Vec3 } from '../../core';
 import { ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
@@ -34,7 +34,7 @@ const center = new Vec2();
 const size = new Vec2();
 const pos = new Vec3();
 @ccclass('cc.PlaneLocationModule')
-@VFXModule.register('PlaneLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
+@VFXModule.register('PlaneLocation', ModuleExecStageFlags.SPAWN, [P_POSITION.name])
 export class PlaneLocationModule extends ShapeLocationModule {
     @type(Vec2Expression)
     public get planeSize () {
@@ -73,9 +73,9 @@ export class PlaneLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(POSITION);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
         const planeSizeExp = this._planeSize as Vec2Expression;
         const planeCenterExp = this._planeCenter as Vec2Expression;
         planeSizeExp.bind(particles, emitter, user, context);

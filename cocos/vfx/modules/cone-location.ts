@@ -24,14 +24,17 @@
  */
 import { ccclass, serializable, type } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { Vec3 } from '../../core';
-import { POSITION, ParticleDataSet, ContextDataSet, FROM_INDEX, TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { TWO_PI, Vec3, clamp } from '../../core';
+import { P_POSITION, ParticleDataSet, ContextDataSet, C_FROM_INDEX, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
 import { ShapeLocationModule } from './shape-location';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
-import { Uint32Parameter } from '../parameters';
+import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
+import { degreesToRadians } from '../../core/utils/misc';
+
+const pos = new Vec3();
 
 @ccclass('cc.ConeLocationModule')
-@VFXModule.register('ConeLocation', ModuleExecStageFlags.SPAWN, [POSITION.name])
+@VFXModule.register('ConeLocation', ModuleExecStageFlags.SPAWN, [P_POSITION.name])
 export class ConeLocationModule extends ShapeLocationModule {
     @type(FloatExpression)
     get length () {
@@ -115,6 +118,9 @@ export class ConeLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
+        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
+        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
         const lengthExp = this._length as FloatExpression;
         const angleExp = this._angle as FloatExpression;
         const innerAngleExp = this._innerAngle as FloatExpression;
@@ -125,31 +131,22 @@ export class ConeLocationModule extends ShapeLocationModule {
         innerAngleExp.bind(particles, emitter, user, context);
         radialAngleExp.bind(particles, emitter, user, context);
         surfaceDistributionExp.bind(particles, emitter, user, context);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(TO_INDEX).data;
-        for (let i = fromIndex; i < toIndex; ++i) {
-            const leng;
-        }
-    }
 
-    protected generatePosAndDir (index: number, angle: number, dir: Vec3, pos: Vec3) {
-        const rand = this.randomStream;
-        const innerRadius = this._innerRadius;
-        const radius = this.radius;
-        const sinAngle = this._sinAngle;
-        const cosAngle = this._cosAngle;
-        const length = this.length;
-        if (this.locationMode === LocationMode.BASE) {
-            const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
-            const x = Math.cos(angle);
-            const y = Math.sin(angle);
-            Vec3.set(pos, x * r, y * r, 0);
-        } else {
-            const r = Math.sqrt(rand.getFloatFromRange(innerRadius, 1)) * radius;
-            const x = Math.cos(angle);
-            const y = Math.sin(angle);
-            Vec3.set(pos, x * r, y * r, 0);
-            Vec3.scaleAndAdd(pos, pos, dir, rand.getFloat() * length);
+        const randomStream = this.randomStream;
+        for (let i = fromIndex; i < toIndex; ++i) {
+            const length = lengthExp.evaluate(i);
+            const angle = Math.cos(degreesToRadians(angleExp.evaluate(i) * 0.5));
+            const innerAngle = Math.cos((1 - innerAngleExp.evaluate(i) * 0.5 / 360) * TWO_PI);
+            const phi = Math.acos(randomStream.getFloatFromRange(angle, innerAngle));
+            const radialAngle = clamp(degreesToRadians(radialAngleExp.evaluate(i)), 0, TWO_PI);
+            const theta = randomStream.getFloatFromRange(0, radialAngle);
+            Vec3.set(pos, Math.cos(theta), Math.sin(theta), 0);
+            Vec3.multiplyScalar(pos, pos, Math.sin(phi));
+            pos.z = Math.cos(phi);
+            const surfaceDistribution = Math.max(surfaceDistributionExp.evaluate(i), 0);
+            const distribution = randomStream.getFloatFromRange(surfaceDistribution, 1) ** 0.33333;
+            Vec3.multiplyScalar(pos, pos, distribution * length);
+            this.storePosition(i, pos, position);
         }
     }
 }
