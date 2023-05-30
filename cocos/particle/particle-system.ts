@@ -772,6 +772,7 @@ export class ParticleSystem extends ModelRenderer {
     private _isPaused: boolean;
     private _isStopped: boolean;
     private _isEmitting: boolean;
+    private _isStopEmitting: boolean;
     private _needRefresh: boolean;
 
     private _time: number;  // playback position in seconds.
@@ -822,6 +823,7 @@ export class ParticleSystem extends ModelRenderer {
         this._isPaused = false;
         this._isStopped = true;
         this._isEmitting = false;
+        this._isStopEmitting = false;
         this._needRefresh = true;
         this._needAttach = false;
 
@@ -939,7 +941,10 @@ export class ParticleSystem extends ModelRenderer {
      * @zh 播放粒子效果。
      */
     public play () {
-        this.reset();
+        if (this._isStopEmitting) {
+            this.reset();
+            this._isStopEmitting = false;
+        }
 
         if (this._isPaused) {
             this._isPaused = false;
@@ -992,6 +997,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     public stopEmitting () {
         this._isEmitting = false;
+        this._isStopEmitting = true;
     }
 
     /**
