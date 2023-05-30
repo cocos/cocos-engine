@@ -526,6 +526,9 @@ describe(`Node`, () => {
                 @input({ type: PoseGraphType.POSE,  arraySyncGroup: 'sync-group-1' })
                 public prop2: PoseNode[] = [];
 
+                @input({ type: PoseGraphType.BOOLEAN,  arraySyncGroup: 'sync-group-1', arraySyncGroupFollower: true })
+                public prop_follower: boolean[] = [];
+
                 @input({ type: PoseGraphType.FLOAT, arraySyncGroup: 'sync-group-1' })
                 public prop3: number[] = [];
             }
@@ -533,29 +536,55 @@ describe(`Node`, () => {
             const poseGraph = createPoseGraph();
             const node = poseGraph.addNode(new SomeNode());
 
-            const GROUP_MEMBER_COUNT = 3; 
+            const GROUP_MEMBER_COUNT = 4; 
+            const GROUP_MEMBER_FOLLOWER_COUNT = 1;
 
             const insertIds = Object.keys(poseGraphOp.getInputInsertInfos(node));
-            expect(insertIds).toHaveLength(GROUP_MEMBER_COUNT);
+            // Note: follower does not have insert id -- it's not actively insert-able.
+            expect(insertIds).toHaveLength(GROUP_MEMBER_COUNT - GROUP_MEMBER_FOLLOWER_COUNT);
 
             const expectedProp1ConstantValue: null[] = [];
             const expectedProp2ConstantValue: null[] = [];
             const expectedProp3ConstantValue: number[] = [];
+            const expectedPropFollowerConstantValue: boolean[] = [];
+
             const check = () => {
-                expect(poseGraphOp.getInputKeys(node)).toHaveLength(3 * expectedProp1ConstantValue.length);
+                expect(poseGraphOp.getInputKeys(node)).toHaveLength(GROUP_MEMBER_COUNT * expectedProp1ConstantValue.length);
+                for (let i = 0; i < expectedProp1ConstantValue.length; ++i) {
+                    // Non-followers' inputs are deletable.
+                    for (const prop of ['prop1', 'prop2', 'prop3'])
+                    {
+                        const metadata = poseGraphOp.getInputMetadata(
+                            node,
+                            composeInputKeyInternally(prop, i));
+                        expect(metadata).not.toBeUndefined();
+                        expect(metadata!.deletable).toBe(true);
+                    }
+                    // Followers' inputs are not deletable.
+                    {
+                        const metadata = poseGraphOp.getInputMetadata(
+                            node,
+                            composeInputKeyInternally('prop_follower', i));
+                        expect(metadata).not.toBeUndefined();
+                        expect(metadata!.deletable).toBe(false);
+                    }
+                }
+
                 expect(node.prop1).toStrictEqual(expectedProp1ConstantValue);
                 expect(node.prop2).toStrictEqual(expectedProp2ConstantValue);
                 expect(node.prop3).toStrictEqual(expectedProp3ConstantValue);
+                expect(node.prop_follower).toStrictEqual(expectedPropFollowerConstantValue);
             };
 
             // Fire 4 times insertion on prop1/prop2/prop3... in turn.
             for (let i = 0; i < 4; ++i) {
-                poseGraphOp.insertInput(poseGraph, node, insertIds[i % GROUP_MEMBER_COUNT]);
+                poseGraphOp.insertInput(poseGraph, node, insertIds[i % (GROUP_MEMBER_COUNT - GROUP_MEMBER_FOLLOWER_COUNT)]);
 
                 // The insertion should causes both all props extending 1 element with its type-specified default value.
                 expectedProp1ConstantValue.push(null);
                 expectedProp2ConstantValue.push(null);
                 expectedProp3ConstantValue.push(0.0);
+                expectedPropFollowerConstantValue.push(false);
                 check();
 
                 // Fill elements with different constant values to inspect if we're doing something right.
@@ -584,6 +613,7 @@ describe(`Node`, () => {
                 expectedProp1ConstantValue.splice(deleteIndex, 1);
                 expectedProp2ConstantValue.splice(deleteIndex, 1);
                 expectedProp3ConstantValue.splice(deleteIndex, 1);
+                expectedPropFollowerConstantValue.splice(deleteIndex, 1);
                 check();
             }
         });
