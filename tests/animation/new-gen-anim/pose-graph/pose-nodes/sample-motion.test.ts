@@ -20,7 +20,7 @@ describe(`Use normalized time`, () => {
         const layer = graph.addLayer();
         const proceduralPoseState = layer.stateMachine.addProceduralPoseState();
         const poseNode = proceduralPoseState.graph.addNode(new PoseNodeSampleMotion());
-        connectOutputNode(proceduralPoseState.graph, proceduralPoseState.graph.outputNode, poseNode);
+        connectOutputNode(proceduralPoseState.graph, poseNode);
         layer.stateMachine.connect(layer.stateMachine.entryState, proceduralPoseState);
 
         poseNode.motion = fixture.animation.createMotion(observer.getCreateMotionContext());
