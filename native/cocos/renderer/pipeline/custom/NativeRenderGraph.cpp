@@ -1406,10 +1406,11 @@ namespace {
 template <class SubpassBuilder>
 SubpassBuilder *addRenderSubpassImpl(
     const PipelineRuntime *pipelineRuntime,
-    RenderGraph &renderGraph, const LayoutGraphData &layoutGraph,
-    uint32_t nodeID, const ccstd::string &subpassName,
+    RenderGraph &renderGraph, RenderGraph::vertex_descriptor passID,
+    const LayoutGraphData &layoutGraph,
+    const ccstd::string &subpassName,
     uint32_t count, uint32_t quality) { // NOLINT(bugprone-easily-swappable-parameters)
-    auto &pass = get(RasterPassTag{}, nodeID, renderGraph);
+    auto &pass = get(RasterPassTag{}, passID, renderGraph);
     auto &subpassGraph = pass.subpassGraph;
     const auto subpassIndex = num_vertices(pass.subpassGraph);
     {
@@ -1432,7 +1433,7 @@ SubpassBuilder *addRenderSubpassImpl(
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(subpass)),
-        renderGraph, nodeID);
+        renderGraph, passID);
 
     auto subpassLayoutID = locate(LayoutGraphData::null_vertex(), subpassName, layoutGraph);
     CC_EXPECTS(subpassLayoutID != LayoutGraphData::null_vertex());
@@ -1449,13 +1450,13 @@ SubpassBuilder *addRenderSubpassImpl(
 
 RenderSubpassBuilder *NativeRenderPassBuilder::addRenderSubpass(const ccstd::string &subpassName) {
     return addRenderSubpassImpl<NativeRenderSubpassBuilder>(
-        pipelineRuntime, *renderGraph, *layoutGraph, nodeID, subpassName, 1, 0);
+        pipelineRuntime, *renderGraph, nodeID, *layoutGraph, subpassName, 1, 0);
 }
 
 MultisampleRenderSubpassBuilder *NativeRenderPassBuilder::addMultisampleRenderSubpass(
     uint32_t count, uint32_t quality, const ccstd::string &subpassName) { // NOLINT(bugprone-easily-swappable-parameters)
     return addRenderSubpassImpl<NativeMultisampleRenderSubpassBuilder>(
-        pipelineRuntime, *renderGraph, *layoutGraph, nodeID, subpassName, count, quality);
+        pipelineRuntime, *renderGraph, nodeID, *layoutGraph, subpassName, count, quality);
 }
 
 ComputeSubpassBuilder *NativeRenderPassBuilder::addComputeSubpass(const ccstd::string &subpassName) {
