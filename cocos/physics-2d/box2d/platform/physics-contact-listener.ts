@@ -97,7 +97,7 @@ export class PhysicsContactListener extends b2.ContactListener {
             //console.log('forEach', key, collision);
 
             // emit collision event
-            if (!contact.disabled || contact.status === Contact2DType.BEGIN_CONTACT) { //BEGIN_CONTACT always emits
+            if (!contact.disabled) {
                 if (contact.status === Contact2DType.END_CONTACT) {
                     //console.log('   report end collision', key, 'current ref is:', contact.ref);
                     this.emit(Contact2DType.END_CONTACT, contact);
