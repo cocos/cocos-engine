@@ -26,6 +26,7 @@ export class PoseNodeBlendInProportion extends PoseNode {
     @input({
         type: PoseGraphType.FLOAT,
         arraySyncGroup: 'blend-item',
+        arraySyncGroupFollower: true,
     })
     public readonly proportions: number[] = [];
 
