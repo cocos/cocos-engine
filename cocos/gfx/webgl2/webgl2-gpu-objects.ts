@@ -119,7 +119,6 @@ export interface IWebGL2GPUBuffer {
     glOffset: number;
 
     buffer: ArrayBufferView | null;
-    indirects: WebGL2IndirectDrawInfos;
 }
 
 export interface IWebGL2GPUTexture {

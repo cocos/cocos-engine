@@ -131,7 +131,6 @@ export interface IWebGLGPUBuffer {
 
     buffer: ArrayBufferView | null;
     vf32: Float32Array | null;
-    indirects: WebGLIndirectDrawInfos;
 }
 
 export interface IWebGLGPUTexture {
@@ -429,7 +428,6 @@ export class IWebGLBlitManager {
             stride: 4 * Float32Array.BYTES_PER_ELEMENT,
             buffer: null,
             vf32: null,
-            indirects: new WebGLIndirectDrawInfos(),
             glTarget: 0,
             glBuffer: null,
         };
@@ -478,7 +476,6 @@ export class IWebGLBlitManager {
             stride: 8 * Float32Array.BYTES_PER_ELEMENT,
             buffer: this._uniformBuffer,
             vf32: null,
-            indirects: new WebGLIndirectDrawInfos(),
             glTarget: 0,
             glBuffer: null,
         };
