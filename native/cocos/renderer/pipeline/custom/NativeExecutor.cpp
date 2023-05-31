@@ -1064,7 +1064,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 ctx.resourceGraph,
                 ctx.device, ctx.cmdBuff,
                 *ctx.context.defaultResource, ctx.lg,
-                resourceIndex, set, user, node, nullptr, sceneResource);
+                resourceIndex, set, user, node, sceneResource);
             CC_ENSURES(perPhaseSet);
 
             ctx.renderGraphDescriptorSet[vertID] = perPhaseSet;
