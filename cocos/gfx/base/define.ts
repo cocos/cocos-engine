@@ -1488,14 +1488,12 @@ export class InputAssemblerInfo {
         public attributes: Attribute[] = [],
         public vertexBuffers: Buffer[] = [],
         public indexBuffer: Buffer | null = null,
-        public indirectBuffer: Buffer | null = null,
     ) {}
 
     public copy (info: Readonly<InputAssemblerInfo>) {
         deepCopy(this.attributes, info.attributes, Attribute);
         this.vertexBuffers = info.vertexBuffers.slice();
         this.indexBuffer = info.indexBuffer;
-        this.indirectBuffer = info.indirectBuffer;
         return this;
     }
 }

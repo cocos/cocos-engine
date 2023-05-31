@@ -309,7 +309,6 @@ export interface IWebGLGPUInputAssembler {
     attributes: Attribute[];
     gpuVertexBuffers: IWebGLGPUBuffer[];
     gpuIndexBuffer: IWebGLGPUBuffer | null;
-    gpuIndirectBuffer: IWebGLGPUBuffer | null;
 
     glAttribs: IWebGLAttrib[];
     glIndexType: GLenum;
@@ -448,7 +447,6 @@ export class IWebGLBlitManager {
             attributes: [new Attribute(`a_position`, Format.RG32F), new Attribute(`a_texCoord`, Format.RG32F)],
             gpuVertexBuffers: [this._gpuVertexBuffer],
             gpuIndexBuffer: null,
-            gpuIndirectBuffer: null,
 
             glAttribs: [],
             glIndexType: 0,
