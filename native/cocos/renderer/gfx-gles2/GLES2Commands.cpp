@@ -2625,30 +2625,6 @@ void cmdFuncGLES2Draw(GLES2Device *device, const DrawInfo &drawInfo) {
                 }
             }
         }
-        // for (size_t j = 0; j < gpuInputAssembler->gpuIndirectBuffer->indirects.size(); ++j) {
-        //     const DrawInfo &draw = gpuInputAssembler->gpuIndirectBuffer->indirects[j];
-        //     if (gpuInputAssembler->gpuIndexBuffer) {
-        //         if (draw.indexCount > 0) {
-        //             uint8_t *offset = nullptr;
-        //             offset += draw.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
-        //             if (drawInfo.instanceCount == 0) {
-        //                 GL_CHECK(glDrawElements(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset));
-        //             } else {
-        //                 if (device->constantRegistry()->useDrawInstanced) {
-        //                     GL_CHECK(glDrawElementsInstancedEXT(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset, draw.instanceCount));
-        //                 }
-        //             }
-        //         }
-        //     } else if (draw.vertexCount > 0) {
-        //         if (draw.instanceCount == 0) {
-        //             GL_CHECK(glDrawArrays(glPrimitive, draw.firstVertex, draw.vertexCount));
-        //         } else {
-        //             if (device->constantRegistry()->useDrawInstanced) {
-        //                 GL_CHECK(glDrawArraysInstancedEXT(glPrimitive, draw.firstVertex, draw.vertexCount, draw.instanceCount));
-        //             }
-        //         }
-        //     }
-        // }
     }
 }
 

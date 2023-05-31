@@ -657,7 +657,7 @@ void cmdFuncGLES3CreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             device->stateCache()->glShaderStorageBuffer = 0;
         }
     } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
-        gpuBuffer->glTarget = GL_NONE;
+        gpuBuffer->glTarget = GL_DRAW_INDIRECT_BUFFER;
     } else {
         CC_ABORT();
         gpuBuffer->glTarget = GL_NONE;
@@ -781,7 +781,7 @@ void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             device->stateCache()->glUniformBuffer = 0;
         }
     } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
-        gpuBuffer->glTarget = GL_NONE;
+        gpuBuffer->glTarget = GL_DRAW_INDIRECT_BUFFER;
     } else if ((hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_DST)) ||
                (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC))) {
         if (gpuBuffer->buffer) {
