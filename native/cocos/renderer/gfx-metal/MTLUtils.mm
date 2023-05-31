@@ -929,7 +929,7 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
                             ShaderStageFlagBit shaderType,
                             CCMTLGPUShader *gpuShader,
                             const ccstd::vector<uint32_t> &drawBuffer,
-                            const std::vector<uint32_t> &readBuffer) {
+                            const ccstd::vector<uint32_t> &readBuffer) {
     CCMTLDevice *device = CCMTLDevice::getInstance();
     spirv_cross::CompilerMSL msl(ir, word_count);
 
