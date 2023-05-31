@@ -2645,6 +2645,41 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
     }
 }
 
+void cmdFuncGLES3DrawIndirect(GLES3Device *device,
+                              GLES3GPUBuffer *gpuBuffer,
+                              uint32_t offset,
+                              uint32_t count,
+                              uint32_t stride,
+                              bool indexed) {
+    uint32_t bufferOffset = gpuBuffer->glOffset + offset;
+    GLES3GPUStateCache *cache = device->stateCache();
+    GLenum primitive = cache->gfxStateCache.glPrimitive;
+
+    if (cache->glDrawIndirectBuffer != gpuBuffer->glBuffer) {
+        GL_CHECK(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, gpuBuffer->glBuffer));
+        cache->glDrawIndirectBuffer = gpuBuffer->glBuffer;
+    }
+
+    if (device->constantRegistry()->multiDrawIndirect) {
+        if (indexed) {
+            GL_CHECK(glMultiDrawElementsIndirectEXT(primitive, cache->gfxStateCache.gpuInputAssembler->glIndexType,
+                reinterpret_cast<const void*>(bufferOffset), count, stride));
+        } else {
+            GL_CHECK(glMultiDrawArraysIndirectEXT(primitive, reinterpret_cast<const void*>(bufferOffset), count, stride));
+        }
+    } else {
+        for (uint32_t i = 0U; i < count; ++i) {
+            uint32_t currentOffset = bufferOffset + i * stride;
+            if (indexed) {
+                GL_CHECK(glDrawElementsIndirect(primitive, cache->gfxStateCache.gpuInputAssembler->glIndexType,
+                    reinterpret_cast<const void*>(bufferOffset)));
+            } else {
+                GL_CHECK(glDrawArraysIndirect(primitive, reinterpret_cast<const void*>(bufferOffset)));
+            }
+        }
+    }
+}
+
 void cmdFuncGLES3Draw(GLES3Device *device, const DrawInfo &drawInfo) {
     GLES3ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
     GLES3GPUPipelineState *gpuPipelineState = gfxStateCache.gpuPipelineState;
@@ -2669,26 +2704,6 @@ void cmdFuncGLES3Draw(GLES3Device *device, const DrawInfo &drawInfo) {
                 GL_CHECK(glDrawArraysInstanced(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount, drawInfo.instanceCount));
             }
         }
-        // for (size_t j = 0; j < gpuInputAssembler->gpuIndirectBuffer->indirects.size(); ++j) {
-        //     const DrawInfo &draw = gpuInputAssembler->gpuIndirectBuffer->indirects[j];
-        //     if (gpuInputAssembler->gpuIndexBuffer) {
-        //         if (draw.indexCount > 0) {
-        //             uint8_t *offset = nullptr;
-        //             offset += draw.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
-        //             if (draw.instanceCount == 0) {
-        //                 GL_CHECK(glDrawElements(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset));
-        //             } else {
-        //                 GL_CHECK(glDrawElementsInstanced(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset, draw.instanceCount));
-        //             }
-        //         }
-        //     } else if (draw.vertexCount > 0) {
-        //         if (draw.instanceCount == 0) {
-        //             GL_CHECK(glDrawArrays(glPrimitive, draw.firstVertex, draw.vertexCount));
-        //         } else {
-        //             GL_CHECK(glDrawArraysInstanced(glPrimitive, draw.firstVertex, draw.vertexCount, draw.instanceCount));
-        //         }
-        //     }
-        // }
     }
 }
 

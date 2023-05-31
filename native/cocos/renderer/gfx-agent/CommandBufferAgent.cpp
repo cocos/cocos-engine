@@ -361,6 +361,38 @@ void CommandBufferAgent::draw(const DrawInfo &info) {
         });
 }
 
+void CommandBufferAgent::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride)
+{
+    auto *bufferAgent = static_cast<BufferAgent *>(buffer);
+
+    ENQUEUE_MESSAGE_5(
+        _messageQueue, CommandBufferDrawIndirect,
+        actor, getActor(),
+        buff, bufferAgent->getActor(),
+        offset, offset,
+        count, count,
+        stride, stride,
+        {
+            actor->drawIndirect(buff, offset, count, stride);
+        });
+}
+
+void CommandBufferAgent::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride)
+{
+    auto *bufferAgent = static_cast<BufferAgent *>(buffer);
+
+    ENQUEUE_MESSAGE_5(
+        _messageQueue, CommandBufferDrawIndexedIndirect,
+        actor, getActor(),
+        buff, bufferAgent->getActor(),
+        offset, offset,
+        count, count,
+        stride, stride,
+        {
+            actor->drawIndexedIndirect(buff, offset, count, stride);
+        });
+}
+
 void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint32_t size) {
     auto *bufferAgent = static_cast<BufferAgent *>(buff);
 
