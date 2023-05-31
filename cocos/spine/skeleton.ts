@@ -256,6 +256,7 @@ export class Skeleton extends UIRenderer {
             if (EDITOR && !legacyCC.GAME_VIEW) {
                 this._refreshInspector();
             }
+            this._updateUITransform();
             this._updateSkeletonData();
         }
     }
@@ -732,11 +733,6 @@ export class Skeleton extends UIRenderer {
      * @param {sp.spine.SkeletonData} skeletonData
      */
     public setSkeletonData (skeletonData: spine.SkeletonData) {
-        const uiTrans = this.node._uiProps.uiTransformComp!;
-        if (skeletonData.width && skeletonData.height) uiTrans.setContentSize(skeletonData.width, skeletonData.height);
-        if (skeletonData.width !== 0) uiTrans.anchorX = Math.abs(skeletonData.x) / skeletonData.width;
-        if (skeletonData.height !== 0) uiTrans.anchorY = Math.abs(skeletonData.y) / skeletonData.height;
-
         if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
                 this._skeletonCache = SkeletonCache.sharedCache;
@@ -800,11 +796,6 @@ export class Skeleton extends UIRenderer {
     // IMPLEMENT
     public __preload () {
         super.__preload();
-        if (EDITOR && !legacyCC.GAME_VIEW) {
-            const Flags = CCObject.Flags;
-            this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
-            // this._refreshInspector();
-        }
 
         const children = this.node.children;
         for (let i = 0, n = children.length; i < n; i++) {
@@ -1853,6 +1844,23 @@ export class Skeleton extends UIRenderer {
     public syncAttachedNode () {
         // sync attached node matrix
         this.attachUtil._syncAttachedNode();
+    }
+
+    private _updateUITransform () {
+        const uiTrans = this.node._uiProps.uiTransformComp!;
+        let skeletonData: spine.SkeletonData | null = null;
+        if (this._skeletonData) {
+            skeletonData = this._skeletonData.getRuntimeData();
+        }
+        if (skeletonData === null) {
+            uiTrans.setContentSize(100, 100);
+            uiTrans.anchorX = 0.5;
+            uiTrans.anchorX = 0.5;
+        } else {
+            if (skeletonData.width && skeletonData.height) uiTrans.setContentSize(skeletonData.width, skeletonData.height);
+            if (skeletonData.width !== 0) uiTrans.anchorX = Math.abs(skeletonData.x) / skeletonData.width;
+            if (skeletonData.height !== 0) uiTrans.anchorY = Math.abs(skeletonData.y) / skeletonData.height;
+        }
     }
 }
 
