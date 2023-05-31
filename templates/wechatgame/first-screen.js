@@ -460,18 +460,22 @@ function start(alpha, antialias, useWebgl2) {
     programBg = initShaders(VS_BG, FS_BG);
     programProgress = initShaders(VS_PROGRESSBAR, FS_PROGRESSBAR);
     tick();
-    //logo should be loaded earlier than slogan
-    return loadImage('logo.png').then(() => {
-        updateVertexBuffer();
-        updateLogoTexture();
-        return loadSlogan('slogan.png');
-    }).then(() => {
-        updateSloganVertexBuffer();
-        updateSloganTexture();
-        return loadBackground('background.png');
-    }).then(() => {
-        updateBgVertexBuffer();
-        updateBgTexture();
+    return Promise.all([
+        //logo should be loaded earlier than slogan
+        loadImage('logo.png').then(() => {
+            updateVertexBuffer();
+            updateLogoTexture();
+        }).then(() => {
+            loadSlogan('slogan.png').then(() => {
+                updateSloganVertexBuffer();
+                updateSloganTexture();
+            })
+        }),
+        loadBackground('background.png').then(() => {
+            updateBgVertexBuffer();
+            updateBgTexture();
+        })
+    ]).then(() => {
         return setProgress(0);
     });
 }
