@@ -969,77 +969,69 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWeb
 
 export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWebGL2GPUBuffer, buffer: Readonly<BufferSource>,
     offset: number, size: number) {
-    if (gpuBuffer.usage & BufferUsageBit.INDIRECT) {
-        gpuBuffer.indirects.clearDraws();
-        const drawInfos = (buffer as IndirectBuffer).drawInfos;
-        for (let i = 0; i < drawInfos.length; ++i) {
-            gpuBuffer.indirects.setDrawInfo(offset + i, drawInfos[i]);
-        }
-    } else {
-        const buff = buffer as ArrayBuffer;
-        const { gl } = device;
-        const cache = device.stateCache;
+    const buff = buffer as ArrayBuffer;
+    const { gl } = device;
+    const cache = device.stateCache;
 
-        switch (gpuBuffer.glTarget) {
-        case gl.ARRAY_BUFFER: {
-            if (device.extensions.useVAO) {
-                if (cache.glVAO) {
-                    gl.bindVertexArray(null);
-                    cache.glVAO = null;
-                }
+    switch (gpuBuffer.glTarget) {
+    case gl.ARRAY_BUFFER: {
+        if (device.extensions.useVAO) {
+            if (cache.glVAO) {
+                gl.bindVertexArray(null);
+                cache.glVAO = null;
             }
-            gfxStateCache.gpuInputAssembler = null;
-
-            if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
-                cache.glArrayBuffer = gpuBuffer.glBuffer;
-            }
-
-            if (size === buff.byteLength) {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-            } else {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
-            }
-            break;
         }
-        case gl.ELEMENT_ARRAY_BUFFER: {
-            if (device.extensions.useVAO) {
-                if (cache.glVAO) {
-                    gl.bindVertexArray(null);
-                    cache.glVAO = null;
-                }
-            }
-            gfxStateCache.gpuInputAssembler = null;
+        gfxStateCache.gpuInputAssembler = null;
 
-            if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
-                cache.glElementArrayBuffer = gpuBuffer.glBuffer;
-            }
+        if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
+            cache.glArrayBuffer = gpuBuffer.glBuffer;
+        }
 
-            if (size === buff.byteLength) {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-            } else {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
-            }
-            break;
+        if (size === buff.byteLength) {
+            gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
+        } else {
+            gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
         }
-        case gl.UNIFORM_BUFFER: {
-            if (cache.glUniformBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(gl.UNIFORM_BUFFER, gpuBuffer.glBuffer);
-                cache.glUniformBuffer = gpuBuffer.glBuffer;
+        break;
+    }
+    case gl.ELEMENT_ARRAY_BUFFER: {
+        if (device.extensions.useVAO) {
+            if (cache.glVAO) {
+                gl.bindVertexArray(null);
+                cache.glVAO = null;
             }
+        }
+        gfxStateCache.gpuInputAssembler = null;
 
-            if (size === buff.byteLength) {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-            } else {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, new Float32Array(buff, 0, size / 4));
-            }
-            break;
+        if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+            cache.glElementArrayBuffer = gpuBuffer.glBuffer;
         }
-        default: {
-            console.error('Unsupported BufferType, update buffer failed.');
+
+        if (size === buff.byteLength) {
+            gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
+        } else {
+            gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
         }
+        break;
+    }
+    case gl.UNIFORM_BUFFER: {
+        if (cache.glUniformBuffer !== gpuBuffer.glBuffer) {
+            gl.bindBuffer(gl.UNIFORM_BUFFER, gpuBuffer.glBuffer);
+            cache.glUniformBuffer = gpuBuffer.glBuffer;
         }
+
+        if (size === buff.byteLength) {
+            gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
+        } else {
+            gl.bufferSubData(gpuBuffer.glTarget, offset, new Float32Array(buff, 0, size / 4));
+        }
+        break;
+    }
+    default: {
+        console.error('Unsupported BufferType, update buffer failed.');
+    }
     }
 }
 
