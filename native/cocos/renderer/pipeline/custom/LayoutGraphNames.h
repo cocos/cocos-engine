@@ -40,6 +40,14 @@ inline const char* getName(const DescriptorDB& /*v*/) noexcept { return "Descrip
 inline const char* getName(const RenderStageTag& /*v*/) noexcept { return "RenderStage"; }
 inline const char* getName(const RenderPhaseTag& /*v*/) noexcept { return "RenderPhase"; }
 inline const char* getName(const RenderPhase& /*v*/) noexcept { return "RenderPhase"; }
+inline const char* getName(RenderPassType e) noexcept {
+    switch (e) {
+        case RenderPassType::SINGLE_RENDER_PASS: return "SINGLE_RENDER_PASS";
+        case RenderPassType::RENDER_PASS: return "RENDER_PASS";
+        case RenderPassType::RENDER_SUBPASS: return "RENDER_SUBPASS";
+    }
+    return "";
+}
 inline const char* getName(const LayoutGraph& /*v*/) noexcept { return "LayoutGraph"; }
 inline const char* getName(const UniformData& /*v*/) noexcept { return "UniformData"; }
 inline const char* getName(const UniformBlockData& /*v*/) noexcept { return "UniformBlockData"; }
