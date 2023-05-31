@@ -517,7 +517,7 @@ var audioEngine = {
 
     _breakCache: null,
     _break: function () {
-        this._breakCache = [];
+        this._breakCache = this._breakCache || [];
         for (var id in _id2audio) {
             var audio = _id2audio[id];
             var state = audio.getState();
