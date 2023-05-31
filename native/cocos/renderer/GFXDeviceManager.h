@@ -90,7 +90,7 @@ public:
     #if XR_OEM_PICO
         Device::isSupportDetachDeviceThread = false;
     #endif
-        if (tryCreate<CCVKDevice>(info, &device)) return device;
+//        if (tryCreate<CCVKDevice>(info, &device)) return device;
 #endif
 
 #ifdef CC_USE_METAL

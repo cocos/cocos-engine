@@ -658,6 +658,14 @@ void cmdFuncGLES3CreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
         }
     } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
         gpuBuffer->glTarget = GL_DRAW_INDIRECT_BUFFER;
+        GL_CHECK(glGenBuffers(1, &gpuBuffer->glBuffer));
+        if (device->stateCache()->glDrawIndirectBuffer != gpuBuffer->glBuffer) {
+            GL_CHECK(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, gpuBuffer->glBuffer));
+        }
+
+        GL_CHECK(glBufferData(GL_DRAW_INDIRECT_BUFFER, gpuBuffer->size, nullptr, glUsage));
+        GL_CHECK(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0));
+        device->stateCache()->glDrawIndirectBuffer = 0;
     } else {
         CC_ABORT();
         gpuBuffer->glTarget = GL_NONE;
@@ -782,6 +790,15 @@ void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
         }
     } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
         gpuBuffer->glTarget = GL_DRAW_INDIRECT_BUFFER;
+        if (gpuBuffer->size) {
+            if (device->stateCache()->glDrawIndirectBuffer != gpuBuffer->glBuffer) {
+                GL_CHECK(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, gpuBuffer->glBuffer));
+            }
+
+            GL_CHECK(glBufferData(GL_DRAW_INDIRECT_BUFFER, gpuBuffer->size, nullptr, glUsage));
+            GL_CHECK(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0));
+            device->stateCache()->glDrawIndirectBuffer = 0;
+        }
     } else if ((hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_DST)) ||
                (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC))) {
         if (gpuBuffer->buffer) {
@@ -2672,9 +2689,9 @@ void cmdFuncGLES3DrawIndirect(GLES3Device *device,
         for (uint32_t i = 0U; i < count; ++i) {
             uint32_t currentOffset = bufferOffset + i * stride;
             if (indexed) {
-                GL_CHECK(glDrawElementsIndirect(primitive, cache->gfxStateCache.gpuInputAssembler->glIndexType, ptr + bufferOffset));
+                GL_CHECK(glDrawElementsIndirect(primitive, cache->gfxStateCache.gpuInputAssembler->glIndexType, ptr + currentOffset));
             } else {
-                GL_CHECK(glDrawArraysIndirect(primitive, ptr + bufferOffset));
+                GL_CHECK(glDrawArraysIndirect(primitive, ptr + currentOffset));
             }
         }
     }
@@ -2786,6 +2803,14 @@ void cmdFuncGLES3UpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, co
                     device->stateCache()->glShaderStorageBuffer = gpuBuffer->glBuffer;
                 }
                 uploadBufferData(GL_SHADER_STORAGE_BUFFER, offset, size, buffer);
+                break;
+            }
+            case GL_DRAW_INDIRECT_BUFFER: {
+                if (device->stateCache()->glDrawIndirectBuffer != gpuBuffer->glBuffer) {
+                    GL_CHECK(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, gpuBuffer->glBuffer));
+                    device->stateCache()->glDrawIndirectBuffer = gpuBuffer->glBuffer;
+                }
+                uploadBufferData(GL_DRAW_INDIRECT_BUFFER, offset, size, buffer);
                 break;
             }
             default:
