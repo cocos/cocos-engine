@@ -22,9 +22,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "LayoutGraphGraphs.h"
 #include "NativePipelineTypes.h"
 #include "details/GslUtils.h"
-#include "LayoutGraphGraphs.h"
 
 namespace cc {
 
@@ -35,10 +35,15 @@ uint32_t NativeRenderingModule::getPassID(const ccstd::string &name) const {
     return locate(LayoutGraphData::null_vertex(), name, programLibrary->layoutGraph);
 }
 
-uint32_t NativeRenderingModule::getPhaseID(uint32_t passID, const ccstd::string &name) const {
+uint32_t NativeRenderingModule::getSubpassID(uint32_t passID, const ccstd::string &name) const {
     CC_EXPECTS(programLibrary);
-    CC_EXPECTS(passID != LayoutGraphData::null_vertex());
     return locate(passID, name, programLibrary->layoutGraph);
+}
+
+uint32_t NativeRenderingModule::getPhaseID(uint32_t subpassOrPassID, const ccstd::string &name) const {
+    CC_EXPECTS(programLibrary);
+    CC_EXPECTS(subpassOrPassID != LayoutGraphData::null_vertex());
+    return locate(subpassOrPassID, name, programLibrary->layoutGraph);
 }
 
 } // namespace render

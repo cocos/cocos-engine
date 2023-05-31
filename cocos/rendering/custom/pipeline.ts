@@ -451,5 +451,6 @@ export interface PipelineBuilder {
 
 export interface RenderingModule {
     getPassID (name: string): number;
-    getPhaseID (passID: number, name: string): number;
+    getSubpassID (passID: number, name: string): number;
+    getPhaseID (subpassOrPassID: number, name: string): number;
 }

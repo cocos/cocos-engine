@@ -61,13 +61,13 @@ NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc) {}
 
-NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t layoutPassIDIn, const allocator_type& alloc) noexcept
+NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOrPassLayoutIDIn, const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
   transparentQueue(alloc),
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc),
   sceneFlags(sceneFlagsIn),
-  layoutPassID(layoutPassIDIn) {}
+  subpassOrPassLayoutID(subpassOrPassLayoutIDIn) {}
 
 NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
 : opaqueQueue(std::move(rhs.opaqueQueue), alloc),
@@ -75,7 +75,7 @@ NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_ty
   opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
   transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
   sceneFlags(rhs.sceneFlags),
-  layoutPassID(rhs.layoutPassID) {}
+  subpassOrPassLayoutID(rhs.subpassOrPassLayoutID) {}
 
 DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
 : name(alloc) {}

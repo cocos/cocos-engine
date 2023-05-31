@@ -702,7 +702,7 @@ struct NativeRenderQueue {
     }
 
     NativeRenderQueue(const allocator_type& alloc) noexcept; // NOLINT
-    NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t layoutPassIDIn, const allocator_type& alloc) noexcept;
+    NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOrPassLayoutIDIn, const allocator_type& alloc) noexcept;
     NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc);
 
     NativeRenderQueue(NativeRenderQueue&& rhs) noexcept = default;
@@ -717,7 +717,7 @@ struct NativeRenderQueue {
     RenderInstancingQueue opaqueInstancingQueue;
     RenderInstancingQueue transparentInstancingQueue;
     SceneFlags sceneFlags{SceneFlags::NONE};
-    uint32_t layoutPassID{0xFFFFFFFF};
+    uint32_t subpassOrPassLayoutID{0xFFFFFFFF};
 };
 
 class DefaultSceneVisitor final : public SceneVisitor {
@@ -1135,7 +1135,8 @@ public:
     : programLibrary(std::move(programLibraryIn)) {}
 
     uint32_t getPassID(const ccstd::string &name) const override;
-    uint32_t getPhaseID(uint32_t passID, const ccstd::string &name) const override;
+    uint32_t getSubpassID(uint32_t passID, const ccstd::string &name) const override;
+    uint32_t getPhaseID(uint32_t subpassOrPassID, const ccstd::string &name) const override;
 
     std::shared_ptr<NativeProgramLibrary> programLibrary;
 };

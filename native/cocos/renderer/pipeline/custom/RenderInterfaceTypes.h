@@ -603,7 +603,8 @@ public:
     virtual ~RenderingModule() noexcept = default;
 
     virtual uint32_t getPassID(const ccstd::string &name) const = 0;
-    virtual uint32_t getPhaseID(uint32_t passID, const ccstd::string &name) const = 0;
+    virtual uint32_t getSubpassID(uint32_t passID, const ccstd::string &name) const = 0;
+    virtual uint32_t getPhaseID(uint32_t subpassOrPassID, const ccstd::string &name) const = 0;
 };
 
 class Factory {

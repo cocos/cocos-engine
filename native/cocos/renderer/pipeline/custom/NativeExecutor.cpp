@@ -814,7 +814,7 @@ gfx::DescriptorSet* updateCameraUniformBufferAndDescriptorSet(
 
 void submitUICommands(
     gfx::RenderPass* renderPass,
-    uint32_t layoutPassID,
+    uint32_t subpassOrPassLayoutID,
     scene::Camera* camera,
     gfx::CommandBuffer* cmdBuff) {
     const auto& batches = camera->getScene()->getBatches();
@@ -825,7 +825,7 @@ void submitUICommands(
         const auto& passes = batch->getPasses();
         for (size_t i = 0; i < batch->getShaders().size(); ++i) {
             const scene::Pass* pass = passes[i];
-            if (pass->getPassID() != layoutPassID) {
+            if (pass->getSubpassOrPassID() != subpassOrPassLayoutID) {
                 continue;
             }
             auto* shader = batch->getShaders()[i];
@@ -1835,11 +1835,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                         auto* cmdBuff = ctx.cmdBuff;
                         const auto& submodel = profiler->getSubModels()[0];
                         auto* pass = submodel->getPass(0);
-                        auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, pass->getPassID());
+                        auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, pass->getSubpassOrPassID());
                         auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
                         if (iter != layout.descriptorSets.end()) {
                             auto& set = iter->second;
-                            auto& node = ctx.context.layoutGraphResources.at(pass->getPassID());
+                            auto& node = ctx.context.layoutGraphResources.at(pass->getSubpassOrPassID());
                             PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(ctx.scratch);
                             auto* perPassSet = initDescriptorSet(
                                 ctx.resourceGraph,
@@ -2101,7 +2101,7 @@ void addRenderObject(
             }
 
             // skip irrelavent passes
-            if (queue.layoutPassID != pass.getPassID()) {
+            if (queue.subpassOrPassLayoutID != pass.getSubpassOrPassID()) {
                 continue;
             }
 
@@ -2225,11 +2225,27 @@ void mergeSceneFlags(
         }
         const auto queueID = parent(vertID, rg);
         CC_ENSURES(queueID != RenderGraph::null_vertex());
-        const auto passID = parent(queueID, rg);
-        CC_ENSURES(passID != RenderGraph::null_vertex());
-        const auto& layoutName = get(RenderGraph::LayoutTag{}, rg, passID);
-        CC_ENSURES(!layoutName.empty());
-        const auto layoutID = locate(LayoutGraphData::null_vertex(), layoutName, lg);
+        const auto subpassOrPassID = parent(queueID, rg);
+        CC_ENSURES(subpassOrPassID != RenderGraph::null_vertex());
+        const auto passID = parent(subpassOrPassID, rg);
+
+        auto layoutID = LayoutGraphData::null_vertex();
+        if (passID == rg.null_vertex()) { // single render pass
+            const auto& layoutName = get(RenderGraph::LayoutTag{}, rg, subpassOrPassID);
+            CC_ENSURES(!layoutName.empty());
+            layoutID = locate(LayoutGraphData::null_vertex(), layoutName, lg);
+        } else { // render pass
+            const auto& passLayoutName = get(RenderGraph::LayoutTag{}, rg, passID);
+            CC_ENSURES(!passLayoutName.empty());
+            const auto passLayoutID = locate(LayoutGraphData::null_vertex(), passLayoutName, lg);
+            CC_ENSURES(passLayoutID != LayoutGraphData::null_vertex());
+
+            const auto& subpassLayoutName = get(RenderGraph::LayoutTag{}, rg, subpassOrPassID);
+            CC_ENSURES(!subpassLayoutName.empty());
+            const auto subpassLayoutID = locate(passLayoutID, subpassLayoutName, lg);
+            CC_ENSURES(subpassLayoutID != LayoutGraphData::null_vertex());
+            layoutID = subpassLayoutID;
+        }
         CC_ENSURES(layoutID != LayoutGraphData::null_vertex());
 
         const auto& sceneData = get(SceneTag{}, vertID, rg);
@@ -2237,7 +2253,7 @@ void mergeSceneFlags(
         if (scene) {
             auto& queue = sceneQueues[scene][sceneData.camera];
             queue.sceneFlags |= sceneData.flags;
-            queue.layoutPassID = layoutID;
+            queue.subpassOrPassLayoutID = layoutID;
         }
     }
 }

@@ -282,6 +282,7 @@ public:
     inline pipeline::RenderPassStage getStage() const { return _stage; }
     inline uint32_t getPhase() const { return _phase; }
     inline uint32_t getPassID() const { return _passID; }
+    inline uint32_t getSubpassOrPassID() const { return _subpassID == 0xFFFFFFFF ? _passID : _subpassID; }
     inline uint32_t getPhaseID() const { return _phaseID; }
     inline const gfx::RasterizerState *getRasterizerState() const { return &_rs; }
     inline const gfx::DepthStencilState *getDepthStencilState() const { return &_depthStencilState; }
@@ -346,6 +347,7 @@ protected:
     pipeline::RenderPassStage _stage{pipeline::RenderPassStage::DEFAULT};
     uint32_t _phase{0};
     uint32_t _passID{0xFFFFFFFF};
+    uint32_t _subpassID{0xFFFFFFFF};
     uint32_t _phaseID{0xFFFFFFFF};
     ccstd::string _phaseString;
     gfx::PrimitiveMode _primitive{gfx::PrimitiveMode::TRIANGLE_LIST};
