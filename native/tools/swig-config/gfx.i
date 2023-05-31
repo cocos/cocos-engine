@@ -66,6 +66,8 @@ namespace cc { namespace gfx {
 %ignore CommandBuffer::execute;
 %ignore CommandBuffer::updateBuffer;
 %ignore CommandBuffer::copyBuffersToTexture;
+%ignore CommandBuffer::drawIndirect;
+%ignore CommandBuffer::drawIndexedIndirect;
 %rename(drawWithInfo) CommandBuffer::draw(const DrawInfo&);
 
 %ignore DescriptorSetLayout::getBindingIndices;

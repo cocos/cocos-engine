@@ -2660,21 +2660,21 @@ void cmdFuncGLES3DrawIndirect(GLES3Device *device,
         cache->glDrawIndirectBuffer = gpuBuffer->glBuffer;
     }
 
+    uint8_t *ptr = nullptr;
     if (device->constantRegistry()->multiDrawIndirect) {
         if (indexed) {
             GL_CHECK(glMultiDrawElementsIndirectEXT(primitive, cache->gfxStateCache.gpuInputAssembler->glIndexType,
-                reinterpret_cast<const void*>(bufferOffset), count, stride));
+                ptr + bufferOffset, count, stride));
         } else {
-            GL_CHECK(glMultiDrawArraysIndirectEXT(primitive, reinterpret_cast<const void*>(bufferOffset), count, stride));
+            GL_CHECK(glMultiDrawArraysIndirectEXT(primitive, ptr + bufferOffset, count, stride));
         }
     } else {
         for (uint32_t i = 0U; i < count; ++i) {
             uint32_t currentOffset = bufferOffset + i * stride;
             if (indexed) {
-                GL_CHECK(glDrawElementsIndirect(primitive, cache->gfxStateCache.gpuInputAssembler->glIndexType,
-                    reinterpret_cast<const void*>(bufferOffset)));
+                GL_CHECK(glDrawElementsIndirect(primitive, cache->gfxStateCache.gpuInputAssembler->glIndexType, ptr + bufferOffset));
             } else {
-                GL_CHECK(glDrawArraysIndirect(primitive, reinterpret_cast<const void*>(bufferOffset)));
+                GL_CHECK(glDrawArraysIndirect(primitive, ptr + bufferOffset));
             }
         }
     }
