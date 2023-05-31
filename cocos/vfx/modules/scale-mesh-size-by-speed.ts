@@ -27,8 +27,9 @@ import { ccclass, type, serializable, range, visible, rangeMin } from 'cc.decora
 import { lerp, math, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { ParticleDataSet, P_SCALE, P_VELOCITY, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
+import { P_SCALE, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempVelocity = new Vec3();
 const tempScalar = new Vec3();

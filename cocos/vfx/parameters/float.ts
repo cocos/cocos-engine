@@ -1,6 +1,5 @@
 import { DEBUG } from 'internal:constants';
-import { ParticleHandle, VFXParameterType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, VFXParameter } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
 import { assertIsTrue } from '../../core';
 
 export class FloatArrayParameter extends ArrayParameter {
@@ -34,35 +33,35 @@ export class FloatArrayParameter extends ArrayParameter {
         this._data[b] = this._data[a];
     }
 
-    getFloatAt (handle: ParticleHandle) {
+    getFloatAt (handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle <= this._capacity && handle >= 0);
         }
         return this._data[handle];
     }
 
-    setFloatAt (val: number, handle: ParticleHandle) {
+    setFloatAt (val: number, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle <= this._capacity && handle >= 0);
         }
         this._data[handle] = val;
     }
 
-    addFloatAt (val: number, handle: ParticleHandle) {
+    addFloatAt (val: number, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle <= this._capacity && handle >= 0);
         }
         this._data[handle] += val;
     }
 
-    multiplyFloatAt (val: number, handle: ParticleHandle) {
+    multiplyFloatAt (val: number, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle <= this._capacity && handle >= 0);
         }
         this._data[handle] *= val;
     }
 
-    copyFrom (src: FloatArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: FloatArrayParameter, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(src._capacity === this._capacity);
@@ -79,7 +78,7 @@ export class FloatArrayParameter extends ArrayParameter {
         }
     }
 
-    copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);

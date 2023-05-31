@@ -1,7 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../../core';
-import { ParticleHandle, VFXParameterType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, VFXParameter } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
 
 export class Uint32ArrayParameter extends ArrayParameter {
     get data () {
@@ -30,15 +29,15 @@ export class Uint32ArrayParameter extends ArrayParameter {
         this._data[b] = this._data[a];
     }
 
-    getUint32At (handle: ParticleHandle) {
+    getUint32At (handle: Handle) {
         return this._data[handle];
     }
 
-    setUint32At (val: number, handle: ParticleHandle) {
+    setUint32At (val: number, handle: Handle) {
         this._data[handle] = val;
     }
 
-    copyFrom (src: Uint32ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: Uint32ArrayParameter, fromIndex: Handle, toIndex: Handle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {
@@ -50,7 +49,7 @@ export class Uint32ArrayParameter extends ArrayParameter {
         }
     }
 
-    copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);

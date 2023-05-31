@@ -1,7 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { Color, assertIsTrue } from '../../core';
-import { ParticleHandle, VFXParameterType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, VFXParameter } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
 
 const tempColor = new Color();
 
@@ -28,26 +27,26 @@ export class ColorArrayParameter extends ArrayParameter {
         this._data.set(oldData);
     }
 
-    move (a: ParticleHandle, b: ParticleHandle) {
+    move (a: Handle, b: Handle) {
         this._data[b] = this._data[a];
     }
 
-    getColorAt (out: Color, handle: ParticleHandle) {
+    getColorAt (out: Color, handle: Handle) {
         Color.fromUint32(out, this._data[handle]);
         return out;
     }
 
-    setColorAt (color: Color, handle: ParticleHandle) {
+    setColorAt (color: Color, handle: Handle) {
         this._data[handle] = Color.toUint32(color);
     }
 
-    multiplyColorAt (color: Color, handle: ParticleHandle) {
+    multiplyColorAt (color: Color, handle: Handle) {
         Color.fromUint32(tempColor, this._data[handle]);
         tempColor.multiply(color);
         this._data[handle] = Color.toUint32(tempColor);
     }
 
-    fill (color: Color, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    fill (color: Color, fromIndex: Handle, toIndex: Handle) {
         const val = Color.toUint32(color);
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.fill(val, fromIndex, toIndex);
@@ -59,7 +58,7 @@ export class ColorArrayParameter extends ArrayParameter {
         }
     }
 
-    copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
@@ -79,7 +78,7 @@ export class ColorArrayParameter extends ArrayParameter {
         }
     }
 
-    copyFrom (src: ColorArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: ColorArrayParameter, fromIndex: Handle, toIndex: Handle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {

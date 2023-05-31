@@ -27,10 +27,11 @@ import { ccclass, type, serializable, rangeMin, visible } from 'cc.decorator';
 import { Enum, clamp, Vec2, Vec3, RealCurve } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, P_PHYSICS_FORCE, P_POSITION, P_VELOCITY, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
 import { VFXEmitterState } from '../vfx-emitter';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
+import { P_VELOCITY, P_POSITION, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 export class PerlinNoise1DCache {
     i0 = 0;

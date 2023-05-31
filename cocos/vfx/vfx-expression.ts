@@ -22,9 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass } from '../core/data/decorators';
+import { ccclass } from 'cc.decorator';
 import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from './data-set';
-import { VFXParameterType } from './define';
+import { VFXParameterType } from './vfx-parameter';
 
 @ccclass('cc.VFXExpression')
 export abstract class VFXExpression {

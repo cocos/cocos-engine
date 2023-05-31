@@ -25,10 +25,11 @@
 
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { P_BASE_SCALE, P_NORMALIZED_AGE, ParticleDataSet, P_SCALE, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3 } from '../../core';
 import { Vec3ArrayParameter, Uint32Parameter } from '../parameters';
+import { P_SCALE, P_NORMALIZED_AGE, P_BASE_SCALE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempScale = new Vec3();
 @ccclass('cc.SetMeshScaleModule')

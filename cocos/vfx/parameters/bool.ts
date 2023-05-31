@@ -1,7 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../../core';
-import { ParticleHandle, VFXParameterType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, VFXParameter } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
 
 export class BoolArrayParameter extends ArrayParameter {
     get data () {
@@ -26,7 +25,7 @@ export class BoolArrayParameter extends ArrayParameter {
         this._data.set(oldData);
     }
 
-    move (a: ParticleHandle, b: ParticleHandle) {
+    move (a: Handle, b: Handle) {
         if (DEBUG) {
             assertIsTrue(a <= this._capacity && a >= 0);
             assertIsTrue(b <= this._capacity && b >= 0);
@@ -34,21 +33,21 @@ export class BoolArrayParameter extends ArrayParameter {
         this._data[b] = this._data[a];
     }
 
-    getBoolAt (handle: ParticleHandle) {
+    getBoolAt (handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle <= this._capacity && handle >= 0);
         }
         return this._data[handle] !== 0;
     }
 
-    setBoolAt (val: boolean, handle: ParticleHandle) {
+    setBoolAt (val: boolean, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle <= this._capacity && handle >= 0);
         }
         this._data[handle] = val ? 1 : 0;
     }
 
-    copyFrom (src: BoolArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: BoolArrayParameter, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(src._capacity === this._capacity);
@@ -65,7 +64,7 @@ export class BoolArrayParameter extends ArrayParameter {
         }
     }
 
-    copyToTypedArray (dest: Uint8Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Uint8Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);

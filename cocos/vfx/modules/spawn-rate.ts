@@ -25,9 +25,10 @@
 
 import { ccclass, serializable, type, rangeMin } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, C_DELTA_TIME, ContextDataSet, EmitterDataSet, E_LOOPED_AGE, E_SPAWN_REMAINDER, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { FloatParameter } from '../parameters';
+import { C_DELTA_TIME, E_SPAWN_REMAINDER, E_LOOPED_AGE } from '../define';
 
 @ccclass('cc.SpawnRateModule')
 @VFXModule.register('SpawnRate', ModuleExecStageFlags.EMITTER | ModuleExecStageFlags.EVENT_HANDLER)

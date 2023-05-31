@@ -1,9 +1,18 @@
-#pragma define-meta CC_RENDER_MODE range([0, 4])
-#pragma define RENDER_MODE_BILLBOARD 0
-#pragma define RENDER_MODE_STRETCHED_BILLBOARD 1
-#pragma define RENDER_MODE_HORIZONTAL_BILLBOARD 2
-#pragma define RENDER_MODE_VERTICAL_BILLBOARD 3
-#pragma define RENDER_MODE_MESH 4
+#pragma define-meta CC_VFX_RENDERER_TYPE range([0, 2])
+#pragma define CC_VFX_RENDERER_TYPE_SPRITE 0
+#pragma define CC_VFX_RENDERER_TYPE_MESH 1
+#pragma define CC_VFX_RENDERER_TYPE_RIBBON 2
+
+#pragma define-meta CC_VFX_SPRITE_FACING_MODE range([0, 3])
+#pragma define CC_VFX_SPRITE_FACING_MODE_CAMERA 0
+#pragma define CC_VFX_SPRITE_FACING_MODE_HORIZONTAL 1
+#pragma define CC_VFX_SPRITE_FACING_MODE_VERTICAL 2
+#pragma define CC_VFX_SPRITE_FACING_MODE_CUSTOM 3
+
+#pragma define-meta CC_VFX_SPRITE_ALIGNMENT_MODE range([0, 2])
+#pragma define CC_VFX_SPRITE_ALIGNMENT_MODE_NONE 0
+#pragma define CC_VFX_SPRITE_ALIGNMENT_MODE_VELOCITY 1
+#pragma define CC_VFX_SPRITE_ALIGNMENT_MODE_CUSTOM 2
 
 uniform Constants {
   vec4 mainTiling_Offset;
@@ -19,23 +28,29 @@ uniform Constants {
 precision highp float;
 
 
-#if CC_PARTICLE_POSITION
-in vec3 a_particle_position;
+#if CC_VFX_P_POSITION
+in vec3 a_vfx_p_position;
 #endif
-#if CC_PARTICLE_ROTATION
-in vec3 a_particle_rotation;  // rotation
+#if CC_VFX_P_MESH_ORIENTATION
+in vec3 a_vfx_p_mesh_orientation;  // mesh orientation
 #endif
-#if CC_PARTICLE_SIZE
-in vec3 a_particle_size;  // size
+#if CC_VFX_P_SPRITE_ROTATION
+in float a_vfx_p_sprite_rotation;  // sprite rotation
 #endif
-#if CC_PARTICLE_COLOR
-in vec4 a_particle_color;
+#if CC_VFX_P_SCALE
+in vec3 a_vfx_p_scale;  // scale
 #endif
-#if CC_PARTICLE_FRAME_INDEX
-in float a_particle_frame_index;
+#if CC_VFX_P_SPRITE_SIZE
+in vec2 a_vfx_p_sprite_size;  // sprite size
 #endif
-#if CC_PARTICLE_VELOCITY
-in vec3 a_particle_velocity; // velocity.x, velocity.y, velocity.z
+#if CC_VFX_P_COLOR
+in vec4 a_vfx_p_color;
+#endif
+#if CC_VFX_P_SUB_UV_INDEX
+in float a_vfx_p_sub_uv_index;
+#endif
+#if CC_VFX_P_VELOCITY
+in vec3 a_vfx_p_velocity; // velocity.x, velocity.y, velocity.z
 #endif
 
 out mediump vec2 uv;
@@ -81,9 +96,9 @@ void computeVertPos (inout vec4 pos, vec2 vertOffset, vec4 q, vec3 s
 #endif
 }
 
-vec2 computeUV (float frameIndex, vec2 vertIndex, vec2 frameTile){
-  vec2 aniUV = vec2(0, floor(frameIndex * frameTile.y));
-  aniUV.x = floor(frameIndex * frameTile.x * frameTile.y - aniUV.y * frameTile.x);
+vec2 computeUV (float subUVIndex, vec2 vertIndex, vec2 frameTile){
+  vec2 aniUV = vec2(0, floor(subUVIndex * frameTile.y));
+  aniUV.x = floor(subUVIndex * frameTile.x * frameTile.y - aniUV.y * frameTile.x);
 #if CC_RENDER_MODE != RENDER_MODE_MESH
   vertIndex.y = 1. - vertIndex.y; // if using billboard ,y must be flipped.but mesh does not,why?
 #endif
@@ -92,41 +107,53 @@ vec2 computeUV (float frameIndex, vec2 vertIndex, vec2 frameTile){
 
 struct ParticleInput {
   vec3 position;
-  vec3 rotation;
-  vec3 size;
+  vec3 meshOrientation;
+  float spriteRotation;
+  vec3 scale;
+  vec2 spriteSize;
   vec4 color;
-  float frameIndex;
+  float subUVIndex;
   vec3 velocity;
 };
 
 void setupParticleInput (out ParticleInput particleInput) {
-  #if CC_PARTICLE_POSITION
-  particleInput.position = a_particle_position;
+  #if CC_VFX_P_POSITION
+  particleInput.position = a_vfx_p_position;
   #else
   particleInput.position = vec3(0., 0., 0.);
   #endif
-  #if CC_PARTICLE_ROTATION
-  particleInput.rotation = a_particle_rotation;
+  #if CC_VFX_P_MESH_ORIENTATION
+  particleInput.meshOrientation = a_vfx_p_mesh_orientation;
   #else 
-  particleInput.rotation = vec3(0., 0., 0.);
+  particleInput.meshOrientation = vec3(0., 0., 0.);
   #endif
-  #if CC_PARTICLE_SIZE
-  particleInput.size = a_particle_size;
+  #if CC_VFX_P_SPRITE_ROTATION
+  particleInput.spriteRotation = a_vfx_p_sprite_rotation;
   #else
-  particleInput.size = vec3(1.0, 1.0, 1.0);
+  particleInput.spriteRotation = 0.;
   #endif
-  #if CC_PARTICLE_COLOR
-  particleInput.color = a_particle_color;
+  #if CC_VFX_P_SCALE
+  particleInput.scale = a_vfx_p_scale;
+  #else
+  particleInput.scale = vec3(1.0, 1.0, 1.0);
+  #endif
+  #if CC_VFX_P_SPRITE_SIZE
+  particleInput.spriteSize = a_vfx_p_sprite_size;
+  #else
+  particleInput.spriteSize = vec3(1.0, 1.0);
+  #endif
+  #if CC_VFX_P_COLOR
+  particleInput.color = a_vfx_p_color;
   #else
   particleInput.color = vec4(1.0, 1.0, 1.0, 1.0);
   #endif
-  #if CC_PARTICLE_FRAME_INDEX
-  particleInput.frameIndex = a_particle_frame_index;
+  #if CC_VFX_P_SUB_UV_INDEX
+  particleInput.subUVIndex = a_vfx_p_sub_uv_index;
   #else
-  particleInput.frameIndex = 0.0;
+  particleInput.subUVIndex = 0.0;
   #endif
-  #if CC_PARTICLE_VELOCITY
-  particleInput.velocity = a_particle_velocity;
+  #if CC_VFX_P_VELOCITY
+  particleInput.velocity = a_vfx_p_velocity;
   #else
   particleInput.velocity = vec3(0., 0., 0.);
   #endif
@@ -144,8 +171,8 @@ vec4 vfx_vs_main () {
   ParticleInput particleInput;
   setupParticleInput(particleInput);
   vec4 pos = vec4(particleInput.position.xyz, 1);
-  vec3 rotation = particleInput.rotation;
-  vec3 compScale = scale.xyz * particleInput.size;
+  vec3 meshOrientation = particleInput.meshOrientation;
+  vec3 compScale = scale.xyz * particleInput.scale;
   vec4 velocity = vec4(particleInput.velocity.xyz, 0.);
 
   #if !CC_USE_WORLD_SPACE
@@ -159,7 +186,7 @@ vec4 vfx_vs_main () {
   #pragma define INDENTIFY_NEG_QUAT 10.0
 
   #if ROTATION_OVER_TIME_MODULE_ENABLE
-    vec3 rotTmp = rotation;
+    vec3 rotTmp = meshOrientation;
     float mulFactor = 1.0;
     if (rotTmp.x > INDENTIFY_NEG_QUAT * 0.5) {
         rotTmp.x -= INDENTIFY_NEG_QUAT;
@@ -171,17 +198,17 @@ vec4 vfx_vs_main () {
   #if !ROTATION_OVER_TIME_MODULE_ENABLE
     #if CC_RENDER_MODE != RENDER_MODE_MESH
       #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD
-        vec3 rotEuler = rotation;
+        vec3 rotEuler = meshOrientation;
       #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
         vec3 rotEuler = vec3(0.);
       #endif
       #if CC_RENDER_MODE != RENDER_MODE_BILLBOARD && CC_RENDER_MODE != RENDER_MODE_STRETCHED_BILLBOARD
-        vec3 rotEuler = vec3(0., 0., rotation.z);
+        vec3 rotEuler = vec3(0., 0., meshOrientation.z);
       #endif
       vec4 rot = quaternionFromEuler(rotEuler);
     #endif
     #if CC_RENDER_MODE == RENDER_MODE_MESH
-      vec4 rot = quaternionFromEuler(rotation);
+      vec4 rot = quaternionFromEuler(meshOrientation);
     #endif
   #endif
 
@@ -211,7 +238,7 @@ vec4 vfx_vs_main () {
     color = particleInput.color * a_color;
   #endif
 
-  uv = computeUV(particleInput.frameIndex, a_texCoord.xy, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
+  uv = computeUV(particleInput.subUVIndex, a_texCoord.xy, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
   pos = cc_matViewProj * pos;
 
   return pos;

@@ -25,9 +25,10 @@
 
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { P_INV_LIFETIME, ParticleDataSet, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
+import { P_INV_LIFETIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 @ccclass('cc.SetLifeTimeModule')
 @VFXModule.register('SetLifeTime', ModuleExecStageFlags.SPAWN)

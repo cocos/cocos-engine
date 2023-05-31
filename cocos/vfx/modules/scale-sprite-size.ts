@@ -27,8 +27,9 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { CCBoolean, Vec2 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
-import { P_BASE_SPRITE_SIZE, P_NORMALIZED_AGE, ParticleDataSet, P_SPRITE_SIZE, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec2ArrayParameter, Uint32Parameter } from '../parameters';
+import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_BASE_SPRITE_SIZE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempVec2 = new Vec2();
 

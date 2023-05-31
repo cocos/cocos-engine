@@ -25,11 +25,12 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { TWO_PI, Vec3, clamp } from '../../core';
-import { P_POSITION, ParticleDataSet, ContextDataSet, C_FROM_INDEX, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ShapeLocationModule } from './shape-location';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { degreesToRadians } from '../../core/utils/misc';
+import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const pos = new Vec3();
 

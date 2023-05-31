@@ -23,40 +23,28 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, type, serializable, range, visible } from 'cc.decorator';
-import { DEBUG } from 'internal:constants';
-import { lerp, repeat, Enum, assertIsTrue, CCFloat, CCInteger, Vec2 } from '../../core';
+import { ccclass, type, serializable, visible } from 'cc.decorator';
+import { lerp, repeat, Enum, Vec2, CCBoolean } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { FloatExpression } from '../expressions/float';
-import { P_INV_LIFETIME, P_NORMALIZED_AGE, ParticleDataSet, P_RANDOM_SEED, P_SUB_UV_INDEX, P_VELOCITY } from '../data-set/particle';
-import { C_FROM_INDEX, ContextDataSet, C_TO_INDEX } from '../data-set/context';
+import { FloatExpression, ConstantVec2Expression, Vec2Expression, Int32Expression, ConstantInt32Expression } from '../expressions';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
-import { EmitterDataSet } from '../data-set/emitter';
-import { UserDataSet } from '../data-set/user';
 import { FloatArrayParameter, Uint32Parameter, Uint32ArrayParameter } from '../parameters';
-import { ConstantVec2Expression, Vec2Expression } from '../expressions';
+import { P_VELOCITY, P_NORMALIZED_AGE, P_SUB_UV_INDEX1, P_RANDOM_SEED, P_INV_LIFETIME, C_FROM_INDEX, C_TO_INDEX, P_SUB_UV_INDEX4, P_SUB_UV_INDEX2, P_SUB_UV_INDEX3 } from '../define';
 
-const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
-
-export enum TimeMode {
-    LIFETIME,
-    FPS,
+export enum SubUVAnimationMode {
+    LINEAR,
+    CURVE,
+    RANDOM,
+    INFINITE_LOOP,
+    DIRECT_INDEX
 }
 
-/**
- * 贴图动画的播放方式。
- * @enum textureAnimationModule.Animation
- */
-export enum Animation {
-    /**
-     * 播放贴图中的所有帧。
-     */
-    WHOLE_SHEET,
-
-    /**
-     * 播放贴图中的其中一行动画。
-     */
-    SINGLE_ROW
+export enum SubUVIndexChannel {
+    SUB_UV_INDEX1,
+    SUB_UV_INDEX2,
+    SUB_UV_INDEX3,
+    SUB_UV_INDEX4,
 }
 
 @ccclass('cc.SubUVAnimationModule')
@@ -73,250 +61,94 @@ export class SubUVAnimationModule extends VFXModule {
     public set subImageSize (val) {
         this._subImageSize = val;
     }
-    /**
-     * @zh 动画播放方式 [[Animation]]。
-     */
-    @type(Enum(Animation))
-    @tooltip('i18n:textureAnimationModule.animation')
-    public get animation () {
-        return this._animation;
-    }
 
-    public set animation (val) {
-        this._animation = val;
-        if (this._animation === Animation.WHOLE_SHEET) {
-            this.frameOverTime.constant = this._numTilesX * this._numTilesY;
-        } else {
-            this.frameOverTime.constant = this._numTilesX;
+    @type(CCBoolean)
+    @serializable
+    public useStartFrameRangeOverride = false;
+
+    @type(Int32Expression)
+    @visible(function (this: SubUVAnimationModule) { return this.useStartFrameRangeOverride; })
+    public get startFrameRangeOverride () {
+        if (!this._startFrameRangeOverride) {
+            this._startFrameRangeOverride = new ConstantInt32Expression(0);
         }
+        return this._startFrameRangeOverride;
     }
 
-    /**
-     * @zh 随机从动画贴图中选择一行以生成动画。<br>
-     * 此选项仅在动画播放方式为 SINGLE_ROW 时生效。
-     */
-    @serializable
-    @tooltip('i18n:textureAnimationModule.randomRow')
-    @visible(function (this: SubUVAnimationModule) { return this.animation === Animation.SINGLE_ROW; })
-    public randomRow = false;
-
-    /**
-     * @zh 从动画贴图中选择特定行以生成动画。<br>
-     * 此选项仅在动画播放方式为 SINGLE_ROW 时且禁用 randomRow 时可用。
-     */
-    @serializable
-    @tooltip('i18n:textureAnimationModule.rowIndex')
-    @visible(function (this: SubUVAnimationModule) { return this.animation === Animation.SINGLE_ROW && this.randomRow === false; })
-    public rowIndex = 0;
-
-    @type(Enum(TimeMode))
-    @visible(true)
-    public get timeMode () {
-        return this._timeMode;
+    public set startFrameRangeOverride (val) {
+        this._startFrameRangeOverride = val;
     }
 
-    public set timeMode (val) {
-        this._timeMode = val;
+    @type(CCBoolean)
+    @serializable
+    public useEndFrameRangeOverride = false;
+
+    @type(Int32Expression)
+    @visible(function (this: SubUVAnimationModule) { return this.useEndFrameRangeOverride; })
+    public get endFrameRangeOverride () {
+        if (!this._endFrameRangeOverride) {
+            this._endFrameRangeOverride = new ConstantInt32Expression(63);
+        }
+        return this._endFrameRangeOverride;
     }
 
-    @type(CCFloat)
-    @range([0.0001, Number.MAX_VALUE])
-    @visible(function (this: SubUVAnimationModule) { return this._timeMode === TimeMode.FPS; })
-    public get framesPerSecond () {
-        return this._fps;
+    public set endFrameRangeOverride (val) {
+        this._endFrameRangeOverride = val;
     }
 
-    public set framesPerSecond (val) {
-        this._fps = val;
-    }
+    @type(Enum(SubUVIndexChannel))
+    @serializable
+    public subUVIndexChannel = SubUVIndexChannel.SUB_UV_INDEX1;
 
     /**
-     * @zh 一个周期内动画播放的帧与时间变化曲线。
+     * @zh 动画播放方式 [[SubUVAnimationMode]]。
      */
-    @type(FloatExpression)
+    @type(Enum(SubUVAnimationMode))
     @serializable
-    @range([0, 1])
-    @visible(function (this: SubUVAnimationModule) { return this._timeMode === TimeMode.LIFETIME; })
-    public frameOverTime = new FloatExpression(1, createRealCurve([
-        [0.0, 0.0],
-        [1.0, 1.0],
-    ]));
-
-    /**
-     * @zh 从第几帧开始播放，时间为整个粒子系统的生命周期。
-     */
-    @type(FloatExpression)
-    @serializable
-    @range([0, 1])
-    @tooltip('i18n:textureAnimationModule.startFrame')
-    public startFrame = new FloatExpression();
-
-    /**
-     * @zh 一个生命周期内播放循环的次数。
-     */
-    @serializable
-    @tooltip('i18n:textureAnimationModule.cycleCount')
-    @visible(function (this: SubUVAnimationModule) { return this._timeMode === TimeMode.LIFETIME; })
-    public cycleCount = 1;
+    public subUVAnimationMode = SubUVAnimationMode.LINEAR;
 
     @serializable
     private _subImageSize: Vec2Expression | null = null;
     @serializable
-    private _animation = Animation.WHOLE_SHEET;
+    private _startFrameRangeOverride: Int32Expression | null = null;
     @serializable
-    private _timeMode = TimeMode.LIFETIME;
-    @serializable
-    private _fps = 30;
+    private _endFrameRangeOverride: Int32Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        if (DEBUG) {
-            assertIsTrue(this.startFrame.mode === FloatExpression.Mode.CONSTANT || this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS,
-                'The mode of startFrame in texture-animation module can not be Curve and TwoCurve!');
+        if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
+            particles.markRequiredParameter(P_SUB_UV_INDEX1);
+        } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX2) {
+            particles.markRequiredParameter(P_SUB_UV_INDEX2);
+        } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX3) {
+            particles.markRequiredParameter(P_SUB_UV_INDEX3);
+        } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX4) {
+            particles.markRequiredParameter(P_SUB_UV_INDEX4);
         }
-        particles.markRequiredParameter(P_SUB_UV_INDEX);
-        if (this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS || (this.animation === Animation.SINGLE_ROW && this.randomRow)) {
-            particles.markRequiredParameter(P_RANDOM_SEED);
+        this.subImageSize.tick(particles, emitter, user, context);
+        if (this.useStartFrameRangeOverride) {
+            this.startFrameRangeOverride.tick(particles, emitter, user, context);
         }
-        if (this._timeMode === TimeMode.LIFETIME && (this.frameOverTime.mode === FloatExpression.Mode.TWO_CONSTANTS
-            || this.frameOverTime.mode === FloatExpression.Mode.TWO_CURVES)) {
-            particles.markRequiredParameter(P_RANDOM_SEED);
-        }
-        if (this._timeMode === TimeMode.LIFETIME && (this.frameOverTime.mode === FloatExpression.Mode.TWO_CURVES
-            || this.frameOverTime.mode === FloatExpression.Mode.CURVE)) {
-            particles.markRequiredParameter(P_NORMALIZED_AGE);
-        }
-        if (this._timeMode === TimeMode.FPS) {
-            particles.markRequiredParameter(P_NORMALIZED_AGE);
-            particles.markRequiredParameter(P_INV_LIFETIME);
+        if (this.useEndFrameRangeOverride) {
+            this.endFrameRangeOverride.tick(particles, emitter, user, context);
         }
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX);
+        let subUVIndex: FloatArrayParameter;
+        if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
+            subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX1);
+        } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX2) {
+            subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX2);
+        } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX3) {
+            subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX3);
+        } else {
+            subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX4);
+        }
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        if (this.subUVAnimationMode === SubUVAnimationMode.LINEAR) {
+            for (let i = fromIndex; i < toIndex; i++) {
 
-        if (this._timeMode === TimeMode.LIFETIME) {
-            const cycleCount = this.cycleCount;
-            const invRange = 1 / (this.animation === Animation.WHOLE_SHEET ? (this._numTilesX * this._numTilesY) : this._numTilesX);
-            // use subUVIndex to cache lerp ratio
-            if (this.startFrame.mode === FloatExpression.Mode.CONSTANT) {
-                const startFrame = this.startFrame.constant;
-                if (this.frameOverTime.mode === FloatExpression.Mode.CONSTANT) {
-                    const frame = repeat(cycleCount * (this.frameOverTime.constant + startFrame) * invRange, 1);
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        subUVIndex[i] = frame;
-                    }
-                } else if (this.frameOverTime.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                    const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
-                    const { constantMin, constantMax } = this.frameOverTime;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        subUVIndex[i] = repeat(cycleCount * (lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) + startFrame) * invRange, 1);
-                    }
-                } else if (this.frameOverTime.mode === FloatExpression.Mode.CURVE) {
-                    const { spline, multiplier } = this.frameOverTime;
-                    const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        subUVIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAge[i]) * multiplier + startFrame) * invRange, 1);
-                    }
-                } else {
-                    const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
-                    const { splineMin, splineMax, multiplier } = this.frameOverTime;
-                    const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const time = normalizedAge[i];
-                        subUVIndex[i] = repeat(cycleCount * (lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) * multiplier + startFrame) * invRange, 1);
-                    }
-                }
-            } else if (this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const { constantMin, constantMax } = this.startFrame;
-                const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
-                if (this.frameOverTime.mode === FloatExpression.Mode.CONSTANT) {
-                    const frame = this.frameOverTime.constant;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const startFrame = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
-                        subUVIndex[i] = repeat(cycleCount * (frame + startFrame) * invRange, 1);
-                    }
-                } else if (this.frameOverTime.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                    const { constantMin, constantMax } = this.frameOverTime;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const startFrame = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
-                        subUVIndex[i] = repeat(cycleCount * (lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) + startFrame) * invRange, 1);
-                    }
-                } else if (this.frameOverTime.mode === FloatExpression.Mode.CURVE) {
-                    const { spline, multiplier } = this.frameOverTime;
-                    const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const startFrame = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
-                        subUVIndex[i] = repeat(cycleCount * (spline.evaluate(normalizedAge[i]) * multiplier + startFrame) * invRange, 1);
-                    }
-                } else {
-                    const { splineMin, splineMax, multiplier } = this.frameOverTime;
-                    const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const startFrame = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
-                        const time = normalizedAge[i];
-                        subUVIndex[i] = repeat(cycleCount * (lerp(splineMin.evaluate(time), splineMax.evaluate(time), RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET)) * multiplier + startFrame) * invRange, 1);
-                    }
-                }
-            }
-
-            if (this.animation === Animation.SINGLE_ROW) {
-                const rowLength = 1 / this.numTilesY;
-                if (this.randomRow) {
-                    const rows = this.numTilesY;
-                    const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const startRow = Math.floor(RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET) * rows);
-                        const from = startRow * rowLength;
-                        const to = from + rowLength;
-                        subUVIndex[i] = lerp(from, to, subUVIndex[i]);
-                    }
-                } else {
-                    const from = this.rowIndex * rowLength;
-                    const to = from + rowLength;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        subUVIndex[i] = lerp(from, to, subUVIndex[i]);
-                    }
-                }
-            }
-        } else {
-            const invRange = 1 / (this.animation === Animation.WHOLE_SHEET ? (this._numTilesX * this._numTilesY) : this._numTilesX);
-            const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
-            const invLifeTime = particles.getParameterUnsafe<FloatArrayParameter>(P_INV_LIFETIME).data;
-            // use subUVIndex to cache lerp ratio
-            if (this.startFrame.mode === FloatExpression.Mode.CONSTANT) {
-                const startFrame = this.startFrame.constant;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    subUVIndex[i] = repeat((normalizedAge[i] / invLifeTime[i] * this._fps + startFrame) * invRange, 1);
-                }
-            } else if (this.startFrame.mode === FloatExpression.Mode.TWO_CONSTANTS) {
-                const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
-                const { constantMin, constantMax } = this.startFrame;
-                for (let i = fromIndex; i < toIndex; i++) {
-                    const startFrame = lerp(constantMin, constantMax, RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET));
-                    subUVIndex[i] = repeat((normalizedAge[i] / invLifeTime[i] * this._fps + startFrame) * invRange, 1);
-                }
-            }
-
-            if (this.animation === Animation.SINGLE_ROW) {
-                const rowLength = 1 / this.numTilesY;
-                if (this.randomRow) {
-                    const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
-                    const rows = this.numTilesY;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        const startRow = Math.floor(RandomStream.getFloat(randomSeed[i] + TEXTURE_ANIMATION_RAND_OFFSET) * rows);
-                        const from = startRow * rowLength;
-                        const to = from + rowLength;
-                        subUVIndex[i] = lerp(from, to, subUVIndex[i]);
-                    }
-                } else {
-                    const from = this.rowIndex * rowLength;
-                    const to = from + rowLength;
-                    for (let i = fromIndex; i < toIndex; i++) {
-                        subUVIndex[i] = lerp(from, to, subUVIndex[i]);
-                    }
-                }
             }
         }
     }

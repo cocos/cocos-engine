@@ -25,9 +25,9 @@
 
 import { ccclass, tooltip, type, serializable } from 'cc.decorator';
 import { Vec3, Enum } from '../../core';
-import { CoordinateSpace } from '../define';
+import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_PHYSICS_FORCE, P_POSITION, P_VELOCITY } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { C_FROM_INDEX, ContextDataSet, C_TO_INDEX, P_BASE_VELOCITY, P_PHYSICS_FORCE, P_POSITION, ParticleDataSet, P_VELOCITY, UserDataSet, EmitterDataSet, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS } from '../data-set';
+import { ContextDataSet, ParticleDataSet, UserDataSet, EmitterDataSet } from '../data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3ArrayParameter, Uint32Parameter, BoolParameter, Mat3Parameter } from '../parameters';
 

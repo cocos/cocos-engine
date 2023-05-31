@@ -22,8 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { E_AGE, E_CURRENT_DELAY, E_CURRENT_LOOP_COUNT, E_IS_WORLD_SPACE, E_LOCAL_ROTATION, E_LOCAL_TO_WORLD, E_LOCAL_TO_WORLD_RS, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, E_RENDER_SCALE, E_SPAWN_REMAINDER, E_SPAWN_REMAINDER_PER_UNIT, E_VELOCITY, E_WORLD_ROTATION, E_WORLD_TO_LOCAL, E_WORLD_TO_LOCAL_RS, VFXParameterNameSpace } from '../define';
+import { E_AGE, E_CURRENT_DELAY, E_CURRENT_LOOP_COUNT, E_IS_WORLD_SPACE, E_LOCAL_ROTATION, E_LOCAL_TO_WORLD, E_LOCAL_TO_WORLD_RS, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, E_POSITION, E_RENDER_SCALE, E_SIMULATION_POSITION, E_SPAWN_REMAINDER, E_SPAWN_REMAINDER_PER_UNIT, E_VELOCITY, E_WORLD_ROTATION, E_WORLD_TO_LOCAL, E_WORLD_TO_LOCAL_RS } from '../define';
 import { VFXDataSet } from '../vfx-data-set';
+import { VFXParameterNameSpace } from '../vfx-parameter';
 
 export class SpawnInfo {
     count = 0;
@@ -53,6 +54,8 @@ export class EmitterDataSet extends VFXDataSet {
         this.addParameter(E_LOCAL_ROTATION);
         this.addParameter(E_WORLD_ROTATION);
         this.addParameter(E_RENDER_SCALE);
+        this.addParameter(E_SIMULATION_POSITION);
+        this.addParameter(E_POSITION);
     }
 
     addSpawnInfo (spawnCount: number, intervalDt: number, interpStartDt: number) {

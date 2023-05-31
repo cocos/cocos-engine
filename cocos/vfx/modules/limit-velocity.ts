@@ -25,10 +25,10 @@
 
 import { ccclass, type, serializable, visible, rangeMin } from 'cc.decorator';
 import { lerp, Vec3 } from '../../core';
-import { CoordinateSpace } from '../define';
+import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_VELOCITY } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { C_FROM_INDEX, ContextDataSet, C_TO_INDEX, P_BASE_VELOCITY, ParticleDataSet, P_VELOCITY, EmitterDataSet, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, UserDataSet } from '../data-set';
+import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { Uint32Parameter, Vec3ArrayParameter, BoolParameter, Mat3Parameter } from '../parameters';
 
 const limit = new Vec3();

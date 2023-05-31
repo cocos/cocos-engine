@@ -25,10 +25,10 @@
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Enum, Vec3 } from '../../core';
-import { C_FROM_INDEX, C_TO_INDEX, CoordinateSpace, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_POSITION, P_VELOCITY } from '../define';
+import { C_FROM_INDEX, C_TO_INDEX, CoordinateSpace, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_POSITION, P_VELOCITY, E_SIMULATION_POSITION } from '../define';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
-import { ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
+import { BindingVec3Expression, ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
 import { BoolParameter, Vec3ArrayParameter, Uint32Parameter, Mat3Parameter } from '../parameters';
 
 const tempVelocity = new Vec3();
@@ -95,12 +95,46 @@ export class AddVelocityModule extends VFXModule {
         this._speed = val;
     }
 
+    @type(Vec3Expression)
+    @visible(function (this: AddVelocityModule) {
+        return this.velocityMode === VelocityMode.FROM_POINT;
+    })
+    public get velocityOrigin () {
+        if (!this._velocityOrigin) {
+            this._velocityOrigin = new BindingVec3Expression(E_SIMULATION_POSITION);
+        }
+        return this._velocityOrigin;
+    }
+
+    public set velocityOrigin (val) {
+        this._velocityOrigin = val;
+    }
+
+    @type(Vec3Expression)
+    @visible(function (this: AddVelocityModule) {
+        return this.velocityMode === VelocityMode.FROM_POINT;
+    })
+    public get defaultPosition () {
+        if (!this._defaultPosition) {
+            this._defaultPosition = new BindingVec3Expression(P_POSITION);
+        }
+        return this._defaultPosition;
+    }
+
+    public set defaultPosition (val) {
+        this._defaultPosition = val;
+    }
+
     @serializable
     private _velocity: Vec3Expression | null = null;
     @serializable
     private _velocityScale: FloatExpression | null = null;
     @serializable
     private _speed: FloatExpression | null = null;
+    @serializable
+    private _velocityOrigin: Vec3Expression | null = null;
+    @serializable
+    private _defaultPosition: Vec3Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(P_VELOCITY);
@@ -111,6 +145,10 @@ export class AddVelocityModule extends VFXModule {
         if (this.velocityMode === VelocityMode.LINEAR) {
             this.velocity.tick(particles, emitter, user, context);
             this.velocityScale.tick(particles, emitter, user, context);
+        } else {
+            this.speed.tick(particles, emitter, user, context);
+            this.velocityOrigin.tick(particles, emitter, user, context);
+            this.defaultPosition.tick(particles, emitter, user, context);
         }
     }
 
@@ -154,7 +192,12 @@ export class AddVelocityModule extends VFXModule {
                 }
             }
         } else if (this.velocityMode === VelocityMode.FROM_POINT) {
-
+            const speedExp = this._speed as FloatExpression;
+            const velocityOriginExp = this._velocityOrigin as Vec3Expression;
+            const defaultPositionExp = this._defaultPosition as Vec3Expression;
+            speedExp.bind(particles, emitter, user, context);
+            velocityOriginExp.bind(particles, emitter, user, context);
+            defaultPositionExp.bind(particles, emitter, user, context);
         }
     }
 }

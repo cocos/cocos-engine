@@ -25,9 +25,10 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, P_SPRITE_ROTATION, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
+import { P_SPRITE_ROTATION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 @ccclass('cc.SetSpriteRotationModule')
 @VFXModule.register('SetSpriteRotation', ModuleExecStageFlags.SPAWN)

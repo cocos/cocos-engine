@@ -26,9 +26,10 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Mat4, Quat, Vec3 } from '../../core';
 import { VFXModule } from '../vfx-module';
-import { ParticleDataSet, P_POSITION, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec3ArrayParameter } from '../parameters';
 import { BindingVec3Expression, ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { P_POSITION } from '../define';
 
 const originVec = new Vec3(0, 0, 0);
 const tempVec1 = new Vec3(0, 0, 0);

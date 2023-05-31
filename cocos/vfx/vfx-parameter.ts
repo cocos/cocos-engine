@@ -23,11 +23,33 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, visible } from '../core/data/decorators';
-import { VFXParameterNameSpace, ParticleHandle, VFXParameterType } from './define';
 
 const DEFAULT_CAPACITY = 16;
 export const BATCH_OPERATION_THRESHOLD_VEC3 = 330;
 export const BATCH_OPERATION_THRESHOLD = 1000;
+export type Handle = number;
+
+export enum VFXParameterType {
+    FLOAT,
+    BOOL,
+    VEC2,
+    VEC3,
+    VEC4,
+    QUAT,
+    COLOR,
+    INT32,
+    UINT32,
+    UINT8,
+    MAT3,
+    MAT4,
+}
+
+export enum VFXParameterNameSpace {
+    EMITTER,
+    PARTICLE,
+    USER,
+    CONTEXT
+}
 
 @ccclass('cc.VFXParameterIdentity')
 export class VFXParameterIdentity {
@@ -87,7 +109,7 @@ export abstract class ArrayParameter extends VFXParameter {
     abstract get stride (): number;
     protected _capacity = DEFAULT_CAPACITY;
     abstract reserve (capacity: number);
-    abstract move (a: ParticleHandle, b: ParticleHandle);
-    abstract copyFrom (src: ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle);
-    abstract copyToTypedArray (dest: ArrayBufferView, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle);
+    abstract move (a: Handle, b: Handle);
+    abstract copyFrom (src: ArrayParameter, fromIndex: Handle, toIndex: Handle);
+    abstract copyToTypedArray (dest: ArrayBufferView, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle);
 }

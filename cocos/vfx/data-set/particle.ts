@@ -25,8 +25,7 @@
 
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../../core';
-import { ArrayParameter, VFXParameterIdentity } from '../vfx-parameter';
-import { VFXParameterNameSpace, ParticleHandle } from '../define';
+import { ArrayParameter, Handle, VFXParameterIdentity, VFXParameterNameSpace } from '../vfx-parameter';
 import { VFXDataSet } from '../vfx-data-set';
 
 export class ParticleDataSet extends VFXDataSet {
@@ -57,7 +56,7 @@ export class ParticleDataSet extends VFXDataSet {
         this._count += count;
     }
 
-    public removeParticle (handle: ParticleHandle) {
+    public removeParticle (handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle >= 0 && handle < this._count);
         }

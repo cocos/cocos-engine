@@ -1,7 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { Vec2, assertIsTrue } from '../../core';
-import { ParticleHandle, VFXParameterType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, VFXParameter } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
 
 const tempVec2 = new Vec2();
 export class Vec2ArrayParameter extends ArrayParameter {
@@ -19,7 +18,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
 
     private _data = new Float32Array(this.stride * this._capacity);
 
-    static multiplyScalar (out: Vec2ArrayParameter, a: Vec2ArrayParameter, scale: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    static multiplyScalar (out: Vec2ArrayParameter, a: Vec2ArrayParameter, scale: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(out._capacity === a._capacity
                 && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
@@ -44,14 +43,14 @@ export class Vec2ArrayParameter extends ArrayParameter {
      * @param a the handle to be moved.
      * @param b the handle to be overwrite.
      */
-    move (a: ParticleHandle, b: ParticleHandle) {
+    move (a: Handle, b: Handle) {
         if (DEBUG) {
             assertIsTrue(a < this._capacity && a >= 0 && b < this._capacity && b >= 0);
         }
         this.setVec2At(this.getVec2At(tempVec2, a), b);
     }
 
-    getVec2At (out: Vec2, handle: ParticleHandle) {
+    getVec2At (out: Vec2, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -62,7 +61,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         return out;
     }
 
-    setVec2At (val: Vec2, handle: ParticleHandle) {
+    setVec2At (val: Vec2, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -72,7 +71,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         data[offset + 1] = val.y;
     }
 
-    setUniformFloatAt (val: number, handle: ParticleHandle) {
+    setUniformFloatAt (val: number, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -82,7 +81,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         data[offset + 1] = val;
     }
 
-    addVec2At (val: Vec2, handle: ParticleHandle) {
+    addVec2At (val: Vec2, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -92,7 +91,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         data[offset + 1] += val.y;
     }
 
-    multiplyVec2At (val: Vec2, handle: ParticleHandle) {
+    multiplyVec2At (val: Vec2, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -102,7 +101,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         data[offset + 1] *= val.y;
     }
 
-    multiplyScalarAt (val: number, handle: ParticleHandle) {
+    multiplyScalarAt (val: number, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -112,7 +111,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         data[offset + 1] *= val;
     }
 
-    copyFrom (src: Vec2ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: Vec2ArrayParameter, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }
@@ -128,7 +127,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         }
     }
 
-    copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= this.stride && strideOffset >= 0 && strideOffset < stride);
@@ -150,7 +149,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         }
     }
 
-    fill (val: Vec2, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    fill (val: Vec2, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }

@@ -26,8 +26,9 @@
 import { ccclass, serializable, type, rangeMin } from 'cc.decorator';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, C_DELTA_TIME, ContextDataSet, EmitterDataSet, E_LOOPED_AGE, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatParameter } from '../parameters';
+import { E_LOOPED_AGE, C_DELTA_TIME } from '../define';
 
 @ccclass('cc.SpawnBurstModule')
 @VFXModule.register('SpawnBurst', ModuleExecStageFlags.EMITTER)

@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { VFXDataSet } from '../../../exports/vfx';
-import { VFXParameterNameSpace } from '../define';
+import { VFXDataSet } from '../vfx-data-set';
+import { VFXParameterNameSpace } from '../vfx-parameter';
 
 export class UserDataSet extends VFXDataSet {
     constructor () {

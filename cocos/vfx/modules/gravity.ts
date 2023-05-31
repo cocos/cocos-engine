@@ -25,10 +25,11 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { P_BASE_VELOCITY, P_PHYSICS_FORCE, P_POSITION, ParticleDataSet, P_VELOCITY, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, E_IS_WORLD_SPACE, E_WORLD_TO_LOCAL_RS, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3ArrayParameter, Uint32Parameter, BoolParameter, Mat3Parameter } from '../parameters';
+import { P_PHYSICS_FORCE, P_POSITION, P_BASE_VELOCITY, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_WORLD_TO_LOCAL_RS } from '../define';
 
 const gravity = new Vec3();
 @ccclass('cc.GravityModule')

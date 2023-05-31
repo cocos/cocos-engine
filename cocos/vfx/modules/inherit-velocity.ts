@@ -26,9 +26,10 @@
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { P_BASE_VELOCITY, P_POSITION, ParticleDataSet, P_VELOCITY, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, E_IS_WORLD_SPACE, P_VELOCITY as EMITTER_VELOCITY, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { BoolParameter, Uint32Parameter, Vec3Parameter, Vec3ArrayParameter } from '../parameters';
+import { P_VELOCITY, E_IS_WORLD_SPACE, P_POSITION, P_BASE_VELOCITY, C_FROM_INDEX, C_TO_INDEX, E_VELOCITY } from '../define';
 
 const tempVelocity = new Vec3();
 const scale = new Vec3();
@@ -62,7 +63,7 @@ export class InheritVelocityModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const initialVelocity = emitter.getParameterUnsafe<Vec3Parameter>(EMITTER_VELOCITY).data;
+        const initialVelocity = emitter.getParameterUnsafe<Vec3Parameter>(E_VELOCITY).data;
         if (!emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data) { return; }
         const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_VELOCITY : P_VELOCITY);
         const scaleExp = this._scale as Vec3Expression;

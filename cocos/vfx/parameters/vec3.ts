@@ -1,7 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { Vec3, assertIsTrue } from '../../core';
-import { ParticleHandle, VFXParameterType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, VFXParameter } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
 
 const tempVec3 = new Vec3();
 export class Vec3ArrayParameter extends ArrayParameter {
@@ -19,7 +18,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
 
     private _data = new Float32Array(3 * this._capacity);
 
-    static scaleAndAdd (out: Vec3ArrayParameter, a: Vec3ArrayParameter, b: Vec3ArrayParameter, scale: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    static scaleAndAdd (out: Vec3ArrayParameter, a: Vec3ArrayParameter, b: Vec3ArrayParameter, scale: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(out._capacity === a._capacity && a._capacity === b._capacity
                 && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
@@ -45,14 +44,14 @@ export class Vec3ArrayParameter extends ArrayParameter {
      * @param a the handle to be moved.
      * @param b the handle to be overwrite.
      */
-    move (a: ParticleHandle, b: ParticleHandle) {
+    move (a: Handle, b: Handle) {
         if (DEBUG) {
             assertIsTrue(a < this._capacity && a >= 0 && b < this._capacity && b >= 0);
         }
         this.setVec3At(this.getVec3At(tempVec3, a), b);
     }
 
-    getVec3At (out: Vec3, handle: ParticleHandle) {
+    getVec3At (out: Vec3, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -64,7 +63,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         return out;
     }
 
-    setVec3At (val: Vec3, handle: ParticleHandle) {
+    setVec3At (val: Vec3, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -75,7 +74,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         data[offset + 2] = val.z;
     }
 
-    setUniformFloatAt (val: number, handle: ParticleHandle) {
+    setUniformFloatAt (val: number, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -86,7 +85,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         data[offset + 2] = val;
     }
 
-    addVec3At (val: Vec3, handle: ParticleHandle) {
+    addVec3At (val: Vec3, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -97,7 +96,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         data[offset + 2] += val.z;
     }
 
-    multiplyVec3At (val: Vec3, handle: ParticleHandle) {
+    multiplyVec3At (val: Vec3, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -108,7 +107,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         data[offset + 2] *= val.z;
     }
 
-    multiplyScalarAt (val: number, handle: ParticleHandle) {
+    multiplyScalarAt (val: number, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -119,7 +118,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         data[offset + 2] *= val;
     }
 
-    copyFrom (src: Vec3ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: Vec3ArrayParameter, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }
@@ -135,7 +134,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         }
     }
 
-    copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= this.stride && strideOffset >= 0 && strideOffset < stride);
@@ -158,7 +157,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         }
     }
 
-    fill (val: Vec3, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    fill (val: Vec3, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }

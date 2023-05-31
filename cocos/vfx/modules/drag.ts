@@ -24,20 +24,14 @@
  */
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
-import { Vec3, CCBoolean, Enum, Vec2 } from '../../core';
+import { Vec3 } from '../../core';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { C_FROM_INDEX, ContextDataSet, C_TO_INDEX, P_BASE_VELOCITY, P_PHYSICS_FORCE, P_POSITION, ParticleDataSet, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, EmitterDataSet, UserDataSet } from '../data-set';
-import { Uint32Parameter, Vec2ArrayParameter, Vec3ArrayParameter } from '../parameters';
+import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
+import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
+import { P_VELOCITY, P_SCALE, P_SPRITE_SIZE, P_POSITION, P_BASE_VELOCITY, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const _tempVec3 = new Vec3();
-const _tempVec2 = new Vec2();
-
-export enum RadiusSource {
-    P_SPRITE_SIZE,
-    MESH_SCALE,
-    CUSTOM,
-}
 @ccclass('cc.DragModule')
 @VFXModule.register('Drag', ModuleExecStageFlags.UPDATE, [P_VELOCITY.name], [P_VELOCITY.name, P_SCALE.name, P_SPRITE_SIZE.name])
 export class DragModule extends VFXModule {

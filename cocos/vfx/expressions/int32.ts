@@ -24,15 +24,15 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { Color } from '../../core';
 import { VFXExpression } from '../vfx-expression';
 import { VFXParameterType } from '../vfx-parameter';
 
-@ccclass('cc.ColorExpression')
-export abstract  class ColorExpression extends VFXExpression {
+@ccclass('cc.Int32Expression')
+export abstract class Int32Expression extends VFXExpression {
     public get valueType () {
-        return VFXParameterType.COLOR;
+        return VFXParameterType.INT32;
     }
-    abstract evaluateSingle (out: Color): Color;
-    abstract evaluate (index: number, out: Color): Color;
+
+    public abstract evaluateSingle (): number;
+    public abstract evaluate (index: number): number;
 }

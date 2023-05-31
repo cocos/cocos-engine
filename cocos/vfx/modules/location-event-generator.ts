@@ -25,9 +25,9 @@
 
 import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, Vec3 } from '../../core';
-import { VFXEventType } from '../define';
+import { C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_INV_LIFETIME, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { P_COLOR, P_ID, P_INV_LIFETIME, P_NORMALIZED_AGE, ParticleDataSet, P_POSITION, P_RANDOM_SEED, P_VELOCITY, C_DELTA_TIME, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
 import { BoolParameter, ColorArrayParameter, FloatArrayParameter, FloatParameter, Mat4Parameter, Uint32ArrayParameter, Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { VFXEventInfo } from '../vfx-events';

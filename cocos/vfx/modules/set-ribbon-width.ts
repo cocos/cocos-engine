@@ -25,9 +25,10 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { P_BASE_RIBBON_WIDTH, P_NORMALIZED_AGE, ParticleDataSet, P_RIBBON_WIDTH, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
+import { P_RIBBON_WIDTH, P_NORMALIZED_AGE, P_BASE_RIBBON_WIDTH, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 @ccclass('cc.SetRibbonWidthModule')
 @VFXModule.register('SetRibbonWidth', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [P_RIBBON_WIDTH.name], [P_NORMALIZED_AGE.name])

@@ -25,10 +25,11 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { P_POSITION, ParticleDataSet, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, UserDataSet, EmitterDataSet } from '../data-set';
 import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3ArrayParameter, Uint32Parameter } from '../parameters';
+import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempPos = new Vec3();
 
@@ -39,8 +40,19 @@ export class SetPositionModule extends VFXModule {
       * @zh 设置粒子颜色。
       */
     @type(Vec3Expression)
+    public get position () {
+        if (!this._position) {
+            this._position = new ConstantVec3Expression(0, 0, 0);
+        }
+        return this._position;
+    }
+
+    public set position (val) {
+        this._position = val;
+    }
+
     @serializable
-    public position: Vec3Expression = new ConstantVec3Expression();
+    private _position: Vec3Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         particles.markRequiredParameter(P_POSITION);
@@ -51,13 +63,13 @@ export class SetPositionModule extends VFXModule {
         const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
         const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
         const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const exp = this.position;
-        exp.bind(particles, emitter, user, context);
-        if (exp.isConstant) {
-            position.fill(exp.evaluate(0, tempPos), fromIndex, toIndex);
+        const positionExp = this._position as Vec3Expression;
+        positionExp.bind(particles, emitter, user, context);
+        if (positionExp.isConstant) {
+            position.fill(positionExp.evaluate(0, tempPos), fromIndex, toIndex);
         } else {
             for (let i = fromIndex; i < toIndex; i++) {
-                position.setVec3At(exp.evaluate(i, tempPos), i);
+                position.setVec3At(positionExp.evaluate(i, tempPos), i);
             }
         }
     }

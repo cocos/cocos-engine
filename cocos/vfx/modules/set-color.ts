@@ -25,10 +25,11 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { P_BASE_COLOR, P_COLOR, P_NORMALIZED_AGE, ParticleDataSet, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ColorExpression, ConstantColorExpression } from '../expressions';
 import { Color } from '../../core';
 import { ColorArrayParameter, Uint32Parameter } from '../parameters';
+import { P_COLOR, P_NORMALIZED_AGE, P_BASE_COLOR, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempColor = new Color();
 

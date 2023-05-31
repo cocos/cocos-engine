@@ -24,12 +24,13 @@
  */
 import { lerp, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, P_RANDOM_SEED, UserDataSet } from '../data-set';
+import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
 import { ConstantVec3Expression } from './constant-vec3';
 import { Vec3Expression } from './vec3';
 import { ModuleExecStage } from '../vfx-module';
 import { Uint32ArrayParameter } from '../parameters';
+import { P_RANDOM_SEED } from '../define';
 
 const temp = new Vec3();
 const tempRatio = new Vec3();

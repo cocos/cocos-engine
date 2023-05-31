@@ -26,8 +26,9 @@
 import { ModuleExecStage } from '../vfx-module';
 import { RandomStream } from '../random-stream';
 import { VFXEvents } from '../vfx-events';
-import { C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX, VFXParameterNameSpace } from '../define';
+import { C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXDataSet } from '../vfx-data-set';
+import { VFXParameterNameSpace } from '../vfx-parameter';
 
 export class ContextDataSet extends VFXDataSet {
     public get events (): VFXEvents {

@@ -1,7 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { Vec4, assertIsTrue } from '../../core';
-import { ParticleHandle, VFXParameterType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, VFXParameter } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
 
 const tempVec4 = new Vec4();
 export class Vec4ArrayParameter extends ArrayParameter {
@@ -32,14 +31,14 @@ export class Vec4ArrayParameter extends ArrayParameter {
      * @param a the handle to be moved.
      * @param b the handle to be overwrite.
      */
-    move (a: ParticleHandle, b: ParticleHandle) {
+    move (a: Handle, b: Handle) {
         if (DEBUG) {
             assertIsTrue(a < this._capacity && a >= 0 && b < this._capacity && b >= 0);
         }
         this.setVec4At(this.getVec4At(tempVec4, a), b);
     }
 
-    getVec4At (out: Vec4, handle: ParticleHandle) {
+    getVec4At (out: Vec4, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -52,7 +51,7 @@ export class Vec4ArrayParameter extends ArrayParameter {
         return out;
     }
 
-    setVec4At (val: Vec4, handle: ParticleHandle) {
+    setVec4At (val: Vec4, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -64,7 +63,7 @@ export class Vec4ArrayParameter extends ArrayParameter {
         data[offset + 3] = val.w;
     }
 
-    setUniformFloatAt (val: number, handle: ParticleHandle) {
+    setUniformFloatAt (val: number, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -76,7 +75,7 @@ export class Vec4ArrayParameter extends ArrayParameter {
         data[offset + 3] = val;
     }
 
-    addVec4At (val: Vec4, handle: ParticleHandle) {
+    addVec4At (val: Vec4, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -88,7 +87,7 @@ export class Vec4ArrayParameter extends ArrayParameter {
         data[offset + 3] += val.w;
     }
 
-    multiplyVec4At (val: Vec4, handle: ParticleHandle) {
+    multiplyVec4At (val: Vec4, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -100,7 +99,7 @@ export class Vec4ArrayParameter extends ArrayParameter {
         data[offset + 3] *= val.w;
     }
 
-    multiplyScalarAt (val: number, handle: ParticleHandle) {
+    multiplyScalarAt (val: number, handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
@@ -112,7 +111,7 @@ export class Vec4ArrayParameter extends ArrayParameter {
         data[offset + 3] *= val;
     }
 
-    copyFrom (src: Vec4ArrayParameter, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyFrom (src: Vec4ArrayParameter, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }
@@ -128,7 +127,7 @@ export class Vec4ArrayParameter extends ArrayParameter {
         }
     }
 
-    copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(stride >= this.stride && strideOffset >= 0 && strideOffset < stride);
@@ -152,7 +151,7 @@ export class Vec4ArrayParameter extends ArrayParameter {
         }
     }
 
-    fill (val: Vec4, fromIndex: ParticleHandle, toIndex: ParticleHandle) {
+    fill (val: Vec4, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }

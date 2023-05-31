@@ -24,8 +24,8 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { VFXParameterType } from '../define';
 import { VFXExpression } from '../vfx-expression';
+import { VFXParameterType } from '../vfx-parameter';
 
 @ccclass('cc.FloatExpression')
 export abstract class FloatExpression extends VFXExpression {

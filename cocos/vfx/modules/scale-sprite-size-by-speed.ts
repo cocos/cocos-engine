@@ -27,8 +27,9 @@ import { ccclass, type, serializable, visible, rangeMin } from 'cc.decorator';
 import { lerp, math, Vec2, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression, Vec3Expression } from '../expressions';
-import { ParticleDataSet, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { Uint32Parameter, Vec2ArrayParameter, Vec3ArrayParameter } from '../parameters';
+import { P_SPRITE_SIZE, P_VELOCITY, P_SCALE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempVelocity = new Vec3();
 const tempScalar = new Vec2();

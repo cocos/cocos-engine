@@ -26,8 +26,9 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
-import { P_BASE_RIBBON_WIDTH, P_NORMALIZED_AGE, ParticleDataSet, P_RIBBON_WIDTH, P_SPRITE_SIZE, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatArrayParameter, Uint32Parameter } from '../parameters';
+import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_RIBBON_WIDTH, P_BASE_RIBBON_WIDTH, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 @ccclass('cc.ScaleRibbonWidthModule')
 @VFXModule.register('ScaleRibbonWidth', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [P_SPRITE_SIZE.name], [P_NORMALIZED_AGE.name])

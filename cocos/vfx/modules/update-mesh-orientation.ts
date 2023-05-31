@@ -27,9 +27,10 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { C_DELTA_TIME, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, P_MESH_ORIENTATION, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
+import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec3Expression, ConstantVec3Expression } from '../expressions';
 import { Vec3ArrayParameter, FloatParameter, Uint32Parameter } from '../parameters';
+import { P_MESH_ORIENTATION, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const eulerAngle = new Vec3();
 

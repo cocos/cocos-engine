@@ -28,8 +28,8 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, 
 import { DEBUG, EDITOR } from 'internal:constants';
 import { approx, Color, lerp, Mat4, Quat, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { C_DELTA_TIME, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, ParticleDataSet, P_BASE_COLOR, P_BASE_SCALE, P_BASE_SPRITE_SIZE, P_BASE_VELOCITY, P_COLOR, P_ID, P_INV_LIFETIME, P_IS_DEAD, P_MESH_ORIENTATION, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, E_AGE, E_CURRENT_DELAY, E_CURRENT_LOOP_COUNT, EmitterDataSet, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, E_RENDER_SCALE, P_VELOCITY as EMITTER_VELOCITY, E_WORLD_TO_LOCAL, E_WORLD_TO_LOCAL_RS, UserDataSet } from './data-set';
-import { BoundsMode, CapacityMode, CullingMode, DelayMode, FinishAction, LoopMode, PlayingState, ScalingMode } from './define';
+import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from './data-set';
+import { BoundsMode, CapacityMode, CullingMode, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX, DelayMode, E_AGE, E_CURRENT_DELAY, E_CURRENT_LOOP_COUNT, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, E_POSITION, E_RENDER_SCALE, E_SIMULATION_POSITION, E_VELOCITY, E_WORLD_TO_LOCAL, E_WORLD_TO_LOCAL_RS, FinishAction, LoopMode, PlayingState, P_BASE_COLOR, P_BASE_SCALE, P_BASE_SPRITE_SIZE, P_BASE_VELOCITY, P_COLOR, P_ID, P_INV_LIFETIME, P_IS_DEAD, P_MESH_ORIENTATION, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, ScalingMode } from './define';
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component } from '../scene-graph';
@@ -642,7 +642,7 @@ export class VFXEmitter extends Component {
         if (state.isEmitting) {
             const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
             const initialTransform = isWorldSpace ? emitter.getParameterUnsafe<Mat4Parameter>(E_LOCAL_TO_WORLD).data : Mat4.IDENTITY;
-            const initialVelocity = isWorldSpace ? emitter.getParameterUnsafe<Vec3Parameter>(EMITTER_VELOCITY).data : Vec3.ZERO;
+            const initialVelocity = isWorldSpace ? emitter.getParameterUnsafe<Vec3Parameter>(E_VELOCITY).data : Vec3.ZERO;
             for (let i = 0; i < emitter.spawnInfoCount; i++) {
                 const spawnInfo = emitter.spawnInfos[i];
                 this.spawn(spawnInfo.count, spawnInfo.intervalDt, spawnInfo.interpStartDt, initialTransform, initialVelocity, Color.WHITE);
@@ -738,7 +738,9 @@ export class VFXEmitter extends Component {
         }
         const distance = Vec3.subtract(new Vec3(), this._state.worldPosition, this._state.prevWorldPosition);
         Vec3.multiplyScalar(distance, distance, 1 / context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data);
-        emitter.getParameterUnsafe<Vec3Parameter>(EMITTER_VELOCITY).data = distance;
+        emitter.getParameterUnsafe<Vec3Parameter>(E_VELOCITY).data = distance;
+        emitter.getParameterUnsafe<Vec3Parameter>(E_POSITION).data = this._state.worldPosition;
+        emitter.getParameterUnsafe<Vec3Parameter>(E_SIMULATION_POSITION).data = !this._localSpace ? this._state.worldPosition : Vec3.ZERO;
     }
 
     /**
@@ -867,8 +869,8 @@ export class VFXEmitter extends Component {
         const toIndex = particles.count;
         const hasPosition = particles.hasParameter(P_POSITION);
         if (hasPosition) {
-            const initialPosition = initialTransform.getTranslation(tempPosition);
-            particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION).fill(initialPosition, fromIndex, toIndex);
+            const simulationPosition = emitter.getParameterUnsafe<Vec3Parameter>(E_SIMULATION_POSITION).data;
+            particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION).fill(simulationPosition, fromIndex, toIndex);
         }
 
         if (particles.hasParameter(P_BASE_VELOCITY)) {

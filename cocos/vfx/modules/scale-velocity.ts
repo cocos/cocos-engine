@@ -27,8 +27,8 @@ import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { CCBoolean, Enum, Vec3 } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, P_VELOCITY, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, UserDataSet } from '../data-set';
-import { CoordinateSpace } from '../define';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
+import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_VELOCITY } from '../define';
 import { Vec3ArrayParameter, BoolParameter, Uint32Parameter, Mat3Parameter } from '../parameters';
 
 const tempScalar = new Vec3();

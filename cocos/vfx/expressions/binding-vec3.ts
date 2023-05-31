@@ -24,9 +24,8 @@
  */
 import { ccclass } from '../../core/data/decorators';
 import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
-import { VFXParameterNameSpace } from '../define';
 import { Vec3Expression } from './vec3';
-import { VFXParameterIdentity } from '../vfx-parameter';
+import { VFXParameterIdentity, VFXParameterNameSpace } from '../vfx-parameter';
 import { Vec3ArrayParameter } from '../parameters';
 import { Vec3 } from '../../core';
 

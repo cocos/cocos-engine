@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, type, visible } from 'cc.decorator';
-import { BitMask, Enum, assertIsTrue, CCFloat } from '../core';
+import { BitMask, Enum, CCFloat } from '../core';
 import { VFXEmitter } from './vfx-emitter';
 import { ModuleExecStage, VFXModuleStage } from './vfx-module';
 import { InheritedProperty, VFXEventType } from './define';

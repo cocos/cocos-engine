@@ -25,14 +25,15 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { clamp, Enum, TWO_PI, Vec2, Vec3 } from '../../core';
-import { ParticleDataSet, P_POSITION, C_FROM_INDEX, ContextDataSet, C_TO_INDEX, EmitterDataSet, UserDataSet } from '../data-set';
+import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression, ConstantVec2Expression, FloatExpression, Vec2Expression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
 import { degreesToRadians } from '../../core/utils/misc';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
+import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const pos = new Vec3();
-const distrib = new Vec2();
+const distribution = new Vec2();
 
 @ccclass('cc.SphereLocationModule')
 @VFXModule.register('SphereLocation', ModuleExecStageFlags.SPAWN, [P_POSITION.name])
@@ -191,15 +192,15 @@ export class SphereLocationModule extends ShapeLocationModule {
             hemisphereDistributionExp.bind(particles, emitter, user, context);
             const random = this.randomStream;
             for (let i = fromIndex; i < toIndex; ++i) {
-                hemisphereDistributionExp.evaluate(i, distrib);
-                const surfaceDistrib = Math.max(surfaceDistributionExp.evaluate(i), 0);
-                const radialAngle = clamp(degreesToRadians(distrib.x), 0, TWO_PI);
-                const angle = Math.acos(random.getFloatFromRange(Math.cos(degreesToRadians(distrib.y * 0.5)), 1));
+                hemisphereDistributionExp.evaluate(i, distribution);
+                const surfaceDistribution = Math.max(surfaceDistributionExp.evaluate(i), 0);
+                const radialAngle = clamp(degreesToRadians(distribution.x), 0, TWO_PI);
+                const angle = Math.acos(random.getFloatFromRange(Math.cos(degreesToRadians(distribution.y * 0.5)), 1));
                 const theta = random.getFloatFromRange(0, radialAngle);
                 Vec3.set(pos, Math.cos(theta), Math.sin(theta), 0);
                 Vec3.multiplyScalar(pos, pos, Math.sin(angle));
                 pos.z = Math.cos(angle);
-                Vec3.multiplyScalar(pos, pos, random.getFloatFromRange(surfaceDistrib, 1.0) ** 0.3333 * radiusExp.evaluate(i));
+                Vec3.multiplyScalar(pos, pos, random.getFloatFromRange(surfaceDistribution, 1.0) ** 0.3333 * radiusExp.evaluate(i));
                 this.storePosition(i, pos, position);
             }
         } else if (this.distributionMode === DistributionMode.DIRECT) {

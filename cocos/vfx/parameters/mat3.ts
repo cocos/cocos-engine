@@ -1,7 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue, Mat3 } from '../../core';
-import { VFXParameterType } from '../define';
-import { ArrayParameter, VFXParameter } from '../vfx-parameter';
+import { ArrayParameter, VFXParameter, VFXParameterType } from '../vfx-parameter';
 
 const tempMat3 = new Mat3();
 export class Mat3ArrayParameter extends ArrayParameter {

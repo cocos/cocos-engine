@@ -27,7 +27,7 @@ import { ccclass, serializable, type } from '../../core/data/decorators';
 import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
-import { BindingFloatExpression } from '../../../exports/vfx';
+import { BindingFloatExpression } from './binding-float';
 import { E_NORMALIZED_LOOP_AGE } from '../define';
 
 @ccclass('cc.FloatFromCurveExpression')

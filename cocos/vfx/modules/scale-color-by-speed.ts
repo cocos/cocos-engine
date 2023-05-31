@@ -24,10 +24,11 @@
  */
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { ColorExpression, ConstantColorExpression, ConstantFloatExpression, FloatExpression } from '../expressions';
-import { C_FROM_INDEX, ContextDataSet, C_TO_INDEX, P_COLOR, ParticleDataSet, P_VELOCITY, UserDataSet, EmitterDataSet } from '../data-set';
+import { ContextDataSet, ParticleDataSet, UserDataSet, EmitterDataSet } from '../data-set';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Color, math, Vec3 } from '../../core';
 import { Uint32Parameter, Vec3ArrayParameter, ColorArrayParameter } from '../parameters';
+import { P_COLOR, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempVelocity = new Vec3();
 const tempColor = new Color();

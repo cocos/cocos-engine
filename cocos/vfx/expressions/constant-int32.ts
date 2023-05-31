@@ -22,17 +22,42 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { CCInteger } from '../../core';
+import { ccclass, serializable, type } from '../../core/data/class-decorator';
+import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
+import { Int32Expression } from './int32';
 
-import { ccclass } from 'cc.decorator';
-import { Color } from '../../core';
-import { VFXExpression } from '../vfx-expression';
-import { VFXParameterType } from '../vfx-parameter';
-
-@ccclass('cc.ColorExpression')
-export abstract  class ColorExpression extends VFXExpression {
-    public get valueType () {
-        return VFXParameterType.COLOR;
+@ccclass('cc.ConstantInt32Expression')
+export class ConstantInt32Expression extends Int32Expression {
+    @type(CCInteger)
+    public get value () {
+        return this._value;
     }
-    abstract evaluateSingle (out: Color): Color;
-    abstract evaluate (index: number, out: Color): Color;
+
+    public set value (val) {
+        this._value = val | 0;
+    }
+
+    public get isConstant () {
+        return true;
+    }
+
+    @serializable
+    private _value = 0;
+
+    constructor (value = 0) {
+        super();
+        this.value = value;
+    }
+
+    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
+    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
+
+    public evaluate (index: number): number {
+        return this.value;
+    }
+
+    public evaluateSingle (): number {
+        return this.value;
+    }
 }

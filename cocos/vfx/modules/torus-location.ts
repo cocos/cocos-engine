@@ -26,10 +26,11 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, TWO_PI, Vec3, clamp } from '../../core';
-import { P_POSITION, ParticleDataSet, EmitterDataSet, ContextDataSet, UserDataSet, C_FROM_INDEX, C_TO_INDEX } from '../data-set';
+import { ParticleDataSet, EmitterDataSet, ContextDataSet, UserDataSet } from '../data-set';
 import { ShapeLocationModule } from './shape-location';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
+import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 export enum TorusDistributionMode {
     RANDOM,
@@ -41,7 +42,7 @@ const pos = new Vec3();
 @ccclass('cc.TorusLocationModule')
 @VFXModule.register('TorusLocation', ModuleExecStageFlags.SPAWN, [P_POSITION.name])
 export class TorusLocationModule extends ShapeLocationModule {
-    @type(Enum(TorusDistributionMode))
+    @type(FloatExpression)
     public get largeRadius () {
         if (!this._largeRadius) {
             this._largeRadius = new ConstantFloatExpression(1);

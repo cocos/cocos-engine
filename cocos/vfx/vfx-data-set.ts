@@ -24,9 +24,8 @@
  */
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
-import { VFXParameterNameSpace, VFXParameterType } from './define';
 import { FloatParameter, Vec3Parameter, ColorParameter, Uint32Parameter, BoolParameter, Vec2Parameter, Vec4Parameter, Int32Parameter, Uint8Parameter, QuatParameter, Mat3Parameter, Mat4Parameter, FloatArrayParameter, Vec3ArrayParameter, ColorArrayParameter, Uint32ArrayParameter, BoolArrayParameter, Vec2ArrayParameter, Vec4ArrayParameter, Int32ArrayParameter, Uint8ArrayParameter, QuatArrayParameter, Mat3ArrayParameter, Mat4ArrayParameter } from './parameters';
-import { VFXParameter, VFXParameterIdentity } from './vfx-parameter';
+import { VFXParameter, VFXParameterIdentity, VFXParameterNameSpace, VFXParameterType } from './vfx-parameter';
 
 export class VFXDataSet {
     public get parameterCount () {
@@ -80,7 +79,7 @@ export class VFXDataSet {
         case VFXParameterType.VEC3:
             this.addParameter_internal(identity.id, !this._isArrayDataSet ? new Vec3Parameter() : new Vec3ArrayParameter());
             break;
-        case VFXParameterType.P_COLOR:
+        case VFXParameterType.COLOR:
             this.addParameter_internal(identity.id, !this._isArrayDataSet ? new ColorParameter() : new ColorArrayParameter());
             break;
         case VFXParameterType.UINT32:

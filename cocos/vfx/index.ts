@@ -25,8 +25,6 @@
 
 import { VFXEmitter } from './vfx-emitter';
 import { EventHandler } from './event-handler';
-import { FloatExpression } from './expressions/float';
-import { ColorExpression } from './expressions/color';
 import './vfx-manager';
 import { VFXRenderer } from './vfx-renderer';
 import { VFXExpression } from './vfx-expression';
@@ -34,8 +32,6 @@ import { VFXExpression } from './vfx-expression';
 export {
     VFXEmitter,
     VFXRenderer,
-    FloatExpression,
-    ColorExpression,
     EventHandler,
     VFXExpression,
 };
