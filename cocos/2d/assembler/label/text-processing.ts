@@ -119,6 +119,10 @@ export class TextProcessing {
         this._canvas = canvas;
         this._context = content;
     }
+
+    public get dpr () {
+        return this._dpr;
+    }
     // -------------------- Common Part --------------------------
 
     // -------------------- Canvas Mode Part --------------------------

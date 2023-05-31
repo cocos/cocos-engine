@@ -51,7 +51,7 @@ export const bmfontUtils = {
         outputLayoutData: TextOutputLayoutData, comp: Label, trans: UITransform) {
         style.fontSize = comp.fontSize;
         style.actualFontSize = comp.fontSize;
-        style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
+        style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize * TextProcessing.instance.dpr; // only char mode need this value
         layout.horizontalAlign = comp.horizontalAlign;
         layout.verticalAlign = comp.verticalAlign;
         layout.spacingX = comp.spacingX;
@@ -76,6 +76,7 @@ export const bmfontUtils = {
 
         shareLabelInfo.lineHeight = comp.lineHeight;
         shareLabelInfo.fontSize = comp.fontSize;
+        shareLabelInfo.dpr = TextProcessing.instance.dpr;
 
         style.spriteFrame = _spriteFrame;
         style.fntConfig = _fntConfig;
