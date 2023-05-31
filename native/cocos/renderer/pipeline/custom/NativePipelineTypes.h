@@ -895,6 +895,30 @@ struct QuadResource {
     IntrusivePtr<gfx::InputAssembler> quadIA;
 };
 
+enum class ResourceType {
+    STORAGE_BUFFER,
+    STORAGE_IMAGE,
+};
+
+struct SceneResource {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {resourceIndex.get_allocator().resource()};
+    }
+
+    SceneResource(const allocator_type& alloc) noexcept; // NOLINT
+    SceneResource(SceneResource&& rhs, const allocator_type& alloc);
+
+    SceneResource(SceneResource&& rhs) noexcept = default;
+    SceneResource(SceneResource const& rhs) = delete;
+    SceneResource& operator=(SceneResource&& rhs) = default;
+    SceneResource& operator=(SceneResource const& rhs) = delete;
+
+    ccstd::pmr::unordered_map<NameLocalID, ResourceType> resourceIndex;
+    ccstd::pmr::unordered_map<NameLocalID, IntrusivePtr<gfx::Buffer>> storageBuffers;
+    ccstd::pmr::unordered_map<NameLocalID, IntrusivePtr<gfx::Texture>> storageImages;
+};
+
 struct NativeRenderContext {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -910,10 +934,11 @@ struct NativeRenderContext {
     void clearPreviousResources(uint64_t finishedFenceValue) noexcept;
 
     std::unique_ptr<gfx::DefaultResource> defaultResource;
+    uint64_t nextFenceValue{0};
     ccstd::pmr::map<uint64_t, ResourceGroup> resourceGroups;
     ccstd::pmr::vector<LayoutGraphNodeResource> layoutGraphResources;
+    ccstd::pmr::unordered_map<const scene::RenderScene*, SceneResource> renderSceneResources;
     QuadResource fullscreenQuad;
-    uint64_t nextFenceValue{0};
 };
 
 class NativeProgramLibrary final : public ProgramLibrary {
