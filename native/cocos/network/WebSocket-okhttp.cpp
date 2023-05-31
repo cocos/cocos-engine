@@ -350,10 +350,14 @@ extern "C" {
 #endif
 
 #define JNI_PATH(methodName) Java_com_cocos_lib_websocket_CocosWebSocket_##methodName
-#define RUN_IN_GAMETHREAD(task)                                               \
-    CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() { \
-        task;                                                                 \
-    })
+#define RUN_IN_GAMETHREAD(task)                                                       \
+    do {                                                                              \
+        if (CC_CURRENT_APPLICATION()) {                                               \
+            CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() { \
+                task;                                                                 \
+            });                                                                       \
+        }                                                                             \
+    } while (0)
 
 JNIEXPORT void JNICALL JNI_PATH(NativeInit)(JNIEnv * /*env*/, jclass /*clazz*/) {
     // nop
