@@ -386,7 +386,7 @@ void CommandBufferValidator::draw(const DrawInfo &info) {
 
 void CommandBufferValidator::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride)
 {
-    CC_ASSERT(stride == (4 * sizeof(uint32_t)));
+    CC_ASSERT(stride == (sizeof(DrawIndirectCommand)));
     CC_ASSERT(isInited());
     CC_ASSERT(buffer);
     CC_ASSERT(hasFlag(buffer->getUsage(), BufferUsageBit::INDIRECT));
@@ -399,7 +399,7 @@ void CommandBufferValidator::drawIndirect(Buffer *buffer, uint32_t offset, uint3
 
 void CommandBufferValidator::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride)
 {
-    CC_ASSERT(stride == (5 * sizeof(uint32_t)));
+    CC_ASSERT(stride == (sizeof(DrawIndexedIndirectCommand)));
     CC_ASSERT(isInited());
     CC_ASSERT(buffer);
     CC_ASSERT(hasFlag(buffer->getUsage(), BufferUsageBit::INDIRECT));
