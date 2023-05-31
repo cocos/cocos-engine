@@ -245,32 +245,37 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
             } else if (view.attachmentType == AttachmentType::DEPTH_STENCIL) { // DepthStencil
                 data.clearDepth = view.clearColor.x;
                 data.clearStencil = static_cast<uint8_t>(view.clearColor.y);
+                bool defaultDS = (view.slotName.empty() || view.slotName == "_") &&
+                                 (view.slotName1.empty() || view.slotName1 == "_");
 
-                if (!fbInfo.depthStencilTexture) {
-                    auto resID = findVertex(name, resg);
-                    visitObject(
-                        resID, resg,
-                        [&](const ManagedTexture& tex) {
-                            CC_EXPECTS(tex.texture);
-                            CC_EXPECTS(!fbInfo.depthStencilTexture);
-                            fbInfo.depthStencilTexture = tex.texture.get();
-                        },
-                        [&](const IntrusivePtr<gfx::Texture>& tex) {
-                            CC_EXPECTS(!fbInfo.depthStencilTexture);
-                            fbInfo.depthStencilTexture = tex.get();
-                        },
-                        [&](const FormatView& view) {
-                            std::ignore = view;
-                            CC_EXPECTS(false);
-                        },
-                        [&](const SubresourceView& view) {
-                            std::ignore = view;
-                            CC_EXPECTS(false);
-                        },
-                        [](const auto& /*unused*/) {
-                            CC_EXPECTS(false);
+                auto resID = findVertex(name, resg);
+                visitObject(
+                    resID, resg,
+                    [&](const ManagedTexture& tex) {
+                        CC_EXPECTS(tex.texture);
+                        CC_EXPECTS(!fbInfo.depthStencilTexture);
+                        fbInfo.depthStencilTexture = tex.texture.get();
+                    },
+                    [&](const IntrusivePtr<gfx::Texture>& tex) {
+                        CC_EXPECTS(!fbInfo.depthStencilTexture);
+                        fbInfo.depthStencilTexture = tex.get();
+                        CC_EXPECTS(!defaultDS);
+                    },
+                    [&](const FormatView& view) {
+                        std::ignore = view;
+                        CC_EXPECTS(false);
+                    },
+                    [&](const SubresourceView& view) {
+                        fbInfo.colorTextures.emplace_back(view.textureView);
+                        data.clearColors.emplace_back(gfx::Color{
+                            view.firstPlane ? data.clearStencil : data.clearDepth,
+                            0.0, 0.0, 0.0,
                         });
-                }
+                    },
+                    [](const auto& /*unused*/) {
+                        CC_EXPECTS(false);
+                    });
+                
             }
             ++index;
         }
@@ -1710,46 +1715,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                                 const ccstd::pmr::string& stencilName) const {
         auto* texture = get_if<gfx::Texture>(resID, &ctx.resourceGraph);
         CC_ENSURES(texture);
-
-        const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, resID);
-        SubresourceView view {
-                texture,
-                gfx::Format::DEPTH_STENCIL,
-                0, 1, 0, 1, 0, 1
-        };
-
-        gfx::SamplerInfo samplerInfo{};
-        samplerInfo.magFilter = gfx::Filter::POINT;
-        samplerInfo.minFilter = gfx::Filter::POINT;
-        samplerInfo.mipFilter = gfx::Filter::NONE;
-
-        if (!depthName.empty()) {
-            auto depthID = addVertex(
-                    SubresourceViewTag{},
-                    std::forward_as_tuple(depthName.c_str()),
-                    std::forward_as_tuple(desc),
-                    std::forward_as_tuple(ResourceTraits{ResourceResidency::MANAGED}),
-                    std::forward_as_tuple(),
-                    std::forward_as_tuple(samplerInfo),
-                    std::forward_as_tuple(view),
-                    ctx.resourceGraph,
-                    resID);
-            ctx.resourceGraph.mount(ctx.device, depthID);
-        }
-        if(!stencilName.empty()) {
-            view.firstPlane = 1;
-            auto stencilID = addVertex(
-                    SubresourceViewTag{},
-                    std::forward_as_tuple(stencilName.c_str()),
-                    std::forward_as_tuple(desc),
-                    std::forward_as_tuple(ResourceTraits{ResourceResidency::MANAGED}),
-                    std::forward_as_tuple(),
-                    std::forward_as_tuple(samplerInfo),
-                    std::forward_as_tuple(view),
-                    ctx.resourceGraph,
-                    resID);
-            ctx.resourceGraph.mount(ctx.device, stencilID);
-        }
     }
 
     void mountResources(const Subpass& pass) const {
@@ -1759,9 +1724,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             auto resID = findVertex(name, resg);
             CC_EXPECTS(resID != ResourceGraph::null_vertex());
             resg.mount(ctx.device, resID);
-            if(view.attachmentType == AttachmentType::DEPTH_STENCIL &&
-                    ((view.slotName != "" && view.slotName != "_") || (view.slotName1 != "" && view.slotName1 != "_"))) {
-                mountDepthStencilViews(resID, view.slotName, view.slotName1);
+            if(view.attachmentType == AttachmentType::DEPTH_STENCIL) {
+                //CC_LOG_INFO("gggg");
             }
         }
         for (const auto& [name, views] : pass.computeViews) {

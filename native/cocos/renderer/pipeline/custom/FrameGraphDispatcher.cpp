@@ -1800,6 +1800,7 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
     vis |= visibility;
     gfx::AccessFlags accesFlag;
     auto vertex = resourceGraph.valueIndex.at(name);
+
     const auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, vertex);
     if (desc.dimension == ResourceDimension::BUFFER) {
         gfx::BufferUsage bufferUsage{gfx::BufferUsage::NONE};
@@ -1932,6 +1933,11 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
     AccessVertex lastVertID = INVALID_ID;
     CC_EXPECTS(rag.resourceIndex.find(name) != rag.resourceIndex.end());
     auto resourceID = rag.resourceIndex[name];
+
+    for (auto &resID : makeRange(children(resourceID, rg))) {
+
+    }
+
     bool isExternalPass = get(get(ResourceGraph::TraitsTag{}, rg), resourceID).hasSideEffects();
     auto iter = accessRecord.find(resourceID);
     if (iter == accessRecord.end()) {
@@ -2082,7 +2088,7 @@ bool checkComputeViews(const Graphs &graphs, uint32_t vertID, uint32_t passID, P
 }
 
 void fillRenderPassInfo(const RasterView &view, gfx::RenderPassInfo &rpInfo, uint32_t index, const ResourceDesc &viewDesc) {
-    if (view.attachmentType != AttachmentType::DEPTH_STENCIL) {
+    if (view.attachmentType != AttachmentType::DEPTH_STENCIL || index != rpInfo.colorAttachments.size()) {
         auto &colorAttachment = rpInfo.colorAttachments[index];
         colorAttachment.format = viewDesc.format;
         colorAttachment.loadOp = view.loadOp;
@@ -2235,6 +2241,10 @@ void getPreserves(gfx::RenderPassInfo& rpInfo) {
     }
 }
 
+bool isDefaultDepthStencilAttachment(const PmrString& name, const PmrString& name1) {
+    return (name.empty() || name == "_") && (name1.empty() || name1 == "_");
+}
+
 void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSubpass &pass) {
     const auto &[renderGraph, resourceGraph, layoutGraphData, resourceAccessGraph, relationGraph] = graphs;
     const auto &obj = renderGraph.objects.at(passID);
@@ -2316,7 +2326,8 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
         const auto &viewDesc = get(ResourceGraph::DescTag{}, resg, rag.resourceIndex.at(resName));
 
         uint32_t slot = uberPass.attachmentIndexMap.size();
-        if (view.attachmentType != AttachmentType::DEPTH_STENCIL) {
+        if (view.attachmentType != AttachmentType::DEPTH_STENCIL ||
+             !isDefaultDepthStencilAttachment(view.slotName, view.slotName1)) {
             CC_ASSERT(uberPass.attachmentIndexMap.count(resName));
             slot = uberPass.attachmentIndexMap.at(resName);
         }
@@ -2340,8 +2351,13 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
             }
             fgRenderpassInfo.colorAccesses[slot].nextAccess = nextAccess;
         } else {
+            if (!isDefaultDepthStencilAttachment(view.slotName, view.slotName1)) {
+                CC_ASSERT(view.accessType != AccessType::WRITE);
+                subpassInfo.inputs.emplace_back(slot);
+            } else {
+                subpassInfo.depthStencil = rpInfo.colorAttachments.size();
+            }
             fgRenderpassInfo.dsAccess.nextAccess = nextAccess;
-            subpassInfo.depthStencil = rpInfo.colorAttachments.size();
         }
 
         if (iter == node.attachmentStatus.end()) {

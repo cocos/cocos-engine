@@ -159,6 +159,23 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     };
 }
 
+gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView, const ResourceDesc& desc, bool bCube = false) {
+    using namespace gfx; // NOLINT(google-build-using-namespace)
+
+    const auto& textureInfo = getTextureInfo(desc, bCube);
+
+    return {
+        nullptr,
+        textureInfo.type,
+        subresView.format,
+        subresView.indexOrFirstMipLevel,
+        subresView.numMipLevels,
+        subresView.firstArraySlice,
+        subresView.numArraySlices,
+        subresView.firstPlane,
+        subresView.numPlanes,
+    };
+}
 } // namespace
 
 bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
@@ -236,8 +253,7 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_ENSURES(!resg.isTextureView(parentID));
             mount(device, parentID);
         },
-        [&](const SubresourceView& view) { // NOLINT(misc-no-recursion)
-            std::ignore = view;
+        [&](SubresourceView& view) { // NOLINT(misc-no-recursion)
             auto parentID = parent(vertID, resg);
             CC_EXPECTS(parentID != resg.null_vertex());
             while (resg.isTextureView(parentID)) {
@@ -247,6 +263,13 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_EXPECTS(resg.isTexture(parentID));
             CC_ENSURES(!resg.isTextureView(parentID));
             mount(device, parentID);
+            auto* parentTexture = resg.getTexture(parentID);
+            const auto& desc = get(ResourceGraph::DescTag{}, resg, vertID);
+            if (!view.textureView) {
+                auto textureViewInfo = getTextureViewInfo(view, desc);
+                textureViewInfo.texture = parentTexture;
+                view.textureView = device->createTexture(textureViewInfo);
+            }
         });
 }
 
@@ -353,8 +376,8 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
         },
         [&](const SubresourceView& view) {
             // TODO(zhouzhenglong): add ImageView support
-            std::ignore = view;
-            CC_EXPECTS(false);
+            texture = view.textureView;
+            //CC_EXPECTS(false);
         },
         [&](const auto& buffer) {
             std::ignore = buffer;

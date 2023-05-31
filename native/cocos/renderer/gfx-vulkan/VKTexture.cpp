@@ -90,7 +90,8 @@ void CCVKTexture::createTextureView(bool initGPUTextureView) {
     _gpuTextureView->levelCount = _viewInfo.levelCount;
     _gpuTextureView->baseLayer = _viewInfo.baseLayer;
     _gpuTextureView->layerCount = _viewInfo.layerCount;
-    _gpuTextureView->mask = _viewInfo.mask;
+    _gpuTextureView->basePlane = _viewInfo.basePlane;
+    _gpuTextureView->planeCount = _viewInfo.planeCount;
 
     if (initGPUTextureView) {
         _gpuTextureView->init();

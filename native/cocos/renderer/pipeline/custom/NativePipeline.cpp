@@ -226,7 +226,7 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     samplerInfo.magFilter = gfx::Filter::POINT;
     samplerInfo.minFilter = gfx::Filter::POINT;
     samplerInfo.mipFilter = gfx::Filter::NONE;
-    return addVertex(
+    auto resID = addVertex(
         ManagedTextureTag{},
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(desc),
@@ -235,6 +235,37 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
         std::forward_as_tuple(samplerInfo),
         std::forward_as_tuple(),
         resourceGraph);
+
+        SubresourceView view {
+                nullptr,
+                gfx::Format::DEPTH_STENCIL,
+                0, 1, 0, 1, 0, 1
+        };
+
+        auto depthID = addVertex(
+                SubresourceViewTag{},
+                std::forward_as_tuple(name + "/depth"),
+                std::forward_as_tuple(desc),
+                std::forward_as_tuple(ResourceTraits{ResourceResidency::MANAGED}),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(samplerInfo),
+                std::forward_as_tuple(view),
+                resourceGraph,
+                resID);
+
+            view.firstPlane = 1;
+            auto stencilID = addVertex(
+                    SubresourceViewTag{},
+                    std::forward_as_tuple(name + "/stencil"),
+                    std::forward_as_tuple(desc),
+                    std::forward_as_tuple(ResourceTraits{ResourceResidency::MANAGED}),
+                    std::forward_as_tuple(),
+                    std::forward_as_tuple(samplerInfo),
+                    std::forward_as_tuple(view),
+                    resourceGraph,
+                    resID);
+
+        return resID;
 }
 
 // NOLINTNEXTLINE
