@@ -2,7 +2,7 @@
 // depends on CC_SURFACES_VERTEX_MODIFY_LOCAL_POS
 vec3 SurfacesVertexModifyLocalPos(in SurfacesStandardVertexIntermediate In)
 {
-  //must be converted to vec3 in xiaomi6
+  // compatible issue: crash with vulkan + MI6
   return vec3(In.position.xyz);
 }
 #endif
