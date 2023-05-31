@@ -470,7 +470,8 @@ gfx::DescriptorSet* initDescriptorSet(
     const PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>& resourceIndex,
     const DescriptorSetData& set,
     const RenderData& user,
-    LayoutGraphNodeResource& node) {
+    LayoutGraphNodeResource& node,
+    const SceneResource* sceneResource = nullptr) {
     // update per pass resources
     const auto& data = set.descriptorSetLayoutData;
 
@@ -518,10 +519,21 @@ gfx::DescriptorSet* initDescriptorSet(
                         newSet->bindTexture(bindID, texture);
                     } else {
                         // user provided textures
-                        auto iter = user.textures.find(d.descriptorID.value);
-                        if (iter != user.textures.end()) {
+                        bool found = false;
+                        if (auto iter = user.textures.find(d.descriptorID.value);
+                            iter != user.textures.end()) {
                             newSet->bindTexture(bindID, iter->second.get());
-                        } else {
+                            found = true;
+                        } else if (sceneResource) {
+                            auto iter = sceneResource->resourceIndex.find(d.descriptorID);
+                            if (iter != sceneResource->resourceIndex.end()) {
+                                CC_EXPECTS(iter->second == ResourceType::STORAGE_IMAGE);
+                                auto* pTex = sceneResource->storageImages.at(d.descriptorID).get();
+                                newSet->bindTexture(bindID, pTex);
+                                found = true;
+                            }
+                        }
+                        if (!found) {
                             // default textures
                             gfx::TextureType type{};
                             switch (d.type) {
@@ -574,15 +586,25 @@ gfx::DescriptorSet* initDescriptorSet(
             case DescriptorTypeOrder::STORAGE_BUFFER:
                 CC_EXPECTS(newSet);
                 for (const auto& d : block.descriptors) {
+                    bool found = false;
                     CC_EXPECTS(d.count == 1);
-
-                    auto iter = resourceIndex.find(d.descriptorID);
-                    if (iter != resourceIndex.end()) {
+                    if (auto iter = resourceIndex.find(d.descriptorID);
+                        iter != resourceIndex.end()) {
                         // render graph textures
                         auto* buffer = resg.getBuffer(iter->second);
                         CC_ENSURES(buffer);
                         newSet->bindBuffer(bindID, buffer);
+                        found = true;
+                    } else if (sceneResource) {
+                        auto iter = sceneResource->resourceIndex.find(d.descriptorID);
+                        if (iter != sceneResource->resourceIndex.end()) {
+                            CC_EXPECTS(iter->second == ResourceType::STORAGE_BUFFER);
+                            auto* pBuffer = sceneResource->storageBuffers.at(d.descriptorID).get();
+                            newSet->bindBuffer(bindID, pBuffer);
+                            found = true;
+                        }
                     }
+                    CC_ENSURES(found);
                     bindID += d.count;
                 }
                 break;
@@ -614,6 +636,7 @@ gfx::DescriptorSet* initDescriptorSet(
                     if (iter != resourceIndex.end()) {
                         // render graph textures
                         auto* texture = resg.getTexture(iter->second);
+
                         CC_ENSURES(texture);
                         newSet->bindTexture(bindID, texture);
                     }
@@ -947,6 +970,24 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
         ctx.perInstanceDescriptorSets[vertID] = set;
     }
 
+    const SceneResource* getFirstSceneResource(RenderGraph::vertex_descriptor vertID) const {
+        const auto& g = ctx.g;
+        CC_EXPECTS(holds<QueueTag>(vertID, g));
+        for (const auto e : makeRange(children(vertID, g))) {
+            const auto sceneID = target(e, g);
+            if (holds<SceneTag>(sceneID, g)) {
+                const auto& sceneData = get(SceneTag{}, sceneID, g);
+                for (const auto& scene : sceneData.scenes) {
+                    auto iter = ctx.context.renderSceneResources.find(scene);
+                    if (iter != ctx.context.renderSceneResources.end()) {
+                        return &iter->second;
+                    }
+                }
+            }
+        }
+        return nullptr;
+    }
+
     void discover_vertex(
         RenderGraph::vertex_descriptor vertID,
         const boost::filtered_graph<
@@ -1011,6 +1052,9 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto& resourceIndex = buildResourceIndex(
                 ctx.resourceGraph, ctx.lg, computeViews, ctx.scratch);
 
+            // find scene resource
+            const auto* const sceneResource = getFirstSceneResource(vertID);
+
             // populate set
             auto& set = iter->second;
             const auto& user = get(RenderGraph::DataTag{}, ctx.g, vertID);
@@ -1020,7 +1064,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 ctx.resourceGraph,
                 ctx.device, ctx.cmdBuff,
                 *ctx.context.defaultResource, ctx.lg,
-                resourceIndex, set, user, node);
+                resourceIndex, set, user, node, nullptr, sceneResource);
             CC_ENSURES(perPhaseSet);
 
             ctx.renderGraphDescriptorSet[vertID] = perPhaseSet;
@@ -1913,6 +1957,7 @@ struct RenderGraphContextCleaner {
       prevFenceValue(context.nextFenceValue) {
         ++context.nextFenceValue;
         context.clearPreviousResources(prevFenceValue);
+        context.renderSceneResources.clear();
     }
     RenderGraphContextCleaner(const RenderGraphContextCleaner&) = delete;
     RenderGraphContextCleaner& operator=(const RenderGraphContextCleaner&) = delete;
@@ -2307,6 +2352,16 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             *ppl.getPipelineSceneData(),
             ppl.nativeContext,
             sceneQueues);
+    }
+
+    // gpu driven
+    if constexpr (ENABLE_GPU_DRIVEN) {
+        // TODO(jilin): consider populating renderSceneResources here
+        const scene::RenderScene* const ptr = nullptr;
+        auto& sceneResource = ppl.nativeContext.renderSceneResources[ptr];
+        const auto& nameID = lg.attributeIndex.find("cc_xxxDescriptor")->second;
+        sceneResource.resourceIndex.emplace(nameID, ResourceType::STORAGE_BUFFER);
+        sceneResource.storageBuffers.emplace(nameID, nullptr);
     }
 
     // Execute all valid passes

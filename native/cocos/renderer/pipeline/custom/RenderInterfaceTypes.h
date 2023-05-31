@@ -62,6 +62,12 @@ class RenderWindow;
 
 } // namespace scene
 
+namespace render {
+
+constexpr bool ENABLE_GPU_DRIVEN = false;
+
+} // namespace render
+
 } // namespace cc
 
 namespace cc {
