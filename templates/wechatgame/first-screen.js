@@ -466,10 +466,10 @@ function start(alpha, antialias, useWebgl2) {
             updateVertexBuffer();
             updateLogoTexture();
         }).then(() => {
-            loadSlogan('slogan.png').then(() => {
+            return loadSlogan('slogan.png').then(() => {
                 updateSloganVertexBuffer();
                 updateSloganTexture();
-            })
+            });
         }),
         loadBackground('background.png').then(() => {
             updateBgVertexBuffer();
