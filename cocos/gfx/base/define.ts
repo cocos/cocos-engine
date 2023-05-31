@@ -402,6 +402,7 @@ export enum TextureFlagBit {
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
     EXTERNAL_OES = 0x4, // External oes texture
     EXTERNAL_NORMAL = 0x8, // External normal texture
+    MUTABLE_STORAGE = 0x16, //  Texture is mutable or not, default is mutable(only for webgl2)
 }
 
 export enum FormatFeatureBit {
