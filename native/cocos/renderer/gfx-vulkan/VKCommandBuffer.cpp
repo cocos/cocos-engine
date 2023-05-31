@@ -402,6 +402,10 @@ void CCVKCommandBuffer::nextSubpass() {
 }
 
 void CCVKCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+    if (_firstDirtyDescriptorSet < _curGPUDescriptorSets.size()) {
+        bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS);
+    }
+
     auto *vkBuffer = static_cast<CCVKBuffer *>(buffer);
     auto *gpuBuffer = vkBuffer->gpuBufferView();
 
@@ -427,6 +431,10 @@ void CCVKCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t c
 }
 
 void CCVKCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+    if (_firstDirtyDescriptorSet < _curGPUDescriptorSets.size()) {
+        bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS);
+    }
+
     auto *vkBuffer = static_cast<CCVKBuffer *>(buffer);
     auto *gpuBuffer = vkBuffer->gpuBufferView();
 
