@@ -554,6 +554,7 @@ void cmdFuncGLES2ResizeBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
             device->stateCache()->glElementArrayBuffer = 0;
         }
     } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
+        gpuBuffer->indirects.resize(gpuBuffer->count);
         gpuBuffer->glTarget = GL_NONE;
     } else if ((hasFlag(gpuBuffer->usage, BufferUsageBit::UNIFORM)) ||
                (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_DST)) ||
@@ -2604,24 +2605,51 @@ void cmdFuncGLES2Draw(GLES2Device *device, const DrawInfo &drawInfo) {
     GLenum glPrimitive = gfxStateCache.glPrimitive;
 
     if (gpuInputAssembler && gpuPipelineState) {
-        if (gpuInputAssembler->gpuIndexBuffer) {
-            if (drawInfo.indexCount > 0) {
-                uint8_t *offset = nullptr;
-                offset += drawInfo.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
+        if (!gpuInputAssembler->gpuIndirectBuffer) {
+            if (gpuInputAssembler->gpuIndexBuffer) {
+                if (drawInfo.indexCount > 0) {
+                    uint8_t *offset = nullptr;
+                    offset += drawInfo.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
+                    if (drawInfo.instanceCount == 0) {
+                        GL_CHECK(glDrawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler->glIndexType, offset));
+                    } else {
+                        if (device->constantRegistry()->useDrawInstanced) {
+                            GL_CHECK(glDrawElementsInstancedEXT(glPrimitive, drawInfo.indexCount, gpuInputAssembler->glIndexType, offset, drawInfo.instanceCount));
+                        }
+                    }
+                }
+            } else if (drawInfo.vertexCount > 0) {
                 if (drawInfo.instanceCount == 0) {
-                    GL_CHECK(glDrawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler->glIndexType, offset));
+                    GL_CHECK(glDrawArrays(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount));
                 } else {
                     if (device->constantRegistry()->useDrawInstanced) {
-                        GL_CHECK(glDrawElementsInstancedEXT(glPrimitive, drawInfo.indexCount, gpuInputAssembler->glIndexType, offset, drawInfo.instanceCount));
+                        GL_CHECK(glDrawArraysInstancedEXT(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount, drawInfo.instanceCount));
                     }
                 }
             }
-        } else if (drawInfo.vertexCount > 0) {
-            if (drawInfo.instanceCount == 0) {
-                GL_CHECK(glDrawArrays(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount));
-            } else {
-                if (device->constantRegistry()->useDrawInstanced) {
-                    GL_CHECK(glDrawArraysInstancedEXT(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount, drawInfo.instanceCount));
+        } else {
+            for (size_t j = 0; j < gpuInputAssembler->gpuIndirectBuffer->indirects.size(); ++j) {
+                const DrawInfo &draw = gpuInputAssembler->gpuIndirectBuffer->indirects[j];
+                if (gpuInputAssembler->gpuIndexBuffer) {
+                    if (draw.indexCount > 0) {
+                        uint8_t *offset = nullptr;
+                        offset += draw.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
+                        if (drawInfo.instanceCount == 0) {
+                            GL_CHECK(glDrawElements(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset));
+                        } else {
+                            if (device->constantRegistry()->useDrawInstanced) {
+                                GL_CHECK(glDrawElementsInstancedEXT(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset, draw.instanceCount));
+                            }
+                        }
+                    }
+                } else if (draw.vertexCount > 0) {
+                    if (draw.instanceCount == 0) {
+                        GL_CHECK(glDrawArrays(glPrimitive, draw.firstVertex, draw.vertexCount));
+                    } else {
+                        if (device->constantRegistry()->useDrawInstanced) {
+                            GL_CHECK(glDrawArraysInstancedEXT(glPrimitive, draw.firstVertex, draw.vertexCount, draw.instanceCount));
+                        }
+                    }
                 }
             }
         }
@@ -2634,6 +2662,8 @@ void cmdFuncGLES2UpdateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer, co
     if ((hasFlag(gpuBuffer->usage, BufferUsageBit::UNIFORM)) ||
         (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC))) {
         memcpy(gpuBuffer->buffer + offset, buffer, size);
+    } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
+        memcpy(reinterpret_cast<uint8_t *>(gpuBuffer->indirects.data()) + offset, buffer, size);
     } else {
         switch (gpuBuffer->glTarget) {
             case GL_ARRAY_BUFFER: {

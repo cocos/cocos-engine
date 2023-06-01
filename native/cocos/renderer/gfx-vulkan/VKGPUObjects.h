@@ -213,6 +213,10 @@ struct CCVKGPUBuffer : public CCVKGPUDeviceObject {
     uint32_t count = 0U;
     void *buffer = nullptr;
 
+    bool isDrawIndirectByIndex = false;
+    ccstd::vector<VkDrawIndirectCommand> indirectCmds;
+    ccstd::vector<VkDrawIndexedIndirectCommand> indexedIndirectCmds;
+
     uint8_t *mappedData = nullptr;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
 
@@ -327,6 +331,7 @@ struct CCVKGPUInputAssembler : public CCVKGPUDeviceObject {
     AttributeList attributes;
     ccstd::vector<ConstPtr<CCVKGPUBufferView>> gpuVertexBuffers;
     ConstPtr<CCVKGPUBufferView> gpuIndexBuffer;
+    ConstPtr<CCVKGPUBufferView> gpuIndirectBuffer;
     ccstd::vector<VkBuffer> vertexBuffers;
     ccstd::vector<VkDeviceSize> vertexBufferOffsets;
 };

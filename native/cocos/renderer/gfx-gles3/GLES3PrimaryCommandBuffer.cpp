@@ -80,26 +80,6 @@ void GLES3PrimaryCommandBuffer::nextSubpass() {
     ++_curSubpassIdx;
 }
 
-void GLES3PrimaryCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
-    if (_isStateInvalid) {
-        bindStates();
-    }
-
-    auto *glesBuffer = static_cast<GLES3Buffer *>(buffer);
-    auto *gpuBuffer = glesBuffer->gpuBuffer();
-    cmdFuncGLES3DrawIndirect(GLES3Device::getInstance(), gpuBuffer, offset, count, stride, false);
-}
-
-void GLES3PrimaryCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
-    if (_isStateInvalid) {
-        bindStates();
-    }
-
-    auto *glesBuffer = static_cast<GLES3Buffer *>(buffer);
-    auto *gpuBuffer = glesBuffer->gpuBuffer();
-    cmdFuncGLES3DrawIndirect(GLES3Device::getInstance(), gpuBuffer, offset, count, stride, true);
-}
-
 void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {
     CC_PROFILE(GLES3PrimaryCommandBufferDraw);
     if (_isStateInvalid) {

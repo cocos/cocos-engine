@@ -56,6 +56,14 @@ export abstract class InputAssembler extends GFXObject {
     }
 
     /**
+     * @en Get the indirect buffer, if present.
+     * @zh 间接绘制缓冲。
+     */
+    get indirectBuffer (): Buffer | null {
+        return this._indirectBuffer;
+    }
+
+    /**
      * @en Get hash of current attributes.
      * @zh 获取顶点属性数组的哈希值。
      */
@@ -161,6 +169,7 @@ export abstract class InputAssembler extends GFXObject {
 
     protected _vertexBuffers: Buffer[] = [];
     protected _indexBuffer: Buffer | null = null;
+    protected _indirectBuffer: Buffer | null = null;
 
     protected _drawInfo = new DrawInfo();
 

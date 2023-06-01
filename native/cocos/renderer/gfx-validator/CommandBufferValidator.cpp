@@ -384,32 +384,6 @@ void CommandBufferValidator::draw(const DrawInfo &info) {
     _actor->draw(info);
 }
 
-void CommandBufferValidator::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride)
-{
-    CC_ASSERT(stride == (sizeof(DrawIndirectCommand)));
-    CC_ASSERT(isInited());
-    CC_ASSERT(buffer);
-    CC_ASSERT(hasFlag(buffer->getUsage(), BufferUsageBit::INDIRECT));
-
-    auto *bufferValidator = static_cast<BufferValidator *>(buffer);
-    CC_ASSERT(bufferValidator->isInited());
-
-    _actor->drawIndirect(bufferValidator->getActor(), offset, count, stride);
-}
-
-void CommandBufferValidator::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride)
-{
-    CC_ASSERT(stride == (sizeof(DrawIndexedIndirectCommand)));
-    CC_ASSERT(isInited());
-    CC_ASSERT(buffer);
-    CC_ASSERT(hasFlag(buffer->getUsage(), BufferUsageBit::INDIRECT));
-
-    auto *bufferValidator = static_cast<BufferValidator *>(buffer);
-    CC_ASSERT(bufferValidator->isInited());
-
-    _actor->drawIndexedIndirect(bufferValidator->getActor(), offset, count, stride);
-}
-
 void CommandBufferValidator::updateBuffer(Buffer *buff, const void *data, uint32_t size) {
     CC_ASSERT(isInited());
     CC_ASSERT(buff && static_cast<BufferValidator *>(buff)->isInited());

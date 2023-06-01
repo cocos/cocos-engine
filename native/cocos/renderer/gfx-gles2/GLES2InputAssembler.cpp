@@ -52,6 +52,10 @@ void GLES2InputAssembler::doInit(const InputAssemblerInfo &info) {
         _gpuInputAssembler->gpuIndexBuffer = static_cast<GLES2Buffer *>(info.indexBuffer)->gpuBuffer();
     }
 
+    if (info.indirectBuffer) {
+        _gpuInputAssembler->gpuIndirectBuffer = static_cast<GLES2Buffer *>(info.indirectBuffer)->gpuBuffer();
+    }
+
     cmdFuncGLES2CreateInputAssembler(GLES2Device::getInstance(), _gpuInputAssembler);
 }
 
