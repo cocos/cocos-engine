@@ -28,7 +28,7 @@ import { BasicPipeline, LightInfo, PipelineRuntime, QueueHint, SceneFlags } from
 import { getCameraUniqueID } from '../../custom/define';
 import { passContext } from '../utils/pass-context';
 import { ClearFlagBit, Format } from '../../../gfx';
-import { MeshRenderer } from '../../../3d';
+import { MeshRenderer } from '../../../3d/framework/mesh-renderer';
 import { ShadowPass } from './shadow-pass';
 import { Root } from '../../../root';
 
