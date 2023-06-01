@@ -87,6 +87,12 @@ void EmptyCommandBuffer::nextSubpass() {
 void EmptyCommandBuffer::draw(const DrawInfo &info) {
 }
 
+void EmptyCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+}
+
+void EmptyCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+}
+
 void EmptyCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t size) {
 }
 

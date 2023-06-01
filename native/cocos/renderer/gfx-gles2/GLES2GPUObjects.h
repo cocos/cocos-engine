@@ -98,7 +98,6 @@ struct GLES2GPUBuffer {
     GLenum glTarget = 0;
     GLuint glBuffer = 0;
     uint8_t *buffer = nullptr;
-    DrawInfoList indirects;
 };
 using GLES2GPUBufferList = ccstd::vector<GLES2GPUBuffer *>;
 
@@ -251,7 +250,6 @@ struct GLES2GPUInputAssembler {
     AttributeList attributes;
     GLES2GPUBufferList gpuVertexBuffers;
     GLES2GPUBuffer *gpuIndexBuffer = nullptr;
-    GLES2GPUBuffer *gpuIndirectBuffer = nullptr;
     GLES2GPUAttributeList glAttribs;
     GLenum glIndexType = 0;
     ccstd::unordered_map<size_t, GLuint> glVAOs;

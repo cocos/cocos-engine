@@ -571,120 +571,74 @@ void CCMTLCommandBuffer::nextSubpass() {
     }
 }
 
-void CCMTLCommandBuffer::draw(const DrawInfo &info) {
+void CCMTLCommandBuffer::prepareForDraw() {
     if(!_gpuCommandBufferObj->pipelineState ||
-       !_gpuCommandBufferObj->pipelineState->getGPUPipelineState() ||
-       !_gpuCommandBufferObj->pipelineState->getGPUPipelineState()->mtlRenderPipelineState) {
+        !_gpuCommandBufferObj->pipelineState->getGPUPipelineState() ||
+        !_gpuCommandBufferObj->pipelineState->getGPUPipelineState()->mtlRenderPipelineState) {
         return;
     }
-    CC_PROFILE(CCMTLCommandBufferDraw);
     if (_firstDirtyDescriptorSet < _GPUDescriptorSets.size()) {
         bindDescriptorSets();
     }
+}
+
+void CCMTLCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+    prepareForDraw();
+}
+
+void CCMTLCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+    prepareForDraw();
+}
+
+void CCMTLCommandBuffer::draw(const DrawInfo &info) {
+    CC_PROFILE(CCMTLCommandBufferDraw);
+    prepareForDraw();
     CCMTLInputAssembler *inputAssembler = _gpuCommandBufferObj->inputAssembler;
-    const auto *indirectBuffer = static_cast<CCMTLBuffer *>(inputAssembler->getIndirectBuffer());
     const auto *indexBuffer = static_cast<CCMTLBuffer *>(inputAssembler->getIndexBuffer());
     auto mtlEncoder = _renderEncoder.getMTLEncoder();
 
-    if (indirectBuffer) {
-        if (_indirectDrawSuppotred) {
-            ++_numDrawCalls;
-            if (indirectBuffer->isDrawIndirectByIndex()) {
-                [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                        indexType:indexBuffer->getIndexType()
-                                      indexBuffer:indexBuffer->mtlBuffer()
-                                indexBufferOffset:indexBuffer->currentOffset()
-                                   indirectBuffer:indirectBuffer->mtlBuffer()
-                             indirectBufferOffset:indirectBuffer->currentOffset()];
-            } else {
-                [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                            indirectBuffer:indirectBuffer->mtlBuffer()
-                      indirectBufferOffset:indirectBuffer->currentOffset()];
-            }
+    if (info.indexCount > 0) {
+        uint32_t offset = 0;
+        offset += info.firstIndex * indexBuffer->getStride();
+        if (info.instanceCount == 0) {
+            [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                   indexCount:info.indexCount
+                                    indexType:indexBuffer->getIndexType()
+                                  indexBuffer:indexBuffer->mtlBuffer()
+                            indexBufferOffset:offset + indexBuffer->currentOffset()];
         } else {
-            uint32_t stride = indirectBuffer->getStride();
-            uint32_t offset = 0;
-            uint32_t drawInfoCount = indirectBuffer->getCount();
-            const auto &drawInfos = indirectBuffer->getDrawInfos();
-            _numDrawCalls += drawInfoCount;
-
-            for (uint32_t i = 0; i < drawInfoCount; ++i) {
-                const auto &drawInfo = drawInfos[i];
-                offset += drawInfo.firstIndex * stride;
-                if (indirectBuffer->isDrawIndirectByIndex()) {
-                    if (drawInfo.instanceCount == 0) {
-                        // indexbuffer offset: [backbuffer(triplebuffer maybe) offset] + [offset in this drawcall]
-                        [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                               indexCount:drawInfo.indexCount
-                                                indexType:indexBuffer->getIndexType()
-                                              indexBuffer:indexBuffer->mtlBuffer()
-                                        indexBufferOffset:offset + indexBuffer->currentOffset()];
-                    } else {
-                        [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                               indexCount:drawInfo.indexCount
-                                                indexType:indexBuffer->getIndexType()
-                                              indexBuffer:indexBuffer->mtlBuffer()
-                                        indexBufferOffset:offset + indexBuffer->currentOffset()
-                                            instanceCount:drawInfo.instanceCount];
-                    }
-                } else {
-                    if (drawInfo.instanceCount == 0) {
-                        [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                       vertexStart:drawInfo.firstVertex
-                                       vertexCount:drawInfo.vertexCount];
-                    } else {
-                        [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                       vertexStart:drawInfo.firstVertex
-                                       vertexCount:drawInfo.vertexCount
-                                     instanceCount:drawInfo.instanceCount];
-                    }
-                }
-            }
+            [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                   indexCount:info.indexCount
+                                    indexType:indexBuffer->getIndexType()
+                                  indexBuffer:indexBuffer->mtlBuffer()
+                            indexBufferOffset:offset + indexBuffer->currentOffset()
+                                instanceCount:info.instanceCount];
         }
-    } else {
-        if (info.indexCount > 0) {
-            uint32_t offset = 0;
-            offset += info.firstIndex * indexBuffer->getStride();
-            if (info.instanceCount == 0) {
-                [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                       indexCount:info.indexCount
-                                        indexType:indexBuffer->getIndexType()
-                                      indexBuffer:indexBuffer->mtlBuffer()
-                                indexBufferOffset:offset + indexBuffer->currentOffset()];
-            } else {
-                [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                       indexCount:info.indexCount
-                                        indexType:indexBuffer->getIndexType()
-                                      indexBuffer:indexBuffer->mtlBuffer()
-                                indexBufferOffset:offset + indexBuffer->currentOffset()
-                                    instanceCount:info.instanceCount];
-            }
-        } else if (info.vertexCount) {
-            if (info.instanceCount == 0) {
-                [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                               vertexStart:info.firstVertex
-                               vertexCount:info.vertexCount];
-            } else {
-                [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                               vertexStart:info.firstVertex
-                               vertexCount:info.vertexCount
-                             instanceCount:info.instanceCount];
-            }
+    } else if (info.vertexCount) {
+        if (info.instanceCount == 0) {
+            [mtlEncoder drawPrimitives:_mtlPrimitiveType
+                           vertexStart:info.firstVertex
+                           vertexCount:info.vertexCount];
+        } else {
+            [mtlEncoder drawPrimitives:_mtlPrimitiveType
+                           vertexStart:info.firstVertex
+                           vertexCount:info.vertexCount
+                         instanceCount:info.instanceCount];
         }
+    }
 
-        _numInstances += info.instanceCount;
-        _numDrawCalls++;
-        if (_gpuCommandBufferObj->pipelineState) {
-            uint32_t indexCount = info.indexCount ? info.indexCount : info.vertexCount;
-            switch (_mtlPrimitiveType) {
-                case MTLPrimitiveTypeTriangle:
-                    _numTriangles += indexCount / 3 * std::max(info.instanceCount, 1U);
-                    break;
-                case MTLPrimitiveTypeTriangleStrip:
-                    _numTriangles += (indexCount - 2) * std::max(info.instanceCount, 1U);
-                    break;
-                default: break;
-            }
+    _numInstances += info.instanceCount;
+    _numDrawCalls++;
+    if (_gpuCommandBufferObj->pipelineState) {
+        uint32_t indexCount = info.indexCount ? info.indexCount : info.vertexCount;
+        switch (_mtlPrimitiveType) {
+            case MTLPrimitiveTypeTriangle:
+                _numTriangles += indexCount / 3 * std::max(info.instanceCount, 1U);
+                break;
+            case MTLPrimitiveTypeTriangleStrip:
+                _numTriangles += (indexCount - 2) * std::max(info.instanceCount, 1U);
+                break;
+            default: break;
         }
     }
 }
