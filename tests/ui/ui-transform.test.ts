@@ -125,9 +125,11 @@ test('getBoundingBoxTo', function () {
     const target = new Node();
     target.addComponent(UITransform);
     const targetUITrans = target.getComponent(UITransform) as UITransform;
+    // Test getBoundingBoxTo with target node's matrix as parameter, the result should equal to the world bounding box
+    expect(uiTrans.getBoundingBoxTo(target.worldMatrix)).toEqual(uiTrans.getBoundingBoxToWorld());
+
     target.setPosition(50, 50);
     expect(uiTrans.getBoundingBoxTo(target.worldMatrix)).toEqual(new Rect(-100, -100, 100, 100));
-
     // Change target node's anchor point to 0.1, 0.6 and test bounding box again
     targetUITrans.setAnchorPoint(0.1, 0.6);
     expect(uiTrans.getBoundingBoxTo(target.worldMatrix)).toEqual(new Rect(-100, -100, 100, 100));
