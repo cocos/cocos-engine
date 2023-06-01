@@ -493,19 +493,23 @@ export class ImageAsset extends Asset {
             const data: Uint8Array = this.data as Uint8Array;
 
             let byteOffset = 0;
+            let height = this.height;
+            let width = this.width;
             for (const mipmapSize of mipmapLevelDataSize) {
                 const dataView = new Uint8Array(data.buffer, byteOffset, mipmapSize);
                 const mipmap = new ImageAsset({
                     _data: dataView,
                     _compressed: true,
-                    width: this.width,
-                    height: this.height,
+                    width,
+                    height,
                     format: this.format,
                     mipmapLevelDataSize: [],
                 });
                 byteOffset += mipmapSize;
                 mipmap._nativeUrl = `${this._nativeUrl} mips`;
                 mipmap._uuid = `${this._uuid} mips`;
+                width = Math.max(width >> 1, 1);
+                height = Math.max(height >> 1, 1);
                 images.push(mipmap);
             }
         } else {

@@ -48,7 +48,7 @@ void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value)
         std::copy(std::cbegin(images), std::cend(images), std::back_inserter(mipmaps));
     } else if (value.size() > 1) {
         for (const auto &image : value) {
-            mipmaps.push_back(image->extractMipmap0());
+            mipmaps.emplace_back(image->extractMipmap0());
         }
     }
 
@@ -141,6 +141,7 @@ void Texture2D::updateMipmaps(uint32_t firstLevel, uint32_t count) {
 
 bool Texture2D::destroy() {
     _mipmaps.clear();
+    _mipmapRefs.clear();
     return Super::destroy();
 }
 

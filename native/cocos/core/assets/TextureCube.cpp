@@ -79,7 +79,7 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
 
     auto cubeMaps = ccstd::vector<ITextureCubeMipmap>{};
     if (value.size() == 1) {
-        const auto cubeMipmap = value.at(0);
+        const auto &cubeMipmap = value.at(0);
         const auto &front = cubeMipmap.front->extractMipmaps();
         const auto &back = cubeMipmap.back->extractMipmaps();
         const auto &left = cubeMipmap.left->extractMipmaps();
@@ -107,10 +107,10 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
                 top[i],
                 bottom[i],
             };
-            cubeMaps.push_back(cubeMap);
+            cubeMaps.emplace_back(cubeMap);
         }
     } else if (value.size() > 1) {
-        for (auto mipmap : value) {
+        for (const auto &mipmap : value) {
             const auto cubeMap = ITextureCubeMipmap{
                 mipmap.front->extractMipmap0(),
                 mipmap.back->extractMipmap0(),
@@ -119,7 +119,7 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
                 mipmap.top->extractMipmap0(),
                 mipmap.bottom->extractMipmap0(),
             };
-            cubeMaps.push_back(cubeMap);
+            cubeMaps.emplace_back(cubeMap);
         }
     }
 
@@ -282,6 +282,7 @@ void TextureCube::onLoaded() {
 
 bool TextureCube::destroy() {
     _mipmaps.clear();
+    _mipmapRefs.clear();
     _mipmapAtlas.layout.clear();
     return Super::destroy();
 }

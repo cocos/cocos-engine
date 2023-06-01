@@ -113,46 +113,9 @@ public:
     inline void setUrl(const ccstd::string &url) { _url = url; }
     inline void setMipmapLevelDataSize(const ccstd::vector<uint32_t> &mipmapLevelDataSize) { _mipmapLevelDataSize = mipmapLevelDataSize; }
 
-    IntrusivePtr<ImageAsset> extractMipmap0() {
-        auto *res = new ImageAsset;
-
-        res->_data = nullptr;
-        res->_needFreeData = false;
-        res->_width = _width;
-        res->_height = _height;
-        res->_format = _format;
-        res->_uuid = _uuid;
-
-        if (!_mipmapLevelDataSize.empty()) {
-            res->_data = _data;
-        } else {
-            res->_data = _data;
-        }
-
-        return res;
-    }
-
-    std::vector<IntrusivePtr<ImageAsset>> extractMipmaps() {
-        std::vector<IntrusivePtr<ImageAsset>> res{};
-
-        if (!_mipmapLevelDataSize.empty()) {
-            size_t offset = 0UL;
-            for (auto mipmapSize : _mipmapLevelDataSize) {
-                auto *mipmap = new ImageAsset;
-                mipmap->_data = _data + offset;
-                mipmap->_needFreeData = false;
-                mipmap->_width = _width;
-                mipmap->_height = _height;
-                mipmap->_format = _format;
-                mipmap->_uuid = _uuid;
-
-                res.push_back(mipmap);
-            }
-        } else {
-            res.push_back(this);
-        } 
-        return res;
-    }
+    // Functions for Utils.
+    IntrusivePtr<ImageAsset> extractMipmap0();
+    std::vector<IntrusivePtr<ImageAsset>> extractMipmaps();
 
 private:
     uint8_t *_data{nullptr};

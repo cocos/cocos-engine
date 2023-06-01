@@ -157,7 +157,7 @@ export class TextureCube extends SimpleTexture {
                 || front.length !== top.length
                 || front.length !== bottom.length) {
                 console.error('The number of mipmaps of each face is different.');
-                this._assignMipmaps([]);
+                this._setMipmapParams([]);
             }
 
             const level = front.length;
@@ -186,10 +186,10 @@ export class TextureCube extends SimpleTexture {
             });
         }
 
-        this._assignMipmaps(cubeMaps);
+        this._setMipmapParams(cubeMaps);
     }
 
-    _assignMipmaps (value: ITextureCubeMipmap[]) {
+    private _setMipmapParams (value: ITextureCubeMipmap[]) {
         this._mipmaps = value;
         this._setMipmapLevel(this._mipmaps.length);
         if (this._mipmaps.length > 0) {
