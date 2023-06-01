@@ -1223,12 +1223,21 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
             auto &colorAttachments = fgRenderpassInfo.rpInfo.colorAttachments;
             for (uint32_t i = 0; i < colorAttachments.size(); ++i) {
                 const auto &colorAccess = fgRenderpassInfo.colorAccesses[i];
-                colorAttachments[i].barrier = getGeneralBarrier(cc::gfx::Device::getInstance(), colorAccess.prevAccess, colorAccess.nextAccess);
+                const auto &colorAttachment = fgRenderpassInfo.rpInfo.colorAttachments[i];
+                auto prevAccess = colorAccess.prevAccess;
+                if (colorAttachment.format == gfx::Format::DEPTH_STENCIL || colorAttachment.format == gfx::Format::DEPTH) {
+                    prevAccess = fgRenderpassInfo.dsAccess.prevAccess;
+                }
+                colorAttachments[i].barrier = getGeneralBarrier(cc::gfx::Device::getInstance(),
+                                                                prevAccess,
+                                                                colorAccess.nextAccess);
             }
             auto &dsAttachment = fgRenderpassInfo.rpInfo.depthStencilAttachment;
             if (dsAttachment.format != gfx::Format::UNKNOWN) {
                 const auto &dsAccess = fgRenderpassInfo.dsAccess;
-                dsAttachment.barrier = getGeneralBarrier(cc::gfx::Device::getInstance(), dsAccess.prevAccess, dsAccess.nextAccess);
+                dsAttachment.barrier = getGeneralBarrier(cc::gfx::Device::getInstance(),
+                                                         dsAccess.prevAccess,
+                                                         dsAccess.nextAccess);
             }
         }
     }
@@ -2138,7 +2147,6 @@ void fillRenderPassInfo(const RasterView &view, gfx::RenderPassInfo &rpInfo, uin
         colorAttachment.loadOp = view.loadOp;
         colorAttachment.storeOp = view.storeOp;
         colorAttachment.sampleCount = viewDesc.sampleCount;
-        // colorAttachment.barrier = getGeneralBarrier(gfx::Device::getInstance(), view, prevAccess, nextAccess);
     } else {
         auto &depthStencilAttachment = rpInfo.depthStencilAttachment;
         depthStencilAttachment.format = viewDesc.format;
@@ -2147,7 +2155,20 @@ void fillRenderPassInfo(const RasterView &view, gfx::RenderPassInfo &rpInfo, uin
         depthStencilAttachment.stencilLoadOp = view.loadOp;
         depthStencilAttachment.stencilStoreOp = view.storeOp;
         depthStencilAttachment.sampleCount = viewDesc.sampleCount;
-        // depthStencilAttachment.barrier = getGeneralBarrier(gfx::Device::getInstance(), view, prevAccess, nextAccess);
+    }
+}
+
+void updateRenderPassInfo(const RasterView &view, gfx::RenderPassInfo &rpInfo, uint32_t index, const ResourceDesc &viewDesc) {
+    if (view.attachmentType != AttachmentType::DEPTH_STENCIL || index != rpInfo.colorAttachments.size()) {
+        auto &colorAttachment = rpInfo.colorAttachments[index];
+        colorAttachment.storeOp = view.storeOp;
+    } else {
+        auto &depthStencilAttachment = rpInfo.depthStencilAttachment;
+        if (depthStencilAttachment.format != gfx::Format::DEPTH_STENCIL) {
+            depthStencilAttachment.format = viewDesc.format;
+        }
+        depthStencilAttachment.depthStoreOp = view.storeOp;
+        depthStencilAttachment.stencilStoreOp = view.storeOp;
     }
 }
 
@@ -2399,6 +2420,7 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
             if (!isDefaultDepthStencilAttachment(view.slotName, view.slotName1)) {
                 CC_ASSERT(view.accessType != AccessType::WRITE);
                 subpassInfo.inputs.emplace_back(slot);
+                fgRenderpassInfo.colorAccesses[slot].nextAccess = nextAccess;
             } else {
                 subpassInfo.depthStencil = rpInfo.colorAttachments.size();
             }
@@ -2413,11 +2435,24 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
             auto nextAccess = head->attachmentStatus[localSlot].accessFlag;
 
             if (view.attachmentType == AttachmentType::DEPTH_STENCIL) {
-                fgRenderpassInfo.dsAccess.prevAccess = prevAccess;
+                if (!isDefaultDepthStencilAttachment(view.slotName, view.slotName1)) {
+                    // prevAccess for subpass, will be update when generate renderpassinfo.
+                    fgRenderpassInfo.colorAccesses[slot].prevAccess = prevAccess;
+                }
+                const auto &rg = resourceGraph;
+                auto hasMeetDS = std::any_of(node.attachmentStatus.begin(), node.attachmentStatus.end(), [&](const AccessStatus &status) {
+                    const auto &desc = get(ResourceGraph::DescTag{}, rg, status.vertID);
+                    return desc.format == gfx::Format::DEPTH || desc.format == gfx::Format::DEPTH_STENCIL;
+                });
+                if (!hasMeetDS) {
+                    fgRenderpassInfo.dsAccess.prevAccess = prevAccess;
+                }
             } else {
                 fgRenderpassInfo.colorAccesses[slot].prevAccess = prevAccess;
             }
             fillRenderPassInfo(view, rpInfo, slot, viewDesc);
+        } else {
+            updateRenderPassInfo(view, rpInfo, slot, viewDesc);
         }
         ++localSlot;
     }
