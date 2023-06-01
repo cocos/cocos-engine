@@ -137,6 +137,9 @@ module.exports = {
                         'additivePose': {
                             displayName: '累加姿势',
                         },
+                        'ratio': {
+                            displayName: '比例',
+                        },
                     },
                 },
                 'PoseNodeChoosePoseByBoolean': {
