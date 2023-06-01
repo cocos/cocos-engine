@@ -144,7 +144,7 @@ void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32
     _actor->bindBuffer(binding, vBuffer->getActor(), index);
 }
 
-void DescriptorSetValidator::bindTexture(uint32_t binding, Texture *texture, uint32_t index) {
+void DescriptorSetValidator::bindTexture(uint32_t binding, Texture *texture, uint32_t index, AccessFlags flags) {
     CC_ASSERT(isInited());
     CC_ASSERT(texture && static_cast<TextureValidator *>(texture)->isInited());
 
@@ -165,9 +165,9 @@ void DescriptorSetValidator::bindTexture(uint32_t binding, Texture *texture, uin
 
     /////////// execute ///////////
 
-    DescriptorSet::bindTexture(binding, texture, index);
+    DescriptorSet::bindTexture(binding, texture, index, flags);
 
-    _actor->bindTexture(binding, static_cast<TextureValidator *>(texture)->getActor(), index);
+    _actor->bindTexture(binding, static_cast<TextureValidator *>(texture)->getActor(), index, flags);
 }
 
 void DescriptorSetValidator::bindSampler(uint32_t binding, Sampler *sampler, uint32_t index) {

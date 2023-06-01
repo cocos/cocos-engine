@@ -767,7 +767,7 @@ void CCVKDevice::initDeviceFeature() {
     _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = true;
     _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = true;
     _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = true;
-    _features[toNumber(Feature::RASTERIZATION_ORDER_COHERENT)] = _gpuContext->checkExtension("VK_EXT_rasterization_order_attachment_access");
+    _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = true;
 }
 
 void CCVKDevice::initFormatFeature() {

@@ -242,6 +242,7 @@ export function __calculateDeltaTransform (out: Transform, target: Readonly<Tran
     Vec3.subtract(out.position, target.position, base.position);
     deltaQuat(out.rotation, base.rotation, target.rotation);
     Vec3.subtract(out.scale, target.scale, base.scale);
+    return out;
 }
 
 export const __applyDeltaTransform = (() => {
@@ -251,6 +252,7 @@ export const __applyDeltaTransform = (() => {
         const weightedDeltaRotation = Quat.slerp(cacheQuat, Quat.IDENTITY, delta.rotation, alpha);
         Quat.multiply(out.rotation, weightedDeltaRotation, base.rotation);
         Vec3.scaleAndAdd(out.scale, base.scale, delta.scale, alpha);
+        return out;
     };
 })();
 

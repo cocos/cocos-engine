@@ -196,6 +196,8 @@ ResourceGraph::ResourceGraph(const allocator_type& alloc) noexcept
   textures(alloc),
   framebuffers(alloc),
   swapchains(alloc),
+  formatViews(alloc),
+  subresourceViews(alloc),
   valueIndex(alloc),
   renderPasses(alloc) {}
 
