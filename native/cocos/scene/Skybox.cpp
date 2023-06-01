@@ -203,7 +203,7 @@ void SkyboxInfo::setSkyboxMaterial(Material *val) {
     }
 }
 
-void SkyboxInfo::setMaterialProperty(const ccstd::string &name, const MaterialPropertyVariant &val, index_t passIdx /* = CC_INVALID_INDEX */) {
+void SkyboxInfo::setMaterialProperty(const ccstd::string &name, const MaterialPropertyVariant &val, index_t passIdx /* = CC_INVALID_INDEX */) const {
     if (_resource == nullptr) return;
     auto *skyboxMat = _resource->getSkyboxMaterial();
     if (_resource->isEnabled() && skyboxMat != nullptr) {
