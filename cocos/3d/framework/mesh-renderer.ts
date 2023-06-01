@@ -307,6 +307,9 @@ export class MeshRenderer extends ModelRenderer {
     @serializable
     protected _reflectionProbeBlendWeight = 0;
 
+    @serializable
+    protected _enabledStandardSkin = false;
+
     protected _reflectionProbeDataMap: Texture2D | null = null;
 
     // @serializable
@@ -480,6 +483,29 @@ export class MeshRenderer extends ModelRenderer {
 
     set enableMorph (value) {
         this._enableMorph = value;
+    }
+
+    /**
+     * @en local shadow normal bias for real time lighting.
+     * @zh 实时光照下模型局部的阴影法线偏移。
+     */
+    @type(CCBoolean)
+    @tooltip('i18n:model.standard_skin_model')
+    @disallowAnimation
+    get isGlobalStandardSkinObject () {
+        return this._enabledStandardSkin;
+    }
+
+    set isGlobalStandardSkinObject (val) {
+        cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel = val ? this : null;
+        this._enabledStandardSkin = val;
+    }
+
+    /**
+     * @engineInternal
+     */
+    public closedStandardSkin () {
+        this._enabledStandardSkin = false;
     }
 
     protected _modelType: typeof scene.Model;
@@ -876,7 +902,7 @@ export class MeshRenderer extends ModelRenderer {
         if (!mainLight) { return; }
         const visibility = mainLight.visibility;
         if (!mainLight.node) { return; }
-        
+
         if (mainLight.node.mobility === MobilityMode.Static) {
             let forceClose = false;
             if (this.bakeSettings.texture && !this.node.scene.globals.disableLightmap) {
@@ -885,7 +911,7 @@ export class MeshRenderer extends ModelRenderer {
             if (this.node.scene.globals.lightProbeInfo.data
                 && this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
                 && this._model.useLightProbe) {
-                    forceClose = true;
+                forceClose = true;
             }
 
             this.onUpdateReceiveDirLight(visibility, forceClose);
@@ -1224,6 +1250,12 @@ export class MeshRenderer extends ModelRenderer {
 
     private _uploadSubMeshShapesWeights (subMeshIndex: number) {
         this._morphInstance?.setWeights(subMeshIndex, this._subMeshShapesWeights[subMeshIndex]);
+    }
+
+    private _updateStandardSkin () {
+        if (this._enabledStandardSkin) {
+            cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel = this;
+        }
     }
 }
 

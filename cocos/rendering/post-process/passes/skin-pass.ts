@@ -212,7 +212,7 @@ export class SkinPass extends SettingPass {
         const cameraID = getCameraUniqueID(camera);
         let boundingBox = 0.4;
         const standardSkinModel = ppl.pipelineSceneData.standardSkinModel;
-        const model = (standardSkinModel as MeshRenderer).model;
+        const model = standardSkinModel!.model;
         if (model) {
             const halfExtents = model.worldBounds.halfExtents;
             boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;

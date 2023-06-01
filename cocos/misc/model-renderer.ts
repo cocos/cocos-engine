@@ -63,24 +63,6 @@ export class ModelRenderer extends Renderer {
         this._updatePriority();
     }
 
-    /**
-     * @en local shadow normal bias for real time lighting.
-     * @zh 实时光照下模型局部的阴影法线偏移。
-     */
-    @type(CCBoolean)
-    @tooltip('i18n:model.standard_skin_model')
-    @disallowAnimation
-    get isGlobalStandardSkinObject () {
-        return this._enabledStandardSkin;
-    }
-
-    set isGlobalStandardSkinObject (val) {
-        cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel = val ? this : null;
-        this._enabledStandardSkin = val;
-    }
-
-    @serializable
-    protected _enabledStandardSkin = false;
     @serializable
     protected _visFlags = Layers.Enum.NONE;
     protected _models: scene.Model[] = [];
@@ -93,13 +75,6 @@ export class ModelRenderer extends Renderer {
      */
     public _collectModels (): scene.Model[] {
         return this._models;
-    }
-
-    /**
-     * @engineInternal
-     */
-    public closedStandardSkin () {
-        this._enabledStandardSkin = false;
     }
 
     protected onEnable () {
@@ -123,12 +98,6 @@ export class ModelRenderer extends Renderer {
             for (let i = 0; i < this._models.length; i++) {
                 this._models[i].priority = this._priority;
             }
-        }
-    }
-
-    protected _updateStandardSkin () {
-        if (this._enabledStandardSkin) {
-            cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel = this;
         }
     }
 }
