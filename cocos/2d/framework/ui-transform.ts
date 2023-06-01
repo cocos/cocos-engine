@@ -607,13 +607,11 @@ export class UITransform extends Component {
 
     /**
      * @en
-     * Returns an axis aligned bounding box of this node in world space coordinate.<br/>
-     * The bounding box contains self and active children's world bounding box.
-     *
+     * Returns an axis aligned bounding box of this node in world space coordinate.
+     * The bounding box contains self and active children's world bounding box, and it will eliminate all zero sized nodes.
      * @zh
      * 返回节点在世界坐标系下的对齐轴向的包围盒（AABB）。
-     * 该边框包含自身和已激活的子节点的世界边框。
-     *
+     * 该边框包含自身和已激活的子节点的世界边框，但会剔除所有零大小的节点。
      * @returns @en An axis aligned bounding box of this node in world space coordinate. @zh 世界坐标系下包围盒。
      * @example
      * ```ts
@@ -655,10 +653,11 @@ export class UITransform extends Component {
 
     /**
      * @en
-     * Returns the minimum bounding box in the coordinate system of the target node, the result contains the current node and its child node tree.
+     * Returns the minimum bounding box in the coordinate system of the target node.
+     * The result contains the current node and its child node tree, and it will eliminates all zero size nodes.
      * E.g. passing an identical matrix will return the world bounding box of the current node tree.
      * @zh
-     * 返回在目标节点坐标系下包含当前包围盒及其子节点包围盒的最小总包围盒。
+     * 返回在目标节点坐标系下包含当前包围盒及其子节点包围盒的最小总包围盒，但会剔除所有零大小的节点。
      * 如果传入单位矩阵，将得到世界坐标系下的包围盒。
      *
      * @param targetMat @en The target node's world matrix representing its coordinate system.
@@ -707,7 +706,6 @@ export class UITransform extends Component {
     /**
      * @en
      * Compute the corresponding aabb in world space for raycast.
-     *
      * @zh
      * 计算出此 UI_2D 节点在世界空间下的 aabb 包围盒。
      * @param out @en The out object of aabb bounding box of the node in world space.  @zh 输出节点在世界空间下的 aabb 包围盒。
