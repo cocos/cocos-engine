@@ -756,7 +756,7 @@ const Elements = {
                 panel.$.name.dispatch('change-dump');
             });
             panel.$.name.addEventListener('confirm', () => {
-                panel.$.active.dispatch('confirm-dump');
+                panel.$.name.dispatch('confirm-dump');
             });
         },
         update() {
@@ -1210,6 +1210,10 @@ const Elements = {
                             });
                         }
                         $active.dispatch('change-dump');
+                    });
+                    $active.addEventListener('confirm', (event) => {
+                        event.stopPropagation();
+                        $active.dispatch('confirm-dump');
                     });
 
                     const $link = $section.querySelector('.link');
