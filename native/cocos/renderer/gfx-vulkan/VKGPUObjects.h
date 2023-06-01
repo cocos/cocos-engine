@@ -127,6 +127,7 @@ public:
     // helper storage
     ccstd::vector<VkClearValue> clearValues;
     ccstd::vector<VkSampleCountFlagBits> sampleCounts; // per subpass
+    ccstd::vector<bool> hasSelfDependency; // per subpass
 
     const CCVKGPUGeneralBarrier *getBarrier(size_t index, CCVKGPUDevice *gpuDevice) const;
     bool hasShadingAttachment(uint32_t subPassId) const;
@@ -945,6 +946,19 @@ public:
             }
         }
     }
+
+    void update(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor, AccessFlags flags) {
+        auto it = _gpuTextureViewSet.find(texture);
+        if (it == _gpuTextureViewSet.end()) return;
+        auto &descriptors = it->second.descriptors;
+        for (uint32_t i = 0U; i < descriptors.size(); i++) {
+            if (descriptors[i] == descriptor) {
+                doUpdate(texture, descriptor, flags);
+                break;
+            }
+        }
+    }
+
     void update(const CCVKGPUSampler *sampler, VkDescriptorImageInfo *descriptor) {
         auto it = _samplers.find(sampler);
         if (it == _samplers.end()) return;
@@ -1028,10 +1042,17 @@ private:
 
     static void doUpdate(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) {
         descriptor->imageView = texture->vkImageView;
+    }
+
+    static void doUpdate(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor, AccessFlags flags) {
+        descriptor->imageView = texture->vkImageView;
         if (hasFlag(texture->gpuTexture->flags, TextureFlagBit::GENERAL_LAYOUT)) {
             descriptor->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
         } else {
-            if (hasFlag(texture->gpuTexture->usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) {
+            if (hasAllFlags(flags, AccessFlagBit::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT | AccessFlagBit::COLOR_ATTACHMENT_WRITE) ||
+                hasAllFlags(flags, AccessFlagBit::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT | AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE)) {
+                descriptor->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+            } else if (hasFlag(texture->gpuTexture->usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) {
                 descriptor->imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
             } else {
                 descriptor->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

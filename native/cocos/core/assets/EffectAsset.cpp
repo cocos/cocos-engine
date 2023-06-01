@@ -25,9 +25,9 @@
 #include "core/assets/EffectAsset.h"
 #include "ProgramUtils.h"
 #include "cocos.h"
+#include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "core/Root.h"
 #include "core/platform/Debug.h"
-#include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "engine/BaseEngine.h"
 #include "renderer/core/ProgramLib.h"
 
@@ -46,6 +46,7 @@ IPassStates &IPassStates::operator=(const IPassInfoFull &o) {
     blendState = o.blendState;
     dynamicStates = o.dynamicStates;
     phase = o.phase;
+    subpass = o.subpass;
     return *this;
 }
 
@@ -73,6 +74,9 @@ void IPassStates::overrides(const IPassInfoFull &o) {
     }
     if (o.phase.has_value()) {
         this->phase = o.phase.value();
+    }
+    if (o.subpass.has_value()) {
+        this->subpass = o.subpass.value();
     }
 }
 

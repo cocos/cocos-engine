@@ -54,6 +54,7 @@ export declare namespace EffectAsset {
         dynamicStates?: DynamicStateFlags;
         phase?: string | number;
         pass?: string;
+        subpass?: string;
     }
     export interface IPassInfo extends IPassStates {
         program: string; // auto-generated from 'vert' and 'frag'

@@ -334,7 +334,7 @@ export class AndroidPackTool extends NativePackTool {
         }
 
         if (!this.checkConnectedDevices(adbPath)) {
-            throw new Error(`can not find any connected devices, please connect you device or start an Android emulator`);
+            console.error(`can not find any connected devices, please connect you device or start an Android emulator`);
         }
 
         if (await this.checkApkInstalled(adbPath)) {
@@ -361,7 +361,7 @@ export class AndroidPackTool extends NativePackTool {
                     const chuckStr: string = typeof chunk === 'string' ? chunk : (chunkAny.buffer && chunkAny.buffer instanceof ArrayBuffer ? chunkAny.toString() : chunkAny.toString());
                     const lines = chuckStr.split('\n');
                     for (let line of lines) {
-                        if (/^[0-9a-fA-F]+\s+\w+/.test(line)) {
+                        if (/^[0-9a-zA-Z]+\s+\w+/.test(line)) {
                             return true; // device connected
                         }
                     }

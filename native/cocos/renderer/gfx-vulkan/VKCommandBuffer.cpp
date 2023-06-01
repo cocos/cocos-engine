@@ -206,6 +206,8 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &passBeginInfo.renderArea);
         _curDynamicStates.scissor = safeArea;
     }
+    _currentSubPass = 0;
+    _hasSubPassSelfDependency = false;
 }
 
 void CCVKCommandBuffer::endRenderPass() {
@@ -399,6 +401,9 @@ void CCVKCommandBuffer::setStencilCompareMask(StencilFace face, uint32_t referen
 
 void CCVKCommandBuffer::nextSubpass() {
     vkCmdNextSubpass(_gpuCommandBuffer->vkCommandBuffer, _secondaryRP ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS : VK_SUBPASS_CONTENTS_INLINE);
+    ++_currentSubPass;
+    CC_ASSERT(_currentSubPass < _curGPURenderPass->subpasses.size());
+    _hasSubPassSelfDependency = _curGPURenderPass->hasSelfDependency[_currentSubPass];
 }
 
 void CCVKCommandBuffer::draw(const DrawInfo &info) {
@@ -473,6 +478,9 @@ void CCVKCommandBuffer::draw(const DrawInfo &info) {
                 default: break;
             }
         }
+    }
+    if (_hasSubPassSelfDependency) {
+        selfDependency();
     }
 }
 
@@ -636,6 +644,18 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
                              VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_DEPENDENCY_BY_REGION_BIT,
                              0, nullptr, 0, nullptr, 1, &barrier);
     }
+}
+
+void CCVKCommandBuffer::selfDependency() {
+    VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+    barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    barrier.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+    vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                         VK_DEPENDENCY_BY_REGION_BIT,
+                         1, &barrier, 0, nullptr, 0, nullptr);
 }
 
 void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {

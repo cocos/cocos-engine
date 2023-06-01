@@ -30,6 +30,7 @@
 
 namespace cc {
 namespace gfx {
+class CCMTLRenderPass;
 class CCMTLGPUShader;
 class SPIRVUtils;
 class CCMTLShader final : public Shader {
@@ -45,7 +46,7 @@ public:
     inline id<MTLFunction> getFragmentMTLFunction() const { return _fragFunction; }
     inline id<MTLFunction> getComputeMTLFunction() const { return _cmptFunction; }
     inline const ccstd::unordered_map<uint32_t, uint32_t> &getFragmentSamplerBindings() const { return _mtlFragmentSamplerBindings; }
-    inline const CCMTLGPUShader *gpuShader() const { return _gpuShader; }
+    const CCMTLGPUShader *gpuShader(CCMTLRenderPass *renderPass, uint32_t subPass);
 
     uint32_t getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint32_t stream);
 
@@ -64,7 +65,8 @@ protected:
     void doInit(const ShaderInfo &info) override;
     void doDestroy() override;
 
-    bool createMTLFunction(const ShaderStage &);
+    bool checkInputAttachment(const ShaderInfo& info) const;
+    bool createMTLFunction(const ShaderStage &, CCMTLRenderPass *renderPass, uint32_t subPass);
     void setAvailableBufferBindingIndex();
 
     id<MTLFunction> _vertFunction = nil;

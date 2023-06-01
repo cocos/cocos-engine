@@ -61,6 +61,7 @@ public:
 struct CustomRenderGraphContext {
     std::shared_ptr<CustomPipelineContext> pipelineContext;
     const RenderGraph* renderGraph{nullptr};
+    const ResourceGraph* resourceGraph{nullptr};
     gfx::CommandBuffer* primaryCommandBuffer{nullptr};
 };
 

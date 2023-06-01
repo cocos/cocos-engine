@@ -26,6 +26,7 @@ export class PoseNodeChoosePoseByIndex extends PoseNodeChoosePoseBase {
     @input({
         type: PoseGraphType.FLOAT,
         arraySyncGroup: 'choose-item',
+        arraySyncGroupFollower: true,
     })
     get fadeInDurations () {
         return this._fadeInDurations;
