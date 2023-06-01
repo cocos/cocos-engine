@@ -36,13 +36,11 @@ exports.template = /* html */`
                 </ui-prop>
             </section>
         </section>
-        <div class="filter-different">
-            <ui-prop>
-                <div slot="content">
-                    <div class="atlas-file-name"></div>
-                </div>
-            </ui-prop>
-        </div>
+        <ui-prop class="filter-different">
+            <div slot="content">
+                <div class="atlas-file-name"></div>
+            </div>
+        </ui-prop>
         <ui-prop class="wrapMode-prop">
             <ui-label slot="label" value="i18n:ENGINE.assets.texture.wrapMode" tooltip="i18n:ENGINE.assets.texture.wrapModeTip"></ui-label>
             <ui-select slot="content" class="wrapMode-select"></ui-select>
@@ -110,7 +108,7 @@ exports.style = /* css */`
     border-color: var(--color-warn-fill);
 }
 .filter-different {
-    color: red;
+    color: var(--color-warn-fill);
     display: none;
 }
 .filter-different .atlas-file-name span {
