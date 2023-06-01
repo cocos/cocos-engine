@@ -70,6 +70,11 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
+      - uses: actions/setup-java@v3
+        id: setup-jdk
+        with:
+          distribution: 'zulu'
+          java-version: '17'
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
@@ -127,6 +132,11 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
+      - uses: actions/setup-java@v3
+        id: setup-jdk
+        with:
+          distribution: 'zulu'
+          java-version: '17'
       - name: Compile
         env:
           COCOS_ENGINE_DEV: 1
