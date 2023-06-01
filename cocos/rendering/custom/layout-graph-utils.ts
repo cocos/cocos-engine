@@ -147,15 +147,20 @@ export function getCustomPassID (lg: LayoutGraphData, name: string | undefined):
     return lg.locateChild(lg.nullVertex(), name || 'default');
 }
 
-// find phaseID using passID and phase name
-export function getCustomPhaseID (lg: LayoutGraphData, passID: number, name: string | number | undefined): number {
+// find subpassID using name
+export function getCustomSubpassID (lg: LayoutGraphData, passID: number, name: string): number {
+    return lg.locateChild(passID, name);
+}
+
+// find phaseID using subpassOrPassID and phase name
+export function getCustomPhaseID (lg: LayoutGraphData, subpassOrPassID: number, name: string | number | undefined): number {
     if (name === undefined) {
-        return lg.locateChild(passID, 'default');
+        return lg.locateChild(subpassOrPassID, 'default');
     }
     if (typeof (name) === 'number') {
-        return lg.locateChild(passID, name.toString());
+        return lg.locateChild(subpassOrPassID, name.toString());
     }
-    return lg.locateChild(passID, name);
+    return lg.locateChild(subpassOrPassID, name);
 }
 
 // check ShaderStageFlagBit has certain bits
@@ -1514,9 +1519,9 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData) 
         if (!lg.holds(LayoutGraphDataValue.RenderPhase, v)) {
             continue;
         }
-        const passID = lg.getParent(v);
+        const subpassOrPassID = lg.getParent(v);
         const phaseID = v;
-        const passLayout = lg.getLayout(passID);
+        const passLayout = lg.getLayout(subpassOrPassID);
         const phaseLayout = lg.getLayout(phaseID);
         const info = new PipelineLayoutInfo();
         populatePipelineLayoutInfo(passLayout, UpdateFrequency.PER_PASS, info);
@@ -1554,7 +1559,7 @@ export function getEmptyPipelineLayout (): PipelineLayout {
 
 // get descriptor set from LayoutGraphData (not from ProgramData)
 export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
-    passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout {
+    subpassOrPassID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout {
     if (rate < UpdateFrequency.PER_PASS) {
         const phaseData = lg.getLayout(phaseID);
         const data = phaseData.descriptorSets.get(rate);
@@ -1569,9 +1574,9 @@ export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
     }
 
     assert(rate === UpdateFrequency.PER_PASS);
-    assert(passID === lg.getParent(phaseID));
+    assert(subpassOrPassID === lg.getParent(phaseID));
 
-    const passData = lg.getLayout(passID);
+    const passData = lg.getLayout(subpassOrPassID);
     const data = passData.descriptorSets.get(rate);
     if (data) {
         if (!data.descriptorSetLayout) {
@@ -1585,7 +1590,7 @@ export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
 
 // getDescriptorSetLayout from LayoutGraphData
 export function getDescriptorSetLayout (lg: LayoutGraphData,
-    passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout | null {
+    subpassOrPassID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout | null {
     if (rate < UpdateFrequency.PER_PASS) {
         const phaseData = lg.getLayout(phaseID);
         const data = phaseData.descriptorSets.get(rate);
@@ -1600,9 +1605,9 @@ export function getDescriptorSetLayout (lg: LayoutGraphData,
     }
 
     assert(rate === UpdateFrequency.PER_PASS);
-    assert(passID === lg.getParent(phaseID));
+    assert(subpassOrPassID === lg.getParent(phaseID));
 
-    const passData = lg.getLayout(passID);
+    const passData = lg.getLayout(subpassOrPassID);
     const data = passData.descriptorSets.get(rate);
     if (data) {
         if (!data.descriptorSetLayout) {
@@ -1654,9 +1659,9 @@ export function getDescriptorName (lg: LayoutGraphData, nameID: number): string 
 }
 
 export function getPerPassDescriptorSetLayoutData (lg: LayoutGraphData,
-    passID: number): DescriptorSetLayoutData | null {
-    assert(passID !== lg.nullVertex());
-    const node = lg.getLayout(passID);
+    subpassOrPassID: number): DescriptorSetLayoutData | null {
+    assert(subpassOrPassID !== lg.nullVertex());
+    const node = lg.getLayout(subpassOrPassID);
     const set = node.descriptorSets.get(UpdateFrequency.PER_PASS);
     if (set === undefined) {
         return null;
