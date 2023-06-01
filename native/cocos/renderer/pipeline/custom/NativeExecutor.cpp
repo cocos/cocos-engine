@@ -2082,7 +2082,7 @@ void addRenderObject(
     const auto subModelCount = subModels.size();
     for (uint32_t subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
         const auto& subModel = subModels[subModelIdx];
-        const auto& passes = subModel->getPasses();
+        const auto& passes = *(subModel->getPasses());
         const auto passCount = passes.size();
         for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
             auto& pass = *passes[passIdx];
