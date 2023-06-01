@@ -59,6 +59,8 @@ export class WebGLInputAssembler extends InputAssembler {
         this._drawInfo.instanceCount = 0;
         this._drawInfo.firstInstance = 0;
 
+        this._indirectBuffer = info.indirectBuffer || null;
+
         const gpuVertexBuffers: IWebGLGPUBuffer[] = new Array<IWebGLGPUBuffer>(info.vertexBuffers.length);
         for (let i = 0; i < info.vertexBuffers.length; ++i) {
             const vb = info.vertexBuffers[i] as WebGLBuffer;
@@ -83,10 +85,16 @@ export class WebGLInputAssembler extends InputAssembler {
             }
         }
 
+        let gpuIndirectBuffer: IWebGLGPUBuffer | null = null;
+        if (info.indirectBuffer) {
+            gpuIndirectBuffer = (info.indirectBuffer as WebGLBuffer).gpuBuffer;
+        }
+
         this._gpuInputAssembler = {
             attributes: info.attributes,
             gpuVertexBuffers,
             gpuIndexBuffer,
+            gpuIndirectBuffer,
 
             glAttribs: [],
             glIndexType,

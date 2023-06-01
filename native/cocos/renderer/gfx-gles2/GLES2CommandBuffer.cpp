@@ -254,22 +254,6 @@ void GLES2CommandBuffer::setStencilCompareMask(StencilFace face, uint32_t ref, u
     if (hasFlag(face, StencilFace::BACK)) update(_curDynamicStates.stencilStatesBack);
 }
 
-void GLES2CommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
-    // not support
-    std::ignore = buffer;
-    std::ignore = offset;
-    std::ignore = count;
-    std::ignore = stride;
-}
-
-void GLES2CommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
-    // not support
-    std::ignore = buffer;
-    std::ignore = offset;
-    std::ignore = count;
-    std::ignore = stride;
-}
-
 void GLES2CommandBuffer::draw(const DrawInfo &info) {
     CC_PROFILE(GLES2CommandBufferDraw);
     if (_isStateInvalid) {

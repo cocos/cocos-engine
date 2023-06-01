@@ -144,7 +144,7 @@ export class RenderingSubMesh {
         this._indexBuffer = indexBuffer;
         this._indirectBuffer = indirectBuffer;
         this._primitiveMode = primitiveMode;
-        this._iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer);
+        this._iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
         this._isOwnerOfIndexBuffer = isOwnerOfIndexBuffer;
     }
 

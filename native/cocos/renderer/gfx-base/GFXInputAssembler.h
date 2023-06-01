@@ -41,6 +41,7 @@ public:
     inline const AttributeList &getAttributes() const { return _attributes; }
     inline const BufferList &getVertexBuffers() const { return _vertexBuffers; }
     inline Buffer *getIndexBuffer() const { return _indexBuffer; }
+    inline Buffer *getIndirectBuffer() const { return _indirectBuffer; }
     inline ccstd::hash_t getAttributesHash() const { return _attributesHash; }
 
     inline const DrawInfo &getDrawInfo() const { return _drawInfo; }
@@ -73,6 +74,7 @@ protected:
 
     BufferList _vertexBuffers;
     Buffer *_indexBuffer{nullptr};
+    Buffer *_indirectBuffer{nullptr};
 
     DrawInfo _drawInfo;
 };

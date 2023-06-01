@@ -1218,8 +1218,42 @@ void bufferUpload(const CCVKGPUBufferView &stagingBuffer, CCVKGPUBuffer &gpuBuff
 void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const void *buffer, uint32_t size, const CCVKGPUCommandBuffer *cmdBuffer) {
     if (!gpuBuffer) return;
 
-    const void *dataToUpload = buffer;
-    size_t sizeToUpload = size;
+    const void *dataToUpload = nullptr;
+    size_t sizeToUpload = 0U;
+
+    if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
+        size_t drawInfoCount = size / sizeof(DrawInfo);
+        const auto *drawInfo = static_cast<const DrawInfo *>(buffer);
+        if (drawInfoCount > 0) {
+            if (drawInfo->indexCount) {
+                for (size_t i = 0; i < drawInfoCount; ++i) {
+                    gpuBuffer->indexedIndirectCmds[i].indexCount = drawInfo->indexCount;
+                    gpuBuffer->indexedIndirectCmds[i].instanceCount = std::max(drawInfo->instanceCount, 1U);
+                    gpuBuffer->indexedIndirectCmds[i].firstIndex = drawInfo->firstIndex;
+                    gpuBuffer->indexedIndirectCmds[i].vertexOffset = drawInfo->vertexOffset;
+                    gpuBuffer->indexedIndirectCmds[i].firstInstance = drawInfo->firstInstance;
+                    drawInfo++;
+                }
+                dataToUpload = gpuBuffer->indexedIndirectCmds.data();
+                sizeToUpload = drawInfoCount * sizeof(VkDrawIndexedIndirectCommand);
+                gpuBuffer->isDrawIndirectByIndex = true;
+            } else {
+                for (size_t i = 0; i < drawInfoCount; ++i) {
+                    gpuBuffer->indirectCmds[i].vertexCount = drawInfo->vertexCount;
+                    gpuBuffer->indirectCmds[i].instanceCount = std::max(drawInfo->instanceCount, 1U);
+                    gpuBuffer->indirectCmds[i].firstVertex = drawInfo->firstVertex;
+                    gpuBuffer->indirectCmds[i].firstInstance = drawInfo->firstInstance;
+                    drawInfo++;
+                }
+                dataToUpload = gpuBuffer->indirectCmds.data();
+                sizeToUpload = drawInfoCount * sizeof(VkDrawIndirectCommand);
+                gpuBuffer->isDrawIndirectByIndex = false;
+            }
+        }
+    } else {
+        dataToUpload = buffer;
+        sizeToUpload = size;
+    }
 
     // back buffer instances update command
     uint32_t backBufferIndex = device->gpuDevice()->curBackBufferIndex;
