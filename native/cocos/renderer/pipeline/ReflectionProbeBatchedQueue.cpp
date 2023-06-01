@@ -110,7 +110,7 @@ void ReflectionProbeBatchedQueue::clear() {
 
 void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
     for (const auto &subModel : model->getSubModels()) {
-        //Filter transparent objects
+        // Filter transparent objects
         const bool isTransparent = subModel->getPass(0)->getBlendState()->targets[0].blend;
         if (isTransparent) {
             continue;
@@ -187,7 +187,7 @@ bool ReflectionProbeBatchedQueue::isUseReflectMapPass(const scene::SubModel *sub
 
 int ReflectionProbeBatchedQueue::getDefaultPassIndex(const scene::SubModel *subModel) const {
     int i = 0;
-    for (const auto &pass : subModel->getPasses()) {
+    for (const auto &pass : *(subModel->getPasses())) {
         if (pass->getPhase() == _phaseID) {
             return i;
         }
@@ -198,7 +198,7 @@ int ReflectionProbeBatchedQueue::getDefaultPassIndex(const scene::SubModel *subM
 
 int ReflectionProbeBatchedQueue::getReflectMapPassIndex(const scene::SubModel *subModel) const {
     int i = 0;
-    for (const auto &pass : subModel->getPasses()) {
+    for (const auto &pass : *(subModel->getPasses())) {
         if (pass->getPhase() == _phaseReflectMapID) {
             return i;
         }
