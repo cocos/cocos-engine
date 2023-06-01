@@ -342,6 +342,10 @@ export class SubModel {
      * @zh Shader 宏更新回调
      */
     public onMacroPatchesStateChanged (patches: IMacroPatch[] | null): void {
+        if (patches && this._patches && patches.length === this._patches.length) {
+            const patchesStateChanged = JSON.stringify(patches.sort()) === JSON.stringify(this._patches.sort());
+            if (!patchesStateChanged) return;
+        }
         this._patches = patches;
 
         const passes = this._passes;

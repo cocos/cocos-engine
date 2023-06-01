@@ -218,6 +218,9 @@ void SubModel::onPipelineStateChanged() {
 }
 
 void SubModel::onMacroPatchesStateChanged(const ccstd::vector<IMacroPatch> &patches) {
+    if (std::equal(std::begin(patches), std::end(patches), std::begin(this->_patches))) {
+        return;
+    }
     _patches = patches;
     const auto &passes = *_passes;
     if (passes.empty()) return;
