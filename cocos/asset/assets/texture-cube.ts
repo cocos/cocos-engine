@@ -583,7 +583,8 @@ export class TextureCube extends SimpleTexture {
             for (let i = 0; i < layout.length; i++) {
                 const layoutInfo = layout[i];
 
-                const buffer = new Uint8Array(4 * layoutInfo.width * layoutInfo.height);
+                const size = tex.getGFXTexture()!.size;
+                const buffer = new Uint8Array(size); // should use the gfxTexture memory size
                 const region = new BufferTextureCopy();
                 region.texOffset.x = layoutInfo.left;
                 region.texOffset.y = layoutInfo.top;

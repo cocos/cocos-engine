@@ -646,7 +646,6 @@ export class ImageAsset extends Asset {
     }
 
     public destroy () {
-        console.log(`asset destroy: ${this._uuid}, ${this.nativeUrl}`);
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = '';
             this._setRawAsset('');
