@@ -675,9 +675,23 @@ export class UITransform extends Component {
      *          @zh 包含当前节点包围盒及其子节点包围盒的最小包围盒。
      */
     public getBoundingBoxTo (targetMat: Mat4) {
-        const rect = this.getBoundingBoxToWorld();
+        const rect = new Rect();
+        this._selfBoundingBoxToWorld(rect);
         Mat4.invert(_mat4_temp, targetMat);
         rect.transformMat4(_mat4_temp);
+
+        const locChildren = this.node.children;
+        for (let i = 0; i < locChildren.length; ++i) {
+            const child = locChildren[i];
+            if (child && child.active) {
+                const uiTransform = child.getComponent(UITransform);
+                if (uiTransform) {
+                    uiTransform._selfBoundingBoxToWorld(_rect);
+                    _rect.transformMat4(_mat4_temp);
+                    Rect.union(rect, rect, _rect);
+                }
+            }
+        }
         return rect;
     }
 
