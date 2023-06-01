@@ -1035,6 +1035,7 @@ export class MeshRenderer extends ModelRenderer {
     protected _onMaterialModified (idx: number, material: Material | null) {
         if (!this._model || !this._model.inited) { return; }
         this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
+        this._updateStandardSkin();
     }
 
     /**

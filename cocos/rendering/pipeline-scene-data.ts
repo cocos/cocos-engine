@@ -34,7 +34,9 @@ import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
 import { cclegacy } from '../core';
 import { Skin } from '../render-scene/scene/skin';
-import { MeshRenderer } from '../3d';
+import { ModelRenderer } from '../misc/model-renderer';
+import { scene } from '../render-scene';
+import { Model } from '../render-scene/scene';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
@@ -85,6 +87,13 @@ export class PipelineSceneData {
         this._standardSkinModel = val;
     }
 
+    get skinMaterialModel () {
+        return this._skinMaterialModel!;
+    }
+    set skinMaterialModel (val: Model) {
+        this._skinMaterialModel = val;
+    }
+
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
@@ -118,7 +127,8 @@ export class PipelineSceneData {
     protected _isHDR = true;
     protected _shadingScale = 1.0;
     protected _csmSupported = true;
-    private _standardSkinModel: MeshRenderer | null = null;
+    private _standardSkinModel: ModelRenderer | null = null;
+    private _skinMaterialModel: Model | null = null;
 
     constructor () {
         this._shadingScale = 1.0;
