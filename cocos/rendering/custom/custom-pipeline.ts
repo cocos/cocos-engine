@@ -23,13 +23,17 @@
 */
 
 import { Format, LoadOp } from '../../gfx/base/define';
-import { Camera, CameraUsage } from '../../render-scene/scene';
+import { Camera, CameraUsage, Light, SpotLight } from '../../render-scene/scene';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { CopyPair, LightInfo, QueueHint, ResourceResidency, SceneFlags } from './types';
 import { AntiAliasing, buildBloomPass, buildForwardPass, buildFxaaPass, buildPostprocessPass, buildSSSSPass,
-    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject, buildHBAOPasses, buildCopyPass, getRenderArea, buildReflectionProbePasss } from './define';
+    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject,
+    buildHBAOPasses, buildCopyPass, getRenderArea, buildReflectionProbePasss } from './define';
 import { isUICamera } from './utils';
 import { RenderWindow } from '../../render-scene/core/render-window';
+import { geometry } from '../../core';
+import { RenderScene } from '../../render-scene';
+import { AABB } from '../../core/geometry/aabb';
 
 const copyPair = new CopyPair();
 const pairs = [copyPair];
@@ -67,7 +71,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 buildCopyPass(ppl, pairs);
 
                 // skin pass
-                const skinInfo = buildSSSSPass(camera, ppl, forwardInfo.rtName, forwardInfo.dsName);
+                const skinInfo = buildSSSSPass(camera, ppl, 'copyTexTest', forwardInfo.dsName);
                 // deferred transparency objects
                 const deferredTransparencyInfo = buildTransparencyPass(camera, ppl, skinInfo.rtName, skinInfo.dsName, hasDeferredTransparencyObjects);
                 // hbao pass
@@ -80,7 +84,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 // todo: bloom need to be rendered before tone-mapping
                 const bloomInfo = buildBloomPass(camera, ppl, fxaaInfo.rtName);
                 // Present Pass
-                buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
+                buildPostprocessPass(camera, ppl, bloomInfo.rtName);
                 continue;
             }
             // render ui
@@ -89,24 +93,79 @@ export class CustomPipelineBuilder implements PipelineBuilder {
     }
 }
 
-class CameraInfo {
-    constructor (id: number, windowID: number, width: number, height: number) {
+class WindowInfo {
+    constructor (id: number, width: number, height: number) {
         this.id = id;
-        this.windowID = windowID;
         this.width = width;
         this.height = height;
     }
     id = 0xFFFFFFFF;
-    windowID = 0xFFFFFFFF;
     width = 0;
     height = 0;
 }
 
+class SceneInfo {
+    public reset () {
+        this.punctualLights.length = 0;
+        this.spotLights.length = 0;
+    }
+    punctualLights: Light[] = [];
+    spotLights: SpotLight[] = [];
+}
+
 export class TestPipelineBuilder implements PipelineBuilder {
+    private prepareSceneInfo (scene: Readonly<RenderScene>,
+        frustum: geometry.Frustum,
+        sceneInfo: SceneInfo) {
+        // clear scene info
+        sceneInfo.reset();
+        // spot lights
+        for (let i = 0; i < scene.spotLights.length; i++) {
+            const light = scene.spotLights[i];
+            if (light.baked) {
+                continue;
+            }
+            geometry.Sphere.set(this._sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (geometry.intersect.sphereFrustum(this._sphere, frustum)) {
+                sceneInfo.punctualLights.push(light);
+                sceneInfo.spotLights.push(light);
+            }
+        }
+        // sphere lights
+        for (let i = 0; i < scene.sphereLights.length; i++) {
+            const light = scene.sphereLights[i];
+            if (light.baked) {
+                continue;
+            }
+            geometry.Sphere.set(this._sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (geometry.intersect.sphereFrustum(this._sphere, frustum)) {
+                sceneInfo.punctualLights.push(light);
+            }
+        }
+        // point lights
+        for (let i = 0; i < scene.pointLights.length; i++) {
+            const light = scene.pointLights[i];
+            if (light.baked) {
+                continue;
+            }
+            geometry.Sphere.set(this._sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (geometry.intersect.sphereFrustum(this._sphere, frustum)) {
+                sceneInfo.punctualLights.push(light);
+            }
+        }
+        // ranged dir lights
+        for (let i = 0; i < scene.rangedDirLights.length; i++) {
+            const light = scene.rangedDirLights[i];
+            AABB.transform(this._tmpBoundingBox, this._rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+            if (geometry.intersect.aabbFrustum(this._tmpBoundingBox, frustum)) {
+                sceneInfo.punctualLights.push(light);
+            }
+        }
+    }
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
-            if (camera.scene === null) {
+            if (camera.scene === null || camera.window === null) {
                 continue;
             }
             if (camera.cameraUsage !== CameraUsage.GAME) {
@@ -114,19 +173,13 @@ export class TestPipelineBuilder implements PipelineBuilder {
                 continue;
             }
             const info = this.prepareGameCamera(ppl, camera);
-            this.buildForward(ppl, camera, info.id, info.width, info.height);
+            this.prepareSceneInfo(camera.scene, camera.frustum, this._sceneInfo);
+            this.buildForwardWithoutShadow(ppl, camera,
+                info.id, info.width, info.height, this._sceneInfo);
         }
     }
-    private prepareRenderWindow (camera: Camera): number {
-        let windowID = this._windows.get(camera.window);
-        if (windowID === undefined) {
-            windowID = this._windows.size;
-            this._windows.set(camera.window, windowID);
-        }
-        return windowID;
-    }
-    private prepareGameCamera (ppl: BasicPipeline, camera: Camera): CameraInfo {
-        let info = this._cameras.get(camera);
+    private prepareGameCamera (ppl: BasicPipeline, camera: Camera): WindowInfo {
+        let info = this._windows.get(camera.window);
         if (info !== undefined) {
             let width = camera.window.width;
             let height = camera.window.height;
@@ -136,33 +189,35 @@ export class TestPipelineBuilder implements PipelineBuilder {
             if (height === 0) {
                 height = 1;
             }
-            const windowID = this.prepareRenderWindow(camera);
-            if (info.width === width && info.height === height && info.windowID === windowID) {
+            if (info.width === width && info.height === height) {
                 return info;
             }
-            this.updateGameCamera(ppl, camera, info.id, info.windowID, info.width, info.height);
+            info.width = width;
+            info.height = height;
+            this.updateGameCamera(ppl, camera, info.id, info.width, info.height);
             return info;
         }
-        const windowID = this.prepareRenderWindow(camera);
-        info = new CameraInfo(
-            this._cameras.size,
-            windowID,
+        const id = this._windows.size;
+        info = new WindowInfo(
+            id,
             camera.window.width ? camera.window.width : 1,
             camera.window.height ? camera.window.height : 1,
         );
-        this.initGameCamera(ppl, camera, info.id, info.windowID, info.width, info.height);
-        this._cameras.set(camera, info);
+        this.initGameCamera(ppl, camera, info.id, info.width, info.height);
+        this._windows.set(camera.window, info);
         return info;
     }
-    private initGameCamera (ppl: BasicPipeline, camera: Camera, id: number, windowID: number, width: number, height: number) {
-        ppl.addRenderWindow(`Color${windowID}`, Format.BGRA8, width, height, camera.window);
+    private initGameCamera (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number) {
+        ppl.addRenderWindow(`Color${id}`, Format.BGRA8, width, height, camera.window);
         ppl.addDepthStencil(`DepthStencil${id}`, Format.DEPTH_STENCIL, width, height);
     }
-    private updateGameCamera (ppl: BasicPipeline, camera: Camera, id: number, windowID: number, width: number, height: number) {
-        ppl.updateRenderWindow(`Color${windowID}`, camera.window);
+    private updateGameCamera (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number) {
+        ppl.updateRenderWindow(`Color${id}`, camera.window);
         ppl.updateDepthStencil(`DepthStencil${id}`, width, height);
     }
-    private buildForward (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number) {
+    private buildForwardWithoutShadow (ppl: BasicPipeline,
+        camera: Camera, id: number, width: number, height: number,
+        sceneInfo: SceneInfo) {
         const scene = camera.scene;
         const pass = ppl.addRenderPass(width, height, 'default');
 
@@ -180,6 +235,10 @@ export class TestPipelineBuilder implements PipelineBuilder {
                 .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.DEFAULT_LIGHTING);
         }
     }
-    readonly _cameras = new Map<Camera, CameraInfo>();
-    readonly _windows = new Map<RenderWindow, number>();
+    readonly _windows = new Map<RenderWindow, WindowInfo>();
+    readonly _sceneInfo = new SceneInfo();
+    // context
+    readonly _sphere = geometry.Sphere.create(0, 0, 0, 1);
+    readonly _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
+    readonly _tmpBoundingBox = new AABB();
 }

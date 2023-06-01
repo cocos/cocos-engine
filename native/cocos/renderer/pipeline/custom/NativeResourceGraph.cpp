@@ -182,6 +182,7 @@ void ResourceGraph::validateSwapchains() {
     }
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
     std::ignore = device;
     auto& resg = *this;
@@ -222,6 +223,30 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
         [&](const RenderSwapchain& queue) {
             CC_EXPECTS(queue.swapchain);
             std::ignore = queue;
+        },
+        [&](const FormatView& view) { // NOLINT(misc-no-recursion)
+            std::ignore = view;
+            auto parentID = parent(vertID, resg);
+            CC_EXPECTS(parentID != resg.null_vertex());
+            while (resg.isTextureView(parentID)) {
+                parentID = parent(parentID, resg);
+            }
+            CC_EXPECTS(parentID != resg.null_vertex());
+            CC_EXPECTS(resg.isTexture(parentID));
+            CC_ENSURES(!resg.isTextureView(parentID));
+            mount(device, parentID);
+        },
+        [&](const SubresourceView& view) { // NOLINT(misc-no-recursion)
+            std::ignore = view;
+            auto parentID = parent(vertID, resg);
+            CC_EXPECTS(parentID != resg.null_vertex());
+            while (resg.isTextureView(parentID)) {
+                parentID = parent(parentID, resg);
+            }
+            CC_EXPECTS(parentID != resg.null_vertex());
+            CC_EXPECTS(resg.isTexture(parentID));
+            CC_ENSURES(!resg.isTextureView(parentID));
+            mount(device, parentID);
         });
 }
 
@@ -267,6 +292,23 @@ bool ResourceGraph::isTexture(vertex_descriptor resID) const noexcept {
         });
 }
 
+bool ResourceGraph::isTextureView(vertex_descriptor resID) const noexcept {
+    return visitObject(
+        resID, *this,
+        [&](const FormatView& view) {
+            std::ignore = view;
+            return true;
+        },
+        [&](const SubresourceView& view) {
+            std::ignore = view;
+            return true;
+        },
+        [&](const auto& res) {
+            std::ignore = res;
+            return false;
+        });
+}
+
 gfx::Buffer* ResourceGraph::getBuffer(vertex_descriptor resID) {
     gfx::Buffer* buffer = nullptr;
     visitObject(
@@ -303,6 +345,16 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
         },
         [&](const RenderSwapchain& sc) {
             texture = sc.swapchain->getColorTexture();
+        },
+        [&](const FormatView& view) {
+            // TODO(zhouzhenglong): add ImageView support
+            std::ignore = view;
+            CC_EXPECTS(false);
+        },
+        [&](const SubresourceView& view) {
+            // TODO(zhouzhenglong): add ImageView support
+            std::ignore = view;
+            CC_EXPECTS(false);
         },
         [&](const auto& buffer) {
             std::ignore = buffer;

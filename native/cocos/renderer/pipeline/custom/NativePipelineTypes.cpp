@@ -152,10 +152,21 @@ LayoutGraphNodeResource::LayoutGraphNodeResource(LayoutGraphNodeResource&& rhs, 
   descriptorSetPool(std::move(rhs.descriptorSetPool), alloc),
   programResources(std::move(rhs.programResources), alloc) {}
 
+SceneResource::SceneResource(const allocator_type& alloc) noexcept
+: resourceIndex(alloc),
+  storageBuffers(alloc),
+  storageImages(alloc) {}
+
+SceneResource::SceneResource(SceneResource&& rhs, const allocator_type& alloc)
+: resourceIndex(std::move(rhs.resourceIndex), alloc),
+  storageBuffers(std::move(rhs.storageBuffers), alloc),
+  storageImages(std::move(rhs.storageImages), alloc) {}
+
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
   resourceGroups(alloc),
-  layoutGraphResources(alloc) {}
+  layoutGraphResources(alloc),
+  renderSceneResources(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),

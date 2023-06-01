@@ -61,6 +61,10 @@ struct UniformBlockResource;
 struct ProgramResource;
 struct LayoutGraphNodeResource;
 struct QuadResource;
+
+enum class ResourceType;
+
+struct SceneResource;
 struct NativeRenderContext;
 class NativeProgramLibrary;
 struct PipelineCustomization;

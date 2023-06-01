@@ -922,16 +922,14 @@ bool mu::isImageBlockSupported() {
 }
 
 bool mu::isFramebufferFetchSupported() {
-#if (CC_PLATFORM == CC_PLATFORM_IOS) //|| TARGET_CPU_ARM64
     return true;
-#else
-    return false;
-#endif
 }
 
 ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
                             ShaderStageFlagBit shaderType,
-                            CCMTLGPUShader *gpuShader) {
+                            CCMTLGPUShader *gpuShader,
+                            const ccstd::vector<uint32_t> &drawBuffer,
+                            const ccstd::vector<uint32_t> &readBuffer) {
     CCMTLDevice *device = CCMTLDevice::getInstance();
     spirv_cross::CompilerMSL msl(ir, word_count);
 
@@ -1051,7 +1049,7 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
             newBinding.binding = binding + i;
             newBinding.msl_texture = mappedBinding;
             newBinding.msl_sampler = gpuShader->samplerIndex;
-            
+
             if(gpuShader->resourceBinding.find(fakeHash) == gpuShader->resourceBinding.end()) {
                 gpuShader->resourceBinding[fakeHash] = {0, mappedBinding, mappedBinding};
                 gpuShader->samplers[mappedBinding] = {sampler.name, set, binding, newBinding.msl_texture, newBinding.msl_sampler, shaderType};
@@ -1069,57 +1067,33 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     }
 
     if (executionModel == spv::ExecutionModelFragment) {
-        gpuShader->outputs.resize(resources.stage_outputs.size());
-        for (size_t i = 0; i < resources.stage_outputs.size(); i++) {
-            const auto &stageOutput = resources.stage_outputs[i];
-            auto set = msl.get_decoration(stageOutput.id, spv::DecorationDescriptorSet);
-            auto attachmentIndex = static_cast<uint32_t>(i);
-            msl.set_decoration(stageOutput.id, spv::DecorationLocation, attachmentIndex);
-            gpuShader->outputs[i].name = stageOutput.name;
-            gpuShader->outputs[i].set = set;
-            gpuShader->outputs[i].binding = attachmentIndex;
-        }
-
         if (!resources.subpass_inputs.empty()) {
             gpuShader->inputs.resize(resources.subpass_inputs.size());
             for (size_t i = 0; i < resources.subpass_inputs.size(); i++) {
                 const auto &attachment = resources.subpass_inputs[i];
                 gpuShader->inputs[i].name = attachment.name;
-                auto set = msl.get_decoration(attachment.id, spv::DecorationDescriptorSet);
-                auto index = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
-                auto binding = msl.get_decoration(attachment.id, spv::DecorationBinding);
-                
-                spirv_cross::MSLResourceBinding textureBinding;
-                textureBinding.stage = executionModel;
-                uint32_t fakeHash = set * 128 + binding;
-                if(gpuShader->resourceBinding.find(fakeHash) == gpuShader->resourceBinding.end()) {
-                    gpuShader->resourceBinding[fakeHash] = {0, index, index};
-                } else {
-                    gpuShader->resourceBinding[fakeHash].samplerBinding = index;
-                    gpuShader->resourceBinding[fakeHash].textureBinding = index;
-                    textureBinding.msl_buffer = gpuShader->resourceBinding[fakeHash].bufferBinding;
-                }
-                msl.set_decoration(attachment.id, spv::DecorationBinding, index);
-                // avoid (set, index) collision
-                msl.set_decoration(attachment.id, spv::DecorationDescriptorSet, 4);
-                gpuShader->inputs[i].binding = index;
-                gpuShader->inputs[i].set = set;
+                auto id = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
+                auto loc = id >= readBuffer.size() ? id : readBuffer[id];
+                msl.set_decoration(attachment.id, spv::DecorationInputAttachmentIndex, loc);
             }
+        }
+
+        gpuShader->outputs.resize(resources.stage_outputs.size());
+        for (size_t i = 0; i < resources.stage_outputs.size(); i++) {
+            const auto &stageOutput = resources.stage_outputs[i];
+            auto set = msl.get_decoration(stageOutput.id, spv::DecorationDescriptorSet);
+            auto id = msl.get_decoration(stageOutput.id, spv::DecorationLocation);
+            auto loc = id >= drawBuffer.size() ? id : drawBuffer[id];
+            msl.set_decoration(stageOutput.id, spv::DecorationLocation, loc);
+
+            gpuShader->outputs[i].name = stageOutput.name;
+            gpuShader->outputs[i].set = set;
+            gpuShader->outputs[i].binding = loc;
         }
     }
 
     // Compile to MSL, ready to give to metal driver.
     ccstd::string output = msl.compile();
-    if (executionModel == spv::ExecutionModelFragment) {
-        // add custom function constant to achieve delay binding for color attachment.
-        auto customCodingPos = output.find("using namespace metal;");
-        int32_t maxIndex = static_cast<int32_t>(resources.stage_outputs.size() - 1);
-        for (int i = maxIndex; i >= 0; --i) {
-            ccstd::string indexStr = std::to_string(i);
-            output.insert(customCodingPos, "\nconstant int indexOffset" + indexStr + " [[function_constant(" + indexStr + ")]];\n");
-            output.replace(output.find("color(" + indexStr + ")"), 8, "color(indexOffset" + indexStr + ")");
-        }
-    }
     if (!output.size()) {
         CC_LOG_ERROR("Compile to MSL failed.");
         CC_LOG_ERROR("%s", output.c_str());

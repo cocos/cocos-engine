@@ -135,6 +135,9 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
     _features[toNumber(Feature::COMPUTE_SHADER)] = true;
     _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = true;
+    _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = false;
+    _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = false;
+    _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = true;
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
