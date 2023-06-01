@@ -595,7 +595,7 @@ export class UITransform extends Component {
      * ```
      */
     public getBoundingBox () {
-        Mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
+        Mat4.fromRTS(_matrix, this.node.rotation, this.node.position, this.node.scale);
         const width = this._contentSize.width;
         const height = this._contentSize.height;
         const rect = new Rect(
@@ -624,57 +624,39 @@ export class UITransform extends Component {
      * ```
      */
     public getBoundingBoxToWorld () {
-        if (this.node.parent) {
-            const m = this.node.parent.getWorldMatrix();
-            return this.getBoundingBoxTo(m);
+        const rect = new Rect();
+        this._selfBoundingBoxToWorld(rect);
+
+        const locChildren = this.node.children;
+        for (let i = 0; i < locChildren.length; ++i) {
+            const child = locChildren[i];
+            if (child && child.active) {
+                const uiTransform = child.getComponent(UITransform);
+                if (uiTransform) {
+                    uiTransform._selfBoundingBoxToWorld(_rect);
+                    Rect.union(rect, rect, _rect);
+                }
+            }
         }
-        return this.getBoundingBox();
+        return rect;
     }
 
     /**
      * @en
-     * Returns the minimum bounding box containing the current bounding box and its child nodes.
-     *
+     * Returns the minimum bounding box related to the target transform matrix, which should contain the current node and its child node tree.
+     * E.g. passing an identical matrix will return the world bounding box of the current node tree.
      * @zh
      * 返回包含当前包围盒及其子节点包围盒的最小包围盒。
      *
-     * @param parentMat @en The parent node matrix.
+     * @param targetMat @en The parent node matrix.
      *                  @zh 父节点矩阵。
      * @returns @en The minimum bounding box containing the current bounding box and its child nodes.
      *          @zh 包含当前节点包围盒及其子节点包围盒的最小包围盒。
      */
-    public getBoundingBoxTo (parentMat: Mat4) {
-        Mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
-        const width = this._contentSize.width;
-        const height = this._contentSize.height;
-        const rect = new Rect(
-            -this._anchorPoint.x * width,
-            -this._anchorPoint.y * height,
-            width,
-            height,
-        );
-
-        Mat4.multiply(_worldMatrix, parentMat, _matrix);
-        rect.transformMat4(_worldMatrix);
-
-        // query child's BoundingBox
-        if (!this.node.children || this.node.children.length === 0) {
-            return rect;
-        }
-
-        const locChildren = this.node.children;
-        for (const child of locChildren) {
-            if (child && child.active) {
-                const uiTransform = child.getComponent(UITransform);
-                if (uiTransform) {
-                    const childRect = uiTransform.getBoundingBoxTo(parentMat);
-                    if (childRect) {
-                        Rect.union(rect, rect, childRect);
-                    }
-                }
-            }
-        }
-
+    public getBoundingBoxTo (targetMat: Mat4) {
+        const rect = this.getBoundingBoxToWorld();
+        Mat4.invert(_mat4_temp, targetMat);
+        rect.transformMat4(_mat4_temp);
         return rect;
     }
 
@@ -709,6 +691,20 @@ export class UITransform extends Component {
         } else {
             return new geometry.AABB(px, py, pz, w, h, l);
         }
+    }
+
+    protected _selfBoundingBoxToWorld (out: Rect) {
+        const width = this._contentSize.width;
+        const height = this._contentSize.height;
+        out.set(
+            -this._anchorPoint.x * width,
+            -this._anchorPoint.y * height,
+            width,
+            height,
+        );
+        this.node.updateWorldTransform();
+        out.transformMat4(this.node.worldMatrix);
+        return out;
     }
 
     protected _parentChanged (node: Node) {
