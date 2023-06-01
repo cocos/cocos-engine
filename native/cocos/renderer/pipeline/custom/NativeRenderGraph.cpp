@@ -1410,6 +1410,7 @@ SubpassBuilder *addRenderSubpassImpl(
     const LayoutGraphData &layoutGraph, LayoutGraphData::vertex_descriptor passLayoutID,
     const ccstd::string &subpassName,
     uint32_t count, uint32_t quality) { // NOLINT(bugprone-easily-swappable-parameters)
+    CC_EXPECTS(!subpassName.empty());
     auto &pass = get(RasterPassTag{}, passID, renderGraph);
     auto &subpassGraph = pass.subpassGraph;
     const auto subpassIndex = num_vertices(pass.subpassGraph);

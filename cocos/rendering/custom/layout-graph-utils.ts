@@ -31,7 +31,7 @@ import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, D
 import { UpdateFrequency, getUpdateFrequencyName, getDescriptorTypeOrderName, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
 
 export const INVALID_ID = 0xFFFFFFFF;
-export const ENABLE_SUBPASS = false;
+export const ENABLE_SUBPASS = true;
 
 // get name of gfx.Type
 function getGfxTypeName (type: Type): string {

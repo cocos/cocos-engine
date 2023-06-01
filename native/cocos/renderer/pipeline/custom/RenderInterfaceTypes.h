@@ -64,7 +64,7 @@ class RenderWindow;
 
 namespace render {
 
-constexpr bool ENABLE_SUBPASS = false;
+constexpr bool ENABLE_SUBPASS = true;
 constexpr bool ENABLE_GPU_DRIVEN = false;
 
 } // namespace render
