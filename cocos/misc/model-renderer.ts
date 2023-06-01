@@ -118,23 +118,4 @@ export class ModelRenderer extends Renderer {
             }
         }
     }
-
-    protected _updateStandardSkin () {
-        const pipelineSceneData = (cclegacy.director.root as Root).pipeline.pipelineSceneData;
-        if (this._enabledStandardSkin) {
-            pipelineSceneData.standardSkinModel = this;
-        }
-        if (!pipelineSceneData.skinMaterialModel) {
-            for (let i = 0; i < this._models.length; i++) {
-                const subModels = this._models[i].subModels;
-                for (let j = 0; j < subModels.length; j++) {
-                    const subModel = subModels[j];
-                    const skinPassIdx = getSkinPassIndex(subModel);
-                    if (skinPassIdx < 0) { continue; }
-                    pipelineSceneData.skinMaterialModel = this._models[i];
-                    return;
-                }
-            }
-        }
-    }
 }

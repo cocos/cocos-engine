@@ -37,6 +37,7 @@ import { Skin } from '../render-scene/scene/skin';
 import { ModelRenderer } from '../misc/model-renderer';
 import { scene } from '../render-scene';
 import { Model } from '../render-scene/scene';
+import { MeshRenderer } from '../3d/framework/mesh-renderer';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
@@ -127,7 +128,7 @@ export class PipelineSceneData {
     protected _isHDR = true;
     protected _shadingScale = 1.0;
     protected _csmSupported = true;
-    private _standardSkinModel: ModelRenderer | null = null;
+    private _standardSkinModel: MeshRenderer | null = null;
     private _skinMaterialModel: Model | null = null;
 
     constructor () {
