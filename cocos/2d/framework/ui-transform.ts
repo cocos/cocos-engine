@@ -582,11 +582,14 @@ export class UITransform extends Component {
 
     /**
      * @en
-     * Returns an axis aligned bounding box of this node in local space coordinate. <br/>
-     * The returned box is relative only to its parent.
+     * Returns an axis aligned bounding box of this node in local space coordinate.
+     * The returned box is relative only to its parent, and it doesn't contain any child nodes.
+     * The behavior is slightly different with [[getBoundingBoxToWorld]] and [[getBoundingBoxTo]].
      *
      * @zh
      * 返回父节坐标系下的轴向对齐的包围盒。
+     * 返回的包围盒仅仅只包含当前节点的轴向对齐包围盒，不包含子节点。
+     * 这个 API 的行为和 [[getBoundingBoxToWorld]] 和 [[getBoundingBoxTo]] 略有不同。
      *
      * @returns @en An axis aligned bounding box of this node in local space coordinate.  @zh 本地坐标系下的包围盒。
      * @example
@@ -643,13 +646,14 @@ export class UITransform extends Component {
 
     /**
      * @en
-     * Returns the minimum bounding box related to the target transform matrix, which should contain the current node and its child node tree.
+     * Returns the minimum bounding box in the coordinate system of the target node, the result contains the current node and its child node tree.
      * E.g. passing an identical matrix will return the world bounding box of the current node tree.
      * @zh
-     * 返回包含当前包围盒及其子节点包围盒的最小包围盒。
+     * 返回在目标节点坐标系下包含当前包围盒及其子节点包围盒的最小总包围盒。
+     * 如果传入单位矩阵，将得到世界坐标系下的包围盒。
      *
-     * @param targetMat @en The parent node matrix.
-     *                  @zh 父节点矩阵。
+     * @param targetMat @en The target node's world matrix representing its coordinate system.
+     *                  @zh 表示目标节点坐标系的世界矩阵。
      * @returns @en The minimum bounding box containing the current bounding box and its child nodes.
      *          @zh 包含当前节点包围盒及其子节点包围盒的最小包围盒。
      */
