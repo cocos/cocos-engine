@@ -874,7 +874,19 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
                     }
                     uint32_t w = gpuTexture->width;
                     uint32_t h = gpuTexture->height;
-                    GL_CHECK(glTexStorage2D(GL_TEXTURE_2D, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h));
+                    if (hasFlag(gpuTexture->flags, TextureFlagBit::MUTABLE_STORAGE)) {
+                        GL_CHECK(glTexImage2D(GL_TEXTURE_2D,
+                                              gpuTexture->mipLevel,
+                                              gpuTexture->glInternalFmt,
+                                              w,
+                                              h,
+                                              0,
+                                              gpuTexture->glFormat,
+                                              gpuTexture->glType,
+                                              nullptr));
+                    } else {
+                        GL_CHECK(glTexStorage2D(GL_TEXTURE_2D, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h));
+                    }
                 }
                 break;
             }
@@ -2988,6 +3000,16 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
                                                        gpuTexture->glFormat,
                                                        memSize,
                                                        (GLvoid *)buff));
+                } else if (hasFlag(gpuTexture->flags, TextureFlagBit::MUTABLE_STORAGE)) {
+                    GL_CHECK(glTexImage2D(GL_TEXTURE_2D,
+                                          gpuTexture->mipLevel,
+                                          gpuTexture->glInternalFmt,
+                                          destWidth,
+                                          destHeight,
+                                          0,
+                                          gpuTexture->glFormat,
+                                          gpuTexture->glType,
+                                          (GLvoid *)buff));
                 } else {
                     GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D,
                                              mipLevel,
