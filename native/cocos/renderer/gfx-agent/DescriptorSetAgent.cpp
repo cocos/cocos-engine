@@ -113,18 +113,19 @@ void DescriptorSetAgent::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t i
         });
 }
 
-void DescriptorSetAgent::bindTexture(uint32_t binding, Texture *texture, uint32_t index) {
-    DescriptorSet::bindTexture(binding, texture, index);
+void DescriptorSetAgent::bindTexture(uint32_t binding, Texture *texture, uint32_t index, AccessFlags flags) {
+    DescriptorSet::bindTexture(binding, texture, index, flags);
 
-    ENQUEUE_MESSAGE_4(
+    ENQUEUE_MESSAGE_5(
         DeviceAgent::getInstance()->getMessageQueue(),
         DescriptorSetBindTexture,
         actor, getActor(),
         binding, binding,
         texture, static_cast<TextureAgent *>(texture)->getActor(),
         index, index,
+        flags, flags,
         {
-            actor->bindTexture(binding, texture, index);
+            actor->bindTexture(binding, texture, index, flags);
         });
 }
 

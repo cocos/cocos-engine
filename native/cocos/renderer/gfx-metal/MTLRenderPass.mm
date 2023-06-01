@@ -58,6 +58,55 @@ void CCMTLRenderPass::doInit(const RenderPassInfo& info) {
     _mtlRenderPassDescriptor.depthAttachment.storeAction = mu::toMTLStoreAction(_depthStencilAttachment.depthStoreOp);
     _mtlRenderPassDescriptor.stencilAttachment.loadAction = mu::toMTLLoadAction(_depthStencilAttachment.stencilLoadOp);
     _mtlRenderPassDescriptor.stencilAttachment.storeAction = mu::toMTLStoreAction(_depthStencilAttachment.stencilStoreOp);
+    
+    uint32_t colorCount = utils::toUint(_colorAttachments.size());
+    if (_subpasses.empty()) {
+        _subpasses.emplace_back();
+        auto &subpass = _subpasses.back();
+        subpass.colors.resize(_colorAttachments.size());
+        for (uint32_t i = 0U; i < _colorAttachments.size(); ++i) {
+            subpass.colors[i] = i;
+        }
+        if (_depthStencilAttachment.format != Format::UNKNOWN) {
+            subpass.depthStencil = colorCount;
+        }
+    } else {
+        // unify depth stencil index
+        for (auto &subpass : _subpasses) {
+            if (subpass.depthStencil != INVALID_BINDING && subpass.depthStencil > colorCount) {
+                subpass.depthStencil = colorCount;
+            }
+            if (subpass.depthStencilResolve != INVALID_BINDING && subpass.depthStencilResolve > colorCount) {
+                subpass.depthStencilResolve = colorCount;
+            }
+        }
+    }
+
+    _colorIndices.resize(_colorAttachments.size(), INVALID_BINDING);
+    _drawBuffers.resize(_subpasses.size());
+    _readBuffers.resize(_subpasses.size());
+    std::vector<uint32_t> colors;
+
+    for (uint32_t i = 0; i < _subpasses.size(); ++i) {
+        auto &subPass = _subpasses[i];
+        auto &readBuffer = _readBuffers[i];
+        auto &drawBuffer = _drawBuffers[i];
+
+        for (auto &input : subPass.inputs) {
+            auto &index = _colorIndices[input];
+            CC_ASSERT(index != INVALID_BINDING); // input should not appear before color or depthstencil.
+            readBuffer.emplace_back(index);
+        }
+
+        for (auto &color : subPass.colors) {
+            auto &index = _colorIndices[color];
+            if (index == INVALID_BINDING) {
+                index = static_cast<uint32_t>(colors.size());
+                colors.emplace_back(color);
+            }
+            drawBuffer.emplace_back(index);
+        }
+    }
 }
 
 void CCMTLRenderPass::doDestroy() {

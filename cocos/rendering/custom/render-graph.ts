@@ -452,6 +452,21 @@ export class PersistentRenderPassAndFramebuffer {
     clearStencil = 0;
 }
 
+export class FormatView {
+    format: Format = Format.UNKNOWN;
+}
+
+export class SubresourceView {
+    /*refcount*/ textureView: Texture | null = null;
+    format: Format = Format.UNKNOWN;
+    indexOrFirstMipLevel = 0;
+    numMipLevels = 0;
+    firstArraySlice = 0;
+    numArraySlices = 0;
+    firstPlane = 0;
+    numPlanes = 0;
+}
+
 //=================================================================
 // ResourceGraph
 //=================================================================
@@ -464,6 +479,8 @@ export const enum ResourceGraphValue {
     PersistentTexture,
     Framebuffer,
     Swapchain,
+    FormatView,
+    SubresourceView,
 }
 
 export function getResourceGraphValueName (e: ResourceGraphValue): string {
@@ -475,6 +492,8 @@ export function getResourceGraphValueName (e: ResourceGraphValue): string {
     case ResourceGraphValue.PersistentTexture: return 'PersistentTexture';
     case ResourceGraphValue.Framebuffer: return 'Framebuffer';
     case ResourceGraphValue.Swapchain: return 'Swapchain';
+    case ResourceGraphValue.FormatView: return 'FormatView';
+    case ResourceGraphValue.SubresourceView: return 'SubresourceView';
     default: return '';
     }
 }
@@ -487,6 +506,8 @@ export interface ResourceGraphValueType {
     [ResourceGraphValue.PersistentTexture]: Texture
     [ResourceGraphValue.Framebuffer]: Framebuffer
     [ResourceGraphValue.Swapchain]: RenderSwapchain
+    [ResourceGraphValue.FormatView]: FormatView
+    [ResourceGraphValue.SubresourceView]: SubresourceView
 }
 
 export interface ResourceGraphVisitor {
@@ -497,6 +518,8 @@ export interface ResourceGraphVisitor {
     persistentTexture(value: Texture): unknown;
     framebuffer(value: Framebuffer): unknown;
     swapchain(value: RenderSwapchain): unknown;
+    formatView(value: FormatView): unknown;
+    subresourceView(value: SubresourceView): unknown;
 }
 
 export type ResourceGraphObject = ManagedResource
@@ -505,7 +528,9 @@ export type ResourceGraphObject = ManagedResource
 | Buffer
 | Texture
 | Framebuffer
-| RenderSwapchain;
+| RenderSwapchain
+| FormatView
+| SubresourceView;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -614,6 +639,8 @@ export class ResourceGraph implements BidirectionalGraph
 , NamedGraph
 , ComponentGraph
 , PolymorphicGraph
+, ReferenceGraph
+, MutableReferenceGraph
 , UuidGraph<string> {
     //-----------------------------------------------------------------
     // Graph
@@ -711,6 +738,7 @@ export class ResourceGraph implements BidirectionalGraph
         traits: ResourceTraits,
         states: ResourceStates,
         sampler: SamplerInfo,
+        u = 0xFFFFFFFF,
     ): number {
         const vert = new ResourceGraphVertex(id, object);
         const v = this._vertices.length;
@@ -722,9 +750,16 @@ export class ResourceGraph implements BidirectionalGraph
         this._samplerInfo.push(sampler);
         // UuidGraph
         this._valueIndex.set(name, v);
+
+        // ReferenceGraph
+        if (u !== 0xFFFFFFFF) {
+            this.addEdge(u, v);
+        }
+
         return v;
     }
     clearVertex (v: number): void {
+        // ReferenceGraph(Alias)
         const vert = this._vertices[v];
         // clear out edges
         for (const oe of vert._outEdges) {
@@ -947,6 +982,10 @@ export class ResourceGraph implements BidirectionalGraph
             return visitor.framebuffer(vert._object as Framebuffer);
         case ResourceGraphValue.Swapchain:
             return visitor.swapchain(vert._object as RenderSwapchain);
+        case ResourceGraphValue.FormatView:
+            return visitor.formatView(vert._object as FormatView);
+        case ResourceGraphValue.SubresourceView:
+            return visitor.subresourceView(vert._object as SubresourceView);
         default:
             throw Error('polymorphic type not found');
         }
@@ -1000,6 +1039,20 @@ export class ResourceGraph implements BidirectionalGraph
             throw Error('value id not match');
         }
     }
+    getFormatView (v: number): FormatView {
+        if (this._vertices[v]._id === ResourceGraphValue.FormatView) {
+            return this._vertices[v]._object as FormatView;
+        } else {
+            throw Error('value id not match');
+        }
+    }
+    getSubresourceView (v: number): SubresourceView {
+        if (this._vertices[v]._id === ResourceGraphValue.SubresourceView) {
+            return this._vertices[v]._object as SubresourceView;
+        } else {
+            throw Error('value id not match');
+        }
+    }
     tryGetManaged (v: number): ManagedResource | null {
         if (this._vertices[v]._id === ResourceGraphValue.Managed) {
             return this._vertices[v]._object as ManagedResource;
@@ -1048,6 +1101,95 @@ export class ResourceGraph implements BidirectionalGraph
         } else {
             return null;
         }
+    }
+    tryGetFormatView (v: number): FormatView | null {
+        if (this._vertices[v]._id === ResourceGraphValue.FormatView) {
+            return this._vertices[v]._object as FormatView;
+        } else {
+            return null;
+        }
+    }
+    tryGetSubresourceView (v: number): SubresourceView | null {
+        if (this._vertices[v]._id === ResourceGraphValue.SubresourceView) {
+            return this._vertices[v]._object as SubresourceView;
+        } else {
+            return null;
+        }
+    }
+    //-----------------------------------------------------------------
+    // ReferenceGraph
+    // type reference_descriptor = ED;
+    // type child_iterator = OutEI;
+    // type parent_iterator = InEI;
+    reference (u: number, v: number): boolean {
+        for (const oe of this._vertices[u]._outEdges) {
+            if (v === oe.target as number) {
+                return true;
+            }
+        }
+        return false;
+    }
+    parent (e: ED): number {
+        return e.source as number;
+    }
+    child (e: ED): number {
+        return e.target as number;
+    }
+    parents (v: number): InEI {
+        return new InEI(this._vertices[v]._inEdges.values(), v);
+    }
+    children (v: number): OutEI {
+        return new OutEI(this._vertices[v]._outEdges.values(), v);
+    }
+    numParents (v: number): number {
+        return this._vertices[v]._inEdges.length;
+    }
+    numChildren (v: number): number {
+        return this._vertices[v]._outEdges.length;
+    }
+    getParent (v: number): number {
+        if (v === 0xFFFFFFFF) {
+            return 0xFFFFFFFF;
+        }
+        const list = this._vertices[v]._inEdges;
+        if (list.length === 0) {
+            return 0xFFFFFFFF;
+        } else {
+            return list[0].target as number;
+        }
+    }
+    isAncestor (ancestor: number, descendent: number): boolean {
+        const pseudo = 0xFFFFFFFF;
+        if (ancestor === descendent) {
+            // when ancestor === descendent, is_ancestor is defined as false
+            return false;
+        }
+        if (ancestor === pseudo) {
+            // special case: pseudo root is always ancestor
+            return true;
+        }
+        if (descendent === pseudo) {
+            // special case: pseudo root is never descendent
+            return false;
+        }
+        for (let parent = this.getParent(descendent); parent !== pseudo;) {
+            if (ancestor === parent) {
+                return true;
+            }
+            parent = this.getParent(parent);
+        }
+        return false;
+    }
+    //-----------------------------------------------------------------
+    // MutableReferenceGraph
+    addReference (u: number, v: number): ED | null {
+        return this.addEdge(u, v);
+    }
+    removeReference (e: ED): void {
+        return this.removeEdge(e);
+    }
+    removeReferences (u: number, v: number): void {
+        return this.removeEdges(u, v);
     }
     //-----------------------------------------------------------------
     // UuidGraph
