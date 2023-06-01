@@ -40,7 +40,7 @@ import { Node } from './node';
 import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
-import { Material } from '../asset/assets/material';
+import { Material, MaterialPropertyFull } from '../asset/assets/material';
 import { cclegacy, macro } from '../core';
 import { Scene } from './scene';
 import { NodeEventType } from './node-event';
@@ -588,6 +588,27 @@ export class SkyboxInfo {
             this._resource.setReflectionMaps(this._reflectionHDR, this._reflectionLDR);
             this._resource.useDiffuseMap = this.applyDiffuseMap;
             this._resource.envmap = val;
+        }
+    }
+
+    /**
+     * @en
+     * Set custom skybox material properties.
+     * @zh
+     * 设置自定义的天空盒材质属性。
+     * @param name @en The target property name. @zh 目标 property 名称。
+     * @param val @en The target value. @zh 需要设置的目标值。
+     * @param passIdx
+     * @en The pass to apply to. Will apply to all passes if not specified.
+     * @zh 设置此属性的 pass 索引，如果没有指定，则会设置此属性到所有 pass 上。
+     */
+    public setMaterialProperty (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) {
+        if (!this._resource) return;
+        if (this._resource.enabled && this._resource.editableMaterial) {
+            this._resource.editableMaterial.setProperty(name, val, passIdx);
+            this._resource.editableMaterial.passes.forEach((pass) => {
+                pass.update();
+            });
         }
     }
 }
