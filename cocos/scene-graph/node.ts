@@ -1997,8 +1997,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                     }
                     if (dirtyBits & TransformBit.SCALE) {
                         Vec3.copy(child._scale, child._lscale);
-                        Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                     }
+                    Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                 }
             }
 
