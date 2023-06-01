@@ -2855,7 +2855,7 @@ function pixelBufferPick (buffer: ArrayBufferView,
             bufferOffset += rowStrideSize;
         }
     }
-    return new ArrayBufferCtor(stagingBuffer.buffer);
+    return new ArrayBufferCtor(stagingBuffer.buffer, 0, bufferSize);
 }
 
 export function WebGL2CmdFuncCopyBuffersToTexture (
@@ -2903,7 +2903,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
             let pixels: ArrayBufferView;
             const buffer = buffers[n++];
             if (stride.width === extent.width && stride.height === extent.height) {
-                pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset);
+                pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset, buffer.byteLength);
             } else {
                 pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
             }
@@ -2953,7 +2953,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                 let pixels: ArrayBufferView;
                 const buffer = buffers[n++];
                 if (stride.width === extent.width && stride.height === extent.height) {
-                    pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset);
+                    pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset, buffer.byteLength);
                 } else {
                     pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
                 }
@@ -3001,7 +3001,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
             let pixels: ArrayBufferView;
             const buffer = buffers[n++];
             if (stride.width === extent.width && stride.height === extent.height) {
-                pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset);
+                pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset, buffer.byteLength);
             } else {
                 pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
             }
@@ -3048,7 +3048,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                 let pixels: ArrayBufferView;
                 const buffer = buffers[n++];
                 if (stride.width === extent.width && stride.height === extent.height) {
-                    pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset);
+                    pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset, buffer.byteLength);
                 } else {
                     pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
                 }
