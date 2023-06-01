@@ -22,11 +22,11 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "PlanarShadowQueue.h"
 #include "Define.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
-#include "PlanarShadowQueue.h"
 #include "RenderInstancedQueue.h"
 #include "RenderPipeline.h"
 #include "core/geometry/AABB.h"
@@ -153,7 +153,7 @@ void PlanarShadowQueue::destroy() {
 
 int PlanarShadowQueue::getShadowPassIndex(const scene::SubModel *subModel) const {
     int i = 0;
-    for (const auto &pass : subModel->getPasses()) {
+    for (const auto &pass : *(subModel->getPasses())) {
         if (pass->getPhase() == _phaseID) {
             return i;
         }

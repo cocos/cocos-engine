@@ -92,7 +92,7 @@ void SubModel::update() {
     }
 }
 
-void SubModel::setPasses(const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &pPasses) {
+void SubModel::setPasses(const SharedPassArray &pPasses) {
     if (!pPasses || pPasses->size() > MAX_PASS_COUNT) {
         debug::errorID(12004, MAX_PASS_COUNT);
         return;
@@ -128,7 +128,7 @@ Pass *SubModel::getPass(uint32_t index) const {
     return passes[index];
 }
 
-void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &pPasses, const ccstd::vector<IMacroPatch> &patches) {
+void SubModel::initialize(RenderingSubMesh *subMesh, const SharedPassArray &pPasses, const ccstd::vector<IMacroPatch> &patches) {
     _device = Root::getInstance()->getDevice();
     CC_ASSERT(!pPasses->empty());
     gfx::DescriptorSetInfo dsInfo;
