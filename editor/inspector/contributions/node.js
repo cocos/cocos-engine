@@ -1673,8 +1673,6 @@ exports.methods = {
                 {
                     label: Editor.I18n.t('ENGINE.menu.remove_component'),
                     async click() {
-                        // Editor.Message.send('scene', 'snapshot');
-
                         const values = dump.value.uuid.values || [dump.value.uuid.value];
                         // 收集待修改的uuids
                         const uuids = [];
@@ -1694,15 +1692,14 @@ exports.methods = {
                         }
                         if (!uuids.length > 0) { return; }
                         const undoID = await beginRecording(uuids);
-                        for (let index = 0; index < uuids.length; index++) {
+                        for (let i = 0; i < uuids.length; i++) {
                             await Editor.Message.request('scene', 'remove-array-element', {
-                                uuid: uuids[index],
+                                uuid: uuids[i],
                                 path: '__comps__',
-                                index:indexes[index],
+                                index: indexes[i],
                             });
                         }
                         await endRecording(undoID);
-                        // Editor.Message.send('scene', 'snapshot');
                     },
                 },
                 {
@@ -1765,12 +1762,14 @@ exports.methods = {
                         }
                         const undoID = await beginRecording(uuids);
                         // 遍历uuids
-                        for (let index = 0; index < uuids.length; index++) {
-                            const uuid = uuids[index];
-                            const index = indexes[index];
+                        for (let i = 0; i < uuids.length; i++) {
+                            const uuid = uuids[i];
+                            const index = indexes[i];
+
+                            const nodeDump = nodeDumps.find(nodeDump => uuid === nodeDump.uuid.value);
                             await Editor.Message.request('scene', 'set-property', {
                                 uuid,
-                                path: nodeDumps[index].__comps__[index].path,
+                                path: nodeDump.__comps__[index].path,
                                 dump: clipboardComponentInfo.dump,
                             });
                         }
