@@ -138,7 +138,58 @@ export class TextureCube extends SimpleTexture {
         return this._mipmaps;
     }
 
-    set mipmaps (value) {
+    set mipmaps (value: ITextureCubeMipmap[]) {
+        this._originalMipmapsRef = value;
+
+        const cubeMaps: ITextureCubeMipmap[] = [];
+        if (value.length === 1) {
+            const cubeMipmap = value[0];
+            const front = cubeMipmap.front.extractMipmaps();
+            const back = cubeMipmap.back.extractMipmaps();
+            const left = cubeMipmap.left.extractMipmaps();
+            const right = cubeMipmap.right.extractMipmaps();
+            const top = cubeMipmap.top.extractMipmaps();
+            const bottom = cubeMipmap.bottom.extractMipmaps();
+
+            if (front.length !== back.length
+                || front.length !== left.length
+                || front.length !== right.length
+                || front.length !== top.length
+                || front.length !== bottom.length) {
+                console.error('The number of mipmaps of each face is different.');
+                this._assignMipmaps([]);
+            }
+
+            const level = front.length;
+            for (let i = 0; i < level; ++i) {
+                const cubeMap: ITextureCubeMipmap = {
+                    front: front[i],
+                    back: back[i],
+                    left: left[i],
+                    right: right[i],
+                    top: top[i],
+                    bottom: bottom[i],
+                };
+                cubeMaps.push(cubeMap);
+            }
+        } else if (value.length > 1) {
+            value.forEach((mipmap) => {
+                const cubeMap: ITextureCubeMipmap = {
+                    front: mipmap.front.extractMipmap0(),
+                    back: mipmap.back.extractMipmap0(),
+                    left: mipmap.left.extractMipmap0(),
+                    right: mipmap.right.extractMipmap0(),
+                    top: mipmap.top.extractMipmap0(),
+                    bottom: mipmap.bottom.extractMipmap0(),
+                };
+                cubeMaps.push(cubeMap);
+            });
+        }
+
+        this._assignMipmaps(cubeMaps);
+    }
+
+    _assignMipmaps (value: ITextureCubeMipmap[]) {
         this._mipmaps = value;
         this._setMipmapLevel(this._mipmaps.length);
         if (this._mipmaps.length > 0) {
@@ -303,6 +354,8 @@ export class TextureCube extends SimpleTexture {
      */
     @serializable
     public _mipmaps: ITextureCubeMipmap[] = [];
+
+    private _originalMipmapsRef: ITextureCubeMipmap[] = [];
 
     public onLoaded () {
         if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {

@@ -39,31 +39,20 @@ void Texture2D::syncMipmapsForJS(const ccstd::vector<IntrusivePtr<ImageAsset>> &
 }
 
 void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value) {
-    if (!value.empty() && value[0]->getMipmapLevelDataSize().size() > 1) {
-        _compressedImageAsset.clear();
-        const auto mipmapLevelData = value[0]->getMipmapLevelDataSize();
-        _compressedImageAsset.resize(mipmapLevelData.size());
-        auto *data = const_cast<unsigned char *>(value[0]->getData());
+    _mipmapRefs = value;
 
-        uint32_t byteOffset = 0;
-        for (uint32_t i = 0; i < mipmapLevelData.size(); ++i) {
-            auto *dstData = static_cast<unsigned char *>(malloc(mipmapLevelData[i] * sizeof(unsigned char)));
-            memcpy(dstData, data + byteOffset, mipmapLevelData[i]);
+    auto mipmaps = ccstd::vector<IntrusivePtr<ImageAsset>>{};
 
-            _compressedImageAsset[i] = new ImageAsset();
-            _compressedImageAsset[i]->setData(dstData);
-            _compressedImageAsset[i]->setNeedFreeData(true);
-            _compressedImageAsset[i]->setWidth(value[0]->getWidth());
-            _compressedImageAsset[i]->setHeight(value[0]->getHeight());
-            _compressedImageAsset[i]->setFormat(value[0]->getFormat());
-            _compressedImageAsset[i]->setUuid(value[0]->getUuid());
-            setMipFilter(Filter::LINEAR);
-            byteOffset += mipmapLevelData[i];
+    if (value.size() == 1) {
+        const auto images = value[0]->extractMipmaps();
+        std::copy(std::cbegin(images), std::cend(images), std::back_inserter(mipmaps));
+    } else if (value.size() > 1) {
+        for (const auto &image : value) {
+            mipmaps.push_back(image->extractMipmap0());
         }
-        setMipmapParams(_compressedImageAsset);
-    } else {
-        setMipmapParams(value);
     }
+
+    setMipmapParams(mipmaps);
 }
 
 void Texture2D::setMipmapParams(const ccstd::vector<IntrusivePtr<ImageAsset>> &value) {

@@ -95,37 +95,22 @@ export class Texture2D extends SimpleTexture {
         return this._mipmaps;
     }
     set mipmaps (value) {
-        if (value.length > 0 && value[0].mipmapLevelDataSize && value[0].mipmapLevelDataSize.length > 0) {
-            compressedImageAsset.length = 0;
-            const mipmapLevelDataSize = value[0].mipmapLevelDataSize;
-            const data: Uint8Array = value[0].data as Uint8Array;
-            const _width = value[0].width;
-            const _height = value[0].height;
-            const _format = value[0].format;
+        this._originalMipmapsRef = value;
 
-            let byteOffset = 0;
-            for (let i = 0; i < mipmapLevelDataSize.length; i++) {
-                // fixme: We can't use srcView, we must make an in-memory copy. The reason is unknown
-                const srcView = new Uint8Array(data.buffer, byteOffset, mipmapLevelDataSize[i]);
-                const dstView = new Uint8Array(mipmapLevelDataSize[i]);
-                dstView.set(srcView);
-                compressedImageAsset[i] = new ImageAsset({
-                    _data: dstView,
-                    _compressed: true,
-                    width: _width,
-                    height: _height,
-                    format: _format,
-                    mipmapLevelDataSize: [],
-                });
-
-                compressedImageAsset[i]._uuid = value[0]._uuid;
-                this.setMipFilter(Filter.LINEAR);
-                byteOffset += mipmapLevelDataSize[i];
+        const mipmaps: ImageAsset[] = [];
+        if (value.length === 1) {
+            // might contain auto generated mipmaps
+            const image = value[0];
+            mipmaps.push(...image.extractMipmaps());
+        } else if (value.length > 1) {
+            // image asset mip0 as mipmaps
+            for (let i = 0; i < value.length; ++i) {
+                const image = value[i];
+                mipmaps.push(image.extractMipmap0());
             }
-            this._setMipmapParams(compressedImageAsset);
-        } else {
-            this._setMipmapParams(value);
         }
+
+        this._setMipmapParams(mipmaps);
     }
 
     private _setMipmapParams (value: ImageAsset[]) {
@@ -176,6 +161,8 @@ export class Texture2D extends SimpleTexture {
      */
     @type([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
+
+    private _originalMipmapsRef: ImageAsset[] = [];
 
     /**
      * @engineInternal

@@ -457,6 +457,65 @@ export class ImageAsset extends Asset {
     }
 
     /**
+     * @en extract the first mipmap from a compressed image asset
+     * @engineInternal
+     */
+    public extractMipmap0 (): ImageAsset {
+        if (this.mipmapLevelDataSize && this.mipmapLevelDataSize.length > 0) {
+            const mipmapSize = this.mipmapLevelDataSize[0];
+            const data = this.data as Uint8Array;
+
+            const dataView = new Uint8Array(data.buffer, 0, mipmapSize);
+            const mipmap = new ImageAsset({
+                _data: dataView,
+                _compressed: true,
+                width: this.width,
+                height: this.height,
+                format: this.format,
+                mipmapLevelDataSize: [],
+            });
+            mipmap._nativeUrl = `${this._nativeUrl} mip 0`;
+            mipmap._uuid = `${this._uuid} mip 0`;
+            return mipmap;
+        } else {
+            return this;
+        }
+    }
+
+    /**
+     * @en extract mipmaps from a compressed image asset
+     * @engineInternal
+     */
+    public extractMipmaps (): ImageAsset[] {
+        const images: ImageAsset[] = [];
+        if (this.mipmapLevelDataSize && this.mipmapLevelDataSize.length > 0) {
+            const mipmapLevelDataSize = this.mipmapLevelDataSize;
+            const data: Uint8Array = this.data as Uint8Array;
+
+            let byteOffset = 0;
+            for (const mipmapSize of mipmapLevelDataSize) {
+                const dataView = new Uint8Array(data.buffer, byteOffset, mipmapSize);
+                const mipmap = new ImageAsset({
+                    _data: dataView,
+                    _compressed: true,
+                    width: this.width,
+                    height: this.height,
+                    format: this.format,
+                    mipmapLevelDataSize: [],
+                });
+                byteOffset += mipmapSize;
+                mipmap._nativeUrl = `${this._nativeUrl} mips`;
+                mipmap._uuid = `${this._uuid} mips`;
+                images.push(mipmap);
+            }
+        } else {
+            images.push(this);
+        }
+
+        return images;
+    }
+
+    /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override
@@ -587,6 +646,7 @@ export class ImageAsset extends Asset {
     }
 
     public destroy () {
+        console.log(`asset destroy: ${this._uuid}, ${this.nativeUrl}`);
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = '';
             this._setRawAsset('');

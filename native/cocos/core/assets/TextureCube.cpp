@@ -75,6 +75,58 @@ TextureCube::TextureCube() = default;
 TextureCube::~TextureCube() = default;
 
 void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
+    _mipmapRefs = value;
+
+    auto cubeMaps = ccstd::vector<ITextureCubeMipmap>{};
+    if (value.size() == 1) {
+        const auto cubeMipmap = value.at(0);
+        const auto &front = cubeMipmap.front->extractMipmaps();
+        const auto &back = cubeMipmap.back->extractMipmaps();
+        const auto &left = cubeMipmap.left->extractMipmaps();
+        const auto &right = cubeMipmap.right->extractMipmaps();
+        const auto &top = cubeMipmap.top->extractMipmaps();
+        const auto &bottom = cubeMipmap.bottom->extractMipmaps();
+
+        if (front.size() != back.size() ||
+            front.size() != left.size() ||
+            front.size() != right.size() ||
+            front.size() != top.size() ||
+            front.size() != bottom.size()) {
+            assert("different faces should have the same mipmap level");
+            this->setMipmapParams({});
+        }
+
+        const auto level = front.size();
+
+        for (auto i = 0U; i < level; i++) {
+            const auto cubeMap = ITextureCubeMipmap{
+                front[i],
+                back[i],
+                left[i],
+                right[i],
+                top[i],
+                bottom[i],
+            };
+            cubeMaps.push_back(cubeMap);
+        }
+    } else if (value.size() > 1) {
+        for (auto mipmap : value) {
+            const auto cubeMap = ITextureCubeMipmap{
+                mipmap.front->extractMipmap0(),
+                mipmap.back->extractMipmap0(),
+                mipmap.left->extractMipmap0(),
+                mipmap.right->extractMipmap0(),
+                mipmap.top->extractMipmap0(),
+                mipmap.bottom->extractMipmap0(),
+            };
+            cubeMaps.push_back(cubeMap);
+        }
+    }
+
+    setMipmapParams(cubeMaps);
+}
+
+void TextureCube::setMipmapParams(const ccstd::vector<ITextureCubeMipmap> &value) {
     _mipmaps = value;
     setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
     if (!_mipmaps.empty()) {
