@@ -2392,8 +2392,9 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
         const auto &viewDesc = get(ResourceGraph::DescTag{}, resg, rag.resourceIndex.at(resName));
 
         uint32_t slot = uberPass.attachmentIndexMap.size();
+        const auto &subpassView = uberPass.subpassGraph.subpasses[subpassIndex].rasterViews.at(name.data());
         if (view.attachmentType != AttachmentType::DEPTH_STENCIL ||
-             !isDefaultDepthStencilAttachment(view.slotName, view.slotName1)) {
+            !isDefaultDepthStencilAttachment(subpassView.slotName, subpassView.slotName1)) {
             CC_ASSERT(uberPass.attachmentIndexMap.count(resName));
             slot = uberPass.attachmentIndexMap.at(resName);
         }
@@ -2417,7 +2418,8 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
             }
             fgRenderpassInfo.colorAccesses[slot].nextAccess = nextAccess;
         } else {
-            if (!isDefaultDepthStencilAttachment(view.slotName, view.slotName1)) {
+            const auto &subpassView = uberPass.subpassGraph.subpasses[subpassIndex].rasterViews.at(name.data());
+            if (!isDefaultDepthStencilAttachment(subpassView.slotName, subpassView.slotName1)) {
                 CC_ASSERT(view.accessType != AccessType::WRITE);
                 subpassInfo.inputs.emplace_back(slot);
                 fgRenderpassInfo.colorAccesses[slot].nextAccess = nextAccess;
@@ -2435,7 +2437,8 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
             auto nextAccess = head->attachmentStatus[localSlot].accessFlag;
 
             if (view.attachmentType == AttachmentType::DEPTH_STENCIL) {
-                if (!isDefaultDepthStencilAttachment(view.slotName, view.slotName1)) {
+                const auto& subpassView = uberPass.subpassGraph.subpasses[subpassIndex].rasterViews.at(name.data());
+                if (!isDefaultDepthStencilAttachment(subpassView.slotName, subpassView.slotName1)) {
                     // prevAccess for subpass, will be update when generate renderpassinfo.
                     fgRenderpassInfo.colorAccesses[slot].prevAccess = prevAccess;
                 }

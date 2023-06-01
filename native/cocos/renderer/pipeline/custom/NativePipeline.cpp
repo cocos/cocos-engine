@@ -253,18 +253,18 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
                 resourceGraph,
                 resID);
 
-            view.firstPlane = 1;
-            view.format = gfx::Format::DEPTH_STENCIL;
-            auto stencilID = addVertex(
-                    SubresourceViewTag{},
-                    std::forward_as_tuple(name + "/stencil"),
-                    std::forward_as_tuple(desc),
-                    std::forward_as_tuple(ResourceTraits{ResourceResidency::MANAGED}),
-                    std::forward_as_tuple(),
-                    std::forward_as_tuple(samplerInfo),
-                    std::forward_as_tuple(view),
-                    resourceGraph,
-                    resID);
+        view.firstPlane = 1;
+        view.format = gfx::Format::DEPTH_STENCIL;
+        auto stencilID = addVertex(
+                SubresourceViewTag{},
+                std::forward_as_tuple(name + "/stencil"),
+                std::forward_as_tuple(desc),
+                std::forward_as_tuple(ResourceTraits{ResourceResidency::MANAGED}),
+                std::forward_as_tuple(),
+                std::forward_as_tuple(samplerInfo),
+                std::forward_as_tuple(view),
+                resourceGraph,
+                resID);
 
         return resID;
 }

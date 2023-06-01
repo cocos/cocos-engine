@@ -637,8 +637,15 @@ void NativeRenderSubpassBuilderImpl::addDepthStencil(
     const ccstd::string &stencilSlotName,
     gfx::LoadOp loadOp, gfx::StoreOp storeOp,
     float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) {
+    auto resName = name;
+    if (!depthSlotName.empty() && depthSlotName != "_") {
+        resName += "/" + depthSlotName;
+    }
+    if (!stencilSlotName.empty() && stencilSlotName != "_") {
+        resName += "/" + stencilSlotName;
+    }
     addRasterViewImpl<RasterSubpassTag>(
-        name,
+        resName,
         depthSlotName,
         stencilSlotName,
         accessType,
