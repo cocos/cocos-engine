@@ -481,7 +481,7 @@ using namespace cc;
 %attribute(cc::scene::Model, int32_t, reflectionProbeBlendId, getReflectionProbeBlendId, setReflectionProbeBlendId);
 %attribute(cc::scene::Model, float, reflectionProbeBlendWeight, getReflectionProbeBlendWeight, setReflectionProbeBlendWeight);
 
-%attribute(cc::scene::SubModel, std::shared_ptr<ccstd::vector<cc::IntrusivePtr<cc::scene::Pass>>> &, passes, getPasses, setPasses);
+%attribute(cc::scene::SubModel, cc::scene::SharedPassArray &, passes, getPasses, setPasses);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::IntrusivePtr<cc::gfx::Shader>> &, shaders, getShaders, setShaders);
 %attribute(cc::scene::SubModel, cc::RenderingSubMesh*, subMesh, getSubMesh, setSubMesh);
 %attribute(cc::scene::SubModel, cc::pipeline::RenderPriority, priority, getPriority, setPriority);
