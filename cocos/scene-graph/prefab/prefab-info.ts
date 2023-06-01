@@ -26,7 +26,7 @@ import { ccclass, serializable, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { cclegacy } from '../../core';
 import { Prefab } from './prefab';
-import { CCObject } from '../../core/data';
+import { CCObject, CCString } from '../../core/data';
 import { Component } from '../component';
 import { Node } from '../node';
 
@@ -46,6 +46,7 @@ function compareStringArray (array1: string[] | undefined, array2: string[] | un
 export class TargetInfo {
     // as the target's fileId in prefab asset,used to find the target when prefab expanded.
     @serializable
+    @type([CCString])
     public localID: string[] = [];
 }
 @ccclass('cc.TargetOverrideInfo')
@@ -58,6 +59,7 @@ export class TargetOverrideInfo {
     @type(TargetInfo)
     public sourceInfo: TargetInfo | null = null;
     @serializable
+    @type([CCString])
     public propertyPath: string[] = [];
     @serializable
     @type(Node)
@@ -82,6 +84,7 @@ export class PropertyOverrideInfo {
     @type(TargetInfo)
     public targetInfo: TargetInfo | null = null;
     @serializable
+    @type([CCString])
     public propertyPath: string[] = [];
     @serializable
     public value: any;
