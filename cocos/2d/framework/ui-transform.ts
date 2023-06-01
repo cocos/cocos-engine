@@ -598,15 +598,9 @@ export class UITransform extends Component {
      * ```
      */
     public getBoundingBox () {
-        Mat4.fromRTS(_matrix, this.node.rotation, this.node.position, this.node.scale);
-        const width = this._contentSize.width;
-        const height = this._contentSize.height;
-        const rect = new Rect(
-            -this._anchorPoint.x * width,
-            -this._anchorPoint.y * height,
-            width,
-            height,
-        );
+        const rect = new Rect();
+        this._selfBoundingBox(rect);
+        Mat4.fromSRT(_matrix, this.node.rotation, this.node.position, this.node.scale);
         rect.transformMat4(_matrix);
         return rect;
     }
@@ -628,7 +622,8 @@ export class UITransform extends Component {
      */
     public getBoundingBoxToWorld () {
         const rect = new Rect();
-        this._selfBoundingBoxToWorld(rect);
+        this._selfBoundingBox(rect);
+        rect.transformMat4(this.node.worldMatrix);
 
         const locChildren = this.node.children;
         for (let i = 0; i < locChildren.length; ++i) {
@@ -636,7 +631,8 @@ export class UITransform extends Component {
             if (child && child.active) {
                 const uiTransform = child.getComponent(UITransform);
                 if (uiTransform) {
-                    uiTransform._selfBoundingBoxToWorld(_rect);
+                    uiTransform._selfBoundingBox(_rect);
+                    _rect.transformMat4(child.worldMatrix);
                     Rect.union(rect, rect, _rect);
                 }
             }
@@ -659,9 +655,11 @@ export class UITransform extends Component {
      */
     public getBoundingBoxTo (targetMat: Mat4) {
         const rect = new Rect();
-        this._selfBoundingBoxToWorld(rect);
+        this._selfBoundingBox(rect);
         Mat4.invert(_mat4_temp, targetMat);
-        rect.transformMat4(_mat4_temp);
+        Mat4.multiply(_matrix, this.node.worldMatrix, _mat4_temp);
+        // Must combine all matrix because rect can only be transformed once.
+        rect.transformMat4(_matrix);
 
         const locChildren = this.node.children;
         for (let i = 0; i < locChildren.length; ++i) {
@@ -669,8 +667,10 @@ export class UITransform extends Component {
             if (child && child.active) {
                 const uiTransform = child.getComponent(UITransform);
                 if (uiTransform) {
-                    uiTransform._selfBoundingBoxToWorld(_rect);
-                    _rect.transformMat4(_mat4_temp);
+                    uiTransform._selfBoundingBox(_rect);
+                    // Must combine all matrix because rect can only be transformed once.
+                    Mat4.multiply(_matrix, child.worldMatrix, _mat4_temp);
+                    _rect.transformMat4(_matrix);
                     Rect.union(rect, rect, _rect);
                 }
             }
@@ -711,7 +711,7 @@ export class UITransform extends Component {
         }
     }
 
-    protected _selfBoundingBoxToWorld (out: Rect) {
+    protected _selfBoundingBox (out: Rect) {
         const width = this._contentSize.width;
         const height = this._contentSize.height;
         out.set(
@@ -720,8 +720,6 @@ export class UITransform extends Component {
             width,
             height,
         );
-        this.node.updateWorldTransform();
-        out.transformMat4(this.node.worldMatrix);
         return out;
     }
 
