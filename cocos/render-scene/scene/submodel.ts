@@ -344,7 +344,7 @@ export class SubModel {
     public onMacroPatchesStateChanged (patches: IMacroPatch[] | null): void {
         if (patches && this._patches && patches.length === this._patches.length) {
             const patchesStateChanged = JSON.stringify(patches.sort()) === JSON.stringify(this._patches.sort());
-            if (!patchesStateChanged) return;
+            if (patchesStateChanged) return;
         }
         this._patches = patches;
 
