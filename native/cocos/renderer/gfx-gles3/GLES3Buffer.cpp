@@ -48,10 +48,6 @@ void GLES3Buffer::doInit(const BufferInfo & /*info*/) {
     _gpuBuffer->stride = _stride;
     _gpuBuffer->count = _count;
 
-    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
-        _gpuBuffer->indirects.resize(_count);
-    }
-
     cmdFuncGLES3CreateBuffer(GLES3Device::getInstance(), _gpuBuffer);
     GLES3Device::getInstance()->getMemoryStatus().bufferSize += _size;
     CC_PROFILE_MEMORY_INC(Buffer, _size);
@@ -68,8 +64,6 @@ void GLES3Buffer::doInit(const BufferViewInfo &info) {
     _gpuBuffer->glTarget = buffer->_gpuBuffer->glTarget;
     _gpuBuffer->glBuffer = buffer->_gpuBuffer->glBuffer;
     _gpuBuffer->glOffset = info.offset;
-    _gpuBuffer->buffer = buffer->_gpuBuffer->buffer;
-    _gpuBuffer->indirects = buffer->_gpuBuffer->indirects;
 }
 
 void GLES3Buffer::doDestroy() {

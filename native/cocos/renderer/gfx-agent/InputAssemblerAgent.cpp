@@ -54,9 +54,6 @@ void InputAssemblerAgent::doInit(const InputAssemblerInfo &info) {
     if (actorInfo.indexBuffer) {
         actorInfo.indexBuffer = static_cast<BufferAgent *>(actorInfo.indexBuffer)->getActor();
     }
-    if (actorInfo.indirectBuffer) {
-        actorInfo.indirectBuffer = static_cast<BufferAgent *>(actorInfo.indirectBuffer)->getActor();
-    }
 
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(),

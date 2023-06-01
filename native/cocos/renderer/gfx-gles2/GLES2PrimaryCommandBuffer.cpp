@@ -80,6 +80,22 @@ void GLES2PrimaryCommandBuffer::nextSubpass() {
     cmdFuncGLES2BeginRenderPass(GLES2Device::getInstance(), ++_curSubpassIdx);
 }
 
+void GLES2PrimaryCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+    // not support
+    std::ignore = buffer;
+    std::ignore = offset;
+    std::ignore = count;
+    std::ignore = stride;
+}
+
+void GLES2PrimaryCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+    // not support
+    std::ignore = buffer;
+    std::ignore = offset;
+    std::ignore = count;
+    std::ignore = stride;
+}
+
 void GLES2PrimaryCommandBuffer::draw(const DrawInfo &info) {
     CC_PROFILE(GLES2PrimaryCommandBufferDraw);
     if (_isStateInvalid) {

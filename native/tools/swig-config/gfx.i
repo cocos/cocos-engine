@@ -66,6 +66,8 @@ namespace cc { namespace gfx {
 %ignore CommandBuffer::execute;
 %ignore CommandBuffer::updateBuffer;
 %ignore CommandBuffer::copyBuffersToTexture;
+%ignore CommandBuffer::drawIndirect;
+%ignore CommandBuffer::drawIndexedIndirect;
 %rename(drawWithInfo) CommandBuffer::draw(const DrawInfo&);
 
 %ignore DescriptorSetLayout::getBindingIndices;
@@ -182,7 +184,6 @@ namespace cc { namespace gfx {
 %attribute(cc::gfx::InputAssembler, cc::gfx::BufferList&, vertexBuffers, getVertexBuffers);
 %attribute(cc::gfx::InputAssembler, cc::gfx::AttributeList&, attributes, getAttributes);
 %attribute(cc::gfx::InputAssembler, cc::gfx::Buffer*, indexBuffer, getIndexBuffer);
-%attribute(cc::gfx::InputAssembler, cc::gfx::Buffer*, indirectBuffer, getIndirectBuffer);
 %attribute(cc::gfx::InputAssembler, uint32_t, attributesHash, getAttributesHash);
 
 %attribute(cc::gfx::InputAssembler, cc::gfx::DrawInfo&, drawInfo, getDrawInfo, setDrawInfo);

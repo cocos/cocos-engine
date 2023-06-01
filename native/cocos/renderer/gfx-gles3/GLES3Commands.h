@@ -281,6 +281,12 @@ void cmdFuncGLES3BindState(GLES3Device *device,
                            const DynamicStates *dynamicStates = nullptr);
 
 void cmdFuncGLES3Draw(GLES3Device *device, const DrawInfo &drawInfo);
+void cmdFuncGLES3DrawIndirect(GLES3Device *device,
+                              GLES3GPUBuffer *gpuBuffer,
+                              uint32_t offset,
+                              uint32_t count,
+                              uint32_t stride,
+                              bool indexed);
 
 void cmdFuncGLES3UpdateBuffer(GLES3Device *device,
                               GLES3GPUBuffer *gpuBuffer,

@@ -145,18 +145,6 @@ void BufferValidator::update(const void *buffer, uint32_t size) {
     CC_ASSERT(size && size <= _size);
     CC_ASSERT(buffer);
 
-    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
-        const auto *drawInfo = static_cast<const DrawInfo *>(buffer);
-        const size_t drawInfoCount = size / sizeof(DrawInfo);
-        const bool isIndexed = drawInfoCount > 0 && drawInfo->indexCount > 0;
-        for (size_t i = 1U; i < drawInfoCount; ++i) {
-            if ((++drawInfo)->indexCount > 0 != isIndexed) {
-                // Inconsistent indirect draw infos on using index buffer.
-                CC_ABORT();
-            }
-        }
-    }
-
     sanityCheck(buffer, size);
     ++_totalUpdateTimes; // only count direct updates
 
