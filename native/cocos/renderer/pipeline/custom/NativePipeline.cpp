@@ -521,7 +521,7 @@ RenderPassBuilder *addRenderPassImpl(
     RenderGraph &renderGraph, const NativeProgramLibrary &lib,
     uint32_t width, uint32_t height,  // NOLINT(bugprone-easily-swappable-parameters)
     uint32_t count, uint32_t quality, // NOLINT(bugprone-easily-swappable-parameters)
-    const ccstd::string &layoutName) {
+    const ccstd::string &passName) {
     RasterPass pass(renderGraph.get_allocator());
     pass.width = width;
     pass.height = height;
@@ -532,14 +532,14 @@ RenderPassBuilder *addRenderPassImpl(
 
     auto passID = addVertex(
         RasterPassTag{},
-        std::forward_as_tuple(std::string_view{layoutName}),
-        std::forward_as_tuple(std::string_view{layoutName}),
+        std::forward_as_tuple(passName),
+        std::forward_as_tuple(passName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(pass)),
         renderGraph);
 
-    auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, lib.layoutGraph);
+    auto passLayoutID = locate(LayoutGraphData::null_vertex(), passName, lib.layoutGraph);
     CC_EXPECTS(passLayoutID != LayoutGraphData::null_vertex());
 
     auto *builder = ccnew NativeRenderPassBuilder(
@@ -553,18 +553,18 @@ RenderPassBuilder *addRenderPassImpl(
 
 RenderPassBuilder *NativePipeline::addRenderPass(
     uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
-    const ccstd::string &layoutName) {
+    const ccstd::string &passName) {
     return addRenderPassImpl(
-        this, renderGraph, *programLibrary, width, height, 1, 0, layoutName);
+        this, renderGraph, *programLibrary, width, height, 1, 0, passName);
 }
 
 BasicRenderPassBuilder *NativePipeline::addMultisampleRenderPass(
     uint32_t width, uint32_t height, // NOLINT(bugprone-easily-swappable-parameters)
     uint32_t count, uint32_t quality,
-    const ccstd::string &layoutName) {
+    const ccstd::string &passName) {
     CC_EXPECTS(count > 1);
     return addRenderPassImpl(
-        this, renderGraph, *programLibrary, width, height, count, quality, layoutName);
+        this, renderGraph, *programLibrary, width, height, count, quality, passName);
 }
 
 void NativePipeline::addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) {
@@ -585,17 +585,17 @@ void NativePipeline::addResolvePass(const ccstd::vector<ResolvePair> &resolvePai
 }
 
 // NOLINTNEXTLINE
-ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &layoutName) {
+ComputePassBuilder *NativePipeline::addComputePass(const ccstd::string &passName) {
     auto passID = addVertex(
         ComputeTag{},
-        std::forward_as_tuple(std::string_view{layoutName}),
-        std::forward_as_tuple(std::string_view{layoutName}),
+        std::forward_as_tuple(passName),
+        std::forward_as_tuple(passName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         renderGraph);
 
-    auto passLayoutID = locate(LayoutGraphData::null_vertex(), layoutName, programLibrary->layoutGraph);
+    auto passLayoutID = locate(LayoutGraphData::null_vertex(), passName, programLibrary->layoutGraph);
 
     return ccnew NativeComputePassBuilder(this, &renderGraph, passID, &programLibrary->layoutGraph, passLayoutID);
 }
@@ -634,14 +634,14 @@ void NativePipeline::addCopyPass(const ccstd::vector<CopyPair> &copyPairs) {
         renderGraph);
 }
 
-void NativePipeline::addUploadPass(ccstd::vector<UploadPair>& uploadPairs) {
+void NativePipeline::addUploadPass(ccstd::vector<UploadPair> &uploadPairs) {
     CopyPass pass(renderGraph.get_allocator());
     pass.uploadPairs.reserve(uploadPairs.size());
     for (auto &&pair : uploadPairs) {
         pass.uploadPairs.emplace_back(std::move(pair));
     }
     uploadPairs.clear();
-    std::string_view name("Copy");
+    std::string_view name("Upload");
     addVertex(
         CopyTag{},
         std::forward_as_tuple(name),

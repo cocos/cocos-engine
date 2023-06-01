@@ -394,6 +394,23 @@ struct PersistentTextureTag {};
 struct FramebufferTag {};
 struct SwapchainTag {};
 struct SamplerTag {};
+struct FormatViewTag {};
+struct SubresourceViewTag {};
+
+struct FormatView {
+    gfx::Format format{gfx::Format::UNKNOWN};
+};
+
+struct SubresourceView {
+    IntrusivePtr<gfx::Texture> textureView;
+    gfx::Format format{gfx::Format::UNKNOWN};
+    uint16_t indexOrFirstMipLevel{0};
+    uint16_t numMipLevels{0};
+    uint16_t firstArraySlice{0};
+    uint16_t numArraySlices{0};
+    uint16_t firstPlane{0};
+    uint16_t numPlanes{0};
+};
 
 struct ResourceGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
@@ -479,10 +496,42 @@ struct ResourceGraph {
     using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, ResourceGraph>;
     using edges_size_type = uint32_t;
 
+    // AddressableGraph (Alias)
+    using ownership_descriptor = impl::EdgeDescriptor<boost::bidirectional_tag, vertex_descriptor>;
+
+    using ChildEdge = OutEdge;
+    using children_iterator  = impl::OutEdgeIter<
+        ccstd::pmr::vector<OutEdge>::iterator,
+        vertex_descriptor, ownership_descriptor, int32_t>;
+    using children_size_type = uint32_t;
+
+    using ParentEdge = InEdge;
+    using parent_iterator  = impl::InEdgeIter<
+        ccstd::pmr::vector<InEdge>::iterator,
+        vertex_descriptor, ownership_descriptor, int32_t>;
+
+    using ownership_iterator   = impl::DirectedEdgeIterator<vertex_iterator, children_iterator, ResourceGraph>;
+    using ownerships_size_type = edges_size_type;
+
+    // AddressableGraph help functions
+    inline ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
+        return _vertices[v].outEdges;
+    }
+    inline const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
+        return _vertices[v].outEdges;
+    }
+
+    inline ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
+        return _vertices[v].inEdges;
+    }
+    inline const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
+        return _vertices[v].inEdges;
+    }
+
     // PolymorphicGraph
-    using VertexTag         = ccstd::variant<ManagedTag, ManagedBufferTag, ManagedTextureTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag>;
-    using VertexValue       = ccstd::variant<ManagedResource*, ManagedBuffer*, ManagedTexture*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*>;
-    using VertexConstValue = ccstd::variant<const ManagedResource*, const ManagedBuffer*, const ManagedTexture*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*>;
+    using VertexTag         = ccstd::variant<ManagedTag, ManagedBufferTag, ManagedTextureTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag, FormatViewTag, SubresourceViewTag>;
+    using VertexValue       = ccstd::variant<ManagedResource*, ManagedBuffer*, ManagedTexture*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*, FormatView*, SubresourceView*>;
+    using VertexConstValue = ccstd::variant<const ManagedResource*, const ManagedBuffer*, const ManagedTexture*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*, const FormatView*, const SubresourceView*>;
     using VertexHandle      = ccstd::variant<
         impl::ValueHandle<ManagedTag, vertex_descriptor>,
         impl::ValueHandle<ManagedBufferTag, vertex_descriptor>,
@@ -490,12 +539,15 @@ struct ResourceGraph {
         impl::ValueHandle<PersistentBufferTag, vertex_descriptor>,
         impl::ValueHandle<PersistentTextureTag, vertex_descriptor>,
         impl::ValueHandle<FramebufferTag, vertex_descriptor>,
-        impl::ValueHandle<SwapchainTag, vertex_descriptor>>;
+        impl::ValueHandle<SwapchainTag, vertex_descriptor>,
+        impl::ValueHandle<FormatViewTag, vertex_descriptor>,
+        impl::ValueHandle<SubresourceViewTag, vertex_descriptor>>;
 
     void validateSwapchains();
     void mount(gfx::Device* device, vertex_descriptor vertID);
     void unmount(uint64_t completedFenceValue);
     bool isTexture(vertex_descriptor resID) const noexcept;
+    bool isTextureView(vertex_descriptor resID) const noexcept;
     gfx::Texture* getTexture(vertex_descriptor resID);
     gfx::Buffer* getBuffer(vertex_descriptor resID);
     void invalidatePersistentRenderPassAndFramebuffer(gfx::Texture* pTexture);
@@ -546,6 +598,8 @@ struct ResourceGraph {
     ccstd::pmr::vector<IntrusivePtr<gfx::Texture>> textures;
     ccstd::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
     ccstd::pmr::vector<RenderSwapchain> swapchains;
+    ccstd::pmr::vector<FormatView> formatViews;
+    ccstd::pmr::vector<SubresourceView> subresourceViews;
     // UuidGraph
     PmrUnorderedStringMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
     // Members

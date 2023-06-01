@@ -258,6 +258,7 @@ struct ResourceAccessGraph {
     PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
     PmrFlatMap<vertex_descriptor, FGRenderPassInfo> rpInfos;
+    PmrFlatMap<RenderGraph::vertex_descriptor, uint32_t> subpassIndex;
 };
 
 struct RelationGraph {
@@ -419,6 +420,8 @@ struct FrameGraphDispatcher {
     void enableMemoryAliasing(bool enable);
 
     void run();
+
+    const ResourceAccessNode& getAttachmentStatus(RenderGraph::vertex_descriptor renderGraphVertID) const;
 
     inline const BarrierMap& getBarriers() const { return barrierMap; }
 

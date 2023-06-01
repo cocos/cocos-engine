@@ -47,9 +47,9 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
 import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
 import { BasicPipeline, SceneVisitor } from './pipeline';
-import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
+import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResolvePass, ResourceDesc,
-    ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData } from './render-graph';
+    ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData, SubresourceView } from './render-graph';
 import { AttachmentType, ComputeView, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
 import { RenderInfo, RenderObject, WebSceneTask, WebSceneTransversal } from './web-scene';
@@ -1759,6 +1759,10 @@ class ResourceVisitor implements ResourceGraphVisitor {
     }
     swapchain (value: RenderSwapchain) {
         this.createDeviceTex(value);
+    }
+    formatView (value: FormatView) {
+    }
+    subresourceView (value: SubresourceView) {
     }
 }
 

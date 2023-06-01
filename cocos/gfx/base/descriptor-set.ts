@@ -26,7 +26,7 @@ import { Buffer } from './buffer';
 import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Sampler } from './states/sampler';
 import { Texture } from './texture';
-import { GFXObject, ObjectType, DescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from './define';
+import { GFXObject, ObjectType, DescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, AccessFlags } from './define';
 
 /**
  * @en GFX descriptor sets.
@@ -96,7 +96,7 @@ export abstract class DescriptorSet extends GFXObject {
      * @param binding The target binding.
      * @param texture The texture to be bound.
      */
-    public bindTexture (binding: number, texture: Texture, index = 0) {
+    public bindTexture (binding: number, texture: Texture, index = 0, flags?: AccessFlags) {
         const bindingIndex = this._layout!.bindingIndices[binding];
         const info = this._layout!.bindings[bindingIndex]; if (!info) { return; }
         if (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {

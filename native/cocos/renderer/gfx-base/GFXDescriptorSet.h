@@ -42,12 +42,14 @@ public:
     virtual void forceUpdate() = 0;
 
     virtual void bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index);
-    virtual void bindTexture(uint32_t binding, Texture *texture, uint32_t index);
     virtual void bindSampler(uint32_t binding, Sampler *sampler, uint32_t index);
+    virtual void bindTexture(uint32_t binding, Texture *texture, uint32_t index, AccessFlags flags);
+
+    void bindTexture(uint32_t binding, Texture *texture, uint32_t index);
 
     // Functions invoked by JSB adapter
     bool bindBufferJSB(uint32_t binding, Buffer *buffer, uint32_t index);
-    bool bindTextureJSB(uint32_t binding, Texture *texture, uint32_t index);
+    bool bindTextureJSB(uint32_t binding, Texture *texture, uint32_t index, AccessFlags flags);
     bool bindSamplerJSB(uint32_t binding, Sampler *sampler, uint32_t index);
 
     Buffer *getBuffer(uint32_t binding, uint32_t index) const;
@@ -71,6 +73,7 @@ protected:
     struct ObjectWithId {
         T *ptr = nullptr;
         uint32_t id = INVALID_OBJECT_ID;
+        AccessFlags flags = AccessFlagBit::NONE;
     };
 
     const DescriptorSetLayout *_layout = nullptr;
