@@ -521,6 +521,7 @@ export class CocosParams<T> {
     public cmakePath: string;
     public platform: string;
     public platformName: string;
+    public executableName: string;
     /**
      * engine root
      */
@@ -586,6 +587,7 @@ export class CocosParams<T> {
         this.buildDir = params.buildDir;
         this.xxteaKey = params.xxteaKey;
         this.encrypted = params.encrypted;
+        this.executableName = params.executableName;
         Object.assign(this.cMakeConfig, params.cMakeConfig);
         this.platformParams = params.platformParams;
     }
