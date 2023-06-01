@@ -344,8 +344,6 @@ void addDepthStencilImpl(
             gfx::ShaderStageFlagBit::NONE));
     CC_ENSURES(res.second);
     res.first->second.slotID = slotID;
-
-
 }
 
 } // namespace
@@ -544,11 +542,15 @@ void addRasterViewImpl(
         res.first->second.slotID = slotID;
     }
     {
+        auto sName = slotName;
+        if (sName.empty() || sName == "_") {
+            sName = slotName1;
+        }
         auto res = subpass.rasterViews.emplace(
             std::piecewise_construct,
             std::forward_as_tuple(name),
             std::forward_as_tuple(
-                ccstd::pmr::string(slotName, subpassData.get_allocator()),
+                ccstd::pmr::string(sName, subpassData.get_allocator()),
                 accessType,
                 attachmentType,
                 loadOp,

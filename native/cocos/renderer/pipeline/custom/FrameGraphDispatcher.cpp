@@ -1223,13 +1223,8 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
             auto &colorAttachments = fgRenderpassInfo.rpInfo.colorAttachments;
             for (uint32_t i = 0; i < colorAttachments.size(); ++i) {
                 const auto &colorAccess = fgRenderpassInfo.colorAccesses[i];
-                const auto &colorAttachment = fgRenderpassInfo.rpInfo.colorAttachments[i];
-                auto prevAccess = colorAccess.prevAccess;
-                if (colorAttachment.format == gfx::Format::DEPTH_STENCIL || colorAttachment.format == gfx::Format::DEPTH) {
-                    prevAccess = fgRenderpassInfo.dsAccess.prevAccess;
-                }
                 colorAttachments[i].barrier = getGeneralBarrier(cc::gfx::Device::getInstance(),
-                                                                prevAccess,
+                                                                colorAccess.prevAccess,
                                                                 colorAccess.nextAccess);
             }
             auto &dsAttachment = fgRenderpassInfo.rpInfo.depthStencilAttachment;
