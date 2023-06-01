@@ -91,19 +91,26 @@ test('getBoundingBoxToWorld', function () {
     // Change anchor point to 0.1, 0.6 and test bounding box again
     uiTrans.setAnchorPoint(0.1, 0.6);
     expect(uiTrans.getBoundingBoxToWorld()).toEqual(new Rect(-18, -108, 180, 180));
-
     // Add parent node at 50, 50 and calculate bounding box again
     const parent = new Node();
     parent.setPosition(50, 50);
     parent.addChild(node);
     expect(uiTrans.getBoundingBoxToWorld()).toEqual(new Rect(32, -58, 180, 180));
-    // Add a child node at 18, 58, with UI transform of size 100, 100 and calculate bounding box again
+    // Add a child node and calculate bounding box again
     const child = new Node();
     child.addComponent(UITransform);
     const childUITrans = child.getComponent(UITransform) as UITransform;
     childUITrans.setContentSize(300, 150);
     child.setPosition(50, 58);
     node.addChild(child);
+    expect(uiTrans.getBoundingBoxToWorld()).toEqual(new Rect(-50, -58, 300, 241));
+    // Add a child node at 1000, 1000 with zero sized UI transform should not affect bounding box
+    const child2 = new Node();
+    child2.addComponent(UITransform);
+    child2.setPosition(1000, 1000);
+    const child2UITrans = child2.getComponent(UITransform) as UITransform;
+    child2UITrans.setContentSize(0, 0);
+    node.addChild(child2);
     expect(uiTrans.getBoundingBoxToWorld()).toEqual(new Rect(-50, -58, 300, 241));
     // Rotate the Parent node by 45 degree and calculate bounding box again
     parent.setRotationFromEuler(0, 0, 45);
@@ -135,6 +142,14 @@ test('getBoundingBoxTo', function () {
     expect(uiTrans.getBoundingBoxTo(target.worldMatrix)).toEqual(new Rect(-100, -100, 100, 100));
     // Change target node's position to 100.5, -10.5 and test bounding box again
     target.setPosition(100.5, -10.5);
+    expect(uiTrans.getBoundingBoxTo(target.worldMatrix)).toEqual(new Rect(-150.5, -39.5, 100, 100));
+    // Add a child node at 1000, 1000 with zero sized UI transform should not affect bounding box
+    const child = new Node();
+    child.addComponent(UITransform);
+    child.setPosition(1000, 1000);
+    const childUITrans = child.getComponent(UITransform) as UITransform;
+    childUITrans.setContentSize(0, 0);
+    node.addChild(child);
     expect(uiTrans.getBoundingBoxTo(target.worldMatrix)).toEqual(new Rect(-150.5, -39.5, 100, 100));
     // Change target node's rotation to 60 degree and test bounding box again
     target.setRotationFromEuler(0, 0, 60);

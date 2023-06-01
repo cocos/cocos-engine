@@ -622,19 +622,32 @@ export class UITransform extends Component {
      */
     public getBoundingBoxToWorld () {
         const rect = new Rect();
-        this._selfBoundingBox(rect);
-        rect.transformMat4(this.node.worldMatrix);
-
         const locChildren = this.node.children;
         for (let i = 0; i < locChildren.length; ++i) {
             const child = locChildren[i];
             if (child && child.active) {
                 const uiTransform = child.getComponent(UITransform);
-                if (uiTransform) {
+                // Zero sized rect is not accepted
+                if (uiTransform && uiTransform.contentSize.width && uiTransform.contentSize.height) {
                     uiTransform._selfBoundingBox(_rect);
                     _rect.transformMat4(child.worldMatrix);
-                    Rect.union(rect, rect, _rect);
+                    if (rect.width === 0) {
+                        // Initializing
+                        rect.set(_rect);
+                    } else {
+                        Rect.union(rect, rect, _rect);
+                    }
                 }
+            }
+        }
+        if (this._contentSize.width && this._contentSize.height) {
+            this._selfBoundingBox(_rect);
+            _rect.transformMat4(this.node.worldMatrix);
+            if (rect.width === 0) {
+                // Initializing
+                rect.set(_rect);
+            } else {
+                Rect.union(rect, rect, _rect);
             }
         }
         return rect;
@@ -655,24 +668,37 @@ export class UITransform extends Component {
      */
     public getBoundingBoxTo (targetMat: Mat4) {
         const rect = new Rect();
-        this._selfBoundingBox(rect);
-        Mat4.invert(_mat4_temp, targetMat);
-        Mat4.multiply(_matrix, this.node.worldMatrix, _mat4_temp);
-        // Must combine all matrix because rect can only be transformed once.
-        rect.transformMat4(_matrix);
-
         const locChildren = this.node.children;
+        Mat4.invert(_mat4_temp, targetMat);
         for (let i = 0; i < locChildren.length; ++i) {
             const child = locChildren[i];
             if (child && child.active) {
                 const uiTransform = child.getComponent(UITransform);
-                if (uiTransform) {
+                // Zero sized rect is not accepted
+                if (uiTransform && uiTransform.contentSize.width && uiTransform.contentSize.height) {
                     uiTransform._selfBoundingBox(_rect);
                     // Must combine all matrix because rect can only be transformed once.
                     Mat4.multiply(_matrix, child.worldMatrix, _mat4_temp);
                     _rect.transformMat4(_matrix);
-                    Rect.union(rect, rect, _rect);
+                    if (rect.width === 0) {
+                        // Initializing
+                        rect.set(_rect);
+                    } else {
+                        Rect.union(rect, rect, _rect);
+                    }
                 }
+            }
+        }
+        if (this._contentSize.width && this._contentSize.height) {
+            this._selfBoundingBox(_rect);
+            // Must combine all matrix because rect can only be transformed once.
+            Mat4.multiply(_matrix, this.node.worldMatrix, _mat4_temp);
+            _rect.transformMat4(_matrix);
+            if (rect.width === 0) {
+                // Initializing
+                rect.set(_rect);
+            } else {
+                Rect.union(rect, rect, _rect);
             }
         }
         return rect;
