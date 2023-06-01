@@ -2771,7 +2771,7 @@ static void uploadBufferData(GLenum target, GLintptr offset, GLsizeiptr length, 
 
 void cmdFuncGLES3UpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, const void *buffer, uint32_t offset, uint32_t size) {
     GLES3ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
-    if (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC && gpuBuffer->buffer != nullptr)) {
+    if (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC) && gpuBuffer->buffer != nullptr) {
         memcpy(gpuBuffer->buffer + offset, buffer, size);
     } else {
         switch (gpuBuffer->glTarget) {
