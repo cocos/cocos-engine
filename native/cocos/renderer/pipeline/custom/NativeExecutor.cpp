@@ -2230,7 +2230,7 @@ void mergeSceneFlags(
         const auto passID = parent(subpassOrPassID, rg);
 
         auto layoutID = LayoutGraphData::null_vertex();
-        if (passID == rg.null_vertex()) { // single render pass
+        if (passID == RenderGraph::null_vertex()) { // single render pass
             const auto& layoutName = get(RenderGraph::LayoutTag{}, rg, subpassOrPassID);
             CC_ENSURES(!layoutName.empty());
             layoutID = locate(LayoutGraphData::null_vertex(), layoutName, lg);
