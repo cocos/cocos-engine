@@ -485,7 +485,7 @@ enum class TextureFlagBit : uint32_t {
     GENERAL_LAYOUT = 0x2,  // For inout framebuffer attachments
     EXTERNAL_OES = 0x4,    // External oes texture
     EXTERNAL_NORMAL = 0x8, // External normal texture
-    MUTABLE_STORAGE = 0x10, // Texture is mutable or not, default is ismutable(only for webgl2)
+    MUTABLE_STORAGE = 0x10, // Texture is mutable or not, default is immutable(only for webgl2)
 };
 using TextureFlags = TextureFlagBit;
 CC_ENUM_BITWISE_OPERATORS(TextureFlagBit);
