@@ -73,6 +73,9 @@ exports.listeners = {
         if (!target) {
             return;
         }
+
+        clearTimeout(panel.previewTimeId);
+
         if (!panel.snapshotLock) {
             snapshotLock(panel, true, panel.uuidList);
         }
@@ -160,6 +163,7 @@ exports.listeners = {
     },
     'confirm-dump'() {
         const panel = this;
+        clearTimeout(panel.previewTimeId);
         snapshotLock(panel, false);
         // In combination with change-dump, snapshot only generated once after ui-elements continuously changed.
         // Editor.Message.send('scene', 'snapshot');
@@ -171,6 +175,8 @@ exports.listeners = {
         if (!target) {
             return;
         }
+
+        clearTimeout(panel.previewTimeId);
 
         // Editor.Message.send('scene', 'snapshot');
         const undoID = await beginRecording(panel.uuidList);
@@ -203,6 +209,8 @@ exports.listeners = {
         if (!target) {
             return;
         }
+
+        clearTimeout(panel.previewTimeId);
 
         const undoID = await beginRecording(panel.uuidList);
         const dump = event.target.dump;
@@ -251,9 +259,10 @@ exports.listeners = {
         }
 
         const { method, value: assetUuid } = event.detail;
-        if (method === 'confirm') {
-            clearTimeout(panel.previewTimeId);
 
+        clearTimeout(panel.previewTimeId);
+
+        if (method === 'confirm') {
             try {
                 panel.previewTimeId = setTimeout(() => {
                     for (let i = 0; i < panel.uuidList.length; i++) {
@@ -264,8 +273,6 @@ exports.listeners = {
                         if (dump.values) {
                             value = dump.values[i];
                         }
-
-
 
                         // 预览新的值
                         value.uuid = assetUuid;
@@ -284,21 +291,21 @@ exports.listeners = {
                 console.error(error);
             }
         } else if (method === 'cancel') {
-            clearTimeout(panel.previewTimeId);
+            panel.previewTimeId = setTimeout(() => {
+                try {
+                    for (let i = 0; i < panel.uuidList.length; i++) {
+                        const uuid = panel.uuidList[i];
+                        const { path } = dump;
 
-            try {
-                for (let i = 0; i < panel.uuidList.length; i++) {
-                    const uuid = panel.uuidList[i];
-                    const { path } = dump;
-
-                    Editor.Message.send('scene', 'cancel-preview-set-property', {
-                        uuid,
-                        path,
-                    });
+                        Editor.Message.send('scene', 'cancel-preview-set-property', {
+                            uuid,
+                            path,
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
                 }
-            } catch (error) {
-                console.error(error);
-            }
+            }, 50);
         }
     },
 };
