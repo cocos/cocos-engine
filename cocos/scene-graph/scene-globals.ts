@@ -1092,13 +1092,11 @@ export class SkinInfo {
      * @zh 是否开启皮肤后效。
      */
     @editable
+    @readOnly
     @tooltip('i18n:skin.enabled')
     set enabled (val: boolean) {
         if (this._enabled === val) return;
         this._enabled = val;
-        if (val && !macro.ENABLE_FLOAT_OUTPUT) {
-            console.warn('Separable-SSS skin filter need float output, please open ENABLE_FLOAT_OUTPUT define...');
-        }
         if (this._resource) {
             this._resource.enabled = val;
         }
@@ -1118,11 +1116,6 @@ export class SkinInfo {
     @type(CCFloat)
     @tooltip('i18n:skin.blurRadius')
     set blurRadius (val: number) {
-        if (this._blurRadius === val) return;
-        if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
-            console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
-            return;
-        }
         this._blurRadius = val;
         if (this._resource) { this._resource.blurRadius = val; }
     }
@@ -1140,11 +1133,6 @@ export class SkinInfo {
     @type(CCFloat)
     @tooltip('i18n:skin.sssIntensity')
     set sssIntensity (val: number) {
-        if (this._sssIntensity === val) return;
-        if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
-            console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
-            return;
-        }
         this._sssIntensity = val;
         if (this._resource) { this._resource.sssIntensity = val; }
     }
@@ -1153,7 +1141,7 @@ export class SkinInfo {
     }
 
     @serializable
-    protected _enabled = false;
+    protected _enabled = true;
     @serializable
     protected _blurRadius = 0.01;
     @serializable
