@@ -1,5 +1,5 @@
 import { VectorTrack } from "../../../../cocos/animation/animation";
-import { AnimationClip } from "../../../../cocos/animation/animation-clip";
+import { additiveSettingsTag, AnimationClip } from "../../../../cocos/animation/animation-clip";
 import { Pose } from "../../../../cocos/animation/core/pose";
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from "../../../../cocos/animation/marionette/animation-graph-context";
 import { ClipMotion } from "../../../../cocos/animation/marionette/motion";
@@ -30,11 +30,13 @@ export class SingleRealValueObserver {
                 keyframes, {
                 name = '',
                 duration,
+                additive = false,
             }) {
                 const clip = new AnimationClip();
                 clip.name = name;
                 clip.enableTrsBlending = true;
                 clip.duration = duration;
+                clip[additiveSettingsTag].enabled = additive;
                 const track = new VectorTrack();
                 track.componentsCount = 3;
                 track.path.toProperty('position');

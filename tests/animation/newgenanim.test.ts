@@ -13,7 +13,7 @@ import { StateMachineComponent } from '../../cocos/animation/marionette/state-ma
 import { VectorTrack } from '../../cocos/animation/animation';
 import 'jest-extended';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
-import { AnimationClip } from '../../cocos/animation/animation-clip';
+import { additiveSettingsTag, AnimationClip } from '../../cocos/animation/animation-clip';
 import { TriggerResetMode, Value } from '../../cocos/animation/marionette/variable';
 import { MotionState } from '../../cocos/animation/marionette/state-machine/motion-state';
 import { Node, Component } from '../../cocos/scene-graph';
@@ -4188,7 +4188,7 @@ describe('NewGen Anim', () => {
                 const fixture = {
                     non_additive_layer_animation: new ConstantRealValueAnimationFixture(6.0),
                     non_additive_layer_weight: 0.8,
-                    additive_layer_fixture: new LinearRealValueAnimationFixture(0.8, -3.5, 2.0),
+                    additive_layer_fixture: new LinearRealValueAnimationFixture(0.8, -3.5, 2.0, true),
                     additive_layer_weight: 0.6,
                     time: 0.2,
                     initial_position: 3.,
@@ -4211,7 +4211,7 @@ describe('NewGen Anim', () => {
                 const getDesired = (initialValue: number) => {
                     let desired = initialValue;
                     desired = lerp(desired, fixture.non_additive_layer_animation.getExpected(), fixture.non_additive_layer_weight);
-                    desired += lerp(0.0, fixture.additive_layer_fixture.getExpectedAdditive(fixture.time), fixture.additive_layer_weight);
+                    desired += lerp(0.0, fixture.additive_layer_fixture.getExpected(fixture.time), fixture.additive_layer_weight);
                     return desired;
                 };
                 
@@ -4282,10 +4282,10 @@ describe('NewGen Anim', () => {
                 non_additive_layer_animation_fixture: new ConstantRealValueAnimationFixture(6.0),
                 non_additive_layer_weight: 0.8,
                 additive_layer_weight: 0.6,
-                clip_motion_fixture: new LinearRealValueAnimationFixture(4.0, 5.0, 3.0),
+                clip_motion_fixture: new LinearRealValueAnimationFixture(4.0, 5.0, 3.0, true),
                 animation_blend_fixture: new AnimationBlend1DFixture(
-                    { fixture: new LinearRealValueAnimationFixture(2.4, 3.2, 1.5), threshold: 0.0 },
-                    { fixture: new LinearRealValueAnimationFixture(4.8, -2.2, 1.6), threshold: 1.0 },
+                    { fixture: new LinearRealValueAnimationFixture(2.4, 3.2, 1.5, true), threshold: 0.0 },
+                    { fixture: new LinearRealValueAnimationFixture(4.8, -2.2, 1.6, true), threshold: 1.0 },
                 ),
                 animation_blend_input: 0.7,
                 e_to_c_transition_duration: 0.3,
@@ -4330,7 +4330,7 @@ describe('NewGen Anim', () => {
                         // The result of the additive layer is so that:
                         lerp(
                             0, // Empty generates 0 in additive layer
-                            fixture.clip_motion_fixture.getExpectedAdditive(fixture.e_to_c_transition_duration * 0.3), // Clip motion generates an additive value.
+                            fixture.clip_motion_fixture.getExpected(fixture.e_to_c_transition_duration * 0.3), // Clip motion generates an additive value.
                             0.3, // The transition ratio
                         )
                     ),
@@ -4346,7 +4346,7 @@ describe('NewGen Anim', () => {
                 expect(valueObserver.value).toBeCloseTo(
                     RESULT_AFTER_FIXED_LAYER + fixture.additive_layer_weight * (
                         // The result of the additive layer is so that:
-                        fixture.clip_motion_fixture.getExpectedAdditive(fixture.e_to_c_transition_duration + 0.6) // Clip motion generates an additive value.
+                        fixture.clip_motion_fixture.getExpected(fixture.e_to_c_transition_duration + 0.6) // Clip motion generates an additive value.
                     ),
                     DEFAULT_CLOSE_TO_NUM_DIGITS,
                 );
@@ -4361,7 +4361,7 @@ describe('NewGen Anim', () => {
                     RESULT_AFTER_FIXED_LAYER + fixture.additive_layer_weight * (
                         // The result of the additive layer is so that:
                         lerp(
-                            fixture.clip_motion_fixture.getExpectedAdditive(
+                            fixture.clip_motion_fixture.getExpected(
                                 fixture.e_to_c_transition_duration + 0.6 + fixture.c_to_e_transition_duration * 0.4), // Clip motion generates an additive value.
                             0, // Empty generates 0 in additive layer.
                             0.4, // The transition ratio
@@ -4383,7 +4383,7 @@ describe('NewGen Anim', () => {
                 expect(valueObserver.value).toBeCloseTo(
                     RESULT_AFTER_FIXED_LAYER + fixture.additive_layer_weight * (
                         // The result of the additive layer is so that:
-                        fixture.animation_blend_fixture.getExpectedAdditive(0.2, fixture.animation_blend_input) // Clip motion generates an additive value.
+                        fixture.animation_blend_fixture.getExpected(0.2, fixture.animation_blend_input) // Clip motion generates an additive value.
                     ),
                     DEFAULT_CLOSE_TO_NUM_DIGITS,
                 );
@@ -4530,9 +4530,9 @@ describe('NewGen Anim', () => {
             const fixture = {
                 non_additive_layer_animation_fixture: new LinearRealValueAnimationFixture(6.0, 8.0, 1.0),
                 non_additive_layer_weight: 0.314,
-                additive_layer_1_animation_fixture: new LinearRealValueAnimationFixture(-2.8, 6.6, 1.5),
+                additive_layer_1_animation_fixture: new LinearRealValueAnimationFixture(-2.8, 6.6, 1.5, true),
                 additive_layer_1_weight: 0.456,
-                additive_layer_2_animation_fixture: new LinearRealValueAnimationFixture(1.2, -1.0, 2.0),
+                additive_layer_2_animation_fixture: new LinearRealValueAnimationFixture(1.2, -1.0, 2.0, true),
                 additive_layer_2_weight: 0.618,
                 initial_value: 3.0,
                 time: 0.2,
@@ -4554,7 +4554,7 @@ describe('NewGen Anim', () => {
                 );
                 expectedValue += lerp(
                     0,
-                    fixture.additive_layer_1_animation_fixture.getExpectedAdditive(fixture.time),
+                    fixture.additive_layer_1_animation_fixture.getExpected(fixture.time),
                     fixture.additive_layer_1_weight,
                 );
 
@@ -4574,7 +4574,7 @@ describe('NewGen Anim', () => {
                 let expectedValue = fixture.initial_value;
                 expectedValue += lerp(
                     0,
-                    fixture.additive_layer_1_animation_fixture.getExpectedAdditive(fixture.time),
+                    fixture.additive_layer_1_animation_fixture.getExpected(fixture.time),
                     fixture.additive_layer_1_weight,
                 );
                 expectedValue = lerp(
@@ -4599,12 +4599,12 @@ describe('NewGen Anim', () => {
                 let expectedValue = fixture.initial_value;
                 expectedValue += lerp(
                     0,
-                    fixture.additive_layer_1_animation_fixture.getExpectedAdditive(fixture.time),
+                    fixture.additive_layer_1_animation_fixture.getExpected(fixture.time),
                     fixture.additive_layer_1_weight,
                 );
                 expectedValue += lerp(
                     0,
-                    fixture.additive_layer_2_animation_fixture.getExpectedAdditive(fixture.time),
+                    fixture.additive_layer_2_animation_fixture.getExpected(fixture.time),
                     fixture.additive_layer_2_weight,
                 );
 
@@ -4657,9 +4657,9 @@ describe('NewGen Anim', () => {
             const fixture = {
                 clip_duration: 0.3,
                 node1_initial_value: 6.,
-                node1_animation: new LinearRealValueAnimationFixture(3., 4., 0.3),
+                node1_animation: new LinearRealValueAnimationFixture(3., 4., 0.3, true),
                 node2_initial_value: 7.,
-                node2_animation: new LinearRealValueAnimationFixture(-2., -6.6, 0.3),
+                node2_animation: new LinearRealValueAnimationFixture(-2., -6.6, 0.3, true),
                 time: 0.2,
             };
 
@@ -4673,6 +4673,7 @@ describe('NewGen Anim', () => {
 
             const clipMotion = new ClipMotion();
             const clip = clipMotion.clip = new AnimationClip();
+            clip[additiveSettingsTag].enabled = true;
             clip.duration = fixture.clip_duration;
             addTrack(node1.name, fixture.node1_animation);
             addTrack(node2.name, fixture.node2_animation);
@@ -4693,7 +4694,7 @@ describe('NewGen Anim', () => {
             // Node1
             {
                 let desired = fixture.node1_initial_value;
-                desired += fixture.node1_animation.getExpectedAdditive(fixture.time);
+                desired += fixture.node1_animation.getExpected(fixture.time);
                 expect(desired).toMatchSnapshot('Expected value of node1');
                 expect(node1.position.x).toBeCloseTo(desired, DEFAULT_CLOSE_TO_NUM_DIGITS);
             }
@@ -4774,7 +4775,7 @@ describe('NewGen Anim', () => {
                 )(`%s`, (_title, isSourceYieldingNullish, isDestinationYieldingNullish) => {
                     const fixture = {
                         initial_value: 6.,
-                        non_nullish_source_animation: new LinearRealValueAnimationFixture(1., 2., 3.),
+                        non_nullish_source_animation: new LinearRealValueAnimationFixture(1., 2., 3., true),
                         transition_duration: 0.3,
                     };
     
@@ -4810,8 +4811,8 @@ describe('NewGen Anim', () => {
     
                     expect(observer.value).toBeCloseTo(fixture.initial_value +
                         lerp(
-                            isSourceYieldingNullish ? 0.0 : fixture.non_nullish_source_animation.getExpectedAdditive(0.2),
-                            isDestinationYieldingNullish ? 0.0 : fixture.non_nullish_source_animation.getExpectedAdditive(0.2),
+                            isSourceYieldingNullish ? 0.0 : fixture.non_nullish_source_animation.getExpected(0.2),
+                            isDestinationYieldingNullish ? 0.0 : fixture.non_nullish_source_animation.getExpected(0.2),
                             0.2 / fixture.transition_duration,
                         ),
                     );
