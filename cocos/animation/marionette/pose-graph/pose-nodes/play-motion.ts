@@ -100,6 +100,7 @@ export class PoseNodePlayMotion extends PoseNode {
             } else {
                 this._workspace.normalizedTime += normalizedDeltaTime;
             }
+            this._workspace.lastIndicativeWeight = context.indicativeWeight;
         }
     }
 
