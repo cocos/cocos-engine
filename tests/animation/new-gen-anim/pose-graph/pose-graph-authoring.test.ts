@@ -840,6 +840,55 @@ test(`isWellFormedInputKey()`, () => {
     expect(poseGraphOp.isWellFormedInputKey(['a', -Infinity])).toBe(false);
     expect(poseGraphOp.isWellFormedInputKey(['a', Infinity])).toBe(false);
     expect(poseGraphOp.isWellFormedInputKey(['a', Number.NaN])).toBe(false);
-})
+});
 
-test.todo(`Disallow connect a pose node to multiple inputs`);
+test(`Disallow connect a pose node to multiple inputs`, () => {
+    const poseGraph = createPoseGraph();
+
+    class Consumer extends UnimplementedPoseNode {
+        @input({ type: PoseGraphType.POSE })
+        pose: Pose | null = null;
+    }
+
+    const producer = poseGraph.addNode(new UnimplementedPoseNode());
+    const consumerA = poseGraph.addNode(new Consumer());
+    const consumerB = poseGraph.addNode(new Consumer());
+
+    /** Checks if the whole graph only has one specified `expectedConsumer` which consumes the `producer`. */
+    const check = (expectedConsumer: undefined | PoseNode | PoseGraph['outputNode']) => {
+        for (const node of [poseGraph.outputNode, consumerA, consumerB]) {
+            const binding = poseGraphOp.getInputBinding(poseGraph, node, getTheOnlyInputKey(node));
+            if (node === expectedConsumer) {
+                expect(binding).toStrictEqual(expect.objectContaining({
+                    producer,
+                    outputIndex: 0,
+                }));
+            } else {
+                expect(binding).toBeUndefined();
+            }
+        }
+    };
+
+    // Connect nothing.
+    check(undefined);
+
+    // Connect the producer to output node.
+    poseGraphOp.connectOutputNode(poseGraph, producer);
+    check(poseGraph.outputNode);
+
+    // Re-connect the producer to a.
+    poseGraphOp.connectNode(poseGraph, consumerA, getTheOnlyInputKey(consumerA), producer);
+    check(consumerA);
+
+    // Re-connect the producer to b.
+    poseGraphOp.connectNode(poseGraph, consumerB, getTheOnlyInputKey(consumerB), producer);
+    check(consumerB);
+
+    // Re-connect to the output node.
+    poseGraphOp.connectOutputNode(poseGraph, producer);
+    check(poseGraph.outputNode);
+
+    // Disconnect.
+    poseGraphOp.disconnectNode(poseGraph, poseGraph.outputNode, getTheOnlyInputKey(poseGraph.outputNode));
+    check(undefined);
+});

@@ -876,7 +876,7 @@ export class MeshRenderer extends ModelRenderer {
         if (!mainLight) { return; }
         const visibility = mainLight.visibility;
         if (!mainLight.node) { return; }
-        
+
         if (mainLight.node.mobility === MobilityMode.Static) {
             let forceClose = false;
             if (this.bakeSettings.texture && !this.node.scene.globals.disableLightmap) {
@@ -885,7 +885,7 @@ export class MeshRenderer extends ModelRenderer {
             if (this.node.scene.globals.lightProbeInfo.data
                 && this.node.scene.globals.lightProbeInfo.data.hasCoefficients()
                 && this._model.useLightProbe) {
-                    forceClose = true;
+                forceClose = true;
             }
 
             this.onUpdateReceiveDirLight(visibility, forceClose);
@@ -1009,6 +1009,7 @@ export class MeshRenderer extends ModelRenderer {
     protected _onMaterialModified (idx: number, material: Material | null) {
         if (!this._model || !this._model.inited) { return; }
         this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
+        this._updateStandardSkin();
     }
 
     /**
