@@ -719,6 +719,7 @@ struct NativeRenderQueue {
     void clear() noexcept;
     bool empty() const noexcept;
 
+    scene::Camera *camera = nullptr;
     RenderDrawQueue opaqueQueue;
     RenderDrawQueue transparentQueue;
     RenderInstancingQueue opaqueInstancingQueue;

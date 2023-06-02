@@ -40,7 +40,6 @@
 #pragma define-meta CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT default(0)
 #pragma define-meta CC_PLATFORM_ANDROID_AND_WEBGL default(0)
 #pragma define-meta CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES default(0)
-#pragma define-meta CC_ENABLE_CLUSTERED_LIGHT_CULLING default(0)
 
 // When sampling RTs, Y-flip is needed if the screen space sign Y is positive (pointing upwards)
 #pragma define CC_HANDLE_RT_SAMPLE_FLIP(uv) uv = cc_cameraPos.w > 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv

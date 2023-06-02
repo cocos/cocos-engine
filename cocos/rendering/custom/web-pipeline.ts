@@ -1410,11 +1410,10 @@ export class WebPipeline implements BasicPipeline {
             currRaster.addQueue(QueueHint.NONE).addFullscreenQuad(this._copyPassMat, 0, SceneFlags.NONE);
         }
     }
-    protected _generateConstantMacros (clusterEnabled: boolean) {
+    protected _generateConstantMacros () {
         let str = '';
         str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this._device.getFormatFeatures(Format.RGBA32F)
             & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE) ? 1 : 0}\n`;
-        str += `#define CC_ENABLE_CLUSTERED_LIGHT_CULLING ${clusterEnabled ? 1 : 0}\n`;
         str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this._device.capabilities.maxVertexUniformVectors}\n`;
         str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this._device.capabilities.maxFragmentUniformVectors}\n`;
         str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this._device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
@@ -1475,7 +1474,7 @@ export class WebPipeline implements BasicPipeline {
         this._compileMaterial();
         this.setMacroBool('CC_USE_HDR', this._pipelineSceneData.isHDR);
         this.setMacroBool('CC_USE_FLOAT_OUTPUT', macro.ENABLE_FLOAT_OUTPUT && supportsRGBA16FloatTexture(this._device));
-        this._generateConstantMacros(false);
+        this._generateConstantMacros();
         this._pipelineSceneData.activate(this._device);
         this._pipelineUBO.activate(this._device, this);
         this._initCombineSignY();

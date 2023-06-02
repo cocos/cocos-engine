@@ -138,6 +138,18 @@ bool CCMTLPipelineState::createMTLComputePipelineState() {
     NSError *err;
     _mtlComputePipeline = [mtlDevice newComputePipelineStateWithFunction:((CCMTLShader *)_shader)->getComputeMTLFunction()
                                                                    error:&err];
+//    auto desc = [[MTLComputePipelineDescriptor alloc] init];
+//    desc.computeFunction = ((CCMTLShader *)_shader)->getComputeMTLFunction();
+//    if (@available(macOS 11.0, *)) {
+//        desc.maxCallStackDepth = 2;
+//    }
+//    MTLComputePipelineReflection* ref;
+//    _mtlComputePipeline = [mtlDevice newComputePipelineStateWithDescriptor: desc
+//                                                                   options: MTLPipelineOptionBufferTypeInfo
+//                                                                reflection: &ref
+//                                                                     error: &err];
+//    
+//    [desc release];
     if (!_mtlComputePipeline) {
         CC_LOG_ERROR("Create compute pipeline failed: %s", [err.localizedDescription UTF8String]);
         return false;
