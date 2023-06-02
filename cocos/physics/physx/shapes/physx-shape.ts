@@ -216,7 +216,7 @@ export class PhysXShape implements IBaseShape {
         if (this._collider.needCollisionEvent) {
             this._word3 |= EFilterDataWord3.DETECT_CONTACT_EVENT | EFilterDataWord3.DETECT_CONTACT_POINT;
         }
-        filterData.word2 = this.id;
+        //filterData.word2 = this.id;//useless
         filterData.word3 = this._word3;
         this.setFilerData(filterData);
     }
