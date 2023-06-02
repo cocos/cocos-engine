@@ -241,7 +241,7 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
                 gfx::Format::DEPTH,
                 0, 1, 0, 1, 0, 1
         };
-
+        desc.format = gfx::Format::DEPTH;
         auto depthID = addVertex(
                 SubresourceViewTag{},
                 std::forward_as_tuple(name + "/depth"),
@@ -255,6 +255,7 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
 
         view.firstPlane = 1;
         view.format = gfx::Format::DEPTH_STENCIL;
+        desc.format = gfx::Format::DEPTH_STENCIL;
         auto stencilID = addVertex(
                 SubresourceViewTag{},
                 std::forward_as_tuple(name + "/stencil"),

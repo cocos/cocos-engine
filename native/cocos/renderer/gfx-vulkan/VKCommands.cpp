@@ -449,26 +449,26 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
 
         for (uint32_t input : subpassInfo.inputs) {
             if (input == gpuRenderPass->colorAttachments.size()) {
-                VkImageLayout layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+                VkImageLayout layout = VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
                 attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, input, layout, VK_IMAGE_ASPECT_DEPTH_BIT});
             } else {
                 auto dsInput = gpuRenderPass->colorAttachments[input].format == Format::DEPTH_STENCIL || gpuRenderPass->colorAttachments[input].format == Format::DEPTH;
-                VkImageLayout layout =  VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-                if (dsInput) {
-                    layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-                } else {
-                    bool appearsInOutput = std::find(subpassInfo.colors.begin(), subpassInfo.colors.end(), input) != subpassInfo.colors.end();
-                    layout = appearsInOutput ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-                }
+                VkImageLayout layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                 VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
                 if (dsInput) {
+                    layout = VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
                     if (gpuRenderPass->colorAttachments[input].format == Format::DEPTH) {
                         aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
                     } else {
                         // single stencil is not allowed
                         aspect = VK_IMAGE_ASPECT_STENCIL_BIT;
+                        layout = VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL;
                     }
+                } else {
+                    bool appearsInOutput = std::find(subpassInfo.colors.begin(), subpassInfo.colors.end(), input) != subpassInfo.colors.end();
+                    layout = appearsInOutput ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                 }
+
                 attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, input, layout, aspect});
             }
         }
@@ -476,8 +476,21 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
             const ColorAttachment &desc = gpuRenderPass->colorAttachments[color];
             const VkAttachmentDescription2 &attachment = attachmentDescriptions[color];
             bool appearsInInput = std::find(subpassInfo.inputs.begin(), subpassInfo.inputs.end(), color) != subpassInfo.inputs.end();
-            VkImageLayout layout = appearsInInput ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-            attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, color, layout, VK_IMAGE_ASPECT_COLOR_BIT});
+            auto dsOutput = gpuRenderPass->colorAttachments[color].format == Format::DEPTH_STENCIL || gpuRenderPass->colorAttachments[color].format == Format::DEPTH;
+            VkImageLayout dftLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+            if (dsOutput) {
+                if (gpuRenderPass->colorAttachments[color].format == Format::DEPTH) {
+                    aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+                    dftLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+                } else {
+                    // single stencil is not allowed
+                    aspect = VK_IMAGE_ASPECT_STENCIL_BIT;
+                    dftLayout = VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL;
+                }
+            }
+            VkImageLayout layout = appearsInInput ? VK_IMAGE_LAYOUT_GENERAL : dftLayout;
+            attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, color, layout, aspect});
             sampleCount = std::max(sampleCount, attachment.samples);
         }
         for (uint32_t resolve : subpassInfo.resolves) {
