@@ -145,7 +145,9 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const SharedPassArray &pPas
     }
 
     _subMesh = subMesh;
-    _patches = patches;
+    ccstd::vector<IMacroPatch> tmp = patches;
+    std::sort(tmp.begin(), tmp.end(), IMacroPatch::compare);
+    _patches = tmp;
     _passes = pPasses;
 
     flushPassInfo();
@@ -218,10 +220,16 @@ void SubModel::onPipelineStateChanged() {
 }
 
 void SubModel::onMacroPatchesStateChanged(const ccstd::vector<IMacroPatch> &patches) {
-    if (std::equal(std::begin(patches), std::end(patches), std::begin(this->_patches))) {
+    if (!patches.empty() && !patches.empty()) {
         return;
     }
-    _patches = patches;
+
+    ccstd::vector<IMacroPatch> tmp = patches;
+    std::sort(tmp.begin(), tmp.end(), IMacroPatch::compare);
+    if (std::equal(std::begin(tmp), std::end(tmp), std::begin(_patches))) {
+        return;
+    }
+    _patches = tmp;
     const auto &passes = *_passes;
     if (passes.empty()) return;
     for (Pass *pass : passes) {
