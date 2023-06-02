@@ -27,32 +27,38 @@ import { Director, director, game } from '../game';
 import { js, System } from '../core';
 import { VFXEmitter } from './vfx-emitter';
 import { VFXRenderer } from './vfx-renderer';
-import { VFXDynamicBuffer } from './renderers/dynamic-buffer';
-import { Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, deviceManager } from '../gfx';
+import { VFXDynamicBuffer } from './vfx-dynamic-buffer';
+import { Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, deviceManager, Attribute, FormatInfos } from '../gfx';
+import { meshPosition, meshUv } from './define';
 
 export const globalDynamicBufferMap: Record<string, VFXDynamicBuffer> = {};
-
-const fixedVertexBuffer = new Float32Array([
-    0, 0, 0, 0, 0, 0, // bottom-left
-    1, 0, 0, 1, 0, 0, // bottom-right
-    0, 1, 0, 0, 1, 0, // top-left
-    1, 1, 0, 1, 1, 0, // top-right
-]);
-const fixedIndexBuffer = new Uint16Array([
-    0, 1, 2, 3, 2, 1,
-]);
-
-export let globalSpriteVB: Buffer | null = null;
-export let globalSpriteIB: Buffer | null = null;
 
 export class VFXManager extends System {
     get totalFrames () {
         return this._totalFrames;
     }
 
+    get sharedSpriteVertexBufferAttributes (): ReadonlyArray<Attribute> {
+        return this._sharedSpriteVertexBufferAttributes;
+    }
+
+    get sharedSpriteVertexCount () {
+        return this._sharedSpriteVertexCount;
+    }
+
+    get sharedSpriteIndexCount () {
+        return this._sharedSpriteIndexCount;
+    }
+
     private _emitters: VFXEmitter[] = [];
     private _renderers: VFXRenderer[] = [];
+    private _sharedSpriteVertexBufferAttributes = [meshPosition, meshUv];
+    private _sharedSpriteVertexBuffer: Buffer | null = null;
+    private _sharedSpriteIndexBuffer: Buffer | null = null;
+    private _sharedSpriteVertexCount = 4;
+    private _sharedSpriteIndexCount = 6;
     private _totalFrames = 0;
+    private _sharedDynamicBufferMap: Record<string, VFXDynamicBuffer> = {};
 
     init () {
         director.on(Director.EVENT_UPDATE_PARTICLE, this.tick, this);
@@ -126,27 +132,50 @@ export class VFXManager extends System {
         }
     }
 
-    createGlobalBuffer () {
-        const vertexStreamSizeStatic = 24;
-        globalSpriteVB = deviceManager.gfxDevice.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            vertexStreamSizeStatic * 4,
-            vertexStreamSizeStatic,
-        ));
-        globalSpriteVB.update(fixedVertexBuffer);
-        globalSpriteIB = deviceManager.gfxDevice.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            Uint16Array.BYTES_PER_ELEMENT * 6,
-            Uint16Array.BYTES_PER_ELEMENT,
-        ));
-        globalSpriteIB.update(fixedIndexBuffer);
+    getOrCreateSharedSpriteVertexBuffer () {
+        if (!this._sharedSpriteVertexBuffer) {
+            let size = 0;
+            for (let i = 0; i < this._sharedSpriteVertexBufferAttributes.length; i++) {
+                const attr = this._sharedSpriteVertexBufferAttributes[i];
+                size += FormatInfos[attr.format].size;
+            }
+            this._sharedSpriteVertexBuffer = deviceManager.gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                size * this.sharedSpriteVertexCount,
+                size,
+            ));
+            const vertexBufferData = new Float32Array([
+                0, 0, 0, 0, 0, 0, // bottom-left
+                1, 0, 0, 1, 0, 0, // bottom-right
+                0, 1, 0, 0, 1, 0, // top-left
+                1, 1, 0, 1, 1, 0, // top-right
+            ]);
+            this._sharedSpriteVertexBuffer.update(vertexBufferData);
+        }
+        return this._sharedSpriteVertexBuffer;
+    }
+
+    getOrCreateSharedSpriteIndexBuffer () {
+        if (!this._sharedSpriteIndexBuffer) {
+            this._sharedSpriteIndexBuffer = deviceManager.gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                Uint16Array.BYTES_PER_ELEMENT * this.sharedSpriteIndexCount,
+                Uint16Array.BYTES_PER_ELEMENT,
+            ));
+
+            const indexBufferData = new Uint16Array([
+                0, 1, 2, 3, 2, 1,
+            ]);
+            this._sharedSpriteIndexBuffer.update(indexBufferData);
+        }
+        return this._sharedSpriteIndexBuffer;
     }
 
     getOrCreateDynamicVBO (vertexHash, streamSize) {
         if (!globalDynamicBufferMap[vertexHash]) {
-            globalDynamicBufferMap[vertexHash] = new VFXDynamicBuffer(deviceManager.gfxDevice, 
+            globalDynamicBufferMap[vertexHash] = new VFXDynamicBuffer(deviceManager.gfxDevice,
                 streamSize, BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST);
         }
         return globalDynamicBufferMap[vertexHash].buffer;

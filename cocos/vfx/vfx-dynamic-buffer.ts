@@ -1,4 +1,3 @@
-import { BufferInfo, Buffer, Device, MemoryUsageBit } from "../../gfx";
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -23,6 +22,8 @@ import { BufferInfo, Buffer, Device, MemoryUsageBit } from "../../gfx";
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
+import { BufferInfo, Buffer, Device, MemoryUsageBit, BufferUsageBit } from '../gfx';
 
 export class VFXDynamicBuffer {
     get buffer () {
@@ -68,7 +69,7 @@ export class VFXDynamicBuffer {
     private _size = 0;
     private _capacity = 0;
 
-    constructor (device: Device, size: number, bufferUsage: number) {
+    constructor (device: Device, size: number, bufferUsage: BufferUsageBit) {
         const capacity = 1024;
         const buffer = device.createBuffer(new BufferInfo(
             bufferUsage,

@@ -22,9 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { globalDynamicBufferMap, globalSpriteIB, globalSpriteVB, vfxManager } from '../vfx-manager';
-
 import { ccclass, serializable, type } from 'cc.decorator';
+import { globalDynamicBufferMap, vfxManager } from '../vfx-manager';
+
 import { Material, RenderingSubMesh } from '../../asset/assets';
 import { Enum, Quat, Vec3, Vec4, assertIsTrue } from '../../core';
 import { Attribute, Buffer, FormatInfos, PrimitiveMode } from '../../gfx';
@@ -32,17 +32,6 @@ import { MacroRecord } from '../../render-scene';
 import { CC_VFX_E_IS_WORLD_SPACE, CC_VFX_P_COLOR, CC_VFX_P_POSITION, CC_VFX_P_SPRITE_ROTATION, CC_VFX_P_SPRITE_SIZE, CC_VFX_P_SUB_UV_INDEX, CC_VFX_P_VELOCITY, CC_VFX_RENDERER_TYPE_SPRITE, CC_VFX_SPRITE_ALIGNMENT_MODE, CC_VFX_SPRITE_FACING_MODE, E_IS_WORLD_SPACE, E_RENDER_SCALE, meshPosition, meshUv, P_COLOR, P_POSITION, P_SPRITE_ROTATION, P_SPRITE_SIZE, P_SUB_UV_INDEX1, P_VELOCITY, vfxPColor, vfxPPosition, vfxPSpriteRotation, vfxPSpriteSize, vfxPSubUVIndex, vfxPVelocity } from '../define';
 import { ParticleDataSet, EmitterDataSet } from '../data-set';
 import { ParticleRenderer } from '../particle-renderer';
-import { Vec3ArrayParameter, ColorArrayParameter, FloatArrayParameter, Vec3Parameter, BoolParameter, Vec2ArrayParameter } from '../parameters';
-
-const fixedVertexBuffer = new Float32Array([
-    0, 0, 0, 0, 0, 0, // bottom-left
-    1, 0, 0, 1, 0, 0, // bottom-right
-    0, 1, 0, 0, 1, 0, // top-left
-    1, 1, 0, 1, 1, 0, // top-right
-]);
-const fixedIndexBuffer = new Uint16Array([
-    0, 1, 2, 3, 2, 1,
-]);
 
 /**
  * @en Particle alignment mode.
@@ -144,27 +133,27 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         let offset = bufferStart;
         const define = this._defines;
         if (define[CC_VFX_P_POSITION]) {
-            particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getVec3ArrayParameter(P_POSITION).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         if (define[CC_VFX_P_SPRITE_ROTATION]) {
-            particles.getParameterUnsafe<FloatArrayParameter>(P_SPRITE_ROTATION).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getFloatArrayParameter(P_SPRITE_ROTATION).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_VFX_P_SPRITE_SIZE]) {
-            particles.getParameterUnsafe<Vec2ArrayParameter>(P_SPRITE_SIZE).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getVec2ArrayParameter(P_SPRITE_SIZE).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 2;
         }
         if (define[CC_VFX_P_COLOR]) {
-            particles.getParameterUnsafe<ColorArrayParameter>(P_COLOR).copyToTypedArray(dynamicBufferUintView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getColorArrayParameter(P_COLOR).copyToTypedArray(dynamicBufferUintView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_VFX_P_SUB_UV_INDEX]) {
-            particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX1).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getFloatArrayParameter(P_SUB_UV_INDEX1).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_VFX_P_VELOCITY]) {
-            particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getVec3ArrayParameter(P_VELOCITY).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
     }
@@ -195,7 +184,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     }
 
     private _updateRenderScale (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
-        const renderScale = emitter.getParameterUnsafe<Vec3Parameter>(E_RENDER_SCALE).data;
+        const renderScale = emitter.getVec3Parameter(E_RENDER_SCALE).data;
         if (!Vec3.equals(renderScale, this._renderScale) || this._isMaterialDirty) {
             this._renderScale.set(renderScale.x, renderScale.y, renderScale.z);
             material.setProperty('scale', this._renderScale);
@@ -205,7 +194,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     private _compileMaterial (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let needRecompile = this._isMaterialDirty;
         const define = this._defines;
-        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
+        const isWorldSpace = emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
         if (define[CC_VFX_E_IS_WORLD_SPACE] !== isWorldSpace) {
             define[CC_VFX_E_IS_WORLD_SPACE] = isWorldSpace;
             needRecompile = true;
@@ -269,7 +258,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     private _updateAttributes (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let vertexStreamSizeDynamic = 0;
         this._vertexAttributeHash = '';
-        const vertexStreamAttributes = [meshPosition, meshUv];
+        const vertexStreamAttributes = vfxManager.sharedSpriteVertexBufferAttributes.slice();
         const define = this._defines;
 
         if (define[CC_VFX_P_POSITION]) {
@@ -310,21 +299,13 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     private _updateRenderingSubMesh (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         if (!this._renderingSubMesh) {
             const vertexStreamAttributes = this._updateAttributes(material, particles, emitter);
-            
-            if (!globalSpriteVB || !globalSpriteIB) {
-                vfxManager.createGlobalBuffer();
-            }
 
-            const dynamicBuffer = vfxManager.getOrCreateDynamicVBO(this._vertexAttributeHash, this._vertexStreamSize);
-
-            this._dynamicBuffer = dynamicBuffer;
-            
-            if (globalSpriteVB && globalSpriteIB) {
-                this._renderingSubMesh = new RenderingSubMesh([globalSpriteVB, dynamicBuffer], vertexStreamAttributes,
-                    PrimitiveMode.TRIANGLE_LIST, globalSpriteIB);
-            }
-            this._vertexCount = 4;
-            this._indexCount = 6;
+            this._dynamicBuffer = vfxManager.getOrCreateDynamicVBO(this._vertexAttributeHash, this._vertexStreamSize);
+            this._renderingSubMesh = new RenderingSubMesh([vfxManager.getOrCreateSharedSpriteVertexBuffer(), this._dynamicBuffer],
+                vertexStreamAttributes,
+                PrimitiveMode.TRIANGLE_LIST, vfxManager.getOrCreateSharedSpriteIndexBuffer());
+            this._vertexCount = vfxManager.sharedSpriteVertexCount;
+            this._indexCount = vfxManager.sharedSpriteIndexCount;
         }
         this._instanceCount = particles.count;
     }

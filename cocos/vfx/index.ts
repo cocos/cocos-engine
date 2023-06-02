@@ -40,6 +40,7 @@ export * from './vfx-data-set';
 export * from './vfx-events';
 export * from './particle-renderer';
 export * from './vfx-parameter';
+export * from './vfx-dynamic-buffer';
 export * from './modules';
 export * from './expressions';
 export * from './renderers';
