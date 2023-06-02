@@ -1018,18 +1018,12 @@ export class ParticleSystem extends ModelRenderer {
             this._isEmitting = false;
         }
 
-        this._time = 0.0;
-        this._emitRateTimeCounter = 0.0;
-        this._emitRateDistanceCounter = 0.0;
-
         this._isStopped = true;
 
         // if stop emit modify the refresh flag to true
         this._needRefresh = true;
 
-        for (const burst of this.bursts) {
-            burst.reset();
-        }
+        this.reset();
     }
 
     private reset () {
