@@ -101,7 +101,7 @@ physx::PxQueryHitType::Enum QueryFilterCallback::postFilter(const physx::PxFilte
 
 PhysXCharacterController::PhysXCharacterController() {
     _mObjectID = PhysXWorld::getInstance().addWrapperObject(reinterpret_cast<uintptr_t>(this));
-    _mFilterData = physx::PxFilterData(1, 1, 10000, 0 );
+    _mFilterData = physx::PxFilterData(1, 1, 1, 0 );
 };
 
 void PhysXCharacterController::release() {

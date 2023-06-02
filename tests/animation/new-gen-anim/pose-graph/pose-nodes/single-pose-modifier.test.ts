@@ -93,7 +93,7 @@ function createPoseGraphRunner(node: Node, setup: (poseGraph: PoseGraph) => Pose
     const layer = animationGraph.addLayer();
     const proceduralPoseState = layer.stateMachine.addProceduralPoseState();
     const mainNode = setup(proceduralPoseState.graph);
-    poseGraphOp.connectOutputNode(proceduralPoseState.graph, proceduralPoseState.graph.outputNode, mainNode);
+    poseGraphOp.connectOutputNode(proceduralPoseState.graph, mainNode);
     layer.stateMachine.connect(layer.stateMachine.entryState, proceduralPoseState);
     const evalMock = new AnimationGraphEvalMock(node, animationGraph);
     evalMock.step(0.2);

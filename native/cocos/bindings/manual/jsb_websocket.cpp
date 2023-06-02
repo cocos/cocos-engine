@@ -24,6 +24,7 @@
 
 #include "jsb_websocket.h"
 #include "MappingUtils.h"
+#include "base/std/container/unordered_set.h"
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -58,12 +59,20 @@
  WebSocket implements EventTarget;
  */
 
+#define GET_DELEGATE_FN(name) \
+    _JSDelegate.isObject() && _JSDelegate.toObject()->getProperty(name, &func)
+
 namespace {
 se::Class *jsbWebSocketClass = nullptr;
-}
+ccstd::unordered_set<JsbWebSocketDelegate *> jsbWebSocketDelegates;
+} // namespace
 
+JsbWebSocketDelegate::JsbWebSocketDelegate() {
+    jsbWebSocketDelegates.insert(this);
+}
 JsbWebSocketDelegate::~JsbWebSocketDelegate() {
     CC_LOG_INFO("In the destructor of JSbWebSocketDelegate(%p)", this);
+    jsbWebSocketDelegates.erase(this);
 }
 
 void JsbWebSocketDelegate::onOpen(cc::network::WebSocket *ws) {
@@ -88,7 +97,7 @@ void JsbWebSocketDelegate::onOpen(cc::network::WebSocket *ws) {
     jsObj->setProperty("target", target);
 
     se::Value func;
-    bool ok = _JSDelegate.toObject()->getProperty("onopen", &func);
+    bool ok = GET_DELEGATE_FN("onopen");
     if (ok && func.isObject() && func.toObject()->isFunction()) {
         se::ValueArray args;
         args.push_back(se::Value(jsObj));
@@ -117,7 +126,7 @@ void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::netwo
     jsObj->setProperty("target", target);
 
     se::Value func;
-    bool ok = _JSDelegate.toObject()->getProperty("onmessage", &func);
+    bool ok = GET_DELEGATE_FN("onmessage");
     if (ok && func.isObject() && func.toObject()->isFunction()) {
         se::ValueArray args;
         args.push_back(se::Value(jsObj));
@@ -174,7 +183,7 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, co
         jsObj->setProperty("wasClean", se::Value(wasClean));
 
         se::Value func;
-        bool ok = _JSDelegate.toObject()->getProperty("onclose", &func);
+        bool ok = GET_DELEGATE_FN("onclose");
         if (ok && func.isObject() && func.toObject()->isFunction()) {
             se::ValueArray args;
             args.push_back(se::Value(jsObj));
@@ -185,7 +194,9 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, co
 
         // JS Websocket object now can be GC, since the connection is closed.
         wsObj->unroot();
-        _JSDelegate.toObject()->unroot();
+        if (_JSDelegate.isObject()) {
+            _JSDelegate.toObject()->unroot();
+        }
 
         // Websocket instance is attached to global object in 'WebSocket_close'
         // It's safe to detach it here since JS 'onclose' method has been already invoked.
@@ -216,7 +227,7 @@ void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network
     jsObj->setProperty("target", target);
 
     se::Value func;
-    bool ok = _JSDelegate.toObject()->getProperty("onerror", &func);
+    bool ok = GET_DELEGATE_FN("onerror");
     if (ok && func.isObject() && func.toObject()->isFunction()) {
         se::ValueArray args;
         args.push_back(se::Value(jsObj));
@@ -229,6 +240,11 @@ void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network
 void JsbWebSocketDelegate::setJSDelegate(const se::Value &jsDelegate) {
     CC_ASSERT(jsDelegate.isObject());
     _JSDelegate = jsDelegate;
+    se::ScriptEngine::getInstance()->addBeforeCleanupHook([this]() {
+        if (jsbWebSocketDelegates.find(this) != jsbWebSocketDelegates.end()) {
+            _JSDelegate.setUndefined();
+        }
+    });
 }
 
 static bool webSocketFinalize(se::State &s) {
