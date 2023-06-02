@@ -474,8 +474,7 @@ export class ImageAsset extends Asset {
                 format: this.format,
                 mipmapLevelDataSize: [],
             });
-            mipmap._nativeUrl = `${this._nativeUrl} mip 0`;
-            mipmap._uuid = `${this._uuid} mip 0`;
+            mipmap._uuid = `${this._uuid}`;
             return mipmap;
         } else {
             return this;
@@ -506,8 +505,7 @@ export class ImageAsset extends Asset {
                     mipmapLevelDataSize: [],
                 });
                 byteOffset += mipmapSize;
-                mipmap._nativeUrl = `${this._nativeUrl} mips`;
-                mipmap._uuid = `${this._uuid} mips`;
+                mipmap._uuid = `${this._uuid}`;
                 width = Math.max(width >> 1, 1);
                 height = Math.max(height >> 1, 1);
                 images.push(mipmap);

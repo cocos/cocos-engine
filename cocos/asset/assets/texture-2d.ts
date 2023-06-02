@@ -111,6 +111,9 @@ export class Texture2D extends SimpleTexture {
         this._setMipmapParams(mipmaps);
     }
 
+    /**
+     * TODO: See: cocos/cocos-engine#15305
+     */
     private _setMipmapParams (value: ImageAsset[]) {
         this._generatedMipmaps = value;
         this._setMipmapLevel(this._generatedMipmaps.length);
@@ -127,6 +130,7 @@ export class Texture2D extends SimpleTexture {
             this._generatedMipmaps.forEach((mipmap, level) => {
                 this._assignImage(mipmap, level);
             });
+            //
         } else {
             this.reset({
                 width: 0,

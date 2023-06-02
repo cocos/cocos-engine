@@ -94,6 +94,7 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
             front.size() != bottom.size()) {
             assert("different faces should have the same mipmap level");
             this->setMipmapParams({});
+            return;
         }
 
         const auto level = front.size();
