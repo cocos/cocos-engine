@@ -35,6 +35,12 @@ CCEffect %{
           blendSrc: src_alpha
           blendDst: one_minus_src_alpha
           blendDstAlpha: one_minus_src_alpha
+    - &deferred-forward
+      vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      pass: deferred-forward
+      phase: deferred-forward
+      propertyIndex: 0
   - name: transparent
     passes:
     - vert: unlit-vs:vert

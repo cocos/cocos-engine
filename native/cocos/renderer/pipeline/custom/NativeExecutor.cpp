@@ -76,7 +76,7 @@ struct RenderGraphVisitorContext {
     gfx::CommandBuffer* cmdBuff = nullptr;
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
-        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues;
+        ccstd::pmr::vector<NativeRenderQueue>>& sceneQueues;
     NativePipeline* ppl = nullptr;
     ccstd::pmr::unordered_map<
         RenderGraph::vertex_descriptor,
@@ -499,6 +499,7 @@ gfx::DescriptorSet* initDescriptorSet(
         CC_EXPECTS(block.descriptors.size() == block.capacity);
         auto bindID = block.offset;
         switch (block.type) {
+            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
             case DescriptorTypeOrder::UNIFORM_BUFFER: {
                 for (const auto& d : block.descriptors) {
                     // get uniform block
@@ -519,10 +520,6 @@ gfx::DescriptorSet* initDescriptorSet(
                 }
                 break;
             }
-            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
-                break;
             case DescriptorTypeOrder::SAMPLER_TEXTURE: {
                 CC_EXPECTS(newSet);
                 for (const auto& d : block.descriptors) {
@@ -602,6 +599,7 @@ gfx::DescriptorSet* initDescriptorSet(
                 // not supported yet
                 CC_EXPECTS(false);
                 break;
+            case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
             case DescriptorTypeOrder::STORAGE_BUFFER:
                 CC_EXPECTS(newSet);
                 for (const auto& d : block.descriptors) {
@@ -623,13 +621,11 @@ gfx::DescriptorSet* initDescriptorSet(
                             found = true;
                         }
                     }
-                    CC_ENSURES(found);
+                    if (!found) {
+                        newSet->bindBuffer(bindID, defaultResource.getBuffer());
+                    }
                     bindID += d.count;
                 }
-                break;
-            case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
                 break;
             case DescriptorTypeOrder::STORAGE_IMAGE:
                 // not supported yet
@@ -698,6 +694,7 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
         CC_EXPECTS(block.descriptors.size() == block.capacity);
         auto bindID = block.offset;
         switch (block.type) {
+            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
             case DescriptorTypeOrder::UNIFORM_BUFFER: {
                 for (const auto& d : block.descriptors) {
                     // get uniform block
@@ -717,10 +714,6 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                 }
                 break;
             }
-            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
-                break;
             case DescriptorTypeOrder::SAMPLER_TEXTURE: {
                 CC_EXPECTS(newSet);
                 for (const auto& d : block.descriptors) {
@@ -757,13 +750,24 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                 // not supported yet
                 CC_EXPECTS(false);
                 break;
-            case DescriptorTypeOrder::STORAGE_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
-                break;
             case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
-                // not supported yet
-                CC_EXPECTS(false);
+            case DescriptorTypeOrder::STORAGE_BUFFER:
+                CC_EXPECTS(newSet);
+                for (const auto& d : block.descriptors) {
+                    bool found = false;
+                    CC_EXPECTS(d.count == 1);
+                    if (auto iter = user.buffers.find(d.descriptorID.value);
+                        iter != user.buffers.end()) {
+                        newSet->bindBuffer(bindID, iter->second.get());
+                        found = true;
+                    } else {
+                        auto* prevBuffer = prevSet.getBuffer(bindID);
+                        CC_ENSURES(prevBuffer);
+                        newSet->bindBuffer(bindID, prevBuffer);
+                    }
+                    auto name = lg.valueNames[d.descriptorID.value];
+                    bindID += d.count;
+                }
                 break;
             case DescriptorTypeOrder::STORAGE_IMAGE:
                 // not supported yet
@@ -1503,32 +1507,34 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         const auto* scene = camera->getScene();
         const auto& queues = ctx.sceneQueues.at(scene);
-        const auto& queue = queues.at(camera);
-        bool bDraw = any(sceneData.flags & SceneFlags::DRAW_NON_INSTANCING);
-        bool bDrawInstancing = any(sceneData.flags & SceneFlags::DRAW_INSTANCING);
-        if (!bDraw && !bDrawInstancing) {
-            bDraw = true;
-            bDrawInstancing = true;
-        }
-        if (any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT))) {
-            queue.opaqueQueue.recordCommandBuffer(
-                ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
-            if (bDrawInstancing) {
-                queue.opaqueInstancingQueue.recordCommandBuffer(
-                    ctx.currentPass, ctx.cmdBuff);
+        for (auto &queue : queues) {
+            if (queue.camera != camera) continue;
+            bool bDraw = any(sceneData.flags & SceneFlags::DRAW_NON_INSTANCING);
+            bool bDrawInstancing = any(sceneData.flags & SceneFlags::DRAW_INSTANCING);
+            if (!bDraw && !bDrawInstancing) {
+                bDraw = true;
+                bDrawInstancing = true;
             }
-        }
-        if (any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT)) {
-            queue.transparentQueue.recordCommandBuffer(
-                ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
-            if (bDrawInstancing) {
-                queue.transparentInstancingQueue.recordCommandBuffer(
-                    ctx.currentPass, ctx.cmdBuff);
+            if (any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT))) {
+                queue.opaqueQueue.recordCommandBuffer(
+                    ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+                if (bDrawInstancing) {
+                    queue.opaqueInstancingQueue.recordCommandBuffer(
+                        ctx.currentPass, ctx.cmdBuff);
+                }
             }
-        }
-        if (any(sceneData.flags & SceneFlags::UI)) {
-            submitUICommands(ctx.currentPass,
-                             ctx.currentPassLayoutID, camera, ctx.cmdBuff);
+            if (any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT)) {
+                queue.transparentQueue.recordCommandBuffer(
+                    ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+                if (bDrawInstancing) {
+                    queue.transparentInstancingQueue.recordCommandBuffer(
+                        ctx.currentPass, ctx.cmdBuff);
+                }
+            }
+            if (any(sceneData.flags & SceneFlags::UI)) {
+                submitUICommands(ctx.currentPass,
+                                 ctx.currentPassLayoutID, camera, ctx.cmdBuff);
+            }
         }
     }
     void begin(const Blit& blit, RenderGraph::vertex_descriptor vertID) const {
@@ -1558,13 +1564,13 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         if (!pso) {
             return;
         }
-        auto* perInstanceSet = ctx.perInstanceDescriptorSets.at(vertID);
+        // auto* perInstanceSet = ctx.perInstanceDescriptorSets.at(vertID);
         // execution
         ctx.cmdBuff->bindPipelineState(pso);
         ctx.cmdBuff->bindDescriptorSet(
             static_cast<uint32_t>(pipeline::SetIndex::MATERIAL), pass.getDescriptorSet());
-        ctx.cmdBuff->bindDescriptorSet(
-            static_cast<uint32_t>(pipeline::SetIndex::LOCAL), perInstanceSet);
+        // ctx.cmdBuff->bindDescriptorSet(
+        //     static_cast<uint32_t>(pipeline::SetIndex::LOCAL), perInstanceSet);
         ctx.cmdBuff->bindInputAssembler(ctx.context.fullscreenQuad.quadIA.get());
         ctx.cmdBuff->draw(ctx.context.fullscreenQuad.quadIA.get());
     }
@@ -2217,8 +2223,7 @@ void mergeSceneFlags(
     const LayoutGraphData& lg,
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
-        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>&
-        sceneQueues) {
+        ccstd::pmr::vector<NativeRenderQueue>> &sceneQueues) {
     for (const auto vertID : makeRange(vertices(rg))) {
         if (!holds<SceneTag>(vertID, rg)) {
             continue;
@@ -2234,11 +2239,11 @@ void mergeSceneFlags(
 
         const auto& sceneData = get(SceneTag{}, vertID, rg);
         const auto* scene = sceneData.camera->getScene();
-        if (scene) {
-            auto& queue = sceneQueues[scene][sceneData.camera];
-            queue.sceneFlags |= sceneData.flags;
-            queue.layoutPassID = layoutID;
-        }
+        sceneQueues[scene].emplace_back();
+        auto& queue = sceneQueues[scene].back();
+        queue.camera = sceneData.camera;
+        queue.sceneFlags = sceneData.flags;
+        queue.layoutPassID = layoutID;
     }
 }
 
@@ -2258,16 +2263,16 @@ void buildRenderQueues(
     NativeRenderContext& context,
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
-        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues) {
+        ccstd::pmr::vector<NativeRenderQueue>>& sceneQueues) {
     const scene::Skybox* skybox = sceneData.getSkybox();
 
     auto& group = context.resourceGroups[context.nextFenceValue];
 
     for (auto&& [scene, queues] : sceneQueues) {
         const scene::Octree* octree = scene->getOctree();
-        for (auto&& [camera, queue] : queues) {
-            CC_EXPECTS(camera);
-            if (!camera->isCullingEnabled()) {
+        for (auto&& queue : queues) {
+            auto *camera = queue.camera;
+            if (camera == nullptr || !camera->isCullingEnabled()) {
                 continue;
             }
 
@@ -2378,7 +2383,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     // scene culling
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
-        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>
+        ccstd::pmr::vector<NativeRenderQueue>>
         sceneQueues(scratch);
     {
         mergeSceneFlags(rg, lg, sceneQueues);
@@ -2412,7 +2417,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
 
         // upload buffers
         for (const auto& [scene, queues] : sceneQueues) {
-            for (const auto& [camera, queue] : queues) {
+            for (const auto& queue : queues) {
                 queue.opaqueInstancingQueue.uploadBuffers(submit.primaryCommandBuffer);
                 queue.transparentInstancingQueue.uploadBuffers(submit.primaryCommandBuffer);
             }

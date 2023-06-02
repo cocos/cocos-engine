@@ -712,6 +712,7 @@ struct NativeRenderQueue {
 
     void sort();
 
+    scene::Camera *camera = nullptr;
     RenderDrawQueue opaqueQueue;
     RenderDrawQueue transparentQueue;
     RenderInstancingQueue opaqueInstancingQueue;

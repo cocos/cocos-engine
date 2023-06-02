@@ -118,6 +118,7 @@ export function validPunctualLightsCulling (pipeline: BasicPipeline, camera: Cam
             validPunctualLights.push(light);
         }
     }
+    pipeline.pipelineSceneData.validPunctualLights = validPunctualLights;
 }
 
 const _cameras: Camera[] = [];
@@ -809,7 +810,7 @@ export class LightingInfo {
         this.deferredLightingMaterial.name = 'builtin-deferred-material';
         this.deferredLightingMaterial.initialize({
             effectName: 'pipeline/deferred-lighting',
-            defines: { CC_RECEIVE_SHADOW: 1 },
+            defines: { CC_ENABLE_CLUSTERED_LIGHT_CULLING: 1, CC_RECEIVE_SHADOW: 0 },
         });
         for (let i = 0; i < this.deferredLightingMaterial.passes.length; ++i) {
             this.deferredLightingMaterial.passes[i].tryCompile();
@@ -2228,7 +2229,7 @@ export function buildLightClusterBuildPass (camera: Camera, clusterData: Cluster
 
     const clusterBufferSize = CLUSTER_COUNT * 2 * 4;
     if (!ppl.containsResource(clusterBufferName)) {
-        ppl.addStorageBuffer(clusterBufferName, Format.UNKNOWN, clusterBufferSize, ResourceResidency.PERSISTENT);
+        ppl.addStorageBuffer(clusterBufferName, Format.UNKNOWN, clusterBufferSize, ResourceResidency.MANAGED);
     }
     ppl.updateStorageBuffer(clusterBufferName, clusterBufferSize);
 
@@ -2250,19 +2251,19 @@ export function buildLightClusterCullingPass (camera: Camera, clusterData: Clust
     ppl: Pipeline) {
     const cameraID = getCameraUniqueID(camera);
     const clusterBufferName = `clusterBuffer${cameraID}`;
-    const clusterLightBufferName = `clusterLightBuffer${cameraID}`;
-    const clusterGlobalIndexBufferName = `b_globalIndexBuffer${cameraID}`;
-    const clusterLightIndicesBufferName = `clusterLIghtIndicesBuffer${cameraID}`;
+    const clusterLightBufferName = `clusterLightBuffer`;
+    const clusterGlobalIndexBufferName = `globalIndexBuffer${cameraID}`;
+    const clusterLightIndicesBufferName = `clusterLightIndicesBuffer${cameraID}`;
     const clusterLightGridBufferName = `clusterLightGridBuffer${cameraID}`;
 
     // index buffer
     const lightIndexBufferSize = MAX_LIGHTS_PER_CLUSTER * CLUSTER_COUNT * 4;
     const lightGridBufferSize = CLUSTER_COUNT * 4 * 4;
     if (!ppl.containsResource(clusterLightIndicesBufferName)) {
-        ppl.addStorageBuffer(clusterLightIndicesBufferName, Format.UNKNOWN, lightIndexBufferSize, ResourceResidency.PERSISTENT);
+        ppl.addStorageBuffer(clusterLightIndicesBufferName, Format.UNKNOWN, lightIndexBufferSize, ResourceResidency.MANAGED);
     }
     if (!ppl.containsResource(clusterLightGridBufferName)) {
-        ppl.addStorageBuffer(clusterLightGridBufferName, Format.UNKNOWN, lightGridBufferSize, ResourceResidency.PERSISTENT);
+        ppl.addStorageBuffer(clusterLightGridBufferName, Format.UNKNOWN, lightGridBufferSize, ResourceResidency.MANAGED);
     }
 
     const clusterPass = ppl.addComputePass('cluster-culling-cs');
@@ -2283,7 +2284,7 @@ export function buildLightClusterCullingPass (camera: Camera, clusterData: Clust
     clusterPass.setMat4('cc_matProjInv', camera.matProjInv);
 }
 
-export function buildLightData (camera: Camera, pipeline: BasicPipeline) {
+export function buildClusterLightData (camera: Camera, pipeline: BasicPipeline) {
     validPunctualLightsCulling(pipeline, camera);
 
     // build cluster light data
@@ -2297,8 +2298,8 @@ export function buildLightData (camera: Camera, pipeline: BasicPipeline) {
     const exposure = camera.exposure;
 
     const cameraID = getCameraUniqueID(camera);
-    const clusterLightBufferName = `clusterLightBuffer${cameraID}`;
-    const clusterGlobalIndexBufferName = `b_globalIndexBuffer${cameraID}`;
+    const clusterLightBufferName = `clusterLightBuffer`;
+    const clusterGlobalIndexBufferName = `globalIndexBuffer${cameraID}`;
 
     const ppl = (pipeline as Pipeline);
     if (!ppl.containsResource(clusterGlobalIndexBufferName)) {
@@ -2414,7 +2415,7 @@ export function buildLightData (camera: Camera, pipeline: BasicPipeline) {
 }
 
 export function buildClusterPasses (camera: Camera, pipeline: BasicPipeline) {
-    buildLightData(camera, pipeline);
+    buildClusterLightData(camera, pipeline);
 
     const ppl = (pipeline as Pipeline);
     if (!_clusterLightData) _clusterLightData = new ClusterLightData();
