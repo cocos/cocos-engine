@@ -220,7 +220,7 @@ void SubModel::onPipelineStateChanged() {
 }
 
 void SubModel::onMacroPatchesStateChanged(const ccstd::vector<IMacroPatch> &patches) {
-    if (patches.empty() && patches.empty()) {
+    if (patches.empty() && _patches.empty()) {
         return;
     }
 
