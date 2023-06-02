@@ -1,0 +1,37 @@
+name: API issue report
+description: Create a report to help us improve
+labels: ["Needs Triage","Bug","Doc"]
+body:
+
+- type: markdown
+  attributes:
+    value: |
+      Please write a descriptive issue title above.
+      
+      **Before You Start:**
+      - Make sure you are reporting issue in [Creator API documentation](https://docs.cocos.com/creator/api/en/), please goto [Cocos Docs repository](https://github.com/cocos/cocos-docs) for reporting [User Manual](https://docs.cocos.com/creator/manual/en/) issues.
+
+      **Thanks for taking the time to fill out this form!** 
+
+- type: input
+  attributes:
+    label: API documentation URL
+    description: >
+      The API document page which contains wrong information or misses information.
+    placeholder: https://docs.cocos.com/creator/api/en/classes/Node.html
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Issue description
+    description: |
+      Describe the issue briefly. Which API is wrong or missing? What kind of issue it has? Description issue, naming issue, parameter issue or return value issue?
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Suggested correction
+    description: |
+      Do you have any suggestion to correct the issue? Please also feel free to provide a pull request to fix the issue.
