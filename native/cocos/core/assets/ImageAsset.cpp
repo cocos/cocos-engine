@@ -74,6 +74,7 @@ IntrusivePtr<ImageAsset> ImageAsset::extractMipmap0() {
     res->_height = _height;
     res->_format = _format;
     res->_uuid = _uuid;
+    res->_nativeUrl = _nativeUrl;
 
     if (!_mipmapLevelDataSize.empty()) {
         res->_data = _data;
@@ -99,10 +100,11 @@ std::vector<IntrusivePtr<ImageAsset>> ImageAsset::extractMipmaps() {
             mipmap->_height = height;
             mipmap->_format = _format;
             mipmap->_uuid = _uuid;
+            mipmap->_nativeUrl = _nativeUrl;
 
+            offset += mipmapSize;
             width = std::max(width >> 1, 1U);
             height = std::max(height >> 1, 1U);
-
             res.emplace_back(mipmap);
         }
     } else {
