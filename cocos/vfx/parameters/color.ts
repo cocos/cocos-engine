@@ -92,10 +92,6 @@ export class ColorArrayParameter extends ArrayParameter {
 }
 
 export class ColorParameter extends VFXParameter {
-    get isArray (): boolean {
-        return false;
-    }
-
     get type (): VFXParameterType {
         return VFXParameterType.COLOR;
     }

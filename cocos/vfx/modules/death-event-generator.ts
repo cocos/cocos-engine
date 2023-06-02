@@ -29,7 +29,6 @@ import { C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, 
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
-import { Vec3ArrayParameter, ColorArrayParameter, Uint32Parameter, Mat4Parameter, Uint32ArrayParameter, BoolArrayParameter, BoolParameter } from '../parameters';
 import { VFXEventInfo } from '../vfx-events';
 
 const eventInfo = new VFXEventInfo();
@@ -42,28 +41,28 @@ export class DeathEventGeneratorModule extends VFXModule {
     public probability = 1;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(P_RANDOM_SEED);
-        particles.markRequiredParameter(P_ID);
-        particles.markRequiredParameter(P_IS_DEAD);
+        particles.ensureParameter(P_RANDOM_SEED);
+        particles.ensureParameter(P_ID);
+        particles.ensureParameter(P_IS_DEAD);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
-        const id = particles.getParameterUnsafe<Uint32ArrayParameter>(P_ID).data;
-        const isDead = particles.getParameterUnsafe<BoolArrayParameter>(P_IS_DEAD).data;
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const localToWorld = emitter.getParameterUnsafe<Mat4Parameter>(E_LOCAL_TO_WORLD).data;
-        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
+        const randomSeed = particles.getUint32ArrayParameter(P_RANDOM_SEED).data;
+        const id = particles.getUint32ArrayParameter(P_ID).data;
+        const isDead = particles.getBoolArrayParameter(P_IS_DEAD).data;
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const localToWorld = emitter.getMat4Parameter(E_LOCAL_TO_WORLD).data;
+        const isWorldSpace = emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
         const { events } = context;
         const randomOffset = this.randomSeed;
         const hasVelocity = particles.hasParameter(P_VELOCITY);
         const hasColor = particles.hasParameter(P_COLOR);
         const hasPosition = particles.hasParameter(P_POSITION);
         const probability = this.probability;
-        const velocity = hasVelocity ? particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY) : null;
-        const color = hasColor ? particles.getParameterUnsafe<ColorArrayParameter>(P_COLOR) : null;
-        const position = hasPosition ? particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION) : null;
+        const velocity = hasVelocity ? particles.getVec3ArrayParameter(P_VELOCITY) : null;
+        const color = hasColor ? particles.getColorArrayParameter(P_COLOR) : null;
+        const position = hasPosition ? particles.getVec3ArrayParameter(P_POSITION) : null;
 
         if (!approx(probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {

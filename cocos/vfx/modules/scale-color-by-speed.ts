@@ -27,7 +27,6 @@ import { ColorExpression, ConstantColorExpression, ConstantFloatExpression, Floa
 import { ContextDataSet, ParticleDataSet, UserDataSet, EmitterDataSet } from '../data-set';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Color, math, Vec3 } from '../../core';
-import { Uint32Parameter, Vec3ArrayParameter, ColorArrayParameter } from '../parameters';
 import { P_COLOR, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempVelocity = new Vec3();
@@ -90,7 +89,7 @@ export class ScaleColorBySpeedModule extends VFXModule {
     private _maxSpeedThreshold: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(P_COLOR);
+        particles.ensureParameter(P_COLOR);
         this.maxScalar.tick(particles, emitter, user, context);
         this.minScalar.tick(particles, emitter, user, context);
         this.minSpeedThreshold.tick(particles, emitter, user, context);
@@ -100,10 +99,10 @@ export class ScaleColorBySpeedModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         const hasVelocity = particles.hasParameter(P_VELOCITY);
         if (!hasVelocity) { return; }
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
-        const color = particles.getParameterUnsafe<ColorArrayParameter>(P_COLOR);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const velocity = particles.getVec3ArrayParameter(P_VELOCITY);
+        const color = particles.getColorArrayParameter(P_COLOR);
         const minSpeedThresholdExp = this._minSpeedThreshold as FloatExpression;
         const maxSpeedThresholdExp = this._maxSpeedThreshold as FloatExpression;
         const minScalarExp = this._minScalar as ColorExpression;

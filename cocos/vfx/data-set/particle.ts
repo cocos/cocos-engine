@@ -41,7 +41,7 @@ export class ParticleDataSet extends VFXDataSet {
     private _capacity = 16;
 
     constructor () {
-        super(VFXParameterNameSpace.PARTICLE, true);
+        super(VFXParameterNameSpace.PARTICLE);
     }
 
     public addParticles (count: number) {
@@ -64,7 +64,10 @@ export class ParticleDataSet extends VFXDataSet {
         if (lastParticle !== handle) {
             const parameters = this.parameters;
             for (let i = 0, length = this.parameterCount; i < length; i++) {
-                (parameters[i] as ArrayParameter).move(lastParticle, handle);
+                const parameter = parameters[i];
+                if (parameter.isArray) {
+                    (parameter as ArrayParameter).move(lastParticle, handle);
+                }
             }
         }
         this._count -= 1;
@@ -75,7 +78,10 @@ export class ParticleDataSet extends VFXDataSet {
         this._capacity = capacity;
         const parameters = this.parameters;
         for (let i = 0, length = this.parameterCount; i < length; i++) {
-            (parameters[i] as ArrayParameter).reserve(capacity);
+            const parameter = parameters[i];
+            if (parameter.isArray) {
+                (parameter as ArrayParameter).reserve(capacity);
+            }
         }
     }
 
@@ -88,14 +94,10 @@ export class ParticleDataSet extends VFXDataSet {
         super.reset();
     }
 
-    public markRequiredParameter (identity: VFXParameterIdentity) {
-        if (!this.hasParameter(identity)) {
-            this.addParameter(identity);
-        }
-    }
-
     protected doAddParameter (identity: VFXParameterIdentity) {
-        const parameter = this.getParameterUnsafe<ArrayParameter>(identity);
-        parameter.reserve(this._capacity);
+        if (identity.isArray) {
+            const parameter = this.getParameterUnsafe<ArrayParameter>(identity);
+            parameter.reserve(this._capacity);
+        }
     }
 }

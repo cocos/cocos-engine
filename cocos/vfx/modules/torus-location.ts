@@ -29,7 +29,6 @@ import { Enum, TWO_PI, Vec3, clamp } from '../../core';
 import { ParticleDataSet, EmitterDataSet, ContextDataSet, UserDataSet } from '../data-set';
 import { ShapeLocationModule } from './shape-location';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
-import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 export enum TorusDistributionMode {
@@ -176,9 +175,9 @@ export class TorusLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet): void {
         super.execute(particles, emitter, user, context);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const position = particles.getVec3ArrayParameter(P_POSITION);
         const largeRadiusExp = this._largeRadius as FloatExpression;
         const handleRadiusExp = this._handleRadius as FloatExpression;
         largeRadiusExp.bind(particles, emitter, user, context);

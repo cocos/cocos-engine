@@ -119,7 +119,7 @@ export abstract class ShapeLocationModule extends VFXModule {
         this.rotation.tick(particles, emitter, user, context);
         this.scale.tick(particles, emitter, user, context);
         this.origin.tick(particles, emitter, user, context);
-        particles.markRequiredParameter(P_POSITION);
+        particles.ensureParameter(P_POSITION);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {

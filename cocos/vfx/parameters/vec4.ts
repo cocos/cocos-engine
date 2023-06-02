@@ -170,9 +170,6 @@ export class Vec4ArrayParameter extends ArrayParameter {
 }
 
 export class Vec4Parameter extends VFXParameter {
-    get isArray (): boolean {
-        return false;
-    }
     get type (): VFXParameterType {
         return VFXParameterType.VEC4;
     }

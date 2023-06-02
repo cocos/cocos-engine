@@ -28,7 +28,6 @@ import { Vec3 } from '../../core';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
-import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { P_VELOCITY, P_SCALE, P_SPRITE_SIZE, P_POSITION, P_BASE_VELOCITY, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const _tempVec3 = new Vec3();
@@ -52,18 +51,18 @@ export class DragModule extends VFXModule {
     private _drag: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(P_POSITION);
-        particles.markRequiredParameter(P_BASE_VELOCITY);
-        particles.markRequiredParameter(P_VELOCITY);
-        particles.markRequiredParameter(P_PHYSICS_FORCE);
+        particles.ensureParameter(P_POSITION);
+        particles.ensureParameter(P_BASE_VELOCITY);
+        particles.ensureParameter(P_VELOCITY);
+        particles.ensureParameter(P_PHYSICS_FORCE);
         this.drag.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(P_PHYSICS_FORCE);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
+        const physicsForce = particles.getVec3ArrayParameter(P_PHYSICS_FORCE);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const velocity = particles.getVec3ArrayParameter(P_VELOCITY);
         const dragExp = this._drag as FloatExpression;
         dragExp.bind(particles, emitter, user, context);
 

@@ -28,7 +28,6 @@ import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet, ContextDataSet, UserDataSet, EmitterDataSet } from '../data-set';
 import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { Vec3ArrayParameter, Uint32Parameter } from '../parameters';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempPos = new Vec3();
@@ -55,14 +54,14 @@ export class SetPositionModule extends VFXModule {
     private _position: Vec3Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(P_POSITION);
+        particles.ensureParameter(P_POSITION);
         this.position.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const position = particles.getVec3ArrayParameter(P_POSITION);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const positionExp = this._position as Vec3Expression;
         positionExp.bind(particles, emitter, user, context);
         if (positionExp.isConstant) {

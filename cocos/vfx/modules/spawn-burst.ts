@@ -75,8 +75,8 @@ export class SpawnBurstModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const loopAge = emitter.getParameterUnsafe<FloatParameter>(E_LOOPED_AGE).data;
-        const deltaTime = context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data;
+        const loopAge = emitter.getFloatParameter(E_LOOPED_AGE).data;
+        const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
         const countExp = this._count as FloatExpression;
         const timeExp = this._time as FloatExpression;
         countExp.bind(particles, emitter, user, context);

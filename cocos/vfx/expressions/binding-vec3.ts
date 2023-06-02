@@ -56,13 +56,13 @@ export class BindingVec3Expression extends Vec3Expression {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (this._bindParameter?.namespace === VFXParameterNameSpace.PARTICLE) {
-            particles.markRequiredParameter(this._bindParameter);
+            particles.ensureParameter(this._bindParameter);
         }
     }
 
     public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (this._bindParameter?.namespace === VFXParameterNameSpace.PARTICLE) {
-            this._data = particles.getParameterUnsafe<Vec3ArrayParameter>(this._bindParameter);
+            this._data = particles.getVec3ArrayParameter(this._bindParameter);
             this._getVec3 = this._getVec3At;
         } else {
             this._getVec3 = this._getConstant;

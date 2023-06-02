@@ -115,10 +115,6 @@ export class FloatArrayParameter extends ArrayParameter {
 }
 
 export class FloatParameter extends VFXParameter {
-    get isArray (): boolean {
-        return false;
-    }
-
     get type (): VFXParameterType {
         return VFXParameterType.FLOAT;
     }

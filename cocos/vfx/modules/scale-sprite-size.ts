@@ -28,7 +28,7 @@ import { CCBoolean, Vec2 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
-import { Vec2ArrayParameter, Uint32Parameter } from '../parameters';
+import { Vec2ArrayParameter } from '../parameters';
 import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_BASE_SPRITE_SIZE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempVec2 = new Vec2();
@@ -78,9 +78,9 @@ export class ScaleSpriteSizeModule extends VFXModule {
     private _scalar: Vec2Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(P_SPRITE_SIZE);
+        particles.ensureParameter(P_SPRITE_SIZE);
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(P_BASE_SPRITE_SIZE);
+            particles.ensureParameter(P_BASE_SPRITE_SIZE);
         }
         if (!this.separateAxes) {
             this.uniformScalar.tick(particles, emitter, user, context);
@@ -90,9 +90,9 @@ export class ScaleSpriteSizeModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const spriteSize = particles.getParameterUnsafe<Vec2ArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_SPRITE_SIZE : P_SPRITE_SIZE);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const spriteSize = particles.getVec2ArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_SPRITE_SIZE : P_SPRITE_SIZE);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         if (!this.separateAxes) {
             const uniformScalarExp = this._uniformScalar as FloatExpression;
             uniformScalarExp.bind(particles, emitter, user, context);

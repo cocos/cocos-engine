@@ -28,7 +28,6 @@ import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module'
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { Vec2 } from '../../core';
-import { Vec2ArrayParameter, Uint32Parameter } from '../parameters';
 import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_BASE_SPRITE_SIZE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempSize = new Vec2();
@@ -73,10 +72,10 @@ export class SetSpriteSizeModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(P_BASE_SPRITE_SIZE);
+            particles.ensureParameter(P_BASE_SPRITE_SIZE);
         }
 
-        particles.markRequiredParameter(P_SPRITE_SIZE);
+        particles.ensureParameter(P_SPRITE_SIZE);
         if (this.separateAxes) {
             this.size.tick(particles, emitter, user, context);
         } else {
@@ -85,9 +84,9 @@ export class SetSpriteSizeModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.getParameterUnsafe<Vec2ArrayParameter>(P_BASE_SPRITE_SIZE) : particles.getParameterUnsafe<Vec2ArrayParameter>(P_SPRITE_SIZE);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.getVec2ArrayParameter(P_BASE_SPRITE_SIZE) : particles.getVec2ArrayParameter(P_SPRITE_SIZE);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         if (this.separateAxes) {
             const sizeExp = this._size as Vec2Expression;
             sizeExp.bind(particles, emitter, user, context);

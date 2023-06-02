@@ -30,7 +30,6 @@ import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
 import { VFXEmitterState } from '../vfx-emitter';
-import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { P_VELOCITY, P_POSITION, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 export class PerlinNoise1DCache {
@@ -514,9 +513,9 @@ export class CurlNoiseForceModule extends VFXModule {
     }
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(P_POSITION);
-        particles.markRequiredParameter(P_VELOCITY);
-        particles.markRequiredParameter(P_PHYSICS_FORCE);
+        particles.ensureParameter(P_POSITION);
+        particles.ensureParameter(P_VELOCITY);
+        particles.ensureParameter(P_PHYSICS_FORCE);
         if (this.separateAxes) {
             this.strength.tick(particles, emitter, user, context);
         } else {
@@ -526,10 +525,10 @@ export class CurlNoiseForceModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const samplePosition = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
-        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(P_PHYSICS_FORCE);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const samplePosition = particles.getVec3ArrayParameter(P_POSITION);
+        const physicsForce = particles.getVec3ArrayParameter(P_PHYSICS_FORCE);
         const frequencyExp = this._frequency as FloatExpression;
         const strengthExp = this._strength as Vec3Expression;
         const uniformStrengthExp = this._uniformStrength as FloatExpression;

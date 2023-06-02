@@ -28,7 +28,6 @@ import { lerp, math, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
-import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { P_SCALE, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempVelocity = new Vec3();
@@ -140,7 +139,7 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     private _maxSpeedThreshold: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(P_SCALE);
+        particles.ensureParameter(P_SCALE);
         if (this.separateAxes) {
             this.maxScalar.tick(particles, emitter, user, context);
             this.minScalar.tick(particles, emitter, user, context);
@@ -155,10 +154,10 @@ export class ScaleMeshSizeBySpeedModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         const hasVelocity = particles.hasParameter(P_VELOCITY);
         if (!hasVelocity) { return; }
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const scale = particles.getParameterUnsafe<Vec3ArrayParameter>(P_SCALE);
-        const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const scale = particles.getVec3ArrayParameter(P_SCALE);
+        const velocity = particles.getVec3ArrayParameter(P_VELOCITY);
         const minSpeedThresholdExp = this._minSpeedThreshold as FloatExpression;
         const maxSpeedThresholdExp = this._maxSpeedThreshold as FloatExpression;
         minSpeedThresholdExp.bind(particles, emitter, user, context);

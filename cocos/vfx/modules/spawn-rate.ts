@@ -27,7 +27,6 @@ import { ccclass, serializable, type, rangeMin } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
-import { FloatParameter } from '../parameters';
 import { C_DELTA_TIME, E_SPAWN_REMAINDER, E_LOOPED_AGE } from '../define';
 
 @ccclass('cc.SpawnRateModule')
@@ -57,9 +56,9 @@ export class SpawnRateModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet)  {
-        const deltaTime = context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data;
-        const spawnRemainder = emitter.getParameterUnsafe<FloatParameter>(E_SPAWN_REMAINDER);
-        const loopedAge = emitter.getParameterUnsafe<FloatParameter>(E_LOOPED_AGE).data;
+        const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
+        const spawnRemainder = emitter.getFloatParameter(E_SPAWN_REMAINDER);
+        const loopedAge = emitter.getFloatParameter(E_LOOPED_AGE).data;
         const rateExp = this._rate as FloatExpression;
         rateExp.bind(particles, emitter, user, context);
         const spawnRate = rateExp.evaluateSingle();

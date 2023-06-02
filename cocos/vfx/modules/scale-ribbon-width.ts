@@ -27,7 +27,6 @@ import { ccclass, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
-import { FloatArrayParameter, Uint32Parameter } from '../parameters';
 import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_RIBBON_WIDTH, P_BASE_RIBBON_WIDTH, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 @ccclass('cc.ScaleRibbonWidthModule')
@@ -52,17 +51,17 @@ export class ScaleRibbonWidthModule extends VFXModule {
     private _scalar: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(P_RIBBON_WIDTH);
+        particles.ensureParameter(P_RIBBON_WIDTH);
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(P_BASE_RIBBON_WIDTH);
+            particles.ensureParameter(P_BASE_RIBBON_WIDTH);
         }
         this.scalar.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const ribbonWidth = particles.getParameterUnsafe<FloatArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const ribbonWidth = particles.getFloatArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const scalarExp = this._scalar as FloatExpression;
         scalarExp.bind(particles, emitter, user, context);
         if (scalarExp.isConstant) {

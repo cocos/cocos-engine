@@ -65,6 +65,10 @@ export class VFXParameterIdentity {
         return this._namespace;
     }
 
+    public get isArray () {
+        return this._isArray;
+    }
+
     @visible(true)
     public get name () {
         return this._name;
@@ -82,17 +86,23 @@ export class VFXParameterIdentity {
     private _type: VFXParameterType = VFXParameterType.FLOAT;
     @serializable
     private _namespace: VFXParameterNameSpace = VFXParameterNameSpace.USER;
+    @serializable
+    private _isArray = false;
 
-    constructor (id: number, name: string, type: VFXParameterType, namespace: VFXParameterNameSpace) {
+    constructor (id: number, name: string, type: VFXParameterType, namespace: VFXParameterNameSpace, isArray: boolean) {
         this._id = id;
         this._name = name;
         this._type = type;
         this._namespace = namespace;
+        this._isArray = isArray;
     }
 }
 
 export abstract class VFXParameter {
-    abstract get isArray (): boolean;
+    get isArray () {
+        return false;
+    }
+    
     abstract get type (): VFXParameterType;
 }
 

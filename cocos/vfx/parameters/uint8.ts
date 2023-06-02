@@ -75,9 +75,6 @@ export class Uint8ArrayParameter extends ArrayParameter {
 }
 
 export class Uint8Parameter extends VFXParameter {
-    get isArray (): boolean {
-        return false;
-    }
     get type (): VFXParameterType {
         return VFXParameterType.UINT8;
     }

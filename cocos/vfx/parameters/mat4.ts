@@ -91,10 +91,6 @@ export class Mat4ArrayParameter extends ArrayParameter {
 }
 
 export class Mat4Parameter extends VFXParameter {
-    get isArray (): boolean {
-        return false;
-    }
-
     get type (): VFXParameterType {
         return VFXParameterType.MAT4;
     }

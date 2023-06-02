@@ -37,7 +37,7 @@ export class EmitterDataSet extends VFXDataSet {
     public spawnInfoCount = 0;
 
     constructor () {
-        super(VFXParameterNameSpace.EMITTER, false);
+        super(VFXParameterNameSpace.EMITTER);
         this.addParameter(E_IS_WORLD_SPACE);
         this.addParameter(E_CURRENT_DELAY);
         this.addParameter(E_AGE);

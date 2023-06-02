@@ -27,7 +27,6 @@ import { ccclass, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
-import { FloatArrayParameter, FloatParameter, Uint32Parameter } from '../parameters';
 import { P_SPRITE_ROTATION, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 @ccclass('cc.SpriteRotationRateModule')
@@ -49,15 +48,15 @@ export class SpriteRotationRateModule extends VFXModule {
     private _rate: FloatExpression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(P_SPRITE_ROTATION);
+        particles.ensureParameter(P_SPRITE_ROTATION);
         this.rate.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const spriteRotation = particles.getParameterUnsafe<FloatArrayParameter>(P_SPRITE_ROTATION);
-        const deltaTime = context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data;
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const spriteRotation = particles.getFloatArrayParameter(P_SPRITE_ROTATION);
+        const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const rateExp = this._rate as FloatExpression;
         rateExp.bind(particles, emitter, user, context);
         if (rateExp.isConstant) {

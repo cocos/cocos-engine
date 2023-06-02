@@ -94,7 +94,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
         const dynamicBufferUintView = this._dynamicBufferUintView;
         const vertexStreamSizeDynamic = this._vertexStreamSize;
         if (particles.hasParameter(P_POSITION)) {
-            const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION).data;
+            const position = particles.getVec3ArrayParameter(P_POSITION).data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 const xOffset = i * 3;
@@ -106,7 +106,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
             }
         }
         if (particles.hasParameter(P_MESH_ORIENTATION)) {
-            const rotation = particles.getParameterUnsafe<Vec3ArrayParameter>(P_MESH_ORIENTATION).data;
+            const rotation = particles.getVec3ArrayParameter(P_MESH_ORIENTATION).data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 const xOffset = i * 3;
@@ -118,7 +118,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
             }
         }
         if (particles.hasParameter(P_SCALE)) {
-            const scale = particles.getParameterUnsafe<Vec3ArrayParameter>(P_SCALE).data;
+            const scale = particles.getVec3ArrayParameter(P_SCALE).data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 const xOffset = i * 3;
@@ -130,14 +130,14 @@ export class MeshParticleRenderer extends ParticleRenderer {
             }
         }
         if (particles.hasParameter(P_SUB_UV_INDEX1)) {
-            const subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX1);
+            const subUVIndex = particles.getFloatArrayParameter(P_SUB_UV_INDEX1);
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 dynamicBuffer[offset + 9] = subUVIndex[i];
             }
         }
         if (particles.hasParameter(P_COLOR)) {
-            const color = particles.getParameterUnsafe<ColorArrayParameter>(P_COLOR).data;
+            const color = particles.getColorArrayParameter(P_COLOR).data;
             for (let i = 0; i < count; i++) {
                 const offset = i * vertexStreamSizeDynamic;
                 dynamicBufferUintView[offset + 10] = color[i];
@@ -158,7 +158,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
         if (this.facingMode === MeshFacingMode.NONE) {
             currentRotation = Quat.IDENTITY;
         } else if (this.facingMode === MeshFacingMode.VELOCITY) {
-            currentRotation = emitter.getParameterUnsafe<QuatParameter>(E_WORLD_ROTATION).data;
+            currentRotation = emitter.getQuatParameter(E_WORLD_ROTATION).data;
         } else if (this.facingMode === MeshFacingMode.CAMERA) {
             currentRotation = Quat.IDENTITY;
             // const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
@@ -183,7 +183,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
     }
 
     private _updateRenderScale (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
-        const renderScale = emitter.getParameterUnsafe<Vec3Parameter>(E_RENDER_SCALE).data;
+        const renderScale = emitter.getVec3Parameter(E_RENDER_SCALE).data;
         if (!Vec3.equals(renderScale, this._renderScale)) {
             this._renderScale.set(renderScale.x, renderScale.y, renderScale.z);
             material.setProperty('scale', this._renderScale);
@@ -192,7 +192,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
 
     private _compileMaterial (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let needRecompile = false;
-        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
+        const isWorldSpace = emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
         if (this._defines[CC_VFX_E_IS_WORLD_SPACE] !== isWorldSpace) {
             this._defines[CC_VFX_E_IS_WORLD_SPACE] = isWorldSpace;
             needRecompile = true;

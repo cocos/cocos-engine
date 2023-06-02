@@ -57,7 +57,7 @@ export class RandomRangeVec3Expression extends Vec3Expression {
         this.maximum.tick(particles, emitter, user, context);
         this.minimum.tick(particles, emitter, user, context);
         if (context.executionStage === ModuleExecStage.UPDATE) {
-            particles.markRequiredParameter(P_RANDOM_SEED);
+            particles.ensureParameter(P_RANDOM_SEED);
         }
     }
 
@@ -65,7 +65,7 @@ export class RandomRangeVec3Expression extends Vec3Expression {
         this.maximum.bind(particles, emitter, user, context);
         this.minimum.bind(particles, emitter, user, context);
         if (context.executionStage === ModuleExecStage.UPDATE) {
-            this._seed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
+            this._seed = particles.getUint32ArrayParameter(P_RANDOM_SEED).data;
             this._randomOffset = context.moduleRandomSeed;
         } else {
             this._randomStream = context.moduleRandomStream;

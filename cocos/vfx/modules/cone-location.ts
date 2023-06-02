@@ -28,7 +28,6 @@ import { TWO_PI, Vec3, clamp } from '../../core';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ShapeLocationModule } from './shape-location';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
-import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { degreesToRadians } from '../../core/utils/misc';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
@@ -119,9 +118,9 @@ export class ConeLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const position = particles.getVec3ArrayParameter(P_POSITION);
         const lengthExp = this._length as FloatExpression;
         const angleExp = this._angle as FloatExpression;
         const innerAngleExp = this._innerAngle as FloatExpression;

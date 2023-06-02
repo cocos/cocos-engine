@@ -174,9 +174,6 @@ export class Vec3ArrayParameter extends ArrayParameter {
 }
 
 export class Vec3Parameter extends VFXParameter {
-    get isArray (): boolean {
-        return false;
-    }
     get type (): VFXParameterType {
         return VFXParameterType.VEC3;
     }

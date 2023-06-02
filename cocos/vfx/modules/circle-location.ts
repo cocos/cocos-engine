@@ -28,7 +28,6 @@ import { Enum, TWO_PI, Vec3 } from '../../core';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
-import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { C_FROM_INDEX, C_TO_INDEX, P_POSITION } from '../define';
 
 const pos = new Vec3();
@@ -176,9 +175,9 @@ export class CircleLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const position = particles.getVec3ArrayParameter(P_POSITION);
         const radiusExp = this._radius as FloatExpression;
         radiusExp.bind(particles, emitter, user, context);
         if (this.distributionMode === DistributionMode.RANDOM) {

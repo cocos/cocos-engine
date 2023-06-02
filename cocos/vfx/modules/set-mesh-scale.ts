@@ -28,7 +28,6 @@ import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module'
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3 } from '../../core';
-import { Vec3ArrayParameter, Uint32Parameter } from '../parameters';
 import { P_SCALE, P_NORMALIZED_AGE, P_BASE_SCALE, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempScale = new Vec3();
@@ -71,10 +70,10 @@ export class SetMeshScaleModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(P_BASE_SCALE);
+            particles.ensureParameter(P_BASE_SCALE);
         }
 
-        particles.markRequiredParameter(P_SCALE);
+        particles.ensureParameter(P_SCALE);
         if (this.separateAxes) {
             this.scale.tick(particles, emitter, user, context);
         } else {
@@ -83,9 +82,9 @@ export class SetMeshScaleModule extends VFXModule {
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const scale = particles.getParameterUnsafe<Vec3ArrayParameter>(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_SCALE : P_SCALE);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const scale = particles.getVec3ArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_SCALE : P_SCALE);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         if (this.separateAxes) {
             const scaleExp = this._scale as Vec3Expression;
             scaleExp.bind(particles, emitter, user, context);

@@ -65,7 +65,7 @@ export class BindingFloatExpression extends FloatExpression {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (this._bindingParameter?.namespace === VFXParameterNameSpace.PARTICLE) {
-            particles.markRequiredParameter(this._bindingParameter);
+            particles.ensureParameter(this._bindingParameter);
         }
     }
 
@@ -77,19 +77,19 @@ export class BindingFloatExpression extends FloatExpression {
         }
         switch (this._bindingParameter.namespace) {
         case VFXParameterNameSpace.PARTICLE:
-            this._data = particles.getParameterUnsafe<FloatArrayParameter>(this._bindingParameter).data;
+            this._data = particles.getFloatArrayParameter(this._bindingParameter).data;
             this._getFloat = this._getFloatAt;
             break;
         case VFXParameterNameSpace.EMITTER:
-            this._constant = emitter.getParameterUnsafe<FloatParameter>(this._bindingParameter).data;
+            this._constant = emitter.getFloatParameter(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
         case VFXParameterNameSpace.USER:
-            this._constant = user.getParameterUnsafe<FloatParameter>(this._bindingParameter).data;
+            this._constant = user.getFloatParameter(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
         case VFXParameterNameSpace.CONTEXT:
-            this._constant = context.getParameterUnsafe<FloatParameter>(this._bindingParameter).data;
+            this._constant = context.getFloatParameter(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
         default:

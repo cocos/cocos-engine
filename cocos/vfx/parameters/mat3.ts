@@ -77,10 +77,6 @@ export class Mat3ArrayParameter extends ArrayParameter {
 }
 
 export class Mat3Parameter extends VFXParameter {
-    get isArray (): boolean {
-        return false;
-    }
-
     get type (): VFXParameterType {
         return VFXParameterType.MAT3;
     }

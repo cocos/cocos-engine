@@ -28,7 +28,6 @@ import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec2, Vec3 } from '../../core';
 import { ConstantVec2Expression, Vec2Expression } from '../expressions';
-import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const center = new Vec2();
@@ -74,9 +73,9 @@ export class PlaneLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const position = particles.getVec3ArrayParameter(P_POSITION);
         const planeSizeExp = this._planeSize as Vec2Expression;
         const planeCenterExp = this._planeCenter as Vec2Expression;
         planeSizeExp.bind(particles, emitter, user, context);

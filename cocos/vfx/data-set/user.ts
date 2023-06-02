@@ -28,6 +28,6 @@ import { VFXParameterNameSpace } from '../vfx-parameter';
 
 export class UserDataSet extends VFXDataSet {
     constructor () {
-        super(VFXParameterNameSpace.USER, false);
+        super(VFXParameterNameSpace.USER);
     }
 }

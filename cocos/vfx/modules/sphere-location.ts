@@ -29,7 +29,6 @@ import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '..
 import { ConstantFloatExpression, ConstantVec2Expression, FloatExpression, Vec2Expression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
 import { degreesToRadians } from '../../core/utils/misc';
-import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const pos = new Vec3();
@@ -180,9 +179,9 @@ export class SphereLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const position = particles.getVec3ArrayParameter(P_POSITION);
         const radiusExp = this._radius as FloatExpression;
         radiusExp.bind(particles, emitter, user, context);
         if (this.distributionMode === DistributionMode.RANDOM) {

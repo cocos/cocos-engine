@@ -51,22 +51,22 @@ export class GravityModule extends VFXModule {
     private _gravity: Vec3Expression | null = null;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(P_POSITION);
-        particles.markRequiredParameter(P_BASE_VELOCITY);
-        particles.markRequiredParameter(P_VELOCITY);
-        particles.markRequiredParameter(P_PHYSICS_FORCE);
+        particles.ensureParameter(P_POSITION);
+        particles.ensureParameter(P_BASE_VELOCITY);
+        particles.ensureParameter(P_VELOCITY);
+        particles.ensureParameter(P_PHYSICS_FORCE);
         this.gravity.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(P_PHYSICS_FORCE);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const needTransform = !emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
+        const physicsForce = particles.getVec3ArrayParameter(P_PHYSICS_FORCE);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const needTransform = !emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
         const gravityExp = this._gravity as Vec3Expression;
         gravityExp.bind(particles, emitter, user, context);
         if (needTransform) {
-            const transform = emitter.getParameterUnsafe<Mat3Parameter>(E_WORLD_TO_LOCAL_RS).data;
+            const transform = emitter.getMat3Parameter(E_WORLD_TO_LOCAL_RS).data;
             if (gravityExp.isConstant) {
                 const force = Vec3.transformMat3(gravity, gravityExp.evaluate(0, gravity), transform);
                 for (let i = fromIndex; i < toIndex; i++) {

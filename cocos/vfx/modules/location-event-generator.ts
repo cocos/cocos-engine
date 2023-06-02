@@ -29,7 +29,6 @@ import { C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WO
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
-import { BoolParameter, ColorArrayParameter, FloatArrayParameter, FloatParameter, Mat4Parameter, Uint32ArrayParameter, Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { VFXEventInfo } from '../vfx-events';
 
 const eventInfo = new VFXEventInfo();
@@ -43,30 +42,30 @@ export class LocationEventGeneratorModule extends VFXModule {
     public probability = 1;
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        particles.markRequiredParameter(P_INV_LIFETIME);
-        particles.markRequiredParameter(P_RANDOM_SEED);
-        particles.markRequiredParameter(P_NORMALIZED_AGE);
-        particles.markRequiredParameter(P_ID);
+        particles.ensureParameter(P_INV_LIFETIME);
+        particles.ensureParameter(P_RANDOM_SEED);
+        particles.ensureParameter(P_NORMALIZED_AGE);
+        particles.ensureParameter(P_ID);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const normalizedAge = particles.getParameterUnsafe<FloatArrayParameter>(P_NORMALIZED_AGE).data;
-        const randomSeed = particles.getParameterUnsafe<Uint32ArrayParameter>(P_RANDOM_SEED).data;
-        const invLifeTime = particles.getParameterUnsafe<FloatArrayParameter>(P_INV_LIFETIME).data;
-        const id = particles.getParameterUnsafe<Uint32ArrayParameter>(P_ID).data;
+        const normalizedAge = particles.getFloatArrayParameter(P_NORMALIZED_AGE).data;
+        const randomSeed = particles.getUint32ArrayParameter(P_RANDOM_SEED).data;
+        const invLifeTime = particles.getFloatArrayParameter(P_INV_LIFETIME).data;
+        const id = particles.getUint32ArrayParameter(P_ID).data;
         const randomOffset = this.randomSeed;
         const { events } = context;
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const deltaTime = context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data;
-        const localToWorld = emitter.getParameterUnsafe<Mat4Parameter>(E_LOCAL_TO_WORLD).data;
-        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
+        const localToWorld = emitter.getMat4Parameter(E_LOCAL_TO_WORLD).data;
+        const isWorldSpace = emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
         const hasVelocity = particles.hasParameter(P_VELOCITY);
         const hasColor = particles.hasParameter(P_COLOR);
         const hasPosition = particles.hasParameter(P_POSITION);
-        const velocity = hasVelocity ? particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY) : null;
-        const color = hasColor ? particles.getParameterUnsafe<ColorArrayParameter>(P_COLOR) : null;
-        const position = hasPosition ? particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION) : null;
+        const velocity = hasVelocity ? particles.getVec3ArrayParameter(P_VELOCITY) : null;
+        const color = hasColor ? particles.getColorArrayParameter(P_COLOR) : null;
+        const position = hasPosition ? particles.getVec3ArrayParameter(P_POSITION) : null;
         if (!approx(this.probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
                 if (RandomStream.getFloat(randomSeed[i] + randomOffset) > this.probability) {

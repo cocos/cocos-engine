@@ -75,9 +75,6 @@ export class Int32ArrayParameter extends ArrayParameter {
 }
 
 export class Int32Parameter extends VFXParameter {
-    get isArray (): boolean {
-        return false;
-    }
     get type (): VFXParameterType {
         return VFXParameterType.INT32;
     }

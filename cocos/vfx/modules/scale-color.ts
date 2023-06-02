@@ -28,7 +28,6 @@ import { Color } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { ColorExpression, ConstantColorExpression } from '../expressions';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
-import { Uint32Parameter, ColorArrayParameter } from '../parameters';
 import { P_NORMALIZED_AGE, P_BASE_COLOR, P_COLOR, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempColor = new Color();
@@ -56,16 +55,16 @@ export class ScaleColorModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.markRequiredParameter(P_BASE_COLOR);
+            particles.ensureParameter(P_BASE_COLOR);
         }
-        particles.markRequiredParameter(P_COLOR);
+        particles.ensureParameter(P_COLOR);
         this.scalar.tick(particles, emitter, user, context);
     }
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const color = particles.getParameterUnsafe<ColorArrayParameter>(context.executionStage === ModuleExecStage.UPDATE ? P_COLOR : P_BASE_COLOR);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const color = particles.getColorArrayParameter(context.executionStage === ModuleExecStage.UPDATE ? P_COLOR : P_BASE_COLOR);
         const scalarExp = this.scalar;
         scalarExp.bind(particles, emitter, user, context);
         if (scalarExp.isConstant) {

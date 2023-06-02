@@ -24,13 +24,12 @@
  */
 
 import { ccclass, type, serializable, visible } from 'cc.decorator';
-import { lerp, repeat, Enum, Vec2, CCBoolean } from '../../core';
+import { Enum, Vec2, CCBoolean } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { FloatExpression, ConstantVec2Expression, Vec2Expression, Int32Expression, ConstantInt32Expression } from '../expressions';
+import { ConstantVec2Expression, Vec2Expression, Int32Expression, ConstantInt32Expression } from '../expressions';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
-import { RandomStream } from '../random-stream';
-import { FloatArrayParameter, Uint32Parameter, Uint32ArrayParameter } from '../parameters';
-import { P_VELOCITY, P_NORMALIZED_AGE, P_SUB_UV_INDEX1, P_RANDOM_SEED, P_INV_LIFETIME, C_FROM_INDEX, C_TO_INDEX, P_SUB_UV_INDEX4, P_SUB_UV_INDEX2, P_SUB_UV_INDEX3 } from '../define';
+import { FloatArrayParameter } from '../parameters';
+import { P_VELOCITY, P_NORMALIZED_AGE, P_SUB_UV_INDEX1, C_FROM_INDEX, C_TO_INDEX, P_SUB_UV_INDEX4, P_SUB_UV_INDEX2, P_SUB_UV_INDEX3 } from '../define';
 
 export enum SubUVAnimationMode {
     LINEAR,
@@ -116,13 +115,13 @@ export class SubUVAnimationModule extends VFXModule {
 
     public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
-            particles.markRequiredParameter(P_SUB_UV_INDEX1);
+            particles.ensureParameter(P_SUB_UV_INDEX1);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX2) {
-            particles.markRequiredParameter(P_SUB_UV_INDEX2);
+            particles.ensureParameter(P_SUB_UV_INDEX2);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX3) {
-            particles.markRequiredParameter(P_SUB_UV_INDEX3);
+            particles.ensureParameter(P_SUB_UV_INDEX3);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX4) {
-            particles.markRequiredParameter(P_SUB_UV_INDEX4);
+            particles.ensureParameter(P_SUB_UV_INDEX4);
         }
         this.subImageSize.tick(particles, emitter, user, context);
         if (this.useStartFrameRangeOverride) {
@@ -136,16 +135,16 @@ export class SubUVAnimationModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         let subUVIndex: FloatArrayParameter;
         if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
-            subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX1);
+            subUVIndex = particles.getFloatArrayParameter(P_SUB_UV_INDEX1);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX2) {
-            subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX2);
+            subUVIndex = particles.getFloatArrayParameter(P_SUB_UV_INDEX2);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX3) {
-            subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX3);
+            subUVIndex = particles.getFloatArrayParameter(P_SUB_UV_INDEX3);
         } else {
-            subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX4);
+            subUVIndex = particles.getFloatArrayParameter(P_SUB_UV_INDEX4);
         }
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         if (this.subUVAnimationMode === SubUVAnimationMode.LINEAR) {
             for (let i = fromIndex; i < toIndex; i++) {
 

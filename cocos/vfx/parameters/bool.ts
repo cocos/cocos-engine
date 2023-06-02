@@ -100,10 +100,6 @@ export class BoolArrayParameter extends ArrayParameter {
 }
 
 export class BoolParameter extends VFXParameter {
-    get isArray (): boolean {
-        return false;
-    }
-
     get type (): VFXParameterType {
         return VFXParameterType.BOOL;
     }

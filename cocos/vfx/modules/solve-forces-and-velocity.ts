@@ -33,17 +33,17 @@ import { P_POSITION, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX, C_DELTA_TIME, P_PHYSI
 @VFXModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [P_POSITION.name], [P_VELOCITY.name])
 export class SolveForceAndVelocityModule extends VFXModule {
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const deltaTime = context.getParameterUnsafe<FloatParameter>(C_DELTA_TIME).data;
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
         if (particles.hasParameter(P_PHYSICS_FORCE) && particles.hasParameter(P_VELOCITY)) {
-            const physicsForce = particles.getParameterUnsafe<Vec3ArrayParameter>(P_PHYSICS_FORCE);
-            const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
+            const physicsForce = particles.getVec3ArrayParameter(P_PHYSICS_FORCE);
+            const velocity = particles.getVec3ArrayParameter(P_VELOCITY);
             Vec3ArrayParameter.scaleAndAdd(velocity, velocity, physicsForce, deltaTime, fromIndex, toIndex);
         }
         if (particles.hasParameter(P_VELOCITY) && particles.hasParameter(P_POSITION)) {
-            const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
-            const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
+            const position = particles.getVec3ArrayParameter(P_POSITION);
+            const velocity = particles.getVec3ArrayParameter(P_VELOCITY);
             Vec3ArrayParameter.scaleAndAdd(position, position, velocity, deltaTime, fromIndex, toIndex);
         }
     }

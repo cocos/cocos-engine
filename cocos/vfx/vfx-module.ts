@@ -156,7 +156,7 @@ export abstract class VFXModule {
     }
 
     @type(CCString)
-    private get name () {
+    public get name () {
         return VFXModule.getModuleIdentityByClass(this.constructor as Constructor<VFXModule>)?.name;
     }
 

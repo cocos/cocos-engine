@@ -56,7 +56,7 @@ export class ContextDataSet extends VFXDataSet {
     private _events: VFXEvents | null = null;
 
     constructor () {
-        super(VFXParameterNameSpace.CONTEXT, false);
+        super(VFXParameterNameSpace.CONTEXT);
         this.addParameter(C_DELTA_TIME);
         this.addParameter(C_FROM_INDEX);
         this.addParameter(C_TO_INDEX);

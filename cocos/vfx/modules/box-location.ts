@@ -28,7 +28,6 @@ import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { CCBoolean, Vec3 } from '../../core';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
-import { Uint32Parameter, Vec3ArrayParameter } from '../parameters';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
 
 const tempPosition = new Vec3();
@@ -99,9 +98,9 @@ export class BoxLocationModule extends ShapeLocationModule {
 
     public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
         super.execute(particles, emitter, user, context);
-        const fromIndex = context.getParameterUnsafe<Uint32Parameter>(C_FROM_INDEX).data;
-        const toIndex = context.getParameterUnsafe<Uint32Parameter>(C_TO_INDEX).data;
-        const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION);
+        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
+        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const position = particles.getVec3ArrayParameter(P_POSITION);
         const boxSizeExp = this._boxSize as Vec3Expression;
         const boxCenterExp = this._boxCenter as Vec3Expression;
         boxSizeExp.bind(particles, emitter, user, context);

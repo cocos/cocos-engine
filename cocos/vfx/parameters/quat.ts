@@ -143,10 +143,6 @@ export class QuatArrayParameter extends ArrayParameter {
 }
 
 export class QuatParameter extends VFXParameter {
-    get isArray (): boolean {
-        return false;
-    }
-
     get type (): VFXParameterType {
         return VFXParameterType.QUAT;
     }
