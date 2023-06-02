@@ -54,7 +54,6 @@ void InputAssembler::initialize(const InputAssemblerInfo &info) {
     _attributes = info.attributes;
     _vertexBuffers = info.vertexBuffers;
     _indexBuffer = info.indexBuffer;
-    _indirectBuffer = info.indirectBuffer;
     _attributesHash = computeAttributesHash();
 
     if (_indexBuffer) {
@@ -77,7 +76,6 @@ void InputAssembler::destroy() {
 
     _vertexBuffers.clear();
     _indexBuffer = nullptr;
-    _indirectBuffer = nullptr;
 
     _drawInfo = DrawInfo();
 }

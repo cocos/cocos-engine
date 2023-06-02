@@ -201,22 +201,10 @@ void ARBackground::activate(RenderPipeline *pipeline, gfx::Device *dev) {
     auto *indexBuffer = _device->createBuffer(indexBufferInfo);
     indexBuffer->update(indices, sizeof(indices));
 
-    gfx::DrawInfo drawInfo;
-    drawInfo.indexCount = 6;
-    gfx::BufferInfo indirectBufferInfo = {
-        gfx::BufferUsageBit::INDIRECT,
-        gfx::MemoryUsage::DEVICE,
-        sizeof(gfx::DrawInfo),
-        sizeof(gfx::DrawInfo),
-    };
-    auto *indirectBuffer = _device->createBuffer(indirectBufferInfo);
-    indirectBuffer->update(&drawInfo, sizeof(gfx::DrawInfo));
-
-    gfx::InputAssemblerInfo inputAssemblerInfo;
+    gfx::InputAssemblerInfo inputAssemblerInfo = {};
     inputAssemblerInfo.attributes = std::move(attributeList);
     inputAssemblerInfo.vertexBuffers.emplace_back(_vertexBuffer);
     inputAssemblerInfo.indexBuffer = indexBuffer;
-    inputAssemblerInfo.indirectBuffer = indirectBuffer;
     _inputAssembler = _device->createInputAssembler(inputAssemblerInfo);
 
 #pragma endregion
@@ -372,10 +360,14 @@ void ARBackground::render(cc::scene::Camera *camera, gfx::RenderPass *renderPass
 
     _pipelineState = _device->createPipelineState(pipelineInfo);
 
+    gfx::DrawInfo drawInfo;
+    drawInfo.indexCount = 6;
+
     cmdBuffer->bindInputAssembler(_inputAssembler);
     cmdBuffer->bindPipelineState(_pipelineState);
     cmdBuffer->bindDescriptorSet(materialSet, _descriptorSet);
-    cmdBuffer->draw(_inputAssembler);
+    cmdBuffer->bindInputAssembler(_inputAssembler);
+    cmdBuffer->draw(drawInfo);
 }
 
 template <typename T>

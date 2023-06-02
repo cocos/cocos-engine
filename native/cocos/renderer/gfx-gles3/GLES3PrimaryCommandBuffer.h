@@ -40,6 +40,8 @@ public:
     void endRenderPass() override;
     void nextSubpass() override;
     void draw(const DrawInfo &info) override;
+    void drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) override;
+    void drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) override;
     void setViewport(const Viewport &vp) override;
     void setScissor(const Rect &rect) override;
     void updateBuffer(Buffer *buff, const void *data, uint32_t size) override;

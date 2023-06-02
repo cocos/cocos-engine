@@ -1023,6 +1023,21 @@ struct BufferViewInfo {
     EXPOSE_COPY_FN(BufferViewInfo)
 };
 
+struct DrawIndirectCommand {
+    uint32_t vertexCount;
+    uint32_t instanceCount;
+    uint32_t firstVertex;
+    uint32_t firstInstance;
+};
+
+struct DrawIndexedIndirectCommand {
+    uint32_t indexCount;
+    uint32_t instanceCount;
+    uint32_t firstIndex;
+    int32_t vertexOffset;
+    uint32_t firstInstance;
+};
+
 struct DrawInfo {
     uint32_t vertexCount{0};
     uint32_t firstVertex{0};
@@ -1266,7 +1281,6 @@ struct InputAssemblerInfo {
     AttributeList attributes;
     BufferList vertexBuffers;
     Buffer *indexBuffer{nullptr};    // @ts-nullable
-    Buffer *indirectBuffer{nullptr}; // @ts-nullable
 
     EXPOSE_COPY_FN(InputAssemblerInfo)
 };
