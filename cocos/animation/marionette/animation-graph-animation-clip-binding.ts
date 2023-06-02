@@ -449,15 +449,15 @@ class AnimationClipAGEvaluationAdditive implements AnimationClipAGEvaluation {
         context: AnimationClipGraphBindingContext,
     ) {
         this._clipEval = new AnimationClipAGEvaluationRegular(clip, context);
-        const baseClip = clip[additiveSettingsTag].base;
-        if (baseClip && baseClip !== clip) {
-            this._baseEval = new AnimationClipAGEvaluationRegular(baseClip, context);
+        const refClip = clip[additiveSettingsTag].refClip;
+        if (refClip && refClip !== clip) {
+            this._refClipEval = new AnimationClipAGEvaluationRegular(refClip, context);
         }
     }
 
     public destroy () {
         this._clipEval.destroy();
-        this._baseEval?.destroy();
+        this._refClipEval?.destroy();
     }
 
     /**
@@ -469,21 +469,21 @@ class AnimationClipAGEvaluationAdditive implements AnimationClipAGEvaluation {
         // Evaluate this clip.
         const pose = this._clipEval.evaluate(time, context);
 
-        let basePose: Pose;
-        if (this._baseEval) {
-            const baseEvalTime = 0.0; // TODO: base clip may specify a time?
-            basePose = this._baseEval.evaluate(baseEvalTime, context);
+        let refPose: Pose;
+        if (this._refClipEval) {
+            const refClipTime = 0.0; // TODO: ref clip may specify a time?
+            refPose = this._refClipEval.evaluate(refClipTime, context);
         } else {
-            // If the base clip is not specified,
-            // The effect is as if the base pose is the 0 time of original clip.
-            basePose = this._clipEval.evaluate(0.0, context);
+            // If the ref clip is not specified,
+            // The effect is as if the ref pose is the 0 time of original clip.
+            refPose = this._clipEval.evaluate(0.0, context);
         }
-        calculateDeltaPose(pose, basePose);
+        calculateDeltaPose(pose, refPose);
         context.popPose();
 
         return pose;
     }
 
     private _clipEval: AnimationClipAGEvaluationRegular;
-    private _baseEval: AnimationClipAGEvaluationRegular | undefined;
+    private _refClipEval: AnimationClipAGEvaluationRegular | undefined;
 }

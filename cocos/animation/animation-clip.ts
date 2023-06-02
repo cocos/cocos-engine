@@ -1021,7 +1021,7 @@ class AdditiveSettings {
     public enabled = false;
 
     @serializable
-    public base: AnimationClip | null = null;
+    public refClip: AnimationClip | null = null;
 }
 
 export { AdditiveSettings as AnimationClipAdditiveSettings };
