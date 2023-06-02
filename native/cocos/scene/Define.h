@@ -33,6 +33,10 @@ namespace scene {
 struct IMacroPatch {
     ccstd::string name;
     MacroValue value;
+
+    bool operator==(const IMacroPatch& rhs) const {
+        return rhs.name == name && rhs.value == value;
+    }
 };
 
 } // namespace scene
