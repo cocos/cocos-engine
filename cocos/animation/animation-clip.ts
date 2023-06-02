@@ -239,7 +239,16 @@ export class AnimationClip extends Asset {
     }
 
     /**
+     * Gets if this animation clip contains additive animation.
+     * @experimental
+     */
+    get isAdditive_experimental () {
+        return this._additiveSettings.enabled;
+    }
+
+    /**
      * Accesses the additive animation settings.
+     * @internal
      */
     get [additiveSettingsTag] () {
         return this._additiveSettings;
@@ -1009,7 +1018,10 @@ export class AnimationClip extends Asset {
 @ccclass('cc.AnimationClipAdditiveSettings')
 class AdditiveSettings {
     @serializable
-    base: AnimationClip | null = null;
+    public enabled = false;
+
+    @serializable
+    public refClip: AnimationClip | null = null;
 }
 
 export { AdditiveSettings as AnimationClipAdditiveSettings };

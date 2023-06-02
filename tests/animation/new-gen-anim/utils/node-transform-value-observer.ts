@@ -1,5 +1,5 @@
 import { QuatTrack, VectorTrack } from "../../../../cocos/animation/animation";
-import { AnimationClip } from "../../../../cocos/animation/animation-clip";
+import { additiveSettingsTag, AnimationClip } from "../../../../cocos/animation/animation-clip";
 import { ClipMotion } from "../../../../cocos/animation/marionette/motion";
 import { Quat, toDegree, toRadian, Vec3 } from "../../../../cocos/core";
 import { Node } from "../../../../cocos/scene-graph";
@@ -83,11 +83,13 @@ export class NodeTransformValueObserver {
                 keyframes, {
                 name = '',
                 duration,
+                additive = false,
             }) {
                 const clip = new AnimationClip();
                 clip.name = name;
                 clip.enableTrsBlending = true;
                 clip.duration = duration;
+                clip[additiveSettingsTag].enabled = additive;
                 { // translation
                     const track = new VectorTrack();
                     track.componentsCount = 3;
