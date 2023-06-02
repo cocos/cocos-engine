@@ -220,13 +220,13 @@ void SubModel::onPipelineStateChanged() {
 }
 
 void SubModel::onMacroPatchesStateChanged(const ccstd::vector<IMacroPatch> &patches) {
-    if (!patches.empty() && !patches.empty()) {
+    if (patches.empty() && patches.empty()) {
         return;
     }
 
     ccstd::vector<IMacroPatch> tmp = patches;
     std::sort(tmp.begin(), tmp.end(), IMacroPatch::compare);
-    if (std::equal(std::begin(tmp), std::end(tmp), std::begin(_patches))) {
+    if (std::equal(std::begin(tmp), std::end(tmp), std::begin(_patches), std::end(_patches))) {
         return;
     }
     _patches = tmp;
