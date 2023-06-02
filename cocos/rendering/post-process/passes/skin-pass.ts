@@ -230,8 +230,8 @@ export class SkinPass extends SettingPass {
         let halfExtents = new Vec3(0.2, 0.2, 0.2);
         const standardSkinModel = pipelineSceneData.standardSkinModel;
         const skinMaterialModel = pipelineSceneData.skinMaterialModel;
-        if (standardSkinModel && (standardSkinModel as MeshRenderer).model) {
-            halfExtents = (standardSkinModel as MeshRenderer).model!.worldBounds.halfExtents;
+        if (standardSkinModel && standardSkinModel.model) {
+            halfExtents = standardSkinModel.model.worldBounds.halfExtents;
         } else if (skinMaterialModel) {
             halfExtents = skinMaterialModel.worldBounds.halfExtents;
         }

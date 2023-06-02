@@ -37,6 +37,7 @@ import { Skin } from '../render-scene/scene/skin';
 import { ModelRenderer } from '../misc/model-renderer';
 import { scene } from '../render-scene';
 import { Model } from '../render-scene/scene';
+import { MeshRenderer } from '../3d/framework/mesh-renderer';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
 
@@ -82,8 +83,8 @@ export class PipelineSceneData {
      * @zh 设置一个全局的4s标准模型
      * @returns The model id
      */
-    set standardSkinModel (val: ModelRenderer | null) {
-        if (this._standardSkinModel && this._standardSkinModel !== val) this._standardSkinModel.closedStandardSkin();
+    set standardSkinModel (val: MeshRenderer | null) {
+        if (this._standardSkinModel && this._standardSkinModel !== val) this._standardSkinModel.clearGlobalStandardSkinObjectFlag();
         this._standardSkinModel = val;
     }
 
@@ -127,7 +128,7 @@ export class PipelineSceneData {
     protected _isHDR = true;
     protected _shadingScale = 1.0;
     protected _csmSupported = true;
-    private _standardSkinModel: ModelRenderer | null = null;
+    private _standardSkinModel: MeshRenderer | null = null;
     private _skinMaterialModel: Model | null = null;
 
     constructor () {
