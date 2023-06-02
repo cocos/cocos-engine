@@ -175,7 +175,7 @@ export function copyPoseGraphNodes(poseGraph: PoseGraph, nodes: PoseGraphNode[],
 export function copyStateMachineAsPoseGraphNode(stateMachine: StateMachine) {
     const poseGraph = new PoseGraph();
     const stateMachineNode = poseGraph.addNode(new PoseNodeStateMachine());
-    stateMachineNode.stateMachine = instantiate(stateMachine);
+    stateMachine.copyTo(stateMachineNode.stateMachine);
     return copyPoseGraphNodes(poseGraph, [stateMachineNode]);
 }
 

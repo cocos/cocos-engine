@@ -698,6 +698,9 @@ export class StateMachine extends EditorExtendable {
                 break;
             default:
                 if (state instanceof MotionState || state instanceof SubStateMachine || state instanceof EmptyState) {
+                    if (state instanceof EmptyState && !that._allowEmptyStates) {
+                        continue;
+                    }
                     const thatState = state._clone();
                     that._addState(thatState);
                     stateMap.set(state, thatState);
@@ -708,6 +711,11 @@ export class StateMachine extends EditorExtendable {
             }
         }
         for (const transition of this._transitions) {
+            if (!that._allowEmptyStates) {
+                if (transition.from instanceof EmptyState || transition.to instanceof EmptyState) {
+                    continue;
+                }
+            }
             const thatFrom = stateMap.get(transition.from);
             const thatTo = stateMap.get(transition.to);
             assertIsTrue(thatFrom && thatTo);
@@ -718,6 +726,9 @@ export class StateMachine extends EditorExtendable {
                 transition.copyTo(thatTransition);
             } else if (thatTransition instanceof EmptyStateTransition) {
                 assertIsTrue(transition instanceof EmptyStateTransition);
+                transition.copyTo(thatTransition);
+            } else if (thatTransition instanceof ProceduralPoseState) {
+                assertIsTrue(transition instanceof ProceduralPoseState);
                 transition.copyTo(thatTransition);
             } else {
                 transition.copyTo(thatTransition);
