@@ -438,7 +438,7 @@ function fillPoseGraph(poseGraph: PoseGraph, params: PoseGraphParams) {
         params(poseGraph);
     } else if (params.rootNode) {
         const root = createPoseNode(poseGraph, params.rootNode);
-        poseGraphOp.connectOutputNode(poseGraph, poseGraph.outputNode, root);
+        poseGraphOp.connectOutputNode(poseGraph, root);
     }
 }
 
