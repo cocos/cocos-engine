@@ -90,21 +90,25 @@ void FrameGraphDispatcher::setParalellWeight(float paralellExecWeight) {
     _paralellExecWeight = clampf(paralellExecWeight, 0.0F, 1.0F);
 }
 
-const ResourceAccessNode &FrameGraphDispatcher::getAttachmentStatus(RenderGraph::vertex_descriptor renderGraphVertID) const {
+const ResourceAccessNode &getAttachmentStatusRag(RenderGraph::vertex_descriptor renderGraphVertID, const ResourceAccessGraph &resourceAccessGraph) {
     auto iter = resourceAccessGraph.subpassIndex.find(renderGraphVertID);
     auto ragVertID = resourceAccessGraph.passIndex.at(renderGraphVertID);
-    const ResourceAccessNode* accessNode = &resourceAccessGraph.access.at(ragVertID);
-    if( iter != resourceAccessGraph.subpassIndex.end()) {
+    const ResourceAccessNode *accessNode = &resourceAccessGraph.access.at(ragVertID);
+    if (iter != resourceAccessGraph.subpassIndex.end()) {
         auto subpassIndex = iter->second;
         accessNode = accessNode->nextSubpass;
         CC_ASSERT(accessNode);
-        while(subpassIndex) {
+        while (subpassIndex) {
             accessNode = accessNode->nextSubpass;
             --subpassIndex;
             CC_ASSERT(accessNode);
         }
     }
     return *accessNode;
+}
+
+const ResourceAccessNode &FrameGraphDispatcher::getAttachmentStatus(RenderGraph::vertex_descriptor renderGraphVertID) const {
+    return getAttachmentStatusRag(renderGraphVertID, resourceAccessGraph);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////INTERNAL⚡IMPLEMENTATION/////////////////////////////////////////////////////////////////////////////////////////////
@@ -552,6 +556,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
             }
 
             if (!barriers.rearBarriers.empty()) {
+                auto &fgRpInfo = rpInfos.at(u);
                 auto &subpassDependencies = rpInfos.at(u).rpInfo.dependencies;
                 auto dependency = gfx::SubpassDependency{};
                 dependency.srcSubpass = subpassIdx;
@@ -589,6 +594,16 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                         } else {
                             dependency.prevAccesses |= barrier.beginStatus.accessFlag;
                             dependency.nextAccesses |= barrier.endStatus.accessFlag;
+                        }
+                    }
+                    if (dependency.dstSubpass == INVALID_ID) {
+                        const auto &node = g.access.at(u);
+                        auto iter = std::find_if(node.attachmentStatus.begin(), node.attachmentStatus.end(), [resID](const AccessStatus &status) { return status.vertID == resID; });
+                        auto index = std::distance(node.attachmentStatus.begin(), iter);
+                        if (index < fgRpInfo.colorAccesses.size()) {
+                            fgRpInfo.colorAccesses[index].nextAccess = barrier.endStatus.accessFlag;
+                        } else {
+                            fgRpInfo.dsAccess.nextAccess = barrier.endStatus.accessFlag;
                         }
                     }
                 }
@@ -2039,7 +2054,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
         auto viewStatus = rawViewStatus;
         viewStatus.name = get(ResourceGraph::NameTag{}, rg, resourceID);
         auto lastVertID = checkResourceDepdendency(resourceID, viewStatus);
-        if (lastVertID > nearestVertID && lastVertID != INVALID_ID) {
+        if ((lastVertID > nearestVertID && lastVertID != INVALID_ID) || nearestVertID == INVALID_ID) {
             nearestVertID = lastVertID;
         }
     }
@@ -2310,11 +2325,11 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
     const auto &obj = renderGraph.objects.at(passID);
     const auto parentID = obj.parents.front().target;
     const auto parentRagVert = resourceAccessGraph.passIndex.at(parentID);
-    const auto *parentPass = get_if<RasterPass>(parentID, &renderGraph);
+    auto *parentPass = get_if<RasterPass>(parentID, &renderGraph);
     CC_EXPECTS(parentPass);
     const auto &rag = resourceAccessGraph;
     const auto &resg = resourceGraph;
-    const auto &uberPass = *parentPass;
+    auto &uberPass = *parentPass;
 
     resourceAccessGraph.passIndex[passID] = parentRagVert;
 
@@ -2457,6 +2472,20 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
 
     if (pass.subpassID == uberPass.subpassGraph.subpasses.size() - 1) {
         getPreserves(rpInfo);
+        const auto &resg = resourceGraph;
+        std::sort(node.attachmentStatus.begin(), node.attachmentStatus.end(), [&uberPass, &resg](const AccessStatus &lhs, const AccessStatus &rhs) {
+            auto getSlot = [](const auto &uberPass, const PmrString& resName) {
+                uint32_t slotID = INVALID_ID;
+                auto iter = uberPass.attachmentIndexMap.find(resName);
+                if (iter != uberPass.attachmentIndexMap.end()) {
+                    slotID = iter->second;
+                }
+                return slotID;
+            };
+            auto lhsSlot = getSlot(uberPass, get(ResourceGraph::NameTag{}, resg, lhs.vertID));
+            auto rhsSlot = getSlot(uberPass, get(ResourceGraph::NameTag{}, resg, rhs.vertID));
+            return lhsSlot < rhsSlot;
+        });
     }
 }
 

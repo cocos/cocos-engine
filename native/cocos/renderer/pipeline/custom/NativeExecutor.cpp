@@ -291,7 +291,6 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
         data.clearColors.reserve(numColors);
         rpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID).rpInfo;
         fillFrameBufferInfo(pass);
-
     } else {
         rpInfo = ctx.fgd.resourceAccessGraph.rpInfos.at(ragVertID).rpInfo;
         for (const auto& subpass : pass.subpassGraph.subpasses) {
