@@ -806,6 +806,7 @@ export class Root {
         const cameraList = this._cameraList;
         if (this._pipeline && cameraList.length > 0) {
             director.emit(Director.EVENT_BEFORE_COMMIT);
+            director.emit(Director.EVENT_UPLOAD_DYNAMIC_VBO);
             cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
 
             for (let i = 0; i < cameraList.length; ++i) {

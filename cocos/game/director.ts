@@ -138,6 +138,11 @@ export class Director extends EventTarget {
     public static readonly EVENT_BEFORE_COMMIT = 'director_before_commit';
 
     /**
+     * @zh 当前渲染帧更新动态 vbo 的事件
+     */
+    public static readonly EVENT_UPLOAD_DYNAMIC_VBO = 'director_upload_dynamic_vbo';
+
+    /**
      * @en The event which will be triggered before the render pipeline processes the render scene.
      * @zh 当前帧将渲染场景提交到渲染管线之前所触发的事件。
      * @event Director.EVENT_BEFORE_RENDER

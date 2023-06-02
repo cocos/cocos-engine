@@ -1,3 +1,4 @@
+import { BufferInfo, Buffer, Device, MemoryUsageBit } from "../../gfx";
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -24,5 +25,97 @@
  */
 
 export class VFXDynamicBuffer {
+    get buffer () {
+        return this._buffer;
+    }
 
+    get floatDataView () {
+        return this._floatDataView;
+    }
+
+    get uintDataView () {
+        return this._uint32DataView;
+    }
+
+    get uint16DataView () {
+        return this._uint16DataView;
+    }
+
+    get usedCount () {
+        return this._usedCount;
+    }
+
+    set usedCount (val) {
+        this.reserve(val);
+        this._usedCount = val;
+    }
+
+    get capacity () {
+        return this._capacity;
+    }
+
+    public markDirty () {
+        this._dirty = true;
+    }
+
+    private _dirty = false;
+    private declare _buffer: Buffer;
+    private declare _data: ArrayBuffer;
+    private declare _floatDataView: Float32Array;
+    private declare _uint32DataView: Uint32Array;
+    private declare _uint16DataView: Uint16Array;
+    private _usedCount = 0;
+    private _size = 0;
+    private _capacity = 0;
+
+    constructor (device: Device, size: number, bufferUsage: number) {
+        const capacity = 1024;
+        const buffer = device.createBuffer(new BufferInfo(
+            bufferUsage,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            size * capacity,
+            size,
+        ));
+
+        const data = new ArrayBuffer(size * capacity);
+        this._size = size;
+        this._capacity = capacity;
+        this._buffer = buffer;
+        this._data = data;
+        this._floatDataView = new Float32Array(data);
+        this._uint32DataView = new Uint32Array(data);
+        this._uint16DataView = new Uint16Array(data);
+    }
+
+    private reserve (count: number) {
+        if (count <= this._capacity) { return; }
+        let newCapacity = this._capacity;
+        while (count > newCapacity) {
+            newCapacity *= 2;
+        }
+
+        this._capacity = newCapacity;
+        this._buffer.resize(newCapacity * this._size);
+        this._data = new ArrayBuffer(this._size * newCapacity);
+        const oldFloatDataView = this._floatDataView;
+        this._floatDataView = new Float32Array(this._data);
+        this._uint32DataView = new Uint32Array(this._data);
+        this._uint16DataView = new Uint16Array(this._data);
+        this._floatDataView.set(oldFloatDataView);
+    }
+
+    update () {
+        if (this._dirty) {
+            this._buffer.update(this._data);
+            this._dirty = false;
+        }
+    }
+
+    reset () {
+        this._usedCount = 0;
+    }
+
+    destroy () {
+        this._buffer.destroy();
+    }
 }

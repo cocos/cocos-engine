@@ -27,6 +27,23 @@ import { Director, director, game } from '../game';
 import { js, System } from '../core';
 import { VFXEmitter } from './vfx-emitter';
 import { VFXRenderer } from './vfx-renderer';
+import { VFXDynamicBuffer } from './renderers/dynamic-buffer';
+import { Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, deviceManager } from '../gfx';
+
+export const globalDynamicBufferMap: Record<string, VFXDynamicBuffer> = {};
+
+const fixedVertexBuffer = new Float32Array([
+    0, 0, 0, 0, 0, 0, // bottom-left
+    1, 0, 0, 1, 0, 0, // bottom-right
+    0, 1, 0, 0, 1, 0, // top-left
+    1, 1, 0, 1, 1, 0, // top-right
+]);
+const fixedIndexBuffer = new Uint16Array([
+    0, 1, 2, 3, 2, 1,
+]);
+
+export let globalSpriteVB: Buffer | null = null;
+export let globalSpriteIB: Buffer | null = null;
 
 export class VFXManager extends System {
     get totalFrames () {
@@ -40,6 +57,7 @@ export class VFXManager extends System {
     init () {
         director.on(Director.EVENT_UPDATE_PARTICLE, this.tick, this);
         director.on(Director.EVENT_BEFORE_COMMIT, this.render, this);
+        director.on(Director.EVENT_UPLOAD_DYNAMIC_VBO, this.updateBuffer);
     }
 
     addEmitter (particleSystem: VFXEmitter) {
@@ -98,6 +116,40 @@ export class VFXManager extends System {
             }
         }
         emitter.simulate(dt);
+    }
+
+    updateBuffer () {
+        for (const key in globalDynamicBufferMap) {
+            const dynamicVBO = globalDynamicBufferMap[key];
+            dynamicVBO.update();
+            dynamicVBO.reset();
+        }
+    }
+
+    createGlobalBuffer () {
+        const vertexStreamSizeStatic = 24;
+        globalSpriteVB = deviceManager.gfxDevice.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            vertexStreamSizeStatic * 4,
+            vertexStreamSizeStatic,
+        ));
+        globalSpriteVB.update(fixedVertexBuffer);
+        globalSpriteIB = deviceManager.gfxDevice.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            Uint16Array.BYTES_PER_ELEMENT * 6,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
+        globalSpriteIB.update(fixedIndexBuffer);
+    }
+
+    getOrCreateDynamicVBO (vertexHash, streamSize) {
+        if (!globalDynamicBufferMap[vertexHash]) {
+            globalDynamicBufferMap[vertexHash] = new VFXDynamicBuffer(deviceManager.gfxDevice, 
+                streamSize, BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST);
+        }
+        return globalDynamicBufferMap[vertexHash].buffer;
     }
 }
 

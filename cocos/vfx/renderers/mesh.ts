@@ -24,11 +24,12 @@
  */
 
 import { Mesh } from '../../3d';
-import { Color, Quat, Vec3, Vec4 } from '../../core';
+import { Color, Quat, Vec3, Vec4, assertIsTrue } from '../../core';
 import { Material, RenderingSubMesh } from '../../asset/assets';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { BufferInfo, BufferUsageBit, deviceManager, MemoryUsageBit, Buffer, FormatInfos, PrimitiveMode, AttributeName } from '../../gfx';
 import { MacroRecord } from '../../render-scene';
+import { globalDynamicBufferMap, vfxManager } from '../vfx-manager';
 import { CC_VFX_E_IS_WORLD_SPACE, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_MESH, E_IS_WORLD_SPACE, E_LOCAL_ROTATION, E_RENDER_SCALE, E_WORLD_ROTATION, meshColorRGBA8,
     meshNormal, meshPosition, meshUv, P_COLOR, P_MESH_ORIENTATION, P_POSITION, P_SCALE, P_SUB_UV_INDEX1, P_VELOCITY, vfxPColor, vfxPMeshOrientation, vfxPPosition, vfxPScale, vfxPSubUVIndex } from '../define';
 import { ParticleDataSet, EmitterDataSet } from '../data-set';
@@ -56,8 +57,16 @@ export class MeshParticleRenderer extends ParticleRenderer {
     public set mesh (val) {
         if (this._mesh === val) return;
         this._mesh = val;
-        this._renderingSubMesh?.destroy();
-        this._renderingSubMesh = null;
+        this.destroy();
+    }
+
+    private destroy () {
+        if (this._renderingSubMesh) {
+            this._renderingSubMesh.vertexBuffers[0].destroy();
+            this._renderingSubMesh.indexBuffer?.destroy();
+            this._renderingSubMesh = null;
+        }
+        this._insBuffers.length = 0;
     }
 
     public facingMode= MeshFacingMode.NONE;
@@ -78,6 +87,17 @@ export class MeshParticleRenderer extends ParticleRenderer {
     private declare _dynamicBuffer: Float32Array;
     private declare _dynamicBufferUintView: Uint32Array;
     private _vertexStreamSize = 0;
+    private _vertexAttributeHash = '';
+
+    private _ensureVBO (count: number) {
+        assertIsTrue(globalDynamicBufferMap[this._vertexAttributeHash]);
+        const dynamicVBO = globalDynamicBufferMap[this._vertexAttributeHash];
+        dynamicVBO.markDirty();
+        this._firstInstance = dynamicVBO.usedCount;
+        dynamicVBO.usedCount += count;
+        this._dynamicBuffer = dynamicVBO.floatDataView;
+        this._dynamicBufferUintView = dynamicVBO.uintDataView;
+    }
 
     public render (particles: ParticleDataSet, emitter: EmitterDataSet) {
         const material = this.material;
@@ -90,13 +110,17 @@ export class MeshParticleRenderer extends ParticleRenderer {
         this._updateRotation(material, particles, emitter);
         this._updateRenderScale(material, particles, emitter);
         this._updateRenderingSubMesh(mesh, material, particles, emitter);
+        this._ensureVBO(particles.count);
         const dynamicBuffer = this._dynamicBuffer;
         const dynamicBufferUintView = this._dynamicBufferUintView;
+        const vertDynAttrsFloatCount = this._vertexStreamSize / 4;
+        const bufferStart = this._firstInstance * vertDynAttrsFloatCount;
         const vertexStreamSizeDynamic = this._vertexStreamSize;
         if (particles.hasParameter(P_POSITION)) {
-            const position = particles.getVec3ArrayParameter(P_POSITION).data;
+            const position = particles.getParameterUnsafe<Vec3ArrayParameter>(P_POSITION).data;
             for (let i = 0; i < count; i++) {
-                const offset = i * vertexStreamSizeDynamic;
+                let offset = i * vertexStreamSizeDynamic;
+                offset += bufferStart;
                 const xOffset = i * 3;
                 const yOffset = xOffset + 1;
                 const zOffset = yOffset + 1;
@@ -106,9 +130,10 @@ export class MeshParticleRenderer extends ParticleRenderer {
             }
         }
         if (particles.hasParameter(P_MESH_ORIENTATION)) {
-            const rotation = particles.getVec3ArrayParameter(P_MESH_ORIENTATION).data;
+            const rotation = particles.getParameterUnsafe<Vec3ArrayParameter>(P_MESH_ORIENTATION).data;
             for (let i = 0; i < count; i++) {
-                const offset = i * vertexStreamSizeDynamic;
+                let offset = i * vertexStreamSizeDynamic;
+                offset += bufferStart;
                 const xOffset = i * 3;
                 const yOffset = xOffset + 1;
                 const zOffset = yOffset + 1;
@@ -118,9 +143,10 @@ export class MeshParticleRenderer extends ParticleRenderer {
             }
         }
         if (particles.hasParameter(P_SCALE)) {
-            const scale = particles.getVec3ArrayParameter(P_SCALE).data;
+            const scale = particles.getParameterUnsafe<Vec3ArrayParameter>(P_SCALE).data;
             for (let i = 0; i < count; i++) {
-                const offset = i * vertexStreamSizeDynamic;
+                let offset = i * vertexStreamSizeDynamic;
+                offset += bufferStart;
                 const xOffset = i * 3;
                 const yOffset = xOffset + 1;
                 const zOffset = yOffset + 1;
@@ -130,20 +156,35 @@ export class MeshParticleRenderer extends ParticleRenderer {
             }
         }
         if (particles.hasParameter(P_SUB_UV_INDEX1)) {
-            const subUVIndex = particles.getFloatArrayParameter(P_SUB_UV_INDEX1);
+            const subUVIndex = particles.getParameterUnsafe<FloatArrayParameter>(P_SUB_UV_INDEX1);
             for (let i = 0; i < count; i++) {
-                const offset = i * vertexStreamSizeDynamic;
+                let offset = i * vertexStreamSizeDynamic;
+                offset += bufferStart;
                 dynamicBuffer[offset + 9] = subUVIndex[i];
             }
         }
         if (particles.hasParameter(P_COLOR)) {
-            const color = particles.getColorArrayParameter(P_COLOR).data;
+            const color = particles.getParameterUnsafe<ColorArrayParameter>(P_COLOR).data;
             for (let i = 0; i < count; i++) {
-                const offset = i * vertexStreamSizeDynamic;
+                let offset = i * vertexStreamSizeDynamic;
+                offset += bufferStart;
                 dynamicBufferUintView[offset + 10] = color[i];
             }
         }
-        this._insBuffers[1].update(dynamicBuffer); // update dynamic buffer
+        if (particles.hasParameter(P_VELOCITY)) {
+            const velocity = particles.getParameterUnsafe<Vec3ArrayParameter>(P_VELOCITY);
+            const velocityData = velocity.data;
+            for (let i = 0; i < count; i++) {
+                let offset = i * vertexStreamSizeDynamic;
+                offset += bufferStart;
+                const xOffset = i * 3;
+                const yOffset = xOffset + 1;
+                const zOffset = yOffset + 1;
+                dynamicBuffer[offset + 11] += velocityData[xOffset];
+                dynamicBuffer[offset + 12] += velocityData[yOffset];
+                dynamicBuffer[offset + 13] += velocityData[zOffset];
+            }
+        }
     }
 
     private _updateSubUvTilesAndVelocityLengthScale (material: Material) {
@@ -158,7 +199,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
         if (this.facingMode === MeshFacingMode.NONE) {
             currentRotation = Quat.IDENTITY;
         } else if (this.facingMode === MeshFacingMode.VELOCITY) {
-            currentRotation = emitter.getQuatParameter(E_WORLD_ROTATION).data;
+            currentRotation = emitter.getParameterUnsafe<QuatParameter>(E_WORLD_ROTATION).data;
         } else if (this.facingMode === MeshFacingMode.CAMERA) {
             currentRotation = Quat.IDENTITY;
             // const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
@@ -183,7 +224,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
     }
 
     private _updateRenderScale (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
-        const renderScale = emitter.getVec3Parameter(E_RENDER_SCALE).data;
+        const renderScale = emitter.getParameterUnsafe<Vec3Parameter>(E_RENDER_SCALE).data;
         if (!Vec3.equals(renderScale, this._renderScale)) {
             this._renderScale.set(renderScale.x, renderScale.y, renderScale.z);
             material.setProperty('scale', this._renderScale);
@@ -192,7 +233,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
 
     private _compileMaterial (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let needRecompile = false;
-        const isWorldSpace = emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
+        const isWorldSpace = emitter.getParameterUnsafe<BoolParameter>(E_IS_WORLD_SPACE).data;
         if (this._defines[CC_VFX_E_IS_WORLD_SPACE] !== isWorldSpace) {
             this._defines[CC_VFX_E_IS_WORLD_SPACE] = isWorldSpace;
             needRecompile = true;
@@ -205,11 +246,15 @@ export class MeshParticleRenderer extends ParticleRenderer {
 
     private _updateAttributes (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let vertexStreamSizeDynamic = 0;
+        this._vertexAttributeHash = '';
         for (let i = 0, length = this._vertexStreamAttributes.length; i < length; i++) {
-            if (this._vertexStreamAttributes[i].stream === 1) {
-                vertexStreamSizeDynamic += FormatInfos[this._vertexStreamAttributes[i].format].size;
+            const attrib = this._vertexStreamAttributes[i];
+            if (attrib.stream === 1) {
+                vertexStreamSizeDynamic += FormatInfos[attrib.format].size;
+                this._vertexAttributeHash += `n${attrib.name}f${attrib.format}n${attrib.isNormalized}l${attrib.location}`;
             }
         }
+        this._vertexAttributeHash += 'vertex';
         this._vertexStreamSize = vertexStreamSizeDynamic;
     }
 
@@ -253,23 +298,14 @@ export class MeshParticleRenderer extends ParticleRenderer {
             const indices: Uint16Array = new Uint16Array(indexCount);
             mesh.copyIndices(0, indices);
             indexBuffer.update(indices);
-            const dynamicBuffer = deviceManager.gfxDevice.createBuffer(new BufferInfo(
-                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                this._vertexStreamSize * particles.capacity,
-                this._vertexStreamSize,
-            ));
-            this._dynamicBuffer = new Float32Array(new ArrayBuffer(particles.capacity * this._vertexStreamSize));
-            this._dynamicBufferUintView = new Uint32Array(this._dynamicBuffer.buffer);
+
+            const dynamicBuffer = vfxManager.getOrCreateDynamicVBO(this._vertexAttributeHash, this._vertexStreamSize);
+
             this._insBuffers.push(vertexBuffer);
             this._insBuffers.push(dynamicBuffer);
             this._renderingSubMesh = new RenderingSubMesh(this._insBuffers, this._vertexStreamAttributes,
                 PrimitiveMode.TRIANGLE_LIST, indexBuffer);
         }
-        if (this._dynamicBuffer.byteLength !== particles.capacity * this._vertexStreamSize) {
-            this._dynamicBuffer = new Float32Array(new ArrayBuffer(particles.capacity * this._vertexStreamSize));
-            this._dynamicBufferUintView = new Uint32Array(this._dynamicBuffer.buffer);
-            this._insBuffers[1].resize(particles.capacity * this._vertexStreamSize);
-        }
+        this._instanceCount = particles.count;
     }
 }

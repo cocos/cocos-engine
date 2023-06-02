@@ -86,11 +86,16 @@ export abstract class ParticleRenderer {
         return this._instanceCount;
     }
 
+    public get firstInstance () {
+        return this._firstInstance;
+    }
+
     protected _isMaterialDirty = false;
     protected _renderingSubMesh: RenderingSubMesh | null = null;
     protected _vertexCount = 0;
     protected _indexCount = 0;
     protected _instanceCount = 0;
+    protected _firstInstance = 0;
     @serializable
     private _sharedMaterial: Material | null = null;
     private _material: MaterialInstance | null = null;
