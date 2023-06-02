@@ -35,6 +35,7 @@ interface PropertyNodeInputRecord {
     displayName?: PoseGraphNodeInputMappingOptions['displayName'];
     getArrayElementDisplayName?: PoseGraphNodeInputMappingOptions['getArrayElementDisplayName'];
     arraySyncGroup?: ArrayPropertySyncGroup;
+    arraySyncGroupFollower?: boolean;
 }
 
 export type PoseGraphNodeInputInsertId = string;
@@ -109,6 +110,17 @@ export interface PoseGraphNodeInputMappingOptions {
      * If a new input is inserted into `poses`, there will be also a new input inserted into weights.
      */
     arraySyncGroup?: string;
+
+    /**
+     * @zh
+     * 若为 `true` 且 `arraySyncGroup` 生效时，
+     * 不再允许主动向此数组中添加元素或删除元素，相反，该数组只能被动配合同步组中的其它成员增删改。
+     * @en
+     * If `true` and if `arraySyncGroup` is taking effect,
+     * it's no longer allowed to actively add or remove elements from this array,
+     * instead this array can only passively cope with other members in sync group to add, remove or edit.
+     */
+    arraySyncGroupFollower?: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -202,7 +214,7 @@ class PoseGraphNodeInputManager {
                 return {
                     type: propertyInputRecord.type,
                     displayName,
-                    deletable: true,
+                    deletable: !(propertyInputRecord.arraySyncGroup && propertyInputRecord.arraySyncGroupFollower),
                     insertPoint: true,
                 };
             }
@@ -239,6 +251,10 @@ class PoseGraphNodeInputManager {
                 const propertyInputRecord = classInputRecord.properties[propertyKey];
                 const property = object[propertyKey];
                 if (Array.isArray(property)) {
+                    // Array sync group followers are not insert-able.
+                    if (propertyInputRecord.arraySyncGroup && propertyInputRecord.arraySyncGroupFollower) {
+                        continue;
+                    }
                     result[propertyKey] = { displayName: propertyKey };
                 }
             }
@@ -450,6 +466,8 @@ function createDefaultInputValueByType (type: PoseGraphType) {
     case PoseGraphType.FLOAT:
     case PoseGraphType.INTEGER:
         return 0;
+    case PoseGraphType.BOOLEAN:
+        return false;
     case PoseGraphType.POSE:
         return null;
     case PoseGraphType.VEC3:

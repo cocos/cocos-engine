@@ -57,11 +57,6 @@ void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
         hub->connect(_gpuInputAssembler, _gpuInputAssembler->gpuIndexBuffer.get());
     }
 
-    if (info.indirectBuffer) {
-        _gpuInputAssembler->gpuIndirectBuffer = static_cast<CCVKBuffer *>(info.indirectBuffer)->gpuBufferView();
-        hub->connect(_gpuInputAssembler, _gpuInputAssembler->gpuIndirectBuffer.get());
-    }
-
     _gpuInputAssembler->vertexBuffers.resize(vbCount);
     _gpuInputAssembler->vertexBufferOffsets.resize(vbCount);
 
@@ -84,9 +79,6 @@ void CCVKGPUInputAssembler::shutdown() {
     if (gpuIndexBuffer) {
         hub->disengage(this, gpuIndexBuffer);
     }
-    if (gpuIndirectBuffer) {
-        hub->disengage(this, gpuIndirectBuffer);
-    }
 }
 
 void CCVKGPUInputAssembler::update(const CCVKGPUBufferView *oldBuffer, const CCVKGPUBufferView *newBuffer) {
@@ -98,9 +90,6 @@ void CCVKGPUInputAssembler::update(const CCVKGPUBufferView *oldBuffer, const CCV
     }
     if (gpuIndexBuffer.get() == oldBuffer) {
         gpuIndexBuffer = newBuffer;
-    }
-    if (gpuIndirectBuffer.get() == oldBuffer) {
-        gpuIndirectBuffer = newBuffer;
     }
 }
 

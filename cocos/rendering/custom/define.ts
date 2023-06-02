@@ -25,12 +25,17 @@
 import { EDITOR } from 'internal:constants';
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
     Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address } from '../../gfx';
-import { Camera, CSMLevel, DirectionalLight, Light, LightType, ProbeType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
+import {
+    Camera, CSMLevel, DirectionalLight, Light, LightType, ProbeType, ReflectionProbe,
+    ShadowType, SKYBOX_FLAG, SpotLight, PointLight, RangedDirectionalLight, SphereLight,
+} from '../../render-scene/scene';
 import { supportsR32FloatTexture, supportsRGBA16FloatTexture } from '../define';
-import { BasicPipeline } from './pipeline';
-import { AccessType, AttachmentType, ComputeView, CopyPair, LightInfo,
-    QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { Vec2, Vec3, Vec4, macro, geometry, toRadian, cclegacy, assert } from '../../core';
+import { BasicPipeline, Pipeline } from './pipeline';
+import {
+    AccessType, AttachmentType, ComputeView, CopyPair, LightInfo,
+    QueueHint, RasterView, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair,
+} from './types';
+import { Vec2, Vec3, Vec4, macro, geometry, toRadian, cclegacy, assert, nextPow2 } from '../../core';
 import { ImageAsset, Material, Texture2D } from '../../asset/assets';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
@@ -40,7 +45,6 @@ import { DescriptorSetData } from './layout-graph';
 import { AABB } from '../../core/geometry';
 import { MeshRenderer } from '../../3d';
 import { DebugViewCompositeType, DebugViewSingleType } from '../debug-view';
-import { Pipeline } from '../../asset/asset-manager/pipeline';
 
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 const _tmpBoundingBox = new AABB();
@@ -52,11 +56,11 @@ export enum AntiAliasing {
     FXAAHQ,
 }
 
-function GetRTFormatBeforeToneMapping (ppl: BasicPipeline) {
+export function getRTFormatBeforeToneMapping (ppl: BasicPipeline) {
     const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16FloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
 }
-function ForceEnableFloatOutput (ppl: BasicPipeline) {
+function forceEnableFloatOutput (ppl: BasicPipeline) {
     if (ppl.pipelineSceneData.isHDR && !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
         const supportFloatOutput = supportsRGBA16FloatTexture(ppl.device);
         ppl.setMacroBool('CC_USE_FLOAT_OUTPUT', supportFloatOutput);
@@ -446,7 +450,7 @@ export function buildBloomPass (camera: Camera,
     return { rtName: bloomPassCombineRTName, dsName: bloomPassCombineDSName };
 }
 
-class PostInfo {
+export class PostInfo {
     declare postMaterial: Material;
     antiAliasing: AntiAliasing = AntiAliasing.NONE;
     private _init () {
@@ -472,14 +476,13 @@ class PostInfo {
     }
 }
 
-let postInfo: PostInfo | null = null;
+let postInfo: PostInfo;
 
 export function buildPostprocessPass (camera: Camera,
     ppl: BasicPipeline,
-    inputTex: string,
-    antiAliasing: AntiAliasing = AntiAliasing.NONE) {
-    if (!postInfo || (postInfo && postInfo.antiAliasing !== antiAliasing)) {
-        postInfo = new PostInfo(antiAliasing);
+    inputTex: string) {
+    if (!postInfo) {
+        postInfo = new PostInfo();
     }
     const cameraID = getCameraUniqueID(camera);
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
@@ -489,7 +492,7 @@ export function buildPostprocessPass (camera: Camera,
     const postprocessPassDS = `postprocessPassDS${cameraID}`;
     if (!ppl.containsResource(postprocessPassRTName)) {
         ppl.addRenderWindow(postprocessPassRTName, Format.BGRA8, width, height, camera.window);
-        ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.EXTERNAL);
+        ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderWindow(postprocessPassRTName, camera.window);
     ppl.updateDepthStencil(postprocessPassDS, width, height);
@@ -528,7 +531,7 @@ export function buildForwardPass (camera: Camera,
     }
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
-    const cameraInfo = buildShadowPasses(cameraName, camera, ppl);
+    const shadowInfo = buildShadowPasses(cameraName, camera, ppl);
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
     const height = area.height;
@@ -539,7 +542,7 @@ export function buildForwardPass (camera: Camera,
         if (!isOffScreen) {
             ppl.addRenderWindow(forwardPassRTName, Format.BGRA8, width, height, camera.window);
         } else {
-            ppl.addRenderTarget(forwardPassRTName, GetRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.PERSISTENT);
+            ppl.addRenderTarget(forwardPassRTName, getRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.PERSISTENT);
         }
         ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
@@ -553,12 +556,12 @@ export function buildForwardPass (camera: Camera,
     const forwardPass = ppl.addRenderPass(width, height, 'default');
     forwardPass.name = `CameraForwardPass${cameraID}`;
     forwardPass.setViewport(new Viewport(area.x, area.y, width, height));
-    for (const dirShadowName of cameraInfo.mainLightShadowNames) {
+    for (const dirShadowName of shadowInfo.mainLightShadowNames) {
         if (ppl.containsResource(dirShadowName)) {
             forwardPass.addTexture(dirShadowName, 'cc_shadowMap');
         }
     }
-    for (const spotShadowName of cameraInfo.spotLightShadowNames) {
+    for (const spotShadowName of shadowInfo.spotLightShadowNames) {
         if (ppl.containsResource(spotShadowName)) {
             forwardPass.addTexture(spotShadowName, 'cc_spotShadowMap');
         }
@@ -676,30 +679,36 @@ export function buildReflectionProbePass (camera: Camera,
     updateCameraUBO(passBuilder as unknown as any, probeCamera, ppl);
 }
 
-class CameraInfo {
+export class ShadowInfo {
     shadowEnabled = false;
     mainLightShadowNames = new Array<string>();
     spotLightShadowNames = new Array<string>();
+    validLights: Light[] = [];
+    reset () {
+        this.shadowEnabled = false;
+        this.mainLightShadowNames.length = 0;
+        this.spotLightShadowNames.length = 0;
+        this.validLights.length = 0;
+    }
 }
 
-export function buildShadowPasses (cameraName: string, camera: Camera, ppl: BasicPipeline): CameraInfo {
+export function buildShadowPasses (cameraName: string, camera: Camera, ppl: BasicPipeline): ShadowInfo {
     validPunctualLightsCulling(ppl, camera);
     const pipeline = ppl;
-    const shadowInfo = pipeline.pipelineSceneData.shadows;
+    const shadow = pipeline.pipelineSceneData.shadows;
     const validPunctualLights = ppl.pipelineSceneData.validPunctualLights;
-    const cameraInfo = new CameraInfo();
+    shadowInfo.reset();
     const shadows = ppl.pipelineSceneData.shadows;
-    if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return cameraInfo; }
-    cameraInfo.shadowEnabled = true;
-    const _validLights: Light[] = [];
+    if (!shadow.enabled || shadow.type !== ShadowType.ShadowMap) { return shadowInfo; }
+    shadowInfo.shadowEnabled = true;
     let n = 0;
     let m = 0;
-    for (;n < shadowInfo.maxReceived && m < validPunctualLights.length;) {
+    for (;n < shadow.maxReceived && m < validPunctualLights.length;) {
         const light = validPunctualLights[m];
         if (light.type === LightType.SPOT) {
             const spotLight = light as SpotLight;
             if (spotLight.shadowEnabled) {
-                _validLights.push(light);
+                shadowInfo.validLights.push(light);
                 n++;
             }
         }
@@ -711,29 +720,30 @@ export function buildShadowPasses (cameraName: string, camera: Camera, ppl: Basi
     const mapWidth = shadows.size.x;
     const mapHeight = shadows.size.y;
     if (mainLight && mainLight.shadowEnabled) {
-        cameraInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
+        shadowInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
         if (mainLight.shadowFixedArea) {
-            buildShadowPass(cameraInfo.mainLightShadowNames[0], ppl,
+            buildShadowPass(shadowInfo.mainLightShadowNames[0], ppl,
                 camera, mainLight, 0, mapWidth, mapHeight);
         } else {
             const csmLevel = pipeline.pipelineSceneData.csmSupported ? mainLight.csmLevel : 1;
-            cameraInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
+            shadowInfo.mainLightShadowNames[0] = `MainLightShadow${cameraName}`;
             for (let i = 0; i < csmLevel; i++) {
-                buildShadowPass(cameraInfo.mainLightShadowNames[0], ppl,
+                buildShadowPass(shadowInfo.mainLightShadowNames[0], ppl,
                     camera, mainLight, i, mapWidth, mapHeight);
             }
         }
     }
 
-    for (let l = 0; l < _validLights.length; l++) {
-        const light = _validLights[l];
+    for (let l = 0; l < shadowInfo.validLights.length; l++) {
+        const light = shadowInfo.validLights[l];
         const passName = `SpotLightShadow${l.toString()}${cameraName}`;
-        cameraInfo.spotLightShadowNames[l] = passName;
+        shadowInfo.spotLightShadowNames[l] = passName;
         buildShadowPass(passName, ppl,
             camera, light, 0, mapWidth, mapHeight);
     }
-    return cameraInfo;
+    return shadowInfo;
 }
+const shadowInfo = new ShadowInfo();
 
 export class GBufferInfo {
     color!: string;
@@ -792,7 +802,7 @@ export function buildGBufferPass (camera: Camera,
     return gBufferInfo;
 }
 
-class LightingInfo {
+export class LightingInfo {
     declare deferredLightingMaterial: Material;
     private _init () {
         this.deferredLightingMaterial = new Material();
@@ -810,7 +820,7 @@ class LightingInfo {
     }
 }
 
-let lightingInfo: LightingInfo | null = null;
+let lightingInfo: LightingInfo;
 
 // deferred lighting pass
 export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: GBufferInfo) {
@@ -903,7 +913,7 @@ export function buildUIPass (camera: Camera,
     const dsUIAndProfilerPassDSName = `dsUIAndProfilerPassDS${cameraName}`;
     if (!ppl.containsResource(dsUIAndProfilerPassRTName)) {
         ppl.addRenderWindow(dsUIAndProfilerPassRTName, Format.BGRA8, width, height, camera.window);
-        ppl.addDepthStencil(dsUIAndProfilerPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.EXTERNAL);
+        ppl.addDepthStencil(dsUIAndProfilerPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderWindow(dsUIAndProfilerPassRTName, camera.window);
     ppl.updateDepthStencil(dsUIAndProfilerPassDSName, width, height);
@@ -1459,7 +1469,7 @@ function _buildSSSSBlurPass (camera: Camera,
     const ssssBlurRTName = `dsSSSSBlurColor${cameraName}`;
     const ssssBlurDSName = `dsSSSSBlurDSColor${cameraName}`;
     if (!ppl.containsResource(ssssBlurRTName)) {
-        ppl.addRenderTarget(ssssBlurRTName, GetRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(ssssBlurRTName, getRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.MANAGED);
         ppl.addRenderTarget(ssssBlurDSName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(ssssBlurRTName, width, height);
@@ -1782,7 +1792,7 @@ export function buildSSSSPass (camera: Camera,
     inputRT: string,
     inputDS: string) {
     if (hasSkinObject(ppl)) {
-        ForceEnableFloatOutput(ppl);
+        forceEnableFloatOutput(ppl);
         const blurInfo = _buildSSSSBlurPass(camera, ppl, inputRT, inputDS);
         const specularInfo = _buildSpecularPass(camera, ppl, blurInfo.rtName, blurInfo.dsName);
         return { rtName: specularInfo.rtName, dsName: specularInfo.dsName };
@@ -2079,7 +2089,7 @@ function _buildHBAOCombinedPass (camera: Camera,
 
     const outputRTName = outputRT;
     if (!ppl.containsResource(outputRTName)) {
-        ppl.addRenderTarget(outputRTName, GetRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(outputRTName, getRTFormatBeforeToneMapping(ppl), width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(outputRTName, width, height);
     const hbaoPass = ppl.addRenderPass(width, height, 'combine-pass');
@@ -2168,4 +2178,247 @@ export function buildHBAOPasses (camera: Camera,
     }
     const haboCombined = _buildHBAOCombinedPass(camera, ppl, hbaoCombinedInputRTName, inputDS, inputRT);
     return { rtName: haboCombined.rtName, dsName: inputDS };
+}
+
+export const MAX_LIGHTS_PER_CLUSTER = 100;
+export const CLUSTERS_X = 16;
+export const CLUSTERS_Y = 8;
+export const CLUSTERS_Z = 24;
+export const CLUSTER_COUNT = CLUSTERS_X * CLUSTERS_Y * CLUSTERS_Z;
+
+class ClusterLightData {
+    declare clusterBuildCS: Material;
+    declare clusterLightCullingCS: Material
+    clusters_x_threads = 16;
+    clusters_y_threads = 8;
+    clusters_z_threads = 1;
+    dispatchX = 1;
+    dispatchY = 1;
+    dispatchZ = 1;
+
+    private _initMaterial (id: string, effect: string) {
+        const mat = new Material();
+        mat.name = id;
+        mat.initialize({ effectName: effect });
+        for (let i = 0; i < mat.passes.length; ++i) {
+            mat.passes[i].tryCompile();
+        }
+        return mat;
+    }
+
+    private _init () {
+        this.clusterBuildCS = this._initMaterial('builtin-cluster-build-cs-material', 'pipeline/cluster-build');
+        this.clusterLightCullingCS = this._initMaterial('builtin-cluster-culling-cs-material', 'pipeline/cluster-culling');
+
+        this.dispatchX = CLUSTERS_X / this.clusters_x_threads;
+        this.dispatchY = CLUSTERS_Y / this.clusters_y_threads;
+        this.dispatchZ = CLUSTERS_Z / this.clusters_z_threads;
+    }
+
+    constructor () {
+        this._init();
+    }
+}
+
+let _clusterLightData: ClusterLightData | null = null;
+export function buildLightClusterBuildPass (camera: Camera, clusterData: ClusterLightData,
+    ppl: Pipeline) {
+    const cameraID = getCameraUniqueID(camera);
+    const clusterBufferName = `clusterBuffer${cameraID}`;
+
+    const clusterBufferSize = CLUSTER_COUNT * 2 * 4;
+    if (!ppl.containsResource(clusterBufferName)) {
+        ppl.addStorageBuffer(clusterBufferName, Format.UNKNOWN, clusterBufferSize, ResourceResidency.PERSISTENT);
+    }
+    ppl.updateStorageBuffer(clusterBufferName, clusterBufferSize);
+
+    const clusterPass = ppl.addComputePass('cluster-build-cs');
+    clusterPass.addStorageBuffer(clusterBufferName, AccessType.WRITE, 'b_clustersBuffer');
+    clusterPass.addQueue()
+        .addDispatch(clusterData.dispatchX, clusterData.dispatchY, clusterData.dispatchZ, clusterData.clusterBuildCS, 0);
+
+    const width = camera.width * ppl.pipelineSceneData.shadingScale;
+    const height = camera.height * ppl.pipelineSceneData.shadingScale;
+    clusterPass.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, 0, 0));
+    clusterPass.setVec4('cc_viewPort', new Vec4(width, height, width, height));
+    clusterPass.setVec4('cc_workGroup', new Vec4(CLUSTERS_X, CLUSTERS_Y, CLUSTERS_Z, 0));
+    clusterPass.setMat4('cc_matView', camera.matView);
+    clusterPass.setMat4('cc_matProjInv', camera.matProjInv);
+}
+
+export function buildLightClusterCullingPass (camera: Camera, clusterData: ClusterLightData,
+    ppl: Pipeline) {
+    const cameraID = getCameraUniqueID(camera);
+    const clusterBufferName = `clusterBuffer${cameraID}`;
+    const clusterLightBufferName = `clusterLightBuffer${cameraID}`;
+    const clusterGlobalIndexBufferName = `b_globalIndexBuffer${cameraID}`;
+    const clusterLightIndicesBufferName = `clusterLIghtIndicesBuffer${cameraID}`;
+    const clusterLightGridBufferName = `clusterLightGridBuffer${cameraID}`;
+
+    // index buffer
+    const lightIndexBufferSize = MAX_LIGHTS_PER_CLUSTER * CLUSTER_COUNT * 4;
+    const lightGridBufferSize = CLUSTER_COUNT * 4 * 4;
+    if (!ppl.containsResource(clusterLightIndicesBufferName)) {
+        ppl.addStorageBuffer(clusterLightIndicesBufferName, Format.UNKNOWN, lightIndexBufferSize, ResourceResidency.PERSISTENT);
+    }
+    if (!ppl.containsResource(clusterLightGridBufferName)) {
+        ppl.addStorageBuffer(clusterLightGridBufferName, Format.UNKNOWN, lightGridBufferSize, ResourceResidency.PERSISTENT);
+    }
+
+    const clusterPass = ppl.addComputePass('cluster-culling-cs');
+    clusterPass.addStorageBuffer(clusterLightBufferName, AccessType.READ, 'b_ccLightsBuffer');
+    clusterPass.addStorageBuffer(clusterBufferName, AccessType.READ, 'b_clustersBuffer');
+    clusterPass.addStorageBuffer(clusterLightIndicesBufferName, AccessType.WRITE, 'b_clusterLightIndicesBuffer');
+    clusterPass.addStorageBuffer(clusterLightGridBufferName, AccessType.WRITE, 'b_clusterLightGridBuffer');
+    clusterPass.addStorageBuffer(clusterGlobalIndexBufferName, AccessType.WRITE, 'b_globalIndexBuffer');
+    clusterPass.addQueue()
+        .addDispatch(clusterData.dispatchX, clusterData.dispatchY, clusterData.dispatchZ, clusterData.clusterLightCullingCS, 0);
+
+    const width = camera.width * ppl.pipelineSceneData.shadingScale;
+    const height = camera.height * ppl.pipelineSceneData.shadingScale;
+    clusterPass.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, 0, 0));
+    clusterPass.setVec4('cc_viewPort', new Vec4(width, height, width, height));
+    clusterPass.setVec4('cc_workGroup', new Vec4(CLUSTERS_X, CLUSTERS_Y, CLUSTERS_Z, 0));
+    clusterPass.setMat4('cc_matView', camera.matView);
+    clusterPass.setMat4('cc_matProjInv', camera.matProjInv);
+}
+
+export function buildLightData (camera: Camera, pipeline: BasicPipeline) {
+    validPunctualLightsCulling(pipeline, camera);
+
+    // build cluster light data
+    const data = pipeline.pipelineSceneData;
+    const validLightCountForBuffer = nextPow2(Math.max(data.validPunctualLights.length, 1));
+
+    const lightBufferStride = 16; // 4 * vec4
+    const clusterLightBufferSize = validLightCountForBuffer * 4 * lightBufferStride;
+
+    const lightMeterScale = 10000.0;
+    const exposure = camera.exposure;
+
+    const cameraID = getCameraUniqueID(camera);
+    const clusterLightBufferName = `clusterLightBuffer${cameraID}`;
+    const clusterGlobalIndexBufferName = `b_globalIndexBuffer${cameraID}`;
+
+    const ppl = (pipeline as Pipeline);
+    if (!ppl.containsResource(clusterGlobalIndexBufferName)) {
+        ppl.addStorageBuffer(clusterGlobalIndexBufferName, Format.UNKNOWN, 4, ResourceResidency.PERSISTENT);
+    }
+
+    if (!ppl.containsResource(clusterLightBufferName)) {
+        ppl.addStorageBuffer(clusterLightBufferName, Format.UNKNOWN, clusterLightBufferSize, ResourceResidency.PERSISTENT);
+    }
+    ppl.updateStorageBuffer(clusterLightBufferName, clusterLightBufferSize);
+
+    const buffer = new ArrayBuffer(clusterLightBufferSize);
+    const view = new Float32Array(buffer);
+
+    // gather light data
+    let index = 0;
+    for (const light of data.validPunctualLights) {
+        const offset = index * lightBufferStride;
+        const positionOffset = offset + 0;
+        const colorOffset = offset + 4;
+        const sizeRangeAngleOffset = offset + 8;
+        const directionOffset = offset + 12;
+
+        let luminanceHDR = 0;
+        let luminanceLDR = 0;
+        let position: Vec3 | null;
+        if (light.type === LightType.POINT) {
+            const point = light as PointLight;
+            position = point.position;
+            luminanceLDR = point.luminanceLDR;
+            luminanceHDR = point.luminanceHDR;
+
+            view[sizeRangeAngleOffset]     = 0;
+            view[sizeRangeAngleOffset + 1] = point.range;
+            view[sizeRangeAngleOffset + 2] = 0;
+            view[sizeRangeAngleOffset + 3] = 0;
+        } else if (light.type === LightType.SPHERE) {
+            const sphere = light as SphereLight;
+            position = sphere.position;
+            luminanceLDR = sphere.luminanceLDR;
+            luminanceHDR = sphere.luminanceHDR;
+
+            view[sizeRangeAngleOffset]     = sphere.size;
+            view[sizeRangeAngleOffset + 1] = sphere.range;
+            view[sizeRangeAngleOffset + 2] = 0;
+            view[sizeRangeAngleOffset + 3] = 0;
+        } else if (light.type === LightType.SPOT) {
+            const spot = light as SpotLight;
+            position = spot.position;
+            luminanceLDR = spot.luminanceLDR;
+            luminanceHDR = spot.luminanceHDR;
+
+            view[sizeRangeAngleOffset]     = spot.size;
+            view[sizeRangeAngleOffset + 1] = spot.range;
+            view[sizeRangeAngleOffset + 2] = spot.spotAngle;
+            view[sizeRangeAngleOffset + 3] = 0;
+
+            const dir = spot.direction;
+            view[directionOffset]     = dir.x;
+            view[directionOffset + 1] = dir.y;
+            view[directionOffset + 2] = dir.z;
+            view[directionOffset + 3] = 0;
+        } else if (light.type === LightType.RANGED_DIRECTIONAL) {
+            const directional = light as RangedDirectionalLight;
+            position = directional.position;
+            luminanceLDR = directional.illuminanceLDR;
+            luminanceHDR = directional.illuminanceHDR;
+
+            const right = directional.right;
+            view[sizeRangeAngleOffset]     = right.x;
+            view[sizeRangeAngleOffset + 1] = right.y;
+            view[sizeRangeAngleOffset + 2] = right.z;
+            view[sizeRangeAngleOffset + 3] = 0;
+
+            const dir = directional.direction;
+            view[directionOffset]     = dir.x;
+            view[directionOffset + 1] = dir.y;
+            view[directionOffset + 2] = dir.z;
+            view[directionOffset + 3] = 0;
+        }
+        // position
+        view[positionOffset]     = position!.x;
+        view[positionOffset + 1] = position!.y;
+        view[positionOffset + 2] = position!.z;
+        view[positionOffset + 3] = light.type;
+
+        // color
+        const color = light.color;
+        if (light.useColorTemperature) {
+            const tempRGB = light.colorTemperatureRGB;
+            view[colorOffset]     = color.x * tempRGB.x;
+            view[colorOffset + 1] = color.y * tempRGB.y;
+            view[colorOffset + 2] = color.z * tempRGB.z;
+        } else {
+            view[colorOffset]     = color.x;
+            view[colorOffset + 1] = color.y;
+            view[colorOffset + 2] = color.z;
+        }
+        view[colorOffset + 3] = data.isHDR ? luminanceHDR * exposure * lightMeterScale : luminanceLDR;
+        index++;
+    }
+    // last float of first light data
+    view[3 * 4 + 3] = data.validPunctualLights.length;
+
+    // global index buffer
+    const globalIndexBuffer = new ArrayBuffer(4);
+    const globalIndexBufferView = new Uint32Array(globalIndexBuffer);
+    globalIndexBufferView[0] = 0;
+
+    const uploadPair1 = new UploadPair(new Uint8Array(buffer), clusterLightBufferName);
+    const uploadPair2 = new UploadPair(new Uint8Array(globalIndexBuffer), clusterGlobalIndexBufferName);
+    ppl.addUploadPass([uploadPair1, uploadPair2]);
+}
+
+export function buildClusterPasses (camera: Camera, pipeline: BasicPipeline) {
+    buildLightData(camera, pipeline);
+
+    const ppl = (pipeline as Pipeline);
+    if (!_clusterLightData) _clusterLightData = new ClusterLightData();
+
+    buildLightClusterBuildPass(camera, _clusterLightData, ppl);
+    buildLightClusterCullingPass(camera, _clusterLightData, ppl);
 }

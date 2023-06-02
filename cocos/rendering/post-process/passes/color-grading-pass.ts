@@ -7,9 +7,18 @@ import { passContext } from '../utils/pass-context';
 
 import { getSetting, SettingPass } from './setting-pass';
 import { ColorGrading } from '../components';
+import { disablePostProcessForDebugView } from './base-pass';
 
 export class ColorGradingPass extends SettingPass {
     get setting () { return getSetting(ColorGrading); }
+
+    checkEnable (camera: Camera) {
+        let enable = super.checkEnable(camera);
+        if (disablePostProcessForDebugView()) {
+            enable = false;
+        }
+        return enable;
+    }
 
     name = 'ColorGradingPass'
     effectName = 'pipeline/post-process/color-grading';

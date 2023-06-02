@@ -177,7 +177,7 @@ enum class Feature : uint32_t {
     INPUT_ATTACHMENT_BENEFIT,
     SUBPASS_COLOR_INPUT,
     SUBPASS_DEPTH_STENCIL_INPUT,
-    RASTERIZATION_ORDER_COHERENT,
+    RASTERIZATION_ORDER_NOCOHERENT,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(Feature);
@@ -475,6 +475,7 @@ enum class TextureFlagBit : uint32_t {
     GENERAL_LAYOUT = 0x2,  // For inout framebuffer attachments
     EXTERNAL_OES = 0x4,    // External oes texture
     EXTERNAL_NORMAL = 0x8, // External normal texture
+    MUTABLE_STORAGE = 0x10, // Texture is mutable or not, default is immutable(only for webgl2)
 };
 using TextureFlags = TextureFlagBit;
 CC_ENUM_BITWISE_OPERATORS(TextureFlagBit);
@@ -1022,6 +1023,21 @@ struct BufferViewInfo {
     EXPOSE_COPY_FN(BufferViewInfo)
 };
 
+struct DrawIndirectCommand {
+    uint32_t vertexCount;
+    uint32_t instanceCount;
+    uint32_t firstVertex;
+    uint32_t firstInstance;
+};
+
+struct DrawIndexedIndirectCommand {
+    uint32_t indexCount;
+    uint32_t instanceCount;
+    uint32_t firstIndex;
+    int32_t vertexOffset;
+    uint32_t firstInstance;
+};
+
 struct DrawInfo {
     uint32_t vertexCount{0};
     uint32_t firstVertex{0};
@@ -1265,7 +1281,6 @@ struct InputAssemblerInfo {
     AttributeList attributes;
     BufferList vertexBuffers;
     Buffer *indexBuffer{nullptr};    // @ts-nullable
-    Buffer *indirectBuffer{nullptr}; // @ts-nullable
 
     EXPOSE_COPY_FN(InputAssemblerInfo)
 };
@@ -1276,10 +1291,6 @@ struct ALIGNAS(8) ColorAttachment {
     LoadOp loadOp{LoadOp::CLEAR};
     StoreOp storeOp{StoreOp::STORE};
     GeneralBarrier *barrier{nullptr};
-    uint32_t isGeneralLayout{0}; // @ts-boolean
-#if CC_CPU_ARCH == CC_CPU_ARCH_64
-    uint32_t _padding{0};
-#endif
 
     EXPOSE_COPY_FN(ColorAttachment)
 };
@@ -1294,10 +1305,6 @@ struct ALIGNAS(8) DepthStencilAttachment {
     LoadOp stencilLoadOp{LoadOp::CLEAR};
     StoreOp stencilStoreOp{StoreOp::STORE};
     GeneralBarrier *barrier{nullptr};
-    uint32_t isGeneralLayout{0}; // @ts-boolean
-#if CC_CPU_ARCH == CC_CPU_ARCH_64
-    uint32_t _padding{0};
-#endif
 
     EXPOSE_COPY_FN(DepthStencilAttachment)
 };
@@ -1319,17 +1326,13 @@ struct SubpassInfo {
 
 using SubpassInfoList = ccstd::vector<SubpassInfo>;
 
-using AccessFlagList = ccstd::vector<AccessFlags>;
 struct ALIGNAS(8) SubpassDependency {
     uint32_t srcSubpass{0};
     uint32_t dstSubpass{0};
     GeneralBarrier *generalBarrier{nullptr};
 
-    AccessFlagList prevAccesses{};
-    AccessFlagList nextAccesses{};
-#if CC_CPU_ARCH == CC_CPU_ARCH_32
-    uint32_t _padding{0};
-#endif
+    AccessFlags prevAccesses{};
+    AccessFlags nextAccesses{};
 
     EXPOSE_COPY_FN(SubpassDependency)
 };

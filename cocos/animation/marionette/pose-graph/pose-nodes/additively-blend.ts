@@ -27,6 +27,10 @@ export class PoseNodeAdditivelyBlend extends PoseNode {
     @input({ type: PoseGraphType.POSE })
     public additivePose: PoseNode | null = null;
 
+    @serializable
+    @input({ type: PoseGraphType.FLOAT })
+    public ratio = 1.0;
+
     public bind (context: AnimationGraphBindingContext) {
         this.basePose?.bind(context);
         context._pushAdditiveFlag(true);
@@ -55,7 +59,7 @@ export class PoseNodeAdditivelyBlend extends PoseNode {
             return basePose;
         }
         const additionalPose = this.additivePose.evaluate(context, PoseTransformSpaceRequirement.LOCAL);
-        applyDeltaPose(basePose, additionalPose, 1.0);
+        applyDeltaPose(basePose, additionalPose, this.ratio);
         context.popPose();
         return basePose;
     }

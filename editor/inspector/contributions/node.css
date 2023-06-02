@@ -59,6 +59,7 @@
 }
 
 .scene ui-prop[ui-section-config] ui-section.config [slot="header"] {
+    flex: 1;
     justify-content: space-between;
 }
 
@@ -145,7 +146,6 @@
 .component .component-header {
     flex: 1;
     min-width: 0;
-
     display: flex;
     align-items: center;
 }
@@ -180,6 +180,10 @@
     margin-top: 4px;
 }
 
+.scene .skybox > [slot="header"] {
+    justify-content: space-between;
+}
+
 .component ui-prop [slot='label'] {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -196,10 +200,6 @@
 }
 
 .section-asset > ui-panel[type="asset"] {
-    margin-bottom: 4px;
-    border-radius: 2px;
-}
-
-.section-asset > ui-panel[type="asset"][focused] {
-    box-shadow: var(--color-primary-contrast-weakest) 0 0 4px;
+    --asset-container-margin-top: 0;
+    --asset-container-content-section-overflow: visible;
 }

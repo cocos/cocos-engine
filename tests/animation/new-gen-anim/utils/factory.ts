@@ -427,14 +427,16 @@ export interface LayerStashParams {
     graph: PoseGraphParams;
 }
 
-interface PoseGraphParams {
+type PoseGraphParams = {
     rootNode?: PoseNodeParams;
-}
+} | ((poseGraph: PoseGraph) => void);
 
 export type PoseNodeParams = PoseNode | Node_;
 
 function fillPoseGraph(poseGraph: PoseGraph, params: PoseGraphParams) {
-    if (params.rootNode) {
+    if (typeof params === 'function') {
+        params(poseGraph);
+    } else if (params.rootNode) {
         const root = createPoseNode(poseGraph, params.rootNode);
         poseGraphOp.connectOutputNode(poseGraph, poseGraph.outputNode, root);
     }

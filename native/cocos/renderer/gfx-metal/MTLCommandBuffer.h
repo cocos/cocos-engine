@@ -69,6 +69,8 @@ public:
     void setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask) override;
     void nextSubpass() override;
     void draw(const DrawInfo &info) override;
+    void drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) override;
+    void drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) override;
     void updateBuffer(Buffer *buff, const void *data, uint32_t size) override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) override;
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
@@ -95,6 +97,7 @@ protected:
     void doInit(const CommandBufferInfo &info) override;
     void doDestroy() override;
 
+    void prepareForDraw();
     void bindDescriptorSets();
     void updateDepthStencilState(uint32_t subPassIndex, MTLRenderPassDescriptor *descriptor);
     static bool isRenderingEntireDrawable(const Rect &rect, const CCMTLFramebuffer *renderPass);

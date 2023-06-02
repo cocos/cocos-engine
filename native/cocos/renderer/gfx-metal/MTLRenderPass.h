@@ -41,6 +41,8 @@ public:
     explicit CCMTLRenderPass();
     ~CCMTLRenderPass();
 
+    using BufferList = ccstd::vector<uint32_t>; // offset to draw buffer, also means [[color(N)]] of input
+
     void setColorAttachment(size_t slot, CCMTLTexture *texture, int level);
     void setDepthStencilAttachment(CCMTLTexture *texture, int level);
 
@@ -50,16 +52,20 @@ public:
     inline void nextSubpass() { _currentSubpassIndex++; }
     inline uint32_t getCurrentSubpassIndex() { return _currentSubpassIndex; }
     inline void reset() { _currentSubpassIndex = 0; }
+    inline const BufferList &getDrawBuffer(uint32_t subPassIndex) { return _drawBuffers[subPassIndex]; }
+    inline const BufferList &getReadBuffer(uint32_t subPassIndex) { return _readBuffers[subPassIndex]; }
 
 protected:
     void doInit(const RenderPassInfo &info) override;
     void doDestroy() override;
 
-    uint32_t _outputAttachmentOffset = 0;
     uint32_t _currentSubpassIndex = 0;
     MTLRenderPassDescriptor *_mtlRenderPassDescriptor = nil;
     uint32_t _colorRenderTargetNums = 0;
     ccstd::vector<Vec2> _renderTargetSizes;
+    ccstd::vector<BufferList> _drawBuffers;
+    ccstd::vector<BufferList> _readBuffers;
+    ccstd::vector<uint32_t> _colorIndices; // attachment index to draw buffer index
 };
 
 } // namespace gfx

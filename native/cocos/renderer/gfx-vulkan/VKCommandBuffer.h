@@ -54,6 +54,8 @@ public:
     void setStencilCompareMask(StencilFace face, uint32_t reference, uint32_t mask) override;
     void nextSubpass() override;
     void draw(const DrawInfo &info) override;
+    void drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) override;
+    void drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) override;
     void updateBuffer(Buffer *buffer, const void *data, uint32_t size) override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) override;
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
@@ -76,6 +78,7 @@ protected:
     void doDestroy() override;
 
     void bindDescriptorSets(VkPipelineBindPoint bindPoint);
+    void selfDependency();
 
     IntrusivePtr<CCVKGPUCommandBuffer> _gpuCommandBuffer;
 
@@ -91,6 +94,8 @@ protected:
     IntrusivePtr<CCVKGPURenderPass> _curGPURenderPass;
 
     bool _secondaryRP = false;
+    bool _hasSubPassSelfDependency = false;
+    uint32_t _currentSubPass = 0;
 
     DynamicStates _curDynamicStates;
 

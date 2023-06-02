@@ -137,11 +137,26 @@ export class WindowsPackTool extends NativePackTool {
 
     async run(): Promise<boolean> {
         const executableDir = ps.join(this.paths.nativePrjDir, this.params.debug ? 'Debug' : 'Release')
-        const executableName = `${this.params.projectName}.exe`;
-        if (!fs.existsSync(ps.join(executableDir, executableName))) {
-            throw new Error(`[windows run] '${executableName}' is not found within ' + ${executableDir}!`);
+        let executableFile: string;
+        let targetFile: string;
+        if (this.params.executableName) {
+            executableFile = ps.join(executableDir, this.params.executableName + '.exe');
+            targetFile = this.params.executableName;
+        } else {
+            if (/^[0-9a-zA-Z_-]+$/.test(this.params.projectName)) {
+                executableFile = ps.join(executableDir, this.params.projectName + '.exe');
+                targetFile = this.params.projectName;
+            } else {
+                const executableFiles = ['CocosGame', this.params.projectName].map(x => ps.join(executableDir, x + '.exe')).filter(x => fs.existsSync(x));
+                executableFile = executableFiles[0];
+                targetFile = 'CocosGame';
+            }
         }
-        await cchelper.runCmd(executableName, [], false, executableDir);
+
+        if (!executableFile || !fs.existsSync(executableFile)) {
+            throw new Error(`[windows run] '${targetFile}' is not found within ' + ${executableDir}!`);
+        }
+        await cchelper.runCmd(ps.basename(executableFile), [], false, executableDir);
         return true;
     }
 }

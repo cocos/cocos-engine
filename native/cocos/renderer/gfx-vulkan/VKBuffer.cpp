@@ -101,12 +101,6 @@ void CCVKGPUBuffer::shutdown() {
 }
 
 void CCVKGPUBuffer::init() {
-    if (hasFlag(usage, BufferUsageBit::INDIRECT)) {
-        const size_t drawInfoCount = size / sizeof(DrawInfo);
-        indexedIndirectCmds.resize(drawInfoCount);
-        indirectCmds.resize(drawInfoCount);
-    }
-
     cmdFuncCCVKCreateBuffer(CCVKDevice::getInstance(), this);
     CCVKDevice::getInstance()->getMemoryStatus().bufferSize += size;
     CC_PROFILE_MEMORY_INC(Buffer, size);

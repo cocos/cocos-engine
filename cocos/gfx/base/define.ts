@@ -405,6 +405,7 @@ export enum TextureFlagBit {
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
     EXTERNAL_OES = 0x4, // External oes texture
     EXTERNAL_NORMAL = 0x8, // External normal texture
+    MUTABLE_STORAGE = 0x10, //  Texture is mutable or not, default is immutable(only for webgl2)
 }
 
 export enum FormatFeatureBit {
@@ -1488,14 +1489,12 @@ export class InputAssemblerInfo {
         public attributes: Attribute[] = [],
         public vertexBuffers: Buffer[] = [],
         public indexBuffer: Buffer | null = null,
-        public indirectBuffer: Buffer | null = null,
     ) {}
 
     public copy (info: Readonly<InputAssemblerInfo>) {
         deepCopy(this.attributes, info.attributes, Attribute);
         this.vertexBuffers = info.vertexBuffers.slice();
         this.indexBuffer = info.indexBuffer;
-        this.indirectBuffer = info.indirectBuffer;
         return this;
     }
 }
@@ -1509,7 +1508,6 @@ export class ColorAttachment {
         public loadOp: LoadOp = LoadOp.CLEAR,
         public storeOp: StoreOp = StoreOp.STORE,
         public barrier: GeneralBarrier = null!,
-        public isGeneralLayout: boolean = false,
     ) {}
 
     public copy (info: Readonly<ColorAttachment>) {
@@ -1518,7 +1516,6 @@ export class ColorAttachment {
         this.loadOp = info.loadOp;
         this.storeOp = info.storeOp;
         this.barrier = info.barrier;
-        this.isGeneralLayout = info.isGeneralLayout;
         return this;
     }
 }
@@ -1534,7 +1531,6 @@ export class DepthStencilAttachment {
         public stencilLoadOp: LoadOp = LoadOp.CLEAR,
         public stencilStoreOp: StoreOp = StoreOp.STORE,
         public barrier: GeneralBarrier = null!,
-        public isGeneralLayout: boolean = false,
     ) {}
 
     public copy (info: Readonly<DepthStencilAttachment>) {
@@ -1545,7 +1541,6 @@ export class DepthStencilAttachment {
         this.stencilLoadOp = info.stencilLoadOp;
         this.stencilStoreOp = info.stencilStoreOp;
         this.barrier = info.barrier;
-        this.isGeneralLayout = info.isGeneralLayout;
         return this;
     }
 }

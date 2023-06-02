@@ -106,7 +106,11 @@ export class AnimationBlend2D extends AnimationBlend {
         return that;
     }
 
-    public [createEval] (context: AnimationGraphBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
+    public [createEval] (
+        context: AnimationGraphBindingContext,
+        clipOverrides: ReadonlyClipOverrideMap | null,
+        ignoreEmbeddedPlayers: boolean,
+    ) {
         const { algorithm } = this;
         let evaluation: AnimationBlendEval;
         switch (algorithm) {
@@ -115,6 +119,7 @@ export class AnimationBlend2D extends AnimationBlend {
             evaluation = new PolarSpaceGradientBandBlend2DEval(
                 context,
                 clipOverrides,
+                ignoreEmbeddedPlayers,
                 this,
                 this._items,
                 this._polarSpaceGBI,
@@ -129,6 +134,7 @@ export class AnimationBlend2D extends AnimationBlend {
             evaluation =  new AnimationBlend2DEval(
                 context,
                 clipOverrides,
+                ignoreEmbeddedPlayers,
                 this,
                 this._items,
                 this._items.map(({ threshold }) => threshold),
@@ -187,13 +193,14 @@ class AnimationBlend2DEval extends AnimationBlendEval {
     constructor (
         context: AnimationGraphBindingContext,
         clipOverrides: ReadonlyClipOverrideMap | null,
+        ignoreEmbeddedPlayers: boolean,
         base: AnimationBlend,
         items: AnimationBlendItem[],
         thresholds: readonly Vec2[],
         algorithm: Algorithm.SIMPLE_DIRECTIONAL | Algorithm.FREEFORM_CARTESIAN,
         inputs: [number, number],
     ) {
-        super(context, clipOverrides, base, items, inputs);
+        super(context, clipOverrides, ignoreEmbeddedPlayers, base, items, inputs);
         this._thresholds = thresholds;
         this._algorithm = algorithm;
         this.doEval();
@@ -222,12 +229,13 @@ class PolarSpaceGradientBandBlend2DEval extends AnimationBlendEval {
     constructor (
         context: AnimationGraphBindingContext,
         clipOverrides: ReadonlyClipOverrideMap | null,
+        ignoreEmbeddedPlayers: boolean,
         base: AnimationBlend,
         items: AnimationBlendItem[],
         interpolator: PolarSpaceGradientBandInterpolator2D,
         inputs: [number, number],
     ) {
-        super(context, clipOverrides, base, items, inputs);
+        super(context, clipOverrides, ignoreEmbeddedPlayers, base, items, inputs);
         this._interpolator = interpolator;
         this.doEval();
     }
