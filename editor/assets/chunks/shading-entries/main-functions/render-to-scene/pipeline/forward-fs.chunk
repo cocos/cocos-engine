@@ -128,9 +128,12 @@ void main()  {
   #endif
 #endif
 
-  // Fog, linear output
+  // Fog, rgbe and gamma output can't apply fog with forward-add pass
+  // todo: apply fogColorBrightness to fogColor for supporting scatter lighting with HDR
   #if CC_USE_FOG != CC_FOG_NONE
-    #if CC_USE_RGBE_OUTPUT || CC_USE_FLOAT_OUTPUT
+    #if CC_USE_FLOAT_OUTPUT
+      CC_APPLY_FOG_BASE(color, fogFactor);
+    #elif !CC_FORWARD_ADD
       CC_APPLY_FOG_BASE(color, fogFactor);
     #endif
   #endif
@@ -145,15 +148,6 @@ void main()  {
       color.rgb = LinearToSRGB(color.rgb);
     #endif
   #endif
-
-  // todo:
-  // can not perform forward-add with fog with 8888 output, and should blend with LDR gamma color, need move before color output
-  #if !CC_USE_RGBE_OUTPUT && !CC_USE_FLOAT_OUTPUT && !CC_FORWARD_ADD
-    #if CC_USE_FOG != CC_FOG_NONE
-      CC_APPLY_FOG_BASE(color, fogFactor);
-    #endif
-  #endif
-
 
   fragColorX = color;
 }
