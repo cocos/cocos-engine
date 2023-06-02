@@ -9,7 +9,6 @@ body:
       Please write a descriptive issue title above.
       
       **Before You Start:**
-      - Search [open](https://github.com/cocos/cocos-engine/issues) and [closed](https://github.com/cocos/cocos-engine/issues?q=is%3Aissue+is%3Aclosed) issues to ensure it has not already been reported.
       - Make sure you are reporting issue in [Creator API documentation](https://docs.cocos.com/creator/api/en/), please goto [Cocos Docs repository](https://github.com/cocos/cocos-docs) for reporting [User Manual](https://docs.cocos.com/creator/manual/en/) issues.
 
       **Thanks for taking the time to fill out this form!** 
