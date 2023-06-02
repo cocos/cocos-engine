@@ -23,6 +23,7 @@
 */
 
 import { JSB } from 'internal:constants';
+import { screenAdapter } from 'pal/screen-adapter';
 import { IConfig, FontAtlas } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { Rect } from '../../../core';
@@ -51,7 +52,7 @@ export const bmfontUtils = {
         outputLayoutData: TextOutputLayoutData, comp: Label, trans: UITransform) {
         style.fontSize = comp.fontSize;
         style.actualFontSize = comp.fontSize;
-        style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize * TextProcessing.instance.dpr; // only char mode need this value
+        style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
         layout.horizontalAlign = comp.horizontalAlign;
         layout.verticalAlign = comp.verticalAlign;
         layout.spacingX = comp.spacingX;
@@ -76,7 +77,6 @@ export const bmfontUtils = {
 
         shareLabelInfo.lineHeight = comp.lineHeight;
         shareLabelInfo.fontSize = comp.fontSize;
-        shareLabelInfo.dpr = TextProcessing.instance.dpr;
 
         style.spriteFrame = _spriteFrame;
         style.fntConfig = _fntConfig;
@@ -102,6 +102,12 @@ export const bmfontUtils = {
             const layout = comp.textLayout;
             const outputLayoutData = comp.textLayoutData;
             const outputRenderData = comp.textRenderData;
+            if (JSB) {
+                const width = jsb.window.innerWidth;
+                style.scalingRatio = screenAdapter.windowSize.width / width;
+            } else {
+                style.scalingRatio = screenAdapter.devicePixelRatio || 1;
+            }
             this._updateFontFamily(comp);
 
             this.updateProcessingData(style, layout, outputLayoutData, comp, _uiTrans);

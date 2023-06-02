@@ -21,6 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { JSB } from 'internal:constants';
+import { screenAdapter } from 'pal/screen-adapter';
 import { Label, LabelOutline, LabelShadow } from '../../components';
 import { ISharedLabelData } from './font-utils';
 import { UITransform } from '../../framework/ui-transform';
@@ -116,6 +118,12 @@ export const ttfUtils =  {
             const layout = comp.textLayout;
             const outputLayoutData = comp.textLayoutData;
             const outputRenderData = comp.textRenderData;
+            if (JSB) {
+                const width = jsb.window.innerWidth;
+                style.scalingRatio = screenAdapter.windowSize.width / width;
+            } else {
+                style.scalingRatio = screenAdapter.devicePixelRatio || 1;
+            }
             this.updateProcessingData(style, layout, outputLayoutData, outputRenderData, comp, trans);
             // use canvas in assemblerData // to do to optimize
             processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);

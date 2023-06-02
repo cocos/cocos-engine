@@ -79,7 +79,6 @@ export class TextProcessing {
         this._canvasData = CanvasPool.getInstance().get();
         this._canvas = this._canvasData.canvas;
         this._context = this._canvasData.context;
-        this._dpr = screenAdapter.devicePixelRatio || 1;
     }
 
     public destroy () {
@@ -93,6 +92,10 @@ export class TextProcessing {
             this._updatePaddingRect(style, outputLayoutData);
             this._calculateLabelFont(style, layout, outputLayoutData, inputString);
         } else {
+            if (!style.fntConfig) { // for char
+                style.originFontSize *= style.scalingRatio;
+                shareLabelInfo.dpr = style.scalingRatio;
+            }
             this._setupBMFontOverflowMetrics(layout, outputLayoutData);
             this._updateFontScale(style);
             this._computeHorizontalKerningForText(style, layout, inputString);
@@ -119,10 +122,6 @@ export class TextProcessing {
         this._canvas = canvas;
         this._context = content;
     }
-
-    public get dpr () {
-        return this._dpr;
-    }
     // -------------------- Common Part --------------------------
 
     // -------------------- Canvas Mode Part --------------------------
@@ -134,8 +133,6 @@ export class TextProcessing {
 
     private _lettersInfo: LetterInfo[] = [];
     private _tmpRect = new Rect();
-
-    private _dpr = 1;
 
     private _calculateLabelFont (style: TextStyle, layout: TextLayout,
         outputLayoutData: TextOutputLayoutData, inputString: string) {
@@ -373,7 +370,7 @@ export class TextProcessing {
         outputLayoutData.canvasSize.width = Math.min(outputLayoutData.canvasSize.width, MAX_SIZE);
         outputLayoutData.canvasSize.height = Math.min(outputLayoutData.canvasSize.height, MAX_SIZE);
 
-        const dpr = this._dpr;
+        const dpr = style.scalingRatio;
         this._canvas!.width = Math.min(outputLayoutData.canvasSize.width * dpr, MAX_SIZE);
         this._canvas!.height = Math.min(outputLayoutData.canvasSize.height * dpr, MAX_SIZE);
 
@@ -418,7 +415,7 @@ export class TextProcessing {
         if (!this._context || !this._canvas) {
             return;
         }
-        const dpr = this._dpr;
+        const dpr = style.scalingRatio;
 
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
         this._context.font = style.fontDesc.replace(
@@ -527,7 +524,8 @@ export class TextProcessing {
 
             // draw underline
             if (style.isUnderline) {
-                const _drawUnderlineWidth = measureText(outputLayoutData.parsedString[i]) * this._dpr;
+                const dpr = style.scalingRatio;
+                const _drawUnderlineWidth = measureText(outputLayoutData.parsedString[i]) * dpr;
                 const _drawUnderlinePos = new Vec2();
                 if (layout.horizontalAlign === HorizontalTextAlignment.RIGHT) {
                     _drawUnderlinePos.x = startPosition.x - _drawUnderlineWidth;
@@ -536,8 +534,8 @@ export class TextProcessing {
                 } else {
                     _drawUnderlinePos.x = startPosition.x;
                 }
-                _drawUnderlinePos.y = drawTextPosY + style.actualFontSize / 8 * this._dpr;
-                this._context!.fillRect(_drawUnderlinePos.x, _drawUnderlinePos.y, _drawUnderlineWidth, style.underlineHeight * this._dpr);
+                _drawUnderlinePos.y = drawTextPosY + style.actualFontSize / 8 * dpr;
+                this._context!.fillRect(_drawUnderlinePos.x, _drawUnderlinePos.y, _drawUnderlineWidth, style.underlineHeight * dpr);
             }
         }
 
@@ -548,11 +546,11 @@ export class TextProcessing {
 
     private _setupOutline (style: TextStyle) {
         this._context!.strokeStyle = `rgba(${style.outlineColor.r}, ${style.outlineColor.g}, ${style.outlineColor.b}, ${style.outlineColor.a / 255})`;
-        this._context!.lineWidth = style.outlineWidth * 2 * this._dpr;
+        this._context!.lineWidth = style.outlineWidth * 2 * style.scalingRatio;
     }
 
     private _setupShadow (style: TextStyle) {
-        const dpr = this._dpr;
+        const dpr = style.scalingRatio;
         this._context!.shadowColor = `rgba(${style.shadowColor.r}, ${style.shadowColor.g}, ${style.shadowColor.b}, ${style.shadowColor.a / 255})`;
         this._context!.shadowBlur = style.shadowBlur * dpr;
         this._context!.shadowOffsetX = style.shadowOffsetX * dpr;
