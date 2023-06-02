@@ -39,7 +39,7 @@ void Texture2D::syncMipmapsForJS(const ccstd::vector<IntrusivePtr<ImageAsset>> &
 }
 
 void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value) {
-    _mipmapRefs = value;
+    _mipmaps = value;
 
     auto mipmaps = ccstd::vector<IntrusivePtr<ImageAsset>>{};
 
@@ -56,28 +56,28 @@ void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value)
 }
 
 void Texture2D::setMipmapParams(const ccstd::vector<IntrusivePtr<ImageAsset>> &value) {
-    _mipmaps = value;
-    setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
-    if (!_mipmaps.empty()) {
-        ImageAsset *imageAsset = _mipmaps[0];
+    _generatedMipmaps = value;
+    setMipmapLevel(static_cast<uint32_t>(_generatedMipmaps.size()));
+    if (!_generatedMipmaps.empty()) {
+        ImageAsset *imageAsset = _generatedMipmaps[0];
         ITexture2DCreateInfo info;
         info.width = imageAsset->getWidth();
         info.height = imageAsset->getHeight();
         info.format = imageAsset->getFormat();
-        info.mipmapLevel = static_cast<uint32_t>(_mipmaps.size());
+        info.mipmapLevel = static_cast<uint32_t>(_generatedMipmaps.size());
         info.baseLevel = _baseLevel;
         info.maxLevel = _maxLevel;
         reset(info);
 
-        for (size_t i = 0, len = _mipmaps.size(); i < len; ++i) {
-            assignImage(_mipmaps[i], static_cast<uint32_t>(i));
+        for (size_t i = 0, len = _generatedMipmaps.size(); i < len; ++i) {
+            assignImage(_generatedMipmaps[i], static_cast<uint32_t>(i));
         }
 
     } else {
         ITexture2DCreateInfo info;
         info.width = 0;
         info.height = 0;
-        info.mipmapLevel = static_cast<uint32_t>(_mipmaps.size());
+        info.mipmapLevel = static_cast<uint32_t>(_generatedMipmaps.size());
         info.baseLevel = _baseLevel;
         info.maxLevel = _maxLevel;
         reset(info);
@@ -125,23 +125,23 @@ ccstd::string Texture2D::toString() const {
 }
 
 void Texture2D::updateMipmaps(uint32_t firstLevel, uint32_t count) {
-    if (firstLevel >= _mipmaps.size()) {
+    if (firstLevel >= _generatedMipmaps.size()) {
         return;
     }
 
     const auto nUpdate = static_cast<uint32_t>(std::min(
-        (count == 0 ? _mipmaps.size() : count),
-        (_mipmaps.size() - firstLevel)));
+        (count == 0 ? _generatedMipmaps.size() : count),
+        (_generatedMipmaps.size() - firstLevel)));
 
     for (uint32_t i = 0; i < nUpdate; ++i) {
         const uint32_t level = firstLevel + i;
-        assignImage(_mipmaps[level], level);
+        assignImage(_generatedMipmaps[level], level);
     }
 }
 
 bool Texture2D::destroy() {
     _mipmaps.clear();
-    _mipmapRefs.clear();
+    _generatedMipmaps.clear();
     return Super::destroy();
 }
 

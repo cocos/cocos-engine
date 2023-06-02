@@ -259,7 +259,7 @@ private:
     /*@serializable*/
     ccstd::vector<ITextureCubeMipmap> _mipmaps;
 
-    ccstd::vector<ITextureCubeMipmap> _mipmapRefs;
+    ccstd::vector<ITextureCubeMipmap> _generatedMipmaps;
 
     /*@serializable*/
     TextureCubeMipmapAtlasInfo _mipmapAtlas;

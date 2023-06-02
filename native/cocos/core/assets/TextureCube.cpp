@@ -75,7 +75,7 @@ TextureCube::TextureCube() = default;
 TextureCube::~TextureCube() = default;
 
 void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
-    _mipmapRefs = value;
+    _mipmaps = value;
 
     auto cubeMaps = ccstd::vector<ITextureCubeMipmap>{};
     if (value.size() == 1) {
@@ -127,19 +127,19 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
 }
 
 void TextureCube::setMipmapParams(const ccstd::vector<ITextureCubeMipmap> &value) {
-    _mipmaps = value;
-    setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
-    if (!_mipmaps.empty()) {
-        ImageAsset *imageAsset = _mipmaps[0].front;
+    _generatedMipmaps = value;
+    setMipmapLevel(static_cast<uint32_t>(_generatedMipmaps.size()));
+    if (!_generatedMipmaps.empty()) {
+        ImageAsset *imageAsset = _generatedMipmaps[0].front;
         reset({imageAsset->getWidth(),
                imageAsset->getHeight(),
                imageAsset->getFormat(),
-               static_cast<uint32_t>(_mipmaps.size()),
+               static_cast<uint32_t>(_generatedMipmaps.size()),
                _baseLevel,
                _maxLevel});
 
-        for (size_t level = 0, len = _mipmaps.size(); level < len; ++level) {
-            forEachFace(_mipmaps[level], [this, level](ImageAsset *face, TextureCube::FaceIndex faceIndex) {
+        for (size_t level = 0, len = _generatedMipmaps.size(); level < len; ++level) {
+            forEachFace(_generatedMipmaps[level], [this, level](ImageAsset *face, TextureCube::FaceIndex faceIndex) {
                 assignImage(face, static_cast<uint32_t>(level), static_cast<uint32_t>(faceIndex));
             });
         }
@@ -148,7 +148,7 @@ void TextureCube::setMipmapParams(const ccstd::vector<ITextureCubeMipmap> &value
         reset({0,
                0,
                ccstd::nullopt,
-               static_cast<uint32_t>(_mipmaps.size()),
+               static_cast<uint32_t>(_generatedMipmaps.size()),
                _baseLevel,
                _maxLevel});
     }
@@ -243,22 +243,21 @@ void TextureCube::reset(const ITextureCubeCreateInfo &info) {
 }
 
 void TextureCube::releaseTexture() {
-    _mipmaps.clear();
-    _mipmapAtlas.layout.clear();
+    destroy();
 }
 
 void TextureCube::updateMipmaps(uint32_t firstLevel, uint32_t count) {
-    if (firstLevel >= _mipmaps.size()) {
+    if (firstLevel >= _generatedMipmaps.size()) {
         return;
     }
 
     auto nUpdate = static_cast<uint32_t>(std::min(
-        count == 0 ? _mipmaps.size() : count,
-        _mipmaps.size() - firstLevel));
+        count == 0 ? _generatedMipmaps.size() : count,
+        _generatedMipmaps.size() - firstLevel));
 
     for (uint32_t i = 0; i < nUpdate; ++i) {
         uint32_t level = firstLevel + i;
-        forEachFace(_mipmaps[level], [this, level](auto face, auto faceIndex) {
+        forEachFace(_generatedMipmaps[level], [this, level](auto face, auto faceIndex) {
             assignImage(face, level, static_cast<uint32_t>(faceIndex));
         });
     }
@@ -282,7 +281,7 @@ void TextureCube::onLoaded() {
 
 bool TextureCube::destroy() {
     _mipmaps.clear();
-    _mipmapRefs.clear();
+    _generatedMipmaps.clear();
     _mipmapAtlas.layout.clear();
     return Super::destroy();
 }

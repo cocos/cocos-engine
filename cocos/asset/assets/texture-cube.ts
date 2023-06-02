@@ -139,7 +139,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     set mipmaps (value: ITextureCubeMipmap[]) {
-        this._originalMipmapsRef = value;
+        this._mipmaps = value;
 
         const cubeMaps: ITextureCubeMipmap[] = [];
         if (value.length === 1) {
@@ -158,6 +158,7 @@ export class TextureCube extends SimpleTexture {
                 || front.length !== bottom.length) {
                 console.error('The number of mipmaps of each face is different.');
                 this._setMipmapParams([]);
+                return;
             }
 
             const level = front.length;
@@ -190,19 +191,19 @@ export class TextureCube extends SimpleTexture {
     }
 
     private _setMipmapParams (value: ITextureCubeMipmap[]) {
-        this._mipmaps = value;
-        this._setMipmapLevel(this._mipmaps.length);
-        if (this._mipmaps.length > 0) {
-            const imageAsset: ImageAsset = this._mipmaps[0].front;
+        this._generatedMipmaps = value;
+        this._setMipmapLevel(this._generatedMipmaps.length);
+        if (this._generatedMipmaps.length > 0) {
+            const imageAsset: ImageAsset = this._generatedMipmaps[0].front;
             this.reset({
                 width: imageAsset.width,
                 height: imageAsset.height,
                 format: imageAsset.format,
-                mipmapLevel: this._mipmaps.length,
+                mipmapLevel: this._generatedMipmaps.length,
                 baseLevel: this._baseLevel,
                 maxLevel: this._maxLevel,
             });
-            this._mipmaps.forEach((mipmap, level) => {
+            this._generatedMipmaps.forEach((mipmap, level) => {
                 _forEachFace(mipmap, (face, faceIndex) => {
                     this._assignImage(face, level, faceIndex);
                 });
@@ -211,7 +212,7 @@ export class TextureCube extends SimpleTexture {
             this.reset({
                 width: 0,
                 height: 0,
-                mipmapLevel: this._mipmaps.length,
+                mipmapLevel: this._generatedMipmaps.length,
                 baseLevel: this._baseLevel,
                 maxLevel: this._maxLevel,
             });
@@ -355,7 +356,7 @@ export class TextureCube extends SimpleTexture {
     @serializable
     public _mipmaps: ITextureCubeMipmap[] = [];
 
-    private _originalMipmapsRef: ITextureCubeMipmap[] = [];
+    private _generatedMipmaps: ITextureCubeMipmap[] = [];
 
     public onLoaded () {
         if (this._mipmapMode === MipmapMode.BAKED_CONVOLUTION_MAP) {
@@ -392,18 +393,18 @@ export class TextureCube extends SimpleTexture {
      * @param count @en Mipmap level count to be updated。 @zh 指定要更新层的数量。
      */
     public updateMipmaps (firstLevel = 0, count?: number) {
-        if (firstLevel >= this._mipmaps.length) {
+        if (firstLevel >= this._generatedMipmaps.length) {
             return;
         }
 
         const nUpdate = Math.min(
-            count === undefined ? this._mipmaps.length : count,
-            this._mipmaps.length - firstLevel,
+            count === undefined ? this._generatedMipmaps.length : count,
+            this._generatedMipmaps.length - firstLevel,
         );
 
         for (let i = 0; i < nUpdate; ++i) {
             const level = firstLevel + i;
-            _forEachFace(this._mipmaps[level], (face, faceIndex) => {
+            _forEachFace(this._generatedMipmaps[level], (face, faceIndex) => {
                 this._assignImage(face, level, faceIndex);
             });
         }
@@ -415,6 +416,7 @@ export class TextureCube extends SimpleTexture {
      */
     public destroy () {
         this._mipmaps = [];
+        this._generatedMipmaps = [];
         this._mipmapAtlas = null;
         return super.destroy();
     }
@@ -425,8 +427,7 @@ export class TextureCube extends SimpleTexture {
      * @deprecated please use [[destroy]] instead
      */
     public releaseTexture () {
-        this.mipmaps = [];
-        this._mipmapAtlas = null;
+        this.destroy();
     }
 
     /**
