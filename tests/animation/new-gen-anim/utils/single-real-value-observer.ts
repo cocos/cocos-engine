@@ -3,6 +3,7 @@ import { additiveSettingsTag, AnimationClip } from "../../../../cocos/animation/
 import { Pose } from "../../../../cocos/animation/core/pose";
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from "../../../../cocos/animation/marionette/animation-graph-context";
 import { ClipMotion } from "../../../../cocos/animation/marionette/motion";
+import { WrapMode } from "../../../../cocos/animation/types";
 import { Node } from "../../../../cocos/scene-graph";
 import { Vec3 } from "../../../../exports/base";
 import { CreateMotionContext } from "./fixtures";
@@ -31,12 +32,14 @@ export class SingleRealValueObserver {
                 name = '',
                 duration,
                 additive = false,
+                wrapMode = WrapMode.Normal,
             }) {
                 const clip = new AnimationClip();
                 clip.name = name;
                 clip.enableTrsBlending = true;
                 clip.duration = duration;
                 clip[additiveSettingsTag].enabled = additive;
+                clip.wrapMode = wrapMode;
                 const track = new VectorTrack();
                 track.componentsCount = 3;
                 track.path.toProperty('position');

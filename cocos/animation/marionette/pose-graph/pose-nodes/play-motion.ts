@@ -15,6 +15,9 @@ import { getEnterInfo, getTileBase, makeCreateNodeFactory } from './play-or-samp
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext,
     AnimationGraphSettleContext, AnimationGraphUpdateContext,
 } from '../../animation-graph-context';
+import { clamp01 } from '../../../../core';
+
+const ZERO_DURATION_THRESHOLD = 1e-5;
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNodePlayMotion`)
 @poseGraphNodeCategory(POSE_GRAPH_NODE_MENU_PREFIX_POSE)
@@ -36,6 +39,10 @@ export class PoseNodePlayMotion extends PoseNode {
     @serializable
     @editable
     public readonly syncInfo = new MotionSyncInfo();
+
+    @serializable
+    @input({ type: PoseGraphType.FLOAT })
+    public startTime = 0.0;
 
     @serializable
     @input({ type: PoseGraphType.FLOAT })
@@ -76,11 +83,21 @@ export class PoseNodePlayMotion extends PoseNode {
 
     public reenter () {
         if (this._workspace) {
-            const { _runtimeSyncRecord: runtimeSyncRecord } = this;
+            const {
+                _runtimeSyncRecord: runtimeSyncRecord,
+                _workspace: { motionEval: { duration } },
+            } = this;
+
+            // TODO: cocos/cocos-engine#15305
+            this._forceEvaluateEvaluation();
+
+            const startTimeNormalized = duration < ZERO_DURATION_THRESHOLD
+                ? 0.0
+                : clamp01(this.startTime / duration);
             if (runtimeSyncRecord) {
-                runtimeSyncRecord.notifyRenter();
+                runtimeSyncRecord.notifyRenter(startTimeNormalized);
             } else {
-                this._workspace.normalizedTime = 0.0;
+                this._workspace.normalizedTime = startTimeNormalized;
             }
             this._workspace.lastIndicativeWeight = 0.0;
         }
@@ -92,7 +109,7 @@ export class PoseNodePlayMotion extends PoseNode {
             const { _runtimeSyncRecord: runtimeSyncRecord } = this;
             const duration = this._workspace.motionEval.duration;
             let normalizedDeltaTime = 0.0;
-            if (duration !== 0.0) {
+            if (duration > ZERO_DURATION_THRESHOLD) {
                 normalizedDeltaTime = (deltaTime * this.speedMultiplier) / duration;
             }
             if (runtimeSyncRecord) {
