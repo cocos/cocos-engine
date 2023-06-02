@@ -332,6 +332,7 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
     addRenderSubpass (subpassName: string): RenderSubpassBuilder;
     addMultisampleRenderSubpass (
         count: number,
@@ -358,6 +359,7 @@ export interface ComputePassBuilder extends Setter {
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
     /**
      * @deprecated method will be removed in 3.8.0
      */

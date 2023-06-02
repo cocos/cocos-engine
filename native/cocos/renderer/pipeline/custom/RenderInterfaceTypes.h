@@ -457,6 +457,7 @@ public:
 
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    virtual void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) = 0;
     virtual RenderSubpassBuilder *addRenderSubpass(const ccstd::string &subpassName) = 0;
     virtual MultisampleRenderSubpassBuilder *addMultisampleRenderSubpass(uint32_t count, uint32_t quality, const ccstd::string &subpassName) = 0;
     virtual ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &subpassName) = 0;
@@ -464,6 +465,9 @@ public:
      * @beta function signature might change
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
+    void addMaterialTexture(const ccstd::string &resourceName) {
+        addMaterialTexture(resourceName, gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT);
+    }
     ComputeSubpassBuilder *addComputeSubpass() {
         return addComputeSubpass("");
     }
@@ -476,6 +480,7 @@ public:
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    virtual void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) = 0;
     /**
      * @deprecated method will be removed in 3.8.0
      */
@@ -490,6 +495,9 @@ public:
     }
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
         addTexture(name, slotName, sampler, 0);
+    }
+    void addMaterialTexture(const ccstd::string &resourceName) {
+        addMaterialTexture(resourceName, gfx::ShaderStageFlagBit::COMPUTE);
     }
     ComputeQueueBuilder *addQueue() {
         return addQueue("");

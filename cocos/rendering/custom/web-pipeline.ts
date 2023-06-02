@@ -1189,6 +1189,9 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     addStorageImage (name: string, accessType: AccessType, slotName: string): void {
         throw new Error('Method not implemented.');
     }
+    addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit | undefined): void {
+        throw new Error('Method not implemented.');
+    }
     addComputeView (name: string, view: ComputeView) {
         if (DEBUG) {
             assert(name && this._resourceGraph.contains(name));

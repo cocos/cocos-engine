@@ -494,6 +494,7 @@ public:
 
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) override;
     RenderSubpassBuilder *addRenderSubpass(const ccstd::string &subpassName) override;
     MultisampleRenderSubpassBuilder *addMultisampleRenderSubpass(uint32_t count, uint32_t quality, const ccstd::string &subpassName) override;
     ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &subpassName) override;
@@ -616,6 +617,7 @@ public:
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) override;
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
+    void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) override;
     void addComputeView(const ccstd::string &name, const ComputeView &view) override;
     ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) override;
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;

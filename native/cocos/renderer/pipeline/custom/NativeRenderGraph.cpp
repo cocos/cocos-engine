@@ -430,6 +430,12 @@ void NativeRenderPassBuilder::addStorageImage(
             renderGraph->get_allocator()});
 }
 
+void NativeRenderPassBuilder::addMaterialTexture(
+    const ccstd::string& resourceName, gfx::ShaderStageFlagBit flags) {
+    auto& pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    pass.textures.emplace(resourceName, flags);
+}
+
 void NativeRenderPassBuilder::setCustomShaderStages(
     const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) {
     auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
@@ -1578,6 +1584,12 @@ void NativeComputePassBuilder::addStorageImage(
             ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+}
+
+void NativeComputePassBuilder::addMaterialTexture(
+    const ccstd::string& resourceName, gfx::ShaderStageFlagBit flags) {
+    auto& pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    pass.textures.emplace(resourceName, flags);
 }
 
 void NativeComputePassBuilder::setCustomShaderStages(
