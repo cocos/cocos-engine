@@ -23,15 +23,15 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable, type } from 'cc.decorator';
-import { globalDynamicBufferMap, vfxManager } from '../vfx-manager';
-
+import { vfxManager } from '../vfx-manager';
 import { Material, RenderingSubMesh } from '../../asset/assets';
-import { Enum, Quat, Vec3, Vec4, assertIsTrue } from '../../core';
-import { Attribute, Buffer, FormatInfos, PrimitiveMode } from '../../gfx';
+import { Enum, Quat, Vec3, Vec4 } from '../../core';
+import { FormatInfos, PrimitiveMode, BufferUsageBit } from '../../gfx';
 import { MacroRecord } from '../../render-scene';
-import { CC_VFX_E_IS_WORLD_SPACE, CC_VFX_P_COLOR, CC_VFX_P_POSITION, CC_VFX_P_SPRITE_ROTATION, CC_VFX_P_SPRITE_SIZE, CC_VFX_P_SUB_UV_INDEX, CC_VFX_P_VELOCITY, CC_VFX_RENDERER_TYPE_SPRITE, CC_VFX_SPRITE_ALIGNMENT_MODE, CC_VFX_SPRITE_FACING_MODE, E_IS_WORLD_SPACE, E_RENDER_SCALE, meshPosition, meshUv, P_COLOR, P_POSITION, P_SPRITE_ROTATION, P_SPRITE_SIZE, P_SUB_UV_INDEX1, P_VELOCITY, vfxPColor, vfxPPosition, vfxPSpriteRotation, vfxPSpriteSize, vfxPSubUVIndex, vfxPVelocity } from '../define';
+import { CC_VFX_E_IS_WORLD_SPACE, CC_VFX_P_COLOR, CC_VFX_P_POSITION, CC_VFX_P_SPRITE_ROTATION, CC_VFX_P_SPRITE_SIZE, CC_VFX_P_SUB_UV_INDEX, CC_VFX_P_VELOCITY, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_SPRITE, CC_VFX_SPRITE_ALIGNMENT_MODE, CC_VFX_SPRITE_FACING_MODE, E_IS_WORLD_SPACE, E_RENDER_SCALE, P_COLOR, P_POSITION, P_SPRITE_ROTATION, P_SPRITE_SIZE, P_SUB_UV_INDEX1, P_VELOCITY, vfxPColor, vfxPPosition, vfxPSpriteRotation, vfxPSpriteSize, vfxPSubUVIndex, vfxPVelocity } from '../define';
 import { ParticleDataSet, EmitterDataSet } from '../data-set';
 import { ParticleRenderer } from '../particle-renderer';
+import { VFXDynamicBuffer } from '../vfx-dynamic-buffer';
 
 /**
  * @en Particle alignment mode.
@@ -73,12 +73,8 @@ export enum SpriteFacingMode {
 }
 @ccclass('cc.SpriteParticleRenderer')
 export class SpriteParticleRenderer extends ParticleRenderer {
-    get name (): string {
+    get name () {
         return 'SpriteRenderer';
-    }
-
-    private destroy () {
-        this._renderingSubMesh = null;
     }
 
     @type(Enum(AlignmentMode))
@@ -93,69 +89,67 @@ export class SpriteParticleRenderer extends ParticleRenderer {
 
     private _subUVTilesAndVelLenScale = new Vec4(1, 1, 1, 1);
     private _isSubUVTilesAndVelLenScaleDirty = true;
-    private _defines: MacroRecord = { CC_VFX_RENDERER_TYPE: CC_VFX_RENDERER_TYPE_SPRITE };
+    private _defines: MacroRecord = { [CC_VFX_RENDERER_TYPE]: CC_VFX_RENDERER_TYPE_SPRITE };
     private _renderScale = new Vec4();
     private _rotation = new Quat();
-    private declare _dynamicBuffer: Buffer;
-    private declare _dynamicBufferFloatView: Float32Array;
-    private declare _dynamicBufferUintView: Uint32Array;
     private _vertexStreamSize = 0;
     private _vertexAttributeHash = '';
-
-    private _ensureVBO (count: number) {
-        assertIsTrue(globalDynamicBufferMap[this._vertexAttributeHash]);
-        const dynamicVBO = globalDynamicBufferMap[this._vertexAttributeHash];
-        dynamicVBO.markDirty();
-        this._firstInstance = dynamicVBO.usedCount;
-        dynamicVBO.usedCount += count;
-        this._dynamicBufferFloatView = dynamicVBO.floatDataView;
-        this._dynamicBufferUintView = dynamicVBO.uintDataView;
-    }
+    private declare _dynamicVBO: VFXDynamicBuffer;
 
     public render (particles: ParticleDataSet, emitter: EmitterDataSet) {
         const material = this.material;
         if (!material) {
             return;
         }
-        const { count } = particles;
+
         this._compileMaterial(material, particles, emitter);
         this._updateSubUvTilesAndVelocityLengthScale(material);
         this._updateRotation(material, particles, emitter);
         this._updateRenderScale(material, particles, emitter);
         this._updateRenderingSubMesh(material, particles, emitter);
         this._ensureVBO(particles.count);
+        this._fillVertexData(particles, emitter);
         this._isMaterialDirty = false;
-        const dynamicBufferFloatView = this._dynamicBufferFloatView;
-        const dynamicBufferUintView = this._dynamicBufferUintView;
-        const vertDynAttrsFloatCount = this._vertexStreamSize / 4;
-        const bufferStart = this._firstInstance * vertDynAttrsFloatCount;
+    }
+
+    private _fillVertexData (particles: ParticleDataSet, emitter: EmitterDataSet) {
+        const { count } = particles;
+        const dynamicBufferFloatView = this._dynamicVBO.floatDataView;
+        const dynamicBufferUintView = this._dynamicVBO.uint32DataView;
         const vertexStreamSizeDynamic = this._vertexStreamSize / 4;
-        let offset = bufferStart;
+        const firstInstance = this._firstInstance;
+
+        let offset = 0;
         const define = this._defines;
         if (define[CC_VFX_P_POSITION]) {
-            particles.getVec3ArrayParameter(P_POSITION).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getVec3ArrayParameter(P_POSITION).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         if (define[CC_VFX_P_SPRITE_ROTATION]) {
-            particles.getFloatArrayParameter(P_SPRITE_ROTATION).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getFloatArrayParameter(P_SPRITE_ROTATION).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_VFX_P_SPRITE_SIZE]) {
-            particles.getVec2ArrayParameter(P_SPRITE_SIZE).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getVec2ArrayParameter(P_SPRITE_SIZE).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
             offset += 2;
         }
         if (define[CC_VFX_P_COLOR]) {
-            particles.getColorArrayParameter(P_COLOR).copyToTypedArray(dynamicBufferUintView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getColorArrayParameter(P_COLOR).copyToTypedArray(dynamicBufferUintView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_VFX_P_SUB_UV_INDEX]) {
-            particles.getFloatArrayParameter(P_SUB_UV_INDEX1).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getFloatArrayParameter(P_SUB_UV_INDEX1).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_VFX_P_VELOCITY]) {
-            particles.getVec3ArrayParameter(P_VELOCITY).copyToTypedArray(dynamicBufferFloatView, 0, vertexStreamSizeDynamic, offset, 0, count);
+            particles.getVec3ArrayParameter(P_VELOCITY).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
+    }
+
+    private _ensureVBO (count: number) {
+        this._firstInstance = this._dynamicVBO.usedCount;
+        this._dynamicVBO.usedCount += count;
     }
 
     private _updateSubUvTilesAndVelocityLengthScale (material: Material) {
@@ -251,47 +245,43 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         }
     }
 
-    private _addAttrib (attrib: Attribute) {
-        this._vertexAttributeHash += `n${attrib.name}f${attrib.format}n${attrib.isNormalized}l${attrib.location}`;
-    }
-
     private _updateAttributes (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         let vertexStreamSizeDynamic = 0;
-        this._vertexAttributeHash = '';
+        let hash = 'sprite';
         const vertexStreamAttributes = vfxManager.sharedSpriteVertexBufferAttributes.slice();
         const define = this._defines;
 
         if (define[CC_VFX_P_POSITION]) {
             vertexStreamAttributes.push(vfxPPosition);
             vertexStreamSizeDynamic += FormatInfos[vfxPPosition.format].size;
-            this._addAttrib(vfxPPosition);
+            hash += `_${vfxPPosition.name}`;
         }
         if (define[CC_VFX_P_SPRITE_ROTATION]) {
             vertexStreamAttributes.push(vfxPSpriteRotation);
             vertexStreamSizeDynamic += FormatInfos[vfxPSpriteRotation.format].size;
-            this._addAttrib(vfxPSpriteRotation);
+            hash += `_${vfxPSpriteRotation.name}`;
         }
         if (define[CC_VFX_P_SPRITE_SIZE]) {
             vertexStreamAttributes.push(vfxPSpriteSize);
             vertexStreamSizeDynamic += FormatInfos[vfxPSpriteSize.format].size;
-            this._addAttrib(vfxPSpriteSize);
+            hash += `_${vfxPSpriteSize.name}`;
         }
         if (define[CC_VFX_P_COLOR]) {
             vertexStreamAttributes.push(vfxPColor);
             vertexStreamSizeDynamic += FormatInfos[vfxPColor.format].size;
-            this._addAttrib(vfxPColor);
+            hash += `_${vfxPColor.name}`;
         }
         if (define[CC_VFX_P_SUB_UV_INDEX]) {
             vertexStreamAttributes.push(vfxPSubUVIndex);
             vertexStreamSizeDynamic += FormatInfos[vfxPSubUVIndex.format].size;
-            this._addAttrib(vfxPSubUVIndex);
+            hash += `_${vfxPSubUVIndex.name}`;
         }
         if (define[CC_VFX_P_VELOCITY]) {
             vertexStreamAttributes.push(vfxPVelocity);
             vertexStreamSizeDynamic += FormatInfos[vfxPVelocity.format].size;
-            this._addAttrib(vfxPVelocity);
+            hash += `_${vfxPVelocity.name}`;
         }
-        this._vertexAttributeHash += 'vertex';
+        this._vertexAttributeHash = hash;
         this._vertexStreamSize = vertexStreamSizeDynamic;
         return vertexStreamAttributes;
     }
@@ -299,11 +289,12 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     private _updateRenderingSubMesh (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
         if (!this._renderingSubMesh) {
             const vertexStreamAttributes = this._updateAttributes(material, particles, emitter);
-
-            this._dynamicBuffer = vfxManager.getOrCreateDynamicVBO(this._vertexAttributeHash, this._vertexStreamSize);
-            this._renderingSubMesh = new RenderingSubMesh([vfxManager.getOrCreateSharedSpriteVertexBuffer(), this._dynamicBuffer],
+            this._dynamicVBO = vfxManager.getOrCreateDynamicBuffer(this._vertexAttributeHash, this._vertexStreamSize, BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST);
+            this._renderingSubMesh = new RenderingSubMesh(
+                [vfxManager.getOrCreateSharedSpriteVertexBuffer(), this._dynamicVBO.buffer],
                 vertexStreamAttributes,
-                PrimitiveMode.TRIANGLE_LIST, vfxManager.getOrCreateSharedSpriteIndexBuffer());
+                PrimitiveMode.TRIANGLE_LIST, vfxManager.getOrCreateSharedSpriteIndexBuffer(),
+            );
             this._vertexCount = vfxManager.sharedSpriteVertexCount;
             this._indexCount = vfxManager.sharedSpriteIndexCount;
         }

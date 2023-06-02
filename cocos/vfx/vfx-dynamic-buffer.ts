@@ -34,7 +34,7 @@ export class VFXDynamicBuffer {
         return this._floatDataView;
     }
 
-    get uintDataView () {
+    get uint32DataView () {
         return this._uint32DataView;
     }
 
@@ -47,16 +47,14 @@ export class VFXDynamicBuffer {
     }
 
     set usedCount (val) {
+        if (this._usedCount === val) { return; }
         this.reserve(val);
         this._usedCount = val;
+        this._dirty = true;
     }
 
     get capacity () {
         return this._capacity;
-    }
-
-    public markDirty () {
-        this._dirty = true;
     }
 
     private _dirty = false;

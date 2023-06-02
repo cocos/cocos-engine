@@ -102,7 +102,7 @@ export abstract class VFXParameter {
     get isArray () {
         return false;
     }
-    
+
     abstract get type (): VFXParameterType;
 }
 

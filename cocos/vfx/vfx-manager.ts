@@ -31,8 +31,6 @@ import { VFXDynamicBuffer } from './vfx-dynamic-buffer';
 import { Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, deviceManager, Attribute, FormatInfos } from '../gfx';
 import { meshPosition, meshUv } from './define';
 
-export const globalDynamicBufferMap: Record<string, VFXDynamicBuffer> = {};
-
 export class VFXManager extends System {
     get totalFrames () {
         return this._totalFrames;
@@ -98,6 +96,7 @@ export class VFXManager extends System {
     }
 
     render () {
+        this.resetBuffer();
         const renderers = this._renderers;
         for (let i = 0, length = renderers.length; i < length; i++) {
             if (renderers[i].isValid) {
@@ -124,11 +123,17 @@ export class VFXManager extends System {
         emitter.simulate(dt);
     }
 
+    resetBuffer () {
+        for (const hash in this._sharedDynamicBufferMap) {
+            const dynamicBuffer = this._sharedDynamicBufferMap[hash];
+            dynamicBuffer.reset();
+        }
+    }
+
     updateBuffer () {
-        for (const key in globalDynamicBufferMap) {
-            const dynamicVBO = globalDynamicBufferMap[key];
-            dynamicVBO.update();
-            dynamicVBO.reset();
+        for (const hash in this._sharedDynamicBufferMap) {
+            const dynamicBuffer = this._sharedDynamicBufferMap[hash];
+            dynamicBuffer.update();
         }
     }
 
@@ -173,12 +178,12 @@ export class VFXManager extends System {
         return this._sharedSpriteIndexBuffer;
     }
 
-    getOrCreateDynamicVBO (vertexHash, streamSize) {
-        if (!globalDynamicBufferMap[vertexHash]) {
-            globalDynamicBufferMap[vertexHash] = new VFXDynamicBuffer(deviceManager.gfxDevice,
-                streamSize, BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST);
+    getOrCreateDynamicBuffer (hash: string, streamSize: number, bufferUsageBit: BufferUsageBit) {
+        if (!this._sharedDynamicBufferMap[hash]) {
+            this._sharedDynamicBufferMap[hash] = new VFXDynamicBuffer(deviceManager.gfxDevice,
+                streamSize, bufferUsageBit);
         }
-        return globalDynamicBufferMap[vertexHash].buffer;
+        return this._sharedDynamicBufferMap[hash];
     }
 }
 

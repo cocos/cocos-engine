@@ -45,7 +45,6 @@ export class VFXDataSet {
         this._namespace = namespace;
     }
 
-    
     public ensureParameter (identity: VFXParameterIdentity) {
         if (!this.hasParameter(identity)) {
             this.addParameter(identity);
