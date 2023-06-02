@@ -77,7 +77,7 @@ export interface IMaterialInfo {
     states?: PassOverrides | PassOverrides[];
 }
 
-type MaterialPropertyFull = MaterialProperty | TextureBase | Texture | null;
+export type MaterialPropertyFull = MaterialProperty | TextureBase | Texture | null;
 
 /**
  * @en The material asset, specifies in details how a model is drawn on screen.
