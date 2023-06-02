@@ -230,7 +230,7 @@ export class SubModel {
         }
 
         this._subMesh = subMesh;
-        this._patches = patches;
+        this._patches = patches ? patches.sort() : null;
         this._passes = passes;
 
         this._flushPassInfo();
@@ -342,6 +342,15 @@ export class SubModel {
      * @zh Shader 宏更新回调
      */
     public onMacroPatchesStateChanged (patches: IMacroPatch[] | null): void {
+        if (!patches && !this._patches) {
+            return;
+        } else if (patches) {
+            patches = patches.sort();
+            if (this._patches && patches.length === this._patches.length) {
+                const patchesStateUnchanged = JSON.stringify(patches) === JSON.stringify(this._patches);
+                if (patchesStateUnchanged) return;
+            }
+        }
         this._patches = patches;
 
         const passes = this._passes;
