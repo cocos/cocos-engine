@@ -84,7 +84,7 @@ export class PipelineSceneData {
      * @returns The model id
      */
     set standardSkinModel (val: MeshRenderer | null) {
-        if (this._standardSkinModel && this._standardSkinModel !== val) this._standardSkinModel.closedStandardSkin();
+        if (this._standardSkinModel && this._standardSkinModel !== val) this._standardSkinModel.clearGlobalStandardSkinObjectFlag();
         this._standardSkinModel = val;
     }
 

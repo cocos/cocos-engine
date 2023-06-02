@@ -308,7 +308,7 @@ export class MeshRenderer extends ModelRenderer {
     protected _reflectionProbeBlendWeight = 0;
 
     @serializable
-    protected _enabledStandardSkin = false;
+    protected _enabledGlobalStandardSkinObject = false;
 
     protected _reflectionProbeDataMap: Texture2D | null = null;
 
@@ -493,19 +493,19 @@ export class MeshRenderer extends ModelRenderer {
     @tooltip('i18n:model.standard_skin_model')
     @disallowAnimation
     get isGlobalStandardSkinObject () {
-        return this._enabledStandardSkin;
+        return this._enabledGlobalStandardSkinObject;
     }
 
     set isGlobalStandardSkinObject (val) {
         cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel = val ? this : null;
-        this._enabledStandardSkin = val;
+        this._enabledGlobalStandardSkinObject = val;
     }
 
     /**
      * @engineInternal
      */
-    public closedStandardSkin () {
-        this._enabledStandardSkin = false;
+    public clearGlobalStandardSkinObjectFlag () {
+        this._enabledGlobalStandardSkinObject = false;
     }
 
     protected _modelType: typeof scene.Model;
@@ -1254,7 +1254,7 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     private _updateStandardSkin () {
-        if (this._enabledStandardSkin) {
+        if (this._enabledGlobalStandardSkinObject) {
             cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel = this;
         }
     }
