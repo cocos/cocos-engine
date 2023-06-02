@@ -34,7 +34,7 @@ class Value;
 
 class JsbWebSocketDelegate : public cc::RefCounted, public cc::network::WebSocket::Delegate {
 public:
-    JsbWebSocketDelegate() = default;
+    JsbWebSocketDelegate();
 
     void onOpen(cc::network::WebSocket *ws) override;
 
