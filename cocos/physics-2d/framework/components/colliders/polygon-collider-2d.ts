@@ -48,7 +48,7 @@ export class PolygonCollider2D extends Collider2D {
      */
     @type([Vec2])
     @tooltip('i18n:physics2d.collider.points')
-    get points () {
+    get points (): Vec2[] {
         return this._points;
     }
     set points (v) {

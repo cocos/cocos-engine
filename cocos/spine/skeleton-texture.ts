@@ -57,7 +57,7 @@ export class SkeletonTexture extends spine.Texture {
      * @zh 设置 Texture2D 资源。
      * @param tex @en Texture2D asset. @zh Texture2D 资源。
      */
-    setRealTexture (tex: Texture2D) {
+    setRealTexture (tex: Texture2D): void {
         this._texture = tex;
     }
 
@@ -77,7 +77,7 @@ export class SkeletonTexture extends spine.Texture {
      * @param magFilter @en Filter mode for scale up.
      *                  @zh 控制向上采样方式。
      */
-    setFilters (minFilter: spine.TextureFilter, magFilter: spine.TextureFilter) {
+    setFilters (minFilter: spine.TextureFilter, magFilter: spine.TextureFilter): void {
         if (this._texture) {
             this.getRealTexture()!.setFilters(convertFilter(minFilter), convertFilter(magFilter));
         }
@@ -89,7 +89,7 @@ export class SkeletonTexture extends spine.Texture {
      * @param uWrap U coordinate wrap mode.
      * @param vWrap V coordinate wrap mode.
      */
-    setWraps (uWrap: spine.TextureWrap, vWrap: spine.TextureWrap) {
+    setWraps (uWrap: spine.TextureWrap, vWrap: spine.TextureWrap): void {
         if (this._texture) {
             this.getRealTexture()!.setWrapMode(convertWraps(uWrap), convertWraps(vWrap));
         }
@@ -98,7 +98,7 @@ export class SkeletonTexture extends spine.Texture {
      * @en Just for adapter interface.
      * @zh 空函数为了适配接口。
      */
-    dispose () { }
+    dispose (): void { }
 }
 
 /**

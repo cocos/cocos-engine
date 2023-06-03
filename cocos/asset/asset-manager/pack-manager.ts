@@ -113,7 +113,7 @@ export class PackManager {
         onComplete(err, out);
     }
 
-    public init () {
+    public init (): void {
         this._loading.clear();
     }
 
@@ -140,7 +140,7 @@ export class PackManager {
      */
     public register (type: string, handler: Unpacker): void;
     public register (map: Record<string, Unpacker>): void;
-    public register (type: string | Record<string, Unpacker>, handler?: Unpacker) {
+    public register (type: string | Record<string, Unpacker>, handler?: Unpacker): void {
         if (typeof type === 'object') {
             js.mixin(this._unpackers, type);
         } else {
@@ -215,7 +215,7 @@ export class PackManager {
         const packs = item.info.packs;
 
         // find a loading package
-        let pack = packs.find((val) => this._loading.has(val.uuid));
+        let pack = packs.find((val): boolean => this._loading.has(val.uuid));
 
         if (pack) {
             this._loading.get(pack.uuid)!.push({ onComplete, id: item.id });
@@ -229,13 +229,13 @@ export class PackManager {
         // find the url of pack
         const url = transform(pack.uuid, { ext: pack.ext, bundle: item.config!.name }) as string;
 
-        downloader.download(pack.uuid, url, pack.ext, item.options, (err, data) => {
+        downloader.download(pack.uuid, url, pack.ext, item.options, (err, data): void => {
             files.remove(pack!.uuid);
             if (err) {
                 error(err.message, err.stack);
             }
             // unpack package
-            this.unpack(pack!.packedUuids, data, pack!.ext, item.options, (err2, result) => {
+            this.unpack(pack!.packedUuids, data, pack!.ext, item.options, (err2, result): void => {
                 if (!err2) {
                     for (const id in result) {
                         files.add(id, result[id]);

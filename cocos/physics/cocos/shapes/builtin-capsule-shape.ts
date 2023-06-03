@@ -28,15 +28,15 @@ import { geometry } from '../../../core';
 import { EAxisDirection, CapsuleCollider } from '../../framework';
 
 export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
-    get localCapsule () {
+    get localCapsule (): geometry.Capsule {
         return this._localShape as geometry.Capsule;
     }
 
-    get worldCapsule () {
+    get worldCapsule (): geometry.Capsule {
         return this._worldShape as geometry.Capsule;
     }
 
-    get collider () {
+    get collider (): CapsuleCollider {
         return this._collider as CapsuleCollider;
     }
 
@@ -48,7 +48,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         this._worldShape = new geometry.Capsule(radius, h, direction);
     }
 
-    setRadius (v: number) {
+    setRadius (v: number): void {
         this.localCapsule.radius = v;
         this.transform(
             this._sharedBody.node.worldMatrix,
@@ -58,7 +58,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         );
     }
 
-    setCylinderHeight (v: number) {
+    setCylinderHeight (v: number): void {
         this.localCapsule.halfHeight = v / 2;
         this.localCapsule.updateCache();
 
@@ -70,7 +70,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         );
     }
 
-    setDirection (v: EAxisDirection) {
+    setDirection (v: EAxisDirection): void {
         this.localCapsule.axis = v;
         this.localCapsule.updateCache();
 
@@ -85,7 +85,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         );
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.setRadius(this.collider.radius);
         this.setDirection(this.collider.direction);

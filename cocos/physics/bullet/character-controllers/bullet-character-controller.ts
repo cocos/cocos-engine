@@ -81,7 +81,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         }
     }
 
-    setWrapper () {
+    setWrapper (): void {
         BulletCache.setWrapper(this._impl, bt.CCT_CACHE_NAME, this);
     }
 
@@ -172,16 +172,16 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         this._comp.node.setWorldPosition(v3_0);
     }
 
-    syncScale () {
+    syncScale (): void {
         this.updateScale();
     }
 
-    get scaledCenter () {
+    get scaledCenter (): Vec3 {
         Vec3.multiply(v3_1, this._comp.center, this._comp.node.worldScale);
         return v3_1;
     }
 
-    move (movement: IVec3Like, minDist: number, elapsedTime: number) {
+    move (movement: IVec3Like, minDist: number, elapsedTime: number): void {
         if (!this._isEnabled) { return; }
         const movementBT = BulletCache.instance.BT_V3_0;
         bt.Vec3_set(movementBT, movement.x, movement.y, movement.z);
@@ -230,12 +230,12 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         this._dirty = true;
     }
 
-    updateEventListener () {
+    updateEventListener (): void {
         this.wrappedWorld.updateNeedEmitCCTEvents(this.characterController.needCollisionEvent);
     }
 
     // update group and mask by re-adding cct to physics world
-    updateDirty () {
+    updateDirty (): void {
         if (this._dirty) {
             (PhysicsSystem.instance.physicsWorld as BulletWorld).removeCCT(this);
             (PhysicsSystem.instance.physicsWorld as BulletWorld).addCCT(this);
@@ -243,7 +243,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
         }
     }
 
-    onShapeHitExt (hit: number) {
+    onShapeHitExt (hit: number): void {
         const shapePtr = bt.ControllerShapeHit_getHitShape(hit);
         const bulletWorld = (PhysicsSystem.instance.physicsWorld as BulletWorld);
         //use characterController impl and shape impl pair as key

@@ -55,7 +55,7 @@ export class VertexEffectDelegate {
      * @en Clears vertex effect.
      * @zh 清空顶点特效。
      */
-    clear () {
+    clear (): void {
         this._vertexEffect = null;
         this._interpolation = null;
         this._effectType = 'none';
@@ -97,7 +97,7 @@ export class VertexEffectDelegate {
      * @param {Number} power
      * @return {sp.spine.SwirlEffect} @en Return a vertex effect type of swirl. @zh 返回一个 swirl 类型的顶点特效对象实例。
      */
-    initSwirlWithPowOut (radius: number, power: number) {
+    initSwirlWithPowOut (radius: number, power: number): spine.VertexEffect {
         this._effectType = 'swirl';
         this._interpolation = new spine.PowOut(power);
         this._vertexEffect = new spine.SwirlEffect(radius, this._interpolation);
@@ -110,7 +110,7 @@ export class VertexEffectDelegate {
      * @method getJitterVertexEffect
      * @return {sp.spine.JitterEffect}
      */
-    getJitterVertexEffect () {
+    getJitterVertexEffect (): spine.VertexEffect | null {
         return this._vertexEffect;
     }
 
@@ -120,7 +120,7 @@ export class VertexEffectDelegate {
      * @method getSwirlVertexEffect
      * @return {sp.spine.SwirlEffect}
      */
-    getSwirlVertexEffect () {
+    getSwirlVertexEffect (): spine.VertexEffect | null {
         return this._vertexEffect;
     }
 
@@ -130,7 +130,7 @@ export class VertexEffectDelegate {
      * @method getVertexEffect
      * @return {sp.spine.JitterEffect|sp.spine.SwirlEffect}
      */
-    getVertexEffect () {
+    getVertexEffect (): spine.VertexEffect | null {
         return this._vertexEffect;
     }
 
@@ -140,7 +140,7 @@ export class VertexEffectDelegate {
      * @method getEffectType
      * @return {String}
      */
-    getEffectType () {
+    getEffectType (): string {
         return this._effectType;
     }
 }

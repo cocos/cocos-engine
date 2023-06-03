@@ -53,7 +53,7 @@ export class RatioSampler {
         this._findRatio = canOptimize ? quickFindIndex : binarySearchEpsilon;
     }
 
-    public sample (ratio: number) {
+    public sample (ratio: number): number {
         return this._findRatio(this.ratios, ratio);
     }
 }
@@ -69,7 +69,7 @@ cclegacy.RatioSampler = RatioSampler;
 export class AnimCurve {
     public static Linear = null;
 
-    public static Bezier (controlPoints: number[]) {
+    public static Bezier (controlPoints: number[]): BezierControlPoints {
         return controlPoints as BezierControlPoints;
     }
 
@@ -97,7 +97,7 @@ export class AnimCurve {
         // Install values.
         this._values = propertyCurveData.values;
 
-        const getCurveType = (easingMethod: legacy.LegacyEasingMethod) => {
+        const getCurveType = (easingMethod: legacy.LegacyEasingMethod): legacy.LegacyEasingMethod | null => {
             if (typeof easingMethod === 'string') {
                 return easingMethod;
             } else if (Array.isArray(easingMethod)) {
@@ -139,11 +139,11 @@ export class AnimCurve {
         }
     }
 
-    public hasLerp () {
+    public hasLerp (): boolean {
         return !!this._lerp;
     }
 
-    public valueAt (index: number) {
+    public valueAt (index: number): any {
         if (this._array === undefined) {
             const value = this._values[index];
             if (value && value.getNoLerp) {
@@ -162,7 +162,7 @@ export class AnimCurve {
         }
     }
 
-    public valueBetween (ratio: number, from: number, fromRatio: number, to: number, toRatio: number) {
+    public valueBetween (ratio: number, from: number, fromRatio: number, to: number, toRatio: number): any {
         if (this._lerp) {
             const type = this.types ? this.types[from] : this.type;
             const dRatio = (toRatio - fromRatio);
@@ -198,14 +198,14 @@ export class AnimCurve {
         }
     }
 
-    public empty () {
+    public empty (): boolean {
         return this._values.length === 0;
     }
 
     /**
      * Returns if this curve only yields constants.
      */
-    public constant () {
+    public constant (): boolean {
         return this._values.length === 1;
     }
 }
@@ -218,7 +218,7 @@ export class EventInfo {
      * @param func event function
      * @param params event params
      */
-    public add (func: string, params: any[]) {
+    public add (func: string, params: any[]): void {
         this.events.push({
             func: func || '',
             params: params || [],
@@ -236,7 +236,7 @@ export class EventInfo {
  * @param sampler @zh 采样器。@en The sampler.
  * @param ratio @zh 采样比率。@en Sample ratio([0, 1]).
  */
-export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, ratio: number) {
+export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, ratio: number): any {
     let index = sampler.sample(ratio);
     if (index < 0) {
         index = ~index;
@@ -266,7 +266,7 @@ cclegacy.sampleAnimationCurve = sampleAnimationCurve;
  * If it's string, then ratio will be computed with cc.easing function
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
-export function computeRatioByType (ratio: number, type: legacy.LegacyEasingMethod) {
+export function computeRatioByType (ratio: number, type: legacy.LegacyEasingMethod): number {
     if (typeof type === 'string') {
         const func = easing[type];
         if (func) {
@@ -285,7 +285,7 @@ export function computeRatioByType (ratio: number, type: legacy.LegacyEasingMeth
 /**
  * Use this function if intervals between frames are same.
  */
-function quickFindIndex (ratios: number[], ratio: number) {
+function quickFindIndex (ratios: number[], ratio: number): number {
     const length = ratios.length - 1;
 
     if (length === 0) { return 0; }
@@ -312,10 +312,10 @@ function quickFindIndex (ratios: number[], ratio: number) {
     return ~(floorIndex + 1);
 }
 
-const selectLerpFx = (() => {
-    function makeValueTypeLerpFx<T extends ValueType> (constructor: Constructor<T>) {
+const selectLerpFx = ((): (value: any) => legacy.LegacyLerpFunction<any> | undefined => {
+    function makeValueTypeLerpFx<T extends ValueType> (constructor: Constructor<T>): (from: T, to: T, ratio: number) => T {
         const tempValue = new constructor();
-        return (from: T, to: T, ratio: number) => {
+        return (from: T, to: T, ratio: number): T => {
             // TODO: `ValueType` class doesn't define lerp method
             // please fix the type @Leslie Leigh
         // Tracking issue: https://github.com/cocos/cocos-engine/issues/14640
@@ -329,9 +329,9 @@ const selectLerpFx = (() => {
         return from.lerp(to, t, dt);
     }
 
-    function makeQuatSlerpFx () {
+    function makeQuatSlerpFx (): (from: Quat, to: Quat, t: number, dt: number) => Quat {
         const tempValue = new Quat();
-        return (from: Quat, to: Quat, t: number, dt: number) => Quat.slerp(tempValue, from, to, t);
+        return (from: Quat, to: Quat, t: number, dt: number): Quat => Quat.slerp(tempValue, from, to, t);
     }
 
     return (value: any): legacy.LegacyLerpFunction<any> | undefined => {

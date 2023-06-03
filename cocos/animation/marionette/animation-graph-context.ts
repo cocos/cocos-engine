@@ -86,14 +86,14 @@ export class AnimationGraphBindingContext {
      * The origin node is the origin from where the animation target start to resolve.
      * It's now definitely the node hosting the running animation controller component.
      */
-    get origin () {
+    get origin (): Node {
         return this._origin;
     }
 
     /**
      * The animation controller component currently running the animation graph.
      */
-    get controller () {
+    get controller (): AnimationController {
         return this._controller;
     }
 
@@ -101,18 +101,18 @@ export class AnimationGraphBindingContext {
      * A free function to reset specified trigger.
      * @internal This function should only be accessed by the builtin state machine.
      */
-    get triggerResetter () {
+    get triggerResetter (): TriggerResetter {
         return this._triggerResetter;
     }
 
-    get clipOverrides () {
+    get clipOverrides (): ReadonlyClipOverrideMap | undefined {
         return this._clipOverrides;
     }
 
     /**
      * Returns if current context expects to have an additive pose.
      */
-    get additive () {
+    get additive (): boolean {
         const { _additiveFlagStack: additiveFlagStack } = this;
         return additiveFlagStack[additiveFlagStack.length - 1];
     }
@@ -141,7 +141,7 @@ export class AnimationGraphBindingContext {
         return boneNode.children.map((childNode) => childNode.name);
     }
 
-    public getParentBoneNameByName (bone: string) {
+    public getParentBoneNameByName (bone: string): string | null | undefined {
         const boneNode = findBoneByNameRecursively(this._origin, bone);
         if (!boneNode) {
             return null;
@@ -165,7 +165,7 @@ export class AnimationGraphBindingContext {
      * Pushes the `additive` flag. A later `_popAdditiveFlag` is required to pop the change.
      * @internal
      */
-    public _pushAdditiveFlag (additive: boolean) {
+    public _pushAdditiveFlag (additive: boolean): void {
         this._additiveFlagStack.push(additive);
     }
 
@@ -173,13 +173,13 @@ export class AnimationGraphBindingContext {
      * Undo last `_pushAdditiveFlag`.
      * @internal
      */
-    public _popAdditiveFlag () {
+    public _popAdditiveFlag (): void {
         assertIsTrue(this._additiveFlagStack.length > 1);
         this._additiveFlagStack.pop();
     }
 
     /** @internal */
-    public _integrityCheck () {
+    public _integrityCheck (): boolean {
         return this._additiveFlagStack.length === 1;
     }
 
@@ -199,7 +199,7 @@ export class AnimationGraphBindingContext {
     public _setLayerWideContextProperties (
         stashView: RuntimeStashView,
         motionSyncManager: RuntimeMotionSyncManager,
-    ) {
+    ): void {
         assertIsTrue(!this._isLayerWideContextPropertiesSet);
         this._isLayerWideContextPropertiesSet = true;
         this._stashView = stashView;
@@ -209,7 +209,7 @@ export class AnimationGraphBindingContext {
     /**
      * @internal
      */
-    public _unsetLayerWideContextProperties () {
+    public _unsetLayerWideContextProperties (): void {
         assertIsTrue(this._isLayerWideContextPropertiesSet);
         this._isLayerWideContextPropertiesSet = false;
         this._stashView = undefined;
@@ -219,7 +219,7 @@ export class AnimationGraphBindingContext {
     /**
      * @internal
      */
-    public _setClipOverrides (clipOverrides: ReadonlyClipOverrideMap | undefined) {
+    public _setClipOverrides (clipOverrides: ReadonlyClipOverrideMap | undefined): void {
         this._clipOverrides = clipOverrides;
     }
 
@@ -239,7 +239,7 @@ export class AnimationGraphBindingContext {
     private _motionSyncManager: RuntimeMotionSyncManager | undefined;
     private _clipOverrides: ReadonlyClipOverrideMap | undefined = undefined;
 
-    private _resetTrigger (triggerName: string) {
+    private _resetTrigger (triggerName: string): void {
         const varInstance = this._varRegistry[triggerName];
         if (!varInstance) {
             return;
@@ -251,19 +251,19 @@ export class AnimationGraphBindingContext {
 const cacheTransform = new Transform();
 
 export class AuxiliaryCurveRegistry {
-    public names () {
+    public names (): IterableIterator<string> {
         return this._namedCurves.keys();
     }
 
-    public has (name: string) {
+    public has (name: string): boolean {
         return this._namedCurves.has(name);
     }
 
-    public get (name: string) {
+    public get (name: string): number {
         return this._namedCurves.get(name) ?? 0.0;
     }
 
-    public set (name: string, value: number) {
+    public set (name: string, value: number): void {
         this._namedCurves.set(name, value);
     }
 
@@ -287,7 +287,7 @@ export enum LayoutChangeFlag {
     AUXILIARY_CURVE_COUNT = 4,
 }
 
-const checkBindStatus = (bindStarted = false): MethodDecorator => (_, _propertyKey, descriptor: TypedPropertyDescriptor<any>) => {
+const checkBindStatus = (bindStarted = false): MethodDecorator => (_, _propertyKey, descriptor: TypedPropertyDescriptor<any>): void => {
     if (!DEBUG) {
         return;
     }
@@ -295,7 +295,7 @@ const checkBindStatus = (bindStarted = false): MethodDecorator => (_, _propertyK
     const vendor = descriptor.value;
     if (vendor) {
         // eslint-disable-next-line func-names
-        descriptor.value = function (this: { readonly _bindStarted: boolean }, ...args: unknown[]) {
+        descriptor.value = function (this: { readonly _bindStarted: boolean }, ...args: unknown[]): any {
             assertIsTrue(this._bindStarted === bindStarted,
                 bindStarted
                     ? `The operation is invalid since bind has not been started.`
@@ -315,11 +315,11 @@ export class AnimationGraphPoseLayoutMaintainer {
         this._auxiliaryCurveRegistry = auxiliaryCurveRegistry;
     }
 
-    get transformCount () {
+    get transformCount (): number {
         return this._transformRecords.length;
     }
 
-    get auxiliaryCurveCount () {
+    get auxiliaryCurveCount (): number {
         return this._auxiliaryCurveRecords.length;
     }
 
@@ -328,7 +328,7 @@ export class AnimationGraphPoseLayoutMaintainer {
     }
 
     @checkBindStatus(true)
-    public getOrCreateTransformBinding (node: Node) {
+    public getOrCreateTransformBinding (node: Node): TransformHandleInternal | null {
         const {
             _origin: origin,
         } = this;
@@ -382,7 +382,7 @@ export class AnimationGraphPoseLayoutMaintainer {
     }
 
     @checkBindStatus(true)
-    private _getOrCreateTransformBinding (node: Node) {
+    private _getOrCreateTransformBinding (node: Node): TransformHandleInternal {
         const { _transformRecords: transformRecords } = this;
 
         const transformIndex = transformRecords.findIndex((transformRecord) => transformRecord.node === node);
@@ -418,7 +418,7 @@ export class AnimationGraphPoseLayoutMaintainer {
     }
 
     @checkBindStatus(true)
-    public getOrCreateAuxiliaryCurveBinding (name: string) {
+    public getOrCreateAuxiliaryCurveBinding (name: string): AuxiliaryCurveHandleInternal {
         const { _auxiliaryCurveRecords: auxiliaryCurveRecords } = this;
 
         const auxiliaryCurveIndex = auxiliaryCurveRecords.findIndex((record) => record.name === name);
@@ -437,7 +437,7 @@ export class AnimationGraphPoseLayoutMaintainer {
         }
     }
 
-    public createEvaluationContext () {
+    public createEvaluationContext (): AnimationGraphEvaluationContext {
         assertIsTrue(!this._bindStarted);
         return new AnimationGraphEvaluationContext(
             this.transformCount,
@@ -447,12 +447,12 @@ export class AnimationGraphPoseLayoutMaintainer {
         );
     }
 
-    public resetPoseStashAllocator (allocator: DeferredPoseStashAllocator) {
+    public resetPoseStashAllocator (allocator: DeferredPoseStashAllocator): void {
         assertIsTrue(!this._bindStarted);
         allocator._reset(this.transformCount, this.auxiliaryCurveCount);
     }
 
-    public createTransformFilter (mask: Readonly<AnimationMask>) {
+    public createTransformFilter (mask: Readonly<AnimationMask>): TransformFilter {
         const { _origin: origin } = this;
         const involvedTransformIndices: number[] = [];
         for (const { node, handle } of this._transformRecords) {
@@ -469,7 +469,7 @@ export class AnimationGraphPoseLayoutMaintainer {
         const poseFilter = new TransformFilter(involvedTransformIndices);
         return poseFilter;
 
-        function countPath (from: Node, to: Node) {
+        function countPath (from: Node, to: Node): string | undefined {
             const path: string[] = [];
             for (let node: Node | null = to; node; node = node.parent) {
                 if (node === from) {
@@ -482,7 +482,7 @@ export class AnimationGraphPoseLayoutMaintainer {
         }
     }
 
-    public fetchDefaultTransforms (transforms: TransformArray) {
+    public fetchDefaultTransforms (transforms: TransformArray): void {
         const nTransforms = this._transformRecords.length;
         assertIsTrue(transforms.length === nTransforms);
         for (let iTransform = 0; iTransform < nTransforms; ++iTransform) {
@@ -491,7 +491,7 @@ export class AnimationGraphPoseLayoutMaintainer {
         }
     }
 
-    public apply (pose: Pose) {
+    public apply (pose: Pose): void {
         const {
             transforms,
             auxiliaryCurves,
@@ -521,7 +521,7 @@ export class AnimationGraphPoseLayoutMaintainer {
      * @engineInternal
      */
     @checkBindStatus(true)
-    public _destroyTransformHandle (index: number) {
+    public _destroyTransformHandle (index: number): void {
         assertIsTrue(index >= 0 && index < this._transformRecords.length, `Invalid transform handle.`);
         const record = this._transformRecords[index];
         assertIsTrue(record.refCount > 0, `Something work wrong: refCount mismatch.`);
@@ -532,7 +532,7 @@ export class AnimationGraphPoseLayoutMaintainer {
      * @engineInternal
      */
     @checkBindStatus(true)
-    public _destroyAuxiliaryCurveHandle (index: number) {
+    public _destroyAuxiliaryCurveHandle (index: number): void {
         assertIsTrue(index >= 0 && index < this._auxiliaryCurveRecords.length, `Invalid auxiliary value handle.`);
         const record = this._auxiliaryCurveRecords[index];
         assertIsTrue(record.refCount > 0, `Something work wrong: refCount mismatch.`);
@@ -540,14 +540,14 @@ export class AnimationGraphPoseLayoutMaintainer {
     }
 
     @checkBindStatus(false)
-    public startBind () {
+    public startBind (): void {
         this._bindStarted = true;
         this._transformCountBeforeBind = this._transformRecords.length;
         this._auxiliaryCurveCountBeforeBind = this._auxiliaryCurveRecords.length;
     }
 
     @checkBindStatus(true)
-    public endBind () {
+    public endBind (): number {
         const {
             _transformRecords: transformRecords,
             _auxiliaryCurveRecords: auxiliaryCurveRecords,
@@ -689,7 +689,7 @@ class AuxiliaryCurveRecord implements AnimationRecord<AuxiliaryCurveHandleIntern
     public readonly name: string;
 }
 
-function trimRecords<TRecord extends AnimationRecord<any>> (records: TRecord[]) {
+function trimRecords<TRecord extends AnimationRecord<any>> (records: TRecord[]): void {
     const nUsedRecords = partition(records, (record) => {
         assertIsTrue(record.refCount >= 0);
         return record.refCount > 0;
@@ -724,7 +724,7 @@ export class AnimationGraphSettleContext {
     /**
      * Gets the number of transforms in pose.
      */
-    public get transformCount () {
+    public get transformCount (): number {
         return this._layoutMaintainer.transformCount;
     }
 
@@ -764,7 +764,7 @@ class AnimationGraphEvaluationContext {
         this[defaultTransformsTag] = new TransformArray(transformCount);
     }
 
-    public destroy () {
+    public destroy (): void {
         this._poseAllocator.destroy();
     }
 
@@ -773,15 +773,15 @@ class AnimationGraphEvaluationContext {
      */
     public readonly [defaultTransformsTag]: TransformArray;
 
-    public get allocatedPoseCount () {
+    public get allocatedPoseCount (): number {
         return this._poseAllocator.allocatedCount;
     }
 
-    get parentTable () {
+    get parentTable (): readonly number[] {
         return this._parentTable;
     }
 
-    public pushDefaultedPose () {
+    public pushDefaultedPose (): Pose {
         const pose = this._poseAllocator.push();
         pose.transforms.set(this[defaultTransformsTag]);
         pose._poseTransformSpace = PoseTransformSpace.LOCAL;
@@ -789,13 +789,13 @@ class AnimationGraphEvaluationContext {
         return pose;
     }
 
-    public pushDefaultedPoseInComponentSpace () {
+    public pushDefaultedPoseInComponentSpace (): Pose {
         const pose = this.pushDefaultedPose();
         this._poseTransformsSpaceLocalToComponent(pose);
         return pose;
     }
 
-    public pushZeroDeltaPose () {
+    public pushZeroDeltaPose (): Pose {
         const pose = this._poseAllocator.push();
         pose.transforms.fill(ZERO_DELTA_TRANSFORM);
         pose._poseTransformSpace = PoseTransformSpace.LOCAL;
@@ -803,7 +803,7 @@ class AnimationGraphEvaluationContext {
         return pose;
     }
 
-    public pushDuplicatedPose (src: Pose) {
+    public pushDuplicatedPose (src: Pose): Pose {
         const pose = this._poseAllocator.push();
         pose.transforms.set(src.transforms);
         pose._poseTransformSpace = src._poseTransformSpace;
@@ -811,26 +811,26 @@ class AnimationGraphEvaluationContext {
         return pose;
     }
 
-    public popPose () {
+    public popPose (): void {
         this._poseAllocator.pop();
     }
 
     /**
      * @internal
      */
-    public get _stackSize_debugging () {
+    public get _stackSize_debugging (): number {
         return this._poseAllocator.allocatedCount;
     }
 
     /**
      * @internal
      */
-    public _isStackTopPose_debugging (pose: Pose) {
+    public _isStackTopPose_debugging (pose: Pose): boolean {
         return pose === this._poseAllocator.top;
     }
 
     /** @internal */
-    public _poseTransformsSpaceLocalToComponent (pose: Pose) {
+    public _poseTransformsSpaceLocalToComponent (pose: Pose): void {
         const { transforms } = pose;
         const { length: nTransforms } = transforms;
         for (let iTransform = 0; iTransform < nTransforms; ++iTransform) {
@@ -848,7 +848,7 @@ class AnimationGraphEvaluationContext {
     }
 
     /** @internal */
-    public _poseTransformsSpaceComponentToLocal (pose: Pose) {
+    public _poseTransformsSpaceComponentToLocal (pose: Pose): void {
         const { transforms } = pose;
         const { length: nTransforms } = transforms;
         for (let iTransform = nTransforms - 1; iTransform >= 0; --iTransform) {
@@ -870,7 +870,7 @@ class AnimationGraphEvaluationContext {
         outTransformSpace: TransformSpace,
         pose: Pose,
         poseTransformIndex: number,
-    ) {
+    ): Transform {
         const poseSpace = pose._poseTransformSpace;
         switch (outTransformSpace) {
         default:
@@ -936,7 +936,7 @@ class AnimationGraphEvaluationContext {
         transformSpace: TransformSpace,
         pose: Pose,
         poseTransformIndex: number,
-    ) {
+    ): Transform {
         const poseSpace = pose._poseTransformSpace;
 
         switch (transformSpace) {
@@ -999,7 +999,7 @@ class AnimationGraphEvaluationContext {
 
     private _cacheComponentToWorldTransform = new Transform();
 
-    private _getComponentToWorldTransform () {
+    private _getComponentToWorldTransform (): Transform {
         const result = this._cacheComponentToWorldTransform;
         const componentNode = this._componentNode;
         result.position = componentNode.worldPosition;
@@ -1008,7 +1008,7 @@ class AnimationGraphEvaluationContext {
         return result;
     }
 
-    private _getLocalToComponentTransform (out: Transform, pose: Pose, transformIndex: number) {
+    private _getLocalToComponentTransform (out: Transform, pose: Pose, transformIndex: number): Transform {
         const { _parentTable: parentTable } = this;
 
         Transform.setIdentity(out);
@@ -1020,7 +1020,7 @@ class AnimationGraphEvaluationContext {
         return out;
     }
 
-    private _getLocalToWorldTransform (out: Transform, pose: Pose, transformIndex: number) {
+    private _getLocalToWorldTransform (out: Transform, pose: Pose, transformIndex: number): Transform {
         this._getLocalToComponentTransform(out, pose, transformIndex);
         Transform.multiply(out, this._getComponentToWorldTransform(), out);
         return out;
@@ -1045,7 +1045,7 @@ class TransformHandleInternal implements TransformHandle {
 
     public index = -1;
 
-    public destroy () {
+    public destroy (): void {
         this._host._destroyTransformHandle(this.index);
     }
 
@@ -1062,7 +1062,7 @@ class AuxiliaryCurveHandleInternal implements AuxiliaryCurveHandle {
 
     public index = -1;
 
-    public destroy () {
+    public destroy (): void {
         this._host._destroyAuxiliaryCurveHandle(this.index);
     }
 
@@ -1101,7 +1101,7 @@ export class AnimationGraphUpdateContextGenerator {
     public generate (
         deltaTime: number,
         indicativeWeight: number,
-    ) {
+    ): AnimationGraphUpdateContext {
         this._context.deltaTime = deltaTime;
         this._context.indicativeWeight = indicativeWeight;
         return this._context as AnimationGraphUpdateContext;
@@ -1117,7 +1117,7 @@ export class AnimationGraphUpdateContextGenerator {
     public forkSubWeight (
         base: AnimationGraphUpdateContext,
         subWeight: number,
-    ) {
+    ): void {
         this._context.deltaTime = base.deltaTime;
         this._context.indicativeWeight = base.indicativeWeight * subWeight;
     }
@@ -1134,13 +1134,13 @@ interface ReusableUpdateContext extends AnimationGraphUpdateContext {
 }
 
 export class DeferredPoseStashAllocator implements PoseStashAllocator {
-    get allocatedPoseCount () {
+    get allocatedPoseCount (): number {
         assertIsTrue(this._allocator);
         return this._allocator.allocatedCount;
     }
 
     /** @internal */
-    public _reset (transformCount: number, auxiliaryCurveCount: number) {
+    public _reset (transformCount: number, auxiliaryCurveCount: number): void {
         this._allocator = new PoseHeapAllocator(transformCount, auxiliaryCurveCount);
     }
 

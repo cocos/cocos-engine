@@ -48,18 +48,18 @@ export class CannonShape implements IBaseShape {
 
     static readonly idToMaterial = {};
 
-    get impl () { return this._shape; }
+    get impl (): CANNON.Shape { return this._shape; }
 
-    get collider () { return this._collider; }
+    get collider (): Collider { return this._collider; }
 
-    get attachedRigidBody () {
+    get attachedRigidBody (): RigidBody | null {
         if (this._sharedBody.wrappedBody) { return this._sharedBody.wrappedBody.rigidBody; }
         return null;
     }
 
     get sharedBody (): CannonSharedBody { return this._sharedBody; }
 
-    setMaterial (mat: PhysicsMaterial | null) {
+    setMaterial (mat: PhysicsMaterial | null): void {
         const mat1 = (mat == null) ? PhysicsSystem.instance.defaultMaterial : mat;
 
         if (CannonShape.idToMaterial[mat1.id] == null) {
@@ -74,21 +74,21 @@ export class CannonShape implements IBaseShape {
         (smat as any).correctInelastic = smat.restitution === 0 ? coef : 0;
     }
 
-    setAsTrigger (v: boolean) {
+    setAsTrigger (v: boolean): void {
         this._shape.collisionResponse = !v;
         if (this._index >= 0) {
             this._body.updateHasTrigger();
         }
     }
 
-    setCenter (v: IVec3Like) {
+    setCenter (v: IVec3Like): void {
         this._setCenter(v);
         if (this._index >= 0) {
             commitShapeUpdates(this._body);
         }
     }
 
-    setAttachedBody (v: RigidBody | null) {
+    setAttachedBody (v: RigidBody | null): void {
         if (v) {
             if (this._sharedBody) {
                 if (this._sharedBody.wrappedBody === v.body) return;
@@ -107,7 +107,7 @@ export class CannonShape implements IBaseShape {
         }
     }
 
-    getAABB (v: geometry.AABB) {
+    getAABB (v: geometry.AABB): void {
         Quat.copy(cannonQuat_0, this._collider.node.worldRotation);
         (this._shape as any).calculateWorldAABB(CANNON.Vec3.ZERO, cannonQuat_0, cannonVec3_0, cannonVec3_1);
         Vec3.subtract(v.halfExtents, cannonVec3_1, cannonVec3_0);
@@ -115,7 +115,7 @@ export class CannonShape implements IBaseShape {
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
-    getBoundingSphere (v: geometry.Sphere) {
+    getBoundingSphere (v: geometry.Sphere): void {
         v.radius = this._shape.boundingSphereRadius;
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
@@ -132,7 +132,7 @@ export class CannonShape implements IBaseShape {
 
     /** LIFECYCLE */
 
-    initialize (comp: Collider) {
+    initialize (comp: Collider): void {
         this._collider = comp;
         this._isBinding = true;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node);
@@ -143,25 +143,25 @@ export class CannonShape implements IBaseShape {
     }
 
     // virtual
-    protected onComponentSet () { }
+    protected onComponentSet (): void { }
 
-    onLoad () {
+    onLoad (): void {
         this.setMaterial(this._collider.sharedMaterial);
         this.setCenter(this._collider.center);
         this.setAsTrigger(this._collider.isTrigger);
     }
 
-    onEnable () {
+    onEnable (): void {
         this._sharedBody.addShape(this);
         this._sharedBody.enabled = true;
     }
 
-    onDisable () {
+    onDisable (): void {
         this._sharedBody.removeShape(this);
         this._sharedBody.enabled = false;
     }
 
-    onDestroy () {
+    onDestroy (): void {
         this._sharedBody.reference = false;
         this._shape.removeEventListener('cc-trigger', this.onTriggerListener);
         delete (CANNON.World as any).idToShapeMap[this._shape.id];
@@ -221,29 +221,29 @@ export class CannonShape implements IBaseShape {
      * size handle by child class
      * @param scale
      */
-    setScale (scale: IVec3Like) {
+    setScale (scale: IVec3Like): void {
         this._setCenter(this._collider.center);
     }
 
-    setIndex (index: number) {
+    setIndex (index: number): void {
         this._index = index;
     }
 
-    setOffsetAndOrient (offset: CANNON.Vec3, orient: CANNON.Quaternion) {
+    setOffsetAndOrient (offset: CANNON.Vec3, orient: CANNON.Quaternion): void {
         Vec3.copy(offset, this._offset);
         Quat.copy(orient, this._orient);
         this._offset = offset;
         this._orient = orient;
     }
 
-    protected _setCenter (v: IVec3Like) {
+    protected _setCenter (v: IVec3Like): void {
         const lpos = this._offset as IVec3Like;
         Vec3.subtract(lpos, this._sharedBody.node.worldPosition, this._collider.node.worldPosition);
         Vec3.add(lpos, lpos, v);
         Vec3.multiply(lpos, lpos, this._collider.node.worldScale);
     }
 
-    protected _onTrigger (event: CANNON.ITriggeredEvent) {
+    protected _onTrigger (event: CANNON.ITriggeredEvent): void {
         TriggerEventObject.type = event.event;
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);

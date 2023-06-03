@@ -51,7 +51,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
      * @zh 是否启用。
      */
     @displayOrder(0)
-    public get enable () {
+    public get enable (): boolean {
         return this._enable;
     }
 
@@ -123,7 +123,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
      * @param worldTransform @en Particle system world transform. @zh 粒子系统的世界变换矩阵。
      * @internal
      */
-    public update (space, worldTransform) {
+    public update (space, worldTransform): void {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
@@ -134,7 +134,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
      * @param dt @en Update interval time. @zh 粒子系统更新的间隔时间。
      * @internal
      */
-    public animate (p: Particle, dt) {
+    public animate (p: Particle, dt): void {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const randX = isCurveTwoValues(this.x) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;
         const randY = isCurveTwoValues(this.y) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;

@@ -40,7 +40,7 @@ export class CannonLockConstraint extends CannonConstraint implements IFixedCons
         // not supported
     }
 
-    public get impl () {
+    public get impl (): CANNON.LockConstraint {
         return this._impl as CANNON.LockConstraint;
     }
 

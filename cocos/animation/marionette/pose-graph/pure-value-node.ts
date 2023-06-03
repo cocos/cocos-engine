@@ -17,15 +17,15 @@ export abstract class PureValueNode extends PoseGraphNode {
         this._outputTypes = outputTypes;
     }
 
-    get outputCount () {
+    get outputCount (): number {
         return this._outputTypes.length;
     }
 
-    public getOutputType (outputIndex: number) {
+    public getOutputType (outputIndex: number):PoseGraphType {
         return this._outputTypes[outputIndex];
     }
 
-    public link (context: PureValueNodeLinkContext) {
+    public link (context: PureValueNodeLinkContext): void {
     }
 
     private _outputTypes: readonly PoseGraphType[] = [];

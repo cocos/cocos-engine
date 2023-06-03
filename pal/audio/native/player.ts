@@ -70,7 +70,7 @@ export class OneShotAudio {
     private _url: string;
     private _volume: number;
     private _onPlayCb?: () => void;
-    get onPlay () {
+    get onPlay (): (() => void) | undefined {
         return this._onPlayCb;
     }
     set onPlay (cb) {
@@ -78,7 +78,7 @@ export class OneShotAudio {
     }
 
     private _onEndCb?: () => void;
-    get onEnd () {
+    get onEnd (): (() => void) | undefined {
         return this._onEndCb;
     }
     set onEnd (cb) {
@@ -135,14 +135,14 @@ export class AudioPlayer implements OperationQueueable {
         game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
         game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
-    destroy () {
+    destroy (): void {
         game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
         game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
         if (--urlCount[this._url] <= 0) {
             audioEngine.uncache(this._url);
         }
     }
-    private _onInterruptedBegin () {
+    private _onInterruptedBegin (): void {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
@@ -150,7 +150,7 @@ export class AudioPlayer implements OperationQueueable {
             }).catch((e) => {});
         }
     }
-    private _onInterruptedEnd () {
+    private _onInterruptedEnd (): void {
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
@@ -198,7 +198,7 @@ export class AudioPlayer implements OperationQueueable {
         return this._id !== INVALID_AUDIO_ID;
     }
 
-    get src () {
+    get src (): string {
         return this._url;
     }
     get type (): AudioType {
@@ -331,12 +331,12 @@ export class AudioPlayer implements OperationQueueable {
             resolve();
         });
     }
-    onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    offInterruptionBegin (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    onInterruptionEnd (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
-    offInterruptionEnd (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
-    onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
-    offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
+    onInterruptionBegin (cb: () => void): void { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    offInterruptionBegin (cb?: () => void): void { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    onInterruptionEnd (cb: () => void): void { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
+    offInterruptionEnd (cb?: () => void): void { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
+    onEnded (cb: () => void): void { this._eventTarget.on(AudioEvent.ENDED, cb); }
+    offEnded (cb?: () => void): void { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }
 
 // REMOVE_ME

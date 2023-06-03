@@ -46,13 +46,13 @@ class AnimationBlend2DItem extends AnimationBlendItem {
     @serializable
     public threshold = new Vec2();
 
-    public clone () {
+    public clone (): AnimationBlend2DItem {
         const that = new AnimationBlend2DItem();
         this._copyTo(that);
         return that;
     }
 
-    protected _copyTo (that: AnimationBlend2DItem) {
+    protected _copyTo (that: AnimationBlend2DItem): AnimationBlend2DItem {
         super._copyTo(that);
         Vec2.copy(that.threshold, this.threshold);
         return that;
@@ -66,7 +66,7 @@ export class AnimationBlend2D extends AnimationBlend {
     public static Item = AnimationBlend2DItem;
 
     @editable
-    public get algorithm () {
+    public get algorithm (): Algorithm {
         return this._algorithm;
     }
 
@@ -96,7 +96,7 @@ export class AnimationBlend2D extends AnimationBlend {
         this._tryReconstructPolarSpaceInterpolator();
     }
 
-    public clone () {
+    public clone (): AnimationBlend2D {
         const that = new AnimationBlend2D();
         this.copyTo(that);
         that._items = this._items.map((item) => item?.clone() ?? null);
@@ -110,7 +110,7 @@ export class AnimationBlend2D extends AnimationBlend {
         context: AnimationGraphBindingContext,
         clipOverrides: ReadonlyClipOverrideMap | null,
         ignoreEmbeddedPlayers: boolean,
-    ) {
+    ): AnimationBlendEval {
         const { algorithm } = this;
         let evaluation: AnimationBlendEval;
         switch (algorithm) {
@@ -170,7 +170,7 @@ export class AnimationBlend2D extends AnimationBlend {
 
     private _polarSpaceGBI: PolarSpaceGradientBandInterpolator2D | undefined = undefined;
 
-    private _tryReconstructPolarSpaceInterpolator () {
+    private _tryReconstructPolarSpaceInterpolator (): void {
         if (this._algorithm === Algorithm.FREEFORM_DIRECTIONAL) {
             this._polarSpaceGBI = new PolarSpaceGradientBandInterpolator2D(this._items.map((item) => item.threshold));
         } else {
@@ -206,7 +206,7 @@ class AnimationBlend2DEval extends AnimationBlendEval {
         this.doEval();
     }
 
-    protected eval (weights: number[], [x, y]: [number, number]) {
+    protected eval (weights: number[], [x, y]: [number, number]): void {
         Vec2.set(this._value, x, y);
         weights.fill(0);
         switch (this._algorithm) {
@@ -240,7 +240,7 @@ class PolarSpaceGradientBandBlend2DEval extends AnimationBlendEval {
         this.doEval();
     }
 
-    protected eval (weights: number[], [x, y]: [number, number]) {
+    protected eval (weights: number[], [x, y]: [number, number]): void {
         Vec2.set(this._value, x, y);
         weights.fill(0);
         this._interpolator.interpolate(weights, this._value);

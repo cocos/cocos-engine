@@ -4,11 +4,11 @@ import { BasicVariableDescription, VariableType, createInstanceTag, VarInstanceB
 
 @ccclass('cc.animation.Vec3Variable')
 export class Vec3Variable implements BasicVariableDescription<VariableType.VEC3_experimental> {
-    get type () {
+    get type (): VariableType.VEC3_experimental {
         return VariableType.VEC3_experimental as const;
     }
 
-    get value () {
+    get value (): Readonly<Vec3> {
         return this._value as Readonly<Vec3>;
     }
 
@@ -16,7 +16,7 @@ export class Vec3Variable implements BasicVariableDescription<VariableType.VEC3_
         Vec3.copy(this._value, value);
     }
 
-    public [createInstanceTag] () {
+    public [createInstanceTag] (): VarInstanceVec3 {
         return new VarInstanceVec3(this.value);
     }
 

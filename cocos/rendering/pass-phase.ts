@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 
-export const getPhaseID = (() => {
+export const getPhaseID = ((): (phaseName: string | number) => number => {
     const phases: Map<string, number> = new Map<string, number>();
     let phaseNum = 0;
-    return (phaseName: string | number) => {
+    return (phaseName: string | number): number => {
         if (typeof phaseName === 'number') { return phaseName; }
         if (!phases.has(phaseName)) {
             phases.set(phaseName, 1 << phaseNum);

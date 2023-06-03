@@ -91,7 +91,7 @@ class SystemInfo extends EventTarget {
         this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS || this.platform === Platform.OHOS || this.platform === Platform.OPENHARMONY;
 
         // init isLittleEndian
-        this.isLittleEndian = (() => {
+        this.isLittleEndian = ((): boolean => {
             const buffer = new ArrayBuffer(2);
             new DataView(buffer).setInt16(0, 256, true);
             // Int16Array uses the platform's endianness.
@@ -140,19 +140,19 @@ class SystemInfo extends EventTarget {
         this._registerEvent();
     }
 
-    private _registerEvent () {
-        jsb.onPause = () => {
+    private _registerEvent (): void {
+        jsb.onPause = (): void => {
             this.emit('hide');
         };
-        jsb.onResume = () => {
+        jsb.onResume = (): void => {
             this.emit('show');
         };
-        jsb.onClose = () => {
+        jsb.onClose = (): void => {
             this.emit('close');
         };
     }
 
-    private _setFeature (feature: Feature, value: boolean) {
+    private _setFeature (feature: Feature, value: boolean): boolean {
         return this._featureMap[feature] = value;
     }
 
@@ -184,11 +184,11 @@ class SystemInfo extends EventTarget {
         __restartVM();
     }
 
-    public close () {
+    public close (): void {
         __close();
     }
 
-    public exit () {
+    public exit (): void {
         __exit();
     }
 }

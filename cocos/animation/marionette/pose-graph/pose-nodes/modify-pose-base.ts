@@ -17,12 +17,12 @@ export abstract class PoseNodeModifyPoseBase extends PoseNode {
     @input({ type: PoseGraphType.POSE })
     public pose: PoseNode | null = null;
 
-    public settle (context: AnimationGraphSettleContext) {
+    public settle (context: AnimationGraphSettleContext): void {
         this.pose?.settle(context);
         this._spaceFlagTable = new PoseTransformSpaceFlagTable(context.transformCount);
     }
 
-    public reenter () {
+    public reenter (): void {
         this.pose?.reenter();
     }
 
@@ -30,7 +30,7 @@ export abstract class PoseNodeModifyPoseBase extends PoseNode {
         this.pose?.bind(context);
     }
 
-    protected doUpdate (context: AnimationGraphUpdateContext) {
+    protected doUpdate (context: AnimationGraphUpdateContext): void {
         this.pose?.update(context);
     }
 
@@ -69,15 +69,15 @@ class TransformModification {
 export type { TransformModification };
 
 class TransformModificationQueue {
-    get length () {
+    get length (): number {
         return this._array.length;
     }
 
-    get array () {
+    get array (): TransformModification[] {
         return this._array.array;
     }
 
-    public push (transformIndex: number, transform: Transform) {
+    public push (transformIndex: number, transform: Transform): void {
         if (DEBUG) {
             assertIsTrue(transformIndex > this._debugLastTransformIndex, `Unexpected transform modification order`);
             this._debugLastTransformIndex = transformIndex;
@@ -88,7 +88,7 @@ class TransformModificationQueue {
         this._array.push(mod);
     }
 
-    public clear () {
+    public clear (): void {
         const length = this._array.length;
         for (let iMod = 0; iMod < length; ++iMod) {
             const mod = this._array.get(iMod);
@@ -101,7 +101,7 @@ class TransformModificationQueue {
         }
     }
 
-    private _pool: Pool<TransformModification> = new Pool(() => new TransformModification(), 3);
+    private _pool: Pool<TransformModification> = new Pool((): TransformModification => new TransformModification(), 3);
     private _array = new CachedArray<TransformModification>(3);
     private _debugLastTransformIndex = -1;
 }
@@ -116,7 +116,7 @@ class PoseTransformSpaceFlagTable {
     /**
      * Set all transforms' flags to false.
      */
-    public clear () {
+    public clear (): void {
         this._transformFlags.fill(false);
     }
 
@@ -125,7 +125,7 @@ class PoseTransformSpaceFlagTable {
      * @param transformIndex Transform index.
      * @returns True if the transform's flag is set to true.
      */
-    public test (transformIndex: number) {
+    public test (transformIndex: number): boolean {
         return this._transformFlags[transformIndex];
     }
 
@@ -133,7 +133,7 @@ class PoseTransformSpaceFlagTable {
      * Sets the transform's flag to true.
      * @param transformIndex Transform index.
      */
-    public set (transformIndex: number) {
+    public set (transformIndex: number): void {
         this._transformFlags[transformIndex] = true;
     }
 
@@ -141,7 +141,7 @@ class PoseTransformSpaceFlagTable {
      * Sets the transform's flag to false.
      * @param transformIndex Transform index.
      */
-    public unset (transformIndex: number) {
+    public unset (transformIndex: number): void {
         this._transformFlags[transformIndex] = false;
     }
 
@@ -156,7 +156,7 @@ function applyTransformModificationQueue (
     pose: Pose,
     queue: TransformModificationQueue,
     spaceFlagTable: PoseTransformSpaceFlagTable,
-) {
+): void {
     const nMods = queue.length;
     if (nMods === 0) {
         return;

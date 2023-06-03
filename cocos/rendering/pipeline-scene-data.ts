@@ -47,14 +47,14 @@ export class PipelineSceneData {
       * @zh 是否开启 HDR。
       * @readonly
       */
-    public get isHDR () {
+    public get isHDR (): boolean {
         return this._isHDR;
     }
 
     public set isHDR (val: boolean) {
         this._isHDR = val;
     }
-    public get shadingScale () {
+    public get shadingScale (): number {
         return this._shadingScale;
     }
 
@@ -62,7 +62,7 @@ export class PipelineSceneData {
         this._shadingScale = val;
     }
 
-    public get csmSupported () {
+    public get csmSupported (): boolean {
         return this._csmSupported;
     }
     public set csmSupported (val: boolean) {
@@ -75,7 +75,7 @@ export class PipelineSceneData {
      * @zh 获取全局的4s标准模型
      * @returns The model id
      */
-    get standardSkinModel  () { return this._standardSkinModel; }
+    get standardSkinModel  (): ModelRenderer | null { return this._standardSkinModel; }
 
     /**
      * @engineInternal
@@ -88,7 +88,7 @@ export class PipelineSceneData {
         this._standardSkinModel = val;
     }
 
-    get skinMaterialModel () {
+    get skinMaterialModel (): Model {
         return this._skinMaterialModel!;
     }
     set skinMaterialModel (val: Model) {
@@ -135,7 +135,7 @@ export class PipelineSceneData {
         this._shadingScale = 1.0;
     }
 
-    public activate (device: Device) {
+    public activate (device: Device): boolean {
         this._device = device;
 
         this.initGeometryRendererMaterials();
@@ -144,7 +144,7 @@ export class PipelineSceneData {
         return true;
     }
 
-    public initGeometryRendererMaterials () {
+    public initGeometryRendererMaterials (): void {
         let offset = 0;
         for (let tech = 0; tech < GEOMETRY_RENDERER_TECHNIQUE_COUNT; tech++) {
             this._geometryRendererMaterials[tech] = new Material();
@@ -159,15 +159,15 @@ export class PipelineSceneData {
         }
     }
 
-    public get geometryRendererPasses () {
+    public get geometryRendererPasses (): Pass[] {
         return this._geometryRendererPasses;
     }
 
-    public get geometryRendererShaders () {
+    public get geometryRendererShaders (): Shader[] {
         return this._geometryRendererShaders;
     }
 
-    public initOcclusionQuery () {
+    public initOcclusionQuery (): void {
         if (!this._occlusionQueryInputAssembler) {
             this._occlusionQueryInputAssembler = this._createOcclusionQueryIA();
         }
@@ -191,10 +191,10 @@ export class PipelineSceneData {
         return null;
     }
 
-    public updatePipelineSceneData () {
+    public updatePipelineSceneData (): void {
     }
 
-    public destroy () {
+    public destroy (): void {
         this.shadows.destroy();
         this.csmLayers.destroy();
         this.validPunctualLights.length = 0;
@@ -206,7 +206,7 @@ export class PipelineSceneData {
         this._occlusionQueryIndicesBuffer = null;
     }
 
-    private _createOcclusionQueryIA () {
+    private _createOcclusionQueryIA (): InputAssembler {
         // create vertex buffer
         const device = this._device;
         const vertices = new Float32Array([-1, -1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1]);

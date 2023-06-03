@@ -293,7 +293,7 @@ export class Shadows {
      * @en The transform matrix of the light source
      * @zh 光源的变换矩阵
      */
-    public get matLight () {
+    public get matLight (): Mat4 {
         return this._matLight;
     }
 
@@ -369,7 +369,7 @@ export class Shadows {
         return passes.length > 0 ? passes[0].getShaderVariant(patches) : null;
     }
 
-    public initialize (shadowsInfo: ShadowsInfo) {
+    public initialize (shadowsInfo: ShadowsInfo): void {
         this._enabled = shadowsInfo.enabled;
         this._type = this.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE;
 
@@ -383,7 +383,7 @@ export class Shadows {
         }
     }
 
-    public activate () {
+    public activate (): void {
         if (this._enabled) {
             if (this.type === ShadowType.Planar) {
                 this._updatePlanarInfo();
@@ -401,7 +401,7 @@ export class Shadows {
         }
     }
 
-    protected _updatePlanarInfo () {
+    protected _updatePlanarInfo (): void {
         if (!this._material) {
             this._material = new Material();
             this._material.initialize({ effectName: 'pipeline/planar-shadow' });
@@ -416,7 +416,7 @@ export class Shadows {
         root.onGlobalPipelineStateChanged();
     }
 
-    public destroy () {
+    public destroy (): void {
         if (this._material) {
             this._material.destroy();
         }

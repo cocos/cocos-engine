@@ -59,7 +59,7 @@ export class InstancedBuffer {
         this.pass = pass;
     }
 
-    public destroy () {
+    public destroy (): void {
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             instance.vb.destroy();
@@ -68,7 +68,7 @@ export class InstancedBuffer {
         this.instances.length = 0;
     }
 
-    public merge (subModel: SubModel, passIdx: number, shaderImplant: Shader | null = null) {
+    public merge (subModel: SubModel, passIdx: number, shaderImplant: Shader | null = null): void {
         const attrs = subModel.instancedAttributeBlock;
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
@@ -152,7 +152,7 @@ export class InstancedBuffer {
         this.hasPendingModels = true;
     }
 
-    public uploadBuffers (cmdBuff: CommandBuffer) {
+    public uploadBuffers (cmdBuff: CommandBuffer): void {
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (!instance.count) { continue; }
@@ -161,7 +161,7 @@ export class InstancedBuffer {
         }
     }
 
-    public clear () {
+    public clear (): void {
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             instance.count = 0;

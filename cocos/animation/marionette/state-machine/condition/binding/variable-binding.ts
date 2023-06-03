@@ -47,7 +47,7 @@ export class TCVariableBinding<TValueType extends TCBindingValueType> extends TC
 class TCVariableBindingEvaluation implements TCBindingEvaluation<TCBindingValueType.FLOAT | TCBindingValueType.INTEGER> {
     constructor (private _varInstance: VarInstance) { }
 
-    public evaluate () {
+    public evaluate (): number {
         return this._varInstance.value as number;
     }
 }

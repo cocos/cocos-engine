@@ -40,11 +40,11 @@ export class WebViewImplWeb extends WebViewImpl {
         super(component);
     }
 
-    _bindDomEvent () {
+    _bindDomEvent (): void {
         if (!this.webview) {
             return;
         }
-        const onLoaded = (e: Event) => {
+        const onLoaded = (e: Event): void => {
             this._forceUpdate = true;
             this.dispatchEvent(EventType.LOADED);
 
@@ -58,7 +58,7 @@ export class WebViewImplWeb extends WebViewImpl {
         this.webview.addEventListener('load', onLoaded);
     }
 
-    public loadURL (url: string) {
+    public loadURL (url: string): void {
         if (this.webview) {
             this.webview.src = url;
             // emit loading event
@@ -66,7 +66,7 @@ export class WebViewImplWeb extends WebViewImpl {
         }
     }
 
-    public createWebView () {
+    public createWebView (): void {
         const wrapper = ccdocument.createElement('div');
         this._wrapper = wrapper;
         wrapper.id = 'webview-wrapper';
@@ -89,7 +89,7 @@ export class WebViewImplWeb extends WebViewImpl {
         this._bindDomEvent();
     }
 
-    public removeWebView () {
+    public removeWebView (): void {
         const wrapper = this._wrapper;
         if (contains(game.container, wrapper)) {
             game.container!.removeChild(wrapper);
@@ -97,19 +97,19 @@ export class WebViewImplWeb extends WebViewImpl {
         this.reset();
     }
 
-    public enable () {
+    public enable (): void {
         if (this._wrapper) {
             this._wrapper.style.visibility = 'visible';
         }
     }
 
-    public disable () {
+    public disable (): void {
         if (this._wrapper) {
             this._wrapper.style.visibility = 'hidden';
         }
     }
 
-    public evaluateJS (str: string) {
+    public evaluateJS (str: string): void {
         if (this.webview) {
             const win = this.webview.contentWindow;
             if (win) {
@@ -123,15 +123,15 @@ export class WebViewImplWeb extends WebViewImpl {
         }
     }
 
-    public setOnJSCallback (callback: () => void) {
+    public setOnJSCallback (callback: () => void): void {
         warn('The platform does not support');
     }
 
-    public setJavascriptInterfaceScheme (scheme: string) {
+    public setJavascriptInterfaceScheme (scheme: string): void {
         warn('The platform does not support');
     }
 
-    public syncMatrix () {
+    public syncMatrix (): void {
         if (!this._wrapper || !this._uiTrans || !this._component || this._wrapper.style.visibility === 'hidden') return;
 
         const camera = this.UICamera;

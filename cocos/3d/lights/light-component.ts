@@ -30,6 +30,7 @@ import { scene } from '../../render-scene';
 import { Root } from '../../root';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { Layers } from '../../scene-graph/layers';
+import type { LightType } from '../../render-scene/scene';
 
 const _color_tmp = new Vec3();
 
@@ -60,7 +61,7 @@ class StaticLightSettings {
      * @zh 是否只在编辑器里生效。
      */
     @editable
-    get editorOnly () {
+    get editorOnly (): boolean {
         return this._editorOnly;
     }
     set editorOnly (val) {
@@ -71,7 +72,7 @@ class StaticLightSettings {
      * @en Whether the light is baked
      * @zh 光源是否被烘焙
      */
-    get baked () {
+    get baked (): boolean {
         return this._baked;
     }
 
@@ -84,7 +85,7 @@ class StaticLightSettings {
      * @zh 光源在烘焙时是否投射阴影。
      */
     @editable
-    get castShadow () {
+    get castShadow (): boolean {
         return this._castShadow;
     }
 
@@ -155,7 +156,7 @@ export class Light extends Component {
      * 是否启用光源色温。
      */
     @tooltip('i18n:lights.use_color_temperature')
-    get useColorTemperature () {
+    get useColorTemperature (): boolean {
         return this._useColorTemperature;
     }
     set useColorTemperature (enable) {
@@ -172,7 +173,7 @@ export class Light extends Component {
     @slide
     @range([1000, 15000, 1])
     @tooltip('i18n:lights.color_temperature')
-    get colorTemperature () {
+    get colorTemperature (): number {
         return this._colorTemperature;
     }
 
@@ -189,7 +190,7 @@ export class Light extends Component {
      */
     @type(StaticLightSettings)
     @displayOrder(50)
-    get staticSettings () {
+    get staticSettings (): StaticLightSettings {
         return this._staticSettings;
     }
 
@@ -201,7 +202,7 @@ export class Light extends Component {
      * @en The light type.
      * @zh 光源类型。
      */
-    get type () {
+    get type (): LightType {
         return this._type;
     }
 
@@ -209,7 +210,7 @@ export class Light extends Component {
      * @en Whether the light is baked
      * @zh 光源是否被烘焙
      */
-    get baked () {
+    get baked (): boolean {
         return this.staticSettings.baked;
     }
 
@@ -241,23 +242,23 @@ export class Light extends Component {
         this._lightType = scene.Light;
     }
 
-    public onLoad () {
+    public onLoad (): void {
         this._createLight();
     }
 
-    public onEnable () {
+    public onEnable (): void {
         this._attachToScene();
     }
 
-    public onDisable () {
+    public onDisable (): void {
         this._detachFromScene();
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         this._destroyLight();
     }
 
-    protected _createLight () {
+    protected _createLight (): void {
         if (!this._light) {
             this._light = (cclegacy.director.root as Root).createLight(this._lightType);
         }
@@ -269,14 +270,14 @@ export class Light extends Component {
         this._light.visibility = this.visibility;
     }
 
-    protected _destroyLight () {
+    protected _destroyLight (): void {
         if (this._light) {
             cclegacy.director.root.recycleLight(this._light);
             this._light = null;
         }
     }
 
-    protected _attachToScene () {
+    protected _attachToScene (): void {
         this._detachFromScene();
         if (this._light && !this._light.scene && this.node.scene) {
             const renderScene = this._getRenderScene();
@@ -303,7 +304,7 @@ export class Light extends Component {
         }
     }
 
-    protected _detachFromScene () {
+    protected _detachFromScene (): void {
         if (this._light && this._light.scene) {
             const renderScene = this._light.scene;
             switch (this._type) {
@@ -329,5 +330,5 @@ export class Light extends Component {
         }
     }
 
-    protected _onUpdateReceiveDirLight () {}
+    protected _onUpdateReceiveDirLight (): void {}
 }

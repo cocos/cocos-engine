@@ -143,3 +143,5 @@ rules:
 
     # Prefer the interface style.
     '@typescript-eslint/consistent-type-definitions': [error, interface]
+
+    '@typescript-eslint/explicit-function-return-type': [error]

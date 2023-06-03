@@ -26,7 +26,7 @@ import { InputAssemblerInfo } from '../base/define';
 import { InputAssembler } from '../base/input-assembler';
 
 export class EmptyInputAssembler extends InputAssembler {
-    public initialize (info: Readonly<InputAssemblerInfo>) {
+    public initialize (info: Readonly<InputAssemblerInfo>): void {
         this._attributes = info.attributes;
         this._attributesHash = this.computeAttributesHash();
         this._vertexBuffers = info.vertexBuffers;
@@ -42,5 +42,5 @@ export class EmptyInputAssembler extends InputAssembler {
             this._drawInfo.vertexOffset = 0;
         }
     }
-    public destroy () {}
+    public destroy (): void {}
 }

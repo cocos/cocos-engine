@@ -61,7 +61,7 @@ export class KeyboardInputSource {
     private _handleKeyboardUp: (event: jsb.KeyboardEvent) => void;
 
     constructor () {
-        this._handleKeyboardDown = (event: jsb.KeyboardEvent) => {
+        this._handleKeyboardDown = (event: jsb.KeyboardEvent): void => {
             const keyCode = getKeyCode(event.keyCode);
             if (!this._keyStateMap[keyCode]) {
                 const eventKeyDown = this._getInputEvent(event, InputEventType.KEY_DOWN);
@@ -72,7 +72,7 @@ export class KeyboardInputSource {
             }
             this._keyStateMap[keyCode] = true;
         };
-        this._handleKeyboardUp = (event: jsb.KeyboardEvent) => {
+        this._handleKeyboardUp = (event: jsb.KeyboardEvent): void => {
             const keyCode = getKeyCode(event.keyCode);
             const eventKeyUp = this._getInputEvent(event, InputEventType.KEY_UP);
             this._keyStateMap[keyCode] = false;
@@ -81,22 +81,22 @@ export class KeyboardInputSource {
         this._registerEvent();
     }
 
-    public dispatchKeyboardDownEvent (nativeKeyboardEvent: jsb.KeyboardEvent) { this._handleKeyboardDown(nativeKeyboardEvent); }
-    public dispatchKeyboardUpEvent (nativeKeyboardEvent: jsb.KeyboardEvent) { this._handleKeyboardUp(nativeKeyboardEvent); }
+    public dispatchKeyboardDownEvent (nativeKeyboardEvent: jsb.KeyboardEvent): void { this._handleKeyboardDown(nativeKeyboardEvent); }
+    public dispatchKeyboardUpEvent (nativeKeyboardEvent: jsb.KeyboardEvent): void { this._handleKeyboardUp(nativeKeyboardEvent); }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         jsb.onKeyDown = this._handleKeyboardDown;
         jsb.onKeyUp = this._handleKeyboardUp;
     }
 
-    private _getInputEvent (event: jsb.KeyboardEvent, eventType: InputEventType) {
+    private _getInputEvent (event: jsb.KeyboardEvent, eventType: InputEventType): EventKeyboard {
         const keyCode = getKeyCode(event.keyCode);
         const eventKeyboard = new EventKeyboard(keyCode, eventType);
         eventKeyboard.windowId = event.windowId;
         return eventKeyboard;
     }
 
-    public on (eventType: InputEventType, callback: KeyboardCallback, target?: any) {
+    public on (eventType: InputEventType, callback: KeyboardCallback, target?: any): void {
         this._eventTarget.on(eventType, callback,  target);
     }
 }

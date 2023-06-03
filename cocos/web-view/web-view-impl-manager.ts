@@ -27,7 +27,7 @@ import { WebViewImplWeb } from './web-view-impl-web';
 
 export class WebViewImplManager {
     // default web
-    static getImpl (component) {
+    static getImpl (component): WebViewImplWeb {
         return new WebViewImplWeb(component);
     }
 }

@@ -277,7 +277,7 @@ export class RenderQueueDesc {
         this.stages = [];
     }
 
-    public init() {
+    public init(): any {
         return new nr.RenderQueueDesc(this.isTransparent, this.sortMode, this.stages);
     }
 }
@@ -414,14 +414,14 @@ class RenderTextureConfig {
 }
 
 
-function proxyArrayAttributeImpl(proto: any, attr: string) {
+function proxyArrayAttributeImpl(proto: any, attr: string): void {
     const proxyTarget = `_${attr}_target`;
-    let arrayProxy = (self, targetArrayAttr: string) => {
+    let arrayProxy = (self, targetArrayAttr: string): any => {
         return new Proxy(self[targetArrayAttr], {
-            get(targetArray, prop, receiver) {
+            get(targetArray, prop, receiver): any {
                 return Reflect.get(targetArray, prop, receiver);
             },
-            set(targetArray, prop, receiver) {
+            set(targetArray, prop, receiver): boolean {
                 const ret = Reflect.set(targetArray, prop, receiver);
                 self[targetArrayAttr] = targetArray;
                 return ret;

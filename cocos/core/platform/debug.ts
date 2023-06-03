@@ -40,7 +40,7 @@ let ccWarn = ccLog;
 
 let ccError = ccLog;
 
-let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
+let ccAssert = (condition: any, message?: any, ...optionalParams: any[]): void => {
     if (!condition) {
         console.log(`ASSERT: ${formatString(message, ...optionalParams)}`);
     }
@@ -54,7 +54,7 @@ let ccDebug = ccLog;
  * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  */
-function formatString (message?: any, ...optionalParams: any[]) {
+function formatString (message?: any, ...optionalParams: any[]): any {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return legacyCC.js.formatStr.apply(null, [message].concat(optionalParams));
 }
@@ -65,7 +65,7 @@ function formatString (message?: any, ...optionalParams: any[]) {
  * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  */
-export function log (message?: any, ...optionalParams: any[]) {
+export function log (message?: any, ...optionalParams: any[]): any {
     return ccLog(message, ...optionalParams);
 }
 
@@ -82,7 +82,7 @@ export function log (message?: any, ...optionalParams: any[]) {
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
-export function warn (message?: any, ...optionalParams: any[]) {
+export function warn (message?: any, ...optionalParams: any[]): any {
     return ccWarn(message, ...optionalParams);
 }
 
@@ -99,7 +99,7 @@ export function warn (message?: any, ...optionalParams: any[]) {
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
-export function error (message?: any, ...optionalParams: any[]) {
+export function error (message?: any, ...optionalParams: any[]): any {
     return ccError(message, ...optionalParams);
 }
 
@@ -122,16 +122,16 @@ export function assert (value: any, message?: string, ...optionalParams: any[]):
  * @zh 输出一条“调试”日志等级的消息。
  * @param data @zh 输出的消息对象。 @en The output message object.
  */
-export function debug (...data: any[]) {
+export function debug (...data: any[]): any {
     return ccDebug(...data);
 }
 
 /**
  * @engineInternal
  */
-export function _resetDebugSetting (mode: DebugMode) {
+export function _resetDebugSetting (mode: DebugMode): void {
     // reset
-    ccLog = ccWarn = ccError = ccAssert = ccDebug = () => {
+    ccLog = ccWarn = ccError = ccAssert = ccDebug = (): void => {
     };
 
     if (mode === DebugMode.NONE) {
@@ -140,7 +140,7 @@ export function _resetDebugSetting (mode: DebugMode) {
 
     if (mode > DebugMode.ERROR) {
         // Log to web page.
-        const logToWebPage = (msg: string) => {
+        const logToWebPage = (msg: string): void => {
             if (!legacyCC.game.canvas) {
                 return;
             }
@@ -175,21 +175,21 @@ export function _resetDebugSetting (mode: DebugMode) {
             logList.scrollTop = logList.scrollHeight;
         };
 
-        ccError = (message?: any, ...optionalParams: any[]) => {
+        ccError = (message?: any, ...optionalParams: any[]): void => {
             logToWebPage(`ERROR :  ${formatString(message, ...optionalParams)}`);
         };
-        ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
+        ccAssert = (condition: any, message?: any, ...optionalParams: any[]): void => {
             if (!condition) {
                 logToWebPage(`ASSERT: ${formatString(message, ...optionalParams)}`);
             }
         };
         if (mode !== DebugMode.ERROR_FOR_WEB_PAGE) {
-            ccWarn = (message?: any, ...optionalParams: any[]) => {
+            ccWarn = (message?: any, ...optionalParams: any[]): void => {
                 logToWebPage(`WARN :  ${formatString(message, ...optionalParams)}`);
             };
         }
         if (mode === DebugMode.INFO_FOR_WEB_PAGE) {
-            ccLog = (message?: any, ...optionalParams: any[]) => {
+            ccLog = (message?: any, ...optionalParams: any[]): void => {
                 logToWebPage(formatString(message, ...optionalParams));
             };
         }
@@ -208,9 +208,9 @@ export function _resetDebugSetting (mode: DebugMode) {
             // use bind to avoid pollute call stacks
             ccError = console.error.bind(console);
         } else {
-            ccError = JSB ? console.error : (message?: any, ...optionalParams: any[]) => console.error.apply(console, [message, ...optionalParams]);
+            ccError = JSB ? console.error : (message?: any, ...optionalParams: any[]): any => console.error.apply(console, [message, ...optionalParams]);
         }
-        ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
+        ccAssert = (condition: any, message?: any, ...optionalParams: any[]): void => {
             if (!condition) {
                 const errorText = formatString(message, ...optionalParams);
                 if (DEV) {
@@ -230,7 +230,7 @@ export function _resetDebugSetting (mode: DebugMode) {
             // use bind to avoid pollute call stacks
             ccWarn = console.warn.bind(console);
         } else {
-            ccWarn = JSB ? console.warn : (message?: any, ...optionalParams: any[]) => console.warn.apply(console, [message, ...optionalParams]);
+            ccWarn = JSB ? console.warn : (message?: any, ...optionalParams: any[]): any => console.warn.apply(console, [message, ...optionalParams]);
         }
     }
 
@@ -243,19 +243,19 @@ export function _resetDebugSetting (mode: DebugMode) {
             // use bind to avoid pollute call stacks
             ccLog = console.log.bind(console);
         } else {
-            ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);
+            ccLog = (message?: any, ...optionalParams: any[]): any => console.log.apply(console, [message, ...optionalParams]);
         }
     }
 
     if (mode <= DebugMode.VERBOSE) {
         if (typeof console.debug === 'function') {
             const vendorDebug = console.debug.bind(console);
-            ccDebug = (...data: any[]) => vendorDebug(...data);
+            ccDebug = (...data: any[]): any => vendorDebug(...data);
         }
     }
 }
 
-export function _throw (error_: any) {
+export function _throw (error_: any): any {
     if (EDITOR) {
         return error(error_);
     } else {
@@ -269,8 +269,8 @@ export function _throw (error_: any) {
     }
 }
 
-function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert') {
-    return (id: number, ...args: any[]) => {
+function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert'): (id: number, ...args: any[]) => any {
+    return (id: number, ...args: any[]): any => {
         const msg = DEBUG ? (debugInfos[id] || 'unknown id') : `${type} ${id}, please go to ${ERROR_MAP_URL}#${id} to see details.`;
         if (args.length === 0) {
             return msg;
@@ -281,22 +281,22 @@ function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert') {
 }
 
 const logFormatter = getTypedFormatter('Log');
-export function logID (id: number, ...optionalParams: any[]) {
+export function logID (id: number, ...optionalParams: any[]): void {
     log(logFormatter(id, ...optionalParams));
 }
 
 const warnFormatter = getTypedFormatter('Warning');
-export function warnID (id: number, ...optionalParams: any[]) {
+export function warnID (id: number, ...optionalParams: any[]): void {
     warn(warnFormatter(id, ...optionalParams));
 }
 
 const errorFormatter = getTypedFormatter('Error');
-export function errorID (id: number, ...optionalParams: any[]) {
+export function errorID (id: number, ...optionalParams: any[]): void {
     error(errorFormatter(id, ...optionalParams));
 }
 
 const assertFormatter = getTypedFormatter('Assert');
-export function assertID (condition: any, id: number, ...optionalParams: any[]) {
+export function assertID (condition: any, id: number, ...optionalParams: any[]): void {
     if (condition) {
         return;
     }
@@ -383,7 +383,7 @@ export function isDisplayStats (): boolean {
  * @zh 设置是否在左下角显示 FPS 和部分调试。
  * @deprecated @zh 从v3.6开始不再支持，请使用 profiler.showStats。@en Since v3.6, Please use profiler.showStats instead.
  */
-export function setDisplayStats (displayStats: boolean) {
+export function setDisplayStats (displayStats: boolean): void {
     if (legacyCC.profiler) {
         displayStats ? legacyCC.profiler.showStats() : legacyCC.profiler.hideStats();
     }

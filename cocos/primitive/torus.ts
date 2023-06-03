@@ -46,7 +46,7 @@ interface ITorusOptions extends IGeometryOptions {
  * @param tube @zh 管形大小。@en The radius of tube
  * @param opts @zh 参数选项。@en The optional creation parameters of the torus
  */
-export default function torus (radius = 0.4, tube = 0.1, opts: RecursivePartial<ITorusOptions> = {}) {
+export default function torus (radius = 0.4, tube = 0.1, opts: RecursivePartial<ITorusOptions> = {}): { positions: number[]; normals: number[]; uvs: number[]; indices: number[]; minPos: Vec3; maxPos: Vec3; boundingRadius: number; } {
     const radialSegments = opts.radialSegments || 32;
     const tubularSegments = opts.tubularSegments || 32;
     const arc = opts.arc || 2.0 * Math.PI;

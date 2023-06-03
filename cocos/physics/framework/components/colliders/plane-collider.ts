@@ -59,7 +59,7 @@ export class PlaneCollider extends Collider {
      */
     @type(Vec3)
     @tooltip('i18n:physics3d.collider.plane_normal')
-    public get normal () {
+    public get normal (): Vec3 {
         return this._normal;
     }
 
@@ -79,7 +79,7 @@ export class PlaneCollider extends Collider {
      */
     @editable
     @tooltip('i18n:physics3d.collider.plane_constant')
-    public get constant () {
+    public get constant (): number {
         return this._constant;
     }
 
@@ -97,11 +97,11 @@ export class PlaneCollider extends Collider {
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
-    public get shape () {
+    public get shape (): IPlaneShape {
         return this._shape as IPlaneShape;
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         super.onEnable();
 
         if (this.node) {

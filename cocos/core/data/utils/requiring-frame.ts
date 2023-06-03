@@ -31,7 +31,7 @@ import { legacyCC } from '../../global-exports';
  */
 let requiringFrames: any = [];  // the requiring frame infos
 
-export function push (module, uuid: string, script, importMeta?) {
+export function push (module, uuid: string, script, importMeta?): void {
     if (script === undefined) {
         script = uuid;
         uuid = '';
@@ -46,7 +46,7 @@ export function push (module, uuid: string, script, importMeta?) {
     });
 }
 
-export function pop () {
+export function pop (): void {
     const frameInfo = requiringFrames.pop();
     // check exports
     const module = frameInfo.module;
@@ -61,7 +61,7 @@ export function pop () {
     }
 }
 
-export function peek () {
+export function peek (): any {
     return requiringFrames[requiringFrames.length - 1];
 }
 
@@ -72,7 +72,7 @@ legacyCC._RF = {
 };
 
 if (EDITOR) {
-    legacyCC._RF.reset = () => {
+    legacyCC._RF.reset = (): void => {
         requiringFrames = [];
     };
 }

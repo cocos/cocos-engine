@@ -6,6 +6,7 @@ import { poseGraphNodeAppearance, poseGraphNodeCategory } from '../../decorator/
 import { POSE_GRAPH_NODE_MENU_PREFIX_CHOOSE } from './menu';
 import { PoseNodeChoosePoseBase } from './choose-pose-base';
 import { PoseGraphType } from '../../foundation/type-system';
+import type { PoseNode } from '../../pose-node';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNodeChoosePoseByIndex`)
 @poseGraphNodeCategory(POSE_GRAPH_NODE_MENU_PREFIX_CHOOSE)
@@ -15,7 +16,7 @@ export class PoseNodeChoosePoseByIndex extends PoseNodeChoosePoseBase {
         type: PoseGraphType.POSE,
         arraySyncGroup: 'choose-item',
     })
-    get poses () {
+    get poses (): (PoseNode | null)[] {
         return this._poses;
     }
 
@@ -28,7 +29,7 @@ export class PoseNodeChoosePoseByIndex extends PoseNodeChoosePoseBase {
         arraySyncGroup: 'choose-item',
         arraySyncGroupFollower: true,
     })
-    get fadeInDurations () {
+    get fadeInDurations (): number[] {
         return this._fadeInDurations;
     }
 
@@ -40,7 +41,7 @@ export class PoseNodeChoosePoseByIndex extends PoseNodeChoosePoseBase {
     @input({ type: PoseGraphType.INTEGER })
     public choice = 0;
 
-    protected getChosenIndex () {
+    protected getChosenIndex (): number {
         return this.choice;
     }
 }

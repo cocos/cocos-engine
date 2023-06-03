@@ -54,7 +54,7 @@ export class UIOpacity extends Component {
      */
     @editable
     @tooltip('i18n:UIOpacity.opacity')
-    get opacity () {
+    get opacity (): number {
         return this._opacity;
     }
 
@@ -69,7 +69,7 @@ export class UIOpacity extends Component {
         this.setEntityLocalOpacityDirtyRecursively(true);
     }
 
-    private setEntityLocalOpacityDirtyRecursively (dirty: boolean) {
+    private setEntityLocalOpacityDirtyRecursively (dirty: boolean): void {
         if (JSB) {
             // const render = this.node._uiProps.uiComp as UIRenderer;
             // if (render) {
@@ -82,7 +82,7 @@ export class UIOpacity extends Component {
     }
 
     // for UIOpacity
-    public static setEntityLocalOpacityDirtyRecursively (node: Node, dirty: boolean, interruptParentOpacity: number) {
+    public static setEntityLocalOpacityDirtyRecursively (node: Node, dirty: boolean, interruptParentOpacity: number): void {
         if (!node.isValid) {
             // Since children might be destroyed before the parent,
             // we should add protecting condition when executing recursion downwards.
@@ -116,12 +116,12 @@ export class UIOpacity extends Component {
     @serializable
     protected _opacity = 255;
 
-    public onEnable () {
+    public onEnable (): void {
         this.node._uiProps.localOpacity = this._opacity / 255;
         this.setEntityLocalOpacityDirtyRecursively(true);
     }
 
-    public onDisable () {
+    public onDisable (): void {
         this.node._uiProps.localOpacity = 1;
         this.setEntityLocalOpacityDirtyRecursively(true);
     }

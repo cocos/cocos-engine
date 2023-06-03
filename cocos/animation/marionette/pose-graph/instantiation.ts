@@ -13,6 +13,7 @@ import {
     AnimationGraphBindingContext, AnimationGraphSettleContext,
     AnimationGraphUpdateContext, AnimationGraphEvaluationContext,
 } from '../animation-graph-context';
+import type { Pose } from '../../core/pose';
 
 type EvaluatableNode = PoseNode | PureValueNode;
 
@@ -28,27 +29,27 @@ class InstantiatedPoseGraph {
 
     }
 
-    public bind (context: AnimationGraphBindingContext) {
+    public bind (context: AnimationGraphBindingContext): void {
         this._rootPoseNode?.bind(context);
     }
 
-    public settle (context: AnimationGraphSettleContext) {
+    public settle (context: AnimationGraphSettleContext): void {
         this._rootPoseNode?.settle(context);
     }
 
-    public reenter () {
+    public reenter (): void {
         this._rootPoseNode?.reenter();
     }
 
-    public update (context: AnimationGraphUpdateContext) {
+    public update (context: AnimationGraphUpdateContext): void {
         this._rootPoseNode?.update(context);
     }
 
-    public evaluate (context: AnimationGraphEvaluationContext) {
+    public evaluate (context: AnimationGraphEvaluationContext): Pose | null {
         return this._rootPoseNode?.evaluate(context, PoseTransformSpaceRequirement.LOCAL) ?? null;
     }
 
-    public countMotionTime () {
+    public countMotionTime (): number {
         const { _countingPlayMotionNodes: playMotionNodes } = this;
         if (!playMotionNodes) {
             if (DEBUG) {
@@ -239,23 +240,23 @@ class RuntimePVNodeEvaluation {
         this._outputs = new Array(_node.outputCount);
     }
 
-    get node () {
+    get node (): PureValueNode {
         return this._node;
     }
 
-    public get outputCount () {
+    public get outputCount (): number {
         return this._outputs.length;
     }
 
-    public getDefaultOutput () {
+    public getDefaultOutput (): unknown {
         return this.getOutput(0);
     }
 
-    public getOutput (outputIndex: number) {
+    public getOutput (outputIndex: number): unknown {
         return this._outputs[outputIndex];
     }
 
-    public evaluate () {
+    public evaluate (): void {
         const {
             _node: node,
             _dependency: dependency,
@@ -276,7 +277,7 @@ function linkPoseNode (
     consumerInputPath: NodeInputPath,
     producerNode: PoseNode,
     producerOutputIndex: number,
-) {
+): void {
     const [consumerPropertyKey, consumerElementIndex = -1] = consumerInputPath;
     if (!(consumerPropertyKey in consumerNode)) {
         // Invalid binding.
@@ -341,7 +342,7 @@ class RuntimePVNodePlainPropertyBinding implements RuntimePVNodePropertyBinding 
     ) {
     }
 
-    public evaluate () {
+    public evaluate (): void {
         this._producerRecord.evaluate();
         this._consumerNode[this._consumerPropertyKey] = this._producerRecord.getOutput(this._producerOutputIndex);
     }
@@ -357,7 +358,7 @@ class RuntimePVNodeArrayElementPropertyBinding implements RuntimePVNodePropertyB
     ) {
     }
 
-    public evaluate () {
+    public evaluate (): void {
         this._producerRecord.evaluate();
         this._consumerNode[this._consumerPropertyKey][this._consumerElementIndex] = this._producerRecord.getOutput(this._producerOutputIndex);
     }

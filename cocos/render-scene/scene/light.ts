@@ -29,7 +29,7 @@ import { Node } from '../../scene-graph';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 
 // Color temperature (in Kelvin) to RGB
-export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
+export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number): void {
     if (kelvin < 1000.0) {
         kelvin = 1000.0;
     } else if (kelvin > 15000.0) {
@@ -68,7 +68,7 @@ export enum LightType {
     UNKNOWN,
 }
 
-export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
+export const nt2lm = (size: number): number => 4 * Math.PI * Math.PI * size * size;
 
 /**
  * @en The abstract light class of the render scene
@@ -79,7 +79,7 @@ export class Light {
      * @en Whether it's a baked light source, baked light will be ignored in real time lighting pass
      * @zh 是否是烘焙光源，烘焙光源会在实时光照计算中被忽略
      */
-    get baked () {
+    get baked (): boolean {
         return this._baked;
     }
 
@@ -162,7 +162,7 @@ export class Light {
      * @en The node which owns the light source
      * @zh 光源归属的节点
      */
-    get node () {
+    get node (): Node | null {
         return this._node;
     }
 
@@ -178,7 +178,7 @@ export class Light {
      * @en The name of the light source
      * @zh 光源的名字
      */
-    get name () {
+    get name (): string | null {
         return this._name;
     }
 
@@ -190,7 +190,7 @@ export class Light {
      * @en The render scene which owns the current light
      * @zh 光源所属的渲染场景
      */
-    get scene () {
+    get scene (): RenderScene | null {
         return this._scene;
     }
 
@@ -216,7 +216,7 @@ export class Light {
 
     protected _visibility = CAMERA_DEFAULT_MASK;
 
-    public initialize () {
+    public initialize (): void {
         this.color = new Vec3(1, 1, 1);
         this.colorTemperature = 6550.0;
     }
@@ -226,7 +226,7 @@ export class Light {
      * @zh 将光源挂载到渲染场景上
      * @param scene @en The render scene @zh 渲染场景
      */
-    public attachToScene (scene: RenderScene) {
+    public attachToScene (scene: RenderScene): void {
         this._scene = scene;
     }
 
@@ -234,14 +234,14 @@ export class Light {
      * @en Detach the light from the render scene
      * @zh 将光源从渲染场景上移除
      */
-    public detachFromScene () {
+    public detachFromScene (): void {
         this._scene = null;
     }
 
-    public destroy () {
+    public destroy (): void {
         this._name = null;
         this._node = null;
     }
 
-    public update () {}
+    public update (): void {}
 }

@@ -16,7 +16,7 @@ export class ForwardFinalPass extends BasePass {
 
     enableInAllEditorCamera = true;
 
-    public render (camera: Camera, ppl: Pipeline) {
+    public render (camera: Camera, ppl: Pipeline): void {
         if (!this.lastPass) {
             return;
         }

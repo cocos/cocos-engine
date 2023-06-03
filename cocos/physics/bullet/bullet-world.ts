@@ -45,17 +45,17 @@ const v3_1 = CC_V3_1;
 const v3_2 = CC_V3_2;
 const emitHit = new CharacterControllerContact();
 export class BulletWorld implements IPhysicsWorld {
-    setDefaultMaterial (v: PhysicsMaterial) { }
+    setDefaultMaterial (v: PhysicsMaterial): void { }
 
-    setAllowSleep (v: boolean) {
+    setAllowSleep (v: boolean): void {
         bt.ccDiscreteDynamicsWorld_setAllowSleep(this._world, v);
     }
 
-    setGravity (gravity: IVec3Like) {
+    setGravity (gravity: IVec3Like): void {
         bt.DynamicsWorld_setGravity(this._world, cocos2BulletVec3(BulletCache.instance.BT_V3_0, gravity));
     }
 
-    updateNeedEmitEvents (v: boolean) {
+    updateNeedEmitEvents (v: boolean): void {
         if (!this.ghosts) return; // return if destroyed
         if (v) {
             this._needEmitEvents = true;
@@ -87,7 +87,7 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    updateNeedEmitCCTEvents (force: boolean) {
+    updateNeedEmitCCTEvents (force: boolean): void {
         if (!this.ccts) return; // return if already been removed from bullet world
         if (force) {
             this._needEmitCCTEvents = true;
@@ -105,7 +105,7 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    get impl () {
+    get impl (): Bullet.ptr {
         return this._world;
     }
 
@@ -158,7 +158,7 @@ export class BulletWorld implements IPhysicsWorld {
         contactsPool.length = 0;
     }
 
-    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep = 0) {
+    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep = 0): void {
         if (!this.bodies.length && !this.ghosts.length && !this.ccts.length) return;
         if (timeSinceLastCalled === undefined) timeSinceLastCalled = deltaTime;
         bt.DynamicsWorld_stepSimulation(this._world, timeSinceLastCalled, maxSubStep, deltaTime);
@@ -374,11 +374,11 @@ export class BulletWorld implements IPhysicsWorld {
         return false;
     }
 
-    getSharedBody (node: Node, wrappedBody?: BulletRigidBody) {
+    getSharedBody (node: Node, wrappedBody?: BulletRigidBody): BulletSharedBody {
         return BulletSharedBody.getSharedBody(node, this, wrappedBody);
     }
 
-    addSharedBody (sharedBody: BulletSharedBody) {
+    addSharedBody (sharedBody: BulletSharedBody): void {
         const i = this.bodies.indexOf(sharedBody);
         if (i < 0) {
             this.bodies.push(sharedBody);
@@ -386,7 +386,7 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    removeSharedBody (sharedBody: BulletSharedBody) {
+    removeSharedBody (sharedBody: BulletSharedBody): void {
         const i = this.bodies.indexOf(sharedBody);
         if (i >= 0) {
             js.array.fastRemoveAt(this.bodies, i);
@@ -394,7 +394,7 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    addGhostObject (sharedBody: BulletSharedBody) {
+    addGhostObject (sharedBody: BulletSharedBody): void {
         const i = this.ghosts.indexOf(sharedBody);
         if (i < 0) {
             this.ghosts.push(sharedBody);
@@ -402,7 +402,7 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    removeGhostObject (sharedBody: BulletSharedBody) {
+    removeGhostObject (sharedBody: BulletSharedBody): void {
         const i = this.ghosts.indexOf(sharedBody);
         if (i >= 0) {
             js.array.fastRemoveAt(this.ghosts, i);
@@ -430,7 +430,7 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    addConstraint (constraint: BulletConstraint) {
+    addConstraint (constraint: BulletConstraint): void {
         const i = this.constraints.indexOf(constraint);
         if (i < 0) {
             this.constraints.push(constraint);
@@ -439,7 +439,7 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    removeConstraint (constraint: BulletConstraint) {
+    removeConstraint (constraint: BulletConstraint): void {
         const i = this.constraints.indexOf(constraint);
         if (i >= 0) {
             this.constraints.splice(i, 1);
@@ -448,7 +448,7 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    emitEvents () {
+    emitEvents (): void {
         this._needSyncAfterEvents = false;
 
         if (this._needEmitEvents) {
@@ -605,7 +605,7 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    gatherConatactData () {
+    gatherConatactData (): void {
         const numManifolds = bt.Dispatcher_getNumManifolds(this._dispatcher);
         for (let i = 0; i < numManifolds; i++) {
             const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._dispatcher, i);//btPersistentManifold

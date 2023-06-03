@@ -62,7 +62,7 @@ export class PhysicsMaterial extends Asset {
     @editable
     @type(CCFloat)
     @tooltip('i18n:physics3d.material.friction')
-    get friction () {
+    get friction (): number {
         return this._friction;
     }
 
@@ -82,7 +82,7 @@ export class PhysicsMaterial extends Asset {
     @editable
     @type(CCFloat)
     @tooltip('i18n:physics3d.material.rollingFriction')
-    get rollingFriction () {
+    get rollingFriction (): number {
         return this._rollingFriction;
     }
 
@@ -102,7 +102,7 @@ export class PhysicsMaterial extends Asset {
     @editable
     @type(CCFloat)
     @tooltip('i18n:physics3d.material.spinningFriction')
-    get spinningFriction () {
+    get spinningFriction (): number {
         return this._spinningFriction;
     }
 
@@ -122,7 +122,7 @@ export class PhysicsMaterial extends Asset {
     @editable
     @type(CCFloat)
     @tooltip('i18n:physics3d.material.restitution')
-    get restitution () {
+    get restitution (): number {
         return this._restitution;
     }
 
@@ -161,7 +161,7 @@ export class PhysicsMaterial extends Asset {
      * @zh
      * 克隆。
      */
-    public clone () {
+    public clone (): PhysicsMaterial {
         const c = new PhysicsMaterial();
         c._friction = this._friction;
         c._restitution = this._restitution;
@@ -198,7 +198,7 @@ export class PhysicsMaterial extends Asset {
      * @param spinningFriction
      * @param restitution
      */
-    public setValues (friction: number, rollingFriction: number, spinningFriction: number, restitution: number) {
+    public setValues (friction: number, rollingFriction: number, spinningFriction: number, restitution: number): void {
         const emitUpdate = this._friction !== friction || this._rollingFriction !== rollingFriction
             || this._spinningFriction !== spinningFriction || this._restitution !== restitution;
         this._friction = friction;

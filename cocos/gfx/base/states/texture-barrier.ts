@@ -42,7 +42,7 @@ export class TextureBarrier extends GFXObject {
         this._hash = hash;
     }
 
-    static computeHash (info: Readonly<TextureBarrierInfo>) {
+    static computeHash (info: Readonly<TextureBarrierInfo>): number {
         let res = `${info.prevAccesses} ${info.nextAccesses}`;
         res += info.type;
         res += info.baseMipLevel;

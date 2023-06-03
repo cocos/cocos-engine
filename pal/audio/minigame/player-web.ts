@@ -40,7 +40,7 @@ export class OneShotAudioWeb {
     private _onPlayCb?: () => void;
     private _url: string;
 
-    get onPlay () {
+    get onPlay (): (() => void) | undefined {
         return this._onPlayCb;
     }
     set onPlay (cb) {
@@ -48,7 +48,7 @@ export class OneShotAudioWeb {
     }
 
     private _onEndCb?: () => void;
-    get onEnd () {
+    get onEnd (): (() => void) | undefined {
         return this._onEndCb;
     }
     set onEnd (cb) {
@@ -71,7 +71,7 @@ export class OneShotAudioWeb {
     public play (): void {
         this._bufferSourceNode.start();
         this.onPlay?.();
-        this._bufferSourceNode.onended = () => {
+        this._bufferSourceNode.onended = (): void => {
             audioBufferManager.tryReleasingCache(this._url);
             this._onEndCb?.();
         };
@@ -116,7 +116,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
         game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
-    destroy () {
+    destroy (): void {
         this._audioTimer.destroy();
         if (this._audioBuffer) {
             // NOTE: need to release AudioBuffer instance
@@ -126,7 +126,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
         game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
-    private _onInterruptedBegin () {
+    private _onInterruptedBegin (): void {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
@@ -135,7 +135,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             }).catch((e) => {});
         }
     }
-    private _onInterruptedEnd () {
+    private _onInterruptedEnd (): void {
         // We don't know whether onShow or resolve callback in pause promise is called at first.
         if (!this._readyToHandleOnShow) {
             this._eventTarget.once(AudioEvent.INTERRUPTION_BEGIN, this._onInterruptedEnd, this);
@@ -264,7 +264,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             this._state = AudioState.PLAYING;
             this._audioTimer.start();
 
-            this._sourceNode.onended = () => {
+            this._sourceNode.onended = (): void => {
                 this._audioTimer.stop();
                 this._eventTarget.emit(AudioEvent.ENDED);
                 this._state = AudioState.INIT;
@@ -273,7 +273,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         });
     }
 
-    private _stopSourceNode () {
+    private _stopSourceNode (): void {
         try {
             if (this._sourceNode) {
                 this._sourceNode.onended = null;  // stop will call ended callback
@@ -307,10 +307,10 @@ export class AudioPlayerWeb implements OperationQueueable {
         return Promise.resolve();
     }
 
-    onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    offInterruptionBegin (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    onInterruptionEnd (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
-    offInterruptionEnd (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
-    onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
-    offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
+    onInterruptionBegin (cb: () => void): void { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    offInterruptionBegin (cb?: () => void): void { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    onInterruptionEnd (cb: () => void): void { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
+    offInterruptionEnd (cb?: () => void): void { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
+    onEnded (cb: () => void): void { this._eventTarget.on(AudioEvent.ENDED, cb); }
+    offEnded (cb?: () => void): void { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }
