@@ -33,7 +33,7 @@ import { NodeEventProcessor } from '../../scene-graph/node-event-processor';
 import { MaskMode } from '../renderer/render-entity';
 import { Sprite } from './sprite';
 import { NodeEventType, Component } from '../../scene-graph';
-import { SpriteFrame } from '../assets';
+import type { SpriteFrame } from '../assets';
 import type { Material } from '../../asset/assets';
 
 const _worldMatrix = new Mat4();

@@ -29,7 +29,7 @@ import { DrawBatch2D } from '../renderer/draw-batch';
 import { Color, warnID } from '../../core';
 import { StaticVBAccessor } from '../renderer/static-vb-accessor';
 import { director } from '../../game';
-import { Batcher2D } from '../renderer/batcher-2d';
+import type { Batcher2D } from '../renderer/batcher-2d';
 
 /**
  * @en

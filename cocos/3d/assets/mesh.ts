@@ -35,7 +35,6 @@ import {
 } from '../../gfx';
 import { Morph } from './morph';
 import { MorphRendering, createMorphRendering } from './morph-rendering';
-import type { AABB } from '../../core/geometry';
 
 function getIndexStrideCtor (stride: number): Uint8ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor {
     switch (stride) {
@@ -675,7 +674,7 @@ export class Mesh extends Asset {
      * @param skeleton @en skeleton data @zh 骨骼信息
      * @param skeleton @en skeleton data @zh 骨骼信息
      */
-    public getBoneSpaceBounds (skeleton: Skeleton): (AABB | null)[] {
+    public getBoneSpaceBounds (skeleton: Skeleton): (geometry.AABB | null)[] {
         if (this._boneSpaceBounds.has(skeleton.hash)) {
             return this._boneSpaceBounds.get(skeleton.hash)!;
         }

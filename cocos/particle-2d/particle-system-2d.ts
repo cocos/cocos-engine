@@ -42,7 +42,7 @@ import { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager, builtinResMgr } from '../asset/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
 import { ccwindow } from '../core/global-exports';
-import { IAssembler } from '../2d';
+import type { IAssembler } from '../2d';
 import type { TextureBase } from '../asset/assets/texture-base';
 
 /**
