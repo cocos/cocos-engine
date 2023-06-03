@@ -690,7 +690,7 @@ const aabbFrustumCompletelyInside = function (aabb: AABB, frustum: Readonly<Frus
  * @param frustum @zh 锥台 @en The frustum to test
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
-const aabbFrustumAccurate = (function (): (aabb: AABB, frustum: Frustum) => numbe {
+const aabbFrustumAccurate = (function (): (aabb: AABB, frustum: Frustum) => number {
     const tmp = new Array(8);
     let out1 = 0; let out2 = 0;
     for (let i = 0; i < tmp.length; i++) {

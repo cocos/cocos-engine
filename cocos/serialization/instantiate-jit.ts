@@ -319,7 +319,7 @@ class Parser {
         }
     }
 
-    public instantiateArray (value): Declaration | '[]' {
+    public instantiateArray (value): Declaration[] | '[]' {
         if (value.length === 0) {
             return '[]';
         }

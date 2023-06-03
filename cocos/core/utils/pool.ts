@@ -138,7 +138,7 @@ export class Pool<T> {
      * @zh 获取的对象。如果对象池中没有对象，返回 null。
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _get (): T {
+    public _get (): T | null {
         if (this.count > 0) {
             --this.count;
             const cache = this._pool[this.count];

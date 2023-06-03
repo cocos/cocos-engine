@@ -75,7 +75,7 @@ export class PipelineSceneData {
      * @zh 获取全局的4s标准模型
      * @returns The model id
      */
-    get standardSkinModel  (): ModelRenderer | null { return this._standardSkinModel; }
+    get standardSkinModel (): MeshRenderer | null { return this._standardSkinModel; }
 
     /**
      * @engineInternal

@@ -99,7 +99,7 @@ class ClipMotionEval implements MotionEval {
         return new ClipMotionPort(this);
     }
 
-    public getClipStatuses (baseWeight: number): Iterator<ClipStatus, any, undefined> {
+    public getClipStatuses (baseWeight: number): Iterator<ClipStatus> {
         let got = false;
         return {
             next: (): IteratorResult<ClipStatus, any> => {
@@ -112,11 +112,13 @@ class ClipMotionEval implements MotionEval {
                     got = true;
                     return {
                         done: false,
+                        // TODO: `__DEBUG_ID__` does not exist on ClipStatus, please fix it @Leslie Leigh
+                        // tracking issue: https://github.com/cocos/cocos-engine/issues/15307
                         value: {
                             __DEBUG_ID__: this.__DEBUG__ID__,
                             clip: this._clip,
                             weight: baseWeight,
-                        },
+                        } as any,
                     };
                 }
             },

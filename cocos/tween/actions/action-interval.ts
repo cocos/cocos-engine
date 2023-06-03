@@ -109,7 +109,7 @@ export class ActionInterval extends FiniteTimeAction {
         }
     }
 
-    clone (): ActionInstant {
+    clone (): ActionInterval {
         const action = new ActionInterval(this._duration);
         this._cloneDecoration(action);
         return action;

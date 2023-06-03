@@ -75,7 +75,7 @@ export class TerrainCollider extends Collider {
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
-    get shape (): ITerrainShape | null {
+    get shape (): ITerrainShape {
         return this._shape as ITerrainShape;
     }
 

@@ -152,7 +152,7 @@ export class PNGReader {
                 if (frame) {
                     this.animation.frames.push(frame);
                 }
-                this.colors = ((): 1 | 3 => {
+                this.colors = ((): 1 | 3 | undefined => {
                     switch (this.colorType) {
                     case 0:
                     case 3:
@@ -167,7 +167,7 @@ export class PNGReader {
                 this.hasAlphaChannel = _ref === 4 || _ref === 6;
                 const colors = this.colors + (this.hasAlphaChannel ? 1 : 0);
                 this.pixelBitlength = this.bits * colors;
-                this.colorSpace = ((): "DeviceGray" | "DeviceRGB" => {
+                this.colorSpace = ((): "DeviceGray" | "DeviceRGB" | undefined => {
                     switch (this.colors) {
                     case 1:
                         return 'DeviceGray';
