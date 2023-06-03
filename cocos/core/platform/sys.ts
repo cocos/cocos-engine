@@ -336,7 +336,7 @@ export const sys = {
      * @en Get the current time in milliseconds.
      * @zh 获取当前时间（毫秒为单位）。
      */
-    now (): any {
+    now (): number {
         return systemInfo.now();
     },
 

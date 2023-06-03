@@ -97,7 +97,7 @@ export class TiledObjectGroup extends Component {
      * @param {String} propertyName
      * @return {Object}
      */
-    public getProperty (propertyName: { toString (): string } | string): string | undefined {
+    public getProperty (propertyName: { toString (): string } | string): string | number {
         return this._properties![propertyName.toString()];
     }
 

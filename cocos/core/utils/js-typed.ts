@@ -128,7 +128,7 @@ export const value = ((): (object: Record<string | number, any>, propertyName: s
  * @param enumerable @en If the property is enumerable. @zh 属性是否可列举。
  * @param configurable @en If the property is configurable. @zh 属性是否可配置。
  */
-export const getset = ((): (object: Record<string | number, any>, propertyName: string, getter: any, setter?: any, enumerable?: boolean, configurable?: boolean) => void => {
+export const getset = ((): (object: Record<string | number, any>, propertyName: string, getter: Getter, setter?: Setter | boolean, enumerable?: boolean, configurable?: boolean) => void => {
     const descriptor: PropertyDescriptor = {
         get: undefined,
         set: undefined,
@@ -160,7 +160,7 @@ export const getset = ((): (object: Record<string | number, any>, propertyName: 
  * @param enumerable @en If the property is enumerable. @zh 属性是否可列举。
  * @param configurable @en If the property is configurable. @zh 属性是否可配置。
  */
-export const get = ((): (object: Record<string | number, any>, propertyName: string, getter: any, enumerable?: boolean, configurable?: boolean) => void => {
+export const get = ((): (object: Record<string | number, any>, propertyName: string, getter: Getter, enumerable?: boolean, configurable?: boolean) => void => {
     const descriptor: PropertyDescriptor = {
         get: undefined,
         enumerable: false,
@@ -184,7 +184,7 @@ export const get = ((): (object: Record<string | number, any>, propertyName: str
  * @param enumerable @en If the property is enumerable. @zh 属性是否可列举。
  * @param configurable @en If the property is configurable. @zh 属性是否可配置。
  */
-export const set = ((): (object: Record<string | number, any>, propertyName: string, setter: any, enumerable?: boolean, configurable?: boolean) => void => {
+export const set = ((): (object: Record<string | number, any>, propertyName: string, setter: Setter, enumerable?: boolean, configurable?: boolean) => void => {
     const descriptor: PropertyDescriptor = {
         set: undefined,
         enumerable: false,
@@ -604,7 +604,7 @@ export const _idToClass: Record<string, Constructor> = createMap(true);
  */
 export const _nameToClass: Record<string, Constructor> = createMap(true);
 
-function setup (tag: string, table: Record<string | number, any>, allowExist: boolean): (id: string, constructor: any) => void {
+function setup (tag: string, table: Record<string | number, any>, allowExist: boolean): (id: string, constructor: Constructor) => void {
     return function (id: string, constructor: Constructor): void {
         // deregister old
         // eslint-disable-next-line no-prototype-builtins
@@ -744,7 +744,7 @@ export function unregisterClass (...constructors: Function[]): void {
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  * Please use `getClassById()` instead.
  */
-export function _getClassById (classId): any {
+export function _getClassById (classId): Constructor<unknown> {
     return getClassById(classId);
 }
 
@@ -754,7 +754,7 @@ export function _getClassById (classId): any {
  * @param classId @en The class id used to get class. @zh 获取类的 id。
  * @returns @en The constructor of the registered class. @zh 注册的类构造函数。
  */
-export function getClassById (classId): any {
+export function getClassById (classId): Constructor<unknown> {
     return _idToClass[classId];
 }
 
@@ -766,7 +766,7 @@ export function getClassById (classId): any {
  * @param classname @en The class name used to get class. @zh 获取类的类名。
  * @returns @en The constructor of the registered class. @zh 注册的类构造函数。
  */
-export function getClassByName (classname): any {
+export function getClassByName (classname): Constructor<unknown> {
     return _nameToClass[classname];
 }
 

@@ -65,7 +65,7 @@ function formatString (message?: any, ...optionalParams: any[]): any {
  * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  */
-export function log (message?: any, ...optionalParams: any[]): any {
+export function log (message?: any, ...optionalParams: any[]): void {
     return ccLog(message, ...optionalParams);
 }
 
@@ -82,7 +82,7 @@ export function log (message?: any, ...optionalParams: any[]): any {
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
-export function warn (message?: any, ...optionalParams: any[]): any {
+export function warn (message?: any, ...optionalParams: any[]): void {
     return ccWarn(message, ...optionalParams);
 }
 
@@ -99,7 +99,7 @@ export function warn (message?: any, ...optionalParams: any[]): any {
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
-export function error (message?: any, ...optionalParams: any[]): any {
+export function error (message?: any, ...optionalParams: any[]): void {
     return ccError(message, ...optionalParams);
 }
 
@@ -122,7 +122,7 @@ export function assert (value: any, message?: string, ...optionalParams: any[]):
  * @zh 输出一条“调试”日志等级的消息。
  * @param data @zh 输出的消息对象。 @en The output message object.
  */
-export function debug (...data: any[]): any {
+export function debug (...data: any[]): void {
     return ccDebug(...data);
 }
 

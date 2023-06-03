@@ -378,7 +378,7 @@ export class TMXTilesetInfo {
 
     collection = false;
 
-    rectForGID (gid_: MixedGID | GID, result?: TiledGrid): TiledGrid | Rect {
+    rectForGID (gid_: MixedGID | GID, result?: TiledGrid): Rect | TiledGrid {
         const rect = result || new Rect(0, 0, 0, 0);
         rect.width = this._tileSize.width;
         rect.height = this._tileSize.height;

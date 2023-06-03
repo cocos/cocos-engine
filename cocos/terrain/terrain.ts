@@ -839,7 +839,7 @@ export class TerrainBlock {
      * @en get max layer index
      * @zh 获得最大纹理索引
      */
-    public getMaxLayer (): number {
+    public getMaxLayer (): 1 | 0 | 3 | 2 {
         if (this.layers[3] >= 0) {
             return 3;
         }

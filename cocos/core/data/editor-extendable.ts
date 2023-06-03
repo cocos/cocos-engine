@@ -39,7 +39,7 @@ import { assertIsTrue } from './utils/asserts';
  * @param className Assign an optional cc class name. If the base class is not cc class, this param is required.
  * @returns The mixin class.
  */
-export function EditorExtendableMixin<T> (Base: new (...args: any[]) => T, className?: string): ResultType<T> {
+export function EditorExtendableMixin<T> (Base: new (...args: any[]) => T, className?: string): new (...args: any[]) => EditorExtendableObject {
     return editorExtendableInternal(Base);
 }
 
@@ -60,7 +60,7 @@ assertIsTrue(editorExtrasTag === '__editorExtras__', 'editorExtrasTag needs to b
 type ResultType<T> = new (...args: any[]) => (T & EditorExtendableObject);
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), className?: string): ResultType<T> {
+function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), className?: string): new (...args: any[]) => EditorExtendableObject {
     if (!EDITOR) {
         return (Base ?? Empty) as unknown as ResultType<T>;
     }

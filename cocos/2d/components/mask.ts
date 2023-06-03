@@ -481,7 +481,7 @@ export class Mask extends Component {
     /**
      * @deprecated Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation
      */
-    get color (): Readonly< Color> | null {
+    get color (): Color | null {
         warnID(9007);
         if (this.subComp) {
             return this.subComp.color;

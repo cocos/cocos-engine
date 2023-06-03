@@ -50,7 +50,7 @@ export class MissingScript extends Component {
      * @param {string} id
      * @return {function} constructor
      */
-    public static safeFindClass (id: string): any {
+    public static safeFindClass (id: string): Constructor<unknown> | undefined {
         const cls = js.getClassById(id);
         if (cls) {
             return cls;

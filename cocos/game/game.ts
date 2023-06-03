@@ -953,7 +953,7 @@ export class Game extends EventTarget {
     /**
      * @internal only for game-view
      */
-    public _loadProjectBundles (): Promise<any[]> {
+    public _loadProjectBundles (): Promise<void[]> {
         const preloadBundles = settings.querySettings<{ bundle: string, version: string }[]>(Settings.Category.ASSETS, 'preloadBundles');
         if (!preloadBundles) return Promise.resolve([]);
         return Promise.all(preloadBundles.map(({ bundle, version }): Promise<void> => new Promise<void>((resolve, reject): void => {

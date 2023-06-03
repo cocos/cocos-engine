@@ -759,7 +759,7 @@ export class ScrollView extends ViewGroup {
      *
      * @return @en Maximum scrollable offset. @zh 最大可滚动偏移量。
      */
-    public getMaxScrollOffset (): Readonly<Vec2> {
+    public getMaxScrollOffset (): Vec2 {
         if (!this._content || !this.view) {
             return Vec2.ZERO;
         }
