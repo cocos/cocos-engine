@@ -94,7 +94,11 @@ void CCMTLRenderPass::doInit(const RenderPassInfo& info) {
 
         for (auto &input : subPass.inputs) {
             auto &index = _colorIndices[input];
-            CC_ASSERT(index != INVALID_BINDING); // input should not appear before color or depthstencil.
+//            CC_ASSERT(index != INVALID_BINDING); // input should not appear before color or depthstencil.
+            if(index == INVALID_BINDING) {
+                // ds view only
+                index = input;
+            }
             readBuffer.emplace_back(index);
         }
 

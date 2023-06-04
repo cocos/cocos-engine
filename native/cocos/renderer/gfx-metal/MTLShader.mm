@@ -164,6 +164,8 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage, CCMTLRenderPass *r
 
     auto* spvData = spirv->getOutputData();
     size_t unitSize = sizeof(std::remove_pointer<decltype(spvData)>::type);
+    
+    NSString *rawStr = [NSString stringWithUTF8String:stage.source.c_str()];
 
     static const ccstd::vector<uint32_t> emptyBuffer;
     const auto &drawBuffer = renderPass != nullptr ? renderPass->getDrawBuffer(subPass) : emptyBuffer;

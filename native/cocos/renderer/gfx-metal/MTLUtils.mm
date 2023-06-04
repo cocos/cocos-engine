@@ -1085,13 +1085,11 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
                     if(renderPass->getColorAttachments()[loc].format == Format::DEPTH) {
                         depthInput.slot = loc;
                         depthInput.name = attachment.name;
-                        msl.set_decoration(attachment.id, spv::DecorationInputAttachmentIndex, loc);
                         continue;
                     }
                     if(renderPass->getColorAttachments()[loc].format == Format::DEPTH_STENCIL) {
                         stencilInput.slot = loc;
-                        stencilInput.name = stencilInput.name;
-                        msl.set_decoration(attachment.id, spv::DecorationInputAttachmentIndex, loc);
+                        stencilInput.name = attachment.name;
                         continue;;
                     }
                 }
@@ -1122,13 +1120,37 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         CC_LOG_ERROR("Compile to MSL failed.");
         CC_LOG_ERROR("%s", output.c_str());
     }
-    if (!depthInput.name.empty()) {
-        std::string depthInExp = "float4 " + depthInExp + "([^\\)])";
-        std::regex depthInputExp(depthInExp);
-        output = std::regex_replace(output, depthInputExp, "float4 " + depthInExp + "[[depth(less)]]");
-    }
-    if(!stencilInput.name.empty()) {
-        
+    if(!depthInput.name.empty() || !stencilInput.name.empty()) {
+        auto outIndex = output.find("struct main0_out");
+        output.insert(outIndex, "struct DSInput\n{\n    float depth [[depth(less)]];\n    uint stencil [[stencil]];\n};\n");
+        bool hasDepth{false};
+        if (!depthInput.name.empty()) {
+            std::string depthName(depthInput.name.substr(1));
+            std::string depthInExp = "[, ]*float4 " + depthName + "([^\\)]+\\))\\]\\]";
+            std::regex depthInputExp(depthInExp);
+            output = std::regex_replace(output, depthInputExp, "");
+            std::string_view immutableOut{"fragment main0_out"};
+            auto entryIndex = output.find(immutableOut);
+            auto bodyIndex = output.find_first_of("{", entryIndex + 1);
+            output = output.insert(bodyIndex + 1,
+                                    "\nDSInput __dsInput{};\nfloat " + depthName + " = __dsInput.depth;");
+            hasDepth = true;
+        }
+        if(!stencilInput.name.empty()) {
+            std::string stencilName(stencilInput.name.substr(1));
+            std::string stencilInExp = "[, ]*int4 " + stencilName + "([^\\)]+\\))\\]\\]";
+            std::regex stencilInputExp(stencilInExp);
+            output = std::regex_replace(output, stencilInputExp, "");
+            std::string_view immutableOut{"fragment main0_out"};
+            auto entryIndex = output.find(immutableOut);
+            auto bodyIndex = output.find_first_of("{", entryIndex + 1);
+            std::string declStr = hasDepth ? "" : "\nDSInput __dsInput{};";
+            output = output.insert(bodyIndex + 1,
+                                   declStr + "\nuint " + stencilName + " = __dsInput.stencil;");
+            std::regex usingValExp(stencilName + "\\.[rx]");
+            output = std::regex_replace(output, usingValExp, stencilName);
+        }
+
     }
     return output;
 }

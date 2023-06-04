@@ -304,10 +304,11 @@ bool CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
             depthStencilTexIndex = subpass.depthStencil;
             for (size_t i = 0; i < subpass.inputs.size(); ++i) {
                 uint32_t input = subpass.inputs[i];
+
                 if (inputs.find(input) == inputs.end()) {
                     inputs.insert(input);
-                    if(input >= colorAttachments.size()) {
-                        depthStencilTexIndex = input;
+                    if(_renderPass->getColorAttachments()[input].format == Format::DEPTH ||
+                       _renderPass->getColorAttachments()[input].format == Format::DEPTH_STENCIL) {
                         continue;
                     }
                     mtlPixelFormat = mu::toMTLPixelFormat(colorAttachments[input].format);
