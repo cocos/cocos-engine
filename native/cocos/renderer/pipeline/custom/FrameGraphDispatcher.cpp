@@ -2042,7 +2042,7 @@ AccessVertex dependencyCheck(RAG &rag, AccessVertex curVertID, const ResourceGra
 
     std::stack<ResourceGraph::vertex_descriptor> stack;
     stack.push(parentID);
-    for (auto &edge : makeRange(children(parentID, rg))) {
+    for (const auto &edge : makeRange(children(parentID, rg))) {
         const auto resourceID = edge.target;
         stack.push(resourceID);
     }
