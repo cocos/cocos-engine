@@ -169,7 +169,7 @@ bool CCMTLShader::createMTLFunction(const ShaderStage& stage, CCMTLRenderPass *r
     const auto &drawBuffer = renderPass != nullptr ? renderPass->getDrawBuffer(subPass) : emptyBuffer;
     const auto &readBuffer = renderPass != nullptr ? renderPass->getReadBuffer(subPass) : emptyBuffer;
     ccstd::string mtlShaderSrc = mu::spirv2MSL(spirv->getOutputData(), spirv->getOutputSize() / unitSize, stage.stage,
-        _gpuShader, drawBuffer, readBuffer);
+        _gpuShader, renderPass, subPass);
 
     NSString* shader = [NSString stringWithUTF8String:mtlShaderSrc.c_str()];
     NSError* error = nil;
