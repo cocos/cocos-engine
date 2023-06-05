@@ -99,7 +99,7 @@ export class DirectionalLight extends Light {
     @editable
     @rangeMin(0)
     @type(CCInteger)
-    get illuminance () {
+    get illuminance (): number {
         const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._illuminanceHDR;
@@ -128,7 +128,7 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
     @editable
     @type(CCBoolean)
-    get shadowEnabled () {
+    get shadowEnabled (): boolean {
         return this._shadowEnabled;
     }
     set shadowEnabled (val) {
@@ -148,7 +148,7 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 5  } })
     @editable
     @type(PCFType)
-    get shadowPcf () {
+    get shadowPcf (): number {
         return this._shadowPcf;
     }
     set shadowPcf (val) {
@@ -168,7 +168,7 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 6 } })
     @editable
     @type(CCFloat)
-    get shadowBias () {
+    get shadowBias (): number {
         return this._shadowBias;
     }
     set shadowBias (val) {
@@ -188,7 +188,7 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 7 } })
     @editable
     @type(CCFloat)
-    get shadowNormalBias () {
+    get shadowNormalBias (): number {
         return this._shadowNormalBias;
     }
     set shadowNormalBias (val) {
@@ -210,7 +210,7 @@ export class DirectionalLight extends Light {
     @range([0.0, 1.0, 0.01])
     @slide
     @type(CCFloat)
-    get shadowSaturation () {
+    get shadowSaturation (): number {
         return this._shadowSaturation;
     }
     set shadowSaturation (val) {
@@ -237,7 +237,7 @@ export class DirectionalLight extends Light {
     @range([0.0, 2000.0, 0.1])
     @slide
     @type(CCFloat)
-    get shadowDistance () {
+    get shadowDistance (): number {
         return this._shadowDistance;
     }
     set shadowDistance (val) {
@@ -266,7 +266,7 @@ export class DirectionalLight extends Light {
     @range([0.0, 2000.0, 1.0])
     @slide
     @type(CCFloat)
-    get shadowInvisibleOcclusionRange () {
+    get shadowInvisibleOcclusionRange (): number {
         return this._shadowInvisibleOcclusionRange;
     }
     set shadowInvisibleOcclusionRange (val) {
@@ -285,7 +285,7 @@ export class DirectionalLight extends Light {
     @editable
     @tooltip('CSM Level')
     @type(CSMLevel)
-    get csmLevel () {
+    get csmLevel (): number {
         return this._csmLevel;
     }
     set csmLevel (val) {
@@ -310,7 +310,7 @@ export class DirectionalLight extends Light {
     @editable
     @tooltip('enable CSM')
     @type(CCBoolean)
-    get enableCSM () {
+    get enableCSM (): boolean {
         return this._csmLevel > CSMLevel.LEVEL_1;
     }
     set enableCSM (val) {
@@ -332,7 +332,7 @@ export class DirectionalLight extends Light {
     @range([0.0, 1.0, 0.01])
     @slide
     @type(CCFloat)
-    get csmLayerLambda () {
+    get csmLayerLambda (): number {
         return this._csmLayerLambda;
     }
     set csmLayerLambda (val) {
@@ -353,7 +353,7 @@ export class DirectionalLight extends Light {
     @editable
     @tooltip('CSM Performance Optimization Mode')
     @type(CSMOptimizationMode)
-    get csmOptimizationMode () {
+    get csmOptimizationMode (): number {
         return this._csmOptimizationMode;
     }
     set csmOptimizationMode (val) {
@@ -373,7 +373,7 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 14 } })
     @editable
     @type(CCBoolean)
-    get shadowFixedArea () {
+    get shadowFixedArea (): boolean {
         return this._shadowFixedArea;
     }
     set shadowFixedArea (val) {
@@ -396,7 +396,7 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 15 } })
     @editable
     @type(CCFloat)
-    get shadowNear () {
+    get shadowNear (): number {
         return this._shadowNear;
     }
     set shadowNear (val) {
@@ -419,7 +419,7 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 16 } })
     @editable
     @type(CCFloat)
-    get shadowFar () {
+    get shadowFar (): number {
         return this._shadowFar;
     }
     set shadowFar (val) {
@@ -441,7 +441,7 @@ export class DirectionalLight extends Light {
     })
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 17 } })
     @type(CCFloat)
-    get shadowOrthoSize () {
+    get shadowOrthoSize (): number {
         return this._shadowOrthoSize;
     }
     set shadowOrthoSize (val) {
@@ -464,7 +464,7 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 19 } })
     @editable
     @type(CCBoolean)
-    get csmAdvancedOptions () {
+    get csmAdvancedOptions (): boolean {
         return this._csmAdvancedOptions;
     }
     set csmAdvancedOptions (val) {
@@ -485,7 +485,7 @@ export class DirectionalLight extends Light {
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 20 } })
     @editable
     @type(CCBoolean)
-    get csmLayersTransition () {
+    get csmLayersTransition (): boolean {
         return this._csmLayersTransition;
     }
     set csmLayersTransition (val) {
@@ -509,7 +509,7 @@ export class DirectionalLight extends Light {
     @range([0.0, 0.1, 0.01])
     @slide
     @type(CCFloat)
-    get csmTransitionRange () {
+    get csmTransitionRange (): number {
         return this._csmTransitionRange;
     }
     set csmTransitionRange (val) {
@@ -531,7 +531,7 @@ export class DirectionalLight extends Light {
         }
     }
 
-    protected _createLight () {
+    protected _createLight (): void {
         super._createLight();
         this._type = scene.LightType.DIRECTIONAL;
         if (this._light) {
@@ -558,7 +558,7 @@ export class DirectionalLight extends Light {
         }
     }
 
-    protected _onUpdateReceiveDirLight () {
+    protected _onUpdateReceiveDirLight (): void {
         if (!this._light) {
             return;
         }
