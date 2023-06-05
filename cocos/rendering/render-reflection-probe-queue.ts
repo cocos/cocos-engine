@@ -79,6 +79,7 @@ export class RenderReflectionProbeQueue {
     private _shaderArray: Shader[] = [];
     private _rgbeSubModelsArray: SubModel[]=[]
     private _instancedQueue: RenderInstancedQueue;
+    private _patches: IMacroPatch[] = [];
 
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
@@ -151,12 +152,13 @@ export class RenderReflectionProbeQueue {
             const batchingScheme = pass.batchingScheme;
 
             if (!bUseReflectPass) {
-                let patches: IMacroPatch[] | null = subModel.patches;
+                this._patches = [];
+                this._patches.concat(subModel.patches!);
                 const useRGBEPatchs: IMacroPatch[] = [
                     { name: CC_USE_RGBE_OUTPUT, value: true },
                 ];
-                patches = patches ? patches.concat(useRGBEPatchs) : useRGBEPatchs;
-                subModel.onMacroPatchesStateChanged(patches);
+                this._patches = this._patches.concat(useRGBEPatchs);
+                subModel.onMacroPatchesStateChanged(this._patches);
                 this._rgbeSubModelsArray.push(subModel);
             }
 
@@ -199,18 +201,19 @@ export class RenderReflectionProbeQueue {
     }
     public resetRGBEMacro () {
         for (let i = 0; i < this._rgbeSubModelsArray.length; i++) {
+            this._patches = [];
             const subModel = this._rgbeSubModelsArray[i];
             // eslint-disable-next-line prefer-const
-            let patches: IMacroPatch[] | null = subModel.patches;
-            if (!patches) continue;
-            for (let j = 0; j < patches.length; j++) {
-                const patch = patches[j];
+            this._patches.concat(subModel.patches!);
+            if (!this._patches) continue;
+            for (let j = 0; j < this._patches.length; j++) {
+                const patch = this._patches[j];
                 if (patch.name === CC_USE_RGBE_OUTPUT) {
-                    patches.splice(j, 1);
+                    this._patches.splice(j, 1);
                     break;
                 }
             }
-            subModel.onMacroPatchesStateChanged(patches);
+            subModel.onMacroPatchesStateChanged(this._patches);
         }
     }
 }
