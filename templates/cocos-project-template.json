@@ -5,11 +5,17 @@
             "srcProjectName": "CocosGame",
             "files": [
                 "proj/main.cpp",
-                "proj/settings.gradle",
                 "proj/main.m",
                 "${NATIVE_DIR}/CMakeLists.txt"
             ]
         },
+        "projectReplaceProjectNameASCII": {
+            "srcProjectName": "CocosGame",
+            "files": [
+                "proj/settings.gradle"
+            ]
+        },
+
         "projectReplacePackageName": {
             "srcPackageName": "com.cocos.helloworld",
             "files": [
