@@ -29,7 +29,7 @@ import { ICapsuleShape } from '../../spec/i-physics-shape';
 import { bt } from '../instantiated';
 
 export class BulletCapsuleShape extends BulletShape implements ICapsuleShape {
-    setCylinderHeight (v: number) {
+    setCylinderHeight (v: number): void {
         this.updateProperties(
             this.collider.radius,
             this.collider.cylinderHeight,
@@ -38,7 +38,7 @@ export class BulletCapsuleShape extends BulletShape implements ICapsuleShape {
         );
     }
 
-    setDirection (v: number) {
+    setDirection (v: number): void {
         this.updateProperties(
             this.collider.radius,
             this.collider.cylinderHeight,
@@ -47,7 +47,7 @@ export class BulletCapsuleShape extends BulletShape implements ICapsuleShape {
         );
     }
 
-    setRadius (v: number) {
+    setRadius (v: number): void {
         this.updateProperties(
             this.collider.radius,
             this.collider.cylinderHeight,
@@ -56,21 +56,21 @@ export class BulletCapsuleShape extends BulletShape implements ICapsuleShape {
         );
     }
 
-    get collider () {
+    get collider (): CapsuleCollider {
         return this._collider as CapsuleCollider;
     }
 
-    onComponentSet () {
+    onComponentSet (): void {
         this._impl = bt.CapsuleShape_new(0.5, 1);
         this.setRadius(this.collider.radius);
     }
 
-    updateScale () {
+    updateScale (): void {
         super.updateScale();
         this.setRadius(this.collider.radius);
     }
 
-    updateProperties (radius: number, height: number, direction: number, scale: IVec3Like) {
+    updateProperties (radius: number, height: number, direction: number, scale: IVec3Like): void {
         const ws = scale;
         const upAxis = direction;
         let wr: number; let halfH: number;

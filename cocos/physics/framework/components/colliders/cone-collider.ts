@@ -55,7 +55,7 @@ export class ConeCollider extends Collider {
      * 获取或设置圆锥体上圆面半径。
      */
     @tooltip('i18n:physics3d.collider.cone_radius')
-    public get radius () {
+    public get radius (): number {
         return this._radius;
     }
 
@@ -74,7 +74,7 @@ export class ConeCollider extends Collider {
      * 获取或设置圆锥体在相应轴向的高度。
      */
     @tooltip('i18n:physics3d.collider.cone_height')
-    public get height () {
+    public get height (): number {
         return this._height;
     }
 
@@ -95,7 +95,7 @@ export class ConeCollider extends Collider {
      */
     @type(EAxisDirection)
     @tooltip('i18n:physics3d.collider.cone_direction')
-    public get direction () {
+    public get direction (): EAxisDirection {
         return this._direction;
     }
 
@@ -108,7 +108,7 @@ export class ConeCollider extends Collider {
         }
     }
 
-    public get shape () {
+    public get shape (): IConeShape {
         return this._shape as IConeShape;
     }
 

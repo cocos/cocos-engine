@@ -91,7 +91,7 @@ export class Constraint extends Eventify(Component) {
      */
     @displayOrder(0)
     @tooltip('i18n:physics3d.constraint.enableCollision')
-    get enableCollision () {
+    get enableCollision (): boolean {
         return this._enableCollision;
     }
 
@@ -127,25 +127,25 @@ export class Constraint extends Eventify(Component) {
 
     /// COMPONENT LIFECYCLE ///
 
-    protected onLoad () {
+    protected onLoad (): void {
         if (!selector.runInEditor) return;
         this._constraint = createConstraint(this.TYPE);
         this._constraint.initialize(this);
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         if (this._constraint) {
             this._constraint.onEnable!();
         }
     }
 
-    protected onDisable () {
+    protected onDisable (): void {
         if (this._constraint) {
             this._constraint.onDisable!();
         }
     }
 
-    protected onDestroy () {
+    protected onDestroy (): void {
         if (this._constraint) {
             this._constraint.onDestroy!();
         }

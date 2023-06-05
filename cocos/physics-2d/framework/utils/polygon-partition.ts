@@ -35,7 +35,7 @@ import { IVec2Like } from '../../../core';
 * @param polygon @en one polygon. @zh 一个多边形。
 * @return @en polygon array. @zh 多边形数组。
 */
-export function ConvexPartition (polygon: IVec2Like[]) {
+export function ConvexPartition (polygon: IVec2Like[]): IVec2Like[][] | null {
     // We force it to CCW as it is a precondition in this algorithm.
     ForceCounterClockWise(polygon);
 
@@ -114,20 +114,20 @@ class Vertex {
 }
 
 // Signed area.
-function area (a: IVec2Like, b: IVec2Like, c: IVec2Like) {
+function area (a: IVec2Like, b: IVec2Like, c: IVec2Like): number {
     return (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
 }
 
 // Whether corner of a counterclockwise polygon is convex.
-function isConvex (p1: IVec2Like, p2: IVec2Like, p3: IVec2Like) {
+function isConvex (p1: IVec2Like, p2: IVec2Like, p3: IVec2Like): boolean {
     return area(p1, p2, p3) < 0;
 }
 
-function equals (a: IVec2Like, b: IVec2Like) {
+function equals (a: IVec2Like, b: IVec2Like): boolean {
     return a.x === b.x && a.y === b.y;
 }
 
-function isClockwise (polygon: IVec2Like[]) {
+function isClockwise (polygon: IVec2Like[]): boolean {
     let sum = 0;
     for (let i = 0, len = polygon.length; i < len; ++i) {
         const p1 = polygon[i];
@@ -138,13 +138,13 @@ function isClockwise (polygon: IVec2Like[]) {
 }
 
 // Forces counter clock wise order.
-function ForceCounterClockWise (vertices: IVec2Like[]) {
+function ForceCounterClockWise (vertices: IVec2Like[]): void {
     if (isClockwise(vertices)) {
         vertices.reverse();
     }
 }
 
-function updateVertex (vertex: Vertex, vertices: Vertex[]) {
+function updateVertex (vertex: Vertex, vertices: Vertex[]): void {
     if (!vertex.shouldUpdate) {
         return;
     }
@@ -206,7 +206,7 @@ function updateVertex (vertex: Vertex, vertices: Vertex[]) {
     }
 }
 
-function removeCollinearOrDuplicate (start: Vertex) {
+function removeCollinearOrDuplicate (start: Vertex): void {
     for (let curr = start, end = start; ;) {
         if (equals(curr.point!, curr.next!.point!)
             || area(curr.prev!.point!, curr.point!, curr.next!.point!) === 0) {
@@ -229,7 +229,7 @@ function removeCollinearOrDuplicate (start: Vertex) {
 }
 
 // Triangulation by ear clipping.
-function Triangulate (polygon: IVec2Like[]) {
+function Triangulate (polygon: IVec2Like[]): IVec2Like[][] | null {
     ForceCounterClockWise(polygon);
 
     if (polygon.length < 4) {
@@ -255,7 +255,7 @@ function Triangulate (polygon: IVec2Like[]) {
         vertex.prev = vertices[(i + len - 1) % len];
         vertex.next = vertices[(i + 1) % len];
     }
-    vertices.forEach((vertex) => updateVertex(vertex, vertices));
+    vertices.forEach((vertex): void => updateVertex(vertex, vertices));
     for (let i = 0; i < len - 3; ++i) {
         let ear;
         // find the most extruded ear

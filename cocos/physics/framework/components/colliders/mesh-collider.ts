@@ -60,7 +60,7 @@ export class MeshCollider extends Collider {
      */
     @type(Mesh)
     @tooltip('i18n:physics3d.collider.mesh_mesh')
-    get mesh () {
+    get mesh (): Mesh | null {
         return this._mesh;
     }
 
@@ -78,7 +78,7 @@ export class MeshCollider extends Collider {
      */
     @editable
     @tooltip('i18n:physics3d.collider.mesh_convex')
-    get convex () {
+    get convex (): boolean {
         return this._convex;
     }
 
@@ -95,11 +95,11 @@ export class MeshCollider extends Collider {
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
-    get shape () {
+    get shape (): ITrimeshShape {
         return this._shape as ITrimeshShape;
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         super.onEnable();
 
         if (this.node) {

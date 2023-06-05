@@ -50,7 +50,7 @@ export class BulletSharedBody {
     private static idCounter = 0;
     private static readonly sharedBodesMap = new Map<string, BulletSharedBody>();
 
-    static getSharedBody (node: Node, wrappedWorld: BulletWorld, wrappedBody?: BulletRigidBody) {
+    static getSharedBody (node: Node, wrappedWorld: BulletWorld, wrappedBody?: BulletRigidBody): BulletSharedBody {
         const key = node.uuid;
         let newSB!: BulletSharedBody;
         if (BulletSharedBody.sharedBodesMap.has(key)) {
@@ -73,27 +73,27 @@ export class BulletSharedBody {
         return newSB;
     }
 
-    get wrappedBody () {
+    get wrappedBody (): BulletRigidBody | null {
         return this._wrappedBody;
     }
 
-    get bodyCompoundShape () {
+    get bodyCompoundShape (): number {
         return this.bodyStruct.compound;
     }
 
-    get ghostCompoundShape () {
+    get ghostCompoundShape (): number {
         return this.ghostStruct.compound;
     }
 
-    get body () {
+    get body (): number {
         return this.bodyStruct.body;
     }
 
-    get ghost () {
+    get ghost (): number {
         return this.ghostStruct.ghost;
     }
 
-    get collisionFilterGroup () { return this._collisionFilterGroup; }
+    get collisionFilterGroup (): number { return this._collisionFilterGroup; }
     set collisionFilterGroup (v: number) {
         if (v !== this._collisionFilterGroup) {
             this._collisionFilterGroup = v;
@@ -102,7 +102,7 @@ export class BulletSharedBody {
         }
     }
 
-    get collisionFilterMask () { return this._collisionFilterMask; }
+    get collisionFilterMask (): number { return this._collisionFilterMask; }
     set collisionFilterMask (v: number) {
         if (v !== this._collisionFilterMask) {
             this._collisionFilterMask = v;
@@ -111,12 +111,12 @@ export class BulletSharedBody {
         }
     }
 
-    get bodyStruct () {
+    get bodyStruct (): IBulletBodyStruct {
         this._instantiateBodyStruct();
         return this._bodyStruct;
     }
 
-    get ghostStruct () {
+    get ghostStruct (): IBulletGhostStruct {
         this._instantiateGhostStruct();
         return this._ghostStruct;
     }
@@ -198,7 +198,7 @@ export class BulletSharedBody {
         this.node = node;
     }
 
-    private _instantiateBodyStruct () {
+    private _instantiateBodyStruct (): void {
         if (this._bodyStruct) return;
         let mass = 0;
         if (this._wrappedBody && this._wrappedBody.rigidBody.enabled && this._wrappedBody.rigidBody.isDynamic) {
@@ -223,7 +223,7 @@ export class BulletSharedBody {
         if (this._wrappedBody) this.setBodyType(this._wrappedBody.rigidBody.type);
     }
 
-    private _instantiateGhostStruct () {
+    private _instantiateGhostStruct (): void {
         if (this._ghostStruct) return;
         const ghost = bt.CollisionObject_new();
         const ghostShape = bt.ccCompoundShape_new();
@@ -234,12 +234,12 @@ export class BulletSharedBody {
         if (this._wrappedBody) this.setGhostType(this._wrappedBody.rigidBody.type);
     }
 
-    setType (v: ERigidBodyType) {
+    setType (v: ERigidBodyType): void {
         this.setBodyType(v);
         this.setGhostType(v);
     }
 
-    setBodyType (v: ERigidBodyType) {
+    setBodyType (v: ERigidBodyType): void {
         if (this._bodyStruct && this._wrappedBody) {
             const body = this._bodyStruct.body;
             const wrap = this._wrappedBody;
@@ -277,7 +277,7 @@ export class BulletSharedBody {
         }
     }
 
-    setGhostType (v: ERigidBodyType) {
+    setGhostType (v: ERigidBodyType): void {
         if (this._ghostStruct) {
             const ghost = this._ghostStruct.ghost;
             let m_gcf = bt.CollisionObject_getCollisionFlags(ghost);
@@ -301,8 +301,8 @@ export class BulletSharedBody {
         }
     }
 
-    addShape (v: BulletShape, isTrigger: boolean) {
-        function switchShape (that: BulletSharedBody, shape: Bullet.ptr) {
+    addShape (v: BulletShape, isTrigger: boolean): void {
+        function switchShape (that: BulletSharedBody, shape: Bullet.ptr): void {
             bt.CollisionObject_setCollisionShape(that.body, shape);
             that.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
             if (that._wrappedBody && that._wrappedBody.isEnabled) {
@@ -341,7 +341,7 @@ export class BulletSharedBody {
         }
     }
 
-    removeShape (v: BulletShape, isTrigger: boolean) {
+    removeShape (v: BulletShape, isTrigger: boolean): void {
         if (isTrigger) {
             const index = this.ghostStruct.wrappedShapes.indexOf(v);
             if (index >= 0) {
@@ -365,7 +365,7 @@ export class BulletSharedBody {
         }
     }
 
-    addJoint (v: BulletConstraint, type: 0 | 1) {
+    addJoint (v: BulletConstraint, type: 0 | 1): void {
         if (type) {
             const i = this.wrappedJoints1.indexOf(v);
             if (i < 0) this.wrappedJoints1.push(v);
@@ -375,7 +375,7 @@ export class BulletSharedBody {
         }
     }
 
-    removeJoint (v: BulletConstraint, type: 0 | 1) {
+    removeJoint (v: BulletConstraint, type: 0 | 1): void {
         if (type) {
             const i = this.wrappedJoints1.indexOf(v);
             if (i >= 0) js.array.fastRemoveAt(this.wrappedJoints1, i);
@@ -385,7 +385,7 @@ export class BulletSharedBody {
         }
     }
 
-    updateDirty () {
+    updateDirty (): void {
         if (this.dirty) {
             if (this.bodyIndex >= 0 && this.dirty & EBtSharedBodyDirty.BODY_RE_ADD) this.updateBodyByReAdd();
             if (this.ghostIndex >= 0 && this.dirty & EBtSharedBodyDirty.GHOST_RE_ADD) this.updateGhostByReAdd();
@@ -393,7 +393,7 @@ export class BulletSharedBody {
         }
     }
 
-    syncSceneToPhysics () {
+    syncSceneToPhysics (): void {
         if (this.node.hasChangedFlags) {
             const bt_quat = BulletCache.instance.BT_QUAT_0;
             const bt_transform = bt.CollisionObject_getWorldTransform(this.body);
@@ -413,12 +413,12 @@ export class BulletSharedBody {
         }
     }
 
-    syncPhysicsToScene () {
+    syncPhysicsToScene (): void {
         if (bt.CollisionObject_isStaticOrKinematicObject(this.body)) return;
         this.syncPhysicsToGraphics();
     }
 
-    syncPhysicsToGraphics () {
+    syncPhysicsToGraphics (): void {
         if (this.isBodySleeping()) return;
         const bt_quat = BulletCache.instance.BT_QUAT_0;
         const bt_transform = BulletCache.instance.BT_TRANSFORM_0;
@@ -436,7 +436,7 @@ export class BulletSharedBody {
         }
     }
 
-    syncSceneToGhost () {
+    syncSceneToGhost (): void {
         if (this.node.hasChangedFlags) {
             const bt_quat = BulletCache.instance.BT_QUAT_0;
             const bt_transform = bt.CollisionObject_getWorldTransform(this.ghost);
@@ -448,7 +448,7 @@ export class BulletSharedBody {
         }
     }
 
-    syncInitialBody () {
+    syncInitialBody (): void {
         const bt_quat = BulletCache.instance.BT_QUAT_0;
         const bt_transform = bt.CollisionObject_getWorldTransform(this.body);
         cocos2BulletVec3(bt.Transform_getOrigin(bt_transform), this.node.worldPosition);
@@ -458,7 +458,7 @@ export class BulletSharedBody {
         bt.CollisionObject_activate(this.body);
     }
 
-    syncInitialGhost () {
+    syncInitialGhost (): void {
         const bt_quat = BulletCache.instance.BT_QUAT_0;
         const bt_transform = bt.CollisionObject_getWorldTransform(this.ghost);
         cocos2BulletVec3(bt.Transform_getOrigin(bt_transform), this.node.worldPosition);
@@ -468,7 +468,7 @@ export class BulletSharedBody {
         bt.CollisionObject_activate(this.body);
     }
 
-    syncBodyScale () {
+    syncBodyScale (): void {
         for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
             this.bodyStruct.wrappedShapes[i].updateScale();
         }
@@ -480,7 +480,7 @@ export class BulletSharedBody {
         }
     }
 
-    syncGhostScale () {
+    syncGhostScale (): void {
         for (let i = 0; i < this.ghostStruct.wrappedShapes.length; i++) {
             this.ghostStruct.wrappedShapes[i].updateScale();
         }
@@ -489,7 +489,7 @@ export class BulletSharedBody {
     /**
      * see: https://pybullet.org/Bullet/phpBB3/viewtopic.php?f=9&t=5312&p=19094&hilit=how+to+change+group+mask#p19097
      */
-    updateBodyByReAdd () {
+    updateBodyByReAdd (): void {
         if (this.bodyIndex >= 0) {
             this.wrappedWorld.removeSharedBody(this);
             this.bodyIndex = this.wrappedWorld.bodies.length;
@@ -497,7 +497,7 @@ export class BulletSharedBody {
         }
     }
 
-    updateGhostByReAdd () {
+    updateGhostByReAdd (): void {
         if (this.ghostIndex >= 0) {
             this.wrappedWorld.removeGhostObject(this);
             this.ghostIndex = this.wrappedWorld.ghosts.length;
@@ -505,7 +505,7 @@ export class BulletSharedBody {
         }
     }
 
-    private destroy () {
+    private destroy (): void {
         BulletSharedBody.sharedBodesMap.delete(this.node.uuid);
         (this.node as any) = null;
         (this.wrappedWorld as any) = null;
@@ -526,7 +526,7 @@ export class BulletSharedBody {
         }
     }
 
-    private isBodySleeping () {
+    private isBodySleeping (): boolean {
         return bt.CollisionObject_getActivationState(this.body) === btCollisionObjectStates.ISLAND_SLEEPING;
     }
 }

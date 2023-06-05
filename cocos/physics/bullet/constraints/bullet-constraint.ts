@@ -66,7 +66,7 @@ export abstract class BulletConstraint implements IBaseConstraint {
         }
     }
 
-    get impl () {
+    get impl (): number {
         return this._impl;
     }
 
@@ -83,7 +83,7 @@ export abstract class BulletConstraint implements IBaseConstraint {
     protected _connectedBody: RigidBody | null = null;
     protected _collided = false;
 
-    updateByReAdd () {
+    updateByReAdd (): void {
         if (this._rigidBody && this.index >= 0) {
             const sb = (this._rigidBody.body as BulletRigidBody).sharedBody;
             sb.wrappedWorld.removeConstraint(this);

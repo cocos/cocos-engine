@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { GFXObject, ObjectType, SamplerInfo } from '../define';
+import { Filter, GFXObject, ObjectType, SamplerInfo } from '../define';
 
 /**
  * @en GFX sampler.
@@ -41,7 +41,7 @@ export class Sampler extends GFXObject {
         this._hash = hash;
     }
 
-    static computeHash (info: Readonly<SamplerInfo>) {
+    static computeHash (info: Readonly<SamplerInfo>): Filter {
         let hash = info.minFilter;
         hash |= (info.magFilter << 2);
         hash |= (info.mipFilter << 4);
@@ -53,7 +53,7 @@ export class Sampler extends GFXObject {
         return hash;
     }
 
-    static unpackFromHash (hash: number) {
+    static unpackFromHash (hash: number): SamplerInfo {
         const info = new SamplerInfo();
         info.minFilter = (hash & ((1 << 2) - 1)) >> 0;
         info.magFilter = (hash & ((1 << 2) - 1)) >> 2;

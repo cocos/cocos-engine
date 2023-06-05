@@ -33,7 +33,7 @@ import { GFXObject, ObjectType, DescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCR
  * @zh GFX 描述符集组。
  */
 export abstract class DescriptorSet extends GFXObject {
-    get layout () {
+    get layout (): DescriptorSetLayout {
         return this._layout!;
     }
 
@@ -60,7 +60,7 @@ export abstract class DescriptorSet extends GFXObject {
      * @param binding The target binding.
      * @param buffer The buffer to be bound.
      */
-    public bindBuffer (binding: number, buffer: Buffer, index = 0) {
+    public bindBuffer (binding: number, buffer: Buffer, index = 0): void {
         const bindingIndex = this._layout!.bindingIndices[binding];
         const info = this._layout!.bindings[bindingIndex]; if (!info) { return; }
         if (info.descriptorType & DESCRIPTOR_BUFFER_TYPE) {
@@ -78,7 +78,7 @@ export abstract class DescriptorSet extends GFXObject {
      * @param binding The target binding.
      * @param sampler The sampler to be bound.
      */
-    public bindSampler (binding: number, sampler: Sampler, index = 0) {
+    public bindSampler (binding: number, sampler: Sampler, index = 0): void {
         const bindingIndex = this._layout!.bindingIndices[binding];
         const info = this._layout!.bindings[bindingIndex]; if (!info) { return; }
         if (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
@@ -96,7 +96,7 @@ export abstract class DescriptorSet extends GFXObject {
      * @param binding The target binding.
      * @param texture The texture to be bound.
      */
-    public bindTexture (binding: number, texture: Texture, index = 0, flags?: AccessFlags) {
+    public bindTexture (binding: number, texture: Texture, index = 0, flags?: AccessFlags): void {
         const bindingIndex = this._layout!.bindingIndices[binding];
         const info = this._layout!.bindings[bindingIndex]; if (!info) { return; }
         if (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
@@ -113,7 +113,7 @@ export abstract class DescriptorSet extends GFXObject {
      * @zh 获取当前指定绑定位置上的缓冲。
      * @param binding The target binding.
      */
-    public getBuffer (binding: number, index = 0) {
+    public getBuffer (binding: number, index = 0): Buffer {
         const descriptorIndex = this._layout!.descriptorIndices[binding];
         return this._buffers[descriptorIndex + index];
     }
@@ -123,7 +123,7 @@ export abstract class DescriptorSet extends GFXObject {
      * @zh 获取当前指定绑定位置上的采样器。
      * @param binding The target binding.
      */
-    public getSampler (binding: number, index = 0) {
+    public getSampler (binding: number, index = 0): Sampler {
         const descriptorIndex = this._layout!.descriptorIndices[binding];
         return this._samplers[descriptorIndex + index];
     }
@@ -133,7 +133,7 @@ export abstract class DescriptorSet extends GFXObject {
      * @zh 获取当前指定绑定位置上的贴图。
      * @param binding The target binding.
      */
-    public getTexture (binding: number, index = 0) {
+    public getTexture (binding: number, index = 0): Texture {
         const descriptorIndex = this._layout!.descriptorIndices[binding];
         return this._textures[descriptorIndex + index];
     }

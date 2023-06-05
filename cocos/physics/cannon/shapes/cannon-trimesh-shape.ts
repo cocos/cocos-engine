@@ -33,15 +33,15 @@ import { commitShapeUpdates } from '../cannon-util';
 const v3_cannon0 = new CANNON.Vec3();
 
 export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
-    get collider () {
+    get collider (): MeshCollider {
         return this._collider as MeshCollider;
     }
 
-    get impl () {
+    get impl (): CANNON.Trimesh {
         return this._shape as CANNON.Trimesh;
     }
 
-    setMesh (v: Mesh | null) {
+    setMesh (v: Mesh | null): void {
         if (!this._isBinding) return;
 
         const mesh = v;
@@ -62,22 +62,22 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
         }
     }
 
-    protected onComponentSet () {
+    protected onComponentSet (): void {
         this.setMesh(this.collider.mesh);
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.setMesh(this.collider.mesh);
     }
 
-    setScale (scale: Vec3) {
+    setScale (scale: Vec3): void {
         super.setScale(scale);
         Vec3.copy(v3_cannon0, scale);
         this.impl.setScale(v3_cannon0);
     }
 
-    updateProperties (vertices: Float32Array, indices: Uint16Array) {
+    updateProperties (vertices: Float32Array, indices: Uint16Array): void {
         this.impl.vertices = new Float32Array(vertices);
         this.impl.indices = new Int16Array(indices);
         this.impl.normals = new Float32Array(indices.length);

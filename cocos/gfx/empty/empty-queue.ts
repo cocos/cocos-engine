@@ -27,9 +27,9 @@ import { CommandBuffer } from '../base/command-buffer';
 import { Queue } from '../base/queue';
 
 export class EmptyQueue extends Queue {
-    public initialize (info: Readonly<QueueInfo>) {
+    public initialize (info: Readonly<QueueInfo>): void {
         this._type = info.type;
     }
-    public destroy () {}
-    public submit (cmdBuffs: Readonly<CommandBuffer[]>) {}
+    public destroy (): void {}
+    public submit (cmdBuffs: Readonly<CommandBuffer[]>): void {}
 }

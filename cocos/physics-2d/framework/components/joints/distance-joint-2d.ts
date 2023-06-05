@@ -44,7 +44,7 @@ export class DistanceJoint2D extends Joint2D {
      */
     @type(CCFloat)
     @tooltip('i18n:physics2d.joint.maxLength')
-    get maxLength () {
+    get maxLength (): number {
         if (this._autoCalcDistance) {
             if (this.connectedBody) {
                 return Vec3.distance(this.node.worldPosition, this.connectedBody.node.worldPosition);
@@ -69,7 +69,7 @@ export class DistanceJoint2D extends Joint2D {
      */
     @type(CCBoolean)
     @tooltip('i18n:physics2d.joint.autoCalcDistance')
-    get autoCalcDistance () {
+    get autoCalcDistance (): boolean {
         return this._autoCalcDistance;
     }
     set autoCalcDistance (v) {

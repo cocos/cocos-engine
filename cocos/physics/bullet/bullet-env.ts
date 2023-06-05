@@ -34,12 +34,12 @@ export const memorySize = pageSize * pageCount; // 16 MiB
 
 // The import function used in c++ code, same as DLL Import
 export const importFunc = {
-    syncPhysicsToGraphics (id: number) {
+    syncPhysicsToGraphics (id: number): void {
         const bt = globalThis.Bullet;
         const body = bt.CACHE.getWrapper(id, bt.BODY_CACHE_NAME);
         body.syncPhysicsToGraphics();
     },
-    onShapeHitExt (hit: number, controller: number) {
+    onShapeHitExt (hit: number, controller: number): void {
         const bt = globalThis.Bullet;
         const cct = bt.CACHE.getWrapper(controller, bt.CCT_CACHE_NAME);
         cct.onShapeHitExt(hit);

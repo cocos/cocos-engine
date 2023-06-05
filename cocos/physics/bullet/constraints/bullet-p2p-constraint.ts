@@ -74,11 +74,11 @@ export class BulletP2PConstraint extends BulletConstraint implements IPointToPoi
         this.setPivotB(this.constraint.pivotB);
     }
 
-    updateScale0 () {
+    updateScale0 (): void {
         this.setPivotA(this.constraint.pivotA);
     }
 
-    updateScale1 () {
+    updateScale1 (): void {
         this.setPivotB(this.constraint.pivotB);
     }
 }

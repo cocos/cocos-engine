@@ -38,34 +38,34 @@ import { StencilFace, BufferSource, CommandBufferInfo, BufferTextureCopy, Color,
 } from '../base/define';
 
 export class EmptyCommandBuffer extends CommandBuffer {
-    public initialize (info: Readonly<CommandBufferInfo>) {
+    public initialize (info: Readonly<CommandBufferInfo>): void {
         this._type = info.type;
         this._queue = info.queue;
     }
-    public destroy () {}
-    public begin (renderPass?: RenderPass, subpass = 0, frameBuffer?: Framebuffer) {}
-    public end () {}
+    public destroy (): void {}
+    public begin (renderPass?: RenderPass, subpass = 0, frameBuffer?: Framebuffer): void {}
+    public end (): void {}
     public beginRenderPass (renderPass: RenderPass, framebuffer: Framebuffer, renderArea: Readonly<Rect>,
-        clearColors: Readonly<Color[]>, clearDepth: number, clearStencil: number) {}
-    public endRenderPass () {}
-    public bindPipelineState (pipelineState: PipelineState) {}
-    public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: Readonly<number[]>) {}
-    public bindInputAssembler (inputAssembler: InputAssembler) {}
-    public setViewport (viewport: Readonly<Viewport>) {}
-    public setScissor (scissor: Readonly<Rect>) {}
-    public setLineWidth (lineWidth: number) {}
-    public setDepthBias (depthBiasConstantFactor: number, depthBiasClamp: number, depthBiasSlopeFactor: number) {}
-    public setBlendConstants (blendConstants: Readonly<Color>) {}
-    public setDepthBound (minDepthBounds: number, maxDepthBounds: number) {}
-    public setStencilWriteMask (face: StencilFace, writeMask: number) {}
-    public setStencilCompareMask (face: StencilFace, reference: number, compareMask: number) {}
-    public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>) {}
-    public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number) {}
-    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
-    public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number) {}
+        clearColors: Readonly<Color[]>, clearDepth: number, clearStencil: number): void {}
+    public endRenderPass (): void {}
+    public bindPipelineState (pipelineState: PipelineState): void {}
+    public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: Readonly<number[]>): void {}
+    public bindInputAssembler (inputAssembler: InputAssembler): void {}
+    public setViewport (viewport: Readonly<Viewport>): void {}
+    public setScissor (scissor: Readonly<Rect>): void {}
+    public setLineWidth (lineWidth: number): void {}
+    public setDepthBias (depthBiasConstantFactor: number, depthBiasClamp: number, depthBiasSlopeFactor: number): void {}
+    public setBlendConstants (blendConstants: Readonly<Color>): void {}
+    public setDepthBound (minDepthBounds: number, maxDepthBounds: number): void {}
+    public setStencilWriteMask (face: StencilFace, writeMask: number): void {}
+    public setStencilCompareMask (face: StencilFace, reference: number, compareMask: number): void {}
+    public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>): void {}
+    public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number): void {}
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {}
+    public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number): void {}
     public pipelineBarrier (GeneralBarrier: Readonly<GeneralBarrier>, bufferBarriers?: Readonly<BufferBarrier[]>,
         buffers?: Readonly<Buffer[]>,
         textureBarriers?: Readonly<TextureBarrier[]>,
-        textures?: Readonly<Texture[]>) {}
+        textures?: Readonly<Texture[]>): void {}
     public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {}
 }
