@@ -142,6 +142,9 @@ module.exports = {
                         'additivePose': {
                             displayName: 'Additive Pose',
                         },
+                        'ratio': {
+                            displayName: 'Ratio',
+                        },
                     },
                 },
                 'PoseNodeChoosePoseByBoolean': {
