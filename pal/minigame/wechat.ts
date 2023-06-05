@@ -44,10 +44,10 @@ minigame.wx.onWheel = wx.onWheel?.bind(wx);
 // #region SystemInfo
 let _cachedSystemInfo: SystemInfo = wx.getSystemInfoSync();
 
-function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number) {
+function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number): void {
     let successfullyTestTimes = 0;
     let intervalTimer: number | null = null;
-    function testCachedSystemInfo () {
+    function testCachedSystemInfo (): void {
         const currentSystemInfo = wx.getSystemInfoSync() as SystemInfo;
         if (_cachedSystemInfo.screenWidth === currentSystemInfo.screenWidth && _cachedSystemInfo.screenHeight === currentSystemInfo.screenHeight) {
             if (++successfullyTestTimes >= testAmount && intervalTimer !== null) {
@@ -67,7 +67,7 @@ minigame.onWindowResize?.(() => {
     // update cached system info
     _cachedSystemInfo = wx.getSystemInfoSync() as SystemInfo;
 });
-minigame.getSystemInfoSync = function () {
+minigame.getSystemInfoSync = function (): SystemInfo {
     return _cachedSystemInfo;
 };
 
@@ -106,11 +106,11 @@ Object.defineProperty(minigame, 'orientation', {
 
 // #region Accelerometer
 let _accelerometerCb: AccelerometerChangeCallback | undefined;
-minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
+minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback): void {
     minigame.offAccelerometerChange();
     // onAccelerometerChange would start accelerometer
     // so we won't call this method here
-    _accelerometerCb = (res: any) => {
+    _accelerometerCb = (res: any): void => {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
@@ -128,13 +128,13 @@ minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
         cb(resClone);
     };
 };
-minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback) {
+minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback): void {
     if (_accelerometerCb) {
         wx.offAccelerometerChange(_accelerometerCb);
         _accelerometerCb = undefined;
     }
 };
-minigame.startAccelerometer = function (res: any) {
+minigame.startAccelerometer = function (res: any): void {
     if (_accelerometerCb) {
         wx.onAccelerometerChange(_accelerometerCb);
     }
@@ -151,7 +151,7 @@ minigame.createInnerAudioContext = createInnerAudioContextPolyfill(wx, {
 
 // #region SafeArea
 // FIX_ME: wrong safe area when orientation is landscape left
-minigame.getSafeArea = function () {
+minigame.getSafeArea = function (): SafeArea {
     const locSystemInfo = wx.getSystemInfoSync() as SystemInfo;
     return locSystemInfo.safeArea;
 };
@@ -165,7 +165,7 @@ if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '
     if (locCanvas) {
         const webglRC = locCanvas.getContext('webgl');
         const originalUseProgram = webglRC.useProgram.bind(webglRC);
-        webglRC.useProgram = function (program) {
+        webglRC.useProgram = function (program): void {
             if (program) {
                 originalUseProgram(program);
             }

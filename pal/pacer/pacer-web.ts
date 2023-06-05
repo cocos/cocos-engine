@@ -83,7 +83,7 @@ export class Pacer {
     start (): void {
         if (this._isPlaying) return;
 
-        const updateCallback = () => {
+        const updateCallback = (): void => {
             this._startTime = performance.now();
             if (this._isPlaying) {
                 this._stHandle = this._stTime(updateCallback);
@@ -105,7 +105,7 @@ export class Pacer {
         this._isPlaying = false;
     }
 
-    _handleRAF = () => {
+    _handleRAF = (): void => {
         if (performance.now() - this._start < this._delay) {
             this._rAF.call(window, this._handleRAF);
         } else if (this._callback) {
@@ -113,7 +113,7 @@ export class Pacer {
         }
     };
 
-    private _stTime (callback: () => void) {
+    private _stTime (callback: () => void): number {
         const currTime = performance.now();
         const elapseTime = Math.max(0, (currTime - this._startTime));
         const timeToCall = Math.max(0, this._frameTime - elapseTime);
@@ -126,7 +126,7 @@ export class Pacer {
         return this._rAF.call(window, this._handleRAF);
     }
 
-    private _ctTime (id: number | undefined) {
+    private _ctTime (id: number | undefined): void {
         if (EDITOR || this._cAF === undefined || globalThis.__globalXR?.isWebXR) {
             clearTimeout(id);
         } else if (id) {

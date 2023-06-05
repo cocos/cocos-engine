@@ -74,11 +74,11 @@ export class AudioPCMDataView {
         }
     }
 
-    get length () {
+    get length (): number {
         return this._bufferView.length;
     }
 
-    public getData (offset: number) {
+    public getData (offset: number): number {
         return this._bufferView[offset] * this._normalizeFactor;
     }
 }
