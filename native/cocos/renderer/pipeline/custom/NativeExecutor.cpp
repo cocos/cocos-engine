@@ -1140,13 +1140,22 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(ctx.scratch);
 
             resourceIndex.reserve(subpass.rasterViews.size() * 2);
-            for (const auto& [resName, rasterView] : subpass.rasterViews) {
+            for (const auto& [resourceName, rasterView] : subpass.rasterViews) {
+                auto resName = resourceName;
                 const auto resID = vertex(resName, ctx.resourceGraph);
                 auto ragId = ctx.fgd.resourceAccessGraph.passIndex.at(vertID);
                 const auto& attachments = ctx.fgd.resourceAccessGraph.access[ragId].attachmentStatus;
                 auto slotName = rasterView.slotName;
                 if (rasterView.accessType == AccessType::READ || rasterView.accessType == AccessType::READ_WRITE) {
                     slotName.insert(0, "__in");
+                    if(rasterView.attachmentType == AttachmentType::DEPTH_STENCIL) {
+                        if(rasterView.slotName != "_" && !rasterView.slotName.empty()) {
+                            resName += "/depth";
+                        }
+                        if(rasterView.slotName1 != "_" && !rasterView.slotName1.empty()) {
+                            resName += "/stencil";
+                        }
+                    }
                 }
                 auto iter = ctx.lg.attributeIndex.find(slotName);
                 if (iter != ctx.lg.attributeIndex.end()) {

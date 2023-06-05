@@ -501,6 +501,10 @@ uint32_t getSlotID(RasterPass &pass, std::string_view name, std::string_view slo
     return iter != pass.attachmentIndexMap.end() ? iter->second : pass.attachmentIndexMap.emplace(name, newID).first->second;
 }
 
+bool defaultAttachmentName(std::string_view name) {
+    return !name.empty() && name != "_";
+}
+
 template <class Tag>
 void addRasterViewImpl(
     std::string_view name,
@@ -522,12 +526,21 @@ void addRasterViewImpl(
     auto &pass = get(RasterPassTag{}, passID, renderGraph);
     CC_EXPECTS(subpass.subpassID < num_vertices(pass.subpassGraph));
     auto &subpassData = get(SubpassGraph::SubpassTag{}, pass.subpassGraph, subpass.subpassID);
-    const auto slotID = getSlotID(pass, name, slotName, slotName1, attachmentType);
+    ccstd::pmr::string resName{name, subpassData.get_allocator()};
+    if (attachmentType == AttachmentType::DEPTH_STENCIL) {
+        if (defaultAttachmentName(slotName)) {
+            resName += "/depth";
+        }
+        if (defaultAttachmentName(slotName1)) {
+            resName += "/stencil";
+        }
+    }
+    const auto slotID = getSlotID(pass, resName, slotName, slotName1, attachmentType);
     CC_EXPECTS(subpass.rasterViews.size() == subpassData.rasterViews.size());
     {
         auto res = subpassData.rasterViews.emplace(
             std::piecewise_construct,
-            std::forward_as_tuple(name),
+            std::forward_as_tuple(resName),
             std::forward_as_tuple(
                 ccstd::pmr::string(slotName, subpassData.get_allocator()),
                 ccstd::pmr::string(slotName1, subpassData.get_allocator()),
@@ -542,13 +555,10 @@ void addRasterViewImpl(
         res.first->second.slotID = slotID;
     }
     {
-        auto sName = slotName;
-        if (sName.empty() || sName == "_") {
-            sName = slotName1;
-        }
+        auto sName = defaultAttachmentName(slotName) ? slotName1 : slotName;
         auto res = subpass.rasterViews.emplace(
             std::piecewise_construct,
-            std::forward_as_tuple(name),
+            std::forward_as_tuple(resName),
             std::forward_as_tuple(
                 ccstd::pmr::string(sName, subpassData.get_allocator()),
                 accessType,
@@ -639,15 +649,8 @@ void NativeRenderSubpassBuilderImpl::addDepthStencil(
     const ccstd::string &stencilSlotName,
     gfx::LoadOp loadOp, gfx::StoreOp storeOp,
     float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) {
-    auto resName = name;
-    if (!depthSlotName.empty() && depthSlotName != "_") {
-        resName += "/" + depthSlotName;
-    }
-    if (!stencilSlotName.empty() && stencilSlotName != "_") {
-        resName += "/" + stencilSlotName;
-    }
     addRasterViewImpl<RasterSubpassTag>(
-        resName,
+        name,
         depthSlotName,
         stencilSlotName,
         accessType,
@@ -665,6 +668,7 @@ void NativeRenderSubpassBuilderImpl::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
     std::ignore = sampler;
+    auto resName = name;
     addComputeView(
         name,
         ComputeView{
