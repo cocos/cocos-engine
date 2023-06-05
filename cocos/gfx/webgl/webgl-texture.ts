@@ -40,7 +40,7 @@ export class WebGLTexture extends Texture {
     private _gpuTexture: IWebGLGPUTexture | null = null;
     private _lodLevel = 0;
 
-    public initialize (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>, isSwapchainTexture?: boolean) {
+    public initialize (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>, isSwapchainTexture?: boolean): void {
         let texInfo = info as Readonly<TextureInfo>;
         const viewInfo = info as Readonly<TextureViewInfo>;
 
@@ -104,7 +104,7 @@ export class WebGLTexture extends Texture {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         if (!this._isTextureView && this._gpuTexture) {
             WebGLCmdFuncDestroyTexture(WebGLDeviceManager.instance, this._gpuTexture);
             WebGLDeviceManager.instance.memoryStatus.textureSize -= this._size;
@@ -127,7 +127,7 @@ export class WebGLTexture extends Texture {
         return 0;
     }
 
-    public resize (width: number, height: number) {
+    public resize (width: number, height: number): void {
         if (this._info.width === width && this._info.height === height) {
             return;
         }
@@ -162,7 +162,7 @@ export class WebGLTexture extends Texture {
     /**
      * @engineInternal
      */
-    public initAsSwapchainTexture (info: Readonly<ISwapchainTextureInfo>) {
+    public initAsSwapchainTexture (info: Readonly<ISwapchainTextureInfo>): void {
         const texInfo = new TextureInfo();
         texInfo.format = info.format;
         texInfo.usage = FormatInfos[info.format].hasDepth ? TextureUsageBit.DEPTH_STENCIL_ATTACHMENT : TextureUsageBit.COLOR_ATTACHMENT;

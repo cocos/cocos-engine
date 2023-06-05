@@ -209,7 +209,7 @@ export class Skybox {
         }
     }
 
-    get editableMaterial () {
+    get editableMaterial (): MaterialInstance | null {
         return this._editableMaterial;
     }
 

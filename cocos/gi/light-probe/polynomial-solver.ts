@@ -27,7 +27,7 @@ export class PolynomialSolver {
      * solve quadratic equation: b * t^2 + c * t + d = 0
      * return the unique real positive root
      */
-    public static getQuadraticUniqueRoot (b: number, c: number, d: number) {
+    public static getQuadraticUniqueRoot (b: number, c: number, d: number): number {
         // quadratic case
         if (b !== 0.0) {
             // the discriminant should be 0
@@ -47,7 +47,7 @@ export class PolynomialSolver {
      * solve cubic equation: t^3 + b * t^2 + c * t + d = 0
      * return the unique real positive root
      */
-    public static getCubicUniqueRoot (b: number, c: number, d: number) {
+    public static getCubicUniqueRoot (b: number, c: number, d: number): number {
         const roots: number[] = [];
 
         // let x = y - b / 3, convert equation to: y^3 + 3 * p * y + 2 * q = 0

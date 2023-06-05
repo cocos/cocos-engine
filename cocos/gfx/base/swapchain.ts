@@ -34,7 +34,7 @@ export abstract class Swapchain extends GFXObject {
      * @en The color texture of this swapchain.
      * @zh 当前交换链的颜色缓冲。
      */
-    get colorTexture () {
+    get colorTexture (): Texture {
         return this._colorTexture;
     }
 
@@ -42,7 +42,7 @@ export abstract class Swapchain extends GFXObject {
      * @en The depth stencil texture of this swapchain.
      * @zh 当前交换链的深度模板缓冲。
      */
-    get depthStencilTexture () {
+    get depthStencilTexture (): Texture {
         return this._depthStencilTexture;
     }
 
@@ -50,15 +50,15 @@ export abstract class Swapchain extends GFXObject {
      * @en The surface transform to be applied in projection matrices.
      * @zh 需要在投影矩阵中应用的表面变换。
      */
-    get surfaceTransform () {
+    get surfaceTransform (): SurfaceTransform {
         return this._transform;
     }
 
-    get width () {
+    get width (): number {
         return this._colorTexture.width;
     }
 
-    get height () {
+    get height (): number {
         return this._colorTexture.height;
     }
 

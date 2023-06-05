@@ -26,8 +26,8 @@ import { PipelineLayout } from '../base/pipeline-layout';
 import { PipelineLayoutInfo } from '../base/define';
 
 export class EmptyPipelineLayout extends PipelineLayout {
-    public initialize (info: Readonly<PipelineLayoutInfo>) {
+    public initialize (info: Readonly<PipelineLayoutInfo>): void {
         Array.prototype.push.apply(this._setLayouts, info.setLayouts);
     }
-    public destroy () {}
+    public destroy (): void {}
 }

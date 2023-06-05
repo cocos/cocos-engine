@@ -37,7 +37,7 @@ import { GCObject } from '../../core';
 
 interface ICopyable { copy (info: ICopyable): ICopyable; }
 
-const deepCopy = <T extends ICopyable> (target: T[], source: T[], Ctor: Constructor<T>) => {
+const deepCopy = <T extends ICopyable> (target: T[], source: T[], Ctor: Constructor<T>): void => {
     for (let i = 0; i < source.length; ++i) {
         if (target.length <= i) target.push(new Ctor());
         target[i].copy(source[i]);

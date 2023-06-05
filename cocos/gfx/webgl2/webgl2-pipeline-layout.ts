@@ -28,11 +28,11 @@ import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
 import { PipelineLayoutInfo } from '../base/define';
 
 export class WebGL2PipelineLayout extends PipelineLayout {
-    get gpuPipelineLayout () { return this._gpuPipelineLayout!; }
+    get gpuPipelineLayout (): IWebGL2GPUPipelineLayout { return this._gpuPipelineLayout!; }
 
     private _gpuPipelineLayout: IWebGL2GPUPipelineLayout | null = null;
 
-    public initialize (info: Readonly<PipelineLayoutInfo>) {
+    public initialize (info: Readonly<PipelineLayoutInfo>): void {
         Array.prototype.push.apply(this._setLayouts, info.setLayouts);
 
         const dynamicOffsetIndices: number[][] = [];
@@ -63,7 +63,7 @@ export class WebGL2PipelineLayout extends PipelineLayout {
         };
     }
 
-    public destroy () {
+    public destroy (): void {
         this._setLayouts.length = 0;
     }
 }

@@ -602,7 +602,7 @@ export class SkyboxInfo {
      * @en The pass to apply to. Will apply to all passes if not specified.
      * @zh 设置此属性的 pass 索引，如果没有指定，则会设置此属性到所有 pass 上。
      */
-    public setMaterialProperty (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) {
+    public setMaterialProperty (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number): void {
         if (!this._resource) return;
         if (this._resource.enabled && this._resource.editableMaterial) {
             this._resource.editableMaterial.setProperty(name, val, passIdx);
