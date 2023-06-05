@@ -86,7 +86,7 @@ export class Collider extends Eventify(Component) {
     @displayName('Material')
     @displayOrder(-1)
     @tooltip('i18n:physics3d.collider.sharedMaterial')
-    public get sharedMaterial () {
+    public get sharedMaterial (): PhysicsMaterial | null {
         return this._material;
     }
 
@@ -104,7 +104,7 @@ export class Collider extends Eventify(Component) {
      * @zh
      * 获取或设置此碰撞器的物理材质，共享状态下获取将会生成新的实例。
      */
-    public get material () {
+    public get material (): PhysicsMaterial | null {
         if (this._isSharedMaterial && this._material) {
             this._material.off(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
             this._material = this._material.clone();
@@ -144,7 +144,7 @@ export class Collider extends Eventify(Component) {
      */
     @displayOrder(0)
     @tooltip('i18n:physics3d.collider.isTrigger')
-    public get isTrigger () {
+    public get isTrigger (): boolean {
         return this._isTrigger;
     }
 
@@ -164,7 +164,7 @@ export class Collider extends Eventify(Component) {
     @type(Vec3)
     @displayOrder(1)
     @tooltip('i18n:physics3d.collider.center')
-    public get center () {
+    public get center (): Vec3 {
         return this._center;
     }
 
@@ -181,7 +181,7 @@ export class Collider extends Eventify(Component) {
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
-    public get shape () {
+    public get shape (): IBaseShape | null {
         return this._shape;
     }
 
@@ -197,11 +197,11 @@ export class Collider extends Eventify(Component) {
         return this._boundingSphere;
     }
 
-    public get needTriggerEvent () {
+    public get needTriggerEvent (): boolean {
         return this._needTriggerEvent;
     }
 
-    public get needCollisionEvent () {
+    public get needCollisionEvent (): boolean {
         return this._needCollisionEvent;
     }
 
@@ -263,7 +263,7 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public off (type: TriggerEventType | CollisionEventType, callback?: (...any) => void, target?) {
+    public off (type: TriggerEventType | CollisionEventType, callback?: (...any) => void, target?): void {
         super.off(type, callback, target);
         this._updateNeedEvent();
     }
@@ -291,7 +291,7 @@ export class Collider extends Eventify(Component) {
      * 移除所有指定目标或类型的注册事件。
      * @param typeOrTarget - The event type or target.
      */
-    public removeAll (typeOrTarget: TriggerEventType | CollisionEventType | Record<string, unknown>) {
+    public removeAll (typeOrTarget: TriggerEventType | CollisionEventType | Record<string, unknown>): void {
         super.removeAll(typeOrTarget);
         this._updateNeedEvent();
     }
@@ -332,7 +332,7 @@ export class Collider extends Eventify(Component) {
      * 添加分组值，可填要加入的 group。
      * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public addGroup (v: number) {
+    public addGroup (v: number): void {
         if (this._isInitialized) {
             this._shape!.addGroup(v);
         }
@@ -345,7 +345,7 @@ export class Collider extends Eventify(Component) {
      * 减去分组值，可填要移除的 group。
      * @param v @zh 分组值，为 32 位整数，范围为 [2^0, 2^31] @en Group value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public removeGroup (v: number) {
+    public removeGroup (v: number): void {
         if (this._isInitialized) {
             this._shape!.removeGroup(v);
         }
@@ -372,7 +372,7 @@ export class Collider extends Eventify(Component) {
      * 设置掩码值。
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public setMask (v: number) {
+    public setMask (v: number): void {
         if (this._isInitialized) {
             this._shape!.setMask(v);
         }
@@ -385,7 +385,7 @@ export class Collider extends Eventify(Component) {
      * 添加掩码值，可填入需要检查的 group。
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public addMask (v: number) {
+    public addMask (v: number): void {
         if (this._isInitialized) {
             this._shape!.addMask(v);
         }
@@ -398,7 +398,7 @@ export class Collider extends Eventify(Component) {
      * 减去掩码值，可填入不需要检查的 group。
      * @param v @zh 掩码值，为 32 位整数，范围为 [2^0, 2^31] @en Mask value which is a 32-bits integer, the range is [2^0, 2^31]
      */
-    public removeMask (v: number) {
+    public removeMask (v: number): void {
         if (this._isInitialized) {
             this._shape!.removeMask(v);
         }
@@ -406,7 +406,7 @@ export class Collider extends Eventify(Component) {
 
     /// COMPONENT LIFECYCLE ///
 
-    protected onLoad () {
+    protected onLoad (): void {
         if (!selector.runInEditor) return;
 
         this.sharedMaterial = this._material;
@@ -415,19 +415,19 @@ export class Collider extends Eventify(Component) {
         this._shape.onLoad!();
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         if (this._shape) {
             this._shape.onEnable!();
         }
     }
 
-    protected onDisable () {
+    protected onDisable (): void {
         if (this._shape) {
             this._shape.onDisable!();
         }
     }
 
-    protected onDestroy () {
+    protected onDestroy (): void {
         if (this._shape) {
             this._needTriggerEvent = false;
             this._needCollisionEvent = false;
@@ -438,11 +438,11 @@ export class Collider extends Eventify(Component) {
         if (this._boundingSphere) this._boundingSphere.destroy();
     }
 
-    private _updateMaterial () {
+    private _updateMaterial (): void {
         if (this._shape) this._shape.setMaterial(this._material);
     }
 
-    private _updateNeedEvent (type?: string) {
+    private _updateNeedEvent (type?: string): void {
         if (this.isValid) {
             if (type !== undefined) {
                 if (type === 'onCollisionEnter' || type === 'onCollisionStay' || type === 'onCollisionExit') {

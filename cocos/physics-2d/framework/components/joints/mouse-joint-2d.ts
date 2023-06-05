@@ -36,7 +36,7 @@ const { ccclass, menu, property } = _decorator;
 export class MouseJoint2D extends Joint2D {
     TYPE = EJoint2DType.MOUSE;
 
-    get target () {
+    get target (): Vec2 {
         return this._target;
     }
     set target (v) {
@@ -100,7 +100,7 @@ export class MouseJoint2D extends Joint2D {
         }
     }
 
-    update (dt) {
+    update (dt): void {
         this._joint!.update!(dt);
     }
 

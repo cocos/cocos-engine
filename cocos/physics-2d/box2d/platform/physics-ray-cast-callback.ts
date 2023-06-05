@@ -35,7 +35,7 @@ export class PhysicsRayCastCallback extends b2.RayCastCallback {
 
     _mask = 0xffffffff;
 
-    init (type: ERaycast2DType, mask: number) {
+    init (type: ERaycast2DType, mask: number): void {
         this._type = type;
         this._mask = mask;
         this._fixtures.length = 0;
@@ -44,7 +44,7 @@ export class PhysicsRayCastCallback extends b2.RayCastCallback {
         this._fractions.length = 0;
     }
 
-    ReportFixture (fixture: b2.Fixture, point, normal, fraction) {
+    ReportFixture (fixture: b2.Fixture, point, normal, fraction): any {
         if ((fixture.GetFilterData().categoryBits & this._mask) === 0) {
             return 0;
         }
@@ -71,19 +71,19 @@ export class PhysicsRayCastCallback extends b2.RayCastCallback {
         return fraction;
     }
 
-    getFixtures () {
+    getFixtures (): any[] {
         return this._fixtures;
     }
 
-    getPoints () {
+    getPoints (): Vec2[] {
         return this._points;
     }
 
-    getNormals () {
+    getNormals (): Vec2[] {
         return this._normals;
     }
 
-    getFractions () {
+    getFractions (): number[] {
         return this._fractions;
     }
 }

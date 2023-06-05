@@ -49,7 +49,7 @@ export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
         return this._worldPoints;
     }
 
-    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number) {
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): any[] {
         const shapes: b2.PolygonShape[] = [];
 
         const comp = this.collider as PolygonCollider2D;

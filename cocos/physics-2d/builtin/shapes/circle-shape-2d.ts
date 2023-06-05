@@ -37,11 +37,11 @@ export class BuiltinCircleShape extends BuiltinShape2D {
     }
 
     private _worldRadius = 0;
-    get worldRadius () {
+    get worldRadius (): number {
         return this._worldRadius;
     }
 
-    update () {
+    update (): void {
         const aabb = this._worldAabb;
 
         const collider = this.collider as CircleCollider2D;
@@ -69,14 +69,14 @@ export class BuiltinCircleShape extends BuiltinShape2D {
         aabb.height = d * 2;
     }
 
-    containsPoint (p: Vec2) {
+    containsPoint (p: Vec2): boolean {
         if (!this.worldAABB.contains(p)) {
             return false;
         }
         const dist = Vec2.subtract(tempVec2, p, this.worldPosition).length();
         return dist < this.worldRadius;
     }
-    intersectsRect (rect: Rect) {
+    intersectsRect (rect: Rect): boolean {
         if (!this.worldAABB.intersects(rect)) {
             return false;
         }
