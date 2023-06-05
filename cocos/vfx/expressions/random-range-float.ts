@@ -29,7 +29,6 @@ import { RandomStream } from '../random-stream';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { ModuleExecStage } from '../vfx-module';
-import { Uint32ArrayParameter } from '../parameters';
 import { P_RANDOM_SEED } from '../define';
 
 @ccclass('cc.RandomRangeFloat')

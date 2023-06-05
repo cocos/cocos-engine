@@ -105,57 +105,99 @@ vec2 computeUV (float subUVIndex, vec2 vertIndex, vec2 frameTile){
   return (aniUV.xy + vertIndex) / vec2(frameTile.x, frameTile.y);
 }
 
-struct ParticleInput {
+struct VFXSpriteInput {
   vec3 position;
-  vec3 meshOrientation;
   float spriteRotation;
-  vec3 scale;
   vec2 spriteSize;
   vec4 color;
   float subUVIndex;
   vec3 velocity;
 };
 
-void setupParticleInput (out ParticleInput particleInput) {
+struct VFXMeshInput {
+  vec3 position;
+  vec3 meshOrientation;
+  vec3 scale;
+  vec4 color;
+  float subUVIndex;
+}
+
+struct VFXRibbonInput {
+  vec3 position;
+  vec4 color;
+}
+
+void CCVFXSetupSpriteInput (out VFXSpriteInput spriteInput) {
   #if CC_VFX_P_POSITION
-  particleInput.position = a_vfx_p_position;
+  spriteInput.position = a_vfx_p_position;
   #else
-  particleInput.position = vec3(0., 0., 0.);
-  #endif
-  #if CC_VFX_P_MESH_ORIENTATION
-  particleInput.meshOrientation = a_vfx_p_mesh_orientation;
-  #else 
-  particleInput.meshOrientation = vec3(0., 0., 0.);
+  spriteInput.position = vec3(0., 0., 0.);
   #endif
   #if CC_VFX_P_SPRITE_ROTATION
-  particleInput.spriteRotation = a_vfx_p_sprite_rotation;
+  spriteInput.spriteRotation = a_vfx_p_sprite_rotation;
   #else
-  particleInput.spriteRotation = 0.;
-  #endif
-  #if CC_VFX_P_SCALE
-  particleInput.scale = a_vfx_p_scale;
-  #else
-  particleInput.scale = vec3(1.0, 1.0, 1.0);
+  spriteInput.spriteRotation = 0.;
   #endif
   #if CC_VFX_P_SPRITE_SIZE
-  particleInput.spriteSize = a_vfx_p_sprite_size;
+  spriteInput.spriteSize = a_vfx_p_sprite_size;
   #else
-  particleInput.spriteSize = vec3(1.0, 1.0);
+  spriteInput.spriteSize = vec3(1.0, 1.0);
   #endif
   #if CC_VFX_P_COLOR
-  particleInput.color = a_vfx_p_color;
+  spriteInput.color = a_vfx_p_color;
   #else
-  particleInput.color = vec4(1.0, 1.0, 1.0, 1.0);
+  spriteInput.color = vec4(1.0, 1.0, 1.0, 1.0);
   #endif
   #if CC_VFX_P_SUB_UV_INDEX
-  particleInput.subUVIndex = a_vfx_p_sub_uv_index;
+  spriteInput.subUVIndex = a_vfx_p_sub_uv_index;
   #else
-  particleInput.subUVIndex = 0.0;
+  spriteInput.subUVIndex = 0.0;
   #endif
   #if CC_VFX_P_VELOCITY
-  particleInput.velocity = a_vfx_p_velocity;
+  spriteInput.velocity = a_vfx_p_velocity;
   #else
-  particleInput.velocity = vec3(0., 0., 0.);
+  spriteInput.velocity = vec3(0., 0., 0.);
+  #endif
+}
+
+void CCVFXSetupMeshInput (out VFXMeshInput meshInput) {
+  #if CC_VFX_P_POSITION
+  meshInput.position = a_vfx_p_position;
+  #else
+  meshInput.position = vec3(0., 0., 0.);
+  #endif
+  #if CC_VFX_P_MESH_ORIENTATION
+  meshInput.meshOrientation = a_vfx_p_mesh_orientation;
+  #else 
+  meshInput.meshOrientation = vec3(0., 0., 0.);
+  #endif
+  #if CC_VFX_P_SCALE
+  meshInput.scale = a_vfx_p_scale;
+  #else
+  meshInput.scale = vec3(1.0, 1.0, 1.0);
+  #endif
+  #if CC_VFX_P_COLOR
+  meshInput.color = a_vfx_p_color;
+  #else
+  meshInput.color = vec4(1.0, 1.0, 1.0, 1.0);
+  #endif
+  #if CC_VFX_P_SUB_UV_INDEX
+  meshInput.subUVIndex = a_vfx_p_sub_uv_index;
+  #else
+  meshInput.subUVIndex = 0.0;
+  #endif
+}
+
+void CCVFXSetupRibbonInput (out VFXRibbonInput ribbonInput) {
+  #if CC_VFX_P_POSITION
+  ribbonInput.position = a_vfx_p_position;
+  #else
+  ribbonInput.position = vec3(0., 0., 0.);
+  #endif
+  #if CC_VFX_P_COLOR
+  ribbonInput.color = a_vfx_p_color;
+  #else
+  ribbonInput.color = vec4(1.0, 1.0, 1.0, 1.0);
   #endif
 }
 
@@ -170,6 +212,7 @@ in vec4 a_color;     // mesh color
 vec4 vfx_vs_main () {
   ParticleInput particleInput;
   setupParticleInput(particleInput);
+
   vec4 pos = vec4(particleInput.position.xyz, 1);
   vec3 meshOrientation = particleInput.meshOrientation;
   vec3 compScale = scale.xyz * particleInput.scale;

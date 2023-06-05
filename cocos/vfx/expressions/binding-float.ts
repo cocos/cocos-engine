@@ -27,7 +27,6 @@ import { ccclass, serializable, type } from '../../core/data/decorators';
 import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { FloatExpression } from './float';
 import { VFXParameterIdentity, VFXParameterNameSpace } from '../vfx-parameter';
-import { FloatArrayParameter, FloatParameter } from '../parameters';
 
 @ccclass('cc.BindingFloatExpression')
 export class BindingFloatExpression extends FloatExpression {

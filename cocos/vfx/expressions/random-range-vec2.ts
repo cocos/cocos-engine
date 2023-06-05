@@ -26,7 +26,6 @@ import { lerp, Vec2 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { P_RANDOM_SEED } from '../define';
-import { Uint32ArrayParameter } from '../parameters';
 import { RandomStream } from '../random-stream';
 import { ModuleExecStage } from '../vfx-module';
 import { ConstantVec2Expression } from './constant-vec2';
