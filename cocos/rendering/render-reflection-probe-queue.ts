@@ -153,7 +153,7 @@ export class RenderReflectionProbeQueue {
 
             if (!bUseReflectPass) {
                 this._patches = [];
-                this._patches.concat(subModel.patches!);
+                this._patches = this._patches.concat(subModel.patches!);
                 const useRGBEPatchs: IMacroPatch[] = [
                     { name: CC_USE_RGBE_OUTPUT, value: true },
                 ];
@@ -204,7 +204,7 @@ export class RenderReflectionProbeQueue {
             this._patches = [];
             const subModel = this._rgbeSubModelsArray[i];
             // eslint-disable-next-line prefer-const
-            this._patches.concat(subModel.patches!);
+            this._patches = this._patches.concat(subModel.patches!);
             if (!this._patches) continue;
             for (let j = 0; j < this._patches.length; j++) {
                 const patch = this._patches[j];
