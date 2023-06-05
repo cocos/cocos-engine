@@ -180,13 +180,6 @@ export class LinearLimitSettings  {
     /**
      * @engineInternal
      */
-    get impl () {
-        return this._impl;
-    }
-
-    /**
-     * @engineInternal
-     */
     set impl (v: IConfigurableConstraint) {
         this._impl = v;
     }
@@ -406,13 +399,6 @@ export class AngularLimitSettings {
     /**
      * @engineInternal
      */
-    get impl () {
-        return this._impl;
-    }
-
-    /**
-     * @engineInternal
-     */
     set impl (v: IConfigurableConstraint) {
         this._impl = v;
     }
@@ -515,13 +501,6 @@ export class LinearDriverSettings {
     /**
      * @engineInternal
      */
-    get impl () {
-        return this._impl;
-    }
-
-    /**
-     * @engineInternal
-     */
     set impl (v: IConfigurableConstraint) {
         this._impl = v;
     }
@@ -620,13 +599,6 @@ export class AngularDriverSettings {
 
     @serializable
     private _strength = 0;
-
-    /**
-     * @engineInternal
-     */
-    get impl () {
-        return this._impl;
-    }
 
     /**
      * @engineInternal
