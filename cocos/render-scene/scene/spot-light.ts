@@ -23,6 +23,7 @@
 */
 
 import { Mat4, Quat, Vec3, geometry, cclegacy } from '../../core';
+import type { Frustum } from '../../core/geometry';
 import { Light, LightType, nt2lm } from './light';
 import { PCFType } from './shadows';
 
@@ -74,7 +75,7 @@ export class SpotLight extends Light {
      * @en The world position of the light source
      * @zh 光源的世界坐标
      */
-    get position () {
+    get position (): Vec3 {
         return this._pos;
     }
 
@@ -129,7 +130,7 @@ export class SpotLight extends Light {
      * @en The luminance of the light source in HDR mode
      * @zh HDR 模式下光源的亮度
      */
-    get luminanceHDR () {
+    get luminanceHDR (): number {
         return this._luminanceHDR;
     }
     set luminanceHDR (value: number) {
@@ -140,7 +141,7 @@ export class SpotLight extends Light {
      * @en The luminance of the light source in LDR mode
      * @zh LDR 模式下光源的亮度
      */
-    get luminanceLDR () {
+    get luminanceLDR (): number {
         return this._luminanceLDR;
     }
     set luminanceLDR (value: number) {
@@ -163,7 +164,7 @@ export class SpotLight extends Light {
      * 由于这种不一致性，请不要使用这个属性。
      * @internal
      */
-    get spotAngle () {
+    get spotAngle (): number {
         return this._spotAngle;
     }
     set spotAngle (val: number) {
@@ -177,11 +178,11 @@ export class SpotLight extends Light {
      * @en The cone angle of the lighting area
      * @zh 聚光灯锥角
      */
-    get angle () {
+    get angle (): number {
         return this._angle;
     }
 
-    get aabb () {
+    get aabb (): geometry.AABB {
         return this._aabb;
     }
 
@@ -189,7 +190,7 @@ export class SpotLight extends Light {
      * @en The frustum of the lighting area
      * @zh 受光源影响范围的截椎体
      */
-    get frustum () {
+    get frustum (): Frustum {
         return this._frustum;
     }
 
@@ -197,7 +198,7 @@ export class SpotLight extends Light {
      * @en Whether shadow casting is enabled
      * @zh 是否启用阴影？
      */
-    get shadowEnabled () {
+    get shadowEnabled (): boolean {
         return this._shadowEnabled;
     }
     set shadowEnabled (val) {
@@ -208,7 +209,7 @@ export class SpotLight extends Light {
      * @en The pcf level of the shadow generation.
      * @zh 获取或者设置阴影 pcf 等级。
      */
-    get shadowPcf () {
+    get shadowPcf (): number {
         return this._shadowPcf;
     }
     set shadowPcf (val) {
@@ -219,7 +220,7 @@ export class SpotLight extends Light {
      * @en The depth offset of shadow to avoid moire pattern artifacts
      * @zh 阴影的深度偏移, 可以减弱跨像素导致的条纹状失真
      */
-    get shadowBias () {
+    get shadowBias (): number {
         return this._shadowBias;
     }
     set shadowBias (val) {
@@ -230,7 +231,7 @@ export class SpotLight extends Light {
       * @en The normal bias of the shadow map.
       * @zh 设置或者获取法线偏移。
       */
-    get shadowNormalBias () {
+    get shadowNormalBias (): number {
         return this._shadowNormalBias;
     }
     set shadowNormalBias (val: number) {
@@ -245,7 +246,7 @@ export class SpotLight extends Light {
         this._type = LightType.SPOT;
     }
 
-    public initialize () {
+    public initialize (): void {
         super.initialize();
 
         const size = 0.15;
@@ -256,7 +257,7 @@ export class SpotLight extends Light {
         this._dir.set(new Vec3(1.0, -1.0, -1.0));
     }
 
-    public update () {
+    public update (): void {
         if (this._node && (this._node.hasChangedFlags || this._needUpdate)) {
             this._node.getWorldPosition(this._pos);
             Vec3.transformQuat(this._dir, _forward, this._node.getWorldRotation(_qt));

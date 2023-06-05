@@ -94,7 +94,7 @@ export class ScrollBar extends Component {
     @type(Sprite)
     @displayOrder(0)
     @tooltip('i18n:scrollbar.handle')
-    get handle () {
+    get handle (): Sprite | null {
         return this._handle;
     }
 
@@ -116,7 +116,7 @@ export class ScrollBar extends Component {
     @type(Direction)
     @displayOrder(1)
     @tooltip('i18n:scrollbar.direction')
-    get direction () {
+    get direction (): Direction {
         return this._direction;
     }
 
@@ -138,7 +138,7 @@ export class ScrollBar extends Component {
      */
     @displayOrder(2)
     @tooltip('i18n:scrollbar.auto_hide')
-    get enableAutoHide () {
+    get enableAutoHide (): boolean {
         return this._enableAutoHide;
     }
 
@@ -164,7 +164,7 @@ export class ScrollBar extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:scrollbar.auto_hide_time')
-    get autoHideTime () {
+    get autoHideTime (): number {
         return this._autoHideTime;
     }
 
@@ -199,7 +199,7 @@ export class ScrollBar extends Component {
      * @zh
      * 滚动条隐藏。
      */
-    public hide () {
+    public hide (): void {
         this._autoHideRemainingTime = 0;
         this._setOpacity(0);
     }
@@ -211,7 +211,7 @@ export class ScrollBar extends Component {
      * @zh
      * 滚动条显示。
      */
-    public show () {
+    public show (): void {
         this._autoHideRemainingTime = this._autoHideTime;
         // because scrollbar's onEnable is later than scrollView, its _opacity is be modified in onEnable. we should reset it.
         this._opacity = 255;
@@ -227,7 +227,7 @@ export class ScrollBar extends Component {
      *
      * @param outOfBoundary @en Rolling displacement. @zh 滚动位移。
      */
-    public onScroll (outOfBoundary: Vec2 | Readonly<Vec2>) {
+    public onScroll (outOfBoundary: Vec2 | Readonly<Vec2>): void {
         if (!this._scrollView) {
             return;
         }
@@ -293,18 +293,18 @@ export class ScrollBar extends Component {
      *
      * @param scrollView @en The scroll view which is attached with this scroll bar. @zh 当前滚动条附着的滚动视窗。
      */
-    public setScrollView (scrollView: ScrollView) {
+    public setScrollView (scrollView: ScrollView): void {
         this._scrollView = scrollView;
     }
 
-    public onTouchBegan () {
+    public onTouchBegan (): void {
         if (!this._enableAutoHide) {
             return;
         }
         this._touching = true;
     }
 
-    public onTouchEnded () {
+    public onTouchEnded (): void {
         if (!this._enableAutoHide) {
             return;
         }
@@ -329,24 +329,24 @@ export class ScrollBar extends Component {
         this._autoHideRemainingTime = this._autoHideTime;
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         const renderComp = this.node.getComponent(Sprite);
         if (renderComp) {
             this._opacity = renderComp.color.a;
         }
     }
 
-    protected start () {
+    protected start (): void {
         if (this._enableAutoHide) {
             this._setOpacity(0);
         }
     }
 
-    protected update (dt) {
+    protected update (dt): void {
         this._processAutoHide(dt);
     }
 
-    protected _convertToScrollViewSpace (out: Vec2, content: Node) {
+    protected _convertToScrollViewSpace (out: Vec2, content: Node): void {
         const scrollTrans = this._scrollView && this._scrollView.node._uiProps.uiTransformComp;
         const contentTrans = content._uiProps.uiTransformComp;
         if (!scrollTrans || !contentTrans) {
@@ -362,7 +362,7 @@ export class ScrollBar extends Component {
         }
     }
 
-    protected _setOpacity (opacity: number) {
+    protected _setOpacity (opacity: number): void {
         if (this._handle) {
             let renderComp = this.node.getComponent(Sprite);
             if (renderComp) {
@@ -380,7 +380,7 @@ export class ScrollBar extends Component {
         }
     }
 
-    protected _updateHandlerPosition (position: Vec2) {
+    protected _updateHandlerPosition (position: Vec2): void {
         if (this._handle) {
             const oldPosition = _tempVec3;
             this._fixupHandlerPosition(oldPosition);
@@ -389,7 +389,7 @@ export class ScrollBar extends Component {
         }
     }
 
-    protected _fixupHandlerPosition (out: Vec3) {
+    protected _fixupHandlerPosition (out: Vec3): void {
         const uiTrans = this.node._uiProps.uiTransformComp!;
         const barSize = uiTrans.contentSize;
         const barAnchor = uiTrans.anchorPoint;
@@ -412,7 +412,7 @@ export class ScrollBar extends Component {
         this.handle!.node.setPosition(fixupPosition);
     }
 
-    protected _conditionalDisableScrollBar (contentSize: Size, scrollViewSize: Size) {
+    protected _conditionalDisableScrollBar (contentSize: Size, scrollViewSize: Size): boolean {
         if (contentSize.width <= scrollViewSize.width && this._direction === Direction.HORIZONTAL) {
             return true;
         }
@@ -423,7 +423,7 @@ export class ScrollBar extends Component {
         return false;
     }
 
-    protected _calculateLength (contentMeasure: number, scrollViewMeasure: number, handleNodeMeasure: number, outOfBoundary: number) {
+    protected _calculateLength (contentMeasure: number, scrollViewMeasure: number, handleNodeMeasure: number, outOfBoundary: number): number {
         let denominatorValue = contentMeasure;
         if (outOfBoundary) {
             denominatorValue += (outOfBoundary > 0 ? outOfBoundary : -outOfBoundary) * GETTING_SHORTER_FACTOR;
@@ -441,7 +441,7 @@ export class ScrollBar extends Component {
         contentPosition: number,
         outOfBoundary: number,
         actualLenth: number,
-    ) {
+    ): void {
         let denominatorValue = contentMeasure - scrollViewMeasure;
         if (outOfBoundary) {
             denominatorValue += Math.abs(outOfBoundary);
@@ -461,7 +461,7 @@ export class ScrollBar extends Component {
         }
     }
 
-    protected _updateLength (length: number) {
+    protected _updateLength (length: number): void {
         if (this._handle) {
             const handleNode = this._handle.node;
             const handleTrans = handleNode._uiProps.uiTransformComp!;
@@ -479,7 +479,7 @@ export class ScrollBar extends Component {
         }
     }
 
-    protected _processAutoHide (deltaTime: number) {
+    protected _processAutoHide (deltaTime: number): void {
         if (!this._enableAutoHide || this._autoHideRemainingTime <= 0) {
             return;
         } else if (this._touching) {

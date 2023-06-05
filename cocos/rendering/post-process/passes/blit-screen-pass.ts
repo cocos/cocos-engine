@@ -13,18 +13,18 @@ import { BlitScreen } from '../components/blit-screen';
 const outputNames = ['BlitScreenColor0', 'BlitScreenColor1'];
 
 export class BlitScreenPass extends SettingPass {
-    get setting () { return getSetting(BlitScreen); }
+    get setting (): BlitScreen { return getSetting(BlitScreen); }
 
     name = 'BlitScreenPass'
     effectName = 'pipeline/post-process/blit-screen';
 
     outputName = outputNames[0]
 
-    slotName (camera: Camera, index = 0) {
+    slotName (camera: Camera, index = 0): string {
         return this.outputName;
     }
 
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         const enable = super.checkEnable(camera);
         const setting = this.setting;
         return enable && (setting.activeMaterials.length > 0);

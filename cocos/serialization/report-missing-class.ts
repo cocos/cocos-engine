@@ -29,7 +29,7 @@ import { errorID } from '../core';
  *
  * @engineInternal
  */
-export function reportMissingClass (id: string) {
+export function reportMissingClass (id: string): void {
     if (EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
         id = EditorExtends.UuidUtils.decompressUuid(id);
         errorID(5301, id);

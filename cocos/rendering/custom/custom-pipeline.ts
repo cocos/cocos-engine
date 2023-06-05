@@ -105,7 +105,7 @@ class WindowInfo {
 }
 
 class SceneInfo {
-    public reset () {
+    public reset (): void {
         this.punctualLights.length = 0;
         this.spotLights.length = 0;
     }
@@ -116,7 +116,7 @@ class SceneInfo {
 export class TestPipelineBuilder implements PipelineBuilder {
     private prepareSceneInfo (scene: Readonly<RenderScene>,
         frustum: geometry.Frustum,
-        sceneInfo: SceneInfo) {
+        sceneInfo: SceneInfo): void {
         // clear scene info
         sceneInfo.reset();
         // spot lights
@@ -207,17 +207,17 @@ export class TestPipelineBuilder implements PipelineBuilder {
         this._windows.set(camera.window, info);
         return info;
     }
-    private initGameCamera (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number) {
+    private initGameCamera (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number): void {
         ppl.addRenderWindow(`Color${id}`, Format.BGRA8, width, height, camera.window);
         ppl.addDepthStencil(`DepthStencil${id}`, Format.DEPTH_STENCIL, width, height);
     }
-    private updateGameCamera (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number) {
+    private updateGameCamera (ppl: BasicPipeline, camera: Camera, id: number, width: number, height: number): void {
         ppl.updateRenderWindow(`Color${id}`, camera.window);
         ppl.updateDepthStencil(`DepthStencil${id}`, width, height);
     }
     private buildForwardWithoutShadow (ppl: BasicPipeline,
         camera: Camera, id: number, width: number, height: number,
-        sceneInfo: SceneInfo) {
+        sceneInfo: SceneInfo): void {
         const scene = camera.scene;
         const pass = ppl.addRenderPass(width, height, 'default');
 

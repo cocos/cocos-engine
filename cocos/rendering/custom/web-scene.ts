@@ -24,7 +24,7 @@
 
 import { Frustum, intersect } from '../../core/geometry';
 import { Vec3 } from '../../core/math';
-import { RenderScene } from '../../render-scene';
+import { RenderScene, scene } from '../../render-scene';
 import { Camera, Model, ShadowType, SKYBOX_FLAG } from '../../render-scene/scene';
 import { IRenderObject, IRenderPass, UBOShadow } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -63,7 +63,7 @@ export class WebSceneTask implements SceneTask {
         return TaskType.SYNC;
     }
 
-    protected _getRenderObject (model: Model, camera: Camera) {
+    protected _getRenderObject (model: Model, camera: Camera): RenderObject {
         let depth = 0;
         if (model.node) {
             const _tempVec3 = new Vec3();
@@ -74,7 +74,7 @@ export class WebSceneTask implements SceneTask {
         return ro;
     }
 
-    protected _sceneCulling () {
+    protected _sceneCulling (): void {
         if (!this.camera) { return; }
         const scene = this.renderScene;
         const camera = this.camera;
@@ -144,12 +144,12 @@ export class WebSceneTask implements SceneTask {
     public submit (): void {
 
     }
-    get camera () { return this._camera; }
-    get renderScene () {
+    get camera (): scene.Camera | null { return this._camera; }
+    get renderScene (): RenderScene | null {
         return this._scene;
     }
-    get visitor () { return this._visitor; }
-    get dirLightFrustum () { return this._dirLightFrustum; }
+    get visitor (): SceneVisitor { return this._visitor; }
+    get dirLightFrustum (): Frustum { return this._dirLightFrustum; }
     get sceneData (): PipelineSceneData { return this._sceneData; }
     protected _scene: RenderScene | null = null;
     protected _camera: Camera | null = null;

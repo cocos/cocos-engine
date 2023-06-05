@@ -47,12 +47,12 @@ export class Scene extends Node {
      * @en The renderer scene, normally user don't need to use it
      * @zh 渲染层场景，一般情况下用户不需要关心它
      */
-    get renderScene () {
+    get renderScene (): RenderScene | null {
         return this._renderScene;
     }
 
     @editable
-    get globals () {
+    get globals (): SceneGlobals {
         return this._globals;
     }
 
@@ -81,7 +81,7 @@ export class Scene extends Node {
 
     protected _prefabSyncedInLiveReload = false;
 
-    protected _updateScene () {
+    protected _updateScene (): void {
         this._scene = this;
     }
 
@@ -98,7 +98,7 @@ export class Scene extends Node {
      * @en Destroy the current scene and all its nodes, this action won't destroy related assets
      * @zh 销毁当前场景中的所有节点，这个操作不会销毁资源
      */
-    public destroy () {
+    public destroy (): boolean {
         const success = CCObject.prototype.destroy.call(this);
         if (success) {
             const children = this._children;
@@ -129,19 +129,19 @@ export class Scene extends Node {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onHierarchyChanged () { }
+    public _onHierarchyChanged (): void { }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onPostActivated (active: boolean) {
+    public _onPostActivated (active: boolean): void {
 
     }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onBatchCreated (dontSyncChildPrefab: boolean) {
+    public _onBatchCreated (dontSyncChildPrefab: boolean): void {
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -155,16 +155,16 @@ export class Scene extends Node {
      * @zh
      * 参考 [[Node.updateWorldTransform]]
      */
-    public updateWorldTransform () {}
+    public updateWorldTransform (): void {}
 
     // life-cycle call backs
 
-    protected _instantiate () { }
+    protected _instantiate (): void { }
 
     /**
      * @engineInternal
      */
-    public _load () {
+    public _load (): void {
         if (!this._inited) {
             if (TEST) {
                 assert(!this._activeInHierarchy, 'Should deactivate ActionManager by default');
@@ -182,7 +182,7 @@ export class Scene extends Node {
     /**
      * @engineInternal
      */
-    public _activate (active = true) {
+    public _activate (active = true): void {
         if (EDITOR) {
             // register all nodes to editor
             // TODO: `_registerIfAttached` is injected property

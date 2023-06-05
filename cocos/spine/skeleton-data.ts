@@ -84,7 +84,7 @@ export class SkeletonData extends Asset {
      * @en An atlas text description.
      * @zh Atlas 文本描述。
      */
-    get atlasText () {
+    get atlasText (): string {
         return this._atlasText;
     }
     set atlasText (value) {
@@ -162,7 +162,7 @@ export class SkeletonData extends Asset {
      * @internal
      * @deprecated Since v3.7.2, this is an engine private interface that will be removed in the future.
      */
-    public createNode (callback: (err: Error|null, node: Node) => void) {
+    public createNode (callback: (err: Error|null, node: Node) => void): void {
         const node = new Node(this.name);
         const skeleton = node.addComponent('cc.Skeleton') as Skeleton;
         skeleton.skeletonData = this;
@@ -173,7 +173,7 @@ export class SkeletonData extends Asset {
      * @en Resets skeleton data state.
      * @zh 重置数据。
      */
-    public reset () {
+    public reset (): void {
         this._skeletonCache = null;
         this._atlasCache = null;
         if (EDITOR && !legacyCC.GAME_VIEW) {
@@ -186,7 +186,7 @@ export class SkeletonData extends Asset {
      * @en Reset skeleton skin and animation enumeration.
      * @zh 重置皮肤和动画枚举。
      */
-    public resetEnums () {
+    public resetEnums (): void {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             this._skinsEnum = null;
             this._animsEnum = null;
@@ -239,7 +239,9 @@ export class SkeletonData extends Asset {
     /**
      * @internal Since v3.7.2, this is an engine private function, it only works in editor.
      */
-    public getSkinsEnum () {
+    public getSkinsEnum (): {
+        [key: string]: number;
+    } | null {
         if (this._skinsEnum /* && Object.keys(this._skinsEnum).length > 0 */) {
             return this._skinsEnum;
         }
@@ -258,7 +260,9 @@ export class SkeletonData extends Asset {
     /**
      * @internal Since v3.7.2, this is an engine private function, it only works in editor.
      */
-    public getAnimsEnum () {
+    public getAnimsEnum (): {
+        [key: string]: number;
+    } | null {
         if (this._animsEnum && Object.keys(this._animsEnum).length > 1) {
             return this._animsEnum;
         }
@@ -278,13 +282,13 @@ export class SkeletonData extends Asset {
      * @en Destroy skeleton data.
      * @zh 销毁 skeleton data。
      */
-    public destroy () {
+    public destroy (): boolean {
         SkeletonCache.sharedCache.removeSkeleton(this._uuid);
         return super.destroy();
     }
 
     // PRIVATE
-    private _getTexture (line: string) {
+    private _getTexture (line: string): SkeletonTexture | null {
         const names = this.textureNames;
         for (let i = 0; i < names.length; i++) {
             if (names[i] === line) {
@@ -304,7 +308,7 @@ export class SkeletonData extends Asset {
      * @return {sp.spine.Atlas}
      * @private
      */
-    private _getAtlas (quiet?: boolean) {
+    private _getAtlas (quiet?: boolean): spine.TextureAtlas | null {
         if (this._atlasCache) {
             return this._atlasCache;
         }

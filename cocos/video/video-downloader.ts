@@ -32,7 +32,7 @@ import { ccwindow } from '../core/global-exports';
 const ccdocument = ccwindow.document;
 
 // eslint-disable-next-line consistent-return
-export function downloadVideo (url: string, options: Record<string, any>, onComplete: (err: Error | null, data?: any | null) => void) {
+export function downloadVideo (url: string, options: Record<string, any>, onComplete: (err: Error | null, data?: any | null) => void): void {
     const video = ccdocument.createElement('video');
     const source = ccdocument.createElement('source');
     video.appendChild(source);
@@ -40,7 +40,7 @@ export function downloadVideo (url: string, options: Record<string, any>, onComp
     const req = new XMLHttpRequest();
     req.open('GET', url, true);
     req.responseType = 'blob';
-    req.onload = function onload () {
+    req.onload = function onload (): void {
         if (this.status === 200 || this.status === 0) {
             source.src = URL.createObjectURL(this.response);
             onComplete(null, video);
@@ -48,7 +48,7 @@ export function downloadVideo (url: string, options: Record<string, any>, onComp
             onComplete(new Error(`${req.status}(no response)`));
         }
     };
-    req.onerror = function onerror () {
+    req.onerror = function onerror (): void {
         const message = `load video failure - ${url}`;
         log(message);
         onComplete(new Error(message));
@@ -56,7 +56,7 @@ export function downloadVideo (url: string, options: Record<string, any>, onComp
     req.send();
 }
 
-function createVideoClip (id: string, data: HTMLVideoElement, options: Record<string, any>, onComplete: (err: Error | null, data?: VideoClip | null) => void) {
+function createVideoClip (id: string, data: HTMLVideoElement, options: Record<string, any>, onComplete: (err: Error | null, data?: VideoClip | null) => void): void {
     const out = new VideoClip();
     out._nativeUrl = id;
     out._nativeAsset = data;

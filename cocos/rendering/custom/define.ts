@@ -56,11 +56,11 @@ export enum AntiAliasing {
     FXAAHQ,
 }
 
-export function getRTFormatBeforeToneMapping (ppl: BasicPipeline) {
+export function getRTFormatBeforeToneMapping (ppl: BasicPipeline): Format.RGBA8 | Format.RGBA16F {
     const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16FloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
 }
-function forceEnableFloatOutput (ppl: BasicPipeline) {
+function forceEnableFloatOutput (ppl: BasicPipeline): void {
     if (ppl.pipelineSceneData.isHDR && !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
         const supportFloatOutput = supportsRGBA16FloatTexture(ppl.device);
         ppl.setMacroBool('CC_USE_FLOAT_OUTPUT', supportFloatOutput);
@@ -68,7 +68,7 @@ function forceEnableFloatOutput (ppl: BasicPipeline) {
     }
 }
 
-export function validPunctualLightsCulling (pipeline: BasicPipeline, camera: Camera) {
+export function validPunctualLightsCulling (pipeline: BasicPipeline, camera: Camera): void {
     const sceneData = pipeline.pipelineSceneData;
     const validPunctualLights = sceneData.validPunctualLights;
     validPunctualLights.length = 0;
@@ -122,7 +122,7 @@ export function validPunctualLightsCulling (pipeline: BasicPipeline, camera: Cam
 
 const _cameras: Camera[] = [];
 
-export function getCameraUniqueID (camera: Camera) {
+export function getCameraUniqueID (camera: Camera): number {
     if (!_cameras.includes(camera)) {
         _cameras.push(camera);
     }
@@ -193,7 +193,7 @@ export function getRenderArea (camera: Camera, width: number, height: number, li
 
 class FxaaData {
     declare fxaaMaterial: Material;
-    private _updateFxaaPass () {
+    private _updateFxaaPass (): void {
         if (!this.fxaaMaterial) return;
 
         const combinePass = this.fxaaMaterial.passes[0];
@@ -201,7 +201,7 @@ class FxaaData {
         combinePass.tryCompile();
         combinePass.endChangeStatesSilently();
     }
-    private _init () {
+    private _init (): void {
         if (this.fxaaMaterial) return;
         this.fxaaMaterial = new Material();
         this.fxaaMaterial._uuid = 'builtin-fxaa-material';
@@ -216,7 +216,7 @@ class FxaaData {
     }
 }
 
-export function buildCopyPass (ppl: BasicPipeline, inOuts: CopyPair[]) {
+export function buildCopyPass (ppl: BasicPipeline, inOuts: CopyPair[]): void {
     ppl.addCopyPass(inOuts);
 }
 
@@ -224,7 +224,7 @@ let fxaaData: FxaaData | null = null;
 export function buildFxaaPass (camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    inputDS: string) {
+    inputDS: string): { rtName: string; dsName: string; } {
     if (!fxaaData) {
         fxaaData = new FxaaData();
     }
@@ -277,7 +277,7 @@ class BloomData {
     threshold = 0.1;
     iterations = 2;
     intensity = 0.8;
-    private _updateBloomPass () {
+    private _updateBloomPass (): void {
         if (!this.bloomMaterial) return;
 
         const prefilterPass = this.bloomMaterial.passes[BLOOM_PREFILTERPASS_INDEX];
@@ -302,7 +302,7 @@ class BloomData {
         combinePass.tryCompile();
         combinePass.endChangeStatesSilently();
     }
-    private _init () {
+    private _init (): void {
         if (this.bloomMaterial) return;
         this.bloomMaterial = new Material();
         this.bloomMaterial._uuid = 'builtin-bloom-material';
@@ -322,7 +322,7 @@ export function buildBloomPass (camera: Camera,
     inputRT: string,
     threshold = 0.6,
     iterations = 2,
-    intensity = 2.0) {
+    intensity = 2.0): { rtName: string; dsName: string; } {
     if (!bloomData) {
         bloomData = new BloomData();
     }
@@ -453,7 +453,7 @@ export function buildBloomPass (camera: Camera,
 export class PostInfo {
     declare postMaterial: Material;
     antiAliasing: AntiAliasing = AntiAliasing.NONE;
-    private _init () {
+    private _init (): void {
         this.postMaterial = new Material();
         this.postMaterial.name = 'builtin-post-process-material';
         if (macro.ENABLE_ANTIALIAS_FXAA) {
@@ -480,7 +480,7 @@ let postInfo: PostInfo;
 
 export function buildPostprocessPass (camera: Camera,
     ppl: BasicPipeline,
-    inputTex: string) {
+    inputTex: string): { rtName: string; dsName: string; } {
     if (!postInfo) {
         postInfo = new PostInfo();
     }
@@ -525,7 +525,7 @@ export function buildPostprocessPass (camera: Camera,
 export function buildForwardPass (camera: Camera,
     ppl: BasicPipeline,
     isOffScreen: boolean,
-    enabledAlpha = true) {
+    enabledAlpha = true): { rtName: string; dsName: string; } {
     if (EDITOR) {
         ppl.setMacroInt('CC_PIPELINE_TYPE', 0);
     }
@@ -599,7 +599,7 @@ let shadowPass;
 export function buildShadowPass (passName: Readonly<string>,
     ppl: BasicPipeline,
     camera: Camera, light: Light, level: number,
-    width: Readonly<number>, height: Readonly<number>) {
+    width: Readonly<number>, height: Readonly<number>): void {
     const fboW = width;
     const fboH = height;
     const area = getRenderArea(camera, width, height, light, level);
@@ -629,7 +629,7 @@ export function buildShadowPass (passName: Readonly<string>,
 }
 
 export function buildReflectionProbePasss (camera: Camera,
-    ppl: BasicPipeline) {
+    ppl: BasicPipeline): void {
     if (!cclegacy.internal.reflectionProbeManager) return;
     const probes = cclegacy.internal.reflectionProbeManager.getProbes();
     if (probes.length === 0) return;
@@ -650,7 +650,7 @@ export function buildReflectionProbePasss (camera: Camera,
 }
 
 export function buildReflectionProbePass (camera: Camera,
-    ppl: BasicPipeline, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx: number) {
+    ppl: BasicPipeline, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx: number): void {
     const cameraName = `Camera${faceIdx}`;
     const area = probe.renderArea();
     const width = area.x;
@@ -684,7 +684,7 @@ export class ShadowInfo {
     mainLightShadowNames = new Array<string>();
     spotLightShadowNames = new Array<string>();
     validLights: Light[] = [];
-    reset () {
+    reset (): void {
         this.shadowEnabled = false;
         this.mainLightShadowNames.length = 0;
         this.spotLightShadowNames.length = 0;
@@ -753,7 +753,7 @@ export class GBufferInfo {
 }
 // deferred passes
 export function buildGBufferPass (camera: Camera,
-    ppl: BasicPipeline) {
+    ppl: BasicPipeline): GBufferInfo {
     const cameraID = getCameraUniqueID(camera);
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -804,7 +804,7 @@ export function buildGBufferPass (camera: Camera,
 
 export class LightingInfo {
     declare deferredLightingMaterial: Material;
-    private _init () {
+    private _init (): void {
         this.deferredLightingMaterial = new Material();
         this.deferredLightingMaterial.name = 'builtin-deferred-material';
         this.deferredLightingMaterial.initialize({
@@ -823,7 +823,7 @@ export class LightingInfo {
 let lightingInfo: LightingInfo;
 
 // deferred lighting pass
-export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: GBufferInfo) {
+export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: GBufferInfo): { rtName: string; dsName: string; } {
     if (!lightingInfo) {
         lightingInfo = new LightingInfo();
     }
@@ -902,7 +902,7 @@ function getClearFlags (attachment: AttachmentType, clearFlag: ClearFlagBit, loa
 }
 
 export function buildUIPass (camera: Camera,
-    ppl: BasicPipeline) {
+    ppl: BasicPipeline): void {
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
@@ -937,7 +937,7 @@ export function buildUIPass (camera: Camera,
     }
 }
 
-export function buildNativeForwardPass (camera: Camera, ppl: BasicPipeline) {
+export function buildNativeForwardPass (camera: Camera, ppl: BasicPipeline): void {
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
@@ -997,7 +997,7 @@ export function buildNativeForwardPass (camera: Camera, ppl: BasicPipeline) {
     forwardPass.showStatistics = true;
 }
 
-export function buildNativeDeferredPipeline (camera: Camera, ppl: BasicPipeline) {
+export function buildNativeDeferredPipeline (camera: Camera, ppl: BasicPipeline): void {
     const cameraID = getCameraUniqueID(camera);
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
@@ -1072,7 +1072,7 @@ export function buildNativeDeferredPipeline (camera: Camera, ppl: BasicPipeline)
     }
 }
 
-export function updateCameraUBO (setter: any, camera: Readonly<Camera>, ppl: Readonly<BasicPipeline>) {
+export function updateCameraUBO (setter: any, camera: Readonly<Camera>, ppl: Readonly<BasicPipeline>): void {
     const pipeline = cclegacy.director.root.pipeline;
     const sceneData = ppl.pipelineSceneData;
     const skybox = sceneData.skybox;
@@ -1091,7 +1091,7 @@ export function updateCameraUBO (setter: any, camera: Readonly<Camera>, ppl: Rea
     setter.setVec4('cc_exposure', new Vec4(camera.exposure, 1.0 / camera.exposure, sceneData.isHDR ? 1.0 : 0.0, 1.0 / Camera.standardExposureValue));
 }
 
-function bindDescValue (desc: DescriptorSet, binding: number, value) {
+function bindDescValue (desc: DescriptorSet, binding: number, value): void {
     if (value instanceof Buffer) {
         desc.bindBuffer(binding, value);
     } else if (value instanceof Texture) {
@@ -1101,7 +1101,7 @@ function bindDescValue (desc: DescriptorSet, binding: number, value) {
     }
 }
 
-function bindGlobalDesc (desc: DescriptorSet, binding: number, value) {
+function bindGlobalDesc (desc: DescriptorSet, binding: number, value): void {
     bindDescValue(desc, binding, value);
 }
 
@@ -1118,7 +1118,7 @@ export function getDescBinding (descId, descData: DescriptorSetData): number {
     return -1;
 }
 
-export function getDescBindingFromName (bindingName: string) {
+export function getDescBindingFromName (bindingName: string): number {
     const pipeline = cclegacy.director.root.pipeline as WebPipeline;
     const layoutGraph = pipeline.layoutGraph;
     const vertIds = layoutGraph.vertices();
@@ -1143,7 +1143,7 @@ export function getDescBindingFromName (bindingName: string) {
 }
 
 const uniformMap: Map<string, Float32Array> = new Map();
-function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = false) {
+function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = false): void {
     const constants = data.constants;
     const samplers = data.samplers;
     const textures = data.textures;
@@ -1192,7 +1192,7 @@ function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = fa
     }
 }
 const layouts: Map<string, DescriptorSetData> = new Map();
-export function getDescriptorSetDataFromLayout (layoutName: string) {
+export function getDescriptorSetDataFromLayout (layoutName: string): DescriptorSetData | undefined {
     const descLayout = layouts.get(layoutName);
     if (descLayout) {
         return descLayout;
@@ -1206,22 +1206,22 @@ export function getDescriptorSetDataFromLayout (layoutName: string) {
     return layoutData;
 }
 
-export function getDescriptorSetDataFromLayoutId (id: number) {
+export function getDescriptorSetDataFromLayoutId (id: number): DescriptorSetData | undefined {
     const webPip = cclegacy.director.root.pipeline as WebPipeline;
     const layout = webPip.layoutGraph.getLayout(id);
     const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
     return layoutData;
 }
 
-export function initGlobalDescBinding (data: RenderData, layoutName = 'default') {
+export function initGlobalDescBinding (data: RenderData, layoutName = 'default'): void {
     applyGlobalDescBinding(data, layoutName);
 }
 
-export function updateGlobalDescBinding (data: RenderData, layoutName = 'default') {
+export function updateGlobalDescBinding (data: RenderData, layoutName = 'default'): void {
     applyGlobalDescBinding(data, layoutName, true);
 }
 
-export function mergeSrcToTargetDesc (fromDesc, toDesc, isForce = false) {
+export function mergeSrcToTargetDesc (fromDesc, toDesc, isForce = false): number[] {
     fromDesc.update();
     const fromGpuDesc = fromDesc.gpuDescriptorSet;
     const toGpuDesc = toDesc.gpuDescriptorSet;
@@ -1270,7 +1270,7 @@ class SSSSBlurData {
     boundingBox = 0.4;
     ssssScale = 5.0;
 
-    get ssssStrength () {
+    get ssssStrength (): Vec3 {
         return this._v3SSSSStrength;
     }
     set ssssStrength (val: Vec3) {
@@ -1278,7 +1278,7 @@ class SSSSBlurData {
         this._updateSampleCount();
     }
 
-    get ssssFallOff () {
+    get ssssFallOff (): Vec3 {
         return this._v3SSSSFallOff;
     }
     set ssssFallOff (val: Vec3) {
@@ -1286,7 +1286,7 @@ class SSSSBlurData {
         this._updateSampleCount();
     }
 
-    get kernel () {
+    get kernel (): Vec4[] {
         return this._kernel;
     }
 
@@ -1299,7 +1299,7 @@ class SSSSBlurData {
      * spreads the shape making it wider, while small falloffs make it
      * narrower.
      */
-    private _gaussian (out: Vec3, variance: number, r: number) {
+    private _gaussian (out: Vec3, variance: number, r: number): void {
         const xx = r / (0.001 + this._v3SSSSFallOff.x);
         out.x = Math.exp((-(xx * xx)) / (2.0 * variance)) / (2.0 * 3.14 * variance);
         const yy = r / (0.001 + this._v3SSSSFallOff.y);
@@ -1316,7 +1316,7 @@ class SSSSBlurData {
      * the profile. For example, it allows to create blue SSS gradients, which
      * could be useful in case of rendering blue creatures.
      */
-    private _profile (out: Vec3, val: number) {
+    private _profile (out: Vec3, val: number): void {
         for (let i = 0; i < 5; i++) {
             this._gaussian(_vec3Temp2, _varianceArray[i], val);
             _vec3Temp2.multiplyScalar(_strengthParameterArray[i]);
@@ -1324,7 +1324,7 @@ class SSSSBlurData {
         }
     }
 
-    private _updateSampleCount () {
+    private _updateSampleCount (): void {
         const strength = this._v3SSSSStrength;
         const nSamples = I_SAMPLES_COUNT;
         const range = nSamples > 20 ? 3.0 : 2.0;
@@ -1387,7 +1387,7 @@ class SSSSBlurData {
         }
     }
 
-    private _updateBlurPass () {
+    private _updateBlurPass (): void {
         if (!this.ssssBlurMaterial) return;
 
         const copyInputDSPass = this.ssssBlurMaterial.passes[COPY_INPUT_DS_PASS_INDEX];
@@ -1404,7 +1404,7 @@ class SSSSBlurData {
         ssssBlurYPass.endChangeStatesSilently();
     }
 
-    private _init () {
+    private _init (): void {
         if (this.ssssBlurMaterial) return;
 
         this.ssssBlurMaterial = new Material();
@@ -1427,7 +1427,7 @@ class SSSSBlurData {
 }
 
 let ssssBlurData: SSSSBlurData | null = null;
-export function hasSkinObject (ppl: BasicPipeline) {
+export function hasSkinObject (ppl: BasicPipeline): boolean {
     const sceneData = ppl.pipelineSceneData;
     return sceneData.skin.enabled && sceneData.standardSkinModel !== null;
 }
@@ -1435,7 +1435,7 @@ export function hasSkinObject (ppl: BasicPipeline) {
 function _buildSSSSBlurPass (camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    inputDS: string) {
+    inputDS: string): { rtName: string; dsName: string; } {
     const sceneData = ppl.pipelineSceneData;
     const skin = sceneData.skin;
     const standardSkinModel = sceneData.standardSkinModel;
@@ -1602,7 +1602,7 @@ function _buildSSSSBlurPass (camera: Camera,
 
 class ToneMappingInfo {
     declare toneMappingMaterial: Material;
-    private _init () {
+    private _init (): void {
         this.toneMappingMaterial = new Material();
         this.toneMappingMaterial.name = 'builtin-tone-mapping-material';
         this.toneMappingMaterial.initialize({
@@ -1621,7 +1621,7 @@ let toneMappingInfo: ToneMappingInfo | null = null;
 export function buildToneMappingPass (camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    inputDS: string) {
+    inputDS: string): { rtName: string; dsName: string; } {
     if (!ppl.pipelineSceneData.isHDR || !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) return { rtName: inputRT, dsName: inputDS };
     if (!toneMappingInfo) {
         toneMappingInfo = new ToneMappingInfo();
@@ -1684,7 +1684,7 @@ export function buildTransparencyPass (camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
     inputDS: string,
-    hasDeferredTransparencyObject: boolean) {
+    hasDeferredTransparencyObject: boolean): { rtName: string; dsName: string; } {
     if (hasDeferredTransparencyObject) return { rtName: inputRT, dsName: inputDS };
 
     const cameraID = getCameraUniqueID(camera);
@@ -1732,7 +1732,7 @@ export function buildTransparencyPass (camera: Camera,
 function _buildSpecularPass (camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    inputDS: string) {
+    inputDS: string): { rtName: string; dsName: string; } {
     if (EDITOR) {
         ppl.setMacroInt('CC_PIPELINE_TYPE', 0);
     }
@@ -1790,7 +1790,7 @@ function _buildSpecularPass (camera: Camera,
 export function buildSSSSPass (camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    inputDS: string) {
+    inputDS: string): { rtName: string; dsName: string; } {
     if (hasSkinObject(ppl)) {
         forceEnableFloatOutput(ppl);
         const blurInfo = _buildSSSSBlurPass(camera, ppl, inputRT, inputDS);
@@ -1806,19 +1806,19 @@ class HBAOParams {
     declare hbaoMaterial: Material;
     declare randomTexture: Texture2D;
 
-    get uvDepthToEyePosParams () {
+    get uvDepthToEyePosParams (): Vec4 {
         return this._uvDepthToEyePosParams;
     }
 
-    get radiusParam () {
+    get radiusParam (): Vec4 {
         return this._radiusParam;
     }
 
-    get miscParam () {
+    get miscParam (): Vec4 {
         return this._miscParam;
     }
 
-    get blurParam () {
+    get blurParam (): Vec4 {
         return this._blurParam;
     }
 
@@ -1879,7 +1879,7 @@ class HBAOParams {
         235, 100, 24, 255, 252, 36, 158, 255, 254, 20, 142, 255, 245, 135, 124, 255,
         251, 43, 121, 255, 253, 31, 145, 255, 235, 98, 160, 255, 240, 146, 198, 255,
     ];
-    private _init () {
+    private _init (): void {
         if (this.hbaoMaterial) return;
         this.hbaoMaterial = new Material();
         this.hbaoMaterial.name = 'builtin-hbao-material';
@@ -1913,7 +1913,7 @@ class HBAOParams {
         this.hbaoMaterial.setProperty('RandomTex', this.randomTexture, 0);
     }
 
-    public update () {
+    public update (): void {
         // should be same value as shader
         const HALF_KERNEL_RADIUS = 4;
         const INV_LN2 = 1.44269504;
@@ -1952,7 +1952,7 @@ const vec2 = new Vec2();
 function _buildHBAOPass (camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
-    inputDS: string) {
+    inputDS: string): { rtName: string; dsName: string; } {
     if (!_hbaoParams) return { rtName: inputRT, dsName: inputDS };
 
     const cameraID = getCameraUniqueID(camera);
@@ -2005,7 +2005,7 @@ function _buildHBAOBlurPass (camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
     inputDS: string,
-    isYPass: boolean) {
+    isYPass: boolean): { rtName: string; dsName: string; } {
     if (!_hbaoParams) return { rtName: inputRT, dsName: inputDS };
 
     const cameraID = getCameraUniqueID(camera);
@@ -2077,7 +2077,7 @@ function _buildHBAOCombinedPass (camera: Camera,
     ppl: BasicPipeline,
     inputRT: string,
     inputDS: string,
-    outputRT: string) {
+    outputRT: string): { rtName: string; dsName: string; } {
     if (!_hbaoParams) return { rtName: inputRT, dsName: inputDS };
 
     const cameraID = getCameraUniqueID(camera);
@@ -2136,7 +2136,7 @@ export function buildHBAOPasses (camera: Camera,
     blurSharpness = 3,
     aoSaturation = 1.0,
     aoStrength = 1.0,
-    needBlur = true) {
+    needBlur = true): { rtName: string; dsName: string; } {
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
     const height = area.height;
@@ -2196,7 +2196,7 @@ class ClusterLightData {
     dispatchY = 1;
     dispatchZ = 1;
 
-    private _initMaterial (id: string, effect: string) {
+    private _initMaterial (id: string, effect: string): Material {
         const mat = new Material();
         mat.name = id;
         mat.initialize({ effectName: effect });
@@ -2206,7 +2206,7 @@ class ClusterLightData {
         return mat;
     }
 
-    private _init () {
+    private _init (): void {
         this.clusterBuildCS = this._initMaterial('builtin-cluster-build-cs-material', 'pipeline/cluster-build');
         this.clusterLightCullingCS = this._initMaterial('builtin-cluster-culling-cs-material', 'pipeline/cluster-culling');
 
@@ -2222,7 +2222,7 @@ class ClusterLightData {
 
 let _clusterLightData: ClusterLightData | null = null;
 export function buildLightClusterBuildPass (camera: Camera, clusterData: ClusterLightData,
-    ppl: Pipeline) {
+    ppl: Pipeline): void {
     const cameraID = getCameraUniqueID(camera);
     const clusterBufferName = `clusterBuffer${cameraID}`;
 
@@ -2247,7 +2247,7 @@ export function buildLightClusterBuildPass (camera: Camera, clusterData: Cluster
 }
 
 export function buildLightClusterCullingPass (camera: Camera, clusterData: ClusterLightData,
-    ppl: Pipeline) {
+    ppl: Pipeline): void {
     const cameraID = getCameraUniqueID(camera);
     const clusterBufferName = `clusterBuffer${cameraID}`;
     const clusterLightBufferName = `clusterLightBuffer${cameraID}`;
@@ -2283,7 +2283,7 @@ export function buildLightClusterCullingPass (camera: Camera, clusterData: Clust
     clusterPass.setMat4('cc_matProjInv', camera.matProjInv);
 }
 
-export function buildLightData (camera: Camera, pipeline: BasicPipeline) {
+export function buildLightData (camera: Camera, pipeline: BasicPipeline): void {
     validPunctualLightsCulling(pipeline, camera);
 
     // build cluster light data
@@ -2413,7 +2413,7 @@ export function buildLightData (camera: Camera, pipeline: BasicPipeline) {
     ppl.addUploadPass([uploadPair1, uploadPair2]);
 }
 
-export function buildClusterPasses (camera: Camera, pipeline: BasicPipeline) {
+export function buildClusterPasses (camera: Camera, pipeline: BasicPipeline): void {
     buildLightData(camera, pipeline);
 
     const ppl = (pipeline as Pipeline);
