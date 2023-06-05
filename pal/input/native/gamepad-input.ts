@@ -88,39 +88,39 @@ export class GamepadInputDevice {
     public static all: GamepadInputDevice[] = [];
     public static xr: (GamepadInputDevice | null) = null;
 
-    public get buttonNorth () { return this._buttonNorth; }
-    public get buttonEast () { return this._buttonEast; }
-    public get buttonWest () { return this._buttonWest; }
-    public get buttonSouth () { return this._buttonSouth; }
-    public get buttonL1 () { return this._buttonL1; }
-    public get buttonL2 () { return this._buttonL2; }
-    public get buttonL3 () { return this._buttonL3; }
-    public get buttonR1 () { return this._buttonR1; }
-    public get buttonR2 () { return this._buttonR2; }
-    public get buttonR3 () { return this._buttonR3; }
+    public get buttonNorth (): InputSourceButton { return this._buttonNorth; }
+    public get buttonEast (): InputSourceButton { return this._buttonEast; }
+    public get buttonWest (): InputSourceButton { return this._buttonWest; }
+    public get buttonSouth (): InputSourceButton { return this._buttonSouth; }
+    public get buttonL1 (): InputSourceButton { return this._buttonL1; }
+    public get buttonL2 (): InputSourceButton { return this._buttonL2; }
+    public get buttonL3 (): InputSourceButton { return this._buttonL3; }
+    public get buttonR1 (): InputSourceButton { return this._buttonR1; }
+    public get buttonR2 (): InputSourceButton { return this._buttonR2; }
+    public get buttonR3 (): InputSourceButton { return this._buttonR3; }
     // public get buttonTouchPad () { return this._buttonTouchPad; }
     // public get buttonHome () { return this._buttonHome; }
-    public get buttonShare () { return this._buttonShare; }
-    public get buttonOptions () { return this._buttonOptions; }
-    public get dpad () { return this._dpad; }
-    public get leftStick () { return this._leftStick; }
-    public get rightStick () { return this._rightStick; }
-    public get buttonStart () { return this._buttonStart; }
-    public get gripLeft () { return this._gripLeft; }
-    public get gripRight () { return this._gripRight; }
-    public get handLeftPosition () { return this._handLeftPosition; }
-    public get handLeftOrientation () { return this._handLeftOrientation; }
-    public get handRightPosition () { return this._handRightPosition; }
-    public get handRightOrientation () { return this._handRightOrientation; }
-    public get aimLeftPosition () { return this._aimLeftPosition; }
-    public get aimLeftOrientation () { return this._aimLeftOrientation; }
-    public get aimRightPosition () { return this._aimRightPosition; }
-    public get aimRightOrientation () { return this._aimRightOrientation; }
+    public get buttonShare (): InputSourceButton { return this._buttonShare; }
+    public get buttonOptions (): InputSourceButton { return this._buttonOptions; }
+    public get dpad (): InputSourceDpad { return this._dpad; }
+    public get leftStick (): InputSourceStick { return this._leftStick; }
+    public get rightStick (): InputSourceStick { return this._rightStick; }
+    public get buttonStart (): InputSourceButton { return this._buttonStart; }
+    public get gripLeft (): InputSourceButton { return this._gripLeft; }
+    public get gripRight (): InputSourceButton { return this._gripRight; }
+    public get handLeftPosition (): InputSourcePosition { return this._handLeftPosition; }
+    public get handLeftOrientation (): InputSourceOrientation { return this._handLeftOrientation; }
+    public get handRightPosition (): InputSourcePosition { return this._handRightPosition; }
+    public get handRightOrientation (): InputSourceOrientation { return this._handRightOrientation; }
+    public get aimLeftPosition (): InputSourcePosition { return this._aimLeftPosition; }
+    public get aimLeftOrientation (): InputSourceOrientation { return this._aimLeftOrientation; }
+    public get aimRightPosition (): InputSourcePosition { return this._aimRightPosition; }
+    public get aimRightOrientation (): InputSourceOrientation { return this._aimRightOrientation; }
 
-    public get deviceId () {
+    public get deviceId (): number {
         return this._deviceId;
     }
-    public get connected () {
+    public get connected (): boolean {
         return this._connected;
     }
 
@@ -194,7 +194,7 @@ export class GamepadInputDevice {
     /**
      * @engineInternal
      */
-    public static _init () {
+    public static _init (): void {
         if (!systemInfo.hasFeature(Feature.EVENT_GAMEPAD)) {
             return;
         }
@@ -204,21 +204,21 @@ export class GamepadInputDevice {
     /**
      * @engineInternal
      */
-    public static _on (eventType: InputEventType, cb: GamepadCallback, target?: any) {
+    public static _on (eventType: InputEventType, cb: GamepadCallback, target?: any): void {
         GamepadInputDevice._eventTarget.on(eventType, cb, target);
     }
 
-    private static _removeInputDevice (id: number) {
+    private static _removeInputDevice (id: number): void {
         const removeIndex = GamepadInputDevice.all.findIndex((device) => device.deviceId === id);
         if (removeIndex === -1) {
             return;
         }
         js.array.fastRemoveAt(GamepadInputDevice.all, removeIndex);
     }
-    private static _getInputDevice (id: number) {
+    private static _getInputDevice (id: number): GamepadInputDevice | undefined {
         return GamepadInputDevice.all.find((device) => device.deviceId === id);
     }
-    private static _createInputDevice (id: number, connected: boolean) {
+    private static _createInputDevice (id: number, connected: boolean): GamepadInputDevice {
         const device = new GamepadInputDevice(id);
         device._connected = connected;
         GamepadInputDevice.all.push(device);
@@ -233,8 +233,8 @@ export class GamepadInputDevice {
         return device;
     }
 
-    private static _registerEvent () {
-        jsb.onControllerInput = (infoList: jsb.ControllerInfo[]) => {
+    private static _registerEvent (): void {
+        jsb.onControllerInput = (infoList: jsb.ControllerInfo[]): void => {
             for (let i = 0; i < infoList.length; ++i) {
                 const info = infoList[i];
                 const device = GamepadInputDevice._getOrCreateInputDevice(info.id, true);
@@ -243,7 +243,7 @@ export class GamepadInputDevice {
             }
         };
 
-        jsb.onControllerChange = (controllerIds) => {
+        jsb.onControllerChange = (controllerIds): void => {
             // check connecting
             for (let i = 0; i < controllerIds.length; ++i) {
                 const id = controllerIds[i];
@@ -277,7 +277,7 @@ export class GamepadInputDevice {
         }
     }
 
-    private _updateNativeButtonState (info: jsb.ControllerInfo) {
+    private _updateNativeButtonState (info: jsb.ControllerInfo): void {
         const { buttonInfoList, axisInfoList } = info;
         for (let i = 0; i < buttonInfoList.length; ++i) {
             const buttonInfo = buttonInfoList[i];
@@ -333,28 +333,28 @@ export class GamepadInputDevice {
         }
     }
 
-    private _initInputSource () {
+    private _initInputSource (): void {
         this._buttonNorth = new InputSourceButton();
-        this._buttonNorth.getValue = () => this._nativeButtonState[Button.BUTTON_NORTH];
+        this._buttonNorth.getValue = (): number => this._nativeButtonState[Button.BUTTON_NORTH];
         this._buttonEast = new InputSourceButton();
-        this._buttonEast.getValue = () => this._nativeButtonState[Button.BUTTON_EAST];
+        this._buttonEast.getValue = (): number => this._nativeButtonState[Button.BUTTON_EAST];
         this._buttonWest = new InputSourceButton();
-        this._buttonWest.getValue = () => this._nativeButtonState[Button.BUTTON_WEST];
+        this._buttonWest.getValue = (): number => this._nativeButtonState[Button.BUTTON_WEST];
         this._buttonSouth = new InputSourceButton();
-        this._buttonSouth.getValue = () => this._nativeButtonState[Button.BUTTON_SOUTH];
+        this._buttonSouth.getValue = (): number => this._nativeButtonState[Button.BUTTON_SOUTH];
 
         this._buttonL1 = new InputSourceButton();
-        this._buttonL1.getValue = () => this._nativeButtonState[Button.BUTTON_L1];
+        this._buttonL1.getValue = (): number => this._nativeButtonState[Button.BUTTON_L1];
         this._buttonL2 = new InputSourceButton();
-        this._buttonL2.getValue = () => this._nativeButtonState[Button.BUTTON_L2];
+        this._buttonL2.getValue = (): number => this._nativeButtonState[Button.BUTTON_L2];
         this._buttonL3 = new InputSourceButton();
-        this._buttonL3.getValue = () => this._nativeButtonState[Button.BUTTON_L3];
+        this._buttonL3.getValue = (): number => this._nativeButtonState[Button.BUTTON_L3];
         this._buttonR1 = new InputSourceButton();
-        this._buttonR1.getValue = () => this._nativeButtonState[Button.BUTTON_R1];
+        this._buttonR1.getValue = (): number => this._nativeButtonState[Button.BUTTON_R1];
         this._buttonR2 = new InputSourceButton();
-        this._buttonR2.getValue = () => this._nativeButtonState[Button.BUTTON_R2];
+        this._buttonR2.getValue = (): number => this._nativeButtonState[Button.BUTTON_R2];
         this._buttonR3 = new InputSourceButton();
-        this._buttonR3.getValue = () => this._nativeButtonState[Button.BUTTON_R3];
+        this._buttonR3.getValue = (): number => this._nativeButtonState[Button.BUTTON_R3];
 
         // this._buttonTouchPad = new InputSourceButton();
         // this._buttonTouchPad.getValue = () => 0;  // TODO: NX unavailable
@@ -362,66 +362,66 @@ export class GamepadInputDevice {
         // this._buttonHome.getValue = () => 0;  // TODO: NX unavailable
 
         this._buttonShare = new InputSourceButton();
-        this._buttonShare.getValue = () => this._nativeButtonState[Button.NS_MINUS];  // TODO: NX only for now
+        this._buttonShare.getValue = (): number => this._nativeButtonState[Button.NS_MINUS];  // TODO: NX only for now
         this._buttonOptions = new InputSourceButton();
-        this._buttonOptions.getValue = () => this._nativeButtonState[Button.NS_PLUS] || this._nativeButtonState[Button.ROKID_MENU];
+        this._buttonOptions.getValue = (): number => this._nativeButtonState[Button.NS_PLUS] || this._nativeButtonState[Button.ROKID_MENU];
 
         const dpadUp = new InputSourceButton();
-        dpadUp.getValue = () => this._nativeButtonState[Button.DPAD_UP];
+        dpadUp.getValue = (): number => this._nativeButtonState[Button.DPAD_UP];
         const dpadDown = new InputSourceButton();
-        dpadDown.getValue = () => this._nativeButtonState[Button.DPAD_DOWN];
+        dpadDown.getValue = (): number => this._nativeButtonState[Button.DPAD_DOWN];
         const dpadLeft = new InputSourceButton();
-        dpadLeft.getValue = () => this._nativeButtonState[Button.DPAD_LEFT];
+        dpadLeft.getValue = (): number => this._nativeButtonState[Button.DPAD_LEFT];
         const dpadRight = new InputSourceButton();
-        dpadRight.getValue = () => this._nativeButtonState[Button.DPAD_RIGHT];
+        dpadRight.getValue = (): number => this._nativeButtonState[Button.DPAD_RIGHT];
         this._dpad = new InputSourceDpad({ up: dpadUp, down: dpadDown, left: dpadLeft, right: dpadRight });
 
         const leftStickUp = new InputSourceButton();
-        leftStickUp.getValue = () => this._nativeButtonState[Button.LEFT_STICK_UP];
+        leftStickUp.getValue = (): number => this._nativeButtonState[Button.LEFT_STICK_UP];
         const leftStickDown = new InputSourceButton();
-        leftStickDown.getValue = () => this._nativeButtonState[Button.LEFT_STICK_DOWN];
+        leftStickDown.getValue = (): number => this._nativeButtonState[Button.LEFT_STICK_DOWN];
         const leftStickLeft = new InputSourceButton();
-        leftStickLeft.getValue = () => this._nativeButtonState[Button.LEFT_STICK_LEFT];
+        leftStickLeft.getValue = (): number => this._nativeButtonState[Button.LEFT_STICK_LEFT];
         const leftStickRight = new InputSourceButton();
-        leftStickRight.getValue = () => this._nativeButtonState[Button.LEFT_STICK_RIGHT];
+        leftStickRight.getValue = (): number => this._nativeButtonState[Button.LEFT_STICK_RIGHT];
         this._leftStick = new InputSourceStick({ up: leftStickUp, down: leftStickDown, left: leftStickLeft, right: leftStickRight });
 
         const rightStickUp = new InputSourceButton();
-        rightStickUp.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_UP];
+        rightStickUp.getValue = (): number => this._nativeButtonState[Button.RIGHT_STICK_UP];
         const rightStickDown = new InputSourceButton();
-        rightStickDown.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_DOWN];
+        rightStickDown.getValue = (): number => this._nativeButtonState[Button.RIGHT_STICK_DOWN];
         const rightStickLeft = new InputSourceButton();
-        rightStickLeft.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_LEFT];
+        rightStickLeft.getValue = (): number => this._nativeButtonState[Button.RIGHT_STICK_LEFT];
         const rightStickRight = new InputSourceButton();
-        rightStickRight.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_RIGHT];
+        rightStickRight.getValue = (): number => this._nativeButtonState[Button.RIGHT_STICK_RIGHT];
         this._rightStick = new InputSourceStick({ up: rightStickUp, down: rightStickDown, left: rightStickLeft, right: rightStickRight });
 
         this._buttonStart = new InputSourceButton();
-        this._buttonStart.getValue = () => this._nativeButtonState[Button.ROKID_START];  // TODO: Rokid only for now
+        this._buttonStart.getValue = (): number => this._nativeButtonState[Button.ROKID_START];  // TODO: Rokid only for now
 
         this._gripLeft = new InputSourceButton();
-        this._gripLeft.getValue = () => 0;
+        this._gripLeft.getValue = (): number => 0;
         this._gripRight = new InputSourceButton();
-        this._gripRight.getValue = () => 0;
+        this._gripRight.getValue = (): number => 0;
 
         this._handLeftPosition = new InputSourcePosition();
-        this._handLeftPosition.getValue = () => Vec3.ZERO;
+        this._handLeftPosition.getValue = (): Readonly<Vec3> => Vec3.ZERO;
         this._handLeftOrientation = new InputSourceOrientation();
-        this._handLeftOrientation.getValue = () => Quat.IDENTITY;
+        this._handLeftOrientation.getValue = (): Readonly<Quat> => Quat.IDENTITY;
 
         this._handRightPosition = new InputSourcePosition();
-        this._handRightPosition.getValue = () => Vec3.ZERO;
+        this._handRightPosition.getValue = (): Readonly<Vec3> => Vec3.ZERO;
         this._handRightOrientation = new InputSourceOrientation();
-        this._handRightOrientation.getValue = () => Quat.IDENTITY;
+        this._handRightOrientation.getValue = (): Readonly<Quat> => Quat.IDENTITY;
 
         this._aimLeftPosition = new InputSourcePosition();
-        this._aimLeftPosition.getValue = () => Vec3.ZERO;
+        this._aimLeftPosition.getValue = (): Readonly<Vec3> => Vec3.ZERO;
         this._aimLeftOrientation = new InputSourceOrientation();
-        this._aimLeftOrientation.getValue = () => Quat.IDENTITY;
+        this._aimLeftOrientation.getValue = (): Readonly<Quat> => Quat.IDENTITY;
 
         this._aimRightPosition = new InputSourcePosition();
-        this._aimRightPosition.getValue = () => Vec3.ZERO;
+        this._aimRightPosition.getValue = (): Readonly<Vec3> => Vec3.ZERO;
         this._aimRightOrientation = new InputSourceOrientation();
-        this._aimRightOrientation.getValue = () => Quat.IDENTITY;
+        this._aimRightOrientation.getValue = (): Readonly<Quat> => Quat.IDENTITY;
     }
 }

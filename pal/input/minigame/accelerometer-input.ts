@@ -38,22 +38,22 @@ export class AccelerometerInputSource {
         this._didAccelerateFunc  = this._didAccelerate.bind(this);
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         minigame.onAccelerometerChange(this._didAccelerateFunc);
     }
 
-    private _unregisterEvent () {
+    private _unregisterEvent (): void {
         minigame.offAccelerometerChange(this._didAccelerateFunc);
     }
 
-    private _didAccelerate (event: AccelerometerData) {
+    private _didAccelerate (event: AccelerometerData): void {
         const timestamp = performance.now();
         const acceleration = new Acceleration(event.x, event.y, event.z, timestamp);
         const eventAcceleration = new EventAcceleration(acceleration);
         this._eventTarget.emit(InputEventType.DEVICEMOTION, eventAcceleration);
     }
 
-    public start () {
+    public start (): void {
         this._registerEvent();
         minigame.startAccelerometer({
             interval: this._accelMode,
@@ -62,7 +62,7 @@ export class AccelerometerInputSource {
             },
         });
     }
-    public stop () {
+    public stop (): void {
         minigame.stopAccelerometer({
             success: () => {
                 this._isStarted = false;
@@ -73,7 +73,7 @@ export class AccelerometerInputSource {
         });
         this._unregisterEvent();
     }
-    public setInterval (intervalInMileseconds: number) {
+    public setInterval (intervalInMileseconds: number): void {
         // reference: https://developers.weixin.qq.com/minigame/dev/api/device/accelerometer/wx.startAccelerometer.html
         if (intervalInMileseconds >= 200) {
             this._accelMode = 'normal';
@@ -88,7 +88,7 @@ export class AccelerometerInputSource {
             this.start();
         }
     }
-    public on (eventType: InputEventType, callback: AccelerometerCallback, target?: any) {
+    public on (eventType: InputEventType, callback: AccelerometerCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 }

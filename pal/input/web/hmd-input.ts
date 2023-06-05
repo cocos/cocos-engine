@@ -50,12 +50,12 @@ interface IPoseInfo {
 type WebPoseState = Record<Pose, IPoseValue>
 
 export class HMDInputDevice {
-    public get viewLeftPosition () { return this._viewLeftPosition; }
-    public get viewLeftOrientation () { return this._viewLeftOrientation; }
-    public get viewRightPosition () { return this._viewRightPosition; }
-    public get viewRightOrientation () { return this._viewRightOrientation; }
-    public get headMiddlePosition () { return this._headMiddlePosition; }
-    public get headMiddleOrientation () { return this._headMiddleOrientation; }
+    public get viewLeftPosition (): InputSourcePosition { return this._viewLeftPosition; }
+    public get viewLeftOrientation (): InputSourceOrientation { return this._viewLeftOrientation; }
+    public get viewRightPosition (): InputSourcePosition { return this._viewRightPosition; }
+    public get viewRightOrientation (): InputSourceOrientation { return this._viewRightOrientation; }
+    public get headMiddlePosition (): InputSourcePosition { return this._headMiddlePosition; }
+    public get headMiddleOrientation (): InputSourceOrientation { return this._headMiddleOrientation; }
 
     private _eventTarget: EventTarget = new EventTarget();
     private _intervalId = -1;
@@ -78,7 +78,7 @@ export class HMDInputDevice {
         this._registerEvent();
     }
 
-    private _ensureDirectorDefined () {
+    private _ensureDirectorDefined (): Promise<void> {
         return new Promise<void>((resolve) => {
             this._intervalId = setInterval(() => {
                 if (legacyCC.director && legacyCC.Director) {
@@ -90,13 +90,13 @@ export class HMDInputDevice {
         });
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         this._ensureDirectorDefined().then(() => {
             legacyCC.director.on(legacyCC.Director.EVENT_BEGIN_FRAME, this._scanHmd, this);
         }).catch((e) => {});
     }
 
-    private _scanHmd () {
+    private _scanHmd (): void {
         const infoList = globalThis.__globalXR?.webxrHmdPoseInfos as IPoseInfo[];
         if (!infoList) {
             return;
@@ -112,11 +112,11 @@ export class HMDInputDevice {
     /**
      * @engineInternal
      */
-    public _on (eventType: InputEventType, callback: HMDCallback, target?: any) {
+    public _on (eventType: InputEventType, callback: HMDCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 
-    private _updateWebPoseState (info: IPoseInfo) {
+    private _updateWebPoseState (info: IPoseInfo): void {
         if (info.code !== Pose.VIEW_LEFT && info.code !== Pose.VIEW_RIGHT && info.code !== Pose.HEAD_MIDDLE) {
             return;
         }
@@ -127,20 +127,20 @@ export class HMDInputDevice {
         };
     }
 
-    private _initInputSource () {
+    private _initInputSource (): void {
         this._viewLeftPosition = new InputSourcePosition();
-        this._viewLeftPosition.getValue = () => this._webPoseState[Pose.VIEW_LEFT].position;
+        this._viewLeftPosition.getValue = (): Vec3 => this._webPoseState[Pose.VIEW_LEFT].position;
         this._viewLeftOrientation = new InputSourceOrientation();
-        this._viewLeftOrientation.getValue = () => this._webPoseState[Pose.VIEW_LEFT].orientation;
+        this._viewLeftOrientation.getValue = (): Quat => this._webPoseState[Pose.VIEW_LEFT].orientation;
 
         this._viewRightPosition = new InputSourcePosition();
-        this._viewRightPosition.getValue = () => this._webPoseState[Pose.VIEW_RIGHT].position;
+        this._viewRightPosition.getValue = (): Vec3 => this._webPoseState[Pose.VIEW_RIGHT].position;
         this._viewRightOrientation = new InputSourceOrientation();
-        this._viewRightOrientation.getValue = () => this._webPoseState[Pose.VIEW_RIGHT].orientation;
+        this._viewRightOrientation.getValue = (): Quat => this._webPoseState[Pose.VIEW_RIGHT].orientation;
 
         this._headMiddlePosition = new InputSourcePosition();
-        this._headMiddlePosition.getValue = () => this._webPoseState[Pose.HEAD_MIDDLE].position;
+        this._headMiddlePosition.getValue = (): Vec3 => this._webPoseState[Pose.HEAD_MIDDLE].position;
         this._headMiddleOrientation = new InputSourceOrientation();
-        this._headMiddleOrientation.getValue = () => this._webPoseState[Pose.HEAD_MIDDLE].orientation;
+        this._headMiddleOrientation.getValue = (): Quat => this._webPoseState[Pose.HEAD_MIDDLE].orientation;
     }
 }
