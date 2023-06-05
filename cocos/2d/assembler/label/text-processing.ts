@@ -93,6 +93,9 @@ export class TextProcessing {
             this._calculateLabelFont(style, layout, outputLayoutData, inputString);
         } else {
             if (!style.fntConfig) { // for char
+                if (style.originFontSize * style.scalingRatio > this._maxFontSize && style.originFontSize < this._maxFontSize) {
+                    style.scalingRatio = this._maxFontSize / style.originFontSize;
+                }
                 style.originFontSize *= style.scalingRatio;
                 shareLabelInfo.dpr = style.scalingRatio;
             }
@@ -133,6 +136,8 @@ export class TextProcessing {
 
     private _lettersInfo: LetterInfo[] = [];
     private _tmpRect = new Rect();
+
+    private _maxFontSize = 100;
 
     private _calculateLabelFont (style: TextStyle, layout: TextLayout,
         outputLayoutData: TextOutputLayoutData, inputString: string) {
@@ -370,7 +375,10 @@ export class TextProcessing {
         outputLayoutData.canvasSize.width = Math.min(outputLayoutData.canvasSize.width, MAX_SIZE);
         outputLayoutData.canvasSize.height = Math.min(outputLayoutData.canvasSize.height, MAX_SIZE);
 
-        const dpr = style.scalingRatio;
+        let dpr = style.scalingRatio;
+        if (dpr * style.fontSize > this._maxFontSize && style.fontSize < this._maxFontSize) {
+            dpr = style.scalingRatio = this._maxFontSize / style.fontSize;
+        }
         this._canvas!.width = Math.min(outputLayoutData.canvasSize.width * dpr, MAX_SIZE);
         this._canvas!.height = Math.min(outputLayoutData.canvasSize.height * dpr, MAX_SIZE);
 
