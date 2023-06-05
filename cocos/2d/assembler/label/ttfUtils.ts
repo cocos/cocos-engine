@@ -21,7 +21,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { screenAdapter } from 'pal/screen-adapter';
 import { Label, LabelOutline, LabelShadow } from '../../components';
 import { ISharedLabelData } from './font-utils';
 import { UITransform } from '../../framework/ui-transform';

@@ -23,7 +23,6 @@
 */
 
 import { JSB } from 'internal:constants';
-import { screenAdapter } from 'pal/screen-adapter';
 import { IConfig, FontAtlas } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { Rect } from '../../../core';
