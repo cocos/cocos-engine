@@ -72,10 +72,4 @@ export class MotionState extends InteractiveState {
         this.transitionOutEventBinding.copyTo(that.transitionOutEventBinding);
         return this;
     }
-
-    public _clone () {
-        const that = new MotionState();
-        this.copyTo(that);
-        return that;
-    }
 }

@@ -38,6 +38,7 @@ import { AnimationGraphLike } from './animation-graph-like';
 import { createInstanceofProxy, renameObjectProperty } from '../../core/utils/internal';
 import { PoseGraph } from './pose-graph/pose-graph';
 import { AnimationGraphEventBinding } from './event/event-binding';
+import { instantiate } from '../../serialization';
 
 export { State };
 
@@ -188,13 +189,6 @@ export function isAnimationTransition (transition: TransitionView): transition i
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}EmptyState`)
 export class EmptyState extends State {
     public declare __brand: 'EmptyState';
-
-    public _clone () {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        const that = new EmptyState();
-        this.copyTo(that);
-        return that;
-    }
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}EmptyStateTransition`)
@@ -697,11 +691,15 @@ export class StateMachine extends EditorExtendable {
                 stateMap.set(state, that._anyState);
                 break;
             default:
-                if (state instanceof MotionState || state instanceof SubStateMachine || state instanceof EmptyState) {
+                if (state instanceof MotionState
+                    || state instanceof SubStateMachine
+                    || state instanceof EmptyState
+                    || state instanceof ProceduralPoseState
+                ) {
                     if (state instanceof EmptyState && !that._allowEmptyStates) {
                         continue;
                     }
-                    const thatState = state._clone();
+                    const thatState = instantiate(state);
                     that._addState(thatState);
                     stateMap.set(state, thatState);
                 } else {
@@ -758,12 +756,6 @@ export class SubStateMachine extends InteractiveState {
     public copyTo (that: SubStateMachine) {
         super.copyTo(that);
         this._stateMachine.copyTo(that._stateMachine);
-    }
-
-    public _clone () {
-        const that = new SubStateMachine();
-        this.copyTo(that);
-        return that;
     }
 
     @serializable
