@@ -112,7 +112,7 @@ export function log2 (v: number) {
  * @en Computes log base 10 of v.
  * @zh 计算以 10 为底的 v 的对数。
  */
-export function log10 (v: number) {
+export function log10 (v: number): number {
     return (v >= 1000000000) ? 9 : (v >= 100000000) ? 8 : (v >= 10000000) ? 7
         : (v >= 1000000) ? 6 : (v >= 100000) ? 5 : (v >= 10000) ? 4
             : (v >= 1000) ? 3 : (v >= 100) ? 2 : (v >= 10) ? 1 : 0;

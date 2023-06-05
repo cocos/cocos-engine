@@ -242,7 +242,7 @@ class ProceduralPoseState extends State {
         this.graph.__callOnAfterDeserializeRecursive();
     }
 
-    public copyTo (that: MotionState) {
+    public copyTo (that: MotionState): ProceduralPoseState {
         super.copyTo(that);
         this.transitionInEventBinding.copyTo(that.transitionInEventBinding);
         this.transitionOutEventBinding.copyTo(that.transitionOutEventBinding);

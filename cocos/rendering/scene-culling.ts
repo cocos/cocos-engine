@@ -37,7 +37,7 @@ const _sphere = geometry.Sphere.create(0, 0, 0, 1);
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 const _tmpBoundingBox = new AABB();
 
-const roPool = new Pool<IRenderObject>((): { model: any; depth: number; } => ({ model: null!, depth: 0 }), 128);
+const roPool = new Pool<IRenderObject>((): IRenderObject => ({ model: null!, depth: 0 }), 128);
 
 function getRenderObject (model: Model, camera: Camera): IRenderObject {
     let depth = 0;

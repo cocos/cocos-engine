@@ -731,7 +731,7 @@ export class PageView extends ScrollView {
         return offset;
     }
 
-    protected _getDragDirection (moveOffset: Vec2): 0 | 1 | -1 {
+    protected _getDragDirection (moveOffset: Vec2): number {
         if (this._direction === Direction.Horizontal) {
             if (moveOffset.x === 0) {
                 return 0;

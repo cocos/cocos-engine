@@ -205,7 +205,7 @@ function evaluateGradient (gr: GradientRange, time: number, index: number) {
         return gr.color;
     }
 }
-function evaluateHeight (gr: GradientRange) {
+function evaluateHeight (gr: GradientRange): number {
     switch (gr.mode) {
     case Mode.TwoColors:
         return 2;

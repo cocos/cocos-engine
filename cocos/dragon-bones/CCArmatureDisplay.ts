@@ -42,7 +42,7 @@ export class CCArmatureDisplay extends DisplayData implements IEventDispatcher {
      * @en Return this.
      * @zh 返回自身。
      */
-    get node () { return this; }
+    get node (): CCArmatureDisplay { return this; }
     /**
      * @deprecated This variable will be removed in the future.
      */

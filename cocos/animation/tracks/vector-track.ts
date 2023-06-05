@@ -52,7 +52,7 @@ export class VectorTrack extends Track {
      * @en Gets or sets the count of components(dimension) available while evaluating of this track.
      * @zh 获取或设置此轨道在求值时有效的分量数（维度）。
      */
-    get componentsCount () {
+    get componentsCount (): number {
         return this._nComponents;
     }
 

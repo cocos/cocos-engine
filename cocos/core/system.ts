@@ -61,7 +61,7 @@ export class System implements ISchedulable {
      * @param a System a
      * @param b System b
      */
-    public static sortByPriority (a:System, b:System) {
+    public static sortByPriority (a:System, b:System): number {
         if (a._priority < b._priority) {
             return 1;
         } else if (a._priority > b.priority) {

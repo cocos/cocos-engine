@@ -56,7 +56,7 @@ export enum AntiAliasing {
     FXAAHQ,
 }
 
-export function getRTFormatBeforeToneMapping (ppl: BasicPipeline): Format.RGBA8 | Format.RGBA16F {
+export function getRTFormatBeforeToneMapping (ppl: BasicPipeline): Format {
     const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16FloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
 }

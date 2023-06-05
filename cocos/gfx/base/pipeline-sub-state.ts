@@ -42,7 +42,7 @@ import {
 export class RasterizerState {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    get native () {
+    get native (): RasterizerState {
         return this;
     }
 
@@ -90,7 +90,7 @@ export class RasterizerState {
 export class DepthStencilState {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    get native () {
+    get native (): DepthStencilState {
         return this;
     }
     constructor (
@@ -187,7 +187,7 @@ export class BlendTarget {
 export class BlendState {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    get native () {
+    get native (): BlendState {
         return this;
     }
 

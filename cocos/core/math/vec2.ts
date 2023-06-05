@@ -567,7 +567,7 @@ export class Vec2 extends ValueType {
      * @param to Target vector
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Vec2, ratio: number) {
+    public lerp (to: Vec2, ratio: number): Vec2 {
         const x = this.x;
         const y = this.y;
         this.x = x + ratio * (to.x - x);
@@ -582,7 +582,7 @@ export class Vec2 extends ValueType {
      * @param maxInclusive Maximum value allowed
      * @return `this`
      */
-    public clampf (minInclusive: Vec2, maxInclusive: Vec2) {
+    public clampf (minInclusive: Vec2, maxInclusive: Vec2): Vec2 {
         this.x = clamp(this.x, minInclusive.x, maxInclusive.x);
         this.y = clamp(this.y, minInclusive.y, maxInclusive.y);
         return this;
@@ -593,7 +593,7 @@ export class Vec2 extends ValueType {
      * @zh 向量加法。将当前向量与指定向量的相加
      * @param other specified vector
      */
-    public add (other: Vec2) {
+    public add (other: Vec2): Vec2 {
         this.x += other.x;
         this.y += other.y;
         return this;
@@ -605,7 +605,7 @@ export class Vec2 extends ValueType {
      * @param x The x value of specified vector
      * @param y The y value of specified vector
      */
-    public add2f (x: number, y: number) {
+    public add2f (x: number, y: number): Vec2 {
         this.x += x;
         this.y += y;
         return this;
@@ -616,7 +616,7 @@ export class Vec2 extends ValueType {
      * @zh 向量减法。将当前向量减去指定向量
      * @param other specified vector
      */
-    public subtract (other: Vec2) {
+    public subtract (other: Vec2): Vec2 {
         this.x -= other.x;
         this.y -= other.y;
         return this;
@@ -628,7 +628,7 @@ export class Vec2 extends ValueType {
      * @param x The x value of specified vector
      * @param y The y value of specified vector
      */
-    public subtract2f (x: number, y: number) {
+    public subtract2f (x: number, y: number): Vec2 {
         this.x -= x;
         this.y -= y;
         return this;
@@ -639,7 +639,7 @@ export class Vec2 extends ValueType {
      * @zh 向量数乘。将当前向量数乘指定标量
      * @param scalar scalar number
      */
-    public multiplyScalar (scalar: number) {
+    public multiplyScalar (scalar: number): Vec2 {
         if (typeof scalar === 'object') { console.warn('should use Vec2.multiply for vector * vector operation'); }
         this.x *= scalar;
         this.y *= scalar;
@@ -651,7 +651,7 @@ export class Vec2 extends ValueType {
      * @zh 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
      * @param other specified vector
      */
-    public multiply (other: Vec2) {
+    public multiply (other: Vec2): Vec2 {
         if (typeof other !== 'object') { console.warn('should use Vec2.scale for vector * scalar operation'); }
         this.x *= other.x;
         this.y *= other.y;
@@ -664,7 +664,7 @@ export class Vec2 extends ValueType {
      * @param x The x value of specified vector
      * @param y The y value of specified vector
      */
-    public multiply2f (x: number, y: number) {
+    public multiply2f (x: number, y: number): Vec2 {
         this.x *= x;
         this.y *= y;
         return this;
@@ -675,7 +675,7 @@ export class Vec2 extends ValueType {
      * @zh 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
      * @param other specified vector
      */
-    public divide (other: Vec2) {
+    public divide (other: Vec2): Vec2 {
         this.x /= other.x;
         this.y /= other.y;
         return this;
@@ -687,7 +687,7 @@ export class Vec2 extends ValueType {
      * @param x The x value of specified vector
      * @param y The y value of specified vector
      */
-    public divide2f (x: number, y: number) {
+    public divide2f (x: number, y: number): Vec2 {
         this.x /= x;
         this.y /= y;
         return this;
@@ -697,7 +697,7 @@ export class Vec2 extends ValueType {
      * @en Sets each component of this vector with its negative value
      * @zh 将当前向量的各个分量取反
      */
-    public negative () {
+    public negative (): Vec2 {
         this.x = -this.x;
         this.y = -this.y;
         return this;
@@ -748,7 +748,7 @@ export class Vec2 extends ValueType {
      * @en Normalize the current vector.
      * @zh 将当前向量归一化。
      */
-    public normalize () {
+    public normalize (): Vec2 {
         const x = this.x;
         const y = this.y;
         let len = x * x + y * y;
@@ -797,7 +797,7 @@ export class Vec2 extends ValueType {
      * @zh 将当前向量进行旋转，逆时针为正方向。
      * @param radians radians of rotation.
      */
-    public rotate (radians: number) {
+    public rotate (radians: number): Vec2 {
         const x = this.x;
         const y = this.y;
 
@@ -813,7 +813,7 @@ export class Vec2 extends ValueType {
      * @zh 计算当前向量在指定向量上的投影向量。
      * @param other specified vector
      */
-    public project (other: Vec2) {
+    public project (other: Vec2): Vec2 {
         const scalar = this.dot(other) / other.dot(other);
         this.x = other.x * scalar;
         this.y = other.y * scalar;
@@ -826,7 +826,7 @@ export class Vec2 extends ValueType {
      * 应用四维矩阵变换到当前矩阵<br/>
      * @param matrix matrix to transform with
      */
-    public transformMat4 (matrix: Mat4) {
+    public transformMat4 (matrix: Mat4): Vec2 {
         const x = this.x;
         const y = this.y;
         this.x = matrix.m00 * x + matrix.m04 * y + matrix.m12;

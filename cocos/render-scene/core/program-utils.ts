@@ -178,7 +178,7 @@ export function populateMacros (tmpl: IProgramInfo): void {
             cnt = getBitCount(def.options!.length);
             def._map = (value: any): number => Math.max(0, def.options!.findIndex((s): boolean => s === value));
         } else if (def.type === 'boolean') {
-            def._map = (value: any): 0 | 1 => (value ? 1 : 0);
+            def._map = (value: any): number => (value ? 1 : 0);
         }
         def._offset = offset;
         offset += cnt;

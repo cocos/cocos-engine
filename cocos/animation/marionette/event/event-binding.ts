@@ -29,7 +29,7 @@ export class AnimationGraphEventBinding {
         target.emit(this.eventName);
     }
 
-    public copyTo (that: AnimationGraphEventBinding) {
+    public copyTo (that: AnimationGraphEventBinding): AnimationGraphEventBinding {
         that.eventName = this.eventName;
         return this;
     }

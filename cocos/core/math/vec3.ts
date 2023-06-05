@@ -944,7 +944,7 @@ export class Vec3 extends ValueType {
      * @param to Target vector
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Vec3, ratio: number) {
+    public lerp (to: Vec3, ratio: number): Vec3 {
         this.x += ratio * (to.x - this.x);
         this.y += ratio * (to.y - this.y);
         this.z += ratio * (to.z - this.z);
@@ -956,7 +956,7 @@ export class Vec3 extends ValueType {
      * @zh 向量加法。将当前向量与指定向量的相加
      * @param other specified vector
      */
-    public add (other: Vec3) {
+    public add (other: Vec3): Vec3 {
         this.x += other.x;
         this.y += other.y;
         this.z += other.z;
@@ -970,7 +970,7 @@ export class Vec3 extends ValueType {
      * @param y The y value of specified vector
      * @param z The z value of specified vector
      */
-    public add3f (x: number, y: number, z: number) {
+    public add3f (x: number, y: number, z: number): Vec3 {
         this.x += x;
         this.y += y;
         this.z += z;
@@ -982,7 +982,7 @@ export class Vec3 extends ValueType {
      * @zh 向量减法。将当前向量减去指定向量的结果。
      * @param other specified vector
      */
-    public subtract (other: Vec3) {
+    public subtract (other: Vec3): Vec3 {
         this.x -= other.x;
         this.y -= other.y;
         this.z -= other.z;
@@ -996,7 +996,7 @@ export class Vec3 extends ValueType {
      * @param y The y value of specified vector
      * @param z The z value of specified vector
      */
-    public subtract3f (x: number, y: number, z: number) {
+    public subtract3f (x: number, y: number, z: number): Vec3 {
         this.x -= x;
         this.y -= y;
         this.z -= z;
@@ -1008,7 +1008,7 @@ export class Vec3 extends ValueType {
      * @zh 向量数乘。将当前向量数乘指定标量
      * @param scalar scalar number
      */
-    public multiplyScalar (scalar: number) {
+    public multiplyScalar (scalar: number): Vec3 {
         if (typeof scalar === 'object') { console.warn('should use Vec3.multiply for vector * vector operation'); }
         this.x *= scalar;
         this.y *= scalar;
@@ -1021,7 +1021,7 @@ export class Vec3 extends ValueType {
      * @zh 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
      * @param other specified vector
      */
-    public multiply (other: Vec3) {
+    public multiply (other: Vec3): Vec3 {
         if (typeof other !== 'object') { console.warn('should use Vec3.scale for vector * scalar operation'); }
         this.x *= other.x;
         this.y *= other.y;
@@ -1036,7 +1036,7 @@ export class Vec3 extends ValueType {
      * @param y The y value of specified vector
      * @param z The z value of specified vector
      */
-    public multiply3f (x: number, y: number, z: number) {
+    public multiply3f (x: number, y: number, z: number): Vec3 {
         this.x *= x;
         this.y *= y;
         this.z *= z;
@@ -1048,7 +1048,7 @@ export class Vec3 extends ValueType {
      * @zh 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
      * @param other specified vector
      */
-    public divide (other: Vec3) {
+    public divide (other: Vec3): Vec3 {
         this.x /= other.x;
         this.y /= other.y;
         this.z /= other.z;
@@ -1062,7 +1062,7 @@ export class Vec3 extends ValueType {
      * @param y The y value of specified vector
      * @param z The z value of specified vector
      */
-    public divide3f (x: number, y: number, z: number) {
+    public divide3f (x: number, y: number, z: number): Vec3 {
         this.x /= x;
         this.y /= y;
         this.z /= z;
@@ -1073,7 +1073,7 @@ export class Vec3 extends ValueType {
      * @en Sets each component of this vector with its negative value
      * @zh 将当前向量的各个分量取反
      */
-    public negative () {
+    public negative (): Vec3 {
         this.x = -this.x;
         this.y = -this.y;
         this.z = -this.z;
@@ -1087,7 +1087,7 @@ export class Vec3 extends ValueType {
      * @param maxInclusive Maximum value allowed
      * @returns `this`
      */
-    public clampf (minInclusive: Vec3, maxInclusive: Vec3) {
+    public clampf (minInclusive: Vec3, maxInclusive: Vec3): Vec3 {
         this.x = clamp(this.x, minInclusive.x, maxInclusive.x);
         this.y = clamp(this.y, minInclusive.y, maxInclusive.y);
         this.z = clamp(this.z, minInclusive.z, maxInclusive.z);
@@ -1109,7 +1109,7 @@ export class Vec3 extends ValueType {
      * @zh 向量叉乘。将当前向量左叉乘指定向量
      * @param other specified vector
      */
-    public cross (other: Vec3) {
+    public cross (other: Vec3): Vec3 {
         const { x: ax, y: ay, z: az } = this;
         const { x: bx, y: by, z: bz } = other;
 
@@ -1141,7 +1141,7 @@ export class Vec3 extends ValueType {
      * @en Normalize the current vector.
      * @zh 将当前向量归一化
      */
-    public normalize () {
+    public normalize (): Vec3 {
         const x = this.x;
         const y = this.y;
         const z = this.z;
@@ -1162,7 +1162,7 @@ export class Vec3 extends ValueType {
      * @zh 将当前向量视为 w 分量为 1 的四维向量，应用四维矩阵变换到当前矩阵
      * @param matrix matrix to transform with
      */
-    public transformMat4 (matrix: Mat4) {
+    public transformMat4 (matrix: Mat4): Vec3 {
         const x = this.x;
         const y = this.y;
         const z = this.z;

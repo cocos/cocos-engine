@@ -213,7 +213,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
       * @zh 父节点
       */
     @editable
-    get parent (): this | null {
+    get parent (): Node | null {
         return this._parent;
     }
     set parent (value) {
@@ -429,7 +429,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Get parent of the node.
      * @zh 获取该节点的父节点。
      */
-    public getParent (): this | null {
+    public getParent (): Node | null {
         return this._parent;
     }
 

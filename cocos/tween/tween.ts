@@ -70,7 +70,7 @@ export class Tween<T> {
      * @method tag
      * @param tag @en The tag set for this tween @zh 为当前缓动设置的标签
      */
-    tag (tag: number): this {
+    tag (tag: number): Tween<T> {
         this._tag = tag;
         return this;
     }

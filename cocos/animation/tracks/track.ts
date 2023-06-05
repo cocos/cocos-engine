@@ -72,7 +72,7 @@ class TrackPath {
      * @param name The property's name.
      * @returns `this`
      */
-    public toProperty (name: string) {
+    public toProperty (name: string): TrackPath {
         this._paths.push(name);
         return this;
     }
@@ -83,7 +83,7 @@ class TrackPath {
      * @param index The element's index.
      * @returns `this`
      */
-    public toElement (index: number) {
+    public toElement (index: number): TrackPath {
         this._paths.push(index);
         return this;
     }
@@ -94,7 +94,7 @@ class TrackPath {
      * @param nodePath Path to the children.
      * @returns `this`
      */
-    public toHierarchy (nodePath: string) {
+    public toHierarchy (nodePath: string): TrackPath {
         this._paths.push(new HierarchyPath(nodePath));
         return this;
     }
@@ -105,7 +105,7 @@ class TrackPath {
      * @param constructor @en The constructor of the component. @zh 组件的构造函数。
      * @returns `this`
      */
-    public toComponent<T extends Component> (constructor: Constructor<T> | string) {
+    public toComponent<T extends Component> (constructor: Constructor<T> | string): TrackPath {
         const path = new ComponentPath(typeof constructor === 'string' ? constructor : js.getClassName(constructor));
         this._paths.push(path);
         return this;
@@ -114,7 +114,7 @@ class TrackPath {
     /**
      * @internal Reserved for backward compatibility. DO NOT USE IT IN YOUR CODE.
      */
-    public toCustomized (resolver: CustomizedTrackPathResolver) {
+    public toCustomized (resolver: CustomizedTrackPathResolver): TrackPath {
         this._paths.push(resolver);
         return this;
     }
@@ -125,8 +125,8 @@ class TrackPath {
      * @param trackPaths Paths to append.
      * @returns `this`.
      */
-    public append (...trackPaths: TrackPath[]) {
-        const paths = this._paths.concat(...trackPaths.map((trackPath) => trackPath._paths));
+    public append (...trackPaths: TrackPath[]): TrackPath {
+        const paths = this._paths.concat(...trackPaths.map((trackPath): TargetPath[] => trackPath._paths));
         this._paths = paths;
         return this;
     }

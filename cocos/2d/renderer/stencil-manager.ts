@@ -121,7 +121,7 @@ export class StencilManager {
      * @zh 清空模板状态。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public clear (comp: UIRenderer | UIMeshRenderer) {
+    public clear (comp: UIRenderer | UIMeshRenderer): Stage {
         const isInverted = (comp.stencilStage !== Stage.ENTER_LEVEL);
         return isInverted ? Stage.CLEAR_INVERTED : Stage.CLEAR;
     }

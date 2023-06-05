@@ -854,7 +854,7 @@ export class Mat3 extends ValueType {
      * @zh 将当前矩阵设为单位矩阵。
      * @return `this`
      */
-    public identity () {
+    public identity (): Mat3 {
         this.m00 = 1;
         this.m01 = 0;
         this.m02 = 0;
@@ -871,7 +871,7 @@ export class Mat3 extends ValueType {
      * @en Transposes the current matrix.
      * @zh 计算当前矩阵的转置矩阵。
      */
-    public transpose () {
+    public transpose (): Mat3 {
         const a01 = this.m01; const a02 = this.m02; const a12 = this.m05;
         this.m01 = this.m03;
         this.m02 = this.m06;
@@ -886,7 +886,7 @@ export class Mat3 extends ValueType {
      * @en Inverts the current matrix. When matrix is not invertible the matrix will be set to zeros.
      * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
-    public invert () {
+    public invert (): Mat3 {
         const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
         const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
         const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
@@ -934,7 +934,7 @@ export class Mat3 extends ValueType {
      * @zh 矩阵加法。将当前矩阵与指定矩阵的相加，结果返回给当前矩阵。
      * @param mat the second operand
      */
-    public add (mat: Mat3) {
+    public add (mat: Mat3): Mat3 {
         this.m00 += mat.m00;
         this.m01 += mat.m01;
         this.m02 += mat.m02;
@@ -952,7 +952,7 @@ export class Mat3 extends ValueType {
      * @zh 计算矩阵减法。将当前矩阵减去指定矩阵的结果赋值给当前矩阵。
      * @param mat the second operand
      */
-    public subtract (mat: Mat3) {
+    public subtract (mat: Mat3): Mat3 {
         this.m00 -= mat.m00;
         this.m01 -= mat.m01;
         this.m02 -= mat.m02;
@@ -970,7 +970,7 @@ export class Mat3 extends ValueType {
      * @zh 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给当前矩阵。
      * @param mat the second operand
      */
-    public multiply (mat: Mat3) {
+    public multiply (mat: Mat3): Mat3 {
         const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
         const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
         const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
@@ -998,7 +998,7 @@ export class Mat3 extends ValueType {
      * @zh 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给当前矩阵。
      * @param scalar amount to scale the matrix's elements by
      */
-    public multiplyScalar (scalar: number) {
+    public multiplyScalar (scalar: number): Mat3 {
         this.m00 *= scalar;
         this.m01 *= scalar;
         this.m02 *= scalar;
@@ -1016,7 +1016,7 @@ export class Mat3 extends ValueType {
      * @zh 将当前矩阵左乘缩放矩阵的结果赋值给当前矩阵，缩放矩阵由各个轴的缩放给出，即M * S(vec)。
      * @param vec vector to scale by
      */
-    public scale (vec: Vec3) {
+    public scale (vec: Vec3): Mat3 {
         const x = vec.x; const y = vec.y;
 
         this.m00 = x * this.m00;
@@ -1038,7 +1038,7 @@ export class Mat3 extends ValueType {
      * @zh 将当前矩阵左乘旋转矩阵的结果赋值给当前矩阵，旋转矩阵由旋转轴和旋转角度给出，即M * R(rad)。
      * @param rad radian of rotation
      */
-    public rotate (rad: number) {
+    public rotate (rad: number): Mat3 {
         const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
         const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
         const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
@@ -1066,7 +1066,7 @@ export class Mat3 extends ValueType {
      * @param q The quaternion.
      * @returns this
      */
-    public fromQuat (q: Quat) {
+    public fromQuat (q: Quat): Mat3 {
         const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;

@@ -425,7 +425,7 @@ export class Color extends ValueType {
      * @param to Target color
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Color, ratio: number) {
+    public lerp (to: Color, ratio: number): Color {
         let r = this.r;
         let g = this.g;
         let b = this.b;
@@ -481,7 +481,7 @@ export class Color extends ValueType {
      * @param hexString the hex string
      * @returns `this`
      */
-    public fromHEX (hexString: string) {
+    public fromHEX (hexString: string): Color {
         hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
         const r = parseInt(hexString.substr(0, 2), 16) || 0;
         const g = parseInt(hexString.substr(2, 2), 16) || 0;
@@ -553,7 +553,7 @@ export class Color extends ValueType {
      * color.fromHSV(0, 0, 1); // Color {r: 255, g: 255, b: 255, a: 255};
      * ```
      */
-    public fromHSV (h: number, s: number, v: number) {
+    public fromHSV (h: number, s: number, v: number): Color {
         let r = 0;
         let g = 0;
         let b = 0;
@@ -692,7 +692,7 @@ export class Color extends ValueType {
      * @zh 将当前颜色乘以与指定颜色
      * @param other The specified color.
      */
-    public multiply (other: Color) {
+    public multiply (other: Color): Color {
         const r = ((this._val & 0x000000ff) * other.r) >> 8;
         const g = ((this._val & 0x0000ff00) * other.g) >> 8;
         const b = ((this._val & 0x00ff0000) * other.b) >> 8;
@@ -704,7 +704,7 @@ export class Color extends ValueType {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _set_r_unsafe (red) {
+    public _set_r_unsafe (red): Color {
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
         return this;
     }
@@ -712,7 +712,7 @@ export class Color extends ValueType {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _set_g_unsafe (green) {
+    public _set_g_unsafe (green): Color {
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
         return this;
     }
@@ -720,7 +720,7 @@ export class Color extends ValueType {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _set_b_unsafe (blue) {
+    public _set_b_unsafe (blue): Color {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
         return this;
     }
@@ -728,7 +728,7 @@ export class Color extends ValueType {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _set_a_unsafe (alpha) {
+    public _set_a_unsafe (alpha): Color {
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
         return this;
     }

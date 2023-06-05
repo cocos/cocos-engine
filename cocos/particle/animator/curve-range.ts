@@ -315,7 +315,7 @@ function evaluateCurve (cr: CurveRange, time: number, index: number) {
     }
 }
 
-function evaluateHeight (cr: CurveRange) {
+function evaluateHeight (cr: CurveRange): number {
     switch (cr.mode) {
     case Mode.TwoConstants:
         return 2;

@@ -1916,7 +1916,7 @@ export class Mat4 extends ValueType {
      * @zh 将当前矩阵设为单位矩阵。
      * @return `this`
      */
-    public identity () {
+    public identity (): Mat4 {
         this.m00 = 1;
         this.m01 = 0;
         this.m02 = 0;
@@ -1941,7 +1941,7 @@ export class Mat4 extends ValueType {
      * @zh 将当前矩阵设为 0矩阵。
      * @return `this`
      */
-    public zero () {
+    public zero (): Mat4 {
         this.m00 = 0;
         this.m01 = 0;
         this.m02 = 0;
@@ -1965,7 +1965,7 @@ export class Mat4 extends ValueType {
      * @en Transposes the current matrix.
      * @zh 计算当前矩阵的转置矩阵。
      */
-    public transpose () {
+    public transpose (): Mat4 {
         const a01 = this.m01; const a02 = this.m02; const a03 = this.m03; const a12 = this.m06; const a13 = this.m07; const a23 = this.m11;
         this.m01 = this.m04;
         this.m02 = this.m08;
@@ -1986,7 +1986,7 @@ export class Mat4 extends ValueType {
      * @en Inverts the current matrix. When matrix is not invertible the matrix will be set to zeros.
      * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
-    public invert () {
+    public invert (): Mat4 {
         const a00 = this.m00; const a01 = this.m01; const a02 = this.m02; const a03 = this.m03;
         const a10 = this.m04; const a11 = this.m05; const a12 = this.m06; const a13 = this.m07;
         const a20 = this.m08; const a21 = this.m09; const a22 = this.m10; const a23 = this.m11;
@@ -2067,7 +2067,7 @@ export class Mat4 extends ValueType {
      * @zh 矩阵加法。将当前矩阵与指定矩阵的相加，结果返回给当前矩阵。
      * @param mat the second operand
      */
-    public add (mat: Mat4) {
+    public add (mat: Mat4): Mat4 {
         this.m00 += mat.m00;
         this.m01 += mat.m01;
         this.m02 += mat.m02;
@@ -2092,7 +2092,7 @@ export class Mat4 extends ValueType {
      * @zh 计算矩阵减法。将当前矩阵减去指定矩阵的结果赋值给当前矩阵。
      * @param mat the second operand
      */
-    public subtract (mat: Mat4) {
+    public subtract (mat: Mat4): Mat4 {
         this.m00 -= mat.m00;
         this.m01 -= mat.m01;
         this.m02 -= mat.m02;
@@ -2117,7 +2117,7 @@ export class Mat4 extends ValueType {
      * @zh 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给当前矩阵。
      * @param mat the second operand
      */
-    public multiply (mat: Mat4) {
+    public multiply (mat: Mat4): Mat4 {
         const a00 = this.m00; const a01 = this.m01; const a02 = this.m02; const a03 = this.m03;
         const a10 = this.m04; const a11 = this.m05; const a12 = this.m06; const a13 = this.m07;
         const a20 = this.m08; const a21 = this.m09; const a22 = this.m10; const a23 = this.m11;
@@ -2155,7 +2155,7 @@ export class Mat4 extends ValueType {
      * @zh 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给当前矩阵。
      * @param scalar amount to scale the matrix's elements by
      */
-    public multiplyScalar (scalar: number) {
+    public multiplyScalar (scalar: number): Mat4 {
         this.m00 *= scalar;
         this.m01 *= scalar;
         this.m02 *= scalar;
@@ -2182,7 +2182,7 @@ export class Mat4 extends ValueType {
      *
      * @deprecated since v3.0, please use [[transform]] instead
      */
-    public translate (vec: Vec3) {
+    public translate (vec: Vec3): Mat4 {
         this.m12 += vec.x;
         this.m13 += vec.y;
         this.m14 += vec.z;
@@ -2194,7 +2194,7 @@ export class Mat4 extends ValueType {
      * @zh 将当前矩阵左乘位移矩阵的结果赋值给当前矩阵，位移矩阵由各个轴的位移给出。
      * @param vec vector to translate by
      */
-    public transform (vec: Vec3) {
+    public transform (vec: Vec3): Mat4 {
         const { x, y, z } = vec;
         const a00 = this.m00; const a01 = this.m01; const a02 = this.m02; const a03 = this.m03;
         const a10 = this.m04; const a11 = this.m05; const a12 = this.m06; const a13 = this.m07;
@@ -2213,7 +2213,7 @@ export class Mat4 extends ValueType {
      * @zh 将当前矩阵左乘缩放矩阵的结果赋值给当前矩阵，缩放矩阵由各个轴的缩放给出。
      * @param vec vector to scale by
      */
-    public scale (vec: Vec3) {
+    public scale (vec: Vec3): Mat4 {
         const x = vec.x; const y = vec.y; const z = vec.z;
         this.m00 *= x;
         this.m01 *= x;
@@ -2236,7 +2236,7 @@ export class Mat4 extends ValueType {
      * @param rad Angle of rotation (in radians)
      * @param axis Axis of rotation
      */
-    public rotate (rad: number, axis: Vec3) {
+    public rotate (rad: number, axis: Vec3): Mat4 | null {
         let x = axis.x; let y = axis.y; let z = axis.z;
 
         let len = Math.sqrt(x * x + y * y + z * z);
@@ -2355,7 +2355,7 @@ export class Mat4 extends ValueType {
      *
      * @deprecated Since 3.8.0, please use [[fromSRT]] instead
      */
-    public fromRTS (q: Quat, v: Vec3, s: Vec3) {
+    public fromRTS (q: Quat, v: Vec3, s: Vec3): Mat4 {
         const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -2402,7 +2402,7 @@ export class Mat4 extends ValueType {
      * @param s Scaling vector
      * @return `this`
      */
-    public fromSRT (q: Quat, v: Vec3, s: Vec3) {
+    public fromSRT (q: Quat, v: Vec3, s: Vec3): Mat4 {
         const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -2447,7 +2447,7 @@ export class Mat4 extends ValueType {
      * @param q Rotation quaternion
      * @return `this`
      */
-    public fromQuat (q: Quat) {
+    public fromQuat (q: Quat): Mat4 {
         const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;

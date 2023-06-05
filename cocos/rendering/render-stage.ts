@@ -137,14 +137,14 @@ export abstract class RenderStage {
      * @en Destroy function
      * @zh 销毁函数。
      */
-    public abstract destroy (): any;
+    public abstract destroy (): void;
 
     /**
      * @en Render function
      * @zh 渲染函数。
      * @param view The render view
      */
-    public abstract render (camera: Camera): any;
+    public abstract render (camera: Camera): void;
 }
 
 cclegacy.RenderStage = RenderStage;

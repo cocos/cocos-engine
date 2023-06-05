@@ -565,7 +565,7 @@ export class ProgramLib {
     }
 }
 
-export function getDeviceShaderVersion (device: Device): "glsl1" | "glsl3" | "glsl4" {
+export function getDeviceShaderVersion (device: Device): string {
     switch (device.gfxAPI) {
     case API.GLES2:
     case API.WEBGL: return 'glsl1';

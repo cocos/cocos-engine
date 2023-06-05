@@ -173,7 +173,7 @@ export class ActionInterval extends FiniteTimeAction {
         this._firstTick = true;
     }
 
-    reverse (): this {
+    reverse (): ActionInterval {
         logID(1010);
         return this;
     }

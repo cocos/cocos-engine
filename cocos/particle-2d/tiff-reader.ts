@@ -114,7 +114,7 @@ export class TiffReader {
         }
     }
 
-    public getFieldTypeLength (fieldTypeName) {
+    public getFieldTypeLength (fieldTypeName): number {
         if (['BYTE', 'ASCII', 'SBYTE', 'UNDEFINED'].indexOf(fieldTypeName) !== -1) {
             return 1;
         } else if (['SHORT', 'SSHORT'].indexOf(fieldTypeName) !== -1) {

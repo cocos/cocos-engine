@@ -358,7 +358,7 @@ export class Rect extends ValueType {
      * @param to Target Rect.
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Rect, ratio: number) {
+    public lerp (to: Rect, ratio: number): Rect {
         const x = this.x;
         const y = this.y;
         const w = this.width;
@@ -429,7 +429,7 @@ export class Rect extends ValueType {
      * 并将如此构成的新矩形。
      * @param matrix The matrix4
      */
-    public transformMat4 (mat: Mat4) {
+    public transformMat4 (mat: Mat4): Rect {
         const ol = this.x;
         const ob = this.y;
         const or = ol + this.width;

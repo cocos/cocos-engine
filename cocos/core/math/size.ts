@@ -152,7 +152,7 @@ export class Size extends ValueType {
      * @param to Target Size.
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Size, ratio: number) {
+    public lerp (to: Size, ratio: number): Size {
         this.width += (to.width - this.width) * ratio;
         this.height += (to.height - this.height) * ratio;
         return this;

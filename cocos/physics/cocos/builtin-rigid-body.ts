@@ -29,10 +29,10 @@ import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltInWorld } from './builtin-world';
 
 export class BuiltinRigidBody implements IRigidBody {
-    get impl () { return this; }
-    get isAwake () { return true; }
-    get isSleepy () { return false; }
-    get isSleeping () { return false; }
+    get impl (): BuiltinRigidBody { return this; }
+    get isAwake (): boolean { return true; }
+    get isSleepy (): boolean { return false; }
+    get isSleeping (): boolean { return false; }
 
     get rigidBody () { return this._rigidBody; }
     get sharedBody () { return this._sharedBody; }

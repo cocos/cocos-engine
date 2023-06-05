@@ -715,7 +715,7 @@ export class Size {
         public z: number = 0,
     ) {}
 
-    public copy (info: Readonly<Size>) {
+    public copy (info: Readonly<Size>): Size {
         this.x = info.x;
         this.y = info.y;
         this.z = info.z;
@@ -753,7 +753,7 @@ export class DeviceCaps {
         public clipSpaceSignY: number = 1,
     ) {}
 
-    public copy (info: Readonly<DeviceCaps>) {
+    public copy (info: Readonly<DeviceCaps>): DeviceCaps {
         this.maxVertexAttributes = info.maxVertexAttributes;
         this.maxVertexUniformVectors = info.maxVertexUniformVectors;
         this.maxFragmentUniformVectors = info.maxFragmentUniformVectors;
@@ -789,7 +789,7 @@ export class DeviceOptions {
         public enableBarrierDeduce: boolean = true,
     ) {}
 
-    public copy (info: Readonly<DeviceOptions>) {
+    public copy (info: Readonly<DeviceOptions>): DeviceOptions {
         this.enableBarrierDeduce = info.enableBarrierDeduce;
         return this;
     }
@@ -804,7 +804,7 @@ export class Offset {
         public z: number = 0,
     ) {}
 
-    public copy (info: Readonly<Offset>) {
+    public copy (info: Readonly<Offset>): Offset {
         this.x = info.x;
         this.y = info.y;
         this.z = info.z;
@@ -822,7 +822,7 @@ export class Rect {
         public height: number = 0,
     ) {}
 
-    public copy (info: Readonly<Rect>) {
+    public copy (info: Readonly<Rect>): Rect {
         this.x = info.x;
         this.y = info.y;
         this.width = info.width;
@@ -840,7 +840,7 @@ export class Extent {
         public depth: number = 1,
     ) {}
 
-    public copy (info: Readonly<Extent>) {
+    public copy (info: Readonly<Extent>): Extent {
         this.width = info.width;
         this.height = info.height;
         this.depth = info.depth;
@@ -857,7 +857,7 @@ export class TextureSubresLayers {
         public layerCount: number = 1,
     ) {}
 
-    public copy (info: Readonly<TextureSubresLayers>) {
+    public copy (info: Readonly<TextureSubresLayers>): TextureSubresLayers {
         this.mipLevel = info.mipLevel;
         this.baseArrayLayer = info.baseArrayLayer;
         this.layerCount = info.layerCount;
@@ -875,7 +875,7 @@ export class TextureSubresRange {
         public layerCount: number = 1,
     ) {}
 
-    public copy (info: Readonly<TextureSubresRange>) {
+    public copy (info: Readonly<TextureSubresRange>): TextureSubresRange {
         this.baseMipLevel = info.baseMipLevel;
         this.levelCount = info.levelCount;
         this.baseArrayLayer = info.baseArrayLayer;
@@ -895,7 +895,7 @@ export class TextureCopy {
         public extent: Extent = new Extent(),
     ) {}
 
-    public copy (info: Readonly<TextureCopy>) {
+    public copy (info: Readonly<TextureCopy>): TextureCopy {
         this.srcSubres.copy(info.srcSubres);
         this.srcOffset.copy(info.srcOffset);
         this.dstSubres.copy(info.dstSubres);
@@ -917,7 +917,7 @@ export class TextureBlit {
         public dstExtent: Extent = new Extent(),
     ) {}
 
-    public copy (info: Readonly<TextureBlit>) {
+    public copy (info: Readonly<TextureBlit>): TextureBlit {
         this.srcSubres.copy(info.srcSubres);
         this.srcOffset.copy(info.srcOffset);
         this.srcExtent.copy(info.srcExtent);
@@ -940,7 +940,7 @@ export class BufferTextureCopy {
         public texSubres: TextureSubresLayers = new TextureSubresLayers(),
     ) {}
 
-    public copy (info: Readonly<BufferTextureCopy>) {
+    public copy (info: Readonly<BufferTextureCopy>): BufferTextureCopy {
         this.buffOffset = info.buffOffset;
         this.buffStride = info.buffStride;
         this.buffTexHeight = info.buffTexHeight;
@@ -963,7 +963,7 @@ export class Viewport {
         public maxDepth: number = 1,
     ) {}
 
-    public copy (info: Readonly<Viewport>) {
+    public copy (info: Readonly<Viewport>): Viewport {
         this.left = info.left;
         this.top = info.top;
         this.width = info.width;
@@ -984,7 +984,7 @@ export class Color {
         public w: number = 0,
     ) {}
 
-    public copy (info: Readonly<Color>) {
+    public copy (info: Readonly<Color>): Color {
         this.x = info.x;
         this.y = info.y;
         this.z = info.z;
@@ -1007,7 +1007,7 @@ export class BindingMappingInfo {
         public setIndices: number[] = [0],
     ) {}
 
-    public copy (info: Readonly<BindingMappingInfo>) {
+    public copy (info: Readonly<BindingMappingInfo>): BindingMappingInfo {
         this.maxBlockCounts = info.maxBlockCounts.slice();
         this.maxSamplerTextureCounts = info.maxSamplerTextureCounts.slice();
         this.maxSamplerCounts = info.maxSamplerCounts.slice();
@@ -1031,7 +1031,7 @@ export class SwapchainInfo {
         public height: number = 0,
     ) {}
 
-    public copy (info: Readonly<SwapchainInfo>) {
+    public copy (info: Readonly<SwapchainInfo>): SwapchainInfo {
         this.windowId = info.windowId;
         this.windowHandle = info.windowHandle;
         this.vsyncMode = info.vsyncMode;
@@ -1048,7 +1048,7 @@ export class DeviceInfo {
         public bindingMappingInfo: BindingMappingInfo = new BindingMappingInfo(),
     ) {}
 
-    public copy (info: Readonly<DeviceInfo>) {
+    public copy (info: Readonly<DeviceInfo>): DeviceInfo {
         this.bindingMappingInfo.copy(info.bindingMappingInfo);
         return this;
     }
@@ -1065,7 +1065,7 @@ export class BufferInfo {
         public flags: BufferFlags = BufferFlagBit.NONE,
     ) {}
 
-    public copy (info: Readonly<BufferInfo>) {
+    public copy (info: Readonly<BufferInfo>): BufferInfo {
         this.usage = info.usage;
         this.memUsage = info.memUsage;
         this.size = info.size;
@@ -1084,7 +1084,7 @@ export class BufferViewInfo {
         public range: number = 0,
     ) {}
 
-    public copy (info: Readonly<BufferViewInfo>) {
+    public copy (info: Readonly<BufferViewInfo>): BufferViewInfo {
         this.buffer = info.buffer;
         this.offset = info.offset;
         this.range = info.range;
@@ -1105,7 +1105,7 @@ export class DrawInfo {
         public firstInstance: number = 0,
     ) {}
 
-    public copy (info: Readonly<DrawInfo>) {
+    public copy (info: Readonly<DrawInfo>): DrawInfo {
         this.vertexCount = info.vertexCount;
         this.firstVertex = info.firstVertex;
         this.indexCount = info.indexCount;
@@ -1128,7 +1128,7 @@ export class DispatchInfo {
         public indirectOffset: number = 0,
     ) {}
 
-    public copy (info: Readonly<DispatchInfo>) {
+    public copy (info: Readonly<DispatchInfo>): DispatchInfo {
         this.groupCountX = info.groupCountX;
         this.groupCountY = info.groupCountY;
         this.groupCountZ = info.groupCountZ;
@@ -1145,7 +1145,7 @@ export class IndirectBuffer {
         public drawInfos: DrawInfo[] = [],
     ) {}
 
-    public copy (info: Readonly<IndirectBuffer>) {
+    public copy (info: Readonly<IndirectBuffer>): IndirectBuffer {
         deepCopy(this.drawInfos, info.drawInfos, DrawInfo);
         return this;
     }
@@ -1168,7 +1168,7 @@ export class TextureInfo {
         public externalRes: number = 0,
     ) {}
 
-    public copy (info: Readonly<TextureInfo>) {
+    public copy (info: Readonly<TextureInfo>): TextureInfo {
         this.type = info.type;
         this.usage = info.usage;
         this.format = info.format;
@@ -1197,7 +1197,7 @@ export class TextureViewInfo {
         public layerCount: number = 1,
     ) {}
 
-    public copy (info: Readonly<TextureViewInfo>) {
+    public copy (info: Readonly<TextureViewInfo>): TextureViewInfo {
         this.texture = info.texture;
         this.type = info.type;
         this.format = info.format;
@@ -1223,7 +1223,7 @@ export class SamplerInfo {
         public cmpFunc: ComparisonFunc = ComparisonFunc.ALWAYS,
     ) {}
 
-    public copy (info: Readonly<SamplerInfo>) {
+    public copy (info: Readonly<SamplerInfo>): SamplerInfo {
         this.minFilter = info.minFilter;
         this.magFilter = info.magFilter;
         this.mipFilter = info.mipFilter;
@@ -1245,7 +1245,7 @@ export class Uniform {
         public count: number = 0,
     ) {}
 
-    public copy (info: Readonly<Uniform>) {
+    public copy (info: Readonly<Uniform>): Uniform {
         this.name = info.name;
         this.type = info.type;
         this.count = info.count;
@@ -1265,7 +1265,7 @@ export class UniformBlock {
         public flattened: number = 0,
     ) {}
 
-    public copy (info: Readonly<UniformBlock>) {
+    public copy (info: Readonly<UniformBlock>): UniformBlock {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1288,7 +1288,7 @@ export class UniformSamplerTexture {
         public flattened: number = 0,
     ) {}
 
-    public copy (info: Readonly<UniformSamplerTexture>) {
+    public copy (info: Readonly<UniformSamplerTexture>): UniformSamplerTexture {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1310,7 +1310,7 @@ export class UniformSampler {
         public flattened: number = 0,
     ) {}
 
-    public copy (info: Readonly<UniformSampler>) {
+    public copy (info: Readonly<UniformSampler>): UniformSampler {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1332,7 +1332,7 @@ export class UniformTexture {
         public flattened: number = 0,
     ) {}
 
-    public copy (info: Readonly<UniformTexture>) {
+    public copy (info: Readonly<UniformTexture>): UniformTexture {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1356,7 +1356,7 @@ export class UniformStorageImage {
         public flattened: number = 0,
     ) {}
 
-    public copy (info: Readonly<UniformStorageImage>) {
+    public copy (info: Readonly<UniformStorageImage>): UniformStorageImage {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1380,7 +1380,7 @@ export class UniformStorageBuffer {
         public flattened: number = 0,
     ) {}
 
-    public copy (info: Readonly<UniformStorageBuffer>) {
+    public copy (info: Readonly<UniformStorageBuffer>): UniformStorageBuffer {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1402,7 +1402,7 @@ export class UniformInputAttachment {
         public flattened: number = 0,
     ) {}
 
-    public copy (info: Readonly<UniformInputAttachment>) {
+    public copy (info: Readonly<UniformInputAttachment>): UniformInputAttachment {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1420,7 +1420,7 @@ export class ShaderStage {
         public source: string = '',
     ) {}
 
-    public copy (info: Readonly<ShaderStage>) {
+    public copy (info: Readonly<ShaderStage>): ShaderStage {
         this.stage = info.stage;
         this.source = info.source;
         return this;
@@ -1439,7 +1439,7 @@ export class Attribute {
         public location: number = 0,
     ) {}
 
-    public copy (info: Readonly<Attribute>) {
+    public copy (info: Readonly<Attribute>): Attribute {
         this.name = info.name;
         this.format = info.format;
         this.isNormalized = info.isNormalized;
@@ -1466,7 +1466,7 @@ export class ShaderInfo {
         public subpassInputs: UniformInputAttachment[] = [],
     ) {}
 
-    public copy (info: Readonly<ShaderInfo>) {
+    public copy (info: Readonly<ShaderInfo>): ShaderInfo {
         this.name = info.name;
         deepCopy(this.stages, info.stages, ShaderStage);
         deepCopy(this.attributes, info.attributes, Attribute);
@@ -1491,7 +1491,7 @@ export class InputAssemblerInfo {
         public indirectBuffer: Buffer | null = null,
     ) {}
 
-    public copy (info: Readonly<InputAssemblerInfo>) {
+    public copy (info: Readonly<InputAssemblerInfo>): InputAssemblerInfo {
         deepCopy(this.attributes, info.attributes, Attribute);
         this.vertexBuffers = info.vertexBuffers.slice();
         this.indexBuffer = info.indexBuffer;
@@ -1511,7 +1511,7 @@ export class ColorAttachment {
         public barrier: GeneralBarrier = null!,
     ) {}
 
-    public copy (info: Readonly<ColorAttachment>) {
+    public copy (info: Readonly<ColorAttachment>): ColorAttachment {
         this.format = info.format;
         this.sampleCount = info.sampleCount;
         this.loadOp = info.loadOp;
@@ -1534,7 +1534,7 @@ export class DepthStencilAttachment {
         public barrier: GeneralBarrier = null!,
     ) {}
 
-    public copy (info: Readonly<DepthStencilAttachment>) {
+    public copy (info: Readonly<DepthStencilAttachment>): DepthStencilAttachment {
         this.format = info.format;
         this.sampleCount = info.sampleCount;
         this.depthLoadOp = info.depthLoadOp;
@@ -1560,7 +1560,7 @@ export class SubpassInfo {
         public stencilResolveMode: ResolveMode = ResolveMode.NONE,
     ) {}
 
-    public copy (info: Readonly<SubpassInfo>) {
+    public copy (info: Readonly<SubpassInfo>): SubpassInfo {
         this.inputs = info.inputs.slice();
         this.colors = info.colors.slice();
         this.resolves = info.resolves.slice();
@@ -1584,7 +1584,7 @@ export class SubpassDependency {
         public nextAccesses: AccessFlags[] = [AccessFlagBit.NONE],
     ) {}
 
-    public copy (info: Readonly<SubpassDependency>) {
+    public copy (info: Readonly<SubpassDependency>): SubpassDependency {
         this.srcSubpass = info.srcSubpass;
         this.dstSubpass = info.dstSubpass;
         this.generalBarrier = info.generalBarrier;
@@ -1604,7 +1604,7 @@ export class RenderPassInfo {
         public dependencies: SubpassDependency[] = [],
     ) {}
 
-    public copy (info: Readonly<RenderPassInfo>) {
+    public copy (info: Readonly<RenderPassInfo>): RenderPassInfo {
         deepCopy(this.colorAttachments, info.colorAttachments, ColorAttachment);
         this.depthStencilAttachment.copy(info.depthStencilAttachment);
         deepCopy(this.subpasses, info.subpasses, SubpassInfo);
@@ -1622,7 +1622,7 @@ export class GeneralBarrierInfo {
         public type: BarrierType = BarrierType.FULL,
     ) {}
 
-    public copy (info: Readonly<GeneralBarrierInfo>) {
+    public copy (info: Readonly<GeneralBarrierInfo>): GeneralBarrierInfo {
         this.prevAccesses = info.prevAccesses;
         this.nextAccesses = info.nextAccesses;
         this.type = info.type;
@@ -1646,7 +1646,7 @@ export class TextureBarrierInfo {
         public dstQueue: Queue | null = null,
     ) {}
 
-    public copy (info: Readonly<TextureBarrierInfo>) {
+    public copy (info: Readonly<TextureBarrierInfo>): TextureBarrierInfo {
         this.prevAccesses = info.prevAccesses;
         this.nextAccesses = info.nextAccesses;
         this.type = info.type;
@@ -1675,7 +1675,7 @@ export class BufferBarrierInfo {
         public dstQueue: Queue | null = null,
     ) {}
 
-    public copy (info: Readonly<BufferBarrierInfo>) {
+    public copy (info: Readonly<BufferBarrierInfo>): BufferBarrierInfo {
         this.prevAccesses = info.prevAccesses;
         this.nextAccesses = info.nextAccesses;
         this.type = info.type;
@@ -1697,7 +1697,7 @@ export class FramebufferInfo {
         public depthStencilTexture: Texture | null = null,
     ) {}
 
-    public copy (info: Readonly<FramebufferInfo>) {
+    public copy (info: Readonly<FramebufferInfo>): FramebufferInfo {
         this.renderPass = info.renderPass;
         this.colorTextures = info.colorTextures.slice();
         this.depthStencilTexture = info.depthStencilTexture;
@@ -1716,7 +1716,7 @@ export class DescriptorSetLayoutBinding {
         public immutableSamplers: Sampler[] = [],
     ) {}
 
-    public copy (info: Readonly<DescriptorSetLayoutBinding>) {
+    public copy (info: Readonly<DescriptorSetLayoutBinding>): DescriptorSetLayoutBinding {
         this.binding = info.binding;
         this.descriptorType = info.descriptorType;
         this.count = info.count;
@@ -1733,7 +1733,7 @@ export class DescriptorSetLayoutInfo {
         public bindings: DescriptorSetLayoutBinding[] = [],
     ) {}
 
-    public copy (info: Readonly<DescriptorSetLayoutInfo>) {
+    public copy (info: Readonly<DescriptorSetLayoutInfo>): DescriptorSetLayoutInfo {
         deepCopy(this.bindings, info.bindings, DescriptorSetLayoutBinding);
         return this;
     }
@@ -1746,7 +1746,7 @@ export class DescriptorSetInfo {
         public layout: DescriptorSetLayout = null!,
     ) {}
 
-    public copy (info: Readonly<DescriptorSetInfo>) {
+    public copy (info: Readonly<DescriptorSetInfo>): DescriptorSetInfo {
         this.layout = info.layout;
         return this;
     }
@@ -1759,7 +1759,7 @@ export class PipelineLayoutInfo {
         public setLayouts: DescriptorSetLayout[] = [],
     ) {}
 
-    public copy (info: Readonly<PipelineLayoutInfo>) {
+    public copy (info: Readonly<PipelineLayoutInfo>): PipelineLayoutInfo {
         this.setLayouts = info.setLayouts.slice();
         return this;
     }
@@ -1772,7 +1772,7 @@ export class InputState {
         public attributes: Attribute[] = [],
     ) {}
 
-    public copy (info: Readonly<InputState>) {
+    public copy (info: Readonly<InputState>): InputState {
         deepCopy(this.attributes, info.attributes, Attribute);
         return this;
     }
@@ -1786,7 +1786,7 @@ export class CommandBufferInfo {
         public type: CommandBufferType = CommandBufferType.PRIMARY,
     ) {}
 
-    public copy (info: Readonly<CommandBufferInfo>) {
+    public copy (info: Readonly<CommandBufferInfo>): CommandBufferInfo {
         this.queue = info.queue;
         this.type = info.type;
         return this;
@@ -1800,7 +1800,7 @@ export class QueueInfo {
         public type: QueueType = QueueType.GRAPHICS,
     ) {}
 
-    public copy (info: Readonly<QueueInfo>) {
+    public copy (info: Readonly<QueueInfo>): QueueInfo {
         this.type = info.type;
         return this;
     }
@@ -1815,7 +1815,7 @@ export class QueryPoolInfo {
         public forceWait: boolean = true,
     ) {}
 
-    public copy (info: Readonly<QueryPoolInfo>) {
+    public copy (info: Readonly<QueryPoolInfo>): QueryPoolInfo {
         this.type = info.type;
         this.maxQueryObjects = info.maxQueryObjects;
         this.forceWait = info.forceWait;
@@ -1846,7 +1846,7 @@ export class MemoryStatus {
         public textureSize: number = 0,
     ) {}
 
-    public copy (info: Readonly<MemoryStatus>) {
+    public copy (info: Readonly<MemoryStatus>): MemoryStatus {
         this.bufferSize = info.bufferSize;
         this.textureSize = info.textureSize;
         return this;
@@ -1862,7 +1862,7 @@ export class DynamicStencilStates {
         public reference: number = 0,
     ) {}
 
-    public copy (info: Readonly<DynamicStencilStates>) {
+    public copy (info: Readonly<DynamicStencilStates>): DynamicStencilStates {
         this.writeMask = info.writeMask;
         this.compareMask = info.compareMask;
         this.reference = info.reference;
@@ -1887,7 +1887,7 @@ export class DynamicStates {
         public stencilStatesBack: DynamicStencilStates = new DynamicStencilStates(),
     ) {}
 
-    public copy (info: Readonly<DynamicStates>) {
+    public copy (info: Readonly<DynamicStates>): DynamicStates {
         this.viewport.copy(info.viewport);
         this.scissor.copy(info.scissor);
         this.blendConstant.copy(info.blendConstant);

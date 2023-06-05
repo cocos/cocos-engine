@@ -607,7 +607,11 @@ export class ImageAsset extends Asset {
      * @engineInternal
      */
     // eslint-disable-next-line consistent-return
-    public _serialize () {
+    public _serialize (): string | {
+        fmt: string;
+        w: number;
+        h: number;
+    } | undefined {
         if (EDITOR || TEST) {
             let targetExtensions = this._exportedExts;
             if (!targetExtensions && this._native) {

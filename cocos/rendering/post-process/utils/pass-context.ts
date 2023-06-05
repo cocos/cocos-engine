@@ -37,22 +37,22 @@ export class PassContext {
     forwardPass: any = undefined;
     postProcess: PostProcess | undefined;
 
-    setClearFlag (clearFlag: ClearFlagBit): this {
+    setClearFlag (clearFlag: ClearFlagBit): PassContext {
         this.clearFlag = clearFlag;
         return this;
     }
 
-    setClearColor (x: number, y: number, z: number, w: number): this {
+    setClearColor (x: number, y: number, z: number, w: number): PassContext {
         Vec4.set(this.clearColor, x, y, z, w);
         return this;
     }
 
-    setClearDepthColor (x: number, y: number, z: number, w: number): this {
+    setClearDepthColor (x: number, y: number, z: number, w: number): PassContext {
         Vec4.set(this.clearDepthColor, x, y, z, w);
         return this;
     }
 
-    version (): this {
+    version (): PassContext {
         if (!EDITOR) {
             this.passPathName += `_${this.pass!.name}_${this.layoutName}`;
             this.pass!.setVersion(this.passPathName, this.passVersion);
@@ -65,7 +65,7 @@ export class PassContext {
         Vec4.set(passContext.clearColor, 0, 0, 0, 1);
     }
 
-    addRenderPass (layoutName: string, passName: string): this {
+    addRenderPass (layoutName: string, passName: string): PassContext {
         const passViewport = this.passViewport;
 
         const pass = this.ppl!.addRenderPass(passViewport.width, passViewport.height, layoutName);
@@ -97,7 +97,7 @@ export class PassContext {
         area.width = Math.floor(area.width);
         area.height = Math.floor(area.height);
     }
-    updatePassViewPort (shadingScale = 1, offsetScale = 0): this {
+    updatePassViewPort (shadingScale = 1, offsetScale = 0): PassContext {
         this.passViewport.width = this.viewport.width * shadingScale;
         this.passViewport.height = this.viewport.height * shadingScale;
 
@@ -111,7 +111,7 @@ export class PassContext {
     //     return this;
     // }
 
-    addRasterView (name: string, format: Format, offscreen = true, residency?: ResourceResidency): this {
+    addRasterView (name: string, format: Format, offscreen = true, residency?: ResourceResidency): PassContext {
         const ppl = this.ppl;
         const camera = this.camera;
         const pass = this.pass;
@@ -162,7 +162,7 @@ export class PassContext {
         }
         return this;
     }
-    setPassInput (inputName: string, shaderName: string): this {
+    setPassInput (inputName: string, shaderName: string): PassContext {
         if (this.ppl!.containsResource(inputName)) {
             const computeView = new ComputeView();
             computeView.name = shaderName;
@@ -171,7 +171,7 @@ export class PassContext {
         return this;
     }
 
-    blitScreen (passIdx = 0): this {
+    blitScreen (passIdx = 0): PassContext {
         this.pass!.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
             this.camera!, this.material!, passIdx,
             SceneFlags.NONE,

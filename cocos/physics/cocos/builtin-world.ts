@@ -84,10 +84,10 @@ export class BuiltInWorld implements IPhysicsWorld {
         return false;
     }
 
-    setGravity (v: IVec3Like) { }
-    setAllowSleep (v: boolean) { }
-    setDefaultMaterial (v: PhysicsMaterial) { }
-    get impl () { return this; }
+    setGravity (v: IVec3Like): void { }
+    setAllowSleep (v: boolean): void { }
+    setDefaultMaterial (v: PhysicsMaterial): void { }
+    get impl (): BuiltInWorld { return this; }
     shapeArr: BuiltinShape[] = [];
     readonly bodies: BuiltinSharedBody[] = [];
 

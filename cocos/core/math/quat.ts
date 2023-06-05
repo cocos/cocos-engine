@@ -838,7 +838,7 @@ export class Quat extends ValueType {
      * @param to The target quaternion
      * @param ratio The interpolation coefficient. The range is [0,1].
      */
-    public lerp (to: Quat, ratio: number) {
+    public lerp (to: Quat, ratio: number): Quat {
         this.x += ratio * (to.x - this.x);
         this.y += ratio * (to.y - this.y);
         this.z += ratio * (to.z - this.z);
@@ -852,7 +852,7 @@ export class Quat extends ValueType {
      * @param to The target quaternion
      * @param ratio The interpolation coefficient. The range is [0,1].
      */
-    public slerp (to: Quat, ratio: number) {
+    public slerp (to: Quat, ratio: number): Quat {
         return Quat.slerp(this, this, to, ratio);
     }
 

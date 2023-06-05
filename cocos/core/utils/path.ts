@@ -186,6 +186,6 @@ export function stripSep (path: string) {
  * @zh 获取不同平台的文件分割符。类 unix 系统是 `/`，windows 系统是 `\`。
  * @returns @en File separator. @zh 文件分割符。
  */
-export function getSeperator () {
+export function getSeperator (): string {
     return systemInfo.os === OS.WINDOWS ? '\\' : '/';
 }

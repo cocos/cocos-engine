@@ -62,7 +62,7 @@ export class MotionState extends InteractiveState {
     @editable
     public transitionOutEventBinding = new AnimationGraphEventBinding();
 
-    public copyTo (that: MotionState) {
+    public copyTo (that: MotionState): MotionState {
         super.copyTo(that);
         that.motion = this.motion?.clone() ?? null;
         that.speed = this.speed;
