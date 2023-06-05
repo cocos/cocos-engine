@@ -97,7 +97,7 @@ interface ILabelInfo {
     isOutlined: boolean;
     out: Color;
     margin: number;
-    dpr: number;
+    fontScale: number;
 }
 
 const WHITE = Color.WHITE.clone();
@@ -152,13 +152,13 @@ class LetterTexture {
         this.canvas = this.data.canvas;
         this.context = this.data.context;
         if (this.context) {
-            const dpr = this.labelInfo.dpr;
+            const fontScale = this.labelInfo.fontScale;
             this.context.font = this.labelInfo.fontDesc;
             const width = safeMeasureText(this.context, this.char, this.labelInfo.fontDesc);
             const blank = this.labelInfo.margin * 2 + bleed;
-            this.width = parseFloat(width.toFixed(2)) * dpr + blank;
-            this.height = (1 + BASELINE_RATIO) * this.labelInfo.fontSize * dpr + blank;
-            this.offsetY = -(this.labelInfo.fontSize * BASELINE_RATIO) * dpr / 2;
+            this.width = parseFloat(width.toFixed(2)) * fontScale + blank;
+            this.height = (1 + BASELINE_RATIO) * this.labelInfo.fontSize * fontScale + blank;
+            this.offsetY = -(this.labelInfo.fontSize * BASELINE_RATIO) * fontScale / 2;
         }
 
         if (this.canvas.width !== this.width) {
@@ -185,7 +185,7 @@ class LetterTexture {
         const labelInfo = this.labelInfo;
         const width = this.canvas.width;
         const height = this.canvas.height;
-        const dpr = labelInfo.dpr;
+        const fontScale = labelInfo.fontScale;
 
         context.textAlign = 'center';
         context.textBaseline = 'alphabetic';
@@ -195,10 +195,10 @@ class LetterTexture {
         context.fillRect(0, 0, width, height);
         context.font = labelInfo.fontDesc.replace(
             /(\d+)(\.\d+)?(px|em|rem|pt)/g,
-            (w, m: string, n: string, u: string) => (+m * dpr + (+n || 0) * dpr).toString() + u,
+            (w, m: string, n: string, u: string) => (+m * fontScale + (+n || 0) * fontScale).toString() + u,
         );
 
-        const fontSize = labelInfo.fontSize * dpr;
+        const fontSize = labelInfo.fontSize * fontScale;
         const startX = width / 2;
         const startY = height / 2 + fontSize * MIDDLE_RATIO + fontSize * BASELINE_OFFSET;
         const color = labelInfo.color;
@@ -208,7 +208,7 @@ class LetterTexture {
         if (labelInfo.isOutlined) {
             const strokeColor = labelInfo.out || WHITE;
             context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
-            context.lineWidth = labelInfo.margin * 2 * dpr;
+            context.lineWidth = labelInfo.margin * 2 * fontScale;
             context.strokeText(this.char, startX, startY);
         }
         context.fillText(this.char, startX, startY);
@@ -426,7 +426,7 @@ export interface IShareLabelInfo {
     isOutlined: boolean;
     out: Color;
     margin: number;
-    dpr: number;
+    fontScale: number;
 }
 
 export const shareLabelInfo: IShareLabelInfo = {
@@ -442,7 +442,7 @@ export const shareLabelInfo: IShareLabelInfo = {
     isOutlined: false,
     out: Color.WHITE.clone(),
     margin: 0,
-    dpr: 1,
+    fontScale: 1,
 };
 
 export function computeHash (labelInfo) {

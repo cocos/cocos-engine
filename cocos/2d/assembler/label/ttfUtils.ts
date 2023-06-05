@@ -118,7 +118,7 @@ export const ttfUtils =  {
             const layout = comp.textLayout;
             const outputLayoutData = comp.textLayoutData;
             const outputRenderData = comp.textRenderData;
-            style.scalingRatio = view.getScaleX();
+            style.fontScale = view.getScaleX();
             this.updateProcessingData(style, layout, outputLayoutData, outputRenderData, comp, trans);
             // use canvas in assemblerData // to do to optimize
             processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);

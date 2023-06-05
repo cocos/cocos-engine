@@ -68,7 +68,7 @@ export class TextStyle {
     public fntConfig: IConfig | null = null; // For char mode,not have asset
     public spriteFrame: SpriteFrame | null = null; // For char mode,not have spriteFrame in asset
 
-    public scalingRatio = 1;
+    public fontScale = 1;
 
     public reset () {
         this.isBold = false;
