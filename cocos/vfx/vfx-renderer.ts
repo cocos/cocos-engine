@@ -111,6 +111,8 @@ export class VFXRenderer extends ModelRenderer {
                 subModel.inputAssembler.vertexCount = renderer.vertexCount;
                 subModel.inputAssembler.indexCount = renderer.indexCount;
                 subModel.inputAssembler.firstInstance = renderer.firstInstance;
+                subModel.inputAssembler.firstVertex = renderer.firstVertex;
+                subModel.inputAssembler.firstIndex = renderer.firstIndex;
                 subModelIndex++;
             }
         }
