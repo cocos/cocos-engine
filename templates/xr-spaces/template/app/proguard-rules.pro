@@ -55,3 +55,6 @@
 
 -keep public class com.qualcomm.** { *; }
 -keep public class hilt_aggregated_deps.** { *; }
+
+-dontwarn libcore.io.Memory
+-dontwarn com.google.vr.cardboard.*
