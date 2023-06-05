@@ -35,6 +35,7 @@ import { Buffer, BufferInfo, BufferUsageBit, Device, Attribute, InputAssembler, 
 import { RenderDrawInfo, RenderDrawInfoType } from './render-draw-info';
 import { Batcher2D } from './batcher-2d';
 import { RenderEntity, RenderEntityType } from './render-entity';
+import type { MeshBuffer } from './mesh-buffer';
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -65,23 +66,23 @@ const _pool: RecyclePool<RenderData> = null!;
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export class BaseRenderData {
-    get vertexCount () {
+    get vertexCount (): number {
         return this._vc;
     }
-    get indexCount () {
+    get indexCount (): number {
         return this._ic;
     }
-    get stride () {
+    get stride (): number {
         return this._floatStride << 2;
     }
-    get floatStride () {
+    get floatStride (): number {
         return this._floatStride;
     }
-    get vertexFormat () {
+    get vertexFormat (): Attribute[] {
         return this._vertexFormat;
     }
 
-    get drawInfoType () {
+    get drawInfoType (): RenderDrawInfoType {
         return this._drawInfoType;
     }
     set drawInfoType (type: RenderDrawInfoType) {
@@ -95,12 +96,12 @@ export class BaseRenderData {
 
     // entity for native
     protected _renderDrawInfo: RenderDrawInfo = null!;
-    public get renderDrawInfo () {
+    public get renderDrawInfo (): RenderDrawInfo {
         return this._renderDrawInfo;
     }
 
     protected _material: Material | null = null;
-    get material () {
+    get material (): Material | null {
         return this._material!;
     }
     set material (val: Material | null) {
@@ -111,7 +112,7 @@ export class BaseRenderData {
     }
 
     protected _dataHash = 0;
-    get dataHash () {
+    get dataHash (): number {
         return this._dataHash;
     }
     set dataHash (val: number) {
@@ -129,13 +130,13 @@ export class BaseRenderData {
     protected _vertexFormat = vfmtPosUvColor;
     protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
     protected _multiOwner = false;
-    get multiOwner () { return this._multiOwner; }
+    get multiOwner (): boolean { return this._multiOwner; }
     set multiOwner (val) {
         this._multiOwner = val;
     }
 
     protected _batcher: Batcher2D | null = null;
-    get batcher () {
+    get batcher (): Batcher2D {
         if (!this._batcher) {
             this._batcher = director.root!.batcher2D;
         }
@@ -147,12 +148,12 @@ export class BaseRenderData {
         this._vertexFormat = vertexFormat;
     }
 
-    public isValid () {
+    public isValid (): false | StaticVBAccessor {
         return this._ic > 0 && this.chunk.vertexAccessor;
     }
 
     // it should be invoked at where a render data is allocated.
-    public initRenderDrawInfo (comp: UIRenderer, drawInfoType: RenderDrawInfoType = RenderDrawInfoType.COMP) {
+    public initRenderDrawInfo (comp: UIRenderer, drawInfoType: RenderDrawInfoType = RenderDrawInfoType.COMP): void {
         if (JSB) {
             const renderEntity: RenderEntity = comp.renderEntity;
 
@@ -178,7 +179,7 @@ export class BaseRenderData {
         }
     }
 
-    public removeRenderDrawInfo (comp: UIRenderer) {
+    public removeRenderDrawInfo (comp: UIRenderer): void {
         if (JSB) {
             const renderEntity: RenderEntity = comp.renderEntity;
             if (renderEntity.renderEntityType === RenderEntityType.DYNAMIC) {
@@ -189,7 +190,7 @@ export class BaseRenderData {
         }
     }
 
-    protected setRenderDrawInfoAttributes () {
+    protected setRenderDrawInfoAttributes (): void {
         if (JSB) {
             if (!this._renderDrawInfo) {
                 return;
@@ -221,7 +222,7 @@ export class BaseRenderData {
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export class RenderData extends BaseRenderData {
-    public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
+    public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor): RenderData {
         const rd = new RenderData(vertexFormat, accessor);
         if (!accessor) {
             const batcher = director.root!.batcher2D;
@@ -231,7 +232,7 @@ export class RenderData extends BaseRenderData {
         return rd;
     }
 
-    public static remove (data: RenderData) {
+    public static remove (data: RenderData): void {
         // const idx = _pool.data.indexOf(data);
         // if (idx === -1) {
         //     return;
@@ -242,7 +243,7 @@ export class RenderData extends BaseRenderData {
         // _pool.removeAt(idx);
     }
 
-    get dataLength () {
+    get dataLength (): number {
         return this._data.length;
     }
 
@@ -266,12 +267,12 @@ export class RenderData extends BaseRenderData {
         this.syncRender2dBuffer();
     }
 
-    get data () {
+    get data ():IRenderData[] {
         return this._data;
     }
 
     public _vertDirty = true;
-    get vertDirty () {
+    get vertDirty (): boolean {
         return this._vertDirty;
     }
     set vertDirty (val: boolean) {
@@ -282,7 +283,7 @@ export class RenderData extends BaseRenderData {
     }
 
     protected _textureHash = 0;
-    get textureHash () {
+    get textureHash (): number {
         return this._textureHash;
     }
     set textureHash (val: number) {
@@ -303,7 +304,7 @@ export class RenderData extends BaseRenderData {
             }
         }
     }
-    public get frame () {
+    public get frame (): SpriteFrame | TextureBase | null {
         return this._frame;
     }
     public layer = 0;
@@ -320,7 +321,7 @@ export class RenderData extends BaseRenderData {
     private _height = 0;
     private _frame: SpriteFrame | TextureBase | null = null;
     protected _accessor: StaticVBAccessor = null!;
-    get accessor () { return this._accessor; }
+    get accessor (): StaticVBAccessor { return this._accessor; }
 
     public vertexRow = 1;
     public vertexCol = 1;
@@ -333,7 +334,7 @@ export class RenderData extends BaseRenderData {
         this._accessor = accessor;
     }
 
-    public resize (vertexCount: number, indexCount: number) {
+    public resize (vertexCount: number, indexCount: number): void {
         if (vertexCount === this._vc && indexCount === this._ic && this.chunk) return;
         this._vc = vertexCount;
         this._ic = indexCount;
@@ -361,7 +362,7 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    protected setRenderDrawInfoAttributes () {
+    protected setRenderDrawInfoAttributes (): void {
         if (JSB) {
             if (!this._renderDrawInfo) {
                 return;
@@ -375,7 +376,7 @@ export class RenderData extends BaseRenderData {
     /**
      * @internal
      */
-    public fillDrawInfoAttributes (drawInfo: RenderDrawInfo) {
+    public fillDrawInfoAttributes (drawInfo: RenderDrawInfo): void {
         if (JSB) {
             if (!drawInfo) {
                 return;
@@ -397,7 +398,7 @@ export class RenderData extends BaseRenderData {
     }
 
     // Initial advance render data for native
-    protected syncRender2dBuffer () {
+    protected syncRender2dBuffer (): void {
         if (JSB && this.multiOwner === false) {
             if (!this._renderDrawInfo) {
                 return;
@@ -408,7 +409,7 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    public resizeAndCopy (vertexCount: number, indexCount: number) {
+    public resizeAndCopy (vertexCount: number, indexCount: number): void {
         if (vertexCount === this._vc && indexCount === this._ic && this.chunk) return;
         this._vc = vertexCount;
         this._ic = indexCount;
@@ -423,7 +424,7 @@ export class RenderData extends BaseRenderData {
         this.updateHash();
     }
 
-    public getMeshBuffer () {
+    public getMeshBuffer (): MeshBuffer | null {
         if (this.chunk && this._accessor) {
             return this._accessor.getMeshBuffer(this.chunk.bufferId);
         } else {
@@ -431,33 +432,33 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    public updateNode (comp: UIRenderer) {
+    public updateNode (comp: UIRenderer): void {
         this.layer = comp.node.layer;
         this.nodeDirty = false;
         this.hashDirty = true;
     }
 
-    public updatePass (comp: UIRenderer) {
+    public updatePass (comp: UIRenderer): void {
         this.material = comp.getRenderMaterial(0)!;
         this.passDirty = false;
         this.hashDirty = true;
     }
 
-    public updateTexture (frame: SpriteFrame | TextureBase) {
+    public updateTexture (frame: SpriteFrame | TextureBase): void {
         this.frame = frame;
         this.textureHash = frame.getHash();
         this.textureDirty = false;
         this.hashDirty = true;
     }
 
-    public updateHash () {
+    public updateHash (): void {
         const bid = this.chunk ? this.chunk.bufferId : -1;
         const hashString = `${bid}${this.layer} ${this.textureHash}`;
         this.dataHash = murmurhash2_32_gc(hashString, 666);
         this.hashDirty = false;
     }
 
-    public updateRenderData (comp: UIRenderer, frame: SpriteFrame | TextureBase) {
+    public updateRenderData (comp: UIRenderer, frame: SpriteFrame | TextureBase): void {
         if (this.passDirty) {
             this.material = comp.getRenderMaterial(0)!;
             this.passDirty = false;
@@ -505,7 +506,7 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    public updateSizeNPivot (width: number, height: number, pivotX: number, pivotY: number) {
+    public updateSizeNPivot (width: number, height: number, pivotX: number, pivotY: number): void {
         if (width !== this._width
             || height !== this._height
             || pivotX !== this._pivotX
@@ -518,7 +519,7 @@ export class RenderData extends BaseRenderData {
         }
     }
 
-    public clear () {
+    public clear (): void {
         this.resize(0, 0);
         this._data.length = 0;
         this._pivotX = 0;
@@ -553,7 +554,7 @@ export class RenderData extends BaseRenderData {
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
  */
 export class MeshRenderData extends BaseRenderData {
-    public static add (vertexFormat = vfmtPosUvColor) {
+    public static add (vertexFormat = vfmtPosUvColor): MeshRenderData {
         // const rd = _meshDataPool.add();
         const rd = new MeshRenderData();
         rd._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
@@ -561,7 +562,7 @@ export class MeshRenderData extends BaseRenderData {
         return rd;
     }
 
-    public static remove (data: MeshRenderData) {
+    public static remove (data: MeshRenderData): void {
         // const idx = _meshDataPool.data.indexOf(data);
         // if (idx === -1) {
         //     return;
@@ -577,14 +578,14 @@ export class MeshRenderData extends BaseRenderData {
      * @deprecated
      */
     set formatByte (value: number) { }
-    get formatByte () { return this.stride; }
+    get formatByte (): number { return this.stride; }
 
-    get floatStride () { return this._floatStride; }
+    get floatStride (): number { return this._floatStride; }
 
     /**
      * Index of Float32Array: vData
      */
-    get vDataOffset () { return this._byteLength >>> 2; }
+    get vDataOffset (): number { return this._byteLength >>> 2; }
 
     public _isMeshBuffer = true;
     public vData: Float32Array;
@@ -624,7 +625,7 @@ export class MeshRenderData extends BaseRenderData {
         this.iData = new Uint16Array(256 * 6);
     }
 
-    public request (vertexCount: number, indexCount: number) {
+    public request (vertexCount: number, indexCount: number): boolean {
         const byteOffset = this._byteLength + vertexCount * this.stride;
         const succeed = this.reserve(vertexCount, indexCount);
         if (!succeed) return false;
@@ -636,7 +637,7 @@ export class MeshRenderData extends BaseRenderData {
         return true;
     }
 
-    public reserve (vertexCount: number, indexCount: number) {
+    public reserve (vertexCount: number, indexCount: number): boolean {
         const newVBytes = this._byteLength + vertexCount * this.stride;
         const newICount = this.indexCount + indexCount;
 
@@ -664,7 +665,7 @@ export class MeshRenderData extends BaseRenderData {
 
     // overload
     // Resize buffer and IA range
-    public resize (vertexCount: number, indexCount: number) {
+    public resize (vertexCount: number, indexCount: number): void {
         const byteLength = vertexCount * this.stride;
         assertIsTrue(vertexCount >= 0 && indexCount >= 0 && byteLength <= this.vData.byteLength && indexCount <= this.iData.length);
         this._vc = vertexCount;
@@ -674,7 +675,7 @@ export class MeshRenderData extends BaseRenderData {
     }
 
     // Only resize IA range
-    public updateRange (vertOffset: number, vertexCount: number, indexOffset: number, indexCount: number) {
+    public updateRange (vertOffset: number, vertexCount: number, indexOffset: number, indexCount: number): void {
         assertIsTrue(vertexCount >= 0 && indexCount >= 0 && vertexCount <= this._vc && indexCount <= this._ic);
         this.vertexStart = vertOffset;
         this.indexStart = indexOffset;
@@ -682,7 +683,7 @@ export class MeshRenderData extends BaseRenderData {
         this.indexRange = indexCount;
     }
 
-    public requestIA (device: Device) {
+    public requestIA (device: Device): InputAssembler {
         this._initIAInfo(device);
         const ia = this._iaPool!.add();
         ia.firstIndex = this.indexStart;
@@ -690,7 +691,7 @@ export class MeshRenderData extends BaseRenderData {
         return ia;
     }
 
-    public uploadBuffers () {
+    public uploadBuffers (): void {
         if (this._byteLength === 0 || !this._vertexBuffers[0] || !this._indexBuffer) {
             return;
         }
@@ -712,13 +713,13 @@ export class MeshRenderData extends BaseRenderData {
         this._indexBuffer.update(indicesData);
     }
 
-    public freeIAPool () {
+    public freeIAPool (): void {
         if (this._iaPool) {
             this._iaPool.reset();
         }
     }
 
-    public reset () {
+    public reset (): void {
         this._vc = 0;
         this._ic = 0;
         this._byteLength = 0;
@@ -732,7 +733,7 @@ export class MeshRenderData extends BaseRenderData {
         this.freeIAPool();
     }
 
-    public clear () {
+    public clear (): void {
         this.reset();
         if (this._iaPool) {
             this._iaPool.destroy();
@@ -746,7 +747,7 @@ export class MeshRenderData extends BaseRenderData {
         this.iData = new Uint16Array(256 * 6);
     }
 
-    protected _initIAInfo (device: Device) {
+    protected _initIAInfo (device: Device): void {
         if (!this._iaInfo) {
             const vbStride = this.stride;
             const vbs = this._vertexBuffers;
@@ -772,7 +773,7 @@ export class MeshRenderData extends BaseRenderData {
         }
     }
 
-    protected _reallocBuffer (vCount, iCount) {
+    protected _reallocBuffer (vCount, iCount): void {
         // copy old data
         const oldVData = this.vData;
         this.vData = new Float32Array(vCount);
@@ -786,7 +787,7 @@ export class MeshRenderData extends BaseRenderData {
         }
     }
 
-    public setRenderDrawInfoAttributes () {
+    public setRenderDrawInfoAttributes (): void {
         if (JSB) {
             if (!this._renderDrawInfo) {
                 return;
@@ -806,7 +807,7 @@ export class MeshRenderData extends BaseRenderData {
     }
 
     //  only for particle2d
-    public particleInitRenderDrawInfo (entity: RenderEntity) {
+    public particleInitRenderDrawInfo (entity: RenderEntity): void {
         if (JSB) {
             if (entity.renderEntityType === RenderEntityType.STATIC) {
                 if (!this._renderDrawInfo) {

@@ -50,7 +50,7 @@ const _loadingFonts: IFontLoadHandle[] = [];
 const _timeout = 3000;
 
 // Refer to https://github.com/typekit/webfontloader/blob/master/src/core/fontwatcher.js
-const useNativeCheck = (() => {
+const useNativeCheck = ((): () => boolean => {
     let nativeCheck: boolean;
     return (): boolean => {
         if (nativeCheck === undefined) {
@@ -74,7 +74,7 @@ const useNativeCheck = (() => {
     };
 })();
 
-function checkFontLoaded () {
+function checkFontLoaded (): void {
     let allFontsLoaded = true;
     const now = Date.now();
 
@@ -111,7 +111,7 @@ function checkFontLoaded () {
 // refer to https://github.com/typekit/webfontloader/blob/master/src/core/nativefontwatchrunner.js
 function nativeCheckFontLoaded (start: number, font: string, callback: ((err: Error | null, data?: any | null) => void)): void {
     const loader = new Promise<void>((resolve, reject) => {
-        const check = () => {
+        const check = (): void => {
             const now = Date.now();
 
             if (now - start >= _timeout) {
@@ -150,7 +150,7 @@ function nativeCheckFontLoaded (start: number, font: string, callback: ((err: Er
     });
 }
 
-export function loadFont (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) {
+export function loadFont (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
     const fontFamilyName = getFontFamily(url);
     // Already loaded fonts
     if (_fontFaces[fontFamilyName]) {
@@ -227,7 +227,7 @@ export function getFontFamily (fontHandle: string): string {
     return fontFamilyName;
 }
 
-function createFont (id: string, data: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: TTFFont | null) => void)) {
+function createFont (id: string, data: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: TTFFont | null) => void)): void {
     const out = new TTFFont();
     out._nativeUrl = id;
     out._nativeAsset = data;

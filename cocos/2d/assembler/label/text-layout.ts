@@ -56,7 +56,7 @@ export class TextLayout {
     public textDesiredHeight = 0;
     public linesWidth: number[] = [];
 
-    public reset () {
+    public reset (): void {
         this.horizontalAlign = 0;
         this.verticalAlign = 0;
         this.wrapping = true;

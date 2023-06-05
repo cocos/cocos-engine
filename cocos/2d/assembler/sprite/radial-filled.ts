@@ -45,7 +45,7 @@ const _center = new Vec2();
 const _triangles: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 let QUAD_INDICES;
 
-function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle, intersectPoints: Vec2[]) {
+function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle, intersectPoints: Vec2[]): void {
     // left bottom, right, top
     let sinAngle = Math.sin(angle);
     sinAngle = Math.abs(sinAngle) > EPSILON ? sinAngle : 0;
@@ -85,7 +85,7 @@ function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle, 
     }
 }
 
-function _calculateVertices (sprite: Sprite) {
+function _calculateVertices (sprite: Sprite): void {
     const uiTrans = sprite.node._uiProps.uiTransformComp!;
     const width = uiTrans.width;
     const height = uiTrans.height;
@@ -130,7 +130,7 @@ function _calculateVertices (sprite: Sprite) {
     }
 }
 
-function _calculateUVs (spriteFrame: SpriteFrame) {
+function _calculateUVs (spriteFrame: SpriteFrame): void {
     const atlasWidth = spriteFrame.width;
     const atlasHeight = spriteFrame.height;
     const textureRect = spriteFrame.getRect();
@@ -166,7 +166,7 @@ function _calculateUVs (spriteFrame: SpriteFrame) {
     }
 }
 
-function _getVertAngle (start: Vec2, end: Vec2) {
+function _getVertAngle (start: Vec2, end: Vec2): number {
     const placementX = end.x - start.x;
     const placementY = end.y - start.y;
 
@@ -188,7 +188,7 @@ function _getVertAngle (start: Vec2, end: Vec2) {
     }
 }
 
-function _generateTriangle (dataList: IRenderData[], offset: number, vert0: Vec2, vert1: Vec2, vert2: Vec2) {
+function _generateTriangle (dataList: IRenderData[], offset: number, vert0: Vec2, vert1: Vec2, vert2: Vec2): void {
     const vertices = _vertices;
     const v0x = vertices[0];
     const v0y = vertices[1];
@@ -217,7 +217,7 @@ function _generateTriangle (dataList: IRenderData[], offset: number, vert0: Vec2
     _generateUV(progressX, progressY, dataList, offset + 2);
 }
 
-function _generateUV (progressX: number, progressY: number, data: IRenderData[], offset: number) {
+function _generateUV (progressX: number, progressY: number, data: IRenderData[], offset: number): void {
     const uvs = _uvs;
     const px1 = uvs[0] + (uvs[2] - uvs[0]) * progressX;
     const px2 = uvs[4] + (uvs[6] - uvs[4]) * progressX;
