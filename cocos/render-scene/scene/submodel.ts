@@ -159,7 +159,7 @@ export class SubModel {
      * @en The macro patches for the shaders
      * @zh 着色器程序所用的宏定义组合
      */
-    get patches (): IMacroPatch[] | null {
+    get patches (): Readonly<IMacroPatch[] | null> {
         return this._patches;
     }
 

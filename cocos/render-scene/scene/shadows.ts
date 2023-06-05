@@ -337,7 +337,7 @@ export class Shadows {
      * @param patches The macro patches for the shader
      * @returns The shader for the planar shadow
      */
-    public getPlanarShader (patches: IMacroPatch[] | null): Shader | null {
+    public getPlanarShader (patches: Readonly<IMacroPatch[] | null>): Shader | null {
         if (!this._material) {
             this._material = new Material();
             this._material.initialize({ effectName: 'pipeline/planar-shadow' });
