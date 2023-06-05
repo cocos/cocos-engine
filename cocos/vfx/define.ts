@@ -180,6 +180,7 @@ export const CC_VFX_SPRITE_ALIGNMENT_MODE = 'CC_VFX_SPRITE_ALIGNMENT_MODE';
 export const CC_VFX_SPRITE_ALIGNMENT_MODE_NONE = 0;
 export const CC_VFX_SPRITE_ALIGNMENT_MODE_VELOCITY = 1;
 export const CC_VFX_SPRITE_ALIGNMENT_MODE_CUSTOM = 2;
+export const CC_VFX_U_SUB_IMAGE_SIZE = 'u_vfx_sub_image_size';
 //#endregion shader defines
 
 //#region shader attributes

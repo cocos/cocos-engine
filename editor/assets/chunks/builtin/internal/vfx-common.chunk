@@ -14,19 +14,16 @@
 #pragma define CC_VFX_SPRITE_ALIGNMENT_MODE_VELOCITY 1
 #pragma define CC_VFX_SPRITE_ALIGNMENT_MODE_CUSTOM 2
 
-uniform Constants {
-  vec4 mainTiling_Offset;
+uniform VFXConstants {
   vec4 frameTile_velLenScale;
-  vec4 scale;
+  vec2 u_vfx_sub_image_size;
+  vec4 u_vfx_render_scale;
   vec4 nodeRotation;
 };
 
 #include <builtin/uniforms/cc-global>
 #include <builtin/uniforms/cc-local>
 #include <common/math/transform>
-
-precision highp float;
-
 
 #if CC_VFX_P_POSITION
 in vec3 a_vfx_p_position;
@@ -52,9 +49,6 @@ in float a_vfx_p_sub_uv_index;
 #if CC_VFX_P_VELOCITY
 in vec3 a_vfx_p_velocity; // velocity.x, velocity.y, velocity.z
 #endif
-
-out mediump vec2 uv;
-out mediump vec4 color;
 
 void computeVertPos (inout vec4 pos, vec2 vertOffset, vec4 q, vec3 s
 #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD || CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD
@@ -96,126 +90,78 @@ void computeVertPos (inout vec4 pos, vec2 vertOffset, vec4 q, vec3 s
 #endif
 }
 
-vec2 computeUV (float subUVIndex, vec2 vertIndex, vec2 frameTile){
-  vec2 aniUV = vec2(0, floor(subUVIndex * frameTile.y));
-  aniUV.x = floor(subUVIndex * frameTile.x * frameTile.y - aniUV.y * frameTile.x);
-#if CC_RENDER_MODE != RENDER_MODE_MESH
-  vertIndex.y = 1. - vertIndex.y; // if using billboard ,y must be flipped.but mesh does not,why?
-#endif
-  return (aniUV.xy + vertIndex) / vec2(frameTile.x, frameTile.y);
-}
-
-struct VFXSpriteInput {
+struct VFXParticleInput {
   vec3 position;
-  float spriteRotation;
+  #if CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_SPRITE
   vec2 spriteSize;
-  vec4 color;
-  float subUVIndex;
   vec3 velocity;
-};
-
-struct VFXMeshInput {
-  vec3 position;
+  float spriteRotation;
+  float subUVIndex;
+  #endif
+  #if CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_MESH
   vec3 meshOrientation;
   vec3 scale;
-  vec4 color;
   float subUVIndex;
-}
-
-struct VFXRibbonInput {
-  vec3 position;
+  #endif
   vec4 color;
-}
+};
 
-void CCVFXSetupSpriteInput (out VFXSpriteInput spriteInput) {
+void CCVFXSetupParticleInput (out VFXParticleInput particleInput) {
   #if CC_VFX_P_POSITION
-  spriteInput.position = a_vfx_p_position;
+  particleInput.position = a_vfx_p_position;
   #else
-  spriteInput.position = vec3(0., 0., 0.);
+  particleInput.position = vec3(0., 0., 0.);
+  #endif
+  #if CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_SPRITE
+  #if CC_VFX_P_VELOCITY
+  particleInput.velocity = a_vfx_p_velocity;
+  #else
+  particleInput.velocity = vec3(0., 0., 0.);
   #endif
   #if CC_VFX_P_SPRITE_ROTATION
-  spriteInput.spriteRotation = a_vfx_p_sprite_rotation;
+  particleInput.spriteRotation = a_vfx_p_sprite_rotation;
   #else
-  spriteInput.spriteRotation = 0.;
+  particleInput.spriteRotation = 0.;
   #endif
   #if CC_VFX_P_SPRITE_SIZE
-  spriteInput.spriteSize = a_vfx_p_sprite_size;
+  particleInput.spriteSize = a_vfx_p_sprite_size;
   #else
-  spriteInput.spriteSize = vec3(1.0, 1.0);
-  #endif
-  #if CC_VFX_P_COLOR
-  spriteInput.color = a_vfx_p_color;
-  #else
-  spriteInput.color = vec4(1.0, 1.0, 1.0, 1.0);
+  particleInput.spriteSize = vec3(1.0, 1.0);
   #endif
   #if CC_VFX_P_SUB_UV_INDEX
-  spriteInput.subUVIndex = a_vfx_p_sub_uv_index;
+  particleInput.subUVIndex = a_vfx_p_sub_uv_index;
   #else
-  spriteInput.subUVIndex = 0.0;
+  particleInput.subUVIndex = 0.0;
   #endif
-  #if CC_VFX_P_VELOCITY
-  spriteInput.velocity = a_vfx_p_velocity;
-  #else
-  spriteInput.velocity = vec3(0., 0., 0.);
-  #endif
-}
-
-void CCVFXSetupMeshInput (out VFXMeshInput meshInput) {
-  #if CC_VFX_P_POSITION
-  meshInput.position = a_vfx_p_position;
-  #else
-  meshInput.position = vec3(0., 0., 0.);
-  #endif
+  #elif CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_MESH
   #if CC_VFX_P_MESH_ORIENTATION
-  meshInput.meshOrientation = a_vfx_p_mesh_orientation;
+  particleInput.meshOrientation = a_vfx_p_mesh_orientation;
   #else 
-  meshInput.meshOrientation = vec3(0., 0., 0.);
+  particleInput.meshOrientation = vec3(0., 0., 0.);
   #endif
   #if CC_VFX_P_SCALE
-  meshInput.scale = a_vfx_p_scale;
+  particleInput.scale = a_vfx_p_scale;
   #else
-  meshInput.scale = vec3(1.0, 1.0, 1.0);
-  #endif
-  #if CC_VFX_P_COLOR
-  meshInput.color = a_vfx_p_color;
-  #else
-  meshInput.color = vec4(1.0, 1.0, 1.0, 1.0);
+  particleInput.scale = vec3(1.0, 1.0, 1.0);
   #endif
   #if CC_VFX_P_SUB_UV_INDEX
-  meshInput.subUVIndex = a_vfx_p_sub_uv_index;
+  particleInput.subUVIndex = a_vfx_p_sub_uv_index;
   #else
-  meshInput.subUVIndex = 0.0;
+  particleInput.subUVIndex = 0.0;
   #endif
-}
-
-void CCVFXSetupRibbonInput (out VFXRibbonInput ribbonInput) {
-  #if CC_VFX_P_POSITION
-  ribbonInput.position = a_vfx_p_position;
-  #else
-  ribbonInput.position = vec3(0., 0., 0.);
-  #endif
+  #endif // CC_VFX_RENDERER_TYPE
   #if CC_VFX_P_COLOR
-  ribbonInput.color = a_vfx_p_color;
+  particleInput.color = a_vfx_p_color;
   #else
-  ribbonInput.color = vec4(1.0, 1.0, 1.0, 1.0);
+  particleInput.color = vec4(1.0, 1.0, 1.0, 1.0);
   #endif
+  
 }
 
-in vec3 a_position;  // mesh position
-in vec3 a_texCoord;  // mesh uv
-
-#if CC_RENDER_MODE == RENDER_MODE_MESH
-in vec3 a_normal;     // mesh normal
-in vec4 a_color;     // mesh color
-#endif
-
-vec4 vfx_vs_main () {
-  ParticleInput particleInput;
-  setupParticleInput(particleInput);
-
+vec4 CCVFXApplyParticlePosition (VFXParticleInput particleInput, vec3 position) {
   vec4 pos = vec4(particleInput.position.xyz, 1);
   vec3 meshOrientation = particleInput.meshOrientation;
-  vec3 compScale = scale.xyz * particleInput.scale;
+  vec3 compScale = u_vfx_render_scale.xyz * particleInput.scale;
   vec4 velocity = vec4(particleInput.velocity.xyz, 0.);
 
   #if !CC_USE_WORLD_SPACE
@@ -265,8 +211,6 @@ vec4 vfx_vs_main () {
     #elif RENDER_MODE_HORIZONTAL_BILLBOARD
       computeVertPos(pos, cornerOffset, rot, compScale);
     #endif
-
-    color = particleInput.color;
   #endif
   #if CC_RENDER_MODE == RENDER_MODE_MESH
     mat3 rotMat = quatToMat3(rot);
@@ -278,14 +222,16 @@ vec4 vfx_vs_main () {
     mat4 xform = matFromRTS(rot, pos.xyz, compScale);
     pos = xform * vec4(a_position, 1);
     vec4 normal = xformNoScale * vec4(a_normal, 0);
-    color = particleInput.color * a_color;
   #endif
-
-  uv = computeUV(particleInput.subUVIndex, a_texCoord.xy, frameTile_velLenScale.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
-  pos = cc_matViewProj * pos;
-
   return pos;
 }
 
+vec4 CCVFXApplyParticleTexCoord (VFXParticleInput particleInput, vec2 texCoord) {
+  float frameY = floor(subUVIndex * frameTile.y);
+  float frameX = floor(subUVIndex * frameTile.x * frameTile.y - frameY * frameTile.x);
+  return (vec2(frameX, frameY) + texCoord) / vec2(frameTile.x, frameTile.y);
+}
 
-
+vec4 CCVFXApplyParticleColor (VFXParticleInput particleInput, vec4 color) {
+  return color * particleInput.color;
+}

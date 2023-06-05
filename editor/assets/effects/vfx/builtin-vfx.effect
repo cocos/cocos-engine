@@ -34,7 +34,7 @@ CCEffect %{
   techniques:
   - name: add
     passes:
-    - vert: builtin/internal/vfx-common:vfx_vs_main
+    - vert: vfx-vs:vert
       frag: tinted-fs:add
       rasterizerState: *r1
       depthStencilState: *d1
@@ -42,7 +42,7 @@ CCEffect %{
       properties: *p2
   - name: alpha-blend
     passes:
-    - vert: builtin/internal/vfx-common:vfx_vs_main
+    - vert: vfx-vs:vert
       frag: tinted-fs:add
       rasterizerState: *r1
       depthStencilState: *d1
@@ -50,7 +50,7 @@ CCEffect %{
       properties: *p2
   - name: add-multiply
     passes:
-    - vert: builtin/internal/vfx-common:vfx_vs_main
+    - vert: vfx-vs:vert
       frag: tinted-fs:multiply
       rasterizerState: *r1
       depthStencilState: *d1
@@ -58,7 +58,7 @@ CCEffect %{
       properties: *p2
   - name: add-smooth
     passes:
-    - vert: builtin/internal/vfx-common:vfx_vs_main
+    - vert: vfx-vs:vert
       frag: no-tint-fs:addSmooth
       rasterizerState: *r1
       depthStencilState: *d1
@@ -66,7 +66,7 @@ CCEffect %{
       properties: *p1
   - name: premultiply-blend
     passes:
-    - vert: builtin/internal/vfx-common:vfx_vs_main
+    - vert: vfx-vs:vert
       frag: no-tint-fs:premultiplied
       rasterizerState: *r1
       depthStencilState: *d1
@@ -74,14 +74,42 @@ CCEffect %{
       properties: *p1
 }%
 
-// TODO: soft particle
+CCProgram vfx-vs %{
+  precision highp float;
+  #include <builtin/internal/vfx-common>
+  in vec3 a_position;  // mesh position
+  in vec3 a_texCoord;  // mesh uv
+
+  #if CC_RENDER_MODE == RENDER_MODE_MESH
+  in vec3 a_normal;     // mesh normal
+  in vec4 a_color;     // mesh color
+  #endif
+
+  uniform VertConstants {
+    vec4 mainTiling_Offset;
+  };
+
+  out vec2 v_uv;
+  out vec4 v_color;
+
+  vec4 vert () {
+    VFXParticleInput particleInput;
+    CCVFXSetupParticleInput(particleInput);
+
+    vec4 pos = cc_matViewProj * CCVFXApplyParticlePosition(particleInput, a_position);
+    v_uv = CCVFXApplyParticleTexCoord(particleInput, a_texCoord.xy) * mainTiling_Offset.xy + mainTiling_Offset.zw;
+    v_color = CCVFXApplyParticleColor(particleInput, a_color);
+
+    return pos;
+  }
+}%
 
 CCProgram tinted-fs %{
   precision mediump float;
   #include <legacy/output>
 
-  in vec2 uv;
-  in vec4 color;
+  in vec2 v_uv;
+  in vec4 v_color;
 
   uniform sampler2D mainTexture;
   uniform FragConstants {
@@ -89,14 +117,14 @@ CCProgram tinted-fs %{
   };
 
   vec4 add () {
-    vec4 col = 2.0 * color * tintColor * texture(mainTexture, uv);
+    vec4 col = 2.0 * v_color * tintColor * texture(mainTexture, v_uv);
     return CCFragOutput(col);
   }
 
   vec4 multiply () {
     vec4 col;
-    vec4 texColor = texture(mainTexture, uv);
-    col.rgb = tintColor.rgb * texColor.rgb * color.rgb * vec3(2.0);
+    vec4 texColor = texture(mainTexture, v_uv);
+    col.rgb = tintColor.rgb * texColor.rgb * v_color.rgb * vec3(2.0);
     return CCFragOutput(col);
   }
 }%
@@ -105,19 +133,19 @@ CCProgram no-tint-fs %{
   precision mediump float;
   #include <legacy/output>
 
-  in vec2 uv;
-  in vec4 color;
+  in vec2 v_uv;
+  in vec4 v_color;
 
   uniform sampler2D mainTexture;
 
   vec4 addSmooth () {
-    vec4 col = color * texture(mainTexture, uv);
+    vec4 col = v_color * texture(mainTexture, v_uv);
     col.rgb *= col.a;
     return CCFragOutput(col);
   }
 
   vec4 premultiplied () {
-    vec4 col = color * texture(mainTexture, uv) * color.a;
+    vec4 col = v_color * texture(mainTexture, v_uv) * v_color.a;
     return CCFragOutput(col);
   }
 }%
