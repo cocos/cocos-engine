@@ -65,7 +65,7 @@ function makeCubicSplineValueConstructor<T> (
             this.outTangent = outTangent || new ConstructorX();
         }
 
-        public lerp (to: CubicSplineValueClass, t: number, dt: number) {
+        public lerp (to: CubicSplineValueClass, t: number, dt: number):T {
             const p0 = this.dataPoint;
             const p1 = to.dataPoint;
             // dt => t_k+1 - t_k
@@ -84,7 +84,7 @@ function makeCubicSplineValueConstructor<T> (
             return tempValue;
         }
 
-        public getNoLerp () {
+        public getNoLerp (): T {
             return this.dataPoint;
         }
     }
@@ -93,7 +93,7 @@ function makeCubicSplineValueConstructor<T> (
     // Tracking issue: https://github.com/cocos/cocos-engine/issues/14640
     if (ConstructorX as any === Quat) {
         const lerp = CubicSplineValueClass.prototype.lerp;
-        CubicSplineValueClass.prototype.lerp = function (this: CubicSplineValueClass, to: CubicSplineValueClass, t: number, dt: number) {
+        CubicSplineValueClass.prototype.lerp = function (this: CubicSplineValueClass, to: CubicSplineValueClass, t: number, dt: number): Quat {
             const result = lerp.call(this, to, t, dt) as Quat;
             Quat.normalize(result, result);
             return result;
@@ -166,7 +166,7 @@ export class CubicSplineNumberValue implements ICubicSplineValue<number> {
         this.outTangent = outTangent;
     }
 
-    public lerp (to: CubicSplineNumberValue, t: number, dt: number) {
+    public lerp (to: CubicSplineNumberValue, t: number, dt: number): number {
         const p0 = this.dataPoint;
         const p1 = to.dataPoint;
         // dt => t_k+1 - t_k
@@ -181,7 +181,7 @@ export class CubicSplineNumberValue implements ICubicSplineValue<number> {
         return p0 * f_0 + m0 * f_1 + p1 * f_2 + m1 * f_3;
     }
 
-    public getNoLerp () {
+    public getNoLerp (): number {
         return this.dataPoint;
     }
 }

@@ -66,14 +66,14 @@ export class VectorTrack extends Track {
      * @returns An readonly four length array in which
      * the element at n denotes the channel of n-th vector component.
      */
-    public channels () {
+    public channels (): [RealChannel, RealChannel, RealChannel, RealChannel] {
         return this._channels;
     }
 
     /**
      * @internal
      */
-    public [createEvalSymbol] () {
+    public [createEvalSymbol] (): Vec2TrackEval | Vec3TrackEval | Vec4TrackEval {
         switch (this._nComponents) {
         default:
         case 2:
@@ -109,11 +109,11 @@ export class Vec2TrackEval implements TrackEval<Vec2> {
 
     }
 
-    public get requiresDefault () {
+    public get requiresDefault (): boolean {
         return !this._x || !this._y;
     }
 
-    public evaluate (time: number, defaultValue?: Readonly<Vec2>) {
+    public evaluate (time: number, defaultValue?: Readonly<Vec2>): Vec2 {
         if (defaultValue) {
             Vec2.copy(this._result, defaultValue);
         }
@@ -136,11 +136,11 @@ export class Vec3TrackEval implements TrackEval<Vec3> {
 
     }
 
-    public get requiresDefault () {
+    public get requiresDefault (): boolean {
         return !this._x || !this._y || !this._z;
     }
 
-    public evaluate (time: number, defaultValue?: Readonly<Vec3>) {
+    public evaluate (time: number, defaultValue?: Readonly<Vec3>): Vec3 {
         if (defaultValue) {
             Vec3.copy(this._result, defaultValue);
         }
@@ -171,11 +171,11 @@ export class Vec4TrackEval implements TrackEval<Vec4> {
 
     }
 
-    public get requiresDefault () {
+    public get requiresDefault (): boolean {
         return !this._x || !this._y || !this._z || !this._w;
     }
 
-    public evaluate (time: number, defaultValue?: Readonly<Vec4>) {
+    public evaluate (time: number, defaultValue?: Readonly<Vec4>): Vec4 {
         if (defaultValue) {
             Vec4.copy(this._result, defaultValue);
         }

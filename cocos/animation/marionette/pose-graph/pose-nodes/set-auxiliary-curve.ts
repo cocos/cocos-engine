@@ -46,11 +46,11 @@ export class PoseNodeSetAuxiliaryCurve extends PoseNodeModifyPoseBase {
         }
     }
 
-    protected getPoseTransformSpaceRequirement () {
+    protected getPoseTransformSpaceRequirement (): PoseTransformSpaceRequirement {
         return PoseTransformSpaceRequirement.NO;
     }
 
-    protected modifyPose (context: AnimationGraphEvaluationContext, inputPose: Pose) {
+    protected modifyPose (context: AnimationGraphEvaluationContext, inputPose: Pose): void {
         const {
             _handle: handle,
         } = this;
@@ -74,7 +74,7 @@ export class PoseNodeSetAuxiliaryCurve extends PoseNodeModifyPoseBase {
 }
 
 if (EDITOR) {
-    PoseNodeSetAuxiliaryCurve.prototype.getTitle = function getTitle (this: PoseNodeSetAuxiliaryCurve) {
+    PoseNodeSetAuxiliaryCurve.prototype.getTitle = function getTitle (this: PoseNodeSetAuxiliaryCurve): string | [string, Record<string, string>] | undefined {
         if (!this.curveName) {
             return undefined;
         }

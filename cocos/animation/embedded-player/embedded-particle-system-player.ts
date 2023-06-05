@@ -46,7 +46,7 @@ export class EmbeddedParticleSystemPlayable extends EmbeddedPlayable {
     @serializable
     public path = '';
 
-    public instantiate (root: Node) {
+    public instantiate (root: Node): EmbeddedParticleSystemPlayableState | null {
         const node = root.getChildByPath(this.path);
         if (!node) {
             warn(`Hierarchy path ${this.path} does not exists.`);

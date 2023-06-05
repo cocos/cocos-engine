@@ -5,6 +5,7 @@ import { poseGraphNodeAppearance, poseGraphNodeCategory } from '../../decorator/
 import { POSE_GRAPH_NODE_MENU_PREFIX_CHOOSE } from './menu';
 import { PoseNodeChoosePoseBase } from './choose-pose-base';
 import { PoseGraphType } from '../../foundation/type-system';
+import type { PoseNode } from '../../pose-node';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseNodeChoosePoseByBoolean`)
 @poseGraphNodeCategory(POSE_GRAPH_NODE_MENU_PREFIX_CHOOSE)
@@ -15,7 +16,7 @@ export class PoseNodeChoosePoseByBoolean extends PoseNodeChoosePoseBase {
     }
 
     @input({ type: PoseGraphType.POSE })
-    public get truePose () {
+    public get truePose (): PoseNode | null {
         return this._poses[0];
     }
     public set truePose (value) {
@@ -23,7 +24,7 @@ export class PoseNodeChoosePoseByBoolean extends PoseNodeChoosePoseBase {
     }
 
     @input({ type: PoseGraphType.POSE })
-    public get falsePose () {
+    public get falsePose (): PoseNode | null {
         return this._poses[1];
     }
     public set falsePose (value) {
@@ -31,7 +32,7 @@ export class PoseNodeChoosePoseByBoolean extends PoseNodeChoosePoseBase {
     }
 
     @input({ type: PoseGraphType.FLOAT })
-    public get trueFadeInDuration () {
+    public get trueFadeInDuration (): number {
         return this._fadeInDurations[0];
     }
     public set trueFadeInDuration (value) {
@@ -39,7 +40,7 @@ export class PoseNodeChoosePoseByBoolean extends PoseNodeChoosePoseBase {
     }
 
     @input({ type: PoseGraphType.FLOAT })
-    public get falseFadeInDuration () {
+    public get falseFadeInDuration (): number {
         return this._fadeInDurations[1];
     }
     public set falseFadeInDuration (value) {
@@ -50,7 +51,7 @@ export class PoseNodeChoosePoseByBoolean extends PoseNodeChoosePoseBase {
     @input({ type: PoseGraphType.BOOLEAN })
     public choice = true;
 
-    protected getChosenIndex () {
+    protected getChosenIndex (): number {
         return this.choice ? 0 : 1;
     }
 }

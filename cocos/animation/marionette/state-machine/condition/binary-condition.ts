@@ -71,7 +71,7 @@ export class BinaryCondition implements Condition {
     @serializable
     public rhs = 0.0;
 
-    public clone () {
+    public clone (): BinaryCondition {
         const that = new BinaryCondition();
         that.operator = this.operator;
         that.lhs = this.lhs;
@@ -80,7 +80,7 @@ export class BinaryCondition implements Condition {
         return that;
     }
 
-    public [createEval] (context: ConditionBindingContext) {
+    public [createEval] (context: ConditionBindingContext): BinaryConditionEval {
         const lhsBindingEvaluation = this.lhsBinding?.bind(context);
 
         const binaryConditionEval = new BinaryConditionEval(
@@ -112,7 +112,7 @@ class BinaryConditionEval implements ConditionEval {
     /**
      * Evaluates this condition.
      */
-    public eval (context: ConditionEvaluationContext) {
+    public eval (context: ConditionEvaluationContext): boolean {
         const lhsValue = this._lhsBindingEvaluation?.evaluate(context) ?? this._lhsValue;
         const rhsValue = this._rhsValue;
 

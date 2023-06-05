@@ -73,7 +73,7 @@ export class MotionState extends InteractiveState {
         return this;
     }
 
-    public _clone () {
+    public _clone (): MotionState {
         const that = new MotionState();
         this.copyTo(that);
         return that;

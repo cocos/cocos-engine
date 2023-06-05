@@ -37,7 +37,7 @@ export type { PoseGraphNodeInputMappingOptions };
  * Otherwise, each element of the property will be mapped as an input.
  */
 export function input (options: PoseGraphNodeInputMappingOptions): PropertyDecorator {
-    return (target, propertyKey) => {
+    return (target, propertyKey): void => {
         if (typeof propertyKey !== 'string') {
             error(`@input can be only applied to string-named fields.`);
             return;

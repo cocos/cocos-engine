@@ -133,7 +133,7 @@ class RuntimeStashRecord implements RuntimeStash {
     ) {
     }
 
-    public set (stash: PoseGraphStash, context: AnimationGraphBindingContext) {
+    public set (stash: PoseGraphStash, context: AnimationGraphBindingContext): void {
         assertIsTrue(this._state === StashRecordState.UNINITIALIZED, `The stash has already been set.`);
         const instantiatedPoseGraph = instantiatePoseGraph(stash.graph, context);
         instantiatedPoseGraph.bind(context);
@@ -141,7 +141,7 @@ class RuntimeStashRecord implements RuntimeStash {
         this._state = StashRecordState.UNSETTLED;
     }
 
-    public settle (context: AnimationGraphSettleContext) {
+    public settle (context: AnimationGraphSettleContext): void {
         assertIsTrue(
             this._state === StashRecordState.UNSETTLED // First time settle
             || this._state === StashRecordState.SETTLED, // Resettle
@@ -151,7 +151,7 @@ class RuntimeStashRecord implements RuntimeStash {
         this._state = StashRecordState.SETTLED;
     }
 
-    public reset () {
+    public reset (): void {
         switch (this._state) {
         case StashRecordState.SETTLED:
             // The stash was not touched in last tick and still not been touched in this tick.
@@ -177,7 +177,7 @@ class RuntimeStashRecord implements RuntimeStash {
         }
     }
 
-    public reenter () {
+    public reenter (): void {
         assertIsTrue(
             this._state === StashRecordState.SETTLED
             || this._state === StashRecordState.PENDING
@@ -190,7 +190,7 @@ class RuntimeStashRecord implements RuntimeStash {
         }
     }
 
-    public requestUpdate (context: AnimationGraphUpdateContext) {
+    public requestUpdate (context: AnimationGraphUpdateContext): void {
         const { deltaTime } = context;
         assertIsTrue(
             this._state === StashRecordState.PENDING
@@ -231,7 +231,7 @@ class RuntimeStashRecord implements RuntimeStash {
         this._state = StashRecordState.UPDATED;
     }
 
-    public evaluate (context: AnimationGraphEvaluationContext) {
+    public evaluate (context: AnimationGraphEvaluationContext): Pose | null {
         assertIsTrue(
             this._state === StashRecordState.UPDATED
             || this._state === StashRecordState.EVALUATING
@@ -282,7 +282,7 @@ export class RuntimeStashManager implements RuntimeStashView {
         this._allocator = allocator;
     }
 
-    public bindStash (id: string) {
+    public bindStash (id: string): RuntimeStash {
         return this._stashEvaluations[id] as RuntimeStash;
     }
 
@@ -290,23 +290,23 @@ export class RuntimeStashManager implements RuntimeStashView {
         return this._stashEvaluations[id];
     }
 
-    public addStash (id: string) {
+    public addStash (id: string): void {
         this._stashEvaluations[id] = new RuntimeStashRecord(this._allocator);
     }
 
-    public setStash (id: string, stash: PoseGraphStash, context: AnimationGraphBindingContext) {
+    public setStash (id: string, stash: PoseGraphStash, context: AnimationGraphBindingContext): void {
         assertIsTrue(id in this._stashEvaluations);
         this._stashEvaluations[id].set(stash, context);
     }
 
-    public reset () {
+    public reset (): void {
         for (const stashId in this._stashEvaluations) {
             const record = this._stashEvaluations[stashId];
             record.reset();
         }
     }
 
-    public settle (context: AnimationGraphSettleContext) {
+    public settle (context: AnimationGraphSettleContext): void {
         for (const stashId in this._stashEvaluations) {
             const record = this._stashEvaluations[stashId];
             record.settle(context);
