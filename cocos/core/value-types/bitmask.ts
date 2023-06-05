@@ -95,14 +95,14 @@ export function BitMask<T> (obj: T): T {
  * @returns @en True if it is a BitMask, false else.
  * @zh 如果是 BitMask，返回 true；否则返回 false。
  */
-BitMask.isBitMask = (BitMaskType) => BitMaskType && BitMaskType.hasOwnProperty('__bitmask__');
+BitMask.isBitMask = (BitMaskType): any => BitMaskType && BitMaskType.hasOwnProperty('__bitmask__');
 
 /**
  *
  * @param BitMaskDef
  * @returns @en A sorted array with integer values. @zh 存储整型属性值的数组。该数组已排序。
  */
-BitMask.getList = (BitMaskDef) => {
+BitMask.getList = (BitMaskDef): any => {
     if (BitMaskDef.__bitmask__) {
         return BitMaskDef.__bitmask__;
     }
@@ -119,7 +119,7 @@ BitMask.getList = (BitMaskDef) => {
  * @param BitMaskDef
  * @returns @en A sorted array with integer values. @zh 存储整型属性值的数组。该数组已排序。
  */
-BitMask.update = (BitMaskDef) => {
+BitMask.update = (BitMaskDef): any => {
     if (!Array.isArray(BitMaskDef.__bitmask__)) {
         BitMaskDef.__bitmask__ = [];
     }
@@ -133,7 +133,7 @@ BitMask.update = (BitMaskDef) => {
             bitList.push({ name, value: v });
         }
     }
-    bitList.sort((a, b) => a.value - b.value);
+    bitList.sort((a, b): number => a.value - b.value);
 
     return bitList;
 };
@@ -144,7 +144,7 @@ BitMask.update = (BitMaskDef) => {
  * @param bitmaskx @en An object to make BitMask type. @zh 要标记为 BitMask 类型的对象。
  * @returns @en The passed in object. @zh 传入的对象。
  */
-export function ccbitmask (bitmaskx) {
+export function ccbitmask (bitmaskx): void {
     if ('__bitmask__' in bitmaskx) {
         return;
     }

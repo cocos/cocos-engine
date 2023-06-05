@@ -32,7 +32,7 @@ import Task from './task';
 
 const infos: IAddressableInfo[] = [];
 
-export function parse (task: Task) {
+export function parse (task: Task): null {
     const options = task.options;
     const input = Array.isArray(task.input) ? task.input : [task.input];
 
@@ -57,7 +57,7 @@ export function parse (task: Task) {
                 case RequestType.UUID: {
                     const uuid = out.uuid = decodeUuid(item.uuid);
                     if (!item.bundle) {
-                        const bundle = bundles.find((bundle) => !!bundle.getAssetInfo(uuid));
+                        const bundle = bundles.find((bundle): boolean => !!bundle.getAssetInfo(uuid));
                         item.bundle = (bundle && bundle.name);
                     }
                     if (bundles.has(item.bundle)) {
@@ -113,7 +113,7 @@ export function parse (task: Task) {
                     break;
                 case RequestType.SCENE:
                     if (!item.bundle) {
-                        const bundle = bundles.find((bundle) => !!bundle.getSceneInfo(item.scene));
+                        const bundle = bundles.find((bundle): boolean => !!bundle.getSceneInfo(item.scene));
                         item.bundle = bundle && bundle.name;
                     }
                     if (bundles.has(item.bundle)) {
@@ -155,7 +155,7 @@ export function parse (task: Task) {
     return null;
 }
 
-export function replaceOverrideAsset (task: Task) {
+export function replaceOverrideAsset (task: Task): void {
     const input = task.output = task.input;
     for (let i = 0; i < input.length; i++) {
         const item = input[i] as RequestItem;
@@ -167,7 +167,7 @@ export function replaceOverrideAsset (task: Task) {
                 item.ext = item.isNative ? item.ext : '.json';
                 continue;
             }
-            const bundle = bundles.find((bundle) => !!bundle.getAssetInfo(uuid));
+            const bundle = bundles.find((bundle): boolean => !!bundle.getAssetInfo(uuid));
             if (bundle) {
                 item.overrideUuid = uuid;
                 let config = bundle.config;
@@ -187,7 +187,7 @@ export function replaceOverrideAsset (task: Task) {
     }
 }
 
-export function combine (task: Task) {
+export function combine (task: Task): any {
     const input = task.output = task.input;
     for (let i = 0; i < input.length; i++) {
         const item = input[i] as RequestItem;

@@ -59,7 +59,7 @@ export class Frustum {
      * @param transform @en The transform matrix of the frustum. @zh 正交视锥体的变换矩阵。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      */
-    public static createOrthographic (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
+    public static createOrthographic (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4): void {
         const halfWidth = width / 2;
         const halfHeight = height / 2;
         Vec3.set(_temp_v3, halfWidth, halfHeight, -near);
@@ -95,7 +95,7 @@ export class Frustum {
      *
      * @deprecated since v3.8.0, please use [[createOrthographic]] instead.
      */
-    public static createOrtho (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) {
+    public static createOrtho (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4): void {
         return Frustum.createOrthographic(out, width, height, near, far, transform);
     }
 
@@ -109,7 +109,7 @@ export class Frustum {
      * @param transform @en The transform matrix. @zh 变换矩阵。
      * @returns @en The result frustum, same as the `out` parameter. @zh 存储结果的视锥体，与 `out` 参数为同一个对象。
      */
-    public static createPerspective (out: Frustum, aspect: number, fov: number, near: number, far: number, transform: Mat4) {
+    public static createPerspective (out: Frustum, aspect: number, fov: number, near: number, far: number, transform: Mat4): void {
         const h = Math.tan(fov * 0.5);
         const w = h * aspect;
         _nearTemp.set(near * w,  near * h, near);
@@ -178,7 +178,7 @@ export class Frustum {
      *
      * @deprecated since v3.8.0, please use [[createPerspective]] instead.
      */
-    public split (start: number, end: number, aspect: number, fov: number, m: Mat4) {
+    public split (start: number, end: number, aspect: number, fov: number, m: Mat4): void {
         return Frustum.createPerspective(this, aspect, fov, start, end, m);
     }
 
@@ -244,7 +244,7 @@ export class Frustum {
      * 获取形状的类型。值可能为 `enums.SHAPE_FRUSTUM_ACCURATE` 或 `enums.SHAPE_FRUSTUM`。
      * @readonly
      */
-    get type () {
+    get type (): number {
         return this._type;
     }
 
@@ -287,7 +287,7 @@ export class Frustum {
      * @param m @en The view-projection matrix. @zh 视图投影矩阵。
      * @param inv @en The inverse view-projection matrix. @zh 视图投影逆矩阵。
      */
-    public update (m: Mat4, inv: Mat4) {
+    public update (m: Mat4, inv: Mat4): void {
         // RTR4, ch. 22.14.1, p. 983
         // extract frustum planes from view-proj matrix.
 
@@ -331,7 +331,7 @@ export class Frustum {
      * 变换此视锥体。
      * @param mat @en The transform matrix. @zh 变换矩阵。
      */
-    public transform (mat: Mat4) {
+    public transform (mat: Mat4): void {
         for (let i = 0; i < 8; i++) {
             Vec3.transformMat4(this.vertices[i], this.vertices[i], mat);
         }
@@ -342,7 +342,7 @@ export class Frustum {
      * @en Makes the frustum empty, all vertices will be zero values.
      * @zh 置空此视锥体，所有顶点将被赋值为 0。
      */
-    public zero () {
+    public zero (): void {
         // reset to initial state
         for (let i = 0; i < 8; i++) {
             this.vertices[i].set(0.0, 0.0, 0.0);
@@ -356,7 +356,7 @@ export class Frustum {
      * @en Updates all six planes of the frustum.
      * @zh 更新视锥体的所有面数据。
      */
-    public updatePlanes () {
+    public updatePlanes (): void {
         // left plane
         Plane.fromPoints(this.planes[0], this.vertices[1], this.vertices[6], this.vertices[5]);
         // right plane

@@ -41,14 +41,14 @@ export class UnaryCondition implements Condition {
     @serializable
     public operand = new BindableBoolean();
 
-    public clone () {
+    public clone (): UnaryCondition {
         const that = new UnaryCondition();
         that.operator = this.operator;
         that.operand = this.operand.clone();
         return that;
     }
 
-    public [createEval] (context: ConditionBindingContext) {
+    public [createEval] (context: ConditionBindingContext): UnaryConditionEval {
         const { operator, operand } = this;
         const evaluation = new UnaryConditionEval(operator, false);
         const value = bindOr(
@@ -78,11 +78,11 @@ class UnaryConditionEval implements ConditionEval {
         this._eval();
     }
 
-    public reset (value: boolean) {
+    public reset (value: boolean): void {
         this.setOperand(value);
     }
 
-    public setOperand (value: boolean) {
+    public setOperand (value: boolean): void {
         this._operand = value;
         this._eval();
     }
@@ -90,11 +90,11 @@ class UnaryConditionEval implements ConditionEval {
     /**
      * Evaluates this condition.
      */
-    public eval () {
+    public eval (): boolean {
         return this._result;
     }
 
-    private _eval () {
+    private _eval (): void {
         const { _operand: operand } = this;
         switch (this._operator) {
         default:

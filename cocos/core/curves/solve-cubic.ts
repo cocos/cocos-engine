@@ -29,7 +29,7 @@
  * The equation is formed from coeff0 + coeff1 * x + coeff2 * x^2 + coeff3 * x^3 = 0.
  * Modified from https://github.com/erich666/GraphicsGems/blob/master/gems/Roots3And4.c .
  */
-export function solveCubic (coeff0: number, coeff1: number, coeff2: number, coeff3: number, solutions: [number, number, number]) {
+export function solveCubic (coeff0: number, coeff1: number, coeff2: number, coeff3: number, solutions: [number, number, number]): number {
     // normal form: x^3 + Ax^2 + Bx + C = 0
     const a = coeff2 / coeff3;
     const b = coeff1 / coeff3;
@@ -82,6 +82,6 @@ export function solveCubic (coeff0: number, coeff1: number, coeff2: number, coef
 
 const EQN_EPS = 1e-9;
 
-function isZero (x: number) {
+function isZero (x: number): boolean {
     return x > -EQN_EPS && x < EQN_EPS;
 }

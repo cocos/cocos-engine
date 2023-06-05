@@ -44,11 +44,14 @@ const elementTypeBits = 3;
 
 export type StorageUnitElementType = number;
 
-export function combineStorageUnitElementType (unit: StorageUnit, elementType: ElementType) {
+export function combineStorageUnitElementType (unit: StorageUnit, elementType: ElementType): number {
     return (elementType << elementTypeBits) + unit;
 }
 
-export function extractStorageUnitElementType (combined: StorageUnitElementType) {
+export function extractStorageUnitElementType (combined: StorageUnitElementType): {
+    storageUnit: number;
+    elementType: number;
+} {
     return {
         storageUnit: ~(-1 << elementTypeBits) & combined,
         elementType: combined >> elementTypeBits,
@@ -139,11 +142,11 @@ export class CompactValueTypeArray {
     }
 }
 
-function getElementTraits (elementType: ElementType) {
+function getElementTraits (elementType: ElementType): CompactTraits {
     return BuiltinElementTypeTraits[elementType];
 }
 
-function getStorageConstructor (unit: StorageUnit) {
+function getStorageConstructor (unit: StorageUnit): Float32ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor | Uint8ArrayConstructor | Int8ArrayConstructor | Int16ArrayConstructor | Int32ArrayConstructor | Float64ArrayConstructor {
     switch (unit) {
     case StorageUnit.Uint8:
         return Uint8Array;

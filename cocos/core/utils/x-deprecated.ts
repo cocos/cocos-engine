@@ -112,7 +112,7 @@ interface IMeessageItem {
 let messageID = 0;
 const messageMap: Map<number, IMeessageItem> = new Map<number, IMeessageItem>();
 
-replacePropertyLog = (n: string, dp: string, n2: string, newp: string, f: Function, id: number, s: string) => {
+replacePropertyLog = (n: string, dp: string, n2: string, newp: string, f: Function, id: number, s: string): void => {
     const item = messageMap.get(id);
     if (item && item.logTimes > item.count) {
         f(`'%s' is deprecated, please use '%s' instead. ${s}`, `${n}.${dp}`, `${n2}.${newp}`);
@@ -120,10 +120,10 @@ replacePropertyLog = (n: string, dp: string, n2: string, newp: string, f: Functi
     }
 };
 
-replaceProperty = (owner: object, ownerName: string, properties: IReplacement[]) => {
+replaceProperty = (owner: object, ownerName: string, properties: IReplacement[]): void => {
     if (owner == null) return;
 
-    properties.forEach((item: IReplacement) => {
+    properties.forEach((item: IReplacement): void => {
         const id = messageID++;
         messageMap.set(id, { id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes });
         const target = item.target != null ? item.target : owner;
@@ -132,7 +132,7 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
         const sameTarget = target === owner;
         const suggest = item.suggest ? `(${item.suggest})` : '';
         if (item.customFunction != null) {
-            owner[item.name] = function (this: any) {
+            owner[item.name] = function (this: any): any {
                 replacePropertyLog(ownerName, item.name, targetName, newName, warn, id, suggest);
                 return item.customFunction!.call(this, ...arguments);
             };
@@ -141,11 +141,11 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
             const hasGetter = item.customGetter != null;
             if (hasSetter && hasGetter) {
                 Object.defineProperty(owner, item.name, {
-                    get (this) {
+                    get (this): any {
                         replacePropertyLog(ownerName, item.name, targetName, newName, warn, id, suggest);
                         return item.customGetter!.call(this);
                     },
-                    set (this, v: any) {
+                    set (this, v: any): void {
                         replacePropertyLog(ownerName, item.name, targetName, newName, warn, id, suggest);
                         item.customSetter!.call(this, v);
                     },
@@ -153,7 +153,7 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
                 });
             } else if (hasSetter) {
                 Object.defineProperty(owner, item.name, {
-                    set (this, v: any) {
+                    set (this, v: any): void {
                         replacePropertyLog(ownerName, item.name, targetName, newName, warn, id, suggest);
                         item.customSetter!.call(this, v);
                     },
@@ -161,7 +161,7 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
                 });
             } else if (hasGetter) {
                 Object.defineProperty(owner, item.name, {
-                    get (this) {
+                    get (this): any {
                         replacePropertyLog(ownerName, item.name, targetName, newName, warn, id, suggest);
                         return item.customGetter!.call(this);
                     },
@@ -170,11 +170,11 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
             }
         } else {
             Object.defineProperty(owner, item.name, {
-                get (this) {
+                get (this): any {
                     replacePropertyLog(ownerName, item.name, targetName, newName, warn, id, suggest);
                     return sameTarget ? this[newName] : target[newName];
                 },
-                set (this, v: any) {
+                set (this, v: any): void {
                     replacePropertyLog(ownerName, item.name, targetName, newName, warn, id, suggest);
                     if (sameTarget) {
                         this[newName] = v;
@@ -188,7 +188,7 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
     });
 };
 
-removePropertyLog = (n: string, dp: string, f: Function, id: number, s: string) => {
+removePropertyLog = (n: string, dp: string, f: Function, id: number, s: string): void => {
     const item = messageMap.get(id);
     if (item && item.logTimes > item.count) {
         f(`'%s' has been removed. ${s}`, `${n}.${dp}`);
@@ -196,18 +196,18 @@ removePropertyLog = (n: string, dp: string, f: Function, id: number, s: string) 
     }
 };
 
-removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) => {
+removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]): void => {
     if (owner == null) return;
 
-    properties.forEach((item: IRemoveItem) => {
+    properties.forEach((item: IRemoveItem): void => {
         const id = messageID++;
         messageMap.set(id, { id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes });
         const suggest = item.suggest ? `(${item.suggest})` : '';
         Object.defineProperty(owner, item.name, {
-            get (this) {
+            get (this): void {
                 return removePropertyLog(ownerName, item.name, error, id, suggest);
             },
-            set (this) {
+            set (this): void {
                 removePropertyLog(ownerName, item.name, error, id, suggest);
             },
             enumerable: false,
@@ -215,7 +215,7 @@ removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) =
     });
 };
 
-markAsWarningLog = (n: string, dp: string, f: Function, id: number, s: string) => {
+markAsWarningLog = (n: string, dp: string, f: Function, id: number, s: string): void => {
     const item = messageMap.get(id);
     if (item && item.logTimes > item.count) {
         f(`'%s' is deprecated. ${s}`, `${n}.${dp}`);
@@ -223,20 +223,20 @@ markAsWarningLog = (n: string, dp: string, f: Function, id: number, s: string) =
     }
 };
 
-markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
+markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]): void => {
     if (owner == null) return;
 
-    const _defaultGetSet = (d: PropertyDescriptor, n: string, dp: string, f: Function, id: number, s: string) => {
+    const _defaultGetSet = (d: PropertyDescriptor, n: string, dp: string, f: Function, id: number, s: string): void => {
         if (d.get) {
             const oldGet = d.get;
-            d.get = function (this) {
+            d.get = function (this): any {
                 markAsWarningLog(n, dp, f, id, s);
                 return oldGet.call(this);
             };
         }
         if (d.set) {
             const oldSet = d.set;
-            d.set = function (this, v: any) {
+            d.set = function (this, v: any): void {
                 markAsWarningLog(n, dp, f, id, s);
                 oldSet.call(this, v);
             };
@@ -244,7 +244,7 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
         Object.defineProperty(owner, dp, d);
     };
 
-    properties.forEach((item: IMarkItem) => {
+    properties.forEach((item: IMarkItem): void => {
         const deprecatedProp = item.name;
         const descriptor = Object.getOwnPropertyDescriptor(owner, deprecatedProp);
         if (!descriptor || !descriptor.configurable) { return; }
@@ -254,7 +254,7 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
         if (typeof descriptor.value !== 'undefined') {
             if (typeof descriptor.value === 'function') {
                 const oldValue = descriptor.value as Function;
-                owner[deprecatedProp] = function (this) {
+                owner[deprecatedProp] = function (this): any {
                     markAsWarningLog(ownerName, deprecatedProp, warn, id, suggest);
                     return oldValue.call(this, ...arguments);
                 };
@@ -262,14 +262,14 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
                 let oldValue = descriptor.value;
                 Object.defineProperty(owner, deprecatedProp, {
                     configurable: true,
-                    get () {
+                    get (): any {
                         markAsWarningLog(ownerName, deprecatedProp, warn, id, suggest);
                         return oldValue;
                     },
                 });
                 if (descriptor.writable) {
                     Object.defineProperty(owner, deprecatedProp, {
-                        set (value) {
+                        set (value): void {
                             markAsWarningLog(ownerName, deprecatedProp, warn, id, suggest);
                             oldValue = value;
                         },
@@ -330,14 +330,14 @@ const topLevelDeprecateList: TopLevelDeprecateList = {
  * ```
  * @engineInternal
  */
-export function deprecateModuleExportedName (deprecateList: TopLevelDeprecateList) {
+export function deprecateModuleExportedName (deprecateList: TopLevelDeprecateList): void {
     for (let deprecateName in deprecateList) {
         const deprecateInfo = deprecateList[deprecateName];
         topLevelDeprecateList[deprecateName] = deprecateInfo;
     }
 }
 
-function _checkObsoleteByName (checkName: string) {
+function _checkObsoleteByName (checkName: string): void {
     const deprecateInfo = topLevelDeprecateList[checkName];
     if (!deprecateInfo) {
         return;
@@ -367,7 +367,7 @@ function _checkObsoleteByName (checkName: string) {
  * ```
  * @engineInternal
  */
-export function __checkObsolete__ (checkList: string[]) {
+export function __checkObsolete__ (checkList: string[]): void {
     for (let checkName of checkList) {
         _checkObsoleteByName(checkName);
     }
@@ -385,13 +385,13 @@ let _cachedProxy;
  * ```
  * @engineInternal
  */
-export function __checkObsoleteInNamespace__ (ccNamespace: object) {
+export function __checkObsoleteInNamespace__ (ccNamespace: object): any {
     if (!_cachedProxy) {
         if (typeof Proxy === 'undefined') {
             _cachedProxy = {};
         } else {
             _cachedProxy = new Proxy(ccNamespace, {
-                get (target, name, receiver) {
+                get (target, name, receiver): any {
                     // NOTE: for now we use tsc version 4.3.5, which has not supported symbol as index.
                     _checkObsoleteByName(name as string);
                     return Reflect.get(target, name, receiver);

@@ -36,7 +36,7 @@ const { ccclass } = _decorator;
 */
 @ccclass('dragonBones.CCSlot')
 export class CCSlot extends Slot {
-    static toString () {
+    static toString (): string {
         return '[class dragonBones.CCSlot]';
     }
 
@@ -94,7 +94,7 @@ export class CCSlot extends Slot {
      * @returns @en A texture instance if _textureData is not null, otherwise returns null.
      *          @zh 若 _textureData 为 null，将返回 null。
      */
-    getTexture () {
+    getTexture (): Texture2D | null {
         if (this._textureData) {
             const sp = (this._textureData as any).spriteFrame;
             const tex = sp.texture as Texture2D;
@@ -106,7 +106,7 @@ export class CCSlot extends Slot {
      * @en Calculates world matrix of slot.
      * @zh 计算插槽世界矩阵。
      */
-    calculWorldMatrix () {
+    calculWorldMatrix (): void {
         const parent = this._armature._parent as CCSlot;
         if (parent) {
             this._mulMat(this._worldMatrix, parent._worldMatrix, this._matrix);
@@ -120,7 +120,7 @@ export class CCSlot extends Slot {
      * @en Resets slot data and state.
      * @zh 重置插槽数据和状态。
      */
-    _onClear () {
+    _onClear (): void {
         super._onClear();
         this._localVertices.length = 0;
         this._indices.length = 0;
@@ -134,32 +134,32 @@ export class CCSlot extends Slot {
      * just for adapt to dragonbones api,no need to do any thing
      * @deprecated Since v3.7.2, this interface that will be removed in the future.
      */
-    _onUpdateDisplay () {
+    _onUpdateDisplay (): void {
     }
     /**
      * just for adapt to dragonbones api,no need to do any thing
      * @deprecated Since v3.7.2, this interface that will be removed in the future.
      */
-    _initDisplay (value) {
+    _initDisplay (value): void {
     }
     /**
      * just for adapt to dragonbones api,no need to do any thing
      * @deprecated Since v3.7.2, this interface that will be removed in the future.
      */
-    _addDisplay () {
+    _addDisplay (): void {
         this._visible = true;
     }
     /**
      * just for adapt to dragonbones api,no need to do any thing
      * @deprecated Since v3.7.2, this interface that will be removed in the future.
      */
-    _replaceDisplay (value) {
+    _replaceDisplay (value): void {
     }
     /**
      * just for adapt to dragonbones api,no need to do any thing
      * @deprecated Since v3.7.2, this interface that will be removed in the future.
      */
-    _removeDisplay () {
+    _removeDisplay (): void {
         this._visible = false;
     }
 
@@ -167,20 +167,20 @@ export class CCSlot extends Slot {
      * just for adapt to dragonbones api,no need to do any thing
      * @deprecated Since v3.7.2, this interface that will be removed in the future.
      */
-    _disposeDisplay (object) {
+    _disposeDisplay (object): void {
     }
     /**
      * just for adapt to dragonbones api,no need to do any thing
      * @deprecated Since v3.7.2, this interface that will be removed in the future.
      */
-    _updateVisible () {
+    _updateVisible (): void {
         this._visible = this.parent.visible;
     }
     /**
      * just for adapt to dragonbones api,no need to do any thing
      * @deprecated Since v3.7.2, this interface that will be removed in the future.
      */
-    _updateGlueMesh () {
+    _updateGlueMesh (): void {
 
     }
 
@@ -188,13 +188,13 @@ export class CCSlot extends Slot {
      * just for adapt to dragonbones api,no need to do any thing
      * @deprecated Since v3.7.2, this interface that will be removed in the future.
      */
-    _updateZOrder () {
+    _updateZOrder (): void {
     }
     /**
      * @en Update the color blending mode of the slot.
      * @zh 更新插槽的颜色混合模式。
      */
-    _updateBlendMode () {
+    _updateBlendMode (): void {
         if (this._childArmature) {
             const childSlots = this._childArmature.getSlots();
             for (let i = 0, l = childSlots.length; i < l; i++) {
@@ -208,7 +208,7 @@ export class CCSlot extends Slot {
      * @en Update the color of the slot.
      * @zh 更新插槽的颜色。
      */
-    _updateColor () {
+    _updateColor (): void {
         const c = this._color;
         c.r = this._colorTransform.redMultiplier * 255;
         c.g = this._colorTransform.greenMultiplier * 255;
@@ -219,7 +219,7 @@ export class CCSlot extends Slot {
      * @en Update one frame of slot vertex data.
      * @zh 更新一帧插槽顶点数据。
      */
-    _updateFrame () {
+    _updateFrame (): void {
         this._indices.length = 0;
         const indices = this._indices;
         const localVertices = this._localVertices;
@@ -325,7 +325,7 @@ export class CCSlot extends Slot {
      * @en Update mesh data of slot.
      * @zh 更新槽点的网格数据。
      */
-    _updateMesh () {
+    _updateMesh (): void {
         const scale = this._armature._armatureData.scale;
         const deformVertices = this._deformVertices.vertices;
         const bones = this._deformVertices.bones;
@@ -412,7 +412,7 @@ export class CCSlot extends Slot {
      * @en Reset current matrix to identity matrix.
      * @zh 重置当前矩阵为单位矩阵。
      */
-    _identityTransform () {
+    _identityTransform (): void {
         const m = this._matrix;
         m.m00 = 1.0;
         m.m01 = 0.0;
@@ -426,7 +426,7 @@ export class CCSlot extends Slot {
      * @en Update transform of slot.
      * @zh 更新插槽的变换。
      */
-    _updateTransform () {
+    _updateTransform (): void {
         const m = this._matrix;
         m.m00 = this.globalTransformMatrix.a;
         m.m01 = this.globalTransformMatrix.b;
@@ -446,7 +446,7 @@ export class CCSlot extends Slot {
      * @en Update world matrix of slot.
      * @zh 更新插槽的世界矩阵。
      */
-    updateWorldMatrix () {
+    updateWorldMatrix (): void {
         if (!this._armature) return;
 
         const parentSlot = this._armature._parent as CCSlot;
@@ -470,7 +470,7 @@ export class CCSlot extends Slot {
     /**
      * @engineInternal Since v3.7.2 this is an engine private function.
      */
-    /* protected */ _mulMat (out: Mat4, a: Readonly<Mat4>, b: Readonly<Mat4>) {
+    /* protected */ _mulMat (out: Mat4, a: Readonly<Mat4>, b: Readonly<Mat4>): void {
         const aa = a.m00; const ab = a.m01; const ac = a.m04; const ad = a.m05; const atx = a.m12; const aty = a.m13;
         const ba = b.m00; const bb = b.m01; const bc = b.m04; const bd = b.m05; const btx = b.m12; const bty = b.m13;
         if (ab !== 0 || ac !== 0) {

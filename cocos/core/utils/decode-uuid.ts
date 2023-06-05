@@ -33,7 +33,7 @@ const HexChars = '0123456789abcdef'.split('');
 
 const _t = ['', '', '', ''];
 const UuidTemplate = _t.concat(_t, '-', _t, '-', _t, '-', _t, '-', _t, _t, _t);
-const Indices = UuidTemplate.map((x, i) => (x === '-' ? NaN : i)).filter(Number.isFinite);
+const Indices = UuidTemplate.map((x, i): number => (x === '-' ? NaN : i)).filter(Number.isFinite);
 
 /**
  * @en
@@ -51,7 +51,7 @@ const Indices = UuidTemplate.map((x, i) => (x === '-' ? NaN : i)).filter(Number.
  * const originalUuid = decodeUuid(uuid); // fc991dd7-0033-4b80-9d41-c8a86a702e59
  * ```
  */
-export default function decodeUuid (base64: string) {
+export default function decodeUuid (base64: string): string {
     const strs = base64.split(separator);
     const uuid = strs[0];
     if (uuid.length !== 22) {

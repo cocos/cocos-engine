@@ -50,7 +50,7 @@ export class SkelAnimDataHub {
         return data;
     }
 
-    public static destroy (clip: AnimationClip) {
+    public static destroy (clip: AnimationClip): void {
         SkelAnimDataHub.pool.delete(clip);
     }
 

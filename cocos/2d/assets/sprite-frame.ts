@@ -35,7 +35,7 @@ import { Texture2D } from '../../asset/assets/texture-2d';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { Mesh } from '../../3d/assets/mesh';
 import { createMesh } from '../../3d/misc';
-import { Attribute, AttributeName, Format, PrimitiveMode } from '../../gfx';
+import { Attribute, AttributeName, Format, PrimitiveMode, Sampler, SamplerInfo, Texture } from '../../gfx';
 import { ccwindow } from '../../core/global-exports';
 
 const INSET_LEFT = 0;
@@ -249,7 +249,7 @@ export class SpriteFrame extends Asset {
      *                                @zh 图像资源或图像原始图像源，图像原始图像源支持 HTMLCanvasElement HTMLImageElement IMemoryImageSource 三种资源。
      * @returns @en SpriteFrame asset. @zh 精灵资源。
      */
-    public static createWithImage (imageSourceOrImageAsset: ImageSource | ImageAsset) {
+    public static createWithImage (imageSourceOrImageAsset: ImageSource | ImageAsset): SpriteFrame {
         const img = imageSourceOrImageAsset instanceof ImageAsset ? imageSourceOrImageAsset : new ImageAsset(imageSourceOrImageAsset);
         const tex = new Texture2D();
         tex.image = img;
@@ -269,7 +269,7 @@ export class SpriteFrame extends Asset {
      * @en Top border distance of sliced 9 rect.
      * @zh 九宫格内部矩形顶部边框距离 SpriteFrame 矩形的距离。
      */
-    get insetTop () {
+    get insetTop (): number {
         return this._capInsets[INSET_TOP];
     }
 
@@ -288,7 +288,7 @@ export class SpriteFrame extends Asset {
      * @en Bottom border distance of sliced 9 rect.
      * @zh 九宫格内部矩形底部边框距离 SpriteFrame 矩形的距离。
      */
-    get insetBottom () {
+    get insetBottom (): number {
         return this._capInsets[INSET_BOTTOM];
     }
 
@@ -307,7 +307,7 @@ export class SpriteFrame extends Asset {
      * @en Left border distance of sliced 9 rect.
      * @zh 九宫格内部矩形左边框距离 SpriteFrame 矩形的距离。
      */
-    get insetLeft () {
+    get insetLeft (): number {
         return this._capInsets[INSET_LEFT];
     }
 
@@ -326,7 +326,7 @@ export class SpriteFrame extends Asset {
      * @en Right border distance of sliced 9 rect.
      * @zh 九宫格内部矩形右边框距离 SpriteFrame 矩形的距离。
      */
-    get insetRight () {
+    get insetRight (): number {
         return this._capInsets[INSET_RIGHT];
     }
 
@@ -347,7 +347,7 @@ export class SpriteFrame extends Asset {
      * @zh 获取 SpriteFrame 的纹理矩形区域。
      * 如果是一个 atlas 的贴图，则为当前贴图的实际剔除透明像素区域。
      */
-    get rect () {
+    get rect (): Rect {
         return this._rect;
     }
 
@@ -367,7 +367,7 @@ export class SpriteFrame extends Asset {
      * @en The original size before trimmed.
      * @zh 修剪前的原始大小。
      */
-    get originalSize () {
+    get originalSize (): Size {
         return this._originalSize;
     }
 
@@ -390,7 +390,7 @@ export class SpriteFrame extends Asset {
      * @zh 精灵帧偏移量。
      * 在图集中的精灵帧可能会被剔除透明像素以获得更高的空间利用李，剔除后的矩形尺寸比剪裁前更小，偏移量指的是从原始矩形的中心到剪裁后的矩形中心的距离。
      */
-    get offset () {
+    get offset (): Vec2 {
         return this._offset;
     }
 
@@ -403,7 +403,7 @@ export class SpriteFrame extends Asset {
      * @en Whether the content of sprite frame is rotated.
      * @zh 是否旋转。
      */
-    get rotated () {
+    get rotated (): boolean {
         return this._rotated;
     }
 
@@ -422,7 +422,7 @@ export class SpriteFrame extends Asset {
      * @en The texture of the sprite frame, could be `TextureBase`.
      * @zh 贴图对象资源，可以是 `TextureBase` 类型。
      */
-    get texture () {
+    get texture (): TextureBase {
         return this._texture;
     }
 
@@ -443,7 +443,7 @@ export class SpriteFrame extends Asset {
      * @en The uuid of the atlas asset, if exists.
      * @zh 图集资源的 uuid。
      */
-    get atlasUuid () {
+    get atlasUuid (): string {
         return this._atlasUuid;
     }
 
@@ -455,7 +455,7 @@ export class SpriteFrame extends Asset {
      * @en The pixel width of the sprite frame.
      * @zh 精灵帧的像素宽度。
      */
-    get width () {
+    get width (): number {
         return this._texture.width;
     }
 
@@ -463,7 +463,7 @@ export class SpriteFrame extends Asset {
      * @en The pixel height of the sprite frame.
      * @zh 精灵帧的像素高度。
      */
-    get height () {
+    get height (): number {
         return this._texture.height;
     }
 
@@ -486,7 +486,7 @@ export class SpriteFrame extends Asset {
      * @en Whether flip the uv in X direction.
      * @zh 沿 X 轴方向, 翻转 UV。
      */
-    get flipUVX () {
+    get flipUVX (): boolean {
         return this._isFlipUVX;
     }
 
@@ -499,7 +499,7 @@ export class SpriteFrame extends Asset {
      * @en Whether flip the uv in Y direction.
      * @zh 沿 Y 轴方向, 翻转 UV。
      */
-    get flipUVY () {
+    get flipUVY (): boolean {
         return this._isFlipUVY;
     }
 
@@ -512,7 +512,7 @@ export class SpriteFrame extends Asset {
      * @en Sets whether sprite can be packed into dynamic atlas.
      * @zh 设置精灵是否允许参与自动合图。
      */
-    get packable () {
+    get packable (): boolean {
         return this._packable;
     }
     set packable (value: boolean) {
@@ -523,7 +523,11 @@ export class SpriteFrame extends Asset {
      * @en Original information before packed to dynamic atlas, includes texture, width, height. It's null before being packed to dynamic atlas.
      * @zh 精灵自动合图之前的原始 texture 和宽高信息。在参与自动合图之前此值为 null。
      */
-    get original () {
+    get original (): {
+        _texture: TextureBase;
+        _x: number;
+        _y: number;
+    } | null {
         return this._original;
     }
 
@@ -531,7 +535,7 @@ export class SpriteFrame extends Asset {
      * @en Number of pixels corresponding to unit size in world space (pixels per unit).
      * @zh 世界空间中的单位大小对应的像素数量（像素每单位）。
      */
-    get pixelsToUnit () {
+    get pixelsToUnit (): number {
         return this._pixelsToUnit;
     }
 
@@ -539,7 +543,7 @@ export class SpriteFrame extends Asset {
      * @en Local origin position when generating the mesh.
      * @zh 生成 mesh 时本地坐标原点位置。
      */
-    get pivot () {
+    get pivot (): Vec2 {
         return this._pivot;
     }
 
@@ -547,14 +551,14 @@ export class SpriteFrame extends Asset {
      * @en mesh information, you should call the [[ensureMeshData]] function before using it.
      * @zh mesh 信息，你应该在使用它之前调用 [[ensureMeshData]] 函数来确保其可用。
      */
-    get mesh () {
+    get mesh (): Mesh | null {
         return this._mesh;
     }
 
     /**
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    get trimmedBorder () {
+    get trimmedBorder (): Vec4 {
         return this._trimmedBorder;
     }
 
@@ -652,7 +656,7 @@ export class SpriteFrame extends Asset {
      *
      * @deprecated since v3.3, Useless Code.
      */
-    public textureLoaded () {
+    public textureLoaded (): boolean {
         return !!this.texture;
     }
 
@@ -663,7 +667,7 @@ export class SpriteFrame extends Asset {
      * 获取 SpriteFrame 是否旋转。
      * @deprecated since v1.2, please use [[rotated]] instead.
      */
-    public isRotated () {
+    public isRotated (): boolean {
         return this._rotated;
     }
 
@@ -675,7 +679,7 @@ export class SpriteFrame extends Asset {
      * @param rotated @en rotated.  @zh 是否旋转。
      * @deprecated since v1.2, please use [[rotated]] instead.
      */
-    public setRotated (rotated: boolean) {
+    public setRotated (rotated: boolean): void {
         this.rotated = rotated;
     }
 
@@ -688,7 +692,7 @@ export class SpriteFrame extends Asset {
      * @returns @en The rect. @zh 矩形区域。
      * @deprecated since v1.2, please use [[rect]].
      */
-    public getRect (out?: Rect) {
+    public getRect (out?: Rect): Rect {
         if (out) {
             out.set(this._rect);
             return out;
@@ -703,7 +707,7 @@ export class SpriteFrame extends Asset {
      * @param rect @en The new rect. @zh 想要设置的 rect。
      * @deprecated since v1.2, please use [[rect]].
      */
-    public setRect (rect: Rect) {
+    public setRect (rect: Rect): void {
         this.rect = rect;
     }
 
@@ -714,7 +718,7 @@ export class SpriteFrame extends Asset {
      * @returns @en The original size. @zh 原始大小。
      * @deprecated since v1.2, please use [[originalSize]].
      */
-    public getOriginalSize (out?: Size) {
+    public getOriginalSize (out?: Size): Size {
         if (out) {
             out.set(this._originalSize);
             return out;
@@ -729,7 +733,7 @@ export class SpriteFrame extends Asset {
      * @param size @en The new original size. @zh 新设置的原始大小。
      * @deprecated since v1.2, please use [[originalSize]].
      */
-    public setOriginalSize (size: Size) {
+    public setOriginalSize (size: Size): void {
         this.originalSize = size;
     }
 
@@ -740,7 +744,7 @@ export class SpriteFrame extends Asset {
      * @returns @en The offset object. @zh 偏移量。
      * @deprecated since v1.2, please use [[offset]]
      */
-    public getOffset (out?: Vec2) {
+    public getOffset (out?: Vec2): Vec2 {
         if (out) {
             out.set(this._offset);
             return out;
@@ -755,7 +759,7 @@ export class SpriteFrame extends Asset {
      * @param offset @en The new offset. @zh 新设置的偏移量。
      * @deprecated since v1.2, please use [[offset]]
      */
-    public setOffset (offset: Vec2) {
+    public setOffset (offset: Vec2): void {
         this.offset = offset;
     }
 
@@ -764,7 +768,7 @@ export class SpriteFrame extends Asset {
      * @zh 获取渲染贴图的 GFX 资源。
      * @returns @en Gfx Texture resource. @zh GFX 贴图资源。
      */
-    public getGFXTexture () {
+    public getGFXTexture (): Texture | null {
         return this._texture.getGFXTexture();
     }
 
@@ -773,7 +777,7 @@ export class SpriteFrame extends Asset {
      * @zh 贴图资源的采样器。
      * @returns @en The GFX sampler resource. @zh GFX贴图采样器。
      */
-    public getGFXSampler () {
+    public getGFXSampler (): Sampler {
         return this._texture.getGFXSampler();
     }
 
@@ -782,7 +786,7 @@ export class SpriteFrame extends Asset {
      * @zh 贴图资源的哈希值。
      * @returns @en Texture`s hash. @zh 贴图哈希值。
      */
-    public getHash () {
+    public getHash (): number {
         return this._texture.getHash();
     }
 
@@ -791,7 +795,7 @@ export class SpriteFrame extends Asset {
      * @zh 贴图资源的采样器哈希值。
      * @returns @en Sampler`s hash. @zh 采样器哈希值。
      */
-    public getSamplerInfo () {
+    public getSamplerInfo (): Readonly<SamplerInfo> {
         return this._texture.getSamplerInfo();
     }
 
@@ -801,7 +805,7 @@ export class SpriteFrame extends Asset {
      * @param info @en SpriteFrame initialization information. @zh SpriteFrame 初始化信息。
      * @param clearData @en Clear Data before initialization. @zh 是否在初始化前清空原有数据。
      */
-    public reset (info?: ISpriteFrameInitInfo, clearData = false) {
+    public reset (info?: ISpriteFrameInitInfo, clearData = false): void {
         let calUV = false;
         if (clearData) {
             this._originalSize.set(0, 0);
@@ -872,7 +876,7 @@ export class SpriteFrame extends Asset {
      * @param texture @en Texture resources for sprite frame. @zh SpriteFrame 的贴图资源。
      * @returns @en Out of the texture boundary or not. @zh 矩形区域是否越界。
      */
-    public checkRect (texture: TextureBase) {
+    public checkRect (texture: TextureBase): boolean {
         const rect = this._rect;
         let maxX = rect.x;
         let maxY = rect.y;
@@ -897,7 +901,7 @@ export class SpriteFrame extends Asset {
         return true;
     }
 
-    private _calcTrimmedBorder () {
+    private _calcTrimmedBorder (): void {
         const ow = this._originalSize.width;
         const oh = this._originalSize.height;
         const rw = this._rect.width;
@@ -918,14 +922,14 @@ export class SpriteFrame extends Asset {
      * @en Make sure the mesh is available, you should call it before using the mesh.
      * @zh 确保 mesh 可用，你应该在使用 mesh 之前调用它。
      */
-    public ensureMeshData () {
+    public ensureMeshData (): void {
         if (this._mesh) return;
         // If SpriteFrame from load, we need init vertices when use mesh
         this._initVertices();
         this._createMesh();
     }
 
-    public destroy () {
+    public destroy (): boolean {
         if (this._packable && dynamicAtlasManager) {
             dynamicAtlasManager.deleteAtlasSpriteFrame(this);
         }
@@ -936,7 +940,7 @@ export class SpriteFrame extends Asset {
      * Calculate UV for sliced
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _calculateSlicedUV () {
+    public _calculateSlicedUV (): void {
         const rect = this._rect;
         // const texture = this._getCalculateTarget()!;
         const tex = this.texture;
@@ -1002,7 +1006,7 @@ export class SpriteFrame extends Asset {
      * Calculate UV
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _calculateUV () {
+    public _calculateUV (): void {
         const rect = this._rect;
         const uv = this.uv;
         const unbiasUV = this.unbiasUV;
@@ -1226,7 +1230,7 @@ export class SpriteFrame extends Asset {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _setDynamicAtlasFrame (frame) {
+    public _setDynamicAtlasFrame (frame): void {
         if (!frame) return;
 
         this._original = {
@@ -1244,7 +1248,7 @@ export class SpriteFrame extends Asset {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _resetDynamicAtlasFrame () {
+    public _resetDynamicAtlasFrame (): void {
         if (!this._original) return;
         this._rect.x = this._original._x;
         this._rect.y = this._original._y;
@@ -1256,7 +1260,7 @@ export class SpriteFrame extends Asset {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _checkPackable () {
+    public _checkPackable (): void {
         const dynamicAtlas = dynamicAtlasManager;
         if (!dynamicAtlas) return;
         const texture = this._texture;
@@ -1338,7 +1342,7 @@ export class SpriteFrame extends Asset {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _deserialize (serializeData: any, handle: any) {
+    public _deserialize (serializeData: any, handle: any): void {
         const data = serializeData as ISpriteFramesSerializeData;
         const rect = data.rect;
         if (rect) {
@@ -1440,7 +1444,7 @@ export class SpriteFrame extends Asset {
         return sp;
     }
 
-    protected _refreshTexture (texture: TextureBase) {
+    protected _refreshTexture (texture: TextureBase): void {
         this._texture = texture;
         const tex = this._texture;
         const config: ISpriteFrameInitInfo = {};
@@ -1474,7 +1478,7 @@ export class SpriteFrame extends Asset {
      * @zh 加载完成回调。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public onLoaded () {
+    public onLoaded (): void {
         this._calcTrimmedBorder();
     }
 
@@ -1484,7 +1488,7 @@ export class SpriteFrame extends Asset {
      * @param uuid @en Asset uuid. @zh 资源 uuid。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public initDefault (uuid?: string) {
+    public initDefault (uuid?: string): void {
         super.initDefault(uuid);
         const texture = new Texture2D();
         texture.initDefault();
@@ -1498,11 +1502,11 @@ export class SpriteFrame extends Asset {
      * @returns @en validate or not. @zh 是否有效。
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public validate () {
+    public validate (): boolean {
         return this._texture && this._rect && this._rect.width !== 0 && this._rect.height !== 0;
     }
 
-    protected _initVertices () {
+    protected _initVertices (): void {
         if (!this.vertices) {
             this.vertices = {
                 rawPosition: [],
@@ -1584,7 +1588,7 @@ export class SpriteFrame extends Asset {
     }
 
     // Combine vertex information, unit information, anchor points, extrude and even customOutline to generate the actual vertices used
-    protected _updateMeshVertices () {
+    protected _updateMeshVertices (): void {
         // Start generating the Geometry information to generate the mesh
         temp_matrix.identity();
         const units = 1 / this._pixelsToUnit;
@@ -1605,7 +1609,7 @@ export class SpriteFrame extends Asset {
         Vec3.transformMat4(this._maxPos, vertices.maxPos, temp_matrix);
     }
 
-    protected _createMesh () {
+    protected _createMesh (): void {
         this._mesh = createMesh({
             primitiveMode: PrimitiveMode.TRIANGLE_LIST,
             positions: this.vertices!.positions,
@@ -1627,7 +1631,7 @@ export class SpriteFrame extends Asset {
         });
     }
 
-    protected _updateMesh () {
+    protected _updateMesh (): void {
         if (this._mesh) {
             this._mesh.destroy();
         }

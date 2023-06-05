@@ -152,31 +152,31 @@ export class RenderingSubMesh {
      * @en All vertex attributes used by the sub mesh.
      * @zh 所有顶点属性。
      */
-    get attributes () { return this._attributes; }
+    get attributes (): Attribute[] { return this._attributes; }
 
     /**
      * @en All vertex buffers used by the sub mesh.
      * @zh 使用的所有顶点缓冲区。
      */
-    get vertexBuffers () { return this._vertexBuffers; }
+    get vertexBuffers (): Buffer[] { return this._vertexBuffers; }
 
     /**
      * @en Index buffer used by the sub mesh.
      * @zh 使用的索引缓冲区，若未使用则无需指定。
      */
-    get indexBuffer () { return this._indexBuffer; }
+    get indexBuffer (): Buffer | null { return this._indexBuffer; }
 
     /**
      * @en Indirect buffer used by the sub mesh.
      * @zh 间接绘制缓冲区。
      */
-    get indirectBuffer () { return this._indirectBuffer; }
+    get indirectBuffer (): Buffer | null { return this._indirectBuffer; }
 
     /**
      * @en Primitive mode used by the sub mesh.
      * @zh 图元类型。
      */
-    get primitiveMode () { return this._primitiveMode; }
+    get primitiveMode (): PrimitiveMode { return this._primitiveMode; }
 
     /**
      * @en The geometric info of the sub mesh, used for raycast.
@@ -197,7 +197,7 @@ export class RenderingSubMesh {
         const indices = mesh.readIndices(index) as Uint16Array;
         const max = new Vec3();
         const min = new Vec3();
-        const pAttri = this.attributes.find((element) => element.name === AttributeName.ATTR_POSITION);
+        const pAttri = this.attributes.find((element): boolean => element.name === AttributeName.ATTR_POSITION);
         if (pAttri) {
             const conut = FormatInfos[pAttri.format].count;
             if (conut === 2) {
@@ -231,7 +231,7 @@ export class RenderingSubMesh {
      * @en Invalidate the geometric info of the sub mesh after geometry changed.
      * @zh 网格更新后，设置（用于射线检测的）几何信息为无效，需要重新计算。
      */
-    public invalidateGeometricInfo () { this._geometricInfo = undefined; }
+    public invalidateGeometricInfo (): void { this._geometricInfo = undefined; }
 
     /**
      * @en the draw range.
@@ -249,13 +249,13 @@ export class RenderingSubMesh {
      * @en Flatted vertex buffers.
      * @zh 扁平化的顶点缓冲区。
      */
-    get flatBuffers () { return this._flatBuffers; }
+    get flatBuffers (): IFlatBuffer[] { return this._flatBuffers; }
 
     /**
      * @en generate flatted vertex buffers.
      * @zh 生成扁平化的顶点缓冲区。
      */
-    public genFlatBuffers () {
+    public genFlatBuffers (): void {
         if (this._flatBuffers.length || !this.mesh || this.subMeshIdx === undefined) { return; }
 
         const { mesh } = this;
@@ -295,7 +295,7 @@ export class RenderingSubMesh {
      * @en The vertex buffer for joint after mapping.
      * @zh 骨骼索引按映射表处理后的顶点缓冲。
      */
-    get jointMappedBuffers () {
+    get jointMappedBuffers (): Buffer[] {
         if (this._jointMappedBuffers) { return this._jointMappedBuffers; }
         const buffers: Buffer[] = this._jointMappedBuffers = [];
         const indices: number[] = this._jointMappedBufferIndices = [];
@@ -324,7 +324,7 @@ export class RenderingSubMesh {
                 const data = new Uint8Array(this.mesh.data.buffer, bundle.view.offset, bundle.view.length);
                 const dataView = new DataView(data.slice().buffer);
                 const idxMap = struct.jointMaps[prim.jointMapIndex];
-                mapBuffer(dataView, (cur) => idxMap.indexOf(cur), jointFormat, jointOffset,
+                mapBuffer(dataView, (cur): number => idxMap.indexOf(cur), jointFormat, jointOffset,
                     bundle.view.length, bundle.view.stride, dataView);
                 const buffer = device.createBuffer(new BufferInfo(
                     BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
@@ -347,13 +347,13 @@ export class RenderingSubMesh {
      * @en The input assembler info.
      * @zh 输入汇集器信息。
      */
-    get iaInfo () { return this._iaInfo; }
+    get iaInfo (): InputAssemblerInfo { return this._iaInfo; }
 
     /**
      * @en Destroys sub mesh.
      * @zh 销毁子网格。
      */
-    public destroy () {
+    public destroy (): void {
         for (let i = 0; i < this.vertexBuffers.length; i++) {
             this.vertexBuffers[i].destroy();
         }
@@ -386,7 +386,7 @@ export class RenderingSubMesh {
      * 一旦你调用此函数， 顶点属性永久被添加， 后续调用无效果。
      * @param device @en Device used to create related rendering resources @zh 用于创建相关渲染资源的设备对象
      */
-    public enableVertexIdChannel (device: Device) {
+    public enableVertexIdChannel (device: Device): void {
         if (this._vertexIdChannel) {
             return;
         }
@@ -407,7 +407,7 @@ export class RenderingSubMesh {
         };
     }
 
-    private _allocVertexIdBuffer (device: Device) {
+    private _allocVertexIdBuffer (device: Device): Buffer {
         const vertexCount = (this.vertexBuffers.length === 0 || this.vertexBuffers[0].stride === 0)
             ? 0
             // TODO: This depends on how stride of a vertex buffer is defined; Consider padding problem.

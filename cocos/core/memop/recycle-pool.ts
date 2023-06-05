@@ -65,7 +65,7 @@ export class RecyclePool<T = any> extends ScalableContainer {
      * @en The length of the object pool.
      * @zh 对象池大小。
      */
-    get length () {
+    get length (): number {
         return this._count;
     }
 
@@ -73,7 +73,7 @@ export class RecyclePool<T = any> extends ScalableContainer {
      * @en The underlying array of all pool elements.
      * @zh 实际对象池数组。
      */
-    get data () {
+    get data (): T[] {
         return this._data;
     }
 
@@ -81,7 +81,7 @@ export class RecyclePool<T = any> extends ScalableContainer {
      * @en Resets the object pool. Only changes the length to 0.
      * @zh 清空对象池。目前仅仅会设置尺寸为 0。
      */
-    public reset () {
+    public reset (): void {
         this._count = 0;
     }
 
@@ -90,7 +90,7 @@ export class RecyclePool<T = any> extends ScalableContainer {
      * @zh 设置对象池大小，并填充新的元素。
      * @param size @en The new size of the pool. @zh 新的对象池大小。
      */
-    public resize (size: number) {
+    public resize (size: number): void {
         if (size > this._data.length) {
             for (let i = this._data.length; i < size; ++i) {
                 this._data[i] = this._fn();
@@ -102,7 +102,7 @@ export class RecyclePool<T = any> extends ScalableContainer {
      * @en Expand the array size to 2 times the original size, and fills with new created elements.
      * @zh 扩充对象池容量，会自动扩充尺寸到原来的 2 倍，并填充新的元素。
      */
-    public add () {
+    public add (): T {
         if (this._count >= this._data.length) {
             this.resize(this._data.length << 1);
         }
@@ -114,7 +114,7 @@ export class RecyclePool<T = any> extends ScalableContainer {
      * @en Destroy the object pool. Please don't use it any more after it is destroyed.
      * @zh 销毁对象池。销毁后不能继续使用。
      */
-    public destroy () {
+    public destroy (): void {
         if (this._dtor) {
             for (let i = 0; i < this._data.length; i++) {
                 this._dtor(this._data[i]);
@@ -129,7 +129,7 @@ export class RecyclePool<T = any> extends ScalableContainer {
      * @en Try to shrink the object pool to free memory.
      * @zh 尝试回收没用的对象，释放内存。
      */
-    public tryShrink () {
+    public tryShrink (): void {
         if (this._data.length >> 2 > this._count) {
             const length = Math.max(this._initSize, this._data.length >> 1);
             if (this._dtor) {
@@ -146,7 +146,7 @@ export class RecyclePool<T = any> extends ScalableContainer {
      * @zh 移除对象池中指定索引的元素，会减小池子尺寸。
      * @param idx @en The index of the element to remove. @zh 被移除的元素的索引。
      */
-    public removeAt (idx: number) {
+    public removeAt (idx: number): void {
         if (idx >= this._count) {
             return;
         }

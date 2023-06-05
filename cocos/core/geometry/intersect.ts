@@ -71,14 +71,14 @@ const rayPlane = (function () {
  * @param doubleSided @zh 要测试的三角形是否为双面。 @en Indicates whether the triangle to test is double sided.
  * @returns @zh 0 或 非 0，0 表示没有相交。@en 0 or not 0, 0 indicates there is no intersection.
  */
-const rayTriangle = (function () {
+const rayTriangle = (function (): (ray: Ray, triangle: Triangle, doubleSided?: boolean) => number {
     const ab = new Vec3(0, 0, 0);
     const ac = new Vec3(0, 0, 0);
     const pvec = new Vec3(0, 0, 0);
     const tvec = new Vec3(0, 0, 0);
     const qvec = new Vec3(0, 0, 0);
 
-    return function (ray: Ray, triangle: Triangle, doubleSided?: boolean) {
+    return function (ray: Ray, triangle: Triangle, doubleSided?: boolean): number {
         Vec3.subtract(ab, triangle.b, triangle.a);
         Vec3.subtract(ac, triangle.c, triangle.a);
 
@@ -116,7 +116,7 @@ const rayTriangle = (function () {
  * @param sphere @zh 要测试的球。 @en The sphere to test.
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
-const raySphere = (function () {
+const raySphere = (function (): (ray: Ray, sphere: Sphere) => number {
     const e = new Vec3(0, 0, 0);
     return function (ray: Ray, sphere: Sphere): number {
         const r = sphere.radius;
@@ -147,7 +147,7 @@ const raySphere = (function () {
  * @param aabb @zh 要测试的 AABB。 @en The aabb to test.
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
-const rayAABB = (function () {
+const rayAABB = (function (): (ray: Ray, aabb: AABB) => number {
     const min = new Vec3();
     const max = new Vec3();
     return function (ray: Ray, aabb: AABB): number {
@@ -157,7 +157,7 @@ const rayAABB = (function () {
     };
 }());
 
-function rayAABB2 (ray: Ray, min: IVec3Like, max: IVec3Like) {
+function rayAABB2 (ray: Ray, min: IVec3Like, max: IVec3Like): number {
     const o = ray.o; const d = ray.d;
     const ix = 1 / d.x; const iy = 1 / d.y; const iz = 1 / d.z;
     const t1 = (min.x - o.x) * ix;
@@ -181,7 +181,7 @@ function rayAABB2 (ray: Ray, min: IVec3Like, max: IVec3Like) {
  * @param obb @zh 要测试的 OBB。 @en The OBB to test.
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
-const rayOBB = (function () {
+const rayOBB = (function (): (ray: Ray, obb: OBB) => number {
     let center = new Vec3();
     let o = new Vec3();
     let d = new Vec3();
@@ -261,7 +261,7 @@ const rayOBB = (function () {
  * @param capsule @zh 要测试的胶囊体。 @en The capsule to test.
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
-const rayCapsule = (function () {
+const rayCapsule = (function (): (ray: Ray, capsule: Capsule) => number {
     const v3_0 = new Vec3();
     const v3_1 = new Vec3();
     const v3_2 = new Vec3();
@@ -270,7 +270,7 @@ const rayCapsule = (function () {
     const v3_5 = new Vec3();
     const v3_6 = new Vec3();
     const sphere_0 = new Sphere();
-    return function (ray: Ray, capsule: Capsule) {
+    return function (ray: Ray, capsule: Capsule): number {
         const A = capsule.ellipseCenter0;
         const B = capsule.ellipseCenter1;
         const BA = Vec3.subtract(v3_1, B, A);
@@ -348,7 +348,7 @@ const rayCapsule = (function () {
  * @param plane @zh 要测试的平面。 @en The plane to test.
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
-const linePlane = (function () {
+const linePlane = (function (): (line: Line, plane: Plane) => number {
     const ab = new Vec3(0, 0, 0);
 
     return function (line: Line, plane: Plane): number {
@@ -369,7 +369,7 @@ const linePlane = (function () {
  * @param outPt @zh 可选，相交点 @en Optional out param, indicates the intersection point.
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
-const lineTriangle = (function () {
+const lineTriangle = (function (): (line: Line, triangle: Triangle, outPt?: Vec3) => number {
     const ab = new Vec3(0, 0, 0);
     const ac = new Vec3(0, 0, 0);
     const qp = new Vec3(0, 0, 0);
@@ -499,12 +499,12 @@ function lineSphere (line: Line, sphere: Sphere): number {
  * @param aabb2 @zh 轴对齐包围盒2 @en aabb 2 to test
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
-const aabbWithAABB = (function () {
+const aabbWithAABB = (function (): (aabb1: AABB, aabb2: AABB) => boolean {
     const aMin = new Vec3();
     const aMax = new Vec3();
     const bMin = new Vec3();
     const bMax = new Vec3();
-    return function (aabb1: AABB, aabb2: AABB) {
+    return function (aabb1: AABB, aabb2: AABB): boolean {
         Vec3.subtract(aMin, aabb1.center, aabb1.halfExtents);
         Vec3.add(aMax, aabb1.center, aabb1.halfExtents);
         Vec3.subtract(bMin, aabb2.center, aabb2.halfExtents);
@@ -515,7 +515,7 @@ const aabbWithAABB = (function () {
     };
 }());
 
-function getAABBVertices (min: Vec3, max: Vec3, out: Vec3[]) {
+function getAABBVertices (min: Vec3, max: Vec3, out: Vec3[]): void {
     Vec3.set(out[0], min.x, max.y, max.z);
     Vec3.set(out[1], min.x, max.y, min.z);
     Vec3.set(out[2], min.x, min.y, max.z);
@@ -526,7 +526,7 @@ function getAABBVertices (min: Vec3, max: Vec3, out: Vec3[]) {
     Vec3.set(out[7], max.x, min.y, min.z);
 }
 
-function getOBBVertices (c: Vec3, e: Vec3, a1: Vec3, a2: Vec3, a3: Vec3, out: Vec3[]) {
+function getOBBVertices (c: Vec3, e: Vec3, a1: Vec3, a2: Vec3, a3: Vec3, out: Vec3[]): void {
     Vec3.set(out[0],
         c.x + a1.x * e.x + a2.x * e.y + a3.x * e.z,
         c.y + a1.y * e.x + a2.y * e.y + a3.y * e.z,
@@ -561,7 +561,7 @@ function getOBBVertices (c: Vec3, e: Vec3, a1: Vec3, a2: Vec3, a3: Vec3, out: Ve
         c.z - a1.z * e.x - a2.z * e.y + a3.z * e.z);
 }
 
-function getInterval (vertices: any[] | Vec3[], axis: Vec3) {
+function getInterval (vertices: any[] | Vec3[], axis: Vec3): number[] {
     let min = Vec3.dot(axis, vertices[0]); let max = min;
     for (let i = 1; i < 8; ++i) {
         const projection = Vec3.dot(axis, vertices[i]);
@@ -580,7 +580,7 @@ function getInterval (vertices: any[] | Vec3[], axis: Vec3) {
  * @param obb @zh OBB @en The OBB to test
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
-const aabbWithOBB = (function () {
+const aabbWithOBB = (function (): (aabb: AABB, obb: OBB) => number {
     const test = new Array(15);
     for (let i = 0; i < 15; i++) {
         test[i] = new Vec3(0, 0, 0);
@@ -690,7 +690,7 @@ const aabbFrustumCompletelyInside = function (aabb: AABB, frustum: Readonly<Frus
  * @param frustum @zh 锥台 @en The frustum to test
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
-const aabbFrustumAccurate = (function () {
+const aabbFrustumAccurate = (function (): (aabb: AABB, frustum: Frustum) => number {
     const tmp = new Array(8);
     let out1 = 0; let out2 = 0;
     for (let i = 0; i < tmp.length; i++) {
@@ -739,7 +739,7 @@ const aabbFrustumAccurate = (function () {
  * @param point @zh 参与测试的点。 @en The point to test.
  * @returns @zh 是否相交 @en The value indicates if there is an intersection.
  */
-const obbPoint = (function () {
+const obbPoint = (function (): (obb: OBB, point: Vec3) => boolean {
     const tmp = new Vec3(0, 0, 0); const m3 = new Mat3();
     const lessThan = function (a: Vec3, b: Vec3): boolean { return Math.abs(a.x) < b.x && Math.abs(a.y) < b.y && Math.abs(a.z) < b.z; };
     return function (obb: OBB, point: Vec3): boolean {
@@ -758,8 +758,8 @@ const obbPoint = (function () {
  * @param plane @zh 平面 @en The plane to test
  * @returns @zh 检测结果, 包含为 -1, 不包含为 0, 相交为 1 @en Test result, inside(back) = -1, outside(front) = 0, intersect = 1
  */
-const obbPlane = (function () {
-    const absDot = function (n: Vec3, x: number, y: number, z: number) {
+const obbPlane = (function (): (obb: OBB, plane: Plane) => number {
+    const absDot = function (n: Vec3, x: number, y: number, z: number): number {
         return Math.abs(n.x * x + n.y * y + n.z * z);
     };
     return function (obb: OBB, plane: Plane): number {
@@ -803,7 +803,7 @@ const obbFrustum = function (obb: OBB, frustum: Frustum): number {
  * @param frustum @zh 锥台 @en The frustum to test
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
-const obbFrustumAccurate = (function () {
+const obbFrustumAccurate = (function (): (obb: OBB, frustum: Frustum) => number {
     const tmp = new Array(8);
     let dist = 0; let out1 = 0; let out2 = 0;
     for (let i = 0; i < tmp.length; i++) {
@@ -858,7 +858,7 @@ const obbFrustumAccurate = (function () {
  * @param obb2 @zh OBB2 @en Obb 2 to test
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
-const obbWithOBB = (function () {
+const obbWithOBB = (function (): (obb1: OBB, obb2: OBB) => number {
     const test = new Array(15);
     for (let i = 0; i < 15; i++) {
         test[i] = new Vec3(0, 0, 0);
@@ -910,7 +910,7 @@ const obbWithOBB = (function () {
  * @param capsule @zh 胶囊体 @en The capsule to test.
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.
  */
-const obbCapsule = (function () {
+const obbCapsule = (function (): (obb: OBB, capsule: Capsule) => boolean | 1 | 0 {
     const sphere_0 = new Sphere();
     const v3_0 = new Vec3();
     const v3_1 = new Vec3();
@@ -919,7 +919,7 @@ const obbCapsule = (function () {
     for (let i = 0; i < 8; i++) { v3_verts8[i] = new Vec3(); }
     const v3_axis8 = new Array<Vec3>(8);
     for (let i = 0; i < 8; i++) { v3_axis8[i] = new Vec3(); }
-    return function (obb: OBB, capsule: Capsule) {
+    return function (obb: OBB, capsule: Capsule): boolean | 1 | 0 {
         const h = Vec3.squaredDistance(capsule.ellipseCenter0, capsule.ellipseCenter1);
         if (h === 0) {
             sphere_0.radius = capsule.radius;
@@ -1012,7 +1012,7 @@ const sphereFrustum = function (sphere: Sphere, frustum: Frustum): number {
  * @param frustum @zh 锥台 @en The frustum to test
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
-const sphereFrustumAccurate = (function () {
+const sphereFrustumAccurate = (function (): (sphere: Sphere, frustum: Frustum) => number {
     const pt = new Vec3(0, 0, 0); const map = [1, -1, 1, -1, 1, -1];
     return function (sphere: Sphere, frustum: Frustum): number {
         for (let i = 0; i < 6; i++) {
@@ -1059,7 +1059,7 @@ const sphereWithSphere = function (sphere0: Sphere, sphere1: Sphere): boolean {
  * @param aabb @zh 轴对齐包围盒 @en The aabb to test
  * @returns @zh 是否发生碰撞 @en true or false which indicates if there is an intersection
  */
-const sphereAABB = (function () {
+const sphereAABB = (function (): (sphere: Sphere, aabb: AABB) => boolean {
     const pt = new Vec3();
     return function (sphere: Sphere, aabb: AABB): boolean {
         distance.pt_point_aabb(pt, sphere.center, aabb);
@@ -1076,7 +1076,7 @@ const sphereAABB = (function () {
  * @param obb @zh 参与测试的 OBB。 @en The OBB to test.
  * @returns @zh 是否发生碰撞。 @en true or false which indicates if there is an intersection.
  */
-const sphereOBB = (function () {
+const sphereOBB = (function (): (sphere: Sphere, obb: OBB) => boolean {
     const pt = new Vec3();
     return function (sphere: Sphere, obb: OBB): boolean {
         distance.pt_point_obb(pt, sphere.center, obb);
@@ -1093,10 +1093,10 @@ const sphereOBB = (function () {
  * @param capsule @zh 参与测试的胶囊体。 @en The capsule to test.
  * @returns @zh 是否发生碰撞。 @en true or false which indicates if there is an intersection.
  */
-const sphereCapsule = (function () {
+const sphereCapsule = (function (): (sphere: Sphere, capsule: Capsule) => boolean {
     const v3_0 = new Vec3();
     const v3_1 = new Vec3();
-    return function (sphere: Sphere, capsule: Capsule) {
+    return function (sphere: Sphere, capsule: Capsule): boolean {
         const r = sphere.radius + capsule.radius;
         const squaredR = r * r;
         const h = Vec3.squaredDistance(capsule.ellipseCenter0, capsule.ellipseCenter1);
@@ -1128,14 +1128,14 @@ const sphereCapsule = (function () {
  * @param capsuleB @zh 要测试的胶囊体 B。 @en The capsule B to test.
  * @returns @zh 如果相交，返回 true，否则返回 false。 @en true if there is an intersection, otherwise returns false.
  */
-const capsuleWithCapsule = (function () {
+const capsuleWithCapsule = (function (): (capsuleA: Capsule, capsuleB: Capsule) => boolean {
     const v3_0 = new Vec3();
     const v3_1 = new Vec3();
     const v3_2 = new Vec3();
     const v3_3 = new Vec3();
     const v3_4 = new Vec3();
     const v3_5 = new Vec3();
-    return function capsuleWithCapsule (capsuleA: Capsule, capsuleB: Capsule) {
+    return function capsuleWithCapsule (capsuleA: Capsule, capsuleB: Capsule): boolean {
         const u = Vec3.subtract(v3_0, capsuleA.ellipseCenter1, capsuleA.ellipseCenter0);
         const v = Vec3.subtract(v3_1, capsuleB.ellipseCenter1, capsuleB.ellipseCenter0);
         const w = Vec3.subtract(v3_2, capsuleA.ellipseCenter0, capsuleB.ellipseCenter0);
@@ -1265,7 +1265,7 @@ const intersect = {
      * @param outPt @en A 3d point to store the intersection point result, only part of the geometries support this.
      *              @zh 可选，用于保存相交点的输出对象。（注：仅部分形状的检测带有这个返回值）
      */
-    resolve (g1: any, g2: any, outPt = null) {
+    resolve (g1: any, g2: any, outPt = null): number {
         const type1 = g1._type; const type2 = g2._type;
         const resolver = this[type1 | type2] as (...args: any) => number;
         return type1 < type2 ? resolver(g1, g2, outPt) : resolver(g2, g1, outPt);

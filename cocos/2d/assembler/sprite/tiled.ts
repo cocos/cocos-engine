@@ -45,7 +45,7 @@ let tempRenderDataLength = 0;
 const tempRenderData: IRenderData[] = [];
 let QUAD_INDICES;
 
-function has9SlicedOffsetVertexCount (spriteFrame: SpriteFrame) {
+function has9SlicedOffsetVertexCount (spriteFrame: SpriteFrame): number {
     if (spriteFrame) {
         if (spriteFrame.insetTop > 0
         || spriteFrame.insetBottom > 0

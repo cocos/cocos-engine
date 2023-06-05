@@ -77,21 +77,21 @@ export class Settings {
         if (!path) return Promise.resolve();
 
         if (window.oh) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve, reject): void => {
                 // TODO: to support a virtual module of settings.
                 // For now, we use a system module context to dynamically import the relative path of module.
                 const settingsModule = '../settings.js';
-                import(settingsModule).then((res) => {
+                import(settingsModule).then((res): void => {
                     this._settings = res.default;
                     resolve();
-                }).catch((e) => reject(e));
+                }).catch((e): void => reject(e));
             });
         }
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject): void => {
             if (!HTML5 && !path.startsWith('http')) {
                 // TODO: readJsonSync not working on Taobao IDE
                 if (TAOBAO || TAOBAO_MINIGAME) {
-                    globalThis.fsUtils.readJson(path, (err, result) => {
+                    globalThis.fsUtils.readJson(path, (err, result): void => {
                         if (err) {
                             reject(err);
                             return;
@@ -112,11 +112,11 @@ export class Settings {
                 const xhr = new XMLHttpRequest();
                 xhr.open('GET', path);
                 xhr.responseType = 'text';
-                xhr.onload = () => {
+                xhr.onload = (): void => {
                     this._settings = JSON.parse(xhr.response);
                     resolve();
                 };
-                xhr.onerror = () => {
+                xhr.onerror = (): void => {
                     reject(new Error('request settings failed!'));
                 };
                 xhr.send(null);
@@ -142,7 +142,7 @@ export class Settings {
      * console.log(settings.querySettings(Settings.Category.ASSETS, 'server')); // print http://www.test.com
      * ```
      */
-    overrideSettings<T = any> (category: Category | string, name: string, value: T) {
+    overrideSettings<T = any> (category: Category | string, name: string, value: T): void {
         if (!(category in this._override)) {
             this._override[category] = {};
         }

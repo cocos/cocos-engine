@@ -7,6 +7,8 @@ import { POSE_GRAPH_NODE_MENU_PREFIX_POSE } from './menu-common';
 import { RuntimeStash } from '../stash/runtime-stash';
 import { PoseNode } from '../pose-node';
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext } from '../../animation-graph-context';
+import type { Pose } from '../../../core/pose';
+import type { EnterNodeInfo } from '../foundation/authoring/enter-node-info';
 
 const createNodeFactory: PoseGraphCreateNodeFactory<string> = {
     // eslint-disable-next-line arrow-body-style
@@ -36,7 +38,7 @@ export class PoseNodeUseStashedPose extends PoseNode {
     @editable
     public stashName = '';
 
-    public bind (context: AnimationGraphBindingContext) {
+    public bind (context: AnimationGraphBindingContext): void {
         const {
             stashName,
         } = this;
@@ -53,7 +55,7 @@ export class PoseNodeUseStashedPose extends PoseNode {
     public settle (context: AnimationGraphSettleContext): void {
     }
 
-    public reenter () {
+    public reenter (): void {
         this._runtimeStash?.reenter();
     }
 
@@ -61,7 +63,7 @@ export class PoseNodeUseStashedPose extends PoseNode {
         this._runtimeStash?.requestUpdate(context);
     }
 
-    protected doEvaluate (context: AnimationGraphEvaluationContext) {
+    protected doEvaluate (context: AnimationGraphEvaluationContext): Pose {
         return this._runtimeStash?.evaluate(context) ?? context.pushDefaultedPose();
     }
 
@@ -69,14 +71,14 @@ export class PoseNodeUseStashedPose extends PoseNode {
 }
 
 if (EDITOR) {
-    PoseNodeUseStashedPose.prototype.getTitle = function getTitle (this: PoseNodeUseStashedPose) {
+    PoseNodeUseStashedPose.prototype.getTitle = function getTitle (this: PoseNodeUseStashedPose):  [string, { stashName: string; }] | undefined {
         if (this.stashName) {
             return [`ENGINE.classes.${CLASS_NAME_PREFIX_ANIM}PoseNodeUseStashedPose.title`, { stashName: this.stashName }];
         }
         return undefined;
     };
 
-    PoseNodeUseStashedPose.prototype.getEnterInfo = function getTitle (this: PoseNodeUseStashedPose) {
+    PoseNodeUseStashedPose.prototype.getEnterInfo = function getTitle (this: PoseNodeUseStashedPose): EnterNodeInfo | undefined {
         return {
             type: 'stash',
             stashName: this.stashName,

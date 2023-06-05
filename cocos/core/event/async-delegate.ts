@@ -60,7 +60,7 @@ export class AsyncDelegate<T extends (...args: any) => (Promise<void> | void) = 
      * @en The callback to add, and will be invoked when this delegate is dispatching.
      * @zh 要添加的回调，并将在该委托调度时被调用。
      */
-    public add (callback: T) {
+    public add (callback: T): void {
         if (!this._delegates.includes(callback)) {
             this._delegates.push(callback);
         }
@@ -75,7 +75,7 @@ export class AsyncDelegate<T extends (...args: any) => (Promise<void> | void) = 
      * @param callback @en The callback to query. @zh 要查询的回调函数。
      * @returns @en Whether the callback has been added. @zh 是否已经添加了回调。
      */
-    public hasListener (callback: T) {
+    public hasListener (callback: T): boolean {
         return this._delegates.includes(callback);
     }
 
@@ -88,7 +88,7 @@ export class AsyncDelegate<T extends (...args: any) => (Promise<void> | void) = 
      *
      * @param callback @en The callback to remove. @zh 要移除的某个回调。
      */
-    public remove (callback: T) {
+    public remove (callback: T): void {
         array.fastRemove(this._delegates, callback);
     }
 
@@ -102,7 +102,7 @@ export class AsyncDelegate<T extends (...args: any) => (Promise<void> | void) = 
      * @param args @en The parameters to be transferred to callback. @zh 传递给回调函数的参数。
      * @returns @en The promise awaiting all async callback resolved. @zh 等待所有异步回调结束的 Promise 对象。
      */
-    public dispatch (...args: Parameters<T>) {
+    public dispatch (...args: Parameters<T>): Promise<void[]> {
         return Promise.all(this._delegates.map((func) => func(...arguments)).filter(Boolean));
     }
 }

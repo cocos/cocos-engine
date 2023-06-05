@@ -72,7 +72,7 @@ class Transition extends EditorExtendable implements OwnedBy<StateMachine>, Tran
         }
     }
 
-    public copyTo (that: Transition) {
+    public copyTo (that: Transition): void {
         that.conditions = this.conditions.map((condition) => condition.clone());
     }
 
@@ -123,7 +123,7 @@ class DurationalTransition extends Transition {
     @editable
     public endEventBinding = new AnimationGraphEventBinding();
 
-    public copyTo (that: DurationalTransition) {
+    public copyTo (that: DurationalTransition): void {
         super.copyTo(that);
         that.destinationStart = this.destinationStart;
         that.relativeDestinationStart = this.relativeDestinationStart;
@@ -153,7 +153,7 @@ class AnimationTransition extends DurationalTransition {
     @serializable
     public exitConditionEnabled = true;
 
-    get exitCondition () {
+    get exitCondition (): number {
         return this._exitCondition;
     }
 
@@ -162,7 +162,7 @@ class AnimationTransition extends DurationalTransition {
         this._exitCondition = value;
     }
 
-    public copyTo (that: AnimationTransition) {
+    public copyTo (that: AnimationTransition): void {
         super.copyTo(that);
         that.duration = this.duration;
         that.relativeDuration = this.relativeDuration;
@@ -189,7 +189,7 @@ export function isAnimationTransition (transition: TransitionView): transition i
 export class EmptyState extends State {
     public declare __brand: 'EmptyState';
 
-    public _clone () {
+    public _clone (): EmptyState {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         const that = new EmptyState();
         this.copyTo(that);
@@ -205,7 +205,7 @@ export class EmptyStateTransition extends DurationalTransition {
     @serializable
     public duration = 0.3;
 
-    public copyTo (that: EmptyStateTransition) {
+    public copyTo (that: EmptyStateTransition): void {
         super.copyTo(that);
         that.duration = this.duration;
     }
@@ -238,11 +238,11 @@ class ProceduralPoseState extends State {
      * // TODO: HACK
      * @internal
      */
-    public __callOnAfterDeserializeRecursive () {
+    public __callOnAfterDeserializeRecursive (): void {
         this.graph.__callOnAfterDeserializeRecursive();
     }
 
-    public copyTo (that: MotionState) {
+    public copyTo (that: MotionState): this {
         super.copyTo(that);
         this.transitionInEventBinding.copyTo(that.transitionInEventBinding);
         this.transitionOutEventBinding.copyTo(that.transitionOutEventBinding);
@@ -264,7 +264,7 @@ class ProceduralPoseTransition extends DurationalTransition {
     @serializable
     public duration = 0.3;
 
-    public copyTo (that: ProceduralPoseTransition) {
+    public copyTo (that: ProceduralPoseTransition): void {
         super.copyTo(that);
         that.duration = this.duration;
     }
@@ -302,7 +302,7 @@ export class StateMachine extends EditorExtendable {
      * // TODO: HACK
      * @internal
      */
-    public __callOnAfterDeserializeRecursive () {
+    public __callOnAfterDeserializeRecursive (): void {
         this[onAfterDeserializedTag]();
         const nStates = this._states.length;
         for (let iState = 0; iState < nStates; ++iState) {
@@ -326,7 +326,7 @@ export class StateMachine extends EditorExtendable {
         this._anyState.name = 'Any';
     }
 
-    public [onAfterDeserializedTag] () {
+    public [onAfterDeserializedTag] (): void {
         this._states.forEach((state) => own(state, this));
         this._transitions.forEach((transition) => {
             transition.from[outgoingsSymbol].push(transition);
@@ -334,28 +334,28 @@ export class StateMachine extends EditorExtendable {
         });
     }
 
-    public get allowEmptyStates () {
+    public get allowEmptyStates (): boolean {
         return this._allowEmptyStates;
     }
 
     /**
      * The entry state.
      */
-    get entryState () {
+    get entryState (): State {
         return this._entryState;
     }
 
     /**
      * The exit state.
      */
-    get exitState () {
+    get exitState (): State {
         return this._exitState;
     }
 
     /**
      * The any state.
      */
-    get anyState () {
+    get anyState (): State {
         return this._anyState;
     }
 
@@ -430,7 +430,7 @@ export class StateMachine extends EditorExtendable {
      * Adds an empty state into this state machine.
      * @returns The newly created empty state.
      */
-    public addEmpty () {
+    public addEmpty (): EmptyState {
         if (!this._allowEmptyStates) {
             throw new Error(`Empty states are now allowed in this state machine.`);
         }
@@ -442,7 +442,7 @@ export class StateMachine extends EditorExtendable {
      * @en Adds an pose state into this state machine.
      * @returns @zh 新创建的姿势状态。 @en The newly created pose state.
      */
-    public addProceduralPoseState () {
+    public addProceduralPoseState (): ProceduralPoseState {
         return this._addState(new ProceduralPoseState());
     }
 
@@ -450,7 +450,7 @@ export class StateMachine extends EditorExtendable {
      * Removes specified state from this state machine.
      * @param state The state to remove.
      */
-    public remove (state: State) {
+    public remove (state: State): void {
         assertsOwnedBy(state, this);
 
         if (state === this.entryState
@@ -530,7 +530,7 @@ export class StateMachine extends EditorExtendable {
         return transition;
     }
 
-    public disconnect (from: State, to: State) {
+    public disconnect (from: State, to: State): void {
         assertsOwnedBy(from, this);
         assertsOwnedBy(to, this);
 
@@ -557,7 +557,7 @@ export class StateMachine extends EditorExtendable {
         }
     }
 
-    public removeTransition (removal: Transition) {
+    public removeTransition (removal: Transition): void {
         assertIsTrue(
             js.array.remove(this._transitions, removal),
         );
@@ -570,7 +570,7 @@ export class StateMachine extends EditorExtendable {
         markAsDangling(removal);
     }
 
-    public eraseOutgoings (from: State) {
+    public eraseOutgoings (from: State): void {
         assertsOwnedBy(from, this);
 
         const oTransitions = from[outgoingsSymbol];
@@ -588,7 +588,7 @@ export class StateMachine extends EditorExtendable {
         oTransitions.length = 0;
     }
 
-    public eraseIncomings (to: State) {
+    public eraseIncomings (to: State): void {
         assertsOwnedBy(to, this);
 
         const iTransitions = to[incomingsSymbol];
@@ -606,7 +606,7 @@ export class StateMachine extends EditorExtendable {
         iTransitions.length = 0;
     }
 
-    public eraseTransitionsIncludes (state: State) {
+    public eraseTransitionsIncludes (state: State): void {
         this.eraseIncomings(state);
         this.eraseOutgoings(state);
     }
@@ -639,7 +639,7 @@ export class StateMachine extends EditorExtendable {
      * @param adjusting @en The transition to adjust the priority. @zh 需要调整优先级的过渡。
      * @param diff @en Indicates how to adjust the priority. @zh 指示如何调整优先级。
      */
-    public adjustTransitionPriority (adjusting: Transition, diff: number) {
+    public adjustTransitionPriority (adjusting: Transition, diff: number): void {
         const { from } = adjusting;
         if (diff === 0) {
             return;
@@ -681,7 +681,7 @@ export class StateMachine extends EditorExtendable {
         }
     }
 
-    public copyTo (that: StateMachine) {
+    public copyTo (that: StateMachine): void {
         // Clear that first
         const thatStatesOld = that._states.filter((state) => {
             switch (state) {
@@ -738,13 +738,13 @@ export class StateMachine extends EditorExtendable {
         }
     }
 
-    public clone () {
+    public clone (): StateMachine {
         const that = new StateMachine(this._allowEmptyStates);
         this.copyTo(that);
         return that;
     }
 
-    private _addState<T extends State> (state: T) {
+    private _addState<T extends State> (state: T): T {
         own(state, this);
         this._states.push(state);
         return state;
@@ -758,16 +758,16 @@ export class SubStateMachine extends InteractiveState {
         this._stateMachine = new StateMachine(allowEmptyStates);
     }
 
-    get stateMachine () {
+    get stateMachine (): StateMachine {
         return this._stateMachine;
     }
 
-    public copyTo (that: SubStateMachine) {
+    public copyTo (that: SubStateMachine): void {
         super.copyTo(that);
         this._stateMachine.copyTo(that._stateMachine);
     }
 
-    public _clone () {
+    public _clone (): SubStateMachine {
         const that = new SubStateMachine();
         this.copyTo(that);
         return that;
@@ -808,7 +808,7 @@ export class Layer implements OwnedBy<AnimationGraph> {
      * // TODO: HACK
      * @internal
      */
-    public __callOnAfterDeserializeRecursive () {
+    public __callOnAfterDeserializeRecursive (): void {
         this.stateMachine._allowEmptyStates = true;
         this.stateMachine.__callOnAfterDeserializeRecursive();
         for (const stashId in this._stashes) {
@@ -825,15 +825,15 @@ export class Layer implements OwnedBy<AnimationGraph> {
         return this._stashes[id];
     }
 
-    public addStash (id: string) {
+    public addStash (id: string): PoseGraphStash {
         return this._stashes[id] = new PoseGraphStash();
     }
 
-    public removeStash (id: string) {
+    public removeStash (id: string): void {
         delete this._stashes[id];
     }
 
-    public renameStash (id: string, newId: string) {
+    public renameStash (id: string, newId: string): void {
         this._stashes = renameObjectProperty(this._stashes, id, newId);
     }
 
@@ -844,7 +844,7 @@ export class Layer implements OwnedBy<AnimationGraph> {
         this._stateMachine = new StateMachine(true);
     }
 
-    get stateMachine () {
+    get stateMachine (): StateMachine {
         return this._stateMachine;
     }
 
@@ -884,7 +884,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
         super();
     }
 
-    onLoaded () {
+    onLoaded (): void {
         const { _layers: layers } = this;
         const nLayers = layers.length;
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
@@ -904,7 +904,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * Adds a layer.
      * @returns The new layer.
      */
-    public addLayer () {
+    public addLayer (): Layer {
         const layer = new Layer();
         this._layers.push(layer);
         return layer;
@@ -914,7 +914,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * Removes a layer.
      * @param index Index to the layer to remove.
      */
-    public removeLayer (index: number) {
+    public removeLayer (index: number): void {
         js.array.removeAt(this._layers, index);
     }
 
@@ -923,7 +923,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * @param index
      * @param newIndex
      */
-    public moveLayer (index: number, newIndex: number) {
+    public moveLayer (index: number, newIndex: number): void {
         shift(this._layers, index, newIndex);
     }
 
@@ -935,13 +935,13 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      */
     public addVariable<TVariableType extends VariableType> (
         name: string, type: TVariableType, initialValue?: VariableTypeValueTypeMap[TVariableType],
-    ) {
+    ): VariableDescription {
         const variable = createVariable(type, initialValue);
         this._variables[name] = variable;
         return variable;
     }
 
-    public removeVariable (name: string) {
+    public removeVariable (name: string): void {
         delete this._variables[name];
     }
 
@@ -960,7 +960,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * @param name @zh 要重命名的变量的名字。 @en The name of the variable to be renamed.
      * @param newName @zh 新的名字。 @en New name.
      */
-    public renameVariable (name: string, newName: string) {
+    public renameVariable (name: string, newName: string): void {
         this._variables = renameObjectProperty(this._variables, name, newName);
     }
 }

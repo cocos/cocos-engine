@@ -35,7 +35,7 @@ const sign = Math.sign;
 
 const KAPPA90 = 0.5522847493;
 
-export function arc (ctx: Impl, cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean) {
+export function arc (ctx: Impl, cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean): void {
     counterclockwise = counterclockwise || false;
 
     let a = 0;
@@ -97,7 +97,7 @@ export function arc (ctx: Impl, cx: number, cy: number, r: number, startAngle: n
     }
 }
 
-export function ellipse (ctx: Impl, cx: number, cy: number, rx: number, ry: number) {
+export function ellipse (ctx: Impl, cx: number, cy: number, rx: number, ry: number): void {
     ctx.moveTo(cx - rx, cy);
     ctx.bezierCurveTo(cx - rx, cy + ry * KAPPA90, cx - rx * KAPPA90, cy + ry, cx, cy + ry);
     ctx.bezierCurveTo(cx + rx * KAPPA90, cy + ry, cx + rx, cy + ry * KAPPA90, cx + rx, cy);
@@ -106,7 +106,7 @@ export function ellipse (ctx: Impl, cx: number, cy: number, rx: number, ry: numb
     ctx.close();
 }
 
-export function roundRect (ctx: Impl, x: number, y: number, w: number, h: number, r: number) {
+export function roundRect (ctx: Impl, x: number, y: number, w: number, h: number, r: number): void {
     if (r < 0.1) {
         ctx.rect(x, y, w, h);
     } else {
@@ -132,7 +132,7 @@ export function tesselateBezier (
     x3: number, y3: number,
     x4: number, y4: number,
     level: number, type: number,
-) {
+): void {
     let x12 = 0;
     let y12 = 0;
     let x23 = 0;

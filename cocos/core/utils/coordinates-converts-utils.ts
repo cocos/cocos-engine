@@ -41,7 +41,7 @@ const _vec3 = new Vec3();
  * @param uiNode @en The UI node. @zh UI 节点。
  * @param out @en The output local position in UI @zh 返回 UI 节点局部坐标。
  */
-export function WorldNode3DToLocalNodeUI (mainCamera: Camera, wpos: Vec3, uiNode: Node, out?: Vec3) {
+export function WorldNode3DToLocalNodeUI (mainCamera: Camera, wpos: Vec3, uiNode: Node, out?: Vec3): Vec3 {
     if (!out) {
         out = new Vec3();
     }
@@ -62,7 +62,7 @@ export function WorldNode3DToLocalNodeUI (mainCamera: Camera, wpos: Vec3, uiNode
  * @param wpos @en The world space location. @zh 世界空间位置。
  * @param out @en The output world position in UI @zh 返回 UI 空间世界坐标。
  */
-export function WorldNode3DToWorldNodeUI (mainCamera: Camera, wpos: Vec3, out?: Vec3) {
+export function WorldNode3DToWorldNodeUI (mainCamera: Camera, wpos: Vec3, out?: Vec3): Vec3 {
     if (!out) {
         out = new Vec3();
     }
@@ -91,7 +91,7 @@ replaceProperty(legacyCC.pipelineUtils, 'cc.pipelineUtils', [
         name: 'WorldNode3DToLocalNodeUI',
         newName: 'convertToUINode',
         targetName: 'cc.Camera.prototype',
-        customFunction (...args: any[]) {
+        customFunction (...args: any[]): any {
             const camera = args[0] as Camera;
             const out = args[3] || _vec3;
             camera.convertToUINode(args[1], args[2], out);
