@@ -177,6 +177,20 @@ export class LinearLimitSettings  {
     @serializable
     private _damping = 0;
 
+    /**
+     * @engineInternal
+     */
+    get impl () {
+        return this._impl;
+    }
+
+    /**
+     * @engineInternal
+     */
+    set impl (v: IConfigurableConstraint) {
+        this._impl = v;
+    }
+
     private _impl: IConfigurableConstraint;
     constructor (configurableConstraint: IConfigurableConstraint) {
         this._impl = configurableConstraint;
@@ -389,6 +403,20 @@ export class AngularLimitSettings {
     @serializable
     private _twistDamping = 0;
 
+    /**
+     * @engineInternal
+     */
+    get impl () {
+        return this._impl;
+    }
+
+    /**
+     * @engineInternal
+     */
+    set impl (v: IConfigurableConstraint) {
+        this._impl = v;
+    }
+
     private _impl: IConfigurableConstraint;
     constructor (configurableConstraint: IConfigurableConstraint) {
         this._impl = configurableConstraint;
@@ -484,6 +512,20 @@ export class LinearDriverSettings {
     @serializable
     private _strength = 0;
 
+    /**
+     * @engineInternal
+     */
+    get impl () {
+        return this._impl;
+    }
+
+    /**
+     * @engineInternal
+     */
+    set impl (v: IConfigurableConstraint) {
+        this._impl = v;
+    }
+
     private _impl: IConfigurableConstraint;
     constructor (configurableConstraint: IConfigurableConstraint) {
         this._impl = configurableConstraint;
@@ -578,6 +620,20 @@ export class AngularDriverSettings {
 
     @serializable
     private _strength = 0;
+
+    /**
+     * @engineInternal
+     */
+    get impl () {
+        return this._impl;
+    }
+
+    /**
+     * @engineInternal
+     */
+    set impl (v: IConfigurableConstraint) {
+        this._impl = v;
+    }
 
     private _impl: IConfigurableConstraint;
     constructor (configurableConstraint: IConfigurableConstraint) {
@@ -876,18 +932,10 @@ export class ConfigurableConstraint extends Constraint {
     onLoad () {
         super.onLoad();
         if (!EDITOR || cclegacy.GAME_VIEW) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error private member access
-            this.linearLimitSettings._impl = this.constraint;
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error private member access
-            this.angularLimitSettings._impl = this.constraint;
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error private member access
-            this.linearDriverSettings._impl = this.constraint;
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error private member access
-            this.angularDriverSettings._impl = this.constraint;
+            this.linearLimitSettings.impl = this.constraint;
+            this.angularLimitSettings.impl = this.constraint;
+            this.linearDriverSettings.impl = this.constraint;
+            this.angularDriverSettings.impl = this.constraint;
         }
     }
 }
