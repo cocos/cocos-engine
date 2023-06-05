@@ -43,7 +43,7 @@ export class NoiseModule extends ParticleModuleBase {
      * @zh 是否启用。
      */
     @displayOrder(0)
-    public get enable () {
+    public get enable (): boolean {
         return this._enable;
     }
 
@@ -62,7 +62,7 @@ export class NoiseModule extends ParticleModuleBase {
     @range([0, 100])
     @displayOrder(16)
     @slide
-    get strengthX () {
+    get strengthX (): number {
         return this._strengthX;
     }
     set strengthX (value: number) {
@@ -79,7 +79,7 @@ export class NoiseModule extends ParticleModuleBase {
     @range([0, 100])
     @displayOrder(16)
     @slide
-    get strengthY () {
+    get strengthY (): number {
         return this._strengthY;
     }
     set strengthY (value: number) {
@@ -96,7 +96,7 @@ export class NoiseModule extends ParticleModuleBase {
     @range([0, 100])
     @displayOrder(16)
     @slide
-    get strengthZ () {
+    get strengthZ (): number {
         return this._strengthZ;
     }
     set strengthZ (value: number) {
@@ -113,7 +113,7 @@ export class NoiseModule extends ParticleModuleBase {
     @range([0, 100])
     @slide
     @displayOrder(16)
-    get noiseSpeedX () {
+    get noiseSpeedX (): number {
         return this._noiseSpeedX;
     }
     set noiseSpeedX (value: number) {
@@ -130,7 +130,7 @@ export class NoiseModule extends ParticleModuleBase {
     @range([0, 100])
     @displayOrder(16)
     @slide
-    get noiseSpeedY () {
+    get noiseSpeedY (): number {
         return this._noiseSpeedY;
     }
     set noiseSpeedY (value: number) {
@@ -147,7 +147,7 @@ export class NoiseModule extends ParticleModuleBase {
     @range([0, 100])
     @displayOrder(16)
     @slide
-    get noiseSpeedZ () {
+    get noiseSpeedZ (): number {
         return this._noiseSpeedZ;
     }
     set noiseSpeedZ (value: number) {
@@ -164,7 +164,7 @@ export class NoiseModule extends ParticleModuleBase {
     @range([0, 100, 0.1])
     @displayOrder(16)
     @slide
-    get noiseFrequency () {
+    get noiseFrequency (): number {
         return this._noiseFrequency;
     }
     set noiseFrequency (value: number) {
@@ -182,7 +182,7 @@ export class NoiseModule extends ParticleModuleBase {
     @range([0, 1, 0.1])
     @displayOrder(16)
     @slide
-    get remapX () {
+    get remapX (): number {
         return this._remapX;
     }
     set remapX (value: number) {
@@ -200,7 +200,7 @@ export class NoiseModule extends ParticleModuleBase {
     @range([0, 1, 0.1])
     @displayOrder(16)
     @slide
-    get remapY () {
+    get remapY (): number {
         return this._remapY;
     }
     set remapY (value: number) {
@@ -218,7 +218,7 @@ export class NoiseModule extends ParticleModuleBase {
     @range([0, 1, 0.1])
     @displayOrder(16)
     @slide
-    get remapZ () {
+    get remapZ (): number {
         return this._remapZ;
     }
     set remapZ (value: number) {
@@ -235,7 +235,7 @@ export class NoiseModule extends ParticleModuleBase {
     @range([1, 4, 1])
     @displayOrder(16)
     @slide
-    get octaves () {
+    get octaves (): number {
         return this._octaves;
     }
     set octaves (value: number) {
@@ -253,7 +253,7 @@ export class NoiseModule extends ParticleModuleBase {
     @type(CCFloat)
     @range([0, 1, 0.1])
     @displayOrder(16)
-    get octaveMultiplier () {
+    get octaveMultiplier (): number {
         return this._octaveMultiplier;
     }
     set octaveMultiplier (value: number) {
@@ -271,7 +271,7 @@ export class NoiseModule extends ParticleModuleBase {
     @type(CCFloat)
     @range([1, 4, 0.1])
     @displayOrder(16)
-    get octaveScale () {
+    get octaveScale (): number {
         return this._octaveScale;
     }
     set octaveScale (value: number) {
@@ -293,7 +293,7 @@ export class NoiseModule extends ParticleModuleBase {
      * @param dt @en Update interval time @zh 粒子系统更新的间隔时间
      * @internal
      */
-    public animate (particle: Particle, dt: number) {
+    public animate (particle: Particle, dt: number): void {
         this.noise.setTime(particle.particleSystem.time);
         this.noise.setSpeed(this.noiseSpeedX, this.noiseSpeedY, this.noiseSpeedZ);
         this.noise.setFrequency(this.noiseFrequency);
@@ -319,7 +319,7 @@ export class NoiseModule extends ParticleModuleBase {
      * @param width @en Texture width @zh 噪声图宽度
      * @param height @en Texture height @zh 噪声图高度
      */
-    public getNoisePreview (out: number[], ps, width: number, height: number) {
+    public getNoisePreview (out: number[], ps, width: number, height: number): void {
         this.noise.setTime(ps.time);
         this.noise.setSpeed(this.noiseSpeedX, this.noiseSpeedY, this.noiseSpeedZ);
         this.noise.setFrequency(this.noiseFrequency);

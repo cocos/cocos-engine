@@ -126,7 +126,7 @@ export class ParticleNoise {
      * @param y @en Y axis roll speed. @zh Y 轴滚动速度。
      * @param z @en Z axis roll speed. @zh Z 轴滚动速度。
      */
-    public setSpeed (x, y, z) {
+    public setSpeed (x, y, z): void {
         this.noiseSpeed.set(x, y, z);
     }
 
@@ -135,7 +135,7 @@ export class ParticleNoise {
      * @zh 设置生成的噪声频率。
      * @param f @en Noise texture frequency. @zh 噪声频率。
      */
-    public setFrequency (f) {
+    public setFrequency (f): void {
         this.noiseFrequency = f;
     }
 
@@ -147,7 +147,7 @@ export class ParticleNoise {
      * @param z @en Z value transformed. @zh Z 轴上噪声值的偏移。
      * @deprecated since v3.6.0
      */
-    public setAbs (x, y, z) {
+    public setAbs (x, y, z): void {
         this.noiseAbs.set(x, y, z);
     }
 
@@ -158,7 +158,7 @@ export class ParticleNoise {
      * @param y @en Noise amplititude on Y axis. @zh Y 轴上的噪声强度。
      * @param z @en Noise amplititude on Z axis. @zh Z 轴上的噪声强度。
      */
-    public setAmplititude (x, y, z) {
+    public setAmplititude (x, y, z): void {
         this.noiseAmplitude.set(x, y, z);
     }
 
@@ -169,7 +169,7 @@ export class ParticleNoise {
      * @param y @en For each additional noise layer, reduce the strength by this proportion. @zh 每一层的噪声强度衰减比例。
      * @param z @en For each additional noise layer, adjust the frequency by this multiplier. @zh 对于每个附加的噪声层，按此乘数调整频率。
      */
-    public setOctaves (x, y, z) {
+    public setOctaves (x, y, z): void {
         this.octaves.set(x, y, z);
     }
 
@@ -178,7 +178,7 @@ export class ParticleNoise {
      * @zh 设置更新间隔时间。
      * @param t @en Update interval time. @zh 更新的间隔时间。
      */
-    public setTime (t) {
+    public setTime (t): void {
         this.dt = t;
     }
 
@@ -187,7 +187,7 @@ export class ParticleNoise {
      * @zh 设置噪声纹理的采样点。
      * @param p @en Sample point of noise texture. @zh 噪声纹理采样点。
      */
-    public setSamplePoint (p: Vec3) {
+    public setSamplePoint (p: Vec3): void {
         this.point.set(p);
     }
 
@@ -220,7 +220,7 @@ export class ParticleNoise {
         return sum / range;
     }
 
-    private getNoiseMix (out: Vec2, point: Vec3, time: number, offSpeed: Vec3, noiseFrequency: number, octaves: Vec3) {
+    private getNoiseMix (out: Vec2, point: Vec3, time: number, offSpeed: Vec3, noiseFrequency: number, octaves: Vec3): void {
         out.x = this.getNoise(point.x, point.y, point.z, time, offSpeed, noiseFrequency, octaves);
         out.y = this.getNoise(point.y, point.z, point.x, time, offSpeed, noiseFrequency, octaves);
     }
@@ -229,7 +229,7 @@ export class ParticleNoise {
      * @en Sample pixel from noise texture.
      * @zh 从噪声纹理采样像素。
      */
-    public getNoiseParticle () {
+    public getNoiseParticle (): void {
         this.accSpeed.set(this.noiseSpeed.x * this.dt, this.noiseSpeed.y * this.dt, this.noiseSpeed.z * this.dt);
 
         const axisOffset = 1000.0;
@@ -250,7 +250,7 @@ export class ParticleNoise {
      * @param width @en Texture width. @zh 纹理宽度。
      * @param height @en Texture height. @zh 纹理高度。
      */
-    public getPreview (out: number[], width: number, height: number) {
+    public getPreview (out: number[], width: number, height: number): void {
         for (let h = 0; h < height; ++h) {
             for (let w = 0; w < width; ++w) {
                 const sampx = (w - width * 0.5) / width + this.noiseSpeed.x * this.dt;

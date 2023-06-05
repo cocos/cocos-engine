@@ -181,10 +181,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         };
     }
 
-    public onInit (ps: Component) {
+    public onInit (ps: Component): void {
         super.onInit(ps);
 
-        this._particles = new RecyclePool(() => new Particle(this), 16);
+        this._particles = new RecyclePool((): Particle => new Particle(this), 16);
         this._setVertexAttrib();
         this._setFillFunc();
         this._initModuleList();
@@ -195,7 +195,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._inited = true;
     }
 
-    public clear () {
+    public clear (): void {
         super.clear();
         this._particles!.reset();
         if (this._particleSystem._trailModule) {
@@ -205,7 +205,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._model!.enabled = false;
     }
 
-    public updateRenderMode () {
+    public updateRenderMode (): void {
         this._setVertexAttrib();
         this._setFillFunc();
         this.updateMaterialParams();
@@ -228,11 +228,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._defaultTrailMat;
     }
 
-    public setNewParticle (p: Particle) {
+    public setNewParticle (p: Particle): void {
     }
 
-    private _initModuleList () {
-        _anim_module.forEach((val) => {
+    private _initModuleList (): void {
+        _anim_module.forEach((val): void => {
             const pm = this._particleSystem[val];
             if (pm && pm.enable) {
                 if (pm.needUpdate) {
@@ -255,7 +255,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public enableModule (name: string, val: boolean, pm: IParticleModule) {
+    public enableModule (name: string, val: boolean, pm: IParticleModule): void {
         if (val) {
             if (pm.needUpdate) {
                 this._updateList[pm.name] = pm;
@@ -280,7 +280,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.updateMaterialParams();
     }
 
-    public updateAlignSpace (space) {
+    public updateAlignSpace (space): void {
         this._alignSpace = space;
     }
 
@@ -288,13 +288,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._defaultMat;
     }
 
-    public updateRotation (pass: Pass | null) {
+    public updateRotation (pass: Pass | null): void {
         if (pass) {
             this.doUpdateRotation(pass);
         }
     }
 
-    private doUpdateRotation (pass) {
+    private doUpdateRotation (pass): void {
         const mode = this._renderInfo!.renderMode;
         if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
             return;
@@ -325,13 +325,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         pass.setUniform(this._uNodeRotHandle, _node_rot);
     }
 
-    public updateScale (pass: Pass | null) {
+    public updateScale (pass: Pass | null): void {
         if (pass) {
             this.doUpdateScale(pass);
         }
     }
 
-    private doUpdateScale (pass) {
+    private doUpdateScale (pass): void {
         switch (this._particleSystem.scaleSpace) {
         case Space.Local:
             this._particleSystem.node.getScale(this._node_scale);
@@ -347,7 +347,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private noise: ParticleNoise = new ParticleNoise();
 
-    public updateParticles (dt: number) {
+    public updateParticles (dt: number): number {
         const ps = this._particleSystem;
         if (!ps) {
             return this._particles!.length;
@@ -358,7 +358,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.doUpdateScale(pass);
         this.doUpdateRotation(pass);
 
-        this._updateList.forEach((value: IParticleModule, key: string) => {
+        this._updateList.forEach((value: IParticleModule, key: string): void => {
             value.update(ps._simulationSpace, _tempWorldTrans);
         });
 
@@ -424,7 +424,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
             Vec3.copy(p.ultimateVelocity, p.velocity);
 
-            this._runAnimateList.forEach((value) => {
+            this._runAnimateList.forEach((value): void => {
                 value.animate(p, dt);
             });
 
@@ -438,8 +438,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._particles!.length;
     }
 
-    public getNoisePreview (out: number[], width: number, height: number) {
-        this._runAnimateList.forEach((value) => {
+    public getNoisePreview (out: number[], width: number, height: number): void {
+        this._runAnimateList.forEach((value): void => {
             if (value.name === PARTICLE_MODULE_NAME.NOISE) {
                 const m = value as NoiseModule;
                 m.getNoisePreview(out, this._particleSystem, width, height);
@@ -448,7 +448,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     // internal function
-    public updateRenderData () {
+    public updateRenderData (): void {
         // update vertex buffer
         let idx = 0;
         for (let i = 0; i < this._particles!.length; ++i) {
@@ -463,7 +463,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public beforeRender () {
+    public beforeRender (): void {
         // because we use index buffer, per particle index count = 6.
         this._model!.updateIA(this._particles!.length);
     }
@@ -472,7 +472,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._particles!.length;
     }
 
-    public onMaterialModified (index: number, material: Material) {
+    public onMaterialModified (index: number, material: Material): void {
         if (!this._inited) {
             return;
         }
@@ -484,7 +484,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public onRebuildPSO (index: number, material: Material) {
+    public onRebuildPSO (index: number, material: Material): void {
         if (this._model && index === 0) {
             this._model.setSubModelMaterial(0, material);
         }
@@ -494,7 +494,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _setFillFunc () {
+    private _setFillFunc (): void {
         if (this._renderInfo!.renderMode === RenderMode.Mesh) {
             this._fillDataFunc = this._fillMeshData;
         } else if (this._renderInfo!.renderMode === RenderMode.StrecthedBillboard) {
@@ -504,7 +504,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _fillMeshData (p: Particle, idx: number, fi: number) {
+    private _fillMeshData (p: Particle, idx: number, fi: number): void {
         const i = idx / 4;
         this._attrs[0] = p.position;
         _tempAttribUV.z = fi;
@@ -515,7 +515,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._model!.addParticleVertexData(i, this._attrs);
     }
 
-    private _fillStrecthedData (p: Particle, idx: number, fi: number) {
+    private _fillStrecthedData (p: Particle, idx: number, fi: number): void {
         if (!this._useInstance) {
             for (let j = 0; j < 4; ++j) { // four verts per particle.
                 this._attrs[0] = p.position;
@@ -535,7 +535,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _fillStrecthedDataIns (p: Particle, idx: number, fi: number) {
+    private _fillStrecthedDataIns (p: Particle, idx: number, fi: number): void {
         const i = idx / 4;
         this._attrs[0] = p.position;
         _tempAttribUV.z = fi;
@@ -547,7 +547,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._model!.addParticleVertexData(i, this._attrs);
     }
 
-    private _fillNormalData (p: Particle, idx: number, fi: number) {
+    private _fillNormalData (p: Particle, idx: number, fi: number): void {
         if (!this._useInstance) {
             for (let j = 0; j < 4; ++j) { // four verts per particle.
                 this._attrs[0] = p.position;
@@ -566,7 +566,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _fillNormalDataIns (p: Particle, idx: number, fi: number) {
+    private _fillNormalDataIns (p: Particle, idx: number, fi: number): void {
         const i = idx / 4;
         this._attrs[0] = p.position;
         _tempAttribUV.z = fi;
@@ -578,7 +578,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._model!.addParticleVertexData(i, this._attrs);
     }
 
-    public updateVertexAttrib () {
+    public updateVertexAttrib (): void {
         if (this._renderInfo!.renderMode !== RenderMode.Mesh) {
             return;
         }
@@ -600,7 +600,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _setVertexAttrib () {
+    private _setVertexAttrib (): void {
         if (!this._useInstance) {
             switch (this._renderInfo!.renderMode) {
             case RenderMode.StrecthedBillboard:
@@ -617,7 +617,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _setVertexAttribIns () {
+    private _setVertexAttribIns (): void {
         switch (this._renderInfo!.renderMode) {
         case RenderMode.StrecthedBillboard:
             this._vertAttrs = _vertex_attrs_stretch_ins.slice();
@@ -630,7 +630,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public updateMaterialParams () {
+    public updateMaterialParams (): void {
         if (!this._particleSystem) {
             return;
         }
@@ -704,7 +704,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public updateTrailMaterial () {
+    public updateTrailMaterial (): void {
         if (!this._particleSystem) {
             return;
         }
@@ -732,7 +732,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public setUseInstance (value: boolean) {
+    public setUseInstance (value: boolean): void {
         if (this._useInstance === value) {
             return;
         }

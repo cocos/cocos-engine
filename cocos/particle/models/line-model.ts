@@ -65,12 +65,12 @@ export class LineModel extends scene.Model {
         this._capacity = 100;
     }
 
-    public setCapacity (capacity: number) {
+    public setCapacity (capacity: number): void {
         this._capacity = capacity;
         this.createBuffer();
     }
 
-    public createBuffer () {
+    public createBuffer (): void {
         this._vertSize = 0;
         for (const a of _vertex_attrs) {
             (a as any).offset = this._vertSize;
@@ -82,7 +82,7 @@ export class LineModel extends scene.Model {
         this._vdataUint32 = new Uint32Array(this._vBuffer);
     }
 
-    public updateMaterial (mat: Material) {
+    public updateMaterial (mat: Material): void {
         this._material = mat;
         super.setSubModelMaterial(0, mat);
     }
@@ -131,7 +131,7 @@ export class LineModel extends scene.Model {
         return vBuffer;
     }
 
-    public addLineVertexData (positions: Vec3[], width: CurveRange, color: GradientRange) {
+    public addLineVertexData (positions: Vec3[], width: CurveRange, color: GradientRange): void {
         if (positions.length > 1) {
             let offset = 0;
             Vec3.subtract(_temp_v1, positions[1], positions[0]);
@@ -212,7 +212,7 @@ export class LineModel extends scene.Model {
         this.updateIA(Math.max(0, positions.length - 1));
     }
 
-    public updateIA (count: number) {
+    public updateIA (count: number): void {
         const ia = this._subModels[0].inputAssembler;
         ia.vertexBuffers[0].update(this._vdataF32!);
         ia.firstIndex = 0;
@@ -220,7 +220,7 @@ export class LineModel extends scene.Model {
         ia.vertexCount = this._iaVertCount;
     }
 
-    private destroySubMeshData () {
+    private destroySubMeshData (): void {
         if (this._subMeshData) {
             this._subMeshData.destroy();
             this._subMeshData = null;
