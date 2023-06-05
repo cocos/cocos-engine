@@ -90,12 +90,22 @@ export abstract class ParticleRenderer {
         return this._firstInstance;
     }
 
+    public get firstVertex () {
+        return this._firstVertex;
+    }
+
+    public get firstIndex () {
+        return this._firstIndex;
+    }
+
     protected _isMaterialDirty = false;
     protected _renderingSubMesh: RenderingSubMesh | null = null;
     protected _vertexCount = 0;
+    protected _firstIndex = 0;
     protected _indexCount = 0;
     protected _instanceCount = 0;
     protected _firstInstance = 0;
+    protected _firstVertex = 0;
     @serializable
     private _sharedMaterial: Material | null = null;
     private _material: MaterialInstance | null = null;
