@@ -570,7 +570,7 @@ export class ArmatureDisplay extends UIRenderer {
     protected _displayProxy: CCArmatureDisplay | null = null;
 
     protected _drawIdx = 0;
-    protected _drawList = new RecyclePool<ArmatureDisplayDrawData>((): { material: any; texture: any; indexOffset: number; indexCount: number; } => ({
+    protected _drawList = new RecyclePool<ArmatureDisplayDrawData>((): ArmatureDisplayDrawData => ({
         material: null,
         texture: null,
         indexOffset: 0,

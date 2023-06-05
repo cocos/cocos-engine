@@ -141,7 +141,8 @@ function copyTransformsWithFilter (target: TransformArray, source: Readonly<Tran
     }
 }
 
-const blendIntoTransformArrayAt = ((): (target: TransformArray, source: Readonly<TransformArray>, alpha: number, transformIndex: number) => void => {
+type BlendIntoTransformArrayAtFunc = (target: TransformArray, source: Readonly<TransformArray>, alpha: number, transformIndex: number) => void;
+const blendIntoTransformArrayAt = ((): BlendIntoTransformArrayAtFunc => {
     const cacheTransformSource = new Transform();
     const cacheTransformTarget = new Transform();
     return (target: TransformArray, source: Readonly<TransformArray>, alpha: number, transformIndex: number): void => {
@@ -165,7 +166,8 @@ export function calculateDeltaPose (target: Pose, base: Pose): void {
     calculateDeltaAuxiliaryCurves(target.auxiliaryCurves, base.auxiliaryCurves);
 }
 
-const calculateDeltaTransformArrayAt = ((): (target: TransformArray, base: Readonly<TransformArray>, transformIndex: number) => void => {
+type CalculateDeltaTransformArrayAtFunc = (target: TransformArray, base: Readonly<TransformArray>, transformIndex: number) => void;
+const calculateDeltaTransformArrayAt = ((): CalculateDeltaTransformArrayAtFunc => {
     const cacheTransformBase = new Transform();
     const cacheTransformTarget = new Transform();
     return (target: TransformArray, base: Readonly<TransformArray>, transformIndex: number): void => {
@@ -197,7 +199,8 @@ export function applyDeltaPose (target: Pose, base: Pose, alpha: number, transfo
     applyDeltaAuxiliaryCurves(target.auxiliaryCurves, base.auxiliaryCurves, alpha);
 }
 
-const applyDeltaTransformArrayAt = ((): (target: TransformArray, delta: Readonly<TransformArray>, alpha: number, transformIndex: number) => void => {
+type ApplyDeltaTransformArrayAtFunc = (target: TransformArray, delta: Readonly<TransformArray>, alpha: number, transformIndex: number) => void;
+const applyDeltaTransformArrayAt = ((): ApplyDeltaTransformArrayAtFunc => {
     const cacheTransformDelta = new Transform();
     const cacheTransformTarget = new Transform();
     return (target: TransformArray, delta: Readonly<TransformArray>, alpha: number, transformIndex: number): void => {
