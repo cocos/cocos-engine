@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { ccclass } from '../../core/data/decorators';
+import { ccclass, serializable } from '../../core/data/decorators';
 import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { Vec3Expression } from './vec3';
 import { VFXParameterIdentity, VFXParameterNameSpace } from '../vfx-parameter';
@@ -31,6 +31,7 @@ import { Vec3 } from '../../core';
 
 @ccclass('cc.BindingVec3Expression')
 export class BindingVec3Expression extends Vec3Expression {
+    @serializable
     private _bindParameter: VFXParameterIdentity | null = null;
     private declare _data: Vec3ArrayParameter;
     private _constant = new Vec3();

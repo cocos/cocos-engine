@@ -77,13 +77,13 @@ export class DeathEventGeneratorModule extends VFXModule {
                 Vec3.zero(eventInfo.velocity);
                 Color.copy(eventInfo.color, Color.WHITE);
                 if (hasPosition) {
-                    position!.getVec3At(eventInfo.position, i);
+                    position.getVec3At(eventInfo.position, i);
                 }
                 if (hasVelocity) {
-                    velocity!.getVec3At(eventInfo.velocity, i);
+                    velocity.getVec3At(eventInfo.velocity, i);
                 }
                 if (hasColor) {
-                    color!.getColorAt(eventInfo.color, i);
+                    color.getColorAt(eventInfo.color, i);
                 }
                 if (!isWorldSpace) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { Color, Gradient, serializable } from '../../core';
-import { ccclass, type } from '../../core/data/decorators';
+import { ccclass, type, visible } from '../../core/data/decorators';
 import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ColorExpression } from './color';
 import { FloatExpression } from './float';
@@ -33,10 +33,12 @@ import { E_NORMALIZED_LOOP_AGE } from '../define';
 @ccclass('cc.ColorFromCurveExpression')
 export class ColorFromCurveExpression extends ColorExpression {
     @type(Gradient)
+    @visible(true)
     @serializable
     public curve = new Gradient();
 
     @type(FloatExpression)
+    @visible(true)
     @serializable
     public curveIndex: FloatExpression = new BindingFloatExpression(E_NORMALIZED_LOOP_AGE);
 

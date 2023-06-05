@@ -23,13 +23,14 @@
  THE SOFTWARE.
  */
 import { CCFloat } from '../../core';
-import { ccclass, serializable, type } from '../../core/data/class-decorator';
+import { ccclass, serializable, type, visible } from '../../core/data/class-decorator';
 import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { FloatExpression } from './float';
 
 @ccclass('cc.ConstantFloatExpression')
 export class ConstantFloatExpression extends FloatExpression {
     @type(CCFloat)
+    @visible(true)
     @serializable
     public value = 0;
 

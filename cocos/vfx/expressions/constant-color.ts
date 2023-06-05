@@ -23,13 +23,14 @@
  THE SOFTWARE.
  */
 import { Color, serializable } from '../../core';
-import { ccclass, type } from '../../core/data/class-decorator';
+import { ccclass, type, visible } from '../../core/data/class-decorator';
 import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { ColorExpression } from './color';
 
 @ccclass('cc.ConstantColorExpression')
 export class ConstantColorExpression extends ColorExpression {
     @type(Color)
+    @visible(true)
     @serializable
     public color = Color.WHITE.clone();
 

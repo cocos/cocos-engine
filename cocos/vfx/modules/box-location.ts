@@ -91,7 +91,7 @@ export class BoxLocationModule extends ShapeLocationModule {
         super.tick(particles, emitter, user, context);
         this.boxSize.tick(particles, emitter, user, context);
         this.boxCenter.tick(particles, emitter, user, context);
-        if (this.surfaceThickness) {
+        if (this.surfaceOnly) {
             this.surfaceThickness.tick(particles, emitter, user, context);
         }
     }
