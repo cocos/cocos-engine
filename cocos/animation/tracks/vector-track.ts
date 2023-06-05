@@ -101,7 +101,7 @@ export class VectorTrack extends Track {
     private _channels: [RealChannel, RealChannel, RealChannel, RealChannel];
 
     @serializable
-    private _nComponents: 2 | 3 | 4 = 4;
+    private _nComponents: number = 4;
 }
 
 export class Vec2TrackEval implements TrackEval<Vec2> {

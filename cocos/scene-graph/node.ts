@@ -448,7 +448,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param value Parent node
      * @param keepWorldTransform Whether keep node's current world transform unchanged after this operation
      */
-    public setParent (value: this | Scene | null, keepWorldTransform = false): void {
+    public setParent (value: Node | null, keepWorldTransform = false): void {
         if (keepWorldTransform) { this.updateWorldTransform(); }
 
         if (this._parent === value) {
