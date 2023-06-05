@@ -1498,6 +1498,9 @@ class ExecutorPools {
 
 const vbData = new Float32Array(4 * 4);
 const quadRect = new Rect();
+// The attribute length of the volume light
+const volLightAttrCount = 5;
+
 class BlitInfo {
     private _pipelineIAData: PipelineInputAssemblerData;
     private _context: ExecutorContext;
@@ -1554,7 +1557,7 @@ class BlitInfo {
 
     private _createLightVolumes () {
         const device = this._context.root.device;
-        let totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * UBODeferredLight.LIGHTS_PER_PASS;
+        let totalSize = Float32Array.BYTES_PER_ELEMENT * volLightAttrCount * 4 * UBODeferredLight.LIGHTS_PER_PASS;
         totalSize = Math.ceil(totalSize / device.capabilities.uboOffsetAlignment) * device.capabilities.uboOffsetAlignment;
 
         this._lightVolumeBuffer = device.createBuffer(new BufferInfo(
