@@ -1144,10 +1144,6 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 const auto resID = vertex(resName, ctx.resourceGraph);
                 auto ragId = ctx.fgd.resourceAccessGraph.passIndex.at(vertID);
                 const auto& attachments = ctx.fgd.resourceAccessGraph.access[ragId].attachmentStatus;
-                auto resIter = std::find_if(attachments.begin(), attachments.end(), [resID](const AccessStatus& status) {
-                    return status.vertID == resID;
-                });
-
                 auto slotName = rasterView.slotName;
                 if (rasterView.accessType == AccessType::READ || rasterView.accessType == AccessType::READ_WRITE) {
                     slotName.insert(0, "__in");
@@ -1155,6 +1151,24 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 auto iter = ctx.lg.attributeIndex.find(slotName);
                 if (iter != ctx.lg.attributeIndex.end()) {
                     resourceIndex.emplace(iter->second, resID);
+                }
+            }
+            for (const auto& [resName, computeViews] : subpass.computeViews) {
+                auto resID = vertex(resName, ctx.resourceGraph);
+                auto ragId = ctx.fgd.resourceAccessGraph.passIndex.at(vertID);
+                const auto& attachments = ctx.fgd.resourceAccessGraph.access[ragId].attachmentStatus;
+
+                for (const auto& computeView : computeViews) {
+                    const auto& desc = get(ResourceGraph::DescTag{}, ctx.resourceGraph, vertex(resName, ctx.resourceGraph));
+                    auto rName = resName;
+                    if(desc.format == gfx::Format::DEPTH || desc.format == gfx::Format::DEPTH_STENCIL) {
+                        rName = computeView.plane == 0 ? resName + "/depth" : resName + "/stencil";
+                        resID = vertex(rName, ctx.resourceGraph);
+                    }
+                    auto iter = ctx.lg.attributeIndex.find(computeView.name);
+                    if (iter != ctx.lg.attributeIndex.end()) {
+                        resourceIndex.emplace(iter->second, resID);
+                    }
                 }
             }
 

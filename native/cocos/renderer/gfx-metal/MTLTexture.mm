@@ -163,7 +163,7 @@ void CCMTLTexture::doInit(const TextureViewInfo &info) {
 
     MTLPixelFormat format = mu::toMTLPixelFormat(_convertedFormat);
     if(_viewInfo.format == Format::DEPTH_STENCIL || _viewInfo.format == Format::DEPTH) {
-        format = _viewInfo.basePlane == 1 ? mu::toMTLPixelFormat(_viewInfo.texture->getFormat()) : MTLPixelFormatX32_Stencil8;
+        format = _viewInfo.basePlane == 0 ? mu::toMTLPixelFormat(_viewInfo.texture->getFormat()) : MTLPixelFormatX32_Stencil8;
     }
 
     _mtlTextureView = [static_cast<CCMTLTexture *>(_viewInfo.texture)->_mtlTexture
