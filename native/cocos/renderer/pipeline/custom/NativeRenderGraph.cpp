@@ -1221,16 +1221,12 @@ void setTextureUBOView(
 
 void NativeRenderQueueBuilder::addSceneOfCamera(
     scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
-    std::string_view name = "Camera";
     auto *pLight = light.light.get();
-    SceneData scene(renderGraph->get_allocator());
-    scene.name = name;
-    scene.flags = sceneFlags;
+    SceneData scene(camera->getScene(), sceneFlags, light);
     scene.camera = camera;
-    scene.light = light;
     auto sceneID = addVertex(
         SceneTag{},
-        std::forward_as_tuple(name),
+        std::forward_as_tuple("Camera"),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -1271,9 +1267,39 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
 }
 
 void NativeRenderQueueBuilder::addScene(const scene::RenderScene *scene, SceneFlags sceneFlags) {
-    SceneData data(renderGraph->get_allocator());
-    data.scenes.emplace_back(scene);
-    data.flags = sceneFlags;
+    SceneData data(scene, sceneFlags, LightInfo{});
+    auto sceneID = addVertex(
+        SceneTag{},
+        std::forward_as_tuple("Scene"),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(data)),
+        *renderGraph, nodeID);
+    CC_ENSURES(sceneID != RenderGraph::null_vertex());
+}
+
+void NativeRenderQueueBuilder::addSceneCulledByCamera(
+    const scene::RenderScene *scene, SceneFlags sceneFlags,
+    const scene::Camera* camera) {
+    SceneData data(scene, sceneFlags, LightInfo{});
+    data.camera = camera;
+
+    auto sceneID = addVertex(
+        SceneTag{},
+        std::forward_as_tuple("Scene"),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(data)),
+        *renderGraph, nodeID);
+    CC_ENSURES(sceneID != RenderGraph::null_vertex());
+}
+
+void NativeRenderQueueBuilder::addSceneCulledByLight(
+    const scene::RenderScene *scene, SceneFlags sceneFlags,
+    IntrusivePtr<scene::Light> light) {
+    SceneData data(scene, sceneFlags, LightInfo{std::move(light), 0});
 
     auto sceneID = addVertex(
         SceneTag{},
@@ -1820,21 +1846,8 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                 indent(space);
             },
             [&](const SceneData &scene) {
+                std::ignore = scene;
                 OSS << "Scene \"" << name << "\" {\n";
-                {
-                    INDENT();
-                    // OSS << "name: \"" << scene.name << "\";\n";
-                    OSS << "scenes: [";
-                    int count = 0;
-                    for (const auto &sceneName : scene.scenes) {
-                        if (count++) {
-                            oss << ", ";
-                        }
-                        oss << "\"" << sceneName << "\"";
-                    }
-                    oss << "];\n";
-                    // OSS << "flags: " << getName(scene.flags) << ";\n";
-                }
                 indent(space);
             },
             [&](const Blit &blit) {

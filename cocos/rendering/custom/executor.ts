@@ -922,15 +922,11 @@ class GraphScene {
             if (!this.scene) {
                 this.scene = new SceneData();
             }
-            this.scene.name = scene.name;
+            this.scene.scene = scene.scene;
             this.scene.light.level = scene.light.level;
             this.scene.light.light = scene.light.light;
             this.scene.flags = scene.flags;
             this.scene.camera = scene.camera;
-            this.scene.scenes.length = 0;
-            for (let i = 0; i < scene.scenes.length; i++) {
-                this.scene.scenes[i] = scene.scenes[i];
-            }
             return;
         }
         this.scene = null;

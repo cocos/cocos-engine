@@ -76,7 +76,7 @@ struct RenderGraphVisitorContext {
     gfx::CommandBuffer* cmdBuff = nullptr;
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
-        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues;
+        ccstd::pmr::unordered_map<const scene::Camera*, NativeRenderQueue>>& sceneQueues;
     NativePipeline* ppl = nullptr;
     ccstd::pmr::unordered_map<
         RenderGraph::vertex_descriptor,
@@ -815,7 +815,7 @@ gfx::DescriptorSet* updateCameraUniformBufferAndDescriptorSet(
 void submitUICommands(
     gfx::RenderPass* renderPass,
     uint32_t subpassOrPassLayoutID,
-    scene::Camera* camera,
+    const scene::Camera* camera,
     gfx::CommandBuffer* cmdBuff) {
     const auto& batches = camera->getScene()->getBatches();
     for (auto* batch : batches) {
@@ -1005,11 +1005,9 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto sceneID = target(e, g);
             if (holds<SceneTag>(sceneID, g)) {
                 const auto& sceneData = get(SceneTag{}, sceneID, g);
-                for (const auto& scene : sceneData.scenes) {
-                    auto iter = ctx.context.renderSceneResources.find(scene);
-                    if (iter != ctx.context.renderSceneResources.end()) {
-                        return &iter->second;
-                    }
+                auto iter = ctx.context.renderSceneResources.find(sceneData.scene);
+                if (iter != ctx.context.renderSceneResources.end()) {
+                    return &iter->second;
                 }
             }
         }
@@ -1496,7 +1494,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         tryBindPerPhaseDescriptorSet(vertID);
     }
     void begin(const SceneData& sceneData, RenderGraph::vertex_descriptor sceneID) const { // NOLINT(readability-convert-member-functions-to-static)
-        auto* camera = sceneData.camera;
+        const auto* const camera = sceneData.camera;
         CC_EXPECTS(camera);
         if (camera) { // update camera data
             tryBindPerPassDescriptorSet(sceneID);
@@ -2217,7 +2215,7 @@ void mergeSceneFlags(
     const LayoutGraphData& lg,
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
-        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>&
+        ccstd::pmr::unordered_map<const scene::Camera*, NativeRenderQueue>>&
         sceneQueues) {
     for (const auto vertID : makeRange(vertices(rg))) {
         if (!holds<SceneTag>(vertID, rg)) {
@@ -2274,7 +2272,7 @@ void buildRenderQueues(
     NativeRenderContext& context,
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
-        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues) {
+        ccstd::pmr::unordered_map<const scene::Camera*, NativeRenderQueue>>& sceneQueues) {
     const scene::Skybox* skybox = sceneData.getSkybox();
 
     auto& group = context.resourceGroups[context.nextFenceValue];
@@ -2394,7 +2392,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     // scene culling
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
-        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>
+        ccstd::pmr::unordered_map<const scene::Camera*, NativeRenderQueue>>
         sceneQueues(scratch);
     {
         mergeSceneFlags(rg, lg, sceneQueues);

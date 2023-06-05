@@ -793,7 +793,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     }
 
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
-        const sceneData = new SceneData(name, sceneFlags, light);
+        const sceneData = new SceneData(camera.scene, sceneFlags, light);
         sceneData.camera = camera;
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
@@ -812,8 +812,20 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         initGlobalDescBinding(this._data, layoutName);
     }
     addScene (scene: RenderScene, sceneFlags = SceneFlags.NONE): void {
-        const sceneData = new SceneData('Scene', sceneFlags);
-        sceneData.scenes.push(scene);
+        const sceneData = new SceneData(scene, sceneFlags);
+        this._renderGraph.addVertex<RenderGraphValue.Scene>(
+            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+        );
+    }
+    addSceneCulledByCamera (scene: RenderScene, sceneFlags: SceneFlags, camera: Camera): void {
+        const sceneData = new SceneData(scene, sceneFlags);
+        sceneData.camera = camera;
+        this._renderGraph.addVertex<RenderGraphValue.Scene>(
+            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+        );
+    }
+    addSceneCulledByLight (scene: RenderScene, sceneFlags: SceneFlags, light: Light): void {
+        const sceneData = new SceneData(scene, sceneFlags, new LightInfo(light));
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
         );

@@ -39,7 +39,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { AccessType, ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResolvePair, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { Model } from '../../render-scene/scene';
+import { Light, Model } from '../../render-scene/scene';
 
 export interface PipelineRuntime {
     activate (swapchain: Swapchain): boolean;
@@ -125,6 +125,14 @@ export interface RenderQueueBuilder extends Setter {
         light: LightInfo,
         sceneFlags?: SceneFlags): void;
     addScene (scene: RenderScene, sceneFlags?: SceneFlags): void;
+    addSceneCulledByCamera (
+        scene: RenderScene,
+        sceneFlags: SceneFlags,
+        camera: Camera): void;
+    addSceneCulledByLight (
+        scene: RenderScene,
+        sceneFlags: SceneFlags,
+        light: Light): void;
     addFullscreenQuad (
         material: Material,
         passID: number,
