@@ -25,7 +25,7 @@
 
 import { DEV } from 'internal:constants';
 
-function deepFlatten (strList, array) {
+function deepFlatten (strList, array): void {
     for (const item of array) {
         if (Array.isArray(item)) {
             deepFlatten(strList, item);
@@ -43,7 +43,7 @@ function deepFlatten (strList, array) {
  *
  * @engineInternal
  */
-export function flattenCodeArray (array) {
+export function flattenCodeArray (array): string {
     const separator = DEV ? '\n' : '';
     const strList = [];
     deepFlatten(strList, array);

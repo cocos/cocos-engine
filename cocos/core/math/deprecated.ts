@@ -360,7 +360,7 @@ replaceProperty(Color, 'Color', [
     {
         name: 'fromHex',
         newName: 'fromHEX',
-        customFunction (...args: any) {
+        customFunction (...args: any): any {
             const arg1 = args[1].toString(16);
             return legacyCC.Color.fromHEX(args[0], arg1);
         },

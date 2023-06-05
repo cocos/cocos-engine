@@ -68,13 +68,13 @@ export function property (
     target?: Parameters<LegacyPropertyDecorator>[0] | PropertyType,
     propertyKey?: Parameters<LegacyPropertyDecorator>[1],
     descriptorOrInitializer?: Parameters<LegacyPropertyDecorator>[2],
-) {
+): LegacyPropertyDecorator | undefined {
     let options: IPropertyOptions | PropertyType | null = null;
     function normalized (
         target: Parameters<LegacyPropertyDecorator>[0],
         propertyKey: Parameters<LegacyPropertyDecorator>[1],
         descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2],
-    ) {
+    ): void {
         const classStash = getOrCreateClassStash(target);
         const propertyStash = getOrCreateEmptyPropertyStash(
             target,
@@ -108,7 +108,7 @@ export function property (
     }
 }
 
-function getDefaultFromInitializer (initializer: Initializer) {
+function getDefaultFromInitializer (initializer: Initializer): unknown {
     let value: unknown;
     try {
         value = initializer();
@@ -126,7 +126,7 @@ function getDefaultFromInitializer (initializer: Initializer) {
     }
 }
 
-function extractActualDefaultValues (classConstructor: new () => unknown) {
+function extractActualDefaultValues (classConstructor: new () => unknown): unknown {
     let dummyObj: unknown;
     try {
         // eslint-disable-next-line new-cap
@@ -192,7 +192,7 @@ function mergePropertyOptions (
     propertyKey: Parameters<LegacyPropertyDecorator>[1],
     options,
     descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2] | undefined,
-) {
+): void {
     let fullOptions;
     const isGetset = descriptorOrInitializer && typeof descriptorOrInitializer !== 'function'
         && (descriptorOrInitializer.get || descriptorOrInitializer.set);
@@ -246,7 +246,7 @@ function setDefaultValue<T> (
     classConstructor: new () => T,
     propertyKey: PropertyKey,
     descriptorOrInitializer: BabelPropertyDecoratorDescriptor | Initializer | undefined | null,
-) {
+): void {
     if (descriptorOrInitializer !== undefined) {
         if (typeof descriptorOrInitializer === 'function') {
             propertyStash.default = getDefaultFromInitializer(descriptorOrInitializer);

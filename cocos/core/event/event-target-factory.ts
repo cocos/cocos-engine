@@ -28,7 +28,7 @@ import { EventTarget } from './event-target';
  *
  * @engineInternal
  */
-export function applyMixins (derivedCtor: any, baseCtors: any[]) {
+export function applyMixins (derivedCtor: any, baseCtors: any[]): void {
     baseCtors.forEach((baseCtor) => {
         Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
             if (name !== 'constructor') {

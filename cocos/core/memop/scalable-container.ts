@@ -34,7 +34,7 @@ export abstract class ScalableContainer {
 
     abstract tryShrink (): void;
 
-    destroy () {
+    destroy (): void {
         scalableContainerManager.removeContainer(this);
     }
 }
@@ -55,7 +55,7 @@ class ScalableContainerManager {
      * @en Add a ScalableContainer. Will add the same ScalableContainer instance once.
      * @param pool @en The ScalableContainer to add.
      */
-    addContainer (pool: ScalableContainer) {
+    addContainer (pool: ScalableContainer): void {
         if (pool._poolHandle !== -1) return;
         pool._poolHandle = this._pools.length;
         this._pools.push(pool);
@@ -65,7 +65,7 @@ class ScalableContainerManager {
      * @en Remove a ScalableContainer.
      * @param pool @en The ScalableContainer to remove.
      */
-    removeContainer (pool: ScalableContainer) {
+    removeContainer (pool: ScalableContainer): void {
         if (pool._poolHandle === -1) return;
         this._pools[this._pools.length - 1]._poolHandle = pool._poolHandle;
         fastRemoveAt(this._pools, pool._poolHandle);
@@ -75,7 +75,7 @@ class ScalableContainerManager {
     /**
      * @en Try to shrink all managed ScalableContainers.
      */
-    tryShrink () {
+    tryShrink (): void {
         for (let i = 0; i < this._pools.length; i++) {
             this._pools[i].tryShrink();
         }
@@ -85,7 +85,7 @@ class ScalableContainerManager {
      * @en An update function invoked every frame.
      * @param dt @en Delta time of frame interval in secondes.
      */
-    update (dt: number) {
+    update (dt: number): void {
         this._lastShrinkPassed += dt;
         if (this._lastShrinkPassed > this.shrinkTimeSpan) {
             this.tryShrink();

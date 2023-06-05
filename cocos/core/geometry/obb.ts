@@ -30,7 +30,7 @@ const _v3_tmp2 = new Vec3();
 const _m3_tmp = new Mat3();
 
 // https://zeuxcg.org/2010/10/17/aabb-from-obb-with-component-wise-abs/
-const transform_extent_m3 = (out: Vec3, extent: Vec3, m3: Mat3) => {
+const transform_extent_m3 = (out: Vec3, extent: Vec3, m3: Mat3): void => {
     _m3_tmp.m00 = Math.abs(m3.m00); _m3_tmp.m01 = Math.abs(m3.m01); _m3_tmp.m02 = Math.abs(m3.m02);
     _m3_tmp.m03 = Math.abs(m3.m03); _m3_tmp.m04 = Math.abs(m3.m04); _m3_tmp.m05 = Math.abs(m3.m05);
     _m3_tmp.m06 = Math.abs(m3.m06); _m3_tmp.m07 = Math.abs(m3.m07); _m3_tmp.m08 = Math.abs(m3.m08);
@@ -73,7 +73,7 @@ export class OBB {
         ox_1: number, ox_2: number, ox_3: number,
         oy_1: number, oy_2: number, oy_3: number,
         oz_1: number, oz_2: number, oz_3: number,
-    ) {
+    ): OBB {
         return new OBB(cx, cy, cz, hw, hh, hl, ox_1, ox_2, ox_3, oy_1, oy_2, oy_3, oz_1, oz_2, oz_3);
     }
 
@@ -85,7 +85,7 @@ export class OBB {
      * @param a @zh 克隆的目标。 @en The input OBB.
      * @returns @zh The cloned OBB instance.  @en 克隆出的新对象。
      */
-    public static clone (a: OBB) {
+    public static clone (a: OBB): OBB {
         return new OBB(a.center.x, a.center.y, a.center.z,
             a.halfExtents.x, a.halfExtents.y, a.halfExtents.z,
             a.orientation.m00, a.orientation.m01, a.orientation.m02,
@@ -194,7 +194,7 @@ export class OBB {
      * @zh
      * 获取形状的类型，固定返回 `enums.SHAPE_OBB`。
      */
-    get type () {
+    get type (): number {
         return this._type;
     }
 
@@ -236,7 +236,7 @@ export class OBB {
      * @param minPos @zh 此 OBB 的最小点。 @en The out minimum position of the OBB.
      * @param maxPos @zh 此 OBB 的最大点。 @en The out maximum position of the OBB.
      */
-    public getBoundary (minPos: Vec3, maxPos: Vec3) {
+    public getBoundary (minPos: Vec3, maxPos: Vec3): void {
         transform_extent_m3(_v3_tmp, this.halfExtents, this.orientation);
         Vec3.subtract(minPos, this.center, _v3_tmp);
         Vec3.add(maxPos, this.center, _v3_tmp);
@@ -254,7 +254,7 @@ export class OBB {
      * @param out @zh 变换结果的目标 OBB。 @en The output OBB.
      * @note @zh 此方法不会修改当前 OBB 的数据。 @en This method will not modify the data of current OBB.
      */
-    public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: OBB) {
+    public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: OBB): void {
         Vec3.transformMat4(out.center, this.center, m);
         // parent shape doesn't contain rotations for now
         Mat3.fromQuat(out.orientation, rot);
@@ -271,7 +271,7 @@ export class OBB {
      * @param out @zh 变换的目标。 @en The output OBB.
      * @note @zh 此方法不会修改当前 OBB 的数据。 @en This method will not modify the data of current OBB.
      */
-    public translateAndRotate (m: Mat4, rot: Quat, out: OBB) {
+    public translateAndRotate (m: Mat4, rot: Quat, out: OBB): void {
         Vec3.transformMat4(out.center, this.center, m);
         // parent shape doesn't contain rotations for now
         Mat3.fromQuat(out.orientation, rot);
@@ -286,7 +286,7 @@ export class OBB {
      * @param out @zh 缩放的目标。 @en The output OBB.
      * @note @zh 此方法不会修改当前 OBB 的数据。 @en This method will not modify the data of current OBB.
      */
-    public setScale (scale: Vec3, out: OBB) {
+    public setScale (scale: Vec3, out: OBB): void {
         Vec3.multiply(out.halfExtents, this.halfExtents, scale);
     }
 }
