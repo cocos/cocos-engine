@@ -107,9 +107,10 @@ void PhysXGenericJoint::setLinearLimit(uint32_t index, float lower, float upper)
 }
 
 void PhysXGenericJoint::setAngularExtent(float twist, float swing1, float swing2) {
-    _angularLimit.twistExtent = mathutils::toRadian(twist);
-    _angularLimit.swing1Extent = mathutils::toRadian(swing1);
-    _angularLimit.swing2Extent = mathutils::toRadian(swing2);
+    _angularLimit.twistExtent = mathutils::toRadian(std::fmax(twist, 1e-9));
+    _angularLimit.swing1Extent = mathutils::toRadian(std::fmax(swing1, 1e-9));
+    _angularLimit.swing2Extent = mathutils::toRadian(std::fmax(swing2, 1e-9));
+    
     updateTwistLimit();
     updateSwingLimit();
 }
@@ -325,7 +326,7 @@ void PhysXGenericJoint::updateLinearLimit() {
     if (_linearLimit.z == physx::PxD6Motion::Enum::eLIMITED) {
         limitz.upper = upper[2];
         limitz.lower = lower[2];
-        joint->setLinearLimit(physx::PxD6Axis::Enum::eZ, limity);
+        joint->setLinearLimit(physx::PxD6Axis::Enum::eZ, limitz);
     }
 }
 
