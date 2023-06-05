@@ -46,7 +46,7 @@ interface ILoadingRequest {
     callbacks: Array<{ done: ((err?: Error | null) => void); item: RequestItem }>;
 }
 
-export default function load (task: Task, done: ((err?: Error | null) => void)) {
+export default function load (task: Task, done: ((err?: Error | null) => void)): void {
     let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };
@@ -59,13 +59,13 @@ export default function load (task: Task, done: ((err?: Error | null) => void)) 
 
     task.output = [];
 
-    forEach(task.input as RequestItem[], (item, cb) => {
+    forEach(task.input as RequestItem[], (item, cb): void => {
         const subTask = Task.create({
             input: item,
             onProgress: task.onProgress,
             options,
             progress,
-            onComplete: (err, result) => {
+            onComplete: (err, result): void => {
                 if (err && !task.isFinished) {
                     if (!cclegacy.assetManager.force || firstTask) {
                         if (BUILD) {
@@ -84,7 +84,7 @@ export default function load (task: Task, done: ((err?: Error | null) => void)) 
         });
 
         loadOneAssetPipeline.async(subTask);
-    }, () => {
+    }, (): void => {
         options!.__exclude__ = null;
 
         if (task.isFinished) {
@@ -101,7 +101,7 @@ export default function load (task: Task, done: ((err?: Error | null) => void)) 
 
 const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
 
-    function fetch (task, done) {
+    function fetch (task, done): void {
         const item = task.output = task.input as RequestItem;
         const { options, isNative, uuid, file } = item;
         const { reloadAsset } = options;
@@ -111,20 +111,20 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
             return;
         }
 
-        packManager.load(item, task.options, (err, data) => {
+        packManager.load(item, task.options, (err, data): void => {
             item.file = data;
             done(err);
         });
     },
 
-    function parse (task, done) {
+    function parse (task, done): void {
         const item: RequestItem = task.output = task.input;
         const progress: IProgress = task.progress;
         const exclude: Record<string, ILoadingRequest> = task.options!.__exclude__;
         const { id, file, options } = item;
 
         if (item.isNative) {
-            parser.parse(id, file, item.ext, options, (err, asset) => {
+            parser.parse(id, file, item.ext, options, (err, asset): void => {
                 if (err) {
                     done(err);
                     return;
@@ -161,7 +161,7 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 done();
             } else {
                 options.__uuid__ = uuid;
-                parser.parse(id, file, 'import', options, (err, asset: Asset) => {
+                parser.parse(id, file, 'import', options, (err, asset: Asset): void => {
                     if (err) {
                         done(err);
                         return;
@@ -173,7 +173,7 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
     },
 ]);
 
-function loadDepends (task: Task, asset: Asset, done: ((err?: Error | null) => void)) {
+function loadDepends (task: Task, asset: Asset, done: ((err?: Error | null) => void)): void {
     const { input: item, progress } = task;
     const { uuid, id, options, config } = item as RequestItem;
     const { cacheAsset } = options;
@@ -196,7 +196,7 @@ function loadDepends (task: Task, asset: Asset, done: ((err?: Error | null) => v
         onProgress: task.onProgress,
         onError: Task.prototype.recycle,
         progress,
-        onComplete: (err) => {
+        onComplete: (err): void => {
             if (asset.decRef) {
                 asset.decRef(false);
             }

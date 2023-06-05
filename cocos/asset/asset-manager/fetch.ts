@@ -30,7 +30,7 @@ import { assets, fetchPipeline } from './shared';
 import Task from './task';
 import { clear, forEach, getDepends } from './utilities';
 
-export default function fetch (task: Task, done: ((err?: Error | null) => void)) {
+export default function fetch (task: Task, done: ((err?: Error | null) => void)): void {
     let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };
@@ -44,7 +44,7 @@ export default function fetch (task: Task, done: ((err?: Error | null) => void))
 
     task.output = [];
 
-    forEach(task.input as RequestItem[], (item, cb) => {
+    forEach(task.input as RequestItem[], (item, cb): void => {
         if (!item.isNative && assets.has(item.uuid)) {
             const asset = assets.get(item.uuid);
             item.content = asset!.addRef();
@@ -56,7 +56,7 @@ export default function fetch (task: Task, done: ((err?: Error | null) => void))
             return;
         }
 
-        packManager.load(item, task.options, (err, data) => {
+        packManager.load(item, task.options, (err, data): void => {
             if (err) {
                 if (!task.isFinished) {
                     if (!cclegacy.assetManager.force || firstTask) {
@@ -84,7 +84,7 @@ export default function fetch (task: Task, done: ((err?: Error | null) => void))
             }
             cb();
         });
-    }, () => {
+    }, (): void => {
         if (task.isFinished) {
             clear(task, true);
             task.dispatch('error');
@@ -98,7 +98,7 @@ export default function fetch (task: Task, done: ((err?: Error | null) => void))
                 options,
                 onProgress: task.onProgress,
                 onError: Task.prototype.recycle,
-                onComplete: (err) => {
+                onComplete: (err): void => {
                     if (!err) {
                         task.output.push(...subTask.output);
                         subTask.recycle();
@@ -115,7 +115,7 @@ export default function fetch (task: Task, done: ((err?: Error | null) => void))
     });
 }
 
-function decreaseRef (task: Task) {
+function decreaseRef (task: Task): void {
     const output = task.output as RequestItem[];
     for (let i = 0, l = output.length; i < l; i++) {
         if (output[i].content) {

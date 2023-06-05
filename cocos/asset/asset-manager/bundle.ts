@@ -175,7 +175,7 @@ export default class Bundle {
      * @deprecate Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      *
      */
-    public init (options: IConfigOption) {
+    public init (options: IConfigOption): void {
         this._config.init(options);
         bundles.add(options.name, this);
     }
@@ -241,7 +241,7 @@ export default class Bundle {
         type?: Constructor<T> | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: T|T[]) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: T|T[]) => void) | null,
         onComplete?: ((err: Error | null, data: T|T[]) => void) | null,
-    ) {
+    ): void {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         const options = { __requestType__: RequestType.PATH, type: _type, bundle: this.name, __outputAsArray__: Array.isArray(paths) };
         cclegacy.assetManager.loadAny(paths, options, onProg, onComp);
@@ -305,7 +305,7 @@ export default class Bundle {
         type?: Constructor<Asset> | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: RequestItem[]) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: RequestItem[]) => void) | null,
         onComplete?: ((err: Error | null, data: RequestItem[]) => void) | null,
-    ) {
+    ): void {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         cclegacy.assetManager.preloadAny(paths, { __requestType__: RequestType.PATH, type: _type, bundle: this.name }, onProg, onComp);
     }
@@ -361,7 +361,7 @@ export default class Bundle {
         type?: Constructor<T> | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: T[]) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: T[]) => void) | null,
         onComplete?: ((err: Error | null, data: T[]) => void) | null,
-    ) {
+    ): void {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         cclegacy.assetManager.loadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name, __outputAsArray__: true }, onProg, onComp);
     }
@@ -418,7 +418,7 @@ export default class Bundle {
         type?: Constructor<Asset> | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: RequestItem[]) => void)| null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: RequestItem[]) => void)| null,
         onComplete?: ((err: Error | null, data: RequestItem[]) => void)| null,
-    ) {
+    ): void {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         cclegacy.assetManager.preloadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name }, onProg, onComp);
     }
@@ -459,12 +459,12 @@ export default class Bundle {
         options?: { [key: string]: any, preset?: 'string' } | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: SceneAsset) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: SceneAsset) => void) | null,
         onComplete?: ((err: Error | null, data: SceneAsset) => void) | null,
-    ) {
+    ): void {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters<((err: Error | null, data: SceneAsset) => void)>(options, onProgress, onComplete);
 
         opts.preset = opts.preset || 'scene';
         opts.bundle = this.name;
-        cclegacy.assetManager.loadAny({ scene: sceneName }, opts, onProg, (err, sceneAsset) => {
+        cclegacy.assetManager.loadAny({ scene: sceneName }, opts, onProg, (err, sceneAsset): void => {
             if (err) {
                 error(err.message, err.stack);
             } else if (sceneAsset.scene) {
@@ -518,11 +518,11 @@ export default class Bundle {
         options?: { [key: string]: any, preset?: 'string' } | ((finished: number, total: number, item: RequestItem) => void) | ((err?: Error | null) => void) | null,
         onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err?: Error | null) => void) | null,
         onComplete?: ((err?: Error | null) => void) | null,
-    ) {
+    ): void {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters<((err?: Error | null) => void)>(options, onProgress, onComplete);
 
         opts.bundle = this.name;
-        cclegacy.assetManager.preloadAny({ scene: sceneName }, opts, onProg, (err) => {
+        cclegacy.assetManager.preloadAny({ scene: sceneName }, opts, onProg, (err): void => {
             if (err) {
                 errorID(1210, sceneName, err.message);
             }
@@ -585,7 +585,7 @@ export default class Bundle {
      * bundle1.release('misc/character/cocos');
      *
      */
-    public release (path: string, type?: Constructor<Asset> | null) {
+    public release (path: string, type?: Constructor<Asset> | null): void {
         const asset = this.get(path, type);
         if (asset) {
             releaseManager.tryRelease(asset, true);
@@ -605,8 +605,8 @@ export default class Bundle {
      *
      * @engineInternal
      */
-    public releaseUnusedAssets () {
-        assets.forEach((asset) => {
+    public releaseUnusedAssets (): void {
+        assets.forEach((asset): void => {
             const info = this.getAssetInfo(asset._uuid);
             if (info && !info.redirect) {
                 releaseManager.tryRelease(asset);
@@ -625,8 +625,8 @@ export default class Bundle {
      * // release all asset within bundle1
      * bundle1.releaseAll();
      */
-    public releaseAll () {
-        assets.forEach((asset) => {
+    public releaseAll (): void {
+        assets.forEach((asset): void => {
             const info = this.getAssetInfo(asset._uuid);
             if (info && !info.redirect) {
                 releaseManager.tryRelease(asset, true);
@@ -637,7 +637,7 @@ export default class Bundle {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _destroy () {
+    public _destroy (): void {
         this._config.destroy();
     }
 }

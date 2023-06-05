@@ -69,7 +69,7 @@ export class Parser {
 
     private static _instance: Parser;
 
-    public static get instance () {
+    public static get instance (): Parser {
         if (!this._instance) {
             this._instance = new Parser();
         }
@@ -80,14 +80,14 @@ export class Parser {
     /**
      * @engineInternal
      */
-    public parseImage (file: HTMLImageElement | Blob, options: Record<string, any>, onComplete: ((err: Error | null, data?: HTMLImageElement | ImageBitmap | null) => void)) {
+    public parseImage (file: HTMLImageElement | Blob, options: Record<string, any>, onComplete: ((err: Error | null, data?: HTMLImageElement | ImageBitmap | null) => void)): void {
         if (file instanceof HTMLImageElement) {
             onComplete(null, file);
             return;
         }
-        createImageBitmap(file, { premultiplyAlpha: 'none' }).then((result) => {
+        createImageBitmap(file, { premultiplyAlpha: 'none' }).then((result): void => {
             onComplete(null, result);
-        }, (err) => {
+        }, (err): void => {
             onComplete(err, null);
         });
     }
@@ -95,7 +95,7 @@ export class Parser {
     /**
      * @engineInternal
      */
-    public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)) {
+    public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)): void {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
@@ -110,7 +110,7 @@ export class Parser {
     /**
      * @engineInternal
      */
-    public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)) {
+    public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)): void {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
@@ -125,7 +125,7 @@ export class Parser {
     /**
      * @engineInternal
      */
-    public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)) {
+    public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)): void {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
@@ -140,7 +140,7 @@ export class Parser {
     /**
      * @engineInternal
      */
-    public parsePlist (file: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) {
+    public parsePlist (file: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
         let err: Error | null = null;
         const result = plistParser.parse(file);
         if (!result) { err = new Error('parse failed'); }
@@ -150,7 +150,7 @@ export class Parser {
     /**
      * @engineInternal
      */
-    public parseImport (file: Record<string, any> | CCON, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | null) => void)) {
+    public parseImport (file: Record<string, any> | CCON, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | null) => void)): void {
         if (!file) {
             onComplete(new Error(`The json file of asset ${options.__uuid__ as string} is empty or missing`));
             return;
@@ -168,7 +168,7 @@ export class Parser {
     /**
      * @engineInternal
      */
-    public init () {
+    public init (): void {
         this._parsing.clear();
     }
 
@@ -198,7 +198,7 @@ export class Parser {
     public register (
         type: string | Record<string, (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void>,
         handler?: (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void,
-    ) {
+    ): void {
         if (typeof type === 'object') {
             js.mixin(this._parsers, type);
         } else {
@@ -246,7 +246,7 @@ export class Parser {
         }
 
         this._parsing.add(id, [onComplete]);
-        parseHandler(file, options, (err, data) => {
+        parseHandler(file, options, (err, data): void => {
             if (err) {
                 files.remove(id);
             } else if (!isScene(data)) {
