@@ -92,9 +92,11 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
             if (!camera.scene) {
                 continue;
             }
-            // const useSubPass = ppl.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT);
-            const useSubPass = false;
-            const useCluster = ppl.device.hasFeature(Feature.COMPUTE_SHADER);
+            const forceCloseSubPass = true;
+            const useSubPass = !forceCloseSubPass && ppl.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT);
+
+            const forceCloseCluster = false;
+            const useCluster = !forceCloseCluster && ppl.device.hasFeature(Feature.COMPUTE_SHADER);
 
             const isGameView = camera.cameraUsage === CameraUsage.GAME
                 || camera.cameraUsage === CameraUsage.GAME_VIEW;

@@ -48,6 +48,7 @@ CCProgram cluster-main %{
     vec4 cc_lightColor;
     vec4 cc_lightSizeRangeAngle;
     vec4 cc_lightDir;
+    vec4 cc_lightBoundingSizeVS;
   };
   uint ccLightCount()
   {
@@ -56,10 +57,11 @@ CCProgram cluster-main %{
   CCLight getCCLight(uint i)
   {
     CCLight light;
-    light.cc_lightPos = b_ccLights[4u * i + 0u];
-    light.cc_lightColor = b_ccLights[4u * i + 1u];
-    light.cc_lightSizeRangeAngle = b_ccLights[4u * i + 2u];
-    light.cc_lightDir = b_ccLights[4u * i + 3u];
+    light.cc_lightPos = b_ccLights[5u * i + 0u];
+    light.cc_lightColor = b_ccLights[5u * i + 1u];
+    light.cc_lightSizeRangeAngle = b_ccLights[5u * i + 2u];
+    light.cc_lightDir = b_ccLights[5u * i + 3u];
+    light.cc_lightBoundingSizeVS = b_ccLights[5u * i + 4u];
     return light;
   }
   struct Cluster {
