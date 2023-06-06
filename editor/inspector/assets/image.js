@@ -2,6 +2,7 @@
 
 const { join } = require('path');
 const { updateElementReadonly, updateElementInvalid } = require('../utils/assets');
+const { injectionStyle } = require('../utils/prop');
 
 exports.template = /* html */`
 <div class="asset-image">
@@ -25,11 +26,11 @@ exports.template = /* html */`
         <ui-label slot="label" value="i18n:ENGINE.assets.image.isRGBE" tooltip="i18n:ENGINE.assets.image.isRGBETip"></ui-label>
         <ui-checkbox slot="content" class="isRGBE-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-section expand class="sub-panel-section config" cache-expand="image-sub-panel-section">
+    <ui-section expand class="sub-panel-section" cache-expand="image-sub-panel-section">
         <ui-label slot="header"></ui-label>
         <ui-panel></ui-panel>
     </ui-section>
-    <ui-section expand class="sub-texture-panel-section config" cache-expand="image-sub-panel-section" hidden>
+    <ui-section expand class="sub-texture-panel-section" cache-expand="image-sub-panel-section" hidden>
         <ui-label slot="header"></ui-label>
         <ui-panel></ui-panel>
     </ui-section>
@@ -37,11 +38,11 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-    .asset-image > ui-prop {
-        margin: 4px 0;
+    .asset-image .sub-panel-section {
+        margin-top: 6px;
     }
-    .asset-image > ui-section {
-        margin: 4px 0;
+    .asset-image .sub-texture-panel-section {
+        margin-top: 0;
     }
 `;
 
@@ -282,6 +283,7 @@ exports.methods = {
         $label.setAttribute('value', type);
         const $panel = $section.querySelector('ui-panel');
         $panel.setAttribute('src', join(__dirname, `./${asset.importer}.js`));
+        $panel.injectionStyle(injectionStyle);
         $panel.update(assetList, metaList);
     },
 

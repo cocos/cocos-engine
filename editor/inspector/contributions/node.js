@@ -5,6 +5,7 @@ module.paths.push(path.join(Editor.App.path, 'node_modules'));
 const { throttle } = require('lodash');
 const utils = require('./utils');
 const { trackEventWithTimer } = require('../utils/metrics');
+const { injectionStyle } = require('../utils/prop');
 
 const lockList = [];
 let lockPerform = false;
@@ -1263,19 +1264,8 @@ const Elements = {
 
                     renderList.forEach((file) => {
                         const $panel = document.createElement('ui-panel');
+                        $panel.injectionStyle(injectionStyle);
                         $panel.setAttribute('src', file);
-                        $panel.injectionStyle(`
-                            ui-prop,
-                            ui-section { margin-top: 4px; }
-
-                            ui-prop > ui-section,
-                            ui-prop > ui-prop,
-                            ui-section > ui-prop[slot="header"],
-                            ui-prop [slot="content"] ui-prop { 
-                                margin-top: 0; 
-                                margin-left: 0;
-                            }
-                        `);
 
                         $panel.shadowRoot.addEventListener('change-dump', (event) => {
                             exports.listeners['change-dump'].call(panel, event);
@@ -1323,6 +1313,7 @@ const Elements = {
                 panel.renderMap.section['cc.Node'].forEach((file, index) => {
                     if (!array[index]) {
                         array[index] = document.createElement('ui-panel');
+                        array[index].injectionStyle(injectionStyle);
                         panel.$.nodeSection.appendChild(array[index]);
                     }
                     array[index].setAttribute('src', file);
@@ -1516,6 +1507,7 @@ const Elements = {
                 if (!materialPanel) {
                     // 添加新的
                     materialPanel = document.createElement('ui-panel');
+                    materialPanel.injectionStyle(injectionStyle);
                     materialPanel.setAttribute('src', panel.typeManager[materialPanelType]);
                     materialPanel.setAttribute('type', materialPanelType);
                     materialPanel.setAttribute('uuid', materialUuid);

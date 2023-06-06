@@ -46,8 +46,7 @@
 }
 
 .header > .active {
-    margin: 0 2px;
-    width: 16px;
+    width: 20px;
 }
 
 .header > .name,
@@ -203,6 +202,10 @@
 
 .footer .add-component {
     padding: 0 24px;
+}
+
+.section-asset {
+    margin-bottom: 16px;
 }
 
 .section-asset:empty {

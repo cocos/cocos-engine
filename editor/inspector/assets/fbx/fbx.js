@@ -41,10 +41,6 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-ui-prop,
-ui-section {
-    margin: 4px 0;
-}
 .warn-words {
     color: var(--color-warn-fill);
 }

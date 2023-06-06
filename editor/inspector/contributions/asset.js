@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const { injectionStyle } = require('../utils/prop');
 const History = require('./asset-history/index');
 
 const showImage = ['image', 'texture', 'sprite-frame', 'gltf-mesh'];
@@ -310,6 +311,7 @@ const Elements = {
                     const file = list[i];
                     if (!contentRender.__panels__[i]) {
                         contentRender.__panels__[i] = document.createElement('ui-panel');
+                        contentRender.__panels__[i].injectionStyle(injectionStyle);
                         contentRender.__panels__[i].addEventListener('change', () => {
                             Elements.header.isDirty.call(panel);
                         });
@@ -330,14 +332,7 @@ const Elements = {
                 try {
                     await Promise.all(
                         contentRender.__panels__.map(($panel) => {
-                            const style = `
-                            ui-prop { 
-                                margin-top: 4px; 
-                            }
-                            ui-prop[ui-section-config][no-label] { 
-                                margin-top: 0; 
-                            }`;
-                            $panel.injectionStyle(style);
+                            $panel.injectionStyle(injectionStyle);
                             return $panel.update(panel.assetList, panel.metaList);
                         }),
                     );
