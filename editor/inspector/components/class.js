@@ -26,7 +26,9 @@ exports.methods = {
 
         $group.$header = document.createElement('ui-tab');
         $group.$header.setAttribute('class', 'tab-header');
+        $group.$header.setAttribute('underline', '');
         $group.appendChild($group.$header);
+
         $group.$header.addEventListener('change', (e) => {
             active(e.target.value);
         });
