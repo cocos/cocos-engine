@@ -25,15 +25,7 @@
 import { EDITOR } from 'internal:constants';
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
-import {
-    buildClusterPasses,
-    buildForwardPass,
-    buildGBufferPass,
-    buildLightClusterCullingPass,
-    buildLightingPass,
-    buildPostprocessPass,
-    buildUIPass,
-} from './define';
+import { buildClusterPasses } from './define';
 import { isUICamera } from './utils';
 import {
     prepareResource,
@@ -92,11 +84,11 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
             if (!camera.scene) {
                 continue;
             }
-            const forceCloseSubPass = true;
-            const useSubPass = !forceCloseSubPass && ppl.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT);
+            const forceDisableSubPass = false;
+            const useSubPass = !forceDisableSubPass && ppl.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT);
 
-            const forceCloseCluster = false;
-            const useCluster = !forceCloseCluster && ppl.device.hasFeature(Feature.COMPUTE_SHADER);
+            const forceDisableCluster = false;
+            const useCluster = !forceDisableCluster && ppl.device.hasFeature(Feature.COMPUTE_SHADER);
 
             const isGameView = camera.cameraUsage === CameraUsage.GAME
                 || camera.cameraUsage === CameraUsage.GAME_VIEW;
@@ -114,13 +106,13 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
                     // GBuffer Pass
                     setupGBufferPass(ppl, info);
                     // Lighting Pass
-                    const lightInfo = setupLightingPass(ppl, info, useCluster);
+                    const lightInfo = setupLightingPass(ppl, info, useCluster, useSubPass);
                     // Deferred ForwardPass, for non-surface-shader material and transparent material
                     // setupDeferredForward(ppl, info, lightInfo.rtName, lightInfo.dsName);
                     // Postprocess
                     setupPostprocessPass(ppl, info, lightInfo.rtName);
                 } else {
-                    const lightInfo = setupScenePassTiled(ppl, info);
+                    const lightInfo = setupScenePassTiled(ppl, info, useCluster);
                     // Postprocess
                     setupPostprocessPass(ppl, info, lightInfo.rtName);
                 }

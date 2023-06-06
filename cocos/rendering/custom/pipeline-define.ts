@@ -19,7 +19,8 @@ import {
 import { BasicPipeline, Pipeline } from './pipeline';
 import {
     AccessType,
-    AttachmentType, ClearValue,
+    AttachmentType,
+    ClearValue,
     ClearValueType,
     ComputeView,
     LightInfo,
@@ -399,8 +400,8 @@ export function setupGBufferRes (ppl: BasicPipeline, info: CameraInfo, useSubPas
     const colFormat = Format.RGBA16F;
     const residency = useSubPass ? ResourceResidency.MEMORYLESS : ResourceResidency.MANAGED;
     ppl.addRenderTarget(gBufferPassRTName, colFormat, width, height, residency);
-    ppl.addRenderTarget(gBufferPassNormal, colFormat, width, height, residency);
     ppl.addRenderTarget(gBufferPassEmissive, colFormat, width, height, residency);
+    ppl.addRenderTarget(gBufferPassNormal, colFormat, width, height, residency);
     ppl.addDepthStencil(gBufferPassDSName, Format.DEPTH_STENCIL, width, height, residency);
     gBufferInfo.color = gBufferPassRTName;
     gBufferInfo.normal = gBufferPassNormal;
@@ -418,14 +419,20 @@ export function updateGBufferRes (ppl: BasicPipeline, info: CameraInfo) {
     const gBufferPassEmissive = `gBufferPassEmissive`;
     const gBufferPassDSName = `gBufferPassDSCamera`;
     ppl.updateRenderTarget(gBufferPassRTName, width, height);
-    ppl.updateRenderTarget(gBufferPassNormal, width, height);
     ppl.updateRenderTarget(gBufferPassEmissive, width, height);
+    ppl.updateRenderTarget(gBufferPassNormal, width, height);
     ppl.updateDepthStencil(gBufferPassDSName, width, height);
 }
 
-export function setupScenePassTiled (pipeline: BasicPipeline, info: CameraInfo) {
+const emptyColor = new Color(0, 0, 0, 0);
+export function setupScenePassTiled (pipeline: BasicPipeline, info: CameraInfo, useCluster: boolean) {
+    if (!lightingInfo) {
+        lightingInfo = new LightingInfo(useCluster, true);
+    }
+
     const ppl = (pipeline as Pipeline);
     const camera = info.camera;
+    const cameraID = getCameraUniqueID(camera);
     const area = getRenderArea(camera, camera.window.width, camera.window.height);
     const width = area.width;
     const height = area.height;
@@ -433,14 +440,13 @@ export function setupScenePassTiled (pipeline: BasicPipeline, info: CameraInfo) 
     const gBufferPassNormal = gBufferInfo.normal;
     const gBufferPassEmissive = gBufferInfo.emissive;
     const gBufferPassDSName = gBufferInfo.ds;
-    const scenePass = ppl.addRenderPass(width, height, '_');
+    const scenePass = ppl.addRenderPass(width, height, 'default');
 
     // gbuffer subpass
     const gBufferPass = scenePass.addRenderSubpass('gbuffer');
     gBufferPass.name = `CameraGBufferPass${info.id}`;
     gBufferPass.setViewport(new Viewport(area.x, area.y, width, height));
     const rtColor = new Color(0, 0, 0, 0);
-    const emptyColor = new Color(0, 0, 0, 0);
     if (camera.clearFlag & ClearFlagBit.COLOR) {
         if (ppl.pipelineSceneData.isHDR) {
             SRGBToLinear(rtColor, camera.clearColor);
@@ -464,10 +470,20 @@ export function setupScenePassTiled (pipeline: BasicPipeline, info: CameraInfo) 
     lightingPass.name = `CameraLightingPass${info.id}`;
     lightingPass.setViewport(new Viewport(area.x, area.y, width, height));
 
-    lightingPass.addRenderTarget(gBufferPassRTName, AccessType.READ, 'gbuffer_albedoMap', LoadOp.DISCARD, StoreOp.DISCARD);
-    lightingPass.addRenderTarget(gBufferPassNormal, AccessType.READ, 'gbuffer_normalMap', LoadOp.DISCARD, StoreOp.DISCARD);
-    lightingPass.addRenderTarget(gBufferPassEmissive, AccessType.READ, 'gbuffer_emissiveMap', LoadOp.DISCARD, StoreOp.DISCARD);
-    lightingPass.addRenderTarget(gBufferPassDSName, AccessType.READ_WRITE, 'depth_stencil', LoadOp.DISCARD, StoreOp.DISCARD);
+    lightingPass.addRenderTarget(gBufferPassRTName, AccessType.READ, 'gAlbedoMap', LoadOp.DISCARD, StoreOp.DISCARD);
+    lightingPass.addRenderTarget(gBufferPassNormal, AccessType.READ, 'gNormalMap', LoadOp.DISCARD, StoreOp.DISCARD);
+    lightingPass.addRenderTarget(gBufferPassEmissive, AccessType.READ, 'gEmissiveMap', LoadOp.DISCARD, StoreOp.DISCARD);
+    lightingPass.addDepthStencil(gBufferPassDSName, AccessType.READ, 'depthStencil', '_', LoadOp.DISCARD, StoreOp.DISCARD);
+
+    // cluster data
+    const clusterLightBufferName = `clusterLightBuffer`;
+    const clusterLightIndicesBufferName = `clusterLightIndicesBuffer${cameraID}`;
+    const clusterLightGridBufferName = `clusterLightGridBuffer${cameraID}`;
+    if (ppl.containsResource(clusterLightBufferName)) {
+        lightingPass.addStorageBuffer(clusterLightBufferName, AccessType.READ, 'b_ccLightsBuffer');
+        lightingPass.addStorageBuffer(clusterLightIndicesBufferName, AccessType.READ, 'b_clusterLightIndicesBuffer');
+        lightingPass.addStorageBuffer(clusterLightGridBufferName, AccessType.READ, 'b_clusterLightGridBuffer');
+    }
 
     const deferredLightingPassRTName = `deferredLightingPassRTName`;
     lightingPass.addRenderTarget(deferredLightingPassRTName, AccessType.WRITE, '_', LoadOp.CLEAR, StoreOp.STORE, rtColor);
@@ -502,8 +518,8 @@ export function setupGBufferPass (ppl: BasicPipeline, info: CameraInfo) {
         }
     }
     gBufferPass.addRenderTarget(gBufferPassRTName, LoadOp.CLEAR, StoreOp.STORE, rtColor);
-    gBufferPass.addRenderTarget(gBufferPassNormal, LoadOp.CLEAR, StoreOp.STORE, new Color(0, 0, 0, 0));
     gBufferPass.addRenderTarget(gBufferPassEmissive, LoadOp.CLEAR, StoreOp.STORE, new Color(0, 0, 0, 0));
+    gBufferPass.addRenderTarget(gBufferPassNormal, LoadOp.CLEAR, StoreOp.STORE, new Color(0, 0, 0, 0));
     gBufferPass.addDepthStencil(gBufferPassDSName, LoadOp.CLEAR, StoreOp.STORE, camera.clearDepth, camera.clearStencil, camera.clearFlag);
     gBufferPass
         .addQueue(QueueHint.RENDER_OPAQUE)
@@ -538,10 +554,10 @@ export function updateLightingRes (ppl: BasicPipeline, info: CameraInfo) {
     ppl.updateDepthStencil(deferredLightingPassDS, width, height);
 }
 let lightingInfo: LightingInfo;
-export function setupLightingPass (pipeline: BasicPipeline, info: CameraInfo, useCluster: boolean) {
+export function setupLightingPass (pipeline: BasicPipeline, info: CameraInfo, useCluster: boolean, useSubPass: boolean) {
     setupShadowPass(pipeline, info);
     if (!lightingInfo) {
-        lightingInfo = new LightingInfo(useCluster);
+        lightingInfo = new LightingInfo(useCluster, useSubPass);
     }
     const ppl = pipeline as Pipeline;
     const camera = info.camera;
@@ -567,10 +583,10 @@ export function setupLightingPass (pipeline: BasicPipeline, info: CameraInfo, us
         }
     }
     if (ppl.containsResource(gBufferInfo.color)) {
-        lightingPass.addTexture(gBufferInfo.color, 'gbuffer_albedoMap');
-        lightingPass.addTexture(gBufferInfo.normal, 'gbuffer_normalMap');
-        lightingPass.addTexture(gBufferInfo.emissive, 'gbuffer_emissiveMap');
-        lightingPass.addTexture(gBufferInfo.ds, 'depth_stencil');
+        lightingPass.addTexture(gBufferInfo.color, 'gAlbedoMap');
+        lightingPass.addTexture(gBufferInfo.normal, 'gNormalMap');
+        lightingPass.addTexture(gBufferInfo.emissive, 'gEmissiveMap');
+        lightingPass.addTexture(gBufferInfo.ds, 'depthStencil');
     }
 
     // cluster data
@@ -578,12 +594,9 @@ export function setupLightingPass (pipeline: BasicPipeline, info: CameraInfo, us
     const clusterLightIndicesBufferName = `clusterLightIndicesBuffer${cameraID}`;
     const clusterLightGridBufferName = `clusterLightGridBuffer${cameraID}`;
     if (ppl.containsResource(clusterLightBufferName)) {
-        lightingPass.addComputeView(clusterLightBufferName, new ComputeView('b_ccLightsBuffer',
-            AccessType.READ, ClearFlagBit.NONE, ClearValueType.NONE, new ClearValue(), ShaderStageFlagBit.FRAGMENT));
-        lightingPass.addComputeView(clusterLightIndicesBufferName, new ComputeView('b_clusterLightIndicesBuffer',
-            AccessType.READ, ClearFlagBit.NONE, ClearValueType.NONE, new ClearValue(), ShaderStageFlagBit.FRAGMENT));
-        lightingPass.addComputeView(clusterLightGridBufferName, new ComputeView('b_clusterLightGridBuffer',
-            AccessType.READ, ClearFlagBit.NONE, ClearValueType.NONE, new ClearValue(), ShaderStageFlagBit.FRAGMENT));
+        lightingPass.addStorageBuffer(clusterLightBufferName, AccessType.READ, 'b_ccLightsBuffer');
+        lightingPass.addStorageBuffer(clusterLightIndicesBufferName, AccessType.READ, 'b_clusterLightIndicesBuffer');
+        lightingPass.addStorageBuffer(clusterLightGridBufferName, AccessType.READ, 'b_clusterLightGridBuffer');
     }
 
     const lightingClearColor = new Color(0, 0, 0, 0);
