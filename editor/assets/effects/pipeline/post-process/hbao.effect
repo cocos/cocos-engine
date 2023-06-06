@@ -2,7 +2,7 @@
 CCEffect %{
   techniques:
   - passes:
-    - vert: hbao-vs
+    - vert: hbao-withpos-vs
       frag: hbao-fs
       pass: hbao-pass
       depthStencilState:
@@ -47,17 +47,38 @@ CCProgram hbao-vs %{
   #include <./chunks/vs>
 }%
 
+CCProgram hbao-withpos-vs %{
+  precision highp float;
+  #include <legacy/decode-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
+  
+  out vec2 v_uv;
+  out vec2 v_posHS;
+  
+  void main () {
+    StandardVertInput In;
+    CCDecode(In);
+    CC_HANDLE_GET_CLIP_FLIP(In.position.xy);
+    gl_Position = In.position;
+  
+    v_uv = a_texCoord;
+    v_posHS = In.position.xy;
+  }
+}%
+
 CCProgram hbao-fs %{
   precision highp float;
   #include <chunks/hbao>
   #include <common/common-define>
 
   in vec2 v_uv;
+  in vec2 v_posHS;
 
   layout(location = 0) out vec4 fragColor;
 
   void main () {
-    float ao = CalculateAO(v_uv);
+    float ao = CalculateAO(v_uv, v_posHS);
   	fragColor = vec4(ao, ao, ao, 1.0); 
   }
 }%
