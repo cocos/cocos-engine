@@ -15,10 +15,8 @@
 #pragma define CC_VFX_SPRITE_ALIGNMENT_MODE_CUSTOM 2
 
 uniform VFXConstants {
-  vec4 frameTile_velLenScale;
   vec2 u_vfx_sub_image_size;
   vec2 u_vfx_sprite_pivot;
-  vec4 u_vfx_render_scale;
   vec4 nodeRotation;
 };
 
@@ -51,31 +49,21 @@ in float a_vfx_p_sub_uv_index;
 in vec3 a_vfx_p_velocity; // velocity.x, velocity.y, velocity.z
 #endif
 
-void computeVertPos (inout vec4 pos, vec2 vertOffset, vec4 q, vec3 s
-#if CC_RENDER_MODE == RENDER_MODE_BILLBOARD || CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD
-  , mat4 viewInv
-#endif
-#if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
-  , vec3 eye
-  , vec4 velocity
-  , float velocityScale
-  , float lengthScale
-  , float xIndex
-#endif
+void computeVertPos (inout vec4 pos, vec2 vertOffset, vec4 q, vec2 size
 ) {
-#if CC_RENDER_MODE == RENDER_MODE_BILLBOARD
-  vec3 viewSpaceVert = vec3(vertOffset.x * s.x, vertOffset.y * s.y, 0.);
-  vec3 camX = normalize(vec3(viewInv[0][0], viewInv[1][0], viewInv[2][0]));
-  vec3 camY = normalize(vec3(viewInv[0][1], viewInv[1][1], viewInv[2][1]));
-  vec3 camZ = normalize(vec3(viewInv[0][2], viewInv[1][2], viewInv[2][2]));
+#if CC_VFX_SPRITE_FACING_MODE == CC_VFX_SPRITE_FACING_MODE_CAMERA
+  vec3 viewSpaceVert = vec3(vertOffset.x * size.x, vertOffset.y * size.y, 0.);
+  vec3 camX = normalize(vec3(cc_matViewInv[0][0], cc_matViewInv[1][0], cc_matViewInv[2][0]));
+  vec3 camY = normalize(vec3(cc_matViewInv[0][1], cc_matViewInv[1][1], cc_matViewInv[2][1]));
+  vec3 camZ = normalize(vec3(cc_matViewInv[0][2], cc_matViewInv[1][2], cc_matViewInv[2][2]));
   pos.xyz += rotateInLocalSpace(viewSpaceVert, camX, camY, camZ, q);
-#elif CC_RENDER_MODE == RENDER_MODE_HORIZONTAL_BILLBOARD
-  vec3 viewSpaceVert = vec3(vertOffset.x * s.x, vertOffset.y * s.y, 0.);
+#elif CC_VFX_SPRITE_FACING_MODE == CC_VFX_SPRITE_FACING_MODE_HORIZONTAL
+  vec3 viewSpaceVert = vec3(vertOffset.x * size.x, vertOffset.y * size.y, 0.);
   vec3 camX = vec3(1, 0, 0);
   vec3 camY = vec3(0, 0, -1);
   pos.xyz += rotateInLocalSpace(viewSpaceVert, camX, camY, cross(camX, camY), q);
-#elif CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD
-  vec3 viewSpaceVert = vec3(vertOffset.x * s.x, vertOffset.y * s.y, 0.);
+#elif CC_VFX_SPRITE_FACING_MODE == CC_VFX_SPRITE_FACING_MODE_VERTICAL
+  vec3 viewSpaceVert = vec3(vertOffset.x * size.x, vertOffset.y * size.y, 0.);
   rotateVecFromQuat(viewSpaceVert, q);
   vec3 camX = normalize(vec3(cc_matView[0][0], cc_matView[1][0], cc_matView[2][0]));
   vec3 camY = vec3(0, 1, 0);
@@ -158,7 +146,6 @@ void CCVFXSetupParticleInput (out VFXParticleInput particleInput) {
 vec4 CCVFXApplyParticlePosition (VFXParticleInput particleInput, vec3 position) {
   vec4 pos = vec4(particleInput.position.xyz, 1);
   vec3 meshOrientation = particleInput.meshOrientation;
-  vec3 compScale = u_vfx_render_scale.xyz * particleInput.scale;
   vec4 velocity = vec4(particleInput.velocity.xyz, 0.);
 
   #if !CC_USE_WORLD_SPACE
@@ -170,29 +157,14 @@ vec4 CCVFXApplyParticlePosition (VFXParticleInput particleInput, vec3 position) 
   #endif
 
   #if CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_SPRITE
-    #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD
-      vec3 rotEuler = meshOrientation;
-    #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
-      vec3 rotEuler = vec3(0.);
-    #endif
-    #if CC_RENDER_MODE != RENDER_MODE_BILLBOARD && CC_RENDER_MODE != RENDER_MODE_STRETCHED_BILLBOARD
-      vec3 rotEuler = vec3(0., 0., meshOrientation.z);
-    #endif
-    vec4 rot = quaternionFromEuler(rotEuler);
+    vec4 rot = quaternionFromEuler(vec3(0., 0., particleInput.spriteRotation));
   #elif CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_MESH
     vec4 rot = quaternionFromEuler(meshOrientation);
   #endif
 
   #if CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_SPRITE
-    vec2 cornerOffset = vec2(a_position.xy - u_vfx_sprite_pivot);
-
-    #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD || CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD
-      computeVertPos(pos, cornerOffset, rot, compScale, cc_matViewInv);
-    #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
-      computeVertPos(pos, cornerOffset, rot, compScale, cc_cameraPos.xyz, velocity, frameTile_velLenScale.z, frameTile_velLenScale.w, a_position.x);
-    #elif RENDER_MODE_HORIZONTAL_BILLBOARD
-      computeVertPos(pos, cornerOffset, rot, compScale);
-    #endif
+    vec2 offset = vec2(a_position.xy - u_vfx_sprite_pivot);
+    computeVertPos(pos, offset, rot, particleInput.spriteSize);
   #elif CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_MESH
     mat3 rotMat = quatToMat3(rot);
     mat3 nodeMat = quatToMat3(nodeRotation);
@@ -200,7 +172,7 @@ vec4 CCVFXApplyParticlePosition (VFXParticleInput particleInput, vec3 position) 
     rot = mat3ToQuat(rotMat);
 
     mat4 xformNoScale = matrixFromRT(rot, pos.xyz);
-    mat4 xform = matFromRTS(rot, pos.xyz, compScale);
+    mat4 xform = matFromRTS(rot, pos.xyz, particleInput.scale);
     pos = xform * vec4(a_position, 1);
     vec4 normal = xformNoScale * vec4(a_normal, 0);
   #endif
