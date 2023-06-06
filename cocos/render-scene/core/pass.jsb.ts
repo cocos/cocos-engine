@@ -24,6 +24,8 @@
 import { MacroRecord } from "./pass-utils";
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import type { Pass as JsbPass } from './pass';
+import { Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '../../core';
+import { MathType } from '../../core/math/math-native-ext';
 
 declare const jsb: any;
 
@@ -47,3 +49,51 @@ export enum BatchingSchemes {
 
 export const Pass: typeof JsbPass = jsb.Pass;
 export type Pass = JsbPass;
+
+const proto = Pass.prototype;
+
+proto.getUniform = function getUniform(handle: number, out: any) {
+    const val = this._getUniform(handle);
+    
+    if (typeof val === 'object') {
+        if (val.type) {
+            switch (val.type) {
+                case MathType.VEC2:
+                    Vec2.copy(out, val);
+                    break;
+                case MathType.VEC3:
+                    Vec3.copy(out, val);
+                    break;
+                case MathType.VEC4:
+                    Vec4.copy(out, val);
+                    break;
+                case MathType.COLOR:
+                    out.x = val.x;
+                    out.y = val.y;
+                    out.z = val.z;
+                    out.w = val.w;
+                    break;
+                case MathType.MAT3:
+                    Mat3.copy(out, val);
+                    break;
+                case MathType.MAT4:
+                    Mat4.copy(out, val);
+                    break;
+                case MathType.QUATERNION:
+                    Quat.copy(out, val);
+                    break;
+                default:
+                    console.error(`getUniform, unknown object type: ${val.type}`);
+                    break;
+            }
+        } else {
+            console.error(`getUniform, unknown object: ${val}`);
+        }
+    } else if (typeof val === 'number') {
+        out = val;
+    } else {
+        console.error(`getUniform, not supported: ${val}`);
+    }
+
+    return out;
+}
