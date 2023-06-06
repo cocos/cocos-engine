@@ -66,6 +66,44 @@ import { ReflectionProbeManager } from '../reflection-probe-manager';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../../asset/assets/texture-2d';
 
+class ResourceVisitor implements ResourceGraphVisitor {
+    name: string;
+    constructor (resName = '') {
+        this.name = resName;
+    }
+    set resName (value: string) {
+        this.name = value;
+    }
+    createDeviceTex (value: Texture | Framebuffer | ManagedResource | RenderSwapchain) {
+        const deviceTex = new DeviceTexture(this.name, value);
+        context.deviceTextures.set(this.name, deviceTex);
+    }
+    managed (value: ManagedResource) {
+        this.createDeviceTex(value);
+    }
+    managedBuffer (value: ManagedBuffer) {
+        // noop
+    }
+    managedTexture (value: ManagedTexture) {
+        // noop
+    }
+    persistentBuffer (value: Buffer) {
+    }
+    persistentTexture (value: Texture) {
+        this.createDeviceTex(value);
+    }
+    framebuffer (value: Framebuffer) {
+        this.createDeviceTex(value);
+    }
+    swapchain (value: RenderSwapchain) {
+        this.createDeviceTex(value);
+    }
+    formatView (value: FormatView) {
+    }
+    subresourceView (value: SubresourceView) {
+    }
+}
+
 let context: ExecutorContext;
 class DeviceResource {
     protected _name: string;
@@ -589,6 +627,7 @@ class RasterPassInfo {
 
 const profilerViewport = new Viewport();
 const renderPassArea = new Rect();
+const resourceVisitor = new ResourceVisitor();
 class DeviceRenderPass {
     protected _renderPass: RenderPass;
     protected _framebuffer: Framebuffer;
@@ -628,10 +667,7 @@ class DeviceRenderPass {
         for (const [resName, rasterV] of passInfo.pass.rasterViews) {
             let resTex = context.deviceTextures.get(resName);
             if (!resTex) {
-                const resourceGraph = context.resourceGraph;
-                const vertId = resourceGraph.vertex(resName);
-                const resourceVisitor = new ResourceVisitor(resName);
-                resourceGraph.visitVertex(resourceVisitor, vertId);
+                this.visitResource(resName);
                 resTex = context.deviceTextures.get(resName)!;
             } else {
                 const resGraph = context.resourceGraph;
@@ -713,6 +749,12 @@ class DeviceRenderPass {
     get deviceQueues () { return this._deviceQueues; }
     get rasterPassInfo () { return this._rasterInfo; }
     get viewport () { return this._viewport; }
+    visitResource (resName: string) {
+        const resourceGraph = context.resourceGraph;
+        const vertId = resourceGraph.vertex(resName);
+        resourceVisitor.resName = resName;
+        resourceGraph.visitVertex(resourceVisitor, vertId);
+    }
     addQueue (queue: DeviceRenderQueue) { this._deviceQueues.push(queue); }
     prePass () {
         for (const queue of this._deviceQueues) {
@@ -829,7 +871,7 @@ class DeviceRenderPass {
         this._deviceQueues.length = 0;
         let framebuffer: Framebuffer | null = null;
         const colTextures: Texture[] = [];
-        let depTexture = this._framebuffer.depthStencilTexture;
+        let depTexture = this._framebuffer ? this._framebuffer.depthStencilTexture : null;
         for (const cv of this._rasterInfo.pass.computeViews) {
             this._applyRenderLayout(cv);
         }
@@ -838,22 +880,28 @@ class DeviceRenderPass {
             this.renderLayout.descriptorSet.update();
         }
         for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
-            const deviceTex = context.deviceTextures.get(resName)!;
+            let deviceTex = context.deviceTextures.get(resName)!;
+            const currTex = deviceTex;
+            if (!deviceTex) {
+                this.visitResource(resName);
+                deviceTex = context.deviceTextures.get(resName)!;
+            }
             const resGraph = context.resourceGraph;
             const resId = resGraph.vertex(resName);
             const resFbo = resGraph._vertices[resId]._object;
             const resDesc = resGraph.getDesc(resId);
             if (deviceTex.framebuffer && resFbo instanceof Framebuffer && deviceTex.framebuffer !== resFbo) {
                 framebuffer = this._framebuffer = deviceTex.framebuffer = resFbo;
-            } else if (deviceTex.texture
-                && (deviceTex.texture.width !== resDesc.width || deviceTex.texture.height !== resDesc.height)) {
-                deviceTex.texture.resize(resDesc.width, resDesc.height);
+            } else if (!currTex || (deviceTex.texture
+                && (deviceTex.texture.width !== resDesc.width || deviceTex.texture.height !== resDesc.height))) {
+                const gfxTex = deviceTex.texture!;
+                if (currTex) gfxTex.resize(resDesc.width, resDesc.height);
                 switch (rasterV.attachmentType) {
                 case AttachmentType.RENDER_TARGET:
-                    colTextures.push(deviceTex.texture);
+                    colTextures.push(gfxTex);
                     break;
                 case AttachmentType.DEPTH_STENCIL:
-                    depTexture = deviceTex.texture;
+                    depTexture = gfxTex;
                     break;
                 case AttachmentType.SHADING_RATE:
                     // noop
@@ -1733,40 +1781,6 @@ class ExecutorContext {
     width: number;
     height: number;
     cullCamera;
-}
-class ResourceVisitor implements ResourceGraphVisitor {
-    name: string;
-    constructor (resName: string) {
-        this.name = resName;
-    }
-    createDeviceTex (value: Texture | Framebuffer | ManagedResource | RenderSwapchain) {
-        const deviceTex = new DeviceTexture(this.name, value);
-        context.deviceTextures.set(this.name, deviceTex);
-    }
-    managed (value: ManagedResource) {
-        this.createDeviceTex(value);
-    }
-    managedBuffer (value: ManagedBuffer) {
-        // noop
-    }
-    managedTexture (value: ManagedTexture) {
-        // noop
-    }
-    persistentBuffer (value: Buffer) {
-    }
-    persistentTexture (value: Texture) {
-        this.createDeviceTex(value);
-    }
-    framebuffer (value: Framebuffer) {
-        this.createDeviceTex(value);
-    }
-    swapchain (value: RenderSwapchain) {
-        this.createDeviceTex(value);
-    }
-    formatView (value: FormatView) {
-    }
-    subresourceView (value: SubresourceView) {
-    }
 }
 
 export class Executor {
