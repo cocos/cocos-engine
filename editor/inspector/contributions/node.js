@@ -1264,7 +1264,10 @@ const Elements = {
                             ui-prop > ui-section,
                             ui-prop > ui-prop,
                             ui-section > ui-prop[slot="header"],
-                            ui-prop [slot="content"] ui-prop { margin-top: 0; }
+                            ui-prop [slot="content"] ui-prop { 
+                                margin-top: 0; 
+                                margin-left: 0;
+                            }
                         `);
 
                         $panel.shadowRoot.addEventListener('change-dump', (event) => {
