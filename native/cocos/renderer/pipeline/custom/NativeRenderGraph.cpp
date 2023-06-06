@@ -1266,23 +1266,8 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
         data);
 }
 
-void NativeRenderQueueBuilder::addScene(const scene::RenderScene *scene, SceneFlags sceneFlags) {
-    SceneData data(scene, sceneFlags, LightInfo{});
-    auto sceneID = addVertex(
-        SceneTag{},
-        std::forward_as_tuple("Scene"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(std::move(data)),
-        *renderGraph, nodeID);
-    CC_ENSURES(sceneID != RenderGraph::null_vertex());
-}
-
-void NativeRenderQueueBuilder::addSceneCulledByCamera(
-    const scene::RenderScene *scene, SceneFlags sceneFlags,
-    const scene::Camera* camera) {
-    SceneData data(scene, sceneFlags, LightInfo{});
+void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
+    SceneData data(camera->getScene(), sceneFlags, LightInfo{});
     data.camera = camera;
 
     auto sceneID = addVertex(
@@ -1297,9 +1282,12 @@ void NativeRenderQueueBuilder::addSceneCulledByCamera(
 }
 
 void NativeRenderQueueBuilder::addSceneCulledByLight(
-    const scene::RenderScene *scene, SceneFlags sceneFlags,
+    const scene::Camera *camera, SceneFlags sceneFlags,
     IntrusivePtr<scene::Light> light) {
-    SceneData data(scene, sceneFlags, LightInfo{std::move(light), 0});
+    CC_EXPECTS(light);
+    CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
+    SceneData data(camera->getScene(), sceneFlags, LightInfo{std::move(light), 0});
+    data.camera = camera;
 
     auto sceneID = addVertex(
         SceneTag{},

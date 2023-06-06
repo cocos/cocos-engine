@@ -327,7 +327,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
 
         // CSM
         if (mainLight && mainLight.shadowEnabled) {
-            this.buildShadowMapPass(ppl, id, mainLight, scene);
+            this.buildShadowMapPass(ppl, id, mainLight, camera);
         }
 
         // Forward Lighting
@@ -345,7 +345,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
                 .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT);
         }
     }
-    private buildShadowMapPass (ppl: BasicPipeline, id: number, light: DirectionalLight, scene: RenderScene) {
+    private buildShadowMapPass (ppl: BasicPipeline, id: number, light: DirectionalLight, camera: Camera) {
         const width = this._sceneInfo.shadows.size.x;
         const height = this._sceneInfo.shadows.size.y;
         const pass = ppl.addRenderPass(width, height, 'default');
@@ -353,16 +353,20 @@ export class TestPipelineBuilder implements PipelineBuilder {
         pass.addDepthStencil(`ShadowDepth${id}`, LoadOp.CLEAR, StoreOp.DISCARD);
         if (light.shadowFixedArea) {
             this.getMainLightViewport(light, width, height, 0, this._viewport);
-            const queue = pass.addQueue(QueueHint.RENDER_OPAQUE);
+            const queue = pass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
             queue.setViewport(this._viewport);
-            queue.addScene(scene, SceneFlags.OPAQUE_OBJECT | SceneFlags.SHADOW_CASTER);
+            queue.addSceneCulledByLight(camera,
+                SceneFlags.OPAQUE_OBJECT | SceneFlags.SHADOW_CASTER,
+                light);
         } else {
             const csmLevel = this._sceneInfo.csmSupported ? light.csmLevel : 1;
             for (let level = 0; level !== csmLevel; ++level) {
                 this.getMainLightViewport(light, width, height, level, this._viewport);
-                const queue = pass.addQueue(QueueHint.RENDER_OPAQUE);
+                const queue = pass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
                 queue.setViewport(this._viewport);
-                queue.addScene(scene, SceneFlags.OPAQUE_OBJECT | SceneFlags.SHADOW_CASTER);
+                queue.addSceneCulledByLight(camera,
+                    SceneFlags.OPAQUE_OBJECT | SceneFlags.SHADOW_CASTER,
+                    light);
             }
         }
     }

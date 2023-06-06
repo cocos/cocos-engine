@@ -172,9 +172,8 @@ public:
     }
 
     void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) override;
-    void addScene(const scene::RenderScene *scene, SceneFlags sceneFlags) override;
-    void addSceneCulledByCamera(const scene::RenderScene *scene, SceneFlags sceneFlags, const scene::Camera *camera) override;
-    void addSceneCulledByLight(const scene::RenderScene *scene, SceneFlags sceneFlags, IntrusivePtr<scene::Light> light) override;
+    void addScene(const scene::Camera *camera, SceneFlags sceneFlags) override;
+    void addSceneCulledByLight(const scene::Camera *camera, SceneFlags sceneFlags, IntrusivePtr<scene::Light> light) override;
     void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
@@ -717,6 +716,7 @@ struct NativeRenderQueue {
 
     void sort();
     void clear() noexcept;
+    bool empty() const noexcept;
 
     RenderDrawQueue opaqueQueue;
     RenderDrawQueue transparentQueue;
@@ -959,18 +959,20 @@ struct CullingQueries {
 
 struct NativeRenderQueueDesc {
     NativeRenderQueueDesc() = default;
-    NativeRenderQueueDesc(uint32_t culledSourceIn, uint32_t renderQueueTargetIn) noexcept // NOLINT
+    NativeRenderQueueDesc(uint32_t culledSourceIn, uint32_t renderQueueTargetIn, scene::LightType lightTypeIn) noexcept // NOLINT
     : culledSource(culledSourceIn),
-      renderQueueTarget(renderQueueTargetIn) {}
+      renderQueueTarget(renderQueueTargetIn),
+      lightType(lightTypeIn) {}
 
     uint32_t culledSource{0xFFFFFFFF};
     uint32_t renderQueueTarget{0xFFFFFFFF};
+    scene::LightType lightType{scene::LightType::UNKNOWN};
 };
 
 struct SceneCulling {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {culledResults.get_allocator().resource()};
+        return {sceneQueries.get_allocator().resource()};
     }
 
     SceneCulling(const allocator_type& alloc) noexcept; // NOLINT
@@ -983,11 +985,17 @@ struct SceneCulling {
 
     void clear() noexcept;
     void buildRenderQueues(const RenderGraph& rg, const LayoutGraphData& lg);
-
-    ccstd::pmr::vector<ccstd::pmr::vector<const scene::Model*>> culledResults;
+private:
+    uint32_t getOrCreateSceneCullingQuery(const SceneData& sceneData);
+    uint32_t createRenderQueue(SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID);
+    void collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg);
+    void batchCulling();
+    void fillRenderQueues(const RenderGraph& rg);
+public:
+    ccstd::pmr::unordered_map<const scene::RenderScene*, CullingQueries> sceneQueries;
+    ccstd::pmr::vector<ccstd::vector<const scene::Model*>> culledResults;
     ccstd::pmr::vector<NativeRenderQueue> renderQueues;
     PmrFlatMap<RenderGraph::vertex_descriptor, NativeRenderQueueDesc> sceneQueryIndex;
-    ccstd::pmr::unordered_map<const scene::RenderScene*, CullingQueries> sceneQueries;
     uint32_t numCullingQueries{0};
     uint32_t numRenderQueues{0};
 };

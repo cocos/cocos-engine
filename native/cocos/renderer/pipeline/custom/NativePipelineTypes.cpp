@@ -172,16 +172,16 @@ CullingQueries::CullingQueries(CullingQueries const& rhs, const allocator_type& 
 : culledResultIndex(rhs.culledResultIndex, alloc) {}
 
 SceneCulling::SceneCulling(const allocator_type& alloc) noexcept
-: culledResults(alloc),
+: sceneQueries(alloc),
+  culledResults(alloc),
   renderQueues(alloc),
-  sceneQueryIndex(alloc),
-  sceneQueries(alloc) {}
+  sceneQueryIndex(alloc) {}
 
 SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
-: culledResults(std::move(rhs.culledResults), alloc),
+: sceneQueries(std::move(rhs.sceneQueries), alloc),
+  culledResults(std::move(rhs.culledResults), alloc),
   renderQueues(std::move(rhs.renderQueues), alloc),
   sceneQueryIndex(std::move(rhs.sceneQueryIndex), alloc),
-  sceneQueries(std::move(rhs.sceneQueries), alloc),
   numCullingQueries(rhs.numCullingQueries),
   numRenderQueues(rhs.numRenderQueues) {}
 
