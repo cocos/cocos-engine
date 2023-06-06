@@ -76,18 +76,71 @@ TextureCube::~TextureCube() = default;
 
 void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
     _mipmaps = value;
-    setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
-    if (!_mipmaps.empty()) {
-        ImageAsset *imageAsset = _mipmaps[0].front;
+
+    auto cubeMaps = ccstd::vector<ITextureCubeMipmap>{};
+    if (value.size() == 1) {
+        const auto &cubeMipmap = value.at(0);
+        const auto &front = cubeMipmap.front->extractMipmaps();
+        const auto &back = cubeMipmap.back->extractMipmaps();
+        const auto &left = cubeMipmap.left->extractMipmaps();
+        const auto &right = cubeMipmap.right->extractMipmaps();
+        const auto &top = cubeMipmap.top->extractMipmaps();
+        const auto &bottom = cubeMipmap.bottom->extractMipmaps();
+
+        if (front.size() != back.size() ||
+            front.size() != left.size() ||
+            front.size() != right.size() ||
+            front.size() != top.size() ||
+            front.size() != bottom.size()) {
+            assert("different faces should have the same mipmap level");
+            this->setMipmapParams({});
+            return;
+        }
+
+        const auto level = front.size();
+
+        for (auto i = 0U; i < level; i++) {
+            const auto cubeMap = ITextureCubeMipmap{
+                front[i],
+                back[i],
+                left[i],
+                right[i],
+                top[i],
+                bottom[i],
+            };
+            cubeMaps.emplace_back(cubeMap);
+        }
+    } else if (value.size() > 1) {
+        for (const auto &mipmap : value) {
+            const auto cubeMap = ITextureCubeMipmap{
+                mipmap.front->extractMipmap0(),
+                mipmap.back->extractMipmap0(),
+                mipmap.left->extractMipmap0(),
+                mipmap.right->extractMipmap0(),
+                mipmap.top->extractMipmap0(),
+                mipmap.bottom->extractMipmap0(),
+            };
+            cubeMaps.emplace_back(cubeMap);
+        }
+    }
+
+    setMipmapParams(cubeMaps);
+}
+
+void TextureCube::setMipmapParams(const ccstd::vector<ITextureCubeMipmap> &value) {
+    _generatedMipmaps = value;
+    setMipmapLevel(static_cast<uint32_t>(_generatedMipmaps.size()));
+    if (!_generatedMipmaps.empty()) {
+        ImageAsset *imageAsset = _generatedMipmaps[0].front;
         reset({imageAsset->getWidth(),
                imageAsset->getHeight(),
                imageAsset->getFormat(),
-               static_cast<uint32_t>(_mipmaps.size()),
+               static_cast<uint32_t>(_generatedMipmaps.size()),
                _baseLevel,
                _maxLevel});
 
-        for (size_t level = 0, len = _mipmaps.size(); level < len; ++level) {
-            forEachFace(_mipmaps[level], [this, level](ImageAsset *face, TextureCube::FaceIndex faceIndex) {
+        for (size_t level = 0, len = _generatedMipmaps.size(); level < len; ++level) {
+            forEachFace(_generatedMipmaps[level], [this, level](ImageAsset *face, TextureCube::FaceIndex faceIndex) {
                 assignImage(face, static_cast<uint32_t>(level), static_cast<uint32_t>(faceIndex));
             });
         }
@@ -96,7 +149,7 @@ void TextureCube::setMipmaps(const ccstd::vector<ITextureCubeMipmap> &value) {
         reset({0,
                0,
                ccstd::nullopt,
-               static_cast<uint32_t>(_mipmaps.size()),
+               static_cast<uint32_t>(_generatedMipmaps.size()),
                _baseLevel,
                _maxLevel});
     }
@@ -191,22 +244,21 @@ void TextureCube::reset(const ITextureCubeCreateInfo &info) {
 }
 
 void TextureCube::releaseTexture() {
-    _mipmaps.clear();
-    _mipmapAtlas.layout.clear();
+    destroy();
 }
 
 void TextureCube::updateMipmaps(uint32_t firstLevel, uint32_t count) {
-    if (firstLevel >= _mipmaps.size()) {
+    if (firstLevel >= _generatedMipmaps.size()) {
         return;
     }
 
     auto nUpdate = static_cast<uint32_t>(std::min(
-        count == 0 ? _mipmaps.size() : count,
-        _mipmaps.size() - firstLevel));
+        count == 0 ? _generatedMipmaps.size() : count,
+        _generatedMipmaps.size() - firstLevel));
 
     for (uint32_t i = 0; i < nUpdate; ++i) {
         uint32_t level = firstLevel + i;
-        forEachFace(_mipmaps[level], [this, level](auto face, auto faceIndex) {
+        forEachFace(_generatedMipmaps[level], [this, level](auto face, auto faceIndex) {
             assignImage(face, level, static_cast<uint32_t>(faceIndex));
         });
     }
@@ -230,6 +282,7 @@ void TextureCube::onLoaded() {
 
 bool TextureCube::destroy() {
     _mipmaps.clear();
+    _generatedMipmaps.clear();
     _mipmapAtlas.layout.clear();
     return Super::destroy();
 }

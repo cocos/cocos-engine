@@ -461,20 +461,22 @@ function start(alpha, antialias, useWebgl2) {
     programProgress = initShaders(VS_PROGRESSBAR, FS_PROGRESSBAR);
     tick();
     return Promise.all([
-        loadBackground('background.png').then(() => {
-          updateBgVertexBuffer();
-          updateBgTexture();
-        }),
-        loadSlogan('slogan.png').then(() => {
-          updateSloganVertexBuffer();
-          updateSloganTexture();
-        }),
+        //logo should be loaded earlier than slogan
         loadImage('logo.png').then(() => {
             updateVertexBuffer();
             updateLogoTexture();
+        }).then(() => {
+            return loadSlogan('slogan.png').then(() => {
+                updateSloganVertexBuffer();
+                updateSloganTexture();
+            });
+        }),
+        loadBackground('background.png').then(() => {
+            updateBgVertexBuffer();
+            updateBgTexture();
         })
-      ]).then(() => {
+    ]).then(() => {
         return setProgress(0);
-      });
+    });
 }
 module.exports = { start, end, setProgress };

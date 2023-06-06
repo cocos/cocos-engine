@@ -1492,7 +1492,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
                 glActiveSamplerLocations.push(glLoc);
             }
             if (texUnitCacheMap[sampler.name] === undefined) {
-                texUnitCacheMap[sampler.name] = sampler.flattened;
+                texUnitCacheMap[sampler.name] = sampler.flattened % device.capabilities.maxTextureUnits;
             }
         }
     }

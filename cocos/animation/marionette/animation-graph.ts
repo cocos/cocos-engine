@@ -38,6 +38,7 @@ import { AnimationGraphLike } from './animation-graph-like';
 import { createInstanceofProxy, renameObjectProperty } from '../../core/utils/internal';
 import { PoseGraph } from './pose-graph/pose-graph';
 import { AnimationGraphEventBinding } from './event/event-binding';
+import { instantiate } from '../../serialization';
 
 export { State };
 
@@ -188,13 +189,6 @@ export function isAnimationTransition (transition: TransitionView): transition i
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}EmptyState`)
 export class EmptyState extends State {
     public declare __brand: 'EmptyState';
-
-    public _clone () {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        const that = new EmptyState();
-        this.copyTo(that);
-        return that;
-    }
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}EmptyStateTransition`)
@@ -294,6 +288,11 @@ export class StateMachine extends EditorExtendable {
     private _anyState: State;
 
     /**
+     * @internal
+     */
+    public _allowEmptyStates = true;
+
+    /**
      * // TODO: HACK
      * @internal
      */
@@ -310,8 +309,9 @@ export class StateMachine extends EditorExtendable {
         }
     }
 
-    constructor () {
+    constructor (allowEmptyStates?: boolean) {
         super();
+        this._allowEmptyStates = allowEmptyStates ?? false;
         this._entryState = this._addState(new State());
         this._entryState.name = 'Entry';
         this._exitState = this._addState(new State());
@@ -326,6 +326,10 @@ export class StateMachine extends EditorExtendable {
             transition.from[outgoingsSymbol].push(transition);
             transition.to[incomingsSymbol].push(transition);
         });
+    }
+
+    public get allowEmptyStates () {
+        return this._allowEmptyStates;
     }
 
     /**
@@ -413,7 +417,7 @@ export class StateMachine extends EditorExtendable {
      * @returns The newly created state machine.
      */
     public addSubStateMachine (): SubStateMachine {
-        return this._addState(new SubStateMachine());
+        return this._addState(new SubStateMachine(this._allowEmptyStates));
     }
 
     /**
@@ -421,6 +425,9 @@ export class StateMachine extends EditorExtendable {
      * @returns The newly created empty state.
      */
     public addEmpty () {
+        if (!this._allowEmptyStates) {
+            throw new Error(`Empty states are now allowed in this state machine.`);
+        }
         return this._addState(new EmptyState());
     }
 
@@ -697,8 +704,15 @@ export class StateMachine extends EditorExtendable {
                 stateMap.set(state, that._anyState);
                 break;
             default:
-                if (state instanceof MotionState || state instanceof SubStateMachine || state instanceof EmptyState) {
-                    const thatState = state._clone();
+                if (state instanceof MotionState
+                    || state instanceof SubStateMachine
+                    || state instanceof EmptyState
+                    || state instanceof ProceduralPoseState
+                ) {
+                    if (state instanceof EmptyState && !that._allowEmptyStates) {
+                        continue;
+                    }
+                    const thatState = instantiate(state);
                     that._addState(thatState);
                     stateMap.set(state, thatState);
                 } else {
@@ -708,6 +722,11 @@ export class StateMachine extends EditorExtendable {
             }
         }
         for (const transition of this._transitions) {
+            if (!that._allowEmptyStates) {
+                if (transition.from instanceof EmptyState || transition.to instanceof EmptyState) {
+                    continue;
+                }
+            }
             const thatFrom = stateMap.get(transition.from);
             const thatTo = stateMap.get(transition.to);
             assertIsTrue(thatFrom && thatTo);
@@ -719,6 +738,9 @@ export class StateMachine extends EditorExtendable {
             } else if (thatTransition instanceof EmptyStateTransition) {
                 assertIsTrue(transition instanceof EmptyStateTransition);
                 transition.copyTo(thatTransition);
+            } else if (thatTransition instanceof ProceduralPoseState) {
+                assertIsTrue(transition instanceof ProceduralPoseState);
+                transition.copyTo(thatTransition);
             } else {
                 transition.copyTo(thatTransition);
             }
@@ -726,7 +748,7 @@ export class StateMachine extends EditorExtendable {
     }
 
     public clone () {
-        const that = new StateMachine();
+        const that = new StateMachine(this._allowEmptyStates);
         this.copyTo(that);
         return that;
     }
@@ -740,6 +762,11 @@ export class StateMachine extends EditorExtendable {
 
 @ccclass('cc.animation.SubStateMachine')
 export class SubStateMachine extends InteractiveState {
+    constructor (allowEmptyStates?: boolean) {
+        super();
+        this._stateMachine = new StateMachine(allowEmptyStates);
+    }
+
     get stateMachine () {
         return this._stateMachine;
     }
@@ -749,14 +776,8 @@ export class SubStateMachine extends InteractiveState {
         this._stateMachine.copyTo(that._stateMachine);
     }
 
-    public _clone () {
-        const that = new SubStateMachine();
-        this.copyTo(that);
-        return that;
-    }
-
     @serializable
-    private _stateMachine: StateMachine = new StateMachine();
+    private _stateMachine: StateMachine;
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseGraphStash`)
@@ -786,6 +807,19 @@ export class Layer implements OwnedBy<AnimationGraph> {
     @serializable
     public additive = false;
 
+    /**
+     * // TODO: HACK
+     * @internal
+     */
+    public __callOnAfterDeserializeRecursive () {
+        this.stateMachine._allowEmptyStates = true;
+        this.stateMachine.__callOnAfterDeserializeRecursive();
+        for (const stashId in this._stashes) {
+            const stash = this._stashes[stashId];
+            stash.graph.__callOnAfterDeserializeRecursive();
+        }
+    }
+
     public stashes (): Iterable<Readonly<[string, PoseGraphStash]>> {
         return Object.entries(this._stashes);
     }
@@ -810,7 +844,7 @@ export class Layer implements OwnedBy<AnimationGraph> {
      * @marked_as_engine_private
      */
     constructor () {
-        this._stateMachine = new StateMachine();
+        this._stateMachine = new StateMachine(true);
     }
 
     get stateMachine () {
@@ -857,11 +891,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
         const { _layers: layers } = this;
         const nLayers = layers.length;
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
-            const layer = layers[iLayer];
-            layer.stateMachine.__callOnAfterDeserializeRecursive();
-            for (const [_, stash] of layer.stashes()) {
-                stash.graph.__callOnAfterDeserializeRecursive();
-            }
+            layers[iLayer].__callOnAfterDeserializeRecursive();
         }
     }
 

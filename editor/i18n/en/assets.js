@@ -436,6 +436,20 @@ module.exports = {
                 title: 'Convert DCC materials to engine builtin materials which match the internal lighting model.',
                 warn: 'The model feature "Smart Material Conversion" in the project settings is turned off, please enable this feature to modify model level settings.',
             },
+            animationSetting: {
+                additive: {
+                    header: 'Additive Animation Import Setting',
+                    enabled: {
+                        label: 'Import As Additive',
+                        tooltip: 'if checked, import this animation as additive animation.',
+                    },
+                    refClip: {
+                        label: 'Reference Clip',
+                        tooltip: 'If set, computation of the additive animation with reference pose at first frame of specified clip. ' +
+                            'Otherwise, reference the pose at first frame of original clip.',
+                    },
+                },
+            },
         },
         textureCube: {
             anisotropy: 'Anisotropy',

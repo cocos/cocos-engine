@@ -122,7 +122,7 @@ CCProgram standard-vs %{
   #endif
 
   out vec3 v_position;
-  out mediump vec3 v_normal;
+  out vec3 v_normal;
   out vec2 v_uv;
   #if HAS_SECOND_UV
     out mediump vec2 v_uv1;
@@ -226,7 +226,7 @@ CCProgram standard-fs %{
   #if HAS_SECOND_UV
     in mediump vec2 v_uv1;
   #endif
-  in mediump vec3 v_normal;
+  in vec3 v_normal;
 
   #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
     in mediump vec4 v_shadowBiasAndProbeId;

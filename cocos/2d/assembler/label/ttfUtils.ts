@@ -29,6 +29,7 @@ import { TextProcessing } from './text-processing';
 import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
 import { TextStyle } from './text-style';
 import { TextLayout } from './text-layout';
+import { view } from '../../../ui/view';
 
 const Overflow = Label.Overflow;
 
@@ -116,6 +117,7 @@ export const ttfUtils =  {
             const layout = comp.textLayout;
             const outputLayoutData = comp.textLayoutData;
             const outputRenderData = comp.textRenderData;
+            style.fontScale = view.getScaleX();
             this.updateProcessingData(style, layout, outputLayoutData, outputRenderData, comp, trans);
             // use canvas in assemblerData // to do to optimize
             processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);

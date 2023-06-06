@@ -1,5 +1,6 @@
-import { property } from '../../../core/data/class-decorator';
-import { ccclass, disallowMultiple, executeInEditMode, menu, range, slide } from '../../../core/data/decorators';
+import { CCFloat } from '../../../core';
+import { type } from '../../../core/data/class-decorator';
+import { ccclass, disallowMultiple, executeInEditMode, menu, range, serializable, slide } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.FSR')
@@ -7,8 +8,16 @@ import { PostProcessSetting } from './post-process-setting';
 @disallowMultiple
 @executeInEditMode
 export class FSR extends PostProcessSetting {
+    @serializable
+    _sharpness = 0.2
+
     @slide
     @range([0.05, 1, 0.01])
-    @property
-    sharpness = 0.2
+    @type(CCFloat)
+    get sharpness () {
+        return this._sharpness;
+    }
+    set sharpness (v) {
+        this._sharpness = v;
+    }
 }

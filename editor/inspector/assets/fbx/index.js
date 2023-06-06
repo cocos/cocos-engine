@@ -20,9 +20,7 @@ exports.style = /* css */`
 }
 
 .asset-fbx > .header {
-    text-align: center;
-    padding-bottom: 10px;
-    line-height: calc(var(--size-big-line) * 1px);
+    padding-bottom: 4px;
 }
 `;
 

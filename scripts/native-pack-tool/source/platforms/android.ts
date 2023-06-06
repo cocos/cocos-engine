@@ -64,6 +64,7 @@ export class AndroidPackTool extends NativePackTool {
         await this.encrypteScripts();
         await this.updateAndroidGradleValues();
         await this.configAndroidInstant();
+        await this.generateAppNameValues();
         return true;
     }
 
@@ -85,7 +86,7 @@ export class AndroidPackTool extends NativePackTool {
         const outputMode = this.params.debug ? 'Debug' : 'Release';
 
         // compile android
-        buildMode = `${this.params.projectName}:assemble${outputMode}`;
+        buildMode = `${this.projectNameASCII()}:assemble${outputMode}`;
         // await cchelper.runCmd(gradle, [buildMode /* "--quiet",*/ /*"--build-cache", "--project-cache-dir", nativePrjDir */], false, projDir);
 
         // pushd
@@ -229,7 +230,7 @@ export class AndroidPackTool extends NativePackTool {
                 content = content.replace(/:/g, '\\:');
             }
 
-            fs.writeFileSync(cchelper.join(ps.dirname(gradlePropertyPath), 'local.properties'), content, {encoding: 'utf8'});
+            fs.writeFileSync(cchelper.join(ps.dirname(gradlePropertyPath), 'local.properties'), content, { encoding: 'utf8' });
         } else {
             console.log(`warning: ${gradlePropertyPath} not found!`);
         }
@@ -263,6 +264,21 @@ export class AndroidPackTool extends NativePackTool {
         fs.writeFileSync(manifestPath, manifest, 'utf8');
     }
 
+    private async generateAppNameValues() {
+        const valuesPath = cchelper.join(this.paths.platformTemplateDirInPrj, 'res/values/strings.xml');
+        const matchCnt = fs.readFileSync(valuesPath, 'utf8').toString().split('\n').map(x => x.trim()).filter(x => /name=\"app_name\"/.test(x)).length;
+        if (matchCnt == 0) { // should generate
+            const content = [
+                `<resources>`,
+                `    <string name="app_name" translatable="false">${this.params.projectName}</string>`,
+                `</resources>`,
+            ];
+            const dir = ps.join(this.paths.buildDir, 'proj/res/values');
+            await fs.ensureDir(dir);
+            await fs.writeFileSync(ps.join(dir, `strings.xml`), content.join('\n'), 'utf8');
+        }
+    }
+
     /**
      * 到对应目录拷贝文件到工程发布目录
      */
@@ -272,8 +288,8 @@ export class AndroidPackTool extends NativePackTool {
         const suffix = this.params.debug ? 'debug' : 'release';
         const destDir: string = ps.join(this.paths.buildDir, 'publish', suffix);
         fs.ensureDirSync(destDir);
-        let apkName = `${this.params.projectName}-${suffix}.apk`;
-        let apkPath = ps.join(this.paths.nativePrjDir, `build/${this.params.projectName}/outputs/apk/${suffix}/${apkName}`);
+        let apkName = `${this.projectNameASCII()}-${suffix}.apk`;
+        let apkPath = ps.join(this.outputsDir(), `apk/${suffix}/${apkName}`);
         if (!fs.existsSync(apkPath)) {
             throw new Error(`apk not found at ${apkPath}`);
         }
@@ -289,7 +305,7 @@ export class AndroidPackTool extends NativePackTool {
 
         if (options.appBundle) {
             apkName = `${this.params.projectName}-${suffix}.aab`;
-            apkPath = ps.join(this.paths.nativePrjDir, `build/${this.params.projectName}/outputs/bundle/${suffix}/${apkName}`);
+            apkPath = ps.join(this.outputsDir(), `bundle/${suffix}/${apkName}`);
             if (!fs.existsSync(apkPath)) {
                 throw new Error(`instant apk not found at ${apkPath}`);
             }
@@ -315,10 +331,15 @@ export class AndroidPackTool extends NativePackTool {
 
     getApkPath() {
         const suffix = this.params.debug ? 'debug' : 'release';
-        const apkName = `${this.params.projectName}-${suffix}.apk`;
-        return ps.join(
-            this.paths.nativePrjDir,
-            `build/${this.params.projectName}/outputs/apk/${suffix}/${apkName}`);
+        const apkName = `${this.projectNameASCII()}-${suffix}.apk`;
+        return ps.join(this.outputsDir(), `apk/${suffix}/${apkName}`);
+    }
+
+    private outputsDir() {
+        const folderName = this.projectNameASCII();
+        const targetDir = ps.join(this.paths.nativePrjDir, 'build', folderName);
+        const fallbackDir = ps.join(this.paths.nativePrjDir, 'build', this.params.projectName);
+        return ps.join(fs.existsSync(targetDir) ? targetDir : fallbackDir, 'outputs');
     }
 
     async install(): Promise<boolean> {
@@ -334,7 +355,7 @@ export class AndroidPackTool extends NativePackTool {
         }
 
         if (!this.checkConnectedDevices(adbPath)) {
-            throw new Error(`can not find any connected devices, please connect you device or start an Android emulator`);
+            console.error(`can not find any connected devices, please connect you device or start an Android emulator`);
         }
 
         if (await this.checkApkInstalled(adbPath)) {
@@ -361,7 +382,7 @@ export class AndroidPackTool extends NativePackTool {
                     const chuckStr: string = typeof chunk === 'string' ? chunk : (chunkAny.buffer && chunkAny.buffer instanceof ArrayBuffer ? chunkAny.toString() : chunkAny.toString());
                     const lines = chuckStr.split('\n');
                     for (let line of lines) {
-                        if (/^[0-9a-fA-F]+\s+\w+/.test(line)) {
+                        if (/^[0-9a-zA-Z]+\s+\w+/.test(line)) {
                             return true; // device connected
                         }
                     }

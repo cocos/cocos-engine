@@ -76,6 +76,7 @@ protected:
     void doDestroy() override;
 
     void bindDescriptorSets(VkPipelineBindPoint bindPoint);
+    void selfDependency();
 
     IntrusivePtr<CCVKGPUCommandBuffer> _gpuCommandBuffer;
 
@@ -91,6 +92,8 @@ protected:
     IntrusivePtr<CCVKGPURenderPass> _curGPURenderPass;
 
     bool _secondaryRP = false;
+    bool _hasSubPassSelfDependency = false;
+    uint32_t _currentSubPass = 0;
 
     DynamicStates _curDynamicStates;
 

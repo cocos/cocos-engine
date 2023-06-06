@@ -28,7 +28,7 @@ import { scene } from '../../render-scene';
 import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings, CCInteger } from '../../core';
 import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
 import { Root } from '../../root';
-import { MeshRenderer } from '../framework';
+import { MeshRenderer } from '../framework/mesh-renderer';
 import { director } from '../../game/director';
 import { rangeMin } from '../../core/data/decorators';
 

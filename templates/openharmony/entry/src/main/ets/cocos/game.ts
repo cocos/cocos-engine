@@ -37,6 +37,9 @@ const commonJSModuleMap: Record<string, Function> = {
 <% for (var j = 0; j < bundleJsList.length; j++) {%> 
     'assets/<%=bundleJsList[j]%>' () { return import('./assets/<%=bundleJsList[j]%>'); },
 <% } %>
+<% for (var k = 0; k < pluginsJsList.length; k++) {%> 
+    '<%=pluginsJsList[k]%>' () { return import('./<%=pluginsJsList[k]%>'); },
+<% } %>
     '/src/settings.js' () { return import('./src/settings.js'); },
 }
 export function loadModule (name: string) {

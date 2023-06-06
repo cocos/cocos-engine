@@ -28,9 +28,9 @@ import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
 import { BasicPipeline } from './pipeline';
-import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
+import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor,
-    RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData } from './render-graph';
+    RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData, SubresourceView } from './render-graph';
 import { AccessType, RasterView, ComputeView, ResourceResidency, SceneFlags } from './types';
 
 let hashCode = 0;
@@ -105,8 +105,10 @@ class PassVisitor implements RenderGraphVisitor {
     public resID = 0xFFFFFFFF;
     public context: CompilerContext;
     private _currPass: RasterPass | CopyPass | null = null;
+    private _resVisitor: ResourceVisitor;
     constructor (context: CompilerContext) {
         this.context = context;
+        this._resVisitor = new ResourceVisitor(this.context);
     }
     protected _isRasterPass (u: number): boolean {
         return !!this.context.renderGraph.tryGetRasterPass(u);
@@ -219,16 +221,14 @@ class PassVisitor implements RenderGraphVisitor {
             for (const [readName, raster] of pass.rasterViews) {
                 context.pipeline.resourceUses.push(readName);
             }
-            let resVisitor;
             let resourceGraph;
             let vertID;
             for (const [rasterName, raster] of readViews) {
-                resVisitor = new ResourceVisitor(this.context);
                 resourceGraph = this.context.resourceGraph;
                 vertID = resourceGraph.find(rasterName);
                 if (vertID !== 0xFFFFFFFF) {
-                    resVisitor.resID = vertID;
-                    resourceGraph.visitVertex(resVisitor, vertID);
+                    this._resVisitor.resID = vertID;
+                    resourceGraph.visitVertex(this._resVisitor, vertID);
                 }
             }
             for (const [computeName, cViews] of pass.computeViews) {
@@ -246,12 +246,11 @@ class PassVisitor implements RenderGraphVisitor {
                         computes.set(this.passID, [cViews]);
                     }
                 }
-                resVisitor = new ResourceVisitor(this.context);
                 resourceGraph = this.context.resourceGraph;
                 vertID = resourceGraph.find(computeName);
                 if (vertID !== 0xFFFFFFFF) {
-                    resVisitor.resID = vertID;
-                    resourceGraph.visitVertex(resVisitor, vertID);
+                    this._resVisitor.resID = vertID;
+                    resourceGraph.visitVertex(this._resVisitor, vertID);
                 }
             }
             genHashValue(pass);
@@ -288,15 +287,14 @@ class PassVisitor implements RenderGraphVisitor {
         this._currPass = value;
         const outputId = this.resID;
         const outputName = resourceGraph.vertexName(outputId);
-        let resVisitor; let vertID;
+        let vertID;
         for (const pair of value.copyPairs) {
             if (pair.target === outputName) {
                 rg.setValid(this.passID, true);
-                if (!resVisitor) resVisitor = new ResourceVisitor(this.context);
                 vertID = resourceGraph.find(pair.source);
                 if (vertID !== 0xFFFFFFFF) {
-                    resVisitor.resID = vertID;
-                    resourceGraph.visitVertex(resVisitor, vertID);
+                    this._resVisitor.resID = vertID;
+                    resourceGraph.visitVertex(this._resVisitor, vertID);
                 }
             }
         }
@@ -319,10 +317,18 @@ class PassManagerVisitor extends DefaultVisitor {
     private _colorMap: VectorGraphColorMap;
     private _graphView: ReferenceGraphView<RenderGraph>;
     private _passVisitor: PassVisitor;
-    public resId = 0xFFFFFFFF;
+    private _resId = 0xFFFFFFFF;
+
+    set resId (value: number) {
+        this._resId = value;
+        this._colorMap.colors.length = context.renderGraph.numVertices();
+    }
+    get resId () {
+        return this._resId;
+    }
     constructor (context: CompilerContext, resId: number) {
         super();
-        this.resId = resId;
+        this._resId = resId;
         this._passVisitor = new PassVisitor(context);
         this._graphView = new ReferenceGraphView<RenderGraph>(context.renderGraph);
         this._colorMap = new VectorGraphColorMap(context.renderGraph.numVertices());
@@ -339,6 +345,7 @@ class PassManagerVisitor extends DefaultVisitor {
 class ResourceVisitor implements ResourceGraphVisitor {
     private readonly _context: CompilerContext;
     public resID = 0xFFFFFFFF;
+    private _passManagerVis;
     constructor (context: CompilerContext) {
         this._context = context;
     }
@@ -355,8 +362,12 @@ class ResourceVisitor implements ResourceGraphVisitor {
     }
 
     dependency () {
-        const visitor = new PassManagerVisitor(this._context, this.resID);
-        depthFirstSearch(visitor.graphView, visitor, visitor.colorMap);
+        if (!this._passManagerVis) {
+            this._passManagerVis  = new PassManagerVisitor(this._context, this.resID);
+        } else {
+            this._passManagerVis.resId = this.resID;
+        }
+        depthFirstSearch(this._passManagerVis.graphView, this._passManagerVis, this._passManagerVis.colorMap);
     }
 
     persistentTexture (value: Texture) {
@@ -367,6 +378,10 @@ class ResourceVisitor implements ResourceGraphVisitor {
     }
     swapchain (value: RenderSwapchain) {
         this.dependency();
+    }
+    formatView (value: FormatView) {
+    }
+    subresourceView (value: SubresourceView) {
     }
 }
 
@@ -401,17 +416,23 @@ export class Compiler {
     private _resourceGraph: ResourceGraph;
     private _pipeline: BasicPipeline;
     private _layoutGraph: LayoutGraphData;
+    private _visitor: ResourceManagerVisitor;
     constructor (pipeline: BasicPipeline,
+        renderGraph: RenderGraph,
         resGraph: ResourceGraph,
         layoutGraph: LayoutGraphData) {
         this._pipeline = pipeline;
         this._resourceGraph = resGraph;
         this._layoutGraph = layoutGraph;
+        context.set(this._pipeline, this._resourceGraph, renderGraph, this._layoutGraph);
+        this._visitor = new ResourceManagerVisitor(context);
     }
     compile (rg: RenderGraph) {
         context.set(this._pipeline, this._resourceGraph, rg, this._layoutGraph);
-        const visitor = new ResourceManagerVisitor(context);
-        depthFirstSearch(this._resourceGraph, visitor, visitor.colorMap);
+        context.pipeline.resourceUses.length = 0;
+        this._visitor.colorMap.colors.length = context.resourceGraph.numVertices();
+        depthFirstSearch(this._resourceGraph, this._visitor, this._visitor.colorMap);
+
         if (DEBUG) {
             const useContext = context.resourceContext;
             for (const [name, use] of useContext) {
