@@ -39,9 +39,26 @@ import { Texture } from '../../gfx';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { settings, Settings } from '../../core/settings';
 import { ReflectionProbeType } from './reflection-probe-enum';
+import { getPhaseID } from '../../rendering/pass-phase';
+import { SubModel } from '../../render-scene/scene';
+import { isEnableEffect } from '../../rendering/define';
 
 const { property, ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } = _decorator;
+
+let _phaseID = getPhaseID('specular-pass');
+function getSkinPassIndex (subModel: SubModel): number {
+    const passes = subModel.passes;
+    const r = cclegacy.rendering;
+    if (isEnableEffect()) _phaseID = r.getPhaseID(r.getPassID('specular-pass'), 'default');
+    for (let k = 0; k < passes.length; k++) {
+        if (((!r || !r.enableEffectImport) && passes[k].phase === _phaseID)
+            || (isEnableEffect() && passes[k].phaseID === _phaseID)) {
+            return k;
+        }
+    }
+    return -1;
+}
 
 /**
  * @en Shadow projection mode.
@@ -1254,8 +1271,21 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     private _updateStandardSkin () {
+        const pipelineSceneData = (cclegacy.director.root as Root).pipeline.pipelineSceneData;
         if (this._enabledGlobalStandardSkinObject) {
-            cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel = this;
+            pipelineSceneData.standardSkinModel = this;
+        }
+        if (!pipelineSceneData.skinMaterialModel) {
+            for (let i = 0; i < this._models.length; i++) {
+                const subModels = this._models[i].subModels;
+                for (let j = 0; j < subModels.length; j++) {
+                    const subModel = subModels[j];
+                    const skinPassIdx = getSkinPassIndex(subModel);
+                    if (skinPassIdx < 0) { continue; }
+                    pipelineSceneData.skinMaterialModel = this._models[i];
+                    return;
+                }
+            }
         }
     }
 }
