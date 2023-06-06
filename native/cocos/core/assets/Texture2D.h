@@ -204,7 +204,7 @@ private:
     void setMipmapParams(const ccstd::vector<IntrusivePtr<ImageAsset>> &value);
 
     ccstd::vector<IntrusivePtr<ImageAsset>> _mipmaps;
-    ccstd::vector<IntrusivePtr<ImageAsset>> _compressedImageAsset;
+    ccstd::vector<IntrusivePtr<ImageAsset>> _generatedMipmaps;
 
     ccstd::vector<ccstd::string> _mipmapsUuids; // TODO(xwx): temporary use _mipmaps as UUIDs string array
 
