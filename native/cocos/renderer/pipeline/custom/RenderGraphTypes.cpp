@@ -293,30 +293,6 @@ ClearView::ClearView(ClearView const& rhs, const allocator_type& alloc)
   clearFlags(rhs.clearFlags),
   clearColor(rhs.clearColor) {}
 
-SceneData::SceneData(const allocator_type& alloc) noexcept
-: name(alloc),
-  scenes(alloc) {}
-
-SceneData::SceneData(ccstd::pmr::string nameIn, SceneFlags flagsIn, LightInfo lightIn, const allocator_type& alloc) noexcept
-: name(std::move(nameIn), alloc),
-  light(std::move(lightIn)),
-  flags(flagsIn),
-  scenes(alloc) {}
-
-SceneData::SceneData(SceneData&& rhs, const allocator_type& alloc)
-: name(std::move(rhs.name), alloc),
-  camera(rhs.camera),
-  light(std::move(rhs.light)),
-  flags(rhs.flags),
-  scenes(std::move(rhs.scenes), alloc) {}
-
-SceneData::SceneData(SceneData const& rhs, const allocator_type& alloc)
-: name(rhs.name, alloc),
-  camera(rhs.camera),
-  light(rhs.light),
-  flags(rhs.flags),
-  scenes(rhs.scenes, alloc) {}
-
 RenderData::RenderData(const allocator_type& alloc) noexcept
 : constants(alloc),
   buffers(alloc),

@@ -742,26 +742,16 @@ struct RenderQueue {
 };
 
 struct SceneData {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {name.get_allocator().resource()};
-    }
+    SceneData() = default;
+    SceneData(const scene::RenderScene* sceneIn, SceneFlags flagsIn, LightInfo lightIn) noexcept
+    : scene(sceneIn),
+      light(std::move(lightIn)),
+      flags(flagsIn) {}
 
-    SceneData(const allocator_type& alloc) noexcept; // NOLINT
-    SceneData(ccstd::pmr::string nameIn, SceneFlags flagsIn, LightInfo lightIn, const allocator_type& alloc) noexcept;
-    SceneData(SceneData&& rhs, const allocator_type& alloc);
-    SceneData(SceneData const& rhs, const allocator_type& alloc);
-
-    SceneData(SceneData&& rhs) noexcept = default;
-    SceneData(SceneData const& rhs) = delete;
-    SceneData& operator=(SceneData&& rhs) = default;
-    SceneData& operator=(SceneData const& rhs) = default;
-
-    ccstd::pmr::string name;
-    scene::Camera* camera{nullptr};
+    const scene::RenderScene* scene{nullptr};
+    const scene::Camera* camera{nullptr};
     LightInfo light;
     SceneFlags flags{SceneFlags::NONE};
-    ccstd::pmr::vector<const scene::RenderScene*> scenes;
 };
 
 struct Dispatch {

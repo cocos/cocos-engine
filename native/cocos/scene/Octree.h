@@ -151,9 +151,9 @@ private:
     void remove(Model *model);
     void onRemoved();
     void gatherModels(ccstd::vector<Model *> &results) const;
-    void doQueryVisibility(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
-    void queryVisibilityParallelly(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
-    void queryVisibilitySequentially(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
+    void doQueryVisibility(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<const Model *> &results) const;
+    void queryVisibilityParallelly(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<const Model *> &results) const;
+    void queryVisibilitySequentially(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<const Model *> &results) const;
 
     Octree *_owner{nullptr};
     OctreeNode *_parent{nullptr};
@@ -218,7 +218,7 @@ public:
     inline uint32_t getMaxDepth() const { return _maxDepth; }
 
     // view frustum culling
-    void queryVisibility(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<Model *> &results) const;
+    void queryVisibility(const Camera *camera, const geometry::Frustum &frustum, bool isShadow, ccstd::vector<const Model *> &results) const;
 
 private:
     bool isInside(Model *model) const;

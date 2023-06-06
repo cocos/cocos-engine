@@ -33,13 +33,16 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 
+let _pipeline: Pipeline | null = null;
+
 export const INVALID_ID = 0xFFFFFFFF;
 export const enableEffectImport = true;
 
 let _renderModule: RenderingModule;
 
 export function createCustomPipeline (): Pipeline {
-    return render.Factory.createPipeline();
+    _pipeline = render.Factory.createPipeline() as Pipeline;
+    return _pipeline;
 }
 
 export const customPipelineBuilderMap = new Map<string, PipelineBuilder>();
@@ -49,9 +52,14 @@ export function setCustomPipeline (name: string, builder: PipelineBuilder) {
 }
 
 export function getCustomPipeline (name: string): PipelineBuilder {
-    let builder = customPipelineBuilderMap.get(name) || null;
-    if (builder === null) {
-        builder = customPipelineBuilderMap.get('Forward')!;
+    let builder = customPipelineBuilderMap.get(name);
+    if (!builder) {
+        if (name === 'Test') {
+            builder = new TestPipelineBuilder(_pipeline!.pipelineSceneData);
+            customPipelineBuilderMap.set('Test', builder);
+        } else {
+            builder = customPipelineBuilderMap.get('Forward')!;
+        }
     }
     return builder;
 }
@@ -60,7 +68,6 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new ForwardPipelineBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Deprecated', new CustomPipelineBuilder());
-    map.set('Test', new TestPipelineBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);

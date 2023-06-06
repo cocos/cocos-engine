@@ -37,9 +37,8 @@ import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { AccessType, ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResolvePair, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
-import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { Model } from '../../render-scene/scene';
+import { Light, Model } from '../../render-scene/scene';
 
 export interface PipelineRuntime {
     activate (swapchain: Swapchain): boolean;
@@ -124,7 +123,11 @@ export interface RenderQueueBuilder extends Setter {
         camera: Camera,
         light: LightInfo,
         sceneFlags?: SceneFlags): void;
-    addScene (scene: RenderScene, sceneFlags?: SceneFlags): void;
+    addScene (camera: Camera, sceneFlags: SceneFlags): void;
+    addSceneCulledByLight (
+        camera: Camera,
+        sceneFlags: SceneFlags,
+        light: Light): void;
     addFullscreenQuad (
         material: Material,
         passID: number,

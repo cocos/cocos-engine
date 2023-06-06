@@ -793,7 +793,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     }
 
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
-        const sceneData = new SceneData(name, sceneFlags, light);
+        const sceneData = new SceneData(camera.scene, sceneFlags, light);
         sceneData.camera = camera;
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
@@ -811,9 +811,16 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         setTextureUBOView(this, camera, this._pipeline);
         initGlobalDescBinding(this._data, layoutName);
     }
-    addScene (scene: RenderScene, sceneFlags = SceneFlags.NONE): void {
-        const sceneData = new SceneData('Scene', sceneFlags);
-        sceneData.scenes.push(scene);
+    addScene (camera: Camera, sceneFlags = SceneFlags.NONE): void {
+        const sceneData = new SceneData(camera.scene, sceneFlags);
+        sceneData.camera = camera;
+        this._renderGraph.addVertex<RenderGraphValue.Scene>(
+            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+        );
+    }
+    addSceneCulledByLight (camera: Camera, sceneFlags: SceneFlags, light: Light): void {
+        const sceneData = new SceneData(camera.scene, sceneFlags, new LightInfo(light));
+        sceneData.camera = camera;
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
         );
