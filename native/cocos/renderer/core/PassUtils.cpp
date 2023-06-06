@@ -79,12 +79,26 @@ const ccstd::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader = {
          p->z = a[idx + 2];
      }},
     {gfx::Type::FLOAT4, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Vec4>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p->x = a[idx];
-         p->y = a[idx + 1];
-         p->z = a[idx + 2];
-         p->w = a[idx + 3];
+        if (ccstd::holds_alternative<Vec4>(v)) {
+            auto &vec4 = ccstd::get<Vec4>(v);
+            vec4.x = a[idx];
+            vec4.y = a[idx + 1];
+            vec4.z = a[idx + 2];
+            vec4.w = a[idx + 3];
+        }
+        else if (ccstd::holds_alternative<Color>(v)) {
+            auto &color = ccstd::get<Color>(v);
+            Vec4 vec4 {a[idx], a[idx + 1], a[idx + 2], a[idx + 3]};
+            color.set(vec4);
+       } else if (ccstd::holds_alternative<Quaternion>(v)) {
+           auto &quat = ccstd::get<Quaternion>(v);
+           quat.x = a[idx];
+           quat.y = a[idx + 1];
+           quat.z = a[idx + 2];
+           quat.w = a[idx + 3];
+       } else {
+           CC_ASSERT_TRUE(false);
+       }
      }},
     {gfx::Type::MAT3, [](const float *a, MaterialProperty &v, index_t idx) {
          auto *p = ccstd::get_if<Mat3>(&v);
