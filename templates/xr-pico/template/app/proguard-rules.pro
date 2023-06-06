@@ -52,3 +52,6 @@
 -dontwarn android.hardware.lights.LightsRequest
 -dontwarn android.net.ssl.SSLSockets
 -dontwarn android.os.VibratorManager
+
+-dontwarn libcore.io.Memory
+-dontwarn com.google.vr.cardboard.*

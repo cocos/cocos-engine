@@ -54,3 +54,6 @@
 -dontwarn android.os.VibratorManager
 
 -keep class com.huawei.hvr.LibUpdateClient {*;}
+
+-dontwarn libcore.io.Memory
+-dontwarn com.google.vr.cardboard.*
