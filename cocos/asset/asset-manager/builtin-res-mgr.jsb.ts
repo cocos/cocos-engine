@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { TEST, EDITOR } from 'internal:constants';
+import { TEST, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import type { ImageSource } from '../assets/image-asset';
 import assetManager from '../asset-manager/asset-manager';
@@ -140,7 +140,7 @@ builtinResMgrProto.loadBuiltinAssets = function () {
                         resources[asset.name] = asset;
                         const url = asset.nativeUrl;
                         // In Editor, no need to ignore asset destroy, we use auto gc to handle destroy
-                        if (!EDITOR || cclegacy.GAME_VIEW) releaseManager.addIgnoredAsset(asset);
+                        if (!EDITOR_NOT_IN_PREVIEW) releaseManager.addIgnoredAsset(asset);
                         this.addAsset(asset.name, asset);
                         if (asset instanceof cclegacy.Material) {
                             this._materialsToBeCompiled.push(asset);

@@ -27,9 +27,9 @@ import {
     ccclass, editable, type, displayOrder, menu,
     executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs, override,
 } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Color, Vec2, warnID, errorID, error, path, cclegacy  } from '../core';
+import { Color, Vec2, warnID, errorID, error, path } from '../core';
 import { Simulator } from './particle-simulator-2d';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { ImageAsset } from '../asset/assets/image-asset';
@@ -186,7 +186,7 @@ export class ParticleSystem2D extends UIRenderer {
         return this._custom;
     }
     public set custom (value) {
-        if (EDITOR && !cclegacy.GAME_VIEW && !value && !this._file) {
+        if (EDITOR_NOT_IN_PREVIEW && !value && !this._file) {
             warnID(6000);
             return;
         }
@@ -827,7 +827,7 @@ export class ParticleSystem2D extends UIRenderer {
         }
 
         // auto play
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             if (this.playOnLoad) {
                 this.resetSystem();
             }
@@ -1192,7 +1192,7 @@ export class ParticleSystem2D extends UIRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _finishedSimulation () {
-        if (EDITOR && !cclegacy.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             if (this._preview && this._focused && !this.active /* && !cc.engine.isPlaying */) {
                 this.resetSystem();
             }

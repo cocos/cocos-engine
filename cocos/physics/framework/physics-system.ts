@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry, warn, IQuatLike, IVec3Like } from '../../core';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director, game } from '../../game';
@@ -349,7 +349,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
     }
 
     postUpdate (deltaTime: number) {
-        if (EDITOR && !cclegacy.GAME_VIEW && !this._executeInEditMode && !selector.runInEditor) return;
+        if (EDITOR_NOT_IN_PREVIEW && !this._executeInEditMode && !selector.runInEditor) return;
 
         if (!this.physicsWorld) return;
 
