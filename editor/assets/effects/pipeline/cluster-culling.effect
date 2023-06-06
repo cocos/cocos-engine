@@ -11,7 +11,13 @@ CCEffect %{
 
 CCProgram cluster-main %{
   precision highp float;
-  #define LOCAL_SIZE_Z 1
+  #define LOCAL_SIZE_X 16u
+  #define LOCAL_SIZE_Y 8u
+  #define LOCAL_SIZE_Z 1u
+  // #define LOCAL_SIZE_X 2u
+  // #define LOCAL_SIZE_Y 2u
+  // #define LOCAL_SIZE_Z 1u
+  #define LOCAL_SIZE (LOCAL_SIZE_X * LOCAL_SIZE_Y * LOCAL_SIZE_Z)
 
   #pragma rate CCConst pass
   layout(std140) uniform CCConst {
@@ -94,8 +100,8 @@ CCProgram cluster-main %{
     vec3 dist = closest - light.cc_lightPos.xyz;
     return dot(dist, dist) <= (light.cc_lightSizeRangeAngle.y * light.cc_lightSizeRangeAngle.y);
   }
-  shared CCLight lights[(16 * 8 * LOCAL_SIZE_Z)];
-  layout(local_size_x = 16, local_size_y = 8, local_size_z = LOCAL_SIZE_Z) in;
+  shared CCLight lights[LOCAL_SIZE];
+  layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z = LOCAL_SIZE_Z) in;
   void main()
   {
     uint visibleLights[100];
@@ -108,7 +114,7 @@ CCProgram cluster-main %{
     uint lightCount = ccLightCount();
     uint lightOffset = 0u;
     while (lightOffset < lightCount) {
-      uint batchSize = min((16u * 8u * uint(LOCAL_SIZE_Z)), lightCount - lightOffset);
+      uint batchSize = min(LOCAL_SIZE, lightCount - lightOffset);
       if (uint(gl_LocalInvocationIndex) < batchSize) {
         uint lightIndex = lightOffset + gl_LocalInvocationIndex;
         CCLight light = getCCLight(lightIndex);

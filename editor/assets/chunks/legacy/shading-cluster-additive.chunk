@@ -1,7 +1,10 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
-#pragma define CLUSTERS_X 16
-#pragma define CLUSTERS_Y 8
-#pragma define CLUSTERS_Z 24
+#pragma define CLUSTERS_X 16u
+#pragma define CLUSTERS_Y 8u
+#pragma define CLUSTERS_Z 24u
+// #pragma define CLUSTERS_X 2u
+// #pragma define CLUSTERS_Y 2u
+// #pragma define CLUSTERS_Z 1u
 #pragma define MAX_LIGHTS_PER_CLUSTER 100u
 
 #pragma rate b_ccLightsBuffer pass
@@ -79,7 +82,7 @@ uint getClusterIndex(vec4 fragCoord, vec4 worldPos)
   float clusterSizeX = ceil(cc_viewPort.z / float(CLUSTERS_X));
   float clusterSizeY = ceil(cc_viewPort.w / float(CLUSTERS_Y));
   uvec3 indices = uvec3(uvec2(fragCoord.xy / vec2(clusterSizeX, clusterSizeY)), zIndex);
-  uint cluster = (16u * 8u) * indices.z + 16u * indices.y + indices.x;
+  uint cluster = (CLUSTERS_X * CLUSTERS_Y) * indices.z + CLUSTERS_X * indices.y + indices.x;
   return cluster;
 }
 

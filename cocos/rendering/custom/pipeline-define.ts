@@ -538,10 +538,10 @@ export function updateLightingRes (ppl: BasicPipeline, info: CameraInfo) {
     ppl.updateDepthStencil(deferredLightingPassDS, width, height);
 }
 let lightingInfo: LightingInfo;
-export function setupLightingPass (pipeline: BasicPipeline, info: CameraInfo) {
+export function setupLightingPass (pipeline: BasicPipeline, info: CameraInfo, useCluster: boolean) {
     setupShadowPass(pipeline, info);
     if (!lightingInfo) {
-        lightingInfo = new LightingInfo();
+        lightingInfo = new LightingInfo(useCluster);
     }
     const ppl = pipeline as Pipeline;
     const camera = info.camera;
