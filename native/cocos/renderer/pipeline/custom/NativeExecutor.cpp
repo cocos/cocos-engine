@@ -259,7 +259,6 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                     [&](const IntrusivePtr<gfx::Texture>& tex) {
                         CC_EXPECTS(!fbInfo.depthStencilTexture);
                         fbInfo.depthStencilTexture = tex.get();
-                        CC_EXPECTS(!defaultDS);
                     },
                     [&](const FormatView& view) {
                         std::ignore = view;
@@ -271,6 +270,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                             view.firstPlane ? data.clearStencil : data.clearDepth,
                             0.0, 0.0, 0.0,
                         });
+                        CC_EXPECTS(!defaultDS);
                     },
                     [](const auto& /*unused*/) {
                         CC_EXPECTS(false);
@@ -297,7 +297,7 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
             fillFrameBufferInfo(subpass);
         }
     }
-    CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
+    //CC_ENSURES(rpInfo.colorAttachments.size() == data.clearColors.size());
     CC_ENSURES(rpInfo.colorAttachments.size() == fbInfo.colorTextures.size());
 
     data.renderPass = ctx.device->createRenderPass(rpInfo);
@@ -1141,20 +1141,30 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
 
             resourceIndex.reserve(subpass.rasterViews.size() * 2);
             for (const auto& [resourceName, rasterView] : subpass.rasterViews) {
-                auto resName = resourceName;
-                const auto resID = vertex(resName, ctx.resourceGraph);
+                auto resID = vertex(resourceName, ctx.resourceGraph);
                 auto ragId = ctx.fgd.resourceAccessGraph.passIndex.at(vertID);
                 const auto& attachments = ctx.fgd.resourceAccessGraph.access[ragId].attachmentStatus;
                 auto slotName = rasterView.slotName;
-                if (rasterView.accessType == AccessType::READ || rasterView.accessType == AccessType::READ_WRITE) {
+                if (rasterView.accessType != AccessType::WRITE) {
                     slotName.insert(0, "__in");
                     if(rasterView.attachmentType == AttachmentType::DEPTH_STENCIL) {
                         if(rasterView.slotName != "_" && !rasterView.slotName.empty()) {
-                            resName += "/depth";
+                            auto resName = resourceName + "/depth";
+                            resID = vertex(resName, ctx.resourceGraph);
+                            auto iter = ctx.lg.attributeIndex.find("__in" + rasterView.slotName);
+                            if (iter != ctx.lg.attributeIndex.end()) {
+                                resourceIndex.emplace(iter->second, resID);
+                            }
                         }
                         if(rasterView.slotName1 != "_" && !rasterView.slotName1.empty()) {
-                            resName += "/stencil";
+                            auto resName = resourceName + "/stencil";
+                            resID = vertex(resName, ctx.resourceGraph);
+                            auto iter = ctx.lg.attributeIndex.find("__in" + rasterView.slotName1);
+                            if (iter != ctx.lg.attributeIndex.end()) {
+                                resourceIndex.emplace(iter->second, resID);
+                            }
                         }
+                        continue;
                     }
                 }
                 auto iter = ctx.lg.attributeIndex.find(slotName);
