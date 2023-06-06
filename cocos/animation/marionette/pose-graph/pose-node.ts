@@ -165,5 +165,12 @@ export abstract class PoseNode extends PoseGraphNode {
      */
     protected abstract doEvaluate(context: AnimationGraphEvaluationContext): Pose;
 
+    /**
+     * TODO: some nodes access dependencies in reenter(). See: cocos/cocos-engine#15305
+     */
+    protected _forceEvaluateEvaluation (): void {
+        this._dependencyEvaluation?.evaluate();
+    }
+
     private _dependencyEvaluation: PoseNodeDependencyEvaluation | undefined = undefined;
 }

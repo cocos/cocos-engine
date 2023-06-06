@@ -2,6 +2,7 @@ import { Track, VectorTrack } from "../../../../cocos/animation/animation";
 import { AnimationClip } from "../../../../cocos/animation/animation-clip";
 import { ClipMotion, AnimationBlend1D } from "../../../../cocos/animation/marionette/motion";
 import { blend1D } from "../../../../cocos/animation/marionette/motion/blend-1d";
+import { WrapMode } from "../../../../cocos/animation/types";
 import { lerp, RealCurve } from "../../../../cocos/core";
 
 export interface CreateMotionContext {
@@ -11,6 +12,7 @@ export interface CreateMotionContext {
         name?: string;
         duration: number;
         additive?: boolean;
+        wrapMode?: WrapMode;
     }) => NonNullableClipMotion;
 }
 
@@ -25,7 +27,9 @@ export interface RealValueAnimationFixture {
 }
 
 export class LinearRealValueAnimationFixture implements RealValueAnimationFixture {
-    constructor(public from: number, public to: number, public duration: number, private additive: boolean = false) {
+    constructor(public from: number, public to: number, public duration: number, private additive: boolean = false, private options: {
+        loop?: boolean;
+    } = {}) {
     }
 
     public getExpected(time: number) {
@@ -46,6 +50,7 @@ export class LinearRealValueAnimationFixture implements RealValueAnimationFixtur
             {
                 duration: this.duration,
                 additive: this.additive,
+                wrapMode: this.options.loop ? WrapMode.Loop : WrapMode.Normal,
             },
         );
     }

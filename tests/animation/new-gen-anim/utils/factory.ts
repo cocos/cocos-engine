@@ -11,6 +11,7 @@ import { TCVariableBinding } from "../../../../cocos/animation/marionette/state-
 import { TCAuxiliaryCurveBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/auxiliary-curve-binding";
 import { TCStateWeightBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/state-weight-binding";
 import { PoseNode } from "../../../../cocos/animation/marionette/pose-graph/pose-node";
+import { TCStateMotionTimeBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/state-motion-time-binding";
 
 export function createAnimationGraph(params: AnimationGraphParams): AnimationGraph {
     const animationGraph = new AnimationGraph();
@@ -229,6 +230,10 @@ export function createTCBinding(params: TCBindingParams) {
             const binding = new TCStateWeightBinding();
             return binding;
         }
+        case 'state-motion-time': {
+            const binding = new TCStateMotionTimeBinding();
+            return binding;
+        }
     }
 }
 
@@ -391,6 +396,8 @@ export type TCBindingParams = {
     curveName: string;
 } | {
     type: 'state-weight';
+} | {
+    type: 'state-motion-time';
 };
 
 type BindableParams<T> = {

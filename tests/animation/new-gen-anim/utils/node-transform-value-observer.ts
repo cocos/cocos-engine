@@ -1,6 +1,7 @@
 import { QuatTrack, VectorTrack } from "../../../../cocos/animation/animation";
 import { additiveSettingsTag, AnimationClip } from "../../../../cocos/animation/animation-clip";
 import { ClipMotion } from "../../../../cocos/animation/marionette/motion";
+import { WrapMode } from "../../../../cocos/animation/types";
 import { Quat, toDegree, toRadian, Vec3 } from "../../../../cocos/core";
 import { Node } from "../../../../cocos/scene-graph";
 import { CreateMotionContext } from "./fixtures";
@@ -84,12 +85,14 @@ export class NodeTransformValueObserver {
                 name = '',
                 duration,
                 additive = false,
+                wrapMode = WrapMode.Normal,
             }) {
                 const clip = new AnimationClip();
                 clip.name = name;
                 clip.enableTrsBlending = true;
                 clip.duration = duration;
                 clip[additiveSettingsTag].enabled = additive;
+                clip.wrapMode = wrapMode;
                 { // translation
                     const track = new VectorTrack();
                     track.componentsCount = 3;

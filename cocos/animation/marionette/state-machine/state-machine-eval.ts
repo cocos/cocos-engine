@@ -1328,6 +1328,10 @@ class VMSMInternalState extends EventifiedStateEval {
         return this._container.components;
     }
 
+    get normalizedTime () {
+        return this._progress;
+    }
+
     get time () {
         return this._progress * this._container.duration;
     }
@@ -1408,7 +1412,7 @@ class ProceduralPoseStateEval extends EventifiedStateEval {
 
     public constructor (state: ProceduralPoseState, context: AnimationGraphBindingContext) {
         super(state);
-        const instantiatedPoseGraph = instantiatePoseGraph(state.graph, context);
+        const instantiatedPoseGraph = instantiatePoseGraph(state.graph, context, true);
         instantiatedPoseGraph.bind(context);
         this._instantiatedPoseGraph = instantiatedPoseGraph;
         if (DEBUG) {
@@ -1441,7 +1445,7 @@ class ProceduralPoseStateEval extends EventifiedStateEval {
     }
 
     public countMotionTime () {
-        return this._instantiatedPoseGraph?.countMotionTime() ?? 0.0;
+        return this._instantiatedPoseGraph.countMotionTime();
     }
 
     private _instantiatedPoseGraph: InstantiatedPoseGraph;
@@ -1498,15 +1502,16 @@ class ConditionEvaluationContextImpl implements ConditionEvaluationContext {
     public get sourceStateMotionTimeNormalized () {
         const { _sourceState: sourceState } = this;
         assertIsTrue(
-            sourceState && isRealState(sourceState) && sourceState.activeReferenceCount,
-            `State motion time is only defined on activated motion states, pose states and empty states.`,
+            sourceState
+            && (sourceState.kind === NodeKind.animation || sourceState.kind === NodeKind.procedural)
+            && sourceState.activeReferenceCount,
+            `State motion time is only defined on activated motion states and procedural pose states.`,
         );
         switch (sourceState.kind) {
         case NodeKind.animation:
-            return sourceState.time;
+            return sourceState.normalizedTime;
         case NodeKind.procedural:
-            // TODO:
-            // fallthrough
+            return sourceState.countMotionTime();
         default:
             return 0.0;
         }

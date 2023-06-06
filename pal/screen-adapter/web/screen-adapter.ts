@@ -143,10 +143,11 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get safeAreaEdge (): SafeAreaEdge {
-        const _top = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-top') || '0');
-        const _bottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom') || '0');
-        const _left = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-left') || '0');
-        const _right = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-right') || '0');
+        const dpr = this.devicePixelRatio;
+        const _top = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-top') || '0') * dpr;
+        const _bottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom') || '0') * dpr;
+        const _left = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-left') || '0') * dpr;
+        const _right = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-right') || '0') * dpr;
 
         return {
             top: _top,

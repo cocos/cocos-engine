@@ -112,7 +112,8 @@ jobs:
 
           echo "Compile Android - cmake ..."
           echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
-          ./gradlew :CocosGame:assembleDebug --quiet
+          # ./gradlew :CocosGame:assembleDebug --quiet
+          ./gradlew :CocosGame:assembleRelease --quiet
           echo "Compile Android Debug Done!"
 
   compile_android:
