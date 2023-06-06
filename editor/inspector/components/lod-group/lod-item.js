@@ -98,9 +98,10 @@ exports.watch = {
             that.enableUpdateScreenUsagePercentage = false;
             if (obj.value.LODs.value[that.index].value.screenUsagePercentage.value) {
                 const LODs = obj.value.LODs.value;
-                const min = LODs[that.index + 1] ? LODs[that.index + 1].value.screenUsagePercentage.value : null;
+                const min = LODs[that.index + 1] ? LODs[that.index + 1].value.screenUsagePercentage.value : 0;
                 const max = LODs[that.index - 1] ? LODs[that.index - 1].value.screenUsagePercentage.value : null;
-                that.minScreenUsagePercentage = min ? Editor.Utils.Math.multi(min, 100) : null;
+                // The minimum value is 0, and there is no restriction on the maximum value
+                that.minScreenUsagePercentage = Editor.Utils.Math.multi(min, 100);
                 that.maxScreenUsagePercentage = max ? Editor.Utils.Math.multi(max, 100) : null;
             }
             that.$nextTick(() => {
@@ -163,10 +164,8 @@ exports.methods = {
         const that = this;
         let size = await Editor.Message.request('scene', 'lod-apply-current-camera-size', that.dump.value.uuid.value);
         if (that.$refs[that.screenUsagePercentageRef]) {
-            let min = 0, max = 1;
-            if (that.$refs[that.screenUsagePercentageRef].min && that.$refs[that.screenUsagePercentageRef].min !== -Infinity) {
-                min = Editor.Utils.Math.divide(that.$refs[that.screenUsagePercentageRef].min, 100)
-            }
+            const min = Editor.Utils.Math.divide(that.$refs[that.screenUsagePercentageRef].min, 100) || 0;
+            let max = null;
             if (that.$refs[that.screenUsagePercentageRef].max && that.$refs[that.screenUsagePercentageRef].max !== Infinity) {
                 max = Editor.Utils.Math.divide(that.$refs[that.screenUsagePercentageRef].max, 100);
             }
@@ -174,7 +173,7 @@ exports.methods = {
             if (size < min) {
                 size = min;
                 console.log(Editor.I18n.t('ENGINE.components.lod.applyCameraSizeLessThanMinimum'));
-            } else if (size > max) {
+            } else if (max && size > max) {
                 size = max;
                 console.log(Editor.I18n.t('ENGINE.components.lod.applyCameraSizeGreaterThanMaximum'));
             }
