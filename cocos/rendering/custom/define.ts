@@ -807,20 +807,22 @@ export function buildGBufferPass (camera: Camera,
 export class LightingInfo {
     declare deferredLightingMaterial: Material;
     public enableCluster: number;
+    public enableSubPass: number;
 
     private _init () {
         this.deferredLightingMaterial = new Material();
         this.deferredLightingMaterial.name = 'builtin-deferred-material';
         this.deferredLightingMaterial.initialize({
             effectName: 'pipeline/deferred-lighting',
-            defines: { CC_ENABLE_CLUSTERED_LIGHT_CULLING: this.enableCluster, CC_RECEIVE_SHADOW: 1 },
+            defines: { CC_ENABLE_SUBPASS: this.enableSubPass, CC_ENABLE_CLUSTERED_LIGHT_CULLING: this.enableCluster, CC_RECEIVE_SHADOW: 1 },
         });
         for (let i = 0; i < this.deferredLightingMaterial.passes.length; ++i) {
             this.deferredLightingMaterial.passes[i].tryCompile();
         }
     }
-    constructor (clusterEn: boolean) {
+    constructor (clusterEn: boolean, subPassEn: boolean) {
         this.enableCluster = clusterEn ? 1 : 0;
+        this.enableSubPass = subPassEn ? 1 : 0;
         this._init();
     }
 }
@@ -828,9 +830,9 @@ export class LightingInfo {
 let lightingInfo: LightingInfo;
 
 // deferred lighting pass
-export function buildLightingPass (camera: Camera, enableCluster: boolean, ppl: BasicPipeline, gBuffer: GBufferInfo) {
+export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: GBufferInfo) {
     if (!lightingInfo) {
-        lightingInfo = new LightingInfo(enableCluster);
+        lightingInfo = new LightingInfo(false, false);
     }
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
@@ -862,10 +864,10 @@ export function buildLightingPass (camera: Camera, enableCluster: boolean, ppl: 
         }
     }
     if (ppl.containsResource(gBuffer.color)) {
-        lightingPass.addTexture(gBuffer.color, 'gbuffer_albedoMap');
-        lightingPass.addTexture(gBuffer.normal, 'gbuffer_normalMap');
-        lightingPass.addTexture(gBuffer.emissive, 'gbuffer_emissiveMap');
-        lightingPass.addTexture(gBuffer.ds, 'depth_stencil');
+        lightingPass.addTexture(gBuffer.color, 'gAlbedoMap');
+        lightingPass.addTexture(gBuffer.normal, 'gNormalMap');
+        lightingPass.addTexture(gBuffer.emissive, 'gEmissiveMap');
+        lightingPass.addTexture(gBuffer.ds, 'depthStencil');
     }
     const lightingClearColor = new Color(0, 0, 0, 0);
     if (camera.clearFlag & ClearFlagBit.COLOR) {
@@ -1017,7 +1019,7 @@ export function buildNativeDeferredPipeline (camera: Camera, ppl: BasicPipeline)
         ppl.addRenderTexture('Color', Format.BGRA8, width, height, camera.window);
     }
     if (!lightingInfo) {
-        lightingInfo = new LightingInfo(false);
+        lightingInfo = new LightingInfo(false, false);
     }
     // GeometryPass
     {
@@ -1062,10 +1064,10 @@ export function buildNativeDeferredPipeline (camera: Camera, ppl: BasicPipeline)
             camera.clearFlag,
             lightingClearColor));
 
-        lightingPass.addComputeView('Albedo', new ComputeView('gbuffer_albedoMap'));
-        lightingPass.addComputeView('Normal', new ComputeView('gbuffer_normalMap'));
-        lightingPass.addComputeView('Emissive', new ComputeView('gbuffer_emissiveMap'));
-        lightingPass.addComputeView('DepthStencil', new ComputeView('depth_stencil'));
+        lightingPass.addComputeView('Albedo', new ComputeView('gAlbedoMap'));
+        lightingPass.addComputeView('Normal', new ComputeView('gNormalMap'));
+        lightingPass.addComputeView('Emissive', new ComputeView('gEmissiveMap'));
+        lightingPass.addComputeView('DepthStencil', new ComputeView('depthStencil'));
 
         lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
             camera, lightingInfo.deferredLightingMaterial, 0,

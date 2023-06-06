@@ -6,12 +6,11 @@ CCEffect %{
     - vert: lighting-vs
       frag: lighting-fs
       pass: deferred-lighting
+      phase: deferred-lighting
       depthStencilState:
-        depthFunc: greater
-        depthTest: true
+        depthTest: false
         depthWrite: false
 }%
-
 CCProgram lighting-vs %{
   precision highp float;
   #include <legacy/decode>
@@ -44,15 +43,22 @@ CCProgram lighting-fs %{
   #include <common/debug/debug-view-define>
 
   in vec2 v_uv;
-
-  #pragma rate gbuffer_albedoMap pass
-  layout(binding = 0) uniform sampler2D gbuffer_albedoMap;
-  #pragma rate gbuffer_normalMap pass
-  layout(binding = 1) uniform sampler2D gbuffer_normalMap;
-  #pragma rate gbuffer_emissiveMap pass
-  layout(binding = 2) uniform sampler2D gbuffer_emissiveMap;
-  #pragma rate depth_stencil pass
-  layout(binding = 3) uniform sampler2D depth_stencil;
+#if CC_ENABLE_SUBPASS == 1
+  #pragma subpass
+  #pragma subpassColor in gAlbedoMap
+  #pragma subpassColor in gNormalMap
+  #pragma subpassColor in gEmissiveMap
+  #pragma subpassDepth in depthStencil
+#else
+  #pragma rate gAlbedoMap pass
+  layout(binding = 0) uniform sampler2D gAlbedoMap;
+  #pragma rate gNormalMap pass
+  layout(binding = 1) uniform sampler2D gNormalMap;
+  #pragma rate gEmissiveMap pass
+  layout(binding = 2) uniform sampler2D gEmissiveMap;
+  #pragma rate depthStencil pass
+  layout(binding = 3) uniform sampler2D depthStencil;
+#endif
 
   layout(location = 0) out vec4 fragColor;
 
@@ -72,10 +78,17 @@ CCProgram lighting-fs %{
   void main () {
     StandardSurface s;
 
-    vec4 albedoMap = texture(gbuffer_albedoMap,v_uv);
-    vec4 normalMap = texture(gbuffer_normalMap,v_uv);
-    vec4 emissiveMap = texture(gbuffer_emissiveMap,v_uv);
-    float depth = texture(depth_stencil, v_uv).x;
+#if CC_ENABLE_SUBPASS == 1
+    vec4 albedoMap = subpassLoad(gAlbedoMap);
+    vec4 normalMap = subpassLoad(gNormalMap);
+    vec4 emissiveMap = subpassLoad(gEmissiveMap);
+    float depth = subpassLoad(depthStencil).x;
+#else
+    vec4 albedoMap = texture(gAlbedoMap, v_uv);
+    vec4 normalMap = texture(gNormalMap, v_uv);
+    vec4 emissiveMap = texture(gEmissiveMap, v_uv);
+    float depth = texture(depthStencil, v_uv).x;
+#endif
 
     s.albedo = albedoMap;
     vec3 position = screen2WS(vec3(gl_FragCoord.xy, depth)).xyz;
