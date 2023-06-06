@@ -1,5 +1,6 @@
 precision highp float;
 #include <builtin/uniforms/cc-global>
+#include <common/common-define>
 #include <common/math/coordinates>
 #include <builtin/functionalities/fog>
 
@@ -259,7 +260,7 @@ void ComputeSteps(inout vec2 step_size_uv, inout float numSteps, float ray_radiu
 }
 
 //----------------------------------------------------------------------------------
-float CalculateAO(vec2 uv, vec2 posHS)
+float CalculateAO(vec2 uv)
 {
     vec3 P = FetchEyePos(uv);
 
@@ -308,6 +309,8 @@ float CalculateAO(vec2 uv, vec2 posHS)
   #if CC_USE_FOG != CC_FOG_NONE
     float fogFactor = 1.0; // no fog
     float depth = texture(DepthTex, uv).r;
+    vec2 posHS = uv * 2.0 - vec2(1.0);
+    CC_HANDLE_GET_CLIP_FLIP(posHS.xy);
     vec4 worldPos = GetWorldPosFromNDCPosRH(vec3(posHS, depth), cc_matProj, cc_matViewProjInv);
     CC_TRANSFER_FOG_BASE(vec4(worldPos.xyz, 1.0), fogFactor);
     // ao has less effect while fogFactor value is small
