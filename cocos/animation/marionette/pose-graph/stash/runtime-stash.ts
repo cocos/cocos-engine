@@ -194,7 +194,7 @@ class RuntimeStashRecord implements RuntimeStash {
     public reenter () {
         switch (this._state) {
         default:
-            assertIsTrue(false as boolean, `Unexpected state ${this._state} when reenter().`);
+            assertIsTrue(false as boolean, `Unexpected stash state ${this._state} when reenter().`);
             break;
         case StashRecordState.UP_TO_DATE: // Happen when the state was updated in last frame but received a reenter() request this frame.
         case StashRecordState.UPDATED: // Happen when the state has been update() in this frame at one place but request reenter() at another place.
@@ -252,16 +252,16 @@ class RuntimeStashRecord implements RuntimeStash {
     }
 
     public evaluate (context: AnimationGraphEvaluationContext) {
-        assertIsTrue(
-            this._state === StashRecordState.UPDATED
-            || this._state === StashRecordState.EVALUATING
-            || this._state === StashRecordState.EVALUATED,
-        );
-        assertIsTrue(this._instantiatedPoseGraph);
-        if (this._state === StashRecordState.EVALUATING) {
-            // Circular reference occurred.
+        switch (this._state) {
+        default:
+            assertIsTrue(false as boolean, `Unexpected stash state ${this._state} when evaluate().`);
+            break;
+        case StashRecordState.EVALUATING: // Circular reference occurred.
             this._state = StashRecordState.EVALUATED;
-        } else if (this._state === StashRecordState.UPDATED) {
+            break;
+        case StashRecordState.EVALUATED: // Already evaluated.
+            break;
+        case StashRecordState.UPDATED: {
             assertIsTrue(!this._evaluationCache);
             this._state = StashRecordState.EVALUATING;
             const pose = this._instantiatedPoseGraph?.evaluate(context);
@@ -274,7 +274,11 @@ class RuntimeStashRecord implements RuntimeStash {
                 context.popPose();
             }
             this._state = StashRecordState.EVALUATED;
+            break;
         }
+        }
+        assertIsTrue(this._state === StashRecordState.EVALUATED);
+        assertIsTrue(this._instantiatedPoseGraph);
         return this._evaluationCache
             ? context.pushDuplicatedPose(this._evaluationCache)
             : null;
