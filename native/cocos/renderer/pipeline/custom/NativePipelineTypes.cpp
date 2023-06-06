@@ -162,11 +162,35 @@ SceneResource::SceneResource(SceneResource&& rhs, const allocator_type& alloc)
   storageBuffers(std::move(rhs.storageBuffers), alloc),
   storageImages(std::move(rhs.storageImages), alloc) {}
 
+CullingQueries::CullingQueries(const allocator_type& alloc) noexcept
+: culledResultIndex(alloc) {}
+
+CullingQueries::CullingQueries(CullingQueries&& rhs, const allocator_type& alloc)
+: culledResultIndex(std::move(rhs.culledResultIndex), alloc) {}
+
+CullingQueries::CullingQueries(CullingQueries const& rhs, const allocator_type& alloc)
+: culledResultIndex(rhs.culledResultIndex, alloc) {}
+
+SceneCulling::SceneCulling(const allocator_type& alloc) noexcept
+: culledResults(alloc),
+  renderQueues(alloc),
+  sceneQueryIndex(alloc),
+  sceneQueries(alloc) {}
+
+SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
+: culledResults(std::move(rhs.culledResults), alloc),
+  renderQueues(std::move(rhs.renderQueues), alloc),
+  sceneQueryIndex(std::move(rhs.sceneQueryIndex), alloc),
+  sceneQueries(std::move(rhs.sceneQueries), alloc),
+  numCullingQueries(rhs.numCullingQueries),
+  numRenderQueues(rhs.numRenderQueues) {}
+
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
   resourceGroups(alloc),
   layoutGraphResources(alloc),
-  renderSceneResources(alloc) {}
+  renderSceneResources(alloc),
+  sceneCulling(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),

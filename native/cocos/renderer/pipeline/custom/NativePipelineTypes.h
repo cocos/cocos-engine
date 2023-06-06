@@ -32,6 +32,7 @@
 #include "base/std/container/map.h"
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
+#include "cocos/base/std/hash/hash.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
@@ -715,6 +716,7 @@ struct NativeRenderQueue {
     NativeRenderQueue& operator=(NativeRenderQueue const& rhs) = delete;
 
     void sort();
+    void clear() noexcept;
 
     RenderDrawQueue opaqueQueue;
     RenderDrawQueue transparentQueue;
@@ -923,6 +925,73 @@ struct SceneResource {
     ccstd::pmr::unordered_map<NameLocalID, IntrusivePtr<gfx::Texture>> storageImages;
 };
 
+struct CullingKey {
+    const scene::Camera* camera{nullptr};
+    const scene::Light* light{nullptr};
+};
+
+inline bool operator==(const CullingKey& lhs, const CullingKey& rhs) noexcept {
+    return std::forward_as_tuple(lhs.camera, lhs.light) ==
+           std::forward_as_tuple(rhs.camera, rhs.light);
+}
+
+inline bool operator!=(const CullingKey& lhs, const CullingKey& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+struct CullingQueries {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {culledResultIndex.get_allocator().resource()};
+    }
+
+    CullingQueries(const allocator_type& alloc) noexcept; // NOLINT
+    CullingQueries(CullingQueries&& rhs, const allocator_type& alloc);
+    CullingQueries(CullingQueries const& rhs, const allocator_type& alloc);
+
+    CullingQueries(CullingQueries&& rhs) noexcept = default;
+    CullingQueries(CullingQueries const& rhs) = delete;
+    CullingQueries& operator=(CullingQueries&& rhs) = default;
+    CullingQueries& operator=(CullingQueries const& rhs) = default;
+
+    ccstd::pmr::unordered_map<CullingKey, uint32_t> culledResultIndex;
+};
+
+struct NativeRenderQueueDesc {
+    NativeRenderQueueDesc() = default;
+    NativeRenderQueueDesc(uint32_t culledSourceIn, uint32_t renderQueueTargetIn) noexcept // NOLINT
+    : culledSource(culledSourceIn),
+      renderQueueTarget(renderQueueTargetIn) {}
+
+    uint32_t culledSource{0xFFFFFFFF};
+    uint32_t renderQueueTarget{0xFFFFFFFF};
+};
+
+struct SceneCulling {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {culledResults.get_allocator().resource()};
+    }
+
+    SceneCulling(const allocator_type& alloc) noexcept; // NOLINT
+    SceneCulling(SceneCulling&& rhs, const allocator_type& alloc);
+
+    SceneCulling(SceneCulling&& rhs) noexcept = default;
+    SceneCulling(SceneCulling const& rhs) = delete;
+    SceneCulling& operator=(SceneCulling&& rhs) = default;
+    SceneCulling& operator=(SceneCulling const& rhs) = delete;
+
+    void clear() noexcept;
+    void buildRenderQueues(const RenderGraph& rg, const LayoutGraphData& lg);
+
+    ccstd::pmr::vector<ccstd::pmr::vector<const scene::Model*>> culledResults;
+    ccstd::pmr::vector<NativeRenderQueue> renderQueues;
+    PmrFlatMap<RenderGraph::vertex_descriptor, NativeRenderQueueDesc> sceneQueryIndex;
+    ccstd::pmr::unordered_map<const scene::RenderScene*, CullingQueries> sceneQueries;
+    uint32_t numCullingQueries{0};
+    uint32_t numRenderQueues{0};
+};
+
 struct NativeRenderContext {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -943,6 +1012,7 @@ struct NativeRenderContext {
     ccstd::pmr::vector<LayoutGraphNodeResource> layoutGraphResources;
     ccstd::pmr::unordered_map<const scene::RenderScene*, SceneResource> renderSceneResources;
     QuadResource fullscreenQuad;
+    SceneCulling sceneCulling;
 };
 
 class NativeProgramLibrary final : public ProgramLibrary {
@@ -1148,6 +1218,17 @@ public:
 } // namespace render
 
 } // namespace cc
+
+namespace ccstd {
+
+inline hash_t hash<cc::render::CullingKey>::operator()(const cc::render::CullingKey& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.camera);
+    hash_combine(seed, val.light);
+    return seed;
+}
+
+} // namespace ccstd
 
 // clang-format on
 

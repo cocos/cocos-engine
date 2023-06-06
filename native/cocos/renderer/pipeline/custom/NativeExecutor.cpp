@@ -2405,6 +2405,11 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             sceneQueues);
     }
 
+    // scene culling2
+    {
+        // ppl.nativeContext.sceneCulling.buildRenderQueues(rg, lg);
+    }
+
     // gpu driven
     if constexpr (ENABLE_GPU_DRIVEN) {
         // TODO(jilin): consider populating renderSceneResources here
