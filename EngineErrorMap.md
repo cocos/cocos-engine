@@ -3139,7 +3139,7 @@ texture size exceeds current device limits %d/%d
 
 ### 9101
 
-typed array buffer length must be a integer, but got %s
+The length of the TypedArrayBuffer must be an integer, but the provided value is %s.
 
 ### 9200
 
