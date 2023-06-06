@@ -1079,16 +1079,16 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
 //            gpuShader->inputs.resize(resources.subpass_inputs.size());
             for (size_t i = 0; i < resources.subpass_inputs.size(); i++) {
                 const auto &attachment = resources.subpass_inputs[i];
-                auto id = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
-                auto loc = id >= readBuffer.size() ? id : readBuffer[id];
+                auto inputIndex = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
+                auto loc = inputIndex >= readBuffer.size() ? inputIndex : readBuffer[inputIndex];
                 if(renderPass) {
-                    if(renderPass->getColorAttachments()[loc].format == Format::DEPTH) {
-                        depthInput.slot = loc;
+                    if(loc == renderPass->getColorAttachments().size()) {
+                        depthInput.slot = inputIndex;
                         depthInput.name = attachment.name;
                         continue;
                     }
-                    if(renderPass->getColorAttachments()[loc].format == Format::DEPTH_STENCIL) {
-                        stencilInput.slot = loc;
+                    if(loc == (renderPass->getColorAttachments().size() + 1)) {
+                        stencilInput.slot = inputIndex;
                         stencilInput.name = attachment.name;
                         continue;;
                     }
@@ -1122,7 +1122,10 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     }
     if(!depthInput.name.empty() || !stencilInput.name.empty()) {
         auto outIndex = output.find("struct main0_out");
-        output.insert(outIndex, "struct DSInput\n{\n    float depth [[depth(less)]];\n    uint stencil [[stencil]];\n};\n");
+        std::string depthDecl = depthInput.name.empty() ? "" : "\n    float depth [[depth(less)]];";
+        std::string stencilDecl = stencilInput.name.empty() ? "" : "\n    uint stencil [[stencil]];";
+        auto dsDecl = "struct DSInput\n{" + depthDecl + stencilDecl + " \n};\n";
+        output.insert(outIndex, dsDecl);
         bool hasDepth{false};
         if (!depthInput.name.empty()) {
             std::string depthName(depthInput.name.substr(1));

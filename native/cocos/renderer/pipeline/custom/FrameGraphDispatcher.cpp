@@ -2449,11 +2449,11 @@ void processRasterSubpass(const Graphs &graphs, uint32_t passID, const RasterSub
         } else {
             const auto &subpassView = uberPass.subpassGraph.subpasses[subpassIndex].rasterViews.at(name.data());
             if (!isDefaultDepthStencilAttachment(subpassView.slotName, subpassView.slotName1)) {
-                if (!isDefaultAttachment(subpassView.slotName) && !isDefaultAttachment(subpassView.slotName1)) {
+                if (!isDefaultAttachment(subpassView.slotName)) {
                     subpassInfo.inputs.emplace_back(fgRenderpassInfo.colorAccesses.size()); // depth - slotName
+                }
+                if(!isDefaultAttachment(subpassView.slotName1)) {
                     subpassInfo.inputs.emplace_back(fgRenderpassInfo.colorAccesses.size() + 1); // stencil - slotName1
-                } else {
-                    subpassInfo.inputs.emplace_back(slot); // whichever depth or stencil
                 }
                 CC_ASSERT(view.accessType != AccessType::WRITE);
             } else {
