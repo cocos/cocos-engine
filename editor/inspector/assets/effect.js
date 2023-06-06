@@ -53,10 +53,9 @@ exports.style = /* css */`
         padding: 10px 0;
     }
     .asset-effect > .config > .combinations .tab {
-        line-height: 20px;
-        margin-left: 5px;
-        margin-right: 5px;
+        margin-left: 4px;
         min-width: 60px;
+        width: calc(50% - 4px);
     }
     .asset-effect > .config > .combinations .tab[checked="true"] {
         background-color: var(--color-focus-fill-emphasis);
