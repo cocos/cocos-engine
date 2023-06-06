@@ -96,6 +96,13 @@ jobs:
           echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-android/proj/cfg.cmake
           echo "set(CC_EXECUTABLE_NAME \"\")" >> build-android/proj/cfg.cmake
 
+          mkdir -p build-android/proj/res/values
+          cat << EOF > build-android/proj/res/values/strings.xml
+          <resources>
+              <string name="app_name" translatable="false">CocosGame</string>
+          </resources>
+          EOF
+          
           mkdir -p build-android/assets
 
           ASSET_DIR=$GITHUB_WORKSPACE/templates/android/build/build-android/
@@ -162,6 +169,13 @@ jobs:
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-android/proj/cfg.cmake
           echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-android/proj/cfg.cmake
           echo "set(CC_EXECUTABLE_NAME \"\")" >> build-android/proj/cfg.cmake
+
+          mkdir -p build-android/proj/res/values
+          cat << EOF > build-android/proj/res/values/strings.xml
+          <resources>
+              <string name="app_name" translatable="false">CocosGame</string>
+          </resources>
+          EOF
 
           mkdir -p build-android/assets
 
