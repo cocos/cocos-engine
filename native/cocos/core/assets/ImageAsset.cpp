@@ -65,6 +65,47 @@ void ImageAsset::setNativeAsset(const ccstd::any &obj) {
     }
 }
 
+IntrusivePtr<ImageAsset> ImageAsset::extractMipmap0() {
+    auto *res = new ImageAsset;
+
+    res->_data = nullptr;
+    res->_needFreeData = false;
+    res->_width = _width;
+    res->_height = _height;
+    res->_format = _format;
+    res->_uuid = _uuid;
+    res->_data = _data;
+
+    return res;
+}
+
+std::vector<IntrusivePtr<ImageAsset>> ImageAsset::extractMipmaps() {
+    std::vector<IntrusivePtr<ImageAsset>> res{};
+
+    if (!_mipmapLevelDataSize.empty()) {
+        size_t offset = 0UL;
+        auto height = _height;
+        auto width = _width;
+        for (auto mipmapSize : _mipmapLevelDataSize) {
+            auto *mipmap = new ImageAsset;
+            mipmap->_data = _data + offset;
+            mipmap->_needFreeData = false;
+            mipmap->_width = width;
+            mipmap->_height = height;
+            mipmap->_format = _format;
+            mipmap->_uuid = _uuid;
+
+            offset += mipmapSize;
+            width = std::max(width >> 1, 1U);
+            height = std::max(height >> 1, 1U);
+            res.emplace_back(mipmap);
+        }
+    } else {
+        res.emplace_back(this);
+    }
+    return res;
+}
+
 const uint8_t *ImageAsset::getData() const {
     return _data;
 }
