@@ -41,7 +41,7 @@ export const SSSS_BLUR_Y_PASS_INDEX = 2;
 
 function hasSkinObject (ppl: PipelineRuntime) {
     const sceneData = ppl.pipelineSceneData;
-    return sceneData.skin.enabled && sceneData.standardSkinModel !== null;
+    return sceneData.skin.enabled && sceneData.skinMaterialModel !== null;
 }
 
 const _varianceArray: number[] = [0.0484, 0.187, 0.567, 1.99, 7.41];

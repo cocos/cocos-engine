@@ -42,8 +42,10 @@ export class PostProcessBuilder implements PipelineBuilder  {
 
         // forward pipeline
         this.addPass(forward);
-        this.addPass(new SkinPass());
+
+        // TODO: The skin material currently conflicts with the TransparencyPass queue and is temporarily pre-rendered by TransparencyPass.
         this.addPass(new ForwardTransparencyPass());
+        this.addPass(new SkinPass());
 
         // pipeline related
         this.addPass(new HBAOPass());
