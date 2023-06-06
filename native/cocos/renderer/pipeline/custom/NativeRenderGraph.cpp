@@ -564,6 +564,7 @@ void addRasterViewImpl(
             std::forward_as_tuple(name),
             std::forward_as_tuple(
                 ccstd::pmr::string(slotName, subpassData.get_allocator()),
+                ccstd::pmr::string(slotName1, subpassData.get_allocator()),
                 accessType,
                 attachmentType,
                 loadOp,
