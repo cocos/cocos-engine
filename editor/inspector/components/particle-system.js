@@ -49,7 +49,7 @@ exports.template = /* html*/`
                 <ui-label slot="label" value="Show Bounds"></ui-label>
                 <ui-checkbox slot="content" id="showBounds"></ui-checkbox>
             </ui-prop>
-            <ui-button id="resetBounds">Regenerate bounding box</ui-button>
+            <ui-button id="resetBounds" style="width:200px;margin: 4px auto 0 auto;">Regenerate bounding box</ui-button>
         </ui-section>
         <ui-section class="config" key="noiseModule.value.enable" autoExpand cache-expand="particle-system-useNoise">
             <ui-prop slot="header" no-label class="header" empty="true" key="noiseModule.value.enable">
