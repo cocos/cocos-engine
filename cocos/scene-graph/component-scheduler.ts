@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
+import { EDITOR, SUPPORT_JIT, DEV, TEST, EDITOR_PREVIEW } from 'internal:constants';
 import { CCObject } from '../core/data/object';
 import { js } from '../core';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
@@ -196,7 +196,7 @@ class ReusableInvoker extends LifeCycleInvoker {
 function enableInEditor (comp) {
     if (!(comp._objFlags & IsEditorOnEnableCalled)) {
         legacyCC.engine.emit('component-enabled', comp.uuid);
-        if (!legacyCC.GAME_VIEW) {
+        if (!EDITOR_PREVIEW) {
             comp._objFlags |= IsEditorOnEnableCalled;
         }
     }
@@ -475,7 +475,7 @@ export class ComponentScheduler {
      * @zh 为当前注册的组件执行 update 阶段任务
      * @param dt @en Time passed after the last frame in seconds @zh 距离上一帧的时间，以秒计算
      */
-    public updatePhase (dt:number) {
+    public updatePhase (dt: number) {
         this.updateInvoker.invoke(dt);
     }
 
@@ -484,7 +484,7 @@ export class ComponentScheduler {
      * @zh 为当前注册的组件执行 late update 阶段任务
      * @param dt @en Time passed after the last frame in seconds @zh 距离上一帧的时间，以秒计算
      */
-    public lateUpdatePhase (dt:number) {
+    public lateUpdatePhase (dt: number) {
         this.lateUpdateInvoker.invoke(dt);
 
         // End of this frame
@@ -527,7 +527,7 @@ export class ComponentScheduler {
 
 if (EDITOR) {
     ComponentScheduler.prototype.enableComp = function (comp, invoker) {
-        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
+        if (EDITOR_PREVIEW || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsOnEnableCalled)) {
                 if (comp.onEnable) {
                     if (invoker) {
@@ -550,7 +550,7 @@ if (EDITOR) {
     };
 
     ComponentScheduler.prototype.disableComp = function (comp) {
-        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
+        if (EDITOR_PREVIEW || comp.constructor._executeInEditMode) {
             if (comp._objFlags & IsOnEnableCalled) {
                 if (comp.onDisable) {
                     callOnDisableInTryCatch(comp);

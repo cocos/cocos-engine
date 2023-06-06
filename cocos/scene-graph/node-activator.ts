@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, DEV, SUPPORT_JIT, DEBUG } from 'internal:constants';
+import { EDITOR, DEV, SUPPORT_JIT, DEBUG, EDITOR_PREVIEW } from 'internal:constants';
 import { CCObject, isValid } from '../core/data/object';
 import { array, Pool } from '../core/utils/js';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
@@ -130,7 +130,7 @@ function _componentCorrupted (node, comp, index) {
 }
 
 function _onLoadInEditor (comp) {
-    if (comp.onLoad && !legacyCC.GAME_VIEW) {
+    if (comp.onLoad && !EDITOR_PREVIEW) {
         const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
             if (comp.onFocusInEditor && callOnFocusInTryCatch) {
@@ -345,7 +345,7 @@ if (EDITOR) {
             // destroyed before activating
             return;
         }
-        if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
+        if (EDITOR_PREVIEW || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
                 if (comp.__preload) {
@@ -387,7 +387,7 @@ if (EDITOR) {
         legacyCC.director._compScheduler.disableComp(comp);
 
         if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
-            if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
+            if (EDITOR_PREVIEW || comp.constructor._executeInEditMode) {
                 callOnDestroyInTryCatch && callOnDestroyInTryCatch(comp);
             }
         }
