@@ -112,11 +112,11 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         limitCone.restitution = angularLimit.swingRestitution;
 
         if (angularLimit.swingMotion1 === EConstraintMode.LIMITED) {
-            limitCone.yAngle = toRadian(angularLimit.swingExtent1) * 0.5;
+            limitCone.yAngle = toRadian(Math.max(angularLimit.swingExtent1, 1e-9)) * 0.5;
             this._impl.setSwingLimit(limitCone);
         }
         if (angularLimit.swingMotion2 === EConstraintMode.LIMITED) {
-            limitCone.zAngle = toRadian(angularLimit.swingExtent2) * 0.5;
+            limitCone.zAngle = toRadian(Math.max(angularLimit.swingExtent2, 1e-9)) * 0.5;
             this._impl.setSwingLimit(limitCone);
         }
     }
@@ -138,8 +138,8 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         limitPair.restitution = angularLimit.twistRestitution;
 
         if (angularLimit.twistMotion === EConstraintMode.LIMITED) {
-            limitPair.lower = toRadian(angularLimit.twistExtent) * -0.5;
-            limitPair.upper = toRadian(angularLimit.twistExtent) * 0.5;
+            limitPair.lower = toRadian(Math.max(angularLimit.twistExtent, 1e-9)) * -0.5;
+            limitPair.upper = toRadian(Math.max(angularLimit.twistExtent, 1e-9)) * 0.5;
             this._impl.setTwistLimit(limitPair);
         }
     }
