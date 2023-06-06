@@ -74,9 +74,8 @@ vec3 UVToEye(vec2 uv, float eye_z)
 
 //----------------------------------------------------------------------------------
 float GetLinearDepth(vec2 uv) {
-  float depth = texture(DepthTex, uv).r;
-  depth = -GetCameraDepthRH(depth * 2.0 - 1.0, cc_matProj);
-  return depth;
+  float depthHS = texture(DepthTex, uv).r * 2.0 - 1.0; // -1.0 ~ +1.0
+  return -GetCameraDepthRH(depthHS, cc_matProj);
 }
 
 vec3 FetchEyePos(vec2 uv)
