@@ -102,7 +102,7 @@ CCProgram ssssBlur %{
 
     // Fetch linear depth of current pixel:
     // Use Sample_Point_Clamp
-    float depthHS = unpackRGBAToDepth(texture(depthTex, texcoord));
+    float depthHS = unpackRGBAToDepth(texture(depthTex, texcoord)) * 2.0 - 1.0; // -1.0 ~ +1.0
     float depthM = -GetCameraDepthRH(depthHS, cc_matProj);
 
     // Calculate the ssssWidth scale (1.0 for a unit plane sitting on the projection window):
