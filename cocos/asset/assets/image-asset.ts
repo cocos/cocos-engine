@@ -25,12 +25,14 @@
 // @ts-check
 import { ccclass, override } from 'cc.decorator';
 import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { ImageData } from 'pal/image';
 import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { warnID, macro, sys, cclegacy } from '../../core';
 import { ccwindow } from '../../core/global-exports';
 import { Enum } from '../../core/value-types/enum';
+import { IMemoryImageSource, ImageSource } from '../../../pal/image/types';
 
 // Compress mipmap constants
 const COMPRESSED_HEADER_LENGTH = 4;
@@ -132,46 +134,6 @@ function getASTCFormat (xdim, ydim) {
 
 function readBEUint16 (header, offset: number) {
     return (header[offset] << 8) | header[offset + 1];
-}
-
-/**
- * @en Image source in memory
- * @zh 内存图像源。
- */
-export interface IMemoryImageSource {
-    _data: ArrayBufferView | null;
-    _compressed: boolean;
-    width: number;
-    height: number;
-    format: number;
-    mipmapLevelDataSize?: number[];
-}
-
-/**
- * @en The image source, can be HTML canvas, image type or image in memory data
- * @zh 图像资源的原始图像源。可以来源于 HTML 元素也可以来源于内存。
- */
-export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
-
-function isImageBitmap (imageSource: any): imageSource is ImageBitmap {
-    return !!(sys.hasFeature(sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
-}
-
-function fetchImageSource (imageSource: ImageSource) {
-    return '_data' in imageSource ? imageSource._data : imageSource;
-}
-
-// 返回该图像源是否是平台提供的图像对象。
-function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
-    if (ALIPAY || TAOBAO || TAOBAO_MINIGAME || XIAOMI || BAIDU || WECHAT_MINI_PROGRAM) {
-        // We're unable to grab the constructors of Alipay native image or canvas object.
-        return !('_data' in imageSource);
-    }
-    if (JSB && (imageSource as IMemoryImageSource)._compressed === true) {
-        return false;
-    }
-
-    return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement || isImageBitmap(imageSource);
 }
 
 /**
@@ -523,14 +485,11 @@ export class ImageAsset extends Asset {
     @override
     get _nativeAsset () {
         // Maybe returned to pool in webgl.
-        return this._nativeData;
+        return this._imageData.data;
     }
     // TODO: Property 'format' does not exist on type 'ImageBitmap'
     // set _nativeAsset (value: ImageSource) {
     set _nativeAsset (value: any) {
-        if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
-            value.format = value.format || this._format;
-        }
         this.reset(value);
     }
 
@@ -539,11 +498,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的图像数据。
      */
     get data () {
-        if (isNativeImage(this._nativeData)) {
-            return this._nativeData;
-        }
-
-        return this._nativeData && this._nativeData._data;
+        return this._imageData.data;
     }
 
     /**
@@ -551,7 +506,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的像素宽度。
      */
     get width () {
-        return this._nativeData.width || this._width;
+        return this._imageData.width || this._width;
     }
 
     /**
@@ -559,7 +514,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的像素高度。
      */
     get height () {
-        return this._nativeData.height || this._height;
+        return this._imageData.height || this._height;
     }
 
     /**
@@ -585,7 +540,7 @@ export class ImageAsset extends Asset {
      * @engineInternal
      */
     get mipmapLevelDataSize (): number[] | undefined {
-        return (this._nativeData as IMemoryImageSource).mipmapLevelDataSize;
+        return this._imageData.mipmapLevelDataSize;
     }
 
     /**
@@ -599,7 +554,7 @@ export class ImageAsset extends Asset {
 
     private static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm', '.astc'];
 
-    private _nativeData: ImageSource;
+    private _imageData: ImageData;
 
     private _exportedExts: string[] | null | undefined = undefined;
 
@@ -612,22 +567,10 @@ export class ImageAsset extends Asset {
     constructor (nativeAsset?: ImageSource) {
         super();
 
-        this._nativeData = {
-            _data: null,
-            width: 0,
-            height: 0,
-            format: 0,
-            _compressed: false,
-            mipmapLevelDataSize: [],
-        };
-
         if (EDITOR) {
             this._exportedExts = null;
         }
-
-        if (nativeAsset !== undefined) {
-            this.reset(nativeAsset);
-        }
+        this._imageData = new ImageData(nativeAsset);
     }
 
     /**
@@ -636,29 +579,17 @@ export class ImageAsset extends Asset {
      * @param data @en The new source. @zh 新的图片数据源。
      */
     public reset (data: ImageSource) {
-        if (isImageBitmap(data)) {
-            this._nativeData = data;
-        } else if (!(data instanceof HTMLElement)) {
-            // this._nativeData = Object.create(data);
-            this._nativeData = data;
-            this._format = data.format;
-        } else {
-            this._nativeData = data;
+        this._imageData.reset(data);
+        if (this._imageData.format != null) {
+            this._format =  this._imageData.format;
         }
     }
 
     public destroy () {
-        if (this.data && this.data instanceof HTMLImageElement) {
-            this.data.src = '';
+        if (this._imageData.isHtmlElement()) {
             this._setRawAsset('');
-            // JSB element should destroy native data.
-            // TODO: Property 'destroy' does not exist on type 'HTMLImageElement'.
-            // maybe we need a higher level implementation called `pal/image`, we provide `destroy` interface here.
-            // issue: https://github.com/cocos/cocos-engine/issues/14646
-            if (JSB) (this.data as any).destroy();
-        } else if (isImageBitmap(this.data)) {
-            this.data?.close();
         }
+        this._imageData.destroy();
         return super.destroy();
     }
 

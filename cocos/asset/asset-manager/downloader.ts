@@ -23,9 +23,9 @@
 */
 
 import { BUILD, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { ImageData } from 'pal/image';
 import { sys, js, misc, path, cclegacy } from '../../core';
 import Cache from './cache';
-import downloadDomImage from './download-dom-image';
 import downloadFile from './download-file';
 import downloadScript from './download-script';
 import { files } from './shared';
@@ -48,7 +48,7 @@ const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
 
 const downloadImage = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
-    const func = sys.hasFeature(sys.Feature.IMAGE_BITMAP) && cclegacy.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
+    const func = sys.hasFeature(sys.Feature.IMAGE_BITMAP) && cclegacy.assetManager.allowImageBitmap ? downloadBlob : ImageData.downloadImage;
     func(url, options, onComplete);
 };
 
@@ -245,7 +245,7 @@ export class Downloader {
     /**
      * @deprecated Since v3.7, this is an engine internal interface. You can easily implement the functionality of this API using HTMLImageElement.
      */
-    public downloadDomImage = downloadDomImage;
+    public downloadDomImage = ImageData.downloadImage;
 
     /**
      * @deprecated Since v3.7, this is an engine internal interface. You can easily implement the functionality of this API using HTMLAudioElement.

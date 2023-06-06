@@ -23,6 +23,7 @@
 */
 
 import { EDITOR, TAOBAO } from 'internal:constants';
+import { ImageData } from 'pal/image';
 import { Material } from '../asset/assets/material';
 import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing, preTransforms } from '../core';
 import {
@@ -70,11 +71,11 @@ export class SplashScreen {
     private isMobile = false;
 
     private bgMat!: Material;
-    private bgImage!: HTMLImageElement;
+    private bgImage!: ImageData;
     private bgTexture!: Texture;
 
     private logoMat!: Material;
-    private logoImage!: HTMLImageElement;
+    private logoImage!: ImageData;
     private logoTexture!: Texture;
 
     private watermarkMat!: Material;
@@ -135,7 +136,7 @@ export class SplashScreen {
 
             this.initWaterMark();
             const bgPromise = new Promise<void>((resolve, reject) => {
-                this.bgImage = new ccwindow.Image();
+                this.bgImage = new ImageData();
                 this.bgImage.onload = () => {
                     this.initBG();
                     resolve();
@@ -146,7 +147,7 @@ export class SplashScreen {
                 this.bgImage.src = this.settings.bgBase64;
             });
             const logoPromise = new Promise<void>((resolve, reject) => {
-                this.logoImage = new ccwindow.Image();
+                this.logoImage = new ImageData();
                 this.logoImage.onload = () => {
                     this.initLogo();
                     resolve();
@@ -340,7 +341,7 @@ export class SplashScreen {
         region.texExtent.width = this.bgImage.width;
         region.texExtent.height = this.bgImage.height;
         region.texExtent.depth = 1;
-        device.copyTexImagesToTexture([this.bgImage], this.bgTexture, [region]);
+        device.copyTexImagesToTexture([this.bgImage.data], this.bgTexture, [region]);
     }
 
     private initLogo () {
@@ -375,7 +376,7 @@ export class SplashScreen {
         region.texExtent.width = this.logoImage.width;
         region.texExtent.height = this.logoImage.height;
         region.texExtent.depth = 1;
-        device.copyTexImagesToTexture([this.logoImage], this.logoTexture, [region]);
+        device.copyTexImagesToTexture([this.logoImage.data], this.logoTexture, [region]);
 
         const logoRatio = this.logoImage.width / this.logoImage.height;
         if (logoRatio < 1) {

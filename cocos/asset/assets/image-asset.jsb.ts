@@ -24,11 +24,13 @@
 
 import { ALIPAY, XIAOMI, JSB, TEST, BAIDU, EDITOR } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../../gfx';
+import { ImageData } from 'pal/image';
 import { PixelFormat } from './asset-enum';
 import { sys, macro, warnID, cclegacy } from '../../core';
 import { patch_cc_ImageAsset } from '../../native-binding/decorators';
 import './asset';
 import type { ImageAsset as JsbImageAsset } from './image-asset';
+import { ImageSource } from '../../../pal/image/types';
 
 declare const jsb: any;
 
@@ -36,34 +38,7 @@ export type ImageAsset = JsbImageAsset;
 export const ImageAsset: typeof JsbImageAsset = jsb.ImageAsset;
 const jsbWindow = jsb.window;
 
-export interface IMemoryImageSource {
-    _data: ArrayBufferView | null;
-    _compressed: boolean;
-    width: number;
-    height: number;
-    format: number;
-    mipmapLevelDataSize?: number[];
-}
-
-export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
-
 const extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm', '.astc'];
-
-function isImageBitmap (imageSource: any): boolean {
-    return !!(sys.hasFeature(sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
-}
-
-function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
-    if (ALIPAY || XIAOMI || BAIDU) {
-        // We're unable to grab the constructors of Alipay native image or canvas object.
-        return !('_data' in imageSource);
-    }
-    if (JSB && (imageSource as IMemoryImageSource)._compressed === true) {
-        return false;
-    }
-
-    return imageSource instanceof jsbWindow.HTMLImageElement || imageSource instanceof jsbWindow.HTMLCanvasElement || isImageBitmap(imageSource);
-}
 
 // TODO: we mark imageAssetProto as type of any, because here we have many dynamic injected property @dumganhar
 const imageAssetProto: any = ImageAsset.prototype;
@@ -72,30 +47,16 @@ imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
     jsb.Asset.prototype._ctor.apply(this, arguments);
     this._width = 0;
     this._height = 0;
-    this._nativeData = {
-        _data: null,
-        width: 0,
-        height: 0,
-        format: 0,
-        _compressed: false,
-        mipmapLevelDataSize:[],
-    };
-
-    if (nativeAsset !== undefined) {
-        this.reset(nativeAsset);
-    }
+    this._imageData = new ImageData(nativeAsset);
 };
 
 Object.defineProperty(imageAssetProto, '_nativeAsset', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._nativeData;
+        return this._imageData;
     },
-    set (value: ImageSource) {
-        if (!(value instanceof jsbWindow.HTMLElement) && !isImageBitmap(value)) {
-            (value as IMemoryImageSource).format = (value as IMemoryImageSource).format || this.format;
-        }
+    set (value: any) {
         this.reset(value);
     },
 });
@@ -104,11 +65,7 @@ Object.defineProperty(imageAssetProto, 'data', {
     configurable: true,
     enumerable: true,
     get () {
-        if (this._nativeData && isNativeImage(this._nativeData)) {
-            return this._nativeData;
-        }
-
-        return this._nativeData && this._nativeData._data;
+        return this._imageData.data;
     },
 });
 
@@ -123,25 +80,19 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
 // TODO: Property 'format' does not exist on type 'HTMLCanvasElement'.
 // imageAssetProto.reset = function (data: ImageSource) {
 imageAssetProto.reset = function (data: any) {
-    this._nativeData = data;
-
-    if (!(data instanceof jsbWindow.HTMLElement)) {
-        if(data.format !== undefined) {
-            this.format = (data as any).format;
-        }
+    this._imageData.reset(data);
+    if (this._imageData.format != null) {
+        this._format =  this._imageData.format;
     }
     this._syncDataToNative();
 };
 
 const superDestroy = jsb.Asset.prototype.destroy;
 imageAssetProto.destroy = function () {
-    if(this.data && this.data instanceof jsbWindow.HTMLImageElement) {
-        this.data.src = '';
+    if (this._imageData.isHtmlElement()) {
         this._setRawAsset('');
-        this.data.destroy();
-    } else if (isImageBitmap(this.data)) {
-        this.data.close && this.data.close();
     }
+    this._imageData.destroy();
     return superDestroy.call(this);
 };
 
@@ -149,7 +100,7 @@ Object.defineProperty(imageAssetProto, 'width', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._nativeData.width || this._width;
+        return this._imageData.width || this._width;
     }
 });
 
@@ -157,12 +108,12 @@ Object.defineProperty(imageAssetProto, 'height', {
     configurable: true,
     enumerable: true,
     get () {
-        return this._nativeData.height || this._height;
+        return this._imageData.height || this._height;
     }
 });
 
 imageAssetProto._syncDataToNative = function () {
-    const data: any = this._nativeData;
+    const data: any = this._imageData;
     this._width = data.width;
     this._height = data.height;
 
@@ -170,24 +121,9 @@ imageAssetProto._syncDataToNative = function () {
     this.setHeight(this._height);
     this.url = this.nativeUrl;
 
-    if (data instanceof jsbWindow.HTMLCanvasElement) {
-        this.setData(data._data.data);
-    }
-    else if (data instanceof jsbWindow.HTMLImageElement) {
-        this.setData(data._data);
-        if (data._mipmapLevelDataSize){
-            this.setMipmapLevelDataSize(data._mipmapLevelDataSize);
-        }
-    }
-    else {
-        if(!this._nativeData._data){
-            console.error(`[ImageAsset] setData bad argument ${this._nativeData}`);
-            return;
-        }
-        this.setData(this._nativeData._data);
-        if (this._nativeData.mipmapLevelDataSize) {
-            this.setMipmapLevelDataSize(this._nativeData.mipmapLevelDataSize);
-        }
+    this.setData(this._imageData.nativeData());
+    if (data._mipmapLevelDataSize){
+        this.setMipmapLevelDataSize(data._mipmapLevelDataSize);
     }
 };
 

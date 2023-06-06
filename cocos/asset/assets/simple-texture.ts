@@ -24,12 +24,14 @@
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
+import { ImageData, ImageSource } from 'pal/image';
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
 import { assertID, error, js, macro, cclegacy } from '../../core';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';
 import dependUtil from '../asset-manager/depend-util';
+import { IMemoryImageSource } from '../../../pal/image/types';
 
 const _regions: BufferTextureCopy[] = [new BufferTextureCopy()];
 
@@ -140,11 +142,11 @@ export class SimpleTexture extends TextureBase {
      * @param level @en Mipmap level to upload the image to. @zh 要上传的 mipmap 层级。
      * @param arrayIndex @en The array index. @zh 要上传的数组索引。
      */
-    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView | ImageBitmap, level = 0, arrayIndex = 0) {
+    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView | ImageBitmap | IMemoryImageSource, level = 0, arrayIndex = 0) {
         if (!this._gfxTexture || this._mipmapLevel <= level) {
             return;
         }
-
+        const imageData = new ImageData(source);
         const gfxDevice = this._getGFXDevice();
         if (!gfxDevice) {
             return;
@@ -157,18 +159,18 @@ export class SimpleTexture extends TextureBase {
         region.texSubres.baseArrayLayer = arrayIndex;
 
         if (DEV) {
-            if (source instanceof HTMLElement) {
-                if (source.height > region.texExtent.height
-                    || source.width > region.texExtent.width) {
+            if (imageData.isHtmlElement()) {
+                if (imageData.height > region.texExtent.height
+                    || imageData.width > region.texExtent.width) {
                     error(`Image source(${this.name}) bounds override.`);
                 }
             }
         }
 
-        if (ArrayBuffer.isView(source)) {
-            gfxDevice.copyBuffersToTexture([source], this._gfxTexture, _regions);
+        if (ArrayBuffer.isView(imageData.data)) {
+            gfxDevice.copyBuffersToTexture([imageData.data], this._gfxTexture, _regions);
         } else {
-            gfxDevice.copyTexImagesToTexture([source], this._gfxTexture, _regions);
+            gfxDevice.copyTexImagesToTexture([imageData.data as TexImageSource], this._gfxTexture, _regions);
         }
     }
 

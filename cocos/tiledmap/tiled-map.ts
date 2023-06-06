@@ -598,19 +598,15 @@ export class TiledMap extends Component {
         this._buildLayerAndGroup();
         if (this.cleanupImageCache) {
             this._textures.forEach((tex) => {
-                this.doCleanupImageCache(tex);
+                this.doCleanupImageCache(tex.texture);
             });
         }
     }
 
     doCleanupImageCache (texture) {
-        if (texture._image instanceof HTMLImageElement) {
-            texture._image.src = '';
-            if (JSB) texture._image.destroy();
-        } else if (sys.hasFeature(sys.Feature.IMAGE_BITMAP) && texture._image instanceof ImageBitmap) {
-            if (texture._image.close) texture._image.close();
-        }
-        texture._image = null;
+        // TODO:There is a bug here, if you uncomment, it will cause the display result to be incorrect.
+        // texture.image.destroy();
+        // texture.image = null;
     }
 
     lateUpdate (dt: number) {
