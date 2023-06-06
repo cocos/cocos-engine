@@ -21,6 +21,7 @@ import { setCustomPipeline } from '../custom';
 
 import { CameraComponent } from '../../misc';
 import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
+import { PipelineEventType } from '../pipeline-event';
 
 export class PostProcessBuilder implements PipelineBuilder  {
     pipelines: Map<string, BasePass[]> = new Map();
@@ -147,6 +148,9 @@ export class PostProcessBuilder implements PipelineBuilder  {
             buildReflectionProbePasss(camera, ppl);
 
             passContext.postProcess = camera.postProcess || globalPP;
+
+            director.root!.pipelineEvent.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
+
             this.renderCamera(camera, ppl);
         }
     }
