@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { MacroRecord } from "./pass-utils";
+import { MacroRecord, MaterialProperty } from "./pass-utils";
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import type { Pass as JsbPass } from './pass';
 import { Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '../../core';
@@ -52,8 +52,8 @@ export type Pass = JsbPass;
 
 const proto = Pass.prototype;
 
-proto.getUniform = function getUniform(handle: number, out: any) {
-    const val = this._getUniform(handle);
+proto.getUniform = function getUniform<T extends MaterialProperty>(handle: number, out: T): T {
+    const val = (this as any)._getUniform(handle);
     
     if (typeof val === 'object') {
         if (val.type) {
@@ -62,16 +62,16 @@ proto.getUniform = function getUniform(handle: number, out: any) {
                     Vec2.copy(out, val);
                     break;
                 case MathType.VEC3:
-                    Vec3.copy(out, val);
+                    Vec3.copy(out as Vec3, val);
                     break;
                 case MathType.VEC4:
                     Vec4.copy(out, val);
                     break;
                 case MathType.COLOR:
-                    out.x = val.x;
-                    out.y = val.y;
-                    out.z = val.z;
-                    out.w = val.w;
+                    (out as any).x = val.x;
+                    (out as any).y = val.y;
+                    (out as any).z = val.z;
+                    (out as any).w = val.w;
                     break;
                 case MathType.MAT3:
                     Mat3.copy(out, val);
@@ -80,7 +80,7 @@ proto.getUniform = function getUniform(handle: number, out: any) {
                     Mat4.copy(out, val);
                     break;
                 case MathType.QUATERNION:
-                    Quat.copy(out, val);
+                    Quat.copy(out as Quat, val);
                     break;
                 default:
                     console.error(`getUniform, unknown object type: ${val.type}`);
@@ -90,7 +90,7 @@ proto.getUniform = function getUniform(handle: number, out: any) {
             console.error(`getUniform, unknown object: ${val}`);
         }
     } else if (typeof val === 'number') {
-        out = val;
+        (out as number) = val;
     } else {
         console.error(`getUniform, not supported: ${val}`);
     }
