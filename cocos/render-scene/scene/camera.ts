@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { EDITOR, EDITOR_PREVIEW } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like, preTransforms, warnID, geometry, cclegacy, Vec4 } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
@@ -1362,7 +1362,7 @@ export class Camera {
 
     private setDefaultUsage () {
         if (EDITOR) {
-            if (EDITOR_PREVIEW) {
+            if (cclegacy.GAME_VIEW) {
                 this._usage = CameraUsage.GAME_VIEW;
             } else {
                 this._usage = CameraUsage.EDITOR;

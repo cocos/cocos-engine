@@ -559,7 +559,8 @@
             "type": "boolean",
             "value": "$EDITOR && !$EDITOR_PREVIEW",
             "ccGlobal": true,
-            "internal": false
+            "internal": false,
+            "dynamic": true
         },
         "PREVIEW": {
             "comment": "Preview in browser or simulator.",
