@@ -35,80 +35,38 @@ const ccstd::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader = {
          CC_LOG_ERROR("type2reader unknown type");
      }},
     {gfx::Type::INT, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<int32_t>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p[0] = static_cast<int32_t>(a[idx]);
+        v = static_cast<int32_t>(a[idx]);
      }},
     {gfx::Type::INT2, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Vec2>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p->x = a[idx];
-         p->y = a[idx + 1];
+        v = Vec2(a[idx], a[idx + 1]);
      }},
     {gfx::Type::INT3, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Vec3>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p->x = a[idx];
-         p->y = a[idx + 1];
-         p->z = a[idx + 2];
+        v = Vec3(a[idx], a[idx + 1], a[idx + 2]);
      }},
     {gfx::Type::INT4, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Vec4>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p->x = a[idx];
-         p->y = a[idx + 1];
-         p->z = a[idx + 2];
-         p->w = a[idx + 3];
+        v = Vec4(a[idx], a[idx + 1], a[idx + 2], a[idx + 3]);
      }},
     {gfx::Type::FLOAT, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<float>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p[0] = a[idx];
+        v = a[idx];
      }},
     {gfx::Type::FLOAT2, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Vec2>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p->x = a[idx];
-         p->y = a[idx + 1];
+        v = Vec2(a[idx], a[idx + 1]);
      }},
     {gfx::Type::FLOAT3, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Vec3>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         p->x = a[idx];
-         p->y = a[idx + 1];
-         p->z = a[idx + 2];
+        v = Vec3(a[idx], a[idx + 1], a[idx + 2]);
      }},
     {gfx::Type::FLOAT4, [](const float *a, MaterialProperty &v, index_t idx) {
-        if (ccstd::holds_alternative<Vec4>(v)) {
-            auto &vec4 = ccstd::get<Vec4>(v);
-            vec4.x = a[idx];
-            vec4.y = a[idx + 1];
-            vec4.z = a[idx + 2];
-            vec4.w = a[idx + 3];
-        }
-        else if (ccstd::holds_alternative<Color>(v)) {
-            auto &color = ccstd::get<Color>(v);
-            Vec4 vec4 {a[idx], a[idx + 1], a[idx + 2], a[idx + 3]};
-            color.set(vec4);
-       } else if (ccstd::holds_alternative<Quaternion>(v)) {
-           auto &quat = ccstd::get<Quaternion>(v);
-           quat.x = a[idx];
-           quat.y = a[idx + 1];
-           quat.z = a[idx + 2];
-           quat.w = a[idx + 3];
-       } else {
-           CC_ASSERT_TRUE(false);
-       }
+        v = Vec4(a[idx], a[idx + 1], a[idx + 2], a[idx + 3]);
      }},
     {gfx::Type::MAT3, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Mat3>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         memcpy(&p->m[0], &a[idx], sizeof(Mat3));
+        Mat3 mat3;
+        memcpy(&mat3.m[0], &a[idx], sizeof(Mat3));
+        v = mat3;
      }},
     {gfx::Type::MAT4, [](const float *a, MaterialProperty &v, index_t idx) {
-         auto *p = ccstd::get_if<Mat4>(&v);
-         CC_ASSERT_NOT_NULL(p);
-         memcpy(&p->m[0], &a[idx], sizeof(Mat4));
+        Mat4 mat4;
+        memcpy(&mat4.m[0], &a[idx], sizeof(Mat4));
+        v = mat4;
      }},
 };
 
