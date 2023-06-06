@@ -1,5 +1,5 @@
-import { AnimationGraphEvaluationContext, AnimationGraphSettleContext } from "../../../../../cocos/animation/marionette/animation-graph-context";
-import { PoseNode } from "../../../../../cocos/animation/marionette/pose-graph/pose-node";
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext } from "../../../../../cocos/animation/marionette/animation-graph-context";
+import { PoseNode, PoseTransformSpaceRequirement } from "../../../../../cocos/animation/marionette/pose-graph/pose-node";
 import { Node } from "../../../../../cocos/scene-graph";
 import { AnimationGraphEvalMock } from "../../utils/eval-mock";
 import { createAnimationGraph, LayerStashParams, StateParams } from "../../utils/factory";
@@ -9,6 +9,12 @@ import '../../../../utils/matchers/value-type-asymmetric-matchers';
 
 import './utils/factories/all';
 import { ApplyAnimationFixturePoseNode } from "../../utils/apply-animation-fixture-pose-node";
+import { Pose } from "../../../../../cocos/animation/core/pose";
+import { input } from "../../../../../cocos/animation/marionette/pose-graph/decorator/input";
+import { PoseGraphType } from "../../../../../cocos/animation/marionette/pose-graph/foundation/type-system";
+import { poseGraphOp } from "../../../../../cocos/animation/marionette/asset-creation";
+import { composeInputKeyInternally, createVariableGettingNode, getTheOnlyOutputKey2 } from "../utils/misc";
+import { PoseNodeUseStashedPose } from "../../../../../cocos/animation/marionette/pose-graph/pose-nodes/use-stashed-pose";
 
 test(`Stash pose`, () => {
     const fixture = {
@@ -316,6 +322,97 @@ describe(`Dependent stashes`, () => {
 
         evalMock.step(0.1);
     });
+});
+
+test(`reenter() the stash but updated in later`, () => {
+    class ConditionalUpdater extends PoseNode {
+        @input({ type: PoseGraphType.POSE })
+        pose: PoseNode | null = null;
+
+        @input({ type: PoseGraphType.BOOLEAN })
+        shouldUpdate = false;
+
+        public bind(context: AnimationGraphBindingContext): void {
+            expect(this.pose).not.toBeNull();
+            this.pose?.bind(context);
+        }
+
+        public settle(context: AnimationGraphSettleContext): void {
+            expect(this.pose).not.toBeNull();
+            this.pose?.settle(context);
+        }
+
+        public reenter(): void {
+            expect(this.pose).not.toBeNull();
+            this.pose?.reenter();
+        }
+
+        protected doUpdate(context: AnimationGraphUpdateContext): void {
+            if (this.shouldUpdate) {
+                this.pose?.update(context);
+            }
+        }
+
+        protected doEvaluate(context: AnimationGraphEvaluationContext): Pose {
+            return PoseNode.evaluateDefaultPose(context, PoseTransformSpaceRequirement.LOCAL);
+        }
+    }
+
+    const poseNodeMock = new PoseNodeMock();
+
+    const animationGraph = createAnimationGraph({
+        variableDeclarations: {
+            'ShouldUpdate': { type: 'boolean' },
+        },
+        layers: [{
+            stashes: { 'stash': { graph: { rootNode: poseNodeMock } } },
+            stateMachine: {
+                entryTransitions: [{ to: 'p' }],
+                states: {
+                    'p': {
+                        type: 'procedural',
+                        graph: (poseGraph) => {
+                            const updater = poseGraph.addNode(new ConditionalUpdater());
+                            const useStash = new PoseNodeUseStashedPose();
+                            useStash.stashName = 'stash';
+                            const updateTarget = poseGraph.addNode(useStash);
+                            poseGraphOp.connectNode(poseGraph, updater, composeInputKeyInternally('pose'), updateTarget);
+                            poseGraphOp.connectNode(
+                                poseGraph,
+                                updater, composeInputKeyInternally('shouldUpdate'),
+                                ...getTheOnlyOutputKey2(poseGraph.addNode(createVariableGettingNode(PoseGraphType.BOOLEAN, 'ShouldUpdate'))),
+                            );
+                            poseGraphOp.connectOutputNode(poseGraph, updater);
+                        },
+                    }
+                },
+            },
+        }],
+    });
+
+    const evalMock = new AnimationGraphEvalMock(new Node(), animationGraph);
+
+    const zeroCheckAndResetMocks = () => {
+        expect(poseNodeMock.reenter_).not.toBeCalled();
+        expect(poseNodeMock.update_).not.toBeCalled();
+        expect(poseNodeMock.doEvaluate_).not.toBeCalled();
+    };
+
+    evalMock.step(0.2);
+    expect(poseNodeMock.reenter_).toBeCalled();
+    poseNodeMock.reenter_.mockClear();
+    zeroCheckAndResetMocks();
+
+    for (let i = 0; i < 2; ++i) {
+        evalMock.step(0.2);
+        zeroCheckAndResetMocks();
+    }
+
+    evalMock.controller.setValue('ShouldUpdate', true);
+    evalMock.step(0.1);
+    expect(poseNodeMock.update_).toBeCalled();
+    poseNodeMock.update_.mockClear();
+    zeroCheckAndResetMocks();
 });
 
 class PoseNodeMock extends PoseNode {
