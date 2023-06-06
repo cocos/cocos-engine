@@ -2777,7 +2777,11 @@ function pixelBufferPick (buffer: ArrayBufferView,
             bufferOffset += rowStride;
         }
     }
-    return new ArrayBufferCtor(stagingBuffer.buffer, 0, bufferSize / ArrayBufferCtor.BYTES_PER_ELEMENT);
+    const length = bufferSize / ArrayBufferCtor.BYTES_PER_ELEMENT;
+    if (!Number.isInteger(length)) {
+        errorID(9101, `${length}`);
+    }
+    return new ArrayBufferCtor(stagingBuffer.buffer, 0, length);
 }
 
 export function WebGLCmdFuncCopyBuffersToTexture (
@@ -2826,6 +2830,9 @@ export function WebGLCmdFuncCopyBuffersToTexture (
             const buffer = buffers[n++];
             if (stride.width === extent.width && stride.height === extent.height) {
                 const length = FormatSize(gpuTexture.format, destWidth, destHeight, 1) / ArrayBufferCtor.BYTES_PER_ELEMENT;
+                if (!Number.isInteger(length)) {
+                    errorID(9101, `${length}`);
+                }
                 pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset, length);
             } else {
                 pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
@@ -2874,6 +2881,9 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                 const buffer = buffers[n++];
                 if (stride.width === extent.width && stride.height === extent.height) {
                     const length = FormatSize(gpuTexture.format, destWidth, destHeight, 1) / ArrayBufferCtor.BYTES_PER_ELEMENT;
+                    if (!Number.isInteger(length)) {
+                        errorID(9101, `${length}`);
+                    }
                     pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset, length);
                 } else {
                     pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
