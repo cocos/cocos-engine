@@ -59,6 +59,7 @@ import {
     setupDeferredForward,
     setupScenePassTiled,
 } from './pipeline-define';
+import { Feature } from '../../gfx';
 
 export class ForwardPipelineBuilder implements PipelineBuilder {
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
@@ -91,8 +92,9 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
             if (!camera.scene) {
                 continue;
             }
+            // const useSubPass = ppl.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT);
             const useSubPass = false;
-            const useCluster = false;
+            const useCluster = ppl.device.hasFeature(Feature.COMPUTE_SHADER);
 
             const isGameView = camera.cameraUsage === CameraUsage.GAME
                 || camera.cameraUsage === CameraUsage.GAME_VIEW;
@@ -110,7 +112,7 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
                     // GBuffer Pass
                     setupGBufferPass(ppl, info);
                     // Lighting Pass
-                    const lightInfo = setupLightingPass(ppl, info);
+                    const lightInfo = setupLightingPass(ppl, info, useCluster);
                     // Deferred ForwardPass, for non-surface-shader material and transparent material
                     // setupDeferredForward(ppl, info, lightInfo.rtName, lightInfo.dsName);
                     // Postprocess

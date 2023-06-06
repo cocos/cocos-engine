@@ -128,7 +128,12 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
 
     ccstd::string fbfLevelStr = "NONE";
     // PVRVFrame has issues on their support
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS
+#ifndef ENABLE_GLES2_SUBPASS
+    _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = false;
+    _features[toNumber(Feature::SUBPASS_COLOR_INPUT)] = false;
+    _features[toNumber(Feature::SUBPASS_DEPTH_STENCIL_INPUT)] = false;
+    _features[toNumber(Feature::RASTERIZATION_ORDER_NOCOHERENT)] = false;
+#elif CC_PLATFORM != CC_PLATFORM_WINDOWS
     if (checkExtension("framebuffer_fetch")) {
         ccstd::string nonCoherent = "framebuffer_fetch_non";
 

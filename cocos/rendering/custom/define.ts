@@ -118,6 +118,7 @@ export function validPunctualLightsCulling (pipeline: BasicPipeline, camera: Cam
             validPunctualLights.push(light);
         }
     }
+    // array push not supported.
     pipeline.pipelineSceneData.validPunctualLights = validPunctualLights;
 }
 
@@ -805,18 +806,21 @@ export function buildGBufferPass (camera: Camera,
 
 export class LightingInfo {
     declare deferredLightingMaterial: Material;
+    public enableCluster: number;
+
     private _init () {
         this.deferredLightingMaterial = new Material();
         this.deferredLightingMaterial.name = 'builtin-deferred-material';
         this.deferredLightingMaterial.initialize({
             effectName: 'pipeline/deferred-lighting',
-            defines: { CC_ENABLE_CLUSTERED_LIGHT_CULLING: 1, CC_RECEIVE_SHADOW: 0 },
+            defines: { CC_ENABLE_CLUSTERED_LIGHT_CULLING: this.enableCluster, CC_RECEIVE_SHADOW: 1 },
         });
         for (let i = 0; i < this.deferredLightingMaterial.passes.length; ++i) {
             this.deferredLightingMaterial.passes[i].tryCompile();
         }
     }
-    constructor () {
+    constructor (clusterEn: boolean) {
+        this.enableCluster = clusterEn ? 1 : 0;
         this._init();
     }
 }
@@ -824,9 +828,9 @@ export class LightingInfo {
 let lightingInfo: LightingInfo;
 
 // deferred lighting pass
-export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: GBufferInfo) {
+export function buildLightingPass (camera: Camera, enableCluster: boolean, ppl: BasicPipeline, gBuffer: GBufferInfo) {
     if (!lightingInfo) {
-        lightingInfo = new LightingInfo();
+        lightingInfo = new LightingInfo(enableCluster);
     }
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
@@ -1013,7 +1017,7 @@ export function buildNativeDeferredPipeline (camera: Camera, ppl: BasicPipeline)
         ppl.addRenderTexture('Color', Format.BGRA8, width, height, camera.window);
     }
     if (!lightingInfo) {
-        lightingInfo = new LightingInfo();
+        lightingInfo = new LightingInfo(false);
     }
     // GeometryPass
     {
@@ -2185,6 +2189,9 @@ export const MAX_LIGHTS_PER_CLUSTER = 100;
 export const CLUSTERS_X = 16;
 export const CLUSTERS_Y = 8;
 export const CLUSTERS_Z = 24;
+// export const CLUSTERS_X = 2;
+// export const CLUSTERS_Y = 2;
+// export const CLUSTERS_Z = 1;
 export const CLUSTER_COUNT = CLUSTERS_X * CLUSTERS_Y * CLUSTERS_Z;
 
 class ClusterLightData {
@@ -2193,6 +2200,9 @@ class ClusterLightData {
     clusters_x_threads = 16;
     clusters_y_threads = 8;
     clusters_z_threads = 1;
+    // clusters_x_threads = 2;
+    // clusters_y_threads = 2;
+    // clusters_z_threads = 1;
     dispatchX = 1;
     dispatchY = 1;
     dispatchZ = 1;
@@ -2227,7 +2237,7 @@ export function buildLightClusterBuildPass (camera: Camera, clusterData: Cluster
     const cameraID = getCameraUniqueID(camera);
     const clusterBufferName = `clusterBuffer${cameraID}`;
 
-    const clusterBufferSize = CLUSTER_COUNT * 2 * 4;
+    const clusterBufferSize = CLUSTER_COUNT * 2 * 4 * 4;
     if (!ppl.containsResource(clusterBufferName)) {
         ppl.addStorageBuffer(clusterBufferName, Format.UNKNOWN, clusterBufferSize, ResourceResidency.MANAGED);
     }
@@ -2241,7 +2251,7 @@ export function buildLightClusterBuildPass (camera: Camera, clusterData: Cluster
     const width = camera.width * ppl.pipelineSceneData.shadingScale;
     const height = camera.height * ppl.pipelineSceneData.shadingScale;
     clusterPass.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, 0, 0));
-    clusterPass.setVec4('cc_viewPort', new Vec4(width, height, width, height));
+    clusterPass.setVec4('cc_viewPort', new Vec4(0, 0, width, height));
     clusterPass.setVec4('cc_workGroup', new Vec4(CLUSTERS_X, CLUSTERS_Y, CLUSTERS_Z, 0));
     clusterPass.setMat4('cc_matView', camera.matView);
     clusterPass.setMat4('cc_matProjInv', camera.matProjInv);
