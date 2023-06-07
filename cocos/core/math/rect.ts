@@ -132,7 +132,7 @@ export class Rect extends ValueType {
     }
 
     /**
-     * @en Retures whether rect a is equal to rect b.
+     * @en Returns whether rect a is equal to rect b.
      * @zh 判断两个矩形是否相等。
      * @param a The first rect to be compared.
      * @param b The second rect to be compared.
