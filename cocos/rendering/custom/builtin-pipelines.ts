@@ -84,7 +84,7 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
             if (!camera.scene) {
                 continue;
             }
-            const forceDisableSubPass = false;
+            const forceDisableSubPass = true;
             const useSubPass = !forceDisableSubPass && ppl.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT);
 
             const forceDisableCluster = false;

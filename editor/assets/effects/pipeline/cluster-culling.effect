@@ -29,18 +29,23 @@ CCProgram cluster-main %{
   };
 
   #pragma rate b_ccLightsBuffer pass
+  #pragma glBinding(0)
   layout(std430) readonly buffer b_ccLightsBuffer { vec4 b_ccLights[]; };
 
   #pragma rate b_clustersBuffer pass
+  #pragma glBinding(1)
   layout(std430) readonly buffer b_clustersBuffer { vec4 b_clusters[]; };
 
   #pragma rate b_clusterLightIndicesBuffer pass
+  #pragma glBinding(2)
   layout(std430) buffer b_clusterLightIndicesBuffer { uint b_clusterLightIndices[]; };
 
   #pragma rate b_clusterLightGridBuffer pass
+  #pragma glBinding(3)
   layout(std430) buffer b_clusterLightGridBuffer { uvec4 b_clusterLightGrid[]; };
 
   #pragma rate b_globalIndexBuffer pass
+  #pragma glBinding(4)
   layout(std430) buffer b_globalIndexBuffer { uint b_globalIndex[]; };
 
   struct CCLight {

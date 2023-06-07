@@ -8,12 +8,15 @@
 #pragma define MAX_LIGHTS_PER_CLUSTER 100u
 
 #pragma rate b_ccLightsBuffer pass
+#pragma glBinding(0)
 layout(std430) readonly buffer b_ccLightsBuffer { vec4 b_ccLights[]; };
 
 #pragma rate b_clusterLightIndicesBuffer pass
+#pragma glBinding(1)
 layout(std430) readonly buffer b_clusterLightIndicesBuffer { uint b_clusterLightIndices[]; };
 
 #pragma rate b_clusterLightGridBuffer pass
+#pragma glBinding(2)
 layout(std430) readonly buffer b_clusterLightGridBuffer { uvec4 b_clusterLightGrid[]; };
 
 struct CCLight

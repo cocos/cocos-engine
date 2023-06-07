@@ -7,6 +7,8 @@ CCEffect %{
       frag: lighting-fs
       pass: deferred-lighting
       phase: deferred-lighting
+      rasterizerState:
+        cullMode: none
       depthStencilState:
         depthTest: false
         depthWrite: false
