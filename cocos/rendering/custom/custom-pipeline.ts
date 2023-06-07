@@ -265,21 +265,6 @@ export class TestPipelineBuilder implements PipelineBuilder {
         ppl.updateDepthStencil(`SpotLightShadowDepth${id}2`, shadowSize.x, shadowSize.y);
         ppl.updateDepthStencil(`SpotLightShadowDepth${id}3`, shadowSize.x, shadowSize.y);
     }
-    private buildForwardWithoutShadow (ppl: BasicPipeline,
-        camera: Camera, id: number, width: number, height: number) {
-        assert(camera.scene !== null);
-        const scene = camera.scene;
-        const pass = ppl.addRenderPass(width, height, 'default');
-
-        pass.addRenderTarget(`Color${id}`, LoadOp.CLEAR);
-        pass.addDepthStencil(`DepthStencil${id}`, LoadOp.CLEAR);
-
-        pass.addQueue(QueueHint.RENDER_OPAQUE, 'default')
-            .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE | SceneFlags.MASK);
-
-        pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'default')
-            .addSceneOfCamera(camera, new LightInfo(), SceneFlags.BLEND);
-    }
     private buildForwardTiled (ppl: BasicPipeline,
         camera: Camera, id: number, width: number, height: number,
         sceneInfo: SceneInfo) {
@@ -302,10 +287,10 @@ export class TestPipelineBuilder implements PipelineBuilder {
             const pass = ppl.addRenderPass(width, height, 'default');
             pass.addRenderTarget(`Color${id}`, LoadOp.CLEAR);
             pass.addDepthStencil(`DepthStencil${id}`, LoadOp.CLEAR);
-            pass.addQueue(QueueHint.RENDER_OPAQUE, 'default')
+            pass.addQueue(QueueHint.NONE)
                 .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE | SceneFlags.MASK);
 
-            pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'default')
+            pass.addQueue(QueueHint.RENDER_TRANSPARENT)
                 .addSceneOfCamera(camera, new LightInfo(), SceneFlags.BLEND);
         }
     }
@@ -320,7 +305,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
 
         // CSM
         if (mainLight && mainLight.shadowEnabled) {
-            this.buildShadowMapPass(ppl, id, mainLight, camera);
+            this.buildCascadedShadowMapPass(ppl, id, mainLight, camera);
         }
 
         // Forward Lighting
@@ -328,21 +313,20 @@ export class TestPipelineBuilder implements PipelineBuilder {
             const pass = ppl.addRenderPass(width, height, 'default');
             pass.addRenderTarget(`Color${id}`, LoadOp.CLEAR);
             pass.addDepthStencil(`DepthStencil${id}`, LoadOp.CLEAR);
-            pass.addQueue(QueueHint.RENDER_OPAQUE, 'default')
+            pass.addQueue(QueueHint.NONE)
                 .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE | SceneFlags.MASK);
-
-            pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'default')
+            pass.addQueue(QueueHint.RENDER_TRANSPARENT)
                 .addSceneOfCamera(camera, new LightInfo(), SceneFlags.BLEND);
         }
     }
-    private buildShadowMapPass (ppl: BasicPipeline, id: number, light: DirectionalLight, camera: Camera) {
+    private buildCascadedShadowMapPass (ppl: BasicPipeline, id: number, light: DirectionalLight, camera: Camera) {
         const width = this._sceneInfo.shadows.size.x;
         const height = this._sceneInfo.shadows.size.y;
         const pass = ppl.addRenderPass(width, height, 'default');
         pass.addRenderTarget(`ShadowMap${id}`, LoadOp.CLEAR, StoreOp.STORE, new Color(1, 1, 1, 1));
         pass.addDepthStencil(`ShadowDepth${id}`, LoadOp.CLEAR, StoreOp.DISCARD);
         if (light.shadowFixedArea) {
-            const queue = pass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
+            const queue = pass.addQueue(QueueHint.NONE, 'shadow-caster');
             queue.addSceneCulledByDirectionalLight(camera,
                 SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER,
                 light, 0);
@@ -350,7 +334,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
             const csmLevel = this._sceneInfo.csmSupported ? light.csmLevel : 1;
             for (let level = 0; level !== csmLevel; ++level) {
                 this.getMainLightViewport(light, width, height, level, this._viewport);
-                const queue = pass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
+                const queue = pass.addQueue(QueueHint.NONE, 'shadow-caster');
                 queue.setViewport(this._viewport);
                 queue.addSceneCulledByDirectionalLight(camera,
                     SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER,

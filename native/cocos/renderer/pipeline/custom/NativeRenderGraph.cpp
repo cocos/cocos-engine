@@ -765,13 +765,11 @@ void NativeRenderSubpassBuilderImpl::setViewport(const gfx::Viewport &viewport) 
 
 RenderQueueBuilder *NativeRenderSubpassBuilderImpl::addQueue(
     QueueHint hint, const ccstd::string &phaseName) {
+    CC_EXPECTS(!phaseName.empty());
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
-    auto phaseLayoutID = LayoutGraphData::null_vertex();
-    if (!phaseName.empty()) {
-        phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
-        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
-    }
+    const auto phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
+    CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
     auto queueID = addVertex(
         QueueTag{},
@@ -896,13 +894,11 @@ void NativeComputeSubpassBuilder::addComputeView(const ccstd::string &name, cons
 }
 
 ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &phaseName) {
+    CC_EXPECTS(!phaseName.empty());
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
-    auto phaseLayoutID = LayoutGraphData::null_vertex();
-    if (!phaseName.empty()) {
-        phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
-        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
-    }
+    const auto phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
+    CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
     auto queueID = addVertex(
         QueueTag{},
@@ -1416,13 +1412,11 @@ void NativeRenderQueueBuilder::addCustomCommand(std::string_view customBehavior)
 
 RenderQueueBuilder *NativeRenderPassBuilder::addQueue(
     QueueHint hint, const ccstd::string &phaseName) {
+    CC_EXPECTS(!phaseName.empty());
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
-    auto phaseLayoutID = LayoutGraphData::null_vertex();
-    if (!phaseName.empty()) {
-        phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
-        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
-    }
+    const auto phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
+    CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
     auto queueID = addVertex(
         QueueTag{},
@@ -1651,13 +1645,11 @@ void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const C
 }
 
 ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &phaseName) {
+    CC_EXPECTS(!phaseName.empty());
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
-    auto phaseLayoutID = LayoutGraphData::null_vertex();
-    if (!phaseName.empty()) {
-        phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
-        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
-    }
+    const auto phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
+    CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
     auto queueID = addVertex(
         QueueTag{},

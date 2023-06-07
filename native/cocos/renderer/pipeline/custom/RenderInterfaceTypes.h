@@ -276,10 +276,10 @@ public:
         addTexture(name, slotName, sampler, 0);
     }
     RenderQueueBuilder *addQueue() {
-        return addQueue(QueueHint::NONE, "");
+        return addQueue(QueueHint::NONE, "default");
     }
     RenderQueueBuilder *addQueue(QueueHint hint) {
-        return addQueue(hint, "");
+        return addQueue(hint, "default");
     }
 };
 
@@ -390,10 +390,10 @@ public:
         addTexture(name, slotName, sampler, 0);
     }
     RenderQueueBuilder *addQueue() {
-        return addQueue(QueueHint::NONE, "");
+        return addQueue(QueueHint::NONE, "default");
     }
     RenderQueueBuilder *addQueue(QueueHint hint) {
-        return addQueue(hint, "");
+        return addQueue(hint, "default");
     }
 };
 
@@ -448,7 +448,7 @@ public:
         addTexture(name, slotName, sampler, 0);
     }
     ComputeQueueBuilder *addQueue() {
-        return addQueue("");
+        return addQueue("default");
     }
 };
 
@@ -501,7 +501,7 @@ public:
         addMaterialTexture(resourceName, gfx::ShaderStageFlagBit::COMPUTE);
     }
     ComputeQueueBuilder *addQueue() {
-        return addQueue("");
+        return addQueue("default");
     }
 };
 
