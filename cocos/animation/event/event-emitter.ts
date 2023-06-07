@@ -13,9 +13,6 @@ export function invokeComponentMethodsEngagedInAnimationEvent (node: Node, metho
     const nComponents = components.length;
     for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
         const component = components[iComponent];
-        if (!component.enabled) {
-            continue;
-        }
         const fx = component[methodName];
         if (typeof fx === 'function') {
             fx.apply(component, args);
