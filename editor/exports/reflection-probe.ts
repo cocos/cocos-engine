@@ -1,1 +1,1 @@
-export { ReflectionProbeManager } from '../../cocos/rendering/reflection-probe-manager';
+export { ReflectionProbeManager } from '../../cocos/3d/reflection-probe/reflection-probe-manager';

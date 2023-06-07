@@ -62,7 +62,6 @@ import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
 import { getDescBindingFromName, getDescriptorSetDataFromLayout, getDescriptorSetDataFromLayoutId, getRenderArea, mergeSrcToTargetDesc, updateGlobalDescBinding } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
-import { ReflectionProbeManager } from '../reflection-probe-manager';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../../asset/assets/texture-2d';
 
@@ -1026,11 +1025,13 @@ class DevicePreSceneTask extends WebSceneTask {
         if (this.graphScene.scene!.flags & SceneFlags.REFLECTION_PROBE && !this._submitInfo.reflectionProbe) {
             this._submitInfo.reflectionProbe = context.pools.addReflectionProbe();
             this._submitInfo.reflectionProbe.clear();
-            const probes = ReflectionProbeManager.probeManager.getProbes();
-            for (let i = 0; i < probes.length; i++) {
-                if (probes[i].hasFrameBuffer(this._currentQueue.devicePass.framebuffer)) {
-                    this._submitInfo.reflectionProbe.gatherRenderObjects(probes[i], this.camera, this._cmdBuff);
-                    break;
+            if (cclegacy.internal.reflectionProbeManager) {
+                const probes = cclegacy.internal.reflectionProbeManager.probeManager.getProbes();
+                for (let i = 0; i < probes.length; i++) {
+                    if (probes[i].hasFrameBuffer(this._currentQueue.devicePass.framebuffer)) {
+                        this._submitInfo.reflectionProbe.gatherRenderObjects(probes[i], this.camera, this._cmdBuff);
+                        break;
+                    }
                 }
             }
             return;
