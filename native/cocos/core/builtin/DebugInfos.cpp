@@ -415,6 +415,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 9006, "QuadRenderData is removed, please use MeshRenderData instead." },
 { 9007, "Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation." },
 { 9100, "texture size exceeds current device limits %d/%d" },
+{ 9101, "The length of the TypedArrayBuffer must be an integer." },
 { 9201, "Cannot access game frame or container." },
 { 9202, "Setting window size is not supported." },
 { 9300, "The current buffer beyond the limit in ui static component, please reduce the amount" },
