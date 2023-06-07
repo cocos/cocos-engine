@@ -23,7 +23,7 @@
 */
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 import { Component } from '../scene-graph/component';
 import { Eventify, warnID, js, cclegacy } from '../core';
 import { AnimationClip } from './animation-clip';
@@ -170,7 +170,7 @@ export class Animation extends Eventify(Component) {
     }
 
     public start () {
-        if ((!EDITOR || cclegacy.GAME_VIEW) && (this.playOnLoad && !this._hasBeenPlayed) && this._defaultClip) {
+        if (!EDITOR_NOT_IN_PREVIEW && (this.playOnLoad && !this._hasBeenPlayed) && this._defaultClip) {
             this.crossFade(this._defaultClip.name, 0);
         }
     }

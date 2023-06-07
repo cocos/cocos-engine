@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry, warn, IQuatLike, IVec3Like } from '../../core';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director, game } from '../../game';
@@ -349,7 +349,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
     }
 
     postUpdate (deltaTime: number) {
-        if (EDITOR && !cclegacy.GAME_VIEW && !this._executeInEditMode && !selector.runInEditor) return;
+        if (EDITOR_NOT_IN_PREVIEW && !this._executeInEditMode && !selector.runInEditor) return;
 
         if (!this.physicsWorld) return;
 
@@ -770,9 +770,9 @@ export class PhysicsSystem extends System implements IWorldInitData {
         if (!PhysicsSystem._instance) {
             // Construct physics world and physics system only once
             const sys = new PhysicsSystem();
+            (PhysicsSystem._instance as unknown as PhysicsSystem) = sys;
             sys.resetConfiguration();
             constructDefaultWorld(sys);
-            (PhysicsSystem._instance as unknown as PhysicsSystem) = sys;
             director.registerSystem(PhysicsSystem.ID, sys, sys.priority);
 
             game.onPostProjectInitDelegate.add(sys.initDefaultMaterial.bind(sys));

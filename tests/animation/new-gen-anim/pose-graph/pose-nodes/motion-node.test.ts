@@ -1,10 +1,16 @@
 import { createAnimationGraph } from '../../utils/factory';
 import { AnimationGraphEvalMock } from '../../utils/eval-mock';
-import { LinearRealValueAnimationFixture } from '../../utils/fixtures';
+import { ConstantRealValueAnimationFixture, LinearRealValueAnimationFixture } from '../../utils/fixtures';
 import { SingleRealValueObserver } from '../../utils/single-real-value-observer';
 import { lerp } from '../../../../../cocos/core';
-
 import './utils/factories/all';
+import { PoseNodePlayMotion } from '../../../../../cocos/animation/marionette/pose-graph/pose-nodes/play-motion';
+import { ClipMotion, Motion } from '../../../../../cocos/animation/marionette/motion';
+import { repeat } from '../../../../../exports/base';
+import { composeInputKeyInternally, createPoseGraph, createVariableGettingNode, getTheOnlyOutputKey2 } from '../utils/misc';
+import { poseGraphOp } from '../../../../../cocos/animation/marionette/asset-creation';
+import { PoseGraphType } from '../../../../../cocos/animation/marionette/pose-graph/foundation/type-system';
+import { SimplePoseGraphRunner } from '../utils/simple-pose-graph-runner';
 
 test(`Motion Sync`, () => {
     const WITH_SYNC: boolean = true;
@@ -135,3 +141,155 @@ test(`Motion Sync`, () => {
         );
     }
 });
+
+test(`Defaults`, () => {
+    const poseGraph = createPoseGraph();
+    const node = poseGraph.addNode(new PoseNodePlayMotion());
+
+    expect(node.motion).toBeInstanceOf(ClipMotion);
+    expect((node.motion as ClipMotion).clip).toBeNull();
+
+    expect(node.startTime).toBe(0.0);
+    expect(poseGraphOp.getInputMetadata(node, composeInputKeyInternally('startTime'))).toMatchObject({
+        type: PoseGraphType.FLOAT,
+    });
+
+    expect(node.speedMultiplier).toBe(1.0);
+    expect(poseGraphOp.getInputMetadata(node, composeInputKeyInternally('speedMultiplier'))).toMatchObject({
+        type: PoseGraphType.FLOAT,
+    });
+});
+
+describe(`Start time`, () => {
+    test(`Non zero motion duration`, () => {
+        const fixture = {
+            motion: new LinearRealValueAnimationFixture(1.0, 2.0, 3.0, undefined, { loop: true }),
+        };
+    
+        const observer = new SingleRealValueObserver();
+    
+        const runner = new PlayMotionRunner({
+            root: observer.root,
+            motion: fixture.motion.createMotion(observer.getCreateMotionContext()),
+            startTime: fixture.motion.duration * 0.3,
+        });
+    
+        let expectedNormalizedMotionTime = 0.3;
+        const stepExpectedNormalizedMotionTimeAndCheck = (step: number) => {
+            expectedNormalizedMotionTime = repeat(expectedNormalizedMotionTime + step, 1);
+            expect(observer.value).toBeCloseTo(
+                fixture.motion.getExpected(fixture.motion.duration * expectedNormalizedMotionTime),
+                5,
+            );
+        };
+    
+        // The start time should take effects from the beginning.
+        runner.enter();
+        for (const interval of [
+            0.4, // Not beyond
+            0.2, // Not beyond
+            0.6, // Beyond
+        ]) {
+            runner.evalMock.step(fixture.motion.duration * interval);
+            stepExpectedNormalizedMotionTimeAndCheck(interval);
+        }
+    
+        // After reenter(), the start time should still take effect.
+        runner.reenter();
+        expectedNormalizedMotionTime = 0.3;
+        runner.evalMock.step(fixture.motion.duration * 0.1);
+        stepExpectedNormalizedMotionTimeAndCheck(0.1);
+    
+        // As long the node is activating, change of start time won't affect nothing.
+        runner.updateStartTime(0.25 * fixture.motion.duration);
+        runner.evalMock.step(fixture.motion.duration * 0.1);
+        stepExpectedNormalizedMotionTimeAndCheck(0.1); // Still step 0.1 despite of of the new start time!
+    
+        // The new start time would take effect at next reenter().
+        runner.reenter();
+        runner.evalMock.step(fixture.motion.duration * 0.1);
+        expectedNormalizedMotionTime = 0.25;
+        stepExpectedNormalizedMotionTimeAndCheck(0.1);
+    
+        // The start time would be clamped into [0, 1].
+        runner.updateStartTime(-0.2 * fixture.motion.duration);
+        runner.reenter();
+        runner.evalMock.step(fixture.motion.duration * 0.1);
+        expectedNormalizedMotionTime = 0.0;
+        stepExpectedNormalizedMotionTimeAndCheck(0.1);
+        runner.updateStartTime(1.2 * fixture.motion.duration);
+        runner.reenter();
+        runner.evalMock.step(fixture.motion.duration * 0.1);
+        expectedNormalizedMotionTime = 0.0;
+        stepExpectedNormalizedMotionTimeAndCheck(0.1);
+    });
+
+    test(`Zero motion duration`, () => {
+        const fixture = {
+            motion: new ConstantRealValueAnimationFixture(1.0, 0.0),
+        };
+    
+        const observer = new SingleRealValueObserver();
+    
+        const runner = new PlayMotionRunner({
+            root: observer.root,
+            motion: fixture.motion.createMotion(observer.getCreateMotionContext()),
+            startTime: fixture.motion.duration * 0.3,
+        });
+
+        const check = () => {
+            expect(observer.value).toBeCloseTo(fixture.motion.value, 5);
+        };
+
+        // For zero duration motions, start time is meaningless.
+        runner.enter();
+        for (let i = 0; i < 3; ++i) {
+            runner.evalMock.step(0.2);
+            check();
+        }
+    });
+});
+
+class PlayMotionRunner extends SimplePoseGraphRunner {
+    constructor({
+        motion,
+        startTime = 0.0,
+        speedMultiplier = 1.0,
+        ...baseOptions
+    }: Omit<SimplePoseGraphRunner.Options, 'poseGraphInitializer'> & {
+        motion: Motion,
+        startTime?: number;
+        speedMultiplier?: number;
+    }) {
+        super({
+            ...baseOptions,
+            variables: {
+                'startTime': { type: 'float', value: startTime },
+                'speedMultiplier': { type: 'float', value: speedMultiplier },
+            },
+            poseGraphInitializer: (poseGraph) => {
+                const node = poseGraph.addNode(new PoseNodePlayMotion());
+                node.motion = motion;
+                poseGraphOp.connectNode(poseGraph,
+                    node,
+                    composeInputKeyInternally('startTime'),
+                    ...getTheOnlyOutputKey2(poseGraph.addNode(createVariableGettingNode(PoseGraphType.FLOAT, 'startTime'))),
+                );
+                poseGraphOp.connectNode(poseGraph,
+                    node,
+                    composeInputKeyInternally('speedMultiplier'),
+                    ...getTheOnlyOutputKey2(poseGraph.addNode(createVariableGettingNode(PoseGraphType.FLOAT, 'speedMultiplier'))),
+                );
+                poseGraphOp.connectOutputNode(poseGraph, node);
+            },
+        });
+    }
+
+    public updateStartTime(value: number) {
+        this.evalMock.controller.setValue('startTime', value);
+    }
+
+    public updateSpeedMultiplier(value: number) {
+        this.evalMock.controller.setValue('speedMultiplier', value);
+    }
+}

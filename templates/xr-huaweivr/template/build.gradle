@@ -20,9 +20,6 @@ allprojects {
         google()
         mavenCentral()
         // jcenter() // keeped as anchor, will be removed soon
-        flatDir {
-            dirs 'libs'
-        }
     }
 }
 

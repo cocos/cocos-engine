@@ -457,6 +457,67 @@ export class ImageAsset extends Asset {
     }
 
     /**
+     * @en extract the first mipmap from a compressed image asset
+     * @engineInternal
+     */
+    public extractMipmap0 (): ImageAsset {
+        if (this.mipmapLevelDataSize && this.mipmapLevelDataSize.length > 0) {
+            const mipmapSize = this.mipmapLevelDataSize[0];
+            const data = this.data as Uint8Array;
+
+            const dataView = new Uint8Array(data.buffer, 0, mipmapSize);
+            const mipmap = new ImageAsset({
+                _data: dataView,
+                _compressed: true,
+                width: this.width,
+                height: this.height,
+                format: this.format,
+                mipmapLevelDataSize: [],
+            });
+            mipmap._uuid = `${this._uuid}`;
+            return mipmap;
+        } else {
+            return this;
+        }
+    }
+
+    /**
+     * @en extract mipmaps from a compressed image asset
+     * @engineInternal
+     */
+    public extractMipmaps (): ImageAsset[] {
+        const images: ImageAsset[] = [];
+        if (this.mipmapLevelDataSize && this.mipmapLevelDataSize.length > 0) {
+            const mipmapLevelDataSize = this.mipmapLevelDataSize;
+            const data: Uint8Array = this.data as Uint8Array;
+
+            let byteOffset = 0;
+            let height = this.height;
+            let width = this.width;
+            for (const mipmapSize of mipmapLevelDataSize) {
+                const dataView = new Uint8Array(data.buffer, byteOffset, mipmapSize);
+                const mipmap = new ImageAsset({
+                    _data: dataView,
+                    _compressed: true,
+                    width,
+                    height,
+                    format: this.format,
+                    mipmapLevelDataSize: [],
+                });
+                byteOffset += mipmapSize;
+                mipmap._uuid = `${this._uuid}`;
+                width = Math.max(width >> 1, 1);
+                height = Math.max(height >> 1, 1);
+                images.push(mipmap);
+            }
+        } else {
+            images.push(this);
+        }
+
+        return images;
+    }
+
+    /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override

@@ -115,7 +115,7 @@ export function instantiatePoseGraph (
     return new InstantiatedPoseGraph(
         mainRecord,
         mayCountMotionTime
-            ? [...instantiationMap.values()].filter((node): node is PoseNodePlayMotion => node instanceof PoseNodePlayMotion)
+            ? Array.from(instantiationMap.values()).filter((node): node is PoseNodePlayMotion => node instanceof PoseNodePlayMotion)
             : undefined,
     );
 }

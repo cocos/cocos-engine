@@ -470,6 +470,8 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 16201, "The asset replacing failed, can not found override asset('%s') for '%s'" },
 { 16301, "node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first" },
 { 16302, "There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer." },
+{ 16303, "Skin material needs floating-point render target, please check ENABLE_FLOAT_OUTPUT define in Project Settings--Macro" },
+{ 16304, "Skin material may need more accurate calculations, please select a head model of standard size, check the isGlobalStandardSkinObject option in the MeshRender component." },
 
 };
 }//namespace cc

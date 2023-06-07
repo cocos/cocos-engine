@@ -62,6 +62,10 @@ module.exports = {
                         },
                     },
                     inputs: {
+                        'startTime': {
+                            displayName: '起始时间',
+                            tooltip: '指定从何时开始播放该动作。其单位为秒，其值会被限制在 [0, 动作周期] 范围内。',
+                        },
                         'speedMultiplier': {
                             displayName: '速度乘数',
                         },
@@ -136,6 +140,9 @@ module.exports = {
                         },
                         'additivePose': {
                             displayName: '累加姿势',
+                        },
+                        'ratio': {
+                            displayName: '比例',
                         },
                     },
                 },

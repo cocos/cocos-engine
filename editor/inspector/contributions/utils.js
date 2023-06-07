@@ -172,7 +172,6 @@ function translationDump(dump, dumps, assets) {
     }
     return dump;
 }
-exports.translationDump = translationDump;
 function translationSceneDump(dump, dumps, assets) {
     dump.autoReleaseAssets.path = 'autoReleaseAssets';
     Object.keys(dump._globals).forEach((key) => {
@@ -182,3 +181,6 @@ function translationSceneDump(dump, dumps, assets) {
         translate(property.value, property.path, dumps ? dumps.map((dump) => dump._globals[key].value) : undefined, assets);
     });
 }
+
+exports.translationDump = translationDump;
+

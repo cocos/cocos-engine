@@ -31,6 +31,6 @@ export class TCStateMotionTimeBinding extends TCBinding<TCBindingValueType.FLOAT
 
 class TCStateMotionTimeBindingEvaluation implements TCBindingEvaluation<number> {
     public evaluate (context: ConditionEvaluationContext): number {
-        return context.sourceStateWeight;
+        return context.sourceStateMotionTimeNormalized;
     }
 }

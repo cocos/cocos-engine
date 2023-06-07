@@ -6,6 +6,9 @@ import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, Animatio
 import { assertIsTrue, Quat, Vec3 } from "../../../../../exports/base";
 import { PoseNode } from "../../../../../cocos/animation/marionette/pose-graph/pose-node";
 import { PureValueNode } from "../../../../../cocos/animation/marionette/pose-graph/pure-value-node";
+import { PoseGraphType } from "../../../../../cocos/animation/marionette/pose-graph/foundation/type-system";
+import { PVNodeGetVariableBoolean, PVNodeGetVariableFloat } from "../../../../../cocos/animation/marionette/pose-graph/pure-value-nodes/get-variable";
+import { AnimationGraphEvalMock } from "../../utils/eval-mock";
 
 export function normalizeNodeInputMetadata(nodeInputMetadata?: poseGraphOp.InputMetadata) {
     return nodeInputMetadata ? {
@@ -29,6 +32,10 @@ export function getTheOnlyOutputKey(node: PoseGraphNode) {
     const outputs = poseGraphOp.getOutputKeys(node);
     expect(outputs).toHaveLength(1);
     return outputs[0];
+}
+
+export function getTheOnlyOutputKey2(node: PoseGraphNode) {
+    return [node, getTheOnlyOutputKey(node)] as const;
 }
 
 export function composeInputKeyInternally(propertyName: string, elementIndex?: number): poseGraphOp.InputKey {
@@ -82,4 +89,20 @@ export class UnimplementedPVNode extends PureValueNode {
     public selfEvaluate(outputs: unknown[]): void {
         throw new Error("Method not implemented.");
     }
+}
+
+export function createVariableGettingNode(type: PoseGraphType, varName: string) {
+    let result: PVNodeGetVariableFloat | PVNodeGetVariableBoolean;
+    switch (type) {
+        case PoseGraphType.FLOAT:
+            result = new PVNodeGetVariableFloat();
+            break;
+        case PoseGraphType.BOOLEAN:
+            result = new PVNodeGetVariableBoolean();
+            break;
+        default:
+            throw new Error(`Unrecognized pose graph type: ${type}`);
+    }
+    result.variableName = varName;
+    return result;
 }

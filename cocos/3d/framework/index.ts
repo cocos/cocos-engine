@@ -24,7 +24,5 @@
 */
 
 export { MeshRenderer } from './mesh-renderer';
-export { ReflectionProbeType } from './reflection-probe-enum';
-
 /** deprecated */
 export * from './deprecated';

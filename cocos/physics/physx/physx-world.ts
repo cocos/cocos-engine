@@ -41,7 +41,8 @@ import { EFilterDataWord3 } from './physx-enum';
 import { PhysXInstance } from './physx-instance';
 import { Node } from '../../scene-graph';
 import { PhysXCharacterController } from './character-controllers/physx-character-controller';
-import { CC_QUAT_0 } from '../bullet/bullet-cache';
+
+const CC_QUAT_0 = new Quat();
 
 export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     setAllowSleep (_v: boolean): void { }

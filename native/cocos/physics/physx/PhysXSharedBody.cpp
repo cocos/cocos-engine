@@ -56,7 +56,7 @@ PhysXSharedBody::PhysXSharedBody(
                                   _mType(ERigidBodyType::STATIC),
                                   _mIsStatic(true),
                                   _mIndex(-1),
-                                  _mFilterData(1, 1, 0, 0),
+                                  _mFilterData(1, 1, 1, 0),
                                   _mStaticActor(nullptr),
                                   _mDynamicActor(nullptr),
                                   _mWrappedWorld(world),

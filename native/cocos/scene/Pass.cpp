@@ -220,7 +220,8 @@ void Pass::setUniform(uint32_t handle, const MaterialProperty &value) {
     _rootBufferDirty = true;
 }
 
-MaterialProperty &Pass::getUniform(uint32_t handle, MaterialProperty &out) const {
+MaterialProperty Pass::getUniform(uint32_t handle) const {
+    MaterialProperty out;
     const uint32_t binding = Pass::getBindingFromHandle(handle);
     const gfx::Type type = Pass::getTypeFromHandle(handle);
     const uint32_t ofs = Pass::getOffsetFromHandle(handle);

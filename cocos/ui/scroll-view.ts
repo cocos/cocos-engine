@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
 import { UITransform } from '../2d/framework';
 import { Event, EventMouse, EventTouch, Touch, SystemEventType, EventHandle, EventGamepad } from '../input/types';
@@ -978,7 +978,7 @@ export class ScrollView extends ViewGroup {
     }
 
     public onEnable () {
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this._registerEvent();
             if (this._content) {
                 this._content.on(NodeEventType.SIZE_CHANGED, this._calculateBoundary, this);
@@ -1001,7 +1001,7 @@ export class ScrollView extends ViewGroup {
     }
 
     public onDisable () {
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this._unregisterEvent();
             if (this._content) {
                 this._content.off(NodeEventType.SIZE_CHANGED, this._calculateBoundary, this);

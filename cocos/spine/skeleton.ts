@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
@@ -256,7 +256,7 @@ export class Skeleton extends UIRenderer {
             this._needUpdateSkeltonData = true;
             this.defaultSkin = '';
             this.defaultAnimation = '';
-            if (EDITOR && !legacyCC.GAME_VIEW) {
+            if (EDITOR_NOT_IN_PREVIEW) {
                 this._refreshInspector();
             }
             this._updateSkeletonData();
@@ -328,7 +328,7 @@ export class Skeleton extends UIRenderer {
         if (skinName !== undefined) {
             this.defaultSkin = skinName;
             this.setSkin(this.defaultSkin);
-            if (EDITOR && !legacyCC.GAME_VIEW /* && !cc.engine.isPlaying */) {
+            if (EDITOR_NOT_IN_PREVIEW /* && !cc.engine.isPlaying */) {
                 this._refreshInspector();
                 this.markForUpdateRenderData();
             }
@@ -345,7 +345,7 @@ export class Skeleton extends UIRenderer {
     @type(DefaultAnimsEnum)
     @tooltip('i18n:COMPONENT.skeleton.animation')
     get _animationIndex () {
-        const animationName = EDITOR && !legacyCC.GAME_VIEW ? this.defaultAnimation : this.animation;
+        const animationName = EDITOR_NOT_IN_PREVIEW ? this.defaultAnimation : this.animation;
         if (this.skeletonData) {
             if (animationName) {
                 const animsEnum = this.skeletonData.getAnimsEnum();
@@ -376,7 +376,7 @@ export class Skeleton extends UIRenderer {
         const animName = animsEnum[value];
         if (animName !== undefined) {
             this.animation = animName;
-            if (EDITOR && !legacyCC.GAME_VIEW) {
+            if (EDITOR_NOT_IN_PREVIEW) {
                 this.defaultAnimation = animName;
                 this._refreshInspector();
             } else {
@@ -525,7 +525,7 @@ export class Skeleton extends UIRenderer {
     }
 
     set sockets (val: SpineSocket[]) {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             this._verifySockets(val);
         }
         this._sockets = val;
@@ -740,7 +740,7 @@ export class Skeleton extends UIRenderer {
         if (skeletonData.width !== 0) uiTrans.anchorX = Math.abs(skeletonData.x) / skeletonData.width;
         if (skeletonData.height !== 0) uiTrans.anchorY = Math.abs(skeletonData.y) / skeletonData.height;
 
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
                 this._skeletonCache = SkeletonCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
@@ -803,7 +803,7 @@ export class Skeleton extends UIRenderer {
     // IMPLEMENT
     public __preload () {
         super.__preload();
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             const Flags = CCObject.Flags;
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
             // this._refreshInspector();
@@ -820,7 +820,7 @@ export class Skeleton extends UIRenderer {
         this._updateSkeletonData();
         this._updateDebugDraw();
 
-        if (EDITOR && !legacyCC.GAME_VIEW) { this._refreshInspector(); }
+        if (EDITOR_NOT_IN_PREVIEW) { this._refreshInspector(); }
     }
 
     /**
@@ -850,7 +850,7 @@ export class Skeleton extends UIRenderer {
      * @zh 当前是否处于缓存模式。
      */
     public isAnimationCached () {
-        if (EDITOR && !legacyCC.GAME_VIEW) return false;
+        if (EDITOR_NOT_IN_PREVIEW) return false;
         return this._cacheMode !== AnimationCacheMode.REALTIME;
     }
 
@@ -861,7 +861,7 @@ export class Skeleton extends UIRenderer {
      */
     public updateAnimation (dt: number) {
         this.markForUpdateRenderData();
-        if (EDITOR && !legacyCC.GAME_VIEW) return;
+        if (EDITOR_NOT_IN_PREVIEW) return;
         if (this.paused) return;
 
         dt *= this._timeScale * timeScale;
@@ -1254,7 +1254,7 @@ export class Skeleton extends UIRenderer {
             warn('\'clearTrack\' interface can not be invoked in cached mode.');
         } else if (this._state) {
             this._state.clearTrack(trackIndex);
-            if (EDITOR && !legacyCC.GAME_VIEW/* && !cc.engine.isPlaying */) {
+            if (EDITOR_NOT_IN_PREVIEW/* && !cc.engine.isPlaying */) {
                 this._state.update(0);
             }
         }

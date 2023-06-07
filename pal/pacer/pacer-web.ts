@@ -25,6 +25,8 @@
 import { EDITOR } from 'internal:constants';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
 
+const FRAME_RESET_TIME = 2000;
+
 export class Pacer {
     private _stHandle = 0;
     private _onTick: (() => void) | null = null;
@@ -32,13 +34,13 @@ export class Pacer {
     private _frameTime = 0;
     private _startTime = 0;
     private _isPlaying = false;
+    private _frameCount = 0;
     private _callback: (() => void) | null = null;
-    private _delay = 0;
-    private _start = 0;
     private _rAF: typeof requestAnimationFrame;
     private _cAF: typeof cancelAnimationFrame;
 
     constructor () {
+        this._frameTime = 1000 / this._targetFrameRate;
         this._rAF = window.requestAnimationFrame
         || window.webkitRequestAnimationFrame
         || window.mozRequestAnimationFrame
@@ -84,7 +86,6 @@ export class Pacer {
         if (this._isPlaying) return;
 
         const updateCallback = () => {
-            this._startTime = performance.now();
             if (this._isPlaying) {
                 this._stHandle = this._stTime(updateCallback);
             }
@@ -96,6 +97,7 @@ export class Pacer {
         this._stHandle = this._stTime(updateCallback);
 
         this._isPlaying = true;
+        this._frameCount = 0;
     }
 
     stop (): void {
@@ -103,25 +105,33 @@ export class Pacer {
         this._ctTime(this._stHandle);
         this._stHandle = 0;
         this._isPlaying = false;
+        this._frameCount = 0;
     }
 
     _handleRAF = () => {
-        if (performance.now() - this._start < this._delay) {
+        const elapseTime = performance.now() - this._startTime;
+        const elapseFrame = Math.floor(elapseTime / this._frameTime);
+        if (elapseFrame < this._frameCount) {
             this._rAF.call(window, this._handleRAF);
-        } else if (this._callback) {
-            this._callback();
+        } else {
+            this._frameCount++;
+            if (this._callback) {
+                this._callback();
+            }
+        }
+        if (performance.now() - this._startTime > FRAME_RESET_TIME) {
+            this._startTime = performance.now();
+            this._frameCount = 0;
         }
     };
 
     private _stTime (callback: () => void) {
-        const currTime = performance.now();
-        const elapseTime = Math.max(0, (currTime - this._startTime));
-        const timeToCall = Math.max(0, this._frameTime - elapseTime);
         if (EDITOR || this._rAF === undefined || globalThis.__globalXR?.isWebXR) {
+            const currTime = performance.now();
+            const elapseTime = Math.max(0, currTime - this._startTime);
+            const timeToCall = Math.max(0, this._frameTime - elapseTime);
             return setTimeout(callback, timeToCall);
         }
-        this._start = currTime;
-        this._delay = timeToCall;
         this._callback = callback;
         return this._rAF.call(window, this._handleRAF);
     }

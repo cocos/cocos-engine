@@ -299,7 +299,7 @@ exports.methods = {
                             $prop.$children = document.createElement('section');
                             $prop.$children.setAttribute(
                                 'style',
-                                'border: 1px dashed var(--color-normal-border); padding: 10px; margin: 5px 0;',
+                                'margin-left: var(--ui-prop-margin-left, unset);',
                             );
 
                             for (const childName in dump.childMap) {

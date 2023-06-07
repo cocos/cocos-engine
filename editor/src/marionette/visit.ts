@@ -11,6 +11,10 @@ import {
 import { MotionState } from "../../../cocos/animation/marionette/state-machine/motion-state";
 import { EditorExtendableObject } from "../../../cocos/core/data/editor-extras-tag";
 import { PoseGraphNode } from "../../../cocos/animation/marionette/pose-graph/foundation/pose-graph-node";
+import { PoseNodeStateMachine } from '../../../cocos/animation/marionette/pose-graph/pose-nodes/state-machine';
+import { PoseNodePlayMotion } from "../../../cocos/animation/marionette/pose-graph/pose-nodes/play-motion";
+import { PoseNodeSampleMotion } from "../../../cocos/animation/marionette/pose-graph/pose-nodes/sample-motion";
+import { PoseGraph } from "../../../cocos/animation/marionette/pose-graph/pose-graph";
 
 export function* visitAnimationGraphEditorExtras(animationGraph: AnimationGraph): Generator<EditorExtendableObject> {
     for (const layer of animationGraph.layers) {
@@ -53,6 +57,9 @@ export function* visitAnimationGraphEditorExtras(animationGraph: AnimationGraph)
 export function* visitAnimationClips(animationGraph: AnimationGraph): Generator<AnimationClip> {
     for (const layer of animationGraph.layers) {
         yield* visitStateMachine(layer.stateMachine);
+        for (const [_stashId, stash] of layer.stashes()) {
+            yield* visitPoseGraph(stash.graph);
+        }
     }
 
     function* visitStateMachine(stateMachine: StateMachine): Generator<AnimationClip> {
@@ -63,9 +70,7 @@ export function* visitAnimationClips(animationGraph: AnimationGraph): Generator<
                     yield* visitMotion(motion);
                 }
             } else if (state instanceof ProceduralPoseState) {
-                for (const shell of state.graph.nodes()) {
-                    yield* visitPoseNode(shell);
-                }
+                yield* visitPoseGraph(state.graph);
             } else if (state instanceof SubStateMachine) {
                 yield* visitStateMachine(state.stateMachine);
             }
@@ -86,12 +91,19 @@ export function* visitAnimationClips(animationGraph: AnimationGraph): Generator<
         }
     }
 
+    function* visitPoseGraph(poseGraph: PoseGraph) {
+        for (const shell of poseGraph.nodes()) {
+            yield* visitPoseNode(shell);
+        }
+    }
+
     function* visitPoseNode(node: PoseGraphNode): Generator<AnimationClip> {
-        // FIXME: HACK HERE
-        for (const [_, v] of Object.entries(node)) {
-            if (v instanceof Motion) {
-                yield* visitMotion(v);
+        if (node instanceof PoseNodePlayMotion || node instanceof PoseNodeSampleMotion) {
+            if (node.motion) {
+                yield* visitMotion(node.motion);
             }
+        } else if (node instanceof PoseNodeStateMachine) {
+            yield* visitStateMachine(node.stateMachine);
         }
     }
 }
