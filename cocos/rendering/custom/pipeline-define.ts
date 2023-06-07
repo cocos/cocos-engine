@@ -245,7 +245,7 @@ export function setupDeferredForward (ppl: BasicPipeline, cameraInfo: CameraInfo
     const area = getRenderArea(cameraInfo.camera, cameraInfo.camera.window.width, cameraInfo.camera.window.height);
     const width = area.width;
     const height = area.height;
-    const forwardPass = ppl.addRenderPass(width, height, 'deferred-forward');
+    const forwardPass = ppl.addRenderPass(width, height, 'default');
     const camera = cameraInfo.camera;
     forwardPass.addRenderTarget(inputColor, LoadOp.LOAD, StoreOp.STORE);
     forwardPass.addDepthStencil(gBufferInfo.ds, LoadOp.LOAD, StoreOp.DISCARD);
@@ -296,6 +296,12 @@ export function setupForwardPass (ppl: BasicPipeline, cameraInfo: CameraInfo, is
         .addSceneOfCamera(camera, new LightInfo(),
             SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
              | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+    forwardPass
+        .addQueue(QueueHint.RENDER_OPAQUE, 'forward')
+        .addSceneOfCamera(camera, new LightInfo(),
+            SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
+            | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+
     let sceneFlags = SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY;
     if (!isOffScreen) {
         sceneFlags |= SceneFlags.UI;
@@ -665,8 +671,9 @@ export function setupPostprocessPass (ppl: BasicPipeline,
     postprocessPass.addDepthStencil(postprocessPassDS,
         getLoadOpOfClearFlag(camera.clearFlag, AttachmentType.DEPTH_STENCIL),
         StoreOp.STORE, camera.clearDepth, camera.clearStencil, camera.clearFlag);
-    postprocessPass.addQueue(QueueHint.NONE, 'post-process').addFullscreenQuad(
-        postInfo.postMaterial, 0, SceneFlags.NONE,
+    postprocessPass.addQueue(QueueHint.NONE, 'post-process').addCameraQuad(
+        camera, postInfo.postMaterial, 0,
+        SceneFlags.NONE,
     );
     if (getProfilerCamera() === camera) {
         postprocessPass.showStatistics = true;
