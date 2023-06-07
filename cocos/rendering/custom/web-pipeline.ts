@@ -1725,6 +1725,9 @@ export class WebPipeline implements BasicPipeline {
     beginFrame () {
         // noop
     }
+    update (camera: Camera) {
+        // noop
+    }
     endFrame () {
         // this._renderGraph = null;
         this.renderGraph?.clear();

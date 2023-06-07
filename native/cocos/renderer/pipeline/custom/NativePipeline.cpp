@@ -511,6 +511,11 @@ void NativePipeline::updateShadingRateTexture(
 void NativePipeline::beginFrame() {
 }
 
+void NativePipeline::update(const scene::Camera* camera) {
+    const auto *sceneData = getPipelineSceneData();
+    sceneData->getCSMLayers()->update(sceneData, camera);
+}
+
 void NativePipeline::endFrame() {
 }
 

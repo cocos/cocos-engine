@@ -1486,8 +1486,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             }
         }
 
+        if (queue.viewport.width != 0 && queue.viewport.height != 0) {
+            ctx.cmdBuff->setViewport(queue.viewport);
+        }
+
         // PerPhase DescriptorSet
-        std::ignore = queue;
         tryBindPerPhaseDescriptorSet(vertID);
     }
     void begin(const SceneData& sceneData, RenderGraph::vertex_descriptor sceneID) const { // NOLINT(readability-convert-member-functions-to-static)

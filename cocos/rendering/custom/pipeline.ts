@@ -232,6 +232,7 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         format?: Format): void;
     beginFrame (): void;
+    update (camera: Camera): void;
     endFrame (): void;
     addRenderPass (
         width: number,

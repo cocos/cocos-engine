@@ -92,7 +92,6 @@ uint32_t SceneCulling::createRenderQueue(
 void SceneCulling::collectCullingQueries(
     const RenderGraph& rg, const LayoutGraphData& lg,
     const pipeline::PipelineSceneData& pplSceneData) {
-    const scene::Camera* prevCamera = nullptr;
     for (const auto vertID : makeRange(vertices(rg))) {
         if (!holds<SceneTag>(vertID, rg)) {
             continue;
@@ -101,10 +100,6 @@ void SceneCulling::collectCullingQueries(
         if (!sceneData.scene) {
             CC_EXPECTS(false);
             continue;
-        }
-        if (sceneData.camera != prevCamera) {
-            pplSceneData.getCSMLayers()->update(&pplSceneData, sceneData.camera);
-            prevCamera = sceneData.camera;
         }
         const auto sourceID = getOrCreateSceneCullingQuery(sceneData);
         const auto layoutID = getSubpassOrPassID(vertID, rg, lg);
@@ -235,8 +230,8 @@ void sceneCulling(
 
 } // namespace
 
-void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplScenData) {
-    const auto* const skybox = pplScenData.getSkybox();
+void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData) {
+    const auto* const skybox = pplSceneData.getSkybox();
     const auto* const skyboxModelToSkip = skybox ? skybox->getModel() : nullptr;
 
     for (const auto& [scene, queries] : sceneQueries) {
@@ -263,7 +258,7 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplScenData) 
                             models);
                         break;
                     case scene::LightType::DIRECTIONAL: {
-                        const auto& csmLayers = *pplScenData.getCSMLayers();
+                        const auto& csmLayers = *pplSceneData.getCSMLayers();
                         const auto* mainLight = dynamic_cast<const scene::DirectionalLight*>(light);
                         const auto& csmLevel = mainLight->getCSMLevel();
                         const geometry::Frustum* frustum = nullptr;
@@ -420,9 +415,9 @@ void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
 
 void SceneCulling::buildRenderQueues(
     const RenderGraph& rg, const LayoutGraphData& lg,
-    const pipeline::PipelineSceneData& pplScenData) {
-    collectCullingQueries(rg, lg, pplScenData);
-    batchCulling(pplScenData);
+    const pipeline::PipelineSceneData& pplSceneData) {
+    collectCullingQueries(rg, lg, pplSceneData);
+    batchCulling(pplSceneData);
     fillRenderQueues(rg);
 }
 

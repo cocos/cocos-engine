@@ -1210,6 +1210,7 @@ public:
     void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
     void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
     void beginFrame() override;
+    void update(const scene::Camera *camera) override;
     void endFrame() override;
     BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) override;
     void addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) override;

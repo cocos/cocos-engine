@@ -111,22 +111,16 @@ class WindowInfo {
 class SceneInfo {
     constructor (pipelineSceneData: PipelineSceneData) {
         this.pipelineSceneData = pipelineSceneData;
-        this.csmSupported = pipelineSceneData.csmSupported;
         this.shadows = pipelineSceneData.shadows;
     }
     public reset () {
         this.punctualLights.length = 0;
         this.spotLights.length = 0;
     }
-    public update (camera: Camera) {
-        this.csmLayers.update(this.pipelineSceneData, camera);
-    }
     readonly pipelineSceneData: PipelineSceneData;
     readonly punctualLights: Light[] = [];
     readonly spotLights: SpotLight[] = [];
-    readonly csmSupported: boolean;
     readonly shadows: Shadows;
-    readonly csmLayers: CSMLayers = new CSMLayers();
 }
 
 export class TestPipelineBuilder implements PipelineBuilder {
@@ -144,7 +138,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
                 buildForwardPass(camera, ppl, false);
                 continue;
             }
-            this._sceneInfo.update(camera);
+            ppl.update(camera);
             const info = this.prepareGameCamera(ppl, camera);
             this.prepareSceneInfo(camera.scene, camera.frustum, this._sceneInfo);
             this.buildForward(ppl, camera,
@@ -334,7 +328,8 @@ export class TestPipelineBuilder implements PipelineBuilder {
             queue.addSceneOfCamera(camera, new LightInfo(light, 0),
                 SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER);
         } else {
-            const csmLevel = this._sceneInfo.csmSupported ? light.csmLevel : 1;
+            const csmLevel = ppl.pipelineSceneData.csmSupported
+                ? light.csmLevel : 1;
             for (let level = 0; level !== csmLevel; ++level) {
                 this.getMainLightViewport(light, width, height, level, this._viewport);
                 const queue = pass.addQueue(QueueHint.NONE, 'shadow-caster');
