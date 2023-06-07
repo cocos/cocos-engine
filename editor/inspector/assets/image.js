@@ -324,7 +324,7 @@ exports.methods = {
                     continue;
                 }
                 if (subMeta.importer === imageImporter) {
-                    if (spriteFrameChange === 'othersToSpriteFrame' && subMeta.userData.mipfilter !== 'none') {
+                    if (spriteFrameChange === 'othersToSpriteFrame' && imageImporter === 'texture' && subMeta.userData.mipfilter !== 'none') {
                         // imageAsset type change to spriteFrame，disabled mipmaps
                         subMeta.userData.mipfilter = 'none';
                         mipChanged = true;
@@ -375,7 +375,7 @@ exports.update = function(assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
-    if (this.originMetaList) {
+    if (this.originMetaList && !this.asset.readonly) {
         // if the image type changes between sprite-frame
         const spriteFrameChange = this.checkSpriteFrameChange(this.originMetaList[0].userData.type, this.meta.userData.type);
         this.handleTypeChange(spriteFrameChange, this.meta.userData.type);
