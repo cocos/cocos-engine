@@ -170,7 +170,7 @@ export class Animation extends Eventify(Component) {
     }
 
     public start () {
-        if ((!EDITOR_NOT_IN_PREVIEW) && (this.playOnLoad && !this._hasBeenPlayed) && this._defaultClip) {
+        if (!EDITOR_NOT_IN_PREVIEW && (this.playOnLoad && !this._hasBeenPlayed) && this._defaultClip) {
             this.crossFade(this._defaultClip.name, 0);
         }
     }
