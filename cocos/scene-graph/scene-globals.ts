@@ -1542,6 +1542,10 @@ export class LightProbeInfo {
     }
 }
 
+@ccclass('cc.ToneMapping')
+export class ToneMappingInfo {
+}
+
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene
  * @zh 各类场景级别的渲染参数，将影响全场景的所有物体
@@ -1611,6 +1615,10 @@ export class SceneGlobals {
     @editable
     @serializable
     public lightProbeInfo = new LightProbeInfo();
+
+    @editable
+    @serializable
+    public tonemapping = new ToneMappingInfo();
 
     /**
      * @en bake with stationary main light

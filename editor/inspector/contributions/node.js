@@ -378,6 +378,7 @@ exports.template = /* html*/`
         <ui-prop class="shadows" type="dump" ui-section-config></ui-prop>
         <ui-prop class="octree" type="dump" ui-section-config></ui-prop>
         <ui-prop class="skin" type="dump" ui-section-config></ui-prop>
+        <ui-prop class="tonemapping" type="dump" ui-section-config></ui-prop>
     </section>
 
     <ui-section class="component node config" expand>
@@ -448,6 +449,7 @@ exports.$ = {
     sceneSkyboxAfter: '.scene > .skybox > .after',
     sceneOctree: '.scene > .octree',
     sceneSkin: '.scene > .skin',
+    sceneToneMapping: '.scene > .skin',
 
     node: '.node',
     nodeHeader: '.node > header',
@@ -927,6 +929,10 @@ const Elements = {
             panel.dump._globals.skin.displayName = 'Skin';
             panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
             panel.$.sceneSkin.render(panel.dump._globals.skin);
+
+            panel.dump._globals.tonemapping.displayName = 'ToneMapping';
+            panel.dump._globals.tonemapping.help = panel.getHelpUrl({ help: 'i18n:cc.ToneMapping' });
+            panel.$.sceneToneMapping.render(panel.dump._globals.tonemapping);
 
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
             $skyProps.forEach(($prop) => {
