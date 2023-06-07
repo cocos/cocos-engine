@@ -85,7 +85,6 @@ exports.style = /* css*/`
     outline-offset: -2px;
 }
 .preview-container > .model-info {
-    padding-top: 4px;
     display: none;
 }
 .preview-container > .model-info > ui-label {
