@@ -4,6 +4,7 @@
 #include "RenderGraphGraphs.h"
 #include "cocos/scene/Octree.h"
 #include "cocos/scene/RenderScene.h"
+#include "cocos/scene/Skybox.h"
 #include "cocos/scene/SpotLight.h"
 #include "details/GslUtils.h"
 #include "details/Range.h"
@@ -45,7 +46,12 @@ uint32_t SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sceneData) 
 
     // get or create query source
     // make query key
-    const auto key = CullingKey{sceneData.camera, sceneData.light.light, bCastShadow};
+    const auto key = CullingKey{
+        sceneData.camera,
+        sceneData.light.light,
+        bCastShadow,
+        sceneData.light.level,
+    };
 
     // find query source
     auto iter = queries.culledResultIndex.find(key);
@@ -83,7 +89,10 @@ uint32_t SceneCulling::createRenderQueue(
     return targetID;
 }
 
-void SceneCulling::collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg) {
+void SceneCulling::collectCullingQueries(
+    const RenderGraph& rg, const LayoutGraphData& lg,
+    const pipeline::PipelineSceneData& pplSceneData) {
+    const scene::Camera* prevCamera = nullptr;
     for (const auto vertID : makeRange(vertices(rg))) {
         if (!holds<SceneTag>(vertID, rg)) {
             continue;
@@ -92,6 +101,10 @@ void SceneCulling::collectCullingQueries(const RenderGraph& rg, const LayoutGrap
         if (!sceneData.scene) {
             CC_EXPECTS(false);
             continue;
+        }
+        if (sceneData.camera != prevCamera) {
+            pplSceneData.getCSMLayers()->update(&pplSceneData, sceneData.camera);
+            prevCamera = sceneData.camera;
         }
         const auto sourceID = getOrCreateSceneCullingQuery(sceneData);
         const auto layoutID = getSubpassOrPassID(vertID, rg, lg);
@@ -222,7 +235,10 @@ void sceneCulling(
 
 } // namespace
 
-void SceneCulling::batchCulling(const scene::Model* skyboxModelToSkip) {
+void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplScenData) {
+    const auto* const skybox = pplScenData.getSkybox();
+    const auto* const skyboxModelToSkip = skybox ? skybox->getModel() : nullptr;
+
     for (const auto& [scene, queries] : sceneQueries) {
         CC_ENSURES(scene);
         for (const auto& [key, sourceID] : queries.culledResultIndex) {
@@ -230,6 +246,7 @@ void SceneCulling::batchCulling(const scene::Model* skyboxModelToSkip) {
             CC_EXPECTS(key.camera->getScene() == scene);
             const auto& camera = *key.camera;
             const auto* light = key.light;
+            const auto level = key.lightLevel;
             const auto bCastShadow = key.castShadow;
 
             CC_EXPECTS(sourceID < culledResults.size());
@@ -245,14 +262,23 @@ void SceneCulling::batchCulling(const scene::Model* skyboxModelToSkip) {
                             bCastShadow,
                             models);
                         break;
-                    case scene::LightType::DIRECTIONAL:
+                    case scene::LightType::DIRECTIONAL: {
+                        const auto& csmLayers = *pplScenData.getCSMLayers();
+                        const auto* mainLight = dynamic_cast<const scene::DirectionalLight*>(light);
+                        const auto& csmLevel = mainLight->getCSMLevel();
+                        const geometry::Frustum* frustum = nullptr;
+                        if (mainLight->isShadowFixedArea() || csmLevel == scene::CSMLevel::LEVEL_1) {
+                            frustum = &csmLayers.getSpecialLayer()->getLightViewFrustum();
+                        } else {
+                            frustum = &csmLayers.getLayers()[level]->getLightViewFrustum();
+                        }
                         sceneCulling(
                             skyboxModelToSkip,
                             *scene, camera,
-                            camera.getFrustum(),
+                            *frustum,
                             bCastShadow,
                             models);
-                        break;
+                    } break;
                     default:
                         // noop
                         break;
@@ -350,7 +376,6 @@ void addRenderObject(
 } // namespace
 
 void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
-    bool mainLightAdded = false;
     for (auto&& [sceneID, desc] : sceneQueryIndex) {
         CC_EXPECTS(holds<SceneTag>(sceneID, rg));
         const auto sourceID = desc.culledSource;
@@ -381,13 +406,6 @@ void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
         auto& nativeQueue = renderQueues[targetID];
         CC_EXPECTS(nativeQueue.empty());
 
-        // try fill directional csm
-        if (desc.lightType == scene::LightType::DIRECTIONAL && !mainLightAdded) {
-            // TODO(zhouzhenglong): add CSM
-            mainLightAdded = true;
-            continue;
-        }
-
         // fill native queue
         for (const auto* const model : sourceModels) {
             addRenderObject(
@@ -402,9 +420,9 @@ void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
 
 void SceneCulling::buildRenderQueues(
     const RenderGraph& rg, const LayoutGraphData& lg,
-    const scene::Model* skyboxModelToSkip) {
-    collectCullingQueries(rg, lg);
-    batchCulling(skyboxModelToSkip);
+    const pipeline::PipelineSceneData& pplScenData) {
+    collectCullingQueries(rg, lg, pplScenData);
+    batchCulling(pplScenData);
     fillRenderQueues(rg);
 }
 

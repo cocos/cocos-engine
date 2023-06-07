@@ -266,14 +266,96 @@ void setCameraUBOValues(
 
 } // namespace
 
-void NativeSetter::setCamera(const scene::Camera *camera) {
+void NativeSetter::setCameraConstants(const scene::Camera *camera) {
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
-
     setCameraUBOValues(
         *camera,
         *layoutGraph,
         *pipelineRuntime->getPipelineSceneData(),
         camera->getScene()->getMainLight(), data);
+}
+
+void NativeSetter::setDirectionalLightProjectionConstants(
+    const scene::DirectionalLight* light, uint32_t level) {
+    CC_EXPECTS(light);
+    const auto *device = pipelineRuntime->getDevice();
+    const auto &mainLight = *light;
+    const auto& pplScenData = *pipelineRuntime->getPipelineSceneData();
+    const auto &shadowInfo = *pplScenData.getShadows();
+    const auto &csmLayers = *pplScenData.getCSMLayers();
+    const auto packing = pipeline::supportsR32FloatTexture(device) ? 0.0F : 1.0F;
+
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+
+    float near = 0.1;
+    float far = 0;
+    Mat4 matShadowView;
+    Mat4 matShadowProj;
+    Mat4 matShadowViewProj;
+    Vec4 vec4ShadowInfo{};
+
+    scene::CSMLevel levelCount{};
+    if (mainLight.isShadowFixedArea() || mainLight.getCSMLevel() == scene::CSMLevel::LEVEL_1) {
+        matShadowView = csmLayers.getSpecialLayer()->getMatShadowView();
+        matShadowProj = csmLayers.getSpecialLayer()->getMatShadowProj();
+        matShadowViewProj = csmLayers.getSpecialLayer()->getMatShadowViewProj();
+        if (mainLight.isShadowFixedArea()) {
+            near = mainLight.getShadowNear();
+            far = mainLight.getShadowFar();
+            levelCount = static_cast<scene::CSMLevel>(0);
+        } else {
+            near = 0.1;
+            far = csmLayers.getSpecialLayer()->getShadowCameraFar();
+            levelCount = scene::CSMLevel::LEVEL_1;
+        }
+        vec4ShadowInfo.set(0.0F, packing, mainLight.getShadowNormalBias(), 0);
+        setVec4Impl(data, *layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
+    } else {
+        const auto &layer = *csmLayers.getLayers()[level];
+        matShadowView = layer.getMatShadowView();
+        matShadowProj = layer.getMatShadowProj();
+        matShadowViewProj = layer.getMatShadowViewProj();
+
+        near = layer.getSplitCameraNear();
+        far = layer.getSplitCameraFar();
+        levelCount = mainLight.getCSMLevel();
+    }
+    setMat4Impl(data, *layoutGraph, "cc_matLightView", matShadowView);
+    setVec4Impl(data, *layoutGraph, "cc_shadowProjDepthInfo",
+                Vec4(
+                    matShadowProj.m[10],
+                    matShadowProj.m[14],
+                    matShadowProj.m[11],
+                    matShadowProj.m[15]));
+    setVec4Impl(data, *layoutGraph, "cc_shadowProjInfo",
+                Vec4(
+                    matShadowProj.m[00],
+                    matShadowProj.m[05],
+                    1.0F / matShadowProj.m[00],
+                    1.0F / matShadowProj.m[05]));
+    setMat4Impl(data, *layoutGraph, "cc_matLightViewProj", matShadowViewProj);
+    vec4ShadowInfo.set(near, far, 0, 1.0F - mainLight.getShadowSaturation());
+    setVec4Impl(data, *layoutGraph, "cc_shadowNFLSInfo", vec4ShadowInfo);
+    vec4ShadowInfo.set(
+        0.0F,
+        packing,
+        mainLight.getShadowNormalBias(),
+        static_cast<float>(levelCount));
+    setVec4Impl(data, *layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
+    vec4ShadowInfo.set(
+        shadowInfo.getSize().x,
+        shadowInfo.getSize().y,
+        static_cast<float>(mainLight.getShadowPcf()),
+        mainLight.getShadowBias());
+    setVec4Impl(data, *layoutGraph, "cc_shadowWHPBInfo", vec4ShadowInfo);
+}
+
+void NativeSetter::setSpotLightProjectionConstants(const scene::SpotLight* light) {
+
+}
+
+void NativeSetter::setShadowMapConstants(const scene::Light* light, uint32_t numLevels) {
+
 }
 
 namespace {
@@ -1208,9 +1290,9 @@ void setTextureUBOView(
         gfx::Address::CLAMP};
     auto *pointSampler = device.getSampler(samplerPointInfo);
     setSamplerImpl(data, layoutGraph, "cc_shadowMap", pointSampler);
-    setTextureImpl(data, layoutGraph, "cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+    //setTextureImpl(data, layoutGraph, "cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
     setSamplerImpl(data, layoutGraph, "cc_spotShadowMap", pointSampler);
-    setTextureImpl(data, layoutGraph, "cc_spotShadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+    //setTextureImpl(data, layoutGraph, "cc_spotShadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
 }
 
 } // namespace

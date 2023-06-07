@@ -189,7 +189,13 @@ public:
     virtual void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) = 0;
     virtual void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
     virtual void setSampler(const ccstd::string &name, gfx::Sampler *sampler) = 0;
-    virtual void setCamera(const scene::Camera *camera) = 0;
+    virtual void setCameraConstants(const scene::Camera *camera) = 0;
+    virtual void setDirectionalLightProjectionConstants(const scene::DirectionalLight *light, uint32_t level) = 0;
+    virtual void setSpotLightProjectionConstants(const scene::SpotLight *light) = 0;
+    virtual void setShadowMapConstants(const scene::Light *light, uint32_t numLevels) = 0;
+    void setShadowMapConstants(const scene::Light *light) {
+        setShadowMapConstants(light, 0);
+    }
 };
 
 class RenderQueueBuilder : public Setter {
