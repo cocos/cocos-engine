@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -21,9 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
 import { instantiateWasm } from 'pal/wasm';
-import { WASM_SUPPORT_MODE } from 'internal:constants';
+import { JSB, WASM_SUPPORT_MODE } from 'internal:constants';
 import asmFactory from 'external:emscripten/spine/spine.asm.js';
 import wasmFactory from 'external:emscripten/spine/spine.js';
 import spineWasmUrl from 'external:emscripten/spine/spine.wasm';
@@ -31,6 +30,15 @@ import { game } from '../../game';
 import { sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 import { overrideSpineDefine } from './spine-define';
+
+const PAGESIZE = 65536; // 64KiB
+
+// How many pages of the wasm memory
+// TODO: let this can be canfiguable by user.
+const PAGECOUNT = 64 * 16;
+
+// How mush memory size of the wasm memory
+const MEMORYSIZE = PAGESIZE * PAGECOUNT; // 64 MiB
 
 const wasmInstance: SpineWasm.instance = {} as any;
 const registerList: any[] = [];
@@ -53,42 +61,40 @@ function initWasm (wasmUrl) {
 }
 
 function initAsm (resolve) {
-    // console.log('[Spine]: Using asmjs libs.');
-    // const wasmMemory: any = {};
-    // wasmMemory.buffer = new ArrayBuffer(MEMORYSIZE);
-    // const asmLibraryArg2 = { memory: wasmMemory };
-    // const module = {
-    //     asmLibraryArg1: { ...asmLibraryArg, ...asmLibraryArg2 },
-    //     wasmMemory,
-    // };
-    // return asmFactory(module).then((instance: any) => {
-    //     btInstance = (instance).asm;
-    //     btInstance.spineWasmInstanceInit();
-    //     _HEAPU8 = instance.HEAPU8;
-    // });
+    console.log('[Spine]: Using asmjs libs.');
+    const wasmMemory: any = {};
+    wasmMemory.buffer = new ArrayBuffer(MEMORYSIZE);
+    const asmLibraryArg2 = { memory: wasmMemory };
+    const module = {
+        wasmMemory,
+    };
+    return asmFactory(module).then((instance: any) => {
+        Object.assign(wasmInstance, instance);
+        registerList.forEach((cb) => {
+            cb(wasmInstance);
+        });
+    });
 }
 
 export function waitForSpineWasmInstantiation () {
     console.log('[spine] waitForSpineWasmInstantiation');
     return new Promise<void>((resolve) => {
         const errorReport = (msg: any) => { console.error(msg); };
-        // if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
-        //     if (sys.hasFeature(sys.Feature.WASM)) {
-        //         initWasm(spineWasmUrl).then(resolve).catch(errorReport);
-        //     } else {
-        //         initAsm(resolve);
-        //     }
-        // } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
-        //     initWasm(spineWasmUrl).then(resolve).catch(errorReport);
-        // } else {
-        //     initAsm(resolve);
-        // }
-        initWasm(spineWasmUrl).then(resolve).catch(errorReport);
+        if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+            if (sys.hasFeature(sys.Feature.WASM)) {
+                initWasm(spineWasmUrl).then(resolve).catch(errorReport);
+            } else {
+                initAsm(asmFactory).then(resolve).catch(errorReport);
+            }
+        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+            initWasm(spineWasmUrl).then(resolve).catch(errorReport);
+        } else {
+            initAsm(asmFactory).then(resolve).catch(errorReport);
+        }
     });
 }
-
-game.onPostInfrastructureInitDelegate.add(waitForSpineWasmInstantiation);
-
-registerList.push(overrideSpineDefine);
-
+if (!JSB) {
+    game.onPostInfrastructureInitDelegate.add(waitForSpineWasmInstantiation);
+    registerList.push(overrideSpineDefine);
+}
 export const SPINE_WASM = 1;
