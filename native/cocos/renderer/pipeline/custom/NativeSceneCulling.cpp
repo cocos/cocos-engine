@@ -370,7 +370,9 @@ void addRenderObject(
 
 } // namespace
 
-void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
+void SceneCulling::fillRenderQueues(
+    const RenderGraph& rg, const pipeline::PipelineSceneData& pplSceneData) {
+    const auto* const skybox = pplSceneData.getSkybox();
     for (auto&& [sceneID, desc] : sceneQueryIndex) {
         CC_EXPECTS(holds<SceneTag>(sceneID, rg));
         const auto sourceID = desc.culledSource;
@@ -400,6 +402,24 @@ void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
         CC_EXPECTS(targetID < renderQueues.size());
         auto& nativeQueue = renderQueues[targetID];
         CC_EXPECTS(nativeQueue.empty());
+                
+        // skybox
+        const auto* camera = sceneData.camera;
+        CC_EXPECTS(camera);
+        if (!any(sceneData.flags & SceneFlags::SHADOW_CASTER) &&
+            skybox && skybox->isEnabled() &&
+            (static_cast<int32_t>(camera->getClearFlag()) & scene::Camera::SKYBOX_FLAG)) {
+            CC_EXPECTS(skybox->getModel());
+            const auto& model = *skybox->getModel();
+            const auto* node = model.getNode();
+            float depth = 0;
+            if (node) {
+                Vec3 tempVec3{};
+                tempVec3 = node->getWorldPosition() - camera->getPosition();
+                depth = tempVec3.dot(camera->getForward());
+            }
+            nativeQueue.opaqueQueue.add(model, depth, 0, 0);
+        }
 
         // fill native queue
         for (const auto* const model : sourceModels) {
@@ -418,7 +438,7 @@ void SceneCulling::buildRenderQueues(
     const pipeline::PipelineSceneData& pplSceneData) {
     collectCullingQueries(rg, lg, pplSceneData);
     batchCulling(pplSceneData);
-    fillRenderQueues(rg);
+    fillRenderQueues(rg, pplSceneData);
 }
 
 void SceneCulling::clear() noexcept {
