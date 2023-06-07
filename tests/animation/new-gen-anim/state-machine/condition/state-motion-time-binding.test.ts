@@ -4,7 +4,7 @@ import { createAnimationGraph, StateMachineParams, StateParams, TransitionParams
 import { LinearRealValueAnimationFixture } from "../../utils/fixtures";
 import { SingleRealValueObserver } from "../../utils/single-real-value-observer";
 import '../../pose-graph/pose-nodes/utils/factories/all';
-import { Node } from "../../../../../exports/base";
+import { Component, Node } from "../../../../../exports/base";
 
 describe(`State motion time binding behavior on different source state type`, () => {
     describe(`State motion time of the motion states`, () => {
@@ -239,11 +239,11 @@ function run(
         }],
     });
 
+    multiWayTransitionObserver.listenToTransitionInEvents(observer.root);
     for (let iThreshold = 0; iThreshold < multiWayTransitionObserver.thresholds.length; ++iThreshold) {
         const minThreshold = multiWayTransitionObserver.thresholds[iThreshold];
 
         const evalMock = new AnimationGraphEvalMock(observer.root, animationGraph);
-        multiWayTransitionObserver.listenToTransitionInEvents(evalMock.controller);
 
         let expectedStateMotionTimeOfNextTick = 0.0;
 
@@ -327,13 +327,15 @@ class MultiWayTransitionObserver {
         });
     }
 
-    public listenToTransitionInEvents(controller: AnimationController) {
+    public listenToTransitionInEvents(node: Node) {
+        class Comp extends Component {}
         for (let i = 0; i < this.thresholds.length; ++i) {
-            controller.onCustomEvent_experimental(`transition-in-dest-state-${i}`, () => {
+            Comp.prototype[`transition-in-dest-state-${i}`] = () => {
                 expect(this._transitionInFlags[i]).toBe(false);
                 this._transitionInFlags[i] = true;
-            });
+            };
         }
+        node.addComponent(Comp);
     }
 
     private _thresholds: readonly number[];

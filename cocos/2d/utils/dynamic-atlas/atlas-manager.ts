@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { System, macro, js, cclegacy } from '../../../core';
 import { Filter } from '../../../asset/assets/asset-enum';
 import { Atlas } from './atlas';
@@ -174,7 +174,7 @@ export class DynamicAtlasManager extends System {
      * @param spriteFrame  the sprite frame that will be inserted in the atlas.
      */
     public insertSpriteFrame (spriteFrame) {
-        if (EDITOR && !cclegacy.GAME_VIEW) return null;
+        if (EDITOR_NOT_IN_PREVIEW) return null;
         if (!this._enabled || this._atlasIndex === this._maxAtlasCount
             || !spriteFrame || spriteFrame._original) return null;
 
@@ -273,7 +273,7 @@ export class DynamicAtlasManager extends System {
      * @param frame  the sprite frame that will be packed in the dynamic atlas.
      */
     public packToDynamicAtlas (comp, frame) {
-        if ((EDITOR && !cclegacy.GAME_VIEW) || !this._enabled) return;
+        if (EDITOR_NOT_IN_PREVIEW || !this._enabled) return;
 
         if (frame && !frame._original && frame.packable && frame.texture && frame.texture.width > 0 && frame.texture.height > 0) {
             const packedFrame = this.insertSpriteFrame(frame);

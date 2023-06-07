@@ -14,6 +14,7 @@ exports.style = /* css */`
     flex: 1;
     display: flex;
     flex-direction: column;
+    margin-top: 4px;
     /* it is necessary */
     height: 0px;
 }

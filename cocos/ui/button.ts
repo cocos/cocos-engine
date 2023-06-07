@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable, executeInEditMode } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { UITransform, UIRenderer } from '../2d/framework';
@@ -595,7 +595,7 @@ export class Button extends Component {
     public onEnable () {
         // check sprite frames
         //
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this._registerNodeEvent();
         } else {
             this.node.on(Sprite.EventType.SPRITE_FRAME_CHANGED, (comp: Sprite) => {
@@ -615,7 +615,7 @@ export class Button extends Component {
     public onDisable () {
         this._resetState();
 
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this._unregisterNodeEvent();
         } else {
             this.node.off(Sprite.EventType.SPRITE_FRAME_CHANGED);
@@ -712,7 +712,7 @@ export class Button extends Component {
     }
 
     protected _registerTargetEvent (target) {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             target.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onTargetSpriteFrameChanged, this);
             target.on(NodeEventType.COLOR_CHANGED, this._onTargetColorChanged, this);
         }
@@ -735,7 +735,7 @@ export class Button extends Component {
     }
 
     protected _unregisterTargetEvent (target) {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             target.off(Sprite.EventType.SPRITE_FRAME_CHANGED);
             target.off(NodeEventType.COLOR_CHANGED);
         }

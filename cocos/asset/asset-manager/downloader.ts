@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { BUILD, EDITOR } from 'internal:constants';
+import { BUILD, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { sys, js, misc, path, cclegacy } from '../../core';
 import Cache from './cache';
 import downloadDomImage from './download-dom-image';
@@ -32,7 +32,6 @@ import { files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { IConfigOption } from './config';
 import { CCON, parseCCONJson, decodeCCONBinary } from '../../serialization/ccon';
-import { legacyCC } from '../../core/global-exports';
 
 export type DownloadHandler = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void;
 
@@ -214,7 +213,7 @@ export class Downloader {
      * You don't need to change it at runtime.
      * @internal
      */
-    public appendTimeStamp = !!(EDITOR && !legacyCC.GAME_VIEW);
+    public appendTimeStamp = !!EDITOR_NOT_IN_PREVIEW;
 
     /**
      * @engineInternal

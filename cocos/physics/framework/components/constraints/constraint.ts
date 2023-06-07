@@ -24,10 +24,10 @@
 */
 
 import { ccclass, requireComponent, displayOrder, type, readOnly, serializable, tooltip } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Component } from '../../../../scene-graph';
 import { RigidBody } from '../rigid-body';
-import { Eventify, cclegacy } from '../../../../core';
+import { Eventify } from '../../../../core';
 import { IBaseConstraint } from '../../../spec/i-physics-constraint';
 import { selector, createConstraint } from '../../physics-selector';
 import { EConstraintType } from '../../physics-enum';
@@ -78,7 +78,7 @@ export class Constraint extends Eventify(Component) {
 
     set connectedBody (v: RigidBody | null) {
         this._connectedBody = v;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             if (this._constraint) this._constraint.setConnectedBody(v);
         }
     }
@@ -97,7 +97,7 @@ export class Constraint extends Eventify(Component) {
 
     set enableCollision (v) {
         this._enableCollision = v;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             if (this._constraint) this._constraint.setEnableCollision(v);
         }
     }

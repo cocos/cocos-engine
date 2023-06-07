@@ -194,6 +194,7 @@ module.exports = {
             wrapModeTTip: 'Texture addressing mode in T(V) direction',
             modeWarn:
                 "Warning: WebGL 1.0 platform doesn't support 'Repeat' filter for non-power-of-two textures(runtime fallback to 'Clamp'), effectively disabling features like the 'tilingOffset' property in many materials.",
+            filterDiffenent: 'Filter settings do not match the configuration in {atlasFile} and may not take effect.',
         },
         fbx: {
             browse: 'Change Target',

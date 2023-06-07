@@ -1268,7 +1268,7 @@ class SSSSBlurData {
     ssssFov = 45.0 / 57.3;
     ssssWidth = 0.01;
     boundingBox = 0.4;
-    ssssScale = 5.0;
+    ssssScale = 3.0;
 
     get ssssStrength () {
         return this._v3SSSSStrength;

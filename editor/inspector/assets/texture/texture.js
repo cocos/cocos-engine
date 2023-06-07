@@ -1,6 +1,8 @@
 'use strict';
 
 const { updateElementReadonly } = require('../../utils/assets');
+const { extname } = require('path');
+const { ParseAtlasFile } = require('./parse-atlas');
 
 exports.template = /* html */`
 <div class="asset-texture">
@@ -34,6 +36,11 @@ exports.template = /* html */`
                 </ui-prop>
             </section>
         </section>
+        <ui-prop class="filter-different">
+            <div slot="content">
+                <div class="atlas-file-name"></div>
+            </div>
+        </ui-prop>
         <ui-prop class="wrapMode-prop">
             <ui-label slot="label" value="i18n:ENGINE.assets.texture.wrapMode" tooltip="i18n:ENGINE.assets.texture.wrapModeTip"></ui-label>
             <ui-select slot="content" class="wrapMode-select"></ui-select>
@@ -64,9 +71,7 @@ exports.style = /* css */`
 .asset-texture > .content {
     flex: 1;
 }
-.asset-texture > .content ui-prop {
-    margin: 4px 0;
-}
+
 .asset-texture > .content .filter-advanced-section,
 .asset-texture > .content .wrap-advanced-section,
 .asset-texture > .content .generate-mipmaps-section {
@@ -81,9 +86,7 @@ exports.style = /* css */`
 }
 .asset-texture > .content > .warn-words {
     display: none;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    line-height: 1.7;
+    margin-top: 4px;
     color: var(--color-warn-fill);
 }
 .asset-texture > .preview {
@@ -99,6 +102,14 @@ exports.style = /* css */`
 }
 .asset-texture > .preview:hover {
     border-color: var(--color-warn-fill);
+}
+.filter-different {
+    color: var(--color-warn-fill);
+    display: none;
+}
+.filter-different .atlas-file-name span {
+    cursor: pointer;
+    text-decoration: underline;
 }
 `;
 
@@ -120,6 +131,8 @@ exports.$ = {
     wrapModeTProp: '.wrapModeT-prop',
     wrapModeTSelect: '.wrapModeT-select',
     warnWords: '.warn-words',
+    filterDifferent: '.filter-different',
+    atlasFileName: '.filter-different .atlas-file-name',
 };
 
 const ModeMap = {
@@ -566,6 +579,65 @@ const Elements = {
                 this.$.wrapModeSProp.classList.remove('warn');
                 this.$.wrapModeTProp.classList.remove('warn');
                 this.$.wrapModeProp.classList.remove('warn');
+            }
+        },
+    },
+    checkAtlasFileConfig: {
+        async ready() {
+            this.$.atlasFileName.addEventListener('click', () => {
+                Editor.Message.send('assets', 'twinkle', this.$.atlasFileName.getAttribute('data-uuid'));
+            }, false);
+        },
+        async update() {
+            try {
+                const parentPath = this.parentAssetList[0].path.replace(/\/[^/]+$/, '/*');
+                let assets = await Editor.Message.request(
+                    'asset-db',
+                    'query-assets',
+                    { pattern: parentPath, ccType: "cc.Asset" }
+                );
+                assets = assets.filter(v => extname(v.file) === '.atlas');
+
+                let matchedAsset;
+                let matchedAtlasJson;
+                for (const asset of assets) {
+                    const json = await (new ParseAtlasFile()).parse(asset.file);
+
+                    // the asset.displayName is not a full name, miss the extname
+                    // so, we should use RegExp to get the extname
+                    const regStr = `${this.asset.displayName}(.*?)/`;
+                    const match = this.asset.url.match(new RegExp(regStr));
+                    const imageExtname = match ? match[1] : '.png';
+                    const imageFullName = this.asset.displayName + imageExtname;
+
+                    if (json[imageFullName]) {
+                        matchedAsset = asset;
+                        matchedAtlasJson = json[imageFullName];
+                        break;
+                    }
+                }
+                if (matchedAsset) {
+
+                    let atlasFileFilter = matchedAtlasJson.filter;
+                    if (Array.isArray(atlasFileFilter)) {
+                        atlasFileFilter = atlasFileFilter.join();
+                    } else if (atlasFileFilter) {
+                        atlasFileFilter = `${atlasFileFilter},${atlasFileFilter}`;
+                    }
+                    const userDataFilter = `${this.meta.userData.minfilter},${this.meta.userData.magfilter}`;
+
+                    if (atlasFileFilter.toLowerCase() !== userDataFilter.toLowerCase()) {
+                        this.$.filterDifferent.style.display = 'block';
+                        const tipHtml = Editor.I18n.t('ENGINE.assets.texture.filterDiffenent').replace('{atlasFile}', `<span>${matchedAsset.name}</span>`);
+                        this.$.atlasFileName.innerHTML = tipHtml;
+                        this.$.atlasFileName.setAttribute('data-uuid', matchedAsset.uuid);
+                    } else {
+                        this.$.filterDifferent.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                this.$.filterDifferent.style.display = 'none';
+                console.error(error);
             }
         },
     },

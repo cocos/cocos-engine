@@ -119,7 +119,7 @@ function download (url, func, options, onFileProgress, onComplete) {
 function transformUrl (url, options) {
     let inLocal = false;
     let inCache = false;
-    if (REGEX.test(url)) {
+    if (REGEX.test(url) && !url.startsWith('file://')) {
         if (options.reload) {
             return { url };
         } else {
@@ -131,6 +131,9 @@ function transformUrl (url, options) {
         }
     } else {
         inLocal = true;
+        if (url.startsWith('file://')) {
+            url = url.replace(/^file:\/\//, '');
+        }
     }
     return { url, inLocal, inCache };
 }
@@ -422,21 +425,22 @@ parser.register({
 
     '.ExportJson': parseJson,
 });
-
-cc.assetManager.transformPipeline.append((task) => {
-    const input = task.output = task.input;
-    for (let i = 0, l = input.length; i < l; i++) {
-        const item = input[i];
-        if (item.config) {
-            item.options.__cacheBundleRoot__ = item.config.name;
+if (CC_BUILD) {
+    cc.assetManager.transformPipeline.append((task) => {
+        const input = task.output = task.input;
+        for (let i = 0, l = input.length; i < l; i++) {
+            const item = input[i];
+            if (item.config) {
+                item.options.__cacheBundleRoot__ = item.config.name;
+            }
+            if (item.ext === '.cconb') {
+                item.url = item.url.replace(item.ext, '.bin');
+            } else if (item.ext === '.ccon') {
+                item.url = item.url.replace(item.ext, '.json');
+            }
         }
-        if (item.ext === '.cconb') {
-            item.url = item.url.replace(item.ext, '.bin');
-        } else if (item.ext === '.ccon') {
-            item.url = item.url.replace(item.ext, '.json');
-        }
-    }
-});
+    });
+}
 
 const originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {

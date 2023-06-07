@@ -100,6 +100,7 @@ exports.watch = {
                 const LODs = obj.value.LODs.value;
                 const min = LODs[that.index + 1] ? LODs[that.index + 1].value.screenUsagePercentage.value : 0;
                 const max = LODs[that.index - 1] ? LODs[that.index - 1].value.screenUsagePercentage.value : null;
+                // The minimum value is 0, and there is no restriction on the maximum value
                 that.minScreenUsagePercentage = Editor.Utils.Math.multi(min, 100);
                 that.maxScreenUsagePercentage = max ? Editor.Utils.Math.multi(max, 100) : null;
             }
@@ -164,7 +165,11 @@ exports.methods = {
         let size = await Editor.Message.request('scene', 'lod-apply-current-camera-size', that.dump.value.uuid.value);
         if (that.$refs[that.screenUsagePercentageRef]) {
             const min = Editor.Utils.Math.divide(that.$refs[that.screenUsagePercentageRef].min, 100) || 0;
-            const max = that.$refs[that.screenUsagePercentageRef].max ? Editor.Utils.Math.divide(that.$refs[that.screenUsagePercentageRef].max, 100) : null;
+            let max = null;
+            if (that.$refs[that.screenUsagePercentageRef].max && that.$refs[that.screenUsagePercentageRef].max !== Infinity) {
+                max = Editor.Utils.Math.divide(that.$refs[that.screenUsagePercentageRef].max, 100);
+            }
+
             if (size < min) {
                 size = min;
                 console.log(Editor.I18n.t('ENGINE.components.lod.applyCameraSizeLessThanMinimum'));
