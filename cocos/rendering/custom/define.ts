@@ -842,13 +842,10 @@ export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: 
     const height = area.height;
 
     const deferredLightingPassRTName = `deferredLightingPassRTName`;
-    const deferredLightingPassDS = `deferredLightingPassDS`;
     if (!ppl.containsResource(deferredLightingPassRTName)) {
         ppl.addRenderTarget(deferredLightingPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(deferredLightingPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(deferredLightingPassRTName, width, height);
-    ppl.updateDepthStencil(deferredLightingPassDS, width, height);
     // lighting pass
     const lightingPass = ppl.addRenderPass(width, height, 'deferred-lighting');
     lightingPass.name = `CameraLightingPass${cameraID}`;
@@ -883,7 +880,7 @@ export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: 
     );
     // lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
     //     SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
-    return { rtName: deferredLightingPassRTName, dsName: deferredLightingPassDS };
+    return { rtName: deferredLightingPassRTName };
 }
 
 function getClearFlags (attachment: AttachmentType, clearFlag: ClearFlagBit, loadOp: LoadOp): ClearFlagBit {
@@ -1451,8 +1448,8 @@ function _buildSSSSBlurPass (camera: Camera,
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
     ssssBlurData.ssssFov = camera.fov;
     ssssBlurData.ssssWidth = skin.blurRadius;
-    if (standardSkinModel && (standardSkinModel as MeshRenderer).model) {
-        const halfExtents = (standardSkinModel as MeshRenderer).model!.worldBounds.halfExtents;
+    if (standardSkinModel && (standardSkinModel).model) {
+        const halfExtents = (standardSkinModel).model.worldBounds.halfExtents;
         ssssBlurData.boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
     }
     ssssBlurData.ssssScale = skin.sssIntensity;
@@ -2247,7 +2244,7 @@ export function buildLightClusterBuildPass (camera: Camera, clusterData: Cluster
 
     const clusterPass = ppl.addComputePass('cluster-build-cs');
     clusterPass.addStorageBuffer(clusterBufferName, AccessType.WRITE, 'b_clustersBuffer');
-    clusterPass.addQueue()
+    clusterPass.addQueue('cluster-build-cs')
         .addDispatch(clusterData.dispatchX, clusterData.dispatchY, clusterData.dispatchZ, clusterData.clusterBuildCS, 0);
 
     const width = camera.width * ppl.pipelineSceneData.shadingScale;
@@ -2284,7 +2281,7 @@ export function buildLightClusterCullingPass (camera: Camera, clusterData: Clust
     clusterPass.addStorageBuffer(clusterLightIndicesBufferName, AccessType.WRITE, 'b_clusterLightIndicesBuffer');
     clusterPass.addStorageBuffer(clusterLightGridBufferName, AccessType.WRITE, 'b_clusterLightGridBuffer');
     clusterPass.addStorageBuffer(clusterGlobalIndexBufferName, AccessType.WRITE, 'b_globalIndexBuffer');
-    clusterPass.addQueue()
+    clusterPass.addQueue('cluster-culling-cs')
         .addDispatch(clusterData.dispatchX, clusterData.dispatchY, clusterData.dispatchZ, clusterData.clusterLightCullingCS, 0);
 
     const width = camera.width * ppl.pipelineSceneData.shadingScale;

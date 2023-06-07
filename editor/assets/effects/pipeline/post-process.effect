@@ -6,6 +6,7 @@ CCEffect %{
     - vert: post-process-vs
       frag: post-process-fs
       pass: post-process
+      phase: post-process
       depthStencilState:
         depthTest: false
         depthWrite: false

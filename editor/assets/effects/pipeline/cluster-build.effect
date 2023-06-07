@@ -6,6 +6,7 @@ CCEffect %{
     passes:
     - compute: cluster-main
       pass: cluster-build-cs
+      phase: cluster-build-cs
 }%
 
 
