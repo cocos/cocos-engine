@@ -209,6 +209,10 @@ export class Skybox {
         }
     }
 
+    get editableMaterial () {
+        return this._editableMaterial;
+    }
+
     protected _envmapLDR: TextureCube | null = null;
     protected _envmapHDR: TextureCube | null = null;
     protected _diffuseMapLDR: TextureCube | null = null;

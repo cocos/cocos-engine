@@ -26,7 +26,7 @@
 
 import { ccclass } from 'cc.decorator';
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { UIRenderer } from '../2d/framework/ui-renderer';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component, Node } from '../scene-graph';
@@ -41,7 +41,6 @@ import {
 } from './tiled-types';
 import { fillTextureGrids } from './tiled-utils';
 import { NodeEventType } from '../scene-graph/node-event';
-import { legacyCC } from '../core/global-exports';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { RenderDrawInfo, RenderDrawInfoType } from '../2d/renderer/render-draw-info';
 import { Texture2D } from '../asset/assets';
@@ -410,7 +409,7 @@ export class TiledLayer extends UIRenderer {
             this._uninstallCamera();
             if (cameraNode) {
                 cameraNode.on(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
-                cameraNode.on(NodeEventType.SIZE_CHANGED, this.updateCulling, this);    
+                cameraNode.on(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
                 this._cameraNode = cameraNode;
             }
         }
@@ -420,7 +419,7 @@ export class TiledLayer extends UIRenderer {
     protected _uninstallCamera () {
         if (this._cameraNode) {
             this._cameraNode.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
-            this._cameraNode.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);    
+            this._cameraNode.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
             delete this._cameraNode;
         }
     }
@@ -875,7 +874,7 @@ export class TiledLayer extends UIRenderer {
     }
 
     public updateCulling () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             this.enableCulling = false;
         } else if (this._enableCulling) {
             this.node.updateWorldTransform();

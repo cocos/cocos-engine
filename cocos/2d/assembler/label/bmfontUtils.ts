@@ -34,6 +34,7 @@ import { TextProcessing } from './text-processing';
 import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
 import { TextStyle } from './text-style';
 import { TextLayout } from './text-layout';
+import { view } from '../../../ui/view';
 
 const _defaultLetterAtlas = new LetterAtlas(64, 64);
 const _defaultFontAtlas = new FontAtlas(null);
@@ -48,7 +49,8 @@ let QUAD_INDICES;
 export const bmfontUtils = {
 
     updateProcessingData (style: TextStyle, layout: TextLayout,
-        outputLayoutData: TextOutputLayoutData, comp: Label, trans: UITransform) {
+        outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData,
+        comp: Label, trans: UITransform) {
         style.fontSize = comp.fontSize;
         style.actualFontSize = comp.fontSize;
         style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
@@ -73,6 +75,8 @@ export const bmfontUtils = {
         } else {
             layout.wrapping = comp.enableWrapText;
         }
+        outputRenderData.uiTransAnchorX = trans.anchorX;
+        outputRenderData.uiTransAnchorY = trans.anchorY;
 
         shareLabelInfo.lineHeight = comp.lineHeight;
         shareLabelInfo.fontSize = comp.fontSize;
@@ -101,9 +105,10 @@ export const bmfontUtils = {
             const layout = comp.textLayout;
             const outputLayoutData = comp.textLayoutData;
             const outputRenderData = comp.textRenderData;
+            style.fontScale = view.getScaleX();
             this._updateFontFamily(comp);
 
-            this.updateProcessingData(style, layout, outputLayoutData, comp, _uiTrans);
+            this.updateProcessingData(style, layout, outputLayoutData, outputRenderData, comp, _uiTrans);
 
             this._updateLabelInfo(comp);
 

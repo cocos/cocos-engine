@@ -20,37 +20,51 @@ interface RuntimeStash {
  *
   ```mermaid
     stateDiagram-v2
-      [*] --> Uninitialized
-      Uninitialized --> Unsettled: `set`
+      [*] --> Preparation
 
-      Unsettled --> Settled: `settle()`
-      Settled --> Unsettled: `rebind()`(not supported yet)
+      state Preparation {
+        [*] --> Uninitialized
 
-      Settled --> Pending: `reenter()`
-      Pending --> Pending: Repeatedly renter through `reenter()`, no effect
+        Uninitialized --> Unsettled: `set`
 
-      Pending --> Update: `update()`
-      state Update {
-        [*] --> Updating
-        Updating --> Updating: `update()`, circular dependency formed, no effect
-        Updating --> Updated: The `update()` returned
-        Updated --> Updated: `update()`, no effect
-        Updated --> [*]
+        Unsettled --> Settled: `settle()`
+
+        Settled --> [*]
       }
 
-      Update --> Evaluate: `evaluate()`
-      state Evaluate {
-        [*] --> Evaluating
-        Evaluating --> Evaluating: `evaluate()`, circular dependency formed, return the default pose
-        Evaluating --> Evaluated: The `evaluate()` returned
-        Evaluated --> Evaluated: `evaluate()`, cache is returned
-        Evaluated --> [*]
+      Preparation --> Up_to_date: `reenter()`
+      Up_to_date --> Up_to_date: Repeatedly renter through `reenter()`, no effect
+      Outdated --> Up_to_date: `reenter()`
+
+      Up_to_date --> Ticking: `update()`
+      Outdated --> Ticking: `update()`
+
+      state Ticking {
+        [*] --> Update
+
+        state Update {
+            [*] --> Updating
+            Updating --> Updating: `update()`, circular dependency formed, no effect
+            Updating --> Updated: The `update()` returned
+            Updated --> Updated: `update()`, no effect
+            Updated --> [*]
+        }
+
+        Update --> Evaluate: `evaluate()`
+        state Evaluate {
+            [*] --> Evaluating
+            Evaluating --> Evaluating: `evaluate()`, circular dependency formed, return the default pose
+            Evaluating --> Evaluated: The `evaluate()` returned
+            Evaluated --> Evaluated: `evaluate()`, cache is returned
+            Evaluated --> [*]
+        }
+
+        Update --> [*]
+        Evaluate --> [*]
       }
 
-      Settled --> Settled: At the end of tick
-      Pending --> Settled: At the end of tick
-      Update --> Pending: At the end of tick
-      Evaluate --> Pending: At the end of tick
+      Ticking --> Up_to_date: At the end of tick
+      Up_to_date --> Outdated: At the end of tick
   ```
  *
  * - Stash records are created at the beginning of layer instantiation, before instantiation of any other things.
@@ -62,11 +76,9 @@ interface RuntimeStash {
  * - After all things in animation graph completed their bind stage, each stash would be settled.
  *   Then the stash was put in `SETTLED` state.
  *
- * - For each animation graph tick:
+ * - Next, at least one `reenter` should be called on the stash, to put the stash into `Up-to-date` to participate loop.
  *
- *   - If the stash was not accessed in last tick(asserts its state would be `SETTLED`),
- *     but should be accessed in this tick. The stash would call `reenter()` of its graph.
- *     Then the stash was put in `PENDING` state.
+ * - For each animation graph tick:
  *
  *   - Then, the stash will run into `UPDATING` and then `UPDATED` stage in animation graph update stage.
  *     The stash only updates once, if there're multiple update threads, the later update takes no effect.
@@ -79,9 +91,7 @@ interface RuntimeStash {
  *
  *   - At the end of tick,
  *
- *      - If the stash is not updated and is not evaluated in this tick, it will be put back into `SETTLED` stage.
- *
- *      - Otherwise, it will be put in `PENDING` state.
+ *      - If the stash is not updated and is not evaluated in this tick, it will be put back into `Outdated` .
  */
 enum StashRecordState {
     /**
@@ -102,9 +112,14 @@ enum StashRecordState {
     SETTLED,
 
     /**
-     * The stash is not activated but have not been updated or evaluated in last frame.
+     * The stash was updated in last frame or has been reentered this frame.
      */
-    PENDING,
+    UP_TO_DATE,
+
+    /**
+     * The stash had not been updated at least one frames at past.
+     */
+    OUTDATED,
 
     /**
      * The stash is being updated.
@@ -153,12 +168,11 @@ class RuntimeStashRecord implements RuntimeStash {
 
     public reset () {
         switch (this._state) {
-        case StashRecordState.SETTLED:
-            // The stash was not touched in last tick and still not been touched in this tick.
+        case StashRecordState.SETTLED: // Happen when the stash was not reentered till now.
+        case StashRecordState.OUTDATED:  // Happen when the stash keeps outdated.
             break;
-        case StashRecordState.PENDING:
-            // The stash was touched in last tick but does not being touched in this tick.
-            this._state = StashRecordState.SETTLED;
+        case StashRecordState.UP_TO_DATE: // Happen when the stash was not updated in this frame.
+            this._state = StashRecordState.OUTDATED; // It's then outdated.
             break;
         case StashRecordState.UPDATED:
             // Note: shall this means the stash is updated but not evaluated.
@@ -169,7 +183,7 @@ class RuntimeStashRecord implements RuntimeStash {
                 this._evaluationCache = null;
             }
             this._maxRequestedUpdateTime = 0.0;
-            this._state = StashRecordState.PENDING;
+            this._state = StashRecordState.UP_TO_DATE;
             break;
         case StashRecordState.UNINITIALIZED:
         default:
@@ -178,22 +192,28 @@ class RuntimeStashRecord implements RuntimeStash {
     }
 
     public reenter () {
-        assertIsTrue(
-            this._state === StashRecordState.SETTLED
-            || this._state === StashRecordState.PENDING
-            || this._state === StashRecordState.UPDATED, // The stash has been updated in other place, but here again reenters.
-        );
-        assertIsTrue(this._instantiatedPoseGraph);
-        if (this._state === StashRecordState.SETTLED) {
-            this._state = StashRecordState.PENDING;
+        switch (this._state) {
+        default:
+            assertIsTrue(false as boolean, `Unexpected stash state ${this._state} when reenter().`);
+            break;
+        case StashRecordState.UP_TO_DATE: // Happen when the state was updated in last frame but received a reenter() request this frame.
+        case StashRecordState.UPDATED: // Happen when the state has been update() in this frame at one place but request reenter() at another place.
+            break;
+        case StashRecordState.SETTLED: // Happen when the state is first reenter().
+        case StashRecordState.OUTDATED: { // Happen when the state has been outdated.
+            this._state = StashRecordState.UP_TO_DATE;
+            assertIsTrue(this._instantiatedPoseGraph);
             this._instantiatedPoseGraph.reenter();
+            break;
+        }
         }
     }
 
     public requestUpdate (context: AnimationGraphUpdateContext) {
         const { deltaTime } = context;
         assertIsTrue(
-            this._state === StashRecordState.PENDING
+            this._state === StashRecordState.OUTDATED
+            || this._state === StashRecordState.UP_TO_DATE
             || this._state === StashRecordState.UPDATING
             || this._state === StashRecordState.UPDATED,
         );
@@ -232,16 +252,16 @@ class RuntimeStashRecord implements RuntimeStash {
     }
 
     public evaluate (context: AnimationGraphEvaluationContext) {
-        assertIsTrue(
-            this._state === StashRecordState.UPDATED
-            || this._state === StashRecordState.EVALUATING
-            || this._state === StashRecordState.EVALUATED,
-        );
-        assertIsTrue(this._instantiatedPoseGraph);
-        if (this._state === StashRecordState.EVALUATING) {
-            // Circular reference occurred.
+        switch (this._state) {
+        default:
+            assertIsTrue(false as boolean, `Unexpected stash state ${this._state} when evaluate().`);
+            break;
+        case StashRecordState.EVALUATING: // Circular reference occurred.
             this._state = StashRecordState.EVALUATED;
-        } else if (this._state === StashRecordState.UPDATED) {
+            break;
+        case StashRecordState.EVALUATED: // Already evaluated.
+            break;
+        case StashRecordState.UPDATED: {
             assertIsTrue(!this._evaluationCache);
             this._state = StashRecordState.EVALUATING;
             const pose = this._instantiatedPoseGraph?.evaluate(context);
@@ -254,7 +274,11 @@ class RuntimeStashRecord implements RuntimeStash {
                 context.popPose();
             }
             this._state = StashRecordState.EVALUATED;
+            break;
         }
+        }
+        assertIsTrue(this._state === StashRecordState.EVALUATED);
+        assertIsTrue(this._instantiatedPoseGraph);
         return this._evaluationCache
             ? context.pushDuplicatedPose(this._evaluationCache)
             : null;

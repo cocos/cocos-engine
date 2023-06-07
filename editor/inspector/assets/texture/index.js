@@ -14,11 +14,12 @@ exports.methods = texture.methods;
 
 exports.ready = texture.ready;
 
-exports.update = function(assetList, metaList) {
+exports.update = function(assetList, metaList, parentAssetList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];
+    this.parentAssetList = parentAssetList;
 
     this.userData = this.meta.userData;
     this.userDataList = this.metaList.map((item) => item.userData);

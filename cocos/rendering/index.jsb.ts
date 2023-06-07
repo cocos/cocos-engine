@@ -31,7 +31,8 @@ import { ccclass, serializable, editable, type } from '../core/data/class-decora
 import { legacyCC } from '../core/global-exports';
 import * as decors from '../native-binding/decorators';
 import { RenderTexture } from '../asset/assets/render-texture';
-import type { 
+import { Skin } from '../render-scene/scene/skin';
+import { 
     RenderPipeline as NrRenderPipeline,
     RenderFlow as NrRenderFlow,
     RenderStage as NrRenderStage,
@@ -114,6 +115,32 @@ let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
 nr.PipelineStateManager.getOrCreatePipelineState = function (device, pass, shader, renderPass, ia) {
     return getOrCreatePipelineState(pass, shader, renderPass, ia); //cjh TODO: remove hacking. c++ API doesn't access device argument.
 };
+
+
+
+const pipelineSceneDataProto: any = nr.PipelineSceneData.prototype;
+pipelineSceneDataProto._ctor = function () {
+    this.skin = new Skin();
+};
+
+Object.defineProperty(pipelineSceneDataProto, 'standardSkinModel', {
+    get (): any {
+        return this._standardSkinModel;
+    },
+    set (obj: any | null) {
+        if (this._standardSkinModel && this._standardSkinModel !== obj) this._standardSkinModel.clearGlobalStandardSkinObjectFlag();
+        this._standardSkinModel = obj;
+    }
+});
+
+Object.defineProperty(pipelineSceneDataProto, 'skinMaterialModel', {
+    get (): any {
+        return this._skinMaterialModel;
+    },
+    set (obj: any) {
+        this._skinMaterialModel = obj;
+    }
+});
 
 // ForwardPipeline
 // TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar

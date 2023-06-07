@@ -1272,7 +1272,7 @@ class SSSSBlurData {
     ssssFov = 45.0 / 57.3;
     ssssWidth = 0.01;
     boundingBox = 0.4;
-    ssssScale = 5.0;
+    ssssScale = 3.0;
 
     get ssssStrength () {
         return this._v3SSSSStrength;
@@ -1448,8 +1448,8 @@ function _buildSSSSBlurPass (camera: Camera,
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
     ssssBlurData.ssssFov = camera.fov;
     ssssBlurData.ssssWidth = skin.blurRadius;
-    if (standardSkinModel && (standardSkinModel).model) {
-        const halfExtents = (standardSkinModel).model.worldBounds.halfExtents;
+    if (standardSkinModel && standardSkinModel.model) {
+        const halfExtents = standardSkinModel.model.worldBounds.halfExtents;
         ssssBlurData.boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
     }
     ssssBlurData.ssssScale = skin.sssIntensity;

@@ -121,7 +121,7 @@ export class PhysXSharedBody {
         this.id = PhysXSharedBody.idCounter++;
         this.node = node;
         this.wrappedWorld = wrappedWorld;
-        this._filterData = { word0: 1, word1: 1, word2: 0, word3: 0 };
+        this._filterData = { word0: 1, word1: 1, word2: 1, word3: 0 };
     }
 
     private _initActor (): void {

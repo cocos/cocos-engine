@@ -21,12 +21,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 import { Asset } from '../assets';
 import { js, cclegacy } from '../../core';
 import Cache from './cache';
 import { decodeUuid, normalize } from './helper';
-import { legacyCC } from '../../core/global-exports';
 
 export interface IConfigOption {
     importBase: string;
@@ -148,7 +147,7 @@ const isMatchByWord = (path: string, test: string): boolean => {
 };
 
 const processOptions = (options: IConfigOption) => {
-    if ((EDITOR && !legacyCC.GAME_VIEW) || TEST) { return; }
+    if (EDITOR_NOT_IN_PREVIEW || TEST) { return; }
     let uuids = options.uuids;
     const paths = options.paths;
     const types = options.types;

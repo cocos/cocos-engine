@@ -2,6 +2,7 @@
 
 const { join } = require('path');
 const { updateElementReadonly, updateElementInvalid } = require('../utils/assets');
+const { injectionStyle } = require('../utils/prop');
 
 exports.template = /* html */`
 <div class="asset-image">
@@ -25,11 +26,11 @@ exports.template = /* html */`
         <ui-label slot="label" value="i18n:ENGINE.assets.image.isRGBE" tooltip="i18n:ENGINE.assets.image.isRGBETip"></ui-label>
         <ui-checkbox slot="content" class="isRGBE-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-section expand class="sub-panel-section config" cache-expand="image-sub-panel-section">
+    <ui-section expand class="sub-panel-section" cache-expand="image-sub-panel-section">
         <ui-label slot="header"></ui-label>
         <ui-panel></ui-panel>
     </ui-section>
-    <ui-section expand class="sub-texture-panel-section config" cache-expand="image-sub-panel-section" hidden>
+    <ui-section expand class="sub-texture-panel-section" cache-expand="image-sub-panel-section" hidden>
         <ui-label slot="header"></ui-label>
         <ui-panel></ui-panel>
     </ui-section>
@@ -37,11 +38,11 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-    .asset-image > ui-prop {
-        margin: 4px 0;
+    .asset-image .sub-panel-section {
+        margin-top: 6px;
     }
-    .asset-image > ui-section {
-        margin: 4px 0;
+    .asset-image .sub-texture-panel-section {
+        margin-top: 0;
     }
 `;
 
@@ -282,7 +283,8 @@ exports.methods = {
         $label.setAttribute('value', type);
         const $panel = $section.querySelector('ui-panel');
         $panel.setAttribute('src', join(__dirname, `./${asset.importer}.js`));
-        $panel.update(assetList, metaList);
+        $panel.injectionStyle(injectionStyle);
+        $panel.update(assetList, metaList, this.assetList);
     },
 
     checkSpriteFrameChange(srcType, destType) {
@@ -322,7 +324,7 @@ exports.methods = {
                     continue;
                 }
                 if (subMeta.importer === imageImporter) {
-                    if (spriteFrameChange === 'othersToSpriteFrame' && subMeta.userData.mipfilter !== 'none') {
+                    if (spriteFrameChange === 'othersToSpriteFrame' && imageImporter === 'texture' && subMeta.userData.mipfilter !== 'none') {
                         // imageAsset type change to spriteFrame，disabled mipmaps
                         subMeta.userData.mipfilter = 'none';
                         mipChanged = true;
@@ -373,7 +375,7 @@ exports.update = function(assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
-    if (this.originMetaList) {
+    if (this.originMetaList && !this.asset.readonly) {
         // if the image type changes between sprite-frame
         const spriteFrameChange = this.checkSpriteFrameChange(this.originMetaList[0].userData.type, this.meta.userData.type);
         this.handleTypeChange(spriteFrameChange, this.meta.userData.type);

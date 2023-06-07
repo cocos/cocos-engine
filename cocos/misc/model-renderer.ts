@@ -81,24 +81,6 @@ export class ModelRenderer extends Renderer {
         this._updatePriority();
     }
 
-    /**
-     * @en local shadow normal bias for real time lighting.
-     * @zh 实时光照下模型局部的阴影法线偏移。
-     */
-    @type(CCBoolean)
-    @tooltip('i18n:model.standard_skin_model')
-    @disallowAnimation
-    get isGlobalStandardSkinObject () {
-        return this._enabledStandardSkin;
-    }
-
-    set isGlobalStandardSkinObject (val) {
-        cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel = val ? this : null;
-        this._enabledStandardSkin = val;
-    }
-
-    @serializable
-    protected _enabledStandardSkin = false;
     @serializable
     protected _visFlags = Layers.Enum.NONE;
     protected _models: scene.Model[] = [];
@@ -111,13 +93,6 @@ export class ModelRenderer extends Renderer {
      */
     public _collectModels (): scene.Model[] {
         return this._models;
-    }
-
-    /**
-     * @engineInternal
-     */
-    public closedStandardSkin () {
-        this._enabledStandardSkin = false;
     }
 
     protected onEnable () {
@@ -140,25 +115,6 @@ export class ModelRenderer extends Renderer {
         if (this._models.length > 0) {
             for (let i = 0; i < this._models.length; i++) {
                 this._models[i].priority = this._priority;
-            }
-        }
-    }
-
-    protected _updateStandardSkin () {
-        const pipelineSceneData = (cclegacy.director.root as Root).pipeline.pipelineSceneData;
-        if (this._enabledStandardSkin) {
-            pipelineSceneData.standardSkinModel = this;
-        }
-        if (!pipelineSceneData.skinMaterialModel) {
-            for (let i = 0; i < this._models.length; i++) {
-                const subModels = this._models[i].subModels;
-                for (let j = 0; j < subModels.length; j++) {
-                    const subModel = subModels[j];
-                    const skinPassIdx = getSkinPassIndex(subModel);
-                    if (skinPassIdx < 0) { continue; }
-                    pipelineSceneData.skinMaterialModel = this._models[i];
-                    return;
-                }
             }
         }
     }

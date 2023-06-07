@@ -1462,15 +1462,8 @@ void NativeRenderQueueBuilder::clearRenderTarget(const ccstd::string &name, cons
 }
 
 void NativeRenderQueueBuilder::setViewport(const gfx::Viewport &viewport) {
-    auto viewportID = addVertex(
-        ViewportTag{},
-        std::forward_as_tuple("Viewport"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(viewport),
-        *renderGraph, nodeID);
-    CC_ENSURES(viewportID != RenderGraph::null_vertex());
+    auto &queue = get(QueueTag{}, nodeID, *renderGraph);
+    queue.viewport = viewport;
 }
 
 void NativeRenderQueueBuilder::addCustomCommand(std::string_view customBehavior) {

@@ -253,6 +253,7 @@ export const tiled: IAssembler = {
         }
 
         // 临时变量存前置数据
+        tempRenderData.length = 0;
         tempRenderDataLength = Math.max(row + 1, col + 1);
         for (let i = 0; i < tempRenderDataLength; i++) {
             tempRenderData.push({ x: 0, y: 0, z: 0, u: 0, v: 0, color: new Color() });

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { CCString, Enum } from '../core';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
@@ -176,7 +176,7 @@ export class SkeletonData extends Asset {
     public reset () {
         this._skeletonCache = null;
         this._atlasCache = null;
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             this._skinsEnum = null;
             this._animsEnum = null;
         }
@@ -187,7 +187,7 @@ export class SkeletonData extends Asset {
      * @zh 重置皮肤和动画枚举。
      */
     public resetEnums () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             this._skinsEnum = null;
             this._animsEnum = null;
         }

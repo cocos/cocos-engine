@@ -113,6 +113,10 @@ public:
     inline void setUrl(const ccstd::string &url) { _url = url; }
     inline void setMipmapLevelDataSize(const ccstd::vector<uint32_t> &mipmapLevelDataSize) { _mipmapLevelDataSize = mipmapLevelDataSize; }
 
+    // Functions for Utils.
+    IntrusivePtr<ImageAsset> extractMipmap0();
+    std::vector<IntrusivePtr<ImageAsset>> extractMipmaps();
+
 private:
     uint8_t *_data{nullptr};
 

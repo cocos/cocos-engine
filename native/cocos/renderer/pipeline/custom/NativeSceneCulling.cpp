@@ -90,9 +90,7 @@ uint32_t SceneCulling::createRenderQueue(
 }
 
 void SceneCulling::collectCullingQueries(
-    const RenderGraph& rg, const LayoutGraphData& lg,
-    const pipeline::PipelineSceneData& pplSceneData) {
-    const scene::Camera* prevCamera = nullptr;
+    const RenderGraph& rg, const LayoutGraphData& lg) {
     for (const auto vertID : makeRange(vertices(rg))) {
         if (!holds<SceneTag>(vertID, rg)) {
             continue;
@@ -101,10 +99,6 @@ void SceneCulling::collectCullingQueries(
         if (!sceneData.scene) {
             CC_EXPECTS(false);
             continue;
-        }
-        if (sceneData.camera != prevCamera) {
-            pplSceneData.getCSMLayers()->update(&pplSceneData, sceneData.camera);
-            prevCamera = sceneData.camera;
         }
         const auto sourceID = getOrCreateSceneCullingQuery(sceneData);
         const auto layoutID = getSubpassOrPassID(vertID, rg, lg);
@@ -235,8 +229,8 @@ void sceneCulling(
 
 } // namespace
 
-void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplScenData) {
-    const auto* const skybox = pplScenData.getSkybox();
+void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData) {
+    const auto* const skybox = pplSceneData.getSkybox();
     const auto* const skyboxModelToSkip = skybox ? skybox->getModel() : nullptr;
 
     for (const auto& [scene, queries] : sceneQueries) {
@@ -263,7 +257,7 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplScenData) 
                             models);
                         break;
                     case scene::LightType::DIRECTIONAL: {
-                        const auto& csmLayers = *pplScenData.getCSMLayers();
+                        const auto& csmLayers = *pplSceneData.getCSMLayers();
                         const auto* mainLight = dynamic_cast<const scene::DirectionalLight*>(light);
                         const auto& csmLevel = mainLight->getCSMLevel();
                         const geometry::Frustum* frustum = nullptr;
@@ -375,7 +369,9 @@ void addRenderObject(
 
 } // namespace
 
-void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
+void SceneCulling::fillRenderQueues(
+    const RenderGraph& rg, const pipeline::PipelineSceneData& pplSceneData) {
+    const auto* const skybox = pplSceneData.getSkybox();
     for (auto&& [sceneID, desc] : sceneQueryIndex) {
         CC_EXPECTS(holds<SceneTag>(sceneID, rg));
         const auto sourceID = desc.culledSource;
@@ -405,6 +401,24 @@ void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
         CC_EXPECTS(targetID < renderQueues.size());
         auto& nativeQueue = renderQueues[targetID];
         CC_EXPECTS(nativeQueue.empty());
+                
+        // skybox
+        const auto* camera = sceneData.camera;
+        CC_EXPECTS(camera);
+        if (!any(sceneData.flags & SceneFlags::SHADOW_CASTER) &&
+            skybox && skybox->isEnabled() &&
+            (static_cast<int32_t>(camera->getClearFlag()) & scene::Camera::SKYBOX_FLAG)) {
+            CC_EXPECTS(skybox->getModel());
+            const auto& model = *skybox->getModel();
+            const auto* node = model.getNode();
+            float depth = 0;
+            if (node) {
+                Vec3 tempVec3{};
+                tempVec3 = node->getWorldPosition() - camera->getPosition();
+                depth = tempVec3.dot(camera->getForward());
+            }
+            nativeQueue.opaqueQueue.add(model, depth, 0, 0);
+        }
 
         // fill native queue
         for (const auto* const model : sourceModels) {
@@ -420,10 +434,10 @@ void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
 
 void SceneCulling::buildRenderQueues(
     const RenderGraph& rg, const LayoutGraphData& lg,
-    const pipeline::PipelineSceneData& pplScenData) {
-    collectCullingQueries(rg, lg, pplScenData);
-    batchCulling(pplScenData);
-    fillRenderQueues(rg);
+    const pipeline::PipelineSceneData& pplSceneData) {
+    collectCullingQueries(rg, lg, pplSceneData);
+    batchCulling(pplSceneData);
+    fillRenderQueues(rg, pplSceneData);
 }
 
 void SceneCulling::clear() noexcept {

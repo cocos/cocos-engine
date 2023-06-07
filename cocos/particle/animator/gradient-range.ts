@@ -23,8 +23,8 @@
 */
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
-import { Color, Enum, cclegacy, Gradient, AlphaKey, ColorKey } from '../../core';
+import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { Color, Enum, Gradient, AlphaKey, ColorKey } from '../../core';
 import { Texture2D } from '../../asset/assets';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 
@@ -84,7 +84,7 @@ export default class GradientRange {
     }
 
     set mode (m) {
-        if (EDITOR && !cclegacy.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             if (m === Mode.RandomColor) {
                 if (this.gradient.colorKeys.length === 0) {
                     this.gradient.colorKeys.push(new ColorKey());

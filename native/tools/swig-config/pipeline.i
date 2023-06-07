@@ -71,7 +71,6 @@ using namespace cc;
 %ignore cc::pipeline::PipelineSceneData::getShadowFramebufferMap;
 %ignore cc::pipeline::PipelineSceneData::getCSMLayers;
 %ignore cc::pipeline::PipelineSceneData::getCSMSupported;
-%ignore cc::pipeline::PipelineSceneData::setCSMSupported;
 %ignore cc::pipeline::UBOBloom;
 
 //TODO: Use regex to write the following ignore pattern
@@ -171,6 +170,7 @@ using namespace cc;
 %attribute(cc::pipeline::PipelineSceneData, cc::scene::Shadows*, shadows, getShadows);
 %attribute(cc::pipeline::PipelineSceneData, cc::gi::LightProbes*, lightProbes, getLightProbes);
 %attribute(cc::pipeline::PipelineSceneData, ccstd::vector<const cc::scene::Light *>, validPunctualLights, getValidPunctualLights, setValidPunctualLights);
+%attribute(cc::pipeline::PipelineSceneData, bool, csmSupported, getCSMSupported);
 
 %attribute(cc::pipeline::RenderStage, ccstd::string&, _name, getName, setName);
 %attribute(cc::pipeline::RenderStage, uint32_t, _priority, getPriority, setPriority);

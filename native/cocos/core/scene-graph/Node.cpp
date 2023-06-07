@@ -489,8 +489,8 @@ void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-n
             }
             if (dirtyBits & static_cast<uint32_t>(TransformBit::SCALE)) {
                 _worldScale.set(_localScale);
-                Mat4::fromRTS(_worldRotation, _worldPosition, _worldScale, &_worldMatrix);
             }
+            Mat4::fromRTS(_worldRotation, _worldPosition, _worldScale, &_worldMatrix);
         }
     }
     _transformFlags = (static_cast<uint32_t>(TransformBit::NONE));

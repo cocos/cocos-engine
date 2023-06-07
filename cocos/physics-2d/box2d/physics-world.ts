@@ -23,7 +23,7 @@
 */
 
 import b2 from '@cocos/box2d';
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js, cclegacy } from '../../core';
@@ -90,7 +90,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         return this._debugDrawFlags;
     }
     set debugDrawFlags (v) {
-        if (EDITOR && !cclegacy.GAME_VIEW) return;
+        if (EDITOR_NOT_IN_PREVIEW) return;
 
         if (!v) {
             if (this._debugGraphics) {
@@ -102,7 +102,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     _checkDebugDrawValid () {
-        if (EDITOR && !cclegacy.GAME_VIEW) return;
+        if (EDITOR_NOT_IN_PREVIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {

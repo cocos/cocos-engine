@@ -16,8 +16,8 @@ export function getRTFormatBeforeToneMapping (ppl: BasicPipeline) {
     return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16FloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
 }
 export function forceEnableFloatOutput (ppl: PipelineRuntime) {
-    let enabled = false;
-    if (ppl.pipelineSceneData.isHDR && !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
+    let enabled = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
+    if (ppl.pipelineSceneData.isHDR && !enabled) {
         const supportFloatOutput = supportsRGBA16FloatTexture(ppl.device);
         ppl.setMacroBool('CC_USE_FLOAT_OUTPUT', supportFloatOutput);
         macro.ENABLE_FLOAT_OUTPUT = supportFloatOutput;

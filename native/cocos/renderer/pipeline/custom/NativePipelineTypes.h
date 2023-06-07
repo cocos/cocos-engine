@@ -1058,9 +1058,9 @@ struct SceneCulling {
 private:
     uint32_t getOrCreateSceneCullingQuery(const SceneData& sceneData);
     uint32_t createRenderQueue(SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID);
-    void collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg, const pipeline::PipelineSceneData& pplSceneData);
+    void collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg);
     void batchCulling(const pipeline::PipelineSceneData& pplSceneData);
-    void fillRenderQueues(const RenderGraph& rg);
+    void fillRenderQueues(const RenderGraph& rg, const pipeline::PipelineSceneData& pplSceneData);
 public:
     ccstd::pmr::unordered_map<const scene::RenderScene*, CullingQueries> sceneQueries;
     ccstd::pmr::vector<ccstd::vector<const scene::Model*>> culledResults;
@@ -1211,6 +1211,7 @@ public:
     void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
     void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
     void beginFrame() override;
+    void update(const scene::Camera *camera) override;
     void endFrame() override;
     BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) override;
     void addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) override;

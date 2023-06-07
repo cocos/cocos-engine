@@ -1,5 +1,6 @@
 'use strict';
 const path = require('path');
+const { injectionStyle } = require('../../utils/prop');
 
 exports.template = /* html */`
 <div class="asset-fbx">
@@ -20,7 +21,8 @@ exports.style = /* css */`
 }
 
 .asset-fbx > .header {
-    padding-bottom: 4px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 `;
 
@@ -78,6 +80,8 @@ const Elements = {
     tabPanel: {
         ready() {
             const panel = this;
+
+            panel.$.tabPanel.injectionStyle(injectionStyle);
 
             panel.$.tabPanel.addEventListener('change', () => {
                 panel.dispatch('change');
