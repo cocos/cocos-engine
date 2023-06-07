@@ -284,7 +284,7 @@ exports.methods = {
         const $panel = $section.querySelector('ui-panel');
         $panel.setAttribute('src', join(__dirname, `./${asset.importer}.js`));
         $panel.injectionStyle(injectionStyle);
-        $panel.update(assetList, metaList);
+        $panel.update(assetList, metaList, this.assetList);
     },
 
     checkSpriteFrameChange(srcType, destType) {
