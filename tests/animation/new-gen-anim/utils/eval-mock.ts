@@ -15,8 +15,6 @@ export class AnimationGraphEvalMock {
             (animationGraph instanceof AnimationGraph) ? animationGraph : animationGraph.original!,
             node,
             controller,
-            // @ts-expect-error HACK here
-            controller._customEventTarget,
             (animationGraph instanceof AnimationGraph) ? null : animationGraph.clipOverrides,
         );
         // @ts-expect-error HACK

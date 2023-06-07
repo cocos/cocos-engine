@@ -1,4 +1,4 @@
-import { Node } from "../../../exports/base";
+import { Component, Node } from "../../../exports/base";
 import { AnimationGraphEvalMock } from './utils/eval-mock';
 import 'jest-extended';
 import { createAnimationGraph } from "./utils/factory";
@@ -57,26 +57,35 @@ test(`State machine event binding`, () => {
         }],
     });
 
-    const evalMock = new AnimationGraphEvalMock(new Node(), animationGraph);
+    const node = new Node();
 
-    const stateCustomEventCallbacks = Array.from({ length: 4 }, () => {
+    class EventListener extends Component { }
+    const eventListener = node.addComponent(EventListener) as EventListener;
+
+    const defineMethod = (methodName: string, method: Function) => {
+        eventListener[methodName] = method;
+    };
+
+    const evalMock = new AnimationGraphEvalMock(node, animationGraph);
+
+    const stateEventCallbacks = Array.from({ length: 4 }, () => {
         return {
             _in: jest.fn(),
             _out: jest.fn(),
         };
     });
-    const [m1, m2, p1, p2] = stateCustomEventCallbacks;
+    const [m1, m2, p1, p2] = stateEventCallbacks;
     for (const [callbacks, eventNamePrefix] of [
         [m1, 'm1'],
         [m2, 'm2'],
         [p1, 'p1'],
         [p2, 'p2'],
     ] as const) {
-        evalMock.controller.onCustomEvent_experimental(`${eventNamePrefix}-transition-in-event`, callbacks._in);
-        evalMock.controller.onCustomEvent_experimental(`${eventNamePrefix}-transition-out-event`, callbacks._out);
+        defineMethod(`${eventNamePrefix}-transition-in-event`, callbacks._in);
+        defineMethod(`${eventNamePrefix}-transition-out-event`, callbacks._out);
     }
 
-    const transitionCustomEventCallbacks = Array.from({ length: 3 }, () => {
+    const transitionEventCallbacks = Array.from({ length: 3 }, () => {
         return {
             start: jest.fn(),
             end: jest.fn(),
@@ -86,22 +95,22 @@ test(`State machine event binding`, () => {
         m1_to_m2,
         m2_to_p1,
         p1_to_p2,
-    ] = transitionCustomEventCallbacks;
+    ] = transitionEventCallbacks;
     for (const [callbacks, eventNamePrefix] of [
         [m1_to_m2, 'm1-to-m2'],
         [m2_to_p1, 'm2-to-p1'],
         [p1_to_p2, 'p1-to-p2'],
     ] as const) {
-        evalMock.controller.onCustomEvent_experimental(`${eventNamePrefix}-start-event`, callbacks.start);
-        evalMock.controller.onCustomEvent_experimental(`${eventNamePrefix}-end-event`, callbacks.end);
+        defineMethod(`${eventNamePrefix}-start-event`, callbacks.start);
+        defineMethod(`${eventNamePrefix}-end-event`, callbacks.end);
     }
 
     const checkZero = () => {
-        for (const callbacks of stateCustomEventCallbacks) {
+        for (const callbacks of stateEventCallbacks) {
             expect(callbacks._in).not.toBeCalled();
             expect(callbacks._out).not.toBeCalled();
         }
-        for (const callbacks of transitionCustomEventCallbacks) {
+        for (const callbacks of transitionEventCallbacks) {
             expect(callbacks.start).not.toBeCalled();
             expect(callbacks.end).not.toBeCalled();
         }
