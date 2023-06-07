@@ -9,15 +9,6 @@ require("<%= polyfillsBundleFile %>");
 window.self = window;
 require("<%= systemJsBundleFile %>");
 
-const info = my.getSystemInfoSync();
-if (info.platform == "iOS") {
-    canvas.width *= info.pixelRatio;
-    canvas.height *=  info.pixelRatio;
-} else {
-    canvas.width = info.screenWidth;
-    canvas.height = info.screenHeight;
-}
-
 const importMap = require("<%= importMapFile%>").default;
 System.warmup({
     importMap,
