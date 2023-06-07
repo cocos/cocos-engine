@@ -86,7 +86,10 @@ public:
     void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) /*implements*/;
     void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) /*implements*/;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) /*implements*/;
-    void setCamera(const scene::Camera *camera) /*implements*/;
+    void setCameraConstants(const scene::Camera *camera) /*implements*/;
+    void setDirectionalLightProjectionConstants(const scene::DirectionalLight *light, uint32_t level) /*implements*/;
+    void setSpotLightProjectionConstants(const scene::SpotLight *light) /*implements*/;
+    void setShadowMapConstants(const scene::Light *light, uint32_t numLevels) /*implements*/;
 
     void setVec4ArraySize(const ccstd::string& name, uint32_t sz);
     void setVec4ArrayElem(const ccstd::string& name, const cc::Vec4& vec, uint32_t id);
@@ -167,8 +170,17 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera *camera) override {
-        NativeSetter::setCamera(camera);
+    void setCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setCameraConstants(camera);
+    }
+    void setDirectionalLightProjectionConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setDirectionalLightProjectionConstants(light, level);
+    }
+    void setSpotLightProjectionConstants(const scene::SpotLight *light) override {
+        NativeSetter::setSpotLightProjectionConstants(light);
+    }
+    void setShadowMapConstants(const scene::Light *light, uint32_t numLevels) override {
+        NativeSetter::setShadowMapConstants(light, numLevels);
     }
 
     void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) override;
@@ -233,8 +245,17 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera *camera) override {
-        NativeSetter::setCamera(camera);
+    void setCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setCameraConstants(camera);
+    }
+    void setDirectionalLightProjectionConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setDirectionalLightProjectionConstants(light, level);
+    }
+    void setSpotLightProjectionConstants(const scene::SpotLight *light) override {
+        NativeSetter::setSpotLightProjectionConstants(light);
+    }
+    void setShadowMapConstants(const scene::Light *light, uint32_t numLevels) override {
+        NativeSetter::setShadowMapConstants(light, numLevels);
     }
 
     void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override {
@@ -323,8 +344,17 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera *camera) override {
-        NativeSetter::setCamera(camera);
+    void setCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setCameraConstants(camera);
+    }
+    void setDirectionalLightProjectionConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setDirectionalLightProjectionConstants(light, level);
+    }
+    void setSpotLightProjectionConstants(const scene::SpotLight *light) override {
+        NativeSetter::setSpotLightProjectionConstants(light);
+    }
+    void setShadowMapConstants(const scene::Light *light, uint32_t numLevels) override {
+        NativeSetter::setShadowMapConstants(light, numLevels);
     }
 
     void addRenderTarget(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override {
@@ -416,8 +446,17 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera *camera) override {
-        NativeSetter::setCamera(camera);
+    void setCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setCameraConstants(camera);
+    }
+    void setDirectionalLightProjectionConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setDirectionalLightProjectionConstants(light, level);
+    }
+    void setSpotLightProjectionConstants(const scene::SpotLight *light) override {
+        NativeSetter::setSpotLightProjectionConstants(light);
+    }
+    void setShadowMapConstants(const scene::Light *light, uint32_t numLevels) override {
+        NativeSetter::setShadowMapConstants(light, numLevels);
     }
 
     void addRenderTarget(const ccstd::string &name, const ccstd::string &slotName) override;
@@ -480,8 +519,17 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera *camera) override {
-        NativeSetter::setCamera(camera);
+    void setCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setCameraConstants(camera);
+    }
+    void setDirectionalLightProjectionConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setDirectionalLightProjectionConstants(light, level);
+    }
+    void setSpotLightProjectionConstants(const scene::SpotLight *light) override {
+        NativeSetter::setSpotLightProjectionConstants(light);
+    }
+    void setShadowMapConstants(const scene::Light *light, uint32_t numLevels) override {
+        NativeSetter::setShadowMapConstants(light, numLevels);
     }
 
     void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
@@ -555,8 +603,17 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera *camera) override {
-        NativeSetter::setCamera(camera);
+    void setCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setCameraConstants(camera);
+    }
+    void setDirectionalLightProjectionConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setDirectionalLightProjectionConstants(light, level);
+    }
+    void setSpotLightProjectionConstants(const scene::SpotLight *light) override {
+        NativeSetter::setSpotLightProjectionConstants(light);
+    }
+    void setShadowMapConstants(const scene::Light *light, uint32_t numLevels) override {
+        NativeSetter::setShadowMapConstants(light, numLevels);
     }
 
     void addDispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, Material *material, uint32_t passID) override;
@@ -613,8 +670,17 @@ public:
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
-    void setCamera(const scene::Camera *camera) override {
-        NativeSetter::setCamera(camera);
+    void setCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setCameraConstants(camera);
+    }
+    void setDirectionalLightProjectionConstants(const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setDirectionalLightProjectionConstants(light, level);
+    }
+    void setSpotLightProjectionConstants(const scene::SpotLight *light) override {
+        NativeSetter::setSpotLightProjectionConstants(light);
+    }
+    void setShadowMapConstants(const scene::Light *light, uint32_t numLevels) override {
+        NativeSetter::setShadowMapConstants(light, numLevels);
     }
 
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) override;
@@ -931,11 +997,12 @@ struct CullingKey {
     const scene::Camera* camera{nullptr};
     const scene::Light* light{nullptr};
     bool castShadow{false};
+    uint32_t lightLevel{0xFFFFFFFF};
 };
 
 inline bool operator==(const CullingKey& lhs, const CullingKey& rhs) noexcept {
-    return std::forward_as_tuple(lhs.camera, lhs.light, lhs.castShadow) ==
-           std::forward_as_tuple(rhs.camera, rhs.light, rhs.castShadow);
+    return std::forward_as_tuple(lhs.camera, lhs.light, lhs.castShadow, lhs.lightLevel) ==
+           std::forward_as_tuple(rhs.camera, rhs.light, rhs.castShadow, rhs.lightLevel);
 }
 
 inline bool operator!=(const CullingKey& lhs, const CullingKey& rhs) noexcept {
@@ -987,12 +1054,12 @@ struct SceneCulling {
     SceneCulling& operator=(SceneCulling const& rhs) = delete;
 
     void clear() noexcept;
-    void buildRenderQueues(const RenderGraph& rg, const LayoutGraphData& lg, const scene::Model* skyboxModelToSkip);
+    void buildRenderQueues(const RenderGraph& rg, const LayoutGraphData& lg, const pipeline::PipelineSceneData& pplSceneData);
 private:
     uint32_t getOrCreateSceneCullingQuery(const SceneData& sceneData);
     uint32_t createRenderQueue(SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID);
-    void collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg);
-    void batchCulling(const scene::Model* skyboxModelToSkip);
+    void collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg, const pipeline::PipelineSceneData& pplSceneData);
+    void batchCulling(const pipeline::PipelineSceneData& pplSceneData);
     void fillRenderQueues(const RenderGraph& rg);
 public:
     ccstd::pmr::unordered_map<const scene::RenderScene*, CullingQueries> sceneQueries;
@@ -1237,6 +1304,7 @@ inline hash_t hash<cc::render::CullingKey>::operator()(const cc::render::Culling
     hash_combine(seed, val.camera);
     hash_combine(seed, val.light);
     hash_combine(seed, val.castShadow);
+    hash_combine(seed, val.lightLevel);
     return seed;
 }
 

@@ -39,7 +39,7 @@ import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { AccessType, ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResolvePair, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { Model } from '../../render-scene/scene';
+import { Light, Model } from '../../render-scene/scene';
 import { SpotLight } from '../../render-scene/scene/spot-light';
 
 export interface PipelineRuntime {
@@ -114,7 +114,10 @@ export interface Setter extends RenderNode {
     setReadWriteBuffer (name: string, buffer: Buffer): void;
     setReadWriteTexture (name: string, texture: Texture): void;
     setSampler (name: string, sampler: Sampler): void;
-    setCamera (camera: Camera): void;
+    setCameraConstants (camera: Camera): void;
+    setDirectionalLightProjectionConstants (light: DirectionalLight, level: number): void;
+    setSpotLightProjectionConstants (light: SpotLight): void;
+    setShadowMapConstants (light: Light, numLevels?: number): void;
 }
 
 export interface RenderQueueBuilder extends Setter {

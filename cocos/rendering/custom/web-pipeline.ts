@@ -243,7 +243,17 @@ export class WebSetter {
         const num = this._lg.attributeIndex.get(name)!;
         this._data.samplers.set(num, sampler);
     }
-    public setCamera (camera: Camera): void {
+    public setCameraConstants (camera: Camera): void {
+
+    }
+    public setDirectionalLightProjectionConstants (light: DirectionalLight): void {
+
+    }
+    public setSpotLightProjectionConstants (light: SpotLight): void {
+
+    }
+    public setShadowMapConstants (light: Light, numLevels?: number): void {
+
     }
     public hasSampler (name: string): boolean {
         const id = this._lg.attributeIndex.get(name);
