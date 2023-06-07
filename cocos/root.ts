@@ -393,6 +393,7 @@ export class Root {
             this._customPipeline = rendering.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
+            this._pipelineEvent = rppl;
         } else {
             this._classicPipeline = rppl;
             this._pipeline = this._classicPipeline;

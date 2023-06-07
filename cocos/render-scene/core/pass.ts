@@ -515,7 +515,7 @@ export class Pass {
      * @zh 结合指定的编译宏组合获取当前 Pass 的 Shader Variant
      * @param patches The macro patches
      */
-    public getShaderVariant (patches: IMacroPatch[] | null = null): Shader | null {
+    public getShaderVariant (patches: Readonly<IMacroPatch[] | null> = null): Shader | null {
         if (!this._shader && !this.tryCompile()) {
             console.warn('pass resources incomplete');
             return null;

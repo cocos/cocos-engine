@@ -254,8 +254,12 @@ public:
     bool isRGBE{false};
 
 private:
+    void setMipmapParams(const ccstd::vector<ITextureCubeMipmap> &value);
+
     /*@serializable*/
     ccstd::vector<ITextureCubeMipmap> _mipmaps;
+
+    ccstd::vector<ITextureCubeMipmap> _generatedMipmaps;
 
     /*@serializable*/
     TextureCubeMipmapAtlasInfo _mipmapAtlas;

@@ -130,9 +130,12 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
         const auto batchingScheme = pass->getBatchingScheme();
 
         if (!bUseReflectPass) {
-            auto patches = const_cast<ccstd::vector<cc::scene::IMacroPatch> &>(subModel->getPatches());
-            patches.emplace_back(MACRO_PATCH_RGBE_OUTPUT);
-            subModel->onMacroPatchesStateChanged(patches);
+            _patches.clear();
+            for (const auto &patch : subModel->getPatches()) {
+                _patches.push_back(patch);
+            }
+            _patches.emplace_back(MACRO_PATCH_RGBE_OUTPUT);
+            subModel->onMacroPatchesStateChanged(_patches);
             _rgbeSubModels.emplace_back(subModel);
         }
 
@@ -148,7 +151,7 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
     }
 }
 
-void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) const {
+void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
 
     for (size_t i = 0; i < _subModels.size(); i++) {
@@ -167,13 +170,16 @@ void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::
     resetMacro();
     if (_instancedQueue) _instancedQueue->clear();
 }
-void ReflectionProbeBatchedQueue::resetMacro() const {
+void ReflectionProbeBatchedQueue::resetMacro() {
     for (const auto &subModel : _rgbeSubModels) {
-        auto patches = const_cast<ccstd::vector<cc::scene::IMacroPatch> &>(subModel->getPatches());
-        for (auto iter = patches.begin(); iter != patches.end(); iter++) {
+        _patches.clear();
+        for (const auto &patch : subModel->getPatches()) {
+            _patches.push_back(patch);
+        }
+        for (auto iter = _patches.begin(); iter != _patches.end(); iter++) {
             if (iter->name == CC_USE_RGBE_OUTPUT) {
-                patches.erase(iter);
-                const_cast<scene::SubModel *>(subModel)->onMacroPatchesStateChanged(patches);
+                _patches.erase(iter);
+                const_cast<scene::SubModel *>(subModel)->onMacroPatchesStateChanged(_patches);
                 break;
             }
         }

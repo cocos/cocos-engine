@@ -194,6 +194,7 @@ module.exports = {
             wrapModeTTip: '像素对纹理在 T（V）方向上的映射模式',
             modeWarn:
                 '警告：WebGL 1.0 平台不支持非 2 次幂贴图的 Repeat 过滤模式，运行时会自动改为 Clamp 模式，这会使材质的 tilingOffset 等属性完全失效。',
+            filterDiffenent: 'Filter 设置与 {atlasFile} 中的配置不符，可能无法生效。',
         },
         fbx: {
             browse: '更换贴图',

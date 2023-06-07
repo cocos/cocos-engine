@@ -31,8 +31,6 @@ import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { js, cclegacy } from '../../core';
 
-const compressedImageAsset: ImageAsset[] = [];
-
 /**
  * @en The create information for [[Texture2D]].
  * @zh 用来创建贴图的信息。
@@ -95,60 +93,49 @@ export class Texture2D extends SimpleTexture {
         return this._mipmaps;
     }
     set mipmaps (value) {
-        if (value.length > 0 && value[0].mipmapLevelDataSize && value[0].mipmapLevelDataSize.length > 0) {
-            compressedImageAsset.length = 0;
-            const mipmapLevelDataSize = value[0].mipmapLevelDataSize;
-            const data: Uint8Array = value[0].data as Uint8Array;
-            const _width = value[0].width;
-            const _height = value[0].height;
-            const _format = value[0].format;
+        this._mipmaps = value;
 
-            let byteOffset = 0;
-            for (let i = 0; i < mipmapLevelDataSize.length; i++) {
-                // fixme: We can't use srcView, we must make an in-memory copy. The reason is unknown
-                const srcView = new Uint8Array(data.buffer, byteOffset, mipmapLevelDataSize[i]);
-                const dstView = new Uint8Array(mipmapLevelDataSize[i]);
-                dstView.set(srcView);
-                compressedImageAsset[i] = new ImageAsset({
-                    _data: dstView,
-                    _compressed: true,
-                    width: _width,
-                    height: _height,
-                    format: _format,
-                    mipmapLevelDataSize: [],
-                });
-
-                compressedImageAsset[i]._uuid = value[0]._uuid;
-                this.setMipFilter(Filter.LINEAR);
-                byteOffset += mipmapLevelDataSize[i];
+        const mipmaps: ImageAsset[] = [];
+        if (value.length === 1) {
+            // might contain auto generated mipmaps
+            const image = value[0];
+            mipmaps.push(...image.extractMipmaps());
+        } else if (value.length > 1) {
+            // image asset mip0 as mipmaps
+            for (let i = 0; i < value.length; ++i) {
+                const image = value[i];
+                mipmaps.push(image.extractMipmap0());
             }
-            this._setMipmapParams(compressedImageAsset);
-        } else {
-            this._setMipmapParams(value);
         }
+
+        this._setMipmapParams(mipmaps);
     }
 
+    /**
+     * TODO: See: cocos/cocos-engine#15305
+     */
     private _setMipmapParams (value: ImageAsset[]) {
-        this._mipmaps = value;
-        this._setMipmapLevel(this._mipmaps.length);
-        if (this._mipmaps.length > 0) {
-            const imageAsset: ImageAsset = this._mipmaps[0];
+        this._generatedMipmaps = value;
+        this._setMipmapLevel(this._generatedMipmaps.length);
+        if (this._generatedMipmaps.length > 0) {
+            const imageAsset: ImageAsset = this._generatedMipmaps[0];
             this.reset({
                 width: imageAsset.width,
                 height: imageAsset.height,
                 format: imageAsset.format,
-                mipmapLevel: this._mipmaps.length,
+                mipmapLevel: this._generatedMipmaps.length,
                 baseLevel: this._baseLevel,
                 maxLevel: this._maxLevel,
             });
-            this._mipmaps.forEach((mipmap, level) => {
+            this._generatedMipmaps.forEach((mipmap, level) => {
                 this._assignImage(mipmap, level);
             });
+            //
         } else {
             this.reset({
                 width: 0,
                 height: 0,
-                mipmapLevel: this._mipmaps.length,
+                mipmapLevel: this._generatedMipmaps.length,
                 baseLevel: this._baseLevel,
                 maxLevel: this._maxLevel,
             });
@@ -176,6 +163,8 @@ export class Texture2D extends SimpleTexture {
      */
     @type([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
+
+    private _generatedMipmaps: ImageAsset[] = [];
 
     /**
      * @engineInternal
@@ -236,18 +225,18 @@ export class Texture2D extends SimpleTexture {
     }
 
     public updateMipmaps (firstLevel = 0, count?: number) {
-        if (firstLevel >= this._mipmaps.length) {
+        if (firstLevel >= this._generatedMipmaps.length) {
             return;
         }
 
         const nUpdate = Math.min(
-            count === undefined ? this._mipmaps.length : count,
-            this._mipmaps.length - firstLevel,
+            count === undefined ? this._generatedMipmaps.length : count,
+            this._generatedMipmaps.length - firstLevel,
         );
 
         for (let i = 0; i < nUpdate; ++i) {
             const level = firstLevel + i;
-            this._assignImage(this._mipmaps[level], level);
+            this._assignImage(this._generatedMipmaps[level], level);
         }
     }
 
@@ -267,6 +256,7 @@ export class Texture2D extends SimpleTexture {
      */
     public destroy () {
         this._mipmaps = [];
+        this._generatedMipmaps = [];
         return super.destroy();
     }
 
