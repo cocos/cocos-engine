@@ -449,7 +449,7 @@ exports.$ = {
     sceneSkyboxAfter: '.scene > .skybox > .after',
     sceneOctree: '.scene > .octree',
     sceneSkin: '.scene > .skin',
-    sceneToneMapping: '.scene > .skin',
+    sceneToneMapping: '.scene > .tonemapping',
 
     node: '.node',
     nodeHeader: '.node > header',
@@ -931,7 +931,6 @@ const Elements = {
             panel.$.sceneSkin.render(panel.dump._globals.skin);
 
             panel.dump._globals.tonemapping.displayName = 'ToneMapping';
-            panel.dump._globals.tonemapping.help = panel.getHelpUrl({ help: 'i18n:cc.ToneMapping' });
             panel.$.sceneToneMapping.render(panel.dump._globals.tonemapping);
 
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
@@ -1070,6 +1069,8 @@ const Elements = {
             const $prop = useHDR ? panel.$.sceneSkyboxEnvmapHDR : panel.$.sceneSkyboxEnvmapLDR;
             const uuid = $prop.dump.value.uuid;
             Elements.scene.setEnvMapAndConvolutionMap.call(panel, uuid);
+
+            panel.$.sceneToneMapping.style.display = useHDR ? 'inline-flex' : 'none';
         },
         skyboxEnvmapChange(useHDR, event) {
             const panel = this;

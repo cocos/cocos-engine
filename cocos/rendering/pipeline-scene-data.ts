@@ -36,7 +36,7 @@ import { cclegacy } from '../core';
 import { Skin } from '../render-scene/scene/skin';
 import { ModelRenderer } from '../misc/model-renderer';
 import { scene } from '../render-scene';
-import { Model } from '../render-scene/scene';
+import { Model, ToneMapping } from '../render-scene/scene';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 
 const GEOMETRY_RENDERER_TECHNIQUE_COUNT = 6;
@@ -102,6 +102,7 @@ export class PipelineSceneData {
     public csmLayers: CSMLayers = new CSMLayers();
     public octree: Octree = new Octree();
     public skin: Skin = new Skin();
+    public tonemapping: ToneMapping = new ToneMapping();
     public lightProbes = cclegacy.internal.LightProbes ? new cclegacy.internal.LightProbes() : null;
 
     /**
