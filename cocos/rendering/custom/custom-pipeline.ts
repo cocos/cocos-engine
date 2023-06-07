@@ -132,7 +132,6 @@ class SceneInfo {
 export class TestPipelineBuilder implements PipelineBuilder {
     constructor (pipelineSceneData: PipelineSceneData) {
         this._sceneInfo = new SceneInfo(pipelineSceneData);
-        console.log('TestPipelineBuilder constructor');
     }
     // interface
     public setup (cameras: Camera[], ppl: BasicPipeline): void {
@@ -352,9 +351,7 @@ export class TestPipelineBuilder implements PipelineBuilder {
         pass.addRenderTarget(`ShadowMap${id}`, LoadOp.CLEAR, StoreOp.STORE, new Color(1, 1, 1, 1));
         pass.addDepthStencil(`ShadowDepth${id}`, LoadOp.CLEAR, StoreOp.DISCARD);
         if (light.shadowFixedArea) {
-            this.getMainLightViewport(light, width, height, 0, this._viewport);
             const queue = pass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
-            queue.setViewport(this._viewport);
             queue.addSceneCulledByLight(camera,
                 SceneFlags.OPAQUE_OBJECT | SceneFlags.SHADOW_CASTER,
                 light);

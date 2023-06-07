@@ -1,14 +1,15 @@
-#include "NativePipelineTypes.h"
 #include "LayoutGraphGraphs.h"
-#include "RenderGraphGraphs.h"
+#include "NativePipelineTypes.h"
 #include "NativeUtils.h"
-#include "details/Range.h"
+#include "RenderGraphGraphs.h"
+#include "cocos/scene/Octree.h"
+#include "cocos/scene/RenderScene.h"
+#include "cocos/scene/SpotLight.h"
 #include "details/GslUtils.h"
+#include "details/Range.h"
 #include "pipeline/custom/LayoutGraphTypes.h"
 #include "pipeline/custom/NativeUtils.h"
-#include "cocos/scene/RenderScene.h"
-#include "cocos/scene/Octree.h"
-#include "cocos/scene/SpotLight.h"
+#include "pipeline/custom/RenderCommonTypes.h"
 
 namespace cc {
 
@@ -39,9 +40,12 @@ uint32_t SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sceneData) 
     // get or add scene to queries
     auto& queries = sceneQueries[scene];
 
+    // check cast shadow
+    const bool bCastShadow = any(sceneData.flags & SceneFlags::SHADOW_CASTER);
+
     // get or create query source
     // make query key
-    const auto key = CullingKey{ sceneData.camera, sceneData.light.light.get() };
+    const auto key = CullingKey{sceneData.camera, sceneData.light.light.get(), bCastShadow};
 
     // find query source
     auto iter = queries.culledResultIndex.find(key);
@@ -92,8 +96,9 @@ void SceneCulling::collectCullingQueries(const RenderGraph& rg, const LayoutGrap
         const auto sourceID = getOrCreateSceneCullingQuery(sceneData);
         const auto layoutID = getSubpassOrPassID(vertID, rg, lg);
         const auto targetID = createRenderQueue(sceneData.flags, layoutID);
-        const auto lightType = sceneData.light.light ? 
-            sceneData.light.light->getType()  : scene::LightType::UNKNOWN;
+        const auto lightType = sceneData.light.light
+                                   ? sceneData.light.light->getType()
+                                   : scene::LightType::UNKNOWN;
 
         // add render queue to query source
         sceneQueryIndex.emplace(vertID, NativeRenderQueueDesc(sourceID, targetID, lightType));
@@ -115,10 +120,10 @@ bool isFrustumVisible(const scene::Model& model, const geometry::Frustum& frustu
     return !modelWorldBounds || modelWorldBounds->aabbFrustum(frustum);
 }
 
-//bool isPointInstanceAndNotSkybox(const scene::Model& model, const scene::Skybox* skyBox) {
-//    const auto* modelWorldBounds = model.getWorldBounds();
-//    return !modelWorldBounds && (skyBox == nullptr || skyBox->getModel() != &model);
-//}
+// bool isPointInstanceAndNotSkybox(const scene::Model& model, const scene::Skybox* skyBox) {
+//     const auto* modelWorldBounds = model.getWorldBounds();
+//     return !modelWorldBounds && (skyBox == nullptr || skyBox->getModel() != &model);
+// }
 
 void bruteForceCulling(
     const scene::RenderScene& scene,
@@ -159,7 +164,8 @@ void sceneCulling(
     if (octree && octree->isEnabled()) {
         octree->queryVisibility(&camera, cameraOrLightFrustum, bCastShadow, models);
         // TODO(zhouzhenglong): move lod culling into octree query
-        auto iter = std::remove_if(models.begin(), models.end(),
+        auto iter = std::remove_if(
+            models.begin(), models.end(),
             [&](const scene::Model* model) {
                 return scene.isCulledByLod(&camera, model);
             });
@@ -179,35 +185,36 @@ void SceneCulling::batchCulling() {
             CC_EXPECTS(key.camera->getScene() == scene);
             const auto& camera = *key.camera;
             const auto* light = key.light;
+            const auto bCastShadow = key.castShadow;
 
             CC_EXPECTS(sourceID < culledResults.size());
             auto& models = culledResults[sourceID];
 
             if (light) {
                 switch (light->getType()) {
-                case scene::LightType::SPOT:
-                    sceneCulling(
-                        *scene, camera,
-                        dynamic_cast<const scene::SpotLight*>(light)->getFrustum(),
-                        true,
-                        models);
-                    break;
-                case scene::LightType::DIRECTIONAL:
-                    sceneCulling(
-                        *scene, camera,
-                        camera.getFrustum(),
-                        true,
-                        models);
-                    break;
-                default:
-                    // noop
-                    break;
+                    case scene::LightType::SPOT:
+                        sceneCulling(
+                            *scene, camera,
+                            dynamic_cast<const scene::SpotLight*>(light)->getFrustum(),
+                            bCastShadow,
+                            models);
+                        break;
+                    case scene::LightType::DIRECTIONAL:
+                        sceneCulling(
+                            *scene, camera,
+                            camera.getFrustum(),
+                            bCastShadow,
+                            models);
+                        break;
+                    default:
+                        // noop
+                        break;
                 }
             } else {
                 sceneCulling(
                     *scene, camera,
                     camera.getFrustum(),
-                    true,
+                    bCastShadow,
                     models);
             }
         }
@@ -244,7 +251,6 @@ void addRenderObject(
     const scene::Camera& camera,
     const scene::Model& model,
     NativeRenderQueue& queue) {
-
     const auto& subModels = model.getSubModels();
     const auto subModelCount = subModels.size();
     for (uint32_t subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
@@ -305,13 +311,6 @@ void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
         const auto targetID = desc.renderQueueTarget;
         const auto& sceneData = get(SceneTag{}, sceneID, rg);
 
-        // check shadow caster
-        if (desc.lightType != scene::LightType::UNKNOWN &&
-            !any(sceneData.flags & SceneFlags::SHADOW_CASTER)) {
-            // rendering to shadow map, but scene is not casting shadow
-            continue;
-        }
-
         // check scene flags
         const bool bDrawBlend = any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT);
         const bool bDrawOpaqueOrMask = any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
@@ -344,7 +343,8 @@ void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
 
         // fill native queue
         for (const auto* const model : sourceModels) {
-            addRenderObject(phaseLayoutID, bDrawOpaqueOrMask, bDrawBlend,
+            addRenderObject(
+                phaseLayoutID, bDrawOpaqueOrMask, bDrawBlend,
                 *sceneData.camera, *model, nativeQueue);
         }
 

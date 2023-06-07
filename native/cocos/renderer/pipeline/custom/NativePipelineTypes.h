@@ -928,11 +928,12 @@ struct SceneResource {
 struct CullingKey {
     const scene::Camera* camera{nullptr};
     const scene::Light* light{nullptr};
+    bool castShadow{false};
 };
 
 inline bool operator==(const CullingKey& lhs, const CullingKey& rhs) noexcept {
-    return std::forward_as_tuple(lhs.camera, lhs.light) ==
-           std::forward_as_tuple(rhs.camera, rhs.light);
+    return std::forward_as_tuple(lhs.camera, lhs.light, lhs.castShadow) ==
+           std::forward_as_tuple(rhs.camera, rhs.light, rhs.castShadow);
 }
 
 inline bool operator!=(const CullingKey& lhs, const CullingKey& rhs) noexcept {
@@ -1233,6 +1234,7 @@ inline hash_t hash<cc::render::CullingKey>::operator()(const cc::render::Culling
     hash_t seed = 0;
     hash_combine(seed, val.camera);
     hash_combine(seed, val.light);
+    hash_combine(seed, val.castShadow);
     return seed;
 }
 

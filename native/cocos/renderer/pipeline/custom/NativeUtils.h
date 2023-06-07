@@ -59,7 +59,7 @@ void setSamplerImpl(RenderData &data, const LayoutGraphData &lg, const ccstd::st
 // Implementation
 LayoutGraphData::vertex_descriptor getSubpassOrPassID(
     RenderGraph::vertex_descriptor vertID,
-    const RenderGraph& rg, const LayoutGraphData& lg);
+    const RenderGraph &rg, const LayoutGraphData &lg);
 
 } // namespace render
 
