@@ -550,7 +550,7 @@
             "comment": "Run in editor but not in editor preview.",
             "type": "boolean",
             "value": false,
-            "ccGlobal": true,
+            "ccGlobal": false,
             "internal": false,
             "dynamic": true
         },
