@@ -311,7 +311,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera: Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = (!EDITOR_NOT_IN_PREVIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = !EDITOR_NOT_IN_PREVIEW ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;

@@ -213,7 +213,7 @@ export class Downloader {
      * You don't need to change it at runtime.
      * @internal
      */
-    public appendTimeStamp = !!(EDITOR_NOT_IN_PREVIEW);
+    public appendTimeStamp = !!EDITOR_NOT_IN_PREVIEW;
 
     /**
      * @engineInternal

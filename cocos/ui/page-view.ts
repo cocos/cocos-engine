@@ -606,7 +606,7 @@ export class PageView extends ScrollView {
         if (this._sizeMode !== SizeMode.Unified) {
             return;
         }
-        const locPages = (EDITOR_NOT_IN_PREVIEW) ? this.content.children : this._pages;
+        const locPages = EDITOR_NOT_IN_PREVIEW ? this.content.children : this._pages;
         const selfSize = viewTrans.contentSize;
         for (let i = 0, len = locPages.length; i < len; i++) {
             locPages[i]._uiProps.uiTransformComp!.setContentSize(selfSize);

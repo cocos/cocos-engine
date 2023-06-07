@@ -978,7 +978,7 @@ export class Game extends EventTarget {
         if (onStart) {
             this.onStart = onStart;
         }
-        if (!this._inited || (EDITOR_NOT_IN_PREVIEW)) {
+        if (!this._inited || EDITOR_NOT_IN_PREVIEW) {
             return;
         }
         this.resume();

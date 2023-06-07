@@ -168,7 +168,7 @@ const ENTIRE_WORLD: IPhysicsWorld = {
 };
 
 export function checkPhysicsModule (obj: any) {
-    if (DEBUG && !TEST && (!EDITOR_NOT_IN_PREVIEW) && obj == null) {
+    if (DEBUG && !TEST && !EDITOR_NOT_IN_PREVIEW && obj == null) {
         errorID(9600);
         return true;
     }

@@ -147,7 +147,7 @@ const isMatchByWord = (path: string, test: string): boolean => {
 };
 
 const processOptions = (options: IConfigOption) => {
-    if ((EDITOR_NOT_IN_PREVIEW) || TEST) { return; }
+    if (EDITOR_NOT_IN_PREVIEW || TEST) { return; }
     let uuids = options.uuids;
     const paths = options.paths;
     const types = options.types;
