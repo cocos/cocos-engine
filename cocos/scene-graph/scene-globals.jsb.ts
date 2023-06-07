@@ -255,7 +255,7 @@ class SkinInfoLocal {
     @serializable
     protected _blurRadius = 0.01;
     @serializable
-    protected _sssIntensity = 5.0;
+    protected _sssIntensity = 3.0;
 
     protected _resource: Skin | null = null;
 
