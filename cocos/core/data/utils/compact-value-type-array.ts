@@ -146,7 +146,7 @@ function getElementTraits (elementType: ElementType): CompactTraits {
     return BuiltinElementTypeTraits[elementType];
 }
 
-function getStorageConstructor (unit: StorageUnit): Float32ArrayConstructor | Uint16ArrayConstructor | Uint32ArrayConstructor | Uint8ArrayConstructor | Int8ArrayConstructor | Int16ArrayConstructor | Int32ArrayConstructor | Float64ArrayConstructor {
+function getStorageConstructor (unit: StorageUnit): TypedArrayConstructor {
     switch (unit) {
     case StorageUnit.Uint8:
         return Uint8Array;

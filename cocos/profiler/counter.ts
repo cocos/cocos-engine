@@ -68,7 +68,7 @@ export class Counter {
         return isInteger ? Math.round(v) : Math.round(v * 100) / 100;
     }
 
-    public alarm (): boolean | 0 | undefined {
+    public alarm (): boolean | number | undefined {
         return (
             (this._opts.below && this._value < this._opts.below)
             || (this._opts.over && this._value > this._opts.over)

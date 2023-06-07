@@ -138,8 +138,7 @@ export function makeEditorClassDecoratorFn<TValue> (propertyName: string): (valu
  * - 如果该装饰器是以一个参数的形式，即 `@x(arg0)` 的形式调用的，该属性将被设置为传入的参数值。
  * @param propertyName The editor property.
  */
-export function makeSmartEditorClassDecorator<TValue> (propertyName: string, defaultValue: TValue): ClassDecorator & ((arg?: TValue | undefined) => ClassDecorator)
-{
+export function makeSmartEditorClassDecorator<TValue> (propertyName: string, defaultValue: TValue): ClassDecorator & ((arg?: TValue | undefined) => ClassDecorator) {
     return makeSmartClassDecorator<TValue>((constructor, decoratedValue?: TValue): void => {
         writeEditorClassProperty(constructor, propertyName, (defaultValue !== undefined) ? defaultValue : decoratedValue);
     });
