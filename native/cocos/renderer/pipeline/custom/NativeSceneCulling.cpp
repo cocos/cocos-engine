@@ -90,8 +90,7 @@ uint32_t SceneCulling::createRenderQueue(
 }
 
 void SceneCulling::collectCullingQueries(
-    const RenderGraph& rg, const LayoutGraphData& lg,
-    const pipeline::PipelineSceneData& pplSceneData) {
+    const RenderGraph& rg, const LayoutGraphData& lg) {
     for (const auto vertID : makeRange(vertices(rg))) {
         if (!holds<SceneTag>(vertID, rg)) {
             continue;

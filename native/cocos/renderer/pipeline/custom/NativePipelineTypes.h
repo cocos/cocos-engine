@@ -1057,7 +1057,7 @@ struct SceneCulling {
 private:
     uint32_t getOrCreateSceneCullingQuery(const SceneData& sceneData);
     uint32_t createRenderQueue(SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID);
-    void collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg, const pipeline::PipelineSceneData& pplSceneData);
+    void collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg);
     void batchCulling(const pipeline::PipelineSceneData& pplSceneData);
     void fillRenderQueues(const RenderGraph& rg, const pipeline::PipelineSceneData& pplSceneData);
 public:
