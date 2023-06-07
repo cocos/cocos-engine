@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
 import { Playable } from './playable';
@@ -379,7 +379,7 @@ export class AnimationState extends Playable {
             });
         }
 
-        if (!(EDITOR && !cclegacy.GAME_VIEW)) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             if (clip.containsAnyEvent()) {
                 this._clipEventEval = clip.createEventEvaluator(this._targetNode);
             }
@@ -473,7 +473,7 @@ export class AnimationState extends Playable {
         this._currentFramePlayed = false;
         this.time = time || 0.0;
 
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             const info = this.getWrappedInfo(time, this._wrappedInfo);
             this._clipEventEval?.ignore(info.ratio, info.direction);
         }
@@ -505,7 +505,7 @@ export class AnimationState extends Playable {
     public sample () {
         const info = this.getWrappedInfo(this.time, this._wrappedInfo);
         this._sampleCurves(info.time);
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this._sampleEvents(info);
         }
         this._sampleEmbeddedPlayers(info);
@@ -604,7 +604,7 @@ export class AnimationState extends Playable {
 
         if (this._clipEventEval || this._clipEmbeddedPlayerEval) {
             const wrapInfo = this.getWrappedInfo(this.time, this._wrappedInfo);
-            if (!EDITOR || cclegacy.GAME_VIEW) {
+            if (!EDITOR_NOT_IN_PREVIEW) {
                 this._sampleEvents(wrapInfo);
             }
 

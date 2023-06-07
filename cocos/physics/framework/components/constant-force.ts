@@ -33,10 +33,10 @@ import {
     displayOrder,
     serializable,
 } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Component } from '../../../scene-graph/component';
 import { RigidBody } from './rigid-body';
-import { Vec3, geometry, cclegacy } from '../../../core';
+import { Vec3 } from '../../../core';
 
 /**
  * @en
@@ -144,7 +144,7 @@ export class ConstantForce extends Component {
     }
 
     public lateUpdate (dt: number) {
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             if (this._rigidBody != null && this._mask !== 0) {
                 if (this._mask & 1) this._rigidBody.applyForce(this._force);
                 if (this._mask & 2) this._rigidBody.applyLocalForce(this.localForce);

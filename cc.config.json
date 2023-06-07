@@ -546,6 +546,14 @@
             "internal": false,
             "dynamic": true
         },
+        "EDITOR_NOT_IN_PREVIEW" : {
+            "comment": "Run in editor but not in editor preview.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": false,
+            "internal": false,
+            "dynamic": true
+        },
         "PREVIEW": {
             "comment": "Preview in browser or simulator.",
             "type": "boolean",
