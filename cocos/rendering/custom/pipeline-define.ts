@@ -433,7 +433,7 @@ export function updateGBufferRes (ppl: BasicPipeline, info: CameraInfo) {
 const emptyColor = new Color(0, 0, 0, 0);
 export function setupScenePassTiled (pipeline: BasicPipeline, info: CameraInfo, useCluster: boolean) {
     if (!lightingInfo) {
-        lightingInfo = new LightingInfo(useCluster, true);
+        lightingInfo = new LightingInfo(useCluster);
     }
 
     const ppl = (pipeline as Pipeline);
@@ -446,10 +446,10 @@ export function setupScenePassTiled (pipeline: BasicPipeline, info: CameraInfo, 
     const gBufferPassNormal = gBufferInfo.normal;
     const gBufferPassEmissive = gBufferInfo.emissive;
     const gBufferPassDSName = gBufferInfo.ds;
-    const scenePass = ppl.addRenderPass(width, height, 'default');
+    const scenePass = ppl.addRenderPass(width, height, 'deferred-scene-tiled');
 
     // gbuffer subpass
-    const gBufferPass = scenePass.addRenderSubpass('gbuffer');
+    const gBufferPass = scenePass.addRenderSubpass('gbuffer-tiled');
     gBufferPass.name = `CameraGBufferPass${info.id}`;
     gBufferPass.setViewport(new Viewport(area.x, area.y, width, height));
     const rtColor = new Color(0, 0, 0, 0);
@@ -468,11 +468,11 @@ export function setupScenePassTiled (pipeline: BasicPipeline, info: CameraInfo, 
     gBufferPass.addDepthStencil(gBufferPassDSName, AccessType.WRITE, '_', '_',
         LoadOp.CLEAR, StoreOp.DISCARD, camera.clearDepth, camera.clearStencil, camera.clearFlag);
     gBufferPass
-        .addQueue(QueueHint.RENDER_OPAQUE, 'gbuffer')
+        .addQueue(QueueHint.RENDER_OPAQUE, 'gbuffer-tiled')
         .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT);
 
     // lighting subpass
-    const lightingPass = scenePass.addRenderSubpass('deferred-lighting');
+    const lightingPass = scenePass.addRenderSubpass('deferred-lighting-tiled');
     lightingPass.name = `CameraLightingPass${info.id}`;
     lightingPass.setViewport(new Viewport(area.x, area.y, width, height));
 
@@ -493,8 +493,8 @@ export function setupScenePassTiled (pipeline: BasicPipeline, info: CameraInfo, 
 
     const deferredLightingPassRTName = `deferredLightingPassRTName`;
     lightingPass.addRenderTarget(deferredLightingPassRTName, AccessType.WRITE, '_', LoadOp.CLEAR, StoreOp.STORE, rtColor);
-    lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT, 'deferred-lighting').addCameraQuad(
-        camera, lightingInfo.deferredLightingMaterial, 0,
+    lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT, 'deferred-lighting-tiled').addCameraQuad(
+        camera, lightingInfo.deferredLightingMaterial, 1,
         SceneFlags.VOLUMETRIC_LIGHTING,
     );
     return { rtName: deferredLightingPassRTName };
@@ -556,10 +556,10 @@ export function updateLightingRes (ppl: BasicPipeline, info: CameraInfo) {
     ppl.updateRenderTarget(deferredLightingPassRTName, width, height);
 }
 let lightingInfo: LightingInfo;
-export function setupLightingPass (pipeline: BasicPipeline, info: CameraInfo, useCluster: boolean, useSubPass: boolean) {
+export function setupLightingPass (pipeline: BasicPipeline, info: CameraInfo, useCluster: boolean) {
     setupShadowPass(pipeline, info);
     if (!lightingInfo) {
-        lightingInfo = new LightingInfo(useCluster, useSubPass);
+        lightingInfo = new LightingInfo(useCluster);
     }
     const ppl = pipeline as Pipeline;
     const camera = info.camera;

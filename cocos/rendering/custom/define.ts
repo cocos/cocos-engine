@@ -807,22 +807,22 @@ export function buildGBufferPass (camera: Camera,
 export class LightingInfo {
     declare deferredLightingMaterial: Material;
     public enableCluster: number;
-    public enableSubPass: number;
 
     private _init () {
         this.deferredLightingMaterial = new Material();
         this.deferredLightingMaterial.name = 'builtin-deferred-material';
         this.deferredLightingMaterial.initialize({
             effectName: 'pipeline/deferred-lighting',
-            defines: { CC_ENABLE_SUBPASS: this.enableSubPass, CC_ENABLE_CLUSTERED_LIGHT_CULLING: this.enableCluster, CC_RECEIVE_SHADOW: 1 },
+            defines: [
+                { CC_ENABLE_CLUSTERED_LIGHT_CULLING: this.enableCluster, CC_RECEIVE_SHADOW: 1 },
+                { CC_ENABLE_CLUSTERED_LIGHT_CULLING: this.enableCluster, CC_RECEIVE_SHADOW: 1 }],
         });
         for (let i = 0; i < this.deferredLightingMaterial.passes.length; ++i) {
             this.deferredLightingMaterial.passes[i].tryCompile();
         }
     }
-    constructor (clusterEn: boolean, subPassEn: boolean) {
+    constructor (clusterEn: boolean) {
         this.enableCluster = clusterEn ? 1 : 0;
-        this.enableSubPass = subPassEn ? 1 : 0;
         this._init();
     }
 }
@@ -832,7 +832,7 @@ let lightingInfo: LightingInfo;
 // deferred lighting pass
 export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: GBufferInfo) {
     if (!lightingInfo) {
-        lightingInfo = new LightingInfo(false, false);
+        lightingInfo = new LightingInfo(false);
     }
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
@@ -1016,7 +1016,7 @@ export function buildNativeDeferredPipeline (camera: Camera, ppl: BasicPipeline)
         ppl.addRenderTexture('Color', Format.BGRA8, width, height, camera.window);
     }
     if (!lightingInfo) {
-        lightingInfo = new LightingInfo(false, false);
+        lightingInfo = new LightingInfo(false);
     }
     // GeometryPass
     {

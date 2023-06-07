@@ -106,7 +106,7 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
                     // GBuffer Pass
                     setupGBufferPass(ppl, info);
                     // Lighting Pass
-                    const lightInfo = setupLightingPass(ppl, info, useCluster, useSubPass);
+                    const lightInfo = setupLightingPass(ppl, info, useCluster);
                     // Deferred ForwardPass, for non-surface-shader material and transparent material
                     setupDeferredForward(ppl, info, lightInfo.rtName);
                     // Postprocess
