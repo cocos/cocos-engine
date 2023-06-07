@@ -308,9 +308,7 @@ void addRenderObject(
         for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
             auto& pass = *passes[passIdx];
             // check phase
-            const bool bRenderPhaseAllowed =
-                phaseLayoutID == LayoutGraphData::null_vertex() ||
-                phaseLayoutID == pass.getPhaseID();
+            const bool bRenderPhaseAllowed = phaseLayoutID == pass.getPhaseID();
             if (!bRenderPhaseAllowed) {
                 continue;
             }
@@ -372,6 +370,7 @@ void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
         CC_EXPECTS(holds<QueueTag>(renderQueueID, rg));
         const auto& renderQueue = get(QueueTag{}, renderQueueID, rg);
         const auto phaseLayoutID = renderQueue.phaseID;
+        CC_EXPECTS(phaseLayoutID != LayoutGraphData::null_vertex());
 
         // culling source
         CC_EXPECTS(sourceID < culledResults.size());
