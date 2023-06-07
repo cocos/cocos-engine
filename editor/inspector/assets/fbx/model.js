@@ -141,16 +141,16 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-ui-prop,
-ui-section {
-    margin: 4px 0;
-}
 .warn-words {
     margin-top: 20px;
     margin-bottom: 20px;
     line-height: 1.7;
     color: var(--color-warn-fill);
 }
+.lods {
+    margin-top: 0;
+}
+
 .mesh-optimizer ui-section > ui-prop,
 .lods ui-section > ui-prop {
     padding-left: 10px;
