@@ -61,8 +61,6 @@ public:
     explicit Color(const uint8_t *src);
 
     explicit Color(uint32_t val);
-    
- //   explicit Color(const Vec4 &v);
 
     /**
      * Constructs a color that describes the direction between the specified points.
@@ -113,8 +111,6 @@ public:
      * @param p2 The second point.
      */
     void set(const Color &p1, const Color &p2);
-    
-    void set(const Vec4 &v);
 
     Vec4 toVec4() const;
 };
