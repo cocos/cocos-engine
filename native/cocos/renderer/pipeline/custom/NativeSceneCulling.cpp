@@ -435,7 +435,7 @@ void SceneCulling::fillRenderQueues(
 void SceneCulling::buildRenderQueues(
     const RenderGraph& rg, const LayoutGraphData& lg,
     const pipeline::PipelineSceneData& pplSceneData) {
-    collectCullingQueries(rg, lg, pplSceneData);
+    collectCullingQueries(rg, lg);
     batchCulling(pplSceneData);
     fillRenderQueues(rg, pplSceneData);
 }
