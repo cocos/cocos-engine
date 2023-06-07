@@ -1172,7 +1172,7 @@ export class SkinInfo {
 
     /**
      * @en Activate the skin configuration in the render scene, no need to invoke manually.
-     * @zh 在渲染场景中启用八叉树设置，不需要手动调用
+     * @zh 在渲染场景中启用皮肤设置，不需要手动调用
      * @param resource The skin configuration object in the render scene
      */
     public activate (resource: Skin) {
