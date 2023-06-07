@@ -46,7 +46,7 @@ import {
     IWebGL2GPUUniformSamplerTexture,
     IWebGL2GPURenderPass,
 } from './webgl2-gpu-objects';
-import { CachedArray, error, errorID, debug, cclegacy } from '../../core';
+import { CachedArray, error, errorID, debug, cclegacy, assertID } from '../../core';
 
 const WebGLWraps: GLenum[] = [
     0x2901, // WebGLRenderingContext.REPEAT
@@ -2856,9 +2856,7 @@ function pixelBufferPick (buffer: ArrayBufferView,
         }
     }
     const length = bufferSize / ArrayBufferCtor.BYTES_PER_ELEMENT;
-    if (!Number.isInteger(length)) {
-        errorID(9101, `${length}`);
-    }
+    assertID(Number.isInteger(length), 9101);
     return new ArrayBufferCtor(stagingBuffer.buffer, 0, length);
 }
 
@@ -2908,9 +2906,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
             const buffer = buffers[n++];
             if (stride.width === extent.width && stride.height === extent.height) {
                 const length = FormatSize(gpuTexture.format, destWidth, destHeight, 1) / ArrayBufferCtor.BYTES_PER_ELEMENT;
-                if (!Number.isInteger(length)) {
-                    errorID(9101, `${length}`);
-                }
+                assertID(Number.isInteger(length), 9101);
                 pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset, length);
             } else {
                 pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
@@ -2962,9 +2958,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                 const buffer = buffers[n++];
                 if (stride.width === extent.width && stride.height === extent.height) {
                     const length = FormatSize(gpuTexture.format, destWidth, destHeight, 1) / ArrayBufferCtor.BYTES_PER_ELEMENT;
-                    if (!Number.isInteger(length)) {
-                        errorID(9101, `${length}`);
-                    }
+                    assertID(Number.isInteger(length), 9101);
                     pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset, length);
                 } else {
                     pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
@@ -3014,9 +3008,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
             const buffer = buffers[n++];
             if (stride.width === extent.width && stride.height === extent.height) {
                 const length = FormatSize(gpuTexture.format, destWidth, destHeight, extent.depth) / ArrayBufferCtor.BYTES_PER_ELEMENT;
-                if (!Number.isInteger(length)) {
-                    errorID(9101, `${length}`);
-                }
+                assertID(Number.isInteger(length), 9101);
                 pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset, length);
             } else {
                 pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
@@ -3065,9 +3057,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                 const buffer = buffers[n++];
                 if (stride.width === extent.width && stride.height === extent.height) {
                     const length = FormatSize(gpuTexture.format, destWidth, destHeight, 1) / ArrayBufferCtor.BYTES_PER_ELEMENT;
-                    if (!Number.isInteger(length)) {
-                        errorID(9101, `${length}`);
-                    }
+                    assertID(Number.isInteger(length), 9101);
                     pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset, length);
                 } else {
                     pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { debug, error, errorID, CachedArray, cclegacy } from '../../core';
+import { debug, error, errorID, CachedArray, cclegacy, assertID } from '../../core';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
@@ -2778,9 +2778,7 @@ function pixelBufferPick (buffer: ArrayBufferView,
         }
     }
     const length = bufferSize / ArrayBufferCtor.BYTES_PER_ELEMENT;
-    if (!Number.isInteger(length)) {
-        errorID(9101, `${length}`);
-    }
+    assertID(Number.isInteger(length), 9101);
     return new ArrayBufferCtor(stagingBuffer.buffer, 0, length);
 }
 
@@ -2830,9 +2828,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
             const buffer = buffers[n++];
             if (stride.width === extent.width && stride.height === extent.height) {
                 const length = FormatSize(gpuTexture.format, destWidth, destHeight, 1) / ArrayBufferCtor.BYTES_PER_ELEMENT;
-                if (!Number.isInteger(length)) {
-                    errorID(9101, `${length}`);
-                }
+                assertID(Number.isInteger(length), 9101);
                 pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset, length);
             } else {
                 pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
@@ -2881,9 +2877,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                 const buffer = buffers[n++];
                 if (stride.width === extent.width && stride.height === extent.height) {
                     const length = FormatSize(gpuTexture.format, destWidth, destHeight, 1) / ArrayBufferCtor.BYTES_PER_ELEMENT;
-                    if (!Number.isInteger(length)) {
-                        errorID(9101, `${length}`);
-                    }
+                    assertID(Number.isInteger(length), 9101);
                     pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset, length);
                 } else {
                     pixels = pixelBufferPick(buffer, gpuTexture.format, region.buffOffset, stride, extent);
