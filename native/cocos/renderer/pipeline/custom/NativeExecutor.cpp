@@ -2107,7 +2107,9 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     {
         auto& context = ppl.nativeContext;
         auto& sceneCulling = context.sceneCulling;
-        sceneCulling.buildRenderQueues(rg, lg);
+        const auto* const skybox = ppl.pipelineSceneData->getSkybox();
+        const auto* const skyboxModelToSkip = skybox ? skybox->getModel() : nullptr;
+        sceneCulling.buildRenderQueues(rg, lg, skyboxModelToSkip);
         auto& group = ppl.nativeContext.resourceGroups[context.nextFenceValue];
         // notice: we cannot use ranged-for of sceneCulling.renderQueues
         CC_EXPECTS(sceneCulling.numRenderQueues <= sceneCulling.renderQueues.size());

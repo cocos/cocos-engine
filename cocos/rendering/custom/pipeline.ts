@@ -30,6 +30,7 @@
 /* eslint-disable max-len */
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
+import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, LoadOp, PipelineState, Rect, ResolveMode, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
@@ -38,7 +39,8 @@ import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { AccessType, ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResolvePair, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { Light, Model } from '../../render-scene/scene';
+import { Model } from '../../render-scene/scene';
+import { SpotLight } from '../../render-scene/scene/spot-light';
 
 export interface PipelineRuntime {
     activate (swapchain: Swapchain): boolean;
@@ -124,10 +126,15 @@ export interface RenderQueueBuilder extends Setter {
         light: LightInfo,
         sceneFlags?: SceneFlags): void;
     addScene (camera: Camera, sceneFlags: SceneFlags): void;
-    addSceneCulledByLight (
+    addSceneCulledByDirectionalLight (
         camera: Camera,
         sceneFlags: SceneFlags,
-        light: Light): void;
+        light: DirectionalLight,
+        level: number): void;
+    addSceneCulledBySpotLight (
+        camera: Camera,
+        sceneFlags: SceneFlags,
+        light: SpotLight): void;
     addFullscreenQuad (
         material: Material,
         passID: number,

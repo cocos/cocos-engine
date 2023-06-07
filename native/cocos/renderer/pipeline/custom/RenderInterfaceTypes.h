@@ -56,6 +56,8 @@ class GeometryRenderer;
 
 namespace scene {
 
+class DirectionalLight;
+class SpotLight;
 class Model;
 class RenderScene;
 class RenderWindow;
@@ -199,7 +201,8 @@ public:
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
     virtual void addScene(const scene::Camera *camera, SceneFlags sceneFlags) = 0;
-    virtual void addSceneCulledByLight(const scene::Camera *camera, SceneFlags sceneFlags, IntrusivePtr<scene::Light> light) = 0;
+    virtual void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) = 0;
+    virtual void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) = 0;
     virtual void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) = 0;

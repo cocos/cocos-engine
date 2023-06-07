@@ -45,7 +45,7 @@ uint32_t SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sceneData) 
 
     // get or create query source
     // make query key
-    const auto key = CullingKey{sceneData.camera, sceneData.light.light.get(), bCastShadow};
+    const auto key = CullingKey{sceneData.camera, sceneData.light.light, bCastShadow};
 
     // find query source
     auto iter = queries.culledResultIndex.find(key);
@@ -120,12 +120,53 @@ bool isFrustumVisible(const scene::Model& model, const geometry::Frustum& frustu
     return !modelWorldBounds || modelWorldBounds->aabbFrustum(frustum);
 }
 
-// bool isPointInstanceAndNotSkybox(const scene::Model& model, const scene::Skybox* skyBox) {
-//     const auto* modelWorldBounds = model.getWorldBounds();
-//     return !modelWorldBounds && (skyBox == nullptr || skyBox->getModel() != &model);
-// }
+void octreeCulling(
+    const scene::Octree& octree,
+    const scene::Model* skyboxModelToSkip,
+    const scene::RenderScene& scene,
+    const scene::Camera& camera,
+    const geometry::Frustum& cameraOrLightFrustum,
+    bool bCastShadow,
+    ccstd::vector<const scene::Model*>& models) {
+    const auto visibility = camera.getVisibility();
+    // add instances without world bounds
+    for (const auto& pModel : scene.getModels()) {
+        CC_EXPECTS(pModel);
+        const auto& model = *pModel;
+        if (!model.isEnabled()) {
+            continue;
+        }
+        // has world bounds, should be in octree
+        if (model.getWorldBounds()) {
+            continue;
+        }
+        // is skybox, skip
+        if (&model == skyboxModelToSkip) {
+            continue;
+        }
+        // check cast shadow
+        if (bCastShadow && !model.isCastShadow()) {
+            continue;
+        }
+        // filter model by view visibility
+        if (isNodeVisible(model.getNode(), visibility) || isModelVisible(model, visibility)) {
+            models.emplace_back(&model);
+        }
+    }
+    // add instances with world bounds
+    octree.queryVisibility(&camera, cameraOrLightFrustum, bCastShadow, models);
+
+    // TODO(zhouzhenglong): move lod culling into octree query
+    auto iter = std::remove_if(
+        models.begin(), models.end(),
+        [&](const scene::Model* model) {
+            return scene.isCulledByLod(&camera, model);
+        });
+    models.erase(iter, models.end());
+}
 
 void bruteForceCulling(
+    const scene::Model* skyboxModelToSkip,
     const scene::RenderScene& scene,
     const scene::Camera& camera,
     const geometry::Frustum& cameraOrLightFrustum,
@@ -143,9 +184,15 @@ void bruteForceCulling(
         }
         // filter model by view visibility
         if (isNodeVisible(model.getNode(), visibility) || isModelVisible(model, visibility)) {
+            // frustum culling
             if (!isFrustumVisible(model, cameraOrLightFrustum)) {
                 continue;
             }
+            // is skybox, skip
+            if (&model == skyboxModelToSkip) {
+                continue;
+            }
+            // lod culling
             if (scene.isCulledByLod(&camera, &model)) {
                 continue;
             }
@@ -155,6 +202,7 @@ void bruteForceCulling(
 }
 
 void sceneCulling(
+    const scene::Model* skyboxModelToSkip,
     const scene::RenderScene& scene,
     const scene::Camera& camera,
     const geometry::Frustum& cameraOrLightFrustum,
@@ -162,22 +210,19 @@ void sceneCulling(
     ccstd::vector<const scene::Model*>& models) {
     const auto* const octree = scene.getOctree();
     if (octree && octree->isEnabled()) {
-        octree->queryVisibility(&camera, cameraOrLightFrustum, bCastShadow, models);
-        // TODO(zhouzhenglong): move lod culling into octree query
-        auto iter = std::remove_if(
-            models.begin(), models.end(),
-            [&](const scene::Model* model) {
-                return scene.isCulledByLod(&camera, model);
-            });
-        models.erase(iter, models.end());
+        octreeCulling(
+            *octree, skyboxModelToSkip,
+            scene, camera, cameraOrLightFrustum, bCastShadow, models);
     } else {
-        bruteForceCulling(scene, camera, cameraOrLightFrustum, bCastShadow, models);
+        bruteForceCulling(
+            skyboxModelToSkip,
+            scene, camera, cameraOrLightFrustum, bCastShadow, models);
     }
 }
 
 } // namespace
 
-void SceneCulling::batchCulling() {
+void SceneCulling::batchCulling(const scene::Model* skyboxModelToSkip) {
     for (const auto& [scene, queries] : sceneQueries) {
         CC_ENSURES(scene);
         for (const auto& [key, sourceID] : queries.culledResultIndex) {
@@ -194,6 +239,7 @@ void SceneCulling::batchCulling() {
                 switch (light->getType()) {
                     case scene::LightType::SPOT:
                         sceneCulling(
+                            skyboxModelToSkip,
                             *scene, camera,
                             dynamic_cast<const scene::SpotLight*>(light)->getFrustum(),
                             bCastShadow,
@@ -201,6 +247,7 @@ void SceneCulling::batchCulling() {
                         break;
                     case scene::LightType::DIRECTIONAL:
                         sceneCulling(
+                            skyboxModelToSkip,
                             *scene, camera,
                             camera.getFrustum(),
                             bCastShadow,
@@ -212,6 +259,7 @@ void SceneCulling::batchCulling() {
                 }
             } else {
                 sceneCulling(
+                    skyboxModelToSkip,
                     *scene, camera,
                     camera.getFrustum(),
                     bCastShadow,
@@ -353,9 +401,11 @@ void SceneCulling::fillRenderQueues(const RenderGraph& rg) {
     }
 }
 
-void SceneCulling::buildRenderQueues(const RenderGraph& rg, const LayoutGraphData& lg) {
+void SceneCulling::buildRenderQueues(
+    const RenderGraph& rg, const LayoutGraphData& lg,
+    const scene::Model* skyboxModelToSkip) {
     collectCullingQueries(rg, lg);
-    batchCulling();
+    batchCulling(skyboxModelToSkip);
     fillRenderQueues(rg);
 }
 

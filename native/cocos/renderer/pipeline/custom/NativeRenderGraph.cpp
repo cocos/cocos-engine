@@ -431,8 +431,8 @@ void NativeRenderPassBuilder::addStorageImage(
 }
 
 void NativeRenderPassBuilder::addMaterialTexture(
-    const ccstd::string& resourceName, gfx::ShaderStageFlagBit flags) {
-    auto& pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) {
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     pass.textures.emplace(resourceName, flags);
 }
 
@@ -1221,9 +1221,8 @@ void setTextureUBOView(
 
 void NativeRenderQueueBuilder::addSceneOfCamera(
     scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
-    auto *pLight = light.light.get();
-    SceneData scene(camera->getScene(), sceneFlags, light);
-    scene.camera = camera;
+    const auto *pLight = light.light.get();
+    SceneData scene(camera->getScene(), camera, sceneFlags, light);
     auto sceneID = addVertex(
         SceneTag{},
         std::forward_as_tuple("Camera"),
@@ -1267,8 +1266,7 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
 }
 
 void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
-    SceneData data(camera->getScene(), sceneFlags, LightInfo{});
-    data.camera = camera;
+    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{});
 
     auto sceneID = addVertex(
         SceneTag{},
@@ -1281,13 +1279,30 @@ void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags 
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 }
 
-void NativeRenderQueueBuilder::addSceneCulledByLight(
+void NativeRenderQueueBuilder::addSceneCulledByDirectionalLight(
     const scene::Camera *camera, SceneFlags sceneFlags,
-    IntrusivePtr<scene::Light> light) {
+    scene::DirectionalLight *light, uint32_t level) {
     CC_EXPECTS(light);
     CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
-    SceneData data(camera->getScene(), sceneFlags, LightInfo{std::move(light), 0});
-    data.camera = camera;
+    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, level});
+
+    auto sceneID = addVertex(
+        SceneTag{},
+        std::forward_as_tuple("Scene"),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(data)),
+        *renderGraph, nodeID);
+    CC_ENSURES(sceneID != RenderGraph::null_vertex());
+}
+
+void NativeRenderQueueBuilder::addSceneCulledBySpotLight(
+    const scene::Camera *camera, SceneFlags sceneFlags,
+    scene::SpotLight *light) {
+    CC_EXPECTS(light);
+    CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
+    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, 0});
 
     auto sceneID = addVertex(
         SceneTag{},
@@ -1601,8 +1616,8 @@ void NativeComputePassBuilder::addStorageImage(
 }
 
 void NativeComputePassBuilder::addMaterialTexture(
-    const ccstd::string& resourceName, gfx::ShaderStageFlagBit flags) {
-    auto& pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) {
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
     pass.textures.emplace(resourceName, flags);
 }
 

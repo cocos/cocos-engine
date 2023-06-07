@@ -1263,13 +1263,14 @@ export class RenderQueue {
 }
 
 export class SceneData {
-    constructor (scene: RenderScene | null = null, flags: SceneFlags = SceneFlags.NONE, light: LightInfo = new LightInfo()) {
+    constructor (scene: RenderScene | null = null, camera: Camera | null = null, flags: SceneFlags = SceneFlags.NONE, light: LightInfo = new LightInfo()) {
         this.scene = scene;
+        this.camera = camera;
         this.light = light;
         this.flags = flags;
     }
     /*pointer*/ scene: RenderScene | null;
-    /*pointer*/ camera: Camera | null = null;
+    /*pointer*/ camera: Camera | null;
     readonly light: LightInfo;
     flags: SceneFlags;
 }

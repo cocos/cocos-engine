@@ -793,8 +793,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     }
 
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
-        const sceneData = new SceneData(camera.scene, sceneFlags, light);
-        sceneData.camera = camera;
+        const sceneData = new SceneData(camera.scene, camera, sceneFlags, light);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
         );
@@ -812,15 +811,19 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         initGlobalDescBinding(this._data, layoutName);
     }
     addScene (camera: Camera, sceneFlags = SceneFlags.NONE): void {
-        const sceneData = new SceneData(camera.scene, sceneFlags);
-        sceneData.camera = camera;
+        const sceneData = new SceneData(camera.scene, camera, sceneFlags);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
         );
     }
-    addSceneCulledByLight (camera: Camera, sceneFlags: SceneFlags, light: Light): void {
-        const sceneData = new SceneData(camera.scene, sceneFlags, new LightInfo(light));
-        sceneData.camera = camera;
+    addSceneCulledByDirectionalLight (camera: Camera, sceneFlags: SceneFlags, light: DirectionalLight, level: number): void {
+        const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, level));
+        this._renderGraph.addVertex<RenderGraphValue.Scene>(
+            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+        );
+    }
+    addSceneCulledBySpotLight (camera: Camera, sceneFlags: SceneFlags, light: SpotLight): void {
+        const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, 0));
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
         );

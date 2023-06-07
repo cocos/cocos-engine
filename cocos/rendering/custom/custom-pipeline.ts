@@ -275,13 +275,10 @@ export class TestPipelineBuilder implements PipelineBuilder {
         pass.addDepthStencil(`DepthStencil${id}`, LoadOp.CLEAR);
 
         pass.addQueue(QueueHint.RENDER_OPAQUE, 'default')
-            .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE_OBJECT);
-
-        pass.addQueue(QueueHint.RENDER_CUTOUT, 'default')
-            .addSceneOfCamera(camera, new LightInfo(), SceneFlags.CUTOUT_OBJECT);
+            .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE | SceneFlags.MASK);
 
         pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'default')
-            .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT);
+            .addSceneOfCamera(camera, new LightInfo(), SceneFlags.BLEND);
     }
     private buildForwardTiled (ppl: BasicPipeline,
         camera: Camera, id: number, width: number, height: number,
@@ -306,13 +303,10 @@ export class TestPipelineBuilder implements PipelineBuilder {
             pass.addRenderTarget(`Color${id}`, LoadOp.CLEAR);
             pass.addDepthStencil(`DepthStencil${id}`, LoadOp.CLEAR);
             pass.addQueue(QueueHint.RENDER_OPAQUE, 'default')
-                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE_OBJECT);
-
-            pass.addQueue(QueueHint.RENDER_CUTOUT, 'default')
-                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.CUTOUT_OBJECT);
+                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE | SceneFlags.MASK);
 
             pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'default')
-                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT);
+                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.BLEND);
         }
     }
     private buildForward (ppl: BasicPipeline,
@@ -335,13 +329,10 @@ export class TestPipelineBuilder implements PipelineBuilder {
             pass.addRenderTarget(`Color${id}`, LoadOp.CLEAR);
             pass.addDepthStencil(`DepthStencil${id}`, LoadOp.CLEAR);
             pass.addQueue(QueueHint.RENDER_OPAQUE, 'default')
-                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE_OBJECT);
-
-            pass.addQueue(QueueHint.RENDER_CUTOUT, 'default')
-                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.CUTOUT_OBJECT);
+                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.OPAQUE | SceneFlags.MASK);
 
             pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'default')
-                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT);
+                .addSceneOfCamera(camera, new LightInfo(), SceneFlags.BLEND);
         }
     }
     private buildShadowMapPass (ppl: BasicPipeline, id: number, light: DirectionalLight, camera: Camera) {
@@ -352,18 +343,18 @@ export class TestPipelineBuilder implements PipelineBuilder {
         pass.addDepthStencil(`ShadowDepth${id}`, LoadOp.CLEAR, StoreOp.DISCARD);
         if (light.shadowFixedArea) {
             const queue = pass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
-            queue.addSceneCulledByLight(camera,
-                SceneFlags.OPAQUE_OBJECT | SceneFlags.SHADOW_CASTER,
-                light);
+            queue.addSceneCulledByDirectionalLight(camera,
+                SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER,
+                light, 0);
         } else {
             const csmLevel = this._sceneInfo.csmSupported ? light.csmLevel : 1;
             for (let level = 0; level !== csmLevel; ++level) {
                 this.getMainLightViewport(light, width, height, level, this._viewport);
                 const queue = pass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
                 queue.setViewport(this._viewport);
-                queue.addSceneCulledByLight(camera,
-                    SceneFlags.OPAQUE_OBJECT | SceneFlags.SHADOW_CASTER,
-                    light);
+                queue.addSceneCulledByDirectionalLight(camera,
+                    SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER,
+                    light, level);
             }
         }
     }

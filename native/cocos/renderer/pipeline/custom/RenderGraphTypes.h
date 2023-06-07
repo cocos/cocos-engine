@@ -743,8 +743,9 @@ struct RenderQueue {
 
 struct SceneData {
     SceneData() = default;
-    SceneData(const scene::RenderScene* sceneIn, SceneFlags flagsIn, LightInfo lightIn) noexcept
+    SceneData(const scene::RenderScene* sceneIn, const scene::Camera* cameraIn, SceneFlags flagsIn, LightInfo lightIn) noexcept
     : scene(sceneIn),
+      camera(cameraIn),
       light(std::move(lightIn)),
       flags(flagsIn) {}
 

@@ -173,7 +173,8 @@ public:
 
     void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) override;
     void addScene(const scene::Camera *camera, SceneFlags sceneFlags) override;
-    void addSceneCulledByLight(const scene::Camera *camera, SceneFlags sceneFlags, IntrusivePtr<scene::Light> light) override;
+    void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) override;
+    void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) override;
     void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
@@ -985,12 +986,12 @@ struct SceneCulling {
     SceneCulling& operator=(SceneCulling const& rhs) = delete;
 
     void clear() noexcept;
-    void buildRenderQueues(const RenderGraph& rg, const LayoutGraphData& lg);
+    void buildRenderQueues(const RenderGraph& rg, const LayoutGraphData& lg, const scene::Model* skyboxModelToSkip);
 private:
     uint32_t getOrCreateSceneCullingQuery(const SceneData& sceneData);
     uint32_t createRenderQueue(SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID);
     void collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg);
-    void batchCulling();
+    void batchCulling(const scene::Model* skyboxModelToSkip);
     void fillRenderQueues(const RenderGraph& rg);
 public:
     ccstd::pmr::unordered_map<const scene::RenderScene*, CullingQueries> sceneQueries;
