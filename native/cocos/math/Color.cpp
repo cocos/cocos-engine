@@ -50,10 +50,6 @@ Color::Color(uint32_t val) {
     set(val);
 }
 
-//Color::Color(const Vec4 &v) {
-//    set(v);
-//}
-
 Color::Color(const Color &p1, const Color &p2) {
     set(p1, p2);
 }
@@ -95,13 +91,6 @@ void Color::set(const Color &p1, const Color &p2) {
     g = p2.g - p1.g;
     b = p2.b - p1.b;
     a = p2.a - p1.a;
-}
-
-void Color::set(const Vec4 &v) {
-    r = v.x * 255.F;
-    g = v.y * 255.F;
-    b = v.z * 255.F;
-    a = v.w * 255.F;
 }
 
 Vec4 Color::toVec4() const {
