@@ -120,7 +120,7 @@ export default function cylinder (radiusTop = 0.5, radiusBottom = 0.5, height = 
     // internal fucntions
     // =======================
 
-    function generateTorso () {
+    function generateTorso (): void {
         const indexArray: number[][] = [];
 
         // this will be used to calculate the normal
@@ -190,7 +190,7 @@ export default function cylinder (radiusTop = 0.5, radiusBottom = 0.5, height = 
         }
     }
 
-    function generateCap (top) {
+    function generateCap (top): void {
         const radius = top ? radiusTop : radiusBottom;
         const sign = top ? 1 : -1;
 

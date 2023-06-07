@@ -58,7 +58,7 @@ export class DependUtil {
      * @en Global singleton for [[DependUtil]]. You can access it via [[AssetManager.dependUtil]].
      * @zh [[DependUtil]] 的全局单例. 你可以通过 [[AssetManager.dependUtil]] 访问.
      */
-    static get instance () {
+    static get instance (): DependUtil {
         if (!this._instance) {
             this._instance = new DependUtil();
         }
@@ -150,7 +150,7 @@ export class DependUtil {
     /**
      * @engineInternal
      */
-    public remove (uuid: string) {
+    public remove (uuid: string): void {
         this._depends.remove(uuid);
     }
 
@@ -234,7 +234,7 @@ export class DependUtil {
 
     private _parseDepsFromJson (json: any[]): string[] {
         const depends = parseUuidDependencies(json);
-        depends.forEach((uuid, index) => depends[index] = decodeUuid(uuid));
+        depends.forEach((uuid, index): string => depends[index] = decodeUuid(uuid));
         return depends;
     }
 

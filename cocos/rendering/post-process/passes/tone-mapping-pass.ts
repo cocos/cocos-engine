@@ -38,7 +38,7 @@ export class ToneMappingPass extends SettingPass {
 
     enableInAllEditorCamera = true;
     enable = true;
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         return true;
     }
 

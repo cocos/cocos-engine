@@ -19,29 +19,29 @@ class PagedStack {
     constructor (private _manager: SharedStackBasedAllocatorManager, private _pageSize: number) {
     }
 
-    get pageSize () {
+    get pageSize (): number {
         return this._pageSize;
     }
 
-    get debugLocking () {
+    get debugLocking (): boolean {
         return this._locking;
     }
 
-    public get allocatorCount () {
+    public get allocatorCount (): number {
         return this._allocatorCount;
     }
 
-    public debugLock () {
+    public debugLock (): void {
         assertIsTrue(!this._locking, `The memory is locking.`);
         this._locking = true;
     }
 
-    public debugUnlock () {
+    public debugUnlock (): void {
         assertIsTrue(this._locking, `Wrong execution logic: the memory is not locking.`);
         this._locking = false;
     }
 
-    public getPageMemory (index: number) {
+    public getPageMemory (index: number): ArrayBuffer {
         assertIsTrue(index >= 0 && index < this._pages.length, `Page index out of range`);
         return this._pages[index].buffer;
     }
@@ -62,7 +62,7 @@ class PagedStack {
         return page;
     }
 
-    public popPage (allocator: SharedStackBasedAllocator) {
+    public popPage (allocator: SharedStackBasedAllocator): void {
         const allocatorPageCount = allocator[allocatorPageCountTag];
         assertIsTrue(allocatorPageCount > 0);
         const allocatorLastPageIndex = allocatorPageCount - 1;
@@ -80,13 +80,13 @@ class PagedStack {
         }
     }
 
-    public createAllocator (sliceSize: number) {
+    public createAllocator (sliceSize: number): SharedStackBasedAllocator {
         const allocator = new SharedStackBasedAllocator(this, sliceSize);
         ++this._allocatorCount;
         return allocator;
     }
 
-    public destroyAllocator (allocator: SharedStackBasedAllocator) {
+    public destroyAllocator (allocator: SharedStackBasedAllocator): void {
         // Decrease use count of all pages used by the allocator.
         const allocatorPageCount = allocator[allocatorPageCountTag];
         for (let iPage = 0; iPage < allocatorPageCount; ++iPage) {
@@ -109,7 +109,7 @@ class PagedStack {
     private _pages: SharedMemoryPage[] = [];
     private _allocatorCount = 0;
 
-    private _pushNewPage () {
+    private _pushNewPage (): void {
         const newPage = new SharedMemoryPage(this._pageSize);
         this._pages.push(newPage);
     }
@@ -140,22 +140,22 @@ class SharedStackBasedAllocator {
         this._slicesPerPage = slicesPerPage;
     }
 
-    public get isEmpty () {
+    public get isEmpty (): boolean {
         return this._slices.length === 0;
     }
 
-    public destroy () {
+    public destroy (): void {
         assertIsTrue(this._slices.length === 0, `Can not destroy the allocator since it's not empty.`);
         assertIsTrue(!this._resource.debugLocking, `Can not destroy the allocator since it's locking.`);
 
         this._resource.destroyAllocator(this);
     }
 
-    public debugLock () {
+    public debugLock (): void {
         this._resource.debugLock();
     }
 
-    public debugUnlock () {
+    public debugUnlock (): void {
         this._resource.debugUnlock();
     }
 
@@ -202,7 +202,7 @@ class SharedStackBasedAllocator {
         return newSlice;
     }
 
-    public pop () {
+    public pop (): void {
         const {
             _slices: slices,
             _slicesPerPage: slicesPerPage,
@@ -241,7 +241,7 @@ export class SharedStackBasedAllocatorManager {
         assertIsTrue(_thresholds.every((v, i, arr) => i === 0 || v > arr[i - 1]));
     }
 
-    public get isEmpty () {
+    public get isEmpty (): boolean {
         return this._stacks.size === 0;
     }
 
@@ -262,7 +262,7 @@ export class SharedStackBasedAllocatorManager {
         return stack.createAllocator(allocationPageSize);
     }
 
-    public [onStackPurgedTag] (stack: PagedStack) {
+    public [onStackPurgedTag] (stack: PagedStack): void {
         let stackFound = false;
         for (const [k, v] of this._stacks) {
             if (v === stack) {
@@ -278,7 +278,7 @@ export class SharedStackBasedAllocatorManager {
 
     private _stacks = new Map<number, PagedStack>();
 
-    private _selectStackPageSize (allocationPageSize: number) {
+    private _selectStackPageSize (allocationPageSize: number): number {
         let thresholdIndex = binarySearchEpsilon(this._thresholds, allocationPageSize);
         let stackPageSize = allocationPageSize;
         if (thresholdIndex >= 0) {

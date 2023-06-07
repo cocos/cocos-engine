@@ -42,7 +42,7 @@ const _tempVec2_1 = new Vec2();
 const _tempVec2_2 = new Vec2();
 
 // align to borders by adjusting node's position and size (ignore rotation)
-function align (node: Node, widget: Widget) {
+function align (node: Node, widget: Widget): void {
     // Hack: this flag use to ONCE mode
     if (widget._hadAlignOnce) return;
     if ((!EDITOR) && widget.alignMode === AlignMode.ONCE) {
@@ -192,7 +192,7 @@ function align (node: Node, widget: Widget) {
 }
 
 // TODO: type is hack, Change to the type actually used (Node or BaseNode) when BaseNode complete
-function visitNode (node: any) {
+function visitNode (node: any): void {
     const widget = node.getComponent(Widget);
     if (widget && widget.enabled) {
         if (DEV) {
@@ -217,7 +217,7 @@ function visitNode (node: any) {
 }
 
 // This function will be called on AFTER_SCENE_LAUNCH and AFTER_UPDATE
-function refreshScene () {
+function refreshScene (): void {
     const scene = director.getScene();
     if (scene) {
         widgetManager.isAligning = true;
@@ -248,7 +248,7 @@ function refreshScene () {
 const activeWidgets: Widget[] = [];
 
 // updateAlignment from scene to node recursively
-function updateAlignment (node: Node) {
+function updateAlignment (node: Node): void {
     const parent = node.parent;
     if (parent && Node.isNode(parent)) {
         updateAlignment(parent);
@@ -277,7 +277,7 @@ export const widgetManager = cclegacy._widgetManager = {
         animatedSinceLastFrame: false,
     } : null,
 
-    init () {
+    init (): void {
         director.on(Director.EVENT_AFTER_SCENE_LAUNCH, refreshScene);
         director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
 
@@ -288,19 +288,19 @@ export const widgetManager = cclegacy._widgetManager = {
             screenAdapter.on('window-resize', thisOnResized);
         }
     },
-    add (widget: Widget) {
+    add (widget: Widget): void {
         this._nodesOrderDirty = true;
     },
-    remove (widget: Widget) {
+    remove (widget: Widget): void {
         this._activeWidgetsIterator.remove(widget);
     },
-    onResized () {
+    onResized (): void {
         const scene = director.getScene();
         if (scene) {
             this.refreshWidgetOnResized(scene);
         }
     },
-    refreshWidgetOnResized (node: Node) {
+    refreshWidgetOnResized (node: Node): void {
         const widget = Node.isNode(node) && node.getComponent(Widget);
         if (widget && widget.enabled && (
             widget.alignMode === AlignMode.ON_WINDOW_RESIZE || widget.alignMode === AlignMode.ALWAYS
@@ -313,8 +313,8 @@ export const widgetManager = cclegacy._widgetManager = {
             this.refreshWidgetOnResized(child);
         }
     },
-    updateOffsetsToStayPut (widget: Widget, e?: AlignFlags) {
-        function i (t: number, c: number) {
+    updateOffsetsToStayPut (widget: Widget, e?: AlignFlags): void {
+        function i (t: number, c: number): number {
             return Math.abs(t - c) > 1e-10 ? c : t;
         }
         const widgetNode = widget.node;

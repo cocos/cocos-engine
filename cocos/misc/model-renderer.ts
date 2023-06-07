@@ -58,7 +58,7 @@ export class ModelRenderer extends Renderer {
      * @en The visibility which will be applied to the committed models.
      * @zh 应用于所有提交渲染的 Model 的可见性
      */
-    get visibility () {
+    get visibility (): number {
         return this._visFlags;
     }
 
@@ -71,7 +71,7 @@ export class ModelRenderer extends Renderer {
      * @en The priority which will be applied to the committed models.(Valid only in transparent queues)
      * @zh 应用于所有提交渲染的 Model 的排序优先级（只在半透明渲染队列中起效）
      */
-    get priority () {
+    get priority (): number {
         return this._priority;
     }
 
@@ -95,23 +95,23 @@ export class ModelRenderer extends Renderer {
         return this._models;
     }
 
-    protected onEnable () {
+    protected onEnable (): void {
         this._updatePriority();
     }
 
-    protected _attachToScene () {
+    protected _attachToScene (): void {
     }
 
     /**
      * @engineInternal
      */
-    public _detachFromScene () {
+    public _detachFromScene (): void {
     }
 
-    protected _onVisibilityChange (val) {
+    protected _onVisibilityChange (val): void {
     }
 
-    protected _updatePriority () {
+    protected _updatePriority (): void {
         if (this._models.length > 0) {
             for (let i = 0; i < this._models.length; i++) {
                 this._models[i].priority = this._priority;

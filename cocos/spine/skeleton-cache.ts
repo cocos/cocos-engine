@@ -149,14 +149,14 @@ export class AnimationCache {
         this._tempBoneInfos = null;
     }
 
-    public init (skeletonInfo: SkeletonCacheItemInfo, animationName: string) {
+    public init (skeletonInfo: SkeletonCacheItemInfo, animationName: string): void {
         this._inited = true;
         this._animationName = animationName;
         this._skeletonInfo = skeletonInfo;
     }
 
     // Clear texture quote.
-    public clear () {
+    public clear (): void {
         this._inited = false;
         for (let i = 0, n = this.frames.length; i < n; i++) {
             const frame = this.frames[i]!;
@@ -165,8 +165,8 @@ export class AnimationCache {
         this.invalidAllFrame();
     }
 
-    public bind (listener: TrackEntryListeners) {
-        const completeHandle = (entry: spine.TrackEntry) => {
+    public bind (listener: TrackEntryListeners): void {
+        const completeHandle = (entry: spine.TrackEntry): void => {
             if (entry && entry.animation.name === this._animationName) {
                 this.isCompleted = true;
             }
@@ -175,11 +175,11 @@ export class AnimationCache {
         listener.complete = completeHandle;
     }
 
-    public unbind (listener: TrackEntryListeners) {
+    public unbind (listener: TrackEntryListeners): void {
         (listener as any).complete = null;
     }
 
-    public begin () {
+    public begin (): void {
         if (!this._invalid) return;
 
         const skeletonInfo = this._skeletonInfo;
@@ -211,7 +211,7 @@ export class AnimationCache {
         this._invalid = false;
     }
 
-    public end () {
+    public end (): void {
         if (!this.needToUpdate()) {
             // clear cur animation cache
             this._skeletonInfo!.curAnimationCache = null;
@@ -221,7 +221,7 @@ export class AnimationCache {
         }
     }
 
-    public updateToFrame (toFrameIdx?: number) {
+    public updateToFrame (toFrameIdx?: number): void {
         if (!this._inited) return;
 
         this.begin();
@@ -247,32 +247,32 @@ export class AnimationCache {
         this.end();
     }
 
-    public isInited () {
+    public isInited (): boolean {
         return this._inited;
     }
 
-    public isInvalid () {
+    public isInvalid (): boolean {
         return this._invalid;
     }
 
-    public invalidAllFrame () {
+    public invalidAllFrame (): void {
         this.isCompleted = false;
         this._invalid = true;
     }
 
-    public updateAllFrame () {
+    public updateAllFrame (): void {
         this.invalidAllFrame();
         this.updateToFrame();
     }
 
-    public enableCacheAttachedInfo () {
+    public enableCacheAttachedInfo (): void {
         if (!this._enableCacheAttachedInfo) {
             this._enableCacheAttachedInfo = true;
             this.invalidAllFrame();
         }
     }
 
-    public fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color, slotColor: spine.Color, clipper: spine.SkeletonClipping, slot: spine.Slot) {
+    public fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color, slotColor: spine.Color, clipper: spine.SkeletonClipping, slot: spine.Slot): void {
         _tempa = slotColor.a * attachmentColor.a * skeletonColor.a * 255;
         _tempr = attachmentColor.r * skeletonColor.r * 255;
         _tempg = attachmentColor.g * skeletonColor.g * 255;
@@ -349,7 +349,7 @@ export class AnimationCache {
         }
     }
 
-    protected updateFrame (skeleton: spine.Skeleton, clipper: spine.SkeletonClipping, index: number) {
+    protected updateFrame (skeleton: spine.Skeleton, clipper: spine.SkeletonClipping, index: number): void {
         _vfOffset = 0;
         _boneInfoOffset = 0;
         _indexOffset = 0;
@@ -433,13 +433,13 @@ export class AnimationCache {
         this.maxIndexCount = indices.length > this.maxIndexCount ? indices.length : this.maxIndexCount;
     }
 
-    protected needToUpdate (toFrameIdx?: number) {
+    protected needToUpdate (toFrameIdx?: number): boolean {
         return !this.isCompleted
             && this.totalTime < MaxCacheTime
             && (toFrameIdx === undefined || this._frameIdx < toFrameIdx);
     }
 
-    protected traverseSkeleton (skeleton: spine.Skeleton, clipper: spine.SkeletonClipping) {
+    protected traverseSkeleton (skeleton: spine.Skeleton, clipper: spine.SkeletonClipping): void {
         const segments = this._tempSegments!;
         const boneInfos = this._tempBoneInfos!;
         const skeletonColor = skeleton.color;
@@ -620,16 +620,16 @@ class SkeletonCache {
         this._skeletonCache = {};
     }
 
-    public enablePrivateMode () {
+    public enablePrivateMode (): void {
         this._privateMode = true;
     }
 
-    public clear () {
+    public clear (): void {
         this._animationPool = {};
         this._skeletonCache = {};
     }
 
-    public removeSkeleton (uuid: string) {
+    public removeSkeleton (uuid: string): void {
         const skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) return;
         const animationsCache = skeletonInfo.animationsCache;
@@ -645,7 +645,7 @@ class SkeletonCache {
         delete this._skeletonCache[uuid];
     }
 
-    public getSkeletonCache (uuid: string, skeletonData: spine.SkeletonData) {
+    public getSkeletonCache (uuid: string, skeletonData: spine.SkeletonData): SkeletonCacheItemInfo {
         let skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) {
             const skeleton = new spine.Skeleton(skeletonData);
@@ -669,7 +669,7 @@ class SkeletonCache {
         return skeletonInfo;
     }
 
-    public getAnimationCache (uuid: string, animationName: string) {
+    public getAnimationCache (uuid: string, animationName: string): AnimationCache | null {
         const skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) return null;
 
@@ -677,7 +677,7 @@ class SkeletonCache {
         return animationsCache[animationName];
     }
 
-    public invalidAnimationCache (uuid: string) {
+    public invalidAnimationCache (uuid: string): void {
         const skeletonInfo = this._skeletonCache[uuid];
         const skeleton = skeletonInfo && skeletonInfo.skeleton;
         if (!skeleton) return;

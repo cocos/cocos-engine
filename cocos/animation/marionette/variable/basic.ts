@@ -105,7 +105,7 @@ export abstract class VarInstanceBase {
         fn: (this: TThis, value: T, ...args: ExtraArgs) => void,
         thisArg: TThis,
         ...args: ExtraArgs
-    ) {
+    ): Value {
         this._refs.push({
             fn: fn as (this: unknown, value: unknown, ...args: unknown[]) => void,
             thisArg,
@@ -114,7 +114,7 @@ export abstract class VarInstanceBase {
         return this.getValue();
     }
 
-    get value () {
+    get value (): Value {
         return this.getValue();
     }
 

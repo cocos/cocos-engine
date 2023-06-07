@@ -49,7 +49,7 @@ export class Rect extends ValueType {
      * @param v2 Specified point 2.
      * @returns Target rectangle.
      */
-    public static fromMinMax <Out extends IRectLike, VecLike extends IVec2Like> (out: Out, v1: VecLike, v2: VecLike) {
+    public static fromMinMax <Out extends IRectLike, VecLike extends IVec2Like> (out: Out, v1: VecLike, v2: VecLike): Out {
         const minX = Math.min(v1.x, v2.x);
         const minY = Math.min(v1.y, v2.y);
         const maxX = Math.max(v1.x, v2.x);
@@ -70,7 +70,7 @@ export class Rect extends ValueType {
      * @param to Target rect.
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public static lerp <Out extends IRectLike> (out: Out, from: Out, to: Out, ratio: number) {
+    public static lerp <Out extends IRectLike> (out: Out, from: Out, to: Out, ratio: number): Out {
         const x = from.x;
         const y = from.y;
         const w = from.width;
@@ -90,7 +90,7 @@ export class Rect extends ValueType {
      * @param one One of the specify Rect.
      * @param other Another of the specify Rect.
      */
-    public static intersection <Out extends IRectLike> (out: Out, one: Out, other: Out) {
+    public static intersection <Out extends IRectLike> (out: Out, one: Out, other: Out): Out {
         const axMin = one.x;
         const ayMin = one.y;
         const axMax = one.x + one.width;
@@ -114,7 +114,7 @@ export class Rect extends ValueType {
      * @param one One of the specify Rect.
      * @param other Another of the specify Rect.
      */
-    public static union <Out extends IRectLike> (out: Out, one: Out, other: Out) {
+    public static union <Out extends IRectLike> (out: Out, one: Out, other: Out): Out {
         const x = one.x;
         const y = one.y;
         const w = one.width;
@@ -138,7 +138,7 @@ export class Rect extends ValueType {
      * @param b The second rect to be compared.
      * @returns Returns `true' when the minimum and maximum values of both rectangles are equal, respectively; otherwise, returns `false'.
      */
-    public static equals <InType extends IRectLike> (a: InType, b: InType) {
+    public static equals <InType extends IRectLike> (a: InType, b: InType): boolean {
         return a.x === b.x
                 && a.y === b.y
                 && a.width === b.width
@@ -149,7 +149,7 @@ export class Rect extends ValueType {
      * @en The minimum x value.
      * @zh 获取或设置矩形在 x 轴上的最小值。
      */
-    get xMin () {
+    get xMin (): number {
         return this.x;
     }
 
@@ -162,7 +162,7 @@ export class Rect extends ValueType {
      * @en The minimum y value.
      * @zh 获取或设置矩形在 y 轴上的最小值。
      */
-    get yMin () {
+    get yMin (): number {
         return this.y;
     }
 
@@ -175,7 +175,7 @@ export class Rect extends ValueType {
      * @en The maximum x value.
      * @zh 获取或设置矩形在 x 轴上的最大值。
      */
-    get xMax () {
+    get xMax (): number {
         return this.x + this.width;
     }
 
@@ -187,7 +187,7 @@ export class Rect extends ValueType {
      * @en The maximum y value.
      * @zh 获取或设置矩形在 y 轴上的最大值。
      */
-    get yMax () {
+    get yMax (): number {
         return this.y + this.height;
     }
 
@@ -199,7 +199,7 @@ export class Rect extends ValueType {
      * @en The position of the center of the rectangle.
      * @zh 获取或设置矩形中心点的坐标。
      */
-    get center () {
+    get center (): Vec2 {
         return new Vec2(this.x + this.width * 0.5,
             this.y + this.height * 0.5);
     }
@@ -213,7 +213,7 @@ export class Rect extends ValueType {
      * @en Returns a new [[Vec2]] object representing the position of the rectangle
      * @zh 获取或设置矩形的 x 和 y 坐标。
      */
-    get origin () {
+    get origin (): Vec2 {
         return new Vec2(this.x, this.y);
     }
 
@@ -226,7 +226,7 @@ export class Rect extends ValueType {
      * @en Returns a new [[Size]] object represents the width and height of the rectangle
      * @zh 获取或设置矩形的尺寸。
      */
-    get size () {
+    get size (): Size {
         return new Size(this.width, this.height);
     }
 
@@ -237,9 +237,9 @@ export class Rect extends ValueType {
 
     // compatibility with vector interfaces
     set z (val) { this.width = val; }
-    get z () { return this.width; }
+    get z (): number { return this.width; }
     set w (val) { this.height = val; }
-    get w () { return this.height; }
+    get w (): number { return this.height; }
 
     /**
      * @en The minimum x value.
@@ -301,7 +301,7 @@ export class Rect extends ValueType {
      * @en clone the current Rect.
      * @zh 克隆当前矩形。
      */
-    public clone () {
+    public clone (): Rect {
         return new Rect(this.x, this.y, this.width, this.height);
     }
 
@@ -311,7 +311,7 @@ export class Rect extends ValueType {
      * @param other Specified Rect.
      * @returns `this`
      */
-    public set (other: Rect);
+    public set (other: Rect): any;
 
     /**
      * @en Set the value of each component of the current Rect.
@@ -322,9 +322,9 @@ export class Rect extends ValueType {
      * @param height The height parameter of the specified rectangle
      * @returns `this`
      */
-    public set (x?: number, y?: number, width?: number, height?: number);
+    public set (x?: number, y?: number, width?: number, height?: number): any;
 
-    public set (x?: Rect | number, y?: number, width?: number, height?: number) {
+    public set (x?: Rect | number, y?: number, width?: number, height?: number): any {
         if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
@@ -345,7 +345,7 @@ export class Rect extends ValueType {
      * @param other Specified rectangles.
      * @returns Returns `true' when the minimum and maximum values of both rectangles are equal, respectively; otherwise, returns `false'.
      */
-    public equals (other: Rect) {
+    public equals (other: Rect): boolean {
         return this.x === other.x
             && this.y === other.y
             && this.width === other.width
@@ -358,7 +358,7 @@ export class Rect extends ValueType {
      * @param to Target Rect.
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Rect, ratio: number) {
+    public lerp (to: Rect, ratio: number): Rect {
         const x = this.x;
         const y = this.y;
         const w = this.width;
@@ -376,7 +376,7 @@ export class Rect extends ValueType {
      * @zh 返回当前矩形的字符串表示。
      * @returns The information of the current rect in string
      */
-    public toString () {
+    public toString (): string {
         return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.width.toFixed(2)}, ${this.height.toFixed(2)})`;
     }
 
@@ -386,7 +386,7 @@ export class Rect extends ValueType {
      * @param other Specified rectangles.
      * @returns If intersected, return `true', otherwise return `false'.
      */
-    public intersects (other: Rect) {
+    public intersects (other: Rect): boolean {
         const maxax = this.x + this.width;
         const maxay = this.y + this.height;
         const maxbx = other.x + other.width;
@@ -400,7 +400,7 @@ export class Rect extends ValueType {
      * @param point Specified point.
      * @returns The specified point is included in the rectangle and returns `true', otherwise it returns `false'.
      */
-    public contains (point: Vec2) {
+    public contains (point: Vec2): boolean {
         return (this.x <= point.x
                 && this.x + this.width >= point.x
                 && this.y <= point.y
@@ -413,7 +413,7 @@ export class Rect extends ValueType {
      * @param other Specified rectangles.
      * @returns Returns `true' if all the points of the specified rectangle are included in the current rectangle, `false' otherwise.
      */
-    public containsRect (other: Rect) {
+    public containsRect (other: Rect): boolean {
         return (this.x <= other.x
                 && this.x + this.width >= other.x + other.width
                 && this.y <= other.y
@@ -429,7 +429,7 @@ export class Rect extends ValueType {
      * 并将如此构成的新矩形。
      * @param matrix The matrix4
      */
-    public transformMat4 (mat: Mat4) {
+    public transformMat4 (mat: Mat4): Rect {
         const ol = this.x;
         const ob = this.y;
         const or = ol + this.width;
@@ -468,7 +468,7 @@ export class Rect extends ValueType {
      * @param out_rb The right bottom point
      * @param out_rt The right top point
      */
-    public transformMat4ToPoints (mat: Mat4, out_lb: Vec2, out_lt: Vec2, out_rt: Vec2, out_rb: Vec2) {
+    public transformMat4ToPoints (mat: Mat4, out_lb: Vec2, out_lt: Vec2, out_rt: Vec2, out_rb: Vec2): void {
         const ol = this.x;
         const ob = this.y;
         const or = ol + this.width;

@@ -64,17 +64,17 @@ export class ReflectionProbeStage extends RenderStage {
      * @param probe
      * @param frameBuffer
      */
-    public setUsageInfo (probe: ReflectionProbe, frameBuffer: Framebuffer) {
+    public setUsageInfo (probe: ReflectionProbe, frameBuffer: Framebuffer): void {
         this._probe = probe;
         this._frameBuffer = frameBuffer;
     }
 
-    public destroy () {
+    public destroy (): void {
         this._frameBuffer = null;
         this._probeRenderQueue?.clear();
     }
 
-    public clearFramebuffer (camera: Camera) {
+    public clearFramebuffer (camera: Camera): void {
         if (!this._frameBuffer) { return; }
 
         colors[0].w = camera.clearColor.w;
@@ -95,7 +95,7 @@ export class ReflectionProbeStage extends RenderStage {
         cmdBuff.endRenderPass();
     }
 
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         const pipeline = this._pipeline;
         const cmdBuff = pipeline.commandBuffers[0];
         this._probeRenderQueue.gatherRenderObjects(this._probe!, camera, cmdBuff);
@@ -129,7 +129,7 @@ export class ReflectionProbeStage extends RenderStage {
         pipeline.pipelineUBO.updateCameraUBO(camera);
     }
 
-    public activate (pipeline: ForwardPipeline, flow: ReflectionProbeFlow) {
+    public activate (pipeline: ForwardPipeline, flow: ReflectionProbeFlow): void {
         super.activate(pipeline, flow);
         this._probeRenderQueue = new RenderReflectionProbeQueue(pipeline);
     }

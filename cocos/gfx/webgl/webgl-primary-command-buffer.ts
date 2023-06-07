@@ -47,7 +47,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         clearColors: Readonly<Color[]>,
         clearDepth: number,
         clearStencil: number,
-    ) {
+    ): void {
         WebGLCmdFuncBeginRenderPass(
             WebGLDeviceManager.instance,
             (renderPass as WebGLRenderPass).gpuRenderPass,
@@ -57,7 +57,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         this._isInRenderPass = true;
     }
 
-    public draw (infoOrAssembler: DrawInfo | InputAssembler) {
+    public draw (infoOrAssembler: DrawInfo | InputAssembler): void {
         if (this._isInRenderPass) {
             if (this._isStateInvalied) {
                 this.bindStates();
@@ -90,7 +90,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public setViewport (viewport: Readonly<Viewport>) {
+    public setViewport (viewport: Readonly<Viewport>): void {
         const { stateCache: cache, gl } = WebGLDeviceManager.instance;
 
         if (cache.viewport.left !== viewport.left
@@ -106,7 +106,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public setScissor (scissor: Readonly<Rect>) {
+    public setScissor (scissor: Readonly<Rect>): void {
         const { stateCache: cache, gl } = WebGLDeviceManager.instance;
 
         if (cache.scissorRect.x !== scissor.x
@@ -122,7 +122,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number) {
+    public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number): void {
         if (!this._isInRenderPass) {
             const gpuBuffer = (buffer as WebGLBuffer).gpuBuffer;
             if (gpuBuffer) {
@@ -142,7 +142,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
         if (!this._isInRenderPass) {
             const gpuTexture = (texture as WebGLTexture).gpuTexture;
             if (gpuTexture) {
@@ -153,7 +153,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number) {
+    public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number): void {
         for (let i = 0; i < count; ++i) {
             // actually they are secondary buffers, the cast here is only for type checking
             const webGLCmdBuff = cmdBuffs[i] as WebGLPrimaryCommandBuffer;
@@ -164,7 +164,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    protected bindStates () {
+    protected bindStates (): void {
         WebGLCmdFuncBindStates(WebGLDeviceManager.instance, this._curGPUPipelineState, this._curGPUInputAssembler,
             this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
         this._isStateInvalied = false;

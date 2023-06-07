@@ -39,13 +39,13 @@ export default function downloadDomImage (
         img.crossOrigin = 'anonymous';
     }
 
-    function loadCallback () {
+    function loadCallback (): void {
         img.removeEventListener('load', loadCallback);
         img.removeEventListener('error', errorCallback);
         if (onComplete) { onComplete(null, img); }
     }
 
-    function errorCallback () {
+    function errorCallback (): void {
         img.removeEventListener('load', loadCallback);
         img.removeEventListener('error', errorCallback);
         if (onComplete) { onComplete(new Error(getError(4930, url))); }

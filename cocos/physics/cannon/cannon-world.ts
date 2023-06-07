@@ -34,11 +34,11 @@ import { CannonRigidBody } from './cannon-rigid-body';
 import { Node } from '../../scene-graph';
 
 export class CannonWorld implements IPhysicsWorld {
-    get impl () {
+    get impl (): CANNON.World {
         return this._world;
     }
 
-    setDefaultMaterial (mat: PhysicsMaterial) {
+    setDefaultMaterial (mat: PhysicsMaterial): void {
         this._world.defaultMaterial.friction = mat.friction;
         this._world.defaultMaterial.restitution = mat.restitution;
         if (CannonShape.idToMaterial[mat.id] != null) {
@@ -46,11 +46,11 @@ export class CannonWorld implements IPhysicsWorld {
         }
     }
 
-    setAllowSleep (v: boolean) {
+    setAllowSleep (v: boolean): void {
         this._world.allowSleep = v;
     }
 
-    setGravity (gravity: IVec3Like) {
+    setGravity (gravity: IVec3Like): void {
         Vec3.copy(this._world.gravity, gravity);
     }
 
@@ -133,7 +133,7 @@ export class CannonWorld implements IPhysicsWorld {
         this.syncSceneToPhysics();
     }
 
-    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number) {
+    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number): void {
         if (this.bodies.length === 0) return;
         this._world.step(deltaTime, timeSinceLastCalled, maxSubStep);
 
@@ -168,7 +168,7 @@ export class CannonWorld implements IPhysicsWorld {
         return CannonSharedBody.getSharedBody(node, this, wrappedBody);
     }
 
-    addSharedBody (sharedBody: CannonSharedBody) {
+    addSharedBody (sharedBody: CannonSharedBody): void {
         const i = this.bodies.indexOf(sharedBody);
         if (i < 0) {
             this.bodies.push(sharedBody);
@@ -176,7 +176,7 @@ export class CannonWorld implements IPhysicsWorld {
         }
     }
 
-    removeSharedBody (sharedBody: CannonSharedBody) {
+    removeSharedBody (sharedBody: CannonSharedBody): void {
         const i = this.bodies.indexOf(sharedBody);
         if (i >= 0) {
             js.array.fastRemoveAt(this.bodies, i);
@@ -188,7 +188,7 @@ export class CannonWorld implements IPhysicsWorld {
     //     this._cannonWorld.addContactMaterial(contactMaterial._getImpl());
     // }
 
-    addConstraint (constraint: CannonConstraint) {
+    addConstraint (constraint: CannonConstraint): void {
         const i = this.constraints.indexOf(constraint);
         if (i < 0) {
             this.constraints.push(constraint);
@@ -196,7 +196,7 @@ export class CannonWorld implements IPhysicsWorld {
         }
     }
 
-    removeConstraint (constraint: CannonConstraint) {
+    removeConstraint (constraint: CannonConstraint): void {
         const i = this.constraints.indexOf(constraint);
         if (i >= 0) {
             js.array.fastRemoveAt(this.constraints, i);
@@ -207,7 +207,7 @@ export class CannonWorld implements IPhysicsWorld {
 
 const from = new CANNON.Vec3();
 const to = new CANNON.Vec3();
-function setupFromAndTo (worldRay: geometry.Ray, distance: number) {
+function setupFromAndTo (worldRay: geometry.Ray, distance: number): void {
     Vec3.copy(from, worldRay.o);
     worldRay.computeHit(to, distance);
 }

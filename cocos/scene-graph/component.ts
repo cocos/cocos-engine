@@ -58,7 +58,7 @@ const NullNode = null as unknown as Node;
 class Component extends CCObject {
     public static EventHandler = EventHandler;
 
-    get name () {
+    get name (): string {
         if (this._name) {
             return this._name;
         }
@@ -88,7 +88,7 @@ class Component extends CCObject {
      * log(comp.uuid);
      * ```
      */
-    get uuid () {
+    get uuid (): string {
         return this._id;
     }
 
@@ -99,7 +99,7 @@ class Component extends CCObject {
     @type(Script)
     @tooltip('i18n:INSPECTOR.component.script')
     @disallowAnimation
-    get __scriptAsset () { return null; }
+    get __scriptAsset (): null { return null; }
 
     /**
      * @en Indicates whether this component is enabled or not.
@@ -112,7 +112,7 @@ class Component extends CCObject {
      * log(comp.enabled);
      * ```
      */
-    get enabled () {
+    get enabled (): boolean {
         return this._enabled;
     }
     set enabled (value) {
@@ -139,7 +139,7 @@ class Component extends CCObject {
      * log(comp.enabledInHierarchy);
      * ```
      */
-    get enabledInHierarchy () {
+    get enabledInHierarchy (): boolean {
         return this._enabled && this.node && this.node.activeInHierarchy;
     }
 
@@ -155,7 +155,7 @@ class Component extends CCObject {
      *
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    get _isOnLoadCalled () {
+    get _isOnLoadCalled (): number {
         return this._objFlags & IsOnLoadCalled;
     }
 
@@ -233,7 +233,7 @@ class Component extends CCObject {
      */
     public addComponent (className: string): Component | null;
 
-    public addComponent (typeOrClassName: any) {
+    public addComponent (typeOrClassName: any): Component {
         return this.node.addComponent(typeOrClassName);
     }
 
@@ -270,7 +270,7 @@ class Component extends CCObject {
      */
     public getComponent (className: string): Component | null;
 
-    public getComponent (typeOrClassName: any) {
+    public getComponent (typeOrClassName: any): Component | null {
         return this.node.getComponent(typeOrClassName);
     }
 
@@ -297,7 +297,7 @@ class Component extends CCObject {
      */
     public getComponents (className: string): Component[];
 
-    public getComponents<T extends Component> (typeOrClassName: any) {
+    public getComponents<T extends Component> (typeOrClassName: any): Component[] {
         return this.node.getComponents(typeOrClassName);
     }
 
@@ -324,7 +324,7 @@ class Component extends CCObject {
      */
     public getComponentInChildren (className: string): Component | null;
 
-    public getComponentInChildren (typeOrClassName: any) {
+    public getComponentInChildren (typeOrClassName: any): Component | null {
         return this.node.getComponentInChildren(typeOrClassName);
     }
 
@@ -351,13 +351,13 @@ class Component extends CCObject {
      */
     public getComponentsInChildren (className: string): Component[];
 
-    public getComponentsInChildren (typeOrClassName: any) {
+    public getComponentsInChildren (typeOrClassName: any): Component[] {
         return this.node.getComponentsInChildren(typeOrClassName);
     }
 
     // OVERRIDE
 
-    public destroy () {
+    public destroy (): boolean {
         if (EDITOR) {
             // TODO: `_getDependComponent` is an injected method.
             // issue: https://github.com/cocos/cocos-engine/issues/14643
@@ -380,7 +380,7 @@ class Component extends CCObject {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onPreDestroy () {
+    public _onPreDestroy (): void {
         // Schedules
         this.unscheduleAllCallbacks();
 
@@ -394,7 +394,7 @@ class Component extends CCObject {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _instantiate (cloned?: Component) {
+    public _instantiate (cloned?: Component): Component | undefined {
         if (!cloned) {
             cloned = legacyCC.instantiate._clone(this, this);
         }
@@ -425,7 +425,7 @@ class Component extends CCObject {
      * this.schedule((dt) => void log(`time: ${dt}`), 1);
      * ```
      */
-    public schedule (callback, interval = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay = 0) {
+    public schedule (callback, interval = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay = 0): void {
         assertID(callback, 1619);
 
         interval = interval || 0;
@@ -458,7 +458,7 @@ class Component extends CCObject {
      * this.scheduleOnce((dt) => void log(`time: ${dt}`), 2);
      * ```
      */
-    public scheduleOnce (callback, delay = 0) {
+    public scheduleOnce (callback, delay = 0): void {
         this.schedule(callback, 0, 0, delay);
     }
 
@@ -471,7 +471,7 @@ class Component extends CCObject {
      * this.unschedule(_callback);
      * ```
      */
-    public unschedule (callback_fn) {
+    public unschedule (callback_fn): void {
         if (!callback_fn) {
             return;
         }
@@ -487,7 +487,7 @@ class Component extends CCObject {
      * this.unscheduleAllCallbacks();
      * ```
      */
-    public unscheduleAllCallbacks () {
+    public unscheduleAllCallbacks (): void {
         legacyCC.director.getScheduler().unscheduleAllForTarget(this);
     }
 
@@ -687,7 +687,7 @@ if (EDITOR || TEST) {
 }
 
 // we make this non-enumerable, to prevent inherited by sub classes.
-value(Component, '_registerEditorProps', (cls, props) => {
+value(Component, '_registerEditorProps', (cls, props): void => {
     let reqComp = props.requireComponent;
     if (reqComp) {
         if (Array.isArray(reqComp)) {

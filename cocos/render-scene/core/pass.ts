@@ -129,7 +129,7 @@ export class Pass {
             const bsInfo = info.blendState;
             const { targets } = bsInfo;
             if (targets) {
-                targets.forEach((t, i) => {
+                targets.forEach((t, i): void => {
                     bs.setTarget(i, t as BlendTarget);
                 });
             }
@@ -367,7 +367,7 @@ export class Pass {
         this._descriptorSet.update();
     }
 
-    public getInstancedBuffer (extraKey = 0) {
+    public getInstancedBuffer (extraKey = 0): InstancedBuffer {
         return this._instancedBuffers[extraKey] || (this._instancedBuffers[extraKey] = new InstancedBuffer(this));
     }
 
@@ -655,7 +655,7 @@ export class Pass {
         Object.assign(directHandleMap, indirectHandleMap);
     }
 
-    private _buildUniformBlocks (device: Device, blocks: EffectAsset.IBlockInfo[], blockSizes: number[]) {
+    private _buildUniformBlocks (device: Device, blocks: EffectAsset.IBlockInfo[], blockSizes: number[]): void {
         const alignment = device.capabilities.uboOffsetAlignment;
         const startOffsets: number[] = [];
         let lastSize = 0; let lastOffset = 0;
@@ -690,7 +690,7 @@ export class Pass {
         }
     }
 
-    private _buildMaterialUniformBlocks (device: Device, blocks: UniformBlock[], blockSizes: number[]) {
+    private _buildMaterialUniformBlocks (device: Device, blocks: UniformBlock[], blockSizes: number[]): void {
         const alignment = device.capabilities.uboOffsetAlignment;
         const startOffsets: number[] = [];
         let lastSize = 0; let lastOffset = 0;
@@ -748,7 +748,7 @@ export class Pass {
         }
     }
 
-    private _getBlockView (type: Type, binding: number) {
+    private _getBlockView (type: Type, binding: number): Int32Array | Float32Array {
         return type < Type.FLOAT ? this._blocksInt[binding] : this._blocks[binding];
     }
 
@@ -756,7 +756,7 @@ export class Pass {
      * @engineInternal
      * Only for UI
      */
-    public _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number) {
+    public _initPassFromTarget (target: Pass, dss: DepthStencilState, hashFactor: number): void {
         this._priority = target.priority;
         this._stage = target.stage;
         this._phase = target.phase;
@@ -795,7 +795,7 @@ export class Pass {
     /**
      * @engineInternal
      */
-    public _updatePassHash () {
+    public _updatePassHash (): void {
         this._hash = Pass.getPassHash(this);
     }
 
@@ -825,14 +825,14 @@ export class Pass {
      * @engineInternal
      * Currently, can not just mark setter as engine internal, so change to a function.
      */
-    setRootBufferDirty (val: boolean) { this._rootBufferDirty = val; }
+    setRootBufferDirty (val: boolean): void { this._rootBufferDirty = val; }
     // states
     get priority (): RenderPriority { return this._priority; }
     /**
      * @engineInternal
      * Currently, can not just mark setter as engine internal, so change to a function.
      */
-    setPriority (val: RenderPriority) { this._priority = val; }
+    setPriority (val: RenderPriority): void { this._priority = val; }
     get primitive (): PrimitiveMode { return this._primitive; }
     get stage (): RenderPassStage { return this._stage; }
     get phase (): number { return this._phase; }

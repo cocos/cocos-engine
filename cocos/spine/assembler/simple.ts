@@ -102,7 +102,7 @@ let _vertexEffect: spine.VertexEffect | null = null;
 let _currentMaterial: MaterialInstance | null = null;
 let _currentTexture: Texture2D | null = null;
 
-function _getSlotMaterial (blendMode: spine.BlendMode) {
+function _getSlotMaterial (blendMode: spine.BlendMode): MaterialInstance {
     let src: BlendFactor;
     let dst: BlendFactor;
     switch (blendMode) {
@@ -127,7 +127,7 @@ function _getSlotMaterial (blendMode: spine.BlendMode) {
     return _comp!.getMaterialForBlendAndTint(src, dst, _useTint ? SpineMaterialType.TWO_COLORED : SpineMaterialType.COLORED_TEXTURED);
 }
 
-function _handleColor (color: FrameColor) {
+function _handleColor (color: FrameColor): void {
     // temp rgb has multiply 255, so need divide 255;
     _fa = color.fa * _nodeA;
     _multiplier = _premultipliedAlpha ? _fa / 255 :  1;
@@ -147,15 +147,15 @@ function _handleColor (color: FrameColor) {
     _darkColor32 = ((_da << 24) >>> 0) + (_db << 16) + (_dg << 8) + _dr;
 }
 
-function _spineColorToUint32 (spineColor: spine.Color) {
+function _spineColorToUint32 (spineColor: spine.Color): number {
     return ((spineColor.a << 24) >>> 0) + (spineColor.b << 16) + (spineColor.g << 8) + spineColor.r;
 }
 
-function _spineRGBAToUint32 (r: number, g: number, b: number, a: number) {
+function _spineRGBAToUint32 (r: number, g: number, b: number, a: number): number {
     return ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
 }
 
-function _vfmtFloatSize (useTint: boolean) {
+function _vfmtFloatSize (useTint: boolean): number {
     const attributes = useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B;
     return getAttributeStride(attributes) >> 2;
 }
@@ -246,7 +246,7 @@ export const simple: IAssembler = {
     },
 };
 
-function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
+function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D): void {
     if (!comp._skeleton || comp.renderData === null) return;
 
     const nodeColor = comp.color;
@@ -296,7 +296,7 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     _vertexEffect = null;
 }
 
-function updateChunkForClip (clippedVertices: number[], clippedTriangles: number[]) {
+function updateChunkForClip (clippedVertices: number[], clippedTriangles: number[]): void {
     const oldVertexCount = _vertexCount;
     const oldIndexCount = _indexCount;
     const rd = _renderData!;
@@ -333,7 +333,7 @@ function fillVertices (skeletonColor: spine.Color,
     attachmentColor: spine.Color,
     slotColor: spine.Color,
     clipper: spine.SkeletonClipping,
-    slot: spine.Slot) {
+    slot: spine.Slot): void {
     _finalColor.a = slotColor.a * attachmentColor.a * skeletonColor.a * _nodeA * 255;
     _multiplier =  _premultipliedAlpha ? _finalColor.a : 255;
     _tempr = _nodeR * attachmentColor.r * skeletonColor.r * _multiplier;
@@ -495,7 +495,7 @@ function fillVertices (skeletonColor: spine.Color,
     }
 }
 
-function realTimeTraverse (worldMat: Mat4 | null) {
+function realTimeTraverse (worldMat: Mat4 | null): void {
     const rd = _renderData!;
     _vbuf = rd.chunk.vb;
     _vUintBuf = new Uint32Array(_vbuf.buffer, _vbuf.byteOffset, _vbuf.length);
@@ -732,7 +732,7 @@ function realTimeTraverse (worldMat: Mat4 | null) {
     }
 }
 
-function cacheTraverse (worldMat: Mat4 | null) {
+function cacheTraverse (worldMat: Mat4 | null): void {
     const frame = _comp!._curFrame;
     if (!frame) return;
 

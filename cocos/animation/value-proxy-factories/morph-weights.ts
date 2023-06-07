@@ -48,9 +48,9 @@ export class MorphWeightValueProxy implements IValueProxyFactory {
     @serializable
     public shapeIndex = 0;
 
-    public forTarget (target: MeshRenderer) {
+    public forTarget (target: MeshRenderer): { set: (value: number) => void; } {
         return {
-            set: (value: number) => {
+            set: (value: number): void => {
                 target.setWeight(value, this.subMeshIndex, this.shapeIndex);
             },
         };
@@ -72,9 +72,9 @@ export class MorphWeightsValueProxy implements IValueProxyFactory {
     @serializable
     public subMeshIndex = 0;
 
-    public forTarget (target: MeshRenderer) {
+    public forTarget (target: MeshRenderer): { set: (value: number[]) => void; } {
         return {
-            set: (value: number[]) => {
+            set: (value: number[]): void => {
                 target.setWeights(value, this.subMeshIndex);
             },
         };
@@ -89,9 +89,9 @@ export class MorphWeightsValueProxy implements IValueProxyFactory {
  */
 @ccclass('cc.animation.MorphWeightsAllValueProxy')
 export class MorphWeightsAllValueProxy implements IValueProxyFactory {
-    public forTarget (target: MeshRenderer) {
+    public forTarget (target: MeshRenderer): { set: (value: number[]) => void; } {
         return {
-            set: (value: number[]) => {
+            set: (value: number[]): void => {
                 const nSubMeshes = target.mesh?.struct.primitives.length ?? 0;
                 for (let iSubMesh = 0; iSubMesh < nSubMeshes; ++iSubMesh) {
                     target.setWeights(value, iSubMesh);

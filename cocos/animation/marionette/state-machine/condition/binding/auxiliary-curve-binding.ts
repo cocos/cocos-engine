@@ -26,7 +26,7 @@ export class TCAuxiliaryCurveBinding extends TCBinding<TCBindingValueType.FLOAT>
     @serializable
     public curveName = '';
 
-    public getValueType () {
+    public getValueType (): TCBindingValueType.FLOAT {
         return TCBindingValueType.FLOAT as const;
     }
 
@@ -42,7 +42,7 @@ class TCAuxiliaryCurveBindingEvaluation implements TCBindingEvaluation<number> {
         private _curveName: string,
     ) { }
 
-    public evaluate () {
+    public evaluate (): number {
         return this._view.get(this._curveName);
     }
 }

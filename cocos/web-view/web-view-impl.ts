@@ -28,6 +28,7 @@ import { EventType } from './web-view-enums';
 import { UITransform } from '../2d/framework';
 import { director } from '../game/director';
 import { Node } from '../scene-graph';
+import type { Camera } from '../render-scene/scene';
 
 export abstract class WebViewImpl {
     protected _componentEventList: Map<EventType, (...args: any[any]) => void> = new Map();
@@ -59,7 +60,7 @@ export abstract class WebViewImpl {
         this.createWebView();
     }
 
-    public reset () {
+    public reset (): void {
         this._wrapper = null;
         this._webview = null;
         this._loaded = false;
@@ -86,15 +87,15 @@ export abstract class WebViewImpl {
     public abstract setOnJSCallback(callback: () => void): void;
     public abstract setJavascriptInterfaceScheme(scheme: string): void;
 
-    get loaded () { return this._loaded; }
-    get componentEventList () { return this._componentEventList; }
-    get webview () { return this._webview; }
-    get state () { return this._state; }
-    get UICamera () {
+    get loaded (): boolean { return this._loaded; }
+    get componentEventList (): Map<EventType, (...args: any) => void> { return this._componentEventList; }
+    get webview (): HTMLIFrameElement | null { return this._webview; }
+    get state (): EventType { return this._state; }
+    get UICamera (): Camera | null {
         return director.root!.batcher2D.getFirstRenderCamera(this._node!);
     }
 
-    protected dispatchEvent (key: EventType, ...args: any[any]) {
+    protected dispatchEvent (key: EventType, ...args: any[any]): void {
         const callback = this._componentEventList.get(key);
         if (callback) {
             this._state = key;
@@ -102,7 +103,7 @@ export abstract class WebViewImpl {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         this.removeWebView();
         this._wrapper = null;
         this._webview = null;

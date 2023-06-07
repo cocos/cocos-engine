@@ -66,7 +66,7 @@ export default class ShapeModule {
      */
     @displayOrder(13)
     @tooltip('i18n:shapeModule.position')
-    get position () {
+    get position (): Vec3 {
         return this._position;
     }
     set position (val) {
@@ -80,7 +80,7 @@ export default class ShapeModule {
      */
     @displayOrder(14)
     @tooltip('i18n:shapeModule.rotation')
-    get rotation () {
+    get rotation (): Vec3 {
         return this._rotation;
     }
     set rotation (val) {
@@ -94,7 +94,7 @@ export default class ShapeModule {
      */
     @displayOrder(15)
     @tooltip('i18n:shapeModule.scale')
-    get scale () {
+    get scale (): Vec3 {
         return this._scale;
     }
     set scale (val) {
@@ -113,7 +113,7 @@ export default class ShapeModule {
         const enumName = getShapeTypeEnumName(this.shapeType);
         return subset.includes(enumName);
     })
-    get arc () {
+    get arc (): number {
         return toDegree(this._arc);
     }
 
@@ -134,7 +134,7 @@ export default class ShapeModule {
         const enumName = getShapeTypeEnumName(this.shapeType);
         return subset.includes(enumName);
     })
-    get angle () {
+    get angle (): number {
         return Math.round(toDegree(this._angle) * 100) / 100;
     }
 
@@ -149,7 +149,7 @@ export default class ShapeModule {
      * @zh 是否启用。
      */
     @displayOrder(0)
-    public get enable () {
+    public get enable (): boolean {
         return this._enable;
     }
 
@@ -170,7 +170,7 @@ export default class ShapeModule {
 
     @type(ShapeType)
     @tooltip('i18n:shapeModule.shapeType')
-    public get shapeType () {
+    public get shapeType (): number {
         return this._shapeType;
     }
 
@@ -394,7 +394,7 @@ export default class ShapeModule {
      * @param ps @en Emit shape applied to which Particle system. @zh 使用发射形状的粒子系统。
      * @internal
      */
-    public onInit (ps: ParticleSystem) {
+    public onInit (ps: ParticleSystem): void {
         this.particleSystem = ps;
         this.constructMat();
         this.lastTime = this.particleSystem._time;
@@ -406,7 +406,7 @@ export default class ShapeModule {
      * @param p @en Particle emitted. @zh 发射出来的粒子。
      * @internal
      */
-    public emit (p) {
+    public emit (p): void {
         switch (this.shapeType) {
         case ShapeType.Box:
             boxEmit(this.emitFrom, this.boxThickness, p.position, p.velocity);
@@ -440,12 +440,12 @@ export default class ShapeModule {
         this.lastTime = this.particleSystem._time;
     }
 
-    private constructMat () {
+    private constructMat (): void {
         Quat.fromEuler(this.quat, this._rotation.x, this._rotation.y, this._rotation.z);
         Mat4.fromRTS(this.mat, this.quat, this._position, this._scale);
     }
 
-    private generateArcAngle () {
+    private generateArcAngle (): number {
         if (this.arcMode === ArcMode.Random) {
             return randomRange(0, this._arc);
         }
@@ -465,7 +465,7 @@ export default class ShapeModule {
     }
 }
 
-function sphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
+function sphereEmit (emitFrom, radius, radiusThickness, pos, dir): void {
     switch (emitFrom) {
     case EmitLocation.Volume:
         randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
@@ -481,7 +481,7 @@ function sphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
     }
 }
 
-function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
+function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir): void {
     switch (emitFrom) {
     case EmitLocation.Volume:
         randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
@@ -503,7 +503,7 @@ function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
     }
 }
 
-function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos, dir) {
+function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos, dir): void {
     switch (emitFrom) {
     case EmitLocation.Base:
         randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
@@ -533,7 +533,7 @@ function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos,
     }
 }
 
-function boxEmit (emitFrom, boxThickness, pos, dir) {
+function boxEmit (emitFrom, boxThickness, pos, dir): void {
     switch (emitFrom) {
     case EmitLocation.Volume:
         randomPointInCube(pos, _unitBoxExtent);
@@ -563,12 +563,12 @@ function boxEmit (emitFrom, boxThickness, pos, dir) {
     Vec3.copy(dir, particleEmitZAxis);
 }
 
-function circleEmit (radius, radiusThickness, theta, pos, dir) {
+function circleEmit (radius, radiusThickness, theta, pos, dir): void {
     randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
     Vec3.normalize(dir, pos);
 }
 
-function applyBoxThickness (pos, thickness) {
+function applyBoxThickness (pos, thickness): void {
     if (thickness.x > 0) {
         pos[0] += 0.5 * randomRange(-thickness.x, thickness.x);
         pos[0] = clamp(pos[0], -0.5, 0.5);

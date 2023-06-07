@@ -80,7 +80,7 @@ export class Primitive extends Mesh {
      * @zh
      * 根据`type`和`info`构建相应的网格。
      */
-    public onLoaded () {
+    public onLoaded (): void {
         createMesh(primitives[PrimitiveType[this.type].toLowerCase()](this.info), this);
     }
 }

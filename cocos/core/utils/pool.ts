@@ -138,7 +138,7 @@ export class Pool<T> {
      * @zh 获取的对象。如果对象池中没有对象，返回 null。
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _get () {
+    public _get (): T | null {
         if (this.count > 0) {
             --this.count;
             const cache = this._pool[this.count];
@@ -152,7 +152,7 @@ export class Pool<T> {
      * @en Put an object into the pool.
      * @zh 向对象池返还一个不再需要的对象。
      */
-    public put (obj: T) {
+    public put (obj: T): void {
         const pool = this._pool;
         if (this.count < pool.length) {
             if (this._cleanup && this._cleanup(obj) === false) {
@@ -169,7 +169,7 @@ export class Pool<T> {
      * @param length @en New pool size.
      * @zh 新对象池大小。
      */
-    public resize (length: number) {
+    public resize (length: number): void {
         if (length >= 0) {
             this._pool.length = length;
             if (this.count > length) {

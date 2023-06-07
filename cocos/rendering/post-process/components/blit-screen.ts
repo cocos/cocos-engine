@@ -9,7 +9,7 @@ class BlitScreenMaterial {
     _material: Material | undefined;
 
     @property(Material)
-    get material () {
+    get material (): Material | undefined {
         return this._material;
     }
     set material (v) {
@@ -28,7 +28,7 @@ export class BlitScreen extends PostProcessSetting {
     @property(Material)
     _activeMaterials: Material[] = []
     @property({ type: Material, visible: false })
-    get activeMaterials () {
+    get activeMaterials (): Material[] {
         return this._activeMaterials;
     }
     set activeMaterials (v) {
@@ -39,7 +39,7 @@ export class BlitScreen extends PostProcessSetting {
     _materials: BlitScreenMaterial[] = []
 
     @property(BlitScreenMaterial)
-    get materials () {
+    get materials (): BlitScreenMaterial[] {
         return this._materials;
     }
     set materials (v) {
@@ -47,7 +47,7 @@ export class BlitScreen extends PostProcessSetting {
         this.updateActiveMateirals();
     }
 
-    updateActiveMateirals () {
+    updateActiveMateirals (): void {
         const materials = this._materials;
         this._activeMaterials.length = 0;
         for (let i = 0; i < materials.length; i++) {
@@ -58,7 +58,7 @@ export class BlitScreen extends PostProcessSetting {
         }
     }
 
-    onLoad () {
+    onLoad (): void {
         this.updateActiveMateirals();
     }
 }

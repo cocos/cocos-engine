@@ -61,7 +61,7 @@ export class PhysXFixedJoint extends PhysXJoint implements IFixedConstraint {
         this.updateFrame();
     }
 
-    updateFrame () {
+    updateFrame (): void {
         const bodyA = (this._rigidBody.body as PhysXRigidBody).sharedBody;
         const cb = this.constraint.connectedBody;
 
@@ -83,11 +83,11 @@ export class PhysXFixedJoint extends PhysXJoint implements IFixedConstraint {
         }
     }
 
-    updateScale0 () {
+    updateScale0 (): void {
         this.updateFrame();
     }
 
-    updateScale1 () {
+    updateScale1 (): void {
         this.updateFrame();
     }
 }

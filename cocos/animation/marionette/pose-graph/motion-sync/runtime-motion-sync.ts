@@ -15,7 +15,7 @@ export class RuntimeMotionSyncManager {
         return group.addMember();
     }
 
-    public sync () {
+    public sync (): void {
         for (const group of this._groups) {
             group.sync();
         }
@@ -34,7 +34,7 @@ class Group {
         return record;
     }
 
-    public sync () {
+    public sync (): void {
         const {
             _records: records,
         } = this;
@@ -110,7 +110,7 @@ class RuntimeMotionSyncRecordImpl implements RuntimeMotionSyncRecord {
         this.normalizedTime = normalizedTime;
     }
 
-    public notifyUpdate (normalizedDeltaTime: number, weight: number) {
+    public notifyUpdate (normalizedDeltaTime: number, weight: number): void {
         this.normalizedTime += normalizedDeltaTime;
         // Note: we're allowing update multiple times. The first update becomes "activate".
         if (this.active) {
@@ -121,7 +121,7 @@ class RuntimeMotionSyncRecordImpl implements RuntimeMotionSyncRecord {
         }
     }
 
-    public reset () {
+    public reset (): void {
         this.active = false;
         this.weight = 0.0;
     }

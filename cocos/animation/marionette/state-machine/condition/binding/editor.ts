@@ -37,7 +37,7 @@ export interface TCBindingTypeInfo {
 const tcnBindingTypeInfoMap = new WeakMap<Constructor<TCBinding<number>>, TCBindingTypeInfo>();
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-function getOrCreateTCBindingTypeInfo <TFunction extends Function> (target: TFunction) {
+function getOrCreateTCBindingTypeInfo <TFunction extends Function> (target: TFunction): TCBindingTypeInfo {
     assertIsTrue(
         js.isChildClassOf(target, TCBinding),
         `This method can only be applied to subclasses of TCBinding`,
@@ -51,7 +51,7 @@ function getOrCreateTCBindingTypeInfo <TFunction extends Function> (target: TFun
     return info;
 }
 
-export const provide = (...valueTypes: readonly TCBindingValueType[]): ClassDecorator => (!EDITOR ? () => {} : (target) => {
+export const provide = (...valueTypes: readonly TCBindingValueType[]): ClassDecorator => (!EDITOR ? (): void => {} : (target): void => {
     const info = getOrCreateTCBindingTypeInfo(target);
     info.provisions = valueTypes.slice();
 });
@@ -70,7 +70,7 @@ export enum TCBindingTransitionSourceFilter {
     WEIGHTED = MOTION | POSE | EMPTY,
 }
 
-export const support = (transitionSourceFilter: TCBindingTransitionSourceFilter): ClassDecorator => (!EDITOR ? () => {} : (target) => {
+export const support = (transitionSourceFilter: TCBindingTransitionSourceFilter): ClassDecorator => (!EDITOR ? (): void => {} : (target): void => {
     const info = getOrCreateTCBindingTypeInfo(target);
     info.transitionSourceFilter = transitionSourceFilter;
 });

@@ -80,7 +80,7 @@ export class Octree {
     protected _maxPos = new Vec3(0, 0, 0);
     protected _depth = 0;
 
-    public initialize (octreeInfo: OctreeInfo) {
+    public initialize (octreeInfo: OctreeInfo): void {
         this._enabled = octreeInfo.enabled;
         this._minPos = octreeInfo.minPos;
         this._maxPos = octreeInfo.maxPos;

@@ -58,7 +58,7 @@ export class AnimationGraphVariant extends AnimationGraphLike implements Animati
 
     @type(AnimationGraph)
     @editable
-    get original () {
+    get original (): AnimationGraph | null {
         return this._graph;
     }
 
@@ -79,24 +79,24 @@ export class AnimationGraphVariant extends AnimationGraphLike implements Animati
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}ClipOverrideMap`)
 class ClipOverrideMap implements ReadonlyClipOverrideMap {
-    get size () {
+    get size (): number {
         return this._entries.length;
     }
 
-    public [Symbol.iterator] () {
+    public [Symbol.iterator] (): IterableIterator<ClipOverrideEntry> {
         return this._entries[Symbol.iterator]();
     }
 
-    public has (original: AnimationClip) {
+    public has (original: AnimationClip): boolean {
         return !!this._entries.find(({ original: o }) => o === original);
     }
 
-    public get (original: AnimationClip) {
+    public get (original: AnimationClip): AnimationClip | undefined {
         const entry = this._entries.find(({ original: o }) => o === original);
         return entry?.substitution;
     }
 
-    public set (original: AnimationClip, substitution: AnimationClip) {
+    public set (original: AnimationClip, substitution: AnimationClip): void {
         const entry = this._entries.find(({ original: o }) => o === original);
         if (entry) {
             entry.substitution = substitution;
@@ -108,11 +108,11 @@ class ClipOverrideMap implements ReadonlyClipOverrideMap {
         }
     }
 
-    public delete (original: AnimationClip) {
+    public delete (original: AnimationClip): void {
         removeIf(this._entries, ({ original: o }) => o === original);
     }
 
-    public clear () {
+    public clear (): void {
         this._entries.length = 0;
     }
 

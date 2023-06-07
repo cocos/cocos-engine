@@ -52,7 +52,7 @@ export class WebGL2StateCache {
     public glCurrentAttribLocs: boolean[] = [];
     public texUnitCacheMap: Record<string, number> = {};
 
-    initialize (texUnit: number, bufferBindings: number, vertexAttributes: number) {
+    initialize (texUnit: number, bufferBindings: number, vertexAttributes: number): void {
         for (let i = 0; i < texUnit; ++i) this.glTexUnits.push({ glTexture: null });
 
         this.glSamplerUnits.length = texUnit;

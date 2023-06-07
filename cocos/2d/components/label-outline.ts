@@ -98,7 +98,7 @@ export class LabelOutline extends Component {
      * ```
      */
     @tooltip('i18n:labelOutline.width')
-    get width () {
+    get width (): number {
         return this._width;
     }
 
@@ -111,15 +111,15 @@ export class LabelOutline extends Component {
         this._updateRenderData();
     }
 
-    public onEnable () {
+    public onEnable (): void {
         this._updateRenderData();
     }
 
-    public onDisable () {
+    public onDisable (): void {
         this._updateRenderData();
     }
 
-    protected _updateRenderData () {
+    protected _updateRenderData (): void {
         const label = this.node.getComponent(Label);
         if (label) {
             label.updateRenderData(true);

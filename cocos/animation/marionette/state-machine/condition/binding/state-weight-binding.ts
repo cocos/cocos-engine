@@ -17,7 +17,7 @@ const { ccclass } = _decorator;
 @provide(TCBindingValueType.FLOAT)
 @support(TCBindingTransitionSourceFilter.WEIGHTED)
 export class TCStateWeightBinding extends TCBinding<TCBindingValueType.FLOAT> {
-    public getValueType () {
+    public getValueType (): TCBindingValueType.FLOAT {
         return TCBindingValueType.FLOAT as const;
     }
 

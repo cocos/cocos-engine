@@ -45,7 +45,7 @@ export class Size extends ValueType {
      * @param ratio The interpolation coefficient.The range is [0,1].
      * @returns A vector consisting of linear interpolation of the width and height of the current size to the width and height of the target size at a specified interpolation ratio, respectively.
      */
-    public static lerp <Out extends ISizeLike> (out: Out, from: Out, to: Out, ratio: number) {
+    public static lerp <Out extends ISizeLike> (out: Out, from: Out, to: Out, ratio: number): Out {
         out.width = from.width + (to.width - from.width) * ratio;
         out.height = from.height + (to.height - from.height) * ratio;
         return out;
@@ -58,16 +58,16 @@ export class Size extends ValueType {
      * @param b Size b.
      * @returns Returns `true' when both dimensions are equal in width and height; otherwise returns `false'.
      */
-    public static equals <InType extends ISizeLike> (a: InType, b: InType) {
+    public static equals <InType extends ISizeLike> (a: InType, b: InType): boolean {
         return a.width === b.width
                 && a.height === b.height;
     }
 
     // compatibility with vector interfaces
     set x (val) { this.width = val; }
-    get x () { return this.width; }
+    get x (): number { return this.width; }
     set y (val) { this.height = val; }
-    get y () { return this.height; }
+    get y (): number { return this.height; }
 
     public declare width: number;
 
@@ -103,7 +103,7 @@ export class Size extends ValueType {
      * @en clone the current `Size`.
      * @zh 克隆当前尺寸。
      */
-    public clone () {
+    public clone (): Size {
         return new Size(this.width, this.height);
     }
 
@@ -113,7 +113,7 @@ export class Size extends ValueType {
      * @param other Specified Size.
      * @returns `this`
      */
-    public set (other: Size);
+    public set (other: Size): any;
 
     /**
      * @en Set the value of each component of the current `Size`.
@@ -122,9 +122,9 @@ export class Size extends ValueType {
      * @param height Specified height
      * @returns `this`
      */
-    public set (width?: number, height?: number);
+    public set (width?: number, height?: number): any;
 
-    public set (width?: Size | number, height?: number) {
+    public set (width?: Size | number, height?: number): any {
         if (typeof width === 'object') {
             this.height = width.height;
             this.width = width.width;
@@ -141,7 +141,7 @@ export class Size extends ValueType {
      * @param other Specified Size
      * @returns Returns `true' when both dimensions are equal in width and height; otherwise returns `false'.
      */
-    public equals (other: Size) {
+    public equals (other: Size): boolean {
         return this.width === other.width
             && this.height === other.height;
     }
@@ -152,7 +152,7 @@ export class Size extends ValueType {
      * @param to Target Size.
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Size, ratio: number) {
+    public lerp (to: Size, ratio: number): Size {
         this.width += (to.width - this.width) * ratio;
         this.height += (to.height - this.height) * ratio;
         return this;
@@ -163,7 +163,7 @@ export class Size extends ValueType {
      * @zh 返回当前尺寸的字符串表示。
      * @returns The information of the current size in string
      */
-    public toString () {
+    public toString (): string {
         return `(${this.width.toFixed(2)}, ${this.height.toFixed(2)})`;
     }
 }
@@ -187,7 +187,7 @@ export function size (other: Size): Size;
  */
 export function size (width?: number, height?: number): Size;
 
-export function size (width: Size | number = 0, height = 0) {
+export function size (width: Size | number = 0, height = 0): Size {
     return new Size(width as any, height);
 }
 

@@ -37,15 +37,15 @@ export class DataPoolManager {
         this.jointAnimationInfo = new JointAnimationInfo(device);
     }
 
-    public releaseSkeleton (skeleton: Skeleton) {
+    public releaseSkeleton (skeleton: Skeleton): void {
         this.jointTexturePool.releaseSkeleton(skeleton);
     }
 
-    public releaseAnimationClip (clip: AnimationClip) {
+    public releaseAnimationClip (clip: AnimationClip): void {
         this.jointTexturePool.releaseAnimationClip(clip);
     }
 
-    public clear () {
+    public clear (): void {
         this.jointTexturePool.clear();
         this.jointAnimationInfo.clear();
     }
