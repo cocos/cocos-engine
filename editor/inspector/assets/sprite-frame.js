@@ -519,7 +519,7 @@ const Elements = {
             if (panel.assetList.length > 1) {
                 panel.$.editButton.style.display = 'none';
             } else {
-                panel.$.editButton.style.display = 'inline-block';
+                panel.$.editButton.style.display = undefined; // depends on component itself
             }
 
             if (panel.uuidInSpriteEditor !== panel.meta.uuid) {
