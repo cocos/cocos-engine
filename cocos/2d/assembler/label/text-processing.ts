@@ -149,6 +149,7 @@ export class TextProcessing {
             scale = MAX_SIZE * scale / maxValue;
         }
         if (scale < 1) { scale = 1; }
+        scale = parseFloat(scale.toFixed(1));
         return scale;
     }
 
