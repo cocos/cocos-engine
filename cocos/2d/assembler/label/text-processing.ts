@@ -148,6 +148,7 @@ export class TextProcessing {
             const maxValue  = Math.max(canvasWidth * scale, canvasHeight * scale);
             scale = MAX_SIZE * scale / maxValue;
         }
+        if (scale < 1) { scale = 1; }
         return scale;
     }
 
