@@ -131,19 +131,19 @@ export class AnimationCache {
     private updateRenderData (index: number, model: any) {
         const vc = model.vCount;
         const ic = model.iCount;
-        const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / 4;
-        const vUint8Buf = new Uint8Array(4 * floatStride * vc);
+        const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
+        const vUint8Buf = new Uint8Array(Float32Array.BYTES_PER_ELEMENT * floatStride * vc);
         const iUint16Buf = new Uint16Array(ic);
 
         const vPtr = model.vPtr;
-        const vLength = vc * 4 * floatStride;
+        const vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         const vData = spine.wasmUtil.HEAPU8.subarray(vPtr, vPtr + vLength);
 
         vUint8Buf.set(vData);
 
         const iPtr = model.iPtr;
-        const iLength = 2 * ic;
+        const iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         const iData = spine.wasmUtil.HEAPU8.subarray(iPtr, iPtr + iLength);
         const iUint8Buf = new Uint8Array(iUint16Buf.buffer);

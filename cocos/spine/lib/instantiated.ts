@@ -44,6 +44,7 @@ const wasmInstance: SpineWasm.instance = {} as any;
 const registerList: any[] = [];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 function initWasm (wasmUrl) {
+    console.log('[Spine]: Using wasm libs.');
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return wasmFactory({
         instantiateWasm (importObject: WebAssembly.Imports,
@@ -64,7 +65,6 @@ function initAsm (resolve) {
     console.log('[Spine]: Using asmjs libs.');
     const wasmMemory: any = {};
     wasmMemory.buffer = new ArrayBuffer(MEMORYSIZE);
-    const asmLibraryArg2 = { memory: wasmMemory };
     const module = {
         wasmMemory,
     };

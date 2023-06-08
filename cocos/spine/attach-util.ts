@@ -25,6 +25,7 @@
 import { Mat4 } from '../core';
 import { Skeleton } from './skeleton';
 import { Node } from '../scene-graph';
+import spine from './lib/spine-core';
 
 const tempMat4 = new Mat4();
 
@@ -35,7 +36,7 @@ const tempMat4 = new Mat4();
  */
 export class AttachUtil {
     protected _inited = false;
-    protected _skeleton: any = null;
+    protected _skeleton: spine.Skeleton | null = null;
     protected _skeletonNode: Node|null = null;
     protected _skeletonComp: Skeleton|null = null;
 
@@ -71,7 +72,7 @@ export class AttachUtil {
         if (isCached && this._skeletonComp!._curFrame) {
             boneInfos = this._skeletonComp!._curFrame.boneInfos;
         } else {
-            boneInfos = this._skeleton.bones;
+            boneInfos = this._skeleton!.bones;
         }
 
         if (!boneInfos || boneInfos.length < 1) return;

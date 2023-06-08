@@ -86,11 +86,11 @@ export const simple: IAssembler = {
             if (useTint) {
                 accessor = _tintAccessor = new StaticVBAccessor(device, attributes, this.vCount);
                 // Register to batcher so that batcher can upload buffers after batching process
-                batcher.registerBufferAccessor(Number.parseInt('SPINETINTX', 36), _tintAccessor);
+                batcher.registerBufferAccessor(Number.parseInt('SPINETINT', 36), _tintAccessor);
             } else {
                 accessor = _accessor = new StaticVBAccessor(device, attributes, this.vCount);
                 // Register to batcher so that batcher can upload buffers after batching process
-                batcher.registerBufferAccessor(Number.parseInt('SPINEX', 36), _accessor);
+                batcher.registerBufferAccessor(Number.parseInt('SPINE', 36), _accessor);
             }
         }
         return accessor;
@@ -99,14 +99,9 @@ export const simple: IAssembler = {
     createData (comp: Skeleton) {
         let rd = comp.renderData;
         if (!rd) {
-            const useTint = comp.useTint;
-            //const useTint = comp.useTint || comp.isAnimationCached();
+            const useTint = comp.useTint || comp.isAnimationCached();
             const accessor = this.ensureAccessor(useTint) as StaticVBAccessor;
             rd = RenderData.add(useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B, accessor);
-            rd.resize(0, 0);
-            if (!rd.indices) {
-                rd.indices = new Uint16Array(0);
-            }
         }
         return rd;
     },
@@ -120,6 +115,7 @@ export const simple: IAssembler = {
 };
 
 function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
+    _useTint = comp.useTint || comp.isAnimationCached();
     if (comp.isAnimationCached()) {
         cacheTraverse(comp);
     } else {
@@ -132,9 +128,8 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
 
 function realTimeTraverse (comp: Skeleton) {
     _premultipliedAlpha = comp.premultipliedAlpha;
-    _useTint = comp.useTint;
 
-    const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / 4;
+    const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
 
     comp.drawList.reset();
     const model = comp.updateRenderData();
@@ -145,17 +140,17 @@ function realTimeTraverse (comp: Skeleton) {
     rd.resize(vc, ic);
     rd.indices = new Uint16Array(ic);
     const vbuf = rd.chunk.vb;
-    const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, 4 * vbuf.length);
+    const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
 
     const vPtr = model.vPtr;
-    const vLength = vc * 4 * floatStride;
+    const vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     const vData = spine.wasmUtil.HEAPU8.subarray(vPtr, vPtr + vLength);
     vUint8Buf.set(vData);
 
     const iPtr = model.iPtr;
     const ibuf = rd.indices;
-    const iLength = 2 * ic;
+    const iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     const iData = spine.wasmUtil.HEAPU8.subarray(iPtr, iPtr + iLength);
     const iUint8Buf = new Uint8Array(ibuf.buffer);
@@ -180,7 +175,6 @@ function realTimeTraverse (comp: Skeleton) {
 
 function cacheTraverse (comp: Skeleton) {
     _premultipliedAlpha = comp.premultipliedAlpha;
-    _useTint = comp.useTint;
 
     comp.drawList.reset();
     const model = comp.updateRenderData();
@@ -191,7 +185,7 @@ function cacheTraverse (comp: Skeleton) {
     rd.resize(vc, ic);
     rd.indices = new Uint16Array(ic);
     const vbuf = rd.chunk.vb;
-    const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, 4 * vbuf.length);
+    const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
     vUint8Buf.set(model.vData);
 
     const iUint16Buf = rd.indices;
