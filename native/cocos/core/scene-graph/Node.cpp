@@ -39,7 +39,7 @@ namespace cc {
 uint32_t Node::clearFrame{0};
 uint32_t Node::clearRound{1000};
 const uint32_t Node::TRANSFORM_ON{1 << 0};
-uint32_t Node::globalFlagChangeVersion{1};
+uint32_t Node::globalFlagChangeVersion{0};
 
 namespace {
 const ccstd::string EMPTY_NODE_NAME;
@@ -773,6 +773,10 @@ void Node::setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFr
             emit<TransformChanged>(static_cast<TransformBit>(dirtyBit));
         }
     }
+}
+
+void Node::resetChangedFlags() {
+    globalFlagChangeVersion++;
 }
 
 void Node::clearNodeArray() {
