@@ -105,7 +105,7 @@ export const bmfontUtils = {
             const layout = comp.textLayout;
             const outputLayoutData = comp.textLayoutData;
             const outputRenderData = comp.textRenderData;
-            style.fontScale = view.getScaleX();
+            style.fontScale = parseFloat(view.getScaleX().toFixed(1));
             this._updateFontFamily(comp);
 
             this.updateProcessingData(style, layout, outputLayoutData, outputRenderData, comp, _uiTrans);
