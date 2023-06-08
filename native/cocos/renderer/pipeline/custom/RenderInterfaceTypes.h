@@ -455,6 +455,9 @@ public:
 
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @beta function signature might change
+     */
     virtual void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) = 0;
     virtual RenderSubpassBuilder *addRenderSubpass(const ccstd::string &subpassName) = 0;
     virtual MultisampleRenderSubpassBuilder *addMultisampleRenderSubpass(uint32_t count, uint32_t quality, const ccstd::string &subpassName) = 0;
