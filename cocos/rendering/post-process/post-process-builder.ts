@@ -113,7 +113,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
     }
 
-    resortEditorCameras (cameras: Camera[]) {
+    private resortEditorCameras (cameras: Camera[]) {
         const newCameras: Camera[] = [];
         for (let i = 0; i < cameras.length; i++) {
             const c = cameras[i];
