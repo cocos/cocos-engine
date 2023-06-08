@@ -81,7 +81,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.minMoveDistance')
     @type(CCFloat)
-    public get minMoveDistance () {
+    public get minMoveDistance (): Readonly<number> {
         return this._minMoveDistance;
     }
 
@@ -98,7 +98,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.stepOffset')
     @type(CCFloat)
-    public get stepOffset () {
+    public get stepOffset (): Readonly<number> {
         return this._stepOffset;
     }
 
@@ -118,7 +118,7 @@ export class CharacterController extends Eventify(Component) {
     */
     @tooltip('i18n:physics3d.character_controller.slopeLimit')
     @type(CCFloat)
-    public get slopeLimit () {
+    public get slopeLimit (): Readonly<number> {
         return this._slopeLimit;
     }
 
@@ -139,7 +139,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.contactOffset')
     @type(CCFloat)
-    public get contactOffset () {
+    public get contactOffset (): Readonly<number> {
         return this._contactOffset;
     }
 
@@ -199,7 +199,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.center')
     @type(Vec3)
-    public get center () {
+    public get center (): Readonly<Vec3> {
         return this._center;
     }
 
@@ -301,7 +301,7 @@ export class CharacterController extends Eventify(Component) {
      * @zh
      * 获取中心的世界坐标。
      */
-    public get centerWorldPosition () {
+    public get centerWorldPosition (): Readonly<Vec3> {
         if (this._isInitialized) this._cct!.getPosition(this._centerWorldPosition);
         return this._centerWorldPosition;
     }
@@ -322,7 +322,7 @@ export class CharacterController extends Eventify(Component) {
      * @zh
      * 获取速度。
      */
-    public get velocity (): Vec3 {
+    public get velocity (): Readonly<Vec3> {
         return this._velocity;
     }
 
@@ -390,7 +390,7 @@ export class CharacterController extends Eventify(Component) {
      * Registers a callback associated with a trigger or collision event, which is automatically unregistered once executed.
      * @zh
      * 注册触发或碰撞事件相关的回调，执行一次后会自动取消注册。
-     * @param type - The event type, onTriggerEnter|onTriggerStay|onTriggerExit|onCollisionEnter|onCollisionStay|onCollisionExit;
+     * @param type - The event type, onControllerColliderHit;
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */

@@ -263,7 +263,7 @@ export class CharacterControllerContact {
      * @zh
      * 碰撞中的角色控制器。
      */
-    selfController: CharacterController = undefined!;
+    declare selfController: CharacterController;
 
     /**
      * @en
@@ -271,7 +271,7 @@ export class CharacterControllerContact {
      * @zh
      * 碰撞中的碰撞器。
      */
-    otherCollider: Collider = undefined!;
+    declare otherCollider: Collider;
 
     /**
      * @en
