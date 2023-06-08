@@ -452,7 +452,7 @@ if (EDITOR) {
  * issue: https://github.com/cocos/cocos-engine/issues/14643
  */
 (prototype as any)._deserialize = null;
-if (EDITOR) {
+if (EDITOR_NOT_IN_PREVIEW) {
     CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
     CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
 } else {
