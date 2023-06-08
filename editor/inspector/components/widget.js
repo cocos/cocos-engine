@@ -7,6 +7,8 @@ module.paths.push(join(Editor.App.path, 'node_modules'));
 const Vue = require('vue/dist/vue.min.js');
 const propUtils = require('../utils/prop');
 
+const cssMediaWidth = 340;
+
 exports.template = `
 <style>
 .widget-component {
@@ -119,7 +121,7 @@ exports.template = `
     left: 25%;
     width: 50%;
     height: 50%;
-    z-index: 10;
+    z-index: 2;
     background-color: var(--color-normal-fill);
     border: 1px solid var(--color-normal-fill-important);
     border-radius: 2px;
@@ -1186,18 +1188,13 @@ const computed = {
     },
 };
 exports.ready = function() {
-    let requestAnimationFrameId = null;
     this.resizeObserver = new window.ResizeObserver(() => {
-        if (requestAnimationFrameId !== null) { return; }
-        requestAnimationFrameId = window.requestAnimationFrame(() => {
-            const rect = this.$this.getBoundingClientRect();
-            if (rect.width > 340) {
-                this.layout = 'horizontal';
-            } else {
-                this.layout = 'vertical';
-            }
-            requestAnimationFrameId = null;
-        });
+        const rect = this.$this.getBoundingClientRect();
+        if (rect.width > cssMediaWidth) {
+            this.layout = 'horizontal';
+        } else {
+            this.layout = 'vertical';
+        }
     });
 
     this.resizeObserver.observe(this.$this);
@@ -1214,7 +1211,7 @@ exports.update = function(dump) {
     this.dimensionHorizontal = this.getDimensionHorizontal();
     this.dimensionVertical = this.getDimensionVertical();
     const rect = this.$this.getBoundingClientRect();
-    if (rect.width > 300) {
+    if (rect.width > cssMediaWidth) {
         this.layout = 'horizontal';
     } else {
         this.layout = 'vertical';

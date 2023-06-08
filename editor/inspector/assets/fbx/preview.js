@@ -162,7 +162,7 @@ ui-icon {
     background: var(--color-normal-fill);
 }
 #event-editor {
-    line-height: 24px;
+    line-height: 20px;
     width: 100%;
     height: 70%;
     overflow: hidden;
@@ -176,19 +176,19 @@ ui-icon {
   #event-editor > header {
     display: flex;
     justify-content: space-between;
-    height: 24px;
+    height: 20px;
     background: var(--color-normal-fill-emphasis);
-    padding: 5px;
+    padding: 2px 4px;
   }
   #event-editor > .header .name {
-    margin: 0 5px;
+    margin: 0 4px;
   }
   #event-editor > .header .dirty {
     color: var(--color-focus-fill);
     margin: 0 2px;
   }
   #event-editor > .functions {
-    padding: 10px;
+    padding: 4px;
     overflow-y: auto;
     flex: 1;
     height: 100%;
@@ -200,7 +200,6 @@ ui-icon {
   #event-editor > .functions .line {
     display: flex;
     justify-content: space-between;
-    padding: 0 8px;
     flex: 1;
     background: unset;
   }
@@ -209,9 +208,6 @@ ui-icon {
   }
   #event-editor > .functions .line .name {
     min-width: 8px;
-  }
-  #event-editor > .functions .line > * {
-    margin-right: 5px;
   }
   #event-editor > .functions .line .operate {
     visibility: hidden;
@@ -222,19 +218,14 @@ ui-icon {
   #event-editor > .functions .header ui-input {
     background-color: transparent;
     border-color: transparent;
-    line-height: 18px;
   }
   #event-editor > .functions .header ui-input:hover {
     background-color: var(--color-normal-fill-emphasis);
-  }
-  #event-editor > .functions > * {
-    margin-top: 10px;
   }
   #event-editor ui-input,
   #event-editor ui-checkbox,
   #event-editor ui-num-input {
     width: 100%;
-    height: 25px;
   }
   #event-editor ui-section {
     width: 100%;
@@ -245,11 +236,10 @@ ui-icon {
   }
   #event-editor .tools {
     display: flex;
-    border-bottom: 1px solid;
-    padding: 10px 0;
+    padding: 4px 0;
   }
   #event-editor .tools ui-icon {
-    margin: 0 5px;
+    margin: 0 4px;
   }
   #event-editor .params {
     border: 1px rgba(136, 136, 136, 0.35) dashed;
