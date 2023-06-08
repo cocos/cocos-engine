@@ -452,9 +452,12 @@ if (EDITOR) {
  * issue: https://github.com/cocos/cocos-engine/issues/14643
  */
 (prototype as any)._deserialize = null;
-
-CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
-CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
+if (EDITOR) {
+    CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
+    CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
+} else {
+    CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
+}
 
 /**
  * Bit mask that controls object states.
