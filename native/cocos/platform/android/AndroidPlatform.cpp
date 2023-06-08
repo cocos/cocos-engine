@@ -388,7 +388,7 @@ public:
                 mouseEvent.type = cc::MouseEvent::Type::UP;
             } else if (actionMasked == AMOTION_EVENT_ACTION_SCROLL) {
                 mouseEvent.type = cc::MouseEvent::Type::WHEEL;
-                // TODO: wheel delta
+                // TODO(): wheel delta
             } else if (actionMasked == AMOTION_EVENT_ACTION_MOVE) {
                 mouseEvent.type = cc::MouseEvent::Type::MOVE;
             } else if (actionMasked == AMOTION_EVENT_ACTION_HOVER_MOVE) {
