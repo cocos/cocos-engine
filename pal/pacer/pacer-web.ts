@@ -111,7 +111,7 @@ export class Pacer {
     _handleRAF = () => {
         const elapseTime = performance.now() - this._startTime;
         const elapseFrame = Math.floor(elapseTime / this._frameTime);
-        if (elapseFrame < this._frameCount) {
+        if (elapseFrame <= this._frameCount) {
             this._rAF.call(window, this._handleRAF);
         } else {
             this._frameCount++;
