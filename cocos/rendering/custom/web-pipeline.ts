@@ -243,18 +243,18 @@ export class WebSetter {
         const num = this._lg.attributeIndex.get(name)!;
         this._data.samplers.set(num, sampler);
     }
-    public setCameraConstants (camera: Camera): void {
+    // public setCameraConstants (camera: Camera): void {
 
-    }
-    public setDirectionalLightProjectionConstants (light: DirectionalLight): void {
+    // }
+    // public setDirectionalLightProjectionConstants (light: DirectionalLight): void {
 
-    }
-    public setSpotLightProjectionConstants (light: SpotLight): void {
+    // }
+    // public setSpotLightProjectionConstants (light: SpotLight): void {
 
-    }
-    public setShadowMapConstants (light: Light, numLevels?: number): void {
+    // }
+    // public setShadowMapConstants (light: Light, numLevels?: number): void {
 
-    }
+    // }
     public hasSampler (name: string): boolean {
         const id = this._lg.attributeIndex.get(name);
         if (id === undefined) {
@@ -820,24 +820,24 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         setTextureUBOView(this, camera, this._pipeline);
         initGlobalDescBinding(this._data, layoutName);
     }
-    addScene (camera: Camera, sceneFlags = SceneFlags.NONE): void {
-        const sceneData = new SceneData(camera.scene, camera, sceneFlags);
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
-        );
-    }
-    addSceneCulledByDirectionalLight (camera: Camera, sceneFlags: SceneFlags, light: DirectionalLight, level: number): void {
-        const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, level));
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
-        );
-    }
-    addSceneCulledBySpotLight (camera: Camera, sceneFlags: SceneFlags, light: SpotLight): void {
-        const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, 0));
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
-        );
-    }
+    // addScene (camera: Camera, sceneFlags = SceneFlags.NONE): void {
+    //     const sceneData = new SceneData(camera.scene, camera, sceneFlags);
+    //     this._renderGraph.addVertex<RenderGraphValue.Scene>(
+    //         RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+    //     );
+    // }
+    // addSceneCulledByDirectionalLight (camera: Camera, sceneFlags: SceneFlags, light: DirectionalLight, level: number): void {
+    //     const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, level));
+    //     this._renderGraph.addVertex<RenderGraphValue.Scene>(
+    //         RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+    //     );
+    // }
+    // addSceneCulledBySpotLight (camera: Camera, sceneFlags: SceneFlags, light: SpotLight): void {
+    //     const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, 0));
+    //     this._renderGraph.addVertex<RenderGraphValue.Scene>(
+    //         RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+    //     );
+    // }
     addFullscreenQuad (material: Material, passID: number, sceneFlags = SceneFlags.NONE, name = 'Quad'): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, null),
