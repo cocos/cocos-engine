@@ -62,7 +62,7 @@ export class BoxCharacterController extends CharacterController {
      */
     @tooltip('i18n:physics3d.character_controller.boxHalfHeight')
     @type(CCFloat)
-    public get halfHeight (): Readonly<number> {
+    public get halfHeight () {
         return this._halfHeight;
     }
 
@@ -82,7 +82,7 @@ export class BoxCharacterController extends CharacterController {
      */
     @tooltip('i18n:physics3d.character_controller.boxHalfSideExtent')
     @type(CCFloat)
-    public get halfSideExtent (): Readonly<number> {
+    public get halfSideExtent () {
         return this._halfSideExtent;
     }
 
@@ -102,7 +102,7 @@ export class BoxCharacterController extends CharacterController {
      */
     @tooltip('i18n:physics3d.character_controller.boxHalfForwardExtent')
     @type(CCFloat)
-    public get halfForwardExtent (): Readonly<number> {
+    public get halfForwardExtent () {
         return this._halfForwardExtent;
     }
 

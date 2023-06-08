@@ -81,7 +81,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.minMoveDistance')
     @type(CCFloat)
-    public get minMoveDistance (): Readonly<number> {
+    public get minMoveDistance () {
         return this._minMoveDistance;
     }
 
@@ -98,7 +98,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.stepOffset')
     @type(CCFloat)
-    public get stepOffset (): Readonly<number> {
+    public get stepOffset () {
         return this._stepOffset;
     }
 
@@ -118,7 +118,7 @@ export class CharacterController extends Eventify(Component) {
     */
     @tooltip('i18n:physics3d.character_controller.slopeLimit')
     @type(CCFloat)
-    public get slopeLimit (): Readonly<number> {
+    public get slopeLimit () {
         return this._slopeLimit;
     }
 
@@ -139,7 +139,7 @@ export class CharacterController extends Eventify(Component) {
      */
     @tooltip('i18n:physics3d.character_controller.contactOffset')
     @type(CCFloat)
-    public get contactOffset (): Readonly<number> {
+    public get contactOffset () {
         return this._contactOffset;
     }
 

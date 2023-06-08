@@ -62,7 +62,7 @@ export class CapsuleCharacterController extends CharacterController {
      */
     @tooltip('i18n:physics3d.character_controller.capsuleRadius')
     @type(CCFloat)
-    public get radius (): Readonly<number> {
+    public get radius () {
         return this._radius;
     }
 
@@ -83,7 +83,7 @@ export class CapsuleCharacterController extends CharacterController {
      */
     @tooltip('i18n:physics3d.character_controller.capsuleHeight')
     @type(CCFloat)
-    public get height (): Readonly<number> {
+    public get height () {
         return this._height;
     }
 
