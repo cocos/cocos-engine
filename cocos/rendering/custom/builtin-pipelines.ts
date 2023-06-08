@@ -39,6 +39,7 @@ export class ForwardPipelineBuilder implements PipelineBuilder {
             if (camera.scene === null) {
                 continue;
             }
+            ppl.update(camera);
             const info = prepareResource(ppl, camera, this.initResource, this.updateResource);
             setupForwardPass(ppl, info);
             if (EDITOR) {
@@ -63,6 +64,7 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
             if (!camera.scene) {
                 continue;
             }
+            ppl.update(camera);
             const isGameView = camera.cameraUsage === CameraUsage.GAME
                 || camera.cameraUsage === CameraUsage.GAME_VIEW;
             const info = prepareResource(ppl, camera, this.initResource, this.updateResource);

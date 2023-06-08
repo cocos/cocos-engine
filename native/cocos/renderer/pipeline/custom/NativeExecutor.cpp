@@ -1508,7 +1508,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             bDraw = true;
             bDrawInstancing = true;
         }
-        if (any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT))) {
+        const bool bDrawBlend = any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT);
+        const bool bDrawOpaqueOrMask = any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
+        const bool bDrawShadowCaster = any(sceneData.flags & SceneFlags::SHADOW_CASTER);
+
+        if (bDrawShadowCaster || bDrawOpaqueOrMask) {
             queue.opaqueQueue.recordCommandBuffer(
                 ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
             if (bDrawInstancing) {
@@ -1516,7 +1520,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                     ctx.currentPass, ctx.cmdBuff);
             }
         }
-        if (any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT)) {
+        if (bDrawBlend) {
             queue.transparentQueue.recordCommandBuffer(
                 ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
             if (bDrawInstancing) {

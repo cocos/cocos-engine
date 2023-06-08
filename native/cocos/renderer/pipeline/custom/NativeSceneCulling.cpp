@@ -316,6 +316,7 @@ void addRenderObject(
     LayoutGraphData::vertex_descriptor phaseLayoutID,
     const bool bDrawOpaqueOrMask,
     const bool bDrawBlend,
+    const bool bDrawShadowCaster,
     const scene::Camera& camera,
     const scene::Model& model,
     NativeRenderQueue& queue) {
@@ -336,13 +337,15 @@ void addRenderObject(
             // check scene flags
             const bool bBlend = isBlend(pass);
             const bool bOpaqueOrMask = !bBlend;
-            if (!bDrawBlend && bBlend) {
-                // skip transparent object
-                continue;
-            }
-            if (!bDrawOpaqueOrMask && bOpaqueOrMask) {
-                // skip opaque object
-                continue;
+            if (!bDrawShadowCaster) {
+                if (!bDrawBlend && bBlend) {
+                    // skip transparent object
+                    continue;
+                }
+                if (!bDrawOpaqueOrMask && bOpaqueOrMask) {
+                    // skip opaque object
+                    continue;
+                }
             }
 
             // add object to queue
@@ -381,7 +384,9 @@ void SceneCulling::fillRenderQueues(
         // check scene flags
         const bool bDrawBlend = any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT);
         const bool bDrawOpaqueOrMask = any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
-        if (!bDrawBlend && !bDrawOpaqueOrMask) {
+        const bool bDrawShadowCaster = any(sceneData.flags & SceneFlags::SHADOW_CASTER);
+
+        if (!bDrawShadowCaster && !bDrawBlend && !bDrawOpaqueOrMask) {
             // nothing to draw
             continue;
         }
@@ -423,7 +428,7 @@ void SceneCulling::fillRenderQueues(
         // fill native queue
         for (const auto* const model : sourceModels) {
             addRenderObject(
-                phaseLayoutID, bDrawOpaqueOrMask, bDrawBlend,
+                phaseLayoutID, bDrawOpaqueOrMask, bDrawBlend, bDrawShadowCaster,
                 *sceneData.camera, *model, nativeQueue);
         }
 
