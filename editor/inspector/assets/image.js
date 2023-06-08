@@ -38,12 +38,7 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-    .asset-image .sub-panel-section {
-        margin-top: 6px;
-    }
-    .asset-image .sub-texture-panel-section {
-        margin-top: 0;
-    }
+
 `;
 
 exports.$ = {

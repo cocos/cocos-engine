@@ -8,7 +8,6 @@ exports.template = /* html */`
 exports.style = /* css */`
 .asset-video-clip {
     margin-top: 4px;
-    margin-right: 4px;
 }
 
 .asset-video-clip .video {
