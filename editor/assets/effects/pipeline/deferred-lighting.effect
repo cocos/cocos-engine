@@ -12,18 +12,6 @@ CCEffect %{
       depthStencilState:
         depthTest: false
         depthWrite: false
-    - &tiled
-      vert: lighting-vs
-      frag: lighting-fs-tiled
-      propertyIndex: 0
-      pass: deferred-scene-tiled
-      subpass: deferred-lighting-tiled
-      phase: deferred-lighting-tiled
-      rasterizerState:
-        cullMode: none
-      depthStencilState:
-        depthTest: false
-        depthWrite: false
 }%
 
 CCProgram lighting-vs %{
@@ -74,7 +62,7 @@ CCProgram lighting-fs-tiled %{
       #else
       2.0 * coord.z - 1.0);
       #endif
-  
+
     return GetWorldPosFromNDCPosRH(ndc, cc_matProj, cc_matViewProjInv);
   }
 
@@ -154,7 +142,7 @@ CCProgram lighting-fs %{
       #else
       2.0 * coord.z - 1.0);
       #endif
-  
+
     return GetWorldPosFromNDCPosRH(ndc, cc_matProj, cc_matViewProjInv);
   }
 
