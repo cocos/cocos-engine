@@ -28,18 +28,13 @@
 
 #include "gfx-agent/DeviceAgent.h"
 #include "gfx-validator/DeviceValidator.h"
+#include "platform/BasePlatform.h"
 
 // #undef CC_USE_NVN
 // #undef CC_USE_VULKAN
 // #undef CC_USE_METAL
 // #undef CC_USE_GLES3
 // #undef CC_USE_GLES2
-
-// arengine only supports gles2, arcore supports gles2 and gles3
-// setting the CC_USE_GLES3 off is needed while using CC_USE_AR_AUTO or CC_USE_AR_ENGINE
-#if CC_USE_AR_MODULE && (CC_USE_AR_AUTO || CC_USE_AR_ENGINE)
-    #undef CC_USE_GLES3
-#endif
 
 #ifdef CC_USE_NVN
     #include "gfx-nvn/NVNDevice.h"
@@ -90,7 +85,13 @@ public:
     #if XR_OEM_PICO
         Device::isSupportDetachDeviceThread = false;
     #endif
-        if (tryCreate<CCVKDevice>(info, &device)) return device;
+
+        bool skipVulkan = false;
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+        auto sdkVersion = BasePlatform::getPlatform()->getSdkVersion();
+        skipVulkan = sdkVersion <= 27; // Android 8
+#endif
+        if (!skipVulkan && tryCreate<CCVKDevice>(info, &device)) return device;
 #endif
 
 #ifdef CC_USE_METAL

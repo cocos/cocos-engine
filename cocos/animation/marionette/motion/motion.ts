@@ -74,6 +74,12 @@ export abstract class Motion extends EditorExtendable {
     ): MotionEval | null;
 
     abstract clone(): Motion;
+
+    /**
+     * // TODO: HACK
+     * @internal
+     */
+    __callOnAfterDeserializeRecursive () { }
 }
 
 export interface MotionPort {

@@ -11,7 +11,6 @@ import { AnimationMask } from './animation-mask';
 import { error } from '../../core';
 import { partition } from '../../core/algorithm/partition';
 import { AnimationController } from './animation-controller';
-import { AnimationGraphCustomEventEmitter } from './event/custom-event-emitter';
 import { TransformSpace } from './pose-graph/pose-nodes/transform-space';
 import { PoseStashAllocator, RuntimeStashView } from './pose-graph/stash/runtime-stash';
 import { PoseHeapAllocator } from '../core/pose-heap-allocator';
@@ -67,12 +66,6 @@ export class AnimationGraphBindingContext {
         poseLayoutMaintainer: AnimationGraphPoseLayoutMaintainer,
         varRegistry: VarRegistry,
         private _controller: AnimationController,
-
-        /**
-         * The associated custom event emitter.
-         * Any portion of the animation graph may hold and use this emitter to emit custom events.
-         */
-        public readonly customEventEmitter: AnimationGraphCustomEventEmitter,
     ) {
         this._origin = origin;
         this._layoutMaintainer = poseLayoutMaintainer;

@@ -122,6 +122,7 @@ export const ttfUtils =  {
             // use canvas in assemblerData // to do to optimize
             processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);
             style.fontFamily = this._updateFontFamily(comp);
+            this._resetDynamicAtlas(comp);
 
             // TextProcessing
             processing.processingString(false, style, layout, outputLayoutData, comp.string);
@@ -196,5 +197,12 @@ export const ttfUtils =  {
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.packToDynamicAtlas(comp, frame);
         // TODO update material and uv
+    },
+
+    _resetDynamicAtlas (comp: Label) {
+        if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
+        const frame = comp.ttfSpriteFrame!;
+        dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
+        frame._resetDynamicAtlasFrame();
     },
 };

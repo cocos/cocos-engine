@@ -220,7 +220,8 @@ void Pass::setUniform(uint32_t handle, const MaterialProperty &value) {
     _rootBufferDirty = true;
 }
 
-MaterialProperty &Pass::getUniform(uint32_t handle, MaterialProperty &out) const {
+MaterialProperty Pass::getUniform(uint32_t handle) const {
+    MaterialProperty out;
     const uint32_t binding = Pass::getBindingFromHandle(handle);
     const gfx::Type type = Pass::getTypeFromHandle(handle);
     const uint32_t ofs = Pass::getOffsetFromHandle(handle);
@@ -555,6 +556,7 @@ IPassInfoFull Pass::getPassInfoFull() const {
     ret.phase = _phaseString;
 
     ret.passID = _passID;
+    ret.subpassID = _subpassID;
     ret.phaseID = _phaseID;
 
     return ret;
@@ -576,8 +578,9 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
     if (programLib2) {
         const auto *rendering = render::getRenderingModule();
         CC_EXPECTS(rendering);
-        if (info.phaseID != 0xFFFFFFFF) {
+        if (info.phaseID != INVALID_ID) {
             _passID = info.passID;
+            _subpassID = info.subpassID;
             _phaseID = info.phaseID;
         } else {
             if (info.pass) {
@@ -585,15 +588,24 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
             } else {
                 _passID = rendering->getPassID("default");
             }
-            CC_ENSURES(_passID != 0xFFFFFFFF);
+            CC_ENSURES(_passID != INVALID_ID);
+            if (info.subpass) {
+                CC_EXPECTS(!info.subpass->empty());
+                _subpassID = rendering->getSubpassID(_passID, *info.subpass);
+                CC_ENSURES(_subpassID != INVALID_ID);
+            }
             if (info.phase) {
-                _phaseID = rendering->getPhaseID(_passID, *info.phase);
+                _phaseID = rendering->getPhaseID(getSubpassOrPassID(), *info.phase);
             } else {
-                _phaseID = rendering->getPhaseID(_passID, "default");
+                _phaseID = rendering->getPhaseID(getSubpassOrPassID(), "default");
             }
         }
         if (_passID == INVALID_ID) {
             CC_LOG_ERROR("Invalid pass ID");
+            return;
+        }
+        if (info.subpass && _subpassID == INVALID_ID) {
+            CC_LOG_ERROR("Invalid subpass ID");
             return;
         }
         if (_phaseID == INVALID_ID) {
@@ -816,6 +828,7 @@ void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, c
     _stage = target->_stage;
     _phase = target->_phase;
     _passID = target->_passID;
+    _subpassID = target->_subpassID;
     _phaseID = target->_phaseID;
     _batchingScheme = target->_batchingScheme;
     _primitive = target->_primitive;

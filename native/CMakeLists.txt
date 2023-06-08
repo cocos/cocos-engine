@@ -1425,6 +1425,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativeRenderGraph.cpp
                  cocos/renderer/pipeline/custom/NativeRenderQueue.cpp
                  cocos/renderer/pipeline/custom/NativeRenderingModule.cpp
+                 cocos/renderer/pipeline/custom/NativeSceneCulling.cpp
                  cocos/renderer/pipeline/custom/NativeTypes.cpp
                  cocos/renderer/pipeline/custom/NativeTypes.h
                  cocos/renderer/pipeline/custom/NativeUtils.cpp

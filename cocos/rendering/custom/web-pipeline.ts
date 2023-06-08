@@ -243,8 +243,18 @@ export class WebSetter {
         const num = this._lg.attributeIndex.get(name)!;
         this._data.samplers.set(num, sampler);
     }
-    public setCamera (camera: Camera): void {
-    }
+    // public setCameraConstants (camera: Camera): void {
+
+    // }
+    // public setDirectionalLightProjectionConstants (light: DirectionalLight): void {
+
+    // }
+    // public setSpotLightProjectionConstants (light: SpotLight): void {
+
+    // }
+    // public setShadowMapConstants (light: Light, numLevels?: number): void {
+
+    // }
     public hasSampler (name: string): boolean {
         const id = this._lg.attributeIndex.get(name);
         if (id === undefined) {
@@ -793,8 +803,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     }
 
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
-        const sceneData = new SceneData(name, sceneFlags, light);
-        sceneData.camera = camera;
+        const sceneData = new SceneData(camera.scene, camera, sceneFlags, light);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
         );
@@ -811,13 +820,24 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         setTextureUBOView(this, camera, this._pipeline);
         initGlobalDescBinding(this._data, layoutName);
     }
-    addScene (scene: RenderScene, sceneFlags = SceneFlags.NONE): void {
-        const sceneData = new SceneData('Scene', sceneFlags);
-        sceneData.scenes.push(scene);
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
-        );
-    }
+    // addScene (camera: Camera, sceneFlags = SceneFlags.NONE): void {
+    //     const sceneData = new SceneData(camera.scene, camera, sceneFlags);
+    //     this._renderGraph.addVertex<RenderGraphValue.Scene>(
+    //         RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+    //     );
+    // }
+    // addSceneCulledByDirectionalLight (camera: Camera, sceneFlags: SceneFlags, light: DirectionalLight, level: number): void {
+    //     const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, level));
+    //     this._renderGraph.addVertex<RenderGraphValue.Scene>(
+    //         RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+    //     );
+    // }
+    // addSceneCulledBySpotLight (camera: Camera, sceneFlags: SceneFlags, light: SpotLight): void {
+    //     const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, 0));
+    //     this._renderGraph.addVertex<RenderGraphValue.Scene>(
+    //         RenderGraphValue.Scene, sceneData, 'Scene', '', new RenderData(), false, this._vertID,
+    //     );
+    // }
     addFullscreenQuad (material: Material, passID: number, sceneFlags = SceneFlags.NONE, name = 'Quad'): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, null),
@@ -1187,6 +1207,9 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         throw new Error('Method not implemented.');
     }
     addStorageImage (name: string, accessType: AccessType, slotName: string): void {
+        throw new Error('Method not implemented.');
+    }
+    addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit | undefined): void {
         throw new Error('Method not implemented.');
     }
     addComputeView (name: string, view: ComputeView) {
@@ -1700,6 +1723,9 @@ export class WebPipeline implements BasicPipeline {
         );
     }
     beginFrame () {
+        // noop
+    }
+    update (camera: Camera) {
         // noop
     }
     endFrame () {

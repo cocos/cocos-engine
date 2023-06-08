@@ -23,7 +23,6 @@ android {
         targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
-        resValue  "string", "app_name", PROP_APP_NAME
 
         externalNativeBuild {
             cmake {
@@ -36,7 +35,7 @@ android {
 
     sourceSets.main {
         java.srcDirs "../src", "src"
-        res.srcDirs "../res", 'res'
+        res.srcDirs "../res", 'res', "${RES_PATH}/proj/res"
         jniLibs.srcDirs "../libs", 'libs'
         manifest.srcFile "AndroidManifest.xml"
         assets.srcDir "${RES_PATH}/data"

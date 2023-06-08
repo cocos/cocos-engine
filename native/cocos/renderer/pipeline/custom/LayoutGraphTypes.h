@@ -90,6 +90,12 @@ struct RenderPhase {
     PmrTransparentSet<ccstd::pmr::string> shaders;
 };
 
+enum class RenderPassType : uint32_t {
+    SINGLE_RENDER_PASS,
+    RENDER_PASS,
+    RENDER_SUBPASS,
+};
+
 struct LayoutGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -211,8 +217,8 @@ struct LayoutGraph {
 
     // PolymorphicGraph
     using VertexTag         = ccstd::variant<RenderStageTag, RenderPhaseTag>;
-    using VertexValue       = ccstd::variant<uint32_t*, RenderPhase*>;
-    using VertexConstValue = ccstd::variant<const uint32_t*, const RenderPhase*>;
+    using VertexValue       = ccstd::variant<RenderPassType*, RenderPhase*>;
+    using VertexConstValue = ccstd::variant<const RenderPassType*, const RenderPhase*>;
     using VertexHandle      = ccstd::variant<
         impl::ValueHandle<RenderStageTag, vertex_descriptor>,
         impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>;
@@ -250,7 +256,7 @@ struct LayoutGraph {
     ccstd::pmr::vector<ccstd::pmr::string> names;
     ccstd::pmr::vector<DescriptorDB> descriptors;
     // PolymorphicGraph
-    ccstd::pmr::vector<uint32_t> stages;
+    ccstd::pmr::vector<RenderPassType> stages;
     ccstd::pmr::vector<RenderPhase> phases;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;

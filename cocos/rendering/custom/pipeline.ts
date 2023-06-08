@@ -37,7 +37,6 @@ import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { AccessType, ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResolvePair, ResourceResidency, SceneFlags, TaskType, UpdateFrequency, UploadPair } from './types';
-import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
 
@@ -113,18 +112,16 @@ export interface Setter extends RenderNode {
     setReadWriteBuffer (name: string, buffer: Buffer): void;
     setReadWriteTexture (name: string, texture: Texture): void;
     setSampler (name: string, sampler: Sampler): void;
-    setCamera (camera: Camera): void;
 }
 
 export interface RenderQueueBuilder extends Setter {
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addSceneOfCamera (
         camera: Camera,
         light: LightInfo,
         sceneFlags?: SceneFlags): void;
-    addScene (scene: RenderScene, sceneFlags?: SceneFlags): void;
     addFullscreenQuad (
         material: Material,
         passID: number,
@@ -161,11 +158,11 @@ export interface BasicRenderPassBuilder extends Setter {
         sampler?: Sampler | null,
         plane?: number): void;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addRasterView (name: string, view: RasterView): void;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addComputeView (name: string, view: ComputeView): void;
     addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
@@ -181,7 +178,7 @@ export interface BasicPipeline extends PipelineRuntime {
     endSetup (): void;
     containsResource (name: string): boolean;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addRenderTexture (
         name: string,
@@ -219,6 +216,7 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         format?: Format): void;
     beginFrame (): void;
+    update (camera: Camera): void;
     endFrame (): void;
     addRenderPass (
         width: number,
@@ -267,7 +265,7 @@ export interface RenderSubpassBuilder extends Setter {
         accessType: AccessType,
         slotName: string): void;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addComputeView (name: string, view: ComputeView): void;
     setViewport (viewport: Viewport): void;
@@ -313,7 +311,7 @@ export interface ComputeSubpassBuilder extends Setter {
         accessType: AccessType,
         slotName: string): void;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addComputeView (name: string, view: ComputeView): void;
     addQueue (phaseName?: string): ComputeQueueBuilder;
@@ -332,6 +330,10 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    /**
+     * @beta function signature might change
+     */
+    addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
     addRenderSubpass (subpassName: string): RenderSubpassBuilder;
     addMultisampleRenderSubpass (
         count: number,
@@ -358,8 +360,9 @@ export interface ComputePassBuilder extends Setter {
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addComputeView (name: string, view: ComputeView): void;
     addQueue (phaseName?: string): ComputeQueueBuilder;
@@ -451,5 +454,6 @@ export interface PipelineBuilder {
 
 export interface RenderingModule {
     getPassID (name: string): number;
-    getPhaseID (passID: number, name: string): number;
+    getSubpassID (passID: number, name: string): number;
+    getPhaseID (subpassOrPassID: number, name: string): number;
 }

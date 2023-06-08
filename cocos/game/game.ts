@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { BUILD, DEBUG, EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TEST, WEBGPU, TAOBAO } from 'internal:constants';
+import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
@@ -978,7 +978,7 @@ export class Game extends EventTarget {
         if (onStart) {
             this.onStart = onStart;
         }
-        if (!this._inited || (EDITOR && !cclegacy.GAME_VIEW)) {
+        if (!this._inited || EDITOR_NOT_IN_PREVIEW) {
             return;
         }
         this.resume();

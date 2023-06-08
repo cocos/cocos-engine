@@ -56,6 +56,8 @@ class GeometryRenderer;
 
 namespace scene {
 
+class DirectionalLight;
+class SpotLight;
 class Model;
 class RenderScene;
 class RenderWindow;
@@ -64,7 +66,7 @@ class RenderWindow;
 
 namespace render {
 
-constexpr bool ENABLE_SUBPASS = false;
+constexpr bool ENABLE_SUBPASS = true;
 constexpr bool ENABLE_GPU_DRIVEN = false;
 
 } // namespace render
@@ -187,7 +189,6 @@ public:
     virtual void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) = 0;
     virtual void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
     virtual void setSampler(const ccstd::string &name, gfx::Sampler *sampler) = 0;
-    virtual void setCamera(const scene::Camera *camera) = 0;
 };
 
 class RenderQueueBuilder : public Setter {
@@ -195,10 +196,9 @@ public:
     RenderQueueBuilder() noexcept = default;
 
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
-    virtual void addScene(const scene::RenderScene *scene, SceneFlags sceneFlags) = 0;
     virtual void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) = 0;
     virtual void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) = 0;
@@ -209,9 +209,6 @@ public:
     virtual void addCustomCommand(std::string_view customBehavior) = 0;
     void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
         addSceneOfCamera(camera, std::move(light), SceneFlags::NONE);
-    }
-    void addScene(const scene::RenderScene *scene) {
-        addScene(scene, SceneFlags::NONE);
     }
     void addFullscreenQuad(Material *material, uint32_t passID) {
         addFullscreenQuad(material, passID, SceneFlags::NONE);
@@ -232,11 +229,11 @@ public:
     virtual void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) = 0;
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     virtual void addRasterView(const ccstd::string &name, const RasterView &view) = 0;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) = 0;
@@ -275,10 +272,10 @@ public:
         addTexture(name, slotName, sampler, 0);
     }
     RenderQueueBuilder *addQueue() {
-        return addQueue(QueueHint::NONE, "");
+        return addQueue(QueueHint::NONE, "default");
     }
     RenderQueueBuilder *addQueue(QueueHint hint) {
-        return addQueue(hint, "");
+        return addQueue(hint, "default");
     }
 };
 
@@ -292,7 +289,7 @@ public:
     virtual void endSetup() = 0;
     virtual bool containsResource(const ccstd::string &name) const = 0;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     virtual uint32_t addRenderTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
     virtual uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
@@ -302,6 +299,7 @@ public:
     virtual void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
     virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
     virtual void beginFrame() = 0;
+    virtual void update(const scene::Camera *camera) = 0;
     virtual void endFrame() = 0;
     virtual BasicRenderPassBuilder *addRenderPass(uint32_t width, uint32_t height, const ccstd::string &passName) = 0;
     virtual BasicRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) = 0;
@@ -338,7 +336,7 @@ public:
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
@@ -389,10 +387,10 @@ public:
         addTexture(name, slotName, sampler, 0);
     }
     RenderQueueBuilder *addQueue() {
-        return addQueue(QueueHint::NONE, "");
+        return addQueue(QueueHint::NONE, "default");
     }
     RenderQueueBuilder *addQueue(QueueHint hint) {
-        return addQueue(hint, "");
+        return addQueue(hint, "default");
     }
 };
 
@@ -432,7 +430,7 @@ public:
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) = 0;
@@ -447,7 +445,7 @@ public:
         addTexture(name, slotName, sampler, 0);
     }
     ComputeQueueBuilder *addQueue() {
-        return addQueue("");
+        return addQueue("default");
     }
 };
 
@@ -457,6 +455,10 @@ public:
 
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    /**
+     * @beta function signature might change
+     */
+    virtual void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) = 0;
     virtual RenderSubpassBuilder *addRenderSubpass(const ccstd::string &subpassName) = 0;
     virtual MultisampleRenderSubpassBuilder *addMultisampleRenderSubpass(uint32_t count, uint32_t quality, const ccstd::string &subpassName) = 0;
     virtual ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &subpassName) = 0;
@@ -464,6 +466,9 @@ public:
      * @beta function signature might change
      */
     virtual void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) = 0;
+    void addMaterialTexture(const ccstd::string &resourceName) {
+        addMaterialTexture(resourceName, gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT);
+    }
     ComputeSubpassBuilder *addComputeSubpass() {
         return addComputeSubpass("");
     }
@@ -476,8 +481,9 @@ public:
     virtual void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) = 0;
     virtual void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
     virtual void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) = 0;
+    virtual void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) = 0;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     virtual void addComputeView(const ccstd::string &name, const ComputeView &view) = 0;
     virtual ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) = 0;
@@ -491,8 +497,11 @@ public:
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler) {
         addTexture(name, slotName, sampler, 0);
     }
+    void addMaterialTexture(const ccstd::string &resourceName) {
+        addMaterialTexture(resourceName, gfx::ShaderStageFlagBit::COMPUTE);
+    }
     ComputeQueueBuilder *addQueue() {
-        return addQueue("");
+        return addQueue("default");
     }
 };
 
@@ -603,7 +612,8 @@ public:
     virtual ~RenderingModule() noexcept = default;
 
     virtual uint32_t getPassID(const ccstd::string &name) const = 0;
-    virtual uint32_t getPhaseID(uint32_t passID, const ccstd::string &name) const = 0;
+    virtual uint32_t getSubpassID(uint32_t passID, const ccstd::string &name) const = 0;
+    virtual uint32_t getPhaseID(uint32_t subpassOrPassID, const ccstd::string &name) const = 0;
 };
 
 class Factory {

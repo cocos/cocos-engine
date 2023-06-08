@@ -226,7 +226,7 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
             }
         }
 
-        ccstd::vector<scene::Model *> models;
+        ccstd::vector<const scene::Model *> models;
         models.reserve(scene->getModels().size() / 4);
         octree->queryVisibility(camera, camera->getFrustum(), false, models);
         for (const auto &model : models) {

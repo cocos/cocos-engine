@@ -49,7 +49,8 @@ let QUAD_INDICES;
 export const bmfontUtils = {
 
     updateProcessingData (style: TextStyle, layout: TextLayout,
-        outputLayoutData: TextOutputLayoutData, comp: Label, trans: UITransform) {
+        outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData,
+        comp: Label, trans: UITransform) {
         style.fontSize = comp.fontSize;
         style.actualFontSize = comp.fontSize;
         style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
@@ -74,6 +75,8 @@ export const bmfontUtils = {
         } else {
             layout.wrapping = comp.enableWrapText;
         }
+        outputRenderData.uiTransAnchorX = trans.anchorX;
+        outputRenderData.uiTransAnchorY = trans.anchorY;
 
         shareLabelInfo.lineHeight = comp.lineHeight;
         shareLabelInfo.fontSize = comp.fontSize;
@@ -105,7 +108,7 @@ export const bmfontUtils = {
             style.fontScale = view.getScaleX();
             this._updateFontFamily(comp);
 
-            this.updateProcessingData(style, layout, outputLayoutData, comp, _uiTrans);
+            this.updateProcessingData(style, layout, outputLayoutData, outputRenderData, comp, _uiTrans);
 
             this._updateLabelInfo(comp);
 

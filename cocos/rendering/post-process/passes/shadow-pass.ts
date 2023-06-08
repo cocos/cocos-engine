@@ -11,9 +11,6 @@ export class ShadowPass extends BasePass {
     spotLightShadows: string[] = []
 
     public render (camera: Camera, ppl: Pipeline): void {
-        // todo: disable shadow map pass with native engine
-        if (passContext.ppl) { if (passContext.ppl.type !== PipelineType.BASIC) return; }
-
         passContext.shadowPass = this;
 
         const cameraID = getCameraUniqueID(camera);
