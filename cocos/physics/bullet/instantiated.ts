@@ -23,7 +23,7 @@
 */
 
 import { instantiateWasm } from 'pal/wasm';
-import { WASM_SUPPORT_MODE } from 'internal:constants';
+import { FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from 'internal:constants';
 import bulletWasmUrl from 'external:emscripten/bullet/bullet.wasm';
 import asmFactory from 'external:emscripten/bullet/bullet.asm.js';
 import { game } from '../../game';
@@ -114,7 +114,9 @@ if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
 export function waitForAmmoInstantiation () {
     return new Promise<void>((resolve) => {
         const errorReport = (msg: any) => { console.error(msg); };
-        if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+        if (FORCE_BANNING_BULLET_WASM) {
+            initAsm(resolve);
+        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
             if (sys.hasFeature(sys.Feature.WASM)) {
                 initWasm(bulletWasmUrl, importObject).then(resolve).catch(errorReport);
             } else {
