@@ -3,6 +3,7 @@ import { Vec3 } from '../../../cocos/core/math/vec3';
 import { Mat3 } from '../../../cocos/core/math/mat3';
 import { Mat4 } from '../../../cocos/core/math/mat4';
 import { Quat } from '../../../cocos/core/math/quat';
+import '../../utils/matchers/value-type-asymmetric-matchers';
 
 describe('Test Vec3', () => {
     test('normalize', () => {
@@ -168,5 +169,31 @@ describe('Test Vec3', () => {
         const value0 = Vec3.moveTowards(new Vec3(), v0, v1, 2);
         log('moveTowards: ', value0);
         expect(Vec3.equals(value0, expect0)).toBe(true);
+    });
+
+    test(`projectOnPlane()`, () => {
+        // For: project(out, a, n)
+
+        // `out` is same as `a`.
+        {
+            const a = new Vec3(0.2, -0.3, 1.7);
+            expect(Vec3.projectOnPlane(a, a, Vec3.UNIT_Y)).toBe(a);
+            expect(a).toStrictEqual(expect.objectContaining({
+                x: expect.toBeAround(0.2),
+                y: expect.toBeAround(0),
+                z: expect.toBeAround(1.7),
+            }));
+        }
+        // `out` is same as `n`.
+        {
+            const a = new Vec3(0.2, -0.3, 1.7);
+            const n = Vec3.clone(Vec3.UNIT_Y);
+            expect(Vec3.projectOnPlane(n, a, n)).toBe(n);
+            expect(n).toStrictEqual(expect.objectContaining({
+                x: expect.toBeAround(0.2),
+                y: expect.toBeAround(0),
+                z: expect.toBeAround(1.7),
+            }));
+        }
     });
 });
