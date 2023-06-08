@@ -140,7 +140,10 @@ void RenderInstancingQueue::recordCommandBuffer(
 }
 
 void RenderBatchingQueue::recordCommandBuffer(gfx::Device *device, const scene::Camera *camera, 
-    gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags) const {
+    gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags) {
+    std::ignore = device;
+    std::ignore = sceneFlags;
+
     const auto *scene = camera->getScene();
     auto *gpuScene = scene ? scene->getGPUScene() : nullptr;
     if (!gpuScene) {

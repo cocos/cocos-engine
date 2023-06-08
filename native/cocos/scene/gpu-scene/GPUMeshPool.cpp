@@ -23,7 +23,6 @@
 ****************************************************************************/
 
 #include "scene/gpu-scene/GPUMeshPool.h"
-#include "renderer/gfx-base/GFXBuffer.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "scene/RenderScene.h"

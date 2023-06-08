@@ -1287,25 +1287,26 @@ bool Mesh::isGPUMeshFormat() const {
         return false;
     }
 
-    for (const auto &primitive : _struct.primitives) {
-        if (!primitive.indexView.has_value()) {
-            return false;
-        }
+     return std::all_of(_struct.primitives.begin(), _struct.primitives.end(),
+                       [](const ISubMesh &primitive) {
+                           if (!primitive.indexView.has_value()) {
+                               return false;
+                           }
 
-        if (primitive.jointMapIndex.has_value()) {
-            return false;
-        }
+                           if (primitive.jointMapIndex.has_value()) {
+                               return false;
+                           }
 
-        if (primitive.primitiveMode != gfx::PrimitiveMode::TRIANGLE_LIST) {
-            return false;
-        }
+                           if (primitive.primitiveMode != gfx::PrimitiveMode::TRIANGLE_LIST) {
+                               return false;
+                           }
 
-        if (primitive.vertexBundelIndices.size() != 1) {
-            return false;
-        }
-    }
+                           if (primitive.vertexBundelIndices.size() != 1) {
+                               return false;
+                           }
 
-    return true;
+                           return true;
+         });
 }
 
 TypedArray Mesh::createTypedArrayWithGFXFormat(gfx::Format format, uint32_t count) {

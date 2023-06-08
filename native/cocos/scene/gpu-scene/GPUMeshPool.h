@@ -29,6 +29,7 @@
 #include "base/std/container/vector.h"
 #include "base/std/container/unordered_map.h"
 #include "renderer/gfx-base/GFXDef-common.h"
+#include "renderer/gfx-base/GFXBuffer.h"
 #include "scene/gpu-scene/Define.h"
 
 namespace cc {

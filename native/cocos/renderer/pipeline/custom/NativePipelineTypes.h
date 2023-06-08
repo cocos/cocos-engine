@@ -673,8 +673,8 @@ struct RenderBatchingQueue {
     RenderBatchingQueue& operator=(RenderBatchingQueue&& rhs) = default;
     RenderBatchingQueue& operator=(RenderBatchingQueue const& rhs) = default;
 
-    void recordCommandBuffer(gfx::Device *device, const scene::Camera *camera, 
-        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags) const;
+    static void recordCommandBuffer(gfx::Device *device, const scene::Camera *camera, 
+        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags);
 };
 
 struct DrawInstance {

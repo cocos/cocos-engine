@@ -56,7 +56,7 @@ void GPUBatch::addSubModel(const SubModel* subModel, uint32_t passIdx) {
     auto *shader = subModel->getShader(passIdx);
 
     auto *meshPool = _gpuScene->getMeshPool();
-    auto &meshData = meshPool->getSubMeshData(meshIdx);
+    const auto &meshData = meshPool->getSubMeshData(meshIdx);
 
     for (auto &item : _items) {
         // whether to use the same shader
@@ -85,7 +85,7 @@ void GPUBatch::addSubModel(const SubModel* subModel, uint32_t passIdx) {
     }
 
     auto *device = gfx::Device::getInstance();
-    const auto ib = meshPool->getIndexBuffer(meshData.indexStride);
+    auto *const ib = meshPool->getIndexBuffer(meshData.indexStride);
     gfx::BufferList vbs = {meshPool->getVertexBuffer(meshData.attributesHash)};
     
     const gfx::InputAssemblerInfo info = {subMesh->getAttributes(), vbs, ib};
@@ -104,7 +104,7 @@ void GPUBatch::removeSubModel(const SubModel *subModel, uint32_t passIdx) {
     auto *shader = subModel->getShader(passIdx);
 
     auto *meshPool = _gpuScene->getMeshPool();
-    auto &meshData = meshPool->getSubMeshData(meshIdx);
+    const auto &meshData = meshPool->getSubMeshData(meshIdx);
 
     for (auto i = 0; i < _items.size(); i++) {
         auto &item = _items[i];
@@ -151,6 +151,8 @@ void GPUBatchPool::destroy() {
 }
 
 void GPUBatchPool::update(uint32_t stamp) {
+    std::ignore = stamp;
+
     if (!_dirty) {
         return;
     }

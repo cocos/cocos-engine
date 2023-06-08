@@ -2072,7 +2072,7 @@ float computeSortingDepth(const scene::Camera& camera, const scene::Model& model
 }
 
 void addRenderObject(
-    LayoutGraphData::vertex_descriptor shadowCasterlayoutID, const scene::RenderScene* scene,
+    LayoutGraphData::vertex_descriptor shadowCasterlayoutID, 
     const scene::Camera& camera, const scene::Model& model, NativeRenderQueue& queue) {
     const bool bDrawTransparent = any(queue.sceneFlags & SceneFlags::TRANSPARENT_OBJECT);
     bool bDrawOpaqueOrCutout = any(queue.sceneFlags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
@@ -2157,7 +2157,7 @@ void octreeCulling(
         }
         const auto visibility = camera.getVisibility();
         if (isInstanceVisible(model, visibility) && isPointInstanceAndNotSkybox(model, skyBox)) {
-            addRenderObject(shadowCasterlayoutID, scene, camera, model, queue);
+            addRenderObject(shadowCasterlayoutID, camera, model, queue);
         }
     }
 
@@ -2171,7 +2171,7 @@ void octreeCulling(
         if (scene->isCulledByLod(&camera, &model)) {
             continue;
         }
-        addRenderObject(shadowCasterlayoutID, scene, camera, model, queue);
+        addRenderObject(shadowCasterlayoutID, camera, model, queue);
     }
 }
 
@@ -2204,12 +2204,12 @@ void frustumCulling(
             const auto* modelWorldBounds = model.getWorldBounds();
             // object has no volume
             if (!modelWorldBounds) {
-                addRenderObject(shadowCasterlayoutID, scene, camera, model, queue);
+                addRenderObject(shadowCasterlayoutID, camera, model, queue);
                 continue;
             }
             // frustum culling
             if (modelWorldBounds->aabbFrustum(camera.getFrustum())) {
-                addRenderObject(shadowCasterlayoutID, scene, camera, model, queue);
+                addRenderObject(shadowCasterlayoutID, camera, model, queue);
             }
         }
     }
