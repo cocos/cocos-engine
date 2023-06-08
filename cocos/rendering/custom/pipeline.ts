@@ -116,7 +116,7 @@ export interface Setter extends RenderNode {
 
 export interface RenderQueueBuilder extends Setter {
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addSceneOfCamera (
         camera: Camera,
@@ -158,11 +158,11 @@ export interface BasicRenderPassBuilder extends Setter {
         sampler?: Sampler | null,
         plane?: number): void;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addRasterView (name: string, view: RasterView): void;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addComputeView (name: string, view: ComputeView): void;
     addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
@@ -178,7 +178,7 @@ export interface BasicPipeline extends PipelineRuntime {
     endSetup (): void;
     containsResource (name: string): boolean;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addRenderTexture (
         name: string,
@@ -265,7 +265,7 @@ export interface RenderSubpassBuilder extends Setter {
         accessType: AccessType,
         slotName: string): void;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addComputeView (name: string, view: ComputeView): void;
     setViewport (viewport: Viewport): void;
@@ -311,7 +311,7 @@ export interface ComputeSubpassBuilder extends Setter {
         accessType: AccessType,
         slotName: string): void;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addComputeView (name: string, view: ComputeView): void;
     addQueue (phaseName?: string): ComputeQueueBuilder;
@@ -359,7 +359,7 @@ export interface ComputePassBuilder extends Setter {
         slotName: string): void;
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
     /**
-     * @deprecated method will be removed in 3.8.0
+     * @deprecated method will be removed in 3.9.0
      */
     addComputeView (name: string, view: ComputeView): void;
     addQueue (phaseName?: string): ComputeQueueBuilder;
