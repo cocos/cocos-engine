@@ -158,7 +158,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
             if (!camera.scene) {
                 continue;
             }
-
+            ppl.update(camera);
             if (i === (cameras.length - 1)) {
                 passContext.isFinalCamera = true;
             }
