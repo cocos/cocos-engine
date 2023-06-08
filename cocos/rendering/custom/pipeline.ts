@@ -330,6 +330,9 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    /**
+     * @beta function signature might change
+     */
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit): void;
     addRenderSubpass (subpassName: string): RenderSubpassBuilder;
     addMultisampleRenderSubpass (

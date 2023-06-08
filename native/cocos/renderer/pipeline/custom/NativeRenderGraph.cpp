@@ -1189,9 +1189,9 @@ void setShadowUBOView(
                             const auto &matShadowView = layer.getMatShadowView();
                             vec4ShadowInfo.set(matShadowView.m[0], matShadowView.m[4], matShadowView.m[8], layerThreshold);
                             setVec4ArrayElemImpl(data, layoutGraph, "cc_csmViewDir0", vec4ShadowInfo, i);
-                            vec4ShadowInfo.set(matShadowView.m[1], matShadowView.m[5], matShadowView.m[9], 0.0F);
+                            vec4ShadowInfo.set(matShadowView.m[1], matShadowView.m[5], matShadowView.m[9], layer.getSplitCameraNear());
                             setVec4ArrayElemImpl(data, layoutGraph, "cc_csmViewDir1", vec4ShadowInfo, i);
-                            vec4ShadowInfo.set(matShadowView.m[2], matShadowView.m[6], matShadowView.m[0], 0.0F);
+                            vec4ShadowInfo.set(matShadowView.m[2], matShadowView.m[6], matShadowView.m[10], layer.getSplitCameraFar());
                             setVec4ArrayElemImpl(data, layoutGraph, "cc_csmViewDir2", vec4ShadowInfo, i);
 
                             const auto &csmAtlas = layer.getCSMAtlas();

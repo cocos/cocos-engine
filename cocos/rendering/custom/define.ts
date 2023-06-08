@@ -622,7 +622,7 @@ export function buildShadowPass (passName: Readonly<string>,
         shadowPass.addDepthStencil(`${shadowMapName}Depth`, LoadOp.CLEAR, StoreOp.DISCARD,
             camera.clearDepth, camera.clearStencil, ClearFlagBit.DEPTH_STENCIL);
     }
-    const queue = shadowPass.addQueue(QueueHint.RENDER_OPAQUE);
+    const queue = shadowPass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
     queue.addSceneOfCamera(camera, new LightInfo(light, level),
         SceneFlags.SHADOW_CASTER);
     queue.setViewport(new Viewport(area.x, area.y, area.width, area.height));
