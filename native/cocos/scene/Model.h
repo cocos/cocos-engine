@@ -232,6 +232,8 @@ public:
     inline bool isDynamicBatching() const { return _isDynamicBatching; }
     inline float getShadowBias() const { return _shadowBias.x; }
     inline float getShadowNormalBias() const { return _shadowBias.y; }
+    inline Vec4 getShadowBiasParam() const { return _shadowBias; }
+    inline Vec4 getLightmapUVParam() const { return _lightmapUVParam; }
     inline uint32_t getPriority() const { return _priority; }
     inline void setPriority(uint32_t value) { _priority = value; }
     inline bool isReceiveDirLight() const { return _receiveDirLight; }

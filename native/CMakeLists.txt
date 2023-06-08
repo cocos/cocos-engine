@@ -1515,6 +1515,15 @@ cocos_source_files(
                  cocos/scene/ReflectionProbe.cpp
                  cocos/scene/ReflectionProbeManager.cpp
                  cocos/scene/ReflectionProbeManager.h
+                 cocos/scene/gpu-scene/Define.h
+                 cocos/scene/gpu-scene/GPUBatchPool.cpp
+                 cocos/scene/gpu-scene/GPUBatchPool.h
+                 cocos/scene/gpu-scene/GPUObjectPool.cpp
+                 cocos/scene/gpu-scene/GPUObjectPool.h
+                 cocos/scene/gpu-scene/GPUMeshPool.cpp
+                 cocos/scene/gpu-scene/GPUMeshPool.h
+                 cocos/scene/gpu-scene/GPUScene.cpp
+                 cocos/scene/gpu-scene/GPUScene.h
 )
 
 ##### primitive

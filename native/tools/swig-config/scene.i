@@ -110,6 +110,7 @@ using namespace cc;
 %ignore cc::scene::RenderScene::getBatches;
 %ignore cc::scene::RenderScene::getLODGroups;
 %ignore cc::scene::RenderScene::removeLODGroups;
+%ignore cc::scene::RenderScene::getGPUScene;
 
 %ignore cc::scene::BakedSkinningModel::updateInstancedJointTextureInfo;
 %ignore cc::scene::BakedSkinningModel::updateModelBounds;

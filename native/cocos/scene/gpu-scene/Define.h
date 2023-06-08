@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,49 +22,19 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "GFXDef.h"
-#include "GFXBuffer.h"
-#include "GFXInputAssembler.h"
-#include "GFXObject.h"
+#pragma once
+#include "base/Macros.h"
+#include "base/std/hash/hash_fwd.hpp"
 
 namespace cc {
-namespace gfx {
+namespace scene {
 
-InputAssembler::InputAssembler()
-: GFXObject(ObjectType::INPUT_ASSEMBLER) {
-}
+// Stanley TODO: delete this later
+#define USE_CPU_INDIRECT_DRAW 1
 
-InputAssembler::~InputAssembler() = default;
+constexpr uint32_t GPU_OBJECT_COUNT_INIT = 10240;
+constexpr uint32_t GPU_INSTANCE_COUNT_INIT = 10240;
+constexpr uint32_t GPU_INDIRECT_COUNT_INIT = 4096;
 
-void InputAssembler::initialize(const InputAssemblerInfo &info) {
-    _attributes = info.attributes;
-    _vertexBuffers = info.vertexBuffers;
-    _indexBuffer = info.indexBuffer;
-    _attributesHash = computeAttributesHash(_attributes);
-
-    if (_indexBuffer) {
-        _drawInfo.indexCount = _indexBuffer->getCount();
-        _drawInfo.firstIndex = 0;
-    } else if (!_vertexBuffers.empty()) {
-        _drawInfo.vertexCount = _vertexBuffers[0]->getCount();
-        _drawInfo.firstVertex = 0;
-        _drawInfo.vertexOffset = 0;
-    }
-
-    doInit(info);
-}
-
-void InputAssembler::destroy() {
-    doDestroy();
-
-    _attributes.clear();
-    _attributesHash = 0U;
-
-    _vertexBuffers.clear();
-    _indexBuffer = nullptr;
-
-    _drawInfo = DrawInfo();
-}
-
-} // namespace gfx
+} // namespace scene
 } // namespace cc

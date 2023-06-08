@@ -1,8 +1,11 @@
 #include <builtin/uniforms/cc-local-batched>
+#include <builtin/functionalities/gpu-driven>
 
 void CCGetWorldMatrix(out mat4 matWorld)
 {
-  #if USE_INSTANCING
+  #if CC_USE_GPU_DRIVEN
+    matWorld = CCGetWorld();
+  #elif USE_INSTANCING
     matWorld = mat4(
       vec4(a_matWorld0.xyz, 0.0),
       vec4(a_matWorld1.xyz, 0.0),
@@ -16,7 +19,10 @@ void CCGetWorldMatrix(out mat4 matWorld)
 
 void CCGetWorldMatrixFull(out mat4 matWorld, out mat4 matWorldIT)
 {
-  #if USE_INSTANCING
+  #if CC_USE_GPU_DRIVEN
+    matWorld = CCGetWorld();
+    matWorldIT = CCGetWorldIT();
+  #elif USE_INSTANCING
     matWorld = mat4(
       vec4(a_matWorld0.xyz, 0.0),
       vec4(a_matWorld1.xyz, 0.0),

@@ -33,6 +33,7 @@ import { RangedDirectionalLight } from '../scene/ranged-directional-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../2d/renderer/draw-batch';
 import { LODGroup } from '../scene/lod-group';
+import { Mesh } from '../../3d/assets/mesh';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -138,6 +139,14 @@ export class RenderScene {
     }
 
     /**
+     * @en All active GPU Driven models of the render scene.
+     * @zh 渲染场景管理的所有 GPU Driven 模型。
+     */
+    get gpuModels (): Model[] {
+        return this._gpuModels;
+    }
+
+    /**
      * @en All active 2d draw batches of the render scene.
      * @zh 渲染场景管理的所有 2D 渲染批次对象。
      */
@@ -156,6 +165,7 @@ export class RenderScene {
     private _name = '';
     private _cameras: Camera[] = [];
     private _models: Model[] = [];
+    private _gpuModels: Model[] = [];
     private _lodGroups: LODGroup[] = []; // LOD Group gathered
     private _batches: DrawBatch2D[] = [];
     private _directionalLights: DirectionalLight[] = [];
@@ -188,6 +198,19 @@ export class RenderScene {
         this._name = info.name;
         this._lodStateCache = new LodStateCache(this);
         return true;
+    }
+
+    /**
+     * @engineInternal
+     */
+    public activate () {
+    }
+
+    /**
+     * @engineInternal
+     */
+    public buildGPUScene (meshes: Mesh[]) {
+        // Only support in native.
     }
 
     /**
@@ -248,6 +271,7 @@ export class RenderScene {
         this.removeSpotLights();
         this.removeRangedDirLights();
         this.removeModels();
+        this.removeGPUModels();
         this.removeLODGroups();
         this._lodStateCache.clearCache();
     }
@@ -534,6 +558,44 @@ export class RenderScene {
     }
 
     /**
+     * @en Add a GPU Driven model, all models attached to the render scene will be submitted for rendering.
+     * @zh 增加一个 GPU Driven 模型，渲染场景上挂载的所有模型都会被提交渲染。
+     * @param m The model.
+     */
+    public addGPUModel (m: Model) {
+        m.attachToScene(this);
+        this._gpuModels.push(m);
+    }
+
+    /**
+     * @en Remove a GPU Driven model, model removed will no longer be submitted for rendering.
+     * @zh 删除一个 GPU Driven 模型，移除的模型将不再被提交渲染。
+     * @param m The model.
+     */
+    public removeGPUModel (model: Model) {
+        for (let i = 0; i < this._gpuModels.length; ++i) {
+            if (this._gpuModels[i] === model) {
+                model.detachFromScene();
+                this._gpuModels.splice(i, 1);
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * @en Remove all GPU Driven models.
+     * @zh 删除所有 GPU Driven 模型。
+     */
+    public removeGPUModels () {
+        for (const m of this._gpuModels) {
+            m.detachFromScene();
+            m.destroy();
+        }
+        this._gpuModels.length = 0;
+    }
+
+    /**
      * @en Add a draw batch of 2d objects, all draw batches attached to the render scene will be submitted for rendering.
      * @zh 增加一个 2D 渲染批次，渲染场景上挂载的所有 2D 渲染批次都会被提交渲染。
      * @param batch The draw batch.
@@ -615,6 +677,10 @@ export class RenderScene {
      */
     public onGlobalPipelineStateChanged () {
         for (const m of this._models) {
+            m.onGlobalPipelineStateChanged();
+        }
+
+        for (const m of this._gpuModels) {
             m.onGlobalPipelineStateChanged();
         }
     }

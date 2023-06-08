@@ -4,6 +4,7 @@ out highp vec4 v_shadowPos;
 
 #include <builtin/uniforms/cc-shadow>
 #include <legacy/shadow-map-base>
+#include <builtin/functionalities/gpu-driven>
 
 #pragma define CC_SHADOW_POSITION v_shadowPos
 #pragma define CC_TRANSFER_SHADOW(worldPos) CC_TRANSFER_SHADOW_BASE(worldPos, v_shadowPos)
@@ -11,7 +12,10 @@ out highp vec4 v_shadowPos;
 #if CC_RECEIVE_SHADOW
 vec2 CCGetShadowBias()
 {
-  #if USE_INSTANCING
+  #if CC_USE_GPU_DRIVEN
+    vec4 localShadowBias = CCGetLocalShadowBias();
+    return vec2(localShadowBias.x + cc_shadowWHPBInfo.w, localShadowBias.y + cc_shadowLPNNInfo.z);
+  #elif USE_INSTANCING
     return vec2(a_localShadowBiasAndProbeId.x + cc_shadowWHPBInfo.w, a_localShadowBiasAndProbeId.y + cc_shadowLPNNInfo.z);
   #else
     return vec2(cc_localShadowBias.x + cc_shadowWHPBInfo.w, cc_localShadowBias.y + cc_shadowLPNNInfo.z);

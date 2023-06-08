@@ -33,6 +33,7 @@
 namespace cc {
 
 class Node;
+class Mesh;
 class SkinningModel;
 class BakedSkinningModel;
 
@@ -49,6 +50,7 @@ class SpotLight;
 class PointLight;
 class RangedDirectionalLight;
 class LodStateCache;
+class GPUScene;
 
 struct IRaycastResult {
     Node *node{nullptr};
@@ -69,6 +71,7 @@ public:
     void destroy();
 
     void activate();
+    void buildGPUScene(const ccstd::vector<Mesh *> &meshes);
 
     void addCamera(Camera *camera);
     void removeCamera(Camera *camera);
@@ -103,6 +106,10 @@ public:
     void removeModel(Model *model);
     void removeModels();
 
+    void addGPUModel(Model *model);
+    void removeGPUModel(Model *model);
+    void removeGPUModels();
+
     void addBatch(DrawBatch2D *);
     void removeBatch(DrawBatch2D *);
     void removeBatches();
@@ -124,6 +131,8 @@ public:
     inline Octree *getOctree() const { return _octree; }
     void updateOctree(Model *model);
     inline const ccstd::vector<DrawBatch2D *> &getBatches() const { return _batches; }
+    inline const ccstd::vector<IntrusivePtr<Model>> &getGPUModels() const { return _gpuModels; }
+    inline GPUScene *getGPUScene() const { return _gpuScene.get(); }
 
 private:
     ccstd::string _name;
@@ -140,6 +149,8 @@ private:
     ccstd::vector<IntrusivePtr<RangedDirectionalLight>> _rangedDirLights;
     ccstd::vector<DrawBatch2D *> _batches;
     Octree *_octree{nullptr};
+    ccstd::vector<IntrusivePtr<Model>> _gpuModels;
+    IntrusivePtr<GPUScene> _gpuScene;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderScene);
 };

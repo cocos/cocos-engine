@@ -1,0 +1,35 @@
+#include <builtin/uniforms/cc-gpu-scene>
+
+#if CC_USE_GPU_DRIVEN
+
+#ifdef VULKAN
+  #define cc_InstanceIndex gl_InstanceIndex
+#else
+  #define cc_InstanceIndex gl_InstanceID
+#endif
+
+mat4 CCGetWorld()
+{
+  uint objectId = cc_instances[cc_InstanceIndex].objectId;
+  return cc_objects[objectId].matWorld;
+}
+
+mat4 CCGetWorldIT()
+{
+  uint objectId = cc_instances[cc_InstanceIndex].objectId;
+  return cc_objects[objectId].matWorldIT;
+}
+
+vec4 CCGetLightingMapUVParam()
+{
+  uint objectId = cc_instances[cc_InstanceIndex].objectId;
+  return cc_objects[objectId].lightingMapUVParam;
+}
+
+vec4 CCGetLocalShadowBias()
+{
+  uint objectId = cc_instances[cc_InstanceIndex].objectId;
+  return cc_objects[objectId].localShadowBias;
+}
+
+#endif

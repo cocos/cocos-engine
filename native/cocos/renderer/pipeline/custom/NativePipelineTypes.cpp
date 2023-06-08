@@ -46,6 +46,15 @@ RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue const& rhs, c
 : batches(rhs.batches, alloc),
   sortedBatches(rhs.sortedBatches, alloc) {}
 
+RenderBatchingQueue::RenderBatchingQueue(const allocator_type& alloc) noexcept
+{}
+
+RenderBatchingQueue::RenderBatchingQueue(RenderBatchingQueue&& rhs, const allocator_type& alloc)
+{}
+
+RenderBatchingQueue::RenderBatchingQueue(RenderBatchingQueue const& rhs, const allocator_type& alloc)
+{}
+
 RenderDrawQueue::RenderDrawQueue(const allocator_type& alloc) noexcept
 : instances(alloc) {}
 
@@ -59,13 +68,17 @@ NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
   transparentQueue(alloc),
   opaqueInstancingQueue(alloc),
-  transparentInstancingQueue(alloc) {}
+  transparentInstancingQueue(alloc),
+  opaqueBatchingQueue(alloc),
+  transparentBatchingQueue(alloc) {}
 
 NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t layoutPassIDIn, const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
   transparentQueue(alloc),
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc),
+  opaqueBatchingQueue(alloc),
+  transparentBatchingQueue(alloc),
   sceneFlags(sceneFlagsIn),
   layoutPassID(layoutPassIDIn) {}
 
@@ -74,6 +87,8 @@ NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_ty
   transparentQueue(std::move(rhs.transparentQueue), alloc),
   opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
   transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
+  opaqueBatchingQueue(std::move(rhs.opaqueBatchingQueue), alloc),
+  transparentBatchingQueue(std::move(rhs.transparentBatchingQueue), alloc),
   sceneFlags(rhs.sceneFlags),
   layoutPassID(rhs.layoutPassID) {}
 

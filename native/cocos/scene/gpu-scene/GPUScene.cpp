@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,49 +22,58 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "GFXDef.h"
-#include "GFXBuffer.h"
-#include "GFXInputAssembler.h"
-#include "GFXObject.h"
+#include "scene/gpu-scene/GPUScene.h"
+#include "base/memory/Memory.h"
+#include "scene/RenderScene.h"
+#include "scene/Model.h"
+#include "renderer/gfx-base/GFXDevice.h"
 
 namespace cc {
-namespace gfx {
+namespace scene {
 
-InputAssembler::InputAssembler()
-: GFXObject(ObjectType::INPUT_ASSEMBLER) {
+void GPUScene::activate(RenderScene* scene) {
+    _scene = scene;
+
+    _meshPool = ccnew GPUMeshPool();
+    _meshPool->activate(this);
+
+    _objectPool = ccnew GPUObjectPool();
+    _objectPool->activate(this);
+
+    _batchPool = ccnew GPUBatchPool();
+    _batchPool->activate(this);
 }
 
-InputAssembler::~InputAssembler() = default;
-
-void InputAssembler::initialize(const InputAssemblerInfo &info) {
-    _attributes = info.attributes;
-    _vertexBuffers = info.vertexBuffers;
-    _indexBuffer = info.indexBuffer;
-    _attributesHash = computeAttributesHash(_attributes);
-
-    if (_indexBuffer) {
-        _drawInfo.indexCount = _indexBuffer->getCount();
-        _drawInfo.firstIndex = 0;
-    } else if (!_vertexBuffers.empty()) {
-        _drawInfo.vertexCount = _vertexBuffers[0]->getCount();
-        _drawInfo.firstVertex = 0;
-        _drawInfo.vertexOffset = 0;
-    }
-
-    doInit(info);
+void GPUScene::destroy() {
+    CC_SAFE_DESTROY_NULL(_batchPool);
+    CC_SAFE_DESTROY_NULL(_objectPool);
+    CC_SAFE_DESTROY_NULL(_meshPool);
 }
 
-void InputAssembler::destroy() {
-    doDestroy();
-
-    _attributes.clear();
-    _attributesHash = 0U;
-
-    _vertexBuffers.clear();
-    _indexBuffer = nullptr;
-
-    _drawInfo = DrawInfo();
+void GPUScene::update(uint32_t stamp) {
+    _meshPool->update(stamp);
+    _objectPool->update(stamp);
+    _batchPool->update(stamp);
 }
 
-} // namespace gfx
+void GPUScene::build(const ccstd::vector<Mesh*>& meshes) {
+    _meshPool->build(meshes);
+}
+
+void GPUScene::addModel(const Model* model) {
+    _objectPool->addModel(model);
+    _batchPool->addModel(model);
+}
+
+void GPUScene::removeModel(const Model* model) {
+    _batchPool->removeModel(model);
+    _objectPool->removeModel(model);
+}
+
+void GPUScene::removeAllModels() {
+    _batchPool->removeAllModels();
+    _objectPool->removeAllModels();
+}
+
+} // namespace scene
 } // namespace cc

@@ -1,5 +1,7 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+#pragma define-meta CC_USE_GPU_DRIVEN default(false)
 
+#if !CC_USE_GPU_DRIVEN
 #pragma builtin(local)
 layout(set = 2, binding = 0) uniform CCLocal {
   highp mat4 cc_matWorld;
@@ -11,3 +13,4 @@ layout(set = 2, binding = 0) uniform CCLocal {
   highp vec4 cc_reflectionProbeBlendData1; //xyz: blend cube center w:blend weight
   highp vec4 cc_reflectionProbeBlendData2; //xyz: blend cube box half size, w: isRGBE(1000) and mipCount
 };
+#endif

@@ -90,6 +90,9 @@ public:
     inline void setShadingScale(float val) { _shadingScale = val; }
     inline bool getCSMSupported() const { return _csmSupported; }
     inline void setCSMSupported(bool val) { _csmSupported = val; }
+    inline gfx::Buffer *getDefaultBuffer() { return _defaultBuffer.get(); }
+    inline void setGPUDrivenEnabled(bool enable) { _gpuDrivenEnabled = enable; }
+    bool isGPUDrivenEnabled() const;
 
 protected:
     void initOcclusionQuery();
@@ -127,7 +130,7 @@ protected:
 
     bool _isHDR{true};
     bool _csmSupported{true};
-
+    bool _gpuDrivenEnabled{false};
     float _shadingScale{1.0F};
 
     RenderObjectList _renderObjects;
@@ -139,6 +142,8 @@ protected:
     ccstd::vector<gfx::Shader *> _geometryRendererShaders; // weak reference
 
     ccstd::unordered_map<const scene::Light *, IntrusivePtr<gfx::Framebuffer>> _shadowFrameBufferMap;
+
+    IntrusivePtr<gfx::Buffer> _defaultBuffer;
 };
 
 } // namespace pipeline

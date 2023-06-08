@@ -63,6 +63,8 @@ PipelineSceneData::~PipelineSceneData() {
 void PipelineSceneData::activate(gfx::Device *device) {
     _device = device;
 
+    _defaultBuffer = _device->createBuffer(gfx::BufferInfo{gfx::BufferUsageBit::STORAGE, gfx::MemoryUsageBit::DEVICE, 4, 4});
+
 #if CC_USE_GEOMETRY_RENDERER
     initGeometryRenderer();
 #endif
@@ -83,6 +85,7 @@ void PipelineSceneData::destroy() {
     _occlusionQueryInputAssembler = nullptr;
     _occlusionQueryVertexBuffer = nullptr;
     _occlusionQueryIndicesBuffer = nullptr;
+    _defaultBuffer = nullptr;
 }
 
 void PipelineSceneData::initOcclusionQuery() {
@@ -164,6 +167,14 @@ gfx::InputAssembler *PipelineSceneData::createOcclusionQueryIA() {
     // create cube input assembler
     gfx::InputAssemblerInfo info{attributes, {_occlusionQueryVertexBuffer}, _occlusionQueryIndicesBuffer};
     return _device->createInputAssembler(info);
+}
+
+bool PipelineSceneData::isGPUDrivenEnabled() const {
+#if CC_EDITOR
+    return false;
+#else
+    return _gpuDrivenEnabled && _device->getCapabilities().supportMultiDrawIndirect;
+#endif
 }
 
 } // namespace pipeline

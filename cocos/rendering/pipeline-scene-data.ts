@@ -195,6 +195,11 @@ export class PipelineSceneData {
         this._occlusionQueryIndicesBuffer = null;
     }
 
+    public isGPUDrivenEnabled () {
+        // Only support in native.
+        return false;
+    }
+
     private _createOcclusionQueryIA () {
         // create vertex buffer
         const device = this._device;

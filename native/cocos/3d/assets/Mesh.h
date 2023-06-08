@@ -446,6 +446,12 @@ public:
      */
     inline bool isAllowDataAccess() const { return _allowDataAccess; }
 
+    void releaseData();
+
+    bool isGPUMeshFormat() const;
+    inline bool canUseGPUScene() const { return _canUseGPUScene.has_value() && _canUseGPUScene.value(); }
+    inline void setUseGPUScene(bool enable) { _canUseGPUScene = enable; }
+
 private:
     using AccessorType = std::function<void(const IVertexBundle &vertexBundle, int32_t iAttribute)>;
 
@@ -455,7 +461,6 @@ private:
     void tryConvertVertexData();
 
     void initDefault(const ccstd::optional<ccstd::string> &uuid) override;
-    void releaseData();
 
     static TypedArray createTypedArrayWithGFXFormat(gfx::Format format, uint32_t count);
 
@@ -470,6 +475,7 @@ private:
     bool _initialized{false};
     bool _allowDataAccess{true};
     bool _isMeshDataUploaded{false};
+    ccstd::optional<bool> _canUseGPUScene;
 
     RenderingSubMeshList _renderingSubMeshes;
 

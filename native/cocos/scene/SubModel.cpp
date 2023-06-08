@@ -133,7 +133,9 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd
     CC_ASSERT(!pPasses->empty());
     gfx::DescriptorSetInfo dsInfo;
     dsInfo.layout = (*pPasses)[0]->getLocalSetLayout();
-    _inputAssembler = _device->createInputAssembler(subMesh->getIaInfo());
+    if (!subMesh->getIaInfo().vertexBuffers.empty()) {
+        _inputAssembler = _device->createInputAssembler(subMesh->getIaInfo());
+    }
     _descriptorSet = _device->createDescriptorSet(dsInfo);
 
     const auto *pipeline = Root::getInstance()->getPipeline();

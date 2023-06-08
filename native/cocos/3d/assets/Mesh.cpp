@@ -32,6 +32,9 @@
 #include "core/platform/Debug.h"
 #include "math/Quaternion.h"
 #include "renderer/gfx-base/GFXDevice.h"
+#include "core/Root.h"
+#include "renderer/pipeline/PipelineSceneData.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 #define CC_OPTIMIZE_MESH_DATA 0
 
@@ -293,6 +296,10 @@ void Mesh::initialize() {
 
     _initialized = true;
 
+    if (!_canUseGPUScene.has_value()) {
+        _canUseGPUScene = isGPUMeshFormat();
+    }
+
     if (_struct.dynamic.has_value()) {
         auto *device = gfx::Device::getInstance();
         gfx::BufferList vertexBuffers;
@@ -439,7 +446,7 @@ void Mesh::initialize() {
         }
 
         _isMeshDataUploaded = true;
-        if (!_allowDataAccess) {
+        if (!_allowDataAccess && !canUseGPUScene()) {
             releaseData();
         }
     }
@@ -1267,6 +1274,38 @@ void Mesh::setAllowDataAccess(bool allowDataAccess) {
 
 void Mesh::releaseData() {
     _data.clear();
+}
+
+bool Mesh::isGPUMeshFormat() const {
+    if (_struct.dynamic.has_value() ||
+        _struct.morph.has_value() ||
+        _struct.jointMaps.has_value()) {
+        return false;
+    }
+
+    if (_struct.primitives.empty()) {
+        return false;
+    }
+
+    for (const auto &primitive : _struct.primitives) {
+        if (!primitive.indexView.has_value()) {
+            return false;
+        }
+
+        if (primitive.jointMapIndex.has_value()) {
+            return false;
+        }
+
+        if (primitive.primitiveMode != gfx::PrimitiveMode::TRIANGLE_LIST) {
+            return false;
+        }
+
+        if (primitive.vertexBundelIndices.size() != 1) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 TypedArray Mesh::createTypedArrayWithGFXFormat(gfx::Format format, uint32_t count) {

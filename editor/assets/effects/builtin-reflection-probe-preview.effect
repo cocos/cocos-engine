@@ -60,6 +60,7 @@ CCProgram unlit-vs %{
   precision highp float;
   #include <legacy/input>
   #include <builtin/uniforms/cc-global>
+  #include <builtin/functionalities/gpu-driven>
   #include <legacy/decode-base>
   #include <legacy/local-batch>
   #include <legacy/input>
@@ -83,7 +84,10 @@ CCProgram unlit-vs %{
     v_normal = normalize((matWorldIT * vec4(a_normal, 0.0)).xyz);
 
     #if CC_USE_REFLECTION_PROBE
-      #if USE_INSTANCING
+      #if CC_USE_GPU_DRIVEN
+        vec4 localShadowBias = CCGetLocalShadowBias();
+        v_shadowBiasAndProbeId.zw = localShadowBias.zw;
+      #elif USE_INSTANCING
         v_shadowBiasAndProbeId.zw = a_localShadowBiasAndProbeId.zw;
       #else
         v_shadowBiasAndProbeId.zw = cc_localShadowBias.zw;

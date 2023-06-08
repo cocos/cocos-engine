@@ -256,7 +256,7 @@ export function setupForwardPass (ppl: BasicPipeline, cameraInfo: CameraInfo, is
         camera.clearStencil,
         camera.clearFlag);
     forwardPass
-        .addQueue(QueueHint.RENDER_OPAQUE)
+        .addQueue(QueueHint.RENDER_OPAQUE, 'default')
         .addSceneOfCamera(camera, new LightInfo(),
             SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
              | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
@@ -267,7 +267,7 @@ export function setupForwardPass (ppl: BasicPipeline, cameraInfo: CameraInfo, is
     }
     if (enabledAlpha) {
         forwardPass
-            .addQueue(QueueHint.RENDER_TRANSPARENT)
+            .addQueue(QueueHint.RENDER_TRANSPARENT, 'default')
             .addSceneOfCamera(camera, new LightInfo(), sceneFlags);
     }
     return { rtName: `ForwardColor${cameraInfo.id}`, dsName: `ForwardDepthStencil${cameraInfo.id}` };

@@ -46,6 +46,7 @@
 #include "cocos/scene/Octree.h"
 #include "cocos/scene/Pass.h"
 #include "cocos/scene/RenderScene.h"
+#include "cocos/scene/gpu-scene/GPUScene.h"
 #include "cocos/scene/Skybox.h"
 #include "details/GraphView.h"
 #include "details/GslUtils.h"
@@ -1005,11 +1006,10 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto sceneID = target(e, g);
             if (holds<SceneTag>(sceneID, g)) {
                 const auto& sceneData = get(SceneTag{}, sceneID, g);
-                for (const auto& scene : sceneData.scenes) {
-                    auto iter = ctx.context.renderSceneResources.find(scene);
-                    if (iter != ctx.context.renderSceneResources.end()) {
-                        return &iter->second;
-                    }
+                const auto* scene = sceneData.camera->getScene();
+                auto iter = ctx.context.renderSceneResources.find(scene);
+                if (iter != ctx.context.renderSceneResources.end()) {
+                    return &iter->second;
                 }
             }
         }
@@ -1517,6 +1517,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 queue.opaqueInstancingQueue.recordCommandBuffer(
                     ctx.currentPass, ctx.cmdBuff);
             }
+            queue.opaqueBatchingQueue.recordCommandBuffer(ctx.device, camera, ctx.currentPass, ctx.cmdBuff, queue.sceneFlags);
         }
         if (any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT)) {
             queue.transparentQueue.recordCommandBuffer(
@@ -1525,6 +1526,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 queue.transparentInstancingQueue.recordCommandBuffer(
                     ctx.currentPass, ctx.cmdBuff);
             }
+			// Stanley TODO
+            //queue.transparentBatchingQueue.recordCommandBuffer(ctx.device, camera, ctx.currentPass, ctx.cmdBuff, queue.sceneFlags);
         }
         if (any(sceneData.flags & SceneFlags::UI)) {
             submitUICommands(ctx.currentPass,
@@ -2069,7 +2072,7 @@ float computeSortingDepth(const scene::Camera& camera, const scene::Model& model
 }
 
 void addRenderObject(
-    LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
+    LayoutGraphData::vertex_descriptor shadowCasterlayoutID, const scene::RenderScene* scene,
     const scene::Camera& camera, const scene::Model& model, NativeRenderQueue& queue) {
     const bool bDrawTransparent = any(queue.sceneFlags & SceneFlags::TRANSPARENT_OBJECT);
     bool bDrawOpaqueOrCutout = any(queue.sceneFlags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
@@ -2154,7 +2157,7 @@ void octreeCulling(
         }
         const auto visibility = camera.getVisibility();
         if (isInstanceVisible(model, visibility) && isPointInstanceAndNotSkybox(model, skyBox)) {
-            addRenderObject(shadowCasterlayoutID, camera, model, queue);
+            addRenderObject(shadowCasterlayoutID, scene, camera, model, queue);
         }
     }
 
@@ -2168,7 +2171,7 @@ void octreeCulling(
         if (scene->isCulledByLod(&camera, &model)) {
             continue;
         }
-        addRenderObject(shadowCasterlayoutID, camera, model, queue);
+        addRenderObject(shadowCasterlayoutID, scene, camera, model, queue);
     }
 }
 
@@ -2201,12 +2204,12 @@ void frustumCulling(
             const auto* modelWorldBounds = model.getWorldBounds();
             // object has no volume
             if (!modelWorldBounds) {
-                addRenderObject(shadowCasterlayoutID, camera, model, queue);
+                addRenderObject(shadowCasterlayoutID, scene, camera, model, queue);
                 continue;
             }
             // frustum culling
             if (modelWorldBounds->aabbFrustum(camera.getFrustum())) {
-                addRenderObject(shadowCasterlayoutID, camera, model, queue);
+                addRenderObject(shadowCasterlayoutID, scene, camera, model, queue);
             }
         }
     }
@@ -2392,13 +2395,23 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     }
 
     // gpu driven
-    if constexpr (ENABLE_GPU_DRIVEN) {
-        // TODO(jilin): consider populating renderSceneResources here
-        const scene::RenderScene* const ptr = nullptr;
-        auto& sceneResource = ppl.nativeContext.renderSceneResources[ptr];
-        const auto& nameID = lg.attributeIndex.find("cc_xxxDescriptor")->second;
-        sceneResource.resourceIndex.emplace(nameID, ResourceType::STORAGE_BUFFER);
-        sceneResource.storageBuffers.emplace(nameID, nullptr);
+    for (const auto& [scene, queues] : sceneQueues) {
+        auto* gpuScene = scene->getGPUScene();
+
+        gfx::Buffer* defaultBuffer = nullptr;
+        const auto* pipeline = Root::getInstance()->getPipeline();
+        if (pipeline && pipeline->getPipelineSceneData()) {
+            defaultBuffer = pipeline->getPipelineSceneData()->getDefaultBuffer();
+        }
+
+        auto& sceneResource = ppl.nativeContext.renderSceneResources[scene];
+        const auto& objectBufferID = lg.attributeIndex.find("cc_objectBuffer")->second;
+        sceneResource.resourceIndex.emplace(objectBufferID, ResourceType::STORAGE_BUFFER);
+        sceneResource.storageBuffers.emplace(objectBufferID, gpuScene ? gpuScene->getObjectBuffer() : defaultBuffer);
+
+        const auto& instanceBufferID = lg.attributeIndex.find("cc_instanceBuffer")->second;
+        sceneResource.resourceIndex.emplace(instanceBufferID, ResourceType::STORAGE_BUFFER);
+        sceneResource.storageBuffers.emplace(instanceBufferID, gpuScene ? gpuScene->getInstanceBuffer() : defaultBuffer);
     }
 
     // Execute all valid passes

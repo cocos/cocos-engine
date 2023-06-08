@@ -28,6 +28,10 @@
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
 #include "details/GslUtils.h"
+#include "scene/gpu-scene/GPUBatchPool.h"
+#include "scene/gpu-scene/GPUScene.h"
+#include "scene/RenderScene.h"
+#include "renderer/gfx-base/GFXDevice.h"
 
 namespace cc {
 
@@ -131,6 +135,49 @@ void RenderInstancingQueue::recordCommandBuffer(
             }
             cmdBuffer->bindInputAssembler(instance.ia);
             cmdBuffer->draw(instance.ia);
+        }
+    }
+}
+
+void RenderBatchingQueue::recordCommandBuffer(gfx::Device *device, const scene::Camera *camera, 
+    gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags) const {
+    const auto *scene = camera->getScene();
+    auto *gpuScene = scene ? scene->getGPUScene() : nullptr;
+    if (!gpuScene) {
+        return;
+    }
+
+    // Stanley TODO: use sceneFlags & camera frustum to cull instances.
+    auto *indirectBuffer = gpuScene->getIndirectBuffer();
+    auto *batchPool = gpuScene->getBatchPool();
+    const auto stride = static_cast<uint32_t>(sizeof(scene::DrawIndirectCommand));
+    gfx::PipelineState *lastPSO = nullptr;
+
+    for (const auto &iter : batchPool->getBatches()) {
+        const auto *batch = iter.second;
+        if (batch->empty()) {
+            continue;
+        }
+
+        const auto *drawPass = batch->getPass();
+        cmdBuffer->bindDescriptorSet(pipeline::materialSet, drawPass->getDescriptorSet());
+
+        const auto &items = batch->getItems();
+        for (const auto &item : items) {
+            if (!item.count) {
+                continue;
+            }
+
+            auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
+                drawPass, item.shader, item.inputAssembler, renderPass);
+
+            if (lastPSO != pso) {
+                cmdBuffer->bindPipelineState(pso);
+                lastPSO = pso;
+            }
+
+            cmdBuffer->bindInputAssembler(item.inputAssembler);
+            cmdBuffer->drawIndexedIndirect(indirectBuffer, item.first * stride, item.count, stride);
         }
     }
 }
