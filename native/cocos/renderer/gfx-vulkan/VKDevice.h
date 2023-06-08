@@ -38,7 +38,6 @@ class CCVKTexture;
 class CCVKGPUDevice;
 class CCVKGPUContext;
 
-class CCVKGPUBufferHub;
 class CCVKGPUTransportHub;
 class CCVKGPUDescriptorHub;
 class CCVKGPUSemaphorePool;
@@ -46,6 +45,7 @@ class CCVKGPUBarrierManager;
 class CCVKGPUDescriptorSetHub;
 class CCVKGPUInputAssemblerHub;
 class CCVKPipelineCache;
+class CCVKCachedObjectPool;
 
 class CCVKGPUFencePool;
 class CCVKGPURecycleBin;
@@ -90,7 +90,6 @@ public:
     inline CCVKGPUDevice *gpuDevice() const { return _gpuDevice.get(); }
     inline CCVKGPUContext *gpuContext() { return _gpuContext.get(); }
 
-    inline CCVKGPUBufferHub *gpuBufferHub() const { return _gpuBufferHub.get(); }
     inline CCVKGPUTransportHub *gpuTransportHub() const { return _gpuTransportHub.get(); }
     inline CCVKGPUDescriptorHub *gpuDescriptorHub() const { return _gpuDescriptorHub.get(); }
     inline CCVKGPUSemaphorePool *gpuSemaphorePool() const { return _gpuSemaphorePool.get(); }
@@ -98,13 +97,12 @@ public:
     inline CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() const { return _gpuDescriptorSetHub.get(); }
     inline CCVKGPUInputAssemblerHub *gpuIAHub() const { return _gpuIAHub.get(); }
     inline CCVKPipelineCache *pipelineCache() const { return _pipelineCache.get(); }
+    inline CCVKCachedObjectPool *cachedObjectPool() const { return _cachedObjectPool.get(); }
 
     CCVKGPUFencePool *gpuFencePool();
     CCVKGPURecycleBin *gpuRecycleBin();
     CCVKGPUStagingBufferPool *gpuStagingBufferPool();
     void waitAllFences();
-
-    void updateBackBufferCount(uint32_t backBufferCount);
 
 protected:
     static CCVKDevice *instance;
@@ -141,6 +139,7 @@ protected:
 
     void initFormatFeature();
     void initExtensionCapability();
+    void initMemoryStatus();
 
     std::unique_ptr<CCVKGPUDevice> _gpuDevice;
     std::unique_ptr<CCVKGPUContext> _gpuContext;
@@ -149,7 +148,6 @@ protected:
     ccstd::vector<std::unique_ptr<CCVKGPURecycleBin>> _gpuRecycleBins;
     ccstd::vector<std::unique_ptr<CCVKGPUStagingBufferPool>> _gpuStagingBufferPools;
 
-    std::unique_ptr<CCVKGPUBufferHub> _gpuBufferHub;
     std::unique_ptr<CCVKGPUTransportHub> _gpuTransportHub;
     std::unique_ptr<CCVKGPUDescriptorHub> _gpuDescriptorHub;
     std::unique_ptr<CCVKGPUSemaphorePool> _gpuSemaphorePool;
@@ -157,6 +155,7 @@ protected:
     std::unique_ptr<CCVKGPUDescriptorSetHub> _gpuDescriptorSetHub;
     std::unique_ptr<CCVKGPUInputAssemblerHub> _gpuIAHub;
     std::unique_ptr<CCVKPipelineCache> _pipelineCache;
+    std::unique_ptr<CCVKCachedObjectPool> _cachedObjectPool;
 
     ccstd::vector<const char *> _layers;
     ccstd::vector<const char *> _extensions;

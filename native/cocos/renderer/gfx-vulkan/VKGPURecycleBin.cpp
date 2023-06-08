@@ -66,9 +66,7 @@ void CCVKGPURecycleBin::collect(const CCVKGPUFramebuffer *frameBuffer) {
 }
 
 void CCVKGPURecycleBin::collect(const CCVKGPUDescriptorSet *set) {
-    for (const auto &instance : set->instances) {
-        collect(set->layoutID, instance.vkDescriptorSet);
-    }
+    collect(set->layoutID, set->instance.vkDescriptorSet);
 }
 
 void CCVKGPURecycleBin::collect(uint32_t layoutId, VkDescriptorSet set) {

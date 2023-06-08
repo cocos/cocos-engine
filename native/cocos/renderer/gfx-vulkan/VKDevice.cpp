@@ -40,6 +40,7 @@
 #include "VKSwapchain.h"
 #include "VKTexture.h"
 #include "VKPipelineCache.h"
+#include "VKCachedObjectPool.h"
 #include "VKUtils.h"
 #include "base/Utils.h"
 #include "gfx-base/GFXDef-common.h"
@@ -403,6 +404,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     allocatorInfo.pVulkanFunctions = &vmaVulkanFunc;
 
     VK_CHECK(vmaCreateAllocator(&allocatorInfo, &_gpuDevice->memoryAllocator));
+    initMemoryStatus();
 
     uint32_t backBufferCount = _gpuDevice->backBufferCount;
     for (uint32_t i = 0U; i < backBufferCount; i++) {
@@ -411,7 +413,6 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
         _gpuStagingBufferPools.push_back(std::make_unique<CCVKGPUStagingBufferPool>(_gpuDevice.get()));
     }
 
-    _gpuBufferHub = std::make_unique<CCVKGPUBufferHub>(_gpuDevice.get());
     _gpuIAHub = std::make_unique<CCVKGPUInputAssemblerHub>(_gpuDevice.get());
     _gpuTransportHub = std::make_unique<CCVKGPUTransportHub>(_gpuDevice.get(), static_cast<CCVKQueue *>(_queue)->gpuQueue());
     _gpuDescriptorHub = std::make_unique<CCVKGPUDescriptorHub>(_gpuDevice.get());
@@ -465,6 +466,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _pipelineCache = std::make_unique<CCVKPipelineCache>();
     _pipelineCache->init(_gpuDevice->vkDevice);
 
+    _cachedObjectPool = std::make_unique<CCVKCachedObjectPool>();
     ///////////////////// Print Debug Info /////////////////////
 
     ccstd::string instanceLayers;
@@ -527,13 +529,14 @@ void CCVKDevice::doDestroy() {
     _gpuStagingBufferPools.clear();
     _gpuFencePools.clear();
 
-    _gpuBufferHub = nullptr;
     _gpuTransportHub = nullptr;
     _gpuSemaphorePool = nullptr;
     _gpuDescriptorHub = nullptr;
     _gpuBarrierManager = nullptr;
     _gpuDescriptorSetHub = nullptr;
     _gpuIAHub = nullptr;
+    _pipelineCache = nullptr;
+    _cachedObjectPool = nullptr;
 
     if (_gpuDevice) {
         uint32_t backBufferCount = _gpuDevice->backBufferCount;
@@ -546,8 +549,6 @@ void CCVKDevice::doDestroy() {
     _gpuFencePools.clear();
 
     if (_gpuDevice) {
-        _pipelineCache.reset();
-
         if (_gpuDevice->memoryAllocator != VK_NULL_HANDLE) {
             VmaStats stats;
             vmaCalculateStats(_gpuDevice->memoryAllocator, &stats);
@@ -640,7 +641,6 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
         vkSwapchainIndices.push_back(swapchain->gpuSwapchain()->curImageIndex);
     }
 
-    _gpuDescriptorSetHub->flush();
     _gpuSemaphorePool->reset();
 
     for (uint32_t i = 0; i < vkSwapchains.size(); ++i) {
@@ -750,18 +750,6 @@ void CCVKDevice::waitAllFences() {
     }
 }
 
-void CCVKDevice::updateBackBufferCount(uint32_t backBufferCount) {
-    if (backBufferCount <= _gpuDevice->backBufferCount) return;
-    for (uint32_t i = _gpuDevice->backBufferCount; i < backBufferCount; i++) {
-        _gpuFencePools.push_back(std::make_unique<CCVKGPUFencePool>(_gpuDevice.get()));
-        _gpuRecycleBins.push_back(std::make_unique<CCVKGPURecycleBin>(_gpuDevice.get()));
-        _gpuStagingBufferPools.push_back(std::make_unique<CCVKGPUStagingBufferPool>(_gpuDevice.get()));
-    }
-    _gpuBufferHub->updateBackBufferCount(backBufferCount);
-    _gpuDescriptorSetHub->updateBackBufferCount(backBufferCount);
-    _gpuDevice->backBufferCount = backBufferCount;
-}
-
 void CCVKDevice::initFormatFeature() {
     const auto formatLen = static_cast<size_t>(Format::COUNT);
     VkFormatProperties properties = {};
@@ -805,14 +793,25 @@ void CCVKDevice::initFormatFeature() {
     }
 }
 
-void CCVKDevice::initExtensionCapability()
-{
+void CCVKDevice::initExtensionCapability() {
     _caps.supportVariableRateShading = checkExtension(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME);
     _caps.supportVariableRateShading &= _gpuContext->physicalDeviceFragmentShadingRateFeatures.pipelineFragmentShadingRate &&
                                         _gpuContext->physicalDeviceFragmentShadingRateFeatures.attachmentFragmentShadingRate;
     _caps.supportVariableRateShading &= hasFlag(_formatFeatures[static_cast<uint32_t>(Format::R8UI)], FormatFeatureBit::SHADING_RATE);
 
     _caps.supportSubPassShading = checkExtension(VK_HUAWEI_SUBPASS_SHADING_EXTENSION_NAME);
+}
+
+void CCVKDevice::initMemoryStatus() {
+    VkPhysicalDeviceMemoryProperties memoryProperties = {};
+    vkGetPhysicalDeviceMemoryProperties(_gpuContext->physicalDevice, &memoryProperties);
+
+    for (uint32_t i = 0; i < memoryProperties.memoryHeapCount; ++i) {
+        if (memoryProperties.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
+            _gpuContext->isUnifiedMemory = false;
+            break;
+        }
+    }
 }
 
 CommandBuffer *CCVKDevice::createCommandBuffer(const CommandBufferInfo & /*info*/, bool /*hasAgent*/) {

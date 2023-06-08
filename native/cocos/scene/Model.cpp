@@ -517,7 +517,7 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
 void Model::initLocalDescriptors(index_t /*subModelIndex*/) {
     if (!_localBuffer) {
         _localBuffer = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-                                              gfx::MemoryUsageBit::DEVICE,
+                                              gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
                                               pipeline::UBOLocal::SIZE,
                                               pipeline::UBOLocal::SIZE,
                                               gfx::BufferFlagBit::ENABLE_STAGING_WRITE});
@@ -548,7 +548,7 @@ void Model::initLocalSHDescriptors(index_t /*subModelIndex*/) {
 void Model::initWorldBoundDescriptors(index_t /*subModelIndex*/) {
     if (!_worldBoundBuffer) {
         _worldBoundBuffer = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-                                                   gfx::MemoryUsageBit::DEVICE,
+                                                   gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
                                                    pipeline::UBOWorldBound::SIZE,
                                                    pipeline::UBOWorldBound::SIZE,
                                                    gfx::BufferFlagBit::ENABLE_STAGING_WRITE});

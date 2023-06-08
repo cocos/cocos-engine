@@ -249,7 +249,6 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
         default:
             break;
     }
-    ds->forceUpdate();
 
     auto *depthStencilTexture = device->createTexture({
         gfx::TextureType::TEX2D,

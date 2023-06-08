@@ -25,6 +25,7 @@
 #include "VKDescriptorSetLayout.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
+#include "VKCachedObjectPool.h"
 
 namespace cc {
 namespace gfx {
@@ -38,22 +39,38 @@ CCVKDescriptorSetLayout::~CCVKDescriptorSetLayout() {
 }
 
 void CCVKDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo & /*info*/) {
-    _gpuDescriptorSetLayout = ccnew CCVKGPUDescriptorSetLayout;
-    _gpuDescriptorSetLayout->id = generateID();
-    _gpuDescriptorSetLayout->descriptorCount = _descriptorCount;
-    _gpuDescriptorSetLayout->bindingIndices = _bindingIndices;
-    _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
-    _gpuDescriptorSetLayout->bindings = _bindings;
-
+    // calculate hash
+    ccstd::hash_t hash = 0;
     for (auto &binding : _bindings) {
-        if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {
-            for (uint32_t j = 0U; j < binding.count; j++) {
-                _gpuDescriptorSetLayout->dynamicBindings.push_back(binding.binding);
-            }
+        ccstd::hash_combine(hash, binding.binding);
+        ccstd::hash_combine(hash, binding.descriptorType);
+        ccstd::hash_combine(hash, binding.count);
+        ccstd::hash_combine(hash, binding.stageFlags);
+        for (auto &sampler : binding.immutableSamplers) {
+            ccstd::hash_combine(hash, sampler->getHash());
         }
     }
 
-    cmdFuncCCVKCreateDescriptorSetLayout(CCVKDevice::getInstance(), _gpuDescriptorSetLayout);
+    auto *pool = CCVKDevice::getInstance()->cachedObjectPool();
+    auto pair = pool->getOrCreateDescriptorSetLayout(hash);
+    _gpuDescriptorSetLayout = pair.first;
+    if (pair.second) {
+        _gpuDescriptorSetLayout->id = hash;
+        _gpuDescriptorSetLayout->descriptorCount = _descriptorCount;
+        _gpuDescriptorSetLayout->bindingIndices = _bindingIndices;
+        _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
+        _gpuDescriptorSetLayout->bindings = _bindings;
+
+        for (auto &binding : _bindings) {
+            if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {
+                for (uint32_t j = 0U; j < binding.count; j++) {
+                    _gpuDescriptorSetLayout->dynamicBindings.push_back(binding.binding);
+                }
+            }
+        }
+
+        cmdFuncCCVKCreateDescriptorSetLayout(CCVKDevice::getInstance(), _gpuDescriptorSetLayout);
+    }
 }
 
 void CCVKDescriptorSetLayout::doDestroy() {
