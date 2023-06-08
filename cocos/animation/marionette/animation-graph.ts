@@ -305,6 +305,8 @@ export class StateMachine extends EditorExtendable {
                 state.stateMachine.__callOnAfterDeserializeRecursive();
             } else if (state instanceof ProceduralPoseState) {
                 state.__callOnAfterDeserializeRecursive();
+            } else if (state instanceof MotionState) {
+                state.__callOnAfterDeserializeRecursive();
             }
         }
     }
