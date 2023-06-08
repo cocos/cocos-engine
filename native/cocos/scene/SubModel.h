@@ -74,6 +74,8 @@ public:
     inline RenderingSubMesh *getSubMesh() const { return _subMesh; }
     inline Model *getOwner() const { return _owner; }
     inline uint32_t getId() const { return _id; }
+    inline void setObjectPoolIndex(uint32_t index) { _objectPoolIndex = index; }
+    inline uint32_t getObjectPoolIndex() const { return _objectPoolIndex; }
     inline InstancedAttributeBlock &getInstancedAttributeBlock() { return _instancedAttributeBlock; }
     inline int32_t getInstancedWorldMatrixIndex() const { return _instancedWorldMatrixIndex; }
     inline int32_t getInstancedSHIndex() const { return _instancedSHIndex; }
@@ -95,7 +97,9 @@ protected:
 
     pipeline::RenderPriority _priority{pipeline::RenderPriority::DEFAULT};
 
-    int32_t _id{-1};
+    uint32_t _id{UINT_MAX};
+    uint32_t _objectPoolIndex{UINT_MAX}; // index in GPUObjectPool
+
     int32_t _instancedWorldMatrixIndex{-1};
     int32_t _instancedSHIndex{-1};
 
@@ -119,8 +123,8 @@ protected:
     int32_t _reflectionProbeType{0};
 
 private:
-    static inline int32_t generateId() {
-        static int32_t generator = 0;
+    static inline uint32_t generateId() {
+        static uint32_t generator = 0U;
         return generator++;
     }
 

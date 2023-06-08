@@ -846,6 +846,7 @@ struct DeviceCaps {
     bool supportQuery{false};
     bool supportVariableRateShading{false};
     bool supportSubPassShading{false};
+    bool supportMultiDrawIndirect{false};
 
     float clipSpaceMinZ{-1.F};
     float screenSpaceSignY{1.F};

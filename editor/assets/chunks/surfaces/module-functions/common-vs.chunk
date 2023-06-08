@@ -1,3 +1,5 @@
+#include <builtin/functionalities/gpu-driven>
+
 // IA Input->Intermediate
 void CCSurfacesVertexInput(out SurfacesStandardVertexIntermediate In)
 {
@@ -140,7 +142,10 @@ void CCSurfacesVertexTransferShadow(inout SurfacesStandardVertexIntermediate In)
   #endif
   #if CC_RECEIVE_SHADOW
     In.shadowBiasAndProbeId.xy = vec2(cc_shadowWHPBInfo.w, cc_shadowLPNNInfo.z);
-    #if USE_INSTANCING
+    #if CC_USE_GPU_DRIVEN
+      vec4 localShadowBias = CCGetLocalShadowBias();
+      In.shadowBiasAndProbeId.xy += localShadowBias.xy;
+    #elif USE_INSTANCING
       In.shadowBiasAndProbeId.xy += a_localShadowBiasAndProbeId.xy;
     #else
       In.shadowBiasAndProbeId.xy += cc_localShadowBias.xy;
@@ -148,7 +153,10 @@ void CCSurfacesVertexTransferShadow(inout SurfacesStandardVertexIntermediate In)
   #endif
   
   #if CC_USE_REFLECTION_PROBE
-    #if USE_INSTANCING
+    #if CC_USE_GPU_DRIVEN
+      vec4 localShadowBias = CCGetLocalShadowBias();
+      In.shadowBiasAndProbeId.zw = localShadowBias.zw;
+    #elif USE_INSTANCING
       In.shadowBiasAndProbeId.zw = a_localShadowBiasAndProbeId.zw;
     #else
       In.shadowBiasAndProbeId.zw = cc_localShadowBias.zw;
@@ -159,7 +167,11 @@ void CCSurfacesVertexTransferShadow(inout SurfacesStandardVertexIntermediate In)
 void CCSurfacesVertexTransferLightMapUV(inout SurfacesStandardVertexIntermediate In)
 {
 #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
-  #if USE_INSTANCING
+  #if CC_USE_GPU_DRIVEN
+    vec4 lightingMapUVParam = CCGetLightingMapUVParam();
+    In.lightmapUV.xy = lightingMapUVParam.xy + a_texCoord1 * lightingMapUVParam.z;
+    In.lightmapUV.z = lightingMapUVParam.w;
+  #elif USE_INSTANCING
     In.lightmapUV.xy = a_lightingMapUVParam.xy + a_texCoord1 * a_lightingMapUVParam.z;
     In.lightmapUV.z = a_lightingMapUVParam.w;
   #else

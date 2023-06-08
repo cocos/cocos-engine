@@ -44,6 +44,7 @@
 #include "scene/RangedDirectionalLight.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
+#include "scene/gpu-scene/GPUScene.h"
 
 namespace cc {
 namespace scene {
@@ -118,12 +119,23 @@ RenderScene::~RenderScene() = default;
 void RenderScene::activate() {
     const auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
     _octree = sceneData->getOctree();
+
+    if (sceneData->isGPUDrivenEnabled()) {
+        _gpuScene = ccnew GPUScene();
+        _gpuScene->activate(this);
+    }
 }
 
 bool RenderScene::initialize(const IRenderSceneInfo &info) {
     _name = info.name;
     _lodStateCache = ccnew LodStateCache(this);
     return true;
+}
+
+void RenderScene::buildGPUScene(const ccstd::vector<Mesh *> &meshes) {
+    if (_gpuScene) {
+        _gpuScene->build(meshes);
+    }
 }
 
 void RenderScene::addLODGroup(LODGroup *group) {
@@ -185,8 +197,12 @@ void RenderScene::update(uint32_t stamp) {
             model->updateOctree();
         }
     }
+    if (_gpuScene) {
+        _gpuScene->update(stamp);
+    }
 
     CC_PROFILE_OBJECT_UPDATE(Models, _models.size());
+    CC_PROFILE_OBJECT_UPDATE(GPUModels, _gpuModels.size());
     CC_PROFILE_OBJECT_UPDATE(Cameras, _cameras.size());
     CC_PROFILE_OBJECT_UPDATE(DrawBatch2D, _batches.size());
 
@@ -200,7 +216,9 @@ void RenderScene::destroy() {
     removePointLights();
     removeLODGroups();
     removeModels();
+    removeGPUModels();
     _lodStateCache->clearCache();
+    CC_SAFE_DESTROY_NULL(_gpuScene);
 }
 
 void RenderScene::addCamera(Camera *camera) {
@@ -373,6 +391,40 @@ void RenderScene::removeModels() {
     }
     _models.clear();
 }
+
+void RenderScene::addGPUModel(Model* model) {
+    model->attachToScene(this);
+    _gpuModels.emplace_back(model);
+    if (_gpuScene) {
+        _gpuScene->addModel(model);
+    }
+}
+
+void RenderScene::removeGPUModel(Model* model) {
+    auto iter = std::find(_gpuModels.begin(), _gpuModels.end(), model);
+    if (iter != _gpuModels.end()) {
+        model->detachFromScene();
+        if (_gpuScene) {
+            _gpuScene->removeModel(model);
+        }
+        _gpuModels.erase(iter);
+    } else {
+        CC_LOG_WARNING("Try to remove invalid gpu model.");
+    }
+}
+
+void RenderScene::removeGPUModels() {
+    for (const auto &model : _gpuModels) {
+        model->detachFromScene();
+        CC_SAFE_DESTROY(model);
+    }
+    _gpuModels.clear();
+
+    if (_gpuScene) {
+        _gpuScene->removeAllModels();
+    }
+}
+
 void RenderScene::addBatch(DrawBatch2D *drawBatch2D) {
     _batches.emplace_back(drawBatch2D);
 }
@@ -398,6 +450,10 @@ void RenderScene::updateOctree(Model *model) {
 
 void RenderScene::onGlobalPipelineStateChanged() {
     for (const auto &model : _models) {
+        model->onGlobalPipelineStateChanged();
+    }
+
+    for (const auto &model : _gpuModels) {
         model->onGlobalPipelineStateChanged();
     }
 }

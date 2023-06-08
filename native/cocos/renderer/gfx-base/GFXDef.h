@@ -135,6 +135,8 @@ uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t dep
 
 uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t mips);
 
+ccstd::hash_t computeAttributesHash(const AttributeList &attributes);
+
 /**
  * @en Get the memory size of the specified type.
  * @zh 得到 GFX 数据类型的大小。

@@ -66,6 +66,7 @@ const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHAD
 const ccstd::vector<cc::scene::IMacroPatch> LIGHT_PROBE_PATCHES{{"CC_USE_LIGHT_PROBE", true}};
 const ccstd::string CC_USE_REFLECTION_PROBE = "CC_USE_REFLECTION_PROBE";
 const ccstd::string CC_DISABLE_DIRECTIONAL_LIGHT = "CC_DISABLE_DIRECTIONAL_LIGHT";
+const ccstd::string CC_USE_GPU_DRIVEN = "CC_USE_GPU_DRIVEN";
 const ccstd::vector<cc::scene::IMacroPatch> STATIC_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 1}};
 const ccstd::vector<cc::scene::IMacroPatch> STATIONARY_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 2}};
 const ccstd::vector<cc::scene::IMacroPatch> HIGHP_LIGHTMAP_PATHES{{"CC_LIGHT_MAP_VERSION", 2}};
@@ -496,6 +497,18 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
         }
     }
     patches.push_back({CC_DISABLE_DIRECTIONAL_LIGHT, !_receiveDirLight});
+
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *sceneData = pipeline->getPipelineSceneData();
+    const auto &subModel = _subModels[subModelIndex];
+    bool useGPUDriven = sceneData &&
+                        sceneData->isGPUDrivenEnabled() &&
+                        subModel &&
+                        subModel->getSubMesh() &&
+                        subModel->getSubMesh()->canUseGPUScene() &&
+                        !_useLightProbe &&
+                        _reflectionProbeType == UseReflectionProbeType::NONE;
+    patches.push_back({CC_USE_GPU_DRIVEN, useGPUDriven});
 
     return patches;
 }

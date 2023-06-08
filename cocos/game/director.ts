@@ -40,6 +40,8 @@ import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
 import { assetManager } from '../asset/asset-manager';
 import { deviceManager } from '../gfx';
 import { releaseManager } from '../asset/asset-manager/release-manager';
+import { MeshRenderer } from '../3d/framework/mesh-renderer';
+import { Mesh } from '../3d/assets/mesh';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -218,6 +220,8 @@ export class Director extends EventTarget {
         this._nodeActivator = new NodeActivator();
 
         this._systems = [];
+
+        this.on(Director.EVENT_BEFORE_SCENE_LAUNCH, this.buildGPUScene, this);
     }
 
     /**
@@ -371,6 +375,10 @@ export class Director extends EventTarget {
         if (onBeforeLoadScene) {
             onBeforeLoadScene();
         }
+
+        if (scene.renderScene) {
+            scene.renderScene.activate();
+        }
         this.emit(Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
         // Run an Entity Scene
@@ -498,6 +506,26 @@ export class Director extends EventTarget {
             }
             error(`preloadScene: ${err}`);
         }
+    }
+
+    public buildGPUScene (scene: Scene) {
+        const sceneData = this.root!.pipeline.pipelineSceneData;
+        if (!sceneData || !sceneData.isGPUDrivenEnabled()) {
+            return;
+        }
+
+        const renderers = scene.getComponentsInChildren(MeshRenderer);
+        const meshes: Mesh[] = [];
+
+        for (let i = 0; i < renderers.length; i++) {
+            const renderer = renderers[i];
+            const mesh = renderer.mesh;
+            if (renderer.isUseGPUScene()) {
+                meshes.push(mesh!);
+            }
+        }
+
+        scene.renderScene?.buildGPUScene(meshes);
     }
 
     /**

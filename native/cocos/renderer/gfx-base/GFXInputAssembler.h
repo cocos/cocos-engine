@@ -66,8 +66,6 @@ protected:
     virtual void doInit(const InputAssemblerInfo &info) = 0;
     virtual void doDestroy() = 0;
 
-    ccstd::hash_t computeAttributesHash() const;
-
     AttributeList _attributes;
     ccstd::hash_t _attributesHash = 0;
 

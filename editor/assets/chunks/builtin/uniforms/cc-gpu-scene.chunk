@@ -1,0 +1,24 @@
+// Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+#if CC_USE_GPU_DRIVEN
+
+struct ObjectData {
+  mat4 matWorld;
+  mat4 matWorldIT;
+  vec4 center;
+  vec4 halfExtents;
+  vec4 lightingMapUVParam;
+  vec4 localShadowBias;
+};
+
+struct InstanceData {
+  uint objectId;
+  uint batchId;
+};
+
+#pragma rate cc_objectBuffer phase
+layout(std430) readonly buffer cc_objectBuffer { ObjectData cc_objects[]; };
+
+#pragma rate cc_instanceBuffer phase
+layout(std430) readonly buffer cc_instanceBuffer { InstanceData cc_instances[]; };
+
+#endif

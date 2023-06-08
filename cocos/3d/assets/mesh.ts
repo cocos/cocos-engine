@@ -1318,8 +1318,21 @@ export class Mesh extends Asset {
         return this._allowDataAccess;
     }
 
-    private releaseData () {
+    /**
+     * @en Release memory data.
+     * @zh 释放内存数据
+     */
+    public releaseData () {
         this._data = globalEmptyMeshBuffer;
+    }
+
+    /**
+     * Whether to use GPUScene.
+     * Only support in native.
+     * @internal
+     */
+    public canUseGPUScene () {
+        return false;
     }
 }
 cclegacy.Mesh = Mesh;
