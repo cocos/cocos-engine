@@ -85,7 +85,6 @@ exports.style = /* css*/`
     outline-offset: -2px;
 }
 .preview-container > .model-info {
-    padding-top: 4px;
     display: none;
 }
 .preview-container > .model-info > ui-label {
@@ -96,7 +95,6 @@ exports.style = /* css*/`
     overflow: hidden;
     display: flex;
     flex: 1;
-    margin-right: 4px;
 }
 .preview-container >.image > .canvas {
     flex: 1;
@@ -104,7 +102,6 @@ exports.style = /* css*/`
 .preview-container .toolbar {
     display: flex;
     margin-top: 4px;
-    margin-right: 4px;
     justify-content: space-between;
 }
 

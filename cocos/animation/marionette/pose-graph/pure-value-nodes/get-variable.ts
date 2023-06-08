@@ -123,7 +123,7 @@ export class PVNodeGetVariableFloat extends PVNodeGetVariableBase<number> {
 @poseGraphNodeHide()
 @poseGraphNodeAppearance({
     inline: true,
-    themeColor: '#8471CF',
+    themeColor: '#2A90DC',
 })
 export class PVNodeGetVariableInteger extends PVNodeGetVariableBase<number> {
     constructor () {

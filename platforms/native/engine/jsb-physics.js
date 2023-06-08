@@ -43,8 +43,8 @@ const CollisionEventObject = {
 };
 
 const CCTShapeEventObject = {
-    type: 'onColliderHit',
-    selfCCT: null,
+    type: 'onControllerColliderHit',
+    selfController: null,
     otherCollider: null,
     worldPosition: null,
     worldNormal: null,
@@ -146,8 +146,9 @@ function emitCCTShapeEvent (t, cct, collider, b) {
     CCTShapeEventObject.worldNormal = new cc.Vec3(b[3], b[4], b[5]);
     CCTShapeEventObject.motionDirection = new cc.Vec3(b[6], b[7], b[8]);
     CCTShapeEventObject.motionLength = b[9];
+    CCTShapeEventObject.selfController = cct;
     CCTShapeEventObject.otherCollider = collider;
-    cct.emit(t, cct, collider, CCTShapeEventObject);
+    cct.emit(t, CCTShapeEventObject);
 }
 
 class PhysicsWorld {
@@ -374,7 +375,7 @@ class PhysicsWorld {
             if (!cct || !shape) continue;
             const c0 = cct.characterController; const c1 = shape.collider;
             if (!(c0 && c0.isValid && c1 && c1.isValid)) continue;
-            emitCCTShapeEvent('onColliderHit', c0, c1, events[t + 2]);
+            emitCCTShapeEvent('onControllerColliderHit', c0, c1, events[t + 2]);
         }
     }
 }

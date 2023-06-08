@@ -1,6 +1,6 @@
 import { EDITOR } from 'internal:constants';
 
-import { Camera, CameraUsage } from '../../render-scene/scene';
+import { Camera, CameraProjection, CameraUsage } from '../../render-scene/scene';
 import { PipelineBuilder, Pipeline } from '../custom/pipeline';
 
 import { passContext } from './utils/pass-context';
@@ -99,7 +99,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
     private initEditor () {
         director.root!.cameraList.forEach((cam) => {
             if (cam.name === 'Editor Camera') {
-                cam.usePostProcess = true;
+                cam.usePostProcess = cam.projectionType === CameraProjection.PERSPECTIVE;
             }
         });
     }
@@ -113,9 +113,29 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
     }
 
+    private resortEditorCameras (cameras: Camera[]) {
+        const newCameras: Camera[] = [];
+        for (let i = 0; i < cameras.length; i++) {
+            const c = cameras[i];
+            if (c.name === 'Editor Camera'
+            || c.name === 'Editor UIGizmoCamera'
+            || c.name === 'Scene Gizmo Camera') {
+                newCameras.push(c);
+            }
+        }
+        for (let i = 0; i < cameras.length; i++) {
+            const c = cameras[i];
+            if (newCameras.indexOf(c) === -1) {
+                newCameras.push(c);
+            }
+        }
+        return newCameras;
+    }
+
     setup (cameras: Camera[], ppl: Pipeline) {
         if (EDITOR) {
             this.initEditor();
+            cameras = this.resortEditorCameras(cameras);
         }
 
         passContext.ppl = ppl;
