@@ -103,12 +103,14 @@ function getImportObject (): WebAssembly.Imports {
 // we cannot declare importObject in waitForAmmoInstantiation function, or the importObject would be auto released by GC,
 // which may cause the app crashing. I guess it's a BUG on their js runtime.
 let importObject: WebAssembly.Imports;
-if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
-    if (sys.hasFeature(sys.Feature.WASM)) {
+if (!FORCE_BANNING_BULLET_WASM) {
+    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+        if (sys.hasFeature(sys.Feature.WASM)) {
+            importObject = getImportObject();
+        }
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
         importObject = getImportObject();
     }
-} else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
-    importObject = getImportObject();
 }
 
 export function waitForAmmoInstantiation () {
