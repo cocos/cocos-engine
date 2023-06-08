@@ -749,14 +749,18 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * @en Calculates the projection vector on the specified plane
-     * @zh 计算向量在指定平面上的投影
-     * @param a projection vector
-     * @param n the normal line of specified plane
+     * @en Calculates the projection vector on the specified plane.
+     * @zh 计算向量在指定平面上的投影。
+     * @param a @zh 向量。 @en The vector.
+     * @param n @zh 平面法线。@en The plane's normal.
      */
-    public static projectOnPlane<Out extends IVec3Like> (out: Out, a: IVec3Like, n: IVec3Like) {
-        return Vec3.subtract(out, a, Vec3.project(out, a, n));
-    }
+    public static projectOnPlane = (() => {
+        const cacheProjOnNormal = new Vec3();
+        // eslint-disable-next-line arrow-body-style
+        return <Out extends IVec3Like> (out: Out, a: IVec3Like, n: IVec3Like) => {
+            return Vec3.subtract(out, a, Vec3.project(cacheProjOnNormal, a, n));
+        };
+    })();
 
     /**
      * @en Calculates the projection on the specified vector
