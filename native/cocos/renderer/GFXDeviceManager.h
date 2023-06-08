@@ -28,6 +28,7 @@
 
 #include "gfx-agent/DeviceAgent.h"
 #include "gfx-validator/DeviceValidator.h"
+#include "platform/BasePlatform.h"
 
 // #undef CC_USE_NVN
 // #undef CC_USE_VULKAN
@@ -90,7 +91,13 @@ public:
     #if XR_OEM_PICO
         Device::isSupportDetachDeviceThread = false;
     #endif
-        if (tryCreate<CCVKDevice>(info, &device)) return device;
+
+        bool skipVulkan = false;
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+        auto sdkVersion = BasePlatform::getPlatform()->getSdkVersion();
+        skipVulkan = sdkVersion <= 27; // Android 8
+#endif
+        if (!skipVulkan && tryCreate<CCVKDevice>(info, &device)) return device;
 #endif
 
 #ifdef CC_USE_METAL
