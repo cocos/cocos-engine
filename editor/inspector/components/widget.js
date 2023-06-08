@@ -121,7 +121,7 @@ exports.template = `
     left: 25%;
     width: 50%;
     height: 50%;
-    z-index: 10;
+    z-index: 2;
     background-color: var(--color-normal-fill);
     border: 1px solid var(--color-normal-fill-important);
     border-radius: 2px;
