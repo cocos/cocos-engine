@@ -182,9 +182,10 @@ function initProgressVertexBuffer() {
 
 function updateVertexBuffer() {
     // the ratio value may be adjusted according to the expected image display effect
-    const widthRatio = image.width / canvas.width * 1.35; 
-    const heightRatio = image.height / canvas.height * 1.35;
-    const heightOffset = 0.225;
+    const ratio = typeof displayRatio !== 'undefined' ? displayRatio : 1;
+    const widthRatio = image.width / canvas.width * 1.35 * ratio; 
+    const heightRatio = image.height / canvas.height * 1.35 * ratio;
+    const heightOffset = 1/6; // canvas:(-1,1) -> (button, top); heightOffset = (5/12) * (-2) + 1 = 1/6
     const vertices = new Float32Array([
         widthRatio, heightOffset - heightRatio, 1.0, 1.0,
         widthRatio, heightOffset + heightRatio, 1.0, 0.0,
@@ -199,8 +200,9 @@ function updateSloganVertexBuffer() {
     // the ratio value may be adjusted according to the image pixels
     const widthRatio = slogan.width / canvas.width * 0.75;
     const heightRatio = slogan.height / canvas.height * 0.75;
-    const h = image.height / canvas.height;
-    const heightOffset = 0.15 - h;
+    const ratio = typeof displayRatio !== 'undefined' ? displayRatio : 1;
+    const logoHeightRatio = image.height / canvas.height * 1.35 * ratio;
+    const heightOffset = (5/12 + logoHeightRatio * 1/2 + heightRatio * 3/2)  * (-2) + 1; // 5/12 is ui design layout for logo
     const vertices = new Float32Array([
         widthRatio, heightOffset - heightRatio, 1.0, 1.0,
         widthRatio, heightOffset + heightRatio, 1.0, 0.0,
