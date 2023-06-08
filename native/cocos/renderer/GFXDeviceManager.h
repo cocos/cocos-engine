@@ -35,12 +35,6 @@
 // #undef CC_USE_GLES3
 // #undef CC_USE_GLES2
 
-// arengine only supports gles2, arcore supports gles2 and gles3
-// setting the CC_USE_GLES3 off is needed while using CC_USE_AR_AUTO or CC_USE_AR_ENGINE
-#if CC_USE_AR_MODULE && (CC_USE_AR_AUTO || CC_USE_AR_ENGINE)
-    #undef CC_USE_GLES3
-#endif
-
 #ifdef CC_USE_NVN
     #include "gfx-nvn/NVNDevice.h"
 #endif
