@@ -547,6 +547,7 @@ elseif(ANDROID)
     cocos_source_files(
         cocos/platform/android/AndroidPlatform.cpp
         cocos/platform/android/AndroidPlatform.h
+        cocos/platform/android/AndroidKeyCodes.cpp
     )
 elseif(OPENHARMONY)
     cocos_source_files(
