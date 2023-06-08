@@ -1444,7 +1444,7 @@ function _buildSSSSBlurPass (camera: Camera,
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
     ssssBlurData.ssssFov = camera.fov;
     ssssBlurData.ssssWidth = skin.blurRadius;
-    if (standardSkinModel && standardSkinModel.model) {
+    if (standardSkinModel && standardSkinModel.model && standardSkinModel.model.worldBounds) {
         const halfExtents = standardSkinModel.model.worldBounds.halfExtents;
         ssssBlurData.boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
     }
