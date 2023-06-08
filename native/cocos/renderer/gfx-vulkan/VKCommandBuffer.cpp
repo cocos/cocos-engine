@@ -577,6 +577,22 @@ void CCVKCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, co
     vkCmdCopyImage(_gpuCommandBuffer->vkCommandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, count, copyRegions.data());
 }
 
+void CCVKCommandBuffer::copyBuffer(Buffer *srcBuffer, Buffer *dstBuffer, const BufferCopy *regions, uint32_t count) {
+    CCVKGPUBuffer *gpuSrcBuffer = static_cast<CCVKBuffer *>(srcBuffer)->gpuBuffer();
+    CCVKGPUBuffer *gpuDstBuffer = static_cast<CCVKBuffer *>(dstBuffer)->gpuBuffer();
+
+    ccstd::vector<VkBufferCopy> copyRegions(count, VkBufferCopy{});
+    for (uint32_t i = 0U; i < count; ++i) {
+        const BufferCopy &region = regions[i];
+        auto &copyRegion = copyRegions[i];
+
+        copyRegion.srcOffset = static_cast<VkDeviceSize>(region.srcOffset);
+        copyRegion.dstOffset = static_cast<VkDeviceSize>(region.dstOffset);
+        copyRegion.size = static_cast<VkDeviceSize>(region.size);
+    }
+    vkCmdCopyBuffer(_gpuCommandBuffer->vkCommandBuffer, gpuSrcBuffer->vkBuffer, gpuDstBuffer->vkBuffer, count, copyRegions.data());
+}
+
 void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     VkImageAspectFlags srcAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     VkImageAspectFlags dstAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;

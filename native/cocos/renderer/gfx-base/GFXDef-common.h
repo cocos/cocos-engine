@@ -904,6 +904,14 @@ struct TextureSubresRange {
     EXPOSE_COPY_FN(TextureSubresRange)
 };
 
+struct BufferCopy {
+    uint32_t srcOffset{0};
+    uint32_t dstOffset{0};
+    uint32_t size{0};
+
+    EXPOSE_COPY_FN(BufferCopy)
+};
+
 struct TextureCopy {
     TextureSubresLayers srcSubres;
     Offset srcOffset;

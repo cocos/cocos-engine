@@ -1402,10 +1402,23 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const CopyPair& copy,
         ResourceGraph::vertex_descriptor srcID,
         ResourceGraph::vertex_descriptor dstID) const {
-        // TODO(zhouzhenglong): add impl
-        std::ignore = copy;
-        std::ignore = srcID;
-        std::ignore = dstID;
+        auto& resg = ctx.resourceGraph;
+        std::vector<gfx::BufferCopy> copyInfos(1, gfx::BufferCopy{});
+
+        gfx::Buffer* srcBuffer = resg.getBuffer(srcID);
+        gfx::Buffer* dstBuffer = resg.getBuffer(dstID);
+        CC_ENSURES(srcBuffer);
+        CC_ENSURES(dstBuffer);
+        if (!srcBuffer || !dstBuffer) {
+            return;
+        }
+
+        auto& copyInfo = copyInfos[0];
+        copyInfo.srcOffset = copy.sourceOffset;
+        copyInfo.dstOffset = copy.targetOffset;
+        copyInfo.size = copy.bufferSize;
+
+        ctx.cmdBuff->copyBuffer(srcBuffer, dstBuffer, copyInfos.data(), 1);
     }
     void uploadTexture( // NOLINT(readability-convert-member-functions-to-static)
         const UploadPair& upload,

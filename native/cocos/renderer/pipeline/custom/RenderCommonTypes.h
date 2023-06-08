@@ -449,6 +449,9 @@ struct CopyPair {
     uint32_t targetMostDetailedMip{0};
     uint32_t targetFirstSlice{0};
     uint32_t targetPlaneSlice{0};
+    uint32_t sourceOffset{0};
+    uint32_t targetOffset{0};
+    uint32_t bufferSize{0};
 };
 
 struct UploadPair {
