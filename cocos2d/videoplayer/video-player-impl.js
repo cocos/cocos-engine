@@ -116,9 +116,9 @@ let VideoPlayerImpl = cc.Class({
         video.addEventListener("click", cbs.click);
 
         function onCanPlay () {
-            if (self._loaded || self._playing)
-                return;
             let video = self._video;
+            if (self._loaded || !video) return;
+
             if (video.readyState === READY_STATE.HAVE_ENOUGH_DATA ||
                 video.readyState === READY_STATE.HAVE_METADATA) {
                 video.currentTime = 0;
