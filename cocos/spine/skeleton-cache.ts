@@ -49,10 +49,10 @@ class SpineModel {
     public iCount = 0;
     public vData: Uint8Array = null!;
     public iData: Uint16Array = null!;
-    public meshes: SpineMesh[] = [];
+    public meshes: SpineDrawItem[] = [];
 }
 
-class SpineMesh {
+class SpineDrawItem {
     public iCount = 0;
     public blendMode = 0;
 }
@@ -159,7 +159,7 @@ export class AnimationCache {
         const count = meshes.size();
         for (let i = 0; i < count; i++) {
             const mesh = meshes.get(i);
-            const meshData = new SpineMesh();
+            const meshData = new SpineDrawItem();
             meshData.iCount = mesh.iCount;
             meshData.blendMode = mesh.blendMode;
             modelData.meshes.push(meshData);

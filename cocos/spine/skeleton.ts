@@ -1341,7 +1341,7 @@ export class Skeleton extends UIRenderer {
      * @method setEndListener
      * @param {function} listener
      */
-    public setEndListener (listener: any) {
+    public setEndListener (listener: TrackListener) {
         this._ensureListener();
         const listenerID = TrackEntryListeners.addListener(listener);
         this._instance.setListener(listenerID, spine.EventType.end);
