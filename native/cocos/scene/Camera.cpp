@@ -197,6 +197,13 @@ void Camera::update(bool forceUpdate /*false*/) {
                                               _device->getCapabilities().clipSpaceMinZ, projectionSignY,
                                               static_cast<int>(orientation), &_matProj);
         }
+        // if (_device->getCapabilities().clipSpaceMinZ < 0) {
+        //     Mat4 mat = Mat4::IDENTITY;
+        //     mat.m[10] = 2;
+        //     mat.m[14] = -1;
+        //     _matProj = mat * _matProj;
+        // }
+
         _matProjInv = _matProj.getInversed();
         viewProjDirty = true;
         _isProjDirty = false;

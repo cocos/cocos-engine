@@ -6,6 +6,7 @@ CCEffect %{
     passes:
     - vert: standard-vs
       frag: standard-fs
+      phase: forward
       properties: &props
         tilingOffset:                     { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:                        { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
@@ -84,6 +85,13 @@ CCEffect %{
           blendSrc: src_alpha
           blendDst: one_minus_src_alpha
           blendDstAlpha: one_minus_src_alpha
+    - &deferred
+      vert: standard-vs
+      frag: standard-fs
+      pass: gbuffer
+      phase: gbuffer
+      embeddedMacros: { CC_PIPELINE_TYPE: 1 }
+      propertyIndex: 0
   - name: transparent
     passes:
     - vert: standard-vs

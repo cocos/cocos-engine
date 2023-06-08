@@ -118,6 +118,8 @@ export function validPunctualLightsCulling (pipeline: BasicPipeline, camera: Cam
             validPunctualLights.push(light);
         }
     }
+    // array push not supported.
+    pipeline.pipelineSceneData.validPunctualLights = validPunctualLights;
 }
 
 const _cameras: Camera[] = [];
@@ -804,18 +806,23 @@ export function buildGBufferPass (camera: Camera,
 
 export class LightingInfo {
     declare deferredLightingMaterial: Material;
+    public enableCluster: number;
+
     private _init () {
         this.deferredLightingMaterial = new Material();
         this.deferredLightingMaterial.name = 'builtin-deferred-material';
         this.deferredLightingMaterial.initialize({
             effectName: 'pipeline/deferred-lighting',
-            defines: { CC_RECEIVE_SHADOW: 1 },
+            defines: [
+                { CC_ENABLE_CLUSTERED_LIGHT_CULLING: this.enableCluster, CC_RECEIVE_SHADOW: 1 },
+                { CC_ENABLE_CLUSTERED_LIGHT_CULLING: this.enableCluster, CC_RECEIVE_SHADOW: 1 }],
         });
         for (let i = 0; i < this.deferredLightingMaterial.passes.length; ++i) {
             this.deferredLightingMaterial.passes[i].tryCompile();
         }
     }
-    constructor () {
+    constructor (clusterEn: boolean) {
+        this.enableCluster = clusterEn ? 1 : 0;
         this._init();
     }
 }
@@ -825,7 +832,7 @@ let lightingInfo: LightingInfo;
 // deferred lighting pass
 export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: GBufferInfo) {
     if (!lightingInfo) {
-        lightingInfo = new LightingInfo();
+        lightingInfo = new LightingInfo(false);
     }
     const cameraID = getCameraUniqueID(camera);
     const cameraName = `Camera${cameraID}`;
@@ -835,13 +842,10 @@ export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: 
     const height = area.height;
 
     const deferredLightingPassRTName = `deferredLightingPassRTName`;
-    const deferredLightingPassDS = `deferredLightingPassDS`;
     if (!ppl.containsResource(deferredLightingPassRTName)) {
         ppl.addRenderTarget(deferredLightingPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(deferredLightingPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderTarget(deferredLightingPassRTName, width, height);
-    ppl.updateDepthStencil(deferredLightingPassDS, width, height);
     // lighting pass
     const lightingPass = ppl.addRenderPass(width, height, 'deferred-lighting');
     lightingPass.name = `CameraLightingPass${cameraID}`;
@@ -857,10 +861,10 @@ export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: 
         }
     }
     if (ppl.containsResource(gBuffer.color)) {
-        lightingPass.addTexture(gBuffer.color, 'gbuffer_albedoMap');
-        lightingPass.addTexture(gBuffer.normal, 'gbuffer_normalMap');
-        lightingPass.addTexture(gBuffer.emissive, 'gbuffer_emissiveMap');
-        lightingPass.addTexture(gBuffer.ds, 'depth_stencil');
+        lightingPass.addTexture(gBuffer.color, 'gAlbedoMap');
+        lightingPass.addTexture(gBuffer.normal, 'gNormalMap');
+        lightingPass.addTexture(gBuffer.emissive, 'gEmissiveMap');
+        lightingPass.addTexture(gBuffer.ds, 'depthStencil');
     }
     const lightingClearColor = new Color(0, 0, 0, 0);
     if (camera.clearFlag & ClearFlagBit.COLOR) {
@@ -876,7 +880,7 @@ export function buildLightingPass (camera: Camera, ppl: BasicPipeline, gBuffer: 
     );
     // lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addSceneOfCamera(camera, new LightInfo(),
     //     SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
-    return { rtName: deferredLightingPassRTName, dsName: deferredLightingPassDS };
+    return { rtName: deferredLightingPassRTName };
 }
 
 function getClearFlags (attachment: AttachmentType, clearFlag: ClearFlagBit, loadOp: LoadOp): ClearFlagBit {
@@ -1012,7 +1016,7 @@ export function buildNativeDeferredPipeline (camera: Camera, ppl: BasicPipeline)
         ppl.addRenderTexture('Color', Format.BGRA8, width, height, camera.window);
     }
     if (!lightingInfo) {
-        lightingInfo = new LightingInfo();
+        lightingInfo = new LightingInfo(false);
     }
     // GeometryPass
     {
@@ -1057,10 +1061,10 @@ export function buildNativeDeferredPipeline (camera: Camera, ppl: BasicPipeline)
             camera.clearFlag,
             lightingClearColor));
 
-        lightingPass.addComputeView('Albedo', new ComputeView('gbuffer_albedoMap'));
-        lightingPass.addComputeView('Normal', new ComputeView('gbuffer_normalMap'));
-        lightingPass.addComputeView('Emissive', new ComputeView('gbuffer_emissiveMap'));
-        lightingPass.addComputeView('DepthStencil', new ComputeView('depth_stencil'));
+        lightingPass.addComputeView('Albedo', new ComputeView('gAlbedoMap'));
+        lightingPass.addComputeView('Normal', new ComputeView('gNormalMap'));
+        lightingPass.addComputeView('Emissive', new ComputeView('gEmissiveMap'));
+        lightingPass.addComputeView('DepthStencil', new ComputeView('depthStencil'));
 
         lightingPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
             camera, lightingInfo.deferredLightingMaterial, 0,
@@ -2184,6 +2188,9 @@ export const MAX_LIGHTS_PER_CLUSTER = 100;
 export const CLUSTERS_X = 16;
 export const CLUSTERS_Y = 8;
 export const CLUSTERS_Z = 24;
+// export const CLUSTERS_X = 2;
+// export const CLUSTERS_Y = 2;
+// export const CLUSTERS_Z = 1;
 export const CLUSTER_COUNT = CLUSTERS_X * CLUSTERS_Y * CLUSTERS_Z;
 
 class ClusterLightData {
@@ -2192,6 +2199,9 @@ class ClusterLightData {
     clusters_x_threads = 16;
     clusters_y_threads = 8;
     clusters_z_threads = 1;
+    // clusters_x_threads = 2;
+    // clusters_y_threads = 2;
+    // clusters_z_threads = 1;
     dispatchX = 1;
     dispatchY = 1;
     dispatchZ = 1;
@@ -2226,21 +2236,21 @@ export function buildLightClusterBuildPass (camera: Camera, clusterData: Cluster
     const cameraID = getCameraUniqueID(camera);
     const clusterBufferName = `clusterBuffer${cameraID}`;
 
-    const clusterBufferSize = CLUSTER_COUNT * 2 * 4;
+    const clusterBufferSize = CLUSTER_COUNT * 2 * 4 * 4;
     if (!ppl.containsResource(clusterBufferName)) {
-        ppl.addStorageBuffer(clusterBufferName, Format.UNKNOWN, clusterBufferSize, ResourceResidency.PERSISTENT);
+        ppl.addStorageBuffer(clusterBufferName, Format.UNKNOWN, clusterBufferSize, ResourceResidency.MANAGED);
     }
     ppl.updateStorageBuffer(clusterBufferName, clusterBufferSize);
 
     const clusterPass = ppl.addComputePass('cluster-build-cs');
     clusterPass.addStorageBuffer(clusterBufferName, AccessType.WRITE, 'b_clustersBuffer');
-    clusterPass.addQueue()
+    clusterPass.addQueue('cluster-build-cs')
         .addDispatch(clusterData.dispatchX, clusterData.dispatchY, clusterData.dispatchZ, clusterData.clusterBuildCS, 0);
 
     const width = camera.width * ppl.pipelineSceneData.shadingScale;
     const height = camera.height * ppl.pipelineSceneData.shadingScale;
     clusterPass.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, 0, 0));
-    clusterPass.setVec4('cc_viewPort', new Vec4(width, height, width, height));
+    clusterPass.setVec4('cc_viewPort', new Vec4(0, 0, width, height));
     clusterPass.setVec4('cc_workGroup', new Vec4(CLUSTERS_X, CLUSTERS_Y, CLUSTERS_Z, 0));
     clusterPass.setMat4('cc_matView', camera.matView);
     clusterPass.setMat4('cc_matProjInv', camera.matProjInv);
@@ -2250,19 +2260,19 @@ export function buildLightClusterCullingPass (camera: Camera, clusterData: Clust
     ppl: Pipeline) {
     const cameraID = getCameraUniqueID(camera);
     const clusterBufferName = `clusterBuffer${cameraID}`;
-    const clusterLightBufferName = `clusterLightBuffer${cameraID}`;
-    const clusterGlobalIndexBufferName = `b_globalIndexBuffer${cameraID}`;
-    const clusterLightIndicesBufferName = `clusterLIghtIndicesBuffer${cameraID}`;
+    const clusterLightBufferName = `clusterLightBuffer`;
+    const clusterGlobalIndexBufferName = `globalIndexBuffer${cameraID}`;
+    const clusterLightIndicesBufferName = `clusterLightIndicesBuffer${cameraID}`;
     const clusterLightGridBufferName = `clusterLightGridBuffer${cameraID}`;
 
     // index buffer
     const lightIndexBufferSize = MAX_LIGHTS_PER_CLUSTER * CLUSTER_COUNT * 4;
     const lightGridBufferSize = CLUSTER_COUNT * 4 * 4;
     if (!ppl.containsResource(clusterLightIndicesBufferName)) {
-        ppl.addStorageBuffer(clusterLightIndicesBufferName, Format.UNKNOWN, lightIndexBufferSize, ResourceResidency.PERSISTENT);
+        ppl.addStorageBuffer(clusterLightIndicesBufferName, Format.UNKNOWN, lightIndexBufferSize, ResourceResidency.MANAGED);
     }
     if (!ppl.containsResource(clusterLightGridBufferName)) {
-        ppl.addStorageBuffer(clusterLightGridBufferName, Format.UNKNOWN, lightGridBufferSize, ResourceResidency.PERSISTENT);
+        ppl.addStorageBuffer(clusterLightGridBufferName, Format.UNKNOWN, lightGridBufferSize, ResourceResidency.MANAGED);
     }
 
     const clusterPass = ppl.addComputePass('cluster-culling-cs');
@@ -2271,7 +2281,7 @@ export function buildLightClusterCullingPass (camera: Camera, clusterData: Clust
     clusterPass.addStorageBuffer(clusterLightIndicesBufferName, AccessType.WRITE, 'b_clusterLightIndicesBuffer');
     clusterPass.addStorageBuffer(clusterLightGridBufferName, AccessType.WRITE, 'b_clusterLightGridBuffer');
     clusterPass.addStorageBuffer(clusterGlobalIndexBufferName, AccessType.WRITE, 'b_globalIndexBuffer');
-    clusterPass.addQueue()
+    clusterPass.addQueue('cluster-culling-cs')
         .addDispatch(clusterData.dispatchX, clusterData.dispatchY, clusterData.dispatchZ, clusterData.clusterLightCullingCS, 0);
 
     const width = camera.width * ppl.pipelineSceneData.shadingScale;
@@ -2283,44 +2293,23 @@ export function buildLightClusterCullingPass (camera: Camera, clusterData: Clust
     clusterPass.setMat4('cc_matProjInv', camera.matProjInv);
 }
 
-export function buildLightData (camera: Camera, pipeline: BasicPipeline) {
-    validPunctualLightsCulling(pipeline, camera);
+export function buildLightBuffer (size: number, floatPerLight: number, camera: Camera, pipeline: BasicPipeline) {
+    const buffer = new ArrayBuffer(size);
+    const view = new Float32Array(buffer);
 
-    // build cluster light data
     const data = pipeline.pipelineSceneData;
-    const validLightCountForBuffer = nextPow2(Math.max(data.validPunctualLights.length, 1));
-
-    const lightBufferStride = 16; // 4 * vec4
-    const clusterLightBufferSize = validLightCountForBuffer * 4 * lightBufferStride;
-
     const lightMeterScale = 10000.0;
     const exposure = camera.exposure;
-
-    const cameraID = getCameraUniqueID(camera);
-    const clusterLightBufferName = `clusterLightBuffer${cameraID}`;
-    const clusterGlobalIndexBufferName = `b_globalIndexBuffer${cameraID}`;
-
-    const ppl = (pipeline as Pipeline);
-    if (!ppl.containsResource(clusterGlobalIndexBufferName)) {
-        ppl.addStorageBuffer(clusterGlobalIndexBufferName, Format.UNKNOWN, 4, ResourceResidency.PERSISTENT);
-    }
-
-    if (!ppl.containsResource(clusterLightBufferName)) {
-        ppl.addStorageBuffer(clusterLightBufferName, Format.UNKNOWN, clusterLightBufferSize, ResourceResidency.PERSISTENT);
-    }
-    ppl.updateStorageBuffer(clusterLightBufferName, clusterLightBufferSize);
-
-    const buffer = new ArrayBuffer(clusterLightBufferSize);
-    const view = new Float32Array(buffer);
 
     // gather light data
     let index = 0;
     for (const light of data.validPunctualLights) {
-        const offset = index * lightBufferStride;
+        const offset = index * floatPerLight;
         const positionOffset = offset + 0;
         const colorOffset = offset + 4;
         const sizeRangeAngleOffset = offset + 8;
         const directionOffset = offset + 12;
+        const boundSizeOffset = offset + 16;
 
         let luminanceHDR = 0;
         let luminanceLDR = 0;
@@ -2378,6 +2367,12 @@ export function buildLightData (camera: Camera, pipeline: BasicPipeline) {
             view[directionOffset + 1] = dir.y;
             view[directionOffset + 2] = dir.z;
             view[directionOffset + 3] = 0;
+
+            const scale = directional.scale;
+            view[boundSizeOffset]     = scale.x * 0.5;
+            view[boundSizeOffset + 1] = scale.y * 0.5;
+            view[boundSizeOffset + 2] = scale.z * 0.5;
+            view[boundSizeOffset + 3] = 0;
         }
         // position
         view[positionOffset]     = position!.x;
@@ -2402,6 +2397,38 @@ export function buildLightData (camera: Camera, pipeline: BasicPipeline) {
     }
     // last float of first light data
     view[3 * 4 + 3] = data.validPunctualLights.length;
+    return buffer;
+}
+
+export function buildStandardLightData (camera: Camera, pipeline: BasicPipeline) {
+    validPunctualLightsCulling(pipeline, camera);
+}
+
+export function buildClusterLightData (camera: Camera, pipeline: BasicPipeline) {
+    validPunctualLightsCulling(pipeline, camera);
+
+    // build cluster light data
+    const data = pipeline.pipelineSceneData;
+    const validLightCountForBuffer = nextPow2(Math.max(data.validPunctualLights.length, 1));
+
+    const lightBufferFloatNum = 20; // 5 * vec4
+    const clusterLightBufferSize = validLightCountForBuffer * 4 * lightBufferFloatNum;
+
+    const cameraID = getCameraUniqueID(camera);
+    const clusterLightBufferName = `clusterLightBuffer`;
+    const clusterGlobalIndexBufferName = `globalIndexBuffer${cameraID}`;
+
+    const ppl = (pipeline as Pipeline);
+    if (!ppl.containsResource(clusterGlobalIndexBufferName)) {
+        ppl.addStorageBuffer(clusterGlobalIndexBufferName, Format.UNKNOWN, 4, ResourceResidency.PERSISTENT);
+    }
+
+    if (!ppl.containsResource(clusterLightBufferName)) {
+        ppl.addStorageBuffer(clusterLightBufferName, Format.UNKNOWN, clusterLightBufferSize, ResourceResidency.PERSISTENT);
+    }
+    ppl.updateStorageBuffer(clusterLightBufferName, clusterLightBufferSize);
+
+    const buffer = buildLightBuffer(clusterLightBufferSize, lightBufferFloatNum, camera, pipeline);
 
     // global index buffer
     const globalIndexBuffer = new ArrayBuffer(4);
@@ -2414,7 +2441,7 @@ export function buildLightData (camera: Camera, pipeline: BasicPipeline) {
 }
 
 export function buildClusterPasses (camera: Camera, pipeline: BasicPipeline) {
-    buildLightData(camera, pipeline);
+    buildClusterLightData(camera, pipeline);
 
     const ppl = (pipeline as Pipeline);
     if (!_clusterLightData) _clusterLightData = new ClusterLightData();
