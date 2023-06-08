@@ -26,12 +26,16 @@
     width: 16px;
     font-size: 12px;
     cursor: pointer;
+    margin-left: 2px;
+    margin-right: 2px;
 }
 
 :host > .container > .header > .image {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
+    margin-left: 2px;
+    margin-right: 2px;
 }
 
 :host > .container > .header > .icon:hover,
@@ -87,7 +91,6 @@
 
 :host > .container > .content {
     display: flex;
-    padding-top: 4px;
     flex: 1;
     min-height: 0;
     flex-direction: column;
@@ -132,5 +135,5 @@
 }
 
 :host-context(ui-panel[type="asset"]) > .container > .content > .content-section {
-    overflow: var(--asset-container-content-section-overflow, scroll);
+    overflow: var(--asset-container-content-section-overflow, auto);
 }

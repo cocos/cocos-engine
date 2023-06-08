@@ -71,9 +71,7 @@ exports.style = /* css */`
 .asset-texture > .content {
     flex: 1;
 }
-.asset-texture > .content ui-prop {
-    margin: 4px 0;
-}
+
 .asset-texture > .content .filter-advanced-section,
 .asset-texture > .content .wrap-advanced-section,
 .asset-texture > .content .generate-mipmaps-section {
@@ -88,9 +86,7 @@ exports.style = /* css */`
 }
 .asset-texture > .content > .warn-words {
     display: none;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    line-height: 1.7;
+    margin-top: 4px;
     color: var(--color-warn-fill);
 }
 .asset-texture > .preview {

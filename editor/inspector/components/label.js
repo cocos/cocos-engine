@@ -23,8 +23,7 @@ ui-tab {
     width: 42px;
     text-align: center;
     line-height: 20px;
-    border: calc(var(--size-normal-border) * 1px) solid var(--color-normal-border);
-    background-color: var(--color-default-fill);
+    border: calc(var(--size-normal-border) * 1px) solid var(--color-default-border-weaker);
     border-radius: calc(var(--size-normal-radius) * 1px);
 }
 
@@ -33,7 +32,8 @@ ui-tab {
 }
 
 .fontStyle.select {
-    background-color: var(--color-default-fill-emphasis);
+    background-color: var(--color-info-fill-important);
+    border-color: var(--color-focus-border-emphasis);
 }
 
 .fontStyle.italic {

@@ -3137,6 +3137,10 @@ Since v3.6, Because mask changes the inheritance relationship, you can directly 
 
 texture size exceeds current device limits %d/%d
 
+### 9101
+
+The length of the TypedArrayBuffer must be an integer.
+
 ### 9200
 
 <!-- DEPRECATED -->

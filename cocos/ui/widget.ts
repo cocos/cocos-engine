@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, editorOnly, editable, serializable, visible } from 'cc.decorator';
-import { EDITOR, DEV } from 'internal:constants';
+import { EDITOR, DEV, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework/ui-transform';
 import { Size, Vec2, Vec3, visibleRect, ccenum, errorID, cclegacy } from '../core';
@@ -867,7 +867,7 @@ export class Widget extends Component {
     }
 
     protected _registerEvent () {
-        if (EDITOR && !cclegacy.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             this.node.on(NodeEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
             this.node.on(NodeEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
         } else {
@@ -879,7 +879,7 @@ export class Widget extends Component {
     }
 
     protected _unregisterEvent () {
-        if (EDITOR && !cclegacy.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             this.node.off(NodeEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
             this.node.off(NodeEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
         } else {
@@ -948,7 +948,7 @@ export class Widget extends Component {
     }
 
     protected _setDirtyByMode () {
-        if (this.alignMode === AlignMode.ALWAYS || (EDITOR && !cclegacy.GAME_VIEW)) {
+        if (this.alignMode === AlignMode.ALWAYS || (EDITOR_NOT_IN_PREVIEW)) {
             this._recursiveDirty();
         }
     }

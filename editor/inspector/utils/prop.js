@@ -376,16 +376,10 @@ exports.createTabGroup = function(dump, panel) {
         style.innerText = `
             .tab-group {
                 margin-top: 4px;
-                margin-bottom: 4px;
             }
             .tab-content {
                 display: none;
-                border: 1px dashed var(--color-normal-border);
-                padding: 8px;
-                margin-top: -10px;
-                border-top-right-radius: calc(var(--size-normal-radius) * 1px);
-                border-bottom-left-radius: calc(var(--size-normal-radius) * 1px);
-                border-bottom-right-radius: calc(var(--size-normal-radius) * 1px);
+                padding-bottom: 6px;
             }`;
 
         panel.$.componentContainer.before(style);
@@ -448,3 +442,15 @@ exports.appendChildByDisplayOrder = function(parent, newChild) {
         parent.appendChild(newChild);
     }
 };
+
+exports.injectionStyle = `
+ui-prop,
+ui-section { margin-top: 4px; }
+
+ui-prop > ui-section,
+ui-prop > ui-prop,
+ui-section > ui-prop[slot="header"],
+ui-prop [slot="content"] ui-prop { 
+    margin-top: 0; 
+    margin-left: 0;
+}`;

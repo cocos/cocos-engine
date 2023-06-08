@@ -27,9 +27,7 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-ui-prop,
-.images
-ui-section {
+.images {
     margin: 4px 0;
 }
 

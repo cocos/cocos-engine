@@ -35,7 +35,7 @@ exports.template = `
 .widget-component[layout='horizontal']>.layout .rect {
     position: absolute;
     top: calc(50% - 65px);
-    left: -10px;
+    left: -5px;
 }
 .widget-component .m20-t {
     margin-top: 20px;
@@ -43,7 +43,7 @@ exports.template = `
 
 .widget-component>.layout {
     position: relative;
-    padding-left: 140px;
+    padding-left: 150px;
     padding-top: 8px;
     padding-bottom: 8px;
 }
@@ -59,12 +59,6 @@ exports.template = `
 
 .widget-component>.layout ui-checkbox {
     user-select: none;
-}
-
-.widget-component>.layout .rect {
-    position: absolute;
-    top: calc(-15%);
-    left: -10px;
 }
 
 .widget-component>.layout .rect>.top {
@@ -180,8 +174,8 @@ exports.template = `
 
 .widget-component>.layout .rect .widget-rect>.center>ui-icon[top] {
     position: absolute;
-    top: -12px;
-    left: calc(50% - 5px);
+    top: -15px;
+    left: calc(50% - 7px);
     font-size: 11px;
     line-height: 10px;
 }
@@ -189,16 +183,16 @@ exports.template = `
 .widget-component>.layout .rect .widget-rect>.center>ui-icon[right] {
     transform: rotate(90deg);
     position: absolute;
-    right: -13px;
-    top: calc(50% - 5px);
+    right: -15px;
+    top: calc(50% - 7px);
     font-size: 11px;
     line-height: 11px;
 }
 
 .widget-component>.layout .rect .widget-rect>.center>ui-icon[bottom] {
     position: absolute;
-    bottom: -12px;
-    left: calc(50% - 5px);
+    bottom: -15px;
+    left: calc(50% - 7px);
     font-size: 11px;
     line-height: 10px;
 }
@@ -206,8 +200,8 @@ exports.template = `
 .widget-component>.layout .rect .widget-rect>.center>ui-icon[left] {
     transform: rotate(90deg);
     position: absolute;
-    left: -13px;
-    top: calc(50% - 5px);
+    left: -15px;
+    top: calc(50% - 7px);
     font-size: 11px;
     line-height: 11px;
 }
@@ -271,6 +265,7 @@ exports.template = `
 }
 
 .widget-component>.layout>.right>.line {
+    --ui-prop-margin-left: 0;
     display: flex;
     justify-content: space-between;
 }
@@ -327,7 +322,7 @@ exports.template = `
 .widget-component .button-group .button .icon {
     width: 18px;
     height: 18px;
-    margin: 2px auto 0 auto;
+    margin: 1px auto 0 auto;
     font-size: 0;
     position: relative;
 }
@@ -1196,7 +1191,7 @@ exports.ready = function() {
         if (requestAnimationFrameId !== null) { return; }
         requestAnimationFrameId = window.requestAnimationFrame(() => {
             const rect = this.$this.getBoundingClientRect();
-            if (rect.width > 300) {
+            if (rect.width > 340) {
                 this.layout = 'horizontal';
             } else {
                 this.layout = 'vertical';

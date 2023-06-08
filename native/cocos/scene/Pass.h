@@ -159,9 +159,8 @@ public:
      * @en Gets a uniform's value.
      * @zh 获取指定普通向量类 uniform 的值。
      * @param handle The handle for the target uniform
-     * @param out The output property to store the result
      */
-    MaterialProperty &getUniform(uint32_t handle, MaterialProperty &out) const;
+    MaterialProperty getUniform(uint32_t handle) const;
 
     /**
      * @en Sets an array type uniform value, if a uniform requires frequent update, please use this method.

@@ -7,7 +7,7 @@ import { assertIsTrue, Quat, Vec3 } from "../../../../../exports/base";
 import { PoseNode } from "../../../../../cocos/animation/marionette/pose-graph/pose-node";
 import { PureValueNode } from "../../../../../cocos/animation/marionette/pose-graph/pure-value-node";
 import { PoseGraphType } from "../../../../../cocos/animation/marionette/pose-graph/foundation/type-system";
-import { PVNodeGetVariableFloat } from "../../../../../cocos/animation/marionette/pose-graph/pure-value-nodes/get-variable";
+import { PVNodeGetVariableBoolean, PVNodeGetVariableFloat } from "../../../../../cocos/animation/marionette/pose-graph/pure-value-nodes/get-variable";
 import { AnimationGraphEvalMock } from "../../utils/eval-mock";
 
 export function normalizeNodeInputMetadata(nodeInputMetadata?: poseGraphOp.InputMetadata) {
@@ -92,10 +92,13 @@ export class UnimplementedPVNode extends PureValueNode {
 }
 
 export function createVariableGettingNode(type: PoseGraphType, varName: string) {
-    let result: PVNodeGetVariableFloat;
+    let result: PVNodeGetVariableFloat | PVNodeGetVariableBoolean;
     switch (type) {
         case PoseGraphType.FLOAT:
             result = new PVNodeGetVariableFloat();
+            break;
+        case PoseGraphType.BOOLEAN:
+            result = new PVNodeGetVariableBoolean();
             break;
         default:
             throw new Error(`Unrecognized pose graph type: ${type}`);

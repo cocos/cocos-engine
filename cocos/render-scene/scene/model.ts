@@ -41,7 +41,7 @@ import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
 import { ShadowType } from './shadows';
 import { ProbeType, ReflectionProbe } from './reflection-probe';
-import { ReflectionProbeType } from '../../3d/framework/reflection-probe-enum';
+import { ReflectionProbeType } from '../../3d/reflection-probe/reflection-probe-enum';
 
 const m4_1 = new Mat4();
 

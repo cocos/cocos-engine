@@ -97,10 +97,6 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
-ui-prop,
-ui-section {
-    margin: 4px 0;
-}
 .container[multiple-invalid] > *:not(.multiple-warn-tip) {
     display: none!important;
  }
@@ -116,6 +112,7 @@ ui-section {
 }
 .container > .show-type-wrap {
     text-align: center;
+    margin-top: 8px;
 }
 .container > .clips {
     padding: 4px;
@@ -477,11 +474,11 @@ const Elements = {
                     line.appendChild(name);
                     const time = document.createElement('div');
                     time.setAttribute('class', 'time');
-                    time.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * (subAnim.fps || panel.rawClipInfo.fps));
+                    time.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(3) : Math.round(subAnim.from * (subAnim.fps || panel.rawClipInfo.fps));
                     line.appendChild(time);
                     const timeEnd = document.createElement('div');
                     timeEnd.setAttribute('class', 'time end');
-                    timeEnd.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * (subAnim.fps || panel.rawClipInfo.fps));
+                    timeEnd.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(3) : Math.round(subAnim.to * (subAnim.fps || panel.rawClipInfo.fps));
                     line.appendChild(timeEnd);
                 });
 
@@ -635,7 +632,7 @@ const Elements = {
                     panel.$.rulerMaking.appendChild(label);
                     const span = document.createElement('span');
                     span.setAttribute('class', 'mid-label');
-                    span.innerText = (panel.gridConfig.labelStep * (minNum - 1)).toFixed(2);
+                    span.innerText = (panel.gridConfig.labelStep * (minNum - 1)).toFixed(3);
                     label.appendChild(span);
                 }
             }
@@ -643,13 +640,12 @@ const Elements = {
             lastMakingLabel.setAttribute('class', 'label-item');
             lastMakingLabel.style.left = `${panel.gridConfig.width}px`;
             panel.$.rulerMaking.appendChild(lastMakingLabel);
-            lastMakingLabel.innerText = panel.rawClipInfo.duration.toFixed(2);
+            lastMakingLabel.innerText = panel.rawClipInfo.duration.toFixed(3);
 
             // ruler gear
             panel.$.rulerGear.innerText = '';
             Object.assign(panel.$.rulerGear.style, {
                 'margin-left': `${panel.gridConfig.spacing}px`,
-                'margin-right': `${0 - panel.gridConfig.spacing}px`,
             });
             const firstRulerGear = document.createElement('div');
             firstRulerGear.setAttribute('class', 'start');
@@ -915,7 +911,7 @@ exports.methods = {
         const { name, duration, fps } = panel.animationInfos[panel.rawClipIndex];
         panel.rawClipInfo = { name, duration, fps };
 
-        panel.$.clipDuration.innerText = duration.toFixed(2);
+        panel.$.clipDuration.innerText = duration.toFixed(3);
     },
     updateGridConfig() {
         const panel = this;
@@ -1045,9 +1041,9 @@ exports.methods = {
 
         // refresh data
         const splitInfo = panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex];
-        if (splitInfo[type].toFixed(2) !== value.toFixed(2)) {
+        if (splitInfo[type] !== value) {
             const { duration } = panel.rawClipInfo;
-            splitInfo[type] = Editor.Utils.Math.clamp(parseFloat(value.toFixed(2)), 0, duration);
+            splitInfo[type] = Editor.Utils.Math.clamp(value, 0, duration);
         }
 
         Elements.clips.update.call(panel);
@@ -1066,7 +1062,7 @@ exports.methods = {
         const panel = this;
 
         Object.assign(panel.$.controlVirtual.style, panel.virtualControl.style);
-        panel.$.controlVirtualNumber.innerText = panel.virtualControl.value.toFixed(2);
+        panel.$.controlVirtualNumber.innerText = panel.virtualControl.value.toFixed(3);
 
         if (panel.virtualControl.startFrame || panel.virtualControl.endFrame) {
             if (panel.virtualControl.type === 'left') {

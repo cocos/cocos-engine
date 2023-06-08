@@ -22,15 +22,13 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
-import { systemInfo } from 'pal/system-info';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { AudioPCMDataView, AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
 import { clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import AudioTimer from '../audio-timer';
 import { audioBufferManager } from '../audio-buffer-manager';
-import legacyCC from '../../../predefine';
 import { Game, game } from '../../../cocos/game';
 
 // NOTE: fix CI
@@ -190,7 +188,7 @@ export class OneShotAudioWeb {
     }
 
     public play (): void {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             return;
         }
         this._bufferSourceNode.start();
@@ -382,7 +380,7 @@ export class AudioPlayerWeb implements OperationQueueable {
     @enqueueOperation
     play (): Promise<void> {
         this.offRunning();
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             return Promise.resolve();
         }
         return this._doPlay();
