@@ -30,6 +30,7 @@
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/unordered_set.h"
 #include "scene/gpu-scene/Define.h"
+#include <climits>
 
 namespace cc {
 
