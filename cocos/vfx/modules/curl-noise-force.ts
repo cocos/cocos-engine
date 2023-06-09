@@ -512,19 +512,19 @@ export class CurlNoiseForceModule extends VFXModule {
         this._offset.multiplyScalar(100);
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_POSITION);
         particles.ensureParameter(P_VELOCITY);
         particles.ensureParameter(P_PHYSICS_FORCE);
         if (this.separateAxes) {
-            this.strength.tick(particles, emitter, user, context);
+            this.strength.tick(dataStore);
         } else {
-            this.uniformStrength.tick(particles, emitter, user, context);
+            this.uniformStrength.tick(dataStore);
         }
-        this.panSpeed.tick(particles, emitter, user, context);
+        this.panSpeed.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const samplePosition = particles.getVec3ArrayParameter(P_POSITION);
@@ -537,12 +537,12 @@ export class CurlNoiseForceModule extends VFXModule {
         const separateAxes = this.separateAxes;
         const remap = this.enableRemap;
         if (separateAxes) {
-            strengthExp.bind(particles, emitter, user, context);
+            strengthExp.bind(dataStore);
         } else {
-            uniformStrengthExp.bind(particles, emitter, user, context);
+            uniformStrengthExp.bind(dataStore);
         }
-        panSpeedExp.bind(particles, emitter, user, context);
-        frequencyExp.bind(particles, emitter, user, context);
+        panSpeedExp.bind(dataStore);
+        frequencyExp.bind(dataStore);
 
         // eslint-disable-next-line no-lonely-if
         if (this.quality === Quality.HIGH) {

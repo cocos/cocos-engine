@@ -25,20 +25,20 @@
 import { ccclass, serializable } from '../../core/data/decorators';
 import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { Vec3Expression } from './vec3';
-import { VFXParameterIdentity, VFXParameterNameSpace } from '../vfx-parameter';
+import { VFXParameterDecl, VFXParameterNamespace } from '../vfx-parameter';
 import { Vec3ArrayParameter } from '../parameters';
 import { Vec3 } from '../../core';
 
 @ccclass('cc.BindingVec3Expression')
 export class BindingVec3Expression extends Vec3Expression {
     @serializable
-    private _bindParameter: VFXParameterIdentity | null = null;
+    private _bindParameter: VFXParameterDecl | null = null;
     private declare _data: Vec3ArrayParameter;
     private _constant = new Vec3();
     private _getVec3 = this._getConstant;
 
     public get isConstant (): boolean {
-        return !this._bindParameter || this._bindParameter.namespace !== VFXParameterNameSpace.PARTICLE;
+        return !this._bindParameter || this._bindParameter.namespace !== VFXParameterNamespace.PARTICLE;
     }
 
     private _getConstant (index: number, out: Vec3): Vec3 {
@@ -50,19 +50,19 @@ export class BindingVec3Expression extends Vec3Expression {
         return this._data.getVec3At(out, index);
     }
 
-    constructor (vfxParameterIdentity: VFXParameterIdentity) {
+    constructor (vfxParameterIdentity: VFXParameterDecl) {
         super();
         this._bindParameter = vfxParameterIdentity;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        if (this._bindParameter?.namespace === VFXParameterNameSpace.PARTICLE) {
+    public tick (dataStore: VFXDataStore) {
+        if (this._bindParameter?.namespace === VFXParameterNamespace.PARTICLE) {
             particles.ensureParameter(this._bindParameter);
         }
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        if (this._bindParameter?.namespace === VFXParameterNameSpace.PARTICLE) {
+    public bind (dataStore: VFXDataStore) {
+        if (this._bindParameter?.namespace === VFXParameterNamespace.PARTICLE) {
             this._data = particles.getVec3ArrayParameter(this._bindParameter);
             this._getVec3 = this._getVec3At;
         } else {

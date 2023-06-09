@@ -161,30 +161,30 @@ export class CircleLocationModule extends ShapeLocationModule {
     @serializable
     private _uniformSpiralFalloff: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        super.tick(particles, emitter, user, context);
-        this.radius.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        super.tick(dataStore);
+        this.radius.tick(dataStore);
         if (this.distributionMode === DistributionMode.RANDOM) {
-            this.radiusCoverage.tick(particles, emitter, user, context);
-            this.thetaCoverage.tick(particles, emitter, user, context);
+            this.radiusCoverage.tick(dataStore);
+            this.thetaCoverage.tick(dataStore);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
-            this.uPosition.tick(particles, emitter, user, context);
-            this.radiusPosition.tick(particles, emitter, user, context);
+            this.uPosition.tick(dataStore);
+            this.radiusPosition.tick(dataStore);
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         super.execute(particles, emitter, user, context);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const position = particles.getVec3ArrayParameter(P_POSITION);
         const radiusExp = this._radius as FloatExpression;
-        radiusExp.bind(particles, emitter, user, context);
+        radiusExp.bind(dataStore);
         if (this.distributionMode === DistributionMode.RANDOM) {
             const radiusCoverageExp = this._radiusCoverage as FloatExpression;
             const thetaCoverageExp = this._thetaCoverage as FloatExpression;
-            radiusCoverageExp.bind(particles, emitter, user, context);
-            thetaCoverageExp.bind(particles, emitter, user, context);
+            radiusCoverageExp.bind(dataStore);
+            thetaCoverageExp.bind(dataStore);
             const randomStream = this.randomStream;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const r = Math.sqrt(randomStream.getFloatFromRange(1 - radiusCoverageExp.evaluate(i), 1)) * radiusExp.evaluate(i);
@@ -197,8 +197,8 @@ export class CircleLocationModule extends ShapeLocationModule {
         } else if (this.distributionMode === DistributionMode.DIRECT) {
             const uPositionExp = this._uPosition as FloatExpression;
             const radiusPositionExp = this._radiusPosition as FloatExpression;
-            uPositionExp.bind(particles, emitter, user, context);
-            radiusPositionExp.bind(particles, emitter, user, context);
+            uPositionExp.bind(dataStore);
+            radiusPositionExp.bind(dataStore);
             for (let i = fromIndex; i < toIndex; ++i) {
                 const r = radiusPositionExp.evaluate(i) * radiusExp.evaluate(i);
                 const t = uPositionExp.evaluate(i) * TWO_PI;
@@ -210,8 +210,8 @@ export class CircleLocationModule extends ShapeLocationModule {
         } else {
             const uniformSpiralAmountExp = this._uniformSpiralAmount as FloatExpression;
             const uniformSpiralFalloffExp = this._uniformSpiralFalloff as FloatExpression;
-            uniformSpiralAmountExp.bind(particles, emitter, user, context);
-            uniformSpiralFalloffExp.bind(particles, emitter, user, context);
+            uniformSpiralAmountExp.bind(dataStore);
+            uniformSpiralFalloffExp.bind(dataStore);
             const executionCount = toIndex - fromIndex;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const t = Math.sqrt((i - fromIndex) / executionCount);

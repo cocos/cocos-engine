@@ -28,7 +28,6 @@ import { lerp, Vec3 } from '../../core';
 import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_VELOCITY } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 
 const limit = new Vec3();
 const tempVelocity = new Vec3();
@@ -100,28 +99,28 @@ export class LimitVelocityModule extends VFXModule {
     @serializable
     private _limit: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_VELOCITY);
         particles.ensureParameter(P_BASE_VELOCITY);
         if (this.separateAxes) {
-            this.limit.bind(particles, emitter, user, context);
+            this.limit.bind(dataStore);
         } else {
-            this.uniformLimit.bind(particles, emitter, user, context);
+            this.uniformLimit.bind(dataStore);
         }
-        this.dampen.bind(particles, emitter, user, context);
+        this.dampen.bind(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const velocity = particles.getVec3ArrayParameter(P_VELOCITY);
         const baseVelocity = particles.getVec3ArrayParameter(P_BASE_VELOCITY);
         const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
         const dampenExp = this._dampen as FloatExpression;
-        dampenExp.bind(particles, emitter, user, context);
+        dampenExp.bind(dataStore);
         if (this.separateAxes) {
             const limitExp = this._limit as Vec3Expression;
-            limitExp.bind(particles, emitter, user, context);
+            limitExp.bind(dataStore);
             if (needTransform) {
                 const transform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
                 const invTransform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? E_WORLD_TO_LOCAL_RS : E_LOCAL_TO_WORLD_RS).data;
@@ -153,7 +152,7 @@ export class LimitVelocityModule extends VFXModule {
             }
         } else {
             const uniformLimitExp = this._uniformLimit as FloatExpression;
-            uniformLimitExp.bind(particles, emitter, user, context);
+            uniformLimitExp.bind(dataStore);
             if (needTransform) {
                 const transform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
                 const invTransform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? E_WORLD_TO_LOCAL_RS : E_LOCAL_TO_WORLD_RS).data;

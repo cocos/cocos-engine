@@ -1,8 +1,8 @@
 
-import { VFXParameterType } from '../../cocos/vfx/enum';
+import { VFXValueType } from '../../cocos/vfx/enum';
 import { BuiltinParticleParameter, builtinParticleParameterIdentities } from '../../cocos/vfx/particle-data-set';
 import { ParticleDataSet } from '../../cocos/vfx/particle-data-set';
-import { BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, VFXParameterIdentity, Uint32ArrayParameter, Vec3ArrayParameter } from '../../cocos/vfx/vfx-parameter';
+import { BoolArrayParameter, ColorArrayParameter, FloatArrayParameter, VFXParameterDecl, Uint32ArrayParameter, Vec3ArrayParameter } from '../../cocos/vfx/vfx-parameter';
 
 describe('particle-data-set', () => {
     
@@ -31,8 +31,8 @@ describe('particle-data-set', () => {
         particles.addParticles(16);
         expect(particles.count).toBe(36);
         expect(particles.capacity).toBe(64);
-        particles.addParameter(0, VFXParameterType.FLOAT);
-        particles.addParameter(1, VFXParameterType.FLOAT);
+        particles.addParameter(0, VFXValueType.FLOAT);
+        particles.addParameter(1, VFXValueType.FLOAT);
         const parameter0 = particles.getParameter(0);
         const parameter1 = particles.getParameter(1);
         expect(parameter0?.capacity).toBe(64);
@@ -89,8 +89,8 @@ describe('particle-data-set', () => {
         expect(() => particles.hasParameter(32)).toThrowError();
         expect(() => particles.hasParameter(29)).not.toThrowError();
         expect(() => particles.hasParameter(-1)).toThrowError();
-        expect(() => particles.addParameter(32, VFXParameterType.FLOAT)).toThrowError();
-        expect(() => particles.addParameter(-1, VFXParameterType.FLOAT)).toThrowError();
+        expect(() => particles.addParameter(32, VFXValueType.FLOAT)).toThrowError();
+        expect(() => particles.addParameter(-1, VFXValueType.FLOAT)).toThrowError();
         expect(() => particles.getParameter(32)).toThrowError();
         expect(() => particles.getParameter(-1)).toThrowError();
         expect(() => particles.getParameterUnsafe(32)).toThrowError();
@@ -103,7 +103,7 @@ describe('particle-data-set', () => {
         expect(particles.getParameter(customId2)).toBeFalsy();
         expect(() => particles.getParameterUnsafe(customId1)).toThrowError();
         expect(() => particles.getParameterUnsafe(customId2)).toThrowError();
-        particles.addParameter(customId1, VFXParameterType.FLOAT);
+        particles.addParameter(customId1, VFXValueType.FLOAT);
         expect(particles.parameterCount).toBe(1);
         expect(particles.hasParameter(customId1)).toBeTruthy();
         const parameter = particles.getParameter(customId1);
@@ -111,8 +111,8 @@ describe('particle-data-set', () => {
         expect(parameter).toBeTruthy();
         expect(parameter).toBeInstanceOf(FloatArrayParameter);
         expect(particles.getParameterUnsafe(customId1)).toBe(parameter);
-        expect(() => particles.addParameter(customId1, VFXParameterType.FLOAT)).toThrowError();
-        particles.addParameter(customId2, VFXParameterType.VEC3);
+        expect(() => particles.addParameter(customId1, VFXValueType.FLOAT)).toThrowError();
+        particles.addParameter(customId2, VFXValueType.VEC3);
         expect(particles.hasParameter(customId2)).toBeTruthy();
         const parameter2 = particles.getParameter(customId2);
         expect(parameter2).toBeTruthy();
@@ -123,8 +123,8 @@ describe('particle-data-set', () => {
         particles.reserve(50);
         expect(parameter?.capacity).toBe(50);
         expect(parameter2?.capacity).toBe(50);
-        expect(() => particles.addParameter(customId2, VFXParameterType.VEC3)).toThrowError();
-        expect(() => particles.addParameter(customId2, VFXParameterType.FLOAT)).toThrowError();
+        expect(() => particles.addParameter(customId2, VFXValueType.VEC3)).toThrowError();
+        expect(() => particles.addParameter(customId2, VFXValueType.FLOAT)).toThrowError();
         particles.removeParameter(customId1);
         expect(particles.parameterCount).toBe(1);
         expect(particles.hasParameter(customId1)).toBeFalsy();
@@ -136,7 +136,7 @@ describe('particle-data-set', () => {
         expect(particles.getParameter(customId2)).toBeFalsy();
         expect(() => particles.getParameterUnsafe(customId2)).toThrowError();
         particles.reserve(100);
-        particles.addParameter(customId1, VFXParameterType.BOOL);
+        particles.addParameter(customId1, VFXValueType.BOOL);
         expect(particles.parameterCount).toBe(1);
         expect(particles.hasParameter(customId1)).toBeTruthy();
         const parameter3 = particles.getParameter(customId1);
@@ -144,7 +144,7 @@ describe('particle-data-set', () => {
         expect(parameter3).toBeInstanceOf(BoolArrayParameter);
         expect(parameter3).toBe(particles.getParameterUnsafe(customId1));
         expect(parameter3?.capacity).toBe(100);
-        particles.addParameter(customId2, VFXParameterType.COLOR);
+        particles.addParameter(customId2, VFXValueType.COLOR);
         expect(particles.hasParameter(customId2)).toBeTruthy();
         const parameter4 = particles.getParameter(customId2);
         expect(parameter4).toBeTruthy();
@@ -152,8 +152,8 @@ describe('particle-data-set', () => {
         expect(parameter4).toBe(particles.getParameterUnsafe(customId2));
         expect(parameter4?.capacity).toBe(100);
         expect(particles.parameterCount).toBe(2);
-        expect(() => particles.addParameter(customId2, VFXParameterType.COLOR)).toThrowError();
-        expect(() => particles.addParameter(customId2, VFXParameterType.BOOL)).toThrowError();
+        expect(() => particles.addParameter(customId2, VFXValueType.COLOR)).toThrowError();
+        expect(() => particles.addParameter(customId2, VFXValueType.BOOL)).toThrowError();
         particles.reserve(200);
         expect(parameter3?.capacity).toBe(200);
         expect(parameter4?.capacity).toBe(200);
@@ -172,11 +172,11 @@ describe('particle-data-set', () => {
     test('ensure parameters', () => {
         const particles = new ParticleDataSet();
         const identities = [
-            new VFXParameterIdentity(31, 'test', VFXParameterType.FLOAT),
-            new VFXParameterIdentity(30, 'test2', VFXParameterType.VEC3),
-            new VFXParameterIdentity(29, 'test3', VFXParameterType.COLOR),
-            new VFXParameterIdentity(28, 'test4', VFXParameterType.BOOL),
-            new VFXParameterIdentity(27, 'test5', VFXParameterType.UINT32),
+            new VFXParameterDecl(31, 'test', VFXValueType.FLOAT),
+            new VFXParameterDecl(30, 'test2', VFXValueType.VEC3),
+            new VFXParameterDecl(29, 'test3', VFXValueType.COLOR),
+            new VFXParameterDecl(28, 'test4', VFXValueType.BOOL),
+            new VFXParameterDecl(27, 'test5', VFXValueType.UINT32),
         ];
         expect(particles.parameterCount).toBe(0);
         let requiredParameters = 1 << 31 | 1 << 29 | 1 << 27;

@@ -26,12 +26,12 @@
 import { ccclass } from 'cc.decorator';
 import { Color } from '../../core';
 import { VFXExpression } from '../vfx-expression';
-import { VFXParameterType } from '../vfx-parameter';
+import { VFXValueType } from '../vfx-parameter';
 
 @ccclass('cc.ColorExpression')
 export abstract  class ColorExpression extends VFXExpression {
     public get valueType () {
-        return VFXParameterType.COLOR;
+        return VFXValueType.COLOR;
     }
     abstract evaluateSingle (out: Color): Color;
     abstract evaluate (index: number, out: Color): Color;

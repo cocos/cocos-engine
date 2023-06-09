@@ -195,12 +195,12 @@ export abstract class VFXModule {
      * @engineInternal
      * @internal
      */
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
+    public tick (dataStore: VFXDataStore) {}
     /**
      * @engineInternal
      * @internal
      */
-    public abstract execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet);
+    public abstract execute (dataStore: VFXDataStore);
     /**
      * @engineInternal
      * @internal
@@ -330,7 +330,7 @@ export class VFXModuleStage {
      * @engineInternal
      * @internal
      */
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         context.setExecutionStage(this._execStage);
         const modules = this._modules;
         for (let i = 0, length = modules.length; i < length; i++) {
@@ -338,7 +338,7 @@ export class VFXModuleStage {
             if (module.enabled) {
                 context.setModuleRandomSeed(module.randomSeed);
                 context.setModuleRandomStream(module.randomStream);
-                module.tick(particles, emitter, user, context);
+                module.tick(dataStore);
             }
         }
         context.setExecutionStage(ModuleExecStage.UNKNOWN);
@@ -348,7 +348,7 @@ export class VFXModuleStage {
      * @engineInternal
      * @internal
      */
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         context.setExecutionStage(this._execStage);
         const modules = this._modules;
         for (let i = 0, length = modules.length; i < length; i++) {

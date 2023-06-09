@@ -50,21 +50,21 @@ export class GravityModule extends VFXModule {
     @serializable
     private _gravity: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_POSITION);
         particles.ensureParameter(P_BASE_VELOCITY);
         particles.ensureParameter(P_VELOCITY);
         particles.ensureParameter(P_PHYSICS_FORCE);
-        this.gravity.tick(particles, emitter, user, context);
+        this.gravity.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const physicsForce = particles.getVec3ArrayParameter(P_PHYSICS_FORCE);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const needTransform = !emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
         const gravityExp = this._gravity as Vec3Expression;
-        gravityExp.bind(particles, emitter, user, context);
+        gravityExp.bind(dataStore);
         if (needTransform) {
             const transform = emitter.getMat3Parameter(E_WORLD_TO_LOCAL_RS).data;
             if (gravityExp.isConstant) {

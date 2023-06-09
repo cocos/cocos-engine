@@ -159,36 +159,36 @@ export class TorusLocationModule extends ShapeLocationModule {
     @serializable
     private _vPosition: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        super.tick(particles, emitter, user, context);
-        this.largeRadius.tick(particles, emitter, user, context);
-        this.handleRadius.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        super.tick(dataStore);
+        this.largeRadius.tick(dataStore);
+        this.handleRadius.tick(dataStore);
         if (this.distributionMode === TorusDistributionMode.RANDOM) {
-            this.surfaceDistribution.tick(particles, emitter, user, context);
-            this.uDistribution.tick(particles, emitter, user, context);
-            this.vDistribution.tick(particles, emitter, user, context);
+            this.surfaceDistribution.tick(dataStore);
+            this.uDistribution.tick(dataStore);
+            this.vDistribution.tick(dataStore);
         } else {
-            this.uPosition.tick(particles, emitter, user, context);
-            this.vPosition.tick(particles, emitter, user, context);
+            this.uPosition.tick(dataStore);
+            this.vPosition.tick(dataStore);
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet): void {
+    public execute (dataStore: VFXDataStore): void {
         super.execute(particles, emitter, user, context);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const position = particles.getVec3ArrayParameter(P_POSITION);
         const largeRadiusExp = this._largeRadius as FloatExpression;
         const handleRadiusExp = this._handleRadius as FloatExpression;
-        largeRadiusExp.bind(particles, emitter, user, context);
-        handleRadiusExp.bind(particles, emitter, user, context);
+        largeRadiusExp.bind(dataStore);
+        handleRadiusExp.bind(dataStore);
         if (this.distributionMode === TorusDistributionMode.RANDOM) {
             const surfaceDistributionExp = this._surfaceDistribution as FloatExpression;
             const uDistributionExp = this._uDistribution as FloatExpression;
             const vDistributionExp = this._vDistribution as FloatExpression;
-            surfaceDistributionExp.bind(particles, emitter, user, context);
-            uDistributionExp.bind(particles, emitter, user, context);
-            vDistributionExp.bind(particles, emitter, user, context);
+            surfaceDistributionExp.bind(dataStore);
+            uDistributionExp.bind(dataStore);
+            vDistributionExp.bind(dataStore);
             const randomStream = this.randomStream;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const largeRadius = largeRadiusExp.evaluate(i);
@@ -206,8 +206,8 @@ export class TorusLocationModule extends ShapeLocationModule {
         } else {
             const uPositionExp = this._uPosition as FloatExpression;
             const vPositionExp = this._vPosition as FloatExpression;
-            uPositionExp.bind(particles, emitter, user, context);
-            vPositionExp.bind(particles, emitter, user, context);
+            uPositionExp.bind(dataStore);
+            vPositionExp.bind(dataStore);
             for (let i = fromIndex; i < toIndex; ++i) {
                 const largeRadius = largeRadiusExp.evaluate(i);
                 const uPosition = uPositionExp.evaluate(i);

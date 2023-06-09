@@ -47,18 +47,18 @@ export class SpriteRotationRateModule extends VFXModule {
     @serializable
     private _rate: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_SPRITE_ROTATION);
-        this.rate.tick(particles, emitter, user, context);
+        this.rate.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const spriteRotation = particles.getFloatArrayParameter(P_SPRITE_ROTATION);
         const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const rateExp = this._rate as FloatExpression;
-        rateExp.bind(particles, emitter, user, context);
+        rateExp.bind(dataStore);
         if (rateExp.isConstant) {
             const rate = rateExp.evaluate(0);
             for (let i = fromIndex; i < toIndex; i++) {

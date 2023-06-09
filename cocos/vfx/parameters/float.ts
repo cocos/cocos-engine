@@ -1,5 +1,5 @@
 import { DEBUG } from 'internal:constants';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 import { assertIsTrue } from '../../core';
 
 export class FloatArrayParameter extends ArrayParameter {
@@ -8,7 +8,7 @@ export class FloatArrayParameter extends ArrayParameter {
     }
 
     get type () {
-        return VFXParameterType.FLOAT;
+        return VFXValueType.FLOAT;
     }
 
     get stride (): number {
@@ -115,8 +115,8 @@ export class FloatArrayParameter extends ArrayParameter {
 }
 
 export class FloatParameter extends VFXParameter {
-    get type (): VFXParameterType {
-        return VFXParameterType.FLOAT;
+    get type (): VFXValueType {
+        return VFXValueType.FLOAT;
     }
 
     get data (): number {

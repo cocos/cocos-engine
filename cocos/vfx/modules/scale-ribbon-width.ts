@@ -50,20 +50,20 @@ export class ScaleRibbonWidthModule extends VFXModule {
     @serializable
     private _scalar: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_RIBBON_WIDTH);
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.ensureParameter(P_BASE_RIBBON_WIDTH);
         }
-        this.scalar.tick(particles, emitter, user, context);
+        this.scalar.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const ribbonWidth = particles.getFloatArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const scalarExp = this._scalar as FloatExpression;
-        scalarExp.bind(particles, emitter, user, context);
+        scalarExp.bind(dataStore);
         if (scalarExp.isConstant) {
             const scalar = scalarExp.evaluate(0);
             for (let i = fromIndex; i < toIndex; i++) {

@@ -1,10 +1,10 @@
-import { VFXParameterType } from "../../../cocos/vfx/define";
+import { VFXValueType } from "../../../cocos/vfx/define";
 import { BoolArrayParameter, BoolParameter } from "../../../cocos/vfx/parameters/bool";
 
 describe('BoolArrayParameter', () => {
     const boolParameter = new BoolArrayParameter();
     test('basic', () => {
-        expect(boolParameter.type).toBe(VFXParameterType.BOOL);
+        expect(boolParameter.type).toBe(VFXValueType.BOOL);
         expect(boolParameter.isArray).toBeTruthy();
         expect(boolParameter.stride).toBe(1);
     });
@@ -100,7 +100,7 @@ describe('BoolArrayParameter', () => {
 describe('BoolParameter', () => {
     const boolParameter = new BoolParameter();
     test('basic', () => {
-        expect(boolParameter.type).toBe(VFXParameterType.BOOL);
+        expect(boolParameter.type).toBe(VFXValueType.BOOL);
         expect(boolParameter.isArray).toBe(false);
     });
 

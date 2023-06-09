@@ -22,10 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
 import { FloatParameter, Vec3Parameter, ColorParameter, Uint32Parameter, BoolParameter, Vec2Parameter, Vec4Parameter, Int32Parameter, Uint8Parameter, QuatParameter, Mat3Parameter, Mat4Parameter, FloatArrayParameter, Vec3ArrayParameter, ColorArrayParameter, Uint32ArrayParameter, BoolArrayParameter, Vec2ArrayParameter, Vec4ArrayParameter, Int32ArrayParameter, Uint8ArrayParameter, QuatArrayParameter, Mat3ArrayParameter, Mat4ArrayParameter } from './parameters';
-import { VFXParameter, VFXParameterIdentity, VFXParameterNameSpace, VFXParameterType } from './vfx-parameter';
+import { VFXParameter, VFXParameterDecl, VFXParameterNamespace, VFXValueType } from './vfx-parameter';
 
 export class VFXDataSet {
     public get parameterCount () {
@@ -38,216 +39,210 @@ export class VFXDataSet {
 
     private _parameterMap: Record<number, VFXParameter> = {};
     private _parameters: VFXParameter[] = [];
-    private _namespace = VFXParameterNameSpace.PARTICLE;
+    private _namespace = VFXParameterNamespace.PARTICLE;
     private _parameterCount = 0;
 
-    constructor (namespace: VFXParameterNameSpace) {
+    constructor (namespace: VFXParameterNamespace) {
         this._namespace = namespace;
     }
 
-    public ensureParameter (identity: VFXParameterIdentity) {
-        if (!this.hasParameter(identity)) {
-            this.addParameter(identity);
-        }
-    }
-
-    public hasParameter (identity: VFXParameterIdentity) {
+    public hasParameter (identity: VFXParameterDecl) {
         return identity.id in this._parameterMap;
     }
 
-    public getBoolParameter (identity: VFXParameterIdentity) {
+    public getBoolParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.BOOL);
+            assertIsTrue(identity.type === VFXValueType.BOOL);
             assertIsTrue(!identity.isArray);
         }
         return this.getParameterUnsafe<BoolParameter>(identity);
     }
 
-    public getBoolArrayParameter (identity: VFXParameterIdentity) {
+    public getBoolArrayParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.BOOL);
+            assertIsTrue(identity.type === VFXValueType.BOOL);
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<BoolArrayParameter>(identity);
     }
 
-    public getColorParameter (identity: VFXParameterIdentity) {
+    public getColorParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.COLOR);
+            assertIsTrue(identity.type === VFXValueType.COLOR);
             assertIsTrue(!identity.isArray);
         }
         return this.getParameterUnsafe<ColorParameter>(identity);
     }
 
-    public getColorArrayParameter (identity: VFXParameterIdentity) {
+    public getColorArrayParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.COLOR);
+            assertIsTrue(identity.type === VFXValueType.COLOR);
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<ColorArrayParameter>(identity);
     }
 
-    public getFloatParameter (identity: VFXParameterIdentity) {
+    public getFloatParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.FLOAT);
+            assertIsTrue(identity.type === VFXValueType.FLOAT);
             assertIsTrue(!identity.isArray);
         }
         return this.getParameterUnsafe<FloatParameter>(identity);
     }
 
-    public getFloatArrayParameter (identity: VFXParameterIdentity) {
+    public getFloatArrayParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.FLOAT);
+            assertIsTrue(identity.type === VFXValueType.FLOAT);
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<FloatArrayParameter>(identity);
     }
 
-    public getInt32Parameter (identity: VFXParameterIdentity) {
+    public getInt32Parameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.INT32);
+            assertIsTrue(identity.type === VFXValueType.INT32);
             assertIsTrue(!identity.isArray);
         }
         return this.getParameterUnsafe<Int32Parameter>(identity);
     }
 
-    public getInt32ArrayParameter (identity: VFXParameterIdentity) {
+    public getInt32ArrayParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.INT32);
+            assertIsTrue(identity.type === VFXValueType.INT32);
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<Int32ArrayParameter>(identity);
     }
 
-    public getMat3Parameter (identity: VFXParameterIdentity) {
+    public getMat3Parameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.MAT3);
+            assertIsTrue(identity.type === VFXValueType.MAT3);
             assertIsTrue(!identity.isArray);
         }
         return this.getParameterUnsafe<Mat3Parameter>(identity);
     }
 
-    public getMat3ArrayParameter (identity: VFXParameterIdentity) {
+    public getMat3ArrayParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.MAT3);
+            assertIsTrue(identity.type === VFXValueType.MAT3);
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<Mat3ArrayParameter>(identity);
     }
 
-    public getMat4Parameter (identity: VFXParameterIdentity) {
+    public getMat4Parameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.MAT4);
+            assertIsTrue(identity.type === VFXValueType.MAT4);
             assertIsTrue(!identity.isArray);
         }
         return this.getParameterUnsafe<Mat4Parameter>(identity);
     }
 
-    public getMat4ArrayParameter (identity: VFXParameterIdentity) {
+    public getMat4ArrayParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.MAT4);
+            assertIsTrue(identity.type === VFXValueType.MAT4);
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<Mat4ArrayParameter>(identity);
     }
 
-    public getQuatParameter (identity: VFXParameterIdentity) {
+    public getQuatParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.QUAT);
+            assertIsTrue(identity.type === VFXValueType.QUAT);
             assertIsTrue(!identity.isArray);
         }
         return this.getParameterUnsafe<QuatParameter>(identity);
     }
 
-    public getQuatArrayParameter (identity: VFXParameterIdentity) {
+    public getQuatArrayParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.QUAT);
+            assertIsTrue(identity.type === VFXValueType.QUAT);
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<QuatArrayParameter>(identity);
     }
 
-    public getUint8Parameter (identity: VFXParameterIdentity) {
+    public getUint8Parameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.UINT8);
+            assertIsTrue(identity.type === VFXValueType.UINT8);
             assertIsTrue(!identity.isArray);
         }
         return this.getParameterUnsafe<Uint8Parameter>(identity);
     }
 
-    public getUint8ArrayParameter (identity: VFXParameterIdentity) {
+    public getUint8ArrayParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.UINT8);
+            assertIsTrue(identity.type === VFXValueType.UINT8);
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<Uint8ArrayParameter>(identity);
     }
 
-    public getUint32Parameter (identity: VFXParameterIdentity) {
+    public getUint32Parameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.UINT32);
+            assertIsTrue(identity.type === VFXValueType.UINT32);
             assertIsTrue(!identity.isArray);
         }
         return this.getParameterUnsafe<Uint32Parameter>(identity);
     }
 
-    public getUint32ArrayParameter (identity: VFXParameterIdentity) {
+    public getUint32ArrayParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.UINT32);
+            assertIsTrue(identity.type === VFXValueType.UINT32);
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<Uint32ArrayParameter>(identity);
     }
 
-    public getVec2Parameter (identity: VFXParameterIdentity) {
+    public getVec2Parameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.VEC2);
+            assertIsTrue(identity.type === VFXValueType.VEC2);
             assertIsTrue(!identity.isArray);
         }
         return this.getParameterUnsafe<Vec2Parameter>(identity);
     }
 
-    public getVec2ArrayParameter (identity: VFXParameterIdentity) {
+    public getVec2ArrayParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.VEC2);
+            assertIsTrue(identity.type === VFXValueType.VEC2);
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<Vec2ArrayParameter>(identity);
     }
 
-    public getVec3Parameter (identity: VFXParameterIdentity) {
+    public getVec3Parameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.VEC3);
+            assertIsTrue(identity.type === VFXValueType.VEC3);
             assertIsTrue(!identity.isArray);
         }
         return this.getParameterUnsafe<Vec3Parameter>(identity);
     }
 
-    public getVec3ArrayParameter (identity: VFXParameterIdentity) {
+    public getVec3ArrayParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.VEC3);
+            assertIsTrue(identity.type === VFXValueType.VEC3);
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<Vec3ArrayParameter>(identity);
     }
 
-    public getVec4Parameter (identity: VFXParameterIdentity) {
+    public getVec4Parameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.VEC4);
+            assertIsTrue(identity.type === VFXValueType.VEC4);
             assertIsTrue(!identity.isArray);
         }
         return this.getParameterUnsafe<Vec4Parameter>(identity);
     }
 
-    public getVec4ArrayParameter (identity: VFXParameterIdentity) {
+    public getVec4ArrayParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
-            assertIsTrue(identity.type === VFXParameterType.VEC4);
+            assertIsTrue(identity.type === VFXValueType.VEC4);
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<Vec4ArrayParameter>(identity);
     }
 
-    public getParameterUnsafe<T extends VFXParameter> (identity: VFXParameterIdentity) {
+    public getParameterUnsafe<T extends VFXParameter> (identity: VFXParameterDecl) {
         if (DEBUG) {
             assertIsTrue(identity.namespace === this._namespace);
             assertIsTrue(this.hasParameter(identity));
@@ -261,7 +256,7 @@ export class VFXDataSet {
         this._parameterMap[id] = parameter;
     }
 
-    public addParameter (identity: VFXParameterIdentity) {
+    public addParameter (identity: VFXParameterDecl) {
         if (DEBUG) {
             assertIsTrue(identity.namespace === this._namespace);
         }
@@ -269,40 +264,40 @@ export class VFXDataSet {
             throw new Error('Already exist a particle parameter with same id!');
         }
         switch (identity.type) {
-        case VFXParameterType.FLOAT:
+        case VFXValueType.FLOAT:
             this.addParameter_internal(identity.id, !identity.isArray ? new FloatParameter() : new FloatArrayParameter());
             break;
-        case VFXParameterType.VEC3:
+        case VFXValueType.VEC3:
             this.addParameter_internal(identity.id, !identity.isArray ? new Vec3Parameter() : new Vec3ArrayParameter());
             break;
-        case VFXParameterType.COLOR:
+        case VFXValueType.COLOR:
             this.addParameter_internal(identity.id, !identity.isArray ? new ColorParameter() : new ColorArrayParameter());
             break;
-        case VFXParameterType.UINT32:
+        case VFXValueType.UINT32:
             this.addParameter_internal(identity.id, !identity.isArray ? new Uint32Parameter() : new Uint32ArrayParameter());
             break;
-        case VFXParameterType.BOOL:
+        case VFXValueType.BOOL:
             this.addParameter_internal(identity.id, !identity.isArray ? new BoolParameter() : new BoolArrayParameter());
             break;
-        case VFXParameterType.VEC2:
+        case VFXValueType.VEC2:
             this.addParameter_internal(identity.id, !identity.isArray ? new Vec2Parameter() : new Vec2ArrayParameter());
             break;
-        case VFXParameterType.VEC4:
+        case VFXValueType.VEC4:
             this.addParameter_internal(identity.id, !identity.isArray ? new Vec4Parameter() : new Vec4ArrayParameter());
             break;
-        case VFXParameterType.INT32:
+        case VFXValueType.INT32:
             this.addParameter_internal(identity.id, !identity.isArray ? new Int32Parameter() : new Int32ArrayParameter());
             break;
-        case VFXParameterType.UINT8:
+        case VFXValueType.UINT8:
             this.addParameter_internal(identity.id, !identity.isArray ? new Uint8Parameter() : new Uint8ArrayParameter());
             break;
-        case VFXParameterType.QUAT:
+        case VFXValueType.QUAT:
             this.addParameter_internal(identity.id, !identity.isArray ? new QuatParameter() : new QuatArrayParameter());
             break;
-        case VFXParameterType.MAT3:
+        case VFXValueType.MAT3:
             this.addParameter_internal(identity.id, !identity.isArray ? new Mat3Parameter() : new Mat3ArrayParameter());
             break;
-        case VFXParameterType.MAT4:
+        case VFXValueType.MAT4:
             this.addParameter_internal(identity.id, !identity.isArray ? new Mat4Parameter() : new Mat4ArrayParameter());
             break;
         default:
@@ -311,7 +306,7 @@ export class VFXDataSet {
         this.doAddParameter(identity);
     }
 
-    public removeParameter (identity: VFXParameterIdentity) {
+    public removeParameter (identity: VFXParameterDecl) {
         if (!this.hasParameter(identity)) {
             return;
         }
@@ -331,5 +326,5 @@ export class VFXDataSet {
         this._parameters.length = 0;
     }
 
-    protected doAddParameter (identity: VFXParameterIdentity) {}
+    protected doAddParameter (identity: VFXParameterDecl) {}
 }

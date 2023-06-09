@@ -43,8 +43,8 @@ export class ConstantColorExpression extends ColorExpression {
         Color.copy(this.color, val);
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
+    public tick (dataStore: VFXDataStore) {}
+    public bind (dataStore: VFXDataStore) {}
 
     public evaluate (index: number, out: Color) {
         out.set(this.color);

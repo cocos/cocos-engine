@@ -25,7 +25,7 @@
 
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../../core';
-import { ArrayParameter, Handle, VFXParameterIdentity, VFXParameterNameSpace } from '../vfx-parameter';
+import { ArrayParameter, Handle, VFXParameterDecl, VFXParameterNamespace } from '../vfx-parameter';
 import { VFXDataSet } from '../vfx-data-set';
 
 export class ParticleDataSet extends VFXDataSet {
@@ -41,7 +41,7 @@ export class ParticleDataSet extends VFXDataSet {
     private _capacity = 16;
 
     constructor () {
-        super(VFXParameterNameSpace.PARTICLE);
+        super(VFXParameterNamespace.PARTICLE);
     }
 
     public addParticles (count: number) {
@@ -94,9 +94,9 @@ export class ParticleDataSet extends VFXDataSet {
         super.reset();
     }
 
-    protected doAddParameter (identity: VFXParameterIdentity) {
-        if (identity.isArray) {
-            const parameter = this.getParameterUnsafe<ArrayParameter>(identity);
+    protected doAddParameter (declaration: VFXParameterDecl) {
+        if (declaration.isArray) {
+            const parameter = this.getParameterUnsafe<ArrayParameter>(declaration);
             parameter.reserve(this._capacity);
         }
     }

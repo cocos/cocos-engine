@@ -47,15 +47,15 @@ export class MakeVec3Expression extends Vec3Expression {
         return this.x.isConstant && this.y.isConstant && this.z.isConstant;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.x.tick(particles, emitter, user, context);
-        this.y.tick(particles, emitter, user, context);
-        this.z.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        this.x.tick(dataStore);
+        this.y.tick(dataStore);
+        this.z.tick(dataStore);
     }
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.x.bind(particles, emitter, user, context);
-        this.y.bind(particles, emitter, user, context);
-        this.z.bind(particles, emitter, user, context);
+    public bind (dataStore: VFXDataStore) {
+        this.x.bind(dataStore);
+        this.y.bind(dataStore);
+        this.z.bind(dataStore);
     }
 
     public evaluate (index: number, out: Vec3) {

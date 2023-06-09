@@ -65,21 +65,21 @@ export class PlaneLocationModule extends ShapeLocationModule {
     @serializable
     private _planeCenter: Vec2Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        super.tick(particles, emitter, user, context);
-        this.planeCenter.tick(particles, emitter, user, context);
-        this.planeSize.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        super.tick(dataStore);
+        this.planeCenter.tick(dataStore);
+        this.planeSize.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         super.execute(particles, emitter, user, context);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const position = particles.getVec3ArrayParameter(P_POSITION);
         const planeSizeExp = this._planeSize as Vec2Expression;
         const planeCenterExp = this._planeCenter as Vec2Expression;
-        planeSizeExp.bind(particles, emitter, user, context);
-        planeCenterExp.bind(particles, emitter, user, context);
+        planeSizeExp.bind(dataStore);
+        planeCenterExp.bind(dataStore);
 
         const rand = this.randomStream;
         for (let i = fromIndex; i < toIndex; i++) {

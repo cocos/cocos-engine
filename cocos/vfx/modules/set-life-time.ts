@@ -25,9 +25,9 @@
 
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_INV_LIFETIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXDataStore } from '../vfx-data-store';
 
 @ccclass('cc.SetLifeTimeModule')
 @VFXModule.register('SetLifeTime', ModuleExecStageFlags.SPAWN)
@@ -51,17 +51,17 @@ export class SetLifeTimeModule extends VFXModule {
     @serializable
     private _lifetime: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_INV_LIFETIME);
-        this.lifetime.tick(particles, emitter, user, context);
+        this.lifetime.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const invLifeTime = particles.getFloatArrayParameter(P_INV_LIFETIME);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const lifetimeExp = this._lifetime as FloatExpression;
-        lifetimeExp.bind(particles, emitter, user, context);
+        lifetimeExp.bind(dataStore);
         if (lifetimeExp.isConstant) {
             invLifeTime.fill(1 / lifetimeExp.evaluate(0), fromIndex, toIndex);
         } else {

@@ -68,26 +68,26 @@ export class SetMeshScaleModule extends VFXModule {
     @serializable
     private _scale: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.ensureParameter(P_BASE_SCALE);
         }
 
         particles.ensureParameter(P_SCALE);
         if (this.separateAxes) {
-            this.scale.tick(particles, emitter, user, context);
+            this.scale.tick(dataStore);
         } else {
-            this.uniformScale.tick(particles, emitter, user, context);
+            this.uniformScale.tick(dataStore);
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const scale = particles.getVec3ArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_SCALE : P_SCALE);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         if (this.separateAxes) {
             const scaleExp = this._scale as Vec3Expression;
-            scaleExp.bind(particles, emitter, user, context);
+            scaleExp.bind(dataStore);
             if (scaleExp.isConstant) {
                 const srcScale = scaleExp.evaluate(0, tempScale);
                 scale.fill(srcScale, fromIndex, toIndex);
@@ -99,7 +99,7 @@ export class SetMeshScaleModule extends VFXModule {
             }
         } else {
             const uniformScaleExp = this._uniformScale as FloatExpression;
-            uniformScaleExp.bind(particles, emitter, user, context);
+            uniformScaleExp.bind(dataStore);
             if (uniformScaleExp.isConstant) {
                 const srcScale = uniformScaleExp.evaluate(0);
                 Vec3.set(tempScale, srcScale, srcScale, srcScale);

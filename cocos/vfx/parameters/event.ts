@@ -1,16 +1,26 @@
 import { DEBUG } from 'internal:constants';
-import { Color, assertIsTrue } from '../../core';
+import { Color, assertIsTrue, Vec3 } from '../../core';
+import { VFXEventType } from '../define';
 import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 
-const tempColor = new Color();
+export class VFXEvent {
+    public type = VFXEventType.UNKNOWN;
+    public particleId = 0;
+    public currentTime = 0;
+    public prevTime = 0;
+    public position = new Vec3();
+    public velocity = new Vec3();
+    public color = new Color();
+    public randomSeed = 0;
+}
 
-export class ColorArrayParameter extends ArrayParameter {
+export class EventArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
     }
 
     get type () {
-        return VFXValueType.COLOR;
+        return VFXValueType.EVENT;
     }
 
     get stride (): number {
@@ -91,9 +101,9 @@ export class ColorArrayParameter extends ArrayParameter {
     }
 }
 
-export class ColorParameter extends VFXParameter {
+export class EventParameter extends VFXParameter {
     get type (): VFXValueType {
-        return VFXValueType.COLOR;
+        return VFXValueType.EVENT;
     }
 
     get data (): Readonly<Color> {

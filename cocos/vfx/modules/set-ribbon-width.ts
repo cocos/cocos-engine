@@ -47,21 +47,21 @@ export class SetRibbonWidthModule extends VFXModule {
     @serializable
     private _width: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.ensureParameter(P_BASE_RIBBON_WIDTH);
         }
 
         particles.ensureParameter(P_RIBBON_WIDTH);
-        this.width.tick(particles, emitter, user, context);
+        this.width.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const ribbonWidth = particles.getFloatArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const widthExp = this._width as FloatExpression;
-        widthExp.bind(particles, emitter, user, context);
+        widthExp.bind(dataStore);
         if (widthExp.isConstant) {
             const width = widthExp.evaluate(0);
             ribbonWidth.fill(width, fromIndex, toIndex);

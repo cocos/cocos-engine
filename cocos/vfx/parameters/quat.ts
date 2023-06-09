@@ -1,6 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { Quat, Vec3, assertIsTrue } from '../../core';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 
 const tempQuat = new Quat();
 export class QuatArrayParameter extends ArrayParameter {
@@ -9,7 +9,7 @@ export class QuatArrayParameter extends ArrayParameter {
     }
 
     get type () {
-        return VFXParameterType.QUAT;
+        return VFXValueType.QUAT;
     }
 
     get stride () {
@@ -143,8 +143,8 @@ export class QuatArrayParameter extends ArrayParameter {
 }
 
 export class QuatParameter extends VFXParameter {
-    get type (): VFXParameterType {
-        return VFXParameterType.QUAT;
+    get type (): VFXValueType {
+        return VFXValueType.QUAT;
     }
 
     get data (): Readonly<Quat> {

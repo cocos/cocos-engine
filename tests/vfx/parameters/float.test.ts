@@ -1,11 +1,11 @@
-import { VFXParameterType } from "../../../cocos/vfx/define";
+import { VFXValueType } from "../../../cocos/vfx/define";
 import { FloatArrayParameter, FloatParameter } from "../../../cocos/vfx/parameters/float";
 import { RandomStream } from "../../../cocos/vfx/random-stream";
 
 describe('FloatArrayParameter', () => {
     const floatParameter = new FloatArrayParameter();
     test('basic', () => {
-        expect(floatParameter.type).toBe(VFXParameterType.FLOAT);
+        expect(floatParameter.type).toBe(VFXValueType.FLOAT);
         expect(floatParameter.isArray).toBeTruthy();
         expect(floatParameter.stride).toBe(1);
     });
@@ -280,7 +280,7 @@ describe('FloatArrayParameter', () => {
 describe('FloatParameter', () => {
     const floatParameter = new FloatParameter();
     test('basic', () => {
-        expect(floatParameter.type).toBe(VFXParameterType.FLOAT);
+        expect(floatParameter.type).toBe(VFXValueType.FLOAT);
         expect(floatParameter.isArray).toBeFalsy();
     });
 

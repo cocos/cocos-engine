@@ -1,6 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../../core';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 
 export class Uint32ArrayParameter extends ArrayParameter {
     get data () {
@@ -8,7 +8,7 @@ export class Uint32ArrayParameter extends ArrayParameter {
     }
 
     get type () {
-        return VFXParameterType.UINT32;
+        return VFXValueType.UINT32;
     }
 
     get stride (): number {
@@ -75,8 +75,8 @@ export class Uint32ArrayParameter extends ArrayParameter {
 }
 
 export class Uint32Parameter extends VFXParameter {
-    get type (): VFXParameterType {
-        return VFXParameterType.UINT32;
+    get type (): VFXValueType {
+        return VFXValueType.UINT32;
     }
 
     get data (): number {

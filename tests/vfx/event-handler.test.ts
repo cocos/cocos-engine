@@ -9,14 +9,14 @@ describe('event-handler', () => {
     test('EventHandler', () => {
         @VFXModule.register('test', ModuleExecStageFlags.EMITTER)
         class TestModule extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error('Method not implemented.');
             }
         }
 
         @VFXModule.register('test2', ModuleExecStageFlags.EVENT_HANDLER)
         class TestModule2 extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error('Method not implemented.');
             }
         }

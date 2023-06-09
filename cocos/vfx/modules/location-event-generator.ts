@@ -41,14 +41,14 @@ export class LocationEventGeneratorModule extends VFXModule {
     @serializable
     public probability = 1;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_INV_LIFETIME);
         particles.ensureParameter(P_RANDOM_SEED);
         particles.ensureParameter(P_NORMALIZED_AGE);
         particles.ensureParameter(P_ID);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const normalizedAge = particles.getFloatArrayParameter(P_NORMALIZED_AGE).data;
         const randomSeed = particles.getUint32ArrayParameter(P_RANDOM_SEED).data;
         const invLifeTime = particles.getFloatArrayParameter(P_INV_LIFETIME).data;

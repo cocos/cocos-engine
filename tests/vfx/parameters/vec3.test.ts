@@ -1,5 +1,5 @@
 import { Vec3 } from "../../../cocos/core";
-import { VFXParameterType } from "../../../cocos/vfx/define";
+import { VFXValueType } from "../../../cocos/vfx/define";
 import { Vec3ArrayParameter } from "../../../cocos/vfx/parameters/vec3";
 import { RandomStream } from "../../../cocos/vfx/random-stream";
 import { BATCH_OPERATION_THRESHOLD_VEC3 } from "../../../cocos/vfx/vfx-parameter";
@@ -10,7 +10,7 @@ describe('Vec3ArrayParameter', () => {
     const vec3 = new Vec3();
     test('basic', () => {
         expect(vec3Parameter.stride).toBe(3);
-        expect(vec3Parameter.type).toBe(VFXParameterType.VEC3);
+        expect(vec3Parameter.type).toBe(VFXValueType.VEC3);
     });
     
     test('capacity', () => {

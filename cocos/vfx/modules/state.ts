@@ -42,7 +42,7 @@ export class StateModule extends VFXModule {
     @serializable
     public lifetimeElapsedOperation = LifetimeElapsedOperation.KILL;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         if (this.lifetimeElapsedOperation === LifetimeElapsedOperation.KILL) {
             particles.ensureParameter(P_IS_DEAD);
         }
@@ -50,7 +50,7 @@ export class StateModule extends VFXModule {
         particles.ensureParameter(P_INV_LIFETIME);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const normalizedAge = particles.getFloatArrayParameter(P_NORMALIZED_AGE).data;
         const invLifeTime = particles.getFloatArrayParameter(P_INV_LIFETIME).data;
         const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;

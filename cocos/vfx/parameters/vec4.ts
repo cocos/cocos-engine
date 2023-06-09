@@ -1,6 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { Vec4, assertIsTrue } from '../../core';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 
 const tempVec4 = new Vec4();
 export class Vec4ArrayParameter extends ArrayParameter {
@@ -9,7 +9,7 @@ export class Vec4ArrayParameter extends ArrayParameter {
     }
 
     get type () {
-        return VFXParameterType.VEC4;
+        return VFXValueType.VEC4;
     }
 
     get stride () {
@@ -170,8 +170,8 @@ export class Vec4ArrayParameter extends ArrayParameter {
 }
 
 export class Vec4Parameter extends VFXParameter {
-    get type (): VFXParameterType {
-        return VFXParameterType.VEC4;
+    get type (): VFXValueType {
+        return VFXValueType.VEC4;
     }
 
     get data (): Readonly<Vec4> {

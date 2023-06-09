@@ -53,20 +53,20 @@ export class SetColorModule extends VFXModule {
     @serializable
     private _color: ColorExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_COLOR);
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.ensureParameter(P_BASE_COLOR);
         }
-        this.color.tick(particles, emitter, user, context);
+        this.color.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const color = particles.getColorArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_COLOR : P_COLOR);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const colorExp = this._color as ColorExpression;
-        colorExp.bind(particles, emitter, user, context);
+        colorExp.bind(dataStore);
         if (colorExp.isConstant) {
             color.fill(colorExp.evaluate(0, tempColor), fromIndex, toIndex);
         } else {

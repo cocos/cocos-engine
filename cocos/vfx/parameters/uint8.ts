@@ -1,5 +1,5 @@
 import { DEBUG } from 'internal:constants';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 import { assertIsTrue } from '../../core';
 
 export class Uint8ArrayParameter extends ArrayParameter {
@@ -11,8 +11,8 @@ export class Uint8ArrayParameter extends ArrayParameter {
         return 1;
     }
 
-    get type (): VFXParameterType {
-        return VFXParameterType.UINT8;
+    get type (): VFXValueType {
+        return VFXValueType.UINT8;
     }
 
     private _data = new Uint8Array(this._capacity);
@@ -75,8 +75,8 @@ export class Uint8ArrayParameter extends ArrayParameter {
 }
 
 export class Uint8Parameter extends VFXParameter {
-    get type (): VFXParameterType {
-        return VFXParameterType.UINT8;
+    get type (): VFXValueType {
+        return VFXValueType.UINT8;
     }
 
     get data (): number {

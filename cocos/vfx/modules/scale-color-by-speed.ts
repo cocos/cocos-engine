@@ -88,15 +88,15 @@ export class ScaleColorBySpeedModule extends VFXModule {
     @serializable
     private _maxSpeedThreshold: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_COLOR);
-        this.maxScalar.tick(particles, emitter, user, context);
-        this.minScalar.tick(particles, emitter, user, context);
-        this.minSpeedThreshold.tick(particles, emitter, user, context);
-        this.maxSpeedThreshold.tick(particles, emitter, user, context);
+        this.maxScalar.tick(dataStore);
+        this.minScalar.tick(dataStore);
+        this.minSpeedThreshold.tick(dataStore);
+        this.maxSpeedThreshold.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const hasVelocity = particles.hasParameter(P_VELOCITY);
         if (!hasVelocity) { return; }
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;

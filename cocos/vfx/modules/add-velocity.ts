@@ -29,6 +29,7 @@ import { C_FROM_INDEX, C_TO_INDEX, CoordinateSpace, E_IS_WORLD_SPACE, E_LOCAL_TO
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { BindingVec3Expression, ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
+import { VFXDataStore } from '../vfx-data-store';
 
 const tempVelocity = new Vec3();
 
@@ -135,23 +136,23 @@ export class AddVelocityModule extends VFXModule {
     @serializable
     private _defaultPosition: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_VELOCITY);
         particles.ensureParameter(P_POSITION);
         if (context.executionStage !== ModuleExecStage.UPDATE) {
             particles.ensureParameter(P_BASE_VELOCITY);
         }
         if (this.velocityMode === VelocityMode.LINEAR) {
-            this.velocity.tick(particles, emitter, user, context);
-            this.velocityScale.tick(particles, emitter, user, context);
+            this.velocity.tick(dataStore);
+            this.velocityScale.tick(dataStore);
         } else {
-            this.speed.tick(particles, emitter, user, context);
-            this.velocityOrigin.tick(particles, emitter, user, context);
-            this.defaultPosition.tick(particles, emitter, user, context);
+            this.speed.tick(dataStore);
+            this.velocityOrigin.tick(dataStore);
+            this.defaultPosition.tick(dataStore);
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const velocity = particles.getVec3ArrayParameter(context.executionStage === ModuleExecStage.UPDATE ? P_VELOCITY : P_BASE_VELOCITY);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
@@ -160,8 +161,8 @@ export class AddVelocityModule extends VFXModule {
         if (this.velocityMode === VelocityMode.LINEAR) {
             const velocityExp = this._velocity as Vec3Expression;
             const velocityScaleExp = this._velocityScale as FloatExpression;
-            velocityExp.bind(particles, emitter, user, context);
-            velocityScaleExp.bind(particles, emitter, user, context);
+            velocityExp.bind(dataStore);
+            velocityScaleExp.bind(dataStore);
             if (velocityExp.isConstant && velocityScaleExp.isConstant) {
                 velocityExp.evaluate(0, tempVelocity);
                 const scale = velocityScaleExp.evaluate(0);
@@ -194,9 +195,9 @@ export class AddVelocityModule extends VFXModule {
             const speedExp = this._speed as FloatExpression;
             const velocityOriginExp = this._velocityOrigin as Vec3Expression;
             const defaultPositionExp = this._defaultPosition as Vec3Expression;
-            speedExp.bind(particles, emitter, user, context);
-            velocityOriginExp.bind(particles, emitter, user, context);
-            defaultPositionExp.bind(particles, emitter, user, context);
+            speedExp.bind(dataStore);
+            velocityOriginExp.bind(dataStore);
+            defaultPositionExp.bind(dataStore);
         }
     }
 }

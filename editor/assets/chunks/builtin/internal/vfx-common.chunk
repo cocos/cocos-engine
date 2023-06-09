@@ -145,25 +145,15 @@ void CCVFXSetupParticleInput (out VFXParticleInput particleInput) {
 
 vec4 CCVFXApplyParticlePosition (VFXParticleInput particleInput, vec3 position) {
   vec4 pos = vec4(particleInput.position.xyz, 1);
-  vec3 meshOrientation = particleInput.meshOrientation;
-  vec4 velocity = vec4(particleInput.velocity.xyz, 0.);
-
-  #if !CC_USE_WORLD_SPACE
-    // simulate in world space. apply cc_matWorld matrix on CPU side.
-    pos = cc_matWorld * pos;
-    #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
-      velocity = cc_matWorld * velocity;
-    #endif
-  #endif
 
   #if CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_SPRITE
     vec4 rot = quaternionFromEuler(vec3(0., 0., particleInput.spriteRotation));
   #elif CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_MESH
-    vec4 rot = quaternionFromEuler(meshOrientation);
+    vec4 rot = quaternionFromEuler(particleInput.meshOrientation);
   #endif
 
   #if CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_SPRITE
-    vec2 offset = vec2(a_position.xy - u_vfx_sprite_pivot);
+    vec2 offset = vec2(position.xy - u_vfx_sprite_pivot);
     computeVertPos(pos, offset, rot, particleInput.spriteSize);
   #elif CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_MESH
     mat3 rotMat = quatToMat3(rot);
@@ -173,16 +163,20 @@ vec4 CCVFXApplyParticlePosition (VFXParticleInput particleInput, vec3 position) 
 
     mat4 xformNoScale = matrixFromRT(rot, pos.xyz);
     mat4 xform = matFromRTS(rot, pos.xyz, particleInput.scale);
-    pos = xform * vec4(a_position, 1);
+    pos = xform * vec4(position, 1);
     vec4 normal = xformNoScale * vec4(a_normal, 0);
   #endif
   return pos;
 }
 
-vec4 CCVFXApplyParticleTexCoord (VFXParticleInput particleInput, vec2 texCoord) {
-  float frameY = floor(subUVIndex * frameTile.y);
-  float frameX = floor(subUVIndex * frameTile.x * frameTile.y - frameY * frameTile.x);
-  return (vec2(frameX, frameY) + texCoord) / vec2(frameTile.x, frameTile.y);
+vec2 CCVFXApplyParticleTexCoord (VFXParticleInput particleInput, vec2 texCoord) {
+  #if CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_SPRITE || CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_MESH
+  float frameY = floor(particleInput.subUVIndex * u_vfx_sub_image_size.y);
+  float frameX = floor(particleInput.subUVIndex * u_vfx_sub_image_size.x * u_vfx_sub_image_size.y - frameY * u_vfx_sub_image_size.x);
+  return (vec2(frameX, frameY) + texCoord) / vec2(u_vfx_sub_image_size.x, u_vfx_sub_image_size.y);
+  #else
+  return texCoord;
+  #endif
 }
 
 vec4 CCVFXApplyParticleColor (VFXParticleInput particleInput, vec4 color) {

@@ -161,34 +161,34 @@ export class SphereLocationModule extends ShapeLocationModule {
     @serializable
     private _uniformSpiralAmount: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        super.tick(particles, emitter, user, context);
-        this.radius.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        super.tick(dataStore);
+        this.radius.tick(dataStore);
         if (this.distributionMode === DistributionMode.RANDOM) {
-            this.surfaceDistribution.tick(particles, emitter, user, context);
-            this.hemisphereDistribution.tick(particles, emitter, user, context);
+            this.surfaceDistribution.tick(dataStore);
+            this.hemisphereDistribution.tick(dataStore);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
-            this.uPosition.tick(particles, emitter, user, context);
-            this.vPosition.tick(particles, emitter, user, context);
-            this.radiusPosition.tick(particles, emitter, user, context);
+            this.uPosition.tick(dataStore);
+            this.vPosition.tick(dataStore);
+            this.radiusPosition.tick(dataStore);
         } else {
-            this.uniformDistribution.tick(particles, emitter, user, context);
-            this.uniformSpiralAmount.tick(particles, emitter, user, context);
+            this.uniformDistribution.tick(dataStore);
+            this.uniformSpiralAmount.tick(dataStore);
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         super.execute(particles, emitter, user, context);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const position = particles.getVec3ArrayParameter(P_POSITION);
         const radiusExp = this._radius as FloatExpression;
-        radiusExp.bind(particles, emitter, user, context);
+        radiusExp.bind(dataStore);
         if (this.distributionMode === DistributionMode.RANDOM) {
             const surfaceDistributionExp = this._surfaceDistribution as FloatExpression;
             const hemisphereDistributionExp = this._hemisphereDistribution as Vec2Expression;
-            surfaceDistributionExp.bind(particles, emitter, user, context);
-            hemisphereDistributionExp.bind(particles, emitter, user, context);
+            surfaceDistributionExp.bind(dataStore);
+            hemisphereDistributionExp.bind(dataStore);
             const random = this.randomStream;
             for (let i = fromIndex; i < toIndex; ++i) {
                 hemisphereDistributionExp.evaluate(i, distribution);
@@ -206,9 +206,9 @@ export class SphereLocationModule extends ShapeLocationModule {
             const uPositionExp = this._uPosition as FloatExpression;
             const vPositionExp = this._vPosition as FloatExpression;
             const radiusPositionExp = this._radiusPosition as FloatExpression;
-            uPositionExp.bind(particles, emitter, user, context);
-            vPositionExp.bind(particles, emitter, user, context);
-            radiusPositionExp.bind(particles, emitter, user, context);
+            uPositionExp.bind(dataStore);
+            vPositionExp.bind(dataStore);
+            radiusPositionExp.bind(dataStore);
 
             for (let i = fromIndex; i < toIndex; ++i) {
                 const u = uPositionExp.evaluate(i);
@@ -225,8 +225,8 @@ export class SphereLocationModule extends ShapeLocationModule {
         } else {
             const uniformDistributionExp = this._uniformDistribution as FloatExpression;
             const uniformSpiralAmountExp = this._uniformSpiralAmount as FloatExpression;
-            uniformDistributionExp.bind(particles, emitter, user, context);
-            uniformSpiralAmountExp.bind(particles, emitter, user, context);
+            uniformDistributionExp.bind(dataStore);
+            uniformSpiralAmountExp.bind(dataStore);
             const uniformCount = toIndex - fromIndex - 1;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const spiralAmount = uniformSpiralAmountExp.evaluate(i);

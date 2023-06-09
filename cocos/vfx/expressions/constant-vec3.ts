@@ -52,8 +52,8 @@ export class ConstantVec3Expression extends Vec3Expression {
         this.z = z;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
+    public tick (dataStore: VFXDataStore) {}
+    public bind (dataStore: VFXDataStore) {}
 
     public evaluate (index: number, out: Vec3) {
         out.x = this.x;

@@ -53,17 +53,17 @@ export class SetPositionModule extends VFXModule {
     @serializable
     private _position: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_POSITION);
-        this.position.tick(particles, emitter, user, context);
+        this.position.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const position = particles.getVec3ArrayParameter(P_POSITION);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const positionExp = this._position as Vec3Expression;
-        positionExp.bind(particles, emitter, user, context);
+        positionExp.bind(dataStore);
         if (positionExp.isConstant) {
             position.fill(positionExp.evaluate(0, tempPos), fromIndex, toIndex);
         } else {

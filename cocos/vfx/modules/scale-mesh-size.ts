@@ -75,25 +75,25 @@ export class ScaleMeshSizeModule extends VFXModule {
     @serializable
     private _scalar: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_SCALE);
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.ensureParameter(P_BASE_SCALE);
         }
         if (this.separateAxes) {
-            this.scalar.tick(particles, emitter, user, context);
+            this.scalar.tick(dataStore);
         } else {
-            this.uniformScalar.tick(particles, emitter, user, context);
+            this.uniformScalar.tick(dataStore);
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const scale = particles.getVec3ArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_SCALE : P_SCALE);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         if (!this.separateAxes) {
             const uniformScalarExp = this._uniformScalar as FloatExpression;
-            uniformScalarExp.bind(particles, emitter, user, context);
+            uniformScalarExp.bind(dataStore);
             if (uniformScalarExp.isConstant) {
                 const scalar = uniformScalarExp.evaluate(0);
                 for (let i = fromIndex; i < toIndex; i++) {
@@ -107,7 +107,7 @@ export class ScaleMeshSizeModule extends VFXModule {
             }
         } else {
             const scalarExp = this._scalar as Vec3Expression;
-            scalarExp.bind(particles, emitter, user, context);
+            scalarExp.bind(dataStore);
             if (scalarExp.isConstant) {
                 const scalar = scalarExp.evaluate(0, tempScalar);
                 for (let i = fromIndex; i < toIndex; i++) {

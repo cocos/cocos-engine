@@ -24,13 +24,13 @@
  */
 
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { FloatExpression } from './float';
-import { VFXParameterIdentity, VFXParameterNameSpace } from '../vfx-parameter';
+import { VFXParameterDecl, VFXParameterNamespace } from '../vfx-parameter';
+import { VFXDataStore } from '../vfx-data-store';
 
 @ccclass('cc.BindingFloatExpression')
 export class BindingFloatExpression extends FloatExpression {
-    @type(VFXParameterIdentity)
+    @type(VFXParameterDecl)
     get bindingParameter () {
         return this._bindingParameter;
     }
@@ -40,13 +40,13 @@ export class BindingFloatExpression extends FloatExpression {
     }
 
     @serializable
-    private _bindingParameter: VFXParameterIdentity | null = null;
+    private _bindingParameter: VFXParameterDecl | null = null;
     private declare _data: Float32Array;
     private _constant = 0;
     private _getFloat = this._getConstant;
 
     public get isConstant (): boolean {
-        return this._bindingParameter?.namespace !== VFXParameterNameSpace.PARTICLE;
+        return this._bindingParameter?.namespace !== VFXParameterNamespace.PARTICLE;
     }
 
     private _getConstant (index: number): number {
@@ -57,37 +57,37 @@ export class BindingFloatExpression extends FloatExpression {
         return this._data[index];
     }
 
-    constructor (vfxParameterIdentity: VFXParameterIdentity) {
+    constructor (vfxParameterIdentity: VFXParameterDecl) {
         super();
         this._bindingParameter = vfxParameterIdentity;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        if (this._bindingParameter?.namespace === VFXParameterNameSpace.PARTICLE) {
-            particles.ensureParameter(this._bindingParameter);
+    public tick (dataStore: VFXDataStore) {
+        if (this._bindingParameter?.namespace === VFXParameterNamespace.PARTICLE) {
+            dataStore.particles.ensureParameter(this._bindingParameter);
         }
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public bind (dataStore: VFXDataStore) {
         if (!this._bindingParameter) {
             this._getFloat = this._getConstant;
             this._constant = 0;
             return;
         }
         switch (this._bindingParameter.namespace) {
-        case VFXParameterNameSpace.PARTICLE:
+        case VFXParameterNamespace.PARTICLE:
             this._data = particles.getFloatArrayParameter(this._bindingParameter).data;
             this._getFloat = this._getFloatAt;
             break;
-        case VFXParameterNameSpace.EMITTER:
+        case VFXParameterNamespace.EMITTER:
             this._constant = emitter.getFloatParameter(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
-        case VFXParameterNameSpace.USER:
+        case VFXParameterNamespace.USER:
             this._constant = user.getFloatParameter(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
-        case VFXParameterNameSpace.CONTEXT:
+        case VFXParameterNamespace.CONTEXT:
             this._constant = context.getFloatParameter(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;

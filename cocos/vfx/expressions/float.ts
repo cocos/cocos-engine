@@ -25,12 +25,12 @@
 
 import { ccclass } from 'cc.decorator';
 import { VFXExpression } from '../vfx-expression';
-import { VFXParameterType } from '../vfx-parameter';
+import { VFXValueType } from '../vfx-parameter';
 
 @ccclass('cc.FloatExpression')
 export abstract class FloatExpression extends VFXExpression {
     public get valueType () {
-        return VFXParameterType.FLOAT;
+        return VFXValueType.FLOAT;
     }
 
     public abstract evaluateSingle (): number;

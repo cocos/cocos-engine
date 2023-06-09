@@ -1,10 +1,10 @@
-import { VFXParameterType } from "../../../cocos/vfx/define";
+import { VFXValueType } from "../../../cocos/vfx/define";
 import { Uint32ArrayParameter } from "../../../cocos/vfx/parameters/uint32";
 
 describe('Uint32ArrayParameter', () => {
     const uint32Parameter = new Uint32ArrayParameter();
     test('basic', () => {
-        expect(uint32Parameter.type).toBe(VFXParameterType.UINT32);
+        expect(uint32Parameter.type).toBe(VFXValueType.UINT32);
         expect(uint32Parameter.stride).toBe(1);
     });
     

@@ -107,16 +107,16 @@ export class ConeLocationModule extends ShapeLocationModule {
     @serializable
     private _surfaceDistribution: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        super.tick(particles, emitter, user, context);
-        this.length.tick(particles, emitter, user, context);
-        this.angle.tick(particles, emitter, user, context);
-        this.innerAngle.tick(particles, emitter, user, context);
-        this.radialAngle.tick(particles, emitter, user, context);
-        this.surfaceDistribution.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        super.tick(dataStore);
+        this.length.tick(dataStore);
+        this.angle.tick(dataStore);
+        this.innerAngle.tick(dataStore);
+        this.radialAngle.tick(dataStore);
+        this.surfaceDistribution.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         super.execute(particles, emitter, user, context);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
@@ -126,11 +126,11 @@ export class ConeLocationModule extends ShapeLocationModule {
         const innerAngleExp = this._innerAngle as FloatExpression;
         const radialAngleExp = this._radialAngle as FloatExpression;
         const surfaceDistributionExp = this._surfaceDistribution as FloatExpression;
-        lengthExp.bind(particles, emitter, user, context);
-        angleExp.bind(particles, emitter, user, context);
-        innerAngleExp.bind(particles, emitter, user, context);
-        radialAngleExp.bind(particles, emitter, user, context);
-        surfaceDistributionExp.bind(particles, emitter, user, context);
+        lengthExp.bind(dataStore);
+        angleExp.bind(dataStore);
+        innerAngleExp.bind(dataStore);
+        radialAngleExp.bind(dataStore);
+        surfaceDistributionExp.bind(dataStore);
 
         const randomStream = this.randomStream;
         for (let i = fromIndex; i < toIndex; ++i) {

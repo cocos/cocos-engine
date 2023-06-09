@@ -43,8 +43,8 @@ export class ConstantFloatExpression extends FloatExpression {
         this.value = value;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
+    public tick (dataStore: VFXDataStore) {}
+    public bind (dataStore: VFXDataStore) {}
 
     public evaluate (index: number): number {
         return this.value;

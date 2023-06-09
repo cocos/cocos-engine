@@ -77,25 +77,25 @@ export class ScaleSpriteSizeModule extends VFXModule {
     @serializable
     private _scalar: Vec2Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_SPRITE_SIZE);
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.ensureParameter(P_BASE_SPRITE_SIZE);
         }
         if (!this.separateAxes) {
-            this.uniformScalar.tick(particles, emitter, user, context);
+            this.uniformScalar.tick(dataStore);
         } else {
-            this.scalar.tick(particles, emitter, user, context);
+            this.scalar.tick(dataStore);
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const spriteSize = particles.getVec2ArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_SPRITE_SIZE : P_SPRITE_SIZE);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         if (!this.separateAxes) {
             const uniformScalarExp = this._uniformScalar as FloatExpression;
-            uniformScalarExp.bind(particles, emitter, user, context);
+            uniformScalarExp.bind(dataStore);
             if (uniformScalarExp.isConstant) {
                 const scalar = uniformScalarExp.evaluate(0);
                 Vec2ArrayParameter.multiplyScalar(spriteSize, spriteSize, scalar, fromIndex, toIndex);
@@ -107,7 +107,7 @@ export class ScaleSpriteSizeModule extends VFXModule {
             }
         } else {
             const scalarExp = this._scalar as Vec2Expression;
-            scalarExp.bind(particles, emitter, user, context);
+            scalarExp.bind(dataStore);
             if (scalarExp.isConstant) {
                 const scalar = scalarExp.evaluate(0, tempVec2);
                 for (let i = fromIndex; i < toIndex; i++) {

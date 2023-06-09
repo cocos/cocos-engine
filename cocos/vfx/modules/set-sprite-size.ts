@@ -70,26 +70,26 @@ export class SetSpriteSizeModule extends VFXModule {
     @serializable
     private _size: Vec2Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         if (context.executionStage === ModuleExecStage.SPAWN) {
             particles.ensureParameter(P_BASE_SPRITE_SIZE);
         }
 
         particles.ensureParameter(P_SPRITE_SIZE);
         if (this.separateAxes) {
-            this.size.tick(particles, emitter, user, context);
+            this.size.tick(dataStore);
         } else {
-            this.uniformSize.tick(particles, emitter, user, context);
+            this.uniformSize.tick(dataStore);
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.getVec2ArrayParameter(P_BASE_SPRITE_SIZE) : particles.getVec2ArrayParameter(P_SPRITE_SIZE);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         if (this.separateAxes) {
             const sizeExp = this._size as Vec2Expression;
-            sizeExp.bind(particles, emitter, user, context);
+            sizeExp.bind(dataStore);
             if (sizeExp.isConstant) {
                 const srcScale = sizeExp.evaluate(0, tempSize);
                 scale.fill(srcScale, fromIndex, toIndex);
@@ -101,7 +101,7 @@ export class SetSpriteSizeModule extends VFXModule {
             }
         } else {
             const uniformSizeExp = this._uniformSize as FloatExpression;
-            uniformSizeExp.bind(particles, emitter, user, context);
+            uniformSizeExp.bind(dataStore);
             if (uniformSizeExp.isConstant) {
                 const srcScale = uniformSizeExp.evaluate(0);
                 Vec2.set(tempSize, srcScale, srcScale);

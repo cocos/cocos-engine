@@ -49,9 +49,9 @@ export class InheritVelocityModule extends VFXModule {
     @serializable
     private _scale: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         if (!emitter.getBoolParameter(E_IS_WORLD_SPACE).data) { return; }
-        this.scale.tick(particles, emitter, user, context);
+        this.scale.tick(dataStore);
         particles.ensureParameter(P_POSITION);
         particles.ensureParameter(P_VELOCITY);
         if (context.executionStage === ModuleExecStage.SPAWN) {
@@ -59,14 +59,14 @@ export class InheritVelocityModule extends VFXModule {
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const initialVelocity = emitter.getVec3Parameter(E_VELOCITY).data;
         if (!emitter.getBoolParameter(E_IS_WORLD_SPACE).data) { return; }
         const velocity = particles.getVec3ArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_VELOCITY : P_VELOCITY);
         const scaleExp = this._scale as Vec3Expression;
-        scaleExp.bind(particles, emitter, user, context);
+        scaleExp.bind(dataStore);
         if (scaleExp.isConstant) {
             Vec3.multiply(tempVelocity, initialVelocity, scaleExp.evaluate(0, scale));
             for (let i = fromIndex; i < toIndex; i++) {

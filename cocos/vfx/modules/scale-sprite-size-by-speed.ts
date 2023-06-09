@@ -136,20 +136,20 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
     @serializable
     private _maxScalar: Vec2Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_SCALE);
         if (this.separateAxes) {
-            this.maxScalar.tick(particles, emitter, user, context);
-            this.minScalar.tick(particles, emitter, user, context);
+            this.maxScalar.tick(dataStore);
+            this.minScalar.tick(dataStore);
         } else {
-            this.uniformMaxScalar.tick(particles, emitter, user, context);
-            this.uniformMinScalar.tick(particles, emitter, user, context);
+            this.uniformMaxScalar.tick(dataStore);
+            this.uniformMinScalar.tick(dataStore);
         }
-        this.minSpeedThreshold.tick(particles, emitter, user, context);
-        this.maxSpeedThreshold.tick(particles, emitter, user, context);
+        this.minSpeedThreshold.tick(dataStore);
+        this.maxSpeedThreshold.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const hasVelocity = particles.hasParameter(P_VELOCITY);
         if (!hasVelocity) { return; }
         const spriteSize = particles.getVec2ArrayParameter(P_SPRITE_SIZE);
@@ -158,13 +158,13 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const minSpeedThresholdExp = this._minSpeedThreshold as FloatExpression;
         const maxSpeedThresholdExp = this._maxSpeedThreshold as FloatExpression;
-        minSpeedThresholdExp.bind(particles, emitter, user, context);
-        maxSpeedThresholdExp.bind(particles, emitter, user, context);
+        minSpeedThresholdExp.bind(dataStore);
+        maxSpeedThresholdExp.bind(dataStore);
         if (!this.separateAxes) {
             const uniformMinScalarExp = this._uniformMinScalar as FloatExpression;
             const uniformMaxScalarExp = this._uniformMaxScalar as FloatExpression;
-            uniformMinScalarExp.bind(particles, emitter, user, context);
-            uniformMaxScalarExp.bind(particles, emitter, user, context);
+            uniformMinScalarExp.bind(dataStore);
+            uniformMaxScalarExp.bind(dataStore);
             if (minSpeedThresholdExp.isConstant && maxSpeedThresholdExp.isConstant) {
                 const min = minSpeedThresholdExp.evaluate(0);
                 const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(0));
@@ -187,8 +187,8 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
         } else {
             const minScalarExp = this._minScalar as Vec2Expression;
             const maxScalarExp = this._maxScalar as Vec2Expression;
-            minScalarExp.bind(particles, emitter, user, context);
-            maxScalarExp.bind(particles, emitter, user, context);
+            minScalarExp.bind(dataStore);
+            maxScalarExp.bind(dataStore);
             if (minSpeedThresholdExp.isConstant && maxSpeedThresholdExp.isConstant) {
                 const min = minSpeedThresholdExp.evaluate(0);
                 const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(0));

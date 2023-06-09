@@ -40,6 +40,7 @@ import { ParticleRenderer } from './particle-renderer';
 import { VFXEventInfo } from './vfx-events';
 import { RandomStream } from './random-stream';
 import { BoolArrayParameter, BoolParameter, ColorArrayParameter, FloatArrayParameter, FloatParameter, Mat3Parameter, Mat4Parameter, Uint32ArrayParameter, Uint32Parameter, Vec2ArrayParameter, Vec3ArrayParameter, Vec3Parameter } from './parameters';
+import { VFXDataStore } from './vfx-data-store';
 
 const startPositionOffset = new Vec3();
 const tempPosition = new Vec3();
@@ -349,10 +350,6 @@ export class VFXEmitter extends Component {
         this._finishAction = val;
     }
 
-    public get particles () {
-        return this._particles;
-    }
-
     public get isPlaying () {
         return this._state.playingState === PlayingState.PLAYING;
     }
@@ -464,10 +461,7 @@ export class VFXEmitter extends Component {
     @serializable
     private _scalingMode = ScalingMode.LOCAL;
     private _state = new VFXEmitterState();
-    private _particles = new ParticleDataSet();
-    private _emitter = new EmitterDataSet();
-    private _user = new UserDataSet();
-    private _context = new ContextDataSet();
+    private _dataStore = new VFXDataStore();
 
     /**
      * @en play particle system
@@ -482,7 +476,7 @@ export class VFXEmitter extends Component {
         }
         if (this._state.playingState === PlayingState.STOPPED) {
             this._state.randomStream.seed = this.determinism ? this.randomSeed : randomRangeInt(0, INT_MAX);
-            this._emitter.getFloatParameter(E_CURRENT_DELAY).data = Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.randomStream.getFloat()), 0);
+            this._dataStore.emitter.getFloatParameter(E_CURRENT_DELAY).data = Math.max(lerp(this.delayRange.x, this.delayRange.y, this._state.randomStream.getFloat()), 0);
             this._emitterStage.onPlay(this._state);
             this._spawnStage.onPlay(this._state);
             this._updateStage.onPlay(this._state);
@@ -523,7 +517,7 @@ export class VFXEmitter extends Component {
         this._state.isEmitting = false;
         if (clear) {
             this._state.playingState = PlayingState.STOPPED;
-            this._particles.reset();
+            this._dataStore.particles.reset();
             vfxManager.removeEmitter(this);
         }
     }
@@ -654,7 +648,7 @@ export class VFXEmitter extends Component {
         this.updateBounds();
     }
 
-    private updateEmitterState (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    private updateEmitterState (dataStore: VFXDataStore) {
         emitter.clearSpawnInfo();
         this.updateEmitterTime(particles, emitter, user, context);
         this.updateEmitterTransform(particles, emitter, user, context);
@@ -665,7 +659,7 @@ export class VFXEmitter extends Component {
      * @internal
      * @engineInternal
      */
-    public updateEmitterTime (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public updateEmitterTime (dataStore: VFXDataStore) {
         const params = this._lifeCycleParams;
         const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
         if (DEBUG) {
@@ -714,7 +708,7 @@ export class VFXEmitter extends Component {
         emitter.getFloatParameter(E_NORMALIZED_LOOP_AGE).data = currentTime * invDuration;
     }
 
-    private updateEmitterTransform (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    private updateEmitterTransform (dataStore: VFXDataStore) {
         emitter.getBoolParameter(E_IS_WORLD_SPACE).data = !this._localSpace;
         const transform = this.node;
         Vec3.copy(this._state.prevWorldPosition, this._state.worldPosition);
@@ -753,13 +747,13 @@ export class VFXEmitter extends Component {
         }
     }
 
-    private preTick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this._emitterStage.tick(particles, emitter, user, context);
-        this._spawnStage.tick(particles, emitter, user, context);
-        this._updateStage.tick(particles, emitter, user, context);
+    private preTick (dataStore: VFXDataStore) {
+        this._emitterStage.tick(dataStore);
+        this._spawnStage.tick(dataStore);
+        this._updateStage.tick(dataStore);
         if (this._eventHandlerCount > 0) {
             for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
-                this._eventHandlers[i].tick(particles, emitter, user, context);
+                this._eventHandlers[i].tick(dataStore);
             }
             particles.ensureParameter(P_POSITION);
         }
@@ -790,7 +784,7 @@ export class VFXEmitter extends Component {
      * @internal
      * @engineInternal
      */
-    public processEvents (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public processEvents (dataStore: VFXDataStore) {
         const isWorldSpace = emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
         const worldToLocal = emitter.getMat4Parameter(E_WORLD_TO_LOCAL).data;
         for (let i = 0, length = this._eventHandlerCount; i < length; i++) {

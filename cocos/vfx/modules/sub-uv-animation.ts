@@ -113,7 +113,7 @@ export class SubUVAnimationModule extends VFXModule {
     @serializable
     private _endFrameRangeOverride: Int32Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
             particles.ensureParameter(P_SUB_UV_INDEX1);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX2) {
@@ -123,16 +123,16 @@ export class SubUVAnimationModule extends VFXModule {
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX4) {
             particles.ensureParameter(P_SUB_UV_INDEX4);
         }
-        this.subImageSize.tick(particles, emitter, user, context);
+        this.subImageSize.tick(dataStore);
         if (this.useStartFrameRangeOverride) {
-            this.startFrameRangeOverride.tick(particles, emitter, user, context);
+            this.startFrameRangeOverride.tick(dataStore);
         }
         if (this.useEndFrameRangeOverride) {
-            this.endFrameRangeOverride.tick(particles, emitter, user, context);
+            this.endFrameRangeOverride.tick(dataStore);
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         let subUVIndex: FloatArrayParameter;
         if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
             subUVIndex = particles.getFloatArrayParameter(P_SUB_UV_INDEX1);

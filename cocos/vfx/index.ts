@@ -29,6 +29,7 @@ import './vfx-manager';
 import { VFXRenderer } from './vfx-renderer';
 import { VFXExpression } from './vfx-expression';
 import './vfx-dynamic-buffer';
+import './vfx-data-store'
 
 export {
     VFXEmitter,

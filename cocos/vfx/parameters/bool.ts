@@ -1,6 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../../core';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 
 export class BoolArrayParameter extends ArrayParameter {
     get data () {
@@ -8,7 +8,7 @@ export class BoolArrayParameter extends ArrayParameter {
     }
 
     get type () {
-        return VFXParameterType.BOOL;
+        return VFXValueType.BOOL;
     }
 
     get stride (): number {
@@ -100,8 +100,8 @@ export class BoolArrayParameter extends ArrayParameter {
 }
 
 export class BoolParameter extends VFXParameter {
-    get type (): VFXParameterType {
-        return VFXParameterType.BOOL;
+    get type (): VFXValueType {
+        return VFXValueType.BOOL;
     }
 
     get data (): boolean {

@@ -24,10 +24,10 @@
  */
 
 import { VFXDataSet } from '../vfx-data-set';
-import { VFXParameterNameSpace } from '../vfx-parameter';
+import { VFXParameterNamespace } from '../vfx-parameter';
 
 export class UserDataSet extends VFXDataSet {
     constructor () {
-        super(VFXParameterNameSpace.USER);
+        super(VFXParameterNamespace.USER);
     }
 }

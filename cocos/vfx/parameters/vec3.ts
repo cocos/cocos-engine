@@ -1,6 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { Vec3, assertIsTrue } from '../../core';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXParameterType } from '../vfx-parameter';
+import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 
 const tempVec3 = new Vec3();
 export class Vec3ArrayParameter extends ArrayParameter {
@@ -9,7 +9,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
     }
 
     get type () {
-        return VFXParameterType.VEC3;
+        return VFXValueType.VEC3;
     }
 
     get stride () {
@@ -174,8 +174,8 @@ export class Vec3ArrayParameter extends ArrayParameter {
 }
 
 export class Vec3Parameter extends VFXParameter {
-    get type (): VFXParameterType {
-        return VFXParameterType.VEC3;
+    get type (): VFXValueType {
+        return VFXValueType.VEC3;
     }
 
     get data (): Readonly<Vec3> {

@@ -65,8 +65,8 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
         return vec3.z;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.vec3.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        this.vec3.tick(dataStore);
         switch (this.channel) {
         case Vec3Channel.X: this._getChannel = this._getX; break;
         case Vec3Channel.Y: this._getChannel = this._getY; break;
@@ -75,8 +75,8 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
         }
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.vec3.bind(particles, emitter, user, context);
+    public bind (dataStore: VFXDataStore) {
+        this.vec3.bind(dataStore);
     }
 
     public evaluate (index: number): number {

@@ -39,12 +39,12 @@ export class Vec3FromFloatExpression extends Vec3Expression {
         return this.value.isConstant;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.value.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        this.value.tick(dataStore);
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.value.bind(particles, emitter, user, context);
+    public bind (dataStore: VFXDataStore) {
+        this.value.bind(dataStore);
     }
 
     public evaluate (index: number, out: Vec3) {

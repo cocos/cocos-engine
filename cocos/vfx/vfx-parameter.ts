@@ -22,6 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { DEBUG } from 'internal:constants';
+import { assertIsTrue } from '../core';
 import { ccclass, serializable, visible } from '../core/data/decorators';
 
 const DEFAULT_CAPACITY = 16;
@@ -29,7 +31,7 @@ export const BATCH_OPERATION_THRESHOLD_VEC3 = 330;
 export const BATCH_OPERATION_THRESHOLD = 1000;
 export type Handle = number;
 
-export enum VFXParameterType {
+export enum VFXValueType {
     FLOAT,
     BOOL,
     VEC2,
@@ -42,17 +44,18 @@ export enum VFXParameterType {
     UINT8,
     MAT3,
     MAT4,
+    EVENT
 }
 
-export enum VFXParameterNameSpace {
+export enum VFXParameterNamespace {
     EMITTER,
     PARTICLE,
     USER,
     CONTEXT
 }
 
-@ccclass('cc.VFXParameterIdentity')
-export class VFXParameterIdentity {
+@ccclass('cc.VFXParameterDecl')
+export class VFXParameterDecl {
     public get id () {
         return this._id;
     }
@@ -83,13 +86,13 @@ export class VFXParameterIdentity {
     @serializable
     private _name = '';
     @serializable
-    private _type: VFXParameterType = VFXParameterType.FLOAT;
+    private _type: VFXValueType = VFXValueType.FLOAT;
     @serializable
-    private _namespace: VFXParameterNameSpace = VFXParameterNameSpace.USER;
+    private _namespace: VFXParameterNamespace = VFXParameterNamespace.USER;
     @serializable
     private _isArray = false;
 
-    constructor (id: number, name: string, type: VFXParameterType, namespace: VFXParameterNameSpace, isArray: boolean) {
+    constructor (id: number, name: string, type: VFXValueType, namespace: VFXParameterNamespace, isArray: boolean) {
         this._id = id;
         this._name = name;
         this._type = type;
@@ -98,12 +101,35 @@ export class VFXParameterIdentity {
     }
 }
 
+export class VFXParameterRegistry {
+    private _id2Identity: Record<number, VFXParameterDecl> = {};
+
+    register (identity: VFXParameterDecl) {
+        if (DEBUG) {
+            assertIsTrue(!(identity.id in this._id2Identity), `VFXParameter with id ${identity.id} already exists.`);
+        }
+        this._id2Identity[identity.id] = identity;
+    }
+
+    unregister (identity: VFXParameterDecl) {
+        if (DEBUG) {
+            assertIsTrue(identity.id in this._id2Identity, `VFXParameter with id ${identity.id} does not exist.`);
+        }
+        delete this._id2Identity[identity.id];
+    }
+
+    getDeclarationById (id: number) {
+        if (id < )
+        return this._id2Identity[id];
+    }
+}
+
 export abstract class VFXParameter {
     get isArray () {
         return false;
     }
 
-    abstract get type (): VFXParameterType;
+    abstract get type (): VFXValueType;
 }
 
 export abstract class ArrayParameter extends VFXParameter {

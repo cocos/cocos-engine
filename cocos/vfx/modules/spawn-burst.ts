@@ -69,18 +69,18 @@ export class SpawnBurstModule extends VFXModule {
     @serializable
     private _count: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet): void {
-        this.count.tick(particles, emitter, user, context);
-        this.time.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore): void {
+        this.count.tick(dataStore);
+        this.time.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const loopAge = emitter.getFloatParameter(E_LOOPED_AGE).data;
         const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
         const countExp = this._count as FloatExpression;
         const timeExp = this._time as FloatExpression;
-        countExp.bind(particles, emitter, user, context);
-        timeExp.bind(particles, emitter, user, context);
+        countExp.bind(dataStore);
+        timeExp.bind(dataStore);
         const spawnCount = countExp.evaluateSingle();
         const spawnTime = timeExp.evaluateSingle();
 

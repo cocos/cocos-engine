@@ -23,16 +23,22 @@
  THE SOFTWARE.
  */
 
-import { ccclass } from 'cc.decorator';
-import { VFXExpression } from '../vfx-expression';
-import { VFXValueType } from '../vfx-parameter';
+import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from "./data-set";
+import { VFXParameterDecl, VFXParameterRegistry } from "./vfx-parameter";
 
-@ccclass('cc.Int32Expression')
-export abstract class Int32Expression extends VFXExpression {
-    public get valueType () {
-        return VFXValueType.INT32;
+export class VFXDataStore {
+    public readonly particles = new ParticleDataSet();
+    public readonly emitter = new EmitterDataSet();
+    public readonly user = new UserDataSet();
+    public readonly context = new ContextDataSet();
+    public readonly registry = new VFXParameterRegistry();
+
+    
+    public ensureParameter (declaration: VFXParameterDecl) {
+        switch (declaration.namespace) {
+            
+        if (!this.hasParameter(identity)) {
+            this.addParameter(identity);
+        }
     }
-
-    public abstract evaluateSingle (): number;
-    public abstract evaluate (index: number): number;
 }

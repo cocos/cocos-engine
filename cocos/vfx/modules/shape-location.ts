@@ -114,23 +114,23 @@ export abstract class ShapeLocationModule extends VFXModule {
     private _mat = new Mat4();
     protected storePosition = this.storePositionFast;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.position.tick(particles, emitter, user, context);
-        this.rotation.tick(particles, emitter, user, context);
-        this.scale.tick(particles, emitter, user, context);
-        this.origin.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        this.position.tick(dataStore);
+        this.rotation.tick(dataStore);
+        this.scale.tick(dataStore);
+        this.origin.tick(dataStore);
         particles.ensureParameter(P_POSITION);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const positionExp = this._position as Vec3Expression;
         const rotationExp = this._rotation as Vec3Expression;
         const scaleExp = this._scale as Vec3Expression;
         const originExp = this._origin as Vec3Expression;
-        positionExp.bind(particles, emitter, user, context);
-        rotationExp.bind(particles, emitter, user, context);
-        scaleExp.bind(particles, emitter, user, context);
-        originExp.bind(particles, emitter, user, context);
+        positionExp.bind(dataStore);
+        rotationExp.bind(dataStore);
+        scaleExp.bind(dataStore);
+        originExp.bind(dataStore);
         if (positionExp.isConstant && rotationExp.isConstant && scaleExp.isConstant) {
             rotationExp.evaluate(0, tempVec1);
             Mat4.fromSRT(this._mat, Quat.fromEuler(tempQuat, tempVec1.x, tempVec1.y, tempVec1.z), positionExp.evaluate(0, tempVec2), scaleExp.evaluate(0, tempVec3));

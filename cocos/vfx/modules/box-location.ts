@@ -87,24 +87,24 @@ export class BoxLocationModule extends ShapeLocationModule {
     @serializable
     private _boxCenter: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        super.tick(particles, emitter, user, context);
-        this.boxSize.tick(particles, emitter, user, context);
-        this.boxCenter.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        super.tick(dataStore);
+        this.boxSize.tick(dataStore);
+        this.boxCenter.tick(dataStore);
         if (this.surfaceOnly) {
-            this.surfaceThickness.tick(particles, emitter, user, context);
+            this.surfaceThickness.tick(dataStore);
         }
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         super.execute(particles, emitter, user, context);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const position = particles.getVec3ArrayParameter(P_POSITION);
         const boxSizeExp = this._boxSize as Vec3Expression;
         const boxCenterExp = this._boxCenter as Vec3Expression;
-        boxSizeExp.bind(particles, emitter, user, context);
-        boxCenterExp.bind(particles, emitter, user, context);
+        boxSizeExp.bind(dataStore);
+        boxCenterExp.bind(dataStore);
 
         const rand = this.randomStream;
         if (!this.surfaceOnly) {
@@ -117,7 +117,7 @@ export class BoxLocationModule extends ShapeLocationModule {
             }
         } else {
             const surfaceThicknessExp = this._surfaceThickness as FloatExpression;
-            surfaceThicknessExp.bind(particles, emitter, user, context);
+            surfaceThicknessExp.bind(dataStore);
             for (let i = fromIndex; i < toIndex; ++i) {
                 const x = rand.getFloat();
                 const y = rand.getFloat();

@@ -46,12 +46,12 @@ export class ColorFromCurveExpression extends ColorExpression {
         return this.curveIndex.isConstant;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.curveIndex.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        this.curveIndex.tick(dataStore);
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.curveIndex.bind(particles, emitter, user, context);
+    public bind (dataStore: VFXDataStore) {
+        this.curveIndex.bind(dataStore);
     }
 
     public evaluateSingle (out: Color) {

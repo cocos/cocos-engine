@@ -52,17 +52,17 @@ export class RandomRangeVec2Expression extends Vec2Expression {
     private _randomOffset = 0;
     private declare _randomStream: RandomStream;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.maximum.tick(particles, emitter, user, context);
-        this.minimum.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        this.maximum.tick(dataStore);
+        this.minimum.tick(dataStore);
         if (context.executionStage === ModuleExecStage.UPDATE) {
             particles.ensureParameter(P_RANDOM_SEED);
         }
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.maximum.bind(particles, emitter, user, context);
-        this.minimum.bind(particles, emitter, user, context);
+    public bind (dataStore: VFXDataStore) {
+        this.maximum.bind(dataStore);
+        this.minimum.bind(dataStore);
         if (context.executionStage === ModuleExecStage.UPDATE) {
             this._seed = particles.getUint32ArrayParameter(P_RANDOM_SEED).data;
             this._randomOffset = context.moduleRandomSeed;

@@ -72,14 +72,14 @@ export class Vec3FromCurveExpression extends Vec3Expression {
         }
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.curveIndex.tick(particles, emitter, user, context);
-        this.scale.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        this.curveIndex.tick(dataStore);
+        this.scale.tick(dataStore);
     }
 
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.curveIndex.bind(particles, emitter, user, context);
-        this.scale.bind(particles, emitter, user, context);
+    public bind (dataStore: VFXDataStore) {
+        this.curveIndex.bind(dataStore);
+        this.scale.bind(dataStore);
     }
 
     public evaluate (index: number, out: Vec3) {

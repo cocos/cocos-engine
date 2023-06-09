@@ -47,17 +47,17 @@ export class SetSpriteRotationModule extends VFXModule {
     @serializable
     private _rotation: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_SPRITE_ROTATION);
-        this.rotation.tick(particles, emitter, user, context);
+        this.rotation.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const spriteRotation = particles.getFloatArrayParameter(P_SPRITE_ROTATION);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const rotationExp = this._rotation as FloatExpression;
-        rotationExp.bind(particles, emitter, user, context);
+        rotationExp.bind(dataStore);
 
         if (rotationExp.isConstant) {
             const rotation = rotationExp.evaluate(0);

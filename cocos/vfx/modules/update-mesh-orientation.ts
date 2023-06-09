@@ -54,19 +54,19 @@ export class UpdateMeshOrientationModule extends VFXModule {
     @serializable
     private _rotationRate: Vec3Expression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_MESH_ORIENTATION);
-        this.rotationRate.tick(particles, emitter, user, context);
+        this.rotationRate.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const meshOrientation = particles.getVec3ArrayParameter(P_MESH_ORIENTATION);
         const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
 
         const rotationRateExp = this._rotationRate as Vec3Expression;
-        rotationRateExp.bind(particles, emitter, user, context);
+        rotationRateExp.bind(dataStore);
 
         if (rotationRateExp.isConstant) {
             rotationRateExp.evaluate(0, eulerAngle);

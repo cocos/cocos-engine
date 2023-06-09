@@ -40,13 +40,13 @@ export class DeathEventGeneratorModule extends VFXModule {
     @serializable
     public probability = 1;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_RANDOM_SEED);
         particles.ensureParameter(P_ID);
         particles.ensureParameter(P_IS_DEAD);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const randomSeed = particles.getUint32ArrayParameter(P_RANDOM_SEED).data;
         const id = particles.getUint32ArrayParameter(P_ID).data;
         const isDead = particles.getBoolArrayParameter(P_IS_DEAD).data;

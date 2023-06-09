@@ -9,7 +9,7 @@ describe('FloatFromCurveExpression', () => {
         const params = new VFXEmitterParams();
         const context = new ContextDataSet();
         const expression = new FloatFromCurveExpression();
-        expression.tick(particles, emitter, user, context);
+        expression.tick(dataStore);
 
     });
 });

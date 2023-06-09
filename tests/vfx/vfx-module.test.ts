@@ -11,26 +11,26 @@ describe('VFXModule', () => {
         expect(VFXModule.getModuleIdentitiesWithSpecificStage(ModuleExecStage.UPDATE, []).length).toBe(0);
         @VFXModule.register('Test1', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.EMITTER)
         class TestModule extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
         @VFXModule.register('Test2', ModuleExecStageFlags.SPAWN, ['customData', 'customData2'], ['customData3'])
         class TestModule2 extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
         class TestModule3 extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
         class TestModule4 extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
@@ -117,35 +117,35 @@ describe('VFXModule', () => {
     test('Find a proper position to insert', () => {
         @VFXModule.register('Test1', ModuleExecStageFlags.UPDATE, ['A', 'B'], ['C'])
         class TestModule extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
         @VFXModule.register('Test2', ModuleExecStageFlags.UPDATE, ['C', 'D'], ['E'])
         class TestModule2 extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
         @VFXModule.register('Test3', ModuleExecStageFlags.UPDATE, ['D'], ['B'])
         class TestModule3 extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
         @VFXModule.register('Test4', ModuleExecStageFlags.UPDATE, [], ['D'])
         class TestModule4 extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
         @VFXModule.register('Test5', ModuleExecStageFlags.UPDATE, ['D'], ['D'])
         class TestModule5 extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
@@ -235,7 +235,7 @@ describe('VFXModule', () => {
 
     test('randomSeed and randomStream', () => {
         class TestModule extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
@@ -273,25 +273,25 @@ describe('VFXModuleStage', () => {
         VFXModule.clearRegisteredModules();
         @VFXModule.register('Test1', ModuleExecStageFlags.UPDATE, [], ['A'])
         class TestModule extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
 
         @VFXModule.register('Test2', ModuleExecStageFlags.EMITTER)
         class TestModule2 extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
         class TestModule3 extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
         @VFXModule.register('Test4', ModuleExecStageFlags.UPDATE, ['A'], ['B'])
         class TestModule4 extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
@@ -379,7 +379,7 @@ describe('VFXModuleStage', () => {
         VFXModule.clearRegisteredModules();
         @VFXModule.register('Test1', ModuleExecStageFlags.UPDATE, [], ['A'])
         class TestModule extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
@@ -435,7 +435,7 @@ describe('VFXModuleStage', () => {
         VFXModule.clearRegisteredModules();
         @VFXModule.register('Test1', ModuleExecStageFlags.UPDATE, [], ['A'])
         class TestModule extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
@@ -489,7 +489,7 @@ describe('VFXModuleStage', () => {
         expect(module4.onStop).toBeCalledTimes(1);
         expect(executeOrder).toEqual([1, 2, 3, 4]);
         executeOrder.length = 0;
-        stage.tick(particles, emitter, user, context);
+        stage.tick(dataStore);
         expect(module1.tick).toBeCalledTimes(0);
         expect(module2.tick).toBeCalledTimes(0);
         expect(module3.tick).toBeCalledTimes(0);
@@ -503,7 +503,7 @@ describe('VFXModuleStage', () => {
         expect(executeOrder.length).toBe(0);
         module1.enabled = true;
         module2.enabled = true;
-        stage.tick(particles, emitter, user, context);
+        stage.tick(dataStore);
         expect(module1.tick).toBeCalledTimes(1);
         expect(module2.tick).toBeCalledTimes(1);
         expect(module3.tick).toBeCalledTimes(0);
@@ -519,7 +519,7 @@ describe('VFXModuleStage', () => {
         executeOrder.length = 0;
         module3.enabled = true;
         module4.enabled = true;
-        stage.tick(particles, emitter, user, context);
+        stage.tick(dataStore);
         expect(module1.tick).toBeCalledTimes(2);
         expect(module2.tick).toBeCalledTimes(2);
         expect(module3.tick).toBeCalledTimes(1);
@@ -535,7 +535,7 @@ describe('VFXModuleStage', () => {
         executeOrder.length = 0;
         module1.enabled = false;
         module3.enabled = false;
-        stage.tick(particles, emitter, user, context);
+        stage.tick(dataStore);
         expect(module1.tick).toBeCalledTimes(2);
         expect(module2.tick).toBeCalledTimes(3);
         expect(module3.tick).toBeCalledTimes(1);
@@ -551,7 +551,7 @@ describe('VFXModuleStage', () => {
         executeOrder.length = 0;
         module1.enabled = true;
         module2.enabled = false;
-        stage.tick(particles, emitter, user, context);
+        stage.tick(dataStore);
         expect(module1.tick).toBeCalledTimes(3);
         expect(module2.tick).toBeCalledTimes(3);
         expect(module3.tick).toBeCalledTimes(1);
@@ -585,7 +585,7 @@ describe('VFXModuleStage', () => {
         expect(module4.onStop).toBeCalledTimes(2);
         expect(executeOrder).toEqual([1, 3, 4, 2]);
         executeOrder.length = 0;
-        stage.tick(particles, emitter, user, context);
+        stage.tick(dataStore);
         expect(module1.tick).toBeCalledTimes(4);
         expect(module2.tick).toBeCalledTimes(4);
         expect(module3.tick).toBeCalledTimes(2);
@@ -604,7 +604,7 @@ describe('VFXModuleStage', () => {
         VFXModule.clearRegisteredModules();
         @VFXModule.register('Test1', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [], ['A'])
         class TestModule extends VFXModule {
-            public execute(particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+            public execute(dataStore: VFXDataStore) {
                 throw new Error("Method not implemented.");
             }
         }
@@ -616,11 +616,11 @@ describe('VFXModuleStage', () => {
         const module2 = spawnStage.addModule(TestModule);
         module1.enabled = module2.enabled = true;
 
-        module1.tick = module1.execute = jest.fn((particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) => { 
+        module1.tick = module1.execute = jest.fn((dataStore: VFXDataStore) => { 
             expect(context.executionStage).toBe(ModuleExecStage.UPDATE);
         });
 
-        module2.tick = module2.execute = jest.fn((particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) => {
+        module2.tick = module2.execute = jest.fn((dataStore: VFXDataStore) => {
             expect(context.executionStage).toBe(ModuleExecStage.SPAWN);
         });
 
@@ -629,12 +629,12 @@ describe('VFXModuleStage', () => {
         const user = new UserDataSet();
         const context = new ContextDataSet();
 
-        updateStage.tick(particles, emitter, user, context);
+        updateStage.tick(dataStore);
         expect(module1.tick).toBeCalledTimes(1);
         updateStage.execute(particles, emitter, user, context);
         expect(module1.execute).toBeCalledTimes(2);
 
-        spawnStage.tick(particles, emitter, user, context);
+        spawnStage.tick(dataStore);
         expect(module2.tick).toBeCalledTimes(1);
         spawnStage.execute(particles, emitter, user, context);
         expect(module2.execute).toBeCalledTimes(2);

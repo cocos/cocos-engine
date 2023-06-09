@@ -47,8 +47,8 @@ export class ConstantVec2Expression extends Vec2Expression {
         this.y = val.y;
     }
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
-    public bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {}
+    public tick (dataStore: VFXDataStore) {}
+    public bind (dataStore: VFXDataStore) {}
 
     public evaluate (index: number, out: Vec2) {
         out.x = this.x;

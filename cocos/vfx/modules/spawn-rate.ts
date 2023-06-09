@@ -51,16 +51,16 @@ export class SpawnRateModule extends VFXModule {
     @serializable
     private _rate: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.rate.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        this.rate.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet)  {
+    public execute (dataStore: VFXDataStore)  {
         const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
         const spawnRemainder = emitter.getFloatParameter(E_SPAWN_REMAINDER);
         const loopedAge = emitter.getFloatParameter(E_LOOPED_AGE).data;
         const rateExp = this._rate as FloatExpression;
-        rateExp.bind(particles, emitter, user, context);
+        rateExp.bind(dataStore);
         const spawnRate = rateExp.evaluateSingle();
         const intervalDt = 1 / spawnRate;
         const interpStartDt = (1 - spawnRemainder.data) * intervalDt;

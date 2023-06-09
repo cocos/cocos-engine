@@ -1,6 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue, Mat4 } from '../../core';
-import { ArrayParameter, VFXParameter, VFXParameterType } from '../vfx-parameter';
+import { ArrayParameter, VFXParameter, VFXValueType } from '../vfx-parameter';
 
 const tempMat4 = new Mat4();
 export class Mat4ArrayParameter extends ArrayParameter {
@@ -12,8 +12,8 @@ export class Mat4ArrayParameter extends ArrayParameter {
         return 16;
     }
 
-    get type (): VFXParameterType {
-        return VFXParameterType.MAT4;
+    get type (): VFXValueType {
+        return VFXValueType.MAT4;
     }
 
     private _data = new Float32Array(16 * this._capacity);
@@ -91,8 +91,8 @@ export class Mat4ArrayParameter extends ArrayParameter {
 }
 
 export class Mat4Parameter extends VFXParameter {
-    get type (): VFXParameterType {
-        return VFXParameterType.MAT4;
+    get type (): VFXValueType {
+        return VFXValueType.MAT4;
     }
 
     get data (): Readonly<Mat4> {

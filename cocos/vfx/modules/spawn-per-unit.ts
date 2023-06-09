@@ -50,17 +50,17 @@ export class SpawnPerUnitModule extends VFXModule {
     @serializable
     private _spawnSpacing: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
-        this.spawnSpacing.tick(particles, emitter, user, context);
+    public tick (dataStore: VFXDataStore) {
+        this.spawnSpacing.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const velocity = emitter.getVec3Parameter(E_VELOCITY).data;
         const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
         const loopedAge = emitter.getFloatParameter(E_LOOPED_AGE).data;
         const spawnRemainderPerUnit = emitter.getFloatParameter(E_SPAWN_REMAINDER_PER_UNIT);
         const spawnSpacingExp = this._spawnSpacing as FloatExpression;
-        spawnSpacingExp.bind(particles, emitter, user, context);
+        spawnSpacingExp.bind(dataStore);
         let spawnSpacing = spawnSpacingExp.evaluateSingle();
         spawnSpacing = spawnSpacing <= 0 ? 0 : (1 / Math.max(spawnSpacing, 1e-6));
         spawnSpacing *= velocity.length();

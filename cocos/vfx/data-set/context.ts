@@ -28,7 +28,7 @@ import { RandomStream } from '../random-stream';
 import { VFXEvents } from '../vfx-events';
 import { C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXDataSet } from '../vfx-data-set';
-import { VFXParameterNameSpace } from '../vfx-parameter';
+import { VFXParameterNamespace } from '../vfx-parameter';
 
 export class ContextDataSet extends VFXDataSet {
     public get events (): VFXEvents {
@@ -56,7 +56,7 @@ export class ContextDataSet extends VFXDataSet {
     private _events: VFXEvents | null = null;
 
     constructor () {
-        super(VFXParameterNameSpace.CONTEXT);
+        super(VFXParameterNamespace.CONTEXT);
         this.addParameter(C_DELTA_TIME);
         this.addParameter(C_FROM_INDEX);
         this.addParameter(C_TO_INDEX);

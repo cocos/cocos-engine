@@ -1,10 +1,10 @@
-import { VFXParameterType } from "../../../cocos/vfx/define";
+import { VFXValueType } from "../../../cocos/vfx/define";
 import { ColorArrayParameter } from "../../../cocos/vfx/parameters/color";
 
 describe('ColorArrayParameter', () => {
     const colorParameter = new ColorArrayParameter();
     test('basic', () => {
-        expect(colorParameter.type).toBe(VFXParameterType.COLOR);
+        expect(colorParameter.type).toBe(VFXValueType.COLOR);
         expect(colorParameter.stride).toBe(1);
     });
     

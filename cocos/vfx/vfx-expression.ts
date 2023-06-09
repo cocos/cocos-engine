@@ -24,12 +24,12 @@
  */
 import { ccclass } from 'cc.decorator';
 import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from './data-set';
-import { VFXParameterType } from './vfx-parameter';
+import { VFXValueType } from './vfx-parameter';
 
 @ccclass('cc.VFXExpression')
 export abstract class VFXExpression {
-    public abstract get valueType (): VFXParameterType;
+    public abstract get valueType (): VFXValueType;
     public abstract get isConstant (): boolean;
-    public abstract tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet): void;
-    public abstract bind (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet): void;
+    public abstract tick (dataStore: VFXDataStore): void;
+    public abstract bind (dataStore: VFXDataStore): void;
 }

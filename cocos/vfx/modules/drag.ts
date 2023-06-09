@@ -50,21 +50,21 @@ export class DragModule extends VFXModule {
     @serializable
     private _drag: FloatExpression | null = null;
 
-    public tick (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public tick (dataStore: VFXDataStore) {
         particles.ensureParameter(P_POSITION);
         particles.ensureParameter(P_BASE_VELOCITY);
         particles.ensureParameter(P_VELOCITY);
         particles.ensureParameter(P_PHYSICS_FORCE);
-        this.drag.tick(particles, emitter, user, context);
+        this.drag.tick(dataStore);
     }
 
-    public execute (particles: ParticleDataSet, emitter: EmitterDataSet, user: UserDataSet, context: ContextDataSet) {
+    public execute (dataStore: VFXDataStore) {
         const physicsForce = particles.getVec3ArrayParameter(P_PHYSICS_FORCE);
         const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
         const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
         const velocity = particles.getVec3ArrayParameter(P_VELOCITY);
         const dragExp = this._drag as FloatExpression;
-        dragExp.bind(particles, emitter, user, context);
+        dragExp.bind(dataStore);
 
         for (let i = fromIndex; i < toIndex; i++) {
             const drag = dragExp.evaluate(i);
