@@ -36,7 +36,7 @@ export class TrackEntryListeners {
     end?: ((entry: spine.TrackEntry) => void);
     dispose?: ((entry: spine.TrackEntry) => void);
     complete?: ((entry: spine.TrackEntry) => void);
-    event?: ((entry: spine.TrackEntry, event: Event) => void);
+    event?: ((entry: spine.TrackEntry, event: spine.Event) => void);
 
     static getListeners (entry: spine.TrackEntry) {
         if (!entry.listener) {

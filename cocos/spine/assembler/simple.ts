@@ -133,6 +133,7 @@ function realTimeTraverse (comp: Skeleton) {
 
     comp.drawList.reset();
     const model = comp.updateRenderData();
+    if (!model) return;
 
     const vc = model.vCount;
     const ic = model.iCount;
