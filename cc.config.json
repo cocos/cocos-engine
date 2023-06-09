@@ -654,6 +654,12 @@
             "type": "number",
             "value": "$HTML5 ? 2 : ($NATIVE ? (($OPEN_HARMONY||$IOS)?0:1): ($MINIGAME? ($WECHAT?1:0) :0))",
             "internal": true
+        },
+        "FORCE_BANNING_BULLET_WASM": {
+            "comment": "Whether force banning using bullet wasm and use asmjs instead.\nThis is an internal constant to be compatible with the editor's physical build option.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
         }
     },
 

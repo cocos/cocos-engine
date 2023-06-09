@@ -29,7 +29,7 @@ import {
     Camera, CSMLevel, DirectionalLight, Light, LightType, ProbeType, ReflectionProbe,
     ShadowType, SKYBOX_FLAG, SpotLight, PointLight, RangedDirectionalLight, SphereLight,
 } from '../../render-scene/scene';
-import { supportsR32FloatTexture, supportsRGBA16FloatTexture } from '../define';
+import { supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../define';
 import { BasicPipeline, Pipeline } from './pipeline';
 import {
     AccessType, AttachmentType, ComputeView, CopyPair, LightInfo,
@@ -58,11 +58,11 @@ export enum AntiAliasing {
 
 export function getRTFormatBeforeToneMapping (ppl: BasicPipeline) {
     const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
-    return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16FloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
+    return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16HalfFloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
 }
 function forceEnableFloatOutput (ppl: BasicPipeline) {
     if (ppl.pipelineSceneData.isHDR && !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
-        const supportFloatOutput = supportsRGBA16FloatTexture(ppl.device);
+        const supportFloatOutput = supportsRGBA16HalfFloatTexture(ppl.device);
         ppl.setMacroBool('CC_USE_FLOAT_OUTPUT', supportFloatOutput);
         macro.ENABLE_FLOAT_OUTPUT = supportFloatOutput;
     }
@@ -1444,7 +1444,7 @@ function _buildSSSSBlurPass (camera: Camera,
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
     ssssBlurData.ssssFov = camera.fov;
     ssssBlurData.ssssWidth = skin.blurRadius;
-    if (standardSkinModel && standardSkinModel.model) {
+    if (standardSkinModel && standardSkinModel.model && standardSkinModel.model.worldBounds) {
         const halfExtents = standardSkinModel.model.worldBounds.halfExtents;
         ssssBlurData.boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
     }

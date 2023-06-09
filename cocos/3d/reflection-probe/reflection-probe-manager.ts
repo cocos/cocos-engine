@@ -609,7 +609,8 @@ export class ReflectionProbeManager {
         return 0.0;
     }
 
-    private _calculateBlendOfSkybox (aabb1: AABB, aabb2: AABB) {
+    private _calculateBlendOfSkybox (aabb1: AABB | null, aabb2: AABB) {
+        if (!aabb1) return 1.0;
         const aMin = new Vec3();
         const aMax = new Vec3();
         const bMin = new Vec3();

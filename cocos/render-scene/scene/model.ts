@@ -127,7 +127,7 @@ export class Model {
      * @zh 获取世界空间包围盒
      */
     get worldBounds () {
-        return this._worldBounds!;
+        return this._worldBounds;
     }
 
     /**
