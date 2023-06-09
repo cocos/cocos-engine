@@ -57,7 +57,6 @@
 #include "cocos/renderer/pipeline/RenderPipeline.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
-#include "core/Root.h"
 #include "details/DebugUtils.h"
 #include "details/GslUtils.h"
 
@@ -742,7 +741,7 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
         setValue("CC_CASCADED_LAYERS_TRANSITION", 0);
     }
 
-    setValue("CC_USE_HDR", Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR());
+    setValue("CC_USE_HDR", getPipelineSceneData()->isHDR());
 #if ENABLE_FLOAT_OUTPUT
     setValue("CC_USE_FLOAT_OUTPUT", true);
 # else
