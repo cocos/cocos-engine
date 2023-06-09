@@ -2,13 +2,10 @@ import { DEBUG } from 'internal:constants';
 import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 import { assertIsTrue } from '../../core';
 
+const STRIDE = 1;
 export class Uint8ArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
-    }
-
-    get stride (): number {
-        return 1;
     }
 
     get type (): VFXValueType {
@@ -25,7 +22,7 @@ export class Uint8ArrayParameter extends ArrayParameter {
         this._data.set(oldData);
     }
 
-    move (a: number, b: number) {
+    moveTo (a: number, b: number) {
         this._data[b] = this._data[a];
     }
 
@@ -52,7 +49,7 @@ export class Uint8ArrayParameter extends ArrayParameter {
     copyToTypedArray (dest: Uint8Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-            assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
+            assertIsTrue(stride >= STRIDE && strideOffset >= 0 && strideOffset < stride);
             assertIsTrue(dest.length >= (toIndex - fromIndex) * stride + destOffset * stride);
         }
 

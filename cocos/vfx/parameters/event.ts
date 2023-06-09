@@ -3,6 +3,7 @@ import { Color, assertIsTrue, Vec3 } from '../../core';
 import { VFXEventType } from '../define';
 import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 
+const STRIDE = 12;
 export class VFXEvent {
     public type = VFXEventType.UNKNOWN;
     public particleId = 0;
@@ -12,6 +13,17 @@ export class VFXEvent {
     public velocity = new Vec3();
     public color = new Color();
     public randomSeed = 0;
+
+    copy (src: VFXEvent) {
+        this.type = src.type;
+        this.particleId = src.particleId;
+        this.currentTime = src.currentTime;
+        this.prevTime = src.prevTime;
+        Vec3.copy(this.position, src.position);
+        Vec3.copy(this.velocity, src.velocity);
+        Color.copy(this.color, src.color);
+        this.randomSeed = src.randomSeed;
+    }
 }
 
 export class EventArrayParameter extends ArrayParameter {
@@ -23,81 +35,108 @@ export class EventArrayParameter extends ArrayParameter {
         return VFXValueType.EVENT;
     }
 
-    get stride (): number {
-        return 1;
-    }
-
-    private _data = new Uint32Array(this._capacity);
+    private _data = new Float32Array(STRIDE * this._capacity);
+    private _uint32data = new Uint32Array(this._data.buffer);
 
     reserve (capacity: number) {
         if (capacity <= this._capacity) return;
         this._capacity = capacity;
         const oldData = this._data;
-        this._data = new Uint32Array(capacity);
+        this._data = new Float32Array(STRIDE * capacity);
+        this._uint32data = new Uint32Array(this._data.buffer);
         this._data.set(oldData);
     }
 
-    move (a: Handle, b: Handle) {
-        this._data[b] = this._data[a];
+    moveTo (a: Handle, b: Handle) {
+        if (DEBUG) {
+            assertIsTrue(a <= this._capacity && a >= 0);
+            assertIsTrue(b <= this._capacity && b >= 0);
+        }
+        const offsetA = a * STRIDE;
+        const offsetB = b * STRIDE;
+        this._data[offsetB] = this._data[offsetA];
+        this._data[offsetB + 1] = this._data[offsetA + 1];
+        this._data[offsetB + 2] = this._data[offsetA + 2];
+        this._data[offsetB + 3] = this._data[offsetA + 3];
+        this._data[offsetB + 4] = this._data[offsetA + 4];
+        this._data[offsetB + 5] = this._data[offsetA + 5];
+        this._data[offsetB + 6] = this._data[offsetA + 6];
+        this._data[offsetB + 7] = this._data[offsetA + 7];
+        this._data[offsetB + 8] = this._data[offsetA + 8];
+        this._data[offsetB + 9] = this._data[offsetA + 9];
+        this._data[offsetB + 10] = this._data[offsetA + 10];
+        this._data[offsetB + 11] = this._data[offsetA + 11];
     }
 
-    getColorAt (out: Color, handle: Handle) {
-        Color.fromUint32(out, this._data[handle]);
+    getEventAt (out: VFXEvent, handle: Handle) {
+        const data = this._data;
+        const uint32Data = this._uint32data;
+        const offset = handle * STRIDE;
+        out.type = uint32Data[offset];
+        out.particleId = data[offset + 1];
+        out.currentTime = data[offset + 2];
+        out.prevTime = data[offset + 3];
+        Vec3.set(out.position, data[offset + 4], data[offset + 5], data[offset + 6]);
+        Vec3.set(out.velocity, data[offset + 7], data[offset + 8], data[offset + 9]);
+        Color.fromUint32(out.color, uint32Data[offset + 10]);
+        out.randomSeed = uint32Data[offset + 11];
         return out;
     }
 
-    setColorAt (color: Color, handle: Handle) {
-        this._data[handle] = Color.toUint32(color);
+    setEventAt (event: VFXEvent, handle: Handle) {
+        const data = this._data;
+        const uint32Data = this._uint32data;
+        const offset = handle * STRIDE;
+        uint32Data[offset] = event.type;
+        data[offset + 1] = event.particleId;
+        data[offset + 2] = event.currentTime;
+        data[offset + 3] = event.prevTime;
+        data[offset + 4] = event.position.x;
+        data[offset + 5] = event.position.y;
+        data[offset + 6] = event.position.z;
+        data[offset + 7] = event.velocity.x;
+        data[offset + 8] = event.velocity.y;
+        data[offset + 9] = event.velocity.z;
+        uint32Data[offset + 10] = Color.toUint32(event.color);
+        uint32Data[offset + 11] = event.randomSeed;
     }
 
-    multiplyColorAt (color: Color, handle: Handle) {
-        Color.fromUint32(tempColor, this._data[handle]);
-        tempColor.multiply(color);
-        this._data[handle] = Color.toUint32(tempColor);
-    }
+    fill (event: VFXEvent, fromIndex: Handle, toIndex: Handle) {
+        if (DEBUG) {
+            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
+        }
 
-    fill (color: Color, fromIndex: Handle, toIndex: Handle) {
-        const val = Color.toUint32(color);
-        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
-            this._data.fill(val, fromIndex, toIndex);
-        } else {
-            const data = this._data;
-            for (let i = fromIndex; i < toIndex; i++) {
-                data[i] = val;
-            }
+        const data = this._data;
+        const uint32Data = this._uint32data;
+        const type = event.type;
+        const particleId = event.particleId;
+        const currentTime = event.currentTime;
+        const prevTime = event.prevTime;
+        const position = event.position;
+        const velocity = event.velocity;
+        const color = event.color;
+        const randomSeed = event.randomSeed;
+        for (let i = fromIndex; i < toIndex; ++i) {
+            const offset = fromIndex * STRIDE;
+            uint32Data[offset] = type;
+            data[offset + 1] = particleId;
+            data[offset + 2] = currentTime;
+            data[offset + 3] = prevTime;
+            data[offset + 4] = position.x;
+            data[offset + 5] = position.y;
+            data[offset + 6] = position.z;
+            data[offset + 7] = velocity.x;
+            data[offset + 8] = velocity.y;
+            data[offset + 9] = velocity.z;
+            uint32Data[offset + 10] = Color.toUint32(color);
+            uint32Data[offset + 11] = randomSeed;
         }
     }
 
     copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
-        if (DEBUG) {
-            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-            assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
-            assertIsTrue(strideOffset + this.stride <= stride);
-            assertIsTrue(dest.length >= (toIndex - fromIndex) * stride + destOffset * stride);
-        }
-
-        if (stride === this.stride && strideOffset === 0 && (toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
-            const source = (fromIndex === 0 && toIndex === this._capacity) ? this._data : this._data.subarray(fromIndex, toIndex);
-            dest.set(source, destOffset * stride);
-            return;
-        }
-
-        const data = this._data;
-        for (let offset = fromIndex * stride + strideOffset, i = fromIndex; i < toIndex; offset += stride, i++) {
-            dest[offset] = data[i];
-        }
     }
 
-    copyFrom (src: ColorArrayParameter, fromIndex: Handle, toIndex: Handle) {
-        if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
-            this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
-        } else {
-            const destData = this._data;
-            const srcData = src._data;
-            for (let i = fromIndex; i < toIndex; i++) {
-                destData[i] = srcData[i];
-            }
-        }
+    copyFrom (src: EventArrayParameter, fromIndex: Handle, toIndex: Handle) {
     }
 }
 
@@ -106,13 +145,13 @@ export class EventParameter extends VFXParameter {
         return VFXValueType.EVENT;
     }
 
-    get data (): Readonly<Color> {
+    get data (): Readonly<VFXEvent> {
         return this._data;
     }
 
-    set data (val: Readonly<Color>) {
-        Color.copy(this._data, val);
+    set data (val: Readonly<VFXEvent>) {
+        this._data.copy(val);
     }
 
-    private _data = new Color();
+    private _data = new VFXEvent();
 }

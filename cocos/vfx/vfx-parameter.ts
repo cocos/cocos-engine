@@ -142,10 +142,9 @@ export abstract class ArrayParameter extends VFXParameter {
     }
 
     abstract get data (): ArrayBufferView;
-    abstract get stride (): number;
     protected _capacity = DEFAULT_CAPACITY;
     abstract reserve (capacity: number);
-    abstract move (a: Handle, b: Handle);
+    abstract moveTo (a: Handle, b: Handle);
     abstract copyFrom (src: ArrayParameter, fromIndex: Handle, toIndex: Handle);
     abstract copyToTypedArray (dest: ArrayBufferView, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle);
 }

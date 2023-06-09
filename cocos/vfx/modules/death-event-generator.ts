@@ -27,11 +27,10 @@ import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, EPSILON, Vec3 } from '../../core';
 import { C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_IS_DEAD, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
-import { VFXEventInfo } from '../vfx-events';
+import { VFXEvent } from '../parameters/event';
 
-const eventInfo = new VFXEventInfo();
+const eventInfo = new VFXEvent();
 @ccclass('cc.DeathEventGeneratorModule')
 @VFXModule.register('DeathEventGenerator', ModuleExecStageFlags.UPDATE, [], [P_POSITION.name, P_VELOCITY.name, P_NORMALIZED_AGE.name, P_COLOR.name])
 export class DeathEventGeneratorModule extends VFXModule {

@@ -3,29 +3,26 @@ import { assertIsTrue, Mat3 } from '../../core';
 import { ArrayParameter, VFXParameter, VFXValueType } from '../vfx-parameter';
 
 const tempMat3 = new Mat3();
+const STRIDE = 9;
 export class Mat3ArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
-    }
-
-    get stride (): number {
-        return 9;
     }
 
     get type (): VFXValueType {
         return VFXValueType.MAT3;
     }
 
-    private _data = new Float32Array(9 * this._capacity);
+    private _data = new Float32Array(STRIDE * this._capacity);
 
     reserve (capacity: number) {
         if (capacity <= this._capacity) return;
         this._capacity = capacity;
         const oldData = this._data;
-        this._data = new Float32Array(9 * capacity);
+        this._data = new Float32Array(STRIDE * capacity);
         this._data.set(oldData);
     }
-    move (a: number, b: number) {
+    moveTo (a: number, b: number) {
         if (DEBUG) {
             assertIsTrue(a < this._capacity && a >= 0 && b < this._capacity && b >= 0);
         }
@@ -36,7 +33,7 @@ export class Mat3ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * 9;
+        const offset = handle * STRIDE;
         const data = this._data;
         out.m00 = data[offset];
         out.m01 = data[offset + 1];
@@ -54,7 +51,7 @@ export class Mat3ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * 9;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] = val.m00;
         data[offset + 1] = val.m01;

@@ -23,11 +23,11 @@
  THE SOFTWARE.
  */
 
-import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from './data-set';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { assertIsTrue, CCBoolean, CCString } from '../core';
 import { RandomStream } from './random-stream';
 import { VFXEmitterState } from './vfx-emitter';
+import { VFXDataStore } from './vfx-data-store';
 
 export enum ModuleExecStage {
     UNKNOWN = -1,

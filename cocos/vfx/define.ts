@@ -124,6 +124,8 @@ builtinParameterId = 1000;
 export const C_DELTA_TIME = new VFXParameterDecl(builtinParameterId++, 'delta-time', VFXValueType.FLOAT, VFXParameterNamespace.CONTEXT, false);
 export const C_FROM_INDEX = new VFXParameterDecl(builtinParameterId++, 'from-index', VFXValueType.UINT32, VFXParameterNamespace.CONTEXT, false);
 export const C_TO_INDEX = new VFXParameterDecl(builtinParameterId++, 'to-index', VFXValueType.UINT32, VFXParameterNamespace.CONTEXT, false);
+export const C_EVENT = new VFXParameterDecl(builtinParameterId++, 'event', VFXValueType.EVENT, VFXParameterNamespace.CONTEXT, true);
+export const C_EVENT_COUNT = new VFXParameterDecl(builtinParameterId++, 'event-count', VFXValueType.UINT32, VFXParameterNamespace.CONTEXT, false); 
 // #endregion context parameters
 
 // #region particle parameters

@@ -28,8 +28,8 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, 
 import { DEBUG, EDITOR } from 'internal:constants';
 import { approx, Color, lerp, Mat4, Quat, Mat3, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from './data-set';
-import { BoundsMode, CapacityMode, CullingMode, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX, DelayMode, E_AGE, E_CURRENT_DELAY, E_CURRENT_LOOP_COUNT, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, E_POSITION, E_RENDER_SCALE, E_SIMULATION_POSITION, E_VELOCITY, E_WORLD_TO_LOCAL, E_WORLD_TO_LOCAL_RS, FinishAction, LoopMode, PlayingState, P_BASE_COLOR, P_BASE_SCALE, P_BASE_SPRITE_SIZE, P_BASE_VELOCITY, P_COLOR, P_ID, P_INV_LIFETIME, P_IS_DEAD, P_MESH_ORIENTATION, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, ScalingMode } from './define';
+import { ParticleDataSet } from './data-set';
+import { BoundsMode, CapacityMode, CullingMode, C_DELTA_TIME, C_EVENT, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, DelayMode, E_AGE, E_CURRENT_DELAY, E_CURRENT_LOOP_COUNT, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, E_LOOPED_AGE, E_NORMALIZED_LOOP_AGE, E_POSITION, E_RENDER_SCALE, E_SIMULATION_POSITION, E_VELOCITY, E_WORLD_TO_LOCAL, E_WORLD_TO_LOCAL_RS, FinishAction, LoopMode, PlayingState, P_BASE_COLOR, P_BASE_SCALE, P_BASE_SPRITE_SIZE, P_BASE_VELOCITY, P_COLOR, P_ID, P_INV_LIFETIME, P_IS_DEAD, P_MESH_ORIENTATION, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_SCALE, P_SPRITE_SIZE, P_VELOCITY, ScalingMode } from './define';
 import { legacyCC } from '../core/global-exports';
 import { assertIsTrue, CCBoolean, CCClass, CCInteger, Enum } from '../core';
 import { Component } from '../scene-graph';
@@ -37,11 +37,11 @@ import { VFXModuleStage, ModuleExecStage } from './vfx-module';
 import { vfxManager } from './vfx-manager';
 import { EventHandler } from './event-handler';
 import { ParticleRenderer } from './particle-renderer';
-import { VFXEventInfo } from './vfx-events';
 import { RandomStream } from './random-stream';
-import { BoolArrayParameter, BoolParameter, ColorArrayParameter, FloatArrayParameter, FloatParameter, Mat3Parameter, Mat4Parameter, Uint32ArrayParameter, Uint32Parameter, Vec2ArrayParameter, Vec3ArrayParameter, Vec3Parameter } from './parameters';
+import { VFXEvent } from './parameters';
 import { VFXDataStore } from './vfx-data-store';
 import { ArrayParameter, Handle } from './vfx-parameter';
+import { VFXDataSet } from './vfx-data-set';
 
 const startPositionOffset = new Vec3();
 const tempPosition = new Vec3();
@@ -49,7 +49,7 @@ const dir = new Vec3();
 const up = new Vec3();
 const rot = new Quat();
 const tempEmitterTransform = new Mat4();
-const eventInfo = new VFXEventInfo();
+const eventInfo = new VFXEvent();
 
 @ccclass('cc.VFXEmitterLifeCycleParams')
 export class VFXEmitterLifeCycleParams {
@@ -256,12 +256,12 @@ export class VFXEmitter extends Component {
     @tooltip('i18n:particle_system.capacity')
     @visible(function (this: VFXEmitter) { return this.capacityMode === CapacityMode.FIXED; })
     @rangeMin(0)
-    public get fixedCapacity () {
-        return this._fixedCapacity;
+    public get maxCapacity () {
+        return this._maxCapacity;
     }
 
-    public set fixedCapacity (val) {
-        this._fixedCapacity = Math.floor(val > 0 ? val : 0);
+    public set maxCapacity (val) {
+        this._maxCapacity = Math.floor(val > 0 ? val : 0);
     }
 
     /**
@@ -448,7 +448,7 @@ export class VFXEmitter extends Component {
     @serializable
     private _capacityMode = CapacityMode.AUTO;
     @serializable
-    private _fixedCapacity = 100;
+    private _maxCapacity = 100;
     @serializable
     private _determinism = false;
     @serializable
@@ -660,6 +660,7 @@ export class VFXEmitter extends Component {
      * @engineInternal
      */
     public updateEmitterTime (dataStore: VFXDataStore) {
+        const { context, emitter } = dataStore;
         const params = this._lifeCycleParams;
         const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
         if (DEBUG) {
@@ -709,7 +710,7 @@ export class VFXEmitter extends Component {
     }
 
     private updateEmitterTransform (dataStore: VFXDataStore) {
-        const emitter = dataStore.emitter;
+        const { emitter, context } = dataStore;
         emitter.getBoolParameter(E_IS_WORLD_SPACE).data = !this._localSpace;
         const transform = this.node;
         Vec3.copy(this._state.prevWorldPosition, this._state.worldPosition);
@@ -752,14 +753,15 @@ export class VFXEmitter extends Component {
         this._emitterStage.tick(dataStore);
         this._spawnStage.tick(dataStore);
         this._updateStage.tick(dataStore);
+        const { emitter } = dataStore;
         if (this._eventHandlerCount > 0) {
             for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
                 this._eventHandlers[i].tick(dataStore);
             }
-            particles.ensureParameter(P_POSITION);
+            dataStore.ensureParameter(P_POSITION);
         }
         if (emitter.getBoolParameter(E_IS_WORLD_SPACE).data) {
-            particles.ensureParameter(P_POSITION);
+            dataStore.ensureParameter(P_POSITION);
         }
     }
 
@@ -786,15 +788,16 @@ export class VFXEmitter extends Component {
      * @engineInternal
      */
     public processEvents (dataStore: VFXDataStore) {
-        const isWorldSpace = emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
-        const worldToLocal = emitter.getMat4Parameter(E_WORLD_TO_LOCAL).data;
+        const isWorldSpace = dataStore.emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
+        const worldToLocal = dataStore.emitter.getMat4Parameter(E_WORLD_TO_LOCAL).data;
         for (let i = 0, length = this._eventHandlerCount; i < length; i++) {
             const eventHandler = this._eventHandlers[i];
             const target = eventHandler.target;
             if (target && target.isValid) {
-                const events = target._context.events;
-                for (let i = 0, length = events.count; i < length; i++) {
-                    events.getEventInfoAt(eventInfo, i);
+                const events = target._dataStore.context.getEventArrayParameter(C_EVENT);
+                const eventCount = target._dataStore.context.getUint32Parameter(C_EVENT_COUNT).data;
+                for (let i = 0; i < eventCount; i++) {
+                    events.getEventAt(eventInfo, i);
                     if (eventInfo.type !== eventHandler.eventType) { continue; }
                     Vec3.normalize(dir, eventInfo.velocity);
                     const angle = Math.abs(Vec3.dot(dir, Vec3.UNIT_Z));
@@ -818,7 +821,7 @@ export class VFXEmitter extends Component {
      * @internal
      * @engineInternal
      */
-    public resetAnimatedState (particles: ParticleDataSet, fromIndex: number, toIndex: number) {
+    public resetAnimatedState (particles: VFXDataSet, fromIndex: number, toIndex: number) {
         if (particles.hasParameter(P_VELOCITY)) {
             if (particles.hasParameter(P_BASE_VELOCITY)) {
                 particles.getVec3ArrayParameter(P_VELOCITY).copyFrom(particles.getVec3ArrayParameter(P_BASE_VELOCITY), fromIndex, toIndex);
@@ -857,11 +860,12 @@ export class VFXEmitter extends Component {
         if (spawnCount === 0) {
             return;
         }
-        const { _particles: particles, _context: context, _emitter: emitter, _user: user } = this;
+        const dataStore = this._dataStore;
+        const { particles, context, emitter } = dataStore;
         const fromIndex = this._particleCount;
-        this.addNewParticles(particles, context, spawnCount);
-        const numSpawned = particles.count - fromIndex;
-        const toIndex = particles.count;
+        this.addNewParticles(spawnCount);
+        const numSpawned = this._particleCount - fromIndex;
+        const toIndex = this._particleCount;
         const hasPosition = particles.hasParameter(P_POSITION);
         if (hasPosition) {
             const simulationPosition = emitter.getVec3Parameter(E_SIMULATION_POSITION).data;
@@ -904,7 +908,7 @@ export class VFXEmitter extends Component {
         const ti = context.getUint32Parameter(C_TO_INDEX);
         fi.data = fromIndex;
         ti.data = toIndex;
-        this._spawnStage.execute(particles, emitter, user, context);
+        this._spawnStage.execute(dataStore);
         this.resetAnimatedState(particles, fromIndex, toIndex);
         const interval = intervalDt;
         const deltaTime = context.getFloatParameter(C_DELTA_TIME);
@@ -927,12 +931,12 @@ export class VFXEmitter extends Component {
                 }
                 if (needPositionOffset) {
                     Vec3.multiplyScalar(startPositionOffset, initialVelocity, -subDt);
-                    position.addVec3At(startPositionOffset, i);
+                    position!.addVec3At(startPositionOffset, i);
                 }
                 fi.data = i;
                 ti.data = i + 1;
                 deltaTime.data = subDt;
-                updateStage.execute(particles, emitter, user, context);
+                updateStage.execute(dataStore);
             }
         }
     }
@@ -941,51 +945,46 @@ export class VFXEmitter extends Component {
      * @internal
      * @engineInternal
      */
-    public addNewParticles (particles: ParticleDataSet, context: ContextDataSet, numToEmit: number) {
-        const capacity = this._capacityMode === CapacityMode.AUTO ? Number.MAX_SAFE_INTEGER : this._particleCapacity;
-        if (numToEmit + particles.count > capacity) {
-            numToEmit = capacity - particles.count;
+    public addNewParticles (numToEmit: number) {
+        const capacity = this._capacityMode === CapacityMode.AUTO ? Number.MAX_SAFE_INTEGER : this._maxCapacity;
+        if (numToEmit + this._particleCount > capacity) {
+            numToEmit = capacity - this._particleCount;
         }
 
         if (numToEmit > 0) {
-            this.addParticles(numToEmit);
+            let reservedCount = this._particleCapacity;
+            while (this._particleCount + numToEmit > reservedCount) {
+                reservedCount *= 2;
+            }
+            this.reserveParticleData(reservedCount);
+            this._particleCount += numToEmit;
         }
-    }
-
-    private addParticles (count: number) {
-        if (DEBUG) {
-            assertIsTrue(count >= 0);
-        }
-        let reservedCount = this._particleCapacity;
-        while (this._particleCount + count > reservedCount) {
-            reservedCount *= 2;
-        }
-        this.reserve(reservedCount);
-        this._particleCount += count;
     }
 
     private removeParticle (handle: Handle) {
         if (DEBUG) {
             assertIsTrue(handle >= 0 && handle < this._particleCount);
         }
+        const particles = this._dataStore.particles;
         const lastParticle = this._particleCount - 1;
         if (lastParticle !== handle) {
-            const parameters = this._dataStore.particles.parameters;
-            for (let i = 0, length = this._dataStore.particles.parameterCount; i < length; i++) {
+            const parameters = particles.parameters;
+            for (let i = 0, length = particles.parameterCount; i < length; i++) {
                 const parameter = parameters[i];
                 if (parameter.isArray) {
-                    (parameter as ArrayParameter).move(lastParticle, handle);
+                    (parameter as ArrayParameter).moveTo(lastParticle, handle);
                 }
             }
         }
         this._particleCount -= 1;
     }
 
-    private reserve (capacity: number) {
+    private reserveParticleData (capacity: number) {
         if (capacity <= this._particleCapacity) return;
+        const particles = this._dataStore.particles;
         this._particleCapacity = capacity;
-        const parameters = this._dataStore.particles.parameters;
-        for (let i = 0, length = this._dataStore.particles.parameterCount; i < length; i++) {
+        const parameters = particles.parameters;
+        for (let i = 0, length = particles.parameterCount; i < length; i++) {
             const parameter = parameters[i];
             if (parameter.isArray) {
                 (parameter as ArrayParameter).reserve(capacity);

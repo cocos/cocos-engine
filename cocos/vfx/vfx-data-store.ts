@@ -36,7 +36,7 @@ export class VFXDataStore {
     
     public ensureParameter (declaration: VFXParameterDecl) {
         switch (declaration.namespace) {
-            
+
         if (!this.hasParameter(identity)) {
             this.addParameter(identity);
         }

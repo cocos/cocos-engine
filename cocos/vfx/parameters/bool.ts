@@ -2,6 +2,7 @@ import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../../core';
 import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 
+const STRIDE = 1;
 export class BoolArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
@@ -9,10 +10,6 @@ export class BoolArrayParameter extends ArrayParameter {
 
     get type () {
         return VFXValueType.BOOL;
-    }
-
-    get stride (): number {
-        return 1;
     }
 
     private _data = new Uint8Array(this._capacity);
@@ -25,7 +22,7 @@ export class BoolArrayParameter extends ArrayParameter {
         this._data.set(oldData);
     }
 
-    move (a: Handle, b: Handle) {
+    moveTo (a: Handle, b: Handle) {
         if (DEBUG) {
             assertIsTrue(a <= this._capacity && a >= 0);
             assertIsTrue(b <= this._capacity && b >= 0);
@@ -67,12 +64,12 @@ export class BoolArrayParameter extends ArrayParameter {
     copyToTypedArray (dest: Uint8Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-            assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
+            assertIsTrue(stride >= STRIDE && strideOffset >= 0 && strideOffset < stride);
             assertIsTrue(destOffset >= 0);
             assertIsTrue(dest.length >= (toIndex - fromIndex) * stride);
-            assertIsTrue(stride >= strideOffset + this.stride);
+            assertIsTrue(stride >= strideOffset + STRIDE);
         }
-        if (stride === this.stride && strideOffset === 0 && toIndex - fromIndex > BATCH_OPERATION_THRESHOLD) {
+        if (stride === STRIDE && strideOffset === 0 && toIndex - fromIndex > BATCH_OPERATION_THRESHOLD) {
             const source = (toIndex === this._capacity && fromIndex === 0) ? this._data : this._data.subarray(fromIndex, toIndex);
             dest.set(source, destOffset * stride);
             return;

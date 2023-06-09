@@ -3,6 +3,7 @@ import { Quat, Vec3, assertIsTrue } from '../../core';
 import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 
 const tempQuat = new Quat();
+const STRIDE = 4;
 export class QuatArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
@@ -12,17 +13,13 @@ export class QuatArrayParameter extends ArrayParameter {
         return VFXValueType.QUAT;
     }
 
-    get stride () {
-        return 4;
-    }
-
-    private _data = new Float32Array(this.stride * this._capacity);
+    private _data = new Float32Array(STRIDE * this._capacity);
 
     reserve (capacity: number) {
         if (capacity <= this._capacity) return;
         this._capacity = capacity;
         const oldData = this._data;
-        this._data = new Float32Array(this.stride * capacity);
+        this._data = new Float32Array(STRIDE * capacity);
         this._data.set(oldData);
     }
 
@@ -31,7 +28,7 @@ export class QuatArrayParameter extends ArrayParameter {
      * @param a the handle to be moved.
      * @param b the handle to be overwrite.
      */
-    move (a: Handle, b: Handle) {
+    moveTo (a: Handle, b: Handle) {
         if (DEBUG) {
             assertIsTrue(a < this._capacity && a >= 0 && b < this._capacity && b >= 0);
         }
@@ -42,7 +39,7 @@ export class QuatArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * this.stride;
+        const offset = handle * STRIDE;
         const data = this._data;
         out.x = data[offset];
         out.y = data[offset + 1];
@@ -55,7 +52,7 @@ export class QuatArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * this.stride;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] = val.x;
         data[offset + 1] = val.y;
@@ -67,7 +64,7 @@ export class QuatArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * this.stride;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] *= val.x;
         data[offset + 1] *= val.y;
@@ -79,7 +76,7 @@ export class QuatArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * this.stride;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] *= val;
         data[offset + 1] *= val;

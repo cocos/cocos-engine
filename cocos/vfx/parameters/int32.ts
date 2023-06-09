@@ -2,6 +2,7 @@ import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../../core';
 import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 
+const STRIDE = 1;
 export class Int32ArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
@@ -9,10 +10,6 @@ export class Int32ArrayParameter extends ArrayParameter {
 
     get type () {
         return VFXValueType.INT32;
-    }
-
-    get stride (): number {
-        return 1;
     }
 
     private _data = new Int32Array(this._capacity);
@@ -25,7 +22,7 @@ export class Int32ArrayParameter extends ArrayParameter {
         this._data.set(oldData);
     }
 
-    move (a: number, b: number) {
+    moveTo (a: number, b: number) {
         this._data[b] = this._data[a];
     }
 
@@ -52,7 +49,7 @@ export class Int32ArrayParameter extends ArrayParameter {
     copyToTypedArray (dest: Int32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-            assertIsTrue(stride >= 1 && strideOffset >= 0 && strideOffset < stride);
+            assertIsTrue(stride >= STRIDE && strideOffset >= 0 && strideOffset < stride);
             assertIsTrue(dest.length >= (toIndex - fromIndex) * stride + destOffset * stride);
         }
 

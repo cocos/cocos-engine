@@ -25,19 +25,11 @@
 
 import { ModuleExecStage } from '../vfx-module';
 import { RandomStream } from '../random-stream';
-import { VFXEvents } from '../vfx-events';
-import { C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { C_DELTA_TIME, C_EVENT, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX } from '../define';
 import { VFXDataSet } from '../vfx-data-set';
 import { VFXParameterNamespace } from '../vfx-parameter';
 
 export class ContextDataSet extends VFXDataSet {
-    public get events (): VFXEvents {
-        if (!this._events) {
-            this._events = new VFXEvents();
-        }
-        return this._events;
-    }
-
     public get executionStage () {
         return this._executionStage;
     }
@@ -53,21 +45,18 @@ export class ContextDataSet extends VFXDataSet {
     private _moduleRandomSeed = 0;
     private declare _moduleRandomStream: RandomStream
     private _executionStage = ModuleExecStage.UNKNOWN;
-    private _events: VFXEvents | null = null;
 
     constructor () {
         super(VFXParameterNamespace.CONTEXT);
         this.addParameter(C_DELTA_TIME);
         this.addParameter(C_FROM_INDEX);
         this.addParameter(C_TO_INDEX);
+        this.addParameter(C_EVENT);
+        this.addParameter(C_EVENT_COUNT);
     }
 
     setExecutionStage (stage: ModuleExecStage) {
         this._executionStage = stage;
-    }
-
-    clearEvents () {
-        this._events?.clear();
     }
 
     setModuleRandomSeed (seed: number) {

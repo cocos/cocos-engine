@@ -25,7 +25,7 @@
 
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../core';
-import { FloatParameter, Vec3Parameter, ColorParameter, Uint32Parameter, BoolParameter, Vec2Parameter, Vec4Parameter, Int32Parameter, Uint8Parameter, QuatParameter, Mat3Parameter, Mat4Parameter, FloatArrayParameter, Vec3ArrayParameter, ColorArrayParameter, Uint32ArrayParameter, BoolArrayParameter, Vec2ArrayParameter, Vec4ArrayParameter, Int32ArrayParameter, Uint8ArrayParameter, QuatArrayParameter, Mat3ArrayParameter, Mat4ArrayParameter } from './parameters';
+import { FloatParameter, Vec3Parameter, ColorParameter, Uint32Parameter, BoolParameter, Vec2Parameter, Vec4Parameter, Int32Parameter, Uint8Parameter, QuatParameter, Mat3Parameter, Mat4Parameter, FloatArrayParameter, Vec3ArrayParameter, ColorArrayParameter, Uint32ArrayParameter, BoolArrayParameter, Vec2ArrayParameter, Vec4ArrayParameter, Int32ArrayParameter, Uint8ArrayParameter, QuatArrayParameter, Mat3ArrayParameter, Mat4ArrayParameter, EventParameter, EventArrayParameter } from './parameters';
 import { VFXParameter, VFXParameterDecl, VFXParameterNamespace, VFXValueType } from './vfx-parameter';
 
 export class VFXDataSet {
@@ -240,6 +240,22 @@ export class VFXDataSet {
             assertIsTrue(identity.isArray);
         }
         return this.getParameterUnsafe<Vec4ArrayParameter>(identity);
+    }
+
+    public getEventParameter (identity: VFXParameterDecl) {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXValueType.EVENT);
+            assertIsTrue(!identity.isArray);
+        }
+        return this.getParameterUnsafe<EventParameter>(identity);
+    }
+
+    public getEventArrayParameter (identity: VFXParameterDecl) {
+        if (DEBUG) {
+            assertIsTrue(identity.type === VFXValueType.EVENT);
+            assertIsTrue(identity.isArray);
+        }
+        return this.getParameterUnsafe<EventArrayParameter>(identity);
     }
 
     public getParameterUnsafe<T extends VFXParameter> (identity: VFXParameterDecl) {

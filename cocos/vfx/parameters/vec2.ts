@@ -3,6 +3,7 @@ import { Vec2, assertIsTrue } from '../../core';
 import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 
 const tempVec2 = new Vec2();
+const STRIDE = 2;
 export class Vec2ArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
@@ -12,11 +13,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         return VFXValueType.VEC2;
     }
 
-    get stride () {
-        return 2;
-    }
-
-    private _data = new Float32Array(this.stride * this._capacity);
+    private _data = new Float32Array(STRIDE * this._capacity);
 
     static multiplyScalar (out: Vec2ArrayParameter, a: Vec2ArrayParameter, scale: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
@@ -25,7 +22,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         }
         const aData = a.data;
         const outData = out.data;
-        for (let i = fromIndex * a.stride, length = toIndex * a.stride; i < length; i++) {
+        for (let i = fromIndex * STRIDE, length = toIndex * STRIDE; i < length; i++) {
             outData[i] = aData[i] * scale;
         }
     }
@@ -34,7 +31,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         if (capacity <= this._capacity) return;
         this._capacity = capacity;
         const oldData = this._data;
-        this._data = new Float32Array(this.stride * capacity);
+        this._data = new Float32Array(STRIDE * capacity);
         this._data.set(oldData);
     }
 
@@ -43,7 +40,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
      * @param a the handle to be moved.
      * @param b the handle to be overwrite.
      */
-    move (a: Handle, b: Handle) {
+    moveTo (a: Handle, b: Handle) {
         if (DEBUG) {
             assertIsTrue(a < this._capacity && a >= 0 && b < this._capacity && b >= 0);
         }
@@ -54,7 +51,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * this.stride;
+        const offset = handle * STRIDE;
         const data = this._data;
         out.x = data[offset];
         out.y = data[offset + 1];
@@ -65,7 +62,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * this.stride;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] = val.x;
         data[offset + 1] = val.y;
@@ -75,7 +72,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * this.stride;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] = val;
         data[offset + 1] = val;
@@ -85,7 +82,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * this.stride;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] += val.x;
         data[offset + 1] += val.y;
@@ -95,7 +92,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * this.stride;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] *= val.x;
         data[offset + 1] *= val.y;
@@ -105,7 +102,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * this.stride;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] *= val;
         data[offset + 1] *= val;
@@ -116,12 +113,12 @@ export class Vec2ArrayParameter extends ArrayParameter {
             assertIsTrue(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
-            const source = (fromIndex === 0 && toIndex === this._capacity) ? src._data : src._data.subarray(fromIndex * this.stride, toIndex * this.stride);
-            this._data.set(source, fromIndex * this.stride);
+            const source = (fromIndex === 0 && toIndex === this._capacity) ? src._data : src._data.subarray(fromIndex * STRIDE, toIndex * STRIDE);
+            this._data.set(source, fromIndex * STRIDE);
         } else {
             const destData = this._data;
             const srcData = src._data;
-            for (let i = fromIndex * this.stride, length = toIndex * this.stride; i < length; i++) {
+            for (let i = fromIndex * STRIDE, length = toIndex * STRIDE; i < length; i++) {
                 destData[i] = srcData[i];
             }
         }
@@ -130,20 +127,20 @@ export class Vec2ArrayParameter extends ArrayParameter {
     copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-            assertIsTrue(stride >= this.stride && strideOffset >= 0 && strideOffset < stride);
-            assertIsTrue(stride >= strideOffset + this.stride);
+            assertIsTrue(stride >= STRIDE && strideOffset >= 0 && strideOffset < stride);
+            assertIsTrue(stride >= strideOffset + STRIDE);
             assertIsTrue(destOffset >= 0);
             assertIsTrue(destOffset >= 0 && (destOffset * stride) + (toIndex - fromIndex) * stride <= dest.length);
         }
 
-        if (stride === this.stride && strideOffset === 0 && (toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
-            const source = (toIndex === this._capacity && fromIndex === 0) ? this._data : this._data.subarray(fromIndex * this.stride, toIndex * this.stride);
+        if (stride === STRIDE && strideOffset === 0 && (toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
+            const source = (toIndex === this._capacity && fromIndex === 0) ? this._data : this._data.subarray(fromIndex * STRIDE, toIndex * STRIDE);
             dest.set(source, destOffset * stride);
             return;
         }
 
         const data = this._data;
-        for (let offset = destOffset * stride + strideOffset, sourceOffset = fromIndex * this.stride, length = toIndex * this.stride; sourceOffset < length; offset += stride, sourceOffset += this.stride) {
+        for (let offset = destOffset * stride + strideOffset, sourceOffset = fromIndex * STRIDE, length = toIndex * STRIDE; sourceOffset < length; offset += stride, sourceOffset += STRIDE) {
             dest[offset] = data[sourceOffset];
             dest[offset + 1] = data[sourceOffset + 1];
         }
@@ -156,7 +153,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         const data = this._data;
         const x = val.x;
         const y = val.y;
-        for (let i = fromIndex * this.stride, length = toIndex * this.stride; i < length; i += this.stride) {
+        for (let i = fromIndex * STRIDE, length = toIndex * STRIDE; i < length; i += STRIDE) {
             data[i] = x;
             data[i + 1] = y;
         }

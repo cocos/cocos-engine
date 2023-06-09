@@ -3,6 +3,7 @@ import { Vec3, assertIsTrue } from '../../core';
 import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
 
 const tempVec3 = new Vec3();
+const STRIDE = 3;
 export class Vec3ArrayParameter extends ArrayParameter {
     get data () {
         return this._data;
@@ -12,11 +13,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         return VFXValueType.VEC3;
     }
 
-    get stride () {
-        return 3;
-    }
-
-    private _data = new Float32Array(3 * this._capacity);
+    private _data = new Float32Array(STRIDE * this._capacity);
 
     static scaleAndAdd (out: Vec3ArrayParameter, a: Vec3ArrayParameter, b: Vec3ArrayParameter, scale: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
@@ -26,7 +23,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         const aData = a.data;
         const bData = b.data;
         const outData = out.data;
-        for (let i = fromIndex * 3, length = toIndex * 3; i < length; i++) {
+        for (let i = fromIndex * STRIDE, length = toIndex * STRIDE; i < length; i++) {
             outData[i] = aData[i] + bData[i] * scale;
         }
     }
@@ -35,7 +32,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         if (capacity <= this._capacity) return;
         this._capacity = capacity;
         const oldData = this._data;
-        this._data = new Float32Array(3 * capacity);
+        this._data = new Float32Array(STRIDE * capacity);
         this._data.set(oldData);
     }
 
@@ -44,7 +41,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
      * @param a the handle to be moved.
      * @param b the handle to be overwrite.
      */
-    move (a: Handle, b: Handle) {
+    moveTo (a: Handle, b: Handle) {
         if (DEBUG) {
             assertIsTrue(a < this._capacity && a >= 0 && b < this._capacity && b >= 0);
         }
@@ -55,7 +52,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * 3;
+        const offset = handle * STRIDE;
         const data = this._data;
         out.x = data[offset];
         out.y = data[offset + 1];
@@ -67,7 +64,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * 3;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] = val.x;
         data[offset + 1] = val.y;
@@ -78,7 +75,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * 3;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] = val;
         data[offset + 1] = val;
@@ -89,7 +86,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * 3;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] += val.x;
         data[offset + 1] += val.y;
@@ -100,7 +97,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * 3;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] *= val.x;
         data[offset + 1] *= val.y;
@@ -111,7 +108,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         if (DEBUG) {
             assertIsTrue(handle < this._capacity && handle >= 0);
         }
-        const offset = handle * 3;
+        const offset = handle * STRIDE;
         const data = this._data;
         data[offset] *= val;
         data[offset + 1] *= val;
@@ -123,12 +120,12 @@ export class Vec3ArrayParameter extends ArrayParameter {
             assertIsTrue(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
-            const source = (fromIndex === 0 && toIndex === this._capacity) ? src._data : src._data.subarray(fromIndex * 3, toIndex * 3);
-            this._data.set(source, fromIndex * 3);
+            const source = (fromIndex === 0 && toIndex === this._capacity) ? src._data : src._data.subarray(fromIndex * STRIDE, toIndex * STRIDE);
+            this._data.set(source, fromIndex * STRIDE);
         } else {
             const destData = this._data;
             const srcData = src._data;
-            for (let i = fromIndex * 3, length = toIndex * 3; i < length; i++) {
+            for (let i = fromIndex * STRIDE, length = toIndex * STRIDE; i < length; i++) {
                 destData[i] = srcData[i];
             }
         }
@@ -137,20 +134,20 @@ export class Vec3ArrayParameter extends ArrayParameter {
     copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-            assertIsTrue(stride >= this.stride && strideOffset >= 0 && strideOffset < stride);
-            assertIsTrue(stride >= strideOffset + this.stride);
+            assertIsTrue(stride >= STRIDE && strideOffset >= 0 && strideOffset < stride);
+            assertIsTrue(stride >= strideOffset + STRIDE);
             assertIsTrue(destOffset >= 0);
             assertIsTrue(destOffset >= 0 && (destOffset * stride) + (toIndex - fromIndex) * stride <= dest.length);
         }
 
-        if (stride === this.stride && strideOffset === 0 && (toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
-            const source = (toIndex === this._capacity && fromIndex === 0) ? this._data : this._data.subarray(fromIndex * 3, toIndex * 3);
+        if (stride === STRIDE && strideOffset === 0 && (toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
+            const source = (toIndex === this._capacity && fromIndex === 0) ? this._data : this._data.subarray(fromIndex * STRIDE, toIndex * STRIDE);
             dest.set(source, destOffset * stride);
             return;
         }
 
         const data = this._data;
-        for (let offset = destOffset * stride + strideOffset, sourceOffset = fromIndex * 3, length = toIndex * 3; sourceOffset < length; offset += stride, sourceOffset += 3) {
+        for (let offset = destOffset * stride + strideOffset, sourceOffset = fromIndex * STRIDE, length = toIndex * STRIDE; sourceOffset < length; offset += stride, sourceOffset += STRIDE) {
             dest[offset] = data[sourceOffset];
             dest[offset + 1] = data[sourceOffset + 1];
             dest[offset + 2] = data[sourceOffset + 2];
@@ -165,7 +162,7 @@ export class Vec3ArrayParameter extends ArrayParameter {
         const x = val.x;
         const y = val.y;
         const z = val.z;
-        for (let i = fromIndex * 3, length = toIndex * 3; i < length; i += 3) {
+        for (let i = fromIndex * STRIDE, length = toIndex * STRIDE; i < length; i += STRIDE) {
             data[i] = x;
             data[i + 1] = y;
             data[i + 2] = z;
