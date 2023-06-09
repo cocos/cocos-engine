@@ -23,14 +23,14 @@
  THE SOFTWARE.
  */
 
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from "./data-set";
-import { VFXParameterDecl, VFXParameterRegistry } from "./vfx-parameter";
+import { VFXDataSet } from "./vfx-data-set";
+import { VFXParameterDecl, VFXParameterNamespace, VFXParameterRegistry } from "./vfx-parameter";
 
 export class VFXDataStore {
-    public readonly particles = new ParticleDataSet();
-    public readonly emitter = new EmitterDataSet();
-    public readonly user = new UserDataSet();
-    public readonly context = new ContextDataSet();
+    public readonly particles = new VFXDataSet(VFXParameterNamespace.PARTICLE);
+    public readonly emitter = new VFXDataSet(VFXParameterNamespace.EMITTER);
+    public readonly user = new VFXDataSet(VFXParameterNamespace.USER);
+    public readonly context = new VFXDataSet(VFXParameterNamespace.CONTEXT);
     public readonly registry = new VFXParameterRegistry();
 
     
