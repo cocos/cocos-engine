@@ -1,5 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { ccclass, displayName, editable, serializable } from '../../../../core/data/decorators';
+import { ccclass, displayName, editable, serializable, unit } from '../../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { ClipMotion } from '../../motion/clip-motion';
 import { createEval } from '../../create-eval';
@@ -43,6 +43,7 @@ export class PoseNodePlayMotion extends PoseNode {
 
     @serializable
     @input({ type: PoseGraphType.FLOAT })
+    @unit('s')
     public startTime = 0.0;
 
     @serializable
