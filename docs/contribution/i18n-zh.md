@@ -24,28 +24,24 @@
 
 ## 国际化 CC 类对象的可编辑属性
 
-假设要操作类的 cc 类名为 `cc.animation.AnimationController`，要操作的属性在代码中的字段名为 `graph`，为了在编辑器中国际化该属性的的显示名称或工具提示，则需要保证字典中具有以下层级结构的数据：
+假设要操作类的 cc 类名为 `cc.animation.Animation`，要操作的属性在代码中的字段名为 `clips` 和 `defaultClip`，为了在编辑器中国际化这些属性的显示名称或工具提示，只需在字典的 `classes.cc` 对象里面，加入以下数据：
 
 ```js
-{
-  classes: {
-    'cc': {
-      'animation': {
-        'AnimationController': {
-          properties: {
-            'graph': {
-              displayName: '<此属性的编辑器显示名称>',
-              tooltip: '<此属性的工具提示。>',
-            },
-          },
+'animation': {
+    'AnimationController': {
+      properties: {
+        'clips': {
+          displayName: '<属性 clips 的编辑器显示名称>',
+          tooltip: '<属性 clips 的工具提示。>',
+        },
+        'defaultClip': {
+          displayName: '<属性 defaultClip 的编辑器显示名称>',
+          tooltip: '<属性 defaultClip 的工具提示。>',
         },
       },
     },
-  },
-}
+},
 ```
-
-> 其实你不用写外层的 `classes: { "cc": { /* ... */ } }`，因为已经有这个部分了。
 
 很多时候，类的属性来自于基类。这种情况下，子类的字典中可以通过 `__extends__` 来继承基类的字典：
 
