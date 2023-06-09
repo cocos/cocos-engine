@@ -513,7 +513,11 @@ void NativePipeline::beginFrame() {
 
 void NativePipeline::update(const scene::Camera *camera) {
     const auto *sceneData = getPipelineSceneData();
-    sceneData->getCSMLayers()->update(sceneData, camera);
+    const auto *shadows = sceneData->getShadows();
+    if (shadows && shadows->isEnabled() && shadows->getType() == scene::ShadowType::SHADOW_MAP &&
+        camera && camera->getScene() && camera->getScene()->getMainLight()) {
+        sceneData->getCSMLayers()->update(sceneData, camera);
+    }
 }
 
 void NativePipeline::endFrame() {
