@@ -43,7 +43,7 @@ const defineAttr = (proto, name, offset) => {
     });
 };
 
-enum MathType {
+export enum MathType {
     VEC2 = 0,
     VEC3,
     VEC4,

@@ -2029,7 +2029,7 @@ describe('NewGen Anim', () => {
             expect(isAnimationTransition(anyTransition)).toBe(true);
         });
 
-        test('Any transition shall only match motion states', () => {
+        test('Any transition shall only match motion states and procedural pose state', () => {
             const graphEval = createAnimationGraphEval(createAnimationGraph({
                 layers: [{
                     stateMachine: {
@@ -2088,6 +2088,39 @@ describe('NewGen Anim', () => {
                     weight: 1.0,
                 },
             });
+        });
+
+        test(`Any state and procedural pose state`, () => {
+            const animationGraph = createAnimationGraph({
+                variableDeclarations: { 'Transition': { type: 'trigger' } },
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'DestinationState': { type: 'motion', transitionInEventBinding: 'onDestinationStateEntered' },
+                            'P': { type: 'procedural', graph: { } },
+                        },
+                        entryTransitions: [{ to: 'P' }],
+                        anyTransitions: [{ to: 'DestinationState', conditions: [{ type: 'trigger', variableName: 'Transition' }], }],
+                    },
+                }],
+            });
+
+            const node = new Node();
+
+            class Listener extends Component {
+                onDestinationStateEntered = jest.fn();
+            }
+
+            const listener = node.addComponent(Listener) as Listener;
+
+            const evalMock = new AnimationGraphEvalMock(node, animationGraph);
+
+            evalMock.step(0.2);
+            expect(listener.onDestinationStateEntered).not.toBeCalled();
+
+            evalMock.controller.setValue('Transition', true);
+            evalMock.step(0.2);
+            expect(listener.onDestinationStateEntered).toBeCalled();
         });
     });
 
@@ -5415,8 +5448,6 @@ function createAnimationGraphEval (animationGraph: AnimationGraph | AnimationGra
         (animationGraph instanceof AnimationGraph) ? animationGraph : animationGraph.original!,
         node,
         newGenAnim,
-        // @ts-expect-error HACK here
-        newGenAnim._customEventTarget,
         (animationGraph instanceof AnimationGraph) ? null : animationGraph.clipOverrides,
     );
     // @ts-expect-error HACK
@@ -5430,8 +5461,6 @@ function createAnimationGraphEval2 (animationGraph: AnimationGraph | AnimationGr
         (animationGraph instanceof AnimationGraph) ? animationGraph : animationGraph.original!,
         node,
         newGenAnim,
-        // @ts-expect-error HACK here
-        newGenAnim._customEventTarget,
         (animationGraph instanceof AnimationGraph) ? null : animationGraph.clipOverrides,
     );
     // @ts-expect-error HACK

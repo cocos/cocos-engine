@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
-import { Vec2, _decorator, cclegacy, tooltip, serializable, CCBoolean } from '../../../../core';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { Vec2, _decorator, tooltip, serializable } from '../../../../core';
 import { RigidBody2D } from '../rigid-body-2d';
 import { IJoint2D } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
@@ -101,7 +101,7 @@ export class Joint2D extends Component {
     TYPE = EJoint2DType.None;
 
     protected onLoad () {
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this._joint = createJoint(this.TYPE);
             this._joint.initialize(this);
 

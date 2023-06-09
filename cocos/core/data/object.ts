@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { SUPPORT_JIT, EDITOR, TEST, JSB } from 'internal:constants';
+import { SUPPORT_JIT, EDITOR, TEST, JSB, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
@@ -208,6 +208,11 @@ class CCObject implements EditorExtendableObject {
          * @private
          */
         this._objFlags = 0;
+
+        if (EDITOR) {
+            // See cocos/cocos-engine#15392
+            this[editorExtrasTag] = {};
+        }
     }
 
     // MEMBER
@@ -362,7 +367,7 @@ class CCObject implements EditorExtendableObject {
         // issue: https://github.com/cocos/cocos-engine/issues/14643
         ((this as any)._onPreDestroy)?.();
 
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             /*Native properties cannot be reset by _destruct, because the native properties are hung on the prototype and
              *hasOwnProperty's detection cannot be passed.
              */
@@ -453,8 +458,13 @@ if (EDITOR) {
  */
 (prototype as any)._deserialize = null;
 
-CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
-CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
+// See cocos/cocos-engine#15392
+if (EDITOR) {
+    CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
+    CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
+} else {
+    CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
+}
 
 /**
  * Bit mask that controls object states.

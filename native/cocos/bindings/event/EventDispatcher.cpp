@@ -286,6 +286,7 @@ void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) 
     jsKeyboardEventObj->setProperty("repeat", se::Value(keyboardEvent.action == KeyboardEvent::Action::REPEAT));
     jsKeyboardEventObj->setProperty("keyCode", se::Value(keyboardEvent.key));
     jsKeyboardEventObj->setProperty("windowId", se::Value(keyboardEvent.windowId));
+    jsKeyboardEventObj->setProperty("code", se::Value(keyboardEvent.code));
 
     se::ValueArray args;
     args.emplace_back(se::Value(jsKeyboardEventObj));
@@ -361,7 +362,6 @@ void EventDispatcher::dispatchControllerChangeEvent(const ControllerChangeEvent 
     EventDispatcher::doDispatchJsEvent(eventName, args);
 }
 
-
 void EventDispatcher::dispatchTickEvent(float /*dt*/) {
     if (!se::ScriptEngine::getInstance()->isValid()) {
         return;
@@ -400,7 +400,7 @@ void EventDispatcher::dispatchResizeEvent(int width, int height, uint32_t window
 }
 
 void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
-    //Ts's logic is same as the 'onResize', so remove code here temporary.
+    // Ts's logic is same as the 'onResize', so remove code here temporary.
 }
 
 void EventDispatcher::dispatchEnterBackgroundEvent() {

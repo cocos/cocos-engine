@@ -45,7 +45,6 @@ import {
     TransitionStatus,
 } from './state-machine/state-machine-eval';
 import { ReadonlyClipOverrideMap } from './clip-overriding';
-import { AnimationGraphCustomEventEmitter } from './event/custom-event-emitter';
 
 export class AnimationGraphEval {
     private _currentTransitionCache: TransitionStatus = {
@@ -57,7 +56,6 @@ export class AnimationGraphEval {
         graph: AnimationGraph,
         root: Node,
         controller: AnimationController,
-        customEventEmitter: AnimationGraphCustomEventEmitter,
         clipOverrides: ReadonlyClipOverrideMap | null,
     ) {
         if (DEBUG) {
@@ -84,7 +82,6 @@ export class AnimationGraphEval {
 
         const bindingContext = new AnimationGraphBindingContext(
             root, poseLayoutMaintainer, this._varInstances, controller,
-            customEventEmitter,
         );
         bindingContext._setClipOverrides(clipOverrides ?? undefined);
         this._bindingContext = bindingContext;

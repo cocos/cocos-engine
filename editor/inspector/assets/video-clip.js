@@ -6,11 +6,15 @@ exports.template = /* html */`
 `;
 
 exports.style = /* css */`
+.asset-video-clip {
+    margin-top: 4px;
+}
+
 .asset-video-clip .video {
     width: 100%;
     outline: none;
     width: 100%;
-    margin-bottom: 16px;
+    margin-bottom: 4px;
 }
 `;
 

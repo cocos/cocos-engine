@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 
-import { Vec2, Rect, _decorator, Eventify, cclegacy, tooltip, CCInteger, serializable, CCFloat, CCBoolean, warnID } from '../../../../core';
+import { Vec2, Rect, _decorator, Eventify, tooltip, serializable, CCFloat, CCBoolean, warnID } from '../../../../core';
 import { PhysicsGroup } from '../../../../physics/framework/physics-enum';
 
 import { RigidBody2D } from '../rigid-body-2d';
@@ -156,7 +156,7 @@ export class Collider2D extends Eventify(Component) {
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this._shape = createShape(this.TYPE);
             this._shape.initialize(this);
 

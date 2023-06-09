@@ -546,6 +546,14 @@
             "internal": false,
             "dynamic": true
         },
+        "EDITOR_NOT_IN_PREVIEW" : {
+            "comment": "Run in editor but not in editor preview.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": false,
+            "internal": false,
+            "dynamic": true
+        },
         "PREVIEW": {
             "comment": "Preview in browser or simulator.",
             "type": "boolean",
@@ -645,6 +653,12 @@
             "comment": "Whether support wasm, here we provide 3 options:\n0: The platform doesn't support WASM\n1: The platform supports WASM\n2: The platform may support WASM, especially on Web platform",
             "type": "number",
             "value": "$HTML5 ? 2 : ($NATIVE ? (($OPEN_HARMONY||$IOS)?0:1): ($MINIGAME? ($WECHAT?1:0) :0))",
+            "internal": true
+        },
+        "FORCE_BANNING_BULLET_WASM": {
+            "comment": "Whether force banning using bullet wasm and use asmjs instead.\nThis is an internal constant to be compatible with the editor's physical build option.",
+            "type": "boolean",
+            "value": false,
             "internal": true
         }
     },

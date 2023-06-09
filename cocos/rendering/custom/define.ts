@@ -622,7 +622,7 @@ export function buildShadowPass (passName: Readonly<string>,
         shadowPass.addDepthStencil(`${shadowMapName}Depth`, LoadOp.CLEAR, StoreOp.DISCARD,
             camera.clearDepth, camera.clearStencil, ClearFlagBit.DEPTH_STENCIL);
     }
-    const queue = shadowPass.addQueue(QueueHint.RENDER_OPAQUE);
+    const queue = shadowPass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
     queue.addSceneOfCamera(camera, new LightInfo(light, level),
         SceneFlags.SHADOW_CASTER);
     queue.setViewport(new Viewport(area.x, area.y, area.width, area.height));
@@ -1268,7 +1268,7 @@ class SSSSBlurData {
     ssssFov = 45.0 / 57.3;
     ssssWidth = 0.01;
     boundingBox = 0.4;
-    ssssScale = 5.0;
+    ssssScale = 3.0;
 
     get ssssStrength () {
         return this._v3SSSSStrength;
@@ -1444,7 +1444,7 @@ function _buildSSSSBlurPass (camera: Camera,
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
     ssssBlurData.ssssFov = camera.fov;
     ssssBlurData.ssssWidth = skin.blurRadius;
-    if (standardSkinModel && standardSkinModel.model) {
+    if (standardSkinModel && standardSkinModel.model && standardSkinModel.model.worldBounds) {
         const halfExtents = standardSkinModel.model.worldBounds.halfExtents;
         ssssBlurData.boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
     }

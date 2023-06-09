@@ -21,9 +21,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { MacroRecord } from "./pass-utils";
+import { MacroRecord, MaterialProperty } from "./pass-utils";
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import type { Pass as JsbPass } from './pass';
+import { Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '../../core';
+import { MathType } from '../../core/math/math-native-ext';
 
 declare const jsb: any;
 
@@ -47,3 +49,51 @@ export enum BatchingSchemes {
 
 export const Pass: typeof JsbPass = jsb.Pass;
 export type Pass = JsbPass;
+
+const proto = Pass.prototype;
+
+proto.getUniform = function getUniform<T extends MaterialProperty>(handle: number, out: T): T {
+    const val = (this as any)._getUniform(handle);
+    
+    if (typeof val === 'object') {
+        if (val.type) {
+            switch (val.type) {
+                case MathType.VEC2:
+                    Vec2.copy(out, val);
+                    break;
+                case MathType.VEC3:
+                    Vec3.copy(out as Vec3, val);
+                    break;
+                case MathType.VEC4:
+                    Vec4.copy(out, val);
+                    break;
+                case MathType.COLOR:
+                    (out as any).x = val.x;
+                    (out as any).y = val.y;
+                    (out as any).z = val.z;
+                    (out as any).w = val.w;
+                    break;
+                case MathType.MAT3:
+                    Mat3.copy(out, val);
+                    break;
+                case MathType.MAT4:
+                    Mat4.copy(out, val);
+                    break;
+                case MathType.QUATERNION:
+                    Quat.copy(out as Quat, val);
+                    break;
+                default:
+                    console.error(`getUniform, unknown object type: ${val.type}`);
+                    break;
+            }
+        } else {
+            console.error(`getUniform, unknown object: ${val}`);
+        }
+    } else if (typeof val === 'number') {
+        (out as number) = val;
+    } else {
+        console.error(`getUniform, not supported: ${val}`);
+    }
+
+    return out;
+}

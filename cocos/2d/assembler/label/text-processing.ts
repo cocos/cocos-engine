@@ -92,9 +92,12 @@ export class TextProcessing {
             this._calculateLabelFont(style, layout, outputLayoutData, inputString);
         } else {
             if (!style.fntConfig) { // for char
-                const fontScale = this._getStyleFontScale(style.originFontSize, style.fontScale);
-                shareLabelInfo.fontScale = fontScale;
+                this._fontScale = this._getStyleFontScale(style.originFontSize, style.fontScale,
+                    outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
+            } else {
+                this._fontScale = 1;
             }
+            shareLabelInfo.fontScale = this._fontScale;
             this._setupBMFontOverflowMetrics(layout, outputLayoutData);
             this._updateFontScale(style);
             this._computeHorizontalKerningForText(style, layout, inputString);
@@ -134,12 +137,19 @@ export class TextProcessing {
     private _tmpRect = new Rect();
 
     private _maxFontSize = 100;
+    private _fontScale = 1;
 
-    private _getStyleFontScale (fontSize: number, fontScale: number) {
+    private _getStyleFontScale (fontSize: number, fontScale: number, canvasWidth: number, canvasHeight: number) {
         let scale = fontScale;
-        if (scale * fontSize > this._maxFontSize && fontSize < this._maxFontSize) {
+        if (scale * fontSize > this._maxFontSize && fontSize < this._maxFontSize) { // Font size limit
             scale = this._maxFontSize / fontSize;
         }
+        if (canvasWidth * scale > MAX_SIZE || canvasHeight * scale > MAX_SIZE) { // Canvas limit
+            const maxValue  = Math.max(canvasWidth * scale, canvasHeight * scale);
+            scale = MAX_SIZE * scale / maxValue;
+        }
+        if (scale < 1) { scale = 1; }
+        scale = parseFloat(scale.toFixed(1));
         return scale;
     }
 
@@ -379,9 +389,10 @@ export class TextProcessing {
         outputLayoutData.canvasSize.width = Math.min(outputLayoutData.canvasSize.width, MAX_SIZE);
         outputLayoutData.canvasSize.height = Math.min(outputLayoutData.canvasSize.height, MAX_SIZE);
 
-        const fontScale = this._getStyleFontScale(style.fontSize, style.fontScale);
-        this._canvas!.width = Math.min(outputLayoutData.canvasSize.width * fontScale, MAX_SIZE);
-        this._canvas!.height = Math.min(outputLayoutData.canvasSize.height * fontScale, MAX_SIZE);
+        this._fontScale = this._getStyleFontScale(style.fontSize, style.fontScale,
+            outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
+        this._canvas!.width = outputLayoutData.canvasSize.width * this._fontScale;
+        this._canvas!.height = outputLayoutData.canvasSize.height * this._fontScale;
 
         this._context!.font = style.fontDesc;
         // align
@@ -424,7 +435,7 @@ export class TextProcessing {
         if (!this._context || !this._canvas) {
             return;
         }
-        const fontScale = this._getStyleFontScale(style.fontSize, style.fontScale);
+        const fontScale = this._fontScale;
 
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
         this._context.font = style.fontDesc.replace(
@@ -533,7 +544,7 @@ export class TextProcessing {
 
             // draw underline
             if (style.isUnderline) {
-                const fontScale = this._getStyleFontScale(style.fontSize, style.fontScale);
+                const fontScale = this._fontScale;
                 const _drawUnderlineWidth = measureText(outputLayoutData.parsedString[i]) * fontScale;
                 const _drawUnderlinePos = new Vec2();
                 if (layout.horizontalAlign === HorizontalTextAlignment.RIGHT) {
@@ -554,13 +565,12 @@ export class TextProcessing {
     }
 
     private _setupOutline (style: TextStyle) {
-        const fontScale = this._getStyleFontScale(style.fontSize, style.fontScale);
         this._context!.strokeStyle = `rgba(${style.outlineColor.r}, ${style.outlineColor.g}, ${style.outlineColor.b}, ${style.outlineColor.a / 255})`;
-        this._context!.lineWidth = style.outlineWidth * 2 * fontScale;
+        this._context!.lineWidth = style.outlineWidth * 2 * this._fontScale;
     }
 
     private _setupShadow (style: TextStyle) {
-        const fontScale = this._getStyleFontScale(style.fontSize, style.fontScale);
+        const fontScale = this._fontScale;
         this._context!.shadowColor = `rgba(${style.shadowColor.r}, ${style.shadowColor.g}, ${style.shadowColor.b}, ${style.shadowColor.a / 255})`;
         this._context!.shadowBlur = style.shadowBlur * fontScale;
         this._context!.shadowOffsetX = style.shadowOffsetX * fontScale;
@@ -622,11 +632,7 @@ export class TextProcessing {
     }
 
     private _updateFontScale (style: TextStyle) {
-        let fontScale = 1;
-        if (!style.fntConfig) { // for char
-            fontScale = this._getStyleFontScale(style.originFontSize, style.fontScale);
-        }
-        style.bmfontScale = style.actualFontSize / (style.originFontSize * fontScale);
+        style.bmfontScale = style.actualFontSize / (style.originFontSize * this._fontScale);
     }
 
     private _computeHorizontalKerningForText (style: TextStyle, layout: TextLayout, inputString: string) {
@@ -900,10 +906,6 @@ export class TextProcessing {
     private _computeAlignmentOffset (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData) {
         layout.linesOffsetX.length = 0;
         layout.letterOffsetY = 0;
-        let fontScale = 1;
-        if (!style.fntConfig) { // for char
-            fontScale = this._getStyleFontScale(style.originFontSize, style.fontScale);
-        }
 
         switch (layout.horizontalAlign) {
         case HorizontalTextAlignment.LEFT:
@@ -929,7 +931,7 @@ export class TextProcessing {
         layout.letterOffsetY = outputLayoutData.nodeContentSize.height;
         if (layout.verticalAlign !== VerticalTextAlignment.TOP) {
             const blank = outputLayoutData.nodeContentSize.height - layout.textDesiredHeight
-            + layout.lineHeight * this._getFontScale(style, layout) - style.originFontSize * fontScale * style.bmfontScale;
+            + layout.lineHeight * this._getFontScale(style, layout) - style.originFontSize * this._fontScale * style.bmfontScale;
             if (layout.verticalAlign === VerticalTextAlignment.BOTTOM) {
                 // BOTTOM
                 layout.letterOffsetY -= blank;
@@ -1000,10 +1002,6 @@ export class TextProcessing {
         lambda: (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData,
             inputString: string, process: TextProcessing) => boolean) {
         const fontSize = style.actualFontSize;
-        let fontScale = 1;
-        if (!style.fntConfig) { // for char
-            fontScale = this._getStyleFontScale(style.originFontSize, style.fontScale);
-        }
 
         let left = 0;
         let right = fontSize | 0;
@@ -1016,7 +1014,7 @@ export class TextProcessing {
                 break;
             }
 
-            style.bmfontScale = newFontSize / (style.originFontSize * fontScale);
+            style.bmfontScale = newFontSize / (style.originFontSize * this._fontScale);
 
             this._multilineTextWrap(style, layout, outputLayoutData, inputString, this._getFirstWordLen);
 

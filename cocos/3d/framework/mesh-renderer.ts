@@ -38,7 +38,7 @@ import { NodeEventType } from '../../scene-graph/node-event';
 import { Texture } from '../../gfx';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { settings, Settings } from '../../core/settings';
-import { ReflectionProbeType } from './reflection-probe-enum';
+import { ReflectionProbeType } from '../reflection-probe/reflection-probe-enum';
 import { getPhaseID } from '../../rendering/pass-phase';
 import { SubModel } from '../../render-scene/scene';
 import { isEnableEffect } from '../../rendering/define';

@@ -119,6 +119,7 @@ declare namespace jsb {
         repeat: boolean;
         keyCode: number;
         windowId: number;
+        code: string;
     }
     type KeyboardEventCallback = (keyboardEvent: KeyboardEvent) => void;
     export let onKeyDown: KeyboardEventCallback | undefined;

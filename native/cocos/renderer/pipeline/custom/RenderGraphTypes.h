@@ -342,6 +342,7 @@ struct RasterPass {
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
     PmrTransparentMap<ccstd::pmr::string, uint32_t> attachmentIndexMap;
+    PmrTransparentMap<ccstd::pmr::string, gfx::ShaderStageFlagBit> textures;
     SubpassGraph subpassGraph;
     uint32_t width{0};
     uint32_t height{0};
@@ -355,8 +356,8 @@ struct RasterPass {
 };
 
 inline bool operator==(const RasterPass& lhs, const RasterPass& rhs) noexcept {
-    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.subpassGraph, lhs.width, lhs.height, lhs.count, lhs.quality) ==
-           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.subpassGraph, rhs.width, rhs.height, rhs.count, rhs.quality);
+    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.textures, lhs.subpassGraph, lhs.width, lhs.height, lhs.count, lhs.quality) ==
+           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.textures, rhs.subpassGraph, rhs.width, rhs.height, rhs.count, rhs.quality);
 }
 
 inline bool operator!=(const RasterPass& lhs, const RasterPass& rhs) noexcept {
@@ -624,6 +625,7 @@ struct ComputePass {
     ComputePass& operator=(ComputePass const& rhs) = default;
 
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, gfx::ShaderStageFlagBit> textures;
 };
 
 struct ResolvePass {
@@ -740,26 +742,17 @@ struct RenderQueue {
 };
 
 struct SceneData {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {name.get_allocator().resource()};
-    }
+    SceneData() = default;
+    SceneData(const scene::RenderScene* sceneIn, const scene::Camera* cameraIn, SceneFlags flagsIn, LightInfo lightIn) noexcept
+    : scene(sceneIn),
+      camera(cameraIn),
+      light(std::move(lightIn)),
+      flags(flagsIn) {}
 
-    SceneData(const allocator_type& alloc) noexcept; // NOLINT
-    SceneData(ccstd::pmr::string nameIn, SceneFlags flagsIn, LightInfo lightIn, const allocator_type& alloc) noexcept;
-    SceneData(SceneData&& rhs, const allocator_type& alloc);
-    SceneData(SceneData const& rhs, const allocator_type& alloc);
-
-    SceneData(SceneData&& rhs) noexcept = default;
-    SceneData(SceneData const& rhs) = delete;
-    SceneData& operator=(SceneData&& rhs) = default;
-    SceneData& operator=(SceneData const& rhs) = default;
-
-    ccstd::pmr::string name;
-    scene::Camera* camera{nullptr};
+    const scene::RenderScene* scene{nullptr};
+    const scene::Camera* camera{nullptr};
     LightInfo light;
     SceneFlags flags{SceneFlags::NONE};
-    ccstd::pmr::vector<const scene::RenderScene*> scenes;
 };
 
 struct Dispatch {
@@ -1053,6 +1046,7 @@ inline hash_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterP
     hash_t seed = 0;
     hash_combine(seed, val.rasterViews);
     hash_combine(seed, val.computeViews);
+    hash_combine(seed, val.textures);
     hash_combine(seed, val.subpassGraph);
     hash_combine(seed, val.width);
     hash_combine(seed, val.height);

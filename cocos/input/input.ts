@@ -24,10 +24,10 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, NATIVE } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, NATIVE } from 'internal:constants';
 import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource, GamepadInputDevice, HandleInputDevice, HMDInputDevice, HandheldInputDevice } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
-import { sys, EventTarget, cclegacy } from '../core';
+import { sys, EventTarget } from '../core';
 import { Event, EventAcceleration, EventGamepad, EventHandle, EventHandheld, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
 
@@ -224,7 +224,7 @@ export class Input {
      * @param target - The event listener's target and callee
      */
     public off<K extends keyof InputEventMap> (eventType: K, callback?: InputEventMap[K], target?: any) {
-        if (EDITOR && !cclegacy.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             return;
         }
         this._eventTarget.off(eventType, callback, target);
@@ -237,7 +237,7 @@ export class Input {
      * 是否启用加速度计事件。
      */
     public setAccelerometerEnabled (isEnable: boolean) {
-        if (EDITOR && !cclegacy.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             return;
         }
         if (isEnable) {
@@ -255,7 +255,7 @@ export class Input {
      * 设置加速度计间隔值。
      */
     public setAccelerometerInterval (intervalInMileSeconds: number): void {
-        if (EDITOR && !cclegacy.GAME_VIEW) {
+        if (EDITOR_NOT_IN_PREVIEW) {
             return;
         }
         this._accelerometerInput.setInterval(intervalInMileSeconds);
