@@ -27,6 +27,7 @@
 假设要操作类的 cc 类名为 `cc.animation.Animation`，要操作的属性在代码中的字段名为 `clips` 和 `defaultClip`，为了在编辑器中国际化这些属性的显示名称或工具提示，只需在字典的 `classes.cc` 对象里面，加入以下数据：
 
 ```js
+// 确保这一段包裹在字典的 `classes.cc` 对象中。
 'animation': {
     'AnimationController': {
       properties: {
