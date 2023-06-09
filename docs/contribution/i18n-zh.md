@@ -24,23 +24,32 @@
 
 ## 国际化 CC 类对象的可编辑属性
 
-假设要操作类的 cc 类名为 `cc.animation.Animation`，要操作的属性在代码中的字段名为 `clips` 和 `defaultClip`，为了在编辑器中国际化这些属性的显示名称或工具提示，只需在字典的 `classes.cc` 对象里面，加入以下数据：
+假设要操作类的 cc 类名为 `cc.Animation`，要操作的属性在代码中的字段名为 `clips` 和 `defaultClip`，为了在编辑器中国际化这些属性的显示名称或工具提示，只需在字典的 `classes.cc` 对象里面，加入以下数据：
 
 ```js
 // 确保这一段包裹在字典的 `classes.cc` 对象中。
-'animation': {
-    'AnimationController': {
-      properties: {
-        'clips': {
-          displayName: '<属性 clips 的编辑器显示名称>',
-          tooltip: '<属性 clips 的工具提示。>',
-        },
-        'defaultClip': {
-          displayName: '<属性 defaultClip 的编辑器显示名称>',
-          tooltip: '<属性 defaultClip 的工具提示。>',
-        },
-      },
+'Animation': {
+  properties: {
+    'clips': {
+      displayName: '<属性 clips 的编辑器显示名称>',
+      tooltip: '<属性 clips 的工具提示。>',
     },
+    'defaultClip': {
+      displayName: '<属性 defaultClip 的编辑器显示名称>',
+      tooltip: '<属性 defaultClip 的工具提示。>',
+    },
+  },
+},
+```
+
+又比如，你的 cc 类名是 `cc.physics.BoxCollidier`，那么只需在 `BoxCollidier` 外套个命名空间即可：
+
+```
+// 确保这一段包裹在字典的 `classes.cc` 对象中。
+'physics': {
+  'BoxCollidier': {
+    properties: { /* ... */ },
+  }
 },
 ```
 
