@@ -23,715 +23,209 @@
 */
 
 import { TrackEntryListeners } from './track-entry-listeners';
+import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../2d/renderer/vertex-format';
+import { SPINE_WASM } from './lib/instantiated';
 import spine from './lib/spine-core.js';
-import { Texture2D } from '../asset/assets';
+import { SkeletonData } from './skeleton-data';
 
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
+const spineTag = SPINE_WASM;
+const _useTint = true;
+const _byteStrideOneColor = getAttributeStride(vfmtPosUvColor4B);
+const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);
 
-/**
- *  0/x, 1/y, 2/u, 3/v, 4/color32, 5/color32,
- */
-const _vertices: number[] = [];
-const _indices: number[] = [];
-let _boneInfoOffset = 0;
-let _indexOffset = 0;
-let _vfOffset = 0;
-let _preTexID: string|null = null;
-let _preBlendMode: spine.BlendMode | null = null;
-let _segVCount = 0;
-let _segICount = 0;
-let _segOffset = 0;
-let _colorOffset = 0;
-let _preFinalColor: number | null = null;
-let _preDarkColor: number | null = null;
-// x y u v c1 c2
-const PerVertexSize = 6;
-// x y u v r1 g1 b1 a1 r2 g2 b2 a2
-const PerClipVertexSize = 12;
-// x y z / u v / r g b a/ r g b a
-const ExportVertexSize = 7;
-
-let _vfCount = 0;
-let _indexCount = 0;
-let _tempr: number;
-let _tempg: number;
-let _tempb: number;
-let _tempa: number;
-let _finalColor32: number;
-let _darkColor32: number;
-const _finalColor = new spine.Color(1, 1, 1, 1);
-const _darkColor = new spine.Color(1, 1, 1, 1);
-const _quadTriangles = [0, 1, 2, 2, 3, 0];
-
-export interface SkeletonCacheItemInfo {
-    skeleton: spine.Skeleton;
-    clipper: spine.SkeletonClipping;
-    state: spine.AnimationState;
-    listener: TrackEntryListeners;
-    curAnimationCache: AnimationCache | null;
-    animationsCache: { [key: string]: AnimationCache };
+class FrameBoneInfo {
+    a = 0;
+    b = 0;
+    c = 0;
+    d = 0;
+    worldX = 0;
+    worldY = 0;
 }
 
-export interface FrameColor {
-    fr: number;
-    fg: number;
-    fb: number;
-    fa: number;
-    dr: number;
-    dg: number;
-    db: number;
-    da: number;
-    vfOffset: number;
+class SpineModel {
+    public vCount = 0;
+    public iCount = 0;
+    public vData: Uint8Array = null!;
+    public iData: Uint16Array = null!;
+    public meshes: SpineDrawItem[] = [];
 }
 
-export interface FrameSegment {
-    indexCount: number;
-    vfCount: number;
-    vertexCount: number;
-    tex?: Texture2D;
-    blendMode?: spine.BlendMode;
-}
-
-export interface FrameBoneInfo extends spine.Bone {
-    a: number;
-    b: number;
-    c: number;
-    d: number;
-    worldX: number;
-    worldY: number;
+class SpineDrawItem {
+    public iCount = 0;
+    public blendMode = 0;
 }
 
 export interface AnimationFrame {
-    segments: FrameSegment[];
-    colors: FrameColor[];
+    model: SpineModel;
     boneInfos: FrameBoneInfo[];
-    vertices: Float32Array;
-    indices: Uint16Array;
 }
 
-// Cache all frames in an animation
 export class AnimationCache {
-    public frames: SafeArray<AnimationFrame> = [];
-    public totalTime = 0;
-    public isCompleted = false;
-    public maxVertexCount = 0;
-    public maxIndexCount = 0;
+    protected _instance: spine.SkeletonInstance = null!;
+    protected _state: spine.AnimationState = null!;
+    protected _skeletonData: spine.SkeletonData = null!;
+    protected _skeleton: spine.Skeleton = null!;
+    protected _frames: AnimationFrame[] = [];
+    protected _curIndex = -1;
+    protected _isCompleted = false;
+    protected _maxFrameIdex = 0;
 
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _privateMode = false;
-    protected _inited = false;
-    protected _invalid = true;
-    protected _enableCacheAttachedInfo = false;
-    protected _frameIdx = -1;
-    protected _skeletonInfo: SkeletonCacheItemInfo | null = null;
-    protected _animationName: string | null = null;
-    protected _tempSegments: FrameSegment[] | null = null;
-    protected _tempColors: FrameColor[] | null = null;
-    protected _tempBoneInfos: FrameBoneInfo[] | null = null;
-
-    constructor () {
-        this._privateMode = false;
-        this._inited = false;
-        this._invalid = true;
-        this._enableCacheAttachedInfo = false;
-        this.frames = [];
-        this.totalTime = 0;
-        this._frameIdx = -1;
-        this.isCompleted = false;
-
-        this._skeletonInfo = null;
-        this._animationName = null;
-        this._tempSegments = null;
-        this._tempColors = null;
-        this._tempBoneInfos = null;
+    constructor (data: spine.SkeletonData) {
+        this._instance = new spine.SkeletonInstance();
+        this._skeletonData = data;
+        this._skeleton = this._instance.initSkeleton(data);
+        this._instance.setUseTint(_useTint);
     }
 
-    public init (skeletonInfo: SkeletonCacheItemInfo, animationName: string) {
-        this._inited = true;
-        this._animationName = animationName;
-        this._skeletonInfo = skeletonInfo;
+    get skeleton () {
+        return this._skeleton;
     }
 
-    // Clear texture quote.
-    public clear () {
-        this._inited = false;
-        for (let i = 0, n = this.frames.length; i < n; i++) {
-            const frame = this.frames[i]!;
-            frame.segments.length = 0;
-        }
-        this.invalidAllFrame();
+    public setSkin (skinName: string) {
+        this._instance.setSkin(skinName);
     }
 
-    public bind (listener: TrackEntryListeners) {
-        const completeHandle = (entry: spine.TrackEntry) => {
-            if (entry && entry.animation.name === this._animationName) {
-                this.isCompleted = true;
+    public setAnimation (animationName: string) {
+        const animations = this._skeletonData.animations;
+        let animation: spine.Animation | null = null;
+        animations.forEach((element) => {
+            if (element.name === animationName) {
+                animation = element;
             }
+        });
+        //const animation = this._skeletonData.findAnimation(animationName);
+        if (!animation) {
+            console.warn(`find no animation named ${animationName} !!!`);
+            return;
+        }
+        this._maxFrameIdex = Math.floor((animation as any).duration / FrameTime);
+        this._instance.setAnimation(0, animationName, false);
+    }
+
+    public updateToFrame (frameIdx: number) {
+        if (this._isCompleted) return;
+        while (this._curIndex < frameIdx) {
+            this._instance.updateAnimation(FrameTime);
+            this._curIndex++;
+            const model = this._instance.updateRenderData();
+            this.updateRenderData(this._curIndex, model);
+            if (this._curIndex >= this._maxFrameIdex) {
+                this._isCompleted = true;
+            }
+        }
+    }
+
+    public getFrame (frameIdx: number) {
+        const index = frameIdx % this._maxFrameIdex;
+        return this._frames[index];
+    }
+
+    public invalidAnimationFrames () {
+        this._curIndex = -1;
+        this._isCompleted = false;
+        this._frames.length = 0;
+    }
+
+    private updateRenderData (index: number, model: any) {
+        const vc = model.vCount;
+        const ic = model.iCount;
+        const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
+        const vUint8Buf = new Uint8Array(Float32Array.BYTES_PER_ELEMENT * floatStride * vc);
+        const iUint16Buf = new Uint16Array(ic);
+
+        const vPtr = model.vPtr;
+        const vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+        const vData = spine.wasmUtil.HEAPU8.subarray(vPtr, vPtr + vLength);
+
+        vUint8Buf.set(vData);
+
+        const iPtr = model.iPtr;
+        const iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+        const iData = spine.wasmUtil.HEAPU8.subarray(iPtr, iPtr + iLength);
+        const iUint8Buf = new Uint8Array(iUint16Buf.buffer);
+        iUint8Buf.set(iData);
+
+        const modelData = new SpineModel();
+        modelData.vCount = vc;
+        modelData.iCount = ic;
+        modelData.vData = vUint8Buf;
+        modelData.iData = iUint16Buf;
+
+        const meshes = model.getMeshes();
+        const count = meshes.size();
+        for (let i = 0; i < count; i++) {
+            const mesh = meshes.get(i);
+            const meshData = new SpineDrawItem();
+            meshData.iCount = mesh.iCount;
+            meshData.blendMode = mesh.blendMode;
+            modelData.meshes.push(meshData);
+        }
+
+        const bones = this._skeleton.bones;
+        const boneInfosArray: FrameBoneInfo[] = [];
+        bones.forEach((bone) => {
+            const boneInfo = new FrameBoneInfo();
+            boneInfo.a = bone.a;
+            boneInfo.b = bone.b;
+            boneInfo.c = bone.c;
+            boneInfo.d = bone.d;
+            boneInfo.worldX = bone.worldX;
+            boneInfo.worldY = bone.worldY;
+            boneInfosArray.push(boneInfo);
+        });
+
+        this._frames[index] = {
+            model: modelData,
+            boneInfos: boneInfosArray,
         };
-
-        listener.complete = completeHandle;
     }
 
-    public unbind (listener: TrackEntryListeners) {
-        (listener as any).complete = null;
+    public destory () {
+        spine.wasmUtil.destroySpineInstance(this._instance);
     }
-
-    public begin () {
-        if (!this._invalid) return;
-
-        const skeletonInfo = this._skeletonInfo;
-        const preAnimationCache = skeletonInfo?.curAnimationCache;
-
-        if (preAnimationCache && preAnimationCache !== this) {
-            if (this._privateMode) {
-                // Private cache mode just invalid pre animation frame.
-                preAnimationCache.invalidAllFrame();
-            } else {
-                // If pre animation not finished, play it to the end.
-                preAnimationCache.updateToFrame();
-            }
-        }
-
-        const skeleton = skeletonInfo?.skeleton;
-        const listener = skeletonInfo?.listener;
-        const state = skeletonInfo?.state;
-
-        const animation = skeleton?.data.findAnimation(this._animationName!);
-        state?.setAnimationWith(0, animation!, false);
-        this.bind(listener!);
-
-        // record cur animation cache
-        skeletonInfo!.curAnimationCache = this;
-        this._frameIdx = -1;
-        this.isCompleted = false;
-        this.totalTime = 0;
-        this._invalid = false;
-    }
-
-    public end () {
-        if (!this.needToUpdate()) {
-            // clear cur animation cache
-            this._skeletonInfo!.curAnimationCache = null;
-            this.frames.length = this._frameIdx + 1;
-            this.isCompleted = true;
-            this.unbind(this._skeletonInfo!.listener);
-        }
-    }
-
-    public updateToFrame (toFrameIdx?: number) {
-        if (!this._inited) return;
-
-        this.begin();
-
-        if (!this.needToUpdate(toFrameIdx)) return;
-
-        const skeletonInfo = this._skeletonInfo;
-        const skeleton = skeletonInfo?.skeleton;
-        const clipper = skeletonInfo?.clipper;
-        const state = skeletonInfo?.state;
-
-        do {
-            // Solid update frame rate 1/60.
-            skeleton?.update(FrameTime);
-            state?.update(FrameTime);
-            state?.apply(skeleton!);
-            skeleton?.updateWorldTransform();
-            this._frameIdx++;
-            this.updateFrame(skeleton!, clipper!, this._frameIdx);
-            this.totalTime += FrameTime;
-        } while (this.needToUpdate(toFrameIdx));
-
-        this.end();
-    }
-
-    public isInited () {
-        return this._inited;
-    }
-
-    public isInvalid () {
-        return this._invalid;
-    }
-
-    public invalidAllFrame () {
-        this.isCompleted = false;
-        this._invalid = true;
-    }
-
-    public updateAllFrame () {
-        this.invalidAllFrame();
-        this.updateToFrame();
-    }
-
-    public enableCacheAttachedInfo () {
-        if (!this._enableCacheAttachedInfo) {
-            this._enableCacheAttachedInfo = true;
-            this.invalidAllFrame();
-        }
-    }
-
-    public fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color, slotColor: spine.Color, clipper: spine.SkeletonClipping, slot: spine.Slot) {
-        _tempa = slotColor.a * attachmentColor.a * skeletonColor.a * 255;
-        _tempr = attachmentColor.r * skeletonColor.r * 255;
-        _tempg = attachmentColor.g * skeletonColor.g * 255;
-        _tempb = attachmentColor.b * skeletonColor.b * 255;
-
-        _finalColor.r = _tempr * slotColor.r;
-        _finalColor.g = _tempg * slotColor.g;
-        _finalColor.b = _tempb * slotColor.b;
-        _finalColor.a = _tempa;
-
-        if (slot.darkColor == null) {
-            _darkColor.set(0.0, 0, 0, 0.0);
-        } else {
-            _darkColor.r = slot.darkColor.r * _tempr;
-            _darkColor.g = slot.darkColor.g * _tempg;
-            _darkColor.b = slot.darkColor.b * _tempb;
-            _darkColor.a = 0;
-        }
-
-        _finalColor32 = ((_finalColor.a << 24) >>> 0) + (_finalColor.b << 16) + (_finalColor.g << 8) + _finalColor.r;
-        _darkColor32 = ((_darkColor.a << 24) >>> 0) + (_darkColor.b << 16) + (_darkColor.g << 8) + _darkColor.r;
-
-        if (_preFinalColor !== _finalColor32 || _preDarkColor !== _darkColor32) {
-            const colors = this._tempColors;
-            _preFinalColor = _finalColor32;
-            _preDarkColor = _darkColor32;
-            if (_colorOffset > 0) {
-                colors![_colorOffset - 1].vfOffset = _vfOffset;
-            }
-            colors![_colorOffset++] = {
-                fr: _finalColor.r,
-                fg: _finalColor.g,
-                fb: _finalColor.b,
-                fa: _finalColor.a,
-                dr: _darkColor.r,
-                dg: _darkColor.g,
-                db: _darkColor.b,
-                da: _darkColor.a,
-                vfOffset: 0,
-            };
-        }
-
-        if (!clipper.isClipping()) {
-            for (let v = _vfOffset, n = _vfOffset + _vfCount; v < n; v += PerVertexSize) {
-                _vertices[v + 4] = _finalColor32;     // light color
-                _vertices[v + 5] = _darkColor32;      // dark color
-            }
-        } else {
-            const subIndices = _indices.slice(_indexOffset, _indices.length);
-            clipper.clipTriangles(_vertices, _vfCount, subIndices, _indexCount,
-                _vertices, _finalColor, _darkColor, true, PerVertexSize, _vfOffset, _vfOffset + 2);
-            const clippedVertices = clipper.clippedVertices;
-            const clippedTriangles = clipper.clippedTriangles;
-
-            // insure capacity
-            _indexCount = clippedTriangles.length;
-            _vfCount = clippedVertices.length / PerClipVertexSize * PerVertexSize;
-
-            // fill indices
-            for (let ii = 0, jj = _indexOffset, nn = clippedTriangles.length; ii < nn;) {
-                _indices[jj++] = clippedTriangles[ii++];
-            }
-            // clippedVertices: x y/r g b a/u v/r g b a
-            // fill vertices contain x y u v light color dark color
-            for (let v = 0, n = clippedVertices.length, offset = _vfOffset; v < n; v += PerClipVertexSize, offset += PerVertexSize) {
-                _vertices[offset] = clippedVertices[v];                 // x
-                _vertices[offset + 1] = clippedVertices[v + 1];         // y
-                _vertices[offset + 2] = clippedVertices[v + 6];         // u
-                _vertices[offset + 3] = clippedVertices[v + 7];         // v
-
-                _vertices[offset + 4] = _finalColor32;
-                _vertices[offset + 5] = _darkColor32;
-            }
-        }
-    }
-
-    protected updateFrame (skeleton: spine.Skeleton, clipper: spine.SkeletonClipping, index: number) {
-        _vfOffset = 0;
-        _boneInfoOffset = 0;
-        _indexOffset = 0;
-        _preTexID = null;
-        _preBlendMode = null;
-        _segVCount = 0;
-        _segICount = 0;
-        _segOffset = 0;
-        _colorOffset = 0;
-        _preFinalColor = null;
-        _preDarkColor = null;
-
-        this.frames[index] = this.frames[index] || {
-            segments: [],
-            colors: [],
-            boneInfos: [],
-            vertices: new Float32Array(),
-            indices: new Uint16Array(),
-        };
-        const frame = this.frames[index]!;
-
-        const segments = this._tempSegments = frame.segments;
-        const colors = this._tempColors = frame.colors;
-        const boneInfos = this._tempBoneInfos = frame.boneInfos;
-        this.traverseSkeleton(skeleton, clipper);
-        if (_colorOffset > 0) {
-            colors[_colorOffset - 1].vfOffset = _vfOffset;
-        }
-        colors.length = _colorOffset;
-        boneInfos.length = _boneInfoOffset;
-        // Handle pre segment.
-        const preSegOffset = _segOffset - 1;
-        if (preSegOffset >= 0) {
-            // Judge segment vertex count is not empty.
-            if (_segICount > 0) {
-                const preSegInfo = segments[preSegOffset];
-                preSegInfo.indexCount = _segICount;
-                preSegInfo.vfCount = _segVCount * ExportVertexSize;
-                preSegInfo.vertexCount = _segVCount;
-                segments.length = _segOffset;
-            } else {
-                // Discard pre segment.
-                segments.length = _segOffset - 1;
-            }
-        }
-
-        // Segments is empty,discard all segments.
-        if (segments.length === 0) return;
-
-        // Fill vertices
-        let vertices = frame.vertices;
-        const vertexCount = _vfOffset / PerVertexSize;
-        const copyOutVerticeSize = vertexCount * ExportVertexSize;
-        if (!vertices || vertices.length < copyOutVerticeSize) {
-            vertices = frame.vertices = new Float32Array(copyOutVerticeSize);
-        }
-        const intVbuf = new Uint32Array(vertices.buffer);
-        for (let i = 0, j = 0; i < copyOutVerticeSize;) {
-            vertices[i] = _vertices[j++]; // x
-            vertices[i + 1] = _vertices[j++]; // y
-            vertices[i + 3] = _vertices[j++]; // u
-            vertices[i + 4] = _vertices[j++]; // v
-            intVbuf[i + 5] = _vertices[j++];
-            intVbuf[i + 6] = _vertices[j++];
-            i += ExportVertexSize;
-        }
-
-        // Fill indices
-        let indices = frame.indices;
-        if (!indices || indices.length < _indexOffset) {
-            indices = frame.indices = new Uint16Array(_indexOffset);
-        }
-
-        for (let i = 0; i < _indexOffset; i++) {
-            indices[i] = _indices[i];
-        }
-
-        frame.vertices = vertices;
-        frame.indices = indices;
-        this.maxVertexCount = vertexCount > this.maxVertexCount ? vertexCount : this.maxVertexCount;
-        this.maxIndexCount = indices.length > this.maxIndexCount ? indices.length : this.maxIndexCount;
-    }
-
-    protected needToUpdate (toFrameIdx?: number) {
-        return !this.isCompleted
-            && this.totalTime < MaxCacheTime
-            && (toFrameIdx === undefined || this._frameIdx < toFrameIdx);
-    }
-
-    protected traverseSkeleton (skeleton: spine.Skeleton, clipper: spine.SkeletonClipping) {
-        const segments = this._tempSegments!;
-        const boneInfos = this._tempBoneInfos!;
-        const skeletonColor = skeleton.color;
-        let attachment: spine.Attachment;
-        let attachmentColor: spine.Color;
-        let slotColor: spine.Color;
-        let uvs: spine.ArrayLike<number>;
-        let triangles: number[];
-        let isRegion: boolean;
-        let isMesh: boolean;
-        let isClip: boolean;
-        let texture: Texture2D;
-        let preSegOffset: number;
-        let preSegInfo: FrameSegment;
-        let blendMode: spine.BlendMode;
-        let slot: spine.Slot;
-
-        const bones = skeleton.bones;
-        if (this._enableCacheAttachedInfo) {
-            for (let i = 0, l = bones.length; i < l; i++, _boneInfoOffset++) {
-                const bone = bones[i];
-                let boneInfo = boneInfos[_boneInfoOffset];
-                if (!boneInfo) {
-                    boneInfo = boneInfos[_boneInfoOffset] = {} as any;
-                }
-                boneInfo.a = bone.a;
-                boneInfo.b = bone.b;
-                boneInfo.c = bone.c;
-                boneInfo.d = bone.d;
-                boneInfo.worldX = bone.worldX;
-                boneInfo.worldY = bone.worldY;
-            }
-        }
-
-        for (let slotIdx = 0, slotCount = skeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
-            slot = skeleton.drawOrder[slotIdx];
-
-            if (!slot.bone.active) {
-                continue;
-            }
-
-            _vfCount = 0;
-            _indexCount = 0;
-
-            attachment = slot.getAttachment();
-            if (!attachment) {
-                clipper.clipEndWithSlot(slot);
-                continue;
-            }
-
-            isRegion = attachment instanceof spine.RegionAttachment;
-            isMesh = attachment instanceof spine.MeshAttachment;
-            isClip = attachment instanceof spine.ClippingAttachment;
-
-            if (isClip) {
-                clipper.clipStart(slot, attachment as spine.ClippingAttachment);
-                continue;
-            }
-
-            if (!isRegion && !isMesh) {
-                clipper.clipEndWithSlot(slot);
-                continue;
-            }
-
-            texture = (attachment as any).region.texture.getRealTexture();
-            if (!texture) {
-                clipper.clipEndWithSlot(slot);
-                continue;
-            }
-
-            blendMode = slot.data.blendMode;
-            if (_preTexID !== texture.getId() || _preBlendMode !== blendMode) {
-                _preTexID = texture.getId();
-                _preBlendMode = blendMode;
-                // Handle pre segment.
-                preSegOffset = _segOffset - 1;
-                if (preSegOffset >= 0) {
-                    if (_segICount > 0) {
-                        preSegInfo = segments[preSegOffset];
-                        preSegInfo.indexCount = _segICount;
-                        preSegInfo.vertexCount = _segVCount;
-                        preSegInfo.vfCount = _segVCount * ExportVertexSize;
-                    } else {
-                        // Discard pre segment.
-                        _segOffset--;
-                    }
-                }
-                // Handle now segment.
-                segments[_segOffset] = {
-                    tex: texture,
-                    blendMode,
-                    indexCount: 0,
-                    vertexCount: 0,
-                    vfCount: 0,
-                };
-                _segOffset++;
-                _segICount = 0;
-                _segVCount = 0;
-            }
-
-            if (isRegion) {
-                triangles = _quadTriangles;
-
-                // insure capacity
-                _vfCount = 4 * PerVertexSize;
-                _indexCount = 6;
-
-                // compute vertex and fill x y
-                (attachment as spine.RegionAttachment).computeWorldVertices(slot.bone, _vertices, _vfOffset, PerVertexSize);
-            } else if (isMesh) {
-                const meshAttachment = (attachment as spine.MeshAttachment);
-                triangles = meshAttachment.triangles;
-
-                // insure capacity
-                _vfCount = (meshAttachment.worldVerticesLength >> 1) * PerVertexSize;
-                _indexCount = triangles.length;
-
-                // compute vertex and fill x y
-                meshAttachment.computeWorldVertices(slot, 0, meshAttachment.worldVerticesLength, _vertices, _vfOffset, PerVertexSize);
-            }
-
-            if (_vfCount === 0 || _indexCount === 0) {
-                clipper.clipEndWithSlot(slot);
-                continue;
-            }
-
-            // fill indices
-            for (let ii = 0, jj = _indexOffset, nn = triangles!.length; ii < nn;) {
-                _indices[jj++] = triangles![ii++];
-            }
-
-            // fill u v
-            uvs = (attachment as spine.MeshAttachment).uvs;
-            for (let v = _vfOffset, n = _vfOffset + _vfCount, u = 0; v < n; v += PerVertexSize, u += 2) {
-                _vertices[v + 2] = uvs[u];           // u
-                _vertices[v + 3] = uvs[u + 1];       // v
-            }
-
-            attachmentColor = (attachment as spine.MeshAttachment).color;
-            slotColor = slot.color;
-
-            this.fillVertices(skeletonColor, attachmentColor, slotColor, clipper, slot);
-
-            if (_indexCount > 0) {
-                for (let ii = _indexOffset, nn = _indexOffset + _indexCount; ii < nn; ii++) {
-                    _indices[ii] += _segVCount;
-                }
-                _indexOffset += _indexCount;
-                _vfOffset += _vfCount;
-                _segICount += _indexCount;
-                _segVCount += _vfCount / PerVertexSize;
-            }
-
-            clipper.clipEndWithSlot(slot);
-        }
-
-        clipper.clipEnd();
-    }
-
-    // private _setVerticeColor (colorI32: number, buffer: Float32Array, offset: number) {
-    //     buffer[offset] = (colorI32 & 0xff) / 255.0;
-    //     buffer[offset + 1] = ((colorI32 >> 8) & 0xff) / 255.0;
-    //     buffer[offset + 2] = ((colorI32 >> 16) & 0xff) / 255.0;
-    //     buffer[offset + 3] = ((colorI32 >> 24) & 0xff) / 255.0;
-    // }
 }
 
 class SkeletonCache {
-    public static readonly FrameTime = FrameTime;
     public static sharedCache = new SkeletonCache();
-
-    protected _privateMode: boolean;
-    protected _skeletonCache: { [key: string]: SkeletonCacheItemInfo };
     protected _animationPool: { [key: string]: AnimationCache };
     constructor () {
-        this._privateMode = false;
         this._animationPool = {};
-        this._skeletonCache = {};
-    }
-
-    public enablePrivateMode () {
-        this._privateMode = true;
-    }
-
-    public clear () {
-        this._animationPool = {};
-        this._skeletonCache = {};
-    }
-
-    public removeSkeleton (uuid: string) {
-        const skeletonInfo = this._skeletonCache[uuid];
-        if (!skeletonInfo) return;
-        const animationsCache = skeletonInfo.animationsCache;
-        for (const aniKey in animationsCache) {
-            // Clear cache texture, and put cache into pool.
-            // No need to create TypedArray next time.
-            const animationCache = animationsCache[aniKey];
-            if (!animationCache) continue;
-            this._animationPool[`${uuid}#${aniKey}`] = animationCache;
-            animationCache.clear();
-        }
-
-        delete this._skeletonCache[uuid];
-    }
-
-    public getSkeletonCache (uuid: string, skeletonData: spine.SkeletonData) {
-        let skeletonInfo = this._skeletonCache[uuid];
-        if (!skeletonInfo) {
-            const skeleton = new spine.Skeleton(skeletonData);
-            const clipper = new spine.SkeletonClipping();
-            const stateData = new spine.AnimationStateData(skeleton.data);
-            const state = new spine.AnimationState(stateData);
-            const listener = new TrackEntryListeners();
-            state.addListener(listener as any);
-
-            this._skeletonCache[uuid] = skeletonInfo = {
-                skeleton,
-                clipper,
-                state,
-                listener,
-                // Cache all kinds of animation frame.
-                // When skeleton is dispose, clear all animation cache.
-                animationsCache: {} as any,
-                curAnimationCache: null,
-            };
-        }
-        return skeletonInfo;
     }
 
     public getAnimationCache (uuid: string, animationName: string) {
-        const skeletonInfo = this._skeletonCache[uuid];
-        if (!skeletonInfo) return null;
-
-        const animationsCache = skeletonInfo.animationsCache;
-        return animationsCache[animationName];
+        const poolKey = `${uuid}#${animationName}`;
+        const animCache = this._animationPool[poolKey];
+        return animCache;
     }
 
-    public invalidAnimationCache (uuid: string) {
-        const skeletonInfo = this._skeletonCache[uuid];
-        const skeleton = skeletonInfo && skeletonInfo.skeleton;
-        if (!skeleton) return;
-
-        const animationsCache = skeletonInfo.animationsCache;
-        for (const aniKey in animationsCache) {
-            const animationCache = animationsCache[aniKey];
-            animationCache.invalidAllFrame();
-        }
+    public initAnimationCache (data: SkeletonData, animationName: string) {
+        const uuid = data.uuid;
+        const poolKey = `${uuid}#${animationName}`;
+        const spData = data.getRuntimeData();
+        const animCache = new AnimationCache(spData!);
+        this._animationPool[poolKey] = animCache;
+        animCache.setAnimation(animationName);
+        return animCache;
     }
 
-    public initAnimationCache (uuid: string, animationName: string): null | AnimationCache {
-        if (!animationName) return null;
-        const skeletonInfo = this._skeletonCache[uuid];
-        const skeleton = skeletonInfo && skeletonInfo.skeleton;
-        if (!skeleton) return null;
-
-        const animation = skeleton.data.findAnimation(animationName);
-        if (!animation) {
-            return null;
-        }
-
-        const animationsCache = skeletonInfo.animationsCache;
-        let animationCache = animationsCache[animationName];
-        if (!animationCache) {
-            // If cache exist in pool, then just use it.
-            const poolKey = `${uuid}#${animationName}`;
-            animationCache = this._animationPool[poolKey];
-            if (animationCache) {
-                delete this._animationPool[poolKey];
-            } else {
-                animationCache = new AnimationCache();
-                animationCache._privateMode = this._privateMode;
+    public destroyCachedAnimations (uuid?: string) {
+        if (uuid) {
+            const animationPool = this._animationPool;
+            for (const key in animationPool) {
+                if (key.includes(uuid)) {
+                    animationPool[key].destory();
+                    delete animationPool[key];
+                }
             }
-            animationCache.init(skeletonInfo, animationName);
-            animationsCache[animationName] = animationCache;
-        }
-        return animationCache;
-    }
-
-    public updateAnimationCache (uuid: string, animationName: string): void {
-        if (animationName) {
-            const animationCache = this.initAnimationCache(uuid, animationName);
-            if (!animationCache) return;
-            animationCache.updateAllFrame();
         } else {
-            const skeletonInfo = this._skeletonCache[uuid];
-            const skeleton = skeletonInfo && skeletonInfo.skeleton;
-            if (!skeleton) return;
-
-            const animationsCache = skeletonInfo.animationsCache;
-            for (const aniKey in animationsCache) {
-                const animationCache = animationsCache[aniKey];
-                animationCache.updateAllFrame();
+            const animationPool = this._animationPool;
+            for (const key in animationPool) {
+                animationPool[key].destory();
+                delete animationPool[key];
             }
         }
     }

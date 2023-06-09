@@ -32,6 +32,7 @@ import { simple } from './simple';
  */
 export const simpleSpineAssembler: IAssemblerManager = {
     getAssembler () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return simple;
     },
 };
