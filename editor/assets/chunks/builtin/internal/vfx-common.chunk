@@ -88,6 +88,10 @@ struct VFXParticleInput {
   vec3 scale;
   float subUVIndex;
   #endif
+  #if CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_RIBBON
+  vec3 size;
+  vec3 velocity;
+  #endif
   vec4 color;
 };
 
@@ -134,6 +138,17 @@ void CCVFXSetupParticleInput (out VFXParticleInput particleInput) {
   #else
   particleInput.subUVIndex = 0.0;
   #endif
+  #elif CC_VFX_RENDERER_TYPE == CC_VFX_RENDERER_TYPE_RIBBON
+  #if CC_VFX_P_SCALE
+  particleInput.size = a_vfx_p_scale;
+  #else
+  particleInput.size = vec3(1.0);
+  #endif
+  #if CC_VFX_P_VELOCITY
+  particleInput.velocity = a_vfx_p_velocity;
+  #else
+  particleInput.velocity = vec3(0., 0., 0.);
+  #endif
   #endif // CC_VFX_RENDERER_TYPE
   #if CC_VFX_P_COLOR
   particleInput.color = a_vfx_p_color;
@@ -143,7 +158,7 @@ void CCVFXSetupParticleInput (out VFXParticleInput particleInput) {
   
 }
 
-vec4 CCVFXApplyParticlePosition (VFXParticleInput particleInput, vec3 position) {
+vec4 CalculateParticlePosition (VFXParticleInput particleInput, vec3 position) {
   vec4 pos = vec4(particleInput.position.xyz, 1);
   vec3 meshOrientation = particleInput.meshOrientation;
   vec4 velocity = vec4(particleInput.velocity.xyz, 0.);
@@ -177,6 +192,29 @@ vec4 CCVFXApplyParticlePosition (VFXParticleInput particleInput, vec3 position) 
     vec4 normal = xformNoScale * vec4(a_normal, 0);
   #endif
   return pos;
+}
+
+vec4 CalculateRibbonPosition (VFXParticleInput particleInput, vec3 position) {
+    highp vec4 pos = vec4(particleInput.position, 1.0);
+    vec4 velocity = vec4(particleInput.velocity.xyz, 0.0);
+
+    #if !CC_USE_WORLD_SPACE
+        pos = cc_matWorld * pos;
+        velocity = cc_matWorld * velocity;
+    #endif
+
+    float vertOffset = particleInput.size.x * particleInput.size.z;
+    vec3 camUp = normalize(cross(pos.xyz - cc_cameraPos.xyz, velocity.xyz));
+    pos.xyz += camUp * vertOffset;
+    return pos;
+}
+
+vec4 CCVFXApplyParticlePosition (VFXParticleInput particleInput, vec3 position) {
+  #if CC_VFX_RENDERER_TYPE != CC_VFX_RENDERER_TYPE_RIBBON
+    return CalculateParticlePosition(particleInput, position);
+  #elif
+    return CalculateRibbonPosition(particleInput, position);
+  #endif
 }
 
 vec4 CCVFXApplyParticleTexCoord (VFXParticleInput particleInput, vec2 texCoord) {

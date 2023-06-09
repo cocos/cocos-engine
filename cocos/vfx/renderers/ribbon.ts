@@ -27,17 +27,17 @@ import { Color, Vec3 } from '../../core';
 import { Attribute, Format, FormatInfos, PrimitiveMode, BufferUsageBit } from '../../gfx';
 import { MacroRecord } from '../../render-scene';
 import { EmitterDataSet, ParticleDataSet } from '../data-set';
-import { CC_VFX_P_COLOR, P_COLOR, P_POSITION, P_RIBBON_ID, P_RIBBON_LINK_ORDER, P_RIBBON_WIDTH } from '../define';
+import { CC_VFX_P_COLOR, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_RIBBON, P_COLOR, P_POSITION, P_RIBBON_ID, P_RIBBON_LINK_ORDER, P_RIBBON_WIDTH } from '../define';
 import { ColorArrayParameter, FloatArrayParameter } from '../parameters';
 import { ParticleRenderer } from '../particle-renderer';
 import { VFXDynamicBuffer } from '../vfx-dynamic-buffer';
 import { vfxManager } from '../vfx-manager';
 import { Handle } from '../vfx-parameter';
 
-const ribbonPosition = new Attribute('a_particle_position', Format.RGB32F, false, 0, true);       // ribbon position
-const ribbonSize = new Attribute('a_particle_size', Format.RGB32F, false, 0, true);               // ribbon scale
-const ribbonColor = new Attribute('a_particle_color', Format.RGBA8, true, 0, true);               // ribbon color
-const ribbonVelocity = new Attribute('a_particle_velocity', Format.RGB32F, false, 1, true);       // ribbon velocity
+const ribbonPosition = new Attribute('a_vfx_p_position', Format.RGB32F, false, 0, true);       // ribbon position
+const ribbonSize = new Attribute('a_vfx_p_scale', Format.RGB32F, false, 0, true);              // ribbon scale
+const ribbonVelocity = new Attribute('a_vfx_p_velocity', Format.RGB32F, false, 1, true);       // ribbon velocity
+const ribbonColor = new Attribute('a_vfx_p_color', Format.RGBA8, true, 0, true);               // ribbon color
 
 const RIBBON_IBO_HASH = 'ribbon-index';
 
@@ -75,7 +75,7 @@ class Segment {
 }
 
 export class RibbonParticleRenderer extends ParticleRenderer {
-    private _defines: MacroRecord = {};
+    private _defines: MacroRecord = { [CC_VFX_RENDERER_TYPE]: CC_VFX_RENDERER_TYPE_RIBBON };
     private declare _dynamicVBO: VFXDynamicBuffer;
     private declare _dynamicIBO: VFXDynamicBuffer;
     private _vertexStreamSize = 0;
@@ -130,15 +130,15 @@ export class RibbonParticleRenderer extends ParticleRenderer {
         this._addAttrib(ribbonSize);
         vertexStreamSizeDynamic += FormatInfos[ribbonSize.format].size;
 
+        vertexStreamAttributes.push(ribbonVelocity);
+        this._addAttrib(ribbonVelocity);
+        vertexStreamSizeDynamic += FormatInfos[ribbonVelocity.format].size;
+
         if (define[CC_VFX_P_COLOR]) {
             vertexStreamAttributes.push(ribbonColor);
             this._addAttrib(ribbonColor);
             vertexStreamSizeDynamic += FormatInfos[ribbonColor.format].size;
         }
-
-        vertexStreamAttributes.push(ribbonVelocity);
-        this._addAttrib(ribbonVelocity);
-        vertexStreamSizeDynamic += FormatInfos[ribbonVelocity.format].size;
 
         this._vertexAttributeHash += 'vertex';
         this._vertexStreamSize = vertexStreamSizeDynamic;
@@ -248,15 +248,15 @@ export class RibbonParticleRenderer extends ParticleRenderer {
                 dynamicBufferFloatView[vboOffset++] = -1.0;
                 dynamicBufferFloatView[vboOffset++] = 1.0;
                 dynamicBufferFloatView[vboOffset++] = width * 0.5;
+                // fill velocity
+                dynamicBufferFloatView[vboOffset++] = _tmp_velo1.x;
+                dynamicBufferFloatView[vboOffset++] = _tmp_velo1.y;
+                dynamicBufferFloatView[vboOffset++] = _tmp_velo1.z;
                 // fill color
                 if (colors) {
                     colors.getColorAt(_tmp_color, p1);
                     dynamicBufferUintView[vboOffset++] = _tmp_color._val;
                 }
-                // fill velocity
-                dynamicBufferFloatView[vboOffset++] = _tmp_velo1.x;
-                dynamicBufferFloatView[vboOffset++] = _tmp_velo1.y;
-                dynamicBufferFloatView[vboOffset++] = _tmp_velo1.z;
 
                 // p1
                 // fill position
@@ -267,14 +267,14 @@ export class RibbonParticleRenderer extends ParticleRenderer {
                 dynamicBufferFloatView[vboOffset++] = 1.0;
                 dynamicBufferFloatView[vboOffset++] = 1.0;
                 dynamicBufferFloatView[vboOffset++] = width * 0.5;
-                // fill color
-                if (colors) {
-                    dynamicBufferUintView[vboOffset++] = _tmp_color._val;
-                }
                 // fill velocity
                 dynamicBufferFloatView[vboOffset++] = _tmp_velo1.x;
                 dynamicBufferFloatView[vboOffset++] = _tmp_velo1.y;
                 dynamicBufferFloatView[vboOffset++] = _tmp_velo1.z;
+                // fill color
+                if (colors) {
+                    dynamicBufferUintView[vboOffset++] = _tmp_color._val;
+                }
 
                 // p2
                 // fill position
@@ -289,15 +289,15 @@ export class RibbonParticleRenderer extends ParticleRenderer {
                 dynamicBufferFloatView[vboOffset++] = -1.0;
                 dynamicBufferFloatView[vboOffset++] = -1.0;
                 dynamicBufferFloatView[vboOffset++] = width * 0.5;
+                // fill velocity
+                dynamicBufferFloatView[vboOffset++] = _tmp_velo2.x;
+                dynamicBufferFloatView[vboOffset++] = _tmp_velo2.y;
+                dynamicBufferFloatView[vboOffset++] = _tmp_velo2.z;
                 // fill color
                 if (colors) {
                     colors.getColorAt(_tmp_color, p2);
                     dynamicBufferUintView[vboOffset++] = _tmp_color._val;
                 }
-                // fill velocity
-                dynamicBufferFloatView[vboOffset++] = _tmp_velo2.x;
-                dynamicBufferFloatView[vboOffset++] = _tmp_velo2.y;
-                dynamicBufferFloatView[vboOffset++] = _tmp_velo2.z;
 
                 // p3
                 // fill position
@@ -308,14 +308,14 @@ export class RibbonParticleRenderer extends ParticleRenderer {
                 dynamicBufferFloatView[vboOffset++] = 1.0;
                 dynamicBufferFloatView[vboOffset++] = -1.0;
                 dynamicBufferFloatView[vboOffset++] = width * 0.5;
-                // fill color
-                if (colors) {
-                    dynamicBufferUintView[vboOffset++] = _tmp_color._val;
-                }
                 // fill velocity
                 dynamicBufferFloatView[vboOffset++] = _tmp_velo2.x;
                 dynamicBufferFloatView[vboOffset++] = _tmp_velo2.y;
                 dynamicBufferFloatView[vboOffset++] = _tmp_velo2.z;
+                // fill color
+                if (colors) {
+                    dynamicBufferUintView[vboOffset++] = _tmp_color._val;
+                }
 
                 // fill index
                 indexView[iboOffset++] = indexCurr + 0;
