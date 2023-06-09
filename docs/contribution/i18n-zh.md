@@ -20,7 +20,12 @@
   
 - `字典`
 
-  位于 `<本仓库>/editor/i18n/(en|zh)/localization.js` 中，里面以 JSON 形式记录了某些文本的中文、英文表示。
+  每个目标语言都有一个字典文件。里面存储的是一些文本在该语言中的表示。 本仓库目前支持简体中文和英文两种语言：
+  
+  - [简体中文](/editor/i18n/zh/localization.js)
+  - [英文](/editor/i18n/en/localization.js)
+
+  > 该字典文件是用 JS 代码生成的。模块 `localization` 导出的内容就是字典对象的内容。
 
 ## 国际化 CC 类对象的可编辑属性
 
@@ -44,7 +49,7 @@
 
 又比如，你的 cc 类名是 `cc.physics.BoxCollidier`，那么只需在 `BoxCollidier` 外套个命名空间即可：
 
-```
+```js
 // 确保这一段包裹在字典的 `classes.cc` 对象中。
 'physics': {
   'BoxCollidier': {
