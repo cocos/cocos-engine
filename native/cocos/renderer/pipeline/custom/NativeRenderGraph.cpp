@@ -470,7 +470,6 @@ void NativeRenderPassBuilder::addDepthStencil(
 void NativeRenderPassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
-    std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
@@ -482,6 +481,13 @@ void NativeRenderPassBuilder::addTexture(
             ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+    if (sampler) {
+        auto iter = layoutGraph->attributeIndex.find(std::string_view{slotName});
+        if (iter != layoutGraph->attributeIndex.end()) {
+            auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+            data.samplers[iter->second.value] = sampler;
+        }
+    }
 }
 
 void NativeRenderPassBuilder::addStorageBuffer(
@@ -739,7 +745,6 @@ void NativeRenderSubpassBuilderImpl::addDepthStencil(
 void NativeRenderSubpassBuilderImpl::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
-    std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
@@ -751,6 +756,13 @@ void NativeRenderSubpassBuilderImpl::addTexture(
             ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+    if (sampler) {
+        auto iter = layoutGraph->attributeIndex.find(std::string_view{slotName});
+        if (iter != layoutGraph->attributeIndex.end()) {
+            auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+            data.samplers[iter->second.value] = sampler;
+        }
+    }
 }
 
 void NativeRenderSubpassBuilderImpl::addStorageBuffer(
@@ -924,7 +936,6 @@ void NativeComputeSubpassBuilder::addRenderTarget(const ccstd::string &name, con
 void NativeComputeSubpassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
-    std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
@@ -936,6 +947,13 @@ void NativeComputeSubpassBuilder::addTexture(
             ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+    if (sampler) {
+        auto iter = layoutGraph->attributeIndex.find(std::string_view{slotName});
+        if (iter != layoutGraph->attributeIndex.end()) {
+            auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+            data.samplers[iter->second.value] = sampler;
+        }
+    }
 }
 
 void NativeComputeSubpassBuilder::addStorageBuffer(
@@ -1290,9 +1308,9 @@ void setTextureUBOView(
         gfx::Address::CLAMP};
     auto *pointSampler = device.getSampler(samplerPointInfo);
     setSamplerImpl(data, layoutGraph, "cc_shadowMap", pointSampler);
-    //setTextureImpl(data, layoutGraph, "cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+    // setTextureImpl(data, layoutGraph, "cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
     setSamplerImpl(data, layoutGraph, "cc_spotShadowMap", pointSampler);
-    //setTextureImpl(data, layoutGraph, "cc_spotShadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+    // setTextureImpl(data, layoutGraph, "cc_spotShadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
 }
 
 } // namespace
@@ -1642,7 +1660,6 @@ void NativeComputeQueueBuilder::addDispatch(
 void NativeComputePassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
-    std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
@@ -1654,6 +1671,13 @@ void NativeComputePassBuilder::addTexture(
             ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+    if (sampler) {
+        auto iter = layoutGraph->attributeIndex.find(std::string_view{slotName});
+        if (iter != layoutGraph->attributeIndex.end()) {
+            auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+            data.samplers[iter->second.value] = sampler;
+        }
+    }
 }
 
 void NativeComputePassBuilder::addStorageBuffer(

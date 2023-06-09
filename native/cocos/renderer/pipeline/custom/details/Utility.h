@@ -58,12 +58,4 @@ struct TransparentStringEqual {
     }
 };
 
-template <class T>
-struct ObserverPtr {
-    T* get() const noexcept {
-        return ptr;
-    }
-    T* ptr;
-};
-
 } // namespace cc

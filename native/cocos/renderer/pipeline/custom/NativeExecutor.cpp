@@ -401,7 +401,7 @@ void updateGlobal(
         }
         auto* sampler = descriptorSet.getSampler(bindId);
         if (!sampler || isUpdate) {
-            bindGlobalDesc(descriptorSet, bindId, value.get());
+            bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
 }
@@ -586,7 +586,7 @@ gfx::DescriptorSet* initDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     auto iter = user.samplers.find(d.descriptorID.value);
                     if (iter != user.samplers.end()) {
-                        newSet->bindSampler(bindID, iter->second.get());
+                        newSet->bindSampler(bindID, iter->second);
                     } else {
                         gfx::SamplerInfo info{};
                         auto* sampler = device->getSampler(info);
@@ -741,7 +741,7 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     auto iter = user.samplers.find(d.descriptorID.value);
                     if (iter != user.samplers.end()) {
-                        newSet->bindSampler(bindID, iter->second.get());
+                        newSet->bindSampler(bindID, iter->second);
                     } else {
                         auto* prevSampler = prevSet.getSampler(bindID);
                         CC_ENSURES(prevSampler);

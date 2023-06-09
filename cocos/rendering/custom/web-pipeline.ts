@@ -1062,6 +1062,10 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
     }
     addTexture (name: string, slotName: string, sampler: Sampler | null = null): void {
         this._addComputeResource(name, AccessType.READ, slotName);
+        if (sampler) {
+            const descriptorID = this._layoutGraph.attributeIndex.get(slotName)!;
+            this._data.samplers.set(descriptorID, sampler);
+        }
     }
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
         this._addComputeResource(name, accessType, slotName);
