@@ -30,7 +30,20 @@
 
 ## 国际化 CC 类对象的可编辑属性
 
-假设要操作类的 cc 类名为 `cc.Animation`，要操作的属性在代码中的字段名为 `clips` 和 `defaultClip`，为了在编辑器中国际化这些属性的显示名称或工具提示，只需在字典的 `classes.cc` 对象里面，加入以下数据：
+假设有以下 cc 类：
+
+```ts
+@ccclass('cc.Animation')
+class Animation {
+  @editable
+  clips: AnimationClip[] = [];
+  
+  @editable
+  defaultClip: AnimationClip | null = null;
+}
+```
+
+为了在编辑器中多语言展示属性 `clips` 和 `defaultClip` 的显示名称或工具提示，只需在 **各个语言字典** 的 `classes.cc` 对象里面，加入以下数据：
 
 ```js
 // 确保这一段包裹在字典的 `classes.cc` 对象中。
@@ -59,19 +72,36 @@
 },
 ```
 
-很多时候，类的属性来自于基类。这种情况下，子类的字典中可以通过 `__extends__` 来继承基类的字典：
+很多时候，类的属性来自于基类。例如：
+
+```ts
+@ccclass('Base')
+class Base {
+  @editable
+  baseProp = 1;
+}
+
+@ccclass('Sub')
+class Sub extends Base {
+  @editable
+  subProp = false;
+}
+```
+
+为了声明这种属性继承关系，子类的字典中可以通过 `__extends__` 来继承基类的字典：
 
 ```js
 {
   classes: {
-    'base': {
+    'base': { // 基类字典
       properties: {
         'baseProp': { /* ... */ }
       },
     },
-    'sub': {
+    
+    'sub': { // 子类字典
       properties: {
-        __extends__: 'classes.base.properties', // 注意，这里要填入的是基类字典的 `properties` 属性的完整路径。
+        __extends__: 'classes.base.properties', // 继承基类字典的所有属性。注意，这里要填入的是基类字典的 `properties` 属性的完整路径。
         'subProp': { /* ... */ }
       },
     },
@@ -79,4 +109,3 @@
 }
 ```
 
-其效果就等同于子类的 `properties` 中也有了 `baseProp` 的部分。
