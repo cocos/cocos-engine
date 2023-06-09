@@ -111,6 +111,9 @@ interface AnimationItem {
     delay: number;
 }
 
+/**
+ * @engineInternal Since v3.7.2, this is an engine private interface.
+ */
 export interface SkeletonDrawData {
     material: Material | null;
     indexOffset: number;
@@ -156,8 +159,26 @@ export class SpineSocket {
 
 js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
 
+/**
+ * @en
+ * The skeleton of Spine <br/>
+ * <br/>
+ * (Skeleton has a reference to a SkeletonData and stores the state for skeleton instance,
+ * which consists of the current pose's bone SRT, slot colors, and which slot attachments are visible. <br/>
+ * Multiple skeletons can use the same SkeletonData which includes all animations, skins, and attachments.) <br/>
+ * Cocos Creator supports spine versions lower than 3.8.99.
+ * @zh
+ * Spine 骨骼动画 <br/>
+ * <br/>
+ * (Skeleton 具有对骨骼数据的引用并且存储了骨骼实例的状态，
+ * 它由当前的骨骼动作，slot 颜色，和可见的 slot attachments 组成。<br/>
+ * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。
+ * Cocos Creator 支持 spine 版本最高到3.8.99。
+ * @class Skeleton
+ * @extends UIRenderer
+ */
 @ccclass('sp.Skeleton')
-@help('i18n:sp.Skeleton')
+@help('i18n:cc.Spine')
 @menu('Spine/Skeleton')
 @executeInEditMode
 export class Skeleton extends UIRenderer {
@@ -244,6 +265,9 @@ export class Skeleton extends UIRenderer {
         this.attachUtil = new AttachUtil();
     }
 
+    /**
+     * @engineInternal Since v3.7.2, this is an engine private interface.
+     */
     get drawList () { return this._drawList; }
 
     /**
@@ -538,6 +562,10 @@ export class Skeleton extends UIRenderer {
         }
     }
 
+    /**
+     * @en The customMaterial。
+     * @zh 用户自定材质。
+     */
     @override
     @type(Material)
     @displayOrder(0)
@@ -627,8 +655,9 @@ export class Skeleton extends UIRenderer {
      * @zh
      * 设置底层运行时用到的 SkeletonData。<br>
      * 这个接口有别于 `skeletonData` 属性，这个接口传入的是 Spine runtime 提供的原始数据，而 skeletonData 的类型是 Creator 提供的资源类型。
-     * @method setSkeletonData
-     * @param {sp.spine.SkeletonData} skeletonData
+     * @param skeletonData @en The skeleton data contains the skeleton information (bind pose bones, slots, draw order, attachments,
+     * skins, etc) and animations but does not hold any state. @zh 骨架数据(SkeletonData)包含骨架信息(绑定pose的骨骼、槽位、绘制顺序、附件、
+     * 皮肤等)和动画, 但不保存任何状态。
      */
     public setSkeletonData (skeletonData: spine.SkeletonData) {
         if (!EDITOR_NOT_IN_PREVIEW) {
@@ -655,10 +684,9 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Set the current animation. Any queued animations are cleared.<br>
      * @zh 设置当前动画。队列中的任何的动画将被清除。<br>
-     * @method setAnimation
-     * @param {Number} trackIndex
-     * @param {String} name
-     * @param {Boolean} loop
+     * @param trackIndex @en Index of track. @zh 动画通道索引。
+     * @param name @en The name of animation. @zh 动画名称。
+     * @param loop @en Use loop mode or not. @zh 是否使用循环播放模式。
      */
     public setAnimation (trackIndex: number, name: string, loop?: boolean) {
         if (loop === undefined) loop = true;
@@ -698,8 +726,7 @@ export class Skeleton extends UIRenderer {
      * 注意：设置皮肤不会改变 attachment 的可见性。<br>
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Skin 对象。
      *
-     * @method setSkin
-     * @param {String} skinName
+     * @param skinName @en The name of skin. @zh 皮肤名称。
      */
     public setSkin (name: string) {
         this._skinName = name;
@@ -795,8 +822,10 @@ export class Skeleton extends UIRenderer {
         const material = builtinResMgr.get<Material>('default-spine-material');
         return material;
     }
-
-    protected updateMaterial () {
+    /**
+     * @engineInternal
+     */
+    public updateMaterial () {
         let mat;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
@@ -818,7 +847,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal Since v3.7.2, this is an engine private interface.
+     * @engineInternal Since v3.7.2, this is an engine private interface.
      */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
@@ -962,7 +991,6 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the bones and slots to the setup pose.
      * @zh 还原到起始动作。
-     * @method setToSetupPose
      */
     public setToSetupPose () {
         if (this._skeleton) {
@@ -977,7 +1005,6 @@ export class Skeleton extends UIRenderer {
      * @zh
      * 设置 bone 到起始动作。
      * 使用 SkeletonData 中的 BoneData 列表中的值。
-     * @method setBonesToSetupPose
      */
     public setBonesToSetupPose () {
         if (this._skeleton) {
@@ -992,7 +1019,6 @@ export class Skeleton extends UIRenderer {
      * @zh
      * 设置 slot 到起始动作。
      * 使用 SkeletonData 中的 SlotData 列表中的值。
-     * @method setSlotsToSetupPose
      */
     public setSlotsToSetupPose () {
         if (this._skeleton) {
@@ -1010,9 +1036,7 @@ export class Skeleton extends UIRenderer {
      * 这里对每个 bone 的名称进行了对比。<br>
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Bone 对象。
      *
-     * @method findBone
-     * @param {String} boneName
-     * @return {sp.spine.Bone}
+     * @param boneName @en The name of bone. @zh 骨骼名称。
      */
     public findBone (boneName: string) {
         if (this._skeleton) {
@@ -1029,9 +1053,7 @@ export class Skeleton extends UIRenderer {
      * 通过名称查找 slot。这里对每个 slot 的名称进行了比较。<br>
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Slot 对象。
      *
-     * @method findSlot
-     * @param {String} slotName
-     * @return {sp.spine.Slot}
+     * @param slotName @en The name of slot. @zh 插槽名称。
      */
     public findSlot (slotName: string) {
         if (this._skeleton) {
@@ -1046,10 +1068,9 @@ export class Skeleton extends UIRenderer {
      * Mix applies all keyframe values,
      * interpolated for the specified time and mixed with the current values.
      * @zh 为所有关键帧设定混合及混合时间（从当前值开始差值）。
-     * @method setMix
-     * @param {String} fromAnimation
-     * @param {String} toAnimation
-     * @param {Number} duration
+     * @param fromAnimation @en Mix start animation. @zh 过渡起始动画。
+     * @param toAnimation @en Mix end animation. @zh 过渡结束动画。
+     * @param duration @ Time of animation mix. @zh 动画过渡时间。
      */
     public setMix (fromAnimation: string, toAnimation: string, duration: number): void {
         if (this.isAnimationCached()) {
@@ -1065,7 +1086,6 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Clears all tracks of animation state.
      * @zh 清除所有 track 的动画状态。
-     * @method clearTracks
      */
     public clearTracks () {
         if (this.isAnimationCached()) {
@@ -1079,8 +1099,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Clears track of animation state by trackIndex.
      * @zh 清除出指定 track 的动画状态。
-     * @method clearTrack
-     * @param {number} trackIndex
+     * @param trackIndex @en Index of track. @zh 动画通道索引。
      */
     public clearTrack (trackIndex: number) {
         if (this.isAnimationCached()) {
@@ -1097,7 +1116,6 @@ export class Skeleton extends UIRenderer {
      * @en Computes the world SRT from the local SRT for each bone.
      * @zh 重新更新所有骨骼的世界 Transform，
      * 当获取 bone 的数值未更新时，即可使用该函数进行更新数值。
-     * @method updateWorldTransform
      * @example
      * var bone = spine.findBone('head');
      * cc.log(bone.worldX); // return 0;
@@ -1268,8 +1286,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the start event listener.
      * @zh 用来设置开始播放动画的事件监听。
-     * @method setStartListener
-     * @param {function} listener
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setStartListener (listener: TrackListener) {
         this._ensureListener();
@@ -1281,8 +1298,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the interrupt event listener.
      * @zh 用来设置动画被打断的事件监听。
-     * @method setInterruptListener
-     * @param {function} listener
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setInterruptListener (listener: TrackListener) {
         this._ensureListener();
@@ -1294,8 +1310,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the end event listener.
      * @zh 用来设置动画播放完后的事件监听。
-     * @method setEndListener
-     * @param {function} listener
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setEndListener (listener: TrackListener) {
         this._ensureListener();
@@ -1307,8 +1322,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the dispose event listener.
      * @zh 用来设置动画将被销毁的事件监听。
-     * @method setDisposeListener
-     * @param {function} listener
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setDisposeListener (listener: TrackListener) {
         this._ensureListener();
@@ -1320,8 +1334,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the complete event listener.
      * @zh 用来设置动画播放一次循环结束后的事件监听。
-     * @method setCompleteListener
-     * @param {function} listener
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setCompleteListener (listener: TrackListener) {
         this._ensureListener();
@@ -1333,8 +1346,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the animation event listener.
      * @zh 用来设置动画播放过程中帧事件的监听。
-     * @method setEventListener
-     * @param {function} listener
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setEventListener (listener: TrackListener2) {
         this._ensureListener();
@@ -1346,9 +1358,8 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the start event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画开始播放的事件监听。
-     * @method setTrackStartListener
-     * @param {sp.spine.TrackEntry} entry
-     * @param {function} listener
+     * @param entry @en Animation track entry. @zh Track entry。
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackStartListener (entry: spine.TrackEntry, listener: TrackListener) {
         TrackEntryListeners.getListeners(entry).start = listener;
@@ -1357,9 +1368,8 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the interrupt event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画被打断的事件监听。
-     * @method setTrackInterruptListener
-     * @param {sp.spine.TrackEntry} entry
-     * @param {function} listener
+     * @param entry
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackInterruptListener (entry: spine.TrackEntry, listener: TrackListener) {
         TrackEntryListeners.getListeners(entry).interrupt = listener;
@@ -1368,9 +1378,8 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the end event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画播放结束的事件监听。
-     * @method setTrackEndListener
-     * @param {sp.spine.TrackEntry} entry
-     * @param {function} listener
+     * @param entry
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackEndListener (entry: spine.TrackEntry, listener: TrackListener) {
         TrackEntryListeners.getListeners(entry).end = listener;
@@ -1379,9 +1388,8 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the dispose event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画即将被销毁的事件监听。
-     * @method setTrackDisposeListener
-     * @param {sp.spine.TrackEntry} entry
-     * @param {function} listener
+     * @param entry
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackDisposeListener (entry: spine.TrackEntry, listener: TrackListener) {
         TrackEntryListeners.getListeners(entry).dispose = listener;
@@ -1390,11 +1398,8 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the complete event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。
-     * @method setTrackCompleteListener
-     * @param {sp.spine.TrackEntry} entry
-     * @param {function} listener
-     * @param {sp.spine.TrackEntry} listener.entry
-     * @param {Number} listener.loopCount
+     * @param entry
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackCompleteListener (entry: spine.TrackEntry, listener: TrackListener2) {
         // TODO
@@ -1407,9 +1412,8 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画帧事件的监听。
-     * @method setTrackEventListener
-     * @param {sp.spine.TrackEntry} entry
-     * @param {function} listener
+     * @param entry
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackEventListener (entry: spine.TrackEntry, listener: TrackListener|TrackListener2) {
         TrackEntryListeners.getListeners(entry).event = listener;
