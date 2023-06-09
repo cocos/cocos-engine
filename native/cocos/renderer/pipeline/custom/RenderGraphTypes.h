@@ -802,7 +802,7 @@ struct RenderData {
     PmrUnorderedMap<uint32_t, ccstd::pmr::vector<char>> constants;
     PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Buffer>> buffers;
     PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Texture>> textures;
-    PmrUnorderedMap<uint32_t, ObserverPtr<gfx::Sampler>> samplers;
+    PmrUnorderedMap<uint32_t, gfx::Sampler*> samplers;
     ccstd::pmr::string custom;
 };
 

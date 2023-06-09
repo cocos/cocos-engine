@@ -401,7 +401,7 @@ void updateGlobal(
         }
         auto* sampler = descriptorSet.getSampler(bindId);
         if (!sampler || isUpdate) {
-            bindGlobalDesc(descriptorSet, bindId, value.get());
+            bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
 }
@@ -526,9 +526,9 @@ gfx::DescriptorSet* initDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     CC_EXPECTS(d.type >= gfx::Type::SAMPLER1D &&
                                d.type <= gfx::Type::SAMPLER_CUBE);
-
-                    auto iter = resourceIndex.find(d.descriptorID);
-                    if (iter != resourceIndex.end()) {
+                    // texture
+                    if (auto iter = resourceIndex.find(d.descriptorID);
+                        iter != resourceIndex.end()) {
                         // render graph textures
                         auto* texture = resg.getTexture(iter->second);
                         CC_ENSURES(texture);
@@ -576,7 +576,15 @@ gfx::DescriptorSet* initDescriptorSet(
                             }
                             newSet->bindTexture(bindID, defaultResource.getTexture(type));
                         }
+                    } // texture end
+
+                    // user provided samplers
+                    if (auto iter = user.samplers.find(d.descriptorID.value);
+                        iter != user.samplers.end()) {
+                        newSet->bindSampler(bindID, iter->second);
                     }
+
+                    // increase descriptor binding offset
                     bindID += d.count;
                 }
                 break;
@@ -586,7 +594,7 @@ gfx::DescriptorSet* initDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     auto iter = user.samplers.find(d.descriptorID.value);
                     if (iter != user.samplers.end()) {
-                        newSet->bindSampler(bindID, iter->second.get());
+                        newSet->bindSampler(bindID, iter->second);
                     } else {
                         gfx::SamplerInfo info{};
                         auto* sampler = device->getSampler(info);
@@ -724,14 +732,23 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     CC_EXPECTS(d.type >= gfx::Type::SAMPLER1D &&
                                d.type <= gfx::Type::SAMPLER_CUBE);
-                    auto iter = user.textures.find(d.descriptorID.value);
-                    if (iter != user.textures.end()) {
+                    // textures
+                    if (auto iter = user.textures.find(d.descriptorID.value);
+                        iter != user.textures.end()) {
                         newSet->bindTexture(bindID, iter->second.get());
                     } else {
                         auto* prevTexture = prevSet.getTexture(bindID);
                         CC_ENSURES(prevTexture);
                         newSet->bindTexture(bindID, prevTexture);
                     }
+
+                    // samplers
+                    if (auto iter = user.samplers.find(d.descriptorID.value);
+                        iter != user.samplers.end()) {
+                        newSet->bindSampler(bindID, iter->second);
+                    }
+
+                    // increase descriptor binding offset
                     bindID += d.count;
                 }
                 break;
@@ -741,7 +758,7 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     auto iter = user.samplers.find(d.descriptorID.value);
                     if (iter != user.samplers.end()) {
-                        newSet->bindSampler(bindID, iter->second.get());
+                        newSet->bindSampler(bindID, iter->second);
                     } else {
                         auto* prevSampler = prevSet.getSampler(bindID);
                         CC_ENSURES(prevSampler);
