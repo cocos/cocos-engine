@@ -24,16 +24,16 @@
 
 ## 国际化 CC 类对象的可编辑属性
 
-假设要操作类的 cc 类名为 `a.b.C`，要操作的属性在代码中的字段名为 `p`，为了在编辑器中国际化属性 `p` 的显示名称或工具提示，则需要保证字典中具有以下层级结构的数据：
+假设要操作类的 cc 类名为 `cc.animation.AnimationController`，要操作的属性在代码中的字段名为 `graph`，为了在编辑器中国际化该属性的的显示名称或工具提示，则需要保证字典中具有以下层级结构的数据：
 
 ```js
 {
   classes: {
-    'a': {
-      'b': {
-        'C': {
+    'cc': {
+      'animation': {
+        'AnimationController': {
           properties: {
-            'p': {
+            'graph': {
               displayName: '<此属性的编辑器显示名称>',
               tooltip: '<此属性的工具提示。>',
             },
