@@ -890,6 +890,9 @@ void CCMTLCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTexture, c
     blitTexture(srcTexture, dstTexture, blitRegions.data(), count, Filter::POINT);
 }
 
+void CCMTLCommandBuffer::copyBuffer(Buffer *srcBuffer, Buffer *dstBuffer, const BufferCopy *regions, uint32_t count) {
+}
+
 void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     if (srcTexture && dstTexture && regions) {
         id<MTLCommandBuffer> cmdBuffer = getMTLCommandBuffer();

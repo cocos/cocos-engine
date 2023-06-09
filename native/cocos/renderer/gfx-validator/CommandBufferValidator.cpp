@@ -474,6 +474,31 @@ void CommandBufferValidator::copyTexture(Texture *srcTexture, Texture *dstTextur
     _actor->copyTexture(actorSrcTexture, actorDstTexture, regions, count);
 }
 
+void CommandBufferValidator::copyBuffer(Buffer *srcBuffer, Buffer *dstBuffer, const BufferCopy *regions, uint32_t count) {
+    CC_ASSERT(isInited());
+    CC_ASSERT(srcBuffer && static_cast<BufferValidator *>(srcBuffer)->isInited());
+    CC_ASSERT(dstBuffer && static_cast<BufferValidator *>(dstBuffer)->isInited());
+    const auto &srcSize = dstBuffer->getSize();
+    const auto &dstSize = srcBuffer->getSize();
+
+    CC_ASSERT(!_insideRenderPass);
+
+    for (uint32_t i = 0; i < count; ++i) {
+        const auto &region = regions[i];
+        CC_ASSERT(region.srcOffset + region.size <= srcSize);
+        CC_ASSERT(region.dstOffset + region.size <= dstSize);
+    }
+
+    /////////// execute ///////////
+
+    Buffer *actorSrcBuffer = nullptr;
+    Buffer *actorDstBuffer = nullptr;
+    if (srcBuffer) actorSrcBuffer = static_cast<BufferValidator *>(srcBuffer)->getActor();
+    if (dstBuffer) actorDstBuffer = static_cast<BufferValidator *>(dstBuffer)->getActor();
+
+    _actor->copyBuffer(actorSrcBuffer, actorDstBuffer, regions, count);
+}
+
 void CommandBufferValidator::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     CC_ASSERT(isInited());
     CC_ASSERT(srcTexture && static_cast<TextureValidator *>(srcTexture)->isInited());

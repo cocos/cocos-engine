@@ -181,6 +181,10 @@ void GLES3PrimaryCommandBuffer::copyTexture(Texture *srcTexture, Texture *dstTex
     cmdFuncGLES3BlitTexture(GLES3Device::getInstance(), gpuTextureSrc, gpuTextureDst, blitRegions.data(), count, Filter::POINT);
 }
 
+void GLES3PrimaryCommandBuffer::copyBuffer(Buffer *srcBuffer, Buffer *dstBuffer, const BufferCopy *regions, uint32_t count) {
+
+}
+
 void GLES3PrimaryCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     GLES3GPUTexture *gpuTextureSrc = nullptr;
     GLES3GPUTexture *gpuTextureDst = nullptr;

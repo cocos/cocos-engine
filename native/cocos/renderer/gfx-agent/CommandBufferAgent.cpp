@@ -436,6 +436,27 @@ void CommandBufferAgent::copyTexture(Texture *srcTexture, Texture *dstTexture, c
         });
 }
 
+void CommandBufferAgent::copyBuffer(Buffer *srcBuffer, Buffer *dstBuffer, const BufferCopy *regions, uint32_t count) {
+    Buffer *actorSrcBuffer = nullptr;
+    Buffer *actorDstBuffer = nullptr;
+    if (srcBuffer) actorSrcBuffer = static_cast<BufferAgent *>(srcBuffer)->getActor();
+    if (dstBuffer) actorDstBuffer = static_cast<BufferAgent *>(dstBuffer)->getActor();
+
+    auto *actorRegions = _messageQueue->allocate<BufferCopy>(count);
+    memcpy(actorRegions, regions, count * sizeof(BufferCopy));
+
+    ENQUEUE_MESSAGE_5(
+        _messageQueue, CommandBufferCopyBuffer,
+        actor, getActor(),
+        srcBuffer, actorSrcBuffer,
+        dstBuffer, actorDstBuffer,
+        regions, actorRegions,
+        count, count,
+        {
+            actor->copyBuffer(srcBuffer, dstBuffer, regions, count);
+        });
+}
+
 void CommandBufferAgent::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     Texture *actorSrcTexture = nullptr;
     Texture *actorDstTexture = nullptr;
