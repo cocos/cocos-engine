@@ -216,7 +216,6 @@ export class Skeleton extends UIRenderer {
     protected _enumSkins: any = Enum({});
     protected _enumAnimations: any = Enum({});
     protected attachUtil: AttachUtil;
-    private _drawInfoList: RenderDrawInfo[] = [];
     protected _socketNodes: Map<number, Node> = new Map();
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
 
@@ -539,6 +538,19 @@ export class Skeleton extends UIRenderer {
         }
     }
 
+    @override
+    @type(Material)
+    @displayOrder(0)
+    @displayName('CustomMaterial')
+    get customMaterial () {
+        return this._customMaterial;
+    }
+    set customMaterial (val) {
+        this._customMaterial = val;
+        this.updateMaterial();
+        this.markForUpdateRenderData();
+    }
+
     public __preload () {
         super.__preload();
     }
@@ -640,6 +652,14 @@ export class Skeleton extends UIRenderer {
         this._flushAssembler();
     }
 
+    /**
+     * @en Set the current animation. Any queued animations are cleared.<br>
+     * @zh 设置当前动画。队列中的任何的动画将被清除。<br>
+     * @method setAnimation
+     * @param {Number} trackIndex
+     * @param {String} name
+     * @param {Boolean} loop
+     */
     public setAnimation (trackIndex: number, name: string, loop?: boolean) {
         if (loop === undefined) loop = true;
 
@@ -667,6 +687,20 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
+    /**
+     * @en
+     * Finds a skin by name and makes it the active skin.
+     * This does a string comparison for every skin.<br>
+     * Note that setting the skin does not change which attachments are visible.<br>
+     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Skin object.
+     * @zh
+     * 按名称查找皮肤，激活该皮肤。这里对每个皮肤的名称进行了比较。<br>
+     * 注意：设置皮肤不会改变 attachment 的可见性。<br>
+     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Skin 对象。
+     *
+     * @method setSkin
+     * @param {String} skinName
+     */
     public setSkin (name: string) {
         this._skinName = name;
         if (this.isAnimationCached()) {
@@ -678,6 +712,11 @@ export class Skeleton extends UIRenderer {
         }
     }
 
+    /**
+     * @en Update skeleton animation.
+     * @zh 更新骨骼动画。
+     * @param dt @en delta time. @zh 时间差。
+     */
     public updateAnimation (dt: number) {
         if (EDITOR_NOT_IN_PREVIEW) return;
         if (this.paused) return;
@@ -693,6 +732,9 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
+    /**
+     * @engineInternal
+     */
     public updateRenderData (): any {
         if (this.isAnimationCached()) {
             if (!this._curFrame) return null;
@@ -749,25 +791,12 @@ export class Skeleton extends UIRenderer {
         return draw;
     }
 
-    @override
-    @type(Material)
-    @displayOrder(0)
-    @displayName('CustomMaterial')
-    get customMaterial () {
-        return this._customMaterial;
-    }
-    set customMaterial (val) {
-        this._customMaterial = val;
-        this.updateMaterial();
-        this.markForUpdateRenderData();
-    }
-
     protected _updateBuiltinMaterial (): Material {
         const material = builtinResMgr.get<Material>('default-spine-material');
         return material;
     }
 
-    public updateMaterial () {
+    protected updateMaterial () {
         let mat;
         if (this._customMaterial) mat = this._customMaterial;
         else mat = this._updateBuiltinMaterial();
@@ -788,6 +817,9 @@ export class Skeleton extends UIRenderer {
         this._materialCache = {};
     }
 
+    /**
+     * @internal Since v3.7.2, this is an engine private interface.
+     */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
         let inst = this._materialCache[key];
@@ -1081,13 +1113,6 @@ export class Skeleton extends UIRenderer {
         }
     }
 
-    private requestDrawInfo (idx: number) {
-        if (!this._drawInfoList[idx]) {
-            this._drawInfoList[idx] = new RenderDrawInfo();
-        }
-        return this._drawInfoList[idx];
-    }
-
     private _verifySockets (sockets: SpineSocket[]) {
         for (let i = 0, l = sockets.length; i < l; i++) {
             const target = sockets[i].target;
@@ -1184,77 +1209,7 @@ export class Skeleton extends UIRenderer {
     }
 
     protected _updateDebugDraw () {
-    //     if (this.debugBones || this.debugSlots || this.debugMesh) {
-    //         if (!this._debugRenderer) {
-    //             const debugDrawNode = new Node('DEBUG_DRAW_NODE');
-    //             debugDrawNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
-    //             const debugDraw = debugDrawNode.addComponent(Graphics);
-    //             debugDraw.lineWidth = 1;
-    //             debugDraw.strokeColor = new Color(255, 0, 0, 255);
-
-        //             this._debugRenderer = debugDraw;
-        //             debugDrawNode.parent = this.node;
-        //         }
-        //         // this._debugRenderer.node.active = true;
-
-    //         if (this.isAnimationCached()) {
-    //             warn('Debug bones or slots is invalid in cached mode');
-    //         }
-    //     } else if (this._debugRenderer) {
-    //         this._debugRenderer.node.destroy();
-    //         this._debugRenderer = null;
-    //         // this._debugRenderer.node.active = false;
-    //     }
-    }
-
-    protected _updateCache (dt: number) {
-        // const frameCache = this._frameCache!;
-        // if (!frameCache.isInited()) {
-        //     return;
-        // }
-        // const frames = frameCache.frames;
-        // const frameTime = SkeletonCache.FrameTime;
-
-        // // Animation Start, the event different from dragonbones inner event,
-        // // It has no event object.
-        // if (this._accTime === 0 && this._playCount === 0) {
-        //     this._startEntry.animation.name = this._animationName;
-        //     if (this._listener && this._listener.start) this._listener.start(this._startEntry);
-        // }
-
-        // this._accTime += dt;
-        // let frameIdx = Math.floor(this._accTime / frameTime);
-        // if (!frameCache.isCompleted) {
-        //     frameCache.updateToFrame(frameIdx);
-        //     // Update render data size if needed
-        //     if (this.renderData
-        //         && (this.renderData.vertexCount < frameCache.maxVertexCount
-        //         || this.renderData.indexCount < frameCache.maxIndexCount)) {
-        //         this.maxVertexCount = frameCache.maxVertexCount > this.maxVertexCount ? frameCache.maxVertexCount : this.maxVertexCount;
-        //         this.maxIndexCount = frameCache.maxIndexCount > this.maxIndexCount ? frameCache.maxIndexCount : this.maxIndexCount;
-        //         this.renderData.resize(this.maxVertexCount, this.maxIndexCount);
-        //         if (!this.renderData.indices || this.maxIndexCount > this.renderData.indices.length) {
-        //             this.renderData.indices = new Uint16Array(this.maxIndexCount);
-        //         }
-        //     }
-        // }
-
-        // if (frameCache.isCompleted && frameIdx >= frames.length) {
-        //     this._playCount++;
-        //     if (this._playTimes > 0 && this._playCount >= this._playTimes) {
-        //         // set frame to end frame.
-        //         this._curFrame = frames[frames.length - 1];
-        //         this._accTime = 0;
-        //         this._playCount = 0;
-        //         this._isAniComplete = true;
-        //         this._emitCacheCompleteEvent();
-        //         return;
-        //     }
-        //     this._accTime = 0;
-        //     frameIdx = 0;
-        //     this._emitCacheCompleteEvent();
-        // }
-        // this._curFrame = frames[frameIdx];
+        // TODO next
     }
 
     private _updateUITransform () {
