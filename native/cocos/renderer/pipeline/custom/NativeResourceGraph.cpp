@@ -29,6 +29,8 @@
 #include "details/Range.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonFwd.h"
+#include <boost/graph/depth_first_search.hpp>
+#include "details/GraphView.h"
 
 namespace cc {
 
@@ -159,6 +161,23 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     };
 }
 
+gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView, const ResourceDesc& desc, bool bCube = false) {
+    using namespace gfx; // NOLINT(google-build-using-namespace)
+
+    const auto& textureInfo = getTextureInfo(desc, bCube);
+
+    return {
+        nullptr,
+        textureInfo.type,
+        subresView.format,
+        subresView.indexOrFirstMipLevel,
+        subresView.numMipLevels,
+        subresView.firstArraySlice,
+        subresView.numArraySlices,
+        subresView.firstPlane,
+        subresView.numPlanes,
+    };
+}
 } // namespace
 
 bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
@@ -182,11 +201,8 @@ void ResourceGraph::validateSwapchains() {
     }
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
-void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
-    std::ignore = device;
-    auto& resg = *this;
-    const auto& desc = get(ResourceGraph::DescTag{}, *this, vertID);
+void mount(gfx::Device* device, ResourceGraph::vertex_descriptor vertID, ResourceGraph& resg) {
+    const auto& desc = get(ResourceGraph::DescTag{}, resg, vertID);
     visitObject(
         vertID, resg,
         [&](const ManagedResource& resource) {
@@ -198,7 +214,7 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
                 buffer.buffer = device->createBuffer(info);
             }
             CC_ENSURES(buffer.buffer);
-            buffer.fenceValue = nextFenceValue;
+            buffer.fenceValue = resg.nextFenceValue;
         },
         [&](ManagedTexture& texture) {
             if (!texture.checkResource(desc)) {
@@ -206,7 +222,7 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
                 texture.texture = device->createTexture(info);
             }
             CC_ENSURES(texture.texture);
-            texture.fenceValue = nextFenceValue;
+            texture.fenceValue = resg.nextFenceValue;
         },
         [&](const IntrusivePtr<gfx::Buffer>& buffer) {
             CC_EXPECTS(buffer);
@@ -234,10 +250,9 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_EXPECTS(parentID != resg.null_vertex());
             CC_EXPECTS(resg.isTexture(parentID));
             CC_ENSURES(!resg.isTextureView(parentID));
-            mount(device, parentID);
+//            mount(device, parentID);
         },
-        [&](const SubresourceView& view) { // NOLINT(misc-no-recursion)
-            std::ignore = view;
+        [&](SubresourceView& view) { // NOLINT(misc-no-recursion)
             auto parentID = parent(vertID, resg);
             CC_EXPECTS(parentID != resg.null_vertex());
             while (resg.isTextureView(parentID)) {
@@ -246,12 +261,18 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_EXPECTS(parentID != resg.null_vertex());
             CC_EXPECTS(resg.isTexture(parentID));
             CC_ENSURES(!resg.isTextureView(parentID));
-            mount(device, parentID);
+//            mount(device, parentID);
+            auto* parentTexture = resg.getTexture(parentID);
+            const auto& desc = get(ResourceGraph::DescTag{}, resg, vertID);
+            if (!view.textureView) {
+                auto textureViewInfo = getTextureViewInfo(view, desc);
+                textureViewInfo.texture = parentTexture;
+                view.textureView = device->createTexture(textureViewInfo);
+            }
         });
 }
 
-void ResourceGraph::unmount(uint64_t completedFenceValue) {
-    auto& resg = *this;
+void unmount(uint64_t completedFenceValue, ResourceGraph& resg) {
     for (const auto& vertID : makeRange(vertices(resg))) {
         // here msvc has strange behaviour when using visitObject
         // we use if-else instead.
@@ -263,7 +284,7 @@ void ResourceGraph::unmount(uint64_t completedFenceValue) {
         } else if (holds<ManagedTextureTag>(vertID, resg)) {
             auto& texture = get(ManagedTextureTag{}, vertID, resg);
             if (texture.texture && texture.fenceValue <= completedFenceValue) {
-                invalidatePersistentRenderPassAndFramebuffer(texture.texture.get());
+                resg.invalidatePersistentRenderPassAndFramebuffer(texture.texture.get());
                 texture.texture.reset();
                 const auto& traits = get(ResourceGraph::TraitsTag{}, resg, vertID);
                 if (traits.hasSideEffects()) {
@@ -273,6 +294,47 @@ void ResourceGraph::unmount(uint64_t completedFenceValue) {
             }
         }
     }
+}
+
+struct MountVisitor : boost::dfs_visitor<> {
+    MountVisitor(gfx::Device* deviceIn, ResourceGraph& resgIn):
+        device(deviceIn), resg(resgIn) {}
+    
+    void discover_vertex(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) {
+        mount(device, u, resg);
+    }
+    
+    gfx::Device* device;
+    ResourceGraph& resg;
+};
+
+struct UnmountVisitor : boost::dfs_visitor<> {
+    UnmountVisitor(const uint64_t& completedFenceValIn, ResourceGraph& resgIn):
+    fenceVal(completedFenceValIn), resg(resgIn) {}
+    
+    void discover_vertex(ResourceGraph::vertex_descriptor u, const ResourceGraph& g) {
+        unmount(fenceVal, resg);
+    }
+    
+    const uint64_t& fenceVal;
+    ResourceGraph& resg;
+};
+
+// NOLINTNEXTLINE(misc-no-recursion)
+void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
+    std::ignore = device;
+    auto& resg = *this;
+    MountVisitor visitor{device, resg};
+    auto colorMap = colors(resource());
+    AddressableView<ResourceGraph> graphView(*this);
+    boost::depth_first_visit(resg, vertID, visitor, get(colorMap, resg));
+}
+
+void ResourceGraph::unmount(uint64_t completedFenceValue) {
+    auto& resg = *this;
+    UnmountVisitor visitor{completedFenceValue, resg};
+    auto colorMap = colors(resource());
+    boost::depth_first_search(resg, visitor, get(colorMap, resg));
 }
 
 bool ResourceGraph::isTexture(vertex_descriptor resID) const noexcept {
@@ -353,8 +415,8 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
         },
         [&](const SubresourceView& view) {
             // TODO(zhouzhenglong): add ImageView support
-            std::ignore = view;
-            CC_EXPECTS(false);
+            texture = view.textureView;
+            //CC_EXPECTS(false);z
         },
         [&](const auto& buffer) {
             std::ignore = buffer;

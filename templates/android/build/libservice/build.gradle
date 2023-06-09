@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
-
+    namespace 'com.cocos.service'
     defaultConfig {
         minSdkVersion PROP_MIN_SDK_VERSION
         targetSdkVersion PROP_TARGET_SDK_VERSION

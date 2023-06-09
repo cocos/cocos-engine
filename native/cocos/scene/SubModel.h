@@ -25,6 +25,8 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
+#include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "core/assets/RenderingSubMesh.h"
 #include "renderer/gfx-base/GFXDescriptorSet.h"
@@ -42,6 +44,8 @@ struct InstancedAttributeBlock {
     ccstd::vector<gfx::Attribute> attributes;
 };
 
+using SharedPassArray = std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>>;
+
 class SubModel : public RefCounted {
 public:
     SubModel();
@@ -56,7 +60,7 @@ public:
     inline void setDescriptorSet(gfx::DescriptorSet *descriptorSet) { _descriptorSet = descriptorSet; }
     inline void setInputAssembler(gfx::InputAssembler *ia) { _inputAssembler = ia; }
     inline void setShaders(const ccstd::vector<IntrusivePtr<gfx::Shader>> &shaders) { _shaders = shaders; }
-    void setPasses(const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &passes);
+    void setPasses(const SharedPassArray &passes);
     inline void setPriority(pipeline::RenderPriority priority) { _priority = priority; }
     inline void setOwner(Model *model) { _owner = model; }
     void setSubMesh(RenderingSubMesh *subMesh);
@@ -68,7 +72,7 @@ public:
     inline gfx::DescriptorSet *getWorldBoundDescriptorSet() const { return _worldBoundDescriptorSet; }
     inline gfx::InputAssembler *getInputAssembler() const { return _inputAssembler; }
     inline const ccstd::vector<IntrusivePtr<gfx::Shader>> &getShaders() const { return _shaders; }
-    inline const ccstd::vector<IntrusivePtr<Pass>> &getPasses() const { return *_passes; }
+    inline const SharedPassArray &getPasses() const { return _passes; }
     inline const ccstd::vector<IMacroPatch> &getPatches() const { return _patches; }
     inline pipeline::RenderPriority getPriority() const { return _priority; }
     inline RenderingSubMesh *getSubMesh() const { return _subMesh; }
@@ -81,7 +85,7 @@ public:
     inline int32_t getInstancedSHIndex() const { return _instancedSHIndex; }
     int32_t getInstancedAttributeIndex(const ccstd::string &name) const;
 
-    void initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &passes, const ccstd::vector<IMacroPatch> &patches);
+    void initialize(RenderingSubMesh *subMesh, const SharedPassArray &passes, const ccstd::vector<IMacroPatch> &patches);
     void destroy();
     void onPipelineStateChanged();
     void onMacroPatchesStateChanged(const ccstd::vector<IMacroPatch> &patches);
@@ -118,7 +122,7 @@ protected:
     ccstd::vector<IMacroPatch> _patches;
     ccstd::vector<IntrusivePtr<gfx::Shader>> _shaders;
 
-    std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> _passes;
+    SharedPassArray _passes;
 
     int32_t _reflectionProbeType{0};
 

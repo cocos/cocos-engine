@@ -3,13 +3,6 @@ name: <Native> Generate Code
 on:
   pull_request_target:
     types: [closed]
-  # pull_request:
-    paths:
-    - 'templates/**'
-    - 'native/**'
-    - 'cocos/**'
-    - 'package.json'
-    - '.github/workflows/native-bindings.yml'
 
 jobs:
   autogen-code:

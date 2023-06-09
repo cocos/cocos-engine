@@ -4,12 +4,17 @@ android {
     ndkPath PROP_NDK_PATH
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
     ndkPath PROP_NDK_PATH
+    namespace 'com.cocos.lib'
     defaultConfig {
         minSdkVersion PROP_MIN_SDK_VERSION
         targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
         consumerProguardFiles 'proguard-rules.pro'
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     sourceSets.main {

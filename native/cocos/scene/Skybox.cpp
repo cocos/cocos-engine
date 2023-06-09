@@ -37,6 +37,7 @@
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "scene/Ambient.h"
 #include "scene/Model.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace scene {
@@ -199,6 +200,18 @@ void SkyboxInfo::setSkyboxMaterial(Material *val) {
     _editableMaterial = val;
     if (_resource != nullptr) {
         _resource->setSkyboxMaterial(val);
+    }
+}
+
+void SkyboxInfo::setMaterialProperty(const ccstd::string &name, const MaterialPropertyVariant &val, index_t passIdx /* = CC_INVALID_INDEX */) const {
+    if (_resource == nullptr) return;
+    auto *skyboxMat = _resource->getSkyboxMaterial();
+    if (_resource->isEnabled() && skyboxMat != nullptr) {
+        skyboxMat->setProperty(name, val, passIdx);
+        auto &passs = skyboxMat->getPasses();
+        for (const auto &pass : *passs) {
+            pass->update();
+        }
     }
 }
 

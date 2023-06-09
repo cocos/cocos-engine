@@ -67,7 +67,7 @@ export function includeTestsFor_BlendTwoPoseLike_PoseNode<TPoseNode extends Pose
             poseGraphOp.connectNode(poseGraph, blendingNode, composeInputKeyInternally(expectedPoseInput1KeyProp), inputPose1);
             poseGraphOp.connectNode(poseGraph, blendingNode, composeInputKeyInternally(expectedPoseInput2KeyProp), inputPose2);
             poseGraphOp.connectNode(poseGraph, blendingNode, composeInputKeyInternally(expectedRatioInputKeyProp), ratioInput, getTheOnlyOutputKey(ratioInput));
-            poseGraphOp.connectOutputNode(poseGraph, poseGraph.outputNode, blendingNode);
+            poseGraphOp.connectOutputNode(poseGraph, blendingNode);
         };
 
         const graph = createAnimationGraph({

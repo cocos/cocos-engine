@@ -78,10 +78,19 @@ exports.template = /* html */`
             <span slot="label">Speed</span>
             <ui-num-input slot="content" class="speed"></ui-num-input>
         </ui-prop>
-        <ui-prop ui="asset">
-            <span slot="label">Base Clip</span>
-            <ui-asset slot="content" droppable="cc.AnimationClip" class="base-clip"></ui-asset>
-        </ui-prop>
+        <ui-section>
+            <ui-label slot="header" value="i18n:ENGINE.assets.fbx.animationSetting.additive.header"></ui-label>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.animationSetting.additive.enabled.label"></ui-label>
+                <ui-checkbox slot="content" class="additive-enabled"
+                    tooltip="i18n:ENGINE.assets.fbx.animationSetting.additive.enabled.tooltip"></ui-checkbox>
+            </ui-prop>
+            <ui-prop ui="asset">
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.animationSetting.additive.refClip.label"></ui-label>
+                <ui-asset slot="content" droppable="cc.AnimationClip" class="ref-clip"
+                    tooltip="i18n:ENGINE.assets.fbx.animationSetting.additive.refClip.tooltip"></ui-asset>
+            </ui-prop>
+        </ui-section>
     </div>
     <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </div>
@@ -329,7 +338,8 @@ exports.$ = {
     clipFrames: '.clip-frames',
     wrapMode: '.wrap-mode',
     speed: '.speed',
-    baseClip: '.base-clip',
+    additiveEnabled: '.additive-enabled',
+    refClip: '.ref-clip',
     rulerMaking: '.ruler-making',
     rulerGear: '.ruler-gear',
     controlWrap: '.control-wrap',
@@ -554,8 +564,11 @@ const Elements = {
             panel.onSpeedChangeBind = panel.onSpeedChange.bind(panel);
             panel.$.speed.addEventListener('confirm', panel.onSpeedChangeBind);
 
-            panel.onBaseClipChangeBind = panel.onBaseClipChange.bind(panel);
-            panel.$.baseClip.addEventListener('confirm', panel.onBaseClipChangeBind);
+            panel.onAdditiveEnabledChangedBind = panel.onAdditiveEnabledChanged.bind(panel);
+            panel.$.additiveEnabled.addEventListener('confirm', panel.onAdditiveEnabledChangedBind);
+
+            panel.onRefClipChangedBind = panel.onRefClipChanged.bind(panel);
+            panel.$.refClip.addEventListener('confirm', panel.onRefClipChangedBind);
 
             function observer() {
                 const rect = panel.$.editor.getBoundingClientRect();
@@ -589,7 +602,8 @@ const Elements = {
 
             panel.$.wrapMode.removeEventListener('confirm', panel.onWrapModeChangeBind);
             panel.$.speed.removeEventListener('confirm', panel.onSpeedChangeBind);
-            panel.$.baseClip.removeEventListener('confirm', panel.onBaseClipChangeBind);
+            panel.$.additiveEnabled.removeEventListener('confirm', panel.onAdditiveEnabledChangedBind);
+            panel.$.refClip.removeEventListener('confirm', panel.onRefClipChangedBind);
         },
         update() {
             const panel = this;
@@ -684,7 +698,7 @@ const Elements = {
                 panel.$.importAllAnimatorWrap.style.display = 'block';
             }
 
-            panel.$.importAllAnimationsCheckbox.value = getPropValue.call(panel, panel.meta.userData.mountAllAnimationsOnPrefab, true);
+            panel.$.importAllAnimationsCheckbox.value = getPropValue.call(panel, panel.meta.userData.mountAllAnimationsOnPrefab, false);
 
             updateElementInvalid.call(panel, panel.$.importAllAnimationsCheckbox, 'mountAllAnimationsOnPrefab');
             updateElementReadonly.call(panel, panel.$.importAllAnimationsCheckbox);
@@ -787,7 +801,8 @@ exports.methods = {
             to,
             wrapMode: splitInfo.wrapMode,
             speed: splitInfo.speed || 1,
-            baseClip: splitInfo.additive?.baseClip || '',
+            additiveEnabled: splitInfo.additive?.enabled ?? false,
+            refClip: splitInfo.additive?.refClip || '',
         };
     },
     getRightName(name) {
@@ -836,7 +851,8 @@ exports.methods = {
         const fps = info.fps !== undefined ? info.fps : panel.rawClipInfo.fps;
         const wrapMode = info.wrapMode ?? panel.rawClipInfo.wrapMode;
         const speed = info.speed ?? panel.rawClipInfo.speed;
-        const baseClip = (info.additive?.baseClip) ?? panel.rawClipInfo.baseClip;
+        const additiveEnabled = (info.additive?.enabled) ?? panel.rawClipInfo.additiveEnabled;
+        const refClip = (info.additive?.refClip) ?? panel.rawClipInfo.refClip;
         panel.currentClipInfo = {
             name: info.name,
             from: info.from * fps,
@@ -857,7 +873,8 @@ exports.methods = {
             fps,
             wrapMode,
             speed,
-            baseClip,
+            additiveEnabled,
+            refClip,
         };
 
         const maxFrames = (panel.rawClipInfo.duration * panel.currentClipInfo.fps).toFixed(0);
@@ -881,7 +898,8 @@ exports.methods = {
 
         panel.$.wrapMode.value = panel.currentClipInfo.wrapMode;
         panel.$.speed.value = panel.currentClipInfo.speed || 1;
-        panel.$.baseClip.value = panel.currentClipInfo.baseClip || '';
+        panel.$.additiveEnabled.value = panel.currentClipInfo.additiveEnabled || false;
+        panel.$.refClip.value = panel.currentClipInfo.refClip || '';
     },
     updateRawClipInfo() {
         const panel = this;
@@ -1136,11 +1154,21 @@ exports.methods = {
         panel.dispatch('change');
         panel.dispatch('snapshot');
     },
-    onBaseClipChange(event) {
+    onAdditiveEnabledChanged(event) {
         const panel = this;
 
-        const baseClipUUID = String(event.target.value);
-        (panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].additive ??= {}).baseClip = baseClipUUID;
+        const enabled = Boolean(event.target.value);
+        (panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].additive ??= { enabled: false }).enabled = enabled;
+
+        Elements.editor.update.call(panel);
+        panel.dispatch('change');
+        panel.dispatch('snapshot');
+    },
+    onRefClipChanged(event) {
+        const panel = this;
+
+        const refClipUUID = String(event.target.value);
+        (panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].additive ??= { enabled: false }).refClip = refClipUUID;
 
         Elements.editor.update.call(panel);
         panel.dispatch('change');

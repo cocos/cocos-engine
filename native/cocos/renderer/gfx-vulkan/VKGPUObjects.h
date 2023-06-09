@@ -180,6 +180,8 @@ struct CCVKGPUTextureView : public CCVKGPUDeviceObject {
     uint32_t levelCount = 1U;
     uint32_t baseLayer = 0U;
     uint32_t layerCount = 1U;
+    uint32_t basePlane = 0U;
+    uint32_t planeCount = 1U;
 
     ccstd::vector<VkImageView> swapchainVkImageViews;
 
@@ -1048,7 +1050,7 @@ private:
                 hasAllFlags(flags, AccessFlagBit::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT | AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE)) {
                 descriptor->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
             } else if (hasFlag(texture->gpuTexture->usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) {
-                descriptor->imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+                descriptor->imageLayout = texture->basePlane == 0 ? VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL;
             } else {
                 descriptor->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             }
