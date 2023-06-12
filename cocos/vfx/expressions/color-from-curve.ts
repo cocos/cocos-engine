@@ -24,11 +24,11 @@
  */
 import { Color, Gradient, serializable } from '../../core';
 import { ccclass, type, visible } from '../../core/data/decorators';
-import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ColorExpression } from './color';
 import { FloatExpression } from './float';
 import { BindingFloatExpression } from './binding-float';
 import { E_NORMALIZED_LOOP_AGE } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.ColorFromCurveExpression')
 export class ColorFromCurveExpression extends ColorExpression {
@@ -46,12 +46,12 @@ export class ColorFromCurveExpression extends ColorExpression {
         return this.curveIndex.isConstant;
     }
 
-    public tick (dataStore: VFXDataStore) {
-        this.curveIndex.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        this.curveIndex.tick(parameterMap);
     }
 
-    public bind (dataStore: VFXDataStore) {
-        this.curveIndex.bind(dataStore);
+    public bind (parameterMap: VFXParameterMap) {
+        this.curveIndex.bind(parameterMap);
     }
 
     public evaluateSingle (out: Color) {

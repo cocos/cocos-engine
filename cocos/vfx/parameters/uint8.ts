@@ -1,9 +1,9 @@
 import { DEBUG } from 'internal:constants';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
+import { VFXArray, BATCH_OPERATION_THRESHOLD, Handle, VFXValue, VFXValueType } from '../vfx-parameter';
 import { assertIsTrue } from '../../core';
 
 const STRIDE = 1;
-export class Uint8ArrayParameter extends ArrayParameter {
+export class VFXUint8Array extends VFXArray {
     get data () {
         return this._data;
     }
@@ -34,7 +34,7 @@ export class Uint8ArrayParameter extends ArrayParameter {
         this._data[handle] = val;
     }
 
-    copyFrom (src: Uint8ArrayParameter, fromIndex: Handle, toIndex: Handle) {
+    copyFrom (src: VFXUint8Array, fromIndex: Handle, toIndex: Handle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {
@@ -71,7 +71,7 @@ export class Uint8ArrayParameter extends ArrayParameter {
     }
 }
 
-export class Uint8Parameter extends VFXParameter {
+export class VFXUint8 extends VFXValue {
     get type (): VFXValueType {
         return VFXValueType.UINT8;
     }

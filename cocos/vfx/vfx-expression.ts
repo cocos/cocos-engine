@@ -23,13 +23,13 @@
  THE SOFTWARE.
  */
 import { ccclass } from 'cc.decorator';
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from './data-set';
 import { VFXValueType } from './vfx-parameter';
+import { VFXParameterMap } from './vfx-parameter-map';
 
 @ccclass('cc.VFXExpression')
 export abstract class VFXExpression {
     public abstract get valueType (): VFXValueType;
     public abstract get isConstant (): boolean;
-    public abstract tick (dataStore: VFXDataStore): void;
-    public abstract bind (dataStore: VFXDataStore): void;
+    public abstract tick (parameterMap: VFXParameterMap): void;
+    public abstract bind (parameterMap: VFXParameterMap): void;
 }

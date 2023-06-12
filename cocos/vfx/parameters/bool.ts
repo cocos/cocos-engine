@@ -1,9 +1,9 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '../../core';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
+import { VFXArray, BATCH_OPERATION_THRESHOLD, Handle, VFXValue, VFXValueType } from '../vfx-parameter';
 
 const STRIDE = 1;
-export class BoolArrayParameter extends ArrayParameter {
+export class VFXBoolArray extends VFXArray {
     get data () {
         return this._data;
     }
@@ -44,7 +44,7 @@ export class BoolArrayParameter extends ArrayParameter {
         this._data[handle] = val ? 1 : 0;
     }
 
-    copyFrom (src: BoolArrayParameter, fromIndex: Handle, toIndex: Handle) {
+    copyFrom (src: VFXBoolArray, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(src._capacity === this._capacity);
@@ -96,7 +96,7 @@ export class BoolArrayParameter extends ArrayParameter {
     }
 }
 
-export class BoolParameter extends VFXParameter {
+export class VFXBool extends VFXValue {
     get type (): VFXValueType {
         return VFXValueType.BOOL;
     }

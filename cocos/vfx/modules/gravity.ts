@@ -25,11 +25,10 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
-import { Vec3ArrayParameter, Uint32Parameter, BoolParameter, Mat3Parameter } from '../parameters';
 import { P_PHYSICS_FORCE, P_POSITION, P_BASE_VELOCITY, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_WORLD_TO_LOCAL_RS } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const gravity = new Vec3();
 @ccclass('cc.GravityModule')
@@ -50,23 +49,23 @@ export class GravityModule extends VFXModule {
     @serializable
     private _gravity: Vec3Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_POSITION);
-        particles.ensureParameter(P_BASE_VELOCITY);
-        particles.ensureParameter(P_VELOCITY);
-        particles.ensureParameter(P_PHYSICS_FORCE);
-        this.gravity.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_POSITION);
+        parameterMap.ensureParameter(P_BASE_VELOCITY);
+        parameterMap.ensureParameter(P_VELOCITY);
+        parameterMap.ensureParameter(P_PHYSICS_FORCE);
+        this.gravity.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const physicsForce = particles.getVec3ArrayParameter(P_PHYSICS_FORCE);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const needTransform = !emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const physicsForce = parameterMap.getVec3ArrayValue(P_PHYSICS_FORCE);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const needTransform = !parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
         const gravityExp = this._gravity as Vec3Expression;
-        gravityExp.bind(dataStore);
+        gravityExp.bind(parameterMap);
         if (needTransform) {
-            const transform = emitter.getMat3Parameter(E_WORLD_TO_LOCAL_RS).data;
+            const transform = parameterMap.getMat3Value(E_WORLD_TO_LOCAL_RS).data;
             if (gravityExp.isConstant) {
                 const force = Vec3.transformMat3(gravity, gravityExp.evaluate(0, gravity), transform);
                 for (let i = fromIndex; i < toIndex; i++) {

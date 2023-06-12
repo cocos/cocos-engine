@@ -24,10 +24,10 @@
  */
 import { ccclass, rangeMin, serializable, type } from 'cc.decorator';
 import { ColorExpression, ConstantColorExpression, ConstantFloatExpression, FloatExpression } from '../expressions';
-import { ContextDataSet, ParticleDataSet, UserDataSet, EmitterDataSet } from '../data-set';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Color, math, Vec3 } from '../../core';
 import { P_COLOR, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempVelocity = new Vec3();
 const tempColor = new Color();
@@ -88,21 +88,21 @@ export class ScaleColorBySpeedModule extends VFXModule {
     @serializable
     private _maxSpeedThreshold: FloatExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_COLOR);
-        this.maxScalar.tick(dataStore);
-        this.minScalar.tick(dataStore);
-        this.minSpeedThreshold.tick(dataStore);
-        this.maxSpeedThreshold.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_COLOR);
+        this.maxScalar.tick(parameterMap);
+        this.minScalar.tick(parameterMap);
+        this.minSpeedThreshold.tick(parameterMap);
+        this.maxSpeedThreshold.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const hasVelocity = particles.hasParameter(P_VELOCITY);
+    public execute (parameterMap: VFXParameterMap) {
+        const hasVelocity = parameterMap.hasParameter(P_VELOCITY);
         if (!hasVelocity) { return; }
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const velocity = particles.getVec3ArrayParameter(P_VELOCITY);
-        const color = particles.getColorArrayParameter(P_COLOR);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const velocity = parameterMap.getVec3ArrayValue(P_VELOCITY);
+        const color = parameterMap.getColorArrayValue(P_COLOR);
         const minSpeedThresholdExp = this._minSpeedThreshold as FloatExpression;
         const maxSpeedThresholdExp = this._maxSpeedThreshold as FloatExpression;
         const minScalarExp = this._minScalar as ColorExpression;

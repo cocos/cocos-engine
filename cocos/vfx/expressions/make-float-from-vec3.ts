@@ -24,7 +24,7 @@
  */
 import { Enum, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
+import { VFXParameterMap } from '../vfx-parameter-map';
 import { ConstantVec3Expression } from './constant-vec3';
 import { FloatExpression } from './float';
 import { Vec3Expression } from './vec3';
@@ -65,8 +65,8 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
         return vec3.z;
     }
 
-    public tick (dataStore: VFXDataStore) {
-        this.vec3.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        this.vec3.tick(parameterMap);
         switch (this.channel) {
         case Vec3Channel.X: this._getChannel = this._getX; break;
         case Vec3Channel.Y: this._getChannel = this._getY; break;
@@ -75,8 +75,8 @@ export class MakeFloatFromVec3Expression extends FloatExpression {
         }
     }
 
-    public bind (dataStore: VFXDataStore) {
-        this.vec3.bind(dataStore);
+    public bind (parameterMap: VFXParameterMap) {
+        this.vec3.bind(parameterMap);
     }
 
     public evaluate (index: number): number {

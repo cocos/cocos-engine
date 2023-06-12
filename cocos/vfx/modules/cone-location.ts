@@ -25,11 +25,11 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { TWO_PI, Vec3, clamp } from '../../core';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ShapeLocationModule } from './shape-location';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { degreesToRadians } from '../../core/utils/misc';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const pos = new Vec3();
 
@@ -107,30 +107,30 @@ export class ConeLocationModule extends ShapeLocationModule {
     @serializable
     private _surfaceDistribution: FloatExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        super.tick(dataStore);
-        this.length.tick(dataStore);
-        this.angle.tick(dataStore);
-        this.innerAngle.tick(dataStore);
-        this.radialAngle.tick(dataStore);
-        this.surfaceDistribution.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        super.tick(parameterMap);
+        this.length.tick(parameterMap);
+        this.angle.tick(parameterMap);
+        this.innerAngle.tick(parameterMap);
+        this.radialAngle.tick(parameterMap);
+        this.surfaceDistribution.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        super.execute(particles, emitter, user, context);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const position = particles.getVec3ArrayParameter(P_POSITION);
+    public execute (parameterMap: VFXParameterMap) {
+        super.execute(parameterMap);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const position = parameterMap.getVec3ArrayValue(P_POSITION);
         const lengthExp = this._length as FloatExpression;
         const angleExp = this._angle as FloatExpression;
         const innerAngleExp = this._innerAngle as FloatExpression;
         const radialAngleExp = this._radialAngle as FloatExpression;
         const surfaceDistributionExp = this._surfaceDistribution as FloatExpression;
-        lengthExp.bind(dataStore);
-        angleExp.bind(dataStore);
-        innerAngleExp.bind(dataStore);
-        radialAngleExp.bind(dataStore);
-        surfaceDistributionExp.bind(dataStore);
+        lengthExp.bind(parameterMap);
+        angleExp.bind(parameterMap);
+        innerAngleExp.bind(parameterMap);
+        radialAngleExp.bind(parameterMap);
+        surfaceDistributionExp.bind(parameterMap);
 
         const randomStream = this.randomStream;
         for (let i = fromIndex; i < toIndex; ++i) {

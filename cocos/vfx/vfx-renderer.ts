@@ -76,9 +76,8 @@ export class VFXRenderer extends ModelRenderer {
     // internal function
     public updateRenderData () {
         if (!this._emitter || !this._model) return;
-        const { particles } = this._emitter;
-        this._model.enabled = particles.count !== 0;
-        if (particles.count === 0) {
+        this._model.enabled = this._emitter.particleCount !== 0;
+        if (this._emitter.particleCount === 0) {
             return;
         }
         this._emitter.render();

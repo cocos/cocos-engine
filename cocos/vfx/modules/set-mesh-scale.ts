@@ -25,10 +25,10 @@
 
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { Vec3 } from '../../core';
 import { P_SCALE, P_NORMALIZED_AGE, P_BASE_SCALE, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../../../exports/vfx';
 
 const tempScale = new Vec3();
 @ccclass('cc.SetMeshScaleModule')
@@ -68,26 +68,26 @@ export class SetMeshScaleModule extends VFXModule {
     @serializable
     private _scale: Vec3Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.ensureParameter(P_BASE_SCALE);
+    public tick (parameterMap: VFXParameterMap) {
+        if (this.usage === ModuleExecStage.SPAWN) {
+            parameterMap.ensureParameter(P_BASE_SCALE);
         }
 
-        particles.ensureParameter(P_SCALE);
+        parameterMap.ensureParameter(P_SCALE);
         if (this.separateAxes) {
-            this.scale.tick(dataStore);
+            this.scale.tick(parameterMap);
         } else {
-            this.uniformScale.tick(dataStore);
+            this.uniformScale.tick(parameterMap);
         }
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const scale = particles.getVec3ArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_SCALE : P_SCALE);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const scale = parameterMap.getVec3ArrayValue(this.usage === ModuleExecStage.SPAWN ? P_BASE_SCALE : P_SCALE);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         if (this.separateAxes) {
             const scaleExp = this._scale as Vec3Expression;
-            scaleExp.bind(dataStore);
+            scaleExp.bind(parameterMap);
             if (scaleExp.isConstant) {
                 const srcScale = scaleExp.evaluate(0, tempScale);
                 scale.fill(srcScale, fromIndex, toIndex);
@@ -99,7 +99,7 @@ export class SetMeshScaleModule extends VFXModule {
             }
         } else {
             const uniformScaleExp = this._uniformScale as FloatExpression;
-            uniformScaleExp.bind(dataStore);
+            uniformScaleExp.bind(parameterMap);
             if (uniformScaleExp.isConstant) {
                 const srcScale = uniformScaleExp.evaluate(0);
                 Vec3.set(tempScale, srcScale, srcScale, srcScale);

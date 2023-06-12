@@ -25,26 +25,26 @@
 
 import { ccclass } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
-import { FloatParameter, Uint32Parameter, Vec3ArrayParameter } from '../parameters';
+import { VFXVec3Array } from '../parameters';
 import { P_POSITION, P_VELOCITY, C_FROM_INDEX, C_TO_INDEX, C_DELTA_TIME, P_PHYSICS_FORCE } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.SolveForcesAndVelocityModule')
 @VFXModule.register('SolveForcesAndVelocity', ModuleExecStageFlags.UPDATE, [P_POSITION.name], [P_VELOCITY.name])
 export class SolveForceAndVelocityModule extends VFXModule {
-    public execute (dataStore: VFXDataStore) {
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
-        if (particles.hasParameter(P_PHYSICS_FORCE) && particles.hasParameter(P_VELOCITY)) {
-            const physicsForce = particles.getVec3ArrayParameter(P_PHYSICS_FORCE);
-            const velocity = particles.getVec3ArrayParameter(P_VELOCITY);
-            Vec3ArrayParameter.scaleAndAdd(velocity, velocity, physicsForce, deltaTime, fromIndex, toIndex);
+    public execute (parameterMap: VFXParameterMap) {
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
+        if (parameterMap.hasParameter(P_PHYSICS_FORCE) && parameterMap.hasParameter(P_VELOCITY)) {
+            const physicsForce = parameterMap.getVec3ArrayValue(P_PHYSICS_FORCE);
+            const velocity = parameterMap.getVec3ArrayValue(P_VELOCITY);
+            VFXVec3Array.scaleAndAdd(velocity, velocity, physicsForce, deltaTime, fromIndex, toIndex);
         }
-        if (particles.hasParameter(P_VELOCITY) && particles.hasParameter(P_POSITION)) {
-            const position = particles.getVec3ArrayParameter(P_POSITION);
-            const velocity = particles.getVec3ArrayParameter(P_VELOCITY);
-            Vec3ArrayParameter.scaleAndAdd(position, position, velocity, deltaTime, fromIndex, toIndex);
+        if (parameterMap.hasParameter(P_VELOCITY) && parameterMap.hasParameter(P_POSITION)) {
+            const position = parameterMap.getVec3ArrayValue(P_POSITION);
+            const velocity = parameterMap.getVec3ArrayValue(P_VELOCITY);
+            VFXVec3Array.scaleAndAdd(position, position, velocity, deltaTime, fromIndex, toIndex);
         }
     }
 }

@@ -27,8 +27,8 @@ import { ccclass, tooltip, type, serializable } from 'cc.decorator';
 import { Vec3, Enum } from '../../core';
 import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_PHYSICS_FORCE, P_POSITION, P_VELOCITY } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ContextDataSet, ParticleDataSet, UserDataSet, EmitterDataSet } from '../data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const _temp_v3 = new Vec3();
 
@@ -61,23 +61,23 @@ export class ForceModule extends VFXModule {
     @serializable
     private _force: Vec3Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_POSITION);
-        particles.ensureParameter(P_BASE_VELOCITY);
-        particles.ensureParameter(P_VELOCITY);
-        particles.ensureParameter(P_PHYSICS_FORCE);
-        this.force.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_POSITION);
+        parameterMap.ensureParameter(P_BASE_VELOCITY);
+        parameterMap.ensureParameter(P_VELOCITY);
+        parameterMap.ensureParameter(P_PHYSICS_FORCE);
+        this.force.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const physicsForce = particles.getVec3ArrayParameter(P_PHYSICS_FORCE);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace === CoordinateSpace.WORLD) !== emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const physicsForce = parameterMap.getVec3ArrayValue(P_PHYSICS_FORCE);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace === CoordinateSpace.WORLD) !== parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
         const forceExp = this._force as Vec3Expression;
-        forceExp.bind(dataStore);
+        forceExp.bind(parameterMap);
         if (needTransform) {
-            const transform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
+            const transform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
             if (forceExp.isConstant) {
                 const force = Vec3.transformMat3(_temp_v3, forceExp.evaluate(0, _temp_v3), transform);
                 for (let i = fromIndex; i < toIndex; i++) {

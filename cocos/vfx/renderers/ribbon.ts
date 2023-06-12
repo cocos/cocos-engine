@@ -28,7 +28,7 @@ import { Attribute, Format, FormatInfos, PrimitiveMode, BufferUsageBit } from '.
 import { MacroRecord } from '../../render-scene';
 import { EmitterDataSet, ParticleDataSet } from '../data-set';
 import { CC_VFX_P_COLOR, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_RIBBON, P_COLOR, P_POSITION, P_RIBBON_ID, P_RIBBON_LINK_ORDER, P_RIBBON_WIDTH } from '../define';
-import { ColorArrayParameter, FloatArrayParameter } from '../parameters';
+import { VFXColorArray, VFXFloatArray } from '../parameters';
 import { ParticleRenderer } from '../particle-renderer';
 import { VFXDynamicBuffer } from '../vfx-dynamic-buffer';
 import { vfxManager } from '../vfx-manager';
@@ -66,7 +66,7 @@ class Segment {
     constructor (particles: ParticleDataSet, start: Handle, end: Handle) {
         this.start = start;
         this.end = end;
-        const positions = particles.getVec3ArrayParameter(P_POSITION);
+        const positions = parameterMap.getVec3ArrayValue(P_POSITION);
         positions.getVec3At(_pos1, start);
         positions.getVec3At(_pos2, end);
         this.velocity = new Vec3();
@@ -101,7 +101,7 @@ export class RibbonParticleRenderer extends ParticleRenderer {
         let needRecompile = this._isMaterialDirty;
         const define = this._defines;
 
-        const hasColor = particles.hasParameter(P_COLOR);
+        const hasColor = parameterMap.hasParameter(P_COLOR);
         if (define[CC_VFX_P_COLOR] !== hasColor) {
             define[CC_VFX_P_COLOR] = hasColor;
             needRecompile = true;
@@ -152,9 +152,9 @@ export class RibbonParticleRenderer extends ParticleRenderer {
     }
 
     private collectSegments (particles: ParticleDataSet) {
-        const ribbonIds = particles.getUint32ArrayParameter(P_RIBBON_ID);
-        const linkOrders = particles.getFloatArrayParameter(P_RIBBON_LINK_ORDER);
-        for (let p: Handle = 0; p < particles.count; ++p) {
+        const ribbonIds = parameterMap.getUint32ArrayValue(P_RIBBON_ID);
+        const linkOrders = parameterMap.getFloatArrayVale(P_RIBBON_LINK_ORDER);
+        for (let p: Handle = 0; p < parameterMap.count; ++p) {
             const ribbonId: number = ribbonIds.getUint32At(p);
             let target: ParticleOrder[] | undefined = this._particleOrders.get(ribbonId);
             if (!target) {
@@ -201,14 +201,14 @@ export class RibbonParticleRenderer extends ParticleRenderer {
         let iboOffset = indexStart;
         let indexCurr = 0;
 
-        const positions = particles.getVec3ArrayParameter(P_POSITION);
-        let sizes: FloatArrayParameter | null = null;
-        if (particles.hasParameter(P_RIBBON_WIDTH)) {
-            sizes = particles.getFloatArrayParameter(P_RIBBON_WIDTH);
+        const positions = parameterMap.getVec3ArrayValue(P_POSITION);
+        let sizes: VFXFloatArray | null = null;
+        if (parameterMap.hasParameter(P_RIBBON_WIDTH)) {
+            sizes = parameterMap.getFloatArrayVale(P_RIBBON_WIDTH);
         }
-        let colors: ColorArrayParameter | null = null;
-        if (particles.hasParameter(P_COLOR)) {
-            colors = particles.getColorArrayParameter(P_COLOR);
+        let colors: VFXColorArray | null = null;
+        if (parameterMap.hasParameter(P_COLOR)) {
+            colors = parameterMap.getColorArrayValue(P_COLOR);
         }
 
         this._particleSegments.forEach((value, key) => {
@@ -333,7 +333,7 @@ export class RibbonParticleRenderer extends ParticleRenderer {
     }
 
     public render (particles: ParticleDataSet, emitter: EmitterDataSet) {
-        if (!particles.hasParameter(P_POSITION)) {
+        if (!parameterMap.hasParameter(P_POSITION)) {
             console.error('particles without position data');
             return;
         }

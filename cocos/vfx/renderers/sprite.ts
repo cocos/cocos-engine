@@ -29,9 +29,9 @@ import { Enum, Quat, Vec3, Vec4 } from '../../core';
 import { FormatInfos, PrimitiveMode, BufferUsageBit } from '../../gfx';
 import { MacroRecord } from '../../render-scene';
 import { CC_VFX_E_IS_WORLD_SPACE, CC_VFX_P_COLOR, CC_VFX_P_POSITION, CC_VFX_P_SPRITE_ROTATION, CC_VFX_P_SPRITE_SIZE, CC_VFX_P_SUB_UV_INDEX, CC_VFX_P_VELOCITY, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_SPRITE, CC_VFX_SPRITE_ALIGNMENT_MODE, CC_VFX_SPRITE_FACING_MODE, E_IS_WORLD_SPACE, E_RENDER_SCALE, P_COLOR, P_POSITION, P_SPRITE_ROTATION, P_SPRITE_SIZE, P_SUB_UV_INDEX1, P_VELOCITY, vfxPColor, vfxPPosition, vfxPSpriteRotation, vfxPSpriteSize, vfxPSubUVIndex, vfxPVelocity } from '../define';
-import { ParticleDataSet, EmitterDataSet } from '../data-set';
 import { ParticleRenderer } from '../particle-renderer';
 import { VFXDynamicBuffer } from '../vfx-dynamic-buffer';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 /**
  * @en Particle alignment mode.
@@ -96,24 +96,23 @@ export class SpriteParticleRenderer extends ParticleRenderer {
     private _vertexAttributeHash = '';
     private declare _dynamicVBO: VFXDynamicBuffer;
 
-    public render (particles: ParticleDataSet, emitter: EmitterDataSet) {
+    public render (parameterMap: VFXParameterMap, count: number) {
         const material = this.material;
         if (!material) {
             return;
         }
 
-        this._compileMaterial(material, particles, emitter);
+        this._compileMaterial(material, parameterMap);
         this._updateSubUvTilesAndVelocityLengthScale(material);
-        this._updateRotation(material, particles, emitter);
-        this._updateRenderScale(material, particles, emitter);
-        this._updateRenderingSubMesh(material, particles, emitter);
-        this._ensureVBO(particles.count);
-        this._fillVertexData(particles, emitter);
+        this._updateRotation(material, parameterMap);
+        this._updateRenderScale(material, parameterMap);
+        this._updateRenderingSubMesh(material, parameterMap);
+        this._ensureVBO(count);
+        this._fillVertexData(parameterMap, count);
         this._isMaterialDirty = false;
     }
 
-    private _fillVertexData (particles: ParticleDataSet, emitter: EmitterDataSet) {
-        const { count } = particles;
+    private _fillVertexData (parameterMap: VFXParameterMap, count: number) {
         const dynamicBufferFloatView = this._dynamicVBO.floatDataView;
         const dynamicBufferUintView = this._dynamicVBO.uint32DataView;
         const vertexStreamSizeDynamic = this._vertexStreamSize / 4;
@@ -122,29 +121,30 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         let offset = 0;
         const define = this._defines;
         if (define[CC_VFX_P_POSITION]) {
-            particles.getVec3ArrayParameter(P_POSITION).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
+            parameterMap.getVec3ArrayValue(P_POSITION).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
         if (define[CC_VFX_P_SPRITE_ROTATION]) {
-            particles.getFloatArrayParameter(P_SPRITE_ROTATION).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
+            parameterMap.getFloatArrayVale(P_SPRITE_ROTATION).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_VFX_P_SPRITE_SIZE]) {
-            particles.getVec2ArrayParameter(P_SPRITE_SIZE).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
+            parameterMap.getVec2ArrayValue(P_SPRITE_SIZE).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
             offset += 2;
         }
         if (define[CC_VFX_P_COLOR]) {
-            particles.getColorArrayParameter(P_COLOR).copyToTypedArray(dynamicBufferUintView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
+            parameterMap.getColorArrayValue(P_COLOR).copyToTypedArray(dynamicBufferUintView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_VFX_P_SUB_UV_INDEX]) {
-            particles.getFloatArrayParameter(P_SUB_UV_INDEX1).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
+            parameterMap.getFloatArrayVale(P_SUB_UV_INDEX1).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
             offset += 1;
         }
         if (define[CC_VFX_P_VELOCITY]) {
-            particles.getVec3ArrayParameter(P_VELOCITY).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
+            parameterMap.getVec3ArrayValue(P_VELOCITY).copyToTypedArray(dynamicBufferFloatView, firstInstance, vertexStreamSizeDynamic, offset, 0, count);
             offset += 3;
         }
+        this._instanceCount = count;
     }
 
     private _ensureVBO (count: number) {
@@ -160,7 +160,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         this._isSubUVTilesAndVelLenScaleDirty = false;
     }
 
-    private _updateRotation (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
+    private _updateRotation (material: Material, parameterMap: VFXParameterMap) {
         let currentRotation: Quat;
         if (this.alignmentMode === AlignmentMode.NONE) {
             currentRotation = Quat.IDENTITY;
@@ -177,18 +177,18 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         }
     }
 
-    private _updateRenderScale (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
-        const renderScale = emitter.getVec3Parameter(E_RENDER_SCALE).data;
+    private _updateRenderScale (material: Material, parameterMap: VFXParameterMap) {
+        const renderScale = parameterMap.getVec3Value(E_RENDER_SCALE).data;
         if (!Vec3.equals(renderScale, this._renderScale) || this._isMaterialDirty) {
             this._renderScale.set(renderScale.x, renderScale.y, renderScale.z);
             material.setProperty('scale', this._renderScale);
         }
     }
 
-    private _compileMaterial (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
+    private _compileMaterial (material: Material, parameterMap: VFXParameterMap) {
         let needRecompile = this._isMaterialDirty;
         const define = this._defines;
-        const isWorldSpace = emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
+        const isWorldSpace = parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
         if (define[CC_VFX_E_IS_WORLD_SPACE] !== isWorldSpace) {
             define[CC_VFX_E_IS_WORLD_SPACE] = isWorldSpace;
             needRecompile = true;
@@ -204,37 +204,37 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             needRecompile = true;
         }
 
-        const hasPosition = particles.hasParameter(P_POSITION);
+        const hasPosition = parameterMap.hasParameter(P_POSITION);
         if (define[CC_VFX_P_POSITION] !== hasPosition) {
             define[CC_VFX_P_POSITION] = hasPosition;
             needRecompile = true;
         }
 
-        const hasSpriteRotation = particles.hasParameter(P_SPRITE_ROTATION);
+        const hasSpriteRotation = parameterMap.hasParameter(P_SPRITE_ROTATION);
         if (define[CC_VFX_P_SPRITE_ROTATION] !== hasSpriteRotation) {
             define[CC_VFX_P_SPRITE_ROTATION] = hasSpriteRotation;
             needRecompile = true;
         }
 
-        const hasSpriteSize = particles.hasParameter(P_SPRITE_SIZE);
+        const hasSpriteSize = parameterMap.hasParameter(P_SPRITE_SIZE);
         if (define[CC_VFX_P_SPRITE_SIZE] !== hasSpriteSize) {
             define[CC_VFX_P_SPRITE_SIZE] = hasSpriteSize;
             needRecompile = true;
         }
 
-        const hasColor = particles.hasParameter(P_COLOR);
+        const hasColor = parameterMap.hasParameter(P_COLOR);
         if (define[CC_VFX_P_COLOR] !== hasColor) {
             define[CC_VFX_P_COLOR] = hasColor;
             needRecompile = true;
         }
 
-        const hasSubUVIndex = particles.hasParameter(P_SUB_UV_INDEX1);
+        const hasSubUVIndex = parameterMap.hasParameter(P_SUB_UV_INDEX1);
         if (define[CC_VFX_P_SUB_UV_INDEX] !== hasSubUVIndex) {
             define[CC_VFX_P_SUB_UV_INDEX] = hasSubUVIndex;
             needRecompile = true;
         }
 
-        const hasVelocity = particles.hasParameter(P_VELOCITY);
+        const hasVelocity = parameterMap.hasParameter(P_VELOCITY);
         if (define[CC_VFX_P_VELOCITY] !== hasVelocity) {
             define[CC_VFX_P_VELOCITY] = hasVelocity;
             needRecompile = true;
@@ -245,7 +245,7 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         }
     }
 
-    private _updateAttributes (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
+    private _updateAttributes (material: Material, parameterMap: VFXParameterMap) {
         let vertexStreamSizeDynamic = 0;
         let hash = 'sprite';
         const vertexStreamAttributes = vfxManager.sharedSpriteVertexBufferAttributes.slice();
@@ -286,9 +286,9 @@ export class SpriteParticleRenderer extends ParticleRenderer {
         return vertexStreamAttributes;
     }
 
-    private _updateRenderingSubMesh (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
+    private _updateRenderingSubMesh (material: Material, parameterMap: VFXParameterMap) {
         if (!this._renderingSubMesh) {
-            const vertexStreamAttributes = this._updateAttributes(material, particles, emitter);
+            const vertexStreamAttributes = this._updateAttributes(material, parameterMap);
             this._dynamicVBO = vfxManager.getOrCreateDynamicBuffer(this._vertexAttributeHash, this._vertexStreamSize, BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST);
             this._renderingSubMesh = new RenderingSubMesh(
                 [vfxManager.getOrCreateSharedSpriteVertexBuffer(), this._dynamicVBO.buffer],
@@ -298,6 +298,5 @@ export class SpriteParticleRenderer extends ParticleRenderer {
             this._vertexCount = vfxManager.sharedSpriteVertexCount;
             this._indexCount = vfxManager.sharedSpriteIndexCount;
         }
-        this._instanceCount = particles.count;
     }
 }

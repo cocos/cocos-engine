@@ -23,17 +23,17 @@
  THE SOFTWARE.
  */
 import { ccclass, serializable } from '../../core/data/decorators';
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { Vec3Expression } from './vec3';
-import { VFXParameterDecl, VFXParameterNamespace } from '../vfx-parameter';
-import { Vec3ArrayParameter } from '../parameters';
+import { VFXParameter, VFXParameterNamespace } from '../vfx-parameter';
+import { VFXVec3Array } from '../parameters';
 import { Vec3 } from '../../core';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.BindingVec3Expression')
 export class BindingVec3Expression extends Vec3Expression {
     @serializable
-    private _bindParameter: VFXParameterDecl | null = null;
-    private declare _data: Vec3ArrayParameter;
+    private _bindParameter: VFXParameter | null = null;
+    private declare _data: VFXVec3Array;
     private _constant = new Vec3();
     private _getVec3 = this._getConstant;
 
@@ -50,20 +50,20 @@ export class BindingVec3Expression extends Vec3Expression {
         return this._data.getVec3At(out, index);
     }
 
-    constructor (vfxParameterIdentity: VFXParameterDecl) {
+    constructor (vfxParameterIdentity: VFXParameter) {
         super();
         this._bindParameter = vfxParameterIdentity;
     }
 
-    public tick (dataStore: VFXDataStore) {
+    public tick (parameterMap: VFXParameterMap) {
         if (this._bindParameter?.namespace === VFXParameterNamespace.PARTICLE) {
-            particles.ensureParameter(this._bindParameter);
+            parameterMap.ensureParameter(this._bindParameter);
         }
     }
 
-    public bind (dataStore: VFXDataStore) {
+    public bind (parameterMap: VFXParameterMap) {
         if (this._bindParameter?.namespace === VFXParameterNamespace.PARTICLE) {
-            this._data = particles.getVec3ArrayParameter(this._bindParameter);
+            this._data = parameterMap.getVec3ArrayValue(this._bindParameter);
             this._getVec3 = this._getVec3At;
         } else {
             this._getVec3 = this._getConstant;

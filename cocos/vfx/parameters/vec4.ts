@@ -1,10 +1,10 @@
 import { DEBUG } from 'internal:constants';
 import { Vec4, assertIsTrue } from '../../core';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
+import { VFXArray, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXValue, VFXValueType } from '../vfx-parameter';
 
 const tempVec4 = new Vec4();
 const STRIDE = 4;
-export class Vec4ArrayParameter extends ArrayParameter {
+export class VFXVec4Array extends VFXArray {
     get data () {
         return this._data;
     }
@@ -108,7 +108,7 @@ export class Vec4ArrayParameter extends ArrayParameter {
         data[offset + 3] *= val;
     }
 
-    copyFrom (src: Vec4ArrayParameter, fromIndex: Handle, toIndex: Handle) {
+    copyFrom (src: VFXVec4Array, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }
@@ -166,7 +166,7 @@ export class Vec4ArrayParameter extends ArrayParameter {
     }
 }
 
-export class Vec4Parameter extends VFXParameter {
+export class VFXVec4 extends VFXValue {
     get type (): VFXValueType {
         return VFXValueType.VEC4;
     }

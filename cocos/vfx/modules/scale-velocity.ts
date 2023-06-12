@@ -27,8 +27,8 @@ import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { CCBoolean, Enum, Vec3 } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { CoordinateSpace, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_VELOCITY } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempScalar = new Vec3();
 const tempVelocity = new Vec3();
@@ -81,26 +81,26 @@ export class ScaleVelocityModule extends VFXModule {
     @serializable
     private _uniformScalar: FloatExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_VELOCITY);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_VELOCITY);
         if (this.separateAxes) {
-            this.scalar.tick(dataStore);
+            this.scalar.tick(parameterMap);
         } else {
-            this.uniformScalar.tick(dataStore);
+            this.uniformScalar.tick(parameterMap);
         }
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const velocity  = particles.getVec3ArrayParameter(P_VELOCITY);
-        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const velocity  = parameterMap.getVec3ArrayValue(P_VELOCITY);
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         if (this.separateAxes) {
             const scalarExp = this._scalar as Vec3Expression;
-            scalarExp.bind(dataStore);
+            scalarExp.bind(parameterMap);
             if (needTransform) {
-                const transform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
-                const invTransform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? E_WORLD_TO_LOCAL_RS : E_LOCAL_TO_WORLD_RS).data;
+                const transform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
+                const invTransform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_WORLD_TO_LOCAL_RS : E_LOCAL_TO_WORLD_RS).data;
                 if (scalarExp.isConstant) {
                     const scalar = scalarExp.evaluate(0, tempScalar);
                     for (let i = fromIndex; i < toIndex; i++) {
@@ -133,10 +133,10 @@ export class ScaleVelocityModule extends VFXModule {
             }
         } else {
             const uniformExp = this._uniformScalar as FloatExpression;
-            uniformExp.bind(dataStore);
+            uniformExp.bind(parameterMap);
             if (needTransform) {
-                const transform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
-                const invTransform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? E_WORLD_TO_LOCAL_RS : E_LOCAL_TO_WORLD_RS).data;
+                const transform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
+                const invTransform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_WORLD_TO_LOCAL_RS : E_LOCAL_TO_WORLD_RS).data;
                 if (uniformExp.isConstant) {
                     const scalar = uniformExp.evaluate(0);
                     for (let i = fromIndex; i < toIndex; i++) {

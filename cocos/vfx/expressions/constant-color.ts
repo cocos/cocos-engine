@@ -24,7 +24,7 @@
  */
 import { Color, serializable } from '../../core';
 import { ccclass, type, visible } from '../../core/data/class-decorator';
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
+import { VFXParameterMap } from '../vfx-parameter-map';
 import { ColorExpression } from './color';
 
 @ccclass('cc.ConstantColorExpression')
@@ -43,8 +43,8 @@ export class ConstantColorExpression extends ColorExpression {
         Color.copy(this.color, val);
     }
 
-    public tick (dataStore: VFXDataStore) {}
-    public bind (dataStore: VFXDataStore) {}
+    public tick (parameterMap: VFXParameterMap) {}
+    public bind (parameterMap: VFXParameterMap) {}
 
     public evaluate (index: number, out: Color) {
         out.set(this.color);

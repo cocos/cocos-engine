@@ -1,10 +1,10 @@
 import { DEBUG } from 'internal:constants';
 import { Quat, Vec3, assertIsTrue } from '../../core';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
+import { VFXArray, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXValue, VFXValueType } from '../vfx-parameter';
 
 const tempQuat = new Quat();
 const STRIDE = 4;
-export class QuatArrayParameter extends ArrayParameter {
+export class VFXQuatArray extends VFXArray {
     get data () {
         return this._data;
     }
@@ -84,17 +84,17 @@ export class QuatArrayParameter extends ArrayParameter {
         data[offset + 3] *= val;
     }
 
-    copyFrom (src: QuatArrayParameter, fromIndex: Handle, toIndex: Handle) {
+    copyFrom (src: VFXQuatArray, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
-            const source = (fromIndex === 0 && toIndex === this._capacity) ? src._data : src._data.subarray(fromIndex * this.stride, toIndex * this.stride);
-            this._data.set(source, fromIndex * this.stride);
+            const source = (fromIndex === 0 && toIndex === this._capacity) ? src._data : src._data.subarray(fromIndex * STRIDE, toIndex * STRIDE);
+            this._data.set(source, fromIndex * STRIDE);
         } else {
             const destData = this._data;
             const srcData = src._data;
-            for (let i = fromIndex * this.stride, length = toIndex * this.stride; i < length; i++) {
+            for (let i = fromIndex * STRIDE, length = toIndex * STRIDE; i < length; i++) {
                 destData[i] = srcData[i];
             }
         }
@@ -103,20 +103,20 @@ export class QuatArrayParameter extends ArrayParameter {
     copyToTypedArray (dest: Float32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-            assertIsTrue(stride >= this.stride && strideOffset >= 0 && strideOffset < stride);
-            assertIsTrue(stride >= strideOffset + this.stride);
+            assertIsTrue(stride >= STRIDE && strideOffset >= 0 && strideOffset < stride);
+            assertIsTrue(stride >= strideOffset + STRIDE);
             assertIsTrue(destOffset >= 0);
             assertIsTrue(destOffset >= 0 && (destOffset * stride) + (toIndex - fromIndex) * stride <= dest.length);
         }
 
-        if (stride === this.stride && strideOffset === 0 && (toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
-            const source = (toIndex === this._capacity && fromIndex === 0) ? this._data : this._data.subarray(fromIndex * this.stride, toIndex * this.stride);
+        if (stride === STRIDE && strideOffset === 0 && (toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD_VEC3) {
+            const source = (toIndex === this._capacity && fromIndex === 0) ? this._data : this._data.subarray(fromIndex * STRIDE, toIndex * STRIDE);
             dest.set(source, destOffset * stride);
             return;
         }
 
         const data = this._data;
-        for (let offset = destOffset * stride + strideOffset, sourceOffset = fromIndex * this.stride, length = toIndex * this.stride; sourceOffset < length; offset += stride, sourceOffset += this.stride) {
+        for (let offset = destOffset * stride + strideOffset, sourceOffset = fromIndex * STRIDE, length = toIndex * STRIDE; sourceOffset < length; offset += stride, sourceOffset += STRIDE) {
             dest[offset] = data[sourceOffset];
             dest[offset + 1] = data[sourceOffset + 1];
             dest[offset + 2] = data[sourceOffset + 2];
@@ -139,7 +139,7 @@ export class QuatArrayParameter extends ArrayParameter {
     }
 }
 
-export class QuatParameter extends VFXParameter {
+export class VFXQuat extends VFXValue {
     get type (): VFXValueType {
         return VFXValueType.QUAT;
     }

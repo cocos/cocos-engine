@@ -1,9 +1,9 @@
 import { DEBUG } from 'internal:constants';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
+import { VFXArray, BATCH_OPERATION_THRESHOLD, Handle, VFXValue, VFXValueType } from '../vfx-parameter';
 import { assertIsTrue } from '../../core';
 
 const STRIDE = 1;
-export class FloatArrayParameter extends ArrayParameter {
+export class VFXFloatArray extends VFXArray {
     get data () {
         return this._data;
     }
@@ -58,7 +58,7 @@ export class FloatArrayParameter extends ArrayParameter {
         this._data[handle] *= val;
     }
 
-    copyFrom (src: FloatArrayParameter, fromIndex: Handle, toIndex: Handle) {
+    copyFrom (src: VFXFloatArray, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
             assertIsTrue(src._capacity === this._capacity);
@@ -111,7 +111,7 @@ export class FloatArrayParameter extends ArrayParameter {
     }
 }
 
-export class FloatParameter extends VFXParameter {
+export class VFXFloat extends VFXValue {
     get type (): VFXValueType {
         return VFXValueType.FLOAT;
     }

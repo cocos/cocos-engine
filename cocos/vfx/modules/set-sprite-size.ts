@@ -25,10 +25,10 @@
 
 import { ccclass, serializable, tooltip, type, visible } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { Vec2 } from '../../core';
 import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_BASE_SPRITE_SIZE, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempSize = new Vec2();
 
@@ -70,26 +70,26 @@ export class SetSpriteSizeModule extends VFXModule {
     @serializable
     private _size: Vec2Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.ensureParameter(P_BASE_SPRITE_SIZE);
+    public tick (parameterMap: VFXParameterMap) {
+        if (this.usage === ModuleExecStage.SPAWN) {
+            parameterMap.ensureParameter(P_BASE_SPRITE_SIZE);
         }
 
-        particles.ensureParameter(P_SPRITE_SIZE);
+        parameterMap.ensureParameter(P_SPRITE_SIZE);
         if (this.separateAxes) {
-            this.size.tick(dataStore);
+            this.size.tick(parameterMap);
         } else {
-            this.uniformSize.tick(dataStore);
+            this.uniformSize.tick(parameterMap);
         }
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const scale = context.executionStage === ModuleExecStage.SPAWN ? particles.getVec2ArrayParameter(P_BASE_SPRITE_SIZE) : particles.getVec2ArrayParameter(P_SPRITE_SIZE);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const scale = this.usage === ModuleExecStage.SPAWN ? parameterMap.getVec2ArrayValue(P_BASE_SPRITE_SIZE) : parameterMap.getVec2ArrayValue(P_SPRITE_SIZE);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         if (this.separateAxes) {
             const sizeExp = this._size as Vec2Expression;
-            sizeExp.bind(dataStore);
+            sizeExp.bind(parameterMap);
             if (sizeExp.isConstant) {
                 const srcScale = sizeExp.evaluate(0, tempSize);
                 scale.fill(srcScale, fromIndex, toIndex);
@@ -101,7 +101,7 @@ export class SetSpriteSizeModule extends VFXModule {
             }
         } else {
             const uniformSizeExp = this._uniformSize as FloatExpression;
-            uniformSizeExp.bind(dataStore);
+            uniformSizeExp.bind(parameterMap);
             if (uniformSizeExp.isConstant) {
                 const srcScale = uniformSizeExp.evaluate(0);
                 Vec2.set(tempSize, srcScale, srcScale);

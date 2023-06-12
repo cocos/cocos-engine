@@ -25,9 +25,12 @@
 
 import { ccclass, serializable, type, rangeMin } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
-import { C_DELTA_TIME, E_SPAWN_REMAINDER, E_LOOPED_AGE } from '../define';
+import { C_DELTA_TIME, E_SPAWN_REMAINDER, E_LOOPED_AGE, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
+import { SpawnInfo } from '../parameters';
+
+const spawnInfo = new SpawnInfo();
 
 @ccclass('cc.SpawnRateModule')
 @VFXModule.register('SpawnRate', ModuleExecStageFlags.EMITTER | ModuleExecStageFlags.EVENT_HANDLER)
@@ -51,22 +54,31 @@ export class SpawnRateModule extends VFXModule {
     @serializable
     private _rate: FloatExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        this.rate.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        this.rate.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore)  {
-        const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
-        const spawnRemainder = emitter.getFloatParameter(E_SPAWN_REMAINDER);
-        const loopedAge = emitter.getFloatParameter(E_LOOPED_AGE).data;
+    public execute (parameterMap: VFXParameterMap)  {
+        const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
+        const spawnRemainder = parameterMap.getFloatValue(E_SPAWN_REMAINDER);
+        const loopedAge = parameterMap.getFloatValue(E_LOOPED_AGE).data;
+        const spawnInfos = parameterMap.getSpawnInfoArrayValue(E_SPAWN_INFOS);
+        const spawnInfoCount = parameterMap.getUint32Value(E_SPAWN_INFO_COUNT);
+        if (spawnInfoCount.data === spawnInfos.capacity) {
+            spawnInfos.reserve(spawnInfos.capacity * 2);
+        }
         const rateExp = this._rate as FloatExpression;
-        rateExp.bind(dataStore);
+        rateExp.bind(parameterMap);
         const spawnRate = rateExp.evaluateSingle();
         const intervalDt = 1 / spawnRate;
         const interpStartDt = (1 - spawnRemainder.data) * intervalDt;
         const count = spawnRemainder.data + (loopedAge > 0 ? spawnRate : 0) * deltaTime;
         const spawnCount = Math.floor(count);
         spawnRemainder.data = count - spawnCount;
-        emitter.addSpawnInfo(spawnCount, intervalDt, interpStartDt);
+        spawnInfo.count = spawnCount;
+        spawnInfo.intervalDt = intervalDt;
+        spawnInfo.interpStartDt = interpStartDt;
+        spawnInfos.setSpawnInfoAt(spawnInfo, spawnInfoCount.data);
+        spawnInfoCount.data += 1;
     }
 }

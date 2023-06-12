@@ -27,9 +27,9 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { CCBoolean, Vec2 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression } from '../expressions';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
-import { Vec2ArrayParameter } from '../parameters';
+import { VFXVec2Array } from '../parameters';
 import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_BASE_SPRITE_SIZE, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '..';
 
 const tempVec2 = new Vec2();
 
@@ -77,28 +77,28 @@ export class ScaleSpriteSizeModule extends VFXModule {
     @serializable
     private _scalar: Vec2Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_SPRITE_SIZE);
-        if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.ensureParameter(P_BASE_SPRITE_SIZE);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_SPRITE_SIZE);
+        if (this.usage === ModuleExecStage.SPAWN) {
+            parameterMap.ensureParameter(P_BASE_SPRITE_SIZE);
         }
         if (!this.separateAxes) {
-            this.uniformScalar.tick(dataStore);
+            this.uniformScalar.tick(parameterMap);
         } else {
-            this.scalar.tick(dataStore);
+            this.scalar.tick(parameterMap);
         }
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const spriteSize = particles.getVec2ArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_SPRITE_SIZE : P_SPRITE_SIZE);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const spriteSize = parameterMap.getVec2ArrayValue(this.usage === ModuleExecStage.SPAWN ? P_BASE_SPRITE_SIZE : P_SPRITE_SIZE);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         if (!this.separateAxes) {
             const uniformScalarExp = this._uniformScalar as FloatExpression;
-            uniformScalarExp.bind(dataStore);
+            uniformScalarExp.bind(parameterMap);
             if (uniformScalarExp.isConstant) {
                 const scalar = uniformScalarExp.evaluate(0);
-                Vec2ArrayParameter.multiplyScalar(spriteSize, spriteSize, scalar, fromIndex, toIndex);
+                VFXVec2Array.multiplyScalar(spriteSize, spriteSize, scalar, fromIndex, toIndex);
             } else {
                 for (let i = fromIndex; i < toIndex; i++) {
                     const scalar = uniformScalarExp.evaluate(i);
@@ -107,7 +107,7 @@ export class ScaleSpriteSizeModule extends VFXModule {
             }
         } else {
             const scalarExp = this._scalar as Vec2Expression;
-            scalarExp.bind(dataStore);
+            scalarExp.bind(parameterMap);
             if (scalarExp.isConstant) {
                 const scalar = scalarExp.evaluate(0, tempVec2);
                 for (let i = fromIndex; i < toIndex; i++) {

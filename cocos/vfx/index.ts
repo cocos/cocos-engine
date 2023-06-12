@@ -29,7 +29,6 @@ import './vfx-manager';
 import { VFXRenderer } from './vfx-renderer';
 import { VFXExpression } from './vfx-expression';
 import './vfx-dynamic-buffer';
-import './vfx-data-store'
 
 export {
     VFXEmitter,
@@ -38,8 +37,7 @@ export {
     VFXExpression,
 };
 
-export * from './vfx-data-set';
-export * from './vfx-events';
+export * from './vfx-parameter-map';
 export * from './particle-renderer';
 export * from './vfx-parameter';
 export * from './vfx-dynamic-buffer';
@@ -47,4 +45,3 @@ export * from './modules';
 export * from './expressions';
 export * from './renderers';
 export * from './parameters';
-export * from './data-set';

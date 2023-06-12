@@ -24,7 +24,7 @@
  */
 import { CCFloat, serializable, Vec2 } from '../../core';
 import { ccclass, type } from '../../core/data/class-decorator';
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
+import { VFXParameterMap } from '../vfx-parameter-map';
 import { Vec2Expression } from './vec2';
 
 @ccclass('cc.ConstantVec2Expression')
@@ -47,8 +47,8 @@ export class ConstantVec2Expression extends Vec2Expression {
         this.y = val.y;
     }
 
-    public tick (dataStore: VFXDataStore) {}
-    public bind (dataStore: VFXDataStore) {}
+    public tick (parameterMap: VFXParameterMap) {}
+    public bind (parameterMap: VFXParameterMap) {}
 
     public evaluate (index: number, out: Vec2) {
         out.x = this.x;

@@ -24,8 +24,8 @@
  */
 import { RealCurve, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { E_NORMALIZED_LOOP_AGE } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 import { BindingFloatExpression } from './binding-float';
 import { ConstantVec3Expression } from './constant-vec3';
 import { FloatExpression } from './float';
@@ -72,14 +72,14 @@ export class Vec3FromCurveExpression extends Vec3Expression {
         }
     }
 
-    public tick (dataStore: VFXDataStore) {
-        this.curveIndex.tick(dataStore);
-        this.scale.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        this.curveIndex.tick(parameterMap);
+        this.scale.tick(parameterMap);
     }
 
-    public bind (dataStore: VFXDataStore) {
-        this.curveIndex.bind(dataStore);
-        this.scale.bind(dataStore);
+    public bind (parameterMap: VFXParameterMap) {
+        this.curveIndex.bind(parameterMap);
+        this.scale.bind(parameterMap);
     }
 
     public evaluate (index: number, out: Vec3) {

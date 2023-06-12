@@ -24,12 +24,12 @@
  */
 import { lerp, Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
 import { ConstantVec3Expression } from './constant-vec3';
 import { Vec3Expression } from './vec3';
 import { ModuleExecStage } from '../vfx-module';
 import { P_RANDOM_SEED } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const temp = new Vec3();
 const tempRatio = new Vec3();
@@ -52,22 +52,22 @@ export class RandomRangeVec3Expression extends Vec3Expression {
     private _randomOffset = 0;
     private declare _randomStream: RandomStream;
 
-    public tick (dataStore: VFXDataStore) {
-        this.maximum.tick(dataStore);
-        this.minimum.tick(dataStore);
-        if (context.executionStage === ModuleExecStage.UPDATE) {
-            particles.ensureParameter(P_RANDOM_SEED);
+    public tick (parameterMap: VFXParameterMap) {
+        this.maximum.tick(parameterMap);
+        this.minimum.tick(parameterMap);
+        if (this.usage === ModuleExecStage.UPDATE) {
+            parameterMap.ensureParameter(P_RANDOM_SEED);
         }
     }
 
-    public bind (dataStore: VFXDataStore) {
-        this.maximum.bind(dataStore);
-        this.minimum.bind(dataStore);
-        if (context.executionStage === ModuleExecStage.UPDATE) {
-            this._seed = particles.getUint32ArrayParameter(P_RANDOM_SEED).data;
-            this._randomOffset = context.moduleRandomSeed;
+    public bind (parameterMap: VFXParameterMap) {
+        this.maximum.bind(parameterMap);
+        this.minimum.bind(parameterMap);
+        if (this.usage === ModuleExecStage.UPDATE) {
+            this._seed = parameterMap.getUint32ArrayValue(P_RANDOM_SEED).data;
+            this._randomOffset = parameterMap.moduleRandomSeed;
         } else {
-            this._randomStream = context.moduleRandomStream;
+            this._randomStream = parameterMap.moduleRandomStream;
         }
     }
 

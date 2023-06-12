@@ -25,9 +25,9 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_SPRITE_ROTATION, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.SetSpriteRotationModule')
 @VFXModule.register('SetSpriteRotation', ModuleExecStageFlags.SPAWN)
@@ -47,17 +47,17 @@ export class SetSpriteRotationModule extends VFXModule {
     @serializable
     private _rotation: FloatExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_SPRITE_ROTATION);
-        this.rotation.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_SPRITE_ROTATION);
+        this.rotation.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const spriteRotation = particles.getFloatArrayParameter(P_SPRITE_ROTATION);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const spriteRotation = parameterMap.getFloatArrayVale(P_SPRITE_ROTATION);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const rotationExp = this._rotation as FloatExpression;
-        rotationExp.bind(dataStore);
+        rotationExp.bind(parameterMap);
 
         if (rotationExp.isConstant) {
             const rotation = rotationExp.evaluate(0);

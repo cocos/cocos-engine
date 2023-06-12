@@ -27,8 +27,8 @@ import { ccclass, type, serializable, visible, rangeMin } from 'cc.decorator';
 import { lerp, math, Vec2, Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression, ConstantVec2Expression, Vec2Expression, Vec3Expression } from '../expressions';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { P_SPRITE_SIZE, P_VELOCITY, P_SCALE, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempVelocity = new Vec3();
 const tempScalar = new Vec2();
@@ -136,35 +136,35 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
     @serializable
     private _maxScalar: Vec2Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_SCALE);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_SCALE);
         if (this.separateAxes) {
-            this.maxScalar.tick(dataStore);
-            this.minScalar.tick(dataStore);
+            this.maxScalar.tick(parameterMap);
+            this.minScalar.tick(parameterMap);
         } else {
-            this.uniformMaxScalar.tick(dataStore);
-            this.uniformMinScalar.tick(dataStore);
+            this.uniformMaxScalar.tick(parameterMap);
+            this.uniformMinScalar.tick(parameterMap);
         }
-        this.minSpeedThreshold.tick(dataStore);
-        this.maxSpeedThreshold.tick(dataStore);
+        this.minSpeedThreshold.tick(parameterMap);
+        this.maxSpeedThreshold.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const hasVelocity = particles.hasParameter(P_VELOCITY);
+    public execute (parameterMap: VFXParameterMap) {
+        const hasVelocity = parameterMap.hasParameter(P_VELOCITY);
         if (!hasVelocity) { return; }
-        const spriteSize = particles.getVec2ArrayParameter(P_SPRITE_SIZE);
-        const velocity = particles.getVec3ArrayParameter(P_VELOCITY);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const spriteSize = parameterMap.getVec2ArrayValue(P_SPRITE_SIZE);
+        const velocity = parameterMap.getVec3ArrayValue(P_VELOCITY);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const minSpeedThresholdExp = this._minSpeedThreshold as FloatExpression;
         const maxSpeedThresholdExp = this._maxSpeedThreshold as FloatExpression;
-        minSpeedThresholdExp.bind(dataStore);
-        maxSpeedThresholdExp.bind(dataStore);
+        minSpeedThresholdExp.bind(parameterMap);
+        maxSpeedThresholdExp.bind(parameterMap);
         if (!this.separateAxes) {
             const uniformMinScalarExp = this._uniformMinScalar as FloatExpression;
             const uniformMaxScalarExp = this._uniformMaxScalar as FloatExpression;
-            uniformMinScalarExp.bind(dataStore);
-            uniformMaxScalarExp.bind(dataStore);
+            uniformMinScalarExp.bind(parameterMap);
+            uniformMaxScalarExp.bind(parameterMap);
             if (minSpeedThresholdExp.isConstant && maxSpeedThresholdExp.isConstant) {
                 const min = minSpeedThresholdExp.evaluate(0);
                 const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(0));
@@ -187,8 +187,8 @@ export class ScaleSpriteSizeBySpeedModule extends VFXModule {
         } else {
             const minScalarExp = this._minScalar as Vec2Expression;
             const maxScalarExp = this._maxScalar as Vec2Expression;
-            minScalarExp.bind(dataStore);
-            maxScalarExp.bind(dataStore);
+            minScalarExp.bind(parameterMap);
+            maxScalarExp.bind(parameterMap);
             if (minSpeedThresholdExp.isConstant && maxSpeedThresholdExp.isConstant) {
                 const min = minSpeedThresholdExp.evaluate(0);
                 const speedScale = 1 / Math.abs(min - maxSpeedThresholdExp.evaluate(0));

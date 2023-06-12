@@ -27,9 +27,9 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Enum, Vec2, CCBoolean } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { ConstantVec2Expression, Vec2Expression, Int32Expression, ConstantInt32Expression } from '../expressions';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
-import { FloatArrayParameter } from '../parameters';
+import { VFXFloatArray } from '../parameters';
 import { P_VELOCITY, P_NORMALIZED_AGE, P_SUB_UV_INDEX1, C_FROM_INDEX, C_TO_INDEX, P_SUB_UV_INDEX4, P_SUB_UV_INDEX2, P_SUB_UV_INDEX3 } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 export enum SubUVAnimationMode {
     LINEAR,
@@ -113,38 +113,38 @@ export class SubUVAnimationModule extends VFXModule {
     @serializable
     private _endFrameRangeOverride: Int32Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
+    public tick (parameterMap: VFXParameterMap) {
         if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
-            particles.ensureParameter(P_SUB_UV_INDEX1);
+            parameterMap.ensureParameter(P_SUB_UV_INDEX1);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX2) {
-            particles.ensureParameter(P_SUB_UV_INDEX2);
+            parameterMap.ensureParameter(P_SUB_UV_INDEX2);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX3) {
-            particles.ensureParameter(P_SUB_UV_INDEX3);
+            parameterMap.ensureParameter(P_SUB_UV_INDEX3);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX4) {
-            particles.ensureParameter(P_SUB_UV_INDEX4);
+            parameterMap.ensureParameter(P_SUB_UV_INDEX4);
         }
-        this.subImageSize.tick(dataStore);
+        this.subImageSize.tick(parameterMap);
         if (this.useStartFrameRangeOverride) {
-            this.startFrameRangeOverride.tick(dataStore);
+            this.startFrameRangeOverride.tick(parameterMap);
         }
         if (this.useEndFrameRangeOverride) {
-            this.endFrameRangeOverride.tick(dataStore);
+            this.endFrameRangeOverride.tick(parameterMap);
         }
     }
 
-    public execute (dataStore: VFXDataStore) {
-        let subUVIndex: FloatArrayParameter;
+    public execute (parameterMap: VFXParameterMap) {
+        let subUVIndex: VFXFloatArray;
         if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX1) {
-            subUVIndex = particles.getFloatArrayParameter(P_SUB_UV_INDEX1);
+            subUVIndex = parameterMap.getFloatArrayVale(P_SUB_UV_INDEX1);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX2) {
-            subUVIndex = particles.getFloatArrayParameter(P_SUB_UV_INDEX2);
+            subUVIndex = parameterMap.getFloatArrayVale(P_SUB_UV_INDEX2);
         } else if (this.subUVIndexChannel === SubUVIndexChannel.SUB_UV_INDEX3) {
-            subUVIndex = particles.getFloatArrayParameter(P_SUB_UV_INDEX3);
+            subUVIndex = parameterMap.getFloatArrayVale(P_SUB_UV_INDEX3);
         } else {
-            subUVIndex = particles.getFloatArrayParameter(P_SUB_UV_INDEX4);
+            subUVIndex = parameterMap.getFloatArrayVale(P_SUB_UV_INDEX4);
         }
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         if (this.subUVAnimationMode === SubUVAnimationMode.LINEAR) {
             for (let i = fromIndex; i < toIndex; i++) {
 

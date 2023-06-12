@@ -25,10 +25,10 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, UserDataSet, EmitterDataSet } from '../data-set';
 import { Vec3 } from '../../core';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempPos = new Vec3();
 
@@ -53,17 +53,17 @@ export class SetPositionModule extends VFXModule {
     @serializable
     private _position: Vec3Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_POSITION);
-        this.position.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_POSITION);
+        this.position.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const position = particles.getVec3ArrayParameter(P_POSITION);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const position = parameterMap.getVec3ArrayValue(P_POSITION);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const positionExp = this._position as Vec3Expression;
-        positionExp.bind(dataStore);
+        positionExp.bind(parameterMap);
         if (positionExp.isConstant) {
             position.fill(positionExp.evaluate(0, tempPos), fromIndex, toIndex);
         } else {

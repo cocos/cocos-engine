@@ -27,10 +27,10 @@ import { ccclass, type, serializable, rangeMin, visible } from 'cc.decorator';
 import { Enum, clamp, Vec2, Vec3, RealCurve } from '../../core';
 import { FloatExpression, ConstantFloatExpression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
 import { VFXEmitterState } from '../vfx-emitter';
 import { P_VELOCITY, P_POSITION, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 export class PerlinNoise1DCache {
     i0 = 0;
@@ -512,23 +512,23 @@ export class CurlNoiseForceModule extends VFXModule {
         this._offset.multiplyScalar(100);
     }
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_POSITION);
-        particles.ensureParameter(P_VELOCITY);
-        particles.ensureParameter(P_PHYSICS_FORCE);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_POSITION);
+        parameterMap.ensureParameter(P_VELOCITY);
+        parameterMap.ensureParameter(P_PHYSICS_FORCE);
         if (this.separateAxes) {
-            this.strength.tick(dataStore);
+            this.strength.tick(parameterMap);
         } else {
-            this.uniformStrength.tick(dataStore);
+            this.uniformStrength.tick(parameterMap);
         }
-        this.panSpeed.tick(dataStore);
+        this.panSpeed.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const samplePosition = particles.getVec3ArrayParameter(P_POSITION);
-        const physicsForce = particles.getVec3ArrayParameter(P_PHYSICS_FORCE);
+    public execute (parameterMap: VFXParameterMap) {
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const samplePosition = parameterMap.getVec3ArrayValue(P_POSITION);
+        const physicsForce = parameterMap.getVec3ArrayValue(P_PHYSICS_FORCE);
         const frequencyExp = this._frequency as FloatExpression;
         const strengthExp = this._strength as Vec3Expression;
         const uniformStrengthExp = this._uniformStrength as FloatExpression;
@@ -537,12 +537,12 @@ export class CurlNoiseForceModule extends VFXModule {
         const separateAxes = this.separateAxes;
         const remap = this.enableRemap;
         if (separateAxes) {
-            strengthExp.bind(dataStore);
+            strengthExp.bind(parameterMap);
         } else {
-            uniformStrengthExp.bind(dataStore);
+            uniformStrengthExp.bind(parameterMap);
         }
-        panSpeedExp.bind(dataStore);
-        frequencyExp.bind(dataStore);
+        panSpeedExp.bind(parameterMap);
+        frequencyExp.bind(parameterMap);
 
         // eslint-disable-next-line no-lonely-if
         if (this.quality === Quality.HIGH) {

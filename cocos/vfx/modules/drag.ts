@@ -27,8 +27,8 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { P_VELOCITY, P_SCALE, P_SPRITE_SIZE, P_POSITION, P_BASE_VELOCITY, P_PHYSICS_FORCE, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const _tempVec3 = new Vec3();
 @ccclass('cc.DragModule')
@@ -50,21 +50,21 @@ export class DragModule extends VFXModule {
     @serializable
     private _drag: FloatExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_POSITION);
-        particles.ensureParameter(P_BASE_VELOCITY);
-        particles.ensureParameter(P_VELOCITY);
-        particles.ensureParameter(P_PHYSICS_FORCE);
-        this.drag.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_POSITION);
+        parameterMap.ensureParameter(P_BASE_VELOCITY);
+        parameterMap.ensureParameter(P_VELOCITY);
+        parameterMap.ensureParameter(P_PHYSICS_FORCE);
+        this.drag.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const physicsForce = particles.getVec3ArrayParameter(P_PHYSICS_FORCE);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const velocity = particles.getVec3ArrayParameter(P_VELOCITY);
+    public execute (parameterMap: VFXParameterMap) {
+        const physicsForce = parameterMap.getVec3ArrayValue(P_PHYSICS_FORCE);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const velocity = parameterMap.getVec3ArrayValue(P_VELOCITY);
         const dragExp = this._drag as FloatExpression;
-        dragExp.bind(dataStore);
+        dragExp.bind(parameterMap);
 
         for (let i = fromIndex; i < toIndex; i++) {
             const drag = dragExp.evaluate(i);

@@ -25,11 +25,11 @@
 
 import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, Vec3 } from '../../core';
-import { C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_INV_LIFETIME, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
+import { C_DELTA_TIME, C_EVENTS, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_INV_LIFETIME, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { RandomStream } from '../random-stream';
-import { VFXEventInfo } from '../vfx-events';
+import { VFXEventInfo } from '../parameters/event';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const eventInfo = new VFXEventInfo();
 
@@ -41,31 +41,31 @@ export class LocationEventGeneratorModule extends VFXModule {
     @serializable
     public probability = 1;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_INV_LIFETIME);
-        particles.ensureParameter(P_RANDOM_SEED);
-        particles.ensureParameter(P_NORMALIZED_AGE);
-        particles.ensureParameter(P_ID);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_INV_LIFETIME);
+        parameterMap.ensureParameter(P_RANDOM_SEED);
+        parameterMap.ensureParameter(P_NORMALIZED_AGE);
+        parameterMap.ensureParameter(P_ID);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const normalizedAge = particles.getFloatArrayParameter(P_NORMALIZED_AGE).data;
-        const randomSeed = particles.getUint32ArrayParameter(P_RANDOM_SEED).data;
-        const invLifeTime = particles.getFloatArrayParameter(P_INV_LIFETIME).data;
-        const id = particles.getUint32ArrayParameter(P_ID).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const normalizedAge = parameterMap.getFloatArrayVale(P_NORMALIZED_AGE).data;
+        const randomSeed = parameterMap.getUint32ArrayValue(P_RANDOM_SEED).data;
+        const invLifeTime = parameterMap.getFloatArrayVale(P_INV_LIFETIME).data;
+        const id = parameterMap.getUint32ArrayValue(P_ID).data;
         const randomOffset = this.randomSeed;
-        const { events } = context;
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
-        const localToWorld = emitter.getMat4Parameter(E_LOCAL_TO_WORLD).data;
-        const isWorldSpace = emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
-        const hasVelocity = particles.hasParameter(P_VELOCITY);
-        const hasColor = particles.hasParameter(P_COLOR);
-        const hasPosition = particles.hasParameter(P_POSITION);
-        const velocity = hasVelocity ? particles.getVec3ArrayParameter(P_VELOCITY) : null;
-        const color = hasColor ? particles.getColorArrayParameter(P_COLOR) : null;
-        const position = hasPosition ? particles.getVec3ArrayParameter(P_POSITION) : null;
+        const events = parameterMap.getEventArrayValue(C_EVENTS);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
+        const localToWorld = parameterMap.getMat4Value(E_LOCAL_TO_WORLD).data;
+        const isWorldSpace = parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
+        const hasVelocity = parameterMap.hasParameter(P_VELOCITY);
+        const hasColor = parameterMap.hasParameter(P_COLOR);
+        const hasPosition = parameterMap.hasParameter(P_POSITION);
+        const velocity = hasVelocity ? parameterMap.getVec3ArrayValue(P_VELOCITY) : null;
+        const color = hasColor ? parameterMap.getColorArrayValue(P_COLOR) : null;
+        const position = hasPosition ? parameterMap.getVec3ArrayValue(P_POSITION) : null;
         if (!approx(this.probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
                 if (RandomStream.getFloat(randomSeed[i] + randomOffset) > this.probability) {
@@ -75,13 +75,13 @@ export class LocationEventGeneratorModule extends VFXModule {
                 Vec3.zero(eventInfo.velocity);
                 Color.copy(eventInfo.color, Color.WHITE);
                 if (hasPosition) {
-                    position.getVec3At(eventInfo.position, i);
+                    position!.getVec3At(eventInfo.position, i);
                 }
                 if (hasVelocity) {
-                    velocity.getVec3At(eventInfo.velocity, i);
+                    velocity!.getVec3At(eventInfo.velocity, i);
                 }
                 if (hasColor) {
-                    color.getColorAt(eventInfo.color, i);
+                    color!.getColorAt(eventInfo.color, i);
                 }
                 if (!isWorldSpace) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);

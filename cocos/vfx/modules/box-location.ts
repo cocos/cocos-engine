@@ -26,9 +26,9 @@ import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { CCBoolean, Vec3 } from '../../core';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempPosition = new Vec3();
 const pos = new Vec3();
@@ -87,24 +87,24 @@ export class BoxLocationModule extends ShapeLocationModule {
     @serializable
     private _boxCenter: Vec3Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        super.tick(dataStore);
-        this.boxSize.tick(dataStore);
-        this.boxCenter.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        super.tick(parameterMap);
+        this.boxSize.tick(parameterMap);
+        this.boxCenter.tick(parameterMap);
         if (this.surfaceOnly) {
-            this.surfaceThickness.tick(dataStore);
+            this.surfaceThickness.tick(parameterMap);
         }
     }
 
-    public execute (dataStore: VFXDataStore) {
-        super.execute(particles, emitter, user, context);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const position = particles.getVec3ArrayParameter(P_POSITION);
+    public execute (parameterMap: VFXParameterMap) {
+        super.execute(parameterMap);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const position = parameterMap.getVec3ArrayValue(P_POSITION);
         const boxSizeExp = this._boxSize as Vec3Expression;
         const boxCenterExp = this._boxCenter as Vec3Expression;
-        boxSizeExp.bind(dataStore);
-        boxCenterExp.bind(dataStore);
+        boxSizeExp.bind(parameterMap);
+        boxCenterExp.bind(parameterMap);
 
         const rand = this.randomStream;
         if (!this.surfaceOnly) {
@@ -117,7 +117,7 @@ export class BoxLocationModule extends ShapeLocationModule {
             }
         } else {
             const surfaceThicknessExp = this._surfaceThickness as FloatExpression;
-            surfaceThicknessExp.bind(dataStore);
+            surfaceThicknessExp.bind(parameterMap);
             for (let i = fromIndex; i < toIndex; ++i) {
                 const x = rand.getFloat();
                 const y = rand.getFloat();

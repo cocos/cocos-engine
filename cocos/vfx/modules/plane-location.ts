@@ -25,10 +25,10 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { ShapeLocationModule } from './shape-location';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec2, Vec3 } from '../../core';
 import { ConstantVec2Expression, Vec2Expression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const center = new Vec2();
 const size = new Vec2();
@@ -65,21 +65,21 @@ export class PlaneLocationModule extends ShapeLocationModule {
     @serializable
     private _planeCenter: Vec2Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        super.tick(dataStore);
-        this.planeCenter.tick(dataStore);
-        this.planeSize.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        super.tick(parameterMap);
+        this.planeCenter.tick(parameterMap);
+        this.planeSize.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        super.execute(particles, emitter, user, context);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const position = particles.getVec3ArrayParameter(P_POSITION);
+    public execute (parameterMap: VFXParameterMap) {
+        super.execute(parameterMap);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const position = parameterMap.getVec3ArrayValue(P_POSITION);
         const planeSizeExp = this._planeSize as Vec2Expression;
         const planeCenterExp = this._planeCenter as Vec2Expression;
-        planeSizeExp.bind(dataStore);
-        planeCenterExp.bind(dataStore);
+        planeSizeExp.bind(parameterMap);
+        planeCenterExp.bind(parameterMap);
 
         const rand = this.randomStream;
         for (let i = fromIndex; i < toIndex; i++) {

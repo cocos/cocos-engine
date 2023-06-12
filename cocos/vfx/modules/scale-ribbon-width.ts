@@ -26,8 +26,8 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { P_SPRITE_SIZE, P_NORMALIZED_AGE, P_RIBBON_WIDTH, P_BASE_RIBBON_WIDTH, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.ScaleRibbonWidthModule')
 @VFXModule.register('ScaleRibbonWidth', ModuleExecStageFlags.UPDATE | ModuleExecStageFlags.SPAWN, [P_SPRITE_SIZE.name], [P_NORMALIZED_AGE.name])
@@ -50,20 +50,20 @@ export class ScaleRibbonWidthModule extends VFXModule {
     @serializable
     private _scalar: FloatExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_RIBBON_WIDTH);
-        if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.ensureParameter(P_BASE_RIBBON_WIDTH);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_RIBBON_WIDTH);
+        if (this.usage === ModuleExecStage.SPAWN) {
+            parameterMap.ensureParameter(P_BASE_RIBBON_WIDTH);
         }
-        this.scalar.tick(dataStore);
+        this.scalar.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const ribbonWidth = particles.getFloatArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const ribbonWidth = parameterMap.getFloatArrayVale(this.usage === ModuleExecStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const scalarExp = this._scalar as FloatExpression;
-        scalarExp.bind(dataStore);
+        scalarExp.bind(parameterMap);
         if (scalarExp.isConstant) {
             const scalar = scalarExp.evaluate(0);
             for (let i = fromIndex; i < toIndex; i++) {

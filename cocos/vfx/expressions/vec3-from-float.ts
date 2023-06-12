@@ -24,7 +24,7 @@
  */
 import { Vec3 } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/decorators';
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
+import { VFXParameterMap } from '../vfx-parameter-map';
 import { ConstantFloatExpression } from './constant-float';
 import { FloatExpression } from './float';
 import { Vec3Expression } from './vec3';
@@ -39,12 +39,12 @@ export class Vec3FromFloatExpression extends Vec3Expression {
         return this.value.isConstant;
     }
 
-    public tick (dataStore: VFXDataStore) {
-        this.value.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        this.value.tick(parameterMap);
     }
 
-    public bind (dataStore: VFXDataStore) {
-        this.value.bind(dataStore);
+    public bind (parameterMap: VFXParameterMap) {
+        this.value.bind(parameterMap);
     }
 
     public evaluate (index: number, out: Vec3) {

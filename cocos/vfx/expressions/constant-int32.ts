@@ -24,7 +24,7 @@
  */
 import { CCInteger } from '../../core';
 import { ccclass, serializable, type } from '../../core/data/class-decorator';
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
+import { VFXParameterMap } from '../vfx-parameter-map';
 import { Int32Expression } from './int32';
 
 @ccclass('cc.ConstantInt32Expression')
@@ -50,8 +50,8 @@ export class ConstantInt32Expression extends Int32Expression {
         this.value = value;
     }
 
-    public tick (dataStore: VFXDataStore) {}
-    public bind (dataStore: VFXDataStore) {}
+    public tick (parameterMap: VFXParameterMap) {}
+    public bind (parameterMap: VFXParameterMap) {}
 
     public evaluate (index: number): number {
         return this.value;

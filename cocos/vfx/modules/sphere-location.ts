@@ -161,34 +161,34 @@ export class SphereLocationModule extends ShapeLocationModule {
     @serializable
     private _uniformSpiralAmount: FloatExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        super.tick(dataStore);
-        this.radius.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        super.tick(parameterMap);
+        this.radius.tick(parameterMap);
         if (this.distributionMode === DistributionMode.RANDOM) {
-            this.surfaceDistribution.tick(dataStore);
-            this.hemisphereDistribution.tick(dataStore);
+            this.surfaceDistribution.tick(parameterMap);
+            this.hemisphereDistribution.tick(parameterMap);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
-            this.uPosition.tick(dataStore);
-            this.vPosition.tick(dataStore);
-            this.radiusPosition.tick(dataStore);
+            this.uPosition.tick(parameterMap);
+            this.vPosition.tick(parameterMap);
+            this.radiusPosition.tick(parameterMap);
         } else {
-            this.uniformDistribution.tick(dataStore);
-            this.uniformSpiralAmount.tick(dataStore);
+            this.uniformDistribution.tick(parameterMap);
+            this.uniformSpiralAmount.tick(parameterMap);
         }
     }
 
-    public execute (dataStore: VFXDataStore) {
-        super.execute(particles, emitter, user, context);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const position = particles.getVec3ArrayParameter(P_POSITION);
+    public execute (parameterMap: VFXParameterMap) {
+        super.execute(parameterMap);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const position = parameterMap.getVec3ArrayValue(P_POSITION);
         const radiusExp = this._radius as FloatExpression;
-        radiusExp.bind(dataStore);
+        radiusExp.bind(parameterMap);
         if (this.distributionMode === DistributionMode.RANDOM) {
             const surfaceDistributionExp = this._surfaceDistribution as FloatExpression;
             const hemisphereDistributionExp = this._hemisphereDistribution as Vec2Expression;
-            surfaceDistributionExp.bind(dataStore);
-            hemisphereDistributionExp.bind(dataStore);
+            surfaceDistributionExp.bind(parameterMap);
+            hemisphereDistributionExp.bind(parameterMap);
             const random = this.randomStream;
             for (let i = fromIndex; i < toIndex; ++i) {
                 hemisphereDistributionExp.evaluate(i, distribution);
@@ -206,9 +206,9 @@ export class SphereLocationModule extends ShapeLocationModule {
             const uPositionExp = this._uPosition as FloatExpression;
             const vPositionExp = this._vPosition as FloatExpression;
             const radiusPositionExp = this._radiusPosition as FloatExpression;
-            uPositionExp.bind(dataStore);
-            vPositionExp.bind(dataStore);
-            radiusPositionExp.bind(dataStore);
+            uPositionExp.bind(parameterMap);
+            vPositionExp.bind(parameterMap);
+            radiusPositionExp.bind(parameterMap);
 
             for (let i = fromIndex; i < toIndex; ++i) {
                 const u = uPositionExp.evaluate(i);
@@ -225,8 +225,8 @@ export class SphereLocationModule extends ShapeLocationModule {
         } else {
             const uniformDistributionExp = this._uniformDistribution as FloatExpression;
             const uniformSpiralAmountExp = this._uniformSpiralAmount as FloatExpression;
-            uniformDistributionExp.bind(dataStore);
-            uniformSpiralAmountExp.bind(dataStore);
+            uniformDistributionExp.bind(parameterMap);
+            uniformSpiralAmountExp.bind(parameterMap);
             const uniformCount = toIndex - fromIndex - 1;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const spiralAmount = uniformSpiralAmountExp.evaluate(i);

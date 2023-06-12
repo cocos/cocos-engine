@@ -1,10 +1,10 @@
 import { DEBUG } from 'internal:constants';
 import { Color, assertIsTrue, Vec3 } from '../../core';
 import { VFXEventType } from '../define';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
+import { VFXArray, BATCH_OPERATION_THRESHOLD, Handle, VFXValue, VFXValueType } from '../vfx-parameter';
 
 const STRIDE = 12;
-export class VFXEvent {
+export class VFXEventInfo {
     public type = VFXEventType.UNKNOWN;
     public particleId = 0;
     public currentTime = 0;
@@ -14,7 +14,7 @@ export class VFXEvent {
     public color = new Color();
     public randomSeed = 0;
 
-    copy (src: VFXEvent) {
+    copy (src: VFXEventInfo) {
         this.type = src.type;
         this.particleId = src.particleId;
         this.currentTime = src.currentTime;
@@ -26,11 +26,7 @@ export class VFXEvent {
     }
 }
 
-export class EventArrayParameter extends ArrayParameter {
-    get data () {
-        return this._data;
-    }
-
+export class VFXEventArray extends VFXArray {
     get type () {
         return VFXValueType.EVENT;
     }
@@ -68,7 +64,7 @@ export class EventArrayParameter extends ArrayParameter {
         this._data[offsetB + 11] = this._data[offsetA + 11];
     }
 
-    getEventAt (out: VFXEvent, handle: Handle) {
+    getEventAt (out: VFXEventInfo, handle: Handle) {
         const data = this._data;
         const uint32Data = this._uint32data;
         const offset = handle * STRIDE;
@@ -83,7 +79,7 @@ export class EventArrayParameter extends ArrayParameter {
         return out;
     }
 
-    setEventAt (event: VFXEvent, handle: Handle) {
+    setEventAt (event: VFXEventInfo, handle: Handle) {
         const data = this._data;
         const uint32Data = this._uint32data;
         const offset = handle * STRIDE;
@@ -101,57 +97,22 @@ export class EventArrayParameter extends ArrayParameter {
         uint32Data[offset + 11] = event.randomSeed;
     }
 
-    fill (event: VFXEvent, fromIndex: Handle, toIndex: Handle) {
-        if (DEBUG) {
-            assertIsTrue(toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
-        }
-
-        const data = this._data;
-        const uint32Data = this._uint32data;
-        const type = event.type;
-        const particleId = event.particleId;
-        const currentTime = event.currentTime;
-        const prevTime = event.prevTime;
-        const position = event.position;
-        const velocity = event.velocity;
-        const color = event.color;
-        const randomSeed = event.randomSeed;
-        for (let i = fromIndex; i < toIndex; ++i) {
-            const offset = fromIndex * STRIDE;
-            uint32Data[offset] = type;
-            data[offset + 1] = particleId;
-            data[offset + 2] = currentTime;
-            data[offset + 3] = prevTime;
-            data[offset + 4] = position.x;
-            data[offset + 5] = position.y;
-            data[offset + 6] = position.z;
-            data[offset + 7] = velocity.x;
-            data[offset + 8] = velocity.y;
-            data[offset + 9] = velocity.z;
-            uint32Data[offset + 10] = Color.toUint32(color);
-            uint32Data[offset + 11] = randomSeed;
-        }
-    }
-
-    copyToTypedArray (dest: Uint32Array, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle) {
-    }
-
-    copyFrom (src: EventArrayParameter, fromIndex: Handle, toIndex: Handle) {
+    copyFrom (src: VFXEventArray, fromIndex: Handle, toIndex: Handle) {
     }
 }
 
-export class EventParameter extends VFXParameter {
+export class VFXEvent extends VFXValue {
     get type (): VFXValueType {
         return VFXValueType.EVENT;
     }
 
-    get data (): Readonly<VFXEvent> {
+    get data (): Readonly<VFXEventInfo> {
         return this._data;
     }
 
-    set data (val: Readonly<VFXEvent>) {
+    set data (val: Readonly<VFXEventInfo>) {
         this._data.copy(val);
     }
 
-    private _data = new VFXEvent();
+    private _data = new VFXEventInfo();
 }

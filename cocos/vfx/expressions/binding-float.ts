@@ -25,12 +25,12 @@
 
 import { ccclass, serializable, type } from '../../core/data/decorators';
 import { FloatExpression } from './float';
-import { VFXParameterDecl, VFXParameterNamespace } from '../vfx-parameter';
-import { VFXDataStore } from '../vfx-data-store';
+import { VFXParameter, VFXParameterNamespace } from '../vfx-parameter';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.BindingFloatExpression')
 export class BindingFloatExpression extends FloatExpression {
-    @type(VFXParameterDecl)
+    @type(VFXParameter)
     get bindingParameter () {
         return this._bindingParameter;
     }
@@ -40,7 +40,7 @@ export class BindingFloatExpression extends FloatExpression {
     }
 
     @serializable
-    private _bindingParameter: VFXParameterDecl | null = null;
+    private _bindingParameter: VFXParameter | null = null;
     private declare _data: Float32Array;
     private _constant = 0;
     private _getFloat = this._getConstant;
@@ -57,18 +57,18 @@ export class BindingFloatExpression extends FloatExpression {
         return this._data[index];
     }
 
-    constructor (vfxParameterIdentity: VFXParameterDecl) {
+    constructor (vfxParameterIdentity: VFXParameter) {
         super();
         this._bindingParameter = vfxParameterIdentity;
     }
 
-    public tick (dataStore: VFXDataStore) {
+    public tick (parameterMap: VFXParameterMap) {
         if (this._bindingParameter?.namespace === VFXParameterNamespace.PARTICLE) {
-            dataStore.particles.ensureParameter(this._bindingParameter);
+            parameterMap.ensureParameter(this._bindingParameter);
         }
     }
 
-    public bind (dataStore: VFXDataStore) {
+    public bind (parameterMap: VFXParameterMap) {
         if (!this._bindingParameter) {
             this._getFloat = this._getConstant;
             this._constant = 0;
@@ -76,19 +76,19 @@ export class BindingFloatExpression extends FloatExpression {
         }
         switch (this._bindingParameter.namespace) {
         case VFXParameterNamespace.PARTICLE:
-            this._data = particles.getFloatArrayParameter(this._bindingParameter).data;
+            this._data = parameterMap.getFloatArrayVale(this._bindingParameter).data;
             this._getFloat = this._getFloatAt;
             break;
         case VFXParameterNamespace.EMITTER:
-            this._constant = emitter.getFloatParameter(this._bindingParameter).data;
+            this._constant = parameterMap.getFloatValue(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
         case VFXParameterNamespace.USER:
-            this._constant = user.getFloatParameter(this._bindingParameter).data;
+            this._constant = parameterMap.getFloatValue(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
         case VFXParameterNamespace.CONTEXT:
-            this._constant = context.getFloatParameter(this._bindingParameter).data;
+            this._constant = parameterMap.getFloatValue(this._bindingParameter).data;
             this._getFloat = this._getConstant;
             break;
         default:

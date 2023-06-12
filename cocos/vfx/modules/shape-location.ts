@@ -26,10 +26,10 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Mat4, Quat, Vec3 } from '../../core';
 import { VFXModule } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
-import { Vec3ArrayParameter } from '../parameters';
+import { VFXVec3Array } from '../parameters';
 import { BindingVec3Expression, ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_POSITION } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const originVec = new Vec3(0, 0, 0);
 const tempVec1 = new Vec3(0, 0, 0);
@@ -114,23 +114,23 @@ export abstract class ShapeLocationModule extends VFXModule {
     private _mat = new Mat4();
     protected storePosition = this.storePositionFast;
 
-    public tick (dataStore: VFXDataStore) {
-        this.position.tick(dataStore);
-        this.rotation.tick(dataStore);
-        this.scale.tick(dataStore);
-        this.origin.tick(dataStore);
-        particles.ensureParameter(P_POSITION);
+    public tick (parameterMap: VFXParameterMap) {
+        this.position.tick(parameterMap);
+        this.rotation.tick(parameterMap);
+        this.scale.tick(parameterMap);
+        this.origin.tick(parameterMap);
+        parameterMap.ensureParameter(P_POSITION);
     }
 
-    public execute (dataStore: VFXDataStore) {
+    public execute (parameterMap: VFXParameterMap) {
         const positionExp = this._position as Vec3Expression;
         const rotationExp = this._rotation as Vec3Expression;
         const scaleExp = this._scale as Vec3Expression;
         const originExp = this._origin as Vec3Expression;
-        positionExp.bind(dataStore);
-        rotationExp.bind(dataStore);
-        scaleExp.bind(dataStore);
-        originExp.bind(dataStore);
+        positionExp.bind(parameterMap);
+        rotationExp.bind(parameterMap);
+        scaleExp.bind(parameterMap);
+        originExp.bind(parameterMap);
         if (positionExp.isConstant && rotationExp.isConstant && scaleExp.isConstant) {
             rotationExp.evaluate(0, tempVec1);
             Mat4.fromSRT(this._mat, Quat.fromEuler(tempQuat, tempVec1.x, tempVec1.y, tempVec1.z), positionExp.evaluate(0, tempVec2), scaleExp.evaluate(0, tempVec3));
@@ -140,13 +140,13 @@ export abstract class ShapeLocationModule extends VFXModule {
         }
     }
 
-    protected storePositionFast (index: number, pos: Vec3, position: Vec3ArrayParameter) {
+    protected storePositionFast (index: number, pos: Vec3, position: VFXVec3Array) {
         Vec3.transformMat4(pos, pos, this._mat);
         Vec3.add(pos, pos, (this._origin as Vec3Expression).evaluate(index, originVec));
         position.setVec3At(pos, index);
     }
 
-    protected storePositionSlow (index: number, pos: Vec3, position: Vec3ArrayParameter) {
+    protected storePositionSlow (index: number, pos: Vec3, position: VFXVec3Array) {
         (this._rotation as Vec3Expression).evaluate(index, tempVec1);
         Mat4.fromSRT(this._mat, Quat.fromEuler(tempQuat, tempVec1.x, tempVec1.y, tempVec1.z),
             (this._position as Vec3Expression).evaluate(index, tempVec2), (this._scale as Vec3Expression).evaluate(index, tempVec3));

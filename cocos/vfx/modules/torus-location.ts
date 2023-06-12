@@ -26,10 +26,10 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, TWO_PI, Vec3, clamp } from '../../core';
-import { ParticleDataSet, EmitterDataSet, ContextDataSet, UserDataSet } from '../data-set';
 import { ShapeLocationModule } from './shape-location';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 export enum TorusDistributionMode {
     RANDOM,
@@ -159,36 +159,36 @@ export class TorusLocationModule extends ShapeLocationModule {
     @serializable
     private _vPosition: FloatExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        super.tick(dataStore);
-        this.largeRadius.tick(dataStore);
-        this.handleRadius.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        super.tick(parameterMap);
+        this.largeRadius.tick(parameterMap);
+        this.handleRadius.tick(parameterMap);
         if (this.distributionMode === TorusDistributionMode.RANDOM) {
-            this.surfaceDistribution.tick(dataStore);
-            this.uDistribution.tick(dataStore);
-            this.vDistribution.tick(dataStore);
+            this.surfaceDistribution.tick(parameterMap);
+            this.uDistribution.tick(parameterMap);
+            this.vDistribution.tick(parameterMap);
         } else {
-            this.uPosition.tick(dataStore);
-            this.vPosition.tick(dataStore);
+            this.uPosition.tick(parameterMap);
+            this.vPosition.tick(parameterMap);
         }
     }
 
-    public execute (dataStore: VFXDataStore): void {
-        super.execute(particles, emitter, user, context);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const position = particles.getVec3ArrayParameter(P_POSITION);
+    public execute (parameterMap: VFXParameterMap): void {
+        super.execute(parameterMap);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const position = parameterMap.getVec3ArrayValue(P_POSITION);
         const largeRadiusExp = this._largeRadius as FloatExpression;
         const handleRadiusExp = this._handleRadius as FloatExpression;
-        largeRadiusExp.bind(dataStore);
-        handleRadiusExp.bind(dataStore);
+        largeRadiusExp.bind(parameterMap);
+        handleRadiusExp.bind(parameterMap);
         if (this.distributionMode === TorusDistributionMode.RANDOM) {
             const surfaceDistributionExp = this._surfaceDistribution as FloatExpression;
             const uDistributionExp = this._uDistribution as FloatExpression;
             const vDistributionExp = this._vDistribution as FloatExpression;
-            surfaceDistributionExp.bind(dataStore);
-            uDistributionExp.bind(dataStore);
-            vDistributionExp.bind(dataStore);
+            surfaceDistributionExp.bind(parameterMap);
+            uDistributionExp.bind(parameterMap);
+            vDistributionExp.bind(parameterMap);
             const randomStream = this.randomStream;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const largeRadius = largeRadiusExp.evaluate(i);
@@ -206,8 +206,8 @@ export class TorusLocationModule extends ShapeLocationModule {
         } else {
             const uPositionExp = this._uPosition as FloatExpression;
             const vPositionExp = this._vPosition as FloatExpression;
-            uPositionExp.bind(dataStore);
-            vPositionExp.bind(dataStore);
+            uPositionExp.bind(parameterMap);
+            vPositionExp.bind(parameterMap);
             for (let i = fromIndex; i < toIndex; ++i) {
                 const largeRadius = largeRadiusExp.evaluate(i);
                 const uPosition = uPositionExp.evaluate(i);

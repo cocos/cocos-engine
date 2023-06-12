@@ -25,10 +25,10 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ColorExpression, ConstantColorExpression } from '../expressions';
 import { Color } from '../../core';
 import { P_COLOR, P_NORMALIZED_AGE, P_BASE_COLOR, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempColor = new Color();
 
@@ -53,20 +53,20 @@ export class SetColorModule extends VFXModule {
     @serializable
     private _color: ColorExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_COLOR);
-        if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.ensureParameter(P_BASE_COLOR);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_COLOR);
+        if (this.usage === ModuleExecStage.SPAWN) {
+            parameterMap.ensureParameter(P_BASE_COLOR);
         }
-        this.color.tick(dataStore);
+        this.color.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const color = particles.getColorArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_COLOR : P_COLOR);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const color = parameterMap.getColorArrayValue(this.usage === ModuleExecStage.SPAWN ? P_BASE_COLOR : P_COLOR);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const colorExp = this._color as ColorExpression;
-        colorExp.bind(dataStore);
+        colorExp.bind(parameterMap);
         if (colorExp.isConstant) {
             color.fill(colorExp.evaluate(0, tempColor), fromIndex, toIndex);
         } else {

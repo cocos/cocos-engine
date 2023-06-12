@@ -27,8 +27,8 @@ import { ccclass, type, serializable } from 'cc.decorator';
 import { Color } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
 import { ColorExpression, ConstantColorExpression } from '../expressions';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { P_NORMALIZED_AGE, P_BASE_COLOR, P_COLOR, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempColor = new Color();
 
@@ -53,20 +53,20 @@ export class ScaleColorModule extends VFXModule {
     @serializable
     private _scalar: ColorExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.ensureParameter(P_BASE_COLOR);
+    public tick (parameterMap: VFXParameterMap) {
+        if (this.usage === ModuleExecStage.SPAWN) {
+            parameterMap.ensureParameter(P_BASE_COLOR);
         }
-        particles.ensureParameter(P_COLOR);
-        this.scalar.tick(dataStore);
+        parameterMap.ensureParameter(P_COLOR);
+        this.scalar.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const color = particles.getColorArrayParameter(context.executionStage === ModuleExecStage.UPDATE ? P_COLOR : P_BASE_COLOR);
+    public execute (parameterMap: VFXParameterMap) {
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const color = parameterMap.getColorArrayValue(this.usage === ModuleExecStage.UPDATE ? P_COLOR : P_BASE_COLOR);
         const scalarExp = this.scalar;
-        scalarExp.bind(dataStore);
+        scalarExp.bind(parameterMap);
         if (scalarExp.isConstant) {
             const colorVal = scalarExp.evaluate(0, tempColor);
             for (let i = fromIndex; i < toIndex; i++) {

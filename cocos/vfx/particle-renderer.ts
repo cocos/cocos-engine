@@ -26,7 +26,7 @@ import { ccclass, displayName, serializable, type } from 'cc.decorator';
 import { CCBoolean } from '../core';
 import { Material, RenderingSubMesh } from '../asset/assets';
 import { MaterialInstance } from '../render-scene';
-import { VFXDataStore } from './vfx-data-store';
+import { VFXParameterMap } from './vfx-parameter-map';
 
 @ccclass('cc.ParticleRenderer')
 export abstract class ParticleRenderer {
@@ -112,5 +112,5 @@ export abstract class ParticleRenderer {
     @serializable
     private _enabled = true;
 
-    public abstract render (dataStore: VFXDataStore);
+    public abstract render (parameterMap: VFXParameterMap, count: number);
 }

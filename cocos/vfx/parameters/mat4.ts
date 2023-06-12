@@ -1,10 +1,10 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue, Mat4 } from '../../core';
-import { ArrayParameter, VFXParameter, VFXValueType } from '../vfx-parameter';
+import { VFXArray, VFXValue, VFXValueType } from '../vfx-parameter';
 
 const tempMat4 = new Mat4();
 const STRIDE = 16;
-export class Mat4ArrayParameter extends ArrayParameter {
+export class VFXMat4Array extends VFXArray {
     get data () {
         return this._data;
     }
@@ -78,7 +78,7 @@ export class Mat4ArrayParameter extends ArrayParameter {
         data[offset + 15] = val.m15;
     }
 
-    copyFrom (src: Mat4ArrayParameter, fromIndex: number, toIndex: number) {
+    copyFrom (src: VFXMat4Array, fromIndex: number, toIndex: number) {
         throw new Error('Method not implemented.');
     }
 
@@ -87,7 +87,7 @@ export class Mat4ArrayParameter extends ArrayParameter {
     }
 }
 
-export class Mat4Parameter extends VFXParameter {
+export class VFXMat4 extends VFXValue {
     get type (): VFXValueType {
         return VFXValueType.MAT4;
     }

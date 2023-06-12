@@ -26,9 +26,9 @@
 import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantVec3Expression, Vec3Expression } from '../expressions';
 import { P_VELOCITY, E_IS_WORLD_SPACE, P_POSITION, P_BASE_VELOCITY, C_FROM_INDEX, C_TO_INDEX, E_VELOCITY } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempVelocity = new Vec3();
 const scale = new Vec3();
@@ -49,24 +49,24 @@ export class InheritVelocityModule extends VFXModule {
     @serializable
     private _scale: Vec3Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        if (!emitter.getBoolParameter(E_IS_WORLD_SPACE).data) { return; }
-        this.scale.tick(dataStore);
-        particles.ensureParameter(P_POSITION);
-        particles.ensureParameter(P_VELOCITY);
-        if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.ensureParameter(P_BASE_VELOCITY);
+    public tick (parameterMap: VFXParameterMap) {
+        if (!parameterMap.getBoolValue(E_IS_WORLD_SPACE).data) { return; }
+        this.scale.tick(parameterMap);
+        parameterMap.ensureParameter(P_POSITION);
+        parameterMap.ensureParameter(P_VELOCITY);
+        if (this.usage === ModuleExecStage.SPAWN) {
+            parameterMap.ensureParameter(P_BASE_VELOCITY);
         }
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const initialVelocity = emitter.getVec3Parameter(E_VELOCITY).data;
-        if (!emitter.getBoolParameter(E_IS_WORLD_SPACE).data) { return; }
-        const velocity = particles.getVec3ArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_VELOCITY : P_VELOCITY);
+    public execute (parameterMap: VFXParameterMap) {
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const initialVelocity = parameterMap.getVec3Value(E_VELOCITY).data;
+        if (!parameterMap.getBoolValue(E_IS_WORLD_SPACE).data) { return; }
+        const velocity = parameterMap.getVec3ArrayValue(this.usage === ModuleExecStage.SPAWN ? P_BASE_VELOCITY : P_VELOCITY);
         const scaleExp = this._scale as Vec3Expression;
-        scaleExp.bind(dataStore);
+        scaleExp.bind(parameterMap);
         if (scaleExp.isConstant) {
             Vec3.multiply(tempVelocity, initialVelocity, scaleExp.evaluate(0, scale));
             for (let i = fromIndex; i < toIndex; i++) {

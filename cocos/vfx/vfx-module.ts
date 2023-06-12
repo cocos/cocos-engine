@@ -27,7 +27,7 @@ import { ccclass, serializable, type } from '../core/data/decorators';
 import { assertIsTrue, CCBoolean, CCString } from '../core';
 import { RandomStream } from './random-stream';
 import { VFXEmitterState } from './vfx-emitter';
-import { VFXDataStore } from './vfx-data-store';
+import { VFXParameterMap } from './vfx-parameter-map';
 
 export enum ModuleExecStage {
     UNKNOWN = -1,
@@ -168,10 +168,20 @@ export abstract class VFXModule {
         return this._randomStream;
     }
 
+    public get usage () {
+        return this._usage;
+    }
+
     @serializable
     private _enabled = true;
     private _randomSeed = 0;
     private _randomStream = new RandomStream(0);
+    @serializable
+    private _usage = ModuleExecStage.UNKNOWN;
+
+    constructor (usage: ModuleExecStage = ModuleExecStage.UNKNOWN) {
+        this._usage = usage;
+    }
 
     protected needsFilterSerialization () {
         return false;
@@ -195,12 +205,12 @@ export abstract class VFXModule {
      * @engineInternal
      * @internal
      */
-    public tick (dataStore: VFXDataStore) {}
+    public tick (parameterMap: VFXParameterMap) {}
     /**
      * @engineInternal
      * @internal
      */
-    public abstract execute (dataStore: VFXDataStore);
+    public abstract execute (parameterMap: VFXParameterMap);
     /**
      * @engineInternal
      * @internal
@@ -223,17 +233,17 @@ export class VFXModuleStage {
         return this._modules;
     }
 
-    public get execStage () {
-        return this._execStage;
+    public get usage () {
+        return this._usage;
     }
 
     @serializable
     private _modules: VFXModule[] = [];
     @serializable
-    private _execStage = ModuleExecStage.UNKNOWN;
+    private _usage = ModuleExecStage.UNKNOWN;
 
     constructor (stage: ModuleExecStage = ModuleExecStage.UNKNOWN) {
-        this._execStage = stage;
+        this._usage = stage;
     }
 
     /**
@@ -242,8 +252,8 @@ export class VFXModuleStage {
     public addModule<T extends VFXModule> (ModuleType: Constructor<T>): T {
         const id = VFXModule.getModuleIdentityByClass(ModuleType);
         assertIsTrue(id, 'Particle Module should be registered!');
-        if (id.execStages & 1 << this._execStage) {
-            const newModule = new ModuleType();
+        if (id.execStages & 1 << this._usage) {
+            const newModule = new ModuleType(this.usage);
             const index = VFXModule.findAProperPositionToInsert(this._modules, newModule, 0, this._modules.length);
             this._modules.splice(index, 0, newModule);
             return newModule;
@@ -330,36 +340,32 @@ export class VFXModuleStage {
      * @engineInternal
      * @internal
      */
-    public tick (dataStore: VFXDataStore) {
-        context.setExecutionStage(this._execStage);
+    public tick (parameterMap: VFXParameterMap) {
         const modules = this._modules;
         for (let i = 0, length = modules.length; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
-                context.setModuleRandomSeed(module.randomSeed);
-                context.setModuleRandomStream(module.randomStream);
-                module.tick(dataStore);
+                parameterMap.setModuleRandomSeed(module.randomSeed);
+                parameterMap.setModuleRandomStream(module.randomStream);
+                module.tick(parameterMap);
             }
         }
-        context.setExecutionStage(ModuleExecStage.UNKNOWN);
     }
 
     /**
      * @engineInternal
      * @internal
      */
-    public execute (dataStore: VFXDataStore) {
-        context.setExecutionStage(this._execStage);
+    public execute (parameterMap: VFXParameterMap) {
         const modules = this._modules;
         for (let i = 0, length = modules.length; i < length; i++) {
             const module = modules[i];
             if (module.enabled) {
-                context.setModuleRandomSeed(module.randomSeed);
-                context.setModuleRandomStream(module.randomStream);
-                module.execute(particles, emitter, user, context);
+                parameterMap.setModuleRandomSeed(module.randomSeed);
+                parameterMap.setModuleRandomStream(module.randomStream);
+                module.execute(parameterMap);
             }
         }
-        context.setExecutionStage(ModuleExecStage.UNKNOWN);
     }
 }
 

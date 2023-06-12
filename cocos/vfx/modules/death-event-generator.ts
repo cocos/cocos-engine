@@ -28,9 +28,10 @@ import { approx, CCFloat, Color, EPSILON, Vec3 } from '../../core';
 import { C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_IS_DEAD, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { RandomStream } from '../random-stream';
-import { VFXEvent } from '../parameters/event';
+import { VFXEventInfo } from '../parameters/event';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
-const eventInfo = new VFXEvent();
+const eventInfo = new VFXEventInfo();
 @ccclass('cc.DeathEventGeneratorModule')
 @VFXModule.register('DeathEventGenerator', ModuleExecStageFlags.UPDATE, [], [P_POSITION.name, P_VELOCITY.name, P_NORMALIZED_AGE.name, P_COLOR.name])
 export class DeathEventGeneratorModule extends VFXModule {
@@ -39,29 +40,29 @@ export class DeathEventGeneratorModule extends VFXModule {
     @serializable
     public probability = 1;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_RANDOM_SEED);
-        particles.ensureParameter(P_ID);
-        particles.ensureParameter(P_IS_DEAD);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_RANDOM_SEED);
+        parameterMap.ensureParameter(P_ID);
+        parameterMap.ensureParameter(P_IS_DEAD);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const randomSeed = particles.getUint32ArrayParameter(P_RANDOM_SEED).data;
-        const id = particles.getUint32ArrayParameter(P_ID).data;
-        const isDead = particles.getBoolArrayParameter(P_IS_DEAD).data;
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const localToWorld = emitter.getMat4Parameter(E_LOCAL_TO_WORLD).data;
-        const isWorldSpace = emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const randomSeed = parameterMap.getUint32ArrayValue(P_RANDOM_SEED).data;
+        const id = parameterMap.getUint32ArrayValue(P_ID).data;
+        const isDead = parameterMap.getBoolArrayValue(P_IS_DEAD).data;
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const localToWorld = parameterMap.getMat4Value(E_LOCAL_TO_WORLD).data;
+        const isWorldSpace = parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
         const { events } = context;
         const randomOffset = this.randomSeed;
-        const hasVelocity = particles.hasParameter(P_VELOCITY);
-        const hasColor = particles.hasParameter(P_COLOR);
-        const hasPosition = particles.hasParameter(P_POSITION);
+        const hasVelocity = parameterMap.hasParameter(P_VELOCITY);
+        const hasColor = parameterMap.hasParameter(P_COLOR);
+        const hasPosition = parameterMap.hasParameter(P_POSITION);
         const probability = this.probability;
-        const velocity = hasVelocity ? particles.getVec3ArrayParameter(P_VELOCITY) : null;
-        const color = hasColor ? particles.getColorArrayParameter(P_COLOR) : null;
-        const position = hasPosition ? particles.getVec3ArrayParameter(P_POSITION) : null;
+        const velocity = hasVelocity ? parameterMap.getVec3ArrayValue(P_VELOCITY) : null;
+        const color = hasColor ? parameterMap.getColorArrayValue(P_COLOR) : null;
+        const position = hasPosition ? parameterMap.getVec3ArrayValue(P_POSITION) : null;
 
         if (!approx(probability, 0)) {
             for (let i = fromIndex; i < toIndex; i++) {
@@ -76,13 +77,13 @@ export class DeathEventGeneratorModule extends VFXModule {
                 Vec3.zero(eventInfo.velocity);
                 Color.copy(eventInfo.color, Color.WHITE);
                 if (hasPosition) {
-                    position.getVec3At(eventInfo.position, i);
+                    position!.getVec3At(eventInfo.position, i);
                 }
                 if (hasVelocity) {
-                    velocity.getVec3At(eventInfo.velocity, i);
+                    velocity!.getVec3At(eventInfo.velocity, i);
                 }
                 if (hasColor) {
-                    color.getColorAt(eventInfo.color, i);
+                    color!.getColorAt(eventInfo.color, i);
                 }
                 if (!isWorldSpace) {
                     Vec3.transformMat4(eventInfo.position, eventInfo.position, localToWorld);

@@ -27,9 +27,8 @@ import { ccclass, type, serializable, visible } from 'cc.decorator';
 import { Enum, Vec3 } from '../../core';
 import { C_FROM_INDEX, C_TO_INDEX, CoordinateSpace, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD_RS, E_WORLD_TO_LOCAL_RS, P_BASE_VELOCITY, P_POSITION, P_VELOCITY, E_SIMULATION_POSITION } from '../define';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { BindingVec3Expression, ConstantFloatExpression, ConstantVec3Expression, FloatExpression, Vec3Expression } from '../expressions';
-import { VFXDataStore } from '../vfx-data-store';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const tempVelocity = new Vec3();
 
@@ -136,46 +135,46 @@ export class AddVelocityModule extends VFXModule {
     @serializable
     private _defaultPosition: Vec3Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_VELOCITY);
-        particles.ensureParameter(P_POSITION);
-        if (context.executionStage !== ModuleExecStage.UPDATE) {
-            particles.ensureParameter(P_BASE_VELOCITY);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_VELOCITY);
+        parameterMap.ensureParameter(P_POSITION);
+        if (this.usage !== ModuleExecStage.UPDATE) {
+            parameterMap.ensureParameter(P_BASE_VELOCITY);
         }
         if (this.velocityMode === VelocityMode.LINEAR) {
-            this.velocity.tick(dataStore);
-            this.velocityScale.tick(dataStore);
+            this.velocity.tick(parameterMap);
+            this.velocityScale.tick(parameterMap);
         } else {
-            this.speed.tick(dataStore);
-            this.velocityOrigin.tick(dataStore);
-            this.defaultPosition.tick(dataStore);
+            this.speed.tick(parameterMap);
+            this.velocityOrigin.tick(parameterMap);
+            this.defaultPosition.tick(parameterMap);
         }
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const velocity = particles.getVec3ArrayParameter(context.executionStage === ModuleExecStage.UPDATE ? P_VELOCITY : P_BASE_VELOCITY);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== emitter.getBoolParameter(E_IS_WORLD_SPACE).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const velocity = parameterMap.getVec3ArrayValue(this.usage === ModuleExecStage.UPDATE ? P_VELOCITY : P_BASE_VELOCITY);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const needTransform = this.coordinateSpace !== CoordinateSpace.SIMULATION && (this.coordinateSpace !== CoordinateSpace.WORLD) !== parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
 
         if (this.velocityMode === VelocityMode.LINEAR) {
             const velocityExp = this._velocity as Vec3Expression;
             const velocityScaleExp = this._velocityScale as FloatExpression;
-            velocityExp.bind(dataStore);
-            velocityScaleExp.bind(dataStore);
+            velocityExp.bind(parameterMap);
+            velocityScaleExp.bind(parameterMap);
             if (velocityExp.isConstant && velocityScaleExp.isConstant) {
                 velocityExp.evaluate(0, tempVelocity);
                 const scale = velocityScaleExp.evaluate(0);
                 Vec3.multiplyScalar(tempVelocity, tempVelocity, scale);
                 if (needTransform) {
-                    const transform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
+                    const transform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
                     Vec3.transformMat3(tempVelocity, tempVelocity, transform);
                 }
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocity.addVec3At(tempVelocity, i);
                 }
             } else if (needTransform) {
-                const transform = emitter.getMat3Parameter(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
+                const transform = parameterMap.getMat3Value(this.coordinateSpace === CoordinateSpace.LOCAL ? E_LOCAL_TO_WORLD_RS : E_WORLD_TO_LOCAL_RS).data;
                 for (let i = fromIndex; i < toIndex; i++) {
                     velocityExp.evaluate(i, tempVelocity);
                     const scale = velocityScaleExp.evaluate(i);
@@ -195,9 +194,9 @@ export class AddVelocityModule extends VFXModule {
             const speedExp = this._speed as FloatExpression;
             const velocityOriginExp = this._velocityOrigin as Vec3Expression;
             const defaultPositionExp = this._defaultPosition as Vec3Expression;
-            speedExp.bind(dataStore);
-            velocityOriginExp.bind(dataStore);
-            defaultPositionExp.bind(dataStore);
+            speedExp.bind(parameterMap);
+            velocityOriginExp.bind(parameterMap);
+            defaultPositionExp.bind(parameterMap);
         }
     }
 }

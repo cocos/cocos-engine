@@ -1,11 +1,11 @@
 import { DEBUG } from 'internal:constants';
 import { Color, assertIsTrue } from '../../core';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
+import { VFXArray, BATCH_OPERATION_THRESHOLD, Handle, VFXValue, VFXValueType } from '../vfx-parameter';
 
 const tempColor = new Color();
 const STRIDE = 1;
 
-export class ColorArrayParameter extends ArrayParameter {
+export class VFXColorArray extends VFXArray {
     get data () {
         return this._data;
     }
@@ -75,7 +75,7 @@ export class ColorArrayParameter extends ArrayParameter {
         }
     }
 
-    copyFrom (src: ColorArrayParameter, fromIndex: Handle, toIndex: Handle) {
+    copyFrom (src: VFXColorArray, fromIndex: Handle, toIndex: Handle) {
         if ((toIndex - fromIndex) > BATCH_OPERATION_THRESHOLD) {
             this._data.set(src._data.subarray(fromIndex, toIndex), fromIndex);
         } else {
@@ -88,7 +88,7 @@ export class ColorArrayParameter extends ArrayParameter {
     }
 }
 
-export class ColorParameter extends VFXParameter {
+export class VFXColor extends VFXValue {
     get type (): VFXValueType {
         return VFXValueType.COLOR;
     }

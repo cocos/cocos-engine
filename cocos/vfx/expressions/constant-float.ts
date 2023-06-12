@@ -24,7 +24,7 @@
  */
 import { CCFloat } from '../../core';
 import { ccclass, serializable, type, visible } from '../../core/data/class-decorator';
-import { ContextDataSet, EmitterDataSet, ParticleDataSet, UserDataSet } from '../data-set';
+import { VFXParameterMap } from '../vfx-parameter-map';
 import { FloatExpression } from './float';
 
 @ccclass('cc.ConstantFloatExpression')
@@ -43,8 +43,8 @@ export class ConstantFloatExpression extends FloatExpression {
         this.value = value;
     }
 
-    public tick (dataStore: VFXDataStore) {}
-    public bind (dataStore: VFXDataStore) {}
+    public tick (parameterMap: VFXParameterMap) {}
+    public bind (parameterMap: VFXParameterMap) {}
 
     public evaluate (index: number): number {
         return this.value;

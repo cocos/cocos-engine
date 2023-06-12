@@ -25,10 +25,10 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { Enum, TWO_PI, Vec3 } from '../../core';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression, FloatExpression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
 import { C_FROM_INDEX, C_TO_INDEX, P_POSITION } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const pos = new Vec3();
 @ccclass('cc.CircleLocationModule')
@@ -161,30 +161,30 @@ export class CircleLocationModule extends ShapeLocationModule {
     @serializable
     private _uniformSpiralFalloff: FloatExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        super.tick(dataStore);
-        this.radius.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        super.tick(parameterMap);
+        this.radius.tick(parameterMap);
         if (this.distributionMode === DistributionMode.RANDOM) {
-            this.radiusCoverage.tick(dataStore);
-            this.thetaCoverage.tick(dataStore);
+            this.radiusCoverage.tick(parameterMap);
+            this.thetaCoverage.tick(parameterMap);
         } else if (this.distributionMode === DistributionMode.DIRECT) {
-            this.uPosition.tick(dataStore);
-            this.radiusPosition.tick(dataStore);
+            this.uPosition.tick(parameterMap);
+            this.radiusPosition.tick(parameterMap);
         }
     }
 
-    public execute (dataStore: VFXDataStore) {
-        super.execute(particles, emitter, user, context);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
-        const position = particles.getVec3ArrayParameter(P_POSITION);
+    public execute (parameterMap: VFXParameterMap) {
+        super.execute(parameterMap);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
+        const position = parameterMap.getVec3ArrayValue(P_POSITION);
         const radiusExp = this._radius as FloatExpression;
-        radiusExp.bind(dataStore);
+        radiusExp.bind(parameterMap);
         if (this.distributionMode === DistributionMode.RANDOM) {
             const radiusCoverageExp = this._radiusCoverage as FloatExpression;
             const thetaCoverageExp = this._thetaCoverage as FloatExpression;
-            radiusCoverageExp.bind(dataStore);
-            thetaCoverageExp.bind(dataStore);
+            radiusCoverageExp.bind(parameterMap);
+            thetaCoverageExp.bind(parameterMap);
             const randomStream = this.randomStream;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const r = Math.sqrt(randomStream.getFloatFromRange(1 - radiusCoverageExp.evaluate(i), 1)) * radiusExp.evaluate(i);
@@ -197,8 +197,8 @@ export class CircleLocationModule extends ShapeLocationModule {
         } else if (this.distributionMode === DistributionMode.DIRECT) {
             const uPositionExp = this._uPosition as FloatExpression;
             const radiusPositionExp = this._radiusPosition as FloatExpression;
-            uPositionExp.bind(dataStore);
-            radiusPositionExp.bind(dataStore);
+            uPositionExp.bind(parameterMap);
+            radiusPositionExp.bind(parameterMap);
             for (let i = fromIndex; i < toIndex; ++i) {
                 const r = radiusPositionExp.evaluate(i) * radiusExp.evaluate(i);
                 const t = uPositionExp.evaluate(i) * TWO_PI;
@@ -210,8 +210,8 @@ export class CircleLocationModule extends ShapeLocationModule {
         } else {
             const uniformSpiralAmountExp = this._uniformSpiralAmount as FloatExpression;
             const uniformSpiralFalloffExp = this._uniformSpiralFalloff as FloatExpression;
-            uniformSpiralAmountExp.bind(dataStore);
-            uniformSpiralFalloffExp.bind(dataStore);
+            uniformSpiralAmountExp.bind(parameterMap);
+            uniformSpiralFalloffExp.bind(parameterMap);
             const executionCount = toIndex - fromIndex;
             for (let i = fromIndex; i < toIndex; ++i) {
                 const t = Math.sqrt((i - fromIndex) / executionCount);

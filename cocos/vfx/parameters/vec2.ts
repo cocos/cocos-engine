@@ -1,10 +1,10 @@
 import { DEBUG } from 'internal:constants';
 import { Vec2, assertIsTrue } from '../../core';
-import { ArrayParameter, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXParameter, VFXValueType } from '../vfx-parameter';
+import { VFXArray, BATCH_OPERATION_THRESHOLD_VEC3, Handle, VFXValue, VFXValueType } from '../vfx-parameter';
 
 const tempVec2 = new Vec2();
 const STRIDE = 2;
-export class Vec2ArrayParameter extends ArrayParameter {
+export class VFXVec2Array extends VFXArray {
     get data () {
         return this._data;
     }
@@ -15,7 +15,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
 
     private _data = new Float32Array(STRIDE * this._capacity);
 
-    static multiplyScalar (out: Vec2ArrayParameter, a: Vec2ArrayParameter, scale: number, fromIndex: Handle, toIndex: Handle) {
+    static multiplyScalar (out: VFXVec2Array, a: VFXVec2Array, scale: number, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(out._capacity === a._capacity
                 && toIndex <= out._capacity && fromIndex >= 0 && fromIndex <= toIndex);
@@ -108,7 +108,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
         data[offset + 1] *= val;
     }
 
-    copyFrom (src: Vec2ArrayParameter, fromIndex: Handle, toIndex: Handle) {
+    copyFrom (src: VFXVec2Array, fromIndex: Handle, toIndex: Handle) {
         if (DEBUG) {
             assertIsTrue(this._capacity === src._capacity && toIndex <= this._capacity && fromIndex >= 0 && fromIndex <= toIndex);
         }
@@ -160,7 +160,7 @@ export class Vec2ArrayParameter extends ArrayParameter {
     }
 }
 
-export class Vec2Parameter extends VFXParameter {
+export class VFXVec2 extends VFXValue {
     get type (): VFXValueType {
         return VFXValueType.VEC2;
     }

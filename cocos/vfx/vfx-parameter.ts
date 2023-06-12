@@ -44,7 +44,8 @@ export enum VFXValueType {
     UINT8,
     MAT3,
     MAT4,
-    EVENT
+    EVENT,
+    SPAWN_INFO,
 }
 
 export enum VFXParameterNamespace {
@@ -54,8 +55,8 @@ export enum VFXParameterNamespace {
     CONTEXT
 }
 
-@ccclass('cc.VFXParameterDecl')
-export class VFXParameterDecl {
+@ccclass('cc.VFXParameter')
+export class VFXParameter {
     public get id () {
         return this._id;
     }
@@ -101,30 +102,7 @@ export class VFXParameterDecl {
     }
 }
 
-export class VFXParameterRegistry {
-    private _id2Identity: Record<number, VFXParameterDecl> = {};
-
-    register (identity: VFXParameterDecl) {
-        if (DEBUG) {
-            assertIsTrue(!(identity.id in this._id2Identity), `VFXParameter with id ${identity.id} already exists.`);
-        }
-        this._id2Identity[identity.id] = identity;
-    }
-
-    unregister (identity: VFXParameterDecl) {
-        if (DEBUG) {
-            assertIsTrue(identity.id in this._id2Identity, `VFXParameter with id ${identity.id} does not exist.`);
-        }
-        delete this._id2Identity[identity.id];
-    }
-
-    getDeclarationById (id: number) {
-        if (id < )
-        return this._id2Identity[id];
-    }
-}
-
-export abstract class VFXParameter {
+export abstract class VFXValue {
     get isArray () {
         return false;
     }
@@ -132,7 +110,7 @@ export abstract class VFXParameter {
     abstract get type (): VFXValueType;
 }
 
-export abstract class ArrayParameter extends VFXParameter {
+export abstract class VFXArray extends VFXValue {
     get capacity () {
         return this._capacity;
     }
@@ -141,10 +119,8 @@ export abstract class ArrayParameter extends VFXParameter {
         return true;
     }
 
-    abstract get data (): ArrayBufferView;
     protected _capacity = DEFAULT_CAPACITY;
     abstract reserve (capacity: number);
     abstract moveTo (a: Handle, b: Handle);
-    abstract copyFrom (src: ArrayParameter, fromIndex: Handle, toIndex: Handle);
-    abstract copyToTypedArray (dest: ArrayBufferView, destOffset: number, stride: number, strideOffset: number, fromIndex: Handle, toIndex: Handle);
+    abstract copyFrom (src: VFXArray, fromIndex: Handle, toIndex: Handle);
 }

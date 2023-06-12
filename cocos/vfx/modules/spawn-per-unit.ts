@@ -25,10 +25,12 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
-import { E_VELOCITY, C_DELTA_TIME, E_LOOPED_AGE, E_SPAWN_REMAINDER_PER_UNIT } from '../define';
+import { E_VELOCITY, C_DELTA_TIME, E_LOOPED_AGE, E_SPAWN_REMAINDER_PER_UNIT, E_SPAWN_INFOS, E_SPAWN_INFO_COUNT } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
+import { SpawnInfo } from '../parameters/spawn-info';
 
+const spawnInfo = new SpawnInfo();
 @ccclass('cc.SpawnPerUnitModule')
 @VFXModule.register('SpawnPerUnit', ModuleExecStageFlags.EMITTER)
 export class SpawnPerUnitModule extends VFXModule {
@@ -50,17 +52,22 @@ export class SpawnPerUnitModule extends VFXModule {
     @serializable
     private _spawnSpacing: FloatExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        this.spawnSpacing.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        this.spawnSpacing.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const velocity = emitter.getVec3Parameter(E_VELOCITY).data;
-        const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
-        const loopedAge = emitter.getFloatParameter(E_LOOPED_AGE).data;
-        const spawnRemainderPerUnit = emitter.getFloatParameter(E_SPAWN_REMAINDER_PER_UNIT);
+    public execute (parameterMap: VFXParameterMap) {
+        const velocity = parameterMap.getVec3Value(E_VELOCITY).data;
+        const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
+        const loopedAge = parameterMap.getFloatValue(E_LOOPED_AGE).data;
+        const spawnRemainderPerUnit = parameterMap.getFloatValue(E_SPAWN_REMAINDER_PER_UNIT);
+        const spawnInfos = parameterMap.getSpawnInfoArrayValue(E_SPAWN_INFOS);
+        const spawnInfoCount = parameterMap.getUint32Value(E_SPAWN_INFO_COUNT);
+        if (spawnInfoCount.data === spawnInfos.capacity) {
+            spawnInfos.reserve(spawnInfos.capacity * 2);
+        }
         const spawnSpacingExp = this._spawnSpacing as FloatExpression;
-        spawnSpacingExp.bind(dataStore);
+        spawnSpacingExp.bind(parameterMap);
         let spawnSpacing = spawnSpacingExp.evaluateSingle();
         spawnSpacing = spawnSpacing <= 0 ? 0 : (1 / Math.max(spawnSpacing, 1e-6));
         spawnSpacing *= velocity.length();
@@ -69,6 +76,11 @@ export class SpawnPerUnitModule extends VFXModule {
         const interpStartDt = (1 - spawnRemainderPerUnit.data) * intervalDt;
         const spawnCountFloor = Math.floor(spawnCount);
         spawnRemainderPerUnit.data = spawnCount - spawnCountFloor;
-        emitter.addSpawnInfo(loopedAge > 0 ? spawnCountFloor : 0, interpStartDt, intervalDt);
+
+        spawnInfo.count = loopedAge > 0 ? spawnCountFloor : 0;
+        spawnInfo.intervalDt = intervalDt;
+        spawnInfo.interpStartDt = interpStartDt;
+        spawnInfos.setSpawnInfoAt(spawnInfo, spawnInfoCount.data);
+        spawnInfoCount.data += 1;
     }
 }

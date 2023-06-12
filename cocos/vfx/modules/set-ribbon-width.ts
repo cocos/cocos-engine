@@ -25,9 +25,9 @@
 
 import { ccclass, serializable, type } from 'cc.decorator';
 import { VFXModule, ModuleExecStage, ModuleExecStageFlags } from '../vfx-module';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { FloatExpression, ConstantFloatExpression } from '../expressions';
 import { P_RIBBON_WIDTH, P_NORMALIZED_AGE, P_BASE_RIBBON_WIDTH, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 @ccclass('cc.SetRibbonWidthModule')
 @VFXModule.register('SetRibbonWidth', ModuleExecStageFlags.SPAWN | ModuleExecStageFlags.UPDATE, [P_RIBBON_WIDTH.name], [P_NORMALIZED_AGE.name])
@@ -47,21 +47,21 @@ export class SetRibbonWidthModule extends VFXModule {
     @serializable
     private _width: FloatExpression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        if (context.executionStage === ModuleExecStage.SPAWN) {
-            particles.ensureParameter(P_BASE_RIBBON_WIDTH);
+    public tick (parameterMap: VFXParameterMap) {
+        if (this.usage === ModuleExecStage.SPAWN) {
+            parameterMap.ensureParameter(P_BASE_RIBBON_WIDTH);
         }
 
-        particles.ensureParameter(P_RIBBON_WIDTH);
-        this.width.tick(dataStore);
+        parameterMap.ensureParameter(P_RIBBON_WIDTH);
+        this.width.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const ribbonWidth = particles.getFloatArrayParameter(context.executionStage === ModuleExecStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const ribbonWidth = parameterMap.getFloatArrayVale(this.usage === ModuleExecStage.SPAWN ? P_BASE_RIBBON_WIDTH : P_RIBBON_WIDTH);
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const widthExp = this._width as FloatExpression;
-        widthExp.bind(dataStore);
+        widthExp.bind(parameterMap);
         if (widthExp.isConstant) {
             const width = widthExp.evaluate(0);
             ribbonWidth.fill(width, fromIndex, toIndex);

@@ -27,9 +27,9 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { Vec3 } from '../../core';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
-import { ContextDataSet, ParticleDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { Vec3Expression, ConstantVec3Expression } from '../expressions';
 import { P_MESH_ORIENTATION, C_DELTA_TIME, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const eulerAngle = new Vec3();
 
@@ -54,19 +54,19 @@ export class UpdateMeshOrientationModule extends VFXModule {
     @serializable
     private _rotationRate: Vec3Expression | null = null;
 
-    public tick (dataStore: VFXDataStore) {
-        particles.ensureParameter(P_MESH_ORIENTATION);
-        this.rotationRate.tick(dataStore);
+    public tick (parameterMap: VFXParameterMap) {
+        parameterMap.ensureParameter(P_MESH_ORIENTATION);
+        this.rotationRate.tick(parameterMap);
     }
 
-    public execute (dataStore: VFXDataStore) {
-        const meshOrientation = particles.getVec3ArrayParameter(P_MESH_ORIENTATION);
-        const deltaTime = context.getFloatParameter(C_DELTA_TIME).data;
-        const fromIndex = context.getUint32Parameter(C_FROM_INDEX).data;
-        const toIndex = context.getUint32Parameter(C_TO_INDEX).data;
+    public execute (parameterMap: VFXParameterMap) {
+        const meshOrientation = parameterMap.getVec3ArrayValue(P_MESH_ORIENTATION);
+        const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
+        const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
+        const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
 
         const rotationRateExp = this._rotationRate as Vec3Expression;
-        rotationRateExp.bind(dataStore);
+        rotationRateExp.bind(parameterMap);
 
         if (rotationRateExp.isConstant) {
             rotationRateExp.evaluate(0, eulerAngle);
