@@ -6,7 +6,7 @@ const { throttle } = require('lodash');
 const utils = require('./utils');
 const { trackEventWithTimer } = require('../utils/metrics');
 const { injectionStyle } = require('../utils/prop');
-const { getDocResolveUrl } = require('../utils/docs');
+const { getElementDocResolveUrl } = require('../utils/docs');
 
 const lockList = [];
 let lockPerform = false;
@@ -818,7 +818,7 @@ const Elements = {
             const panel = this;
 
             const $help = panel.$.sceneSkybox.querySelector('ui-link');
-            $help.value = panel.getHelpUrl({ help: 'i18n:cc.Skybox' });
+            $help.value = getElementDocResolveUrl({ help: 'i18n:cc.Skybox' });
             $help.addEventListener('click', (event) => {
                 event.stopPropagation();
                 event.preventDefault();
@@ -849,15 +849,15 @@ const Elements = {
 
             // 由于场景属性对象不是继承于 Component 所以没有修饰器，displayName, help 数据在这里配置
             panel.dump._globals.ambient.displayName = 'Ambient';
-            panel.dump._globals.ambient.help = panel.getHelpUrl({ help: 'i18n:cc.Ambient' });
+            panel.dump._globals.ambient.help = getElementDocResolveUrl({ help: 'i18n:cc.Ambient' });
             panel.$.sceneAmbient.render(panel.dump._globals.ambient);
 
             panel.dump._globals.fog.displayName = 'Fog';
-            panel.dump._globals.fog.help = panel.getHelpUrl({ help: 'i18n:cc.Fog' });
+            panel.dump._globals.fog.help = getElementDocResolveUrl({ help: 'i18n:cc.Fog' });
             panel.$.sceneFog.render(panel.dump._globals.fog);
 
             panel.dump._globals.shadows.displayName = 'Shadows';
-            panel.dump._globals.shadows.help = panel.getHelpUrl({ help: 'i18n:cc.Shadow' });
+            panel.dump._globals.shadows.help = getElementDocResolveUrl({ help: 'i18n:cc.Shadow' });
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
             // skyBox 逻辑 start
@@ -923,11 +923,11 @@ const Elements = {
             // skyBox 逻辑 end
 
             panel.dump._globals.octree.displayName = 'Octree Scene Culling';
-            panel.dump._globals.octree.help = panel.getHelpUrl({ help: 'i18n:cc.OctreeCulling' });
+            panel.dump._globals.octree.help = getElementDocResolveUrl({ help: 'i18n:cc.OctreeCulling' });
             panel.$.sceneOctree.render(panel.dump._globals.octree);
 
             panel.dump._globals.skin.displayName = 'Skin';
-            panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
+            panel.dump._globals.skin.help = getElementDocResolveUrl({ help: 'i18n:cc.Skin' });
             panel.$.sceneSkin.render(panel.dump._globals.skin);
 
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
@@ -1085,8 +1085,7 @@ const Elements = {
 
             panel.$skyboxProps = {};
 
-            // panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
-            panel.$.nodeLink.value = getDocResolveUrl({ help: 'i18n:cc.Node' });
+            panel.$.nodeLink.value = getElementDocResolveUrl({ help: 'i18n:cc.Node' });
 
             panel.$.nodeMenu.addEventListener('click', (event) => {
                 event.stopPropagation();
@@ -1158,7 +1157,7 @@ const Elements = {
                         $active.invalid = false;
                     }
 
-                    const url = panel.getHelpUrl(dump.editor);
+                    const url = getElementDocResolveUrl(dump.editor);
                     const $link = $section.querySelector('ui-link');
                     if (url) {
                         $link.setAttribute('value', url);
@@ -1227,7 +1226,7 @@ const Elements = {
                     });
 
                     const $link = $section.querySelector('.link');
-                    const url = panel.getHelpUrl(component.editor);
+                    const url = getElementDocResolveUrl(component.editor);
                     if (url) {
                         $link.setAttribute('value', url);
                         $link.addEventListener('click', (event) => {
@@ -1340,8 +1339,6 @@ const Elements = {
         i18nChange() {
             const panel = this;
 
-            // panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
-
             const sectionBody = panel.$.sectionBody;
             for (let index = 0; index < sectionBody.__sections__.length; index++) {
                 const $section = sectionBody.__sections__[index];
@@ -1352,7 +1349,7 @@ const Elements = {
                 }
 
                 const dump = $section.dump;
-                const url = panel.getHelpUrl(dump.editor);
+                const url = getElementDocResolveUrl(dump.editor);
                 if (url) {
                     $link.setAttribute('value', url);
                 } else {
@@ -1619,39 +1616,6 @@ exports.methods = {
         Editor.Message.send('scene', cmd);
     },
 
-    /**
-     * 获取组件帮助菜单的 url
-     * @param editor
-     */
-    getHelpUrl(editor) {
-        return getDocResolveUrl(editor);
-        // if (!editor || !editor.help) {
-        //     return '';
-        // }
-
-        // const help = editor.help;
-
-        // /**
-        //  * 约定的规则
-        //  * 翻译的都需要 i18n: 开头
-        //  * 没有的话属于直接是配置值的方式，配什么返回什么
-        //  */
-        // if (!help.startsWith('i18n:')) {
-        //     return help;
-        // }
-
-        // const i18nKey = help.substr(5);
-        // const url = Editor.I18n.t('ENGINE.help.' + i18nKey);
-        // if (url) {
-        //     return url;
-        // }
-
-        // /**
-        //  * 再在编辑器内部查找翻译一次
-        //  * 结果可能为空，也是一种需求，即组件配置了但没有合适的文档配置
-        //  */
-        // return Editor.I18n.t(i18nKey);
-    },
     /**
      * 组件上的右键菜单
      */
