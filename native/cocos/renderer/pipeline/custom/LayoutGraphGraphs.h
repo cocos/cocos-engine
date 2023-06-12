@@ -793,7 +793,7 @@ holds_alternative(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexce
 
 template <>
 inline bool
-holds_alternative<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept { // NOLINT
+holds_alternative<RenderPassType>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept { // NOLINT
     return ccstd::holds_alternative<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         g._vertices[v].handle);
@@ -812,8 +812,8 @@ inline ValueT&
 get(LayoutGraph::vertex_descriptor /*v*/, LayoutGraph& /*g*/);
 
 template <>
-inline uint32_t&
-get<uint32_t>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
+inline RenderPassType&
+get<RenderPassType>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         g._vertices[v].handle);
@@ -834,8 +834,8 @@ inline const ValueT&
 get(LayoutGraph::vertex_descriptor /*v*/, const LayoutGraph& /*g*/);
 
 template <>
-inline const uint32_t&
-get<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
+inline const RenderPassType&
+get<RenderPassType>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     const auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
         g._vertices[v].handle);
@@ -851,7 +851,7 @@ get<RenderPhase>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     return g.phases[handle.value];
 }
 
-inline uint32_t&
+inline RenderPassType&
 get(RenderStageTag /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
@@ -867,7 +867,7 @@ get(RenderPhaseTag /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
     return g.phases[handle.value];
 }
 
-inline const uint32_t&
+inline const RenderPassType&
 get(RenderStageTag /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
     const auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
@@ -888,9 +888,9 @@ inline ValueT*
 get_if(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexcept; // NOLINT
 
 template <>
-inline uint32_t*
-get_if<uint32_t>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexcept { // NOLINT
-    uint32_t* ptr = nullptr;
+inline RenderPassType*
+get_if<RenderPassType>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexcept { // NOLINT
+    RenderPassType* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -926,9 +926,9 @@ inline const ValueT*
 get_if(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph) noexcept; // NOLINT
 
 template <>
-inline const uint32_t*
-get_if<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph) noexcept { // NOLINT
-    const uint32_t* ptr = nullptr;
+inline const RenderPassType*
+get_if<RenderPassType>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph) noexcept { // NOLINT
+    const RenderPassType* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -1232,7 +1232,7 @@ inline void remove_vertex(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noex
 template <class ValueT>
 void addVertexImpl( // NOLINT
     ValueT &&val, LayoutGraph &g, LayoutGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, uint32_t>::value>* dummy = nullptr) { // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, RenderPassType>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>{
         gsl::narrow_cast<LayoutGraph::vertex_descriptor>(g.stages.size())};
     g.stages.emplace_back(std::forward<ValueT>(val));

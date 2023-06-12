@@ -38,10 +38,27 @@ import { NodeEventType } from '../../scene-graph/node-event';
 import { Texture } from '../../gfx';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { settings, Settings } from '../../core/settings';
-import { ReflectionProbeType } from './reflection-probe-enum';
+import { ReflectionProbeType } from '../reflection-probe/reflection-probe-enum';
+import { getPhaseID } from '../../rendering/pass-phase';
+import { SubModel } from '../../render-scene/scene';
+import { isEnableEffect } from '../../rendering/define';
 
 const { property, ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } = _decorator;
+
+let _phaseID = getPhaseID('specular-pass');
+function getSkinPassIndex (subModel: SubModel): number {
+    const passes = subModel.passes;
+    const r = cclegacy.rendering;
+    if (isEnableEffect()) _phaseID = r.getPhaseID(r.getPassID('specular-pass'), 'default');
+    for (let k = 0; k < passes.length; k++) {
+        if (((!r || !r.enableEffectImport) && passes[k].phase === _phaseID)
+            || (isEnableEffect() && passes[k].phaseID === _phaseID)) {
+            return k;
+        }
+    }
+    return -1;
+}
 
 /**
  * @en Shadow projection mode.
@@ -307,6 +324,9 @@ export class MeshRenderer extends ModelRenderer {
     @serializable
     protected _reflectionProbeBlendWeight = 0;
 
+    @serializable
+    protected _enabledGlobalStandardSkinObject = false;
+
     protected _reflectionProbeDataMap: Texture2D | null = null;
 
     // @serializable
@@ -480,6 +500,29 @@ export class MeshRenderer extends ModelRenderer {
 
     set enableMorph (value) {
         this._enableMorph = value;
+    }
+
+    /**
+     * @en local shadow normal bias for real time lighting.
+     * @zh 实时光照下模型局部的阴影法线偏移。
+     */
+    @type(CCBoolean)
+    @tooltip('i18n:model.standard_skin_model')
+    @disallowAnimation
+    get isGlobalStandardSkinObject () {
+        return this._enabledGlobalStandardSkinObject;
+    }
+
+    set isGlobalStandardSkinObject (val) {
+        cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel = val ? this : null;
+        this._enabledGlobalStandardSkinObject = val;
+    }
+
+    /**
+     * @engineInternal
+     */
+    public clearGlobalStandardSkinObjectFlag () {
+        this._enabledGlobalStandardSkinObject = false;
     }
 
     protected _modelType: typeof scene.Model;
@@ -1036,6 +1079,7 @@ export class MeshRenderer extends ModelRenderer {
     protected _onMaterialModified (idx: number, material: Material | null) {
         if (!this._model || !this._model.inited) { return; }
         this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
+        this._updateStandardSkin();
     }
 
     /**
@@ -1251,6 +1295,25 @@ export class MeshRenderer extends ModelRenderer {
 
     private _uploadSubMeshShapesWeights (subMeshIndex: number) {
         this._morphInstance?.setWeights(subMeshIndex, this._subMeshShapesWeights[subMeshIndex]);
+    }
+
+    private _updateStandardSkin () {
+        const pipelineSceneData = (cclegacy.director.root as Root).pipeline.pipelineSceneData;
+        if (this._enabledGlobalStandardSkinObject) {
+            pipelineSceneData.standardSkinModel = this;
+        }
+        if (!pipelineSceneData.skinMaterialModel) {
+            for (let i = 0; i < this._models.length; i++) {
+                const subModels = this._models[i].subModels;
+                for (let j = 0; j < subModels.length; j++) {
+                    const subModel = subModels[j];
+                    const skinPassIdx = getSkinPassIndex(subModel);
+                    if (skinPassIdx < 0) { continue; }
+                    pipelineSceneData.skinMaterialModel = this._models[i];
+                    return;
+                }
+            }
+        }
     }
 }
 

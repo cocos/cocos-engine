@@ -415,6 +415,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 9006, "QuadRenderData is removed, please use MeshRenderData instead." },
 { 9007, "Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation." },
 { 9100, "texture size exceeds current device limits %d/%d" },
+{ 9101, "The length of the TypedArrayBuffer must be an integer." },
 { 9201, "Cannot access game frame or container." },
 { 9202, "Setting window size is not supported." },
 { 9300, "The current buffer beyond the limit in ui static component, please reduce the amount" },
@@ -470,6 +471,8 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 16201, "The asset replacing failed, can not found override asset('%s') for '%s'" },
 { 16301, "node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first" },
 { 16302, "There is no reflection probe in the scene or no probe is near the current object. No reflection probe will take effect on this object. Please create a new reflection probe or move existing ones closer." },
+{ 16303, "Skin material needs floating-point render target, please check ENABLE_FLOAT_OUTPUT define in Project Settings--Macro" },
+{ 16304, "Skin material may need more accurate calculations, please select a head model of standard size, check the isGlobalStandardSkinObject option in the MeshRender component." },
 
 };
 }//namespace cc

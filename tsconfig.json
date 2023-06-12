@@ -35,6 +35,7 @@
       "./native/external/emscripten/bullet/bullet",
       "./native/external/emscripten/physx/physx",
       "./native/external/emscripten/webgpu/webgpu",
+      "./native/external/emscripten/spine/spine",
 
       // pal
       "./@types/pal/system-info",

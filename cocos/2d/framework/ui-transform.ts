@@ -582,11 +582,14 @@ export class UITransform extends Component {
 
     /**
      * @en
-     * Returns an axis aligned bounding box of this node in local space coordinate. <br/>
-     * The returned box is relative only to its parent.
+     * Returns an axis aligned bounding box of this node in local space coordinate.
+     * The returned box is relative only to its parent, and it doesn't contain any child nodes.
+     * The behavior is slightly different with [[getBoundingBoxToWorld]] and [[getBoundingBoxTo]].
      *
      * @zh
      * 返回父节坐标系下的轴向对齐的包围盒。
+     * 返回的包围盒仅仅只包含当前节点的轴向对齐包围盒，不包含子节点。
+     * 这个 API 的行为和 [[getBoundingBoxToWorld]] 和 [[getBoundingBoxTo]] 略有不同。
      *
      * @returns @en An axis aligned bounding box of this node in local space coordinate.  @zh 本地坐标系下的包围盒。
      * @example
@@ -595,28 +598,20 @@ export class UITransform extends Component {
      * ```
      */
     public getBoundingBox () {
-        Mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
-        const width = this._contentSize.width;
-        const height = this._contentSize.height;
-        const rect = new Rect(
-            -this._anchorPoint.x * width,
-            -this._anchorPoint.y * height,
-            width,
-            height,
-        );
+        const rect = new Rect();
+        this._selfBoundingBox(rect);
+        Mat4.fromSRT(_matrix, this.node.rotation, this.node.position, this.node.scale);
         rect.transformMat4(_matrix);
         return rect;
     }
 
     /**
      * @en
-     * Returns an axis aligned bounding box of this node in world space coordinate.<br/>
-     * The bounding box contains self and active children's world bounding box.
-     *
+     * Returns an axis aligned bounding box of this node in world space coordinate.
+     * The bounding box contains self and active children's world bounding box, and it will eliminate all zero sized nodes.
      * @zh
      * 返回节点在世界坐标系下的对齐轴向的包围盒（AABB）。
-     * 该边框包含自身和已激活的子节点的世界边框。
-     *
+     * 该边框包含自身和已激活的子节点的世界边框，但会剔除所有零大小的节点。
      * @returns @en An axis aligned bounding box of this node in world space coordinate. @zh 世界坐标系下包围盒。
      * @example
      * ```ts
@@ -624,64 +619,93 @@ export class UITransform extends Component {
      * ```
      */
     public getBoundingBoxToWorld () {
-        if (this.node.parent) {
-            const m = this.node.parent.getWorldMatrix();
-            return this.getBoundingBoxTo(m);
-        }
-        return this.getBoundingBox();
-    }
-
-    /**
-     * @en
-     * Returns the minimum bounding box containing the current bounding box and its child nodes.
-     *
-     * @zh
-     * 返回包含当前包围盒及其子节点包围盒的最小包围盒。
-     *
-     * @param parentMat @en The parent node matrix.
-     *                  @zh 父节点矩阵。
-     * @returns @en The minimum bounding box containing the current bounding box and its child nodes.
-     *          @zh 包含当前节点包围盒及其子节点包围盒的最小包围盒。
-     */
-    public getBoundingBoxTo (parentMat: Mat4) {
-        Mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
-        const width = this._contentSize.width;
-        const height = this._contentSize.height;
-        const rect = new Rect(
-            -this._anchorPoint.x * width,
-            -this._anchorPoint.y * height,
-            width,
-            height,
-        );
-
-        Mat4.multiply(_worldMatrix, parentMat, _matrix);
-        rect.transformMat4(_worldMatrix);
-
-        // query child's BoundingBox
-        if (!this.node.children || this.node.children.length === 0) {
-            return rect;
-        }
-
+        const rect = new Rect();
         const locChildren = this.node.children;
-        for (const child of locChildren) {
+        for (let i = 0; i < locChildren.length; ++i) {
+            const child = locChildren[i];
             if (child && child.active) {
                 const uiTransform = child.getComponent(UITransform);
-                if (uiTransform) {
-                    const childRect = uiTransform.getBoundingBoxTo(parentMat);
-                    if (childRect) {
-                        Rect.union(rect, rect, childRect);
+                // Zero sized rect is not accepted
+                if (uiTransform && uiTransform.contentSize.width && uiTransform.contentSize.height) {
+                    uiTransform._selfBoundingBox(_rect);
+                    _rect.transformMat4(child.worldMatrix);
+                    if (rect.width === 0) {
+                        // Initializing
+                        rect.set(_rect);
+                    } else {
+                        Rect.union(rect, rect, _rect);
                     }
                 }
             }
         }
+        if (this._contentSize.width && this._contentSize.height) {
+            this._selfBoundingBox(_rect);
+            _rect.transformMat4(this.node.worldMatrix);
+            if (rect.width === 0) {
+                // Initializing
+                rect.set(_rect);
+            } else {
+                Rect.union(rect, rect, _rect);
+            }
+        }
+        return rect;
+    }
 
+    /**
+     * @en
+     * Returns the minimum bounding box in the coordinate system of the target node.
+     * The result contains the current node and its child node tree, and it will eliminates all zero size nodes.
+     * E.g. passing an identical matrix will return the world bounding box of the current node tree.
+     * @zh
+     * 返回在目标节点坐标系下包含当前包围盒及其子节点包围盒的最小总包围盒，但会剔除所有零大小的节点。
+     * 如果传入单位矩阵，将得到世界坐标系下的包围盒。
+     *
+     * @param targetMat @en The target node's world matrix representing its coordinate system.
+     *                  @zh 表示目标节点坐标系的世界矩阵。
+     * @returns @en The minimum bounding box containing the current bounding box and its child nodes.
+     *          @zh 包含当前节点包围盒及其子节点包围盒的最小包围盒。
+     */
+    public getBoundingBoxTo (targetMat: Mat4) {
+        const rect = new Rect();
+        const locChildren = this.node.children;
+        Mat4.invert(_mat4_temp, targetMat);
+        for (let i = 0; i < locChildren.length; ++i) {
+            const child = locChildren[i];
+            if (child && child.active) {
+                const uiTransform = child.getComponent(UITransform);
+                // Zero sized rect is not accepted
+                if (uiTransform && uiTransform.contentSize.width && uiTransform.contentSize.height) {
+                    uiTransform._selfBoundingBox(_rect);
+                    // Must combine all matrix because rect can only be transformed once.
+                    Mat4.multiply(_matrix, child.worldMatrix, _mat4_temp);
+                    _rect.transformMat4(_matrix);
+                    if (rect.width === 0) {
+                        // Initializing
+                        rect.set(_rect);
+                    } else {
+                        Rect.union(rect, rect, _rect);
+                    }
+                }
+            }
+        }
+        if (this._contentSize.width && this._contentSize.height) {
+            this._selfBoundingBox(_rect);
+            // Must combine all matrix because rect can only be transformed once.
+            Mat4.multiply(_matrix, this.node.worldMatrix, _mat4_temp);
+            _rect.transformMat4(_matrix);
+            if (rect.width === 0) {
+                // Initializing
+                rect.set(_rect);
+            } else {
+                Rect.union(rect, rect, _rect);
+            }
+        }
         return rect;
     }
 
     /**
      * @en
      * Compute the corresponding aabb in world space for raycast.
-     *
      * @zh
      * 计算出此 UI_2D 节点在世界空间下的 aabb 包围盒。
      * @param out @en The out object of aabb bounding box of the node in world space.  @zh 输出节点在世界空间下的 aabb 包围盒。
@@ -709,6 +733,18 @@ export class UITransform extends Component {
         } else {
             return new geometry.AABB(px, py, pz, w, h, l);
         }
+    }
+
+    protected _selfBoundingBox (out: Rect) {
+        const width = this._contentSize.width;
+        const height = this._contentSize.height;
+        out.set(
+            -this._anchorPoint.x * width,
+            -this._anchorPoint.y * height,
+            width,
+            height,
+        );
+        return out;
     }
 
     protected _parentChanged (node: Node) {

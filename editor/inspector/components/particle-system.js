@@ -36,7 +36,7 @@ exports.template = /* html*/`
         <!-- Render other data that has not taken over -->
         <div id="customProps"></div>
 
-        <ui-section class="config" key="renderCulling" autoExpand cache-expand="particle-system-cullingMode">
+        <ui-section key="renderCulling" autoExpand cache-expand="particle-system-cullingMode">
             <ui-prop slot="header" no-label class="header" empty="true" labelflag="renderCulling" key="renderCulling">
                 <ui-checkbox></ui-checkbox>
                 <ui-label></ui-label>
@@ -49,9 +49,9 @@ exports.template = /* html*/`
                 <ui-label slot="label" value="Show Bounds"></ui-label>
                 <ui-checkbox slot="content" id="showBounds"></ui-checkbox>
             </ui-prop>
-            <ui-button id="resetBounds">Regenerate bounding box</ui-button>
+            <ui-button id="resetBounds" style="width:200px;margin: 4px auto 0 auto;">Regenerate bounding box</ui-button>
         </ui-section>
-        <ui-section class="config" key="noiseModule.value.enable" autoExpand cache-expand="particle-system-useNoise">
+        <ui-section key="noiseModule.value.enable" autoExpand cache-expand="particle-system-useNoise">
             <ui-prop slot="header" no-label class="header" empty="true" key="noiseModule.value.enable">
                 <ui-checkbox></ui-checkbox>
                 <ui-label value="Noise Module"></ui-label>
@@ -77,7 +77,7 @@ exports.template = /* html*/`
             <ui-prop type="dump" key="noiseModule.value.octaveMultiplier" disableflag="!noiseModule.value.enable"></ui-prop>
             <ui-prop type="dump" key="noiseModule.value.octaveScale" disableflag="!noiseModule.value.enable"></ui-prop>
         </ui-section>
-        <ui-section class="config" key="shapeModule" cache-expand="particle-system-shapeModule">
+        <ui-section key="shapeModule" cache-expand="particle-system-shapeModule">
             <ui-prop slot="header" no-label class="header" type="dump" key="shapeModule.value.enable" labelflag="shapeModule"
                 empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -105,9 +105,9 @@ exports.template = /* html*/`
             <ui-prop type="dump" key="shapeModule.value.sphericalDirectionAmount"></ui-prop>
             <ui-prop type="dump" key="shapeModule.value.randomPositionAmount"></ui-prop>
         </ui-section>
-        <ui-section class="config" key="velocityOvertimeModule" autoflag="true" cache-expand="particle-system-velocityOvertimeModule"></ui-section>
-        <ui-section class="config" key="forceOvertimeModule" autoflag="true" cache-expand="particle-system-forceOvertimeModule"></ui-section>
-        <ui-section empty="true" class="config" key="sizeOvertimeModule"
+        <ui-section key="velocityOvertimeModule" autoflag="true" cache-expand="particle-system-velocityOvertimeModule"></ui-section>
+        <ui-section key="forceOvertimeModule" autoflag="true" cache-expand="particle-system-forceOvertimeModule"></ui-section>
+        <ui-section empty="true" key="sizeOvertimeModule"
             cache-expand="particle-system-sizeOvertimeModule">
             <ui-prop slot="header" no-label class="header" type="dump" key="sizeOvertimeModule.value.enable"
                 labelflag="sizeOvertimeModule" empty="true">
@@ -120,7 +120,7 @@ exports.template = /* html*/`
             <ui-prop type="dump" key="sizeOvertimeModule.value.y"></ui-prop>
             <ui-prop type="dump" key="sizeOvertimeModule.value.z"></ui-prop>
         </ui-section>
-        <ui-section empty="true" class="config" key="rotationOvertimeModule"
+        <ui-section empty="true" key="rotationOvertimeModule"
             cache-expand="particle-system-rotationOvertimeModule">
             <ui-prop slot="header" no-label class="header" type="dump" key="rotationOvertimeModule.value.enable"
                 labelflag="rotationOvertimeModule" empty="true">
@@ -132,11 +132,11 @@ exports.template = /* html*/`
             <ui-prop type="dump" key="rotationOvertimeModule.value.y"></ui-prop>
             <ui-prop type="dump" key="rotationOvertimeModule.value.z"></ui-prop>
         </ui-section>
-        <ui-section class="config" key="colorOverLifetimeModule" autoflag="true"
+        <ui-section key="colorOverLifetimeModule" autoflag="true"
             cache-expand="particle-system-colorOverLifetimeModule"></ui-section>
-        <ui-section class="config" key="textureAnimationModule" autoflag="true"
+        <ui-section key="textureAnimationModule" autoflag="true"
             cache-expand="particle-system-textureAnimationModule"></ui-section>
-        <ui-section type="dump" showflag="!renderer.value.useGPU" key="limitVelocityOvertimeModule" class="config"
+        <ui-section type="dump" showflag="!renderer.value.useGPU" key="limitVelocityOvertimeModule"
             cache-expand="particle-system-limitVelocityOvertimeModule">
             <ui-prop slot="header" no-label class="header" type="dump" key="limitVelocityOvertimeModule.value.enable"
                 labelflag="limitVelocityOvertimeModule" empty="true">
@@ -151,7 +151,7 @@ exports.template = /* html*/`
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitY"></ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitZ"></ui-prop>
         </ui-section>
-        <ui-section empty="true" class="config" showflag="!renderer.value.useGPU" key="trailModule"
+        <ui-section empty="true" showflag="!renderer.value.useGPU" key="trailModule"
             cache-expand="particle-system-trailModule">
             <ui-prop slot="header" no-label class="header" type="dump" key="trailModule.value.enable" labelflag="trailModule"
                 empty="true">
@@ -169,7 +169,7 @@ exports.template = /* html*/`
             <ui-prop type="dump" key="trailModule.value.colorOverTrail"></ui-prop>
             <ui-prop type="dump" key="trailModule.value.colorOvertime"></ui-prop>
         </ui-section>
-        <ui-prop type="dump" key="renderer" ui-section-config></ui-prop>
+        <ui-prop type="dump" key="renderer"></ui-prop>
     </div>
 </div>
 

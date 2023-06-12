@@ -41,6 +41,9 @@ struct DescriptorDB;
 struct RenderStageTag;
 struct RenderPhaseTag;
 struct RenderPhase;
+
+enum class RenderPassType : uint32_t;
+
 struct LayoutGraph;
 
 using UniformID = uint32_t;

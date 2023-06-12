@@ -135,9 +135,12 @@ enum class TaskType {
 
 enum class SceneFlags : uint32_t {
     NONE = 0,
-    OPAQUE_OBJECT = 0x1,
-    CUTOUT_OBJECT = 0x2,
-    TRANSPARENT_OBJECT = 0x4,
+    OPAQUE = 0x1,
+    MASK = 0x2,
+    BLEND = 0x4,
+    OPAQUE_OBJECT = OPAQUE,
+    CUTOUT_OBJECT = MASK,
+    TRANSPARENT_OBJECT = BLEND,
     SHADOW_CASTER = 0x8,
     UI = 0x10,
     DEFAULT_LIGHTING = 0x20,

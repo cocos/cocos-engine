@@ -30,10 +30,11 @@ export class FSRPass extends SettingPass {
 
         passContext.material = this.material;
         passContext.clearBlack();
+
         passContext.updatePassViewPort(1 / passContext.shadingScale);
 
-        const inputWidth = passContext.passViewport.width;
-        const inputHeight = passContext.passViewport.height;
+        const inputWidth = Math.floor(game.canvas!.width * passContext.shadingScale);
+        const inputHeight = Math.floor(game.canvas!.height * passContext.shadingScale);
         const outWidth = Math.floor(game.canvas!.width);
         const outHeight = Math.floor(game.canvas!.height);
 

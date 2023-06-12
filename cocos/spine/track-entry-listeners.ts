@@ -24,13 +24,19 @@
 
 import spine from './lib/spine-core.js';
 
+let _listener_ID = 0;
+
+type TrackListener = (x: spine.TrackEntry) => void;
+type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event) => void;
+
+type CommonTrackEntryListener = TrackListener | TrackListener2;
 export class TrackEntryListeners {
     start?: ((entry: spine.TrackEntry) => void);
     interrupt?: ((entry: spine.TrackEntry) => void);
     end?: ((entry: spine.TrackEntry) => void);
     dispose?: ((entry: spine.TrackEntry) => void);
     complete?: ((entry: spine.TrackEntry) => void);
-    event?: ((entry: spine.TrackEntry, event: Event) => void);
+    event?: ((entry: spine.TrackEntry, event: spine.Event) => void);
 
     static getListeners (entry: spine.TrackEntry) {
         if (!entry.listener) {
@@ -38,4 +44,23 @@ export class TrackEntryListeners {
         }
         return entry.listener;
     }
+
+    static emitListener (id: number, entry: spine.TrackEntry, event: spine.Event): void {
+        const listener = TrackEntryListeners._listenerSet.get(id);
+        if (!listener) return;
+        const listener2 = listener as TrackListener2;
+        if (listener2) {
+            listener2(entry, event);
+        }
+    }
+
+    static addListener (listener: CommonTrackEntryListener): number {
+        const id = ++_listener_ID;
+        TrackEntryListeners._listenerSet.set(id, listener);
+        return id;
+    }
+
+    private static _listenerSet = new Map<number, CommonTrackEntryListener>();
 }
+
+globalThis.TrackEntryListeners = TrackEntryListeners;

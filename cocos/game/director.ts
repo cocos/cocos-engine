@@ -27,7 +27,7 @@
 
 /* spell-checker:words COORD, Quesada, INITED, Renerer */
 
-import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
+import { DEBUG, EDITOR, BUILD, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { SceneAsset } from '../asset/assets/scene-asset';
 import { System, EventTarget, Scheduler, js, errorID, error, assertID, warnID, macro, CCObject, cclegacy, isValid } from '../core';
 import { input } from '../input';
@@ -677,7 +677,7 @@ export class Director extends EventTarget {
      */
     public mainLoop (now: number) {
         let dt;
-        if (EDITOR && !cclegacy.GAME_VIEW || TEST) {
+        if (EDITOR_NOT_IN_PREVIEW || TEST) {
             dt = now;
         } else {
             dt = cclegacy.game._calculateDT(now);
@@ -693,7 +693,7 @@ export class Director extends EventTarget {
     public tick (dt: number) {
         if (!this._invalid) {
             this.emit(Director.EVENT_BEGIN_FRAME);
-            if (!EDITOR || cclegacy.GAME_VIEW) {
+            if (!EDITOR_NOT_IN_PREVIEW) {
                 input._frameDispatchEvents();
             }
 

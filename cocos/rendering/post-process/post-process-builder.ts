@@ -1,6 +1,6 @@
 import { EDITOR } from 'internal:constants';
 
-import { Camera, CameraUsage } from '../../render-scene/scene';
+import { Camera, CameraProjection, CameraUsage } from '../../render-scene/scene';
 import { PipelineBuilder, Pipeline } from '../custom/pipeline';
 
 import { passContext } from './utils/pass-context';
@@ -21,6 +21,7 @@ import { setCustomPipeline } from '../custom';
 
 import { CameraComponent } from '../../misc';
 import { BloomPass, ColorGradingPass, ForwardTransparencyPass, ForwardTransparencySimplePass, FxaaPass, SkinPass, ToneMappingPass } from './passes';
+import { PipelineEventType } from '../pipeline-event';
 
 export class PostProcessBuilder implements PipelineBuilder  {
     pipelines: Map<string, BasePass[]> = new Map();
@@ -42,8 +43,10 @@ export class PostProcessBuilder implements PipelineBuilder  {
 
         // forward pipeline
         this.addPass(forward);
-        this.addPass(new SkinPass());
+
+        // TODO: The skin material currently conflicts with the TransparencyPass queue and is temporarily pre-rendered by TransparencyPass.
         this.addPass(new ForwardTransparencyPass());
+        this.addPass(new SkinPass());
 
         // pipeline related
         this.addPass(new HBAOPass());
@@ -96,7 +99,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
     private initEditor () {
         director.root!.cameraList.forEach((cam) => {
             if (cam.name === 'Editor Camera') {
-                cam.usePostProcess = true;
+                cam.usePostProcess = cam.projectionType === CameraProjection.PERSPECTIVE;
             }
         });
     }
@@ -110,9 +113,29 @@ export class PostProcessBuilder implements PipelineBuilder  {
         }
     }
 
+    private resortEditorCameras (cameras: Camera[]) {
+        const newCameras: Camera[] = [];
+        for (let i = 0; i < cameras.length; i++) {
+            const c = cameras[i];
+            if (c.name === 'Editor Camera'
+            || c.name === 'Editor UIGizmoCamera'
+            || c.name === 'Scene Gizmo Camera') {
+                newCameras.push(c);
+            }
+        }
+        for (let i = 0; i < cameras.length; i++) {
+            const c = cameras[i];
+            if (newCameras.indexOf(c) === -1) {
+                newCameras.push(c);
+            }
+        }
+        return newCameras;
+    }
+
     setup (cameras: Camera[], ppl: Pipeline) {
         if (EDITOR) {
             this.initEditor();
+            cameras = this.resortEditorCameras(cameras);
         }
 
         passContext.ppl = ppl;
@@ -135,7 +158,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
             if (!camera.scene) {
                 continue;
             }
-
+            ppl.update(camera);
             if (i === (cameras.length - 1)) {
                 passContext.isFinalCamera = true;
             }
@@ -147,6 +170,9 @@ export class PostProcessBuilder implements PipelineBuilder  {
             buildReflectionProbePasss(camera, ppl);
 
             passContext.postProcess = camera.postProcess || globalPP;
+
+            director.root!.pipelineEvent.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
+
             this.renderCamera(camera, ppl);
         }
     }

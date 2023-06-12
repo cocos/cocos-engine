@@ -21,30 +21,35 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-import { EDITOR } from 'internal:constants';
-import { TrackEntryListeners } from './track-entry-listeners';
-import spine from './lib/spine-core.js';
-import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
-import { AttachUtil } from './attach-util';
-import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { UIRenderer } from '../2d/framework/ui-renderer';
-import { CCClass, CCObject, Color, Enum, ccenum, logID, warn, RecyclePool, js } from '../core';
-import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
+import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
+import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip } from 'cc.decorator';
+import { Material, Texture2D } from '../asset/assets';
+import { errorID, warn } from '../core/platform/debug';
+import { Enum, ccenum } from '../core/value-types/enum';
+import { Component, Node } from '../scene-graph';
+import { CCBoolean, CCClass, CCFloat, CCObject, Color, Mat4, RecyclePool, js } from '../core';
 import { SkeletonData } from './skeleton-data';
-import { VertexEffectDelegate } from './vertex-effect-delegate';
-import { Graphics } from '../2d/components/graphics';
-import { MaterialInstance } from '../render-scene';
+import { UIRenderer, UITransform } from '../2d';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { BlendFactor, BlendOp } from '../gfx';
+import { MaterialInstance } from '../render-scene';
+import { builtinResMgr } from '../asset/asset-manager';
 import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
+import { AttachUtil } from './attach-util';
 import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
-import { Material, Texture2D } from '../asset/assets';
-import { builtinResMgr } from '../asset/asset-manager';
-import { Node } from '../scene-graph';
+import { SPINE_WASM } from './lib/instantiated';
+import spine from './lib/spine-core.js';
+import { VertexEffectDelegate } from './vertex-effect-delegate';
+import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
+import { TrackEntryListeners } from './track-entry-listeners';
 
+const spineTag = SPINE_WASM;
+const CachedFrameTime = 1 / 60;
+
+type TrackListener = (x: spine.TrackEntry) => void;
+type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event) => void;
 /**
  * @en
  * Animation playback rate.
@@ -52,22 +57,6 @@ import { Node } from '../scene-graph';
  * 动画播放速率。
  */
 export const timeScale = 1.0;
-
-/**
- * @internal Since v3.7.2, this is an engine private enum, only used in editor.
- */
-export enum DefaultSkinsEnum {
-    default = 0,
-}
-ccenum(DefaultSkinsEnum);
-
-/**
- * @internal Since v3.7.2, this is an engine private enum, only used in editor.
- */
-export enum DefaultAnimsEnum {
-    '<None>' = 0
-}
-ccenum(DefaultAnimsEnum);
 
 /**
  * @en Enum for animation cache mode type.
@@ -92,19 +81,21 @@ export enum AnimationCacheMode {
 }
 ccenum(AnimationCacheMode);
 
-function setEnumAttr (obj, propName, enumDef) {
-    CCClass.Attr.setClassAttr(obj, propName, 'type', 'Enum');
-    CCClass.Attr.setClassAttr(obj, propName, 'enumList', Enum.getList(enumDef));
+/**
+ * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ */
+export enum DefaultSkinsEnum {
+    default = 0,
 }
+ccenum(DefaultSkinsEnum);
 
-interface AnimationItem {
-    animationName: string;
-    loop: boolean;
-    delay: number;
+/**
+ * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ */
+export enum DefaultAnimsEnum {
+    '<None>' = 0
 }
-
-type TrackListener = (x: spine.TrackEntry) => void;
-type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event | number) => void;
+ccenum(DefaultAnimsEnum);
 
 /**
  * @internal Since v3.7.2, this is an engine private enum.
@@ -114,14 +105,24 @@ export enum SpineMaterialType {
     TWO_COLORED = 1,
 }
 
+interface AnimationItem {
+    animationName: string;
+    loop: boolean;
+    delay: number;
+}
+
 /**
- * @internal Since v3.7.2, this is an engine private interface.
+ * @engineInternal Since v3.7.2, this is an engine private interface.
  */
 export interface SkeletonDrawData {
     material: Material | null;
-    texture: Texture2D | null;
     indexOffset: number;
     indexCount: number;
+}
+
+function setEnumAttr (obj, propName, enumDef) {
+    CCClass.Attr.setClassAttr(obj, propName, 'type', 'Enum');
+    CCClass.Attr.setClassAttr(obj, propName, 'enumList', Enum.getList(enumDef));
 }
 
 /**
@@ -184,55 +185,92 @@ export class Skeleton extends UIRenderer {
     public static SpineSocket = SpineSocket;
     public static AnimationCacheMode = AnimationCacheMode;
 
+    @serializable
+    protected _skeletonData: SkeletonData | null = null;
+    @serializable
+    protected defaultSkin = '';
+    @serializable
+    protected defaultAnimation = '';
     /**
-     * @internal Since v3.7.2, this is an engine private interface.
+     * @en Indicates whether to enable premultiplied alpha.
+     * You should disable this option when image's transparent area appears to have opaque pixels,
+     * or enable this option when image's half transparent area appears to be darken.
+     * @zh 是否启用贴图预乘。
+     * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
+     */
+    @serializable
+    protected _premultipliedAlpha = true;
+    @serializable
+    protected _timeScale = 1;
+    @serializable
+    protected _cacheMode = AnimationCacheMode.REALTIME;
+    @serializable
+    protected _defaultCacheMode: AnimationCacheMode = AnimationCacheMode.REALTIME;
+    @serializable
+    protected _sockets: SpineSocket[] = [];
+    @serializable
+    protected _useTint = false;
+    @serializable
+    protected _debugMesh = false;
+    @serializable
+    protected _debugBones = false;
+    @serializable
+    protected _debugSlots = false;
+    @serializable
+    protected _enableBatch = false;
+
+    protected _runtimeData: spine.SkeletonData | null = null;
+    public _skeleton: spine.Skeleton = null!;
+    protected _instance: spine.SkeletonInstance = null!;
+    protected _state: spine.AnimationState = null!;
+    protected _texture: Texture2D | null = null;
+    // Animation name
+    protected _animationName = '';
+    protected _skinName = '';
+    protected _drawList = new RecyclePool<SkeletonDrawData>(() => ({
+        material: null,
+        indexOffset: 0,
+        indexCount: 0,
+    }), 1);
+    protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
+    public paused = false;
+    protected _enumSkins: any = Enum({});
+    protected _enumAnimations: any = Enum({});
+    protected attachUtil: AttachUtil;
+    protected _socketNodes: Map<number, Node> = new Map();
+    protected _cachedSockets: Map<string, number> = new Map<string, number>();
+
+    // Below properties will effect when cache mode is SHARED_CACHE or PRIVATE_CACHE.
+    // accumulate time
+    protected _accTime = 0;
+    // Play times counter
+    protected _playCount = 0;
+    // Skeleton cache
+    protected _skeletonCache: SkeletonCache | null = null;
+    protected _animCache: AnimationCache | null = null;
+    /**
+     * @internal
+     */
+    public _curFrame: AnimationFrame | null = null;
+    // Is need update skeltonData
+    protected _needUpdateSkeltonData = true;
+    protected _listener: TrackEntryListeners | null = null;
+
+    constructor () {
+        super();
+        this._useVertexOpacity = true;
+        if (!JSB) {
+            this._instance = new spine.SkeletonInstance();
+        }
+        this.attachUtil = new AttachUtil();
+    }
+
+    /**
+     * @engineInternal Since v3.7.2, this is an engine private interface.
      */
     get drawList () { return this._drawList; }
 
-    protected _updateBuiltinMaterial (): Material {
-        const material = builtinResMgr.get<Material>('default-spine-material');
-        return material;
-    }
-
-    @override
-    @type(Material)
-    @displayOrder(0)
-    @displayName('CustomMaterial')
-    get customMaterial () {
-        return this._customMaterial;
-    }
-    set customMaterial (val) {
-        this._customMaterial = val;
-        this.updateMaterial();
-        this.markForUpdateRenderData();
-    }
-
     /**
-     * @engineInternal
-     */
-    public updateMaterial () {
-        let mat;
-        if (this._customMaterial) mat = this._customMaterial;
-        else mat = this._updateBuiltinMaterial();
-        this.setMaterial(mat, 0);
-        this._cleanMaterialCache();
-    }
-
-    /**
-     * @en The skeletal animation is paused?
-     * @zh 该骨骼动画是否暂停。
-     * @property paused
-     * @type {Boolean}
-     * @default false
-     */
-    get paused () {
-        return this._paused;
-    }
-    set paused (value: boolean) {
-        this._paused = value;
-    }
-
-    /** dstBlendFactor
      * @en
      * The skeleton data contains the skeleton information (bind pose bones, slots, draw order,
      * attachments, skins, etc) and animations but does not hold any state.<br/>
@@ -245,43 +283,19 @@ export class Skeleton extends UIRenderer {
      */
     @editable
     @type(SkeletonData)
+    @displayName('SkeletonData')
     get skeletonData () {
-        return this._skeletonData!;
+        return this._skeletonData;
     }
-    set skeletonData (value: SkeletonData) {
+    set skeletonData (value: SkeletonData | null) {
         if (value) value.resetEnums();
         if (this._skeletonData !== value) {
             this.destroyRenderData();
             this._skeletonData = value as any;
-            this._needUpdateSkeltonData = true;
             this.defaultSkin = '';
             this.defaultAnimation = '';
-            if (EDITOR && !legacyCC.GAME_VIEW) {
-                this._refreshInspector();
-            }
             this._updateSkeletonData();
-        }
-    }
-
-    /**
-     * @en The name of current playing animation.
-     * @zh 当前播放的动画名称。
-     * @property {String} animation
-     */
-
-    get animation (): string {
-        if (this.isAnimationCached()) {
-            return this._animationName;
-        }
-        const entry = this.getCurrent(0);
-        return (entry && entry.animation.name) || '';
-    }
-    set animation (value: string) {
-        if (value) {
-            this.setAnimation(0, value, this.loop);
-            this.markForUpdateRenderData();
-        } else {
-            this.clearAnimation();
+            this._updateUITransform();
         }
     }
 
@@ -328,10 +342,8 @@ export class Skeleton extends UIRenderer {
         if (skinName !== undefined) {
             this.defaultSkin = skinName;
             this.setSkin(this.defaultSkin);
-            if (EDITOR && !legacyCC.GAME_VIEW /* && !cc.engine.isPlaying */) {
-                this._refreshInspector();
-                this.markForUpdateRenderData();
-            }
+            this._refreshInspector();
+            this.markForUpdateRenderData();
         } else {
             console.error(`${this.name} skin enums are invalid`);
         }
@@ -345,7 +357,7 @@ export class Skeleton extends UIRenderer {
     @type(DefaultAnimsEnum)
     @tooltip('i18n:COMPONENT.skeleton.animation')
     get _animationIndex () {
-        const animationName = EDITOR && !legacyCC.GAME_VIEW ? this.defaultAnimation : this.animation;
+        const animationName = EDITOR_NOT_IN_PREVIEW ? this.defaultAnimation : this.animation;
         if (this.skeletonData) {
             if (animationName) {
                 const animsEnum = this.skeletonData.getAnimsEnum();
@@ -376,7 +388,7 @@ export class Skeleton extends UIRenderer {
         const animName = animsEnum[value];
         if (animName !== undefined) {
             this.animation = animName;
-            if (EDITOR && !legacyCC.GAME_VIEW) {
+            if (EDITOR_NOT_IN_PREVIEW) {
                 this.defaultAnimation = animName;
                 this._refreshInspector();
             } else {
@@ -404,14 +416,6 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Whether play animations in loop mode.
-     * @zh 是否循环播放当前骨骼动画。
-     */
-    @serializable
-    @tooltip('i18n:COMPONENT.skeleton.loop')
-    public loop = true;
-
-    /**
      * @en Whether premultipliedAlpha enabled.
      * @zh 是否启用 alpha 预乘。
      */
@@ -421,9 +425,18 @@ export class Skeleton extends UIRenderer {
     set premultipliedAlpha (v: boolean) {
         if (v !== this._premultipliedAlpha) {
             this._premultipliedAlpha = v;
+            this._instance.setPremultipliedAlpha(v);
             this.markForUpdateRenderData();
         }
     }
+
+    /**
+     * @en Whether play animations in loop mode.
+     * @zh 是否循环播放当前骨骼动画。
+     */
+    @serializable
+    @tooltip('i18n:COMPONENT.skeleton.loop')
+    public loop = true;
 
     /**
      * @en The time scale of this skeleton.
@@ -436,6 +449,54 @@ export class Skeleton extends UIRenderer {
         if (value !== this._timeScale) {
             this._timeScale = value;
         }
+    }
+    /**
+     * @en Enabled two color tint.
+     * @zh 是否启用染色效果。
+     */
+    @editable
+    @tooltip('i18n:COMPONENT.skeleton.use_tint')
+    get useTint () { return this._useTint; }
+    set useTint (value) {
+        if (value !== this._useTint) {
+            this._useTint = value;
+            this._updateUseTint();
+        }
+    }
+
+    /**
+     * @en If rendering a large number of identical textures and simple skeletal animations,
+     * enabling batching can reduce the number of draw calls and improve rendering performance.
+     * @zh 如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低 draw call 数量提升渲染性能。
+     */
+    @editable
+    @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
+    get enableBatch () { return this._enableBatch; }
+    set enableBatch (value) {
+        if (value !== this._enableBatch) {
+            this._enableBatch = value;
+            this._updateBatch();
+        }
+    }
+    /**
+     * @en
+     * The bone sockets this animation component maintains.<br>
+     * A SpineSocket object contains a path reference to bone, and a target node.
+     * @zh
+     * 当前动画组件维护的挂点数组。一个挂点组件包括动画节点路径和目标节点。
+     */
+    @type([SpineSocket])
+    @tooltip('i18n:animation.sockets')
+    get sockets (): SpineSocket[] {
+        return this._sockets;
+    }
+    set sockets (val: SpineSocket[]) {
+        if (EDITOR_NOT_IN_PREVIEW) {
+            this._verifySockets(val);
+        }
+        this._sockets = val;
+        this._updateSocketBindings();
+        this.syncAttachedNode();
     }
 
     /**
@@ -482,245 +543,108 @@ export class Skeleton extends UIRenderer {
             this.markForUpdateRenderData();
         }
     }
-
-    /**
-     * @en Enabled two color tint.
-     * @zh 是否启用染色效果。
-     */
-    @editable
-    @tooltip('i18n:COMPONENT.skeleton.use_tint')
-    get useTint () { return this._useTint; }
-    set useTint (value) {
-        if (value !== this._useTint) {
-            this._useTint = value;
-            this._updateUseTint();
-        }
-    }
-    /**
-     * @en If rendering a large number of identical textures and simple skeletal animations,
-     * enabling batching can reduce the number of draw calls and improve rendering performance.
-     * @zh 如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低 draw call 数量提升渲染性能。
-     */
-    @editable
-    @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
-    get enableBatch () { return this._enableBatch; }
-    set enableBatch (value) {
-        if (value !== this._enableBatch) {
-            this._enableBatch = value;
-            this._updateBatch();
-        }
-    }
-
-    /**
-     * @en
-     * The bone sockets this animation component maintains.<br>
-     * A SpineSocket object contains a path reference to bone, and a target node.
-     * @zh
-     * 当前动画组件维护的挂点数组。一个挂点组件包括动画节点路径和目标节点。
-     */
-    @type([SpineSocket])
-    @tooltip('i18n:animation.sockets')
-    get sockets (): SpineSocket[] {
-        return this._sockets;
-    }
-
-    set sockets (val: SpineSocket[]) {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
-            this._verifySockets(val);
-        }
-        this._sockets = val;
-        this._updateSocketBindings();
-        this.attachUtil._syncAttachedNode();
-    }
-
-    /**
-     * @en
-     * All the target nodes been set in the array of SpineSocket.
-     * @zh 当前所有设置在 SpineSocket 数组中的 target nodes。
-     */
     get socketNodes () { return this._socketNodes; }
 
-    // Frame cache
     /**
-     * @internal
+     * @en The name of current playing animation.
+     * @zh 当前播放的动画名称。
+     * @property {String} animation
      */
-    public _frameCache: AnimationCache | null = null;
-    // Cur frame
-    /**
-     * @internal
-     */
-    public _curFrame: AnimationFrame | null = null;
 
-    /**
-     * @internal
-     */
-    public _effectDelegate: VertexEffectDelegate | null | undefined = null;
-    /**
-     * @internal
-     */
-    public _skeleton: spine.Skeleton | null;
-    /**
-     * @internal
-     */
-    public _clipper?: spine.SkeletonClipping;
-    /**
-     * @internal
-     */
-    public _debugRenderer: Graphics | null;
-    /**
-     * @internal
-     */
-    public _startSlotIndex;
-    /**
-     * @internal
-     */
-    public _endSlotIndex;
-    /**
-     * @internal
-     */
-    public _startEntry;
-    /**
-     * @internal
-     */
-    public _endEntry;
-    /**
-     * @internal
-     */
-    public attachUtil: AttachUtil;
-    /**
-     * @internal
-     */
-    public maxVertexCount = 0;
-    /**
-     * @internal
-     */
-    public maxIndexCount = 0;
-
-    protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
-    protected _enumSkins: any = Enum({});
-    protected _enumAnimations: any = Enum({});
-
-    // Play times
-    protected _playTimes = 0;
-    // Time scale
-    @serializable
-    protected _timeScale = 1;
-    // Paused or playing state
-    protected _paused = false;
-
-    // Below properties will effect when cache mode is SHARED_CACHE or PRIVATE_CACHE.
-    // accumulate time
-    protected _accTime = 0;
-    // Play times counter
-    protected _playCount = 0;
-    // Skeleton cache
-    protected _skeletonCache: SkeletonCache | null = null;
-    // Animation name
-    protected _animationName = '';
-    // Animation queue
-    protected _animationQueue: AnimationItem[] = [];
-    // Head animation info of
-    protected _headAniInfo: AnimationItem | null = null;
-    // Is animation complete.
-    protected _isAniComplete = true;
-    // Is need update skeltonData
-    protected _needUpdateSkeltonData = true;
-
-    @serializable
-    protected _useTint = false;
-    // Record pre cache mode.
-    @serializable
-    protected _preCacheMode = -1;
-    @serializable
-    protected _cacheMode = AnimationCacheMode.REALTIME;
-    @serializable
-    protected _defaultCacheMode: AnimationCacheMode = AnimationCacheMode.REALTIME;
-    @serializable
-    protected _debugBones = false;
-    @serializable
-    protected _debugSlots = false;
-
-    @serializable
-    protected _skeletonData: SkeletonData | null = null;
-
-    /**
-     * @en Indicates whether to enable premultiplied alpha.
-     * You should disable this option when image's transparent area appears to have opaque pixels,
-     * or enable this option when image's half transparent area appears to be darken.
-     * @zh 是否启用贴图预乘。
-     * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
-     */
-    @serializable
-    protected _premultipliedAlpha = true;
-
-    // 由于 spine 的 skin 是无法二次替换的，所以只能设置默认的 skin
-    /**
-     * @en
-     * The name of default skin.
-     * @zh
-     * 默认的皮肤名称。
-     * @property {String} defaultSkin
-     */
-    @serializable
-    @visible(false)
-    protected defaultSkin = '';
-
-    /**
-     * @en
-     * The name of default animation.
-     * @zh
-     * 默认的动画名称。
-     * @property {String} defaultAnimation
-     */
-    @visible(false)
-    @serializable
-    protected defaultAnimation = '';
-
-    @serializable
-    protected _enableBatch = false;
-
-    @serializable
-    protected _sockets: SpineSocket[] = [];
-
-    protected _drawIdx = 0;
-    protected _drawList = new RecyclePool<SkeletonDrawData>(() => ({
-        material: null,
-        texture: null,
-        indexOffset: 0,
-        indexCount: 0,
-    }), 1);
-    @serializable
-    protected _debugMesh = false;
-    protected _rootBone: spine.Bone | null;
-    protected _state?: spine.AnimationState;
-    protected _listener: spine.AnimationStateListener | null;
-
-    protected _socketNodes: Map<number, Node> = new Map();
-    protected _cachedSockets: Map<string, number> = new Map<string, number>();
-    private _drawInfoList: RenderDrawInfo[] = [];
-
-    private requestDrawInfo (idx: number) {
-        if (!this._drawInfoList[idx]) {
-            this._drawInfoList[idx] = new RenderDrawInfo();
-        }
-        return this._drawInfoList[idx];
+    get animation (): string {
+        return this._animationName;
     }
-    // CONSTRUCTOR
-    constructor () {
-        super();
-        this._effectDelegate = null;
-        this._skeleton = null;
-        this._rootBone = null;
-        this._listener = null;
-        this._debugRenderer = null;
-        this._startSlotIndex = -1;
-        this._endSlotIndex = -1;
-        this._startEntry = { animation: { name: '' }, trackIndex: 0 } as any;
-        this._endEntry = { animation: { name: '' }, trackIndex: 0 } as any;
-        this.attachUtil = new AttachUtil();
-        setEnumAttr(this, '_defaultSkinIndex', this._enumSkins);
-        setEnumAttr(this, '_animationIndex', this._enumAnimations);
-        this._useVertexOpacity = true;
+    set animation (value: string) {
+        if (value) {
+            this.setAnimation(0, value, this.loop);
+        } else {
+            this.clearAnimation();
+        }
+    }
+
+    /**
+     * @en The customMaterial。
+     * @zh 用户自定材质。
+     */
+    @override
+    @type(Material)
+    @displayOrder(0)
+    @displayName('CustomMaterial')
+    get customMaterial () {
+        return this._customMaterial;
+    }
+    set customMaterial (val) {
+        this._customMaterial = val;
+        this.updateMaterial();
+        this.markForUpdateRenderData();
+    }
+
+    public __preload () {
+        super.__preload();
+    }
+
+    public onRestore () {
+
+    }
+    /**
+     * @en Be called when component state becomes available.
+     * @zh 组件状态变为可用时调用。
+     */
+    public onEnable () {
+        super.onEnable();
+        this._updateSkeletonData();
+        this._flushAssembler();
+        SkeletonSystem.getInstance().add(this);
+    }
+    /**
+     * @en Be called when component state becomes disabled.
+     * @zh 组件状态变为禁用状态时调用。
+     */
+    public onDisable () {
+        super.onDisable();
+        SkeletonSystem.getInstance().remove(this);
+    }
+
+    public onDestroy () {
+        this.destroyRenderData();
+        this._cleanMaterialCache();
+        if (!JSB) {
+            spine.wasmUtil.destroySpineInstance(this._instance);
+        }
+        super.onDestroy();
+    }
+    /**
+     * @en Clear animation and set to setup pose.
+     * @zh 清除动画并还原到初始姿势。
+     */
+    public clearAnimation () {
+        if (!this.isAnimationCached()) {
+            this.clearTrack(0);
+            this.setToSetupPose();
+        }
+    }
+
+    protected _updateSkeletonData () {
+        const skeletonData = this._skeletonData;
+        if (!skeletonData) {
+            this._texture = null;
+            return;
+        }
+        this._texture = skeletonData.textures[0];
+
+        this._runtimeData = skeletonData.getRuntimeData();
+        if (!this._runtimeData) return;
+        this.setSkeletonData(this._runtimeData);
+
+        this._refreshInspector();
+        if (this.defaultAnimation) this.animation = this.defaultAnimation;
+        if (this.defaultSkin) this.setSkin(this.defaultSkin);
+
+        this._updateUseTint();
+
+        this._indexBoneSockets();
+        this._updateSocketBindings();
+        this.attachUtil.init(this);
     }
 
     /**
@@ -731,21 +655,16 @@ export class Skeleton extends UIRenderer {
      * @zh
      * 设置底层运行时用到的 SkeletonData。<br>
      * 这个接口有别于 `skeletonData` 属性，这个接口传入的是 Spine runtime 提供的原始数据，而 skeletonData 的类型是 Creator 提供的资源类型。
-     * @method setSkeletonData
-     * @param {sp.spine.SkeletonData} skeletonData
+     * @param skeletonData @en The skeleton data contains the skeleton information (bind pose bones, slots, draw order, attachments,
+     * skins, etc) and animations but does not hold any state. @zh 骨架数据(SkeletonData)包含骨架信息(绑定pose的骨骼、槽位、绘制顺序、附件、
+     * 皮肤等)和动画, 但不保存任何状态。
      */
     public setSkeletonData (skeletonData: spine.SkeletonData) {
-        const uiTrans = this.node._uiProps.uiTransformComp!;
-        if (skeletonData.width && skeletonData.height) uiTrans.setContentSize(skeletonData.width, skeletonData.height);
-        if (skeletonData.width !== 0) uiTrans.anchorX = Math.abs(skeletonData.x) / skeletonData.width;
-        if (skeletonData.height !== 0) uiTrans.anchorY = Math.abs(skeletonData.y) / skeletonData.height;
-
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
                 this._skeletonCache = SkeletonCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                 this._skeletonCache = new SkeletonCache();
-                this._skeletonCache.enablePrivateMode();
             }
         }
 
@@ -753,269 +672,47 @@ export class Skeleton extends UIRenderer {
             if (this.debugBones || this.debugSlots) {
                 warn('Debug bones or slots is invalid in cached mode');
             }
-            const skeletonInfo = this._skeletonCache!.getSkeletonCache((this.skeletonData as any)._uuid, skeletonData);
-            this._skeleton = skeletonInfo.skeleton;
-            this._clipper = skeletonInfo.clipper;
-            this._rootBone = this._skeleton.getRootBone();
         } else {
-            this._skeleton = new spine.Skeleton(skeletonData);
-            this._clipper = new spine.SkeletonClipping();
-            this._rootBone = this._skeleton.getRootBone();
+            this._skeleton = this._instance.initSkeleton(skeletonData);
+            this._state = this._instance.getAnimationState();
+            this._instance.setPremultipliedAlpha(this._premultipliedAlpha);
         }
         // Recreate render data and mark dirty
         this._flushAssembler();
     }
 
     /**
-     * @en Sets slots visible range.
-     * @zh 设置骨骼插槽可视范围。
+     * @en Set the current animation. Any queued animations are cleared.<br>
+     * @zh 设置当前动画。队列中的任何的动画将被清除。<br>
+     * @param trackIndex @en Index of track. @zh 动画通道索引。
+     * @param name @en The name of animation. @zh 动画名称。
+     * @param loop @en Use loop mode or not. @zh 是否使用循环播放模式。
      */
-    public setSlotsRange (startSlotIndex, endSlotIndex) {
+    public setAnimation (trackIndex: number, name: string, loop?: boolean) {
+        if (loop === undefined) loop = true;
+
         if (this.isAnimationCached()) {
-            warn('Slots visible range can not be modified in cached mode.');
-        } else {
-            this._startSlotIndex = startSlotIndex;
-            this._endSlotIndex = endSlotIndex;
-        }
-    }
-
-    /**
-     * @en Sets animation state data.<br>
-     * The parameter type is {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.AnimationStateData.
-     * @zh 设置动画状态数据。<br>
-     * 参数是 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.AnimationStateData。
-     */
-    public setAnimationStateData (stateData) {
-        if (this.isAnimationCached()) {
-            warn('\'setAnimationStateData\' interface can not be invoked in cached mode.');
-        } else {
-            const state = new spine.AnimationState(stateData);
-            if (this._listener) {
-                if (this._state) {
-                    this._state.removeListener(this._listener);
-                }
-                state.addListener(this._listener);
+            if (trackIndex !== 0) {
+                warn('Track index can not greater than 0 in cached mode.');
             }
-            this._state = state;
-        }
-    }
-
-    // IMPLEMENT
-    public __preload () {
-        super.__preload();
-        if (EDITOR && !legacyCC.GAME_VIEW) {
-            const Flags = CCObject.Flags;
-            this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
-            // this._refreshInspector();
-        }
-
-        const children = this.node.children;
-        for (let i = 0, n = children.length; i < n; i++) {
-            const child = children[i];
-            if (child && child.name === 'DEBUG_DRAW_NODE') {
-                child.destroy();
+            this._animationName = name;
+            if (!this._skeletonCache) return;
+            let cache = this._skeletonCache.getAnimationCache(this._skeletonData!._uuid, this._animationName);
+            if (!cache) {
+                cache = this._skeletonCache.initAnimationCache(this._skeletonData!, this._animationName);
             }
+            this._skeleton = cache.skeleton;
+            if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
+                cache.invalidAnimationFrames();
+            }
+            this._animCache = cache;
+            this._accTime = 0;
+            this._playCount = 0;
+        } else {
+            this._animationName = name;
+            this._instance.setAnimation(trackIndex, name, loop);
         }
-
-        this._updateSkeletonData();
-        this._updateDebugDraw();
-
-        if (EDITOR && !legacyCC.GAME_VIEW) { this._refreshInspector(); }
-    }
-
-    /**
-     * @en
-     * It's best to set cache mode before set property 'dragonAsset', or will waste some cpu time.
-     * If set the mode in editor, then no need to worry about order problem.
-     * @zh
-     * 若想切换渲染模式，最好在设置'dragonAsset'之前，先设置好渲染模式，否则有运行时开销。
-     * 若在编辑中设置渲染模式，则无需担心设置次序的问题。
-     *
-     * @example
-     * skeleton.setAnimationCacheMode(sp.Skeleton.AnimationCacheMode.SHARED_CACHE);
-     */
-    public setAnimationCacheMode (cacheMode: AnimationCacheMode) {
-        if (this._preCacheMode !== cacheMode) {
-            this._cacheMode = cacheMode;
-            this._needUpdateSkeltonData = true;
-            this._updateSkeletonData();
-            this._updateUseTint();
-            this._updateSocketBindings();
-            this.markForUpdateRenderData();
-        }
-    }
-
-    /**
-     * @en Whether in cached mode.
-     * @zh 当前是否处于缓存模式。
-     */
-    public isAnimationCached () {
-        if (EDITOR && !legacyCC.GAME_VIEW) return false;
-        return this._cacheMode !== AnimationCacheMode.REALTIME;
-    }
-
-    /**
-     * @en Update skeleton animation.
-     * @zh 更新骨骼动画。
-     * @param dt @en delta time. @zh 时间差。
-     */
-    public updateAnimation (dt: number) {
         this.markForUpdateRenderData();
-        if (EDITOR && !legacyCC.GAME_VIEW) return;
-        if (this.paused) return;
-
-        dt *= this._timeScale * timeScale;
-        if (this.isAnimationCached()) {
-            // Cache mode and has animation queue.
-            if (this._isAniComplete) {
-                if (this._animationQueue.length === 0 && !this._headAniInfo) {
-                    const frameCache = this._frameCache;
-                    if (frameCache && frameCache.isInvalid()) {
-                        frameCache.updateToFrame();
-                        const frames = frameCache.frames;
-                        this._curFrame = frames[frames.length - 1]!;
-                    }
-                    return;
-                }
-                if (!this._headAniInfo) {
-                    this._headAniInfo = this._animationQueue.shift()!;
-                }
-                this._accTime += dt;
-                if (this._accTime > this._headAniInfo.delay) {
-                    const aniInfo = this._headAniInfo;
-                    this._headAniInfo = null;
-                    this.setAnimation(0, aniInfo.animationName, aniInfo.loop);
-                }
-                return;
-            }
-
-            this._updateCache(dt);
-        } else {
-            this._updateRealtime(dt);
-        }
-    }
-
-    /**
-     * @en Sets vertex effect delegate.
-     * @zh 设置顶点特效动画代理。
-     * @param effectDelegate @en Vertex effect delegate. @zh 顶点特效代理。
-     */
-    public setVertexEffectDelegate (effectDelegate: VertexEffectDelegate | null | undefined) {
-        this._effectDelegate = effectDelegate;
-    }
-
-    /**
-     * @en Sets the bones and slots to the setup pose.
-     * @zh 还原到起始动作。
-     * @method setToSetupPose
-     */
-    public setToSetupPose () {
-        if (this._skeleton) {
-            this._skeleton.setToSetupPose();
-        }
-    }
-
-    /**
-     * @en
-     * Sets the bones to the setup pose,
-     * using the values from the `BoneData` list in the `SkeletonData`.
-     * @zh
-     * 设置 bone 到起始动作。
-     * 使用 SkeletonData 中的 BoneData 列表中的值。
-     * @method setBonesToSetupPose
-     */
-    public setBonesToSetupPose () {
-        if (this._skeleton) {
-            this._skeleton.setBonesToSetupPose();
-        }
-    }
-
-    /**
-     * @en
-     * Sets the slots to the setup pose,
-     * using the values from the `SlotData` list in the `SkeletonData`.
-     * @zh
-     * 设置 slot 到起始动作。
-     * 使用 SkeletonData 中的 SlotData 列表中的值。
-     * @method setSlotsToSetupPose
-     */
-    public setSlotsToSetupPose () {
-        if (this._skeleton) {
-            this._skeleton.setSlotsToSetupPose();
-        }
-    }
-
-    /**
-     * @en
-     * Updating an animation cache to calculate all frame data in the animation is a cost in
-     * performance due to calculating all data in a single frame.
-     * To update the cache, use the invalidAnimationCache method with high performance.
-     * @zh
-     * 更新某个动画缓存, 预计算动画中所有帧数据，由于在单帧计算所有数据，所以较消耗性能。
-     * 若想更新缓存，可使用 invalidAnimationCache 方法，具有较高性能。
-     * @method updateAnimationCache
-     * @param {String} animName
-     */
-    public updateAnimationCache (animName) {
-        if (!this.isAnimationCached()) return;
-        const uuid = this._skeletonData!._uuid;
-        if (this._skeletonCache) {
-            this._skeletonCache.updateAnimationCache(uuid, animName);
-        }
-    }
-
-    /**
-     * @en
-     * Invalidates the animation cache, which is then recomputed on each frame.
-     * @zh
-     * 使动画缓存失效，之后会在每帧重新计算。
-     * @method invalidAnimationCache
-     */
-    public invalidAnimationCache () {
-        if (!this.isAnimationCached()) return;
-        if (this._skeletonCache) {
-            this._skeletonCache.invalidAnimationCache(this._skeletonData!._uuid);
-        }
-    }
-
-    /**
-     * @en
-     * Finds a bone by name.
-     * This does a string comparison for every bone.<br>
-     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Bone object.
-     * @zh
-     * 通过名称查找 bone。
-     * 这里对每个 bone 的名称进行了对比。<br>
-     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Bone 对象。
-     *
-     * @method findBone
-     * @param {String} boneName
-     * @return {sp.spine.Bone}
-     */
-    public findBone (boneName: string) {
-        if (this._skeleton) {
-            return this._skeleton.findBone(boneName);
-        }
-        return null;
-    }
-
-    /**
-     * @en
-     * Finds a slot by name. This does a string comparison for every slot.<br>
-     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Slot object.
-     * @zh
-     * 通过名称查找 slot。这里对每个 slot 的名称进行了比较。<br>
-     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Slot 对象。
-     *
-     * @method findSlot
-     * @param {String} slotName
-     * @return {sp.spine.Slot}
-     */
-    public findSlot (slotName: string) {
-        if (this._skeleton) {
-            return this._skeleton.findSlot(slotName);
-        }
-        return null;
     }
 
     /**
@@ -1029,417 +726,111 @@ export class Skeleton extends UIRenderer {
      * 注意：设置皮肤不会改变 attachment 的可见性。<br>
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Skin 对象。
      *
-     * @method setSkin
-     * @param {String} skinName
+     * @param skinName @en The name of skin. @zh 皮肤名称。
      */
-    public setSkin (skinName: string) {
-        if (this._skeleton) {
-            this._skeleton.setSkinByName(skinName);
-            this._skeleton.setSlotsToSetupPose();
-        }
-        this.invalidAnimationCache();
-    }
-
-    /**
-     * @en
-     * Returns the attachment for the slot and attachment name.
-     * The skeleton looks first in its skin, then in the skeleton data’s default skin.<br>
-     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Attachment object.
-     * @zh
-     * 通过 slot 和 attachment 的名称获取 attachment。Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。<br>
-     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Attachment 对象。
-     *
-     * @method getAttachment
-     * @param {String} slotName
-     * @param {String} attachmentName
-     * @return {sp.spine.Attachment}
-     */
-    public getAttachment (slotName: string, attachmentName: string) {
-        if (this._skeleton) {
-            return this._skeleton.getAttachmentByName(slotName, attachmentName);
-        }
-        return null;
-    }
-
-    /**
-     * @en
-     * Sets the attachment for the slot and attachment name.
-     * The skeleton looks first in its skin, then in the skeleton data’s default skin.
-     * @zh
-     * 通过 slot 和 attachment 的名字来设置 attachment。
-     * Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。
-     * @method setAttachment
-     * @param {String} slotName
-     * @param {String} attachmentName
-     */
-    public setAttachment (slotName: string, attachmentName: string) {
-        if (this._skeleton) {
-            this._skeleton.setAttachment(slotName, attachmentName);
-        }
-        this.invalidAnimationCache();
-    }
-
-    /**
-     * @en
-     * Get Texture Atlas used in attachments.
-     * @zh 获取附件图集。
-     * @param regionAttachment An attachment type of RegionAttachment or BoundingBoxAttachment.
-     * @return TextureRegion contains texture and atlas text information.
-     */
-    public getTextureAtlas (regionAttachment: spine.RegionAttachment | spine.BoundingBoxAttachment) {
-        return (regionAttachment as spine.RegionAttachment).region;
-    }
-
-    // ANIMATION
-    /**
-     * @en
-     * Mix applies all keyframe values,
-     * interpolated for the specified time and mixed with the current values.
-     * @zh 为所有关键帧设定混合及混合时间（从当前值开始差值）。
-     * @method setMix
-     * @param {String} fromAnimation
-     * @param {String} toAnimation
-     * @param {Number} duration
-     */
-    public setMix (fromAnimation: string, toAnimation: string, duration: number): void {
-        if (this._state) {
-            this._state.data.setMix(fromAnimation, toAnimation, duration);
-        }
-    }
-
-    /**
-     * @en Set the current animation. Any queued animations are cleared.<br>
-     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry object.
-     * @zh 设置当前动画。队列中的任何的动画将被清除。<br>
-     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry 对象。
-     * @method setAnimation
-     * @param {Number} trackIndex
-     * @param {String} name
-     * @param {Boolean} loop
-     * @return {sp.spine.TrackEntry}
-     */
-    public setAnimation (trackIndex: number, name: string, loop: boolean) {
-        this._playTimes = loop ? 0 : 1;
-
+    public setSkin (name: string) {
+        this._skinName = name;
         if (this.isAnimationCached()) {
-            if (trackIndex !== 0) {
-                warn('Track index can not greater than 0 in cached mode.');
+            if (this._animCache) {
+                this._animCache.setSkin(name);
             }
-            if (!this._skeletonCache) return null;
-            let cache = this._skeletonCache.getAnimationCache(this._skeletonData!._uuid, name);
-            if (!cache) {
-                cache = this._skeletonCache.initAnimationCache(this._skeletonData!._uuid, name);
-            }
-            if (cache) {
-                this._animationName = name;
-                this._isAniComplete = false;
-                this._accTime = 0;
-                this._playCount = 0;
-                this._frameCache = cache;
-                if (this._socketNodes.size > 0) {
-                    this._frameCache.enableCacheAttachedInfo();
+        } else {
+            this._instance.setSkin(name);
+        }
+    }
+
+    /**
+     * @en Update skeleton animation.
+     * @zh 更新骨骼动画。
+     * @param dt @en delta time. @zh 时间差。
+     */
+    public updateAnimation (dt: number) {
+        if (EDITOR_NOT_IN_PREVIEW) return;
+        if (this.paused) return;
+        dt *= this._timeScale * timeScale;
+        if (this.isAnimationCached()) {
+            this._accTime += dt;
+            const frameIdx = Math.floor(this._accTime / CachedFrameTime);
+            this._animCache!.updateToFrame(frameIdx);
+            this._curFrame = this._animCache!.getFrame(frameIdx);
+        } else {
+            this._instance.updateAnimation(dt);
+        }
+        this.markForUpdateRenderData();
+    }
+
+    /**
+     * @engineInternal
+     */
+    public updateRenderData (): any {
+        if (this.isAnimationCached()) {
+            if (!this._curFrame) return null;
+            const model = this._curFrame.model;
+            return model;
+        } else {
+            const model = this._instance.updateRenderData();
+            return model;
+        }
+    }
+
+    protected _flushAssembler () {
+        const assembler = Skeleton.Assembler.getAssembler(this);
+        if (this._assembler !== assembler) {
+            this._assembler = assembler;
+        }
+        if (this._skeleton && this._assembler) {
+            this._renderData = this._assembler.createData(this);
+            this.markForUpdateRenderData();
+            this._updateColor();
+        }
+    }
+
+    protected _render (batcher: Batcher2D) {
+        let indicesCount = 0;
+        if (this.renderData && this._drawList) {
+            const rd = this.renderData;
+            const chunk = rd.chunk;
+            const accessor = chunk.vertexAccessor;
+            const meshBuffer = rd.getMeshBuffer()!;
+            const origin = meshBuffer.indexOffset;
+            // Fill index buffer
+            for (let i = 0; i < this._drawList.length; i++) {
+                const dc = this._drawList.data[i];
+                if (this._texture) {
+                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
+                        dc.indexCount, this._texture, dc.material!, false);
                 }
-                this._frameCache.updateToFrame(0);
-                this._curFrame = this._frameCache.frames[0]!;
+                indicesCount += dc.indexCount;
             }
-        } else if (this._skeleton) {
-            const animation = this._skeleton.data.findAnimation(name);
-            if (!animation) {
-                logID(7509, name);
-                return null;
-            }
-            this._animationName = name;
-            const res = this._state!.setAnimationWith(trackIndex, animation, loop);
-            this._state!.apply(this._skeleton);
-            return res;
-        }
-        return null;
-    }
-
-    /**
-     * @en Adds an animation to be played delay seconds after the current or last queued animation.<br>
-     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry object.
-     * @zh 添加一个动画到动画队列尾部，还可以延迟指定的秒数。<br>
-     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry 对象。
-     * @method addAnimation
-     * @param {Number} trackIndex
-     * @param {String} name
-     * @param {Boolean} loop
-     * @param {Number} [delay=0]
-     * @return {sp.spine.TrackEntry}
-     */
-    public addAnimation (trackIndex: number, name: string, loop: boolean, delay?: number) {
-        delay = delay || 0;
-        if (this.isAnimationCached()) {
-            if (trackIndex !== 0) {
-                warn('Track index can not greater than 0 in cached mode.');
-            }
-            this._animationQueue.push({ animationName: name, loop, delay });
-        } else if (this._skeleton) {
-            const animation = this._skeleton.data.findAnimation(name);
-            if (!animation) {
-                logID(7510, name);
-                return null;
-            }
-            return this._state?.addAnimationWith(trackIndex, animation, loop, delay);
-        }
-        return null;
-    }
-
-    /**
-     * @en Find animation with specified name.
-     * @zh 查找指定名称的动画。
-     * @method findAnimation
-     * @param {String} name
-     * @returns {sp.spine.Animation}
-     */
-    public findAnimation (name: string) {
-        if (this._skeleton) {
-            return this._skeleton.data.findAnimation(name);
-        }
-        return null;
-    }
-
-    /**
-     * @en Clear animation and set to setup pose.
-     * @zh 清除动画并还原到初始姿势。
-     */
-    public clearAnimation () {
-        if (!this.isAnimationCached()) {
-            this.clearTrack(0);
-            this.setToSetupPose();
+            const subIndices = rd.indices!.subarray(0, indicesCount);
+            accessor.appendIndices(chunk.bufferId, subIndices);
         }
     }
 
     /**
-     * @en Returns track entry by trackIndex.<br>
-     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry object.
-     * @zh 通过 track 索引获取 TrackEntry。<br>
-     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry 对象。
-     * @method getCurrent
-     * @param trackIndex
-     * @return {sp.spine.TrackEntry}
+     * @internal
      */
-    public getCurrent (trackIndex: number) {
-        if (this.isAnimationCached()) {
-            warn('\'getCurrent\' interface can not be invoked in cached mode.');
-        } else if (this._state) {
-            return this._state.getCurrent(trackIndex);
-        }
-        return null;
+    public requestDrawData (material: Material, indexOffset: number, indexCount: number) {
+        const draw = this._drawList.add();
+        draw.material = material;
+        draw.indexOffset = indexOffset;
+        draw.indexCount = indexCount;
+        return draw;
     }
 
-    /**
-     * @en Clears all tracks of animation state.
-     * @zh 清除所有 track 的动画状态。
-     * @method clearTracks
-     */
-    public clearTracks () {
-        if (this.isAnimationCached()) {
-            warn('\'clearTracks\' interface can not be invoked in cached mode.');
-        } else if (this._state) {
-            this._state.clearTracks();
-            this.setToSetupPose();
-        }
-    }
-
-    /**
-     * @en Clears track of animation state by trackIndex.
-     * @zh 清除出指定 track 的动画状态。
-     * @method clearTrack
-     * @param {number} trackIndex
-     */
-    public clearTrack (trackIndex: number) {
-        if (this.isAnimationCached()) {
-            warn('\'clearTrack\' interface can not be invoked in cached mode.');
-        } else if (this._state) {
-            this._state.clearTrack(trackIndex);
-            if (EDITOR && !legacyCC.GAME_VIEW/* && !cc.engine.isPlaying */) {
-                this._state.update(0);
-            }
-        }
-    }
-
-    /**
-     * @en Sets the start event listener.
-     * @zh 用来设置开始播放动画的事件监听。
-     * @method setStartListener
-     * @param {function} listener
-     */
-    public setStartListener (listener: TrackListener) {
-        this._ensureListener();
-        this._listener!.start = listener;
-    }
-
-    /**
-     * @en Sets the interrupt event listener.
-     * @zh 用来设置动画被打断的事件监听。
-     * @method setInterruptListener
-     * @param {function} listener
-     */
-    public setInterruptListener (listener: TrackListener) {
-        this._ensureListener();
-        this._listener!.interrupt = listener;
-    }
-
-    /**
-     * @en Sets the end event listener.
-     * @zh 用来设置动画播放完后的事件监听。
-     * @method setEndListener
-     * @param {function} listener
-     */
-    public setEndListener (listener: TrackListener) {
-        this._ensureListener();
-        this._listener!.end = listener;
-    }
-
-    /**
-     * @en Sets the dispose event listener.
-     * @zh 用来设置动画将被销毁的事件监听。
-     * @method setDisposeListener
-     * @param {function} listener
-     */
-    public setDisposeListener (listener: TrackListener) {
-        this._ensureListener();
-        this._listener!.dispose = listener;
-    }
-
-    /**
-     * @en Sets the complete event listener.
-     * @zh 用来设置动画播放一次循环结束后的事件监听。
-     * @method setCompleteListener
-     * @param {function} listener
-     */
-    public setCompleteListener (listener: TrackListener) {
-        this._ensureListener();
-        this._listener!.complete = listener;
-    }
-
-    /**
-     * @en Sets the animation event listener.
-     * @zh 用来设置动画播放过程中帧事件的监听。
-     * @method setEventListener
-     * @param {function} listener
-     */
-    public setEventListener (listener: TrackListener2) {
-        this._ensureListener();
-        this._listener!.event = listener;
-    }
-
-    /**
-     * @en Sets the start event listener for specified TrackEntry.
-     * @zh 用来为指定的 TrackEntry 设置动画开始播放的事件监听。
-     * @method setTrackStartListener
-     * @param {sp.spine.TrackEntry} entry
-     * @param {function} listener
-     */
-    public setTrackStartListener (entry: spine.TrackEntry, listener: TrackListener) {
-        TrackEntryListeners.getListeners(entry).start = listener;
-    }
-
-    /**
-     * @en Sets the interrupt event listener for specified TrackEntry.
-     * @zh 用来为指定的 TrackEntry 设置动画被打断的事件监听。
-     * @method setTrackInterruptListener
-     * @param {sp.spine.TrackEntry} entry
-     * @param {function} listener
-     */
-    public setTrackInterruptListener (entry: spine.TrackEntry, listener: TrackListener) {
-        TrackEntryListeners.getListeners(entry).interrupt = listener;
-    }
-
-    /**
-     * @en Sets the end event listener for specified TrackEntry.
-     * @zh 用来为指定的 TrackEntry 设置动画播放结束的事件监听。
-     * @method setTrackEndListener
-     * @param {sp.spine.TrackEntry} entry
-     * @param {function} listener
-     */
-    public setTrackEndListener (entry: spine.TrackEntry, listener: TrackListener) {
-        TrackEntryListeners.getListeners(entry).end = listener;
-    }
-
-    /**
-     * @en Sets the dispose event listener for specified TrackEntry.
-     * @zh 用来为指定的 TrackEntry 设置动画即将被销毁的事件监听。
-     * @method setTrackDisposeListener
-     * @param {sp.spine.TrackEntry} entry
-     * @param {function} listener
-     */
-    public setTrackDisposeListener (entry: spine.TrackEntry, listener: TrackListener) {
-        TrackEntryListeners.getListeners(entry).dispose = listener;
-    }
-
-    /**
-     * @en Sets the complete event listener for specified TrackEntry.
-     * @zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。
-     * @method setTrackCompleteListener
-     * @param {sp.spine.TrackEntry} entry
-     * @param {function} listener
-     * @param {sp.spine.TrackEntry} listener.entry
-     * @param {Number} listener.loopCount
-     */
-    public setTrackCompleteListener (entry: spine.TrackEntry, listener: TrackListener2) {
-        TrackEntryListeners.getListeners(entry).complete = function (trackEntry) {
-            const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
-            listener(trackEntry, loopCount);
-        };
-    }
-
-    /**
-     * @en Sets the event listener for specified TrackEntry.
-     * @zh 用来为指定的 TrackEntry 设置动画帧事件的监听。
-     * @method setTrackEventListener
-     * @param {sp.spine.TrackEntry} entry
-     * @param {function} listener
-     */
-    public setTrackEventListener (entry: spine.TrackEntry, listener: TrackListener|TrackListener2) {
-        TrackEntryListeners.getListeners(entry).event = listener;
-    }
-
-    /**
-     * @en Gets the animation state object.
-     * @zh 获取动画状态。
-     * @method getState
-     * @return {sp.spine.AnimationState} state
-     */
-    public getState () {
-        return this._state;
-    }
-
-    /**
-     * @en Be called when component state becomes available.
-     * @zh 组件状态变为可用时调用。
-     */
-    public onEnable () {
-        super.onEnable();
-        this._flushAssembler();
-        SkeletonSystem.getInstance().add(this);
+    protected _updateBuiltinMaterial (): Material {
+        const material = builtinResMgr.get<Material>('default-spine-material');
+        return material;
     }
     /**
-     * @en Be called when component state becomes disabled.
-     * @zh 组件状态变为禁用状态时调用。
+     * @engineInternal
      */
-    public onDisable () {
-        super.onDisable();
-        SkeletonSystem.getInstance().remove(this);
-    }
-    /**
-     * @en Be called before components are destroyed.
-     * @zh 组件被销毁前调用。
-     */
-    public onDestroy () {
+    public updateMaterial () {
+        let mat;
+        if (this._customMaterial) mat = this._customMaterial;
+        else mat = this._updateBuiltinMaterial();
+        this.setMaterial(mat, 0);
         this._cleanMaterialCache();
-        this._drawList.destroy();
-        super.onDestroy();
-    }
-    /**
-     * @en Call this method to destroy the rendering data.
-     * @zh 调用该方法销毁渲染数据。
-     */
-    public destroyRenderData () {
-        this._drawList.reset();
-        super.destroyRenderData();
     }
 
     private getMaterialTemplate (): Material {
@@ -1448,8 +839,15 @@ export class Skeleton extends UIRenderer {
         this.updateMaterial();
         return this.material!;
     }
+    private _cleanMaterialCache () {
+        for (const val in this._materialCache) {
+            this._materialCache[val].destroy();
+        }
+        this._materialCache = {};
+    }
+
     /**
-     * @internal Since v3.7.2, this is an engine private interface.
+     * @engineInternal Since v3.7.2, this is an engine private interface.
      */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
@@ -1488,196 +886,6 @@ export class Skeleton extends UIRenderer {
         return inst;
     }
 
-    // For Redo, Undo
-    // call markForUpdateRenderData to make sure renderData will be re-built.
-    /**
-     * @internal Since v3.7.2, this is an engine private interface.
-     */
-    public onRestore () {
-        this.updateMaterial();
-        this.markForUpdateRenderData();
-    }
-
-    /**
-     * @en Query all bones that can attach sockets.
-     * @zh 查询所有可以添加挂点的所有骨骼。
-     * @return String typed array of bones's path.
-     */
-    public querySockets () {
-        if (!this._skeleton) {
-            return [];
-        }
-        if (this._cachedSockets.size === 0) {
-            this._indexBoneSockets();
-        }
-
-        if (this._cachedSockets.size > 0) {
-            return Array.from(this._cachedSockets.keys()).sort();
-        }
-        return [];
-    }
-
-    /**
-     * @internal
-     */
-    public _requestDrawData (material: Material, texture: Texture2D, indexOffset: number, indexCount: number) {
-        const draw = this._drawList.add();
-        draw.material = material;
-        draw.texture = texture;
-        draw.indexOffset = indexOffset;
-        draw.indexCount = indexCount;
-        return draw;
-    }
-    /**
-     * @en Submit rendering data to batcher2d.
-     * @zh 提交渲染数据。
-     */
-    protected _render (batcher: Batcher2D) {
-        let indicesCount = 0;
-        if (this.renderData && this._drawList) {
-            const rd = this.renderData;
-            const chunk = rd.chunk;
-            const accessor = chunk.vertexAccessor;
-            const meshBuffer = rd.getMeshBuffer()!;
-            const origin = meshBuffer.indexOffset;
-            // Fill index buffer
-            for (let i = 0; i < this._drawList.length; i++) {
-                this._drawIdx = i;
-                const dc = this._drawList.data[i];
-                if (dc.texture) {
-                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
-                        dc.indexCount, dc.texture, dc.material!, this._enableBatch);
-                }
-                indicesCount += dc.indexCount;
-            }
-            const subIndices = rd.indices!.subarray(0, indicesCount);
-            accessor.appendIndices(chunk.bufferId, subIndices);
-        }
-    }
-
-    // RENDERER
-
-    /**
-     * @en Computes the world SRT from the local SRT for each bone.
-     * @zh 重新更新所有骨骼的世界 Transform，
-     * 当获取 bone 的数值未更新时，即可使用该函数进行更新数值。
-     * @method updateWorldTransform
-     * @example
-     * var bone = spine.findBone('head');
-     * cc.log(bone.worldX); // return 0;
-     * spine.updateWorldTransform();
-     * bone = spine.findBone('head');
-     * cc.log(bone.worldX); // return -23.12;
-     */
-    protected updateWorldTransform () {
-        if (!this.isAnimationCached()) return;
-
-        if (this._skeleton) {
-            this._skeleton.updateWorldTransform();
-        }
-    }
-
-    protected _emitCacheCompleteEvent () {
-        if (!this._listener) return;
-        this._endEntry.animation.name = this._animationName;
-        if (this._listener.complete) this._listener.complete(this._endEntry);
-        if (this._listener.end) this._listener.end(this._endEntry);
-    }
-
-    protected _updateCache (dt: number) {
-        const frameCache = this._frameCache!;
-        if (!frameCache.isInited()) {
-            return;
-        }
-        const frames = frameCache.frames;
-        const frameTime = SkeletonCache.FrameTime;
-
-        // Animation Start, the event different from dragonbones inner event,
-        // It has no event object.
-        if (this._accTime === 0 && this._playCount === 0) {
-            this._startEntry.animation.name = this._animationName;
-            if (this._listener && this._listener.start) this._listener.start(this._startEntry);
-        }
-
-        this._accTime += dt;
-        let frameIdx = Math.floor(this._accTime / frameTime);
-        if (!frameCache.isCompleted) {
-            frameCache.updateToFrame(frameIdx);
-            // Update render data size if needed
-            if (this.renderData
-                && (this.renderData.vertexCount < frameCache.maxVertexCount
-                || this.renderData.indexCount < frameCache.maxIndexCount)) {
-                this.maxVertexCount = frameCache.maxVertexCount > this.maxVertexCount ? frameCache.maxVertexCount : this.maxVertexCount;
-                this.maxIndexCount = frameCache.maxIndexCount > this.maxIndexCount ? frameCache.maxIndexCount : this.maxIndexCount;
-                this.renderData.resize(this.maxVertexCount, this.maxIndexCount);
-                if (!this.renderData.indices || this.maxIndexCount > this.renderData.indices.length) {
-                    this.renderData.indices = new Uint16Array(this.maxIndexCount);
-                }
-            }
-        }
-
-        if (frameCache.isCompleted && frameIdx >= frames.length) {
-            this._playCount++;
-            if (this._playTimes > 0 && this._playCount >= this._playTimes) {
-                // set frame to end frame.
-                this._curFrame = frames[frames.length - 1]!;
-                this._accTime = 0;
-                this._playCount = 0;
-                this._isAniComplete = true;
-                this._emitCacheCompleteEvent();
-                return;
-            }
-            this._accTime = 0;
-            frameIdx = 0;
-            this._emitCacheCompleteEvent();
-        }
-        this._curFrame = frames[frameIdx]!;
-    }
-
-    protected _updateRealtime (dt: number) {
-        const skeleton = this._skeleton;
-        const state = this._state;
-        if (skeleton) {
-            skeleton.update(dt);
-            if (state) {
-                state.update(dt);
-                state.apply(skeleton);
-            }
-        }
-    }
-
-    protected _indexBoneSockets (): void {
-        if (!this._skeleton) {
-            return;
-        }
-        this._cachedSockets.clear();
-        const bones = this._skeleton.bones;
-        const getBoneName = (bone: spine.Bone) => {
-            if (bone.parent == null) return bone.data.name || '<Unamed>';
-            return `${getBoneName(bones[bone.parent.data.index]) as string}/${bone.data.name}`;
-        };
-        for (let i = 0, l = bones.length; i < l; i++) {
-            const bd = bones[i].data;
-            const boneName = getBoneName(bones[i]);
-            this._cachedSockets.set(boneName, bd.index);
-        }
-    }
-
-    // if change use tint mode, just clear material cache
-    protected _updateUseTint () {
-        this._cleanMaterialCache();
-        this.destroyRenderData();
-        if (this._assembler && this._skeleton) {
-            this._renderData = this._assembler.createData(this);
-            this.markForUpdateRenderData();
-        }
-    }
-    // if change use batch mode, just clear material cache
-    protected _updateBatch () {
-        this._cleanMaterialCache();
-        this.markForUpdateRenderData();
-    }
-
     // update animation list for editor
     protected _updateAnimEnum () {
         let animEnum;
@@ -1693,7 +901,6 @@ export class Skeleton extends UIRenderer {
         Enum.update(this._enumAnimations);
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
     }
-
     // update skin list for editor
     protected _updateSkinEnum () {
         let skinEnum;
@@ -1709,99 +916,218 @@ export class Skeleton extends UIRenderer {
         setEnumAttr(this, '_defaultSkinIndex', this._enumSkins);
     }
 
-    protected _ensureListener () {
-        if (!this._listener) {
-            this._listener = (new TrackEntryListeners()) as any;
-            if (this._state) {
-                this._state.addListener(this._listener as any);
-            }
-        }
-    }
-
-    protected _updateSkeletonData () {
-        if (!this.skeletonData || this._needUpdateSkeltonData === false) {
-            return;
-        }
-
-        this._needUpdateSkeltonData = false;
-        const data = this.skeletonData.getRuntimeData();
-        if (!data) {
-            return;
-        }
-
-        try {
-            this.setSkeletonData(data);
-            if (!this.isAnimationCached()) {
-                this.setAnimationStateData(new spine.AnimationStateData(this._skeleton!.data));
-            }
-            if (this.defaultSkin) this.setSkin(this.defaultSkin);
-        } catch (e) {
-            warn(e);
-        }
-        this._indexBoneSockets();
-        this._updateSocketBindings();
-        this.attachUtil.init(this);
-        this._preCacheMode = this._cacheMode;
-        this.animation = this.defaultAnimation;
-    }
-
     protected _refreshInspector () {
-        // update inspector
-        this._updateAnimEnum();
-        this._updateSkinEnum();
-        // TODO: refresh inspector
-        // Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
-    }
-
-    protected _updateDebugDraw () {
-        if (this.debugBones || this.debugSlots || this.debugMesh) {
-            if (!this._debugRenderer) {
-                const debugDrawNode = new Node('DEBUG_DRAW_NODE');
-                debugDrawNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
-                const debugDraw = debugDrawNode.addComponent(Graphics);
-                debugDraw.lineWidth = 1;
-                debugDraw.strokeColor = new Color(255, 0, 0, 255);
-
-                this._debugRenderer = debugDraw;
-                debugDrawNode.parent = this.node;
-            }
-            // this._debugRenderer.node.active = true;
-
-            if (this.isAnimationCached()) {
-                warn('Debug bones or slots is invalid in cached mode');
-            }
-        } else if (this._debugRenderer) {
-            this._debugRenderer.node.destroy();
-            this._debugRenderer = null;
-            // this._debugRenderer.node.active = false;
+        if (EDITOR_NOT_IN_PREVIEW) {
+            // update inspector
+            this._updateAnimEnum();
+            this._updateSkinEnum();
+            // TODO: refresh inspector
+            // Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
         }
     }
 
-    protected _flushAssembler () {
-        const assembler = Skeleton.Assembler.getAssembler(this);
-        if (this._assembler !== assembler) {
-            this._assembler = assembler;
-        }
-        if (this._skeleton && this._assembler) {
-            this._renderData = this._assembler.createData(this);
+    /**
+     * @en Call this method to destroy the rendering data.
+     * @zh 调用该方法销毁渲染数据。
+     */
+    public destroyRenderData () {
+        this._drawList.reset();
+        super.destroyRenderData();
+    }
+
+    protected createRenderEntity () {
+        const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
+        renderEntity.setUseLocal(true);
+        return renderEntity;
+    }
+    /**
+     * @en Mark to re-update the rendering data, usually used to force refresh the display.
+     * @zh 标记重新更新渲染数据，一般用于强制刷新显示。
+     */
+    public markForUpdateRenderData (enable = true) {
+        super.markForUpdateRenderData(enable);
+        // if (this._debugRenderer) {
+        //     this._debugRenderer.markForUpdateRenderData(enable);
+        // }
+    }
+
+    /**
+     * @engineInternal since v3.7.2 this is an engine private function.
+     */
+    public syncAttachedNode () {
+        // sync attached node matrix
+        this.attachUtil._syncAttachedNode();
+    }
+
+    /**
+     * @en Whether in cached mode.
+     * @zh 当前是否处于缓存模式。
+     */
+    public isAnimationCached () {
+        if (EDITOR_NOT_IN_PREVIEW) return false;
+        return this._cacheMode !== AnimationCacheMode.REALTIME;
+    }
+    /**
+     * @en
+     * It's best to set cache mode before set property 'dragonAsset', or will waste some cpu time.
+     * If set the mode in editor, then no need to worry about order problem.
+     * @zh
+     * 若想切换渲染模式，最好在设置'dragonAsset'之前，先设置好渲染模式，否则有运行时开销。
+     * 若在编辑中设置渲染模式，则无需担心设置次序的问题。
+     *
+     * @example
+     * skeleton.setAnimationCacheMode(sp.Skeleton.AnimationCacheMode.SHARED_CACHE);
+     */
+    public setAnimationCacheMode (cacheMode: AnimationCacheMode) {
+        if (this._cacheMode !== cacheMode) {
+            this._cacheMode = cacheMode;
+            this._updateSkeletonData();
+            this._updateUseTint();
+            this._updateSocketBindings();
             this.markForUpdateRenderData();
-            this._updateColor();
         }
     }
 
-    protected _updateSocketBindings () {
-        if (!this._skeleton) return;
-        this._socketNodes.clear();
-        for (let i = 0, l = this._sockets.length; i < l; i++) {
-            const socket = this._sockets[i];
-            if (socket.path && socket.target) {
-                const boneIdx = this._cachedSockets.get(socket.path);
-                if (!boneIdx) {
-                    console.error(`Skeleton data does not contain path ${socket.path}`);
-                    continue;
-                }
-                this._socketNodes.set(boneIdx, socket.target);
+    /**
+     * @en Sets the bones and slots to the setup pose.
+     * @zh 还原到起始动作。
+     */
+    public setToSetupPose () {
+        if (this._skeleton) {
+            this._skeleton.setToSetupPose();
+        }
+    }
+
+    /**
+     * @en
+     * Sets the bones to the setup pose,
+     * using the values from the `BoneData` list in the `SkeletonData`.
+     * @zh
+     * 设置 bone 到起始动作。
+     * 使用 SkeletonData 中的 BoneData 列表中的值。
+     */
+    public setBonesToSetupPose () {
+        if (this._skeleton) {
+            this._skeleton.setBonesToSetupPose();
+        }
+    }
+
+    /**
+     * @en
+     * Sets the slots to the setup pose,
+     * using the values from the `SlotData` list in the `SkeletonData`.
+     * @zh
+     * 设置 slot 到起始动作。
+     * 使用 SkeletonData 中的 SlotData 列表中的值。
+     */
+    public setSlotsToSetupPose () {
+        if (this._skeleton) {
+            this._skeleton.setSlotsToSetupPose();
+        }
+    }
+
+    /**
+     * @en
+     * Finds a bone by name.
+     * This does a string comparison for every bone.<br>
+     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Bone object.
+     * @zh
+     * 通过名称查找 bone。
+     * 这里对每个 bone 的名称进行了对比。<br>
+     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Bone 对象。
+     *
+     * @param boneName @en The name of bone. @zh 骨骼名称。
+     */
+    public findBone (boneName: string) {
+        if (this._skeleton) {
+            return this._skeleton.findBone(boneName);
+        }
+        return null;
+    }
+
+    /**
+     * @en
+     * Finds a slot by name. This does a string comparison for every slot.<br>
+     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Slot object.
+     * @zh
+     * 通过名称查找 slot。这里对每个 slot 的名称进行了比较。<br>
+     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Slot 对象。
+     *
+     * @param slotName @en The name of slot. @zh 插槽名称。
+     */
+    public findSlot (slotName: string) {
+        if (this._skeleton) {
+            return this._skeleton.findSlot(slotName);
+        }
+        return null;
+    }
+
+    // ANIMATION
+    /**
+     * @en
+     * Mix applies all keyframe values,
+     * interpolated for the specified time and mixed with the current values.
+     * @zh 为所有关键帧设定混合及混合时间（从当前值开始差值）。
+     * @param fromAnimation @en Mix start animation. @zh 过渡起始动画。
+     * @param toAnimation @en Mix end animation. @zh 过渡结束动画。
+     * @param duration @ Time of animation mix. @zh 动画过渡时间。
+     */
+    public setMix (fromAnimation: string, toAnimation: string, duration: number): void {
+        if (this.isAnimationCached()) {
+            console.warn('cached mode not support setMix!!!');
+            return;
+        }
+        if (this._state) {
+            this._instance.setMix(fromAnimation, toAnimation, duration);
+            //this._state.data.setMix(fromAnimation, toAnimation, duration);
+        }
+    }
+
+    /**
+     * @en Clears all tracks of animation state.
+     * @zh 清除所有 track 的动画状态。
+     */
+    public clearTracks () {
+        if (this.isAnimationCached()) {
+            warn('\'clearTracks\' interface can not be invoked in cached mode.');
+        } else if (this._state) {
+            this._state.clearTracks();
+            this.setToSetupPose();
+        }
+    }
+
+    /**
+     * @en Clears track of animation state by trackIndex.
+     * @zh 清除出指定 track 的动画状态。
+     * @param trackIndex @en Index of track. @zh 动画通道索引。
+     */
+    public clearTrack (trackIndex: number) {
+        if (this.isAnimationCached()) {
+            warn('\'clearTrack\' interface can not be invoked in cached mode.');
+        } else if (this._state) {
+            this._state.clearTrack(trackIndex);
+            if (EDITOR_NOT_IN_PREVIEW) {
+                this._state.update(0);
             }
+        }
+    }
+
+    /**
+     * @en Computes the world SRT from the local SRT for each bone.
+     * @zh 重新更新所有骨骼的世界 Transform，
+     * 当获取 bone 的数值未更新时，即可使用该函数进行更新数值。
+     * @example
+     * var bone = spine.findBone('head');
+     * cc.log(bone.worldX); // return 0;
+     * spine.updateWorldTransform();
+     * bone = spine.findBone('head');
+     * cc.log(bone.worldX); // return -23.12;
+     */
+    protected updateWorldTransform () {
+        if (!this.isAnimationCached()) return;
+
+        if (this._skeleton) {
+            this._skeleton.updateWorldTransform();
         }
     }
 
@@ -1827,35 +1153,270 @@ export class Skeleton extends UIRenderer {
         });
     }
 
-    private _cleanMaterialCache () {
-        for (const val in this._materialCache) {
-            this._materialCache[val].destroy();
-        }
-        this._materialCache = {};
-    }
-
-    protected createRenderEntity () {
-        const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
-        renderEntity.setUseLocal(true);
-        return renderEntity;
-    }
-    /**
-     * @en Mark to re-update the rendering data, usually used to force refresh the display.
-     * @zh 标记重新更新渲染数据，一般用于强制刷新显示。
-     */
-    public markForUpdateRenderData (enable = true) {
-        super.markForUpdateRenderData(enable);
-        if (this._debugRenderer) {
-            this._debugRenderer.markForUpdateRenderData(enable);
+    protected _updateSocketBindings () {
+        if (!this._skeleton) return;
+        this._socketNodes.clear();
+        for (let i = 0, l = this._sockets.length; i < l; i++) {
+            const socket = this._sockets[i];
+            if (socket.path && socket.target) {
+                const boneIdx = this._cachedSockets.get(socket.path);
+                if (!boneIdx) {
+                    console.error(`Skeleton data does not contain path ${socket.path}`);
+                    continue;
+                }
+                this._socketNodes.set(boneIdx, socket.target);
+            }
         }
     }
 
+    protected _indexBoneSockets (): void {
+        if (!this._skeleton) {
+            return;
+        }
+        this._cachedSockets.clear();
+        const bones = this._skeleton.bones;
+        const getBoneName = (bone: spine.Bone) => {
+            if (bone.parent == null) return bone.data.name || '<Unamed>';
+            return `${getBoneName(bones[bone.parent.data.index]) as string}/${bone.data.name}`;
+        };
+        for (let i = 0, l = bones.length; i < l; i++) {
+            const bd = bones[i].data;
+            const boneName = getBoneName(bones[i]);
+            this._cachedSockets.set(boneName, bd.index);
+        }
+    }
+
     /**
-     * @engineInternal since v3.7.2 this is an engine private function.
+     * @en Query all bones that can attach sockets.
+     * @zh 查询所有可以添加挂点的所有骨骼。
+     * @return String typed array of bones's path.
      */
-    public syncAttachedNode () {
-        // sync attached node matrix
-        this.attachUtil._syncAttachedNode();
+    public querySockets () {
+        if (!this._skeleton) {
+            return [];
+        }
+        if (this._cachedSockets.size === 0) {
+            this._indexBoneSockets();
+        }
+
+        if (this._cachedSockets.size > 0) {
+            return Array.from(this._cachedSockets.keys()).sort();
+        }
+        return [];
+    }
+
+    // if change use tint mode, just clear material cache
+    protected _updateUseTint () {
+        this._cleanMaterialCache();
+        this.destroyRenderData();
+        if (!JSB) {
+            if (!this.isAnimationCached()) {
+                this._instance.setUseTint(this._useTint);
+            }
+        }
+        if (this._assembler && this._skeleton) {
+            this._renderData = this._assembler.createData(this);
+            this.markForUpdateRenderData();
+        }
+    }
+
+    // if change use batch mode, just clear material cache
+    protected _updateBatch () {
+        this._cleanMaterialCache();
+        this.markForUpdateRenderData();
+    }
+
+    protected _updateDebugDraw () {
+        // TODO next
+    }
+
+    private _updateUITransform () {
+        const uiTrans = this.node._uiProps.uiTransformComp!;
+        const skeletonData = this._runtimeData;
+        if (!skeletonData) {
+            uiTrans.setContentSize(100, 100);
+            uiTrans.anchorX = 0.5;
+            uiTrans.anchorX = 0.5;
+            return;
+        }
+        const width = skeletonData.width;
+        const height = skeletonData.height;
+        if (width && height) {
+            uiTrans.setContentSize(width, height);
+            if (width !== 0) uiTrans.anchorX = Math.abs(skeletonData.x) / width;
+            if (height !== 0) uiTrans.anchorY = Math.abs(skeletonData.y) / height;
+        }
+    }
+
+    protected _updateColor () {
+        this.node._uiProps.colorDirty = true;
+        const r = this._color.r / 255.0;
+        const g = this._color.g / 255.0;
+        const b = this._color.b / 255.0;
+        const a = this._color.a / 255.0;
+        this._instance.setColor(r, g, b, a);
+    }
+
+    /**
+     * @en Sets vertex effect delegate.
+     * @zh 设置顶点特效动画代理。
+     * @param effectDelegate @en Vertex effect delegate. @zh 顶点特效代理。
+     */
+    public setVertexEffectDelegate (effectDelegate: VertexEffectDelegate | null | undefined) {
+        if (!effectDelegate) {
+            this._instance.clearEffect();
+            return;
+        }
+        const effectType = effectDelegate?.getEffectType();
+        if (effectType === 'jitter') {
+            const jitterEffect = effectDelegate?.getJitterVertexEffect();
+            this._instance.setJitterEffect(jitterEffect);
+        } else if (effectType === 'swirl') {
+            const swirlEffect = effectDelegate?.getJitterVertexEffect();
+            this._instance.setSwirlEffect(swirlEffect);
+        }
+    }
+
+    protected _ensureListener () {
+        if (!this._listener) {
+            this._listener = new TrackEntryListeners();
+        }
+    }
+
+    /**
+     * @en Sets the start event listener.
+     * @zh 用来设置开始播放动画的事件监听。
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
+     */
+    public setStartListener (listener: TrackListener) {
+        this._ensureListener();
+        const listenerID = TrackEntryListeners.addListener(listener);
+        this._instance.setListener(listenerID, spine.EventType.start);
+        this._listener!.start = listener;
+    }
+
+    /**
+     * @en Sets the interrupt event listener.
+     * @zh 用来设置动画被打断的事件监听。
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
+     */
+    public setInterruptListener (listener: TrackListener) {
+        this._ensureListener();
+        const listenerID = TrackEntryListeners.addListener(listener);
+        this._instance.setListener(listenerID, spine.EventType.interrupt);
+        this._listener!.interrupt = listener;
+    }
+
+    /**
+     * @en Sets the end event listener.
+     * @zh 用来设置动画播放完后的事件监听。
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
+     */
+    public setEndListener (listener: TrackListener) {
+        this._ensureListener();
+        const listenerID = TrackEntryListeners.addListener(listener);
+        this._instance.setListener(listenerID, spine.EventType.end);
+        this._listener!.end = listener;
+    }
+
+    /**
+     * @en Sets the dispose event listener.
+     * @zh 用来设置动画将被销毁的事件监听。
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
+     */
+    public setDisposeListener (listener: TrackListener) {
+        this._ensureListener();
+        const listenerID = TrackEntryListeners.addListener(listener);
+        this._instance.setListener(listenerID, spine.EventType.dispose);
+        this._listener!.dispose = listener;
+    }
+
+    /**
+     * @en Sets the complete event listener.
+     * @zh 用来设置动画播放一次循环结束后的事件监听。
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
+     */
+    public setCompleteListener (listener: TrackListener) {
+        this._ensureListener();
+        const listenerID = TrackEntryListeners.addListener(listener);
+        this._instance.setListener(listenerID, spine.EventType.complete);
+        this._listener!.complete = listener;
+    }
+
+    /**
+     * @en Sets the animation event listener.
+     * @zh 用来设置动画播放过程中帧事件的监听。
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
+     */
+    public setEventListener (listener: TrackListener2) {
+        this._ensureListener();
+        const listenerID = TrackEntryListeners.addListener(listener);
+        this._instance.setListener(listenerID, spine.EventType.event);
+        this._listener!.event = listener;
+    }
+
+    /**
+     * @en Sets the start event listener for specified TrackEntry.
+     * @zh 用来为指定的 TrackEntry 设置动画开始播放的事件监听。
+     * @param entry @en Animation track entry. @zh Track entry。
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
+     */
+    public setTrackStartListener (entry: spine.TrackEntry, listener: TrackListener) {
+        TrackEntryListeners.getListeners(entry).start = listener;
+    }
+
+    /**
+     * @en Sets the interrupt event listener for specified TrackEntry.
+     * @zh 用来为指定的 TrackEntry 设置动画被打断的事件监听。
+     * @param entry
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
+     */
+    public setTrackInterruptListener (entry: spine.TrackEntry, listener: TrackListener) {
+        TrackEntryListeners.getListeners(entry).interrupt = listener;
+    }
+
+    /**
+     * @en Sets the end event listener for specified TrackEntry.
+     * @zh 用来为指定的 TrackEntry 设置动画播放结束的事件监听。
+     * @param entry
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
+     */
+    public setTrackEndListener (entry: spine.TrackEntry, listener: TrackListener) {
+        TrackEntryListeners.getListeners(entry).end = listener;
+    }
+
+    /**
+     * @en Sets the dispose event listener for specified TrackEntry.
+     * @zh 用来为指定的 TrackEntry 设置动画即将被销毁的事件监听。
+     * @param entry
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
+     */
+    public setTrackDisposeListener (entry: spine.TrackEntry, listener: TrackListener) {
+        TrackEntryListeners.getListeners(entry).dispose = listener;
+    }
+
+    /**
+     * @en Sets the complete event listener for specified TrackEntry.
+     * @zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。
+     * @param entry
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
+     */
+    public setTrackCompleteListener (entry: spine.TrackEntry, listener: TrackListener2) {
+        // TODO
+        // TrackEntryListeners.getListeners(entry).complete = function (trackEntry) {
+        //     const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
+        //     listener(trackEntry, loopCount);
+        // };
+    }
+
+    /**
+     * @en Sets the event listener for specified TrackEntry.
+     * @zh 用来为指定的 TrackEntry 设置动画帧事件的监听。
+     * @param entry
+     * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
+     */
+    public setTrackEventListener (entry: spine.TrackEntry, listener: TrackListener|TrackListener2) {
+        TrackEntryListeners.getListeners(entry).event = listener;
     }
 }
 

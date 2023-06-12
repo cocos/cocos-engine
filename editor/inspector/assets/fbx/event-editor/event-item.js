@@ -8,7 +8,7 @@ const defaultParams = {
 
 exports.template = /* html */`
 <div @change.stop="onConfirm" v-if="event">
-    <ui-section class="config" expand>
+    <ui-section expand>
         <div slot="header" class="header" @click.stop>
             <ui-input name="funcName" placeholder="function Name"
                 :value="event.func"

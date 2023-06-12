@@ -2,15 +2,17 @@ import { PoseGraphNode } from "../../../cocos/animation/marionette/pose-graph/fo
 import {
     getPoseGraphNodeEditorMetadata, PoseGraphCreateNodeContext, PoseGraphNodeAppearanceOptions,
 } from "../../../cocos/animation/marionette/pose-graph/foundation/authoring/node-authoring";
-import { Layer, PoseGraph, poseGraphOp } from "../../exports/new-gen-anim";
+import { Layer, poseGraphOp } from "../../exports/new-gen-anim";
 import { instantiate } from "../../../cocos/serialization";
 import { PoseGraphOutputNode } from "../../../cocos/animation/marionette/pose-graph/graph-output-node";
 import { PoseNode } from "../../../cocos/animation/marionette/pose-graph/pose-node";
 import { PureValueNode } from "../../../cocos/animation/marionette/pose-graph/pure-value-node";
 import { assertIsTrue, editorExtrasTag } from "../../../exports/base";
 import { PoseNodeUseStashedPose } from '../../../cocos/animation/marionette/pose-graph/pose-nodes/use-stashed-pose';
-import { PoseGraphStash } from "../../../cocos/animation/marionette/animation-graph";
+import { PoseGraphStash, StateMachine } from "../../../cocos/animation/marionette/animation-graph";
 import { visitPoseNodeInLayer } from "./visit/visit-pose-node";
+import { PoseGraph } from '../../../cocos/animation/marionette/pose-graph/pose-graph';
+import { PoseNodeStateMachine } from "../../../cocos/animation/marionette/pose-graph/pose-nodes/state-machine";
 
 type Constructor<T = unknown> = new (...args: any[]) => T;
 
@@ -170,6 +172,13 @@ export function copyPoseGraphNodes(poseGraph: PoseGraph, nodes: PoseGraphNode[],
     };
 }
 
+export function copyStateMachineAsPoseGraphNode(stateMachine: StateMachine) {
+    const poseGraph = new PoseGraph();
+    const stateMachineNode = poseGraph.addNode(new PoseNodeStateMachine());
+    stateMachine.copyTo(stateMachineNode.stateMachine);
+    return copyPoseGraphNodes(poseGraph, [stateMachineNode]);
+}
+
 export interface pastePoseGraphNodesResult {
     addedNodes: PoseGraphNode[];
 }
@@ -192,6 +201,7 @@ export function pastePoseGraphNodes(
     // Past nodes.
     for (const nodeCopyInfo of nodeCopyInfos) {
         if (nodeCopyInfo instanceof PoseGraphNode) {
+            nodeCopyInfo.__callOnAfterDeserializeRecursive?.();
             poseGraph.addNode(nodeCopyInfo);
             addedNodes.push(nodeCopyInfo);
         } else {

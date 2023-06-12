@@ -191,7 +191,7 @@ void RenderWindow::clearCameras() {
 }
 
 void RenderWindow::sortCameras() {
-    std::sort(_cameras.begin(), _cameras.end(), [](Camera *a, Camera *b) { return a->getPriority() < b->getPriority(); });
+    std::stable_sort(_cameras.begin(), _cameras.end(), [](Camera *a, Camera *b) { return a->getPriority() < b->getPriority(); });
 }
 
 } // namespace scene

@@ -11,6 +11,7 @@ import { TCVariableBinding } from "../../../../cocos/animation/marionette/state-
 import { TCAuxiliaryCurveBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/auxiliary-curve-binding";
 import { TCStateWeightBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/state-weight-binding";
 import { PoseNode } from "../../../../cocos/animation/marionette/pose-graph/pose-node";
+import { TCStateMotionTimeBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/state-motion-time-binding";
 
 export function createAnimationGraph(params: AnimationGraphParams): AnimationGraph {
     const animationGraph = new AnimationGraph();
@@ -204,11 +205,11 @@ function fillTransition(transition: Transition, params: TransitionAttributes) {
 
     if (typeof params.startEventBinding !== 'undefined') {
         assertsIsDurableTransition(transition);
-        transition.startEventBinding.eventName = params.startEventBinding;
+        transition.startEventBinding.methodName = params.startEventBinding;
     }
     if (typeof params.endEventBinding !== 'undefined') {
         assertsIsDurableTransition(transition);
-        transition.endEventBinding.eventName = params.endEventBinding;
+        transition.endEventBinding.methodName = params.endEventBinding;
     }
 }
 
@@ -227,6 +228,10 @@ export function createTCBinding(params: TCBindingParams) {
         }
         case 'state-weight': {
             const binding = new TCStateWeightBinding();
+            return binding;
+        }
+        case 'state-motion-time': {
+            const binding = new TCStateMotionTimeBinding();
             return binding;
         }
     }
@@ -317,10 +322,10 @@ type StateEventBindingSpecification = {
 
 function fillStateEventBindingSpecification(state: MotionState | ProceduralPoseState, specification: StateEventBindingSpecification) {
     if (typeof specification.transitionInEventBinding !== 'undefined') {
-        state.transitionInEventBinding.eventName = specification.transitionInEventBinding;
+        state.transitionInEventBinding.methodName = specification.transitionInEventBinding;
     }
     if (typeof specification.transitionOutEventBinding !== 'undefined') {
-        state.transitionOutEventBinding.eventName = specification.transitionOutEventBinding;
+        state.transitionOutEventBinding.methodName = specification.transitionOutEventBinding;
     }
 }
 
@@ -391,6 +396,8 @@ export type TCBindingParams = {
     curveName: string;
 } | {
     type: 'state-weight';
+} | {
+    type: 'state-motion-time';
 };
 
 type BindableParams<T> = {
@@ -438,7 +445,7 @@ function fillPoseGraph(poseGraph: PoseGraph, params: PoseGraphParams) {
         params(poseGraph);
     } else if (params.rootNode) {
         const root = createPoseNode(poseGraph, params.rootNode);
-        poseGraphOp.connectOutputNode(poseGraph, poseGraph.outputNode, root);
+        poseGraphOp.connectOutputNode(poseGraph, root);
     }
 }
 

@@ -60,6 +60,28 @@
 using namespace cc;
 %}
 
+%typemap(out, func_only=1) cc::MaterialProperty %{
+	ccstd::visit(
+        [&](auto &param) {
+            using ParamType = std::remove_reference_t<decltype(param)>;
+            if constexpr (std::is_same_v<ParamType, int32_t> || std::is_same_v<ParamType, float>) {
+                ok = nativevalue_to_se(param, s.rval());
+            } else {
+                auto *temp = ccnew ParamType(param);
+                ok = nativevalue_to_se(temp, s.rval());
+                if (ok) {
+                    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
+                } else {
+                    s.rval().setUndefined();
+                    delete temp;
+                }
+            }
+        },
+        result);
+    
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+%}
+
 // ----- Ignore Section ------
 // Brief: Classes, methods or attributes need to be ignored
 //
@@ -208,6 +230,7 @@ using namespace cc;
 %rename(_activate) cc::Scene::activate;
 
 %rename(_updatePassHash) cc::scene::Pass::updatePassHash;
+%rename(_getUniform) cc::scene::Pass::getUniform;
 
 // ----- Module Macro Section ------
 // Brief: Generated code should be wrapped inside a macro
@@ -482,7 +505,7 @@ using namespace cc;
 %attribute(cc::scene::Model, int32_t, reflectionProbeBlendId, getReflectionProbeBlendId, setReflectionProbeBlendId);
 %attribute(cc::scene::Model, float, reflectionProbeBlendWeight, getReflectionProbeBlendWeight, setReflectionProbeBlendWeight);
 
-%attribute(cc::scene::SubModel, std::shared_ptr<ccstd::vector<cc::IntrusivePtr<cc::scene::Pass>>> &, passes, getPasses, setPasses);
+%attribute(cc::scene::SubModel, cc::scene::SharedPassArray &, passes, getPasses, setPasses);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::IntrusivePtr<cc::gfx::Shader>> &, shaders, getShaders, setShaders);
 %attribute(cc::scene::SubModel, cc::RenderingSubMesh*, subMesh, getSubMesh, setSubMesh);
 %attribute(cc::scene::SubModel, cc::pipeline::RenderPriority, priority, getPriority, setPriority);

@@ -108,8 +108,6 @@ export class PoseNodeEvaluationMock<TAnimationResult> {
         const bindContext = new AnimationGraphBindingContext(
             origin, this._poseLayoutMaintainer, this._varRegistry,
             animationController,
-            // @ts-expect-error HACK here
-            animationController._customEventTarget,
         );
         this._poseLayoutMaintainer.startBind();
 
