@@ -1033,8 +1033,8 @@ void setShadowUBOLightView(
             const auto &mainLight = dynamic_cast<const scene::DirectionalLight &>(light);
             if (shadowInfo.isEnabled() && mainLight.isShadowEnabled()) {
                 if (shadowInfo.getType() == scene::ShadowType::SHADOW_MAP) {
-                    float near = 0.1;
-                    float far = 0;
+                    float near = 0.1F;
+                    float far = 0.0F;
                     Mat4 matShadowView;
                     Mat4 matShadowProj;
                     Mat4 matShadowViewProj;
@@ -1048,11 +1048,11 @@ void setShadowUBOLightView(
                             far = mainLight.getShadowFar();
                             levelCount = static_cast<scene::CSMLevel>(0);
                         } else {
-                            near = 0.1;
+                            near = 0.1F;
                             far = csmLayers.getSpecialLayer()->getShadowCameraFar();
                             levelCount = scene::CSMLevel::LEVEL_1;
                         }
-                        vec4ShadowInfo.set(0.0F, packing, mainLight.getShadowNormalBias(), 0);
+                        vec4ShadowInfo.set(static_cast<float>(scene::LightType::DIRECTIONAL), packing, mainLight.getShadowNormalBias(), 0);
                         setVec4Impl(data, layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
                     } else {
                         const auto &layer = *csmLayers.getLayers()[level];
@@ -1081,7 +1081,7 @@ void setShadowUBOLightView(
                     vec4ShadowInfo.set(near, far, 0, 1.0F - mainLight.getShadowSaturation());
                     setVec4Impl(data, layoutGraph, "cc_shadowNFLSInfo", vec4ShadowInfo);
                     vec4ShadowInfo.set(
-                        0.0F,
+                        static_cast<float>(scene::LightType::DIRECTIONAL),
                         packing,
                         mainLight.getShadowNormalBias(),
                         static_cast<float>(levelCount));
@@ -1120,7 +1120,7 @@ void setShadowUBOLightView(
                     spotLight.getShadowBias());
                 setVec4Impl(data, layoutGraph, "cc_shadowWHPBInfo", shadowWHPBInfos);
 
-                const Vec4 shadowLPNNInfos(1.0F, packing, spotLight.getShadowNormalBias(), 0.0F);
+                const Vec4 shadowLPNNInfos(static_cast<float>(scene::LightType::SPOT), packing, spotLight.getShadowNormalBias(), 0.0F);
                 setVec4Impl(data, layoutGraph, "cc_shadowLPNNInfo", shadowLPNNInfos);
             }
             break;
@@ -1186,7 +1186,7 @@ void setShadowUBOView(
                     setMat4Impl(data, layoutGraph, "cc_matLightViewProj", matShadowViewProj);
                     vec4ShadowInfo.set(near, far, 0, 1.0F - mainLight.getShadowSaturation());
                     setVec4Impl(data, layoutGraph, "cc_shadowNFLSInfo", vec4ShadowInfo);
-                    vec4ShadowInfo.set(0.0F, packing, mainLight.getShadowNormalBias(), 0);
+                    vec4ShadowInfo.set(static_cast<float>(scene::LightType::DIRECTIONAL), packing, mainLight.getShadowNormalBias(), 0);
                     setVec4Impl(data, layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
                 } else {
                     { // CSM
@@ -1239,7 +1239,8 @@ void setShadowUBOView(
                         vec4ShadowInfo.set(0, 0, 0, 1.0F - mainLight.getShadowSaturation());
                         setVec4Impl(data, layoutGraph, "cc_shadowNFLSInfo", vec4ShadowInfo);
                         vec4ShadowInfo.set(
-                            0.0F, packing,
+                            static_cast<float>(scene::LightType::DIRECTIONAL),
+                            packing,
                             mainLight.getShadowNormalBias(),
                             static_cast<float>(mainLight.getCSMLevel()));
                         setVec4Impl(data, layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
@@ -1672,7 +1673,7 @@ void NativeComputePassBuilder::addTexture(
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
     if (sampler) {
-        auto iter = layoutGraph->attributeIndex.find(std::string_view{slotName});
+        const auto iter = layoutGraph->attributeIndex.find(std::string_view{slotName});
         if (iter != layoutGraph->attributeIndex.end()) {
             auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
             data.samplers[iter->second.value] = sampler;
