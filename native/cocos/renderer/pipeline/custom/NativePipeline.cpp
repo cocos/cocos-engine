@@ -745,6 +745,13 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
         setValue("CC_CASCADED_LAYERS_TRANSITION", 0);
     }
 
+    setValue("CC_USE_HDR", getPipelineSceneData()->isHDR());
+#if ENABLE_FLOAT_OUTPUT
+    setValue("CC_USE_FLOAT_OUTPUT", true);
+# else
+    setValue("CC_USE_FLOAT_OUTPUT", false);
+#endif
+
     swapchain = swapchainIn;
     globalDSManager->activate(device);
     pipelineSceneData->activate(device);
