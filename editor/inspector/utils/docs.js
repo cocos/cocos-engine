@@ -2,7 +2,8 @@
 const pkg = require('../../../package.json');
 
 /** Document Resource Category Label */
-const DOC_LABEL = 'creator-element';
+const CREATOR_ELEMENT = 'creator-element';
+const CREATOR_ASSET = 'creator-asset';
 
 /** Fixed address for document resources */
 const DOC_DOMAIN = 'https://api.cocos.com/resolve-url/v1/creator-docs';
@@ -10,7 +11,24 @@ const DOC_DOMAIN = 'https://api.cocos.com/resolve-url/v1/creator-docs';
 /** Element Name Matching Regularity */
 const EDITOR_HELP_REG = /^.*?cc\.(\w+)\s*$/ig;
 
-exports.getDocResolveUrl = function(editor) {
+const getDocResolveUrl = function(label, name) {
+    const docParams = {
+        editor: pkg.version,  // Editor version
+
+        lang: Editor.I18n.getLanguage(),  // Language
+
+        label,  // Category Label
+
+        name, // Element Name
+    };
+
+    const originLink = `${DOC_DOMAIN}?${new URLSearchParams(docParams).toString()}`;
+
+    return decodeURIComponent(originLink);
+};
+
+
+exports.getElementDocResolveUrl = function(editor) {
     if (!editor || !editor.help) {
         return '';
     }
@@ -24,17 +42,11 @@ exports.getDocResolveUrl = function(editor) {
     // Extract element names
     const element = help.replace(EDITOR_HELP_REG, '$1');
 
-    const docParams = {
-        editor: pkg.version,  // Editor version
+    return getDocResolveUrl(CREATOR_ELEMENT, element);
 
-        lang: Editor.I18n.getLanguage(),  // Language
+};
 
-        label: DOC_LABEL,  // Category Label
 
-        name: element, // Element Name
-    };
-
-    const originLink = `${DOC_DOMAIN}?${new URLSearchParams(docParams).toString()}`;
-
-    return decodeURIComponent(originLink);
+exports.getAssetDocResolveUrl = function(type) {
+    return getDocResolveUrl(CREATOR_ASSET, type);
 };
