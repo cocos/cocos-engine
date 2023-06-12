@@ -1538,6 +1538,10 @@ class EventEvaluator {
     }
 
     public sample (ratio: number, direction: number, iterations: number) {
+        if (this._eventGroups.length === 0) {
+            return;
+        }
+
         const length = this._eventGroups.length;
         let eventIndex = getEventGroupIndexAtRatio(ratio, this._ratios);
         if (eventIndex < 0) {
