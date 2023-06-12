@@ -32,7 +32,7 @@ import { DescriptorBlockData, DescriptorData, DescriptorSetData, DescriptorSetLa
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramInfo } from './web-types';
-import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID } from './layout-graph-utils';
+import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID, ENABLE_SUBPASS, getCustomSubpassID } from './layout-graph-utils';
 import { assert } from '../../core/platform/debug';
 import { IDescriptorSetLayoutInfo, localDescriptorSetLayout } from '../define';
 import { PipelineRuntime } from './pipeline';
@@ -678,17 +678,25 @@ function getProgramDescriptorSetLayout (device: Device,
 
 // find shader program in LayoutGraphData
 function getEffectShader (lg: LayoutGraphData, effect: EffectAsset,
-    pass: EffectAsset.IPassInfo): [number, number, EffectAsset.IShaderInfo | null, number] {
+    pass: EffectAsset.IPassInfo): [number, number, number, EffectAsset.IShaderInfo | null, number] {
     const programName = pass.program;
     const passID = getCustomPassID(lg, pass.pass);
     if (passID === INVALID_ID) {
         console.error(`Invalid render pass, program: ${programName}`);
-        return [INVALID_ID, INVALID_ID, null, INVALID_ID];
+        return [INVALID_ID, INVALID_ID, INVALID_ID, null, INVALID_ID];
     }
-    const phaseID = getCustomPhaseID(lg, passID, pass.phase);
+
+    const enableSubpass = pass.subpass && pass.subpass !== '' && ENABLE_SUBPASS;
+    const subpassID = enableSubpass ? getCustomSubpassID(lg, passID, pass.subpass!) : INVALID_ID;
+    if (enableSubpass && subpassID === INVALID_ID) {
+        console.error(`Invalid render subpass, program: ${programName}`);
+        return [INVALID_ID, INVALID_ID, INVALID_ID, null, INVALID_ID];
+    }
+
+    const phaseID = getCustomPhaseID(lg, subpassID === INVALID_ID ? passID : subpassID, pass.phase);
     if (phaseID === INVALID_ID) {
         console.error(`Invalid render phase, program: ${programName}`);
-        return [passID, INVALID_ID, null, INVALID_ID];
+        return [INVALID_ID, INVALID_ID, INVALID_ID, null, INVALID_ID];
     }
     let srcShaderInfo: EffectAsset.IShaderInfo | null = null;
     let shaderID = INVALID_ID;
@@ -700,7 +708,7 @@ function getEffectShader (lg: LayoutGraphData, effect: EffectAsset,
             break;
         }
     }
-    return [passID, phaseID, srcShaderInfo, shaderID];
+    return [passID, subpassID, phaseID, srcShaderInfo, shaderID];
 }
 
 // valid IShaderInfo is compatible
@@ -728,13 +736,14 @@ export class WebProgramLibrary implements ProgramLibrary {
         for (const tech of effect.techniques) {
             for (const pass of tech.passes) {
                 const programName = pass.program;
-                const [passID, phaseID, srcShaderInfo] = getEffectShader(lg, effect, pass);
+                const [passID, subpassID, phaseID, srcShaderInfo] = getEffectShader(lg, effect, pass);
                 if (srcShaderInfo === null || validateShaderInfo(srcShaderInfo)) {
                     console.error(`program: ${programName} not found`);
                     continue;
                 }
                 assert(passID !== INVALID_ID && phaseID !== INVALID_ID);
-                const passLayout = lg.getLayout(passID);
+                const subpassOrPassID = subpassID === INVALID_ID ? passID : subpassID;
+                const passLayout = lg.getLayout(subpassOrPassID);
                 const phaseLayout = lg.getLayout(phaseID);
 
                 // programs
@@ -784,7 +793,7 @@ export class WebProgramLibrary implements ProgramLibrary {
         for (const tech of effect.techniques) {
             for (const pass of tech.passes) {
                 const programName = pass.program;
-                const [passID, phaseID, srcShaderInfo, shaderID] = getEffectShader(lg, effect, pass);
+                const [passID, subpassID, phaseID, srcShaderInfo, shaderID] = getEffectShader(lg, effect, pass);
                 if (srcShaderInfo === null || validateShaderInfo(srcShaderInfo)) {
                     console.error(`program: ${programName} not valid`);
                     continue;
@@ -897,8 +906,8 @@ export class WebProgramLibrary implements ProgramLibrary {
     getMaterialDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout {
         if (this.mergeHighFrequency) {
             assert(phaseID !== INVALID_ID);
-            const passID = this.layoutGraph.getParent(phaseID);
-            return getOrCreateDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_BATCH);
+            const subpassOrPassID = this.layoutGraph.getParent(phaseID);
+            return getOrCreateDescriptorSetLayout(this.layoutGraph, subpassOrPassID, phaseID, UpdateFrequency.PER_BATCH);
         }
         return getOrCreateProgramDescriptorSetLayout(device, this.layoutGraph,
             phaseID, programName, UpdateFrequency.PER_BATCH);
@@ -907,8 +916,8 @@ export class WebProgramLibrary implements ProgramLibrary {
     getLocalDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout {
         if (this.mergeHighFrequency) {
             assert(phaseID !== INVALID_ID);
-            const passID = this.layoutGraph.getParent(phaseID);
-            return getOrCreateDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_INSTANCE);
+            const subpassOrPassID = this.layoutGraph.getParent(phaseID);
+            return getOrCreateDescriptorSetLayout(this.layoutGraph, subpassOrPassID, phaseID, UpdateFrequency.PER_INSTANCE);
         }
         return getOrCreateProgramDescriptorSetLayout(device, this.layoutGraph,
             phaseID, programName, UpdateFrequency.PER_INSTANCE);
@@ -962,18 +971,18 @@ export class WebProgramLibrary implements ProgramLibrary {
         }
 
         // get pass
-        const passID = lg.getParent(phaseID);
-        if (passID === lg.nullVertex()) {
+        const subpassOrPassID = lg.getParent(phaseID);
+        if (subpassOrPassID === INVALID_ID) {
             return getEmptyPipelineLayout();
         }
 
         // craete pipeline layout
         const info = new PipelineLayoutInfo();
-        const passSet = getDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_PASS);
+        const passSet = getDescriptorSetLayout(this.layoutGraph, subpassOrPassID, phaseID, UpdateFrequency.PER_PASS);
         if (passSet) {
             info.setLayouts.push(passSet);
         }
-        const phaseSet = getDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_PHASE);
+        const phaseSet = getDescriptorSetLayout(this.layoutGraph, subpassOrPassID, phaseID, UpdateFrequency.PER_PHASE);
         if (phaseSet) {
             info.setLayouts.push(phaseSet);
         }

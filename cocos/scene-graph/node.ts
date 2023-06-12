@@ -73,10 +73,7 @@ const m4_2 = new Mat4();
 const dirtyNodes: any[] = [];
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
-
-// The default value of the global version should be higher than the default value of the node's changedVersion,
-// to ensure that the changeFlags of a node are initialized to 0.
-let globalFlagChangeVersion = 1;
+let globalFlagChangeVersion = 0;
 
 /**
  * @zh
@@ -1520,12 +1517,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected _transformFlags = TransformBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
 
-    /**
-     * The high bits are used to store the version number of the changedFlag, and the low 3 bits represent its specific value
-     *
-     * | 31 - 29 reserved | 28 - 3 version number | 2  - 0 : Scale Rotation Translation|
-     */
-    protected _changedVersionAndRTS = 0;
+    protected _flagChangeVersion = 0;
+    protected _hasChangedFlags = 0;
 
     constructor (name?: string) {
         super(name);
@@ -1758,7 +1751,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @internal
      */
     get flagChangedVersion () {
-        return this._changedVersionAndRTS >>> 3;
+        return this._flagChangeVersion;
     }
 
     /**
@@ -1766,11 +1759,12 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return (this._changedVersionAndRTS >>> 3) === globalFlagChangeVersion ? (this._changedVersionAndRTS & 7) : 0;
+        return this._flagChangeVersion === globalFlagChangeVersion ? this._hasChangedFlags : 0;
     }
 
     set hasChangedFlags (val: number) {
-        this._changedVersionAndRTS = (globalFlagChangeVersion << 3) | val;
+        this._flagChangeVersion = globalFlagChangeVersion;
+        this._hasChangedFlags = val;
     }
 
     /**
@@ -2586,8 +2580,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * 清除所有节点的脏标记。
      */
     public static resetHasChangedFlags () {
-        // Using 26 bits for the flags is sufficient.
-        globalFlagChangeVersion = (globalFlagChangeVersion + 1) & 0x3FFFFFF;
+        globalFlagChangeVersion += 1;
     }
 
     /**

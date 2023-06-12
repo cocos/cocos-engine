@@ -2,6 +2,7 @@ precision highp float;
 #include <builtin/uniforms/cc-global>
 #include <common/common-define>
 #include <common/math/coordinates>
+#include <common/math/number>
 #include <builtin/functionalities/fog>
 
 uniform hbaoUBO {
@@ -37,20 +38,10 @@ uniform sampler2D DepthTex; //Sample_Point_Clamp
 #pragma rate RandomTex
 uniform sampler2D RandomTex; //Sample_Point_Wrap
 
-#if __VERSION__ < 300
-    float round(float value)
-    {
-        float f = fract(value);
-        return value - f + (f < 0.5 ? 0.0 : 1.0);
-    }
-    vec2 round(vec2 value) { return vec2(round(value.x), round(value.y)); }
-    vec3 round(vec3 value) { return vec3(round(value.x), round(value.y), round(value.z)); }
-    vec4 round(vec4 value) { return vec4(round(value.x), round(value.y), round(value.z), round(value.w)); }
-#endif
-
-float rsqrt(float value)
+// force clamped sample
+vec2 fixUV(vec2 uv)
 {
-  return 1.0 / sqrt(value);
+  return saturate(uv);
 }
 
 //----------------------------------------------------------------------------------
@@ -74,7 +65,7 @@ vec3 UVToEye(vec2 uv, float eye_z)
 
 //----------------------------------------------------------------------------------
 float GetLinearDepth(vec2 uv) {
-  float depthHS = texture(DepthTex, uv).r * 2.0 - 1.0; // -1.0 ~ +1.0
+  float depthHS = texture(DepthTex, fixUV(uv)).r * 2.0 - 1.0; // -1.0 ~ +1.0
   return -GetCameraDepthRH(depthHS, cc_matProj);
 }
 
@@ -349,7 +340,7 @@ vec2 SumWeightedAO(int i, float centerCameraDepth, vec2 centerUV, vec2 sampleDir
   float r = 2.0 * float(i) + 0.5;
   vec2 sampleUV = centerUV + r * sampleDir * g_InvFullResolution;
   float d = GetLinearDepthBilinear(sampleUV);
-  float sampledAO = texture(AOTexNearest/*AOTexBilinear*/, sampleUV).x;
+  float sampledAO = texture(AOTexNearest/*AOTexBilinear*/, fixUV(sampleUV)).x;
   float w = CrossBilateralWeight(r, d, centerCameraDepth, blurFalloff, blurDepthThreshold);
   return vec2(w * sampledAO, w);
 }

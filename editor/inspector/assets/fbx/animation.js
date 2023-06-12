@@ -112,6 +112,7 @@ exports.style = /* css */`
 }
 .container > .show-type-wrap {
     text-align: center;
+    margin-top: 8px;
 }
 .container > .clips {
     padding: 4px;

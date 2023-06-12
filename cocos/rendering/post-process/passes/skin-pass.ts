@@ -41,7 +41,7 @@ export const SSSS_BLUR_Y_PASS_INDEX = 2;
 
 function hasSkinObject (ppl: PipelineRuntime) {
     const sceneData = ppl.pipelineSceneData;
-    return sceneData.skin.enabled && sceneData.skinMaterialModel !== null;
+    return !!sceneData.skin && sceneData.skin.enabled && !!sceneData.skinMaterialModel;
 }
 
 const _varianceArray: number[] = [0.0484, 0.187, 0.567, 1.99, 7.41];
@@ -230,9 +230,9 @@ export class SkinPass extends SettingPass {
         let halfExtents = new Vec3(0.2, 0.2, 0.2);
         const standardSkinModel = pipelineSceneData.standardSkinModel;
         const skinMaterialModel = pipelineSceneData.skinMaterialModel;
-        if (standardSkinModel && standardSkinModel.model) {
+        if (standardSkinModel && standardSkinModel.model && standardSkinModel.model.worldBounds) {
             halfExtents = standardSkinModel.model.worldBounds.halfExtents;
-        } else if (skinMaterialModel) {
+        } else if (skinMaterialModel && skinMaterialModel.worldBounds) {
             halfExtents = skinMaterialModel.worldBounds.halfExtents;
         }
         const boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;

@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 
-import { systemInfo } from 'pal/system-info';
 import { KeyCode, EventKeyboard } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+import { code2KeyCode } from '../keycodes';
 
 export type KeyboardCallback = (res: EventKeyboard) => void;
 
@@ -47,8 +47,15 @@ const nativeKeyCode2KeyCode: Record<number, KeyCode> = {
     20018: KeyCode.ALT_RIGHT,
 };
 
-function getKeyCode (keyCode: number): KeyCode {
-    return nativeKeyCode2KeyCode[keyCode] || keyCode;
+function getKeyCode (event: jsb.KeyboardEvent): KeyCode {
+    if (event.code) {
+        if (event.code in code2KeyCode) {
+            return code2KeyCode[event.code];
+        } else {
+            console.error(`Can not find keyCode for code: ${event.code}`);
+        }
+    }
+    return nativeKeyCode2KeyCode[event.keyCode] || event.keyCode;
 }
 
 export class KeyboardInputSource {
@@ -62,7 +69,7 @@ export class KeyboardInputSource {
 
     constructor () {
         this._handleKeyboardDown = (event: jsb.KeyboardEvent) => {
-            const keyCode = getKeyCode(event.keyCode);
+            const keyCode = getKeyCode(event);
             if (!this._keyStateMap[keyCode]) {
                 const eventKeyDown = this._getInputEvent(event, InputEventType.KEY_DOWN);
                 this._eventTarget.emit(InputEventType.KEY_DOWN, eventKeyDown);
@@ -73,7 +80,7 @@ export class KeyboardInputSource {
             this._keyStateMap[keyCode] = true;
         };
         this._handleKeyboardUp = (event: jsb.KeyboardEvent) => {
-            const keyCode = getKeyCode(event.keyCode);
+            const keyCode = getKeyCode(event);
             const eventKeyUp = this._getInputEvent(event, InputEventType.KEY_UP);
             this._keyStateMap[keyCode] = false;
             this._eventTarget.emit(InputEventType.KEY_UP, eventKeyUp);
@@ -90,13 +97,13 @@ export class KeyboardInputSource {
     }
 
     private _getInputEvent (event: jsb.KeyboardEvent, eventType: InputEventType) {
-        const keyCode = getKeyCode(event.keyCode);
+        const keyCode = getKeyCode(event);
         const eventKeyboard = new EventKeyboard(keyCode, eventType);
         eventKeyboard.windowId = event.windowId;
         return eventKeyboard;
     }
 
     public on (eventType: InputEventType, callback: KeyboardCallback, target?: any) {
-        this._eventTarget.on(eventType, callback,  target);
+        this._eventTarget.on(eventType, callback, target);
     }
 }

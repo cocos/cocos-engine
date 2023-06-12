@@ -27,6 +27,7 @@
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
 #include "scene/Pass.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
 namespace scene {
@@ -157,13 +158,13 @@ void Shadows::activate() {
         if (_type == ShadowType::PLANAR) {
             updatePlanarInfo();
         } else {
-            auto *pipeline = pipeline::RenderPipeline::getInstance();
+            auto *pipeline = Root::getInstance()->getPipeline();
             if (pipeline) {
                 pipeline->setValue("CC_SHADOW_TYPE", 2);
             }
         }
     } else {
-        auto *pipeline = pipeline::RenderPipeline::getInstance();
+        auto *pipeline = Root::getInstance()->getPipeline();
         if (pipeline) {
             pipeline->setValue("CC_SHADOW_TYPE", 0);
         }
@@ -178,7 +179,7 @@ void Shadows::updatePlanarInfo() {
         createInstanceMaterial();
     }
 
-    auto *pipeline = pipeline::RenderPipeline::getInstance();
+    auto *pipeline = Root::getInstance()->getPipeline();
     if (pipeline) {
         pipeline->setValue("CC_SHADOW_TYPE", 1);
     }

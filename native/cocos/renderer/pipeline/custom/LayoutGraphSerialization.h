@@ -119,7 +119,7 @@ inline void load(InputArchive& ar, LayoutGraph& g) {
         load(ar, descriptors);
         switch (id) {
             case 0: {
-                uint32_t val;
+                RenderPassType val;
                 load(ar, val);
                 addVertex(std::move(name), std::move(descriptors), val, g, u);
                 break;

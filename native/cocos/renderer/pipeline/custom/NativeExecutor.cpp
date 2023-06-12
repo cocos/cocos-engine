@@ -74,9 +74,6 @@ struct RenderGraphVisitorContext {
     const ccstd::pmr::vector<bool>& validPasses;
     gfx::Device* device = nullptr;
     gfx::CommandBuffer* cmdBuff = nullptr;
-    ccstd::pmr::unordered_map<
-        const scene::RenderScene*,
-        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues;
     NativePipeline* ppl = nullptr;
     ccstd::pmr::unordered_map<
         RenderGraph::vertex_descriptor,
@@ -404,7 +401,7 @@ void updateGlobal(
         }
         auto* sampler = descriptorSet.getSampler(bindId);
         if (!sampler || isUpdate) {
-            bindGlobalDesc(descriptorSet, bindId, value.get());
+            bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
 }
@@ -529,9 +526,9 @@ gfx::DescriptorSet* initDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     CC_EXPECTS(d.type >= gfx::Type::SAMPLER1D &&
                                d.type <= gfx::Type::SAMPLER_CUBE);
-
-                    auto iter = resourceIndex.find(d.descriptorID);
-                    if (iter != resourceIndex.end()) {
+                    // texture
+                    if (auto iter = resourceIndex.find(d.descriptorID);
+                        iter != resourceIndex.end()) {
                         // render graph textures
                         auto* texture = resg.getTexture(iter->second);
                         CC_ENSURES(texture);
@@ -579,7 +576,15 @@ gfx::DescriptorSet* initDescriptorSet(
                             }
                             newSet->bindTexture(bindID, defaultResource.getTexture(type));
                         }
+                    } // texture end
+
+                    // user provided samplers
+                    if (auto iter = user.samplers.find(d.descriptorID.value);
+                        iter != user.samplers.end()) {
+                        newSet->bindSampler(bindID, iter->second);
                     }
+
+                    // increase descriptor binding offset
                     bindID += d.count;
                 }
                 break;
@@ -589,7 +594,7 @@ gfx::DescriptorSet* initDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     auto iter = user.samplers.find(d.descriptorID.value);
                     if (iter != user.samplers.end()) {
-                        newSet->bindSampler(bindID, iter->second.get());
+                        newSet->bindSampler(bindID, iter->second);
                     } else {
                         gfx::SamplerInfo info{};
                         auto* sampler = device->getSampler(info);
@@ -727,14 +732,23 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     CC_EXPECTS(d.type >= gfx::Type::SAMPLER1D &&
                                d.type <= gfx::Type::SAMPLER_CUBE);
-                    auto iter = user.textures.find(d.descriptorID.value);
-                    if (iter != user.textures.end()) {
+                    // textures
+                    if (auto iter = user.textures.find(d.descriptorID.value);
+                        iter != user.textures.end()) {
                         newSet->bindTexture(bindID, iter->second.get());
                     } else {
                         auto* prevTexture = prevSet.getTexture(bindID);
                         CC_ENSURES(prevTexture);
                         newSet->bindTexture(bindID, prevTexture);
                     }
+
+                    // samplers
+                    if (auto iter = user.samplers.find(d.descriptorID.value);
+                        iter != user.samplers.end()) {
+                        newSet->bindSampler(bindID, iter->second);
+                    }
+
+                    // increase descriptor binding offset
                     bindID += d.count;
                 }
                 break;
@@ -744,7 +758,7 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                     CC_EXPECTS(d.count == 1);
                     auto iter = user.samplers.find(d.descriptorID.value);
                     if (iter != user.samplers.end()) {
-                        newSet->bindSampler(bindID, iter->second.get());
+                        newSet->bindSampler(bindID, iter->second);
                     } else {
                         auto* prevSampler = prevSet.getSampler(bindID);
                         CC_ENSURES(prevSampler);
@@ -814,8 +828,8 @@ gfx::DescriptorSet* updateCameraUniformBufferAndDescriptorSet(
 
 void submitUICommands(
     gfx::RenderPass* renderPass,
-    uint32_t layoutPassID,
-    scene::Camera* camera,
+    uint32_t subpassOrPassLayoutID,
+    const scene::Camera* camera,
     gfx::CommandBuffer* cmdBuff) {
     const auto& batches = camera->getScene()->getBatches();
     for (auto* batch : batches) {
@@ -825,7 +839,7 @@ void submitUICommands(
         const auto& passes = batch->getPasses();
         for (size_t i = 0; i < batch->getShaders().size(); ++i) {
             const scene::Pass* pass = passes[i];
-            if (pass->getPassID() != layoutPassID) {
+            if (pass->getSubpassOrPassID() != subpassOrPassLayoutID) {
                 continue;
             }
             auto* shader = batch->getShaders()[i];
@@ -1005,11 +1019,9 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto sceneID = target(e, g);
             if (holds<SceneTag>(sceneID, g)) {
                 const auto& sceneData = get(SceneTag{}, sceneID, g);
-                for (const auto& scene : sceneData.scenes) {
-                    auto iter = ctx.context.renderSceneResources.find(scene);
-                    if (iter != ctx.context.renderSceneResources.end()) {
-                        return &iter->second;
-                    }
+                auto iter = ctx.context.renderSceneResources.find(sceneData.scene);
+                if (iter != ctx.context.renderSceneResources.end()) {
+                    return &iter->second;
                 }
             }
         }
@@ -1491,26 +1503,33 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             }
         }
 
+        if (queue.viewport.width != 0 && queue.viewport.height != 0) {
+            ctx.cmdBuff->setViewport(queue.viewport);
+        }
+
         // PerPhase DescriptorSet
-        std::ignore = queue;
         tryBindPerPhaseDescriptorSet(vertID);
     }
     void begin(const SceneData& sceneData, RenderGraph::vertex_descriptor sceneID) const { // NOLINT(readability-convert-member-functions-to-static)
-        auto* camera = sceneData.camera;
+        const auto* const camera = sceneData.camera;
         CC_EXPECTS(camera);
         if (camera) { // update camera data
             tryBindPerPassDescriptorSet(sceneID);
         }
         const auto* scene = camera->getScene();
-        const auto& queues = ctx.sceneQueues.at(scene);
-        const auto& queue = queues.at(camera);
+        const auto& queueDesc = ctx.context.sceneCulling.sceneQueryIndex.at(sceneID);
+        const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget];
         bool bDraw = any(sceneData.flags & SceneFlags::DRAW_NON_INSTANCING);
         bool bDrawInstancing = any(sceneData.flags & SceneFlags::DRAW_INSTANCING);
         if (!bDraw && !bDrawInstancing) {
             bDraw = true;
             bDrawInstancing = true;
         }
-        if (any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT))) {
+        const bool bDrawBlend = any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT);
+        const bool bDrawOpaqueOrMask = any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
+        const bool bDrawShadowCaster = any(sceneData.flags & SceneFlags::SHADOW_CASTER);
+
+        if (bDrawShadowCaster || bDrawOpaqueOrMask) {
             queue.opaqueQueue.recordCommandBuffer(
                 ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
             if (bDrawInstancing) {
@@ -1518,7 +1537,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                     ctx.currentPass, ctx.cmdBuff);
             }
         }
-        if (any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT)) {
+        if (bDrawBlend) {
             queue.transparentQueue.recordCommandBuffer(
                 ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
             if (bDrawInstancing) {
@@ -1835,11 +1854,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                         auto* cmdBuff = ctx.cmdBuff;
                         const auto& submodel = profiler->getSubModels()[0];
                         auto* pass = submodel->getPass(0);
-                        auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, pass->getPassID());
+                        auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, pass->getSubpassOrPassID());
                         auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
                         if (iter != layout.descriptorSets.end()) {
                             auto& set = iter->second;
-                            auto& node = ctx.context.layoutGraphResources.at(pass->getPassID());
+                            auto& node = ctx.context.layoutGraphResources.at(pass->getSubpassOrPassID());
                             PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor> resourceIndex(ctx.scratch);
                             auto* perPassSet = initDescriptorSet(
                                 ctx.resourceGraph,
@@ -1995,6 +2014,7 @@ struct RenderGraphContextCleaner {
         ++context.nextFenceValue;
         context.clearPreviousResources(prevFenceValue);
         context.renderSceneResources.clear();
+        context.sceneCulling.clear();
     }
     RenderGraphContextCleaner(const RenderGraphContextCleaner&) = delete;
     RenderGraphContextCleaner& operator=(const RenderGraphContextCleaner&) = delete;
@@ -2022,226 +2042,6 @@ struct CommandSubmitter {
     gfx::CommandBuffer* primaryCommandBuffer = nullptr;
 };
 
-bool isNodeVisible(const scene::Model& model, const uint32_t visibility) {
-    const auto* const node = model.getNode();
-    CC_EXPECTS(node);
-    return model.getNode() && ((visibility & node->getLayer()) == node->getLayer());
-}
-
-bool isInstanceVisible(const scene::Model& model, const uint32_t visibility) {
-    return isNodeVisible(model, visibility) ||
-           (visibility & static_cast<uint32_t>(model.getVisFlags()));
-}
-
-bool isPointInstanceAndNotSkybox(const scene::Model& model, const scene::Skybox* skyBox) {
-    const auto* modelWorldBounds = model.getWorldBounds();
-    return !modelWorldBounds && (skyBox == nullptr || skyBox->getModel() != &model);
-}
-
-bool isPointInstance(const scene::Model& model) {
-    return !model.getWorldBounds();
-}
-
-void addShadowCastObject() {
-    // csmLayers->addCastShadowObject(genRenderObject(model, camera));
-    // csmLayers->addLayerObject(genRenderObject(model, camera));
-}
-
-bool isTransparent(const scene::Pass& pass) {
-    bool bBlend = false;
-    for (const auto& target : pass.getBlendState()->targets) {
-        if (target.blend) {
-            bBlend = true;
-        }
-    }
-    return bBlend;
-}
-
-float computeSortingDepth(const scene::Camera& camera, const scene::Model& model) {
-    float depth = 0;
-    if (model.getNode()) {
-        const auto* node = model.getTransform();
-        Vec3 position;
-        Vec3::subtract(node->getWorldPosition(), camera.getPosition(), &position);
-        depth = position.dot(camera.getForward());
-    }
-    return depth;
-}
-
-void addRenderObject(
-    LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
-    const scene::Camera& camera, const scene::Model& model, NativeRenderQueue& queue) {
-    const bool bDrawTransparent = any(queue.sceneFlags & SceneFlags::TRANSPARENT_OBJECT);
-    bool bDrawOpaqueOrCutout = any(queue.sceneFlags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
-    if (!bDrawTransparent && !bDrawOpaqueOrCutout) {
-        bDrawOpaqueOrCutout = true;
-    }
-    const bool bDrawShadowCaster = any(queue.sceneFlags & SceneFlags::SHADOW_CASTER);
-
-    const auto& subModels = model.getSubModels();
-    const auto subModelCount = subModels.size();
-    for (uint32_t subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
-        const auto& subModel = subModels[subModelIdx];
-        const auto& passes = *(subModel->getPasses());
-        const auto passCount = passes.size();
-        for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
-            auto& pass = *passes[passIdx];
-            const bool bTransparent = isTransparent(pass);
-            const bool bOpaqueOrCutout = !bTransparent;
-            const bool bShadowCaster = pass.getPhaseID() == shadowCasterlayoutID;
-
-            if (!bDrawTransparent && bTransparent) {
-                // skip transparent object
-                continue;
-            }
-
-            if (!bDrawOpaqueOrCutout && bOpaqueOrCutout) {
-                // skip opaque object
-                continue;
-            }
-
-            // skip irrelavent passes
-            if (queue.layoutPassID != pass.getPassID()) {
-                continue;
-            }
-
-            // skip shadow caster
-            if (!bDrawShadowCaster && bShadowCaster) {
-                continue;
-            }
-
-            // add object to queue
-            if (pass.getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
-                auto& instancedBuffer = *pass.getInstancedBuffer();
-                instancedBuffer.merge(subModel, passIdx);
-                if (bTransparent) {
-                    queue.transparentInstancingQueue.add(instancedBuffer);
-                } else {
-                    queue.opaqueInstancingQueue.add(instancedBuffer);
-                }
-            } else {
-                const float depth = computeSortingDepth(camera, model);
-                if (bTransparent) {
-                    queue.transparentQueue.add(model, depth, subModelIdx, passIdx);
-                } else {
-                    queue.opaqueQueue.add(model, depth, subModelIdx, passIdx);
-                }
-            }
-        }
-    }
-}
-
-void octreeCulling(
-    LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
-    const scene::Octree* octree,
-    const scene::RenderScene* scene,
-    const scene::Skybox* skyBox,
-    const scene::Camera& camera,
-    NativeRenderQueue& queue) {
-    // add special instances
-    for (const auto& pModel : scene->getModels()) {
-        CC_EXPECTS(pModel);
-        const auto& model = *pModel;
-        // filter model by view visibility
-        if (!model.isEnabled()) {
-            continue;
-        }
-        if (scene->isCulledByLod(&camera, &model)) {
-            continue;
-        }
-        if (any(queue.sceneFlags & SceneFlags::SHADOW_CASTER) && model.isCastShadow()) {
-            addShadowCastObject();
-        }
-        const auto visibility = camera.getVisibility();
-        if (isInstanceVisible(model, visibility) && isPointInstanceAndNotSkybox(model, skyBox)) {
-            addRenderObject(shadowCasterlayoutID, camera, model, queue);
-        }
-    }
-
-    // add plain instances
-    ccstd::vector<scene::Model*> models;
-    models.reserve(scene->getModels().size() / 4);
-    octree->queryVisibility(&camera, camera.getFrustum(), false, models);
-    for (const auto& pModel : models) {
-        const auto& model = *pModel;
-        CC_EXPECTS(!isPointInstance(model));
-        if (scene->isCulledByLod(&camera, &model)) {
-            continue;
-        }
-        addRenderObject(shadowCasterlayoutID, camera, model, queue);
-    }
-}
-
-void frustumCulling(
-    LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
-    const scene::RenderScene* scene,
-    const scene::Camera& camera,
-    NativeRenderQueue& queue) {
-    const auto& models = scene->getModels();
-    for (const auto& pModel : models) {
-        CC_EXPECTS(pModel);
-        const auto& model = *pModel;
-        if (!model.isEnabled()) {
-            continue;
-        }
-        // filter model by view visibility
-        if (scene->isCulledByLod(&camera, &model)) {
-            continue;
-        }
-        const auto visibility = camera.getVisibility();
-        const auto* const node = model.getNode();
-
-        // cast shadow render Object
-        if (any(queue.sceneFlags & SceneFlags::SHADOW_CASTER) && model.isCastShadow()) {
-            addShadowCastObject();
-        }
-
-        // add render objects
-        if (isInstanceVisible(model, visibility)) {
-            const auto* modelWorldBounds = model.getWorldBounds();
-            // object has no volume
-            if (!modelWorldBounds) {
-                addRenderObject(shadowCasterlayoutID, camera, model, queue);
-                continue;
-            }
-            // frustum culling
-            if (modelWorldBounds->aabbFrustum(camera.getFrustum())) {
-                addRenderObject(shadowCasterlayoutID, camera, model, queue);
-            }
-        }
-    }
-}
-
-void mergeSceneFlags(
-    const RenderGraph& rg,
-    const LayoutGraphData& lg,
-    ccstd::pmr::unordered_map<
-        const scene::RenderScene*,
-        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>&
-        sceneQueues) {
-    for (const auto vertID : makeRange(vertices(rg))) {
-        if (!holds<SceneTag>(vertID, rg)) {
-            continue;
-        }
-        const auto queueID = parent(vertID, rg);
-        CC_ENSURES(queueID != RenderGraph::null_vertex());
-        const auto passID = parent(queueID, rg);
-        CC_ENSURES(passID != RenderGraph::null_vertex());
-        const auto& layoutName = get(RenderGraph::LayoutTag{}, rg, passID);
-        CC_ENSURES(!layoutName.empty());
-        const auto layoutID = locate(LayoutGraphData::null_vertex(), layoutName, lg);
-        CC_ENSURES(layoutID != LayoutGraphData::null_vertex());
-
-        const auto& sceneData = get(SceneTag{}, vertID, rg);
-        const auto* scene = sceneData.camera->getScene();
-        if (scene) {
-            auto& queue = sceneQueues[scene][sceneData.camera];
-            queue.sceneFlags |= sceneData.flags;
-            queue.layoutPassID = layoutID;
-        }
-    }
-}
-
 void extendResourceLifetime(const NativeRenderQueue& queue, ResourceGroup& group) {
     // keep instanceBuffers
     for (const auto& batch : queue.opaqueInstancingQueue.batches) {
@@ -2249,54 +2049,6 @@ void extendResourceLifetime(const NativeRenderQueue& queue, ResourceGroup& group
     }
     for (const auto& batch : queue.transparentInstancingQueue.batches) {
         group.instancingBuffers.emplace(batch);
-    }
-}
-
-void buildRenderQueues(
-    LayoutGraphData::vertex_descriptor shadowCasterlayoutID,
-    const pipeline::PipelineSceneData& sceneData,
-    NativeRenderContext& context,
-    ccstd::pmr::unordered_map<
-        const scene::RenderScene*,
-        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues) {
-    const scene::Skybox* skybox = sceneData.getSkybox();
-
-    auto& group = context.resourceGroups[context.nextFenceValue];
-
-    for (auto&& [scene, queues] : sceneQueues) {
-        const scene::Octree* octree = scene->getOctree();
-        for (auto&& [camera, queue] : queues) {
-            CC_EXPECTS(camera);
-            if (!camera->isCullingEnabled()) {
-                continue;
-            }
-
-            // skybox
-            if (skybox && skybox->isEnabled() &&
-                (static_cast<int32_t>(camera->getClearFlag()) & scene::Camera::SKYBOX_FLAG)) {
-                CC_EXPECTS(skybox->getModel());
-                const auto& model = *skybox->getModel();
-                const auto* node = model.getNode();
-                float depth = 0;
-                if (node) {
-                    Vec3 tempVec3{};
-                    tempVec3 = node->getWorldPosition() - camera->getPosition();
-                    depth = tempVec3.dot(camera->getForward());
-                }
-                queue.opaqueQueue.add(model, depth, 0, 0);
-            }
-
-            // culling
-            if (octree && octree->isEnabled()) {
-                octreeCulling(shadowCasterlayoutID, octree, scene, skybox, *camera, queue);
-            } else {
-                frustumCulling(shadowCasterlayoutID, scene, *camera, queue);
-            }
-
-            queue.sort();
-
-            extendResourceLifetime(queue, group);
-        }
     }
 }
 
@@ -2376,19 +2128,17 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     }
 
     // scene culling
-    ccstd::pmr::unordered_map<
-        const scene::RenderScene*,
-        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>
-        sceneQueues(scratch);
     {
-        mergeSceneFlags(rg, lg, sceneQueues);
-        const auto shadowCasterLayoutID = locate("/default/shadow-caster", lg);
-        CC_ENSURES(shadowCasterLayoutID != LayoutGraphData::null_vertex());
-        buildRenderQueues(
-            shadowCasterLayoutID,
-            *ppl.getPipelineSceneData(),
-            ppl.nativeContext,
-            sceneQueues);
+        auto& context = ppl.nativeContext;
+        auto& sceneCulling = context.sceneCulling;
+        sceneCulling.buildRenderQueues(rg, lg, *ppl.pipelineSceneData);
+        auto& group = ppl.nativeContext.resourceGroups[context.nextFenceValue];
+        // notice: we cannot use ranged-for of sceneCulling.renderQueues
+        CC_EXPECTS(sceneCulling.numRenderQueues <= sceneCulling.renderQueues.size());
+        for (uint32_t queueID = 0; queueID != sceneCulling.numRenderQueues; ++queueID) {
+            const auto& queue = sceneCulling.renderQueues[queueID];
+            extendResourceLifetime(queue, group);
+        }
     }
 
     // gpu driven
@@ -2411,8 +2161,12 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         CommandSubmitter submit(ppl.device, ppl.getCommandBuffers());
 
         // upload buffers
-        for (const auto& [scene, queues] : sceneQueues) {
-            for (const auto& [camera, queue] : queues) {
+        {
+            const auto& sceneCulling = ppl.nativeContext.sceneCulling;
+            for (uint32_t queueID = 0; queueID != sceneCulling.numRenderQueues; ++queueID) {
+                // notice: we cannot use ranged-for of sceneCulling.renderQueues
+                CC_EXPECTS(sceneCulling.numRenderQueues <= sceneCulling.renderQueues.size());
+                const auto& queue = sceneCulling.renderQueues[queueID];
                 queue.opaqueInstancingQueue.uploadBuffers(submit.primaryCommandBuffer);
                 queue.transparentInstancingQueue.uploadBuffers(submit.primaryCommandBuffer);
             }
@@ -2440,7 +2194,6 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             fgd, fgd.barrierMap,
             validPasses,
             ppl.device, submit.primaryCommandBuffer,
-            sceneQueues,
             &ppl,
             renderGraphDescriptorSet,
             profilerPerPassDescriptorSets,

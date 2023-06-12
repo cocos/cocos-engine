@@ -96,6 +96,14 @@ export class AnimationBlend2D extends AnimationBlend {
         this._tryReconstructPolarSpaceInterpolator();
     }
 
+    /**
+     * // TODO: HACK
+     * @internal
+     */
+    __callOnAfterDeserializeRecursive () {
+        this._tryReconstructPolarSpaceInterpolator();
+    }
+
     public clone () {
         const that = new AnimationBlend2D();
         this.copyTo(that);

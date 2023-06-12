@@ -42,20 +42,18 @@ exports.style = /* css */`
     overflow: hidden;
     display: flex;
     flex: 1;
-    margin-right: 4px;
 }
 .preview >.image > .canvas {
     flex: 1;
 }
 .select-box {
     float: right;
-    margin-right: 4px;
 }
 .preview-channel {
-    visibility: hidden;
+    display: none;
 }
 .preview-channel.show {
-    visibility: visible;
+    display: inline-block;
 }
 `;
 

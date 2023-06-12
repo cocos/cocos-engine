@@ -266,15 +266,97 @@ void setCameraUBOValues(
 
 } // namespace
 
-void NativeSetter::setCamera(const scene::Camera *camera) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+// void NativeSetter::setCameraConstants(const scene::Camera *camera) {
+//     auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+//     setCameraUBOValues(
+//         *camera,
+//         *layoutGraph,
+//         *pipelineRuntime->getPipelineSceneData(),
+//         camera->getScene()->getMainLight(), data);
+// }
 
-    setCameraUBOValues(
-        *camera,
-        *layoutGraph,
-        *pipelineRuntime->getPipelineSceneData(),
-        camera->getScene()->getMainLight(), data);
-}
+// void NativeSetter::setDirectionalLightProjectionConstants(
+//     const scene::DirectionalLight* light, uint32_t level) {
+//     CC_EXPECTS(light);
+//     const auto *device = pipelineRuntime->getDevice();
+//     const auto &mainLight = *light;
+//     const auto& pplScenData = *pipelineRuntime->getPipelineSceneData();
+//     const auto &shadowInfo = *pplScenData.getShadows();
+//     const auto &csmLayers = *pplScenData.getCSMLayers();
+//     const auto packing = pipeline::supportsR32FloatTexture(device) ? 0.0F : 1.0F;
+
+//     auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+
+//     float near = 0.1;
+//     float far = 0;
+//     Mat4 matShadowView;
+//     Mat4 matShadowProj;
+//     Mat4 matShadowViewProj;
+//     Vec4 vec4ShadowInfo{};
+
+//     scene::CSMLevel levelCount{};
+//     if (mainLight.isShadowFixedArea() || mainLight.getCSMLevel() == scene::CSMLevel::LEVEL_1) {
+//         matShadowView = csmLayers.getSpecialLayer()->getMatShadowView();
+//         matShadowProj = csmLayers.getSpecialLayer()->getMatShadowProj();
+//         matShadowViewProj = csmLayers.getSpecialLayer()->getMatShadowViewProj();
+//         if (mainLight.isShadowFixedArea()) {
+//             near = mainLight.getShadowNear();
+//             far = mainLight.getShadowFar();
+//             levelCount = static_cast<scene::CSMLevel>(0);
+//         } else {
+//             near = 0.1;
+//             far = csmLayers.getSpecialLayer()->getShadowCameraFar();
+//             levelCount = scene::CSMLevel::LEVEL_1;
+//         }
+//         vec4ShadowInfo.set(0.0F, packing, mainLight.getShadowNormalBias(), 0);
+//         setVec4Impl(data, *layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
+//     } else {
+//         const auto &layer = *csmLayers.getLayers()[level];
+//         matShadowView = layer.getMatShadowView();
+//         matShadowProj = layer.getMatShadowProj();
+//         matShadowViewProj = layer.getMatShadowViewProj();
+
+//         near = layer.getSplitCameraNear();
+//         far = layer.getSplitCameraFar();
+//         levelCount = mainLight.getCSMLevel();
+//     }
+//     setMat4Impl(data, *layoutGraph, "cc_matLightView", matShadowView);
+//     setVec4Impl(data, *layoutGraph, "cc_shadowProjDepthInfo",
+//                 Vec4(
+//                     matShadowProj.m[10],
+//                     matShadowProj.m[14],
+//                     matShadowProj.m[11],
+//                     matShadowProj.m[15]));
+//     setVec4Impl(data, *layoutGraph, "cc_shadowProjInfo",
+//                 Vec4(
+//                     matShadowProj.m[00],
+//                     matShadowProj.m[05],
+//                     1.0F / matShadowProj.m[00],
+//                     1.0F / matShadowProj.m[05]));
+//     setMat4Impl(data, *layoutGraph, "cc_matLightViewProj", matShadowViewProj);
+//     vec4ShadowInfo.set(near, far, 0, 1.0F - mainLight.getShadowSaturation());
+//     setVec4Impl(data, *layoutGraph, "cc_shadowNFLSInfo", vec4ShadowInfo);
+//     vec4ShadowInfo.set(
+//         0.0F,
+//         packing,
+//         mainLight.getShadowNormalBias(),
+//         static_cast<float>(levelCount));
+//     setVec4Impl(data, *layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
+//     vec4ShadowInfo.set(
+//         shadowInfo.getSize().x,
+//         shadowInfo.getSize().y,
+//         static_cast<float>(mainLight.getShadowPcf()),
+//         mainLight.getShadowBias());
+//     setVec4Impl(data, *layoutGraph, "cc_shadowWHPBInfo", vec4ShadowInfo);
+// }
+
+// void NativeSetter::setSpotLightProjectionConstants(const scene::SpotLight* light) {
+
+// }
+
+// void NativeSetter::setShadowMapConstants(const scene::Light* light, uint32_t numLevels) {
+
+// }
 
 namespace {
 
@@ -388,7 +470,6 @@ void NativeRenderPassBuilder::addDepthStencil(
 void NativeRenderPassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
-    std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
@@ -400,6 +481,13 @@ void NativeRenderPassBuilder::addTexture(
             ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+    if (sampler) {
+        auto iter = layoutGraph->attributeIndex.find(std::string_view{slotName});
+        if (iter != layoutGraph->attributeIndex.end()) {
+            auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+            data.samplers[iter->second.value] = sampler;
+        }
+    }
 }
 
 void NativeRenderPassBuilder::addStorageBuffer(
@@ -428,6 +516,12 @@ void NativeRenderPassBuilder::addStorageImage(
             ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+}
+
+void NativeRenderPassBuilder::addMaterialTexture(
+    const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) {
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    pass.textures.emplace(resourceName, flags);
 }
 
 void NativeRenderPassBuilder::setCustomShaderStages(
@@ -651,7 +745,6 @@ void NativeRenderSubpassBuilderImpl::addDepthStencil(
 void NativeRenderSubpassBuilderImpl::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
-    std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
@@ -663,6 +756,13 @@ void NativeRenderSubpassBuilderImpl::addTexture(
             ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+    if (sampler) {
+        auto iter = layoutGraph->attributeIndex.find(std::string_view{slotName});
+        if (iter != layoutGraph->attributeIndex.end()) {
+            auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+            data.samplers[iter->second.value] = sampler;
+        }
+    }
 }
 
 void NativeRenderSubpassBuilderImpl::addStorageBuffer(
@@ -759,13 +859,11 @@ void NativeRenderSubpassBuilderImpl::setViewport(const gfx::Viewport &viewport) 
 
 RenderQueueBuilder *NativeRenderSubpassBuilderImpl::addQueue(
     QueueHint hint, const ccstd::string &phaseName) {
+    CC_EXPECTS(!phaseName.empty());
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
-    auto phaseLayoutID = LayoutGraphData::null_vertex();
-    if (!phaseName.empty()) {
-        phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
-        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
-    }
+    const auto phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
+    CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
     auto queueID = addVertex(
         QueueTag{},
@@ -838,7 +936,6 @@ void NativeComputeSubpassBuilder::addRenderTarget(const ccstd::string &name, con
 void NativeComputeSubpassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
-    std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
@@ -850,6 +947,13 @@ void NativeComputeSubpassBuilder::addTexture(
             ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+    if (sampler) {
+        auto iter = layoutGraph->attributeIndex.find(std::string_view{slotName});
+        if (iter != layoutGraph->attributeIndex.end()) {
+            auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+            data.samplers[iter->second.value] = sampler;
+        }
+    }
 }
 
 void NativeComputeSubpassBuilder::addStorageBuffer(
@@ -890,13 +994,11 @@ void NativeComputeSubpassBuilder::addComputeView(const ccstd::string &name, cons
 }
 
 ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &phaseName) {
+    CC_EXPECTS(!phaseName.empty());
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
-    auto phaseLayoutID = LayoutGraphData::null_vertex();
-    if (!phaseName.empty()) {
-        phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
-        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
-    }
+    const auto phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
+    CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
     auto queueID = addVertex(
         QueueTag{},
@@ -1105,9 +1207,9 @@ void setShadowUBOView(
                             const auto &matShadowView = layer.getMatShadowView();
                             vec4ShadowInfo.set(matShadowView.m[0], matShadowView.m[4], matShadowView.m[8], layerThreshold);
                             setVec4ArrayElemImpl(data, layoutGraph, "cc_csmViewDir0", vec4ShadowInfo, i);
-                            vec4ShadowInfo.set(matShadowView.m[1], matShadowView.m[5], matShadowView.m[9], 0.0F);
+                            vec4ShadowInfo.set(matShadowView.m[1], matShadowView.m[5], matShadowView.m[9], layer.getSplitCameraNear());
                             setVec4ArrayElemImpl(data, layoutGraph, "cc_csmViewDir1", vec4ShadowInfo, i);
-                            vec4ShadowInfo.set(matShadowView.m[2], matShadowView.m[6], matShadowView.m[0], 0.0F);
+                            vec4ShadowInfo.set(matShadowView.m[2], matShadowView.m[6], matShadowView.m[10], layer.getSplitCameraFar());
                             setVec4ArrayElemImpl(data, layoutGraph, "cc_csmViewDir2", vec4ShadowInfo, i);
 
                             const auto &csmAtlas = layer.getCSMAtlas();
@@ -1206,25 +1308,20 @@ void setTextureUBOView(
         gfx::Address::CLAMP};
     auto *pointSampler = device.getSampler(samplerPointInfo);
     setSamplerImpl(data, layoutGraph, "cc_shadowMap", pointSampler);
-    setTextureImpl(data, layoutGraph, "cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+    // setTextureImpl(data, layoutGraph, "cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
     setSamplerImpl(data, layoutGraph, "cc_spotShadowMap", pointSampler);
-    setTextureImpl(data, layoutGraph, "cc_spotShadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+    // setTextureImpl(data, layoutGraph, "cc_spotShadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
 }
 
 } // namespace
 
 void NativeRenderQueueBuilder::addSceneOfCamera(
     scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
-    std::string_view name = "Camera";
-    auto *pLight = light.light.get();
-    SceneData scene(renderGraph->get_allocator());
-    scene.name = name;
-    scene.flags = sceneFlags;
-    scene.camera = camera;
-    scene.light = light;
+    const auto *pLight = light.light.get();
+    SceneData scene(camera->getScene(), camera, sceneFlags, light);
     auto sceneID = addVertex(
         SceneTag{},
-        std::forward_as_tuple(name),
+        std::forward_as_tuple("Camera"),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -1264,21 +1361,55 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
         data);
 }
 
-void NativeRenderQueueBuilder::addScene(const scene::RenderScene *scene, SceneFlags sceneFlags) {
-    SceneData data(renderGraph->get_allocator());
-    data.scenes.emplace_back(scene);
-    data.flags = sceneFlags;
+// void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
+//     SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{});
 
-    auto sceneID = addVertex(
-        SceneTag{},
-        std::forward_as_tuple("Scene"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(std::move(data)),
-        *renderGraph, nodeID);
-    CC_ENSURES(sceneID != RenderGraph::null_vertex());
-}
+//     auto sceneID = addVertex(
+//         SceneTag{},
+//         std::forward_as_tuple("Scene"),
+//         std::forward_as_tuple(),
+//         std::forward_as_tuple(),
+//         std::forward_as_tuple(),
+//         std::forward_as_tuple(std::move(data)),
+//         *renderGraph, nodeID);
+//     CC_ENSURES(sceneID != RenderGraph::null_vertex());
+// }
+
+// void NativeRenderQueueBuilder::addSceneCulledByDirectionalLight(
+//     const scene::Camera *camera, SceneFlags sceneFlags,
+//     scene::DirectionalLight *light, uint32_t level) {
+//     CC_EXPECTS(light);
+//     CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
+//     SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, level});
+
+//     auto sceneID = addVertex(
+//         SceneTag{},
+//         std::forward_as_tuple("Scene"),
+//         std::forward_as_tuple(),
+//         std::forward_as_tuple(),
+//         std::forward_as_tuple(),
+//         std::forward_as_tuple(std::move(data)),
+//         *renderGraph, nodeID);
+//     CC_ENSURES(sceneID != RenderGraph::null_vertex());
+// }
+
+// void NativeRenderQueueBuilder::addSceneCulledBySpotLight(
+//     const scene::Camera *camera, SceneFlags sceneFlags,
+//     scene::SpotLight *light) {
+//     CC_EXPECTS(light);
+//     CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
+//     SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, 0});
+
+//     auto sceneID = addVertex(
+//         SceneTag{},
+//         std::forward_as_tuple("Scene"),
+//         std::forward_as_tuple(),
+//         std::forward_as_tuple(),
+//         std::forward_as_tuple(),
+//         std::forward_as_tuple(std::move(data)),
+//         *renderGraph, nodeID);
+//     CC_ENSURES(sceneID != RenderGraph::null_vertex());
+// }
 
 void NativeRenderQueueBuilder::addFullscreenQuad(
     Material *material, uint32_t passID, SceneFlags sceneFlags) {
@@ -1349,15 +1480,8 @@ void NativeRenderQueueBuilder::clearRenderTarget(const ccstd::string &name, cons
 }
 
 void NativeRenderQueueBuilder::setViewport(const gfx::Viewport &viewport) {
-    auto viewportID = addVertex(
-        ViewportTag{},
-        std::forward_as_tuple("Viewport"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(viewport),
-        *renderGraph, nodeID);
-    CC_ENSURES(viewportID != RenderGraph::null_vertex());
+    auto &queue = get(QueueTag{}, nodeID, *renderGraph);
+    queue.viewport = viewport;
 }
 
 void NativeRenderQueueBuilder::addCustomCommand(std::string_view customBehavior) {
@@ -1381,13 +1505,11 @@ void NativeRenderQueueBuilder::addCustomCommand(std::string_view customBehavior)
 
 RenderQueueBuilder *NativeRenderPassBuilder::addQueue(
     QueueHint hint, const ccstd::string &phaseName) {
+    CC_EXPECTS(!phaseName.empty());
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
-    auto phaseLayoutID = LayoutGraphData::null_vertex();
-    if (!phaseName.empty()) {
-        phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
-        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
-    }
+    const auto phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
+    CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
     auto queueID = addVertex(
         QueueTag{},
@@ -1410,6 +1532,7 @@ SubpassBuilder *addRenderSubpassImpl(
     const LayoutGraphData &layoutGraph, LayoutGraphData::vertex_descriptor passLayoutID,
     const ccstd::string &subpassName,
     uint32_t count, uint32_t quality) { // NOLINT(bugprone-easily-swappable-parameters)
+    CC_EXPECTS(!subpassName.empty());
     auto &pass = get(RasterPassTag{}, passID, renderGraph);
     auto &subpassGraph = pass.subpassGraph;
     const auto subpassIndex = num_vertices(pass.subpassGraph);
@@ -1537,7 +1660,6 @@ void NativeComputeQueueBuilder::addDispatch(
 void NativeComputePassBuilder::addTexture(
     const ccstd::string &name, const ccstd::string &slotName,
     gfx::Sampler *sampler, uint32_t plane) {
-    std::ignore = sampler;
     addComputeView(
         name,
         ComputeView{
@@ -1549,6 +1671,13 @@ void NativeComputePassBuilder::addTexture(
             ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+    if (sampler) {
+        auto iter = layoutGraph->attributeIndex.find(std::string_view{slotName});
+        if (iter != layoutGraph->attributeIndex.end()) {
+            auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+            data.samplers[iter->second.value] = sampler;
+        }
+    }
 }
 
 void NativeComputePassBuilder::addStorageBuffer(
@@ -1577,6 +1706,12 @@ void NativeComputePassBuilder::addStorageImage(
             ClearValue{},
             gfx::ShaderStageFlagBit::NONE,
             renderGraph->get_allocator()});
+}
+
+void NativeComputePassBuilder::addMaterialTexture(
+    const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) {
+    auto &pass = get(RasterPassTag{}, nodeID, *renderGraph);
+    pass.textures.emplace(resourceName, flags);
 }
 
 void NativeComputePassBuilder::setCustomShaderStages(
@@ -1609,13 +1744,11 @@ void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const C
 }
 
 ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &phaseName) {
+    CC_EXPECTS(!phaseName.empty());
     CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
 
-    auto phaseLayoutID = LayoutGraphData::null_vertex();
-    if (!phaseName.empty()) {
-        phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
-        CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
-    }
+    const auto phaseLayoutID = locate(layoutID, phaseName, *layoutGraph);
+    CC_ENSURES(phaseLayoutID != LayoutGraphData::null_vertex());
 
     auto queueID = addVertex(
         QueueTag{},
@@ -1807,21 +1940,8 @@ struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
                 indent(space);
             },
             [&](const SceneData &scene) {
+                std::ignore = scene;
                 OSS << "Scene \"" << name << "\" {\n";
-                {
-                    INDENT();
-                    // OSS << "name: \"" << scene.name << "\";\n";
-                    OSS << "scenes: [";
-                    int count = 0;
-                    for (const auto &sceneName : scene.scenes) {
-                        if (count++) {
-                            oss << ", ";
-                        }
-                        oss << "\"" << sceneName << "\"";
-                    }
-                    oss << "];\n";
-                    // OSS << "flags: " << getName(scene.flags) << ";\n";
-                }
                 indent(space);
             },
             [&](const Blit &blit) {
