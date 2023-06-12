@@ -20,7 +20,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 import { errorID, getError } from '../core/platform/debug';
 import { Component } from './component';
@@ -223,7 +223,7 @@ nodeProto.addComponent = function (typeOrClassName) {
     if (this._activeInHierarchy) {
         legacyCC.director._nodeActivator.activateComp(component);
     }
-    if (EDITOR && !legacyCC.GAME_VIEW) {
+    if (EDITOR_NOT_IN_PREVIEW) {
         component.resetInEditor?.();
     }
 
@@ -1307,7 +1307,7 @@ nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
             // PrefabUtils.unlinkPrefab(cloned);
         }
     }
-    if (EDITOR && legacyCC.GAME_VIEW) {
+    if (EDITOR_NOT_IN_PREVIEW) {
         // TODO: Property 'sync' does not exist on type 'PrefabInfo'.
         // issue: https://github.com/cocos/cocos-engine/issues/14643
         const syncing = newPrefabInfo && cloned === newPrefabInfo.root && (newPrefabInfo as any).sync;

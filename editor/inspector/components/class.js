@@ -10,16 +10,10 @@ exports.$ = {
 exports.style = `
     .tab-group {
         margin-top: 4px;
-        margin-bottom: 4px;
     }
     .tab-content {
         display: none;
-        border: 1px dashed var(--color-normal-border);
-        padding: 8px;
-        margin-top: -10px;
-        border-top-right-radius: calc(var(--size-normal-radius) * 1px);
-        border-bottom-left-radius: calc(var(--size-normal-radius) * 1px);
-        border-bottom-right-radius: calc(var(--size-normal-radius) * 1px);
+        padding-bottom: 6px;
     }
 `;
 exports.methods = {
@@ -32,7 +26,9 @@ exports.methods = {
 
         $group.$header = document.createElement('ui-tab');
         $group.$header.setAttribute('class', 'tab-header');
+        $group.$header.setAttribute('underline', '');
         $group.appendChild($group.$header);
+
         $group.$header.addEventListener('change', (e) => {
             active(e.target.value);
         });

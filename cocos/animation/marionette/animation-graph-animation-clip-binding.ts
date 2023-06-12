@@ -2,14 +2,15 @@ import { DEBUG } from 'internal:constants';
 import { error, Quat, RealCurve, Vec3, warnID } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Node } from '../../scene-graph/node';
-import { AnimationClip, exoticAnimationTag } from '../animation-clip';
+import { additiveSettingsTag, AnimationClip, exoticAnimationTag } from '../animation-clip';
 import { AuxiliaryCurveEntry } from '../auxiliary-curve-entry';
 import { AuxiliaryCurveHandle, TransformHandle } from '../core/animation-handle';
-import { Pose } from '../core/pose';
+import { calculateDeltaPose, Pose } from '../core/pose';
 import { createEvalSymbol } from '../define';
 import { ExoticTrsAGEvaluation } from '../exotic-animation/exotic-animation';
 import { isTrsPropertyName, normalizedFollowTag, Track, TrackBinding, trackBindingTag, TrackEval } from '../tracks/track';
 import { UntypedTrack } from '../tracks/untyped-track';
+import { AnimationGraphEvaluationContext } from './animation-graph-context';
 
 /**
  * This module contains utilities to marry animation clip with animation graph.
@@ -317,7 +318,32 @@ class AuxiliaryCurveEvaluation {
 /**
  * Describes the evaluation of a animation clip in sense of animation graph.
  */
-export class AnimationClipAGEvaluation {
+export interface AnimationClipAGEvaluation {
+    /**
+     * Destroys all the track evaluations and exotic animation evaluation.
+     */
+    destroy(): void;
+
+    /**
+     * Evaluates.
+     * @param time The time.
+     * @param context The evaluation context.
+     */
+    evaluate(time: number, context: AnimationGraphEvaluationContext): Pose;
+}
+
+export function createAnimationAGEvaluation (
+    clip: AnimationClip,
+    context: AnimationClipGraphBindingContext,
+): AnimationClipAGEvaluation {
+    if (clip.isAdditive_experimental) {
+        return new AnimationClipAGEvaluationAdditive(clip, context);
+    } else {
+        return new AnimationClipAGEvaluationRegular(clip, context);
+    }
+}
+
+class AnimationClipAGEvaluationRegular implements AnimationClipAGEvaluation {
     constructor (
         clip: AnimationClip,
         context: AnimationClipGraphBindingContext,
@@ -372,9 +398,6 @@ export class AnimationClipAGEvaluation {
         this._auxiliaryCurveEvaluations = auxiliaryCurveEvaluations;
     }
 
-    /**
-     * Destroys all the track evaluations and exotic animation evaluation.
-     */
     public destroy () {
         this._exoticAnimationEvaluation?.destroy();
 
@@ -387,19 +410,14 @@ export class AnimationClipAGEvaluation {
         }
     }
 
-    /**
-     * Evaluates.
-     * @param time The time.
-     * @param context The evaluation context.
-     */
-    public evaluate (time: number, context: AnimationClipGraphEvaluationContext) {
+    public evaluate (time: number, context: AnimationGraphEvaluationContext) {
         const {
             _trackEvaluations: trackEvaluations,
             _exoticAnimationEvaluation: exoticAnimationEvaluation,
             _auxiliaryCurveEvaluations: auxiliaryCurveEvaluations,
         } = this;
 
-        const pose = context;
+        const pose = context.pushDefaultedPose();
 
         const nTrackEvaluations = trackEvaluations.length;
         for (let iNodeEvaluation = 0; iNodeEvaluation < nTrackEvaluations; ++iNodeEvaluation) {
@@ -412,8 +430,10 @@ export class AnimationClipAGEvaluation {
 
         const nAuxiliaryCurveEvaluations = auxiliaryCurveEvaluations.length;
         for (let iAuxiliaryCurveEvaluation = 0; iAuxiliaryCurveEvaluation < nAuxiliaryCurveEvaluations; ++iAuxiliaryCurveEvaluation) {
-            auxiliaryCurveEvaluations[iAuxiliaryCurveEvaluation].evaluate(time, context);
+            auxiliaryCurveEvaluations[iAuxiliaryCurveEvaluation].evaluate(time, pose);
         }
+
+        return pose;
     }
 
     private _trackEvaluations: AGTrackEvaluation<any>[] = [];
@@ -421,4 +441,49 @@ export class AnimationClipAGEvaluation {
     private _exoticAnimationEvaluation: ExoticTrsAGEvaluation | undefined;
 
     private _auxiliaryCurveEvaluations: AuxiliaryCurveEvaluation[] = [];
+}
+
+class AnimationClipAGEvaluationAdditive implements AnimationClipAGEvaluation {
+    constructor (
+        clip: AnimationClip,
+        context: AnimationClipGraphBindingContext,
+    ) {
+        this._clipEval = new AnimationClipAGEvaluationRegular(clip, context);
+        const refClip = clip[additiveSettingsTag].refClip;
+        if (refClip && refClip !== clip) {
+            this._refClipEval = new AnimationClipAGEvaluationRegular(refClip, context);
+        }
+    }
+
+    public destroy () {
+        this._clipEval.destroy();
+        this._refClipEval?.destroy();
+    }
+
+    /**
+     * Evaluates.
+     * @param time The time.
+     * @param context The evaluation context.
+     */
+    public evaluate (time: number, context: AnimationGraphEvaluationContext) {
+        // Evaluate this clip.
+        const pose = this._clipEval.evaluate(time, context);
+
+        let refPose: Pose;
+        if (this._refClipEval) {
+            const refClipTime = 0.0; // TODO: ref clip may specify a time?
+            refPose = this._refClipEval.evaluate(refClipTime, context);
+        } else {
+            // If the ref clip is not specified,
+            // The effect is as if the ref pose is the 0 time of original clip.
+            refPose = this._clipEval.evaluate(0.0, context);
+        }
+        calculateDeltaPose(pose, refPose);
+        context.popPose();
+
+        return pose;
+    }
+
+    private _clipEval: AnimationClipAGEvaluationRegular;
+    private _refClipEval: AnimationClipAGEvaluationRegular | undefined;
 }

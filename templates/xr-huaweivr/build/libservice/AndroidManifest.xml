@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.cocos.service">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.huawei.vrhandle.permission.DEVICE_MANAGER"/>
     <uses-permission android:name="com.huawei.android.permission.VR"/>

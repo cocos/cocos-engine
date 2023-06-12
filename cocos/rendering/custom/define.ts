@@ -29,7 +29,7 @@ import {
     Camera, CSMLevel, DirectionalLight, Light, LightType, ProbeType, ReflectionProbe,
     ShadowType, SKYBOX_FLAG, SpotLight, PointLight, RangedDirectionalLight, SphereLight,
 } from '../../render-scene/scene';
-import { supportsR32FloatTexture, supportsRGBA16FloatTexture } from '../define';
+import { supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../define';
 import { BasicPipeline, Pipeline } from './pipeline';
 import {
     AccessType, AttachmentType, ComputeView, CopyPair, LightInfo,
@@ -58,11 +58,11 @@ export enum AntiAliasing {
 
 export function getRTFormatBeforeToneMapping (ppl: BasicPipeline) {
     const useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
-    return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16FloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
+    return ppl.pipelineSceneData.isHDR && useFloatOutput && supportsRGBA16HalfFloatTexture(ppl.device) ? Format.RGBA16F : Format.RGBA8;
 }
 function forceEnableFloatOutput (ppl: BasicPipeline) {
     if (ppl.pipelineSceneData.isHDR && !ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
-        const supportFloatOutput = supportsRGBA16FloatTexture(ppl.device);
+        const supportFloatOutput = supportsRGBA16HalfFloatTexture(ppl.device);
         ppl.setMacroBool('CC_USE_FLOAT_OUTPUT', supportFloatOutput);
         macro.ENABLE_FLOAT_OUTPUT = supportFloatOutput;
     }
@@ -622,7 +622,7 @@ export function buildShadowPass (passName: Readonly<string>,
         shadowPass.addDepthStencil(`${shadowMapName}Depth`, LoadOp.CLEAR, StoreOp.DISCARD,
             camera.clearDepth, camera.clearStencil, ClearFlagBit.DEPTH_STENCIL);
     }
-    const queue = shadowPass.addQueue(QueueHint.RENDER_OPAQUE);
+    const queue = shadowPass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
     queue.addSceneOfCamera(camera, new LightInfo(light, level),
         SceneFlags.SHADOW_CASTER);
     queue.setViewport(new Viewport(area.x, area.y, area.width, area.height));
@@ -1268,7 +1268,7 @@ class SSSSBlurData {
     ssssFov = 45.0 / 57.3;
     ssssWidth = 0.01;
     boundingBox = 0.4;
-    ssssScale = 5.0;
+    ssssScale = 3.0;
 
     get ssssStrength () {
         return this._v3SSSSStrength;
@@ -1444,8 +1444,8 @@ function _buildSSSSBlurPass (camera: Camera,
     if (!ssssBlurData) ssssBlurData = new SSSSBlurData();
     ssssBlurData.ssssFov = camera.fov;
     ssssBlurData.ssssWidth = skin.blurRadius;
-    if (standardSkinModel && (standardSkinModel as MeshRenderer).model) {
-        const halfExtents = (standardSkinModel as MeshRenderer).model!.worldBounds.halfExtents;
+    if (standardSkinModel && standardSkinModel.model && standardSkinModel.model.worldBounds) {
+        const halfExtents = standardSkinModel.model.worldBounds.halfExtents;
         ssssBlurData.boundingBox = Math.min(halfExtents.x, halfExtents.y, halfExtents.z) * 2.0;
     }
     ssssBlurData.ssssScale = skin.sssIntensity;

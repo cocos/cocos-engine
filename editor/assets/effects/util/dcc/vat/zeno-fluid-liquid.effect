@@ -14,30 +14,26 @@ CCEffect %{
         vatFrameCount:                    { value: 0.0, target: vatAnimParams.z, editor: { displayName: NumOfFrames } }
         vatBoundingBoxMax:                { value: [1.0, 1.0, 1.0], target: vatBBMax.xyz, editor: { displayName: BoundingBoxMax } }
         vatBoundingBoxMin:                { value: [-1.0, -1.0, -1.0], target: vatBBMin.xyz, editor: { displayName: BoundingBoxMin } }
+        allBlocksBoundingBoxMax:          { value: [0.0, 0.0, 0.0], target: allBlocksBBMax.xyz, editor: { parent: USE_EDGE_FADING } }
+        allBlocksBoundingBoxMin:          { value: [1.0, 1.0, 1.0], target: allBlocksBBMin.xyz, editor: { parent: USE_EDGE_FADING } }
         ReflectionIntensity:              { value: 30.0, target: vatLUTParams.w, editor: { parent: USE_REFRACTION, displayName: ReflectionIntensity } }
         IOR:                              { value: 1.33, target: vatAnimParams.w, editor: { parent: USE_REFRACTION, displayName: IndexOfRefraction } }
         mainColor:                        { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
-        occlusion:                        { value: 0.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         roughness:                        { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         metallic:                         { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         specularIntensity:                { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
-        emissive:                         { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
-        emissiveScale:                    { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
         normalStrength:                   { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
-        mainTexture:                      { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
-        normalMap:                        { value: normal }
-        normalMapDetailed:                { value: normal }
+        normalMap:                        { value: normal, editor : { parent: USE_NORMAL_MAP } }
+        normalMapDetailed:                { value: normal, editor : { parent: USE_NORMAL_MAP, tooltip: i18n:ENGINE.assets.effect.propertyTips.normalMap } }
+        baseTiling:                       { value: 100.0, target: pbrParams.x, editor: { parent: USE_NORMAL_MAP, range: [1.0, 10000.0] } }
         waterSpeed:                       { value: 0.2, target: waterParam.x, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         detailedSpeed:                    { value: 0.2, target: waterParam.y, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         detailedTiling:                   { value: 0.2, target: waterParam.z, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         detailedIntensity:                { value: 0.5, target: waterParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         waterInScatterColor:              { value: [0.07, 0.13, 0.087, 1.0], target: waterColor, linear: true, editor: { parent: USE_WATER_SCATTERING, type: color } }
         waterScatterCoef:                 { value: 3.0, target: waterColor.w, editor: { parent: USE_WATER_SCATTERING, range: [0, 10.0] } }
-        pbrMap:                           { value: grey }
-        occlusionMap:                     { value: white }
-        emissiveMap:                      { value: grey }
         vatPositionMap:                   { value: grey, target: vatPositionTexture, editor: { displayName: PositionMap } }
         vatNormalMap:                     { value: grey, target: vatNormalTexture }
       rasterizerState:
@@ -72,7 +68,6 @@ CCEffect %{
         mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
     - &reflect-map
       vert: standard-vs
       frag: reflect-map-fs
@@ -104,10 +99,11 @@ CCProgram shared-ubos %{
     vec4 vatLUTParams;
     vec4 vatBBMax;
     vec4 vatBBMin;
+    vec4 allBlocksBBMax;
+    vec4 allBlocksBBMin;
     vec4 albedo;
     vec4 albedoScaleAndCutoff;
     vec4 pbrParams;
-    vec4 emissive;
     vec4 emissiveScaleParam;
     vec4 anisotropyParam;
     vec4 waterParam;
@@ -157,37 +153,35 @@ CCProgram surface-vertex %{
 
     float frameLerp = VATGetAnimUV(thisFrameUV, nextFrameUV, originUV, numOfFrames, speed, cc_time.x);
 
-    vec3 pos = SampleTextureExr(vatPositionTexture, thisFrameUV) * VAT_FBX_TO_COCOS_COORDINATE_SCALE;
-    In.position.xyz = pos * (vatBBMax.xyz - vatBBMin.xyz);
+    // pos is normalized 0-1 from texture and expanding to bounding box range
+    vec3 posNormalized = SampleTextureExr(vatPositionTexture, thisFrameUV);
+    In.position.xyz = posNormalized * (vatBBMax.xyz - vatBBMin.xyz) + vatBBMin.xyz;
 	
     vec3 normal = texture(vatNormalTexture, thisFrameUV).rgb * 2.0 - 1.0;
     In.normal.xyz = normalize(normal);
+  }
+
+  #define CC_SURFACES_VERTEX_MODIFY_UV
+  void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
+  {
+    #if USE_EDGE_FADING
+      // calculated in local space
+      vec3 allBBSize = allBlocksBBMax.xyz - allBlocksBBMin.xyz;
+      vec3 voxelUV = (In.position.xyz - allBlocksBBMin.xyz) / allBBSize;
+      In.texCoord = voxelUV.xz;
+    #endif
   }
 }%
 
 CCProgram surface-fragment %{
   #include <common/mesh/vat-animation>
 
-  #if USE_ALBEDO_MAP
-    uniform sampler2D albedoMap;
-    #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
-  #endif
   #if USE_NORMAL_MAP
     uniform sampler2D normalMap;
     uniform sampler2D normalMapDetailed;
     #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
   #endif
   #pragma define-meta DEFAULT_UV options([v_uv, v_uv1])
-  #if USE_PBR_MAP
-    uniform sampler2D pbrMap;
-  #endif
-  #if USE_OCCLUSION_MAP
-    uniform sampler2D occlusionMap;
-  #endif
-  #if USE_EMISSIVE_MAP
-    uniform sampler2D emissiveMap;
-    #pragma define-meta EMISSIVE_UV options([v_uv, v_uv1])
-  #endif
 
   #pragma define OCCLUSION_CHANNEL          r
   #pragma define ROUGHNESS_CHANNEL          g
@@ -200,6 +194,7 @@ CCProgram surface-fragment %{
 
 
   ////////////////////////////////////////////////////////////////water material
+  #include <common/effect/special-effects>
   vec3 GetDetailedNormal(vec2 texCoord, float tiling, sampler2D normalMap, sampler2D normalMapDetailed, vec3 N, vec3 T)
   {
     float waterSpeed = waterParam.x;
@@ -213,7 +208,7 @@ CCProgram surface-fragment %{
     vec2 uvDetailed = texCoord * detailedTiling + vec2(0.0, cc_time.w) * detailedSpeed;
     vec3 nmmpDetailed = texture(normalMapDetailed, uvDetailed).xyz - vec3(0.5);
     // normal blending
-    nmmp = normalize(vec3(nmmp.xy + nmmpDetailed.xy * detailedIntensity, nmmp.z));
+    nmmp = BlendDetailedNormalMap(nmmp, nmmpDetailed, detailedIntensity);
     return normalize(CalculateNormalFromTangentSpace(nmmp, normalIntensity, N, T, FSInput_mirrorNormal));
   }
 
@@ -276,7 +271,46 @@ CCProgram surface-fragment %{
       return waterColor.rgb;
   }
 
-#include <../effects/advanced/common-functions>
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
+  vec4 SurfacesFragmentModifyPBRParams()
+  {
+    vec4 pbr = pbrParams;
+    pbr.x = 1.0;
+    return pbr;
+  }
+
+  #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+  vec4 SurfacesFragmentModifyBaseColorAndTransparency()
+  {
+    vec4 baseColor = albedo;
+    
+    #if USE_VERTEX_COLOR
+      baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
+      baseColor.a *= FSInput_vertexColor.a;
+    #endif
+
+    #if USE_ALPHA_TEST
+      if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
+    #endif
+
+    baseColor.rgb *= albedoScaleAndCutoff.xyz;
+    return baseColor;
+  }
+
+  #define CC_SURFACES_FRAGMENT_ALPHA_CLIP_ONLY
+  void SurfacesFragmentAlphaClipOnly()
+  {
+    #if USE_ALPHA_TEST
+      float alpha = albedo.ALPHA_TEST_CHANNEL;
+      #if USE_VERTEX_COLOR
+        alpha *= FSInput_vertexColor.a;
+      #endif
+  
+      if (alpha < albedoScaleAndCutoff.w) discard;
+    #endif
+  }
+
 
 #include <surfaces/data-structures/standard>
 #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
@@ -284,8 +318,6 @@ void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
 {
   #if USE_EDGE_FADING && CC_SURFACES_TRANSFER_LOCAL_POS
     surfaceData.baseColor.a = GetVATEdgeFadeCoef();
-    vec3 voxelUV = VATCalculateFluidVoxelUV(vatBBMin.xyz, vatBBMax.xyz, FSInput_localPos.xyz);
-    if(voxelUV.y < 0.5) discard;
   #endif
 }
 

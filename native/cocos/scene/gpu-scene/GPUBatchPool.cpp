@@ -203,7 +203,7 @@ void GPUBatchPool::update(uint32_t stamp) {
 void GPUBatchPool::addModel(const Model* model) {
     const auto &subModels = model->getSubModels();
     for (const auto &subModel : subModels) {
-        const auto &passes = subModel->getPasses();
+        const auto &passes = *subModel->getPasses();
         const auto passCount = passes.size();
 
         for (auto passIdx = 0; passIdx < passCount; passIdx++) {
@@ -228,7 +228,7 @@ void GPUBatchPool::addModel(const Model* model) {
 void GPUBatchPool::removeModel(const Model* model) {
     const auto &subModels = model->getSubModels();
     for (const auto &subModel : subModels) {
-        const auto &passes = subModel->getPasses();
+        const auto &passes = *subModel->getPasses();
         const auto passCount = passes.size();
 
         for (auto passIdx = 0; passIdx < passCount; passIdx++) {

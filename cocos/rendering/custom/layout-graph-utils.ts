@@ -27,10 +27,11 @@ import { EffectAsset } from '../../asset/assets';
 import { assert } from '../../core';
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
-import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, DescriptorSetLayoutData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
+import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, DescriptorSetLayoutData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPassType, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
 import { UpdateFrequency, getUpdateFrequencyName, getDescriptorTypeOrderName, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
 
 export const INVALID_ID = 0xFFFFFFFF;
+export const ENABLE_SUBPASS = true;
 
 // get name of gfx.Type
 function getGfxTypeName (type: Type): string {
@@ -146,15 +147,20 @@ export function getCustomPassID (lg: LayoutGraphData, name: string | undefined):
     return lg.locateChild(lg.nullVertex(), name || 'default');
 }
 
-// find phaseID using passID and phase name
-export function getCustomPhaseID (lg: LayoutGraphData, passID: number, name: string | number | undefined): number {
+// find subpassID using name
+export function getCustomSubpassID (lg: LayoutGraphData, passID: number, name: string): number {
+    return lg.locateChild(passID, name);
+}
+
+// find phaseID using subpassOrPassID and phase name
+export function getCustomPhaseID (lg: LayoutGraphData, subpassOrPassID: number, name: string | number | undefined): number {
     if (name === undefined) {
-        return lg.locateChild(passID, 'default');
+        return lg.locateChild(subpassOrPassID, 'default');
     }
     if (typeof (name) === 'number') {
-        return lg.locateChild(passID, name.toString());
+        return lg.locateChild(subpassOrPassID, name.toString());
     }
-    return lg.locateChild(passID, name);
+    return lg.locateChild(subpassOrPassID, name);
 }
 
 // check ShaderStageFlagBit has certain bits
@@ -584,28 +590,43 @@ export class LayoutGraphInfo {
     lg = new LayoutGraph();
     visg: VisibilityGraph;
     readonly enableDebug = false;
-    private getPassID (passName: string): number {
+    private getPassID (passName: string, type: RenderPassType): number {
         const lg = this.lg;
         let passID = lg.locateChild(lg.nullVertex(), passName);
         if (passID === lg.nullVertex()) {
             passID = lg.addVertex<LayoutGraphValue.RenderStage>(
-                LayoutGraphValue.RenderStage, 0,
+                LayoutGraphValue.RenderStage, type,
                 passName, new DescriptorDB(),
                 lg.nullVertex(),
             );
         }
+        assert(passID !== lg.nullVertex());
         return passID;
     }
-    private getPhaseID (phaseName: string, passID: number): number {
+    private getSubpassID (subpassName: string, passID: number): number {
         const lg = this.lg;
-        let phaseID = lg.locateChild(passID, phaseName);
+        let subpassID = lg.locateChild(passID, subpassName);
+        if (subpassID === lg.nullVertex()) {
+            subpassID = lg.addVertex<LayoutGraphValue.RenderStage>(
+                LayoutGraphValue.RenderStage, RenderPassType.RENDER_SUBPASS,
+                subpassName, new DescriptorDB(),
+                passID,
+            );
+        }
+        assert(subpassID !== lg.nullVertex());
+        return subpassID;
+    }
+    private getPhaseID (phaseName: string, subpassOrPassID: number): number {
+        const lg = this.lg;
+        let phaseID = lg.locateChild(subpassOrPassID, phaseName);
         if (phaseID === lg.nullVertex()) {
             phaseID = lg.addVertex<LayoutGraphValue.RenderPhase>(
                 LayoutGraphValue.RenderPhase, new RenderPhase(),
                 phaseName, new DescriptorDB(),
-                passID,
+                subpassOrPassID,
             );
         }
+        assert(phaseID !== lg.nullVertex());
         return phaseID;
     }
     private getDescriptorBlock (key: string, descriptorDB: DescriptorDB): DescriptorBlock {
@@ -796,8 +817,12 @@ export class LayoutGraphInfo {
                 // get database
                 const passName = getPassName(pass);
                 const phaseName = getPhaseName(pass);
-                const passID = this.getPassID(passName);
-                const phaseID = this.getPhaseID(phaseName, passID);
+                const enableSubpass = pass.subpass && pass.subpass !== '' && ENABLE_SUBPASS;
+                const passID = this.getPassID(passName, enableSubpass
+                    ? RenderPassType.RENDER_PASS : RenderPassType.SINGLE_RENDER_PASS);
+                const subpassID: number | undefined = enableSubpass
+                    ? this.getSubpassID(pass.subpass!, passID) : undefined;
+                const phaseID = this.getPhaseID(phaseName, subpassID || passID);
                 const passVis = this.visg.getPass(passName);
                 const visDB = passVis.getPhase(phaseName);
                 const db = lg.getDescriptors(phaseID);
@@ -869,6 +894,7 @@ export class LayoutGraphInfo {
                 }
             }
         }
+        // build phase decriptors
         for (const v of lg.vertices()) {
             if (lg.id(v) === LayoutGraphValue.RenderStage) {
                 continue;
@@ -926,13 +952,25 @@ export class LayoutGraphInfo {
         }
         // update pass
         for (const passID of lg.vertices()) {
+            // skip RenderPhase
             if (lg.id(passID) !== LayoutGraphValue.RenderStage) {
                 continue;
             }
+            // skip RENDER_PASS
+            if (lg.getRenderStage(passID) === RenderPassType.RENDER_PASS) {
+                continue;
+            }
+            // build SINGLE_RENDER_PASS or RENDER_SUBPASS
+            assert(lg.getRenderStage(passID) === RenderPassType.SINGLE_RENDER_PASS
+                || lg.getRenderStage(passID) === RenderPassType.RENDER_SUBPASS);
             const passDB = lg.getDescriptors(passID);
             // update children phases
             for (const e of lg.children(passID)) {
                 const phaseID = lg.child(e);
+                if (lg.id(phaseID) !== LayoutGraphValue.RenderPhase) {
+                    console.error(`pass: ${lg.getName(passID)} is not single_render_pass or render_subpass`);
+                    return 1;
+                }
                 const phaseDB = lg.getDescriptors(phaseID);
                 for (const [key, passBlock] of passDB.blocks) {
                     const index: DescriptorBlockIndex = JSON.parse(key);
@@ -994,9 +1032,20 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
         const db = graph.getDescriptors(v);
         let minLevel = UpdateFrequency.PER_INSTANCE;
         let maxLevel = UpdateFrequency.PER_PASS;
+        let isRenderPass = false;
         switch (graph.id(v)) {
         case LayoutGraphValue.RenderStage: {
-            const vertID = builder.addRenderStage(graph.getName(v));
+            const type = graph.getRenderStage(v);
+            const parentID = graph.getParent(v);
+            if (type === RenderPassType.RENDER_SUBPASS) {
+                assert(parentID !== graph.nullVertex());
+            } else {
+                assert(parentID === graph.nullVertex());
+            }
+            if (type === RenderPassType.RENDER_PASS) {
+                isRenderPass = true;
+            }
+            const vertID = builder.addRenderStage(graph.getName(v), parentID);
             if (vertID !== v) {
                 console.error('vertex id mismatch');
             }
@@ -1006,6 +1055,8 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
         }
         case LayoutGraphValue.RenderPhase: {
             const parentID = graph.getParent(v);
+            const parentType = graph.getRenderStage(parentID);
+            assert(parentType === RenderPassType.RENDER_SUBPASS || parentType === RenderPassType.SINGLE_RENDER_PASS);
             const vertID = builder.addRenderPhase(graph.getName(v), parentID);
             if (vertID !== v) {
                 console.error('vertex id mismatch');
@@ -1023,6 +1074,11 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
             minLevel = UpdateFrequency.PER_INSTANCE;
             minLevel = UpdateFrequency.PER_PASS;
             break;
+        }
+
+        if (isRenderPass) {
+            assert(db.blocks.size === 0);
+            continue;
         }
 
         const flattenedBlocks = Array.from(db.blocks).sort(sortDescriptorBlocks);
@@ -1082,11 +1138,12 @@ class LayoutGraphBuilder2 {
     clear (): void {
         this.lg.clear();
     }
-    addRenderStage (name: string): number {
+    addRenderStage (name: string, parentID: number): number {
         return this.lg.addVertex<LayoutGraphDataValue.RenderStage>(
             LayoutGraphDataValue.RenderStage,
             new RenderStageData(), name,
             UpdateFrequency.PER_PASS, new PipelineLayoutData(),
+            parentID,
         );
     }
     addRenderPhase (name: string, parentID: number): number {
@@ -1462,9 +1519,9 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData) 
         if (!lg.holds(LayoutGraphDataValue.RenderPhase, v)) {
             continue;
         }
-        const passID = lg.getParent(v);
+        const subpassOrPassID = lg.getParent(v);
         const phaseID = v;
-        const passLayout = lg.getLayout(passID);
+        const passLayout = lg.getLayout(subpassOrPassID);
         const phaseLayout = lg.getLayout(phaseID);
         const info = new PipelineLayoutInfo();
         populatePipelineLayoutInfo(passLayout, UpdateFrequency.PER_PASS, info);
@@ -1502,7 +1559,7 @@ export function getEmptyPipelineLayout (): PipelineLayout {
 
 // get descriptor set from LayoutGraphData (not from ProgramData)
 export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
-    passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout {
+    subpassOrPassID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout {
     if (rate < UpdateFrequency.PER_PASS) {
         const phaseData = lg.getLayout(phaseID);
         const data = phaseData.descriptorSets.get(rate);
@@ -1517,9 +1574,9 @@ export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
     }
 
     assert(rate === UpdateFrequency.PER_PASS);
-    assert(passID === lg.getParent(phaseID));
+    assert(subpassOrPassID === lg.getParent(phaseID));
 
-    const passData = lg.getLayout(passID);
+    const passData = lg.getLayout(subpassOrPassID);
     const data = passData.descriptorSets.get(rate);
     if (data) {
         if (!data.descriptorSetLayout) {
@@ -1533,7 +1590,7 @@ export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
 
 // getDescriptorSetLayout from LayoutGraphData
 export function getDescriptorSetLayout (lg: LayoutGraphData,
-    passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout | null {
+    subpassOrPassID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout | null {
     if (rate < UpdateFrequency.PER_PASS) {
         const phaseData = lg.getLayout(phaseID);
         const data = phaseData.descriptorSets.get(rate);
@@ -1548,9 +1605,9 @@ export function getDescriptorSetLayout (lg: LayoutGraphData,
     }
 
     assert(rate === UpdateFrequency.PER_PASS);
-    assert(passID === lg.getParent(phaseID));
+    assert(subpassOrPassID === lg.getParent(phaseID));
 
-    const passData = lg.getLayout(passID);
+    const passData = lg.getLayout(subpassOrPassID);
     const data = passData.descriptorSets.get(rate);
     if (data) {
         if (!data.descriptorSetLayout) {
@@ -1602,9 +1659,9 @@ export function getDescriptorName (lg: LayoutGraphData, nameID: number): string 
 }
 
 export function getPerPassDescriptorSetLayoutData (lg: LayoutGraphData,
-    passID: number): DescriptorSetLayoutData | null {
-    assert(passID !== lg.nullVertex());
-    const node = lg.getLayout(passID);
+    subpassOrPassID: number): DescriptorSetLayoutData | null {
+    assert(subpassOrPassID !== lg.nullVertex());
+    const node = lg.getLayout(subpassOrPassID);
     const set = node.descriptorSets.get(UpdateFrequency.PER_PASS);
     if (set === undefined) {
         return null;

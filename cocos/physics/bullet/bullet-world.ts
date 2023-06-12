@@ -592,13 +592,13 @@ export class BulletWorld implements IPhysicsWorld {
                 const worldNormal = data.worldNormal;
                 const motionDir = data.motionDir;
                 const motionLength = data.motionLength;
-                emitHit.selfCCT = cct.characterController;
+                emitHit.selfController = cct.characterController;
                 emitHit.otherCollider = shape.collider;
                 emitHit.worldPosition.set(worldPos.x, worldPos.y, worldPos.z);
                 emitHit.worldNormal.set(worldNormal.x, worldNormal.y, worldNormal.z);
                 emitHit.motionDirection.set(motionDir.x, motionDir.y, motionDir.z);
                 emitHit.motionLength = motionLength;
-                emitHit.selfCCT?.emit('onColliderHit', emitHit.selfCCT, emitHit.otherCollider, emitHit);
+                emitHit.selfController?.emit('onControllerColliderHit', emitHit);
                 this._needSyncAfterEvents = true;
             }
             this.cctShapeEventDic.reset();

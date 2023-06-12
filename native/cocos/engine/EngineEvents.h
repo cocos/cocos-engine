@@ -266,6 +266,7 @@ public:
     bool ctrlKeyActive = false;
     bool metaKeyActive = false;
     bool shiftKeyActive = false;
+    ccstd::string code;
     // TODO(mingo): support caps lock?
 };
 union EventParameterType {

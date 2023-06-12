@@ -1,7 +1,6 @@
 'use strict';
 
 const texture = require('./texture');
-const { readFileSync, writeFileSync } = require('fs');
 
 exports.template = texture.template;
 
@@ -11,27 +10,7 @@ exports.$ = texture.$;
 
 const Elements = texture.Elements;
 
-exports.methods = Object.assign({}, texture.methods, {
-    // before save meta
-    apply() {
-        const file = this.asset.file;
-        if (file) {
-            try {
-                const pacData = JSON.parse(readFileSync(file, 'utf8'));
-                Object.assign(pacData, {
-                    ver: this.meta.ver,
-                    importer: this.meta.importer,
-                    userData: this.meta.userData,
-                });
-                writeFileSync(file, JSON.stringify(pacData, null, 2), 'utf8');
-            } catch (error) {
-                console.error('Failed to save auto atlas settings!');
-                return false;
-            }
-        }
-        return;
-    }
-});
+exports.methods = texture.methods;
 
 exports.ready = texture.ready;
 

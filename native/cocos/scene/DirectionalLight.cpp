@@ -69,7 +69,7 @@ void DirectionalLight::setIlluminance(float value) {
 }
 
 void DirectionalLight::activate() const {
-    auto *pipeline = pipeline::RenderPipeline::getInstance();
+    auto *pipeline = Root::getInstance()->getPipeline();
     if (pipeline) {
         if (_shadowEnabled) {
             if (_shadowFixedArea || !pipeline->getPipelineSceneData()->getCSMSupported()) {

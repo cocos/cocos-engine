@@ -72,7 +72,7 @@ NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
   opaqueBatchingQueue(alloc),
   transparentBatchingQueue(alloc) {}
 
-NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t layoutPassIDIn, const allocator_type& alloc) noexcept
+NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOrPassLayoutIDIn, const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
   transparentQueue(alloc),
   opaqueInstancingQueue(alloc),
@@ -80,7 +80,7 @@ NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t layoutPas
   opaqueBatchingQueue(alloc),
   transparentBatchingQueue(alloc),
   sceneFlags(sceneFlagsIn),
-  layoutPassID(layoutPassIDIn) {}
+  subpassOrPassLayoutID(subpassOrPassLayoutIDIn) {}
 
 NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
 : opaqueQueue(std::move(rhs.opaqueQueue), alloc),
@@ -90,7 +90,7 @@ NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_ty
   opaqueBatchingQueue(std::move(rhs.opaqueBatchingQueue), alloc),
   transparentBatchingQueue(std::move(rhs.transparentBatchingQueue), alloc),
   sceneFlags(rhs.sceneFlags),
-  layoutPassID(rhs.layoutPassID) {}
+  subpassOrPassLayoutID(rhs.subpassOrPassLayoutID) {}
 
 DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
 : name(alloc) {}
@@ -177,11 +177,35 @@ SceneResource::SceneResource(SceneResource&& rhs, const allocator_type& alloc)
   storageBuffers(std::move(rhs.storageBuffers), alloc),
   storageImages(std::move(rhs.storageImages), alloc) {}
 
+CullingQueries::CullingQueries(const allocator_type& alloc) noexcept
+: culledResultIndex(alloc) {}
+
+CullingQueries::CullingQueries(CullingQueries&& rhs, const allocator_type& alloc)
+: culledResultIndex(std::move(rhs.culledResultIndex), alloc) {}
+
+CullingQueries::CullingQueries(CullingQueries const& rhs, const allocator_type& alloc)
+: culledResultIndex(rhs.culledResultIndex, alloc) {}
+
+SceneCulling::SceneCulling(const allocator_type& alloc) noexcept
+: sceneQueries(alloc),
+  culledResults(alloc),
+  renderQueues(alloc),
+  sceneQueryIndex(alloc) {}
+
+SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
+: sceneQueries(std::move(rhs.sceneQueries), alloc),
+  culledResults(std::move(rhs.culledResults), alloc),
+  renderQueues(std::move(rhs.renderQueues), alloc),
+  sceneQueryIndex(std::move(rhs.sceneQueryIndex), alloc),
+  numCullingQueries(rhs.numCullingQueries),
+  numRenderQueues(rhs.numRenderQueues) {}
+
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
   resourceGroups(alloc),
   layoutGraphResources(alloc),
-  renderSceneResources(alloc) {}
+  renderSceneResources(alloc),
+  sceneCulling(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),

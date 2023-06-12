@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, tooltip, type, slide, range, visible, override, serializable, editable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { EventHandler as ComponentEventHandler, Node } from '../scene-graph';
 import { EventTouch } from '../input/types';
 import { Vec2, Vec3 } from '../core/math';
@@ -371,7 +371,7 @@ export class PageView extends ScrollView {
     public onEnable () {
         super.onEnable();
         this.node.on(NodeEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this.node.on(PageView.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
     }
@@ -379,7 +379,7 @@ export class PageView extends ScrollView {
     public onDisable () {
         super.onDisable();
         this.node.off(NodeEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this.node.off(PageView.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
     }
@@ -606,7 +606,7 @@ export class PageView extends ScrollView {
         if (this._sizeMode !== SizeMode.Unified) {
             return;
         }
-        const locPages = (EDITOR && !legacyCC.GAME_VIEW) ? this.content.children : this._pages;
+        const locPages = EDITOR_NOT_IN_PREVIEW ? this.content.children : this._pages;
         const selfSize = viewTrans.contentSize;
         for (let i = 0, len = locPages.length; i < len; i++) {
             locPages[i]._uiProps.uiTransformComp!.setContentSize(selfSize);

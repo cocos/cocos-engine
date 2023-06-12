@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
-import { EDITOR, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
 import { UITransform } from '../../2d/framework';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Component } from '../../scene-graph/component';
@@ -413,7 +413,7 @@ export class EditBox extends Component {
     }
 
     public onEnable () {
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this._registerEvent();
         }
         this._ensureBackgroundSprite();
@@ -429,7 +429,7 @@ export class EditBox extends Component {
     }
 
     public onDisable () {
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this._unregisterEvent();
         }
         this._unregisterBackgroundEvent();

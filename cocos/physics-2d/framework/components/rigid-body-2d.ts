@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { IRigidBody2D } from '../../spec/i-rigid-body';
-import { _decorator, Vec2, IVec2Like, cclegacy, CCBoolean, CCFloat } from '../../../core';
+import { _decorator, Vec2, IVec2Like, CCBoolean, CCFloat } from '../../../core';
 import { ERigidBody2DType } from '../physics-types';
 import { createRigidBody } from '../physics-selector';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
@@ -540,7 +540,7 @@ export class RigidBody2D extends Component {
 
     /// COMPONENT LIFECYCLE ///
     protected onLoad () {
-        if (!EDITOR || cclegacy.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this._body = createRigidBody();
             this._body.initialize(this);
         }

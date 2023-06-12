@@ -24,7 +24,7 @@
 */
 
 import { ccclass, help, requireComponent, executionOrder, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
 import { UITransform } from '../2d/framework';
 import { Sprite } from '../2d/components/sprite';
@@ -181,14 +181,14 @@ export class Toggle extends Button {
     public onEnable () {
         super.onEnable();
         this.playEffect();
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this.node.on(Toggle.EventType.CLICK, this._internalToggle, this);
         }
     }
 
     public onDisable () {
         super.onDisable();
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR_NOT_IN_PREVIEW) {
             this.node.off(Toggle.EventType.CLICK, this._internalToggle, this);
         }
     }

@@ -62,6 +62,14 @@ export class MotionState extends InteractiveState {
     @editable
     public transitionOutEventBinding = new AnimationGraphEventBinding();
 
+    /**
+     * // TODO: HACK
+     * @internal
+     */
+    __callOnAfterDeserializeRecursive () {
+        this.motion?.__callOnAfterDeserializeRecursive();
+    }
+
     public copyTo (that: MotionState) {
         super.copyTo(that);
         that.motion = this.motion?.clone() ?? null;
@@ -71,11 +79,5 @@ export class MotionState extends InteractiveState {
         this.transitionInEventBinding.copyTo(that.transitionInEventBinding);
         this.transitionOutEventBinding.copyTo(that.transitionOutEventBinding);
         return this;
-    }
-
-    public _clone () {
-        const that = new MotionState();
-        this.copyTo(that);
-        return that;
     }
 }

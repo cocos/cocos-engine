@@ -13,7 +13,6 @@ exports.style = /* css */`
     .image-preview {
         height: 200px;
         background: var(--color-normal-fill-emphasis);
-        border: 1px solid var(--color-normal-border-emphasis);
         display: flex;
         padding: 4px;
         position: relative;

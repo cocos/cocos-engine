@@ -136,6 +136,15 @@ export function connectNode (graph: PoseGraph, node: PoseGraphNode, key: PoseGra
         return;
     }
 
+    // We currently do not allow a pose producer to be connected to multiple consumers.
+    if (outputType === PoseGraphType.POSE) {
+        for (const node of graph.nodes()) {
+            const shell = graph.getShell(node);
+            assertIsTrue(shell);
+            shell.deleteBindingTo(producer);
+        }
+    }
+
     const [
         propertyKey,
         elementIndex = -1,
@@ -158,7 +167,8 @@ export function disconnectNode (graph: PoseGraph, node: PoseGraphNode, key: Pose
     graph.getShell(node)?.deleteBinding(key);
 }
 
-export function connectOutputNode(graph: PoseGraph, outputNode: PoseGraphOutputNode, producer: PoseNode) {
+export function connectOutputNode(graph: PoseGraph, producer: PoseNode) {
+    const { outputNode } = graph;
     const outputNodeInputKeys = getInputKeys(outputNode);
     assertIsTrue(outputNodeInputKeys.length === 1);
     connectNode(graph, outputNode, outputNodeInputKeys[0], producer);

@@ -41,4 +41,19 @@
 -dontwarn android.net.http.SslError
 -dontwarn android.webkit.WebViewClient
 
+# This is generated automatically by the Android Gradle plugin.
+-dontwarn android.hardware.BatteryState
+-dontwarn android.hardware.lights.Light
+-dontwarn android.hardware.lights.LightState$Builder
+-dontwarn android.hardware.lights.LightState
+-dontwarn android.hardware.lights.LightsManager$LightsSession
+-dontwarn android.hardware.lights.LightsManager
+-dontwarn android.hardware.lights.LightsRequest$Builder
+-dontwarn android.hardware.lights.LightsRequest
+-dontwarn android.net.ssl.SSLSockets
+-dontwarn android.os.VibratorManager
+
 -keep class com.huawei.hvr.LibUpdateClient {*;}
+
+-dontwarn libcore.io.Memory
+-dontwarn com.google.vr.cardboard.*

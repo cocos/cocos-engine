@@ -105,9 +105,9 @@ class Group {
 }
 
 class RuntimeMotionSyncRecordImpl implements RuntimeMotionSyncRecord {
-    public notifyRenter (): void {
+    public notifyRenter (normalizedTime: number): void {
         this.reset();
-        this.normalizedTime = 0.0;
+        this.normalizedTime = normalizedTime;
     }
 
     public notifyUpdate (normalizedDeltaTime: number, weight: number) {
@@ -138,7 +138,7 @@ class RuntimeMotionSyncRecordImpl implements RuntimeMotionSyncRecord {
 }
 
 export interface RuntimeMotionSyncRecord {
-    notifyRenter(): void;
+    notifyRenter(normalizedTime: number): void;
 
     notifyUpdate(deltaTime: number, weight: number): void;
 

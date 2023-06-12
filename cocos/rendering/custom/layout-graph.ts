@@ -42,6 +42,25 @@ export class RenderPhase {
     readonly shaders: Set<string> = new Set<string>();
 }
 
+export enum RenderPassType {
+    SINGLE_RENDER_PASS,
+    RENDER_PASS,
+    RENDER_SUBPASS,
+}
+
+export function getRenderPassTypeName (e: RenderPassType): string {
+    switch (e) {
+    case RenderPassType.SINGLE_RENDER_PASS:
+        return 'SINGLE_RENDER_PASS';
+    case RenderPassType.RENDER_PASS:
+        return 'RENDER_PASS';
+    case RenderPassType.RENDER_SUBPASS:
+        return 'RENDER_SUBPASS';
+    default:
+        return '';
+    }
+}
+
 //=================================================================
 // LayoutGraph
 //=================================================================
@@ -60,16 +79,16 @@ export function getLayoutGraphValueName (e: LayoutGraphValue): string {
 }
 
 export interface LayoutGraphValueType {
-    [LayoutGraphValue.RenderStage]: number
+    [LayoutGraphValue.RenderStage]: RenderPassType
     [LayoutGraphValue.RenderPhase]: RenderPhase
 }
 
 export interface LayoutGraphVisitor {
-    renderStage(value: number): unknown;
+    renderStage(value: RenderPassType): unknown;
     renderPhase(value: RenderPhase): unknown;
 }
 
-export type LayoutGraphObject = number | RenderPhase;
+export type LayoutGraphObject = RenderPassType | RenderPhase;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -411,16 +430,16 @@ export class LayoutGraph implements BidirectionalGraph
         const vert = this._vertices[v];
         switch (vert._id) {
         case LayoutGraphValue.RenderStage:
-            return visitor.renderStage(vert._object as number);
+            return visitor.renderStage(vert._object as RenderPassType);
         case LayoutGraphValue.RenderPhase:
             return visitor.renderPhase(vert._object as RenderPhase);
         default:
             throw Error('polymorphic type not found');
         }
     }
-    getRenderStage (v: number): number {
+    getRenderStage (v: number): RenderPassType {
         if (this._vertices[v]._id === LayoutGraphValue.RenderStage) {
-            return this._vertices[v]._object as number;
+            return this._vertices[v]._object as RenderPassType;
         } else {
             throw Error('value id not match');
         }
@@ -432,9 +451,9 @@ export class LayoutGraph implements BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryGetRenderStage (v: number): number | null {
+    tryGetRenderStage (v: number): RenderPassType | null {
         if (this._vertices[v]._id === LayoutGraphValue.RenderStage) {
-            return this._vertices[v]._object as number;
+            return this._vertices[v]._object as RenderPassType;
         } else {
             return null;
         }

@@ -26,7 +26,6 @@ import { instantiatePoseGraph, InstantiatedPoseGraph } from '../pose-graph/insta
 import { ConditionEvaluationContext } from './condition/condition-base';
 import { ReadonlyClipOverrideMap } from '../clip-overriding';
 import { AnimationGraphEventBinding } from '../event/event-binding';
-import { AnimationGraphCustomEventEmitter } from '../event/custom-event-emitter';
 
 /**
  * The max transitions can be matched in single frame.
@@ -125,7 +124,6 @@ class TopLevelStateMachineEvaluation {
         this._additive = context.additive;
         this.name = name;
         this._controller = context.controller;
-        this._customEventEmitter = context.customEventEmitter;
         const { entry, exit } = this._addStateMachine(
             stateMachine,
             null,
@@ -264,7 +262,6 @@ class TopLevelStateMachineEvaluation {
     }
 
     private declare _controller: AnimationController;
-    private _customEventEmitter: AnimationGraphCustomEventEmitter;
     /**
      * Preserved here for clip overriding.
      */
@@ -648,7 +645,7 @@ class TopLevelStateMachineEvaluation {
             return transition;
         }
 
-        if (sourceState.kind === NodeKind.animation) {
+        if (sourceState.kind === NodeKind.animation || sourceState.kind === NodeKind.procedural) {
             const transition = this._matchAnyScoped(sourceState);
             if (transition) {
                 return transition;
@@ -663,7 +660,7 @@ class TopLevelStateMachineEvaluation {
      * - to determinate the starting state machine from where the any states are matched;
      * - so we can solve transitions' relative durations.
      */
-    private _matchAnyScoped (realNode: VMSMInternalState) {
+    private _matchAnyScoped (realNode: VMSMInternalState | ProceduralPoseStateEval) {
         for (let ancestor: StateMachineInfo | null = realNode.stateMachine;
             ancestor !== null;
             ancestor = ancestor.parent) {
@@ -783,17 +780,21 @@ class TopLevelStateMachineEvaluation {
             ? this._currentNode
             : this._activatedTransitions[this._activatedTransitions.length - 2].destination;
         if (previousState instanceof EventifiedStateEval) {
-            previousState.transitionOutEventBinding?.emit(this._customEventEmitter);
+            if (previousState.transitionOutEventBinding) {
+                this._emit(previousState.transitionOutEventBinding);
+            }
         }
 
         // Fire start event on the transition.
         if (lastTransition.startEventBinding) {
-            lastTransition.startEventBinding.emit(this._customEventEmitter);
+            this._emit(lastTransition.startEventBinding);
         }
 
         // Fire transition in event on destination real target.
         if (destinationState instanceof EventifiedStateEval) {
-            destinationState.transitionInEventBinding?.emit(this._customEventEmitter);
+            if (destinationState.transitionInEventBinding) {
+                this._emit(destinationState.transitionInEventBinding);
+            }
         }
     }
 
@@ -868,7 +869,9 @@ class TopLevelStateMachineEvaluation {
         {
             assertIsTrue(lastTransition.path.length !== 0);
             const lastRealTransition = lastTransition.path[lastTransition.path.length - 1];
-            lastRealTransition.endEventBinding?.emit(this._customEventEmitter);
+            if (lastRealTransition.endEventBinding) {
+                this._emit(lastRealTransition.endEventBinding);
+            }
         }
         this._callExitMethods(this._currentNode);
         for (let iTransition = 0; iTransition <= lastTransitionIndex; ++iTransition) {
@@ -957,6 +960,10 @@ class TopLevelStateMachineEvaluation {
             node.stateMachine.components?.callStateMachineExitMethods(controller);
             break;
         }
+    }
+
+    private _emit (eventBinding: AnimationGraphEventBinding) {
+        eventBinding.emit(this._controller.node);
     }
 }
 
@@ -1328,6 +1335,10 @@ class VMSMInternalState extends EventifiedStateEval {
         return this._container.components;
     }
 
+    get normalizedTime () {
+        return this._progress;
+    }
+
     get time () {
         return this._progress * this._container.duration;
     }
@@ -1408,7 +1419,7 @@ class ProceduralPoseStateEval extends EventifiedStateEval {
 
     public constructor (state: ProceduralPoseState, context: AnimationGraphBindingContext) {
         super(state);
-        const instantiatedPoseGraph = instantiatePoseGraph(state.graph, context);
+        const instantiatedPoseGraph = instantiatePoseGraph(state.graph, context, true);
         instantiatedPoseGraph.bind(context);
         this._instantiatedPoseGraph = instantiatedPoseGraph;
         if (DEBUG) {
@@ -1441,7 +1452,7 @@ class ProceduralPoseStateEval extends EventifiedStateEval {
     }
 
     public countMotionTime () {
-        return this._instantiatedPoseGraph?.countMotionTime() ?? 0.0;
+        return this._instantiatedPoseGraph.countMotionTime();
     }
 
     private _instantiatedPoseGraph: InstantiatedPoseGraph;
@@ -1498,15 +1509,16 @@ class ConditionEvaluationContextImpl implements ConditionEvaluationContext {
     public get sourceStateMotionTimeNormalized () {
         const { _sourceState: sourceState } = this;
         assertIsTrue(
-            sourceState && isRealState(sourceState) && sourceState.activeReferenceCount,
-            `State motion time is only defined on activated motion states, pose states and empty states.`,
+            sourceState
+            && (sourceState.kind === NodeKind.animation || sourceState.kind === NodeKind.procedural)
+            && sourceState.activeReferenceCount,
+            `State motion time is only defined on activated motion states and procedural pose states.`,
         );
         switch (sourceState.kind) {
         case NodeKind.animation:
-            return sourceState.time;
+            return sourceState.normalizedTime;
         case NodeKind.procedural:
-            // TODO:
-            // fallthrough
+            return sourceState.countMotionTime();
         default:
             return 0.0;
         }

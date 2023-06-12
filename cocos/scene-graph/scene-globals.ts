@@ -40,7 +40,7 @@ import { Node } from './node';
 import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
-import { Material } from '../asset/assets/material';
+import { Material, MaterialPropertyFull } from '../asset/assets/material';
 import { cclegacy, macro } from '../core';
 import { Scene } from './scene';
 import { NodeEventType } from './node-event';
@@ -590,6 +590,27 @@ export class SkyboxInfo {
             this._resource.envmap = val;
         }
     }
+
+    /**
+     * @en
+     * Set custom skybox material properties.
+     * @zh
+     * 设置自定义的天空盒材质属性。
+     * @param name @en The target property name. @zh 目标 property 名称。
+     * @param val @en The target value. @zh 需要设置的目标值。
+     * @param passIdx
+     * @en The pass to apply to. Will apply to all passes if not specified.
+     * @zh 设置此属性的 pass 索引，如果没有指定，则会设置此属性到所有 pass 上。
+     */
+    public setMaterialProperty (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) {
+        if (!this._resource) return;
+        if (this._resource.enabled && this._resource.editableMaterial) {
+            this._resource.editableMaterial.setProperty(name, val, passIdx);
+            this._resource.editableMaterial.passes.forEach((pass) => {
+                pass.update();
+            });
+        }
+    }
 }
 legacyCC.SkyboxInfo = SkyboxInfo;
 
@@ -1092,13 +1113,11 @@ export class SkinInfo {
      * @zh 是否开启皮肤后效。
      */
     @editable
+    @readOnly
     @tooltip('i18n:skin.enabled')
     set enabled (val: boolean) {
         if (this._enabled === val) return;
         this._enabled = val;
-        if (val && !macro.ENABLE_FLOAT_OUTPUT) {
-            console.warn('Separable-SSS skin filter need float output, please open ENABLE_FLOAT_OUTPUT define...');
-        }
         if (this._resource) {
             this._resource.enabled = val;
         }
@@ -1118,10 +1137,6 @@ export class SkinInfo {
     @type(CCFloat)
     @tooltip('i18n:skin.blurRadius')
     set blurRadius (val: number) {
-        if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
-            console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
-            return;
-        }
         this._blurRadius = val;
         if (this._resource) { this._resource.blurRadius = val; }
     }
@@ -1139,10 +1154,6 @@ export class SkinInfo {
     @type(CCFloat)
     @tooltip('i18n:skin.sssIntensity')
     set sssIntensity (val: number) {
-        if ((cclegacy.director.root.pipeline.pipelineSceneData.standardSkinModel === null)) {
-            console.warn('Separable-SSS skin filter need set standard model, please check the isGlobalStandardSkinObject option in the MeshRender component.');
-            return;
-        }
         this._sssIntensity = val;
         if (this._resource) { this._resource.sssIntensity = val; }
     }
@@ -1151,17 +1162,17 @@ export class SkinInfo {
     }
 
     @serializable
-    protected _enabled = false;
+    protected _enabled = true;
     @serializable
     protected _blurRadius = 0.01;
     @serializable
-    protected _sssIntensity = 5.0;
+    protected _sssIntensity = 3.0;
 
     protected _resource: Skin | null = null;
 
     /**
      * @en Activate the skin configuration in the render scene, no need to invoke manually.
-     * @zh 在渲染场景中启用八叉树设置，不需要手动调用
+     * @zh 在渲染场景中启用皮肤设置，不需要手动调用
      * @param resource The skin configuration object in the render scene
      */
     public activate (resource: Skin) {
