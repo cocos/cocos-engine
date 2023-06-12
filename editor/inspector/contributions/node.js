@@ -6,6 +6,7 @@ const { throttle } = require('lodash');
 const utils = require('./utils');
 const { trackEventWithTimer } = require('../utils/metrics');
 const { injectionStyle } = require('../utils/prop');
+const { getDocResolveUrl } = require('../utils/docs');
 
 const lockList = [];
 let lockPerform = false;
@@ -32,9 +33,9 @@ async function performLock() {
 /**
  * 替换之前的snapshotLock,由于UI层的事件是同步的，
  * 而新的beginRecording是异步的，所以需要使用队列来保证顺序
- * @param {*} lock 
- * @param {*} uuids 
- * @param {*} cancel 
+ * @param {*} lock
+ * @param {*} uuids
+ * @param {*} cancel
  */
 function snapshotLock(panel, lock, uuids, cancel = false) {
     // 保存当前状态，放到队列中
@@ -1084,7 +1085,8 @@ const Elements = {
 
             panel.$skyboxProps = {};
 
-            panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
+            // panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
+            panel.$.nodeLink.value = getDocResolveUrl({ help: 'i18n:cc.Node' });
 
             panel.$.nodeMenu.addEventListener('click', (event) => {
                 event.stopPropagation();
@@ -1338,7 +1340,7 @@ const Elements = {
         i18nChange() {
             const panel = this;
 
-            panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
+            // panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
 
             const sectionBody = panel.$.sectionBody;
             for (let index = 0; index < sectionBody.__sections__.length; index++) {
@@ -1622,32 +1624,33 @@ exports.methods = {
      * @param editor
      */
     getHelpUrl(editor) {
-        if (!editor || !editor.help) {
-            return '';
-        }
+        return getDocResolveUrl(editor);
+        // if (!editor || !editor.help) {
+        //     return '';
+        // }
 
-        const help = editor.help;
+        // const help = editor.help;
 
-        /**
-         * 约定的规则
-         * 翻译的都需要 i18n: 开头
-         * 没有的话属于直接是配置值的方式，配什么返回什么
-         */
-        if (!help.startsWith('i18n:')) {
-            return help;
-        }
+        // /**
+        //  * 约定的规则
+        //  * 翻译的都需要 i18n: 开头
+        //  * 没有的话属于直接是配置值的方式，配什么返回什么
+        //  */
+        // if (!help.startsWith('i18n:')) {
+        //     return help;
+        // }
 
-        const i18nKey = help.substr(5);
-        const url = Editor.I18n.t('ENGINE.help.' + i18nKey);
-        if (url) {
-            return url;
-        }
+        // const i18nKey = help.substr(5);
+        // const url = Editor.I18n.t('ENGINE.help.' + i18nKey);
+        // if (url) {
+        //     return url;
+        // }
 
-        /**
-         * 再在编辑器内部查找翻译一次
-         * 结果可能为空，也是一种需求，即组件配置了但没有合适的文档配置
-         */
-        return Editor.I18n.t(i18nKey);
+        // /**
+        //  * 再在编辑器内部查找翻译一次
+        //  * 结果可能为空，也是一种需求，即组件配置了但没有合适的文档配置
+        //  */
+        // return Editor.I18n.t(i18nKey);
     },
     /**
      * 组件上的右键菜单
