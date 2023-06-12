@@ -52,6 +52,7 @@ CCProgram copy-fs %{
 
 CCProgram ssssBlur %{
   precision highp float;
+  #include <common/common-define>
   #include <common/math/number>
   #include <common/data/packing>
   #include <common/color/gamma>
