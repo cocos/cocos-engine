@@ -10,7 +10,7 @@ import { PureValueNode } from "../../../cocos/animation/marionette/pose-graph/pu
 import { assertIsTrue, editorExtrasTag } from "../../../exports/base";
 import { PoseNodeUseStashedPose } from '../../../cocos/animation/marionette/pose-graph/pose-nodes/use-stashed-pose';
 import { PoseGraphStash, StateMachine } from "../../../cocos/animation/marionette/animation-graph";
-import { visitPoseNodeInLayer } from "./visit/visit-pose-node";
+import { PoseNodeLocation, visitPoseNodeInLayer } from "./visit/visit-pose-node";
 import { PoseGraph } from '../../../cocos/animation/marionette/pose-graph/pose-graph';
 import { PoseNodeStateMachine } from "../../../cocos/animation/marionette/pose-graph/pose-nodes/state-machine";
 
@@ -304,13 +304,22 @@ export function stashPoseGraph(
     };
 }
 
-interface StashReference {
+export interface StashReference {
+    location: PoseNodeLocation;
+
+    alterReference(newStashName: string): void;
 }
 
 export function* visitStashReferences(layer: Layer, stashId: string): Generator<StashReference> {
-    for (const poseNode of visitPoseNodeInLayer(layer)) {
+    for (const poseNodeLocation of visitPoseNodeInLayer(layer)) {
+        const [poseNode] = poseNodeLocation;
         if (poseNode instanceof PoseNodeUseStashedPose && poseNode.stashName === stashId) {
-            yield poseNode;
+            yield {
+                location: poseNodeLocation,
+                alterReference(newStashName: string) {
+                    poseNode.stashName = newStashName;
+                },
+            };
         }
     }
 }
