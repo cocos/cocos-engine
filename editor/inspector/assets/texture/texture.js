@@ -590,6 +590,7 @@ const Elements = {
         },
         async update() {
             try {
+                if (!Array.isArray(this.parentAssetList)) { return; }
                 const parentPath = this.parentAssetList[0].path.replace(/\/[^/]+$/, '/*');
                 let assets = await Editor.Message.request(
                     'asset-db',
@@ -637,7 +638,7 @@ const Elements = {
                 }
             } catch (error) {
                 this.$.filterDifferent.style.display = 'none';
-                console.error(error);
+                console.warn('parse-atlas-file-error:', error);
             }
         },
     },
