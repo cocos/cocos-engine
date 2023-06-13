@@ -197,6 +197,13 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     }
 
     /**
+     * @engineInternal please don't use this method.
+     */
+    public _setActiveInHierarchy (v: boolean): void {
+        this._activeInHierarchy = v;
+    }
+
+    /**
      * @en Indicates whether this node is active in the scene.
      * @zh 表示此节点是否在场景中激活。
      */

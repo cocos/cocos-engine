@@ -58,6 +58,16 @@ const NullNode = null as unknown as Node;
 class Component extends CCObject {
     public static EventHandler = EventHandler;
 
+    /**
+     * @engineInternal
+     */
+    public static _executionOrder: number = 0;
+
+    /**
+     * @engineInternal
+     */
+    public static _requireComponent: Constructor<Component> | null = null;
+
     get name (): string {
         if (this._name) {
             return this._name;
@@ -507,6 +517,13 @@ class Component extends CCObject {
     protected update? (dt: number): void;
 
     /**
+     * @engineInternal please access `update` instead.
+     */
+    public get _internal_update (): ((dt: number) => void) | undefined {
+        return this.update;
+    }
+
+    /**
      * @en LateUpdate is called every frame, if the Component is enabled.<br/>
      * This is a lifecycle method. It may not be implemented in the super class.<br/>
      * You can only call its super class method inside it. It should not be called manually elsewhere.
@@ -515,6 +532,13 @@ class Component extends CCObject {
      * @param dt - the delta time in seconds it took to complete the last frame
      */
     protected lateUpdate? (dt: number): void;
+
+    /**
+     * @engineInternal please access `lateUpdate` instead.
+     */
+    public get _internal_lateUpdate (): ((dt: number) => void) | undefined {
+        return this.lateUpdate;
+    }
 
     /**
      * @en `__preload` is called before every onLoad.<br/>
@@ -530,6 +554,13 @@ class Component extends CCObject {
     protected __preload? (): void;
 
     /**
+     * @engineInternal please access `__preload` instead.
+     */
+    public get _internal_preload (): (() => void) | undefined {
+        return this.__preload;
+    }
+
+    /**
      * @en
      * When attaching to an active node or its node first activated.<br/>
      * onLoad is always called before any start functions, this allows you to order initialization of scripts.<br/>
@@ -540,6 +571,13 @@ class Component extends CCObject {
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
     protected onLoad? (): void;
+
+    /**
+     * @engineInternal please access `onLoad` instead.
+     */
+    public get _internal_onLoad (): (() => void) | undefined {
+        return this.onLoad;
+    }
 
     /**
      * @en
@@ -554,6 +592,13 @@ class Component extends CCObject {
     protected start? (): void;
 
     /**
+     * @engineInternal please access `start` instead.
+     */
+    public get _internal_start(): (() => void) | undefined {
+        return this.start;
+    }
+
+    /**
      * @en Called when this component becomes enabled and its node is active.<br/>
      * This is a lifecycle method. It may not be implemented in the super class.
      * You can only call its super class method inside it. It should not be called manually elsewhere.
@@ -561,6 +606,13 @@ class Component extends CCObject {
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
     protected onEnable? (): void;
+
+    /**
+     * @engineInternal please access `onEnable` instead.
+     */
+    public get _internal_onEnable (): (() => void) | undefined {
+        return this.onEnable;
+    }
 
     /**
      * @en Called when this component becomes disabled or its node becomes inactive.<br/>
@@ -572,6 +624,13 @@ class Component extends CCObject {
     protected onDisable? (): void;
 
     /**
+     * @engineInternal please access `onDisable` instead.
+     */
+    public get _internal_onDisable (): (() => void) | undefined {
+        return this.onDisable;
+    }
+
+    /**
      * @en Called when this component will be destroyed.<br/>
      * This is a lifecycle method. It may not be implemented in the super class.<br/>
      * You can only call its super class method inside it. It should not be called manually elsewhere.
@@ -579,6 +638,13 @@ class Component extends CCObject {
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
     protected onDestroy? (): void;
+
+    /**
+     * @engineInternal please access `onDestroy` instead.
+     */
+    public get _internal_onDestroy (): (() => void) | undefined {
+        return this.onDestroy;
+    }
 
     public onFocusInEditor? (): void;
 
@@ -589,7 +655,7 @@ class Component extends CCObject {
      * This function is only called in editor.<br/>
      * @zh 用来初始化组件或节点的一些属性，当该组件被第一次添加到节点上或用户点击了它的 Reset 菜单时调用。这个回调只会在编辑器下调用。
      */
-    public resetInEditor? (): void;
+    public resetInEditor? (didResetToDefault?: boolean): void;
 
     // VIRTUAL
 
@@ -648,25 +714,7 @@ class Component extends CCObject {
     protected onRestore? (): void;
 }
 
-// NOTE: here we access the protected properties in Component, so we need to mark it as type of any.
-const proto = Component.prototype as any;
-proto.update = undefined;
-proto.lateUpdate = undefined;
-proto.__preload = undefined;
-proto.onLoad = undefined;
-proto.start = undefined;
-proto.onEnable = undefined;
-proto.onDisable = undefined;
-proto.onDestroy = undefined;
-proto.onFocusInEditor = undefined;
-proto.onLostFocusInEditor = undefined;
-proto.resetInEditor = undefined;
-proto._getLocalBounds = undefined;
-proto.onRestore = undefined;
 // NOTE: these are all injected properties
-(Component as any)._requireComponent = null;
-(Component as any)._executionOrder = 0;
-
 if (EDITOR || TEST) {
     // INHERITABLE STATIC MEMBERS
     (Component as any)._executeInEditMode = false;

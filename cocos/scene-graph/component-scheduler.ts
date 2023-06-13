@@ -28,6 +28,7 @@ import { js } from '../core';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 import { legacyCC } from '../core/global-exports';
 import { error, assert } from '../core/platform/debug';
+import type { Component } from './component';
 
 const fastRemoveAt = js.array.fastRemoveAt;
 
@@ -84,15 +85,35 @@ function stableRemoveInactive (iterator, flagToClear): void {
     }
 }
 
+type InvokeFunc = (...args: unknown[]) => void;
+
 // This class contains some queues used to invoke life-cycle methods by script execution order
 export class LifeCycleInvoker {
     public static stableRemoveInactive = stableRemoveInactive;
 
+    /**
+     * @engineInternal please access `_zero` instead.
+     */
+    public get _internal_zero (): js.array.MutableForwardIterator<any> {
+        return this._zero;
+    }
+    /**
+     * @engineInternal please access `_neg` instead.
+     */
+    public get _internal_neg (): js.array.MutableForwardIterator<any> {
+        return this._neg;
+    }
+    /**
+     * @engineInternal please access `_pos` instead.
+     */
+    public get _internal_pos (): js.array.MutableForwardIterator<any> {
+        return this._pos;
+    }
     protected _zero: js.array.MutableForwardIterator<any>;
     protected _neg: js.array.MutableForwardIterator<any>;
     protected _pos: js.array.MutableForwardIterator<any>;
-    protected _invoke: any;
-    constructor (invokeFunc) {
+    protected _invoke: InvokeFunc;
+    constructor (invokeFunc: InvokeFunc) {
         const Iterator = js.array.MutableForwardIterator;
         // components which priority === 0 (default)
         this._zero = new Iterator([]);
@@ -114,17 +135,17 @@ function compareOrder (a, b): number {
 
 // for onLoad: sort once all components registered, invoke once
 export class OneOffInvoker extends LifeCycleInvoker {
-    public add (comp): void {
-        const order = comp.constructor._executionOrder;
+    public add (comp: Component): void {
+        const order = (comp.constructor as typeof Component)._executionOrder;
         (order === 0 ? this._zero : (order < 0 ? this._neg : this._pos)).array.push(comp);
     }
 
-    public remove (comp): void {
-        const order = comp.constructor._executionOrder;
+    public remove (comp: Component): void {
+        const order = (comp.constructor as typeof Component)._executionOrder;
         (order === 0 ? this._zero : (order < 0 ? this._neg : this._pos)).fastRemove(comp);
     }
 
-    public cancelInactive (flagToClear): void {
+    public cancelInactive (flagToClear: number): void {
         stableRemoveInactive(this._zero, flagToClear);
         stableRemoveInactive(this._neg, flagToClear);
         stableRemoveInactive(this._pos, flagToClear);
@@ -152,8 +173,8 @@ export class OneOffInvoker extends LifeCycleInvoker {
 
 // for update: sort every time new component registered, invoke many times
 class ReusableInvoker extends LifeCycleInvoker {
-    public add (comp): void {
-        const order = comp.constructor._executionOrder;
+    public add (comp: Component): void {
+        const order = (comp.constructor as typeof Component)._executionOrder;
         if (order === 0) {
             this._zero.array.push(comp);
         } else {
@@ -167,8 +188,8 @@ class ReusableInvoker extends LifeCycleInvoker {
         }
     }
 
-    public remove (comp): void {
-        const order = comp.constructor._executionOrder;
+    public remove (comp: Component): void {
+        const order = (comp.constructor as typeof Component)._executionOrder;
         if (order === 0) {
             this._zero.fastRemove(comp);
         } else {
@@ -180,7 +201,7 @@ class ReusableInvoker extends LifeCycleInvoker {
         }
     }
 
-    public invoke (dt): void {
+    public invoke (dt: number): void {
         if (this._neg.array.length > 0) {
             this._invoke(this._neg, dt);
         }
@@ -221,7 +242,7 @@ export function createInvokeImplJit (code: string, useDt?, ensureFlag?): (iterat
     return createInvokeImpl(singleInvoke, fastPath, ensureFlag);
 }
 export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?): (iterator: any, dt: any) => void {
-    return (iterator, dt): void => {
+    return (iterator, dt: number): void => {
         try {
             fastPath(iterator, dt);
         } catch (e) {
@@ -265,10 +286,10 @@ const invokeStart = SUPPORT_JIT ? createInvokeImplJit(`c.start();c._objFlags|=${
 
 const invokeUpdate = SUPPORT_JIT ? createInvokeImplJit('c.update(dt)', true)
     : createInvokeImpl(
-        (c, dt): void => {
+        (c, dt: number): void => {
             c.update(dt);
         },
-        (iterator, dt): void => {
+        (iterator, dt: number): void => {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].update(dt);
@@ -278,10 +299,10 @@ const invokeUpdate = SUPPORT_JIT ? createInvokeImplJit('c.update(dt)', true)
 
 const invokeLateUpdate = SUPPORT_JIT ? createInvokeImplJit('c.lateUpdate(dt)', true)
     : createInvokeImpl(
-        (c, dt): void => {
+        (c, dt: number): void => {
             c.lateUpdate(dt);
         },
-        (iterator, dt): void => {
+        (iterator, dt: number): void => {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].lateUpdate(dt);
@@ -364,7 +385,7 @@ export class ComponentScheduler {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onEnabled (comp): void {
+    public _onEnabled (comp: Component): void {
         legacyCC.director.getScheduler().resumeTarget(comp);
         comp._objFlags |= IsOnEnableCalled;
 
@@ -379,7 +400,7 @@ export class ComponentScheduler {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onDisabled (comp): void {
+    public _onDisabled (comp: Component): void {
         legacyCC.director.getScheduler().pauseTarget(comp);
         comp._objFlags &= ~IsOnEnableCalled;
 
@@ -391,13 +412,13 @@ export class ComponentScheduler {
         }
 
         // unschedule
-        if (comp.start && !(comp._objFlags & IsStartCalled)) {
+        if (comp._internal_start && !(comp._objFlags & IsStartCalled)) {
             this.startInvoker.remove(comp);
         }
-        if (comp.update) {
+        if (comp._internal_update) {
             this.updateInvoker.remove(comp);
         }
-        if (comp.lateUpdate) {
+        if (comp._internal_lateUpdate) {
             this.lateUpdateInvoker.remove(comp);
         }
     }
@@ -408,16 +429,16 @@ export class ComponentScheduler {
      * @param comp The component to be enabled
      * @param invoker The invoker which is responsible to schedule the `onEnable` call
      */
-    public enableComp (comp, invoker?): void {
+    public enableComp (comp: Component, invoker?: OneOffInvoker): void {
         if (!(comp._objFlags & IsOnEnableCalled)) {
-            if (comp.onEnable) {
+            if (comp._internal_onEnable) {
                 if (invoker) {
                     invoker.add(comp);
                     return;
                 } else {
-                    comp.onEnable();
+                    comp._internal_onEnable();
 
-                    const deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+                    const deactivatedDuringOnEnable = !comp.node.activeInHierarchy;
                     if (deactivatedDuringOnEnable) {
                         return;
                     }
@@ -432,10 +453,10 @@ export class ComponentScheduler {
      * @zh 禁用一个组件
      * @param comp The component to be disabled
      */
-    public disableComp (comp): void {
+    public disableComp (comp: Component): void {
         if (comp._objFlags & IsOnEnableCalled) {
-            if (comp.onDisable) {
-                comp.onDisable();
+            if (comp._internal_onDisable) {
+                comp._internal_onDisable();
             }
             this._onDisabled(comp);
         }
@@ -504,14 +525,14 @@ export class ComponentScheduler {
         }
     }
 
-    private _scheduleImmediate (comp): void {
-        if (typeof comp.start === 'function' && !(comp._objFlags & IsStartCalled)) {
+    private _scheduleImmediate (comp: Component): void {
+        if (typeof comp._internal_start === 'function' && !(comp._objFlags & IsStartCalled)) {
             this.startInvoker.add(comp);
         }
-        if (typeof comp.update === 'function') {
+        if (typeof comp._internal_update === 'function') {
             this.updateInvoker.add(comp);
         }
-        if (typeof comp.lateUpdate === 'function') {
+        if (typeof comp._internal_lateUpdate === 'function') {
             this.lateUpdateInvoker.add(comp);
         }
     }

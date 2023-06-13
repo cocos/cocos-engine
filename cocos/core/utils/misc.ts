@@ -31,6 +31,7 @@ import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import { macro } from '../platform/macro';
 import { setTimeoutRAF } from '../../../pal/utils';
+import type { Component } from '../../scene-graph';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
@@ -179,7 +180,7 @@ export function callInNextTick (callback, p1?: any, p2?: any): void {
  * @returns @en A new function that will invoke `functionName` with try catch.
  * @zh 使用 try catch 机制调用 `functionName` 的新函数.
  */
-export function tryCatchFunctor_EDITOR (funcName): AnyFunction {
+export function tryCatchFunctor_EDITOR (funcName: string): (comp: Component) => void {
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
     return Function('target',
         `${'try {\n'
@@ -187,7 +188,7 @@ export function tryCatchFunctor_EDITOR (funcName): AnyFunction {
         + `}\n`
         + `catch (e) {\n`
         + `  cc._throw(e);\n`
-        + `}`);
+        + `}`) as (comp: Component) => void;
 }
 
 /**
