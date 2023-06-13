@@ -37,6 +37,10 @@ import { Vec3, CCFloat, CCBoolean } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IHingeConstraint } from '../../../spec/i-physics-constraint';
 
+/**
+ * @en The hinge constraint limitation data.
+ * @zh 铰链约束的限制数据。
+ */
 @ccclass('cc.HingeLimitData')
 export class HingeLimitData {
     @serializable
@@ -96,6 +100,10 @@ export class HingeLimitData {
     }
 }
 
+/**
+ * @en The hinge constraint motor data.
+ * @zh 铰链约束的马达数据。
+ */
 @ccclass('cc.HingeMotorData')
 export class HingeMotorData {
     @serializable
@@ -155,6 +163,13 @@ export class HingeMotorData {
     }
 }
 
+/**
+ * @en Hinge constraint.
+ * It keeps the local rotation axes of two rigid bodies aligned,
+ * and locks the relative motion along the rotation axis.
+ * @zh 铰链约束。
+ * 它保持两个刚体的本地旋转轴对齐，并锁定沿旋转轴的相对运动。
+ */
 @ccclass('cc.HingeConstraint')
 @help('i18n:cc.HingeConstraint')
 @menu('Physics/HingeConstraint(beta)')
