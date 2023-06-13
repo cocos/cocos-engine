@@ -590,7 +590,10 @@ const Elements = {
         },
         async update() {
             try {
-                if (!Array.isArray(this.parentAssetList)) { return; }
+                if (!Array.isArray(this.parentAssetList)) {
+                    this.$.filterDifferent.style.display = 'none';
+                    return;
+                }
                 const parentPath = this.parentAssetList[0].path.replace(/\/[^/]+$/, '/*');
                 let assets = await Editor.Message.request(
                     'asset-db',
