@@ -67,7 +67,7 @@ export class RenderShadowMapBatchedQueue {
         this._instancedQueue = new RenderInstancedQueue();
     }
 
-    public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer, level = 0) {
+    public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer, level = 0): void {
         this.clear();
 
         const sceneData = this._pipeline.pipelineSceneData;
@@ -124,14 +124,14 @@ export class RenderShadowMapBatchedQueue {
      * @zh
      * clear light-Batched-Queue
      */
-    public clear () {
+    public clear (): void {
         this._subModelsArray.length = 0;
         this._shaderArray.length = 0;
         this._passArray.length = 0;
         this._instancedQueue.clear();
     }
 
-    public add (model: Model) {
+    public add (model: Model): void {
         const subModels = model.subModels;
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
@@ -157,7 +157,7 @@ export class RenderShadowMapBatchedQueue {
      * @zh
      * record CommandBuffer
      */
-    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer): void {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         for (let i = 0; i < this._subModelsArray.length; ++i) {

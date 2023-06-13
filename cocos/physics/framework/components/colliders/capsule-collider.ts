@@ -56,7 +56,7 @@ export class CapsuleCollider extends Collider {
      * 获取或设置胶囊体在本地坐标系下的球半径。
      */
     @tooltip('i18n:physics3d.collider.capsule_radius')
-    public get radius () {
+    public get radius (): number {
         return this._radius;
     }
 
@@ -75,7 +75,7 @@ export class CapsuleCollider extends Collider {
      * 获取或设置在本地坐标系下的胶囊体上圆柱体的高度。
      */
     @tooltip('i18n:physics3d.collider.capsule_cylinderHeight')
-    public get cylinderHeight () {
+    public get cylinderHeight (): number {
         return this._cylinderHeight;
     }
 
@@ -95,7 +95,7 @@ export class CapsuleCollider extends Collider {
      */
     @type(EAxisDirection)
     @tooltip('i18n:physics3d.collider.capsule_direction')
-    public get direction () {
+    public get direction (): EAxisDirection {
         return this._direction;
     }
 
@@ -115,7 +115,7 @@ export class CapsuleCollider extends Collider {
      * @zh
      * 获取或设置在本地坐标系下胶囊体的高度，最小值为球的直径。
      */
-    public get height () {
+    public get height (): number {
         return this._radius * 2 + this._cylinderHeight;
     }
 
@@ -131,7 +131,7 @@ export class CapsuleCollider extends Collider {
      * @zh
      * 获取胶囊体在世界坐标系下相应胶囊体朝向上的高度，只读属性。
      */
-    public get worldHeight () {
+    public get worldHeight (): number {
         return this._radius * 2 * this._getRadiusScale() + this._cylinderHeight * this._getHeightScale();
     }
 
@@ -141,7 +141,7 @@ export class CapsuleCollider extends Collider {
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
-    public get shape () {
+    public get shape (): ICapsuleShape {
         return this._shape as ICapsuleShape;
     }
 
@@ -160,7 +160,7 @@ export class CapsuleCollider extends Collider {
         super(EColliderType.CAPSULE);
     }
 
-    private _getRadiusScale () {
+    private _getRadiusScale (): number {
         if (this.node == null) return 1;
         const ws = this.node.worldScale;
         if (this._direction === EAxisDirection.Y_AXIS) return Math.abs(absMax(ws.x, ws.z));
@@ -168,7 +168,7 @@ export class CapsuleCollider extends Collider {
         return Math.abs(absMax(ws.x, ws.y));
     }
 
-    private _getHeightScale () {
+    private _getHeightScale (): number {
         if (this.node == null) return 1;
         const ws = this.node.worldScale;
         if (this._direction === EAxisDirection.Y_AXIS) return Math.abs(ws.y);

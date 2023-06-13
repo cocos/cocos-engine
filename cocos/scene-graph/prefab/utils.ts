@@ -32,7 +32,7 @@ import { ValueType } from '../../core/value-types';
 
 export * from './prefab-info';
 
-export function createNodeWithPrefab (node: Node) {
+export function createNodeWithPrefab (node: Node): void {
     // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
     // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
     const prefabInfo = (node as any)._prefab;
@@ -99,7 +99,7 @@ export function createNodeWithPrefab (node: Node) {
 }
 
 // TODO: more efficient id->Node/Component map
-export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) {
+export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean): void {
     if (!targetMap) {
         return;
     }
@@ -139,7 +139,7 @@ export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) 
     }
 }
 
-export function getTarget (localID: string[], targetMap: any) {
+export function getTarget (localID: string[], targetMap: any): Node | Component | null {
     if (!localID) {
         return null;
     }
@@ -158,7 +158,7 @@ export function getTarget (localID: string[], targetMap: any) {
     return target;
 }
 
-export function applyMountedChildren (node: Node, mountedChildren: MountedChildrenInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyMountedChildren (node: Node, mountedChildren: MountedChildrenInfo[], targetMap: Record<string, any | Node | Component>): void {
     if (!mountedChildren) {
         return;
     }
@@ -205,7 +205,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
     }
 }
 
-export function applyMountedComponents (node: Node, mountedComponents: MountedComponentsInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyMountedComponents (node: Node, mountedComponents: MountedComponentsInfo[], targetMap: Record<string, any | Node | Component>): void {
     if (!mountedComponents) {
         return;
     }
@@ -240,7 +240,7 @@ export function applyMountedComponents (node: Node, mountedComponents: MountedCo
     }
 }
 
-export function applyRemovedComponents (node: Node, removedComponents: TargetInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyRemovedComponents (node: Node, removedComponents: TargetInfo[], targetMap: Record<string, any | Node | Component>): void {
     if (!removedComponents) {
         return;
     }
@@ -261,7 +261,7 @@ export function applyRemovedComponents (node: Node, removedComponents: TargetInf
     }
 }
 
-export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyOverrideInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyOverrideInfo[], targetMap: Record<string, any | Node | Component>): void {
     if (propertyOverrides.length <= 0) {
         return;
     }
@@ -319,7 +319,7 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
     }
 }
 
-export function applyTargetOverrides (node: Node) {
+export function applyTargetOverrides (node: Node): void {
     // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
     // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
     const targetOverrides = (node as any)._prefab?.targetOverrides;
@@ -384,7 +384,7 @@ export function applyTargetOverrides (node: Node) {
     }
 }
 
-export function expandPrefabInstanceNode (node: Node, recursively = false) {
+export function expandPrefabInstanceNode (node: Node, recursively = false): void {
     // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
     // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
     const prefabInfo = (node as any)._prefab;
@@ -417,7 +417,7 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
     }
 }
 
-export function expandNestedPrefabInstanceNode (node: Node) {
+export function expandNestedPrefabInstanceNode (node: Node): void {
     // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
     // Tracking issue: https://github.com/cocos/cocos-engine/issues/14613
     const prefabInfo = (node as any)._prefab;
@@ -434,7 +434,7 @@ export function expandNestedPrefabInstanceNode (node: Node) {
 }
 
 // make sure prefab instance's children id is fixed
-export function applyNodeAndComponentId (prefabInstanceNode: Node, rootId: string) {
+export function applyNodeAndComponentId (prefabInstanceNode: Node, rootId: string): void {
     const { components, children } = prefabInstanceNode;
     for (let i = 0; i < components.length; i++) {
         const comp = components[i];

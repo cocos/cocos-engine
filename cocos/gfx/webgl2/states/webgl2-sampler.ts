@@ -78,7 +78,7 @@ export class WebGL2Sampler extends Sampler {
         WebGL2CmdFuncPrepareSamplerInfo(WebGL2DeviceManager.instance, this._gpuSampler);
     }
 
-    destroy () {
+    destroy (): void {
         if (this._gpuSampler) {
             WebGL2CmdFuncDestroySampler(WebGL2DeviceManager.instance, this._gpuSampler);
             this._gpuSampler = null;

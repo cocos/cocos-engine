@@ -38,7 +38,7 @@ export class PoseNodeSampleMotion extends PoseNode {
     @editable
     public useNormalizedTime = false;
 
-    public bind (context: AnimationGraphBindingContext) {
+    public bind (context: AnimationGraphBindingContext): void {
         const { motion } = this;
         if (!motion) {
             return;
@@ -84,7 +84,7 @@ class SampleMotionWorkspace {
 }
 
 if (EDITOR) {
-    PoseNodeSampleMotion.prototype.getTitle = function getTitle (this: PoseNodeSampleMotion) {
+    PoseNodeSampleMotion.prototype.getTitle = function getTitle (this: PoseNodeSampleMotion): string | [string, Record<string, string>] | undefined {
         return getTileBase(`ENGINE.classes.${CLASS_NAME_PREFIX_ANIM}PoseNodeSampleMotion.title`, this.motion);
     };
 

@@ -40,7 +40,7 @@ const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 const Deactivating = CCObject.Flags.Deactivating;
 
 const callPreloadInTryCatch: any = EDITOR && tryCatchFunctor_EDITOR('__preload');
-const callOnLoadInTryCatch: any = EDITOR && function (c) {
+const callOnLoadInTryCatch: any = EDITOR && function (c): void {
     try {
         c.onLoad();
     } catch (e) {
@@ -55,16 +55,16 @@ const callOnLostFocusInTryCatch: any = EDITOR && tryCatchFunctor_EDITOR('onLostF
 
 // for __preload: used internally, no sort
 class UnsortedInvoker extends LifeCycleInvoker {
-    public add (comp) {
+    public add (comp): void {
         this._zero.array.push(comp);
     }
-    public remove (comp) {
+    public remove (comp): void {
         this._zero.fastRemove(comp);
     }
-    public cancelInactive (flagToClear) {
+    public cancelInactive (flagToClear): void {
         LifeCycleInvoker.stableRemoveInactive(this._zero, flagToClear);
     }
-    public invoke () {
+    public invoke (): void {
         this._invoke(this._zero);
         this._zero.array.length = 0;
     }
@@ -72,8 +72,8 @@ class UnsortedInvoker extends LifeCycleInvoker {
 
 const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();')
     : createInvokeImpl(
-        (c) => { c.__preload(); },
-        (iterator) => {
+        (c): void => { c.__preload(); },
+        (iterator): void => {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].__preload();
@@ -82,11 +82,11 @@ const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();')
     );
 const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit(`c.onLoad();c._objFlags|=${IsOnLoadCalled}`, false, IsOnLoadCalled)
     : createInvokeImpl(
-        (c) => {
+        (c): void => {
             c.onLoad();
             c._objFlags |= IsOnLoadCalled;
         },
-        (iterator) => {
+        (iterator): void => {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 const comp = array[iterator.i];
@@ -98,7 +98,7 @@ const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit(`c.onLoad();c._objFlags|=
     );
 
 const activateTasksPool = new Pool(MAX_POOL_SIZE);
-activateTasksPool.get = function getActivateTask () {
+activateTasksPool.get = function getActivateTask (): any {
     const task: any = this._get() || {
         preload: new UnsortedInvoker(invokePreload),
         onLoad: new OneOffInvoker(invokeOnLoad),
@@ -119,7 +119,7 @@ activateTasksPool.get = function getActivateTask () {
     return task;
 };
 
-function _componentCorrupted (node, comp, index) {
+function _componentCorrupted (node, comp, index): void {
     errorID(3817, node.name, index);
     console.log('Corrupted component value:', comp);
     if (comp) {
@@ -129,7 +129,7 @@ function _componentCorrupted (node, comp, index) {
     }
 }
 
-function _onLoadInEditor (comp) {
+function _onLoadInEditor (comp): void {
     if (comp.onLoad && !legacyCC.GAME_VIEW) {
         const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
@@ -158,7 +158,7 @@ export default class NodeActivator {
      * @en Reset all activation or des-activation tasks
      * @zh 重置所有激活或非激活任务
      */
-    public reset () {
+    public reset (): void {
         // a stack of node's activating tasks
         this._activatingStack = [];
     }
@@ -169,7 +169,7 @@ export default class NodeActivator {
      * @param node Target node
      * @param active Which state to set the node to
      */
-    public activateNode (node, active) {
+    public activateNode (node, active): void {
         if (active) {
             const task: any = activateTasksPool.get();
             this._activatingStack.push(task);
@@ -204,7 +204,7 @@ export default class NodeActivator {
      * @param onLoadInvoker The invoker for `onLoad` method, normally from [[ComponentScheduler]]
      * @param onEnableInvoker The invoker for `onEnable` method, normally from [[ComponentScheduler]]
      */
-    public activateComp (comp, preloadInvoker?, onLoadInvoker?, onEnableInvoker?) {
+    public activateComp (comp, preloadInvoker?, onLoadInvoker?, onEnableInvoker?): void {
         if (!isValid(comp, true)) {
             // destroyed before activating
             return;
@@ -249,7 +249,7 @@ export default class NodeActivator {
      * @zh 销毁一个组件
      * @param comp Target component
      */
-    public destroyComp (comp) {
+    public destroyComp (comp): void {
         // ensure onDisable called
         legacyCC.director._compScheduler.disableComp(comp);
 
@@ -258,7 +258,7 @@ export default class NodeActivator {
         }
     }
 
-    protected _activateNodeRecursively (node, preloadInvoker, onLoadInvoker, onEnableInvoker) {
+    protected _activateNodeRecursively (node, preloadInvoker, onLoadInvoker, onEnableInvoker): void {
         if (node._objFlags & Deactivating) {
             // en:
             // Forbid reactive the same node during its deactivating procedure
@@ -297,7 +297,7 @@ export default class NodeActivator {
         node._onPostActivated(true);
     }
 
-    protected _deactivateNodeRecursively (node) {
+    protected _deactivateNodeRecursively (node): void {
         if (DEV) {
             assert(!(node._objFlags & Deactivating), 'node should not deactivating');
             // ensures _activeInHierarchy is always changing when Deactivating flagged
@@ -340,7 +340,7 @@ export default class NodeActivator {
 }
 
 if (EDITOR) {
-    NodeActivator.prototype.activateComp = (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) => {
+    NodeActivator.prototype.activateComp = (comp, preloadInvoker, onLoadInvoker, onEnableInvoker): void => {
         if (!isValid(comp, true)) {
             // destroyed before activating
             return;
@@ -382,7 +382,7 @@ if (EDITOR) {
         }
     };
 
-    NodeActivator.prototype.destroyComp = (comp) => {
+    NodeActivator.prototype.destroyComp = (comp): void => {
         // ensure onDisable called
         legacyCC.director._compScheduler.disableComp(comp);
 
@@ -393,7 +393,7 @@ if (EDITOR) {
         }
     };
 
-    NodeActivator.prototype.resetComp = (comp, didResetToDefault: boolean) => {
+    NodeActivator.prototype.resetComp = (comp, didResetToDefault: boolean): void => {
         if (comp.resetInEditor) {
             try {
                 comp.resetInEditor(didResetToDefault);

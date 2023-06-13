@@ -566,7 +566,7 @@ export class PipelineStatistics {
     numInstancingUniformBlocks = 0;
 }
 
-export function saveRasterView (ar: OutputArchive, v: RasterView) {
+export function saveRasterView (ar: OutputArchive, v: RasterView): void {
     ar.writeString(v.slotName);
     ar.writeString(v.slotName1);
     ar.writeNumber(v.accessType);
@@ -579,7 +579,7 @@ export function saveRasterView (ar: OutputArchive, v: RasterView) {
     ar.writeNumber(v.shaderStageFlags);
 }
 
-export function loadRasterView (ar: InputArchive, v: RasterView) {
+export function loadRasterView (ar: InputArchive, v: RasterView): void {
     v.slotName = ar.readString();
     v.slotName1 = ar.readString();
     v.accessType = ar.readNumber();
@@ -592,21 +592,21 @@ export function loadRasterView (ar: InputArchive, v: RasterView) {
     v.shaderStageFlags = ar.readNumber();
 }
 
-export function saveClearValue (ar: OutputArchive, v: ClearValue) {
+export function saveClearValue (ar: OutputArchive, v: ClearValue): void {
     ar.writeNumber(v.x);
     ar.writeNumber(v.y);
     ar.writeNumber(v.z);
     ar.writeNumber(v.w);
 }
 
-export function loadClearValue (ar: InputArchive, v: ClearValue) {
+export function loadClearValue (ar: InputArchive, v: ClearValue): void {
     v.x = ar.readNumber();
     v.y = ar.readNumber();
     v.z = ar.readNumber();
     v.w = ar.readNumber();
 }
 
-export function saveComputeView (ar: OutputArchive, v: ComputeView) {
+export function saveComputeView (ar: OutputArchive, v: ComputeView): void {
     ar.writeString(v.name);
     ar.writeNumber(v.accessType);
     ar.writeNumber(v.plane);
@@ -616,7 +616,7 @@ export function saveComputeView (ar: OutputArchive, v: ComputeView) {
     ar.writeNumber(v.shaderStageFlags);
 }
 
-export function loadComputeView (ar: InputArchive, v: ComputeView) {
+export function loadComputeView (ar: InputArchive, v: ComputeView): void {
     v.name = ar.readString();
     v.accessType = ar.readNumber();
     v.plane = ar.readNumber();
@@ -626,27 +626,27 @@ export function loadComputeView (ar: InputArchive, v: ComputeView) {
     v.shaderStageFlags = ar.readNumber();
 }
 
-export function saveLightInfo (ar: OutputArchive, v: LightInfo) {
+export function saveLightInfo (ar: OutputArchive, v: LightInfo): void {
     // skip, v.light: Light
     ar.writeNumber(v.level);
 }
 
-export function loadLightInfo (ar: InputArchive, v: LightInfo) {
+export function loadLightInfo (ar: InputArchive, v: LightInfo): void {
     // skip, v.light: Light
     v.level = ar.readNumber();
 }
 
-export function saveDescriptor (ar: OutputArchive, v: Descriptor) {
+export function saveDescriptor (ar: OutputArchive, v: Descriptor): void {
     ar.writeNumber(v.type);
     ar.writeNumber(v.count);
 }
 
-export function loadDescriptor (ar: InputArchive, v: Descriptor) {
+export function loadDescriptor (ar: InputArchive, v: Descriptor): void {
     v.type = ar.readNumber();
     v.count = ar.readNumber();
 }
 
-export function saveDescriptorBlock (ar: OutputArchive, v: DescriptorBlock) {
+export function saveDescriptorBlock (ar: OutputArchive, v: DescriptorBlock): void {
     ar.writeNumber(v.descriptors.size); // Map<string, Descriptor>
     for (const [k1, v1] of v.descriptors) {
         ar.writeString(k1);
@@ -661,7 +661,7 @@ export function saveDescriptorBlock (ar: OutputArchive, v: DescriptorBlock) {
     ar.writeNumber(v.count);
 }
 
-export function loadDescriptorBlock (ar: InputArchive, v: DescriptorBlock) {
+export function loadDescriptorBlock (ar: InputArchive, v: DescriptorBlock): void {
     let sz = 0;
     sz = ar.readNumber(); // Map<string, Descriptor>
     for (let i1 = 0; i1 !== sz; ++i1) {
@@ -681,7 +681,7 @@ export function loadDescriptorBlock (ar: InputArchive, v: DescriptorBlock) {
     v.count = ar.readNumber();
 }
 
-export function saveDescriptorBlockFlattened (ar: OutputArchive, v: DescriptorBlockFlattened) {
+export function saveDescriptorBlockFlattened (ar: OutputArchive, v: DescriptorBlockFlattened): void {
     ar.writeNumber(v.descriptorNames.length); // string[]
     for (const v1 of v.descriptorNames) {
         ar.writeString(v1);
@@ -702,7 +702,7 @@ export function saveDescriptorBlockFlattened (ar: OutputArchive, v: DescriptorBl
     ar.writeNumber(v.count);
 }
 
-export function loadDescriptorBlockFlattened (ar: InputArchive, v: DescriptorBlockFlattened) {
+export function loadDescriptorBlockFlattened (ar: InputArchive, v: DescriptorBlockFlattened): void {
     let sz = 0;
     sz = ar.readNumber(); // string[]
     v.descriptorNames.length = sz;
@@ -732,21 +732,21 @@ export function loadDescriptorBlockFlattened (ar: InputArchive, v: DescriptorBlo
     v.count = ar.readNumber();
 }
 
-export function saveDescriptorBlockIndex (ar: OutputArchive, v: DescriptorBlockIndex) {
+export function saveDescriptorBlockIndex (ar: OutputArchive, v: DescriptorBlockIndex): void {
     ar.writeNumber(v.updateFrequency);
     ar.writeNumber(v.parameterType);
     ar.writeNumber(v.descriptorType);
     ar.writeNumber(v.visibility);
 }
 
-export function loadDescriptorBlockIndex (ar: InputArchive, v: DescriptorBlockIndex) {
+export function loadDescriptorBlockIndex (ar: InputArchive, v: DescriptorBlockIndex): void {
     v.updateFrequency = ar.readNumber();
     v.parameterType = ar.readNumber();
     v.descriptorType = ar.readNumber();
     v.visibility = ar.readNumber();
 }
 
-export function saveResolvePair (ar: OutputArchive, v: ResolvePair) {
+export function saveResolvePair (ar: OutputArchive, v: ResolvePair): void {
     ar.writeString(v.source);
     ar.writeString(v.target);
     ar.writeNumber(v.resolveFlags);
@@ -754,7 +754,7 @@ export function saveResolvePair (ar: OutputArchive, v: ResolvePair) {
     ar.writeNumber(v.mode1);
 }
 
-export function loadResolvePair (ar: InputArchive, v: ResolvePair) {
+export function loadResolvePair (ar: InputArchive, v: ResolvePair): void {
     v.source = ar.readString();
     v.target = ar.readString();
     v.resolveFlags = ar.readNumber();
@@ -762,7 +762,7 @@ export function loadResolvePair (ar: InputArchive, v: ResolvePair) {
     v.mode1 = ar.readNumber();
 }
 
-export function saveCopyPair (ar: OutputArchive, v: CopyPair) {
+export function saveCopyPair (ar: OutputArchive, v: CopyPair): void {
     ar.writeString(v.source);
     ar.writeString(v.target);
     ar.writeNumber(v.mipLevels);
@@ -775,7 +775,7 @@ export function saveCopyPair (ar: OutputArchive, v: CopyPair) {
     ar.writeNumber(v.targetPlaneSlice);
 }
 
-export function loadCopyPair (ar: InputArchive, v: CopyPair) {
+export function loadCopyPair (ar: InputArchive, v: CopyPair): void {
     v.source = ar.readString();
     v.target = ar.readString();
     v.mipLevels = ar.readNumber();
@@ -788,7 +788,7 @@ export function loadCopyPair (ar: InputArchive, v: CopyPair) {
     v.targetPlaneSlice = ar.readNumber();
 }
 
-export function saveMovePair (ar: OutputArchive, v: MovePair) {
+export function saveMovePair (ar: OutputArchive, v: MovePair): void {
     ar.writeString(v.source);
     ar.writeString(v.target);
     ar.writeNumber(v.mipLevels);
@@ -798,7 +798,7 @@ export function saveMovePair (ar: OutputArchive, v: MovePair) {
     ar.writeNumber(v.targetPlaneSlice);
 }
 
-export function loadMovePair (ar: InputArchive, v: MovePair) {
+export function loadMovePair (ar: InputArchive, v: MovePair): void {
     v.source = ar.readString();
     v.target = ar.readString();
     v.mipLevels = ar.readNumber();
@@ -808,7 +808,7 @@ export function loadMovePair (ar: InputArchive, v: MovePair) {
     v.targetPlaneSlice = ar.readNumber();
 }
 
-export function savePipelineStatistics (ar: OutputArchive, v: PipelineStatistics) {
+export function savePipelineStatistics (ar: OutputArchive, v: PipelineStatistics): void {
     ar.writeNumber(v.numRenderPasses);
     ar.writeNumber(v.numManagedTextures);
     ar.writeNumber(v.totalManagedTextures);
@@ -822,7 +822,7 @@ export function savePipelineStatistics (ar: OutputArchive, v: PipelineStatistics
     ar.writeNumber(v.numInstancingUniformBlocks);
 }
 
-export function loadPipelineStatistics (ar: InputArchive, v: PipelineStatistics) {
+export function loadPipelineStatistics (ar: InputArchive, v: PipelineStatistics): void {
     v.numRenderPasses = ar.readNumber();
     v.numManagedTextures = ar.readNumber();
     v.totalManagedTextures = ar.readNumber();

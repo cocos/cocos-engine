@@ -32,7 +32,7 @@ export class Pacer {
     private _targetFrameRate = 60;
     private _isPlaying = false;
     constructor () {
-        this._updateCallback = () => {
+        this._updateCallback = (): void => {
             if (this._isPlaying) {
                 this._rafHandle = requestAnimationFrame(this._updateCallback);
             }

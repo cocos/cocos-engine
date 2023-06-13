@@ -39,15 +39,15 @@ import { UITransform } from './ui-transform';
 @disallowMultiple
 @executeInEditMode
 export class RenderRoot2D extends Component {
-    public onEnable () {
+    public onEnable (): void {
         cclegacy.director.root!.batcher2D.addScreen(this);
     }
 
-    public onDisable () {
+    public onDisable (): void {
         cclegacy.director.root!.batcher2D.removeScreen(this);
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         cclegacy.director.root!.batcher2D.removeScreen(this);
     }
 }

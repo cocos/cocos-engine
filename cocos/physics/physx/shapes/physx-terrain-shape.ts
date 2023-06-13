@@ -53,15 +53,15 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
         }
     }
 
-    get collider () {
+    get collider (): TerrainCollider {
         return this._collider as TerrainCollider;
     }
 
-    onComponentSet () {
+    onComponentSet (): void {
         this.setTerrain(this.collider.terrain);
     }
 
-    updateScale () {
+    updateScale (): void {
         this.setCenter(this._collider.center);
     }
 
@@ -71,23 +71,23 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
         if (this._impl) this._impl.setLocalPose(getTempTransform(v, this._rotation));
     }
 
-    setMaterial (v: PhysicsMaterial | null) {
+    setMaterial (v: PhysicsMaterial | null): void {
         if (this._impl) super.setMaterial(v);
     }
 
-    setAsTrigger (v: boolean) {
+    setAsTrigger (v: boolean): void {
         if (this._impl) super.setAsTrigger(v);
     }
 
-    setFilerData (v: any) {
+    setFilerData (v: any): void {
         if (this._impl) super.setFilerData(v);
     }
 
-    addToBody () {
+    addToBody (): void {
         if (this._impl) super.addToBody();
     }
 
-    removeFromBody () {
+    removeFromBody (): void {
         if (this._impl) super.removeFromBody();
     }
 }

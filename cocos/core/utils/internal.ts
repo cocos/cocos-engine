@@ -84,20 +84,20 @@ export function renameObjectProperty<T extends Record<PropertyKey, any>> (
     const result = {} as T;
 
     if (typeof originalPropertyKey === 'symbol') {
-        (Object.entries(object)).forEach(([k, v]) => {
+        (Object.entries(object)).forEach(([k, v]): void => {
             result[k as keyof T] = v;
         });
-        Object.getOwnPropertySymbols(object).forEach((k) => {
+        Object.getOwnPropertySymbols(object).forEach((k): void => {
             if (!propertyIsEnumerable.call(object, k)) {
                 return;
             }
             result[k === originalPropertyKey ? newPropertyKey : k as keyof T] = object[k as keyof T];
         });
     } else {
-        Object.entries(object).forEach(([k, v]) => {
+        Object.entries(object).forEach(([k, v]): void => {
             result[k === originalPropertyKey ? newPropertyKey : k as keyof T] = v;
         });
-        Object.getOwnPropertySymbols(object).forEach((k) => {
+        Object.getOwnPropertySymbols(object).forEach((k): void => {
             if (!propertyIsEnumerable.call(object, k)) {
                 return;
             }
@@ -176,7 +176,7 @@ export const createInstanceofProxy = ((): CreateInstanceofProxySignature => {
     // To guarantee we won't suffer from platform issue, we do check here.
     let isSymbolHasInstanceAvailable = false;
     try {
-        class Array1 { static [Symbol.hasInstance] (instance: unknown) { return Array.isArray(instance); } }
+        class Array1 { static [Symbol.hasInstance] (instance: unknown): boolean { return Array.isArray(instance); } }
         isSymbolHasInstanceAvailable = ([] instanceof Array1);
     } catch {
         isSymbolHasInstanceAvailable = false;
@@ -184,17 +184,17 @@ export const createInstanceofProxy = ((): CreateInstanceofProxySignature => {
 
     // If `Symbol.hasInstance` is not available, fallback to return the original constructor.
     if (!isSymbolHasInstanceAvailable) {
-        return (constructor) => constructor;
+        return (constructor): any => constructor;
     }
 
     // Otherwise, proxy it.
-    return (constructor) => {
-        function InstanceOfProxy () {
+    return (constructor): any => {
+        function InstanceOfProxy (): void {
             throw new Error(`This function can not be called as a constructor.`);
         }
 
         Object.defineProperty(InstanceOfProxy, Symbol.hasInstance, {
-            value (instance: unknown) {
+            value (instance: unknown): boolean {
                 return instance instanceof constructor;
             },
         });

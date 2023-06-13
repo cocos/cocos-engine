@@ -42,7 +42,7 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         this.updateFrames();
     }
 
-    setAxis (v: IVec3Like) {
+    setAxis (v: IVec3Like): void {
         this.updateFrames();
     }
 
@@ -87,7 +87,7 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         return this._com as HingeConstraint;
     }
 
-    onComponentSet () {
+    onComponentSet (): void {
         const cb = this.constraint.connectedBody;
         const bodyA = (this._rigidBody.body as BulletRigidBody).impl;
         const bodyB = cb ? (cb.body as BulletRigidBody).impl : bt.TypedConstraint_getFixedBody();
@@ -104,7 +104,7 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         this.updateFrames();
     }
 
-    updateFrames () {
+    updateFrames (): void {
         const cs = this.constraint;
         const node = cs.node;
         const v3_0 = CC_V3_0;
@@ -145,11 +145,11 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         bt.HingeConstraint_setFrames(this._impl, trans0, trans1);
     }
 
-    updateScale0 () {
+    updateScale0 (): void {
         this.updateFrames();
     }
 
-    updateScale1 () {
+    updateScale1 (): void {
         this.updateFrames();
     }
 }

@@ -96,7 +96,7 @@ export class RangedDirectionalLight extends Light {
      * @en The illuminance of the light in HDR mode
      * @zh HDR 模式下光源的辐照度
      */
-    get illuminanceHDR () {
+    get illuminanceHDR (): number {
         return this._illuminanceHDR;
     }
     set illuminanceHDR (value: number) {
@@ -107,7 +107,7 @@ export class RangedDirectionalLight extends Light {
      * @en The illuminance of the light in LDR mode
      * @zh LDR 模式下光源的辐照度
      */
-    get illuminanceLDR () {
+    get illuminanceLDR (): number {
         return this._illuminanceLDR;
     }
     set illuminanceLDR (value: number) {
@@ -119,7 +119,7 @@ export class RangedDirectionalLight extends Light {
         this._type = LightType.RANGED_DIRECTIONAL;
     }
 
-    public initialize () {
+    public initialize (): void {
         super.initialize();
 
         this.illuminance = Ambient.SUN_ILLUM;
@@ -129,7 +129,7 @@ export class RangedDirectionalLight extends Light {
      * @en Update
      * @zh 更新
      */
-    public update () {
+    public update (): void {
         if (this._node && this._node.hasChangedFlags) {
             this._node.getWorldPosition(this._pos);
             this._node.getWorldScale(this._scale);

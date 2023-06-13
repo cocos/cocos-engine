@@ -67,7 +67,7 @@ export class PlanarShadowQueue {
      * @zh
      * 清除 planar-shadow 渲染队列数据
      */
-    public clear () {
+    public clear (): void {
         this._subModelArray.length = 0;
         this._shaderArray.length = 0;
         this._passArray.length = 0;
@@ -75,7 +75,7 @@ export class PlanarShadowQueue {
         this._castModels.length = 0;
     }
 
-    public gatherShadowPasses (camera: Camera, cmdBuff: CommandBuffer) {
+    public gatherShadowPasses (camera: Camera, cmdBuff: CommandBuffer): void {
         this.clear();
         const pipelineSceneData = this._pipeline.pipelineSceneData;
         const shadows = pipelineSceneData.shadows;
@@ -136,7 +136,7 @@ export class PlanarShadowQueue {
         this._instancedQueue.uploadBuffers(cmdBuff);
     }
 
-    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer): void {
         const shadows = this._pipeline.pipelineSceneData.shadows;
 
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }

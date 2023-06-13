@@ -378,7 +378,7 @@ export class TMXTilesetInfo {
 
     collection = false;
 
-    rectForGID (gid_: MixedGID | GID, result?: TiledGrid) {
+    rectForGID (gid_: MixedGID | GID, result?: TiledGrid): Rect | TiledGrid {
         const rect = result || new Rect(0, 0, 0, 0);
         rect.width = this._tileSize.width;
         rect.height = this._tileSize.height;
@@ -427,7 +427,7 @@ export class TMXObjectGroupInfo {
      * Gets the Properties.
      * @return {Array}
      */
-    getProperties () {
+    getProperties (): PropertiesInfo {
         return this.properties;
     }
 
@@ -435,7 +435,7 @@ export class TMXObjectGroupInfo {
      * Set the Properties.
      * @param {object} value
      */
-    setProperties (value: PropertiesInfo) {
+    setProperties (value: PropertiesInfo): void {
         this.properties = value;
     }
 }
@@ -493,7 +493,7 @@ export class TMXLayerInfo {
      * Gets the Properties.
      * @return {Object}
      */
-    getProperties () {
+    getProperties (): PropertiesInfo {
         return this.properties;
     }
 
@@ -501,7 +501,7 @@ export class TMXLayerInfo {
      * Set the Properties.
      * @param {object} value
      */
-    setProperties (value: PropertiesInfo) {
+    setProperties (value: PropertiesInfo): void {
         this.properties = value;
     }
 

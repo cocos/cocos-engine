@@ -58,7 +58,7 @@ export class ToggleContainer extends Component {
      * 如果这个设置为 true，那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。
      */
     @tooltip('i18n:toggle_group.allowSwitchOff')
-    get allowSwitchOff () {
+    get allowSwitchOff (): boolean {
         return this._allowSwitchOff;
     }
 
@@ -95,22 +95,22 @@ export class ToggleContainer extends Component {
         }).filter(Boolean) as Toggle[];
     }
 
-    public onEnable () {
+    public onEnable (): void {
         this.ensureValidState();
         this.node.on(NodeEventType.CHILD_ADDED, this.ensureValidState, this);
         this.node.on(NodeEventType.CHILD_REMOVED, this.ensureValidState, this);
     }
 
-    public onDisable () {
+    public onDisable (): void {
         this.node.off(NodeEventType.CHILD_ADDED, this.ensureValidState, this);
         this.node.off(NodeEventType.CHILD_REMOVED, this.ensureValidState, this);
     }
 
-    public activeToggles () {
+    public activeToggles (): Toggle[] {
         return this.toggleItems.filter((x) => x.isChecked);
     }
 
-    public anyTogglesChecked () {
+    public anyTogglesChecked (): boolean {
         return !!this.toggleItems.find((x) => x.isChecked);
     }
 
@@ -124,7 +124,7 @@ export class ToggleContainer extends Component {
      * @param toggle @en The toggle to be updated. @zh 需要被更新的切换键。
      * @param emitEvent @en Whether events are needed to be emitted. @zh 是否需要触发事件。
      */
-    public notifyToggleCheck (toggle: Toggle, emitEvent = true) {
+    public notifyToggleCheck (toggle: Toggle, emitEvent = true): void {
         if (!this.enabledInHierarchy) { return; }
 
         for (let i = 0; i < this.toggleItems.length; i++) {
@@ -148,7 +148,7 @@ export class ToggleContainer extends Component {
      * @en Ensure toggles state valid.
      * @zh 确保 toggles 状态有效。
      */
-    public ensureValidState () {
+    public ensureValidState (): void {
         const toggles = this.toggleItems;
         if (!this._allowSwitchOff && !this.anyTogglesChecked() && toggles.length !== 0) {
             const toggle = toggles[0]!;

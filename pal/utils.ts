@@ -29,7 +29,7 @@ import { EDITOR } from 'internal:constants';
  * @param targetObject Usually it's specified as the minigame module.
  * @param originObj Original minigame environment such as `wx`, `swan` etc.
  */
-export function cloneObject (targetObject: any, originObj: any) {
+export function cloneObject (targetObject: any, originObj: any): void {
     Object.keys(originObj).forEach((key) => {
         if (typeof originObj[key] === 'function') {
             targetObject[key] = originObj[key].bind(originObj);
@@ -51,7 +51,7 @@ type InnerAudioContextPolyfillConfig = {
  * @returns A polyfilled createInnerAudioContext method.
  */
 export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfig: InnerAudioContextPolyfillConfig, isAsynchronous = false) {
-    return () => {
+    return (): InnerAudioContext => {
         const audioContext: InnerAudioContext = minigameEnv.createInnerAudioContext();
 
         // add polyfill if onPlay method doesn't work this platform
@@ -205,7 +205,7 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
         return setTimeout(callback, delay, ...args);
     }
 
-    const handleRAF = () => {
+    const handleRAF = (): void => {
         if (performance.now() - start < delay) {
             raf(handleRAF);
         } else {
@@ -221,7 +221,7 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
  * @param id A numeric ID that represents the timer to be canceled.
  * @returns Nothing.
  */
-export function clearTimeoutRAF (id) {
+export function clearTimeoutRAF (id): void {
     const caf = cancelAnimationFrame
         || window.cancelAnimationFrame
         || window.cancelRequestAnimationFrame

@@ -43,7 +43,7 @@ import { IConfigurableConstraint } from '../../../spec/i-physics-constraint';
 export class LinearLimitSettings  {
     @type(EConstraintMode)
     @tooltip('i18n:physics3d.constraint.linearLimit.xMotion')
-    get xMotion () {
+    get xMotion (): EConstraintMode {
         return this._xMotion;
     }
     set xMotion (v: EConstraintMode) {
@@ -55,7 +55,7 @@ export class LinearLimitSettings  {
 
     @type(EConstraintMode)
     @tooltip('i18n:physics3d.constraint.linearLimit.yMotion')
-    get yMotion () {
+    get yMotion (): EConstraintMode {
         return this._yMotion;
     }
     set yMotion (v: EConstraintMode) {
@@ -67,7 +67,7 @@ export class LinearLimitSettings  {
 
     @type(EConstraintMode)
     @tooltip('i18n:physics3d.constraint.linearLimit.zMotion')
-    get zMotion () {
+    get zMotion (): EConstraintMode {
         return this._zMotion;
     }
     set zMotion (v: EConstraintMode) {
@@ -79,7 +79,7 @@ export class LinearLimitSettings  {
 
     @type(Vec3)
     @tooltip('i18n:physics3d.constraint.linearLimit.upper')
-    get upper () {
+    get upper (): Vec3 {
         return this._upper;
     }
     set upper (v: Vec3) {
@@ -94,7 +94,7 @@ export class LinearLimitSettings  {
 
     @type(Vec3)
     @tooltip('i18n:physics3d.constraint.linearLimit.lower')
-    get lower () {
+    get lower (): Vec3 {
         return this._lower;
     }
     set lower (v: Vec3) {
@@ -109,7 +109,7 @@ export class LinearLimitSettings  {
 
     @type(CCFloat)
     @tooltip('i18n:physics3d.constraint.linearLimit.restitution')
-    get restitution () {
+    get restitution (): number {
         return this._bounciness;
     }
     set restitution (v: number) {
@@ -122,7 +122,7 @@ export class LinearLimitSettings  {
     @type(CCBoolean)
     @tooltip('i18n:physics3d.constraint.linearLimit.enableSoftConstraint')
     @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings' })
-    get enableSoftConstraint () {
+    get enableSoftConstraint (): boolean {
         return this._enableSoftConstraint;
     }
     set enableSoftConstraint (v: boolean) {
@@ -135,7 +135,7 @@ export class LinearLimitSettings  {
     @type(CCFloat)
     @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings' })
     @tooltip('i18n:physics3d.constraint.linearLimit.stiffness')
-    get stiffness () {
+    get stiffness (): number {
         return this._stiffness;
     }
     set stiffness (v: number) {
@@ -148,7 +148,7 @@ export class LinearLimitSettings  {
     @type(CCFloat)
     @tooltip('i18n:physics3d.constraint.linearLimit.damping')
     @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings' })
-    get damping () {
+    get damping (): number {
         return this._damping;
     }
     set damping (v: number) {
@@ -194,7 +194,7 @@ export class LinearLimitSettings  {
 export class AngularLimitSettings {
     @type(EConstraintMode)
     @tooltip('i18n:physics3d.constraint.angularLimit.twistMotion')
-    get twistMotion () {
+    get twistMotion (): EConstraintMode {
         return this._twistMotion;
     }
     set twistMotion (v: EConstraintMode) {
@@ -205,7 +205,7 @@ export class AngularLimitSettings {
     }
     @type(EConstraintMode)
     @tooltip('i18n:physics3d.constraint.angularLimit.swingMotion1')
-    get swingMotion1 () {
+    get swingMotion1 (): EConstraintMode {
         return this._swing1Motion;
     }
     set swingMotion1 (v: EConstraintMode) {
@@ -216,7 +216,7 @@ export class AngularLimitSettings {
     }
     @type(EConstraintMode)
     @tooltip('i18n:physics3d.constraint.angularLimit.swingMotion2')
-    get swingMotion2 () {
+    get swingMotion2 (): EConstraintMode {
         return this._swing2Motion;
     }
     set swingMotion2 (v: EConstraintMode) {
@@ -228,7 +228,7 @@ export class AngularLimitSettings {
 
     @type(CCFloat)
     @tooltip('i18n:physics3d.constraint.angularLimit.twistExtent')
-    get twistExtent () {
+    get twistExtent (): number {
         return this._twistExtent;
     }
     set twistExtent (v: number) {
@@ -240,7 +240,7 @@ export class AngularLimitSettings {
 
     @type(CCFloat)
     @tooltip('i18n:physics3d.constraint.angularLimit.swingExtent1')
-    get swingExtent1 () {
+    get swingExtent1 (): number {
         return this._swingExtent1;
     }
     set swingExtent1 (v: number) {
@@ -252,7 +252,7 @@ export class AngularLimitSettings {
 
     @type(CCFloat)
     @tooltip('i18n:physics3d.constraint.angularLimit.swingExtent2')
-    get swingExtent2 () {
+    get swingExtent2 (): number {
         return this._swingExtent2;
     }
     set swingExtent2 (v: number) {
@@ -264,7 +264,7 @@ export class AngularLimitSettings {
 
     @type(CCFloat)
     @tooltip('i18n:physics3d.constraint.angularLimit.twistRestitution')
-    get twistRestitution () {
+    get twistRestitution (): number {
         return this._twistBounciness;
     }
     set twistRestitution (v: number) {
@@ -276,7 +276,7 @@ export class AngularLimitSettings {
 
     @type(CCFloat)
     @tooltip('i18n:physics3d.constraint.angularLimit.swingRestitution')
-    get swingRestitution () {
+    get swingRestitution (): number {
         return this._swingBounciness;
     }
     set swingRestitution (v: number) {
@@ -289,7 +289,7 @@ export class AngularLimitSettings {
     @type(CCBoolean)
     @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings' })
     @tooltip('i18n:physics3d.constraint.angularLimit.enableSoftConstraintTwist')
-    get enableSoftConstraintTwist () {
+    get enableSoftConstraintTwist (): boolean {
         return this._enableSoftConstraintTwist;
     }
     set enableSoftConstraintTwist (v: boolean) {
@@ -302,7 +302,7 @@ export class AngularLimitSettings {
     @type(CCFloat)
     @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings' })
     @tooltip('i18n:physics3d.constraint.angularLimit.twistStiffness')
-    get twistStiffness () {
+    get twistStiffness (): number {
         return this._twistStiffness;
     }
     set twistStiffness (v: number) {
@@ -315,7 +315,7 @@ export class AngularLimitSettings {
     @type(CCFloat)
     @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings' })
     @tooltip('i18n:physics3d.constraint.angularLimit.twistDamping')
-    get twistDamping () {
+    get twistDamping (): number {
         return this._twistDamping;
     }
     set twistDamping (v: number) {
@@ -328,7 +328,7 @@ export class AngularLimitSettings {
     @type(CCBoolean)
     @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings' })
     @tooltip('i18n:physics3d.constraint.angularLimit.enableSoftConstraintSwing')
-    get enableSoftConstraintSwing () {
+    get enableSoftConstraintSwing (): boolean {
         return this._enableSoftConstraintSwing;
     }
     set enableSoftConstraintSwing (v: boolean) {
@@ -341,7 +341,7 @@ export class AngularLimitSettings {
     @type(CCFloat)
     @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings' })
     @tooltip('i18n:physics3d.constraint.angularLimit.swingStiffness')
-    get swingStiffness () {
+    get swingStiffness (): number {
         return this._swingStiffness;
     }
     set swingStiffness (v: number) {
@@ -354,7 +354,7 @@ export class AngularLimitSettings {
     @type(CCFloat)
     @group({ id: 'SoftConstraint', name: 'SoftConstraintSettings' })
     @tooltip('i18n:physics3d.constraint.angularLimit.swingDamping')
-    get swingDamping () {
+    get swingDamping (): number {
         return this._swingDamping;
     }
     set swingDamping (v: number) {
@@ -413,7 +413,7 @@ export class AngularLimitSettings {
 export class LinearDriverSettings {
     @type(EDriverMode)
     @tooltip('i18n:physics3d.constraint.linearDriver.xMode')
-    get xDrive () {
+    get xDrive (): EDriverMode {
         return this._xDrive;
     }
     set xDrive (v: EDriverMode) {
@@ -425,7 +425,7 @@ export class LinearDriverSettings {
 
     @type(EDriverMode)
     @tooltip('i18n:physics3d.constraint.linearDriver.yMode')
-    get yDrive () {
+    get yDrive (): EDriverMode {
         return this._yDrive;
     }
     set yDrive (v: EDriverMode) {
@@ -437,7 +437,7 @@ export class LinearDriverSettings {
 
     @type(EDriverMode)
     @tooltip('i18n:physics3d.constraint.linearDriver.zMode')
-    get zDrive () {
+    get zDrive (): EDriverMode {
         return this._zDrive;
     }
     set zDrive (v: EDriverMode) {
@@ -449,7 +449,7 @@ export class LinearDriverSettings {
 
     @type(Vec3)
     @tooltip('i18n:physics3d.constraint.linearDriver.targetPosition')
-    get targetPosition () {
+    get targetPosition (): Vec3 {
         return this._target;
     }
     set targetPosition (v: Vec3) {
@@ -461,7 +461,7 @@ export class LinearDriverSettings {
 
     @type(Vec3)
     @tooltip('i18n:physics3d.constraint.linearDriver.targetVelocity')
-    get targetVelocity () {
+    get targetVelocity (): Vec3 {
         return this._velocity;
     }
     set targetVelocity (v: Vec3) {
@@ -473,7 +473,7 @@ export class LinearDriverSettings {
 
     @type(CCFloat)
     @tooltip('i18n:physics3d.constraint.linearDriver.strength')
-    get strength () {
+    get strength (): number {
         return this._strength;
     }
     set strength (v) {
@@ -515,7 +515,7 @@ export class LinearDriverSettings {
 export class AngularDriverSettings {
     @type(EDriverMode)
     @tooltip('i18n:physics3d.constraint.angularDriver.twistMode')
-    get twistDrive () {
+    get twistDrive (): EDriverMode {
         return this._twistDrive;
     }
     set twistDrive (v: EDriverMode) {
@@ -527,7 +527,7 @@ export class AngularDriverSettings {
 
     @type(EDriverMode)
     @tooltip('i18n:physics3d.constraint.angularDriver.swingMode1')
-    get swingDrive1 () {
+    get swingDrive1 (): EDriverMode {
         return this._swingDrive1;
     }
     set swingDrive1 (v: EDriverMode) {
@@ -539,7 +539,7 @@ export class AngularDriverSettings {
 
     @type(EDriverMode)
     @tooltip('i18n:physics3d.constraint.angularDriver.swingMode2')
-    get swingDrive2 () {
+    get swingDrive2 (): EDriverMode {
         return this._swingDrive2;
     }
     set swingDrive2 (v: EDriverMode) {
@@ -551,7 +551,7 @@ export class AngularDriverSettings {
 
     @type(Vec3)
     @tooltip('i18n:physics3d.constraint.angularDriver.targetOrientation')
-    get targetOrientation () {
+    get targetOrientation (): Vec3 {
         return this._targetOrientation;
     }
     set targetOrientation (v) {
@@ -563,7 +563,7 @@ export class AngularDriverSettings {
 
     @type(Vec3)
     @tooltip('i18n:physics3d.constraint.angularDriver.targetAngularVelocity')
-    get targetVelocity () {
+    get targetVelocity (): Vec3 {
         return this._targetVelocity;
     }
     set targetVelocity (v) {
@@ -575,7 +575,7 @@ export class AngularDriverSettings {
 
     @type(CCFloat)
     @tooltip('i18n:physics3d.constraint.angularDriver.strength')
-    get strength () {
+    get strength (): number {
         return this._strength;
     }
     set strength (v) {
@@ -716,7 +716,7 @@ export class ConfigurableConstraint extends Constraint {
      */
     @type(CCFloat)
     @tooltip('i18n:physics3d.constraint.breakForce')
-    get breakForce () {
+    get breakForce (): number {
         return this._breakForce;
     }
     set breakForce (v) {
@@ -734,7 +734,7 @@ export class ConfigurableConstraint extends Constraint {
      */
     @type(CCFloat)
     @tooltip('i18n:physics3d.constraint.breakTorque')
-    get breakTorque () {
+    get breakTorque (): number {
         return this._breakTorque;
     }
     set breakTorque (v) {
@@ -752,7 +752,7 @@ export class ConfigurableConstraint extends Constraint {
      */
     @type(LinearLimitSettings)
     @tooltip('i18n:physics3d.constraint.linearLimit')
-    get linearLimitSettings () {
+    get linearLimitSettings (): LinearLimitSettings {
         return this._linearLimitSettings;
     }
     set linearLimitSettings (v) {
@@ -782,7 +782,7 @@ export class ConfigurableConstraint extends Constraint {
      */
     @type(AngularLimitSettings)
     @tooltip('i18n:physics3d.constraint.angularLimit')
-    get angularLimitSettings () {
+    get angularLimitSettings (): AngularLimitSettings {
         return this._angularLimitSettings;
     }
     set angularLimitSettings (v) {
@@ -812,7 +812,7 @@ export class ConfigurableConstraint extends Constraint {
      */
     @type(LinearDriverSettings)
     @tooltip('i18n:physics3d.constraint.linearDrive')
-    get linearDriverSettings () {
+    get linearDriverSettings (): LinearDriverSettings {
         return this._linearDriverSettings;
     }
     set linearDriverSettings (v) {
@@ -836,7 +836,7 @@ export class ConfigurableConstraint extends Constraint {
      */
     @type(AngularDriverSettings)
     @tooltip('i18n:physics3d.constraint.angularDrive')
-    get angularDriverSettings () {
+    get angularDriverSettings (): AngularDriverSettings {
         return this._angularDriverSettings;
     }
     set angularDriverSettings (v) {
@@ -901,7 +901,7 @@ export class ConfigurableConstraint extends Constraint {
         this._angularDriverSettings = new AngularDriverSettings(this.constraint);
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         if (!EDITOR_NOT_IN_PREVIEW) {
             this.linearLimitSettings.impl = this.constraint;

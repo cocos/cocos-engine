@@ -66,13 +66,13 @@ export interface IProgramInfo extends EffectAsset.IShaderInfo {
 function insertBuiltinBindings (
     tmpl: IProgramInfo, tmplInfo: ITemplateInfo, source: IDescriptorSetLayoutInfo,
     type: 'locals' | 'globals', outBindings?: DescriptorSetLayoutBinding[],
-) {
+): void {
     const target = tmpl.builtins[type];
     const tempBlocks: UniformBlock[] = [];
     for (let i = 0; i < target.blocks.length; i++) {
         const b = target.blocks[i];
         const info = source.layouts[b.name] as UniformBlock | undefined;
-        const binding = info && source.bindings.find((bd) => bd.binding === info.binding);
+        const binding = info && source.bindings.find((bd): boolean => bd.binding === info.binding);
         if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
             console.warn(`builtin UBO '${b.name}' not available!`);
             continue;
@@ -85,7 +85,7 @@ function insertBuiltinBindings (
     for (let i = 0; i < target.samplerTextures.length; i++) {
         const s = target.samplerTextures[i];
         const info = source.layouts[s.name] as UniformSamplerTexture;
-        const binding = info && source.bindings.find((bd) => bd.binding === info.binding);
+        const binding = info && source.bindings.find((bd): boolean => bd.binding === info.binding);
         if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
             console.warn(`builtin samplerTexture '${s.name}' not available!`);
             continue;
@@ -94,11 +94,11 @@ function insertBuiltinBindings (
         if (outBindings && !outBindings.includes(binding)) outBindings.push(binding);
     }
     Array.prototype.unshift.apply(tmplInfo.shaderInfo.samplerTextures, tempSamplerTextures);
-    if (outBindings) outBindings.sort((a, b) => a.binding - b.binding);
+    if (outBindings) outBindings.sort((a, b): number => a.binding - b.binding);
 }
 
 // find those location which won't be affected by defines, and replace by ascending order of existing slot if location > 15
-function findDefineIndependent (source: string, tmpl: IProgramInfo, attrMap: Map<string, number>, locSet: Set<number>) {
+function findDefineIndependent (source: string, tmpl: IProgramInfo, attrMap: Map<string, number>, locSet: Set<number>): string {
     const locExistingRegStr = `layout\\(location = (\\d+)\\)\\s+in.*?\\s(\\w+)[;,\\)]`;
     const locExistingReg = new RegExp(locExistingRegStr, 'g');
     let locExistingRes = locExistingReg.exec(source);
@@ -108,9 +108,9 @@ function findDefineIndependent (source: string, tmpl: IProgramInfo, attrMap: Map
     // v_normal
     while (locExistingRes) {
         const attrName = locExistingRes[2];
-        const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
+        const attrInfo = tmpl.attributes.find((ele): boolean => ele.name === attrName);
         // no define required.
-        const preExisted = attrInfo?.defines.length === 0 || attrInfo?.defines.every((ele) => ele === '');
+        const preExisted = attrInfo?.defines.length === 0 || attrInfo?.defines.every((ele): boolean => ele === '');
         if (preExisted) {
             let loc = parseInt(locExistingRes[1]);
             if (loc > 15) {
@@ -140,7 +140,7 @@ function replaceVertexMutableLocation (
     inOrOut: string,
     attrMap: Map<string, number>,
     locSet: Set<number> = new Set<number>(),
-) {
+): string {
     const locHolderRegStr = `layout\\(location = ([^\\)]+)\\)\\s+${inOrOut}.*?\\s(\\w+)[;,\\)]`;
     const locHolderReg = new RegExp(locHolderRegStr, 'g');
 
@@ -152,7 +152,7 @@ function replaceVertexMutableLocation (
     while (locHolder) {
         const attrName = locHolder[2];
         if (!attrMap.has(attrName)) {
-            const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
+            const attrInfo = tmpl.attributes.find((ele): boolean => ele.name === attrName);
             let active = true;
             let location = 0;
             // only vertexshader input is checked
@@ -162,10 +162,10 @@ function replaceVertexMutableLocation (
                 // macroInfo stores value of defines
                 // '!CC_USE_XXX' starts with a '!' is inverse condition.
                 // all defines satisfied?
-                active = !!attrInfo?.defines.every((defStrIn) => {
+                active = !!attrInfo?.defines.every((defStrIn): boolean => {
                     const inverseCond = defStrIn.startsWith('!');
                     const defStr = inverseCond ? defStrIn.slice(1) : defStrIn;
-                    const v = macroInfo.find((ele) => ele.name === defStr);
+                    const v = macroInfo.find((ele): boolean => ele.name === defStr);
                     let res = !!v;
                     if (v) {
                         res = !(v.value === '0' || v.value === 'false' || v.value === 'FALSE');
@@ -181,9 +181,9 @@ function replaceVertexMutableLocation (
                             const evalStr = lastIfRes[1];
                             const evalORElements = evalStr.split('||');
                             // simple grammar, no parenthesses support yet.
-                            const evalRes = evalORElements.some((eleOrTestStr) => {
+                            const evalRes = evalORElements.some((eleOrTestStr): boolean => {
                                 const evalANDElements = eleOrTestStr.split('&&');
-                                return evalANDElements.every((eleAndTestStr) => {
+                                return evalANDElements.every((eleAndTestStr): boolean => {
                                     let evalEleRes = true;
                                     if (eleAndTestStr.includes('==')) {
                                         const opVars = eleAndTestStr.split('==');
@@ -235,7 +235,7 @@ function replaceFragmentLocation (
     source: string,
     inOrOut: string,
     attrMap: Map<string, number>,
-) {
+): string {
     let code = source;
     const locHolderRegStr = `layout\\(location = ([^\\)]+)\\)\\s+${inOrOut}.*?\\s(\\w+)[;,\\)]`;
     const locHolderReg = new RegExp(locHolderRegStr, 'g');
@@ -269,7 +269,7 @@ export function flattenShaderLocation (
     macroInfo: IMacroInfo[],
     shaderStage,
     attrMap: Map<string, number>,
-) {
+): string {
     let code = source;
     if (shaderStage === 'vert') {
         const locSet = new Set<number>();
@@ -290,7 +290,7 @@ function processShaderInfo (
     tmpl: IProgramInfo,
     macroInfo: IMacroInfo[],
     shaderInfo,
-) {
+): void {
     // during configuring vertex state when make a pipelinestate
     // webgpu request max location of vertex attribute should not be greater than 15
     // shader source comes from offline effect-compiler can't have sense what macro is activate
@@ -320,7 +320,7 @@ export class ProgramLib {
     protected _cache: Record<string, Shader> = {};
     protected _templateInfos: Record<number, ITemplateInfo> = {};
 
-    public register (effect: EffectAsset) {
+    public register (effect: EffectAsset): void {
         for (let i = 0; i < effect.shaders.length; i++) {
             const tmpl = this.define(effect.shaders[i]);
             tmpl.effectName = effect.name;
@@ -341,7 +341,7 @@ export class ProgramLib {
      * @en Register the shader template with the given info
      * @zh 注册 shader 模板。
      */
-    public define (shader: EffectAsset.IShaderInfo) {
+    public define (shader: EffectAsset.IShaderInfo): IProgramInfo {
         const curTmpl = this._templates[shader.name];
         if (curTmpl && curTmpl.hash === shader.hash) { return curTmpl; }
         const tmpl = ({ ...shader }) as IProgramInfo;
@@ -363,7 +363,7 @@ export class ProgramLib {
                 tmplInfo.bindings.push(new DescriptorSetLayoutBinding(block.binding,
                     DescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
                 tmplInfo.shaderInfo.blocks.push(new UniformBlock(SetIndex.MATERIAL, block.binding, block.name,
-                    block.members.map((m) => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
+                    block.members.map((m): Uniform => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
             }
             for (let i = 0; i < tmpl.samplerTextures.length; i++) {
                 const samplerTexture = tmpl.samplerTextures[i];
@@ -436,7 +436,7 @@ export class ProgramLib {
      * @zh 通过名字获取 Shader 模板
      * @param name Target shader name
      */
-    public getTemplate (name: string) {
+    public getTemplate (name: string): IProgramInfo {
         return this._templates[name];
     }
 
@@ -445,7 +445,7 @@ export class ProgramLib {
      * @zh 通过名字获取 Shader 模版信息
      * @param name Target shader name
      */
-    public getTemplateInfo (name: string) {
+    public getTemplateInfo (name: string): ITemplateInfo {
         const hash = this._templates[name].hash;
         return this._templateInfos[hash];
     }
@@ -455,7 +455,7 @@ export class ProgramLib {
      * @zh 通过名字获取 Shader 模板相关联的管线布局
      * @param name Target shader name
      */
-    public getDescriptorSetLayout (device: Device, name: string, isLocal = false) {
+    public getDescriptorSetLayout (device: Device, name: string, isLocal = false): DescriptorSetLayout {
         const tmpl = this._templates[name];
         const tmplInfo = this._templateInfos[tmpl.hash];
         if (!tmplInfo.setLayouts.length) {
@@ -474,7 +474,7 @@ export class ProgramLib {
      * 当前是否有已注册的指定名字的 shader
      * @param name Target shader name
      */
-    public hasProgram (name: string) {
+    public hasProgram (name: string): boolean {
         return this._templates[name] !== undefined;
     }
 
@@ -484,7 +484,7 @@ export class ProgramLib {
      * @param name Target shader name
      * @param defines The combination of preprocess macros
      */
-    public getKey (name: string, defines: MacroRecord) {
+    public getKey (name: string, defines: MacroRecord): string {
         const tmpl = this._templates[name];
         return getVariantKey(tmpl, defines);
     }
@@ -494,14 +494,14 @@ export class ProgramLib {
      * @zh 销毁所有完全满足指定预处理宏特征的 shader 实例。
      * @param defines The preprocess macros as filter
      */
-    public destroyShaderByDefines (defines: MacroRecord) {
+    public destroyShaderByDefines (defines: MacroRecord): void {
         const names = Object.keys(defines); if (!names.length) { return; }
-        const regexes = names.map((cur) => {
+        const regexes = names.map((cur): RegExp => {
             let val = defines[cur];
             if (typeof val === 'boolean') { val = val ? '1' : '0'; }
             return new RegExp(`${cur}${val}`);
         });
-        const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(this._cache[k].name)));
+        const keys = Object.keys(this._cache).filter((k): boolean => regexes.every((re): boolean => re.test(this._cache[k].name)));
         for (let i = 0; i < keys.length; i++) {
             const k = keys[i];
             const prog = this._cache[k];
@@ -519,7 +519,7 @@ export class ProgramLib {
      * @param pipeline The [[RenderPipeline]] which owns the render command
      * @param key The shader cache key, if already known
      */
-    public getGFXShader (device: Device, name: string, defines: MacroRecord, pipeline: PipelineRuntime, key?: string) {
+    public getGFXShader (device: Device, name: string, defines: MacroRecord, pipeline: PipelineRuntime, key?: string): Shader {
         Object.assign(defines, pipeline.macros);
         if (!key) key = this.getKey(name, defines);
         const res = this._cache[key];
@@ -536,7 +536,7 @@ export class ProgramLib {
 
         const macroArray = prepareDefines(defines, tmpl.defines);
         const prefix = pipeline.constantMacros + tmpl.constantMacros
-            + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
+            + macroArray.reduce((acc, cur): string => `${acc}#define ${cur.name} ${cur.value}\n`, '');
 
         let src = tmpl.glsl3;
         const deviceShaderVersion = getDeviceShaderVersion(device);
@@ -565,7 +565,7 @@ export class ProgramLib {
     }
 }
 
-export function getDeviceShaderVersion (device: Device) {
+export function getDeviceShaderVersion (device: Device): string {
     switch (device.gfxAPI) {
     case API.GLES2:
     case API.WEBGL: return 'glsl1';

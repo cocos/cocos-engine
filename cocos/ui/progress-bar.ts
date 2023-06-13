@@ -109,7 +109,7 @@ export class ProgressBar extends Component {
      */
     @type(Sprite)
     @tooltip('i18n:progress.bar_sprite')
-    get barSprite () {
+    get barSprite (): Sprite | null {
         return this._barSprite;
     }
 
@@ -131,7 +131,7 @@ export class ProgressBar extends Component {
      */
     @type(Mode)
     @tooltip('i18n:progress.mode')
-    get mode () {
+    get mode (): Mode {
         return this._mode;
     }
 
@@ -164,7 +164,7 @@ export class ProgressBar extends Component {
      * 进度条实际的总长度。
      */
     @tooltip('i18n:progress.total_length')
-    get totalLength () {
+    get totalLength (): number {
         return this._totalLength;
     }
 
@@ -191,7 +191,7 @@ export class ProgressBar extends Component {
     @range([0, 1, 0.1])
     @slide
     @tooltip('i18n:progress.progress')
-    get progress () {
+    get progress (): number {
         return this._progress;
     }
 
@@ -212,7 +212,7 @@ export class ProgressBar extends Component {
      * 进度条是否进行反方向变化。
      */
     @tooltip('i18n:progress.reverse')
-    get reverse () {
+    get reverse (): boolean {
         return this._reverse;
     }
 
@@ -240,7 +240,7 @@ export class ProgressBar extends Component {
     @serializable
     protected _reverse = false;
 
-    protected _initBarSprite () {
+    protected _initBarSprite (): void {
         if (this._barSprite) {
             const entity = this._barSprite.node;
             if (!entity) { return; }
@@ -274,7 +274,7 @@ export class ProgressBar extends Component {
         }
     }
 
-    protected _updateBarStatus () {
+    protected _updateBarStatus (): void {
         if (this._barSprite) {
             const entity = this._barSprite.node;
 

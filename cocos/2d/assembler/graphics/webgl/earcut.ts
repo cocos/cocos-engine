@@ -52,7 +52,7 @@ class Aim {
 }
 
 // create a circular doubly linked list from polygon points in the specified winding order
-function linkedList (datas: number[], start: number, end: number, dim: number, clockwise: boolean) {
+function linkedList (datas: number[], start: number, end: number, dim: number, clockwise: boolean): Aim | null {
     let i = 0;
     let last: Aim | null = null;
 
@@ -75,7 +75,7 @@ function linkedList (datas: number[], start: number, end: number, dim: number, c
 }
 
 // eliminate colinear or duplicate points
-function filterPoints (start: Aim | null, end: Aim | null = null) {
+function filterPoints (start: Aim | null, end: Aim | null = null): Aim | null {
     if (!start) {
         return start;
     }
@@ -105,7 +105,7 @@ function filterPoints (start: Aim | null, end: Aim | null = null) {
 }
 
 // main ear slicing loop which triangulates a polygon (given as a linked list)
-function earcutLinked (ear: Aim | null, triangles: number[], dim: number, minX: number, minY: number, size: number, pass = 0) {
+function earcutLinked (ear: Aim | null, triangles: number[], dim: number, minX: number, minY: number, size: number, pass = 0): void {
     if (!ear) {
         return;
     }
@@ -163,7 +163,7 @@ function earcutLinked (ear: Aim | null, triangles: number[], dim: number, minX: 
 }
 
 // check whether a polygon node forms a valid ear with adjacent nodes
-function isEar (ear: Aim) {
+function isEar (ear: Aim): boolean {
     const a = ear.prev!;
     const b = ear;
     const c = ear.next!;
@@ -182,7 +182,7 @@ function isEar (ear: Aim) {
     return true;
 }
 
-function isEarHashed (ear: Aim, minX: number, minY: number, size) {
+function isEarHashed (ear: Aim, minX: number, minY: number, size): boolean {
     const a = ear.prev!;
     const b = ear;
     const c = ear.next!;
@@ -226,7 +226,7 @@ function isEarHashed (ear: Aim, minX: number, minY: number, size) {
 }
 
 // go through all polygon nodes and cure small local self-intersections
-function cureLocalIntersections (start: Aim, triangles: number[], dim: number) {
+function cureLocalIntersections (start: Aim, triangles: number[], dim: number): Aim {
     let p = start;
     do {
         const a = p.prev!;
@@ -250,7 +250,7 @@ function cureLocalIntersections (start: Aim, triangles: number[], dim: number) {
 }
 
 // try splitting polygon into two and triangulate them independently
-function splitEarcut (start: Aim | null, triangles: number[], dim: number, minX: number, minY: number, size: number) {
+function splitEarcut (start: Aim | null, triangles: number[], dim: number, minX: number, minY: number, size: number): void {
     // look for a valid diagonal that divides the polygon into two
     let a = start!;
     do {
@@ -276,7 +276,7 @@ function splitEarcut (start: Aim | null, triangles: number[], dim: number, minX:
 }
 
 // link every hole into the outer loop, producing a single-ring polygon without holes
-function eliminateHoles (datas: number[], holeIndices: number[], outerNode: Aim | null, dim: number) {
+function eliminateHoles (datas: number[], holeIndices: number[], outerNode: Aim | null, dim: number): Aim | null {
     const queue: Aim[] = [];
     let i = 0;
     let len = 0;
@@ -313,12 +313,12 @@ function eliminateHoles (datas: number[], holeIndices: number[], outerNode: Aim 
     return outerNode;
 }
 
-function compareX (a, b) {
+function compareX (a, b): number {
     return a.x - b.x;
 }
 
 // find a bridge between vertices that connects hole with an outer ring and and link it
-function eliminateHole (hole: Aim, outerNode: Aim | null) {
+function eliminateHole (hole: Aim, outerNode: Aim | null): void {
     outerNode = findHoleBridge(hole, outerNode!);
     if (outerNode) {
         const b = splitPolygon(outerNode, hole);
@@ -327,7 +327,7 @@ function eliminateHole (hole: Aim, outerNode: Aim | null) {
 }
 
 // David Eberly's algorithm for finding a bridge between hole and outer polygon
-function findHoleBridge (hole: Aim, outerNode: Aim) {
+function findHoleBridge (hole: Aim, outerNode: Aim): Aim | null {
     let p = outerNode;
     const hx = hole.x;
     const hy = hole.y;
@@ -389,7 +389,7 @@ function findHoleBridge (hole: Aim, outerNode: Aim) {
 }
 
 // interlink polygon nodes in z-order
-function indexCurve (start: Aim, minX: number, minY: number, size: number) {
+function indexCurve (start: Aim, minX: number, minY: number, size: number): void {
     let p = start;
     do {
         if (p.z === null) {
@@ -409,7 +409,7 @@ function indexCurve (start: Aim, minX: number, minY: number, size: number) {
 
 // Simon Tatham's linked list merge sort algorithm
 // http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
-function sortLinked (list: Aim | null) {
+function sortLinked (list: Aim | null): Aim | null {
     let i = 0;
     let p: Aim | null = null;
     let q: Aim | null = null;
@@ -474,7 +474,7 @@ function sortLinked (list: Aim | null) {
 }
 
 // z-order of a point given coords and size of the data bounding box
-function zOrder (x: number, y: number, minX: number, minY: number, size: number) {
+function zOrder (x: number, y: number, minX: number, minY: number, size: number): number {
     // coords are transformed into non-negative 15-bit integer range
     x = 32767 * (x - minX) / size;
     y = 32767 * (y - minY) / size;
@@ -493,7 +493,7 @@ function zOrder (x: number, y: number, minX: number, minY: number, size: number)
 }
 
 // find the leftmost node of a polygon ring
-function getLeftmost (start: Aim) {
+function getLeftmost (start: Aim): Aim {
     let p = start;
     let leftmost = start;
     do {
@@ -508,30 +508,30 @@ function getLeftmost (start: Aim) {
 }
 
 // check if a point lies within a convex triangle
-function pointInTriangle (ax: number, ay: number, bx: number, by: number, cx: number, cy: number, px: number, py: number) {
+function pointInTriangle (ax: number, ay: number, bx: number, by: number, cx: number, cy: number, px: number, py: number): boolean {
     return (cx - px) * (ay - py) - (ax - px) * (cy - py) >= 0
            && (ax - px) * (by - py) - (bx - px) * (ay - py) >= 0
            && (bx - px) * (cy - py) - (cx - px) * (by - py) >= 0;
 }
 
 // check if a diagonal between two polygon nodes is valid (lies in polygon interior)
-function isValidDiagonal (a: Aim, b: Aim) {
+function isValidDiagonal (a: Aim, b: Aim): boolean {
     return a.next!.i !== b.i && a.prev!.i !== b.i && !intersectsPolygon(a, b)
            && locallyInside(a, b) && locallyInside(b, a) && middleInside(a, b);
 }
 
 // signed area of a triangle
-function area (p: Aim, q: Aim, r: Aim) {
+function area (p: Aim, q: Aim, r: Aim): number {
     return (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 }
 
 // check if two points are equal
-function equals (p1: Aim, p2: Aim) {
+function equals (p1: Aim, p2: Aim): boolean {
     return p1.x === p2.x && p1.y === p2.y;
 }
 
 // check if two segments intersect
-function intersects (p1: Aim, q1: Aim, p2: Aim, q2: Aim) {
+function intersects (p1: Aim, q1: Aim, p2: Aim, q2: Aim): boolean {
     if ((equals(p1, q1) && equals(p2, q2))
         || (equals(p1, q2) && equals(p2, q1))) {
         return true;
@@ -542,7 +542,7 @@ function intersects (p1: Aim, q1: Aim, p2: Aim, q2: Aim) {
 }
 
 // check if a polygon diagonal intersects any polygon segments
-function intersectsPolygon (a: Aim, b: Aim) {
+function intersectsPolygon (a: Aim, b: Aim): boolean {
     let p = a;
     do {
         if (p.i !== a.i && p.next!.i !== a.i && p.i !== b.i && p.next!.i !== b.i
@@ -554,14 +554,14 @@ function intersectsPolygon (a: Aim, b: Aim) {
 }
 
 // check if a polygon diagonal is locally inside the polygon
-function locallyInside (a: Aim, b: Aim) {
+function locallyInside (a: Aim, b: Aim): boolean {
     return area(a.prev!, a, a.next!) < 0
         ? area(a, b, a.next!) >= 0 && area(a, a.prev!, b) >= 0
         : area(a, b, a.prev!) < 0 || area(a, a.next!, b) < 0;
 }
 
 // check if the middle point of a polygon diagonal is inside the polygon
-function middleInside (a: Aim, b: Aim) {
+function middleInside (a: Aim, b: Aim): boolean {
     let p = a;
     let inside = false;
     const px = (a.x + b.x) / 2;
@@ -578,7 +578,7 @@ function middleInside (a: Aim, b: Aim) {
 
 // link two polygon vertices with a bridge; if the vertices belong to the same ring, it splits polygon into two;
 // if one belongs to the outer ring and another to a hole, it merges it into a single ring
-function splitPolygon (a: Aim, b: Aim) {
+function splitPolygon (a: Aim, b: Aim): Aim {
     const a2 = new Aim(a.i, a.x, a.y);
     const b2 = new Aim(b.i, b.x, b.y);
     const an = a.next!;
@@ -600,7 +600,7 @@ function splitPolygon (a: Aim, b: Aim) {
 }
 
 // create a node and optionally link it with previous one (in a circular doubly linked list)
-function insertNode (i: number, x: number, y: number, last: Aim | null) {
+function insertNode (i: number, x: number, y: number, last: Aim | null): Aim {
     const p = new Aim(i, x, y);
 
     if (!last) {
@@ -616,7 +616,7 @@ function insertNode (i: number, x: number, y: number, last: Aim | null) {
     return p;
 }
 
-function removeNode (p: Aim) {
+function removeNode (p: Aim): void {
     p.next!.prev = p.prev;
     p.prev!.next = p.next;
 
@@ -629,7 +629,7 @@ function removeNode (p: Aim) {
     }
 }
 
-function signedArea (datas: number[], start: number, end: number, dim: number) {
+function signedArea (datas: number[], start: number, end: number, dim: number): number {
     let sum = 0;
     for (let i = start, j = end - dim; i < end; i += dim) {
         sum += (datas[j] - datas[i]) * (datas[i + 1] + datas[j + 1]);
@@ -638,7 +638,7 @@ function signedArea (datas: number[], start: number, end: number, dim: number) {
     return sum;
 }
 
-export function earcut (datas: number[], holeIndices: number[] | null, dim: number) {
+export function earcut (datas: number[], holeIndices: number[] | null, dim: number): number[] {
     dim = dim || 3;
 
     const hasHoles = holeIndices ? holeIndices.length : 0;

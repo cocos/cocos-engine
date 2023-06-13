@@ -28,16 +28,16 @@ export class NativeBufferPool {
     constructor (dataType: number, entryBits: number, stride: number) {
         this._chunkSize = stride * (1 << entryBits);
     }
-    public allocateNewChunk () { return new ArrayBuffer(this._chunkSize); }
+    public allocateNewChunk (): ArrayBuffer { return new ArrayBuffer(this._chunkSize); }
 }
 
 export class NativeObjectPool<T> {
     constructor (dataType: number, array: T[]) {}
-    public bind (index: number, obj: T) {}
+    public bind (index: number, obj: T): void {}
 }
 
 export class NativeBufferAllocator {
     constructor (poolType: number) {}
-    public alloc (index: number, bytes: number) { return new ArrayBuffer(bytes); }
-    public free (index: number) {}
+    public alloc (index: number, bytes: number): ArrayBuffer { return new ArrayBuffer(bytes); }
+    public free (index: number): void {}
 }

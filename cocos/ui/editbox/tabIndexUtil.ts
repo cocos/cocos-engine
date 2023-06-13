@@ -27,7 +27,7 @@ import { EditBoxImpl } from './edit-box-impl';
 export class tabIndexUtil {
     public static _tabIndexList: EditBoxImpl[] = [];
 
-    public static add (editBoxImpl: EditBoxImpl) {
+    public static add (editBoxImpl: EditBoxImpl): void {
         const list = this._tabIndexList;
         const index = list.indexOf(editBoxImpl);
         if (index === -1) {
@@ -35,7 +35,7 @@ export class tabIndexUtil {
         }
     }
 
-    public static remove (editBoxImpl: EditBoxImpl) {
+    public static remove (editBoxImpl: EditBoxImpl): void {
         const list = this._tabIndexList;
         const index = list.indexOf(editBoxImpl);
         if (index !== -1) {
@@ -43,11 +43,11 @@ export class tabIndexUtil {
         }
     }
 
-    public static resort () {
+    public static resort (): void {
         this._tabIndexList.sort((a: EditBoxImpl, b: EditBoxImpl) => a._delegate!.tabIndex - b._delegate!.tabIndex);
     }
 
-    public static next (editBoxImpl: EditBoxImpl) {
+    public static next (editBoxImpl: EditBoxImpl): void {
         const list = this._tabIndexList;
         const index = list.indexOf(editBoxImpl);
         editBoxImpl.setFocus(false);

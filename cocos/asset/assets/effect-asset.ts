@@ -26,7 +26,7 @@ import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Root } from '../../root';
 import { BlendState, DepthStencilState, RasterizerState,
-    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager, ShaderInfo } from '../../gfx';
+    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager, ShaderInfo, Shader } from '../../gfx';
 import { RenderPassStage } from '../../rendering/define';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { programLib } from '../../render-scene/core/program-lib';
@@ -221,7 +221,7 @@ export class EffectAsset extends Asset {
      *
      * @param asset @en The effect asset to be registered. @zh 待注册的 effect asset。
      */
-    public static register (asset: EffectAsset) {
+    public static register (asset: EffectAsset): void {
         EffectAsset._effects[asset.name] = asset;
         EffectAsset._layoutValid = false;
     }
@@ -232,7 +232,7 @@ export class EffectAsset extends Asset {
      *
      * @param asset - @en The effect asset to be removed. @zh 待移除的 effect asset。
      */
-    public static remove (asset: EffectAsset | string) {
+    public static remove (asset: EffectAsset | string): void {
         if (typeof asset !== 'string') {
             if (EffectAsset._effects[asset.name] && EffectAsset._effects[asset.name] === asset) {
                 delete EffectAsset._effects[asset.name];
@@ -255,7 +255,7 @@ export class EffectAsset extends Asset {
      * @param name - @en The name of effect you want to get. @zh 想要获取的 effect 的名字。
      * @returns @en The effect. @zh 你查询的 effect.
      */
-    public static get (name: string) {
+    public static get (name: string): EffectAsset | null {
         if (EffectAsset._effects[name]) { return EffectAsset._effects[name]; }
         for (const n in EffectAsset._effects) {
             if (EffectAsset._effects[n]._uuid === name) {
@@ -273,7 +273,7 @@ export class EffectAsset extends Asset {
      * @zh 获取所有已注册的 effect 资源。
      * @returns @en All registered effects. @zh 所有已注册的 effect 资源。
      */
-    public static getAll () { return EffectAsset._effects; }
+    public static getAll (): Record<string, EffectAsset> { return EffectAsset._effects; }
 
     /**
      * @engineInternal
@@ -329,7 +329,7 @@ export class EffectAsset extends Asset {
      * @en The loaded callback which should be invoked by the [[AssetManager]], will automatically register the effect.
      * @zh 通过 [[AssetManager]] 加载完成时的回调，将自动注册 effect 资源。
      */
-    public onLoaded () {
+    public onLoaded (): void {
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             addEffectDefaultProperties(this);
             (cclegacy.rendering.programLib as ProgramLibrary).addEffect(this);
@@ -343,7 +343,7 @@ export class EffectAsset extends Asset {
     /**
      * @engineInternal
      */
-    protected _precompile () {
+    protected _precompile (): void {
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             (cclegacy.rendering.programLib as ProgramLibrary).precompileEffect(deviceManager.gfxDevice, this);
             return;
@@ -357,17 +357,17 @@ export class EffectAsset extends Asset {
             }
             const defines = getCombinationDefines(combination);
             defines.forEach(
-                (defines) => programLib.getGFXShader(deviceManager.gfxDevice, shader.name, defines, root.pipeline),
+                (defines): Shader => programLib.getGFXShader(deviceManager.gfxDevice, shader.name, defines, root.pipeline),
             );
         }
     }
 
-    public destroy () {
+    public destroy (): boolean {
         EffectAsset.remove(this);
         return super.destroy();
     }
 
-    public initDefault (uuid?: string) {
+    public initDefault (uuid?: string): void {
         super.initDefault(uuid);
         const effect = EffectAsset.get('builtin-unlit');
         this.name = 'builtin-unlit';
@@ -376,7 +376,7 @@ export class EffectAsset extends Asset {
         this.techniques = effect!.techniques;
     }
 
-    public validate () {
+    public validate (): boolean {
         return this.techniques.length > 0 && this.shaders.length > 0;
     }
 }

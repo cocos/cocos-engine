@@ -42,7 +42,7 @@ const quat_0 = new Quat();
 export class BuiltinSharedBody extends BuiltinObject {
     private static readonly sharedBodesMap = new Map<string, BuiltinSharedBody>();
 
-    static getSharedBody (node: Node, wrappedWorld: BuiltInWorld, wrappedBody?: BuiltinRigidBody) {
+    static getSharedBody (node: Node, wrappedWorld: BuiltInWorld, wrappedBody?: BuiltinRigidBody): BuiltinSharedBody {
         const key = node.uuid;
         let newSB: BuiltinSharedBody;
         if (BuiltinSharedBody.sharedBodesMap.has(key)) {
@@ -65,7 +65,7 @@ export class BuiltinSharedBody extends BuiltinObject {
         return newSB;
     }
 
-    get id () {
+    get id (): number {
         return this._id;
     }
 
@@ -115,7 +115,7 @@ export class BuiltinSharedBody extends BuiltinObject {
         this.world = world;
     }
 
-    intersects (body: BuiltinSharedBody) {
+    intersects (body: BuiltinSharedBody): void {
         for (let i = 0; i < this.shapes.length; i++) {
             const shapeA = this.shapes[i];
             for (let j = 0; j < body.shapes.length; j++) {
@@ -144,7 +144,7 @@ export class BuiltinSharedBody extends BuiltinObject {
         }
     }
 
-    syncSceneToPhysics () {
+    syncSceneToPhysics (): void {
         if (this.node.hasChangedFlags) {
             this.node.getWorldMatrix(m4_0);
             v3_0.set(this.node.worldPosition);
@@ -156,7 +156,7 @@ export class BuiltinSharedBody extends BuiltinObject {
         }
     }
 
-    syncInitial () {
+    syncInitial (): void {
         this.node.getWorldMatrix(m4_0);
         v3_0.set(this.node.worldPosition);
         quat_0.set(this.node.worldRotation);
@@ -166,7 +166,7 @@ export class BuiltinSharedBody extends BuiltinObject {
         }
     }
 
-    private destroy () {
+    private destroy (): void {
         BuiltinSharedBody.sharedBodesMap.delete(this.node.uuid);
         (this.node as any) = null;
         (this.world as any) = null;

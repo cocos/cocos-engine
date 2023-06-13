@@ -86,7 +86,7 @@ export class Pool<T> extends ScalableContainer {
      * @param obj @en The object to be put back into the pool.
      * @zh 放回对象池中的对象。
      */
-    public free (obj: T) {
+    public free (obj: T): void {
         this._freePool[++this._nextAvail] = obj;
     }
 
@@ -96,7 +96,7 @@ export class Pool<T> extends ScalableContainer {
      * @param objs @en An array of objects to be put back into the pool.
      * @zh 放回对象池中的一组对象。
      */
-    public freeArray (objs: T[]) {
+    public freeArray (objs: T[]): void {
         this._freePool.length = this._nextAvail + 1;
         Array.prototype.push.apply(this._freePool, objs);
         this._nextAvail += objs.length;
@@ -106,7 +106,7 @@ export class Pool<T> extends ScalableContainer {
      * @en Try to shrink the object pool to reduce memory usage.
      * @zh 尝试缩容对象池，以释放内存。
      */
-    public tryShrink () {
+    public tryShrink (): void {
         if (this._nextAvail >> 1 > this._elementsPerBatch) {
             if (this._dtor) {
                 for (let i = this._nextAvail >> 1; i <= this._nextAvail; i++) {
@@ -122,7 +122,7 @@ export class Pool<T> extends ScalableContainer {
      * @en Destroy all elements and clear the pool.
      * @zh 释放对象池中所有资源并清空缓存池。
      */
-    public destroy () {
+    public destroy (): void {
         const dtor = arguments.length > 0 ? arguments[0] : null;
         if (dtor) { warnID(14100); }
         const readDtor = dtor || this._dtor;

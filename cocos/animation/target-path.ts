@@ -25,6 +25,7 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { Node } from '../scene-graph/node';
 import { warnID } from '../core';
+import type { Component } from '../scene-graph';
 
 /**
  * @deprecated Since V3.3, use [[TrackPath]] instead.
@@ -78,7 +79,7 @@ export class HierarchyPath implements ICustomTargetPath {
         this.path = path || '';
     }
 
-    public get (target: Node) {
+    public get (target: Node): Node | null {
         if (!(target instanceof Node)) {
             warnID(3925);
             return null;
@@ -104,7 +105,7 @@ export class ComponentPath implements ICustomTargetPath {
         this.component = component || '';
     }
 
-    public get (target: Node) {
+    public get (target: Node): Component | null {
         if (!(target instanceof Node)) {
             warnID(3927);
             return null;

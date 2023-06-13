@@ -1021,7 +1021,7 @@ export function patch_cc_SkyboxInfo(ctx: cc_SkyboxInfo_Context_Args, apply = def
   apply(() => { $.type(TextureCube)(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'type', 'diffuseMap');
   apply(() => { $$.readOnly(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'readOnly', 'diffuseMap');
   apply(() => { $.editable(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'editable', 'diffuseMap');
-  apply(() => { $.visible(function (this: SkyboxInfo) {
+  apply(() => { $.visible(function (this: SkyboxInfo): boolean {
   if (this.useIBL && this.applyDiffuseMap) {
     return true;
   }

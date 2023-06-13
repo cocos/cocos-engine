@@ -41,18 +41,18 @@ export class LODData {
         return this._models;
     }
 
-    public addModel (model: Model) {
+    public addModel (model: Model): void {
         this._models.splice(0, 0, model);
     }
 
-    public eraseModel (model: Model) {
+    public eraseModel (model: Model): void {
         const removeIndex = this._models.indexOf(model);
         if (removeIndex >= 0) {
             this._models.splice(removeIndex, 1);
         }
     }
 
-    public clearModels () {
+    public clearModels (): void {
         this._models.length = 0;
     }
 }
@@ -96,24 +96,24 @@ export class LODGroup {
 
     get localBoundaryCenter (): Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
 
-    get lodCount () { return this._lodDataArray.length; }
+    get lodCount (): number { return this._lodDataArray.length; }
 
     set objectSize (val: number) {
         this._objectSize = val;
     }
 
-    get objectSize () { return this._objectSize; }
+    get objectSize (): number { return this._objectSize; }
 
     get lodDataArray (): readonly LODData[] { return this._lodDataArray; }
-    attachToScene (scene: RenderScene) {
+    attachToScene (scene: RenderScene): void {
         this.scene = scene;
     }
 
-    detachFromScene () {
+    detachFromScene (): void {
         this.scene = null!;
     }
 
-    lockLODLevels (lockLev: number[]) {
+    lockLODLevels (lockLev: number[]): void {
         if (lockLev.length !== this._lockedLODLevelVec.length) {
             this._isLockLevelChanged = true;
         } else {
@@ -133,7 +133,7 @@ export class LODGroup {
         return this._isLockLevelChanged;
     }
 
-    resetLockChangeFlag () {
+    resetLockChangeFlag (): void {
         this._isLockLevelChanged = false;
     }
 
@@ -141,19 +141,19 @@ export class LODGroup {
         return this._lockedLODLevelVec;
     }
 
-    clearLODs () {
+    clearLODs (): void {
         this._lodDataArray.length = 0;
     }
 
-    insertLOD (index: number, lod: LODData) {
+    insertLOD (index: number, lod: LODData): void {
         this._lodDataArray.splice(index, 0, lod);
     }
 
-    updateLOD (index: number, lod: LODData) {
+    updateLOD (index: number, lod: LODData): void {
         this._lodDataArray[index] = lod;
     }
 
-    eraseLOD (index: number) {
+    eraseLOD (index: number): void {
         this._lodDataArray.splice(index, 1);
     }
 

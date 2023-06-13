@@ -30,11 +30,11 @@ import { IPlaneShape } from '../../spec/i-physics-shape';
 import { PlaneCollider } from '../../../../exports/physics-framework';
 
 export class CannonPlaneShape extends CannonShape implements IPlaneShape {
-    public get collider () {
+    public get collider (): PlaneCollider {
         return this._collider as PlaneCollider;
     }
 
-    public get impl () {
+    public get impl (): CANNON.Plane {
         return this._shape as CANNON.Plane;
     }
 
@@ -43,24 +43,24 @@ export class CannonPlaneShape extends CannonShape implements IPlaneShape {
         this._shape = new CANNON.Plane();
     }
 
-    setNormal (v: IVec3Like) {
+    setNormal (v: IVec3Like): void {
         Quat.rotationTo(this._orient, Vec3.UNIT_Z, v);
         if (this._index !== -1) {
             commitShapeUpdates(this._body);
         }
     }
 
-    setConstant (v: number) {
+    setConstant (v: number): void {
         Vec3.scaleAndAdd(this._offset, this._collider.center, this.collider.normal, v);
     }
 
-    onLoad () {
+    onLoad (): void {
         super.onLoad();
         this.setConstant(this.collider.constant);
         this.setNormal(this.collider.normal);
     }
 
-    _setCenter (v: IVec3Like) {
+    _setCenter (v: IVec3Like): void {
         super._setCenter(v);
         this.setConstant(this.collider.constant);
     }

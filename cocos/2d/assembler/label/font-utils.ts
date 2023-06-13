@@ -46,7 +46,7 @@ export class CanvasPool {
         return _canvasPool;
     }
     public pool: ISharedLabelData[] = [];
-    public get () {
+    public get (): ISharedLabelData {
         let data = this.pool.pop();
 
         if (!data) {
@@ -61,7 +61,7 @@ export class CanvasPool {
         return data;
     }
 
-    public put (canvas: ISharedLabelData) {
+    public put (canvas: ISharedLabelData): void {
         if (this.pool.length >= macro.MAX_LABEL_CANVAS_POOL_SIZE) {
             return;
         }
@@ -136,18 +136,18 @@ class LetterTexture {
         this.hash = `${char.charCodeAt(0)}${labelInfo.hash}`;
     }
 
-    public updateRenderData () {
+    public updateRenderData (): void {
         this._updateProperties();
         this._updateTexture();
     }
 
-    public destroy () {
+    public destroy (): void {
         this.image = null;
         // Label._canvasPool.put(this._data);
         CanvasPool.getInstance().put(this.data as ISharedLabelData);
     }
 
-    private _updateProperties () {
+    private _updateProperties (): void {
         this.data = CanvasPool.getInstance().get();
         this.canvas = this.data.canvas;
         this.context = this.data.context;
@@ -176,7 +176,7 @@ class LetterTexture {
         this.image.reset(this.canvas);
     }
 
-    private _updateTexture () {
+    private _updateTexture (): void {
         if (!this.context || !this.canvas) {
             return;
         }
@@ -228,7 +228,7 @@ export class LetterRenderTexture extends Texture2D {
      * @param [height]
      * @param [string]
      */
-    public initWithSize (width: number, height: number, format: number = PixelFormat.RGBA8888) {
+    public initWithSize (width: number, height: number, format: number = PixelFormat.RGBA8888): void {
         this.reset({
             width,
             height,
@@ -243,7 +243,7 @@ export class LetterRenderTexture extends Texture2D {
      * @param {Number} x
      * @param {Number} y
      */
-    public drawTextureAt (image: ImageAsset, x: number, y: number) {
+    public drawTextureAt (image: ImageAsset, x: number, y: number): void {
         const gfxTexture = this.getGFXTexture();
         if (!image || !gfxTexture) {
             return;
@@ -265,11 +265,11 @@ export class LetterRenderTexture extends Texture2D {
 }
 
 export class LetterAtlas {
-    get width () {
+    get width (): number {
         return this._width;
     }
 
-    get height () {
+    get height (): number {
         return this._height;
     }
 
@@ -293,7 +293,7 @@ export class LetterAtlas {
         director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
     }
 
-    public insertLetterTexture (letterTexture: LetterTexture) {
+    public insertLetterTexture (letterTexture: LetterTexture): FontLetterDefinition | null {
         const texture = letterTexture.image;
         const device = director.root!.device;
         if (!texture || !this.fontDefDictionary || !device) {
@@ -344,7 +344,7 @@ export class LetterAtlas {
         return letterDefinition;
     }
 
-    public update () {
+    public update (): void {
         if (!this._dirty) {
             return;
         }
@@ -352,7 +352,7 @@ export class LetterAtlas {
         this._dirty = false;
     }
 
-    public reset () {
+    public reset (): void {
         this._x = space;
         this._y = space;
         this._nextY = space;
@@ -370,7 +370,7 @@ export class LetterAtlas {
         this.fontDefDictionary.clear();
     }
 
-    public destroy () {
+    public destroy (): void {
         this.reset();
         if (this.fontDefDictionary) {
             this.fontDefDictionary.texture.destroy();
@@ -378,15 +378,15 @@ export class LetterAtlas {
         }
     }
 
-    getTexture () {
+    getTexture (): any {
         return this.fontDefDictionary.getTexture();
     }
 
-    public beforeSceneLoad () {
+    public beforeSceneLoad (): void {
         this.clearAllCache();
     }
 
-    public clearAllCache () {
+    public clearAllCache (): void {
         this.destroy();
 
         const texture = new LetterRenderTexture();
@@ -395,11 +395,11 @@ export class LetterAtlas {
         this.fontDefDictionary.texture = texture;
     }
 
-    public getLetter (key: string) {
+    public getLetter (key: string): any {
         return this.fontDefDictionary.letterDefinitions[key];
     }
 
-    public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo) {
+    public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo): any {
         const hash = char.charCodeAt(0) + labelInfo.hash;
         let letter = this.fontDefDictionary.letterDefinitions[hash];
         if (!letter) {
@@ -445,7 +445,7 @@ export const shareLabelInfo: IShareLabelInfo = {
     fontScale: 1,
 };
 
-export function computeHash (labelInfo) {
+export function computeHash (labelInfo): string {
     const hashData = '';
     const color = labelInfo.color.toHEX();
     let out = '';

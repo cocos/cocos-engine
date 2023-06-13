@@ -54,7 +54,7 @@ export class SphereCollider extends Collider {
      * 获取或设置球的半径。
      */
     @tooltip('i18n:physics3d.collider.sphere_radius')
-    public get radius () {
+    public get radius (): number {
         return this._radius;
     }
 
@@ -72,7 +72,7 @@ export class SphereCollider extends Collider {
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
-    public get shape () {
+    public get shape (): ISphereShape {
         return this._shape as ISphereShape;
     }
 

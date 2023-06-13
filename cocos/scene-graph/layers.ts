@@ -73,7 +73,7 @@ export class Layers {
     /**
      * @internal
      */
-    public static init () {
+    public static init (): void {
         const userLayers = settings.querySettings<LayerItem[]>(Settings.Category.ENGINE, 'customLayers');
         if (!userLayers) return;
         for (let i = 0; i < userLayers.length; i++) {
@@ -116,7 +116,7 @@ export class Layers {
      * @param name Layer's name
      * @param bitNum Layer's bit position
      */
-    public static addLayer (name: string, bitNum: number) {
+    public static addLayer (name: string, bitNum: number): void {
         if (bitNum === undefined) {
             console.warn('bitNum can\'t be undefined');
             return;
@@ -141,7 +141,7 @@ export class Layers {
      * @zh 移除一个层，用户可编辑 0 - 19 位为用户自定义层
      * @param bitNum Layer's bit position
      */
-    public static deleteLayer (bitNum: number) {
+    public static deleteLayer (bitNum: number): void {
         if (bitNum > 19 || bitNum < 0) {
             console.warn('do not change buildin layers.');
             return;

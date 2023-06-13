@@ -73,7 +73,7 @@ export class Canvas extends RenderRoot2D {
      *
      * @deprecated since v3.0, please use [[Camera.priority]] to control overlapping between cameras.
      */
-    get renderMode () {
+    get renderMode (): number {
         return this._renderMode;
     }
     set renderMode (val) {
@@ -90,7 +90,7 @@ export class Canvas extends RenderRoot2D {
      */
     @type(Camera)
     @tooltip('i18n:canvas.camera')
-    get cameraComponent () {
+    get cameraComponent (): Camera | null {
         return this._cameraComponent;
     }
 
@@ -107,7 +107,7 @@ export class Canvas extends RenderRoot2D {
      * @zh 是否使用屏幕对齐画布
      */
     @tooltip('i18n:canvas.align')
-    get alignCanvasWithScreen () {
+    get alignCanvasWithScreen (): boolean {
         return this._alignCanvasWithScreen;
     }
 
@@ -134,7 +134,7 @@ export class Canvas extends RenderRoot2D {
         this._thisOnCameraResized = this._onResizeCamera.bind(this);
 
         if (EDITOR) {
-            this._fitDesignResolution = () => {
+            this._fitDesignResolution = (): void => {
                 // TODO: support paddings of locked widget
                 this.node.getPosition(this._pos);
                 const nodeSize = view.getDesignResolutionSize();
@@ -154,7 +154,7 @@ export class Canvas extends RenderRoot2D {
         }
     }
 
-    public __preload () {
+    public __preload (): void {
         // Stretch to matched size during the scene initialization
         const widget = this.getComponent('cc.Widget') as unknown as Widget;
         if (widget) {
@@ -186,21 +186,21 @@ export class Canvas extends RenderRoot2D {
         }
     }
 
-    public onEnable () {
+    public onEnable (): void {
         super.onEnable();
         if (!EDITOR && this._cameraComponent) {
             this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
         }
     }
 
-    public onDisable () {
+    public onDisable (): void {
         super.onDisable();
         if (this._cameraComponent) {
             this._cameraComponent.node.off(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
         }
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         super.onDestroy();
 
         if (EDITOR) {
@@ -210,7 +210,7 @@ export class Canvas extends RenderRoot2D {
         }
     }
 
-    protected _onResizeCamera () {
+    protected _onResizeCamera (): void {
         if (this._cameraComponent && this._alignCanvasWithScreen) {
             if (this._cameraComponent.targetTexture) {
                 this._cameraComponent.orthoHeight = visibleRect.height / 2;
@@ -224,7 +224,7 @@ export class Canvas extends RenderRoot2D {
         }
     }
 
-    private _getViewPriority () {
+    private _getViewPriority (): number {
         if (this._cameraComponent) {
             let priority = this.cameraComponent?.priority as number;
             priority = this._renderMode === RenderMode.OVERLAY ? priority | 1 << 30 : priority & ~(1 << 30);

@@ -70,8 +70,8 @@ export class CannonConstraint implements IBaseConstraint {
         this._impl.collideConnected = v;
     }
 
-    get impl () { return this._impl; }
-    get constraint () { return this._com; }
+    get impl (): CANNON.Constraint { return this._impl; }
+    get constraint (): Constraint { return this._com; }
 
     protected _impl!: CANNON.Constraint;
     protected _com!: Constraint;
@@ -88,13 +88,13 @@ export class CannonConstraint implements IBaseConstraint {
     }
 
     // virtual
-    protected onComponentSet () { }
+    protected onComponentSet (): void { }
 
     // virtual
-    updateScale0 () { }
-    updateScale1 () { }
+    updateScale0 (): void { }
+    updateScale1 (): void { }
 
-    onEnable () {
+    onEnable (): void {
         const sb = (this._rigidBody.body as CannonRigidBody).sharedBody;
         sb.wrappedWorld.addConstraint(this);
         sb.addJoint(this, 0);
@@ -105,7 +105,7 @@ export class CannonConstraint implements IBaseConstraint {
         }
     }
 
-    onDisable () {
+    onDisable (): void {
         const sb = (this._rigidBody.body as CannonRigidBody).sharedBody;
         sb.wrappedWorld.removeConstraint(this);
         sb.removeJoint(this, 0);
@@ -116,7 +116,7 @@ export class CannonConstraint implements IBaseConstraint {
         }
     }
 
-    onDestroy () {
+    onDestroy (): void {
         delete (CANNON.World as any).idToConstraintMap[this._impl.id];
         (this._com as any) = null;
         (this._rigidBody as any) = null;

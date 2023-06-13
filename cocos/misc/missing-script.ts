@@ -50,7 +50,7 @@ export class MissingScript extends Component {
      * @param {string} id
      * @return {function} constructor
      */
-    public static safeFindClass (id: string) {
+    public static safeFindClass (id: string): Constructor<unknown> | undefined {
         const cls = js.getClassById(id);
         if (cls) {
             return cls;
@@ -72,7 +72,7 @@ export class MissingScript extends Component {
         super();
     }
 
-    public onLoad () {
+    public onLoad (): void {
         warnID(4600, this.node.name);
     }
 }

@@ -46,7 +46,7 @@ export const serializable: LegacyPropertyDecorator = (target, propertyKey, descr
  * @engineInternal
  */
 export function formerlySerializedAs (name: string): LegacyPropertyDecorator {
-    return (target, propertyKey, descriptorOrInitializer) => {
+    return (target, propertyKey, descriptorOrInitializer): void => {
         const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash.formerlySerializedAs = name;
         setImplicitSerializable(propertyStash);
@@ -65,7 +65,7 @@ export const editorOnly: LegacyPropertyDecorator = (target, propertyKey, descrip
     setImplicitSerializable(propertyStash);
 };
 
-function setImplicitSerializable (propertyStash: PropertyStash) {
+function setImplicitSerializable (propertyStash: PropertyStash): void {
     propertyStash.__internalFlags |= PropertyStashInternalFlag.IMPLICIT_SERIALIZABLE;
 }
 
@@ -122,7 +122,7 @@ function setImplicitSerializable (propertyStash: PropertyStash) {
 export const uniquelyReferenced: ClassDecorator = !WITH_SERIALIZATION
     ? emptyDecorator
     // eslint-disable-next-line func-names, @typescript-eslint/ban-types
-    : function uniquelyReferenced<TFunction extends Function> (constructor: TFunction) {
+    : function uniquelyReferenced<TFunction extends Function> (constructor: TFunction): void {
         const metadata = getOrCreateSerializationMetadata(constructor);
         metadata.uniquelyReferenced = true;
     };

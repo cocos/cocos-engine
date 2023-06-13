@@ -69,7 +69,7 @@ export class Graphics extends UIRenderer {
      */
     @editable
     @tooltip('i18n:graphics.lineWidth')
-    get lineWidth () {
+    get lineWidth (): number {
         return this._lineWidth;
     }
     set lineWidth (value) {
@@ -90,7 +90,7 @@ export class Graphics extends UIRenderer {
      */
     @type(LineJoin)
     @tooltip('i18n:graphics.lineJoin')
-    get lineJoin () {
+    get lineJoin (): LineJoin {
         return this._lineJoin;
     }
 
@@ -112,7 +112,7 @@ export class Graphics extends UIRenderer {
      */
     @type(LineCap)
     @tooltip('i18n:graphics.lineCap')
-    get lineCap () {
+    get lineCap (): LineCap {
         return this._lineCap;
     }
 
@@ -177,7 +177,7 @@ export class Graphics extends UIRenderer {
      * 设置斜接面限制比例。
      */
     @tooltip('i18n:graphics.miterLimit')
-    get miterLimit () {
+    get miterLimit (): number {
         return this._miterLimit;
     }
 
@@ -188,7 +188,7 @@ export class Graphics extends UIRenderer {
 
     @override
     @visible(false)
-    get color () {
+    get color (): Color {
         return this._color;
     }
 
@@ -230,7 +230,7 @@ export class Graphics extends UIRenderer {
     /**
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    get graphicsNativeProxy () {
+    get graphicsNativeProxy (): NativeUIModelProxy {
         return this._graphicsNativeProxy;
     }
 
@@ -243,13 +243,13 @@ export class Graphics extends UIRenderer {
         }
     }
 
-    public onRestore () {
+    public onRestore (): void {
         if (!this.impl) {
             this._flushAssembler();
         }
     }
 
-    public onLoad () {
+    public onLoad (): void {
         super.onLoad();
         if (JSB) {
             this._graphicsNativeProxy.initModel(this.node);
@@ -261,12 +261,12 @@ export class Graphics extends UIRenderer {
         this._flushAssembler();
     }
 
-    public onEnable () {
+    public onEnable (): void {
         super.onEnable();
         this._updateMtlForGraphics();
     }
 
-    public onDestroy () {
+    public onDestroy (): void {
         this._sceneGetter = null;
         if (JSB) {
             this._graphicsNativeProxy.destroy();
@@ -307,7 +307,7 @@ export class Graphics extends UIRenderer {
      * @param y @en The y-axis coordinate of the target position.
      *          @zh 目标位置的 y 轴坐标。
      */
-    public moveTo (x: number, y: number) {
+    public moveTo (x: number, y: number): void {
         if (!this.impl) {
             return;
         }
@@ -327,7 +327,7 @@ export class Graphics extends UIRenderer {
      * @param y @en The x-axis coordinate of the target position.
      *          @zh 目标位置的 y 轴坐标。
      */
-    public lineTo (x: number, y: number) {
+    public lineTo (x: number, y: number): void {
         if (!this.impl) {
             return;
         }
@@ -355,7 +355,7 @@ export class Graphics extends UIRenderer {
      * @param y @en The y-axis coordinate of the last control point.
      *          @zh 最后一个控制点的 y 轴坐标。
      */
-    public bezierCurveTo (c1x: number, c1y: number, c2x: number, c2y: number, x: number, y: number) {
+    public bezierCurveTo (c1x: number, c1y: number, c2x: number, c2y: number, x: number, y: number): void {
         if (!this.impl) {
             return;
         }
@@ -379,7 +379,7 @@ export class Graphics extends UIRenderer {
      * @param y @en The y-axis coordinates of the endpoint control point.
      *          @zh 终点控制点的 x 轴坐标。
      */
-    public quadraticCurveTo (cx: number, cy: number, x: number, y: number) {
+    public quadraticCurveTo (cx: number, cy: number, x: number, y: number): void {
         if (!this.impl) {
             return;
         }
@@ -408,7 +408,7 @@ export class Graphics extends UIRenderer {
      * @param counterclockwise @en If true, draws counterclockwise between the two angles. Default is clockwise.
      *                         @zh 如果为真，在两个角度之间逆时针绘制。默认顺时针。
      */
-    public arc (cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean) {
+    public arc (cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean): void {
         if (!this.impl) {
             return;
         }
@@ -432,7 +432,7 @@ export class Graphics extends UIRenderer {
      * @param ry @en The radius of the y-axis of the ellipse.
      *           @zh 椭圆 y 轴半径。
      */
-    public ellipse (cx: number, cy: number, rx: number, ry: number) {
+    public ellipse (cx: number, cy: number, rx: number, ry: number): void {
         if (!this.impl) {
             return;
         }
@@ -454,7 +454,7 @@ export class Graphics extends UIRenderer {
      * @param r @en Radius.
      *          @zh 圆半径。
      */
-    public circle (cx: number, cy: number, r: number) {
+    public circle (cx: number, cy: number, r: number): void {
         if (!this.impl) {
             return;
         }
@@ -478,7 +478,7 @@ export class Graphics extends UIRenderer {
      * @param h @en The height of the rectangle.
      *          @zh 矩形高度。
      */
-    public rect (x: number, y: number, w: number, h: number) {
+    public rect (x: number, y: number, w: number, h: number): void {
         if (!this.impl) {
             return;
         }
@@ -504,7 +504,7 @@ export class Graphics extends UIRenderer {
      * @param r @en Radius of rectangular rounded corners.
      *          @zh 矩形圆角半径。
      */
-    public roundRect (x: number, y: number, w: number, h: number, r: number) {
+    public roundRect (x: number, y: number, w: number, h: number, r: number): void {
         if (!this.impl) {
             return;
         }
@@ -528,7 +528,7 @@ export class Graphics extends UIRenderer {
      * @param h @en The height of the rectangle.
      *          @zh 矩形高度。
      */
-    public fillRect (x, y, w, h) {
+    public fillRect (x, y, w, h): void {
         this.rect(x, y, w, h);
         this.fill();
     }
@@ -540,7 +540,7 @@ export class Graphics extends UIRenderer {
      * @zh
      * 擦除之前绘制的所有内容的方法。
      */
-    public clear () {
+    public clear (): void {
         if (!this.impl) {
             return;
         }
@@ -567,7 +567,7 @@ export class Graphics extends UIRenderer {
      * @zh
      * 将笔点返回到当前路径起始点的。它尝试从当前点到起始点绘制一条直线。
      */
-    public close () {
+    public close (): void {
         if (!this.impl) {
             return;
         }
@@ -582,7 +582,7 @@ export class Graphics extends UIRenderer {
      * @zh
      * 根据当前的画线样式，绘制当前或已经存在的路径。
      */
-    public stroke () {
+    public stroke (): void {
         if (!this._assembler) {
             this._flushAssembler();
         }
@@ -599,7 +599,7 @@ export class Graphics extends UIRenderer {
      * @zh
      * 根据当前的画线样式，填充当前或已经存在的路径。
      */
-    public fill () {
+    public fill (): void {
         if (!this._assembler) {
             this._flushAssembler();
         }
@@ -609,7 +609,7 @@ export class Graphics extends UIRenderer {
         (this._assembler as IAssembler).fill!(this);
     }
 
-    private _updateMtlForGraphics () {
+    private _updateMtlForGraphics (): void {
         let mat;
         if (this._customMaterial) {
             mat = this.getMaterialInstance(0);
@@ -624,7 +624,7 @@ export class Graphics extends UIRenderer {
     /**
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public activeSubModel (idx: number) {
+    public activeSubModel (idx: number): void {
         if (!this.model) {
             warnID(4500, this.node.name);
             return;
@@ -653,7 +653,7 @@ export class Graphics extends UIRenderer {
         }
     }
 
-    protected _uploadData () {
+    protected _uploadData (): void {
         const impl = this.impl;
         if (!impl) {
             return;
@@ -685,7 +685,7 @@ export class Graphics extends UIRenderer {
         this._isNeedUploadData = false;
     }
 
-    protected _render (render: IBatcher) {
+    protected _render (render: IBatcher): void {
         if (this._isNeedUploadData) {
             if (this.impl) {
                 const renderDataList = this.impl.getRenderDataList();
@@ -702,7 +702,7 @@ export class Graphics extends UIRenderer {
         render.commitModel(this, this.model, this.getMaterialInstance(0));
     }
 
-    protected _flushAssembler () {
+    protected _flushAssembler (): void {
         const assembler = Graphics.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -710,7 +710,7 @@ export class Graphics extends UIRenderer {
         }
     }
 
-    protected _canRender () {
+    protected _canRender (): boolean {
         if (!super._canRender()) {
             return false;
         }
@@ -725,7 +725,7 @@ export class Graphics extends UIRenderer {
     /**
      * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
      */
-    public updateRenderer () {
+    public updateRenderer (): void {
         super.updateRenderer();
         if (JSB) {
             if (this._isNeedUploadData) {
@@ -742,7 +742,7 @@ export class Graphics extends UIRenderer {
         }
     }
 
-    protected createRenderEntity () {
+    protected createRenderEntity (): RenderEntity {
         return new RenderEntity(RenderEntityType.DYNAMIC);
     }
 }

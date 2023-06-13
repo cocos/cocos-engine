@@ -1,8 +1,9 @@
 import { ClipMotion, AnimationBlend, AnimationBlend1D, AnimationBlend2D } from '../../motion';
 import { Motion } from '../../motion/motion';
 import { EnterNodeInfo } from '../foundation/authoring/enter-node-info';
-import { PoseGraphCreateNodeFactory } from '../decorator/node';
+import { PoseGraphCreateNodeEntry, PoseGraphCreateNodeFactory } from '../decorator/node';
 import { PoseNode } from '../pose-node';
+import type { PoseGraphNode } from '../foundation/pose-graph-node';
 
 export {};
 
@@ -26,7 +27,7 @@ export function makeCreateNodeFactory (
     create_: (motion: Motion | null) => PoseNode,
 ): PoseGraphCreateNodeFactory<CreateNodeArg> {
     return {
-        listEntries: (context) => [{
+        listEntries: (context): Iterable<PoseGraphCreateNodeEntry<CreateNodeArg>> => [{
             arg: { type: 'clip-motion' },
             menu: 'i18n:ENGINE.animation_graph.pose_graph_node_sub_menus.play_or_sample_clip_motion',
         }, {
@@ -36,7 +37,7 @@ export function makeCreateNodeFactory (
             arg: { type: 'animation-blend-2d' },
             menu: 'i18n:ENGINE.animation_graph.pose_graph_node_sub_menus.play_or_sample_animation_blend_2d',
         }],
-        create: (arg) => {
+        create: (arg): PoseGraphNode => {
             let motion: Motion | null = null;
             switch (arg.type) {
             case 'clip-motion': motion = new ClipMotion(); break;
@@ -49,7 +50,7 @@ export function makeCreateNodeFactory (
     };
 }
 
-export function getTileBase (titleI18nKey: string, motion: Motion | null) {
+export function getTileBase (titleI18nKey: string, motion: Motion | null): [string, Record<string, string>] | undefined {
     let motionName = '';
     if (motion instanceof ClipMotion) {
         if (!motion.clip) {

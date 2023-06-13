@@ -41,12 +41,12 @@ class Point {
         if (dir) this.dir.set(dir);
     }
 
-    public setPoint (x, y) {
+    public setPoint (x, y): void {
         this.point.x = x;
         this.point.y = y;
     }
 
-    public setDir (x, y) {
+    public setDir (x, y): void {
         this.dir.x = x;
         this.dir.y = y;
     }
@@ -76,7 +76,7 @@ export class MotionStreak extends UIRenderer {
      * @zh 在编辑器模式下预览拖尾效果。
      */
     @editable
-    public get preview () {
+    public get preview (): boolean {
         return this._preview;
     }
 
@@ -91,7 +91,7 @@ export class MotionStreak extends UIRenderer {
      * motionStreak.fadeTime = 3;
      */
     @editable
-    public get fadeTime () {
+    public get fadeTime (): number {
         return this._fadeTime;
     }
 
@@ -106,7 +106,7 @@ export class MotionStreak extends UIRenderer {
      * motionStreak.minSeg = 3;
      */
     @editable
-    public get minSeg () {
+    public get minSeg (): number {
         return this._minSeg;
     }
     public set minSeg (val) {
@@ -119,7 +119,7 @@ export class MotionStreak extends UIRenderer {
      * motionStreak.stroke = 64;
      */
     @editable
-    public get stroke () {
+    public get stroke (): number {
         return this._stroke;
     }
     public set stroke (val) {
@@ -133,7 +133,7 @@ export class MotionStreak extends UIRenderer {
      * motionStreak.texture = newTexture;
      */
     @type(Texture2D)
-    public get texture () {
+    public get texture (): Texture2D | null {
         return this._texture;
     }
 
@@ -149,14 +149,14 @@ export class MotionStreak extends UIRenderer {
      * motionStreak.fastMode = true;
      */
     @editable
-    public get fastMode () {
+    public get fastMode (): boolean {
         return this._fastMode;
     }
     public set fastMode (val: boolean) {
         this._fastMode = val;
     }
 
-    public get points () {
+    public get points (): Point[] {
         return this._points;
     }
 
@@ -174,12 +174,12 @@ export class MotionStreak extends UIRenderer {
     private _fastMode = false;
     private _points: Point[] = [];
 
-    public onEnable () {
+    public onEnable (): void {
         super.onEnable();
         this.reset();
     }
 
-    protected _flushAssembler () {
+    protected _flushAssembler (): void {
         const assembler = MotionStreak.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -195,13 +195,13 @@ export class MotionStreak extends UIRenderer {
         }
     }
 
-    public onFocusInEditor () {
+    public onFocusInEditor (): void {
         if (this._preview) {
             this.reset();
         }
     }
 
-    public onLostFocusInEditor () {
+    public onLostFocusInEditor (): void {
         if (this._preview) {
             this.reset();
         }
@@ -214,12 +214,12 @@ export class MotionStreak extends UIRenderer {
      * // Remove all living segments of the ribbon.
      * myMotionStreak.reset();
      */
-    public reset () {
+    public reset (): void {
         this._points.length = 0;
         if (this._renderData) this._renderData.clear();
     }
 
-    public lateUpdate (dt) {
+    public lateUpdate (dt): void {
         if (EDITOR_NOT_IN_PREVIEW && !this._preview) return;
         if (this._assembler) this._assembler.update(this, dt);
     }
@@ -227,7 +227,7 @@ export class MotionStreak extends UIRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _render (render: IBatcher) {
+    public _render (render: IBatcher): void {
         render.commitComp(this, this._renderData, this._texture, this._assembler, null);
     }
 }

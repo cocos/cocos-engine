@@ -84,10 +84,10 @@ export class BuiltInWorld implements IPhysicsWorld {
         return false;
     }
 
-    setGravity (v: IVec3Like) { }
-    setAllowSleep (v: boolean) { }
-    setDefaultMaterial (v: PhysicsMaterial) { }
-    get impl () { return this; }
+    setGravity (v: IVec3Like): void { }
+    setAllowSleep (v: boolean): void { }
+    setDefaultMaterial (v: PhysicsMaterial): void { }
+    get impl (): BuiltInWorld { return this; }
     shapeArr: BuiltinShape[] = [];
     readonly bodies: BuiltinSharedBody[] = [];
 
@@ -187,21 +187,21 @@ export class BuiltInWorld implements IPhysicsWorld {
         return BuiltinSharedBody.getSharedBody(node, this, wrappedBody);
     }
 
-    addSharedBody (body: BuiltinSharedBody) {
+    addSharedBody (body: BuiltinSharedBody): void {
         const index = this.bodies.indexOf(body);
         if (index < 0) {
             this.bodies.push(body);
         }
     }
 
-    removeSharedBody (body: BuiltinSharedBody) {
+    removeSharedBody (body: BuiltinSharedBody): void {
         const index = this.bodies.indexOf(body);
         if (index >= 0) {
             js.array.fastRemoveAt(this.bodies, index);
         }
     }
 
-    private emitTriggerEvent () {
+    private emitTriggerEvent (): void {
         let shapeA: BuiltinShape;
         let shapeB: BuiltinShape;
         for (let i = 0; i < this.shapeArr.length; i += 2) {

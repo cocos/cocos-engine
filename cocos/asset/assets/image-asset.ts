@@ -94,7 +94,7 @@ const ASTC_HEADER_SIZE_X_BEGIN = 7;
 const ASTC_HEADER_SIZE_Y_BEGIN = 10;
 const ASTC_HEADER_SIZE_Z_BEGIN = 13;
 
-function getASTCFormat (xdim, ydim) {
+function getASTCFormat (xdim, ydim): PixelFormat {
     if (xdim === 4) {
         return PixelFormat.RGBA_ASTC_4x4;
     } if (xdim === 5) {
@@ -130,7 +130,7 @@ function getASTCFormat (xdim, ydim) {
     return PixelFormat.RGBA_ASTC_12x12;
 }
 
-function readBEUint16 (header, offset: number) {
+function readBEUint16 (header, offset: number): number {
     return (header[offset] << 8) | header[offset + 1];
 }
 
@@ -157,7 +157,7 @@ function isImageBitmap (imageSource: any): imageSource is ImageBitmap {
     return !!(sys.hasFeature(sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
 }
 
-function fetchImageSource (imageSource: ImageSource) {
+function fetchImageSource (imageSource: ImageSource): HTMLCanvasElement | HTMLImageElement | ImageBitmap | ArrayBufferView | null {
     return '_data' in imageSource ? imageSource._data : imageSource;
 }
 
@@ -205,7 +205,7 @@ export class ImageAsset extends Asset {
      * @param files @zh 压缩纹理数组。 @en Compressed Texture Arrays.
      * @returns out @zh 合并后的压缩纹理数据。 @en Merged compressed texture data.
      */
-    public static mergeCompressedTextureMips (files: ArrayBuffer[] | ArrayBufferView[]) {
+    public static mergeCompressedTextureMips (files: ArrayBuffer[] | ArrayBufferView[]): Uint8Array {
         let out = new Uint8Array(0);
 
         let err: Error | null = null;
@@ -257,7 +257,7 @@ export class ImageAsset extends Asset {
      * @param type 压缩纹理类型。
      * @engineInternal
      */
-    public static parseCompressedTextures (file: ArrayBuffer | ArrayBufferView, type: number) {
+    public static parseCompressedTextures (file: ArrayBuffer | ArrayBufferView, type: number): IMemoryImageSource {
         const out: IMemoryImageSource = {
             _data: new Uint8Array(0),
             _compressed: true,
@@ -306,7 +306,7 @@ export class ImageAsset extends Asset {
      * @engineInternal
      */
     public static parseCompressedTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, type: number, out: IMemoryImageSource) {
+        beginOffset: number, endOffset: number, type: number, out: IMemoryImageSource): void {
         switch (type) {
         case compressType.PVR:
             ImageAsset.parsePVRTexture(file, levelIndex, beginOffset, endOffset, out);
@@ -332,7 +332,7 @@ export class ImageAsset extends Asset {
      * @engineInternal
      */
     public static parsePVRTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource) {
+        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         // Get a view of the arrayBuffer that represents the DDS header.
         const header = new Int32Array(buffer, beginOffset, PVR_HEADER_LENGTH);
@@ -384,7 +384,7 @@ export class ImageAsset extends Asset {
      * @engineInternal
      */
     public static parsePKMTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource) {
+        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         const header = new Uint8Array(buffer, beginOffset, ETC_PKM_HEADER_LENGTH);
         const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
@@ -418,7 +418,7 @@ export class ImageAsset extends Asset {
      * @engineInternal
      */
     public static parseASTCTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource) {
+        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         const header = new Uint8Array(buffer, beginOffset, ASTC_HEADER_LENGTH);
 
@@ -521,7 +521,7 @@ export class ImageAsset extends Asset {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override
-    get _nativeAsset () {
+    get _nativeAsset (): any {
         // Maybe returned to pool in webgl.
         return this._nativeData;
     }
@@ -538,7 +538,7 @@ export class ImageAsset extends Asset {
      * @en Image data.
      * @zh 此图像资源的图像数据。
      */
-    get data () {
+    get data (): ArrayBufferView | HTMLCanvasElement | HTMLImageElement | ImageBitmap | null {
         if (isNativeImage(this._nativeData)) {
             return this._nativeData;
         }
@@ -550,7 +550,7 @@ export class ImageAsset extends Asset {
      * @en The pixel width of the image.
      * @zh 此图像资源的像素宽度。
      */
-    get width () {
+    get width (): number {
         return this._nativeData.width || this._width;
     }
 
@@ -558,7 +558,7 @@ export class ImageAsset extends Asset {
      * @en The pixel height of the image.
      * @zh 此图像资源的像素高度。
      */
-    get height () {
+    get height (): number {
         return this._nativeData.height || this._height;
     }
 
@@ -566,7 +566,7 @@ export class ImageAsset extends Asset {
      * @en The pixel format of the image.
      * @zh 此图像资源的像素格式。
      */
-    get format () {
+    get format (): PixelFormat {
         return this._format;
     }
 
@@ -574,7 +574,7 @@ export class ImageAsset extends Asset {
      * @en Whether the image is in compressed texture format.
      * @zh 此图像资源是否为压缩像素格式。
      */
-    get isCompressed () {
+    get isCompressed (): boolean {
         return (this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12)
         || (this._format >= PixelFormat.RGB_A_PVRTC_2BPPV1 && this._format <= PixelFormat.RGBA_ETC1);
     }
@@ -593,7 +593,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源的原始图像源的 URL。当原始图像元不是 HTML 文件时可能为空。
      * @deprecated Please use [[nativeUrl]]
      */
-    get url () {
+    get url (): string {
         return this.nativeUrl;
     }
 
@@ -635,7 +635,7 @@ export class ImageAsset extends Asset {
      * @zh 重置此图像资源使用的原始图像源。
      * @param data @en The new source. @zh 新的图片数据源。
      */
-    public reset (data: ImageSource) {
+    public reset (data: ImageSource): void {
         if (isImageBitmap(data)) {
             this._nativeData = data;
         } else if (!(data instanceof HTMLElement)) {
@@ -647,7 +647,7 @@ export class ImageAsset extends Asset {
         }
     }
 
-    public destroy () {
+    public destroy (): boolean {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = '';
             this._setRawAsset('');
@@ -668,7 +668,11 @@ export class ImageAsset extends Asset {
      * @engineInternal
      */
     // eslint-disable-next-line consistent-return
-    public _serialize () {
+    public _serialize (): string | {
+        fmt: string;
+        w: number;
+        h: number;
+    } | undefined {
         if (EDITOR || TEST) {
             let targetExtensions = this._exportedExts;
             if (!targetExtensions && this._native) {
@@ -696,7 +700,7 @@ export class ImageAsset extends Asset {
     /**
      * @engineInternal
      */
-    public _deserialize (data: any) {
+    public _deserialize (data: any): void {
         let fmtStr = '';
         if (typeof data === 'string') {
             fmtStr = data;
@@ -751,7 +755,7 @@ export class ImageAsset extends Asset {
 
     private static _sharedPlaceHolderCanvas: HTMLCanvasElement | null = null;
 
-    public initDefault (uuid?: string) {
+    public initDefault (uuid?: string): void {
         super.initDefault(uuid);
         if (!ImageAsset._sharedPlaceHolderCanvas) {
             const canvas = ccwindow.document.createElement('canvas');
@@ -766,7 +770,7 @@ export class ImageAsset extends Asset {
         }
     }
 
-    public validate () {
+    public validate (): boolean {
         return !!this.data;
     }
 }

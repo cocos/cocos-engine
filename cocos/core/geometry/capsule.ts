@@ -39,7 +39,7 @@ export class Capsule {
      * @zh
      * 获取此形状的类型，值固定为 `enums.SHAPE_CAPSULE`。
      */
-    get type () {
+    get type (): number {
         return this._type;
     }
 
@@ -124,7 +124,7 @@ export class Capsule {
      * @zh
      * 使用 4x4 矩阵和 RTS 变换此胶囊体。
      */
-    transform (m: Mat4, pos: IVec3Like, rot: IQuatLike, scale: IVec3Like, out: Capsule) {
+    transform (m: Mat4, pos: IVec3Like, rot: IQuatLike, scale: IVec3Like, out: Capsule): void {
         const ws = scale;
         const s = absMaxComponent(ws as Vec3);
         out.radius = this.radius * Math.abs(s);
@@ -145,7 +145,7 @@ export class Capsule {
      * @zh
      * 更新缓存。
      */
-    updateCache () {
+    updateCache (): void {
         this.updateLocalCenter();
         Vec3.transformQuat(this.ellipseCenter0, this.ellipseCenter0, this.rotation);
         Vec3.transformQuat(this.ellipseCenter1, this.ellipseCenter1, this.rotation);
@@ -159,7 +159,7 @@ export class Capsule {
      * @zh
      * 更新中心点信息。
      */
-    updateLocalCenter () {
+    updateLocalCenter (): void {
         const halfHeight = this.halfHeight;
         const axis = this.axis;
         switch (axis) {

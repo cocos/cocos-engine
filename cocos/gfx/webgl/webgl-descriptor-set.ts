@@ -37,7 +37,7 @@ export class WebGLDescriptorSet extends DescriptorSet {
 
     private _gpuDescriptorSet: IWebGLGPUDescriptorSet | null = null;
 
-    public initialize (info: Readonly<DescriptorSetInfo>) {
+    public initialize (info: Readonly<DescriptorSetInfo>): void {
         this._layout = info.layout;
         const { bindings, descriptorIndices, descriptorCount } = (info.layout as WebGLDescriptorSetLayout).gpuDescriptorSetLayout;
 
@@ -61,12 +61,12 @@ export class WebGLDescriptorSet extends DescriptorSet {
         }
     }
 
-    public destroy () {
+    public destroy (): void {
         this._layout = null;
         this._gpuDescriptorSet = null;
     }
 
-    public update () {
+    public update (): void {
         if (this._isDirty && this._gpuDescriptorSet) {
             const descriptors = this._gpuDescriptorSet.gpuDescriptors;
             for (let i = 0; i < descriptors.length; ++i) {

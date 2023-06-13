@@ -51,7 +51,7 @@ export class TouchInputSource {
         }
     }
 
-    private _registerEvent () {
+    private _registerEvent (): void {
         // IDEA: need to register on window ?
         this._canvas?.addEventListener('touchstart', this._createCallback(InputEventType.TOUCH_START));
         this._canvas?.addEventListener('touchmove', this._createCallback(InputEventType.TOUCH_MOVE));
@@ -60,7 +60,7 @@ export class TouchInputSource {
     }
 
     private _createCallback (eventType: InputEventType) {
-        return (event: TouchEvent) => {
+        return (event: TouchEvent): void => {
             const canvasRect = this._getCanvasRect();
             const handleTouches: Touch[] = [];
             const length = event.changedTouches.length;
@@ -123,7 +123,7 @@ export class TouchInputSource {
         return new Vec2(x, y);
     }
 
-    public on (eventType: InputEventType, callback: TouchCallback, target?: any) {
+    public on (eventType: InputEventType, callback: TouchCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
     }
 }

@@ -88,14 +88,14 @@ export class ForwardStage extends RenderStage {
         this._uiPhase = new UIPhase();
     }
 
-    public addRenderInstancedQueue (queue: RenderInstancedQueue) {
+    public addRenderInstancedQueue (queue: RenderInstancedQueue): void {
         if (this.additiveInstanceQueues.includes(queue)) {
             return;
         }
         this.additiveInstanceQueues.push(queue);
     }
 
-    public removeRenderInstancedQueue (queue: RenderInstancedQueue) {
+    public removeRenderInstancedQueue (queue: RenderInstancedQueue): void {
         const index = this.additiveInstanceQueues.indexOf(queue);
         if (index > -1) {
             this.additiveInstanceQueues.splice(index, 1);
@@ -110,7 +110,7 @@ export class ForwardStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: ForwardPipeline, flow: ForwardFlow) {
+    public activate (pipeline: ForwardPipeline, flow: ForwardFlow): void {
         super.activate(pipeline, flow);
         for (let i = 0; i < this.renderQueues.length; i++) {
             this._renderQueues[i] = convertRenderQueue(this.renderQueues[i]);
@@ -121,10 +121,10 @@ export class ForwardStage extends RenderStage {
         this._uiPhase.activate(pipeline);
     }
 
-    public destroy () {
+    public destroy (): void {
     }
 
-    public render (camera: Camera) {
+    public render (camera: Camera): void {
         this._instancedQueue.clear();
         const pipeline = this._pipeline as ForwardPipeline;
         const device = pipeline.device;

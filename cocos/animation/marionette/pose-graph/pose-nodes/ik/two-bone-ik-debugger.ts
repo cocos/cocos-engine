@@ -12,7 +12,7 @@ export class TwoBoneIKDebugger {
         legacyCC.director.getScene().addChild(node);
 
         const meshRenderer = node.addComponent(MeshRenderer);
-        meshRenderer.material = (() => {
+        meshRenderer.material = ((): Material => {
             const material = new Material();
             material.reset({
                 effectName: 'builtin-unlit',
@@ -30,7 +30,7 @@ export class TwoBoneIKDebugger {
         this._meshRenderer = meshRenderer;
     }
 
-    public draw (a: Readonly<Vec3>, b: Readonly<Vec3>, c: Readonly<Vec3>) {
+    public draw (a: Readonly<Vec3>, b: Readonly<Vec3>, c: Readonly<Vec3>): void {
         const color1 = Color.RED;
         const color2 = Color.BLUE;
         const positions: number[] = [
@@ -63,7 +63,7 @@ const debuggerMap = new WeakMap<object, TwoBoneIKDebugger>();
 export function debugTwoBoneIKDraw (
     key: unknown,
     a: Readonly<Vec3>, b: Readonly<Vec3>, c: Readonly<Vec3>,
-) {
+): void {
     if (typeof key !== 'object' || !key) {
         return;
     }

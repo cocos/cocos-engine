@@ -43,7 +43,7 @@ export class BoxCollider2D extends Collider2D {
      */
     @type(Size)
     @tooltip('i18n:physics2d.collider.size')
-    get size () {
+    get size (): Size {
         return this._size;
     }
     set size (v) {

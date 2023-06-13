@@ -85,7 +85,7 @@ export class LightProbeGroup extends Component {
     @type(PlaceMethod)
     @tooltip('i18n:light_probe_group.method')
     @displayName('Generating Method')
-    get method () {
+    get method (): number {
         return this._method;
     }
     // Support this feature later.
@@ -157,7 +157,7 @@ export class LightProbeGroup extends Component {
         this._nProbesZ = val;
     }
 
-    public onLoad () {
+    public onLoad (): void {
         if (!EDITOR) {
             return;
         }
@@ -172,7 +172,7 @@ export class LightProbeGroup extends Component {
         }
     }
 
-    public onEnable () {
+    public onEnable (): void {
         if (!EDITOR) {
             return;
         }
@@ -187,7 +187,7 @@ export class LightProbeGroup extends Component {
         }
     }
 
-    public onDisable () {
+    public onDisable (): void {
         if (!EDITOR) {
             return;
         }
@@ -202,7 +202,7 @@ export class LightProbeGroup extends Component {
         }
     }
 
-    public generateLightProbes () {
+    public generateLightProbes (): void {
         if (!this.node) {
             return;
         }
@@ -219,7 +219,7 @@ export class LightProbeGroup extends Component {
         this.onProbeChanged();
     }
 
-    public onProbeChanged (updateTet = true, emitEvent = true) {
+    public onProbeChanged (updateTet = true, emitEvent = true): void {
         this.node.scene.globals.lightProbeInfo.syncData(this.node, this.probes);
         this.node.scene.globals.lightProbeInfo.update(updateTet);
 

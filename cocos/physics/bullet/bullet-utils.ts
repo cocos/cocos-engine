@@ -106,10 +106,10 @@ export function cocos2BulletTriMesh (out: Bullet.ptr, mesh: Mesh): any {
     return out;
 }
 
-export function force2Impulse (force: number, dt: number) {
+export function force2Impulse (force: number, dt: number): number {
     return force * dt;
 }
 
-export function impulse2Force (impulse: number, dt: number) {
+export function impulse2Force (impulse: number, dt: number): number {
     return impulse / dt;
 }

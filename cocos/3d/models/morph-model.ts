@@ -64,7 +64,7 @@ export class MorphModel extends Model {
      * @param subMeshData @en The sub mesh data to be set @zh 需要设置的子网格
      * @param mat sub material
      */
-    public initSubModel (subModelIndex: number, subMeshData: RenderingSubMesh, material: Material) {
+    public initSubModel (subModelIndex: number, subMeshData: RenderingSubMesh, material: Material): void {
         return super.initSubModel(
             subModelIndex,
             subMeshData,
@@ -72,7 +72,7 @@ export class MorphModel extends Model {
         );
     }
 
-    public destroy () {
+    public destroy (): void {
         super.destroy();
         this._morphRenderingInstance = null;
     }
@@ -84,7 +84,7 @@ export class MorphModel extends Model {
      * @param material @en The material to be set @zh 需要设置的材质
      * @returns void
      */
-    public setSubModelMaterial (subModelIndex: number, material: Material) {
+    public setSubModelMaterial (subModelIndex: number, material: Material): void {
         return super.setSubModelMaterial(subModelIndex, this._launderMaterial(material));
     }
 
@@ -92,11 +92,11 @@ export class MorphModel extends Model {
      * Sets morph rendering instance for the model, it's managed by the MeshRenderer
      * @internal
      */
-    public setMorphRendering (morphRendering: MorphRenderingInstance) {
+    public setMorphRendering (morphRendering: MorphRenderingInstance): void {
         this._morphRenderingInstance = morphRendering;
     }
 
-    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
+    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet): void {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
 
         if (this._morphRenderingInstance) {
@@ -104,7 +104,7 @@ export class MorphModel extends Model {
         }
     }
 
-    private _launderMaterial (material: Material) {
+    private _launderMaterial (material: Material): Material {
         return material;
         // if (this._usedMaterials.has(material)) {
         //     return new MaterialInstance({

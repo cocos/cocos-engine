@@ -39,7 +39,7 @@ export class ToneMappingPass extends SettingPass {
 
     enableInAllEditorCamera = true;
     enable = true;
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         const ppl = (cclegacy.director.root as Root).pipeline;
         return ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     }

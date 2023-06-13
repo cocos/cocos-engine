@@ -28,6 +28,7 @@ import { ccclass, serializable, editable } from 'cc.decorator';
 import { Asset } from '../../asset/assets';
 import { SpriteFrame } from './sprite-frame';
 import { cclegacy, js } from '../../core';
+import type { TextureBase } from '../../asset/assets/texture-base';
 
 interface ISpriteAtlasSerializeData{
     name: string;
@@ -59,7 +60,7 @@ export class SpriteAtlas extends Asset {
      * @zh 获取精灵图集的贴图。
      * @returns @en The texture2d asset. @zh 二维贴图资源。
      */
-    public getTexture () {
+    public getTexture (): TextureBase | null {
         const keys = Object.keys(this.spriteFrames);
         if (keys.length > 0) {
             const spriteFrame = this.spriteFrames[keys[0]];
@@ -76,7 +77,7 @@ export class SpriteAtlas extends Asset {
      * @param key @en The SpriteFrame name. @zh 精灵名字。
      * @returns @en The SpriteFrame asset. @zh 精灵资源。
      */
-    public getSpriteFrame (key: string) {
+    public getSpriteFrame (key: string): SpriteFrame | null {
         const sf = this.spriteFrames[key];
         if (!sf) {
             return null;
@@ -92,7 +93,7 @@ export class SpriteAtlas extends Asset {
      * @zh 获取精灵图集所有精灵。
      * @returns @en All sprite frames. @zh 所有的精灵资源。
      */
-    public getSpriteFrames () {
+    public getSpriteFrames (): (SpriteFrame | null)[] {
         const frames: Array<SpriteFrame | null> = [];
         const spriteFrames = this.spriteFrames;
 
@@ -129,7 +130,7 @@ export class SpriteAtlas extends Asset {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _deserialize (serializeData: any, handle: any) {
+    public _deserialize (serializeData: any, handle: any): void {
         const data = serializeData as ISpriteAtlasSerializeData;
         this._name = data.name;
         const frames = data.spriteFrames;

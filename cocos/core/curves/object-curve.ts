@@ -30,7 +30,7 @@ export type ObjectCurveKeyframe<T> = T;
 
 @ccclass('cc.ObjectCurve')
 export class ObjectCurve<T> extends KeyframeCurve<ObjectCurveKeyframe<T>> {
-    public evaluate (time: number) {
+    public evaluate (time: number): T {
         const iSearch = this.searchKeyframe(time);
         if (iSearch >= 0) {
             return this._values[iSearch];

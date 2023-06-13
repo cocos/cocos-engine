@@ -31,7 +31,7 @@ export class PoseNodeBlendInProportion extends PoseNode {
     })
     public readonly proportions: number[] = [];
 
-    public bind (context: AnimationGraphBindingContext) {
+    public bind (context: AnimationGraphBindingContext): void {
         for (const pose of this.poses) {
             pose?.bind(context);
         }
@@ -43,7 +43,7 @@ export class PoseNodeBlendInProportion extends PoseNode {
         }
     }
 
-    public reenter () {
+    public reenter (): void {
         for (const pose of this.poses) {
             pose?.reenter();
         }
@@ -67,7 +67,7 @@ export class PoseNodeBlendInProportion extends PoseNode {
         }
     }
 
-    public doEvaluate (context: AnimationGraphEvaluationContext) {
+    public doEvaluate (context: AnimationGraphEvaluationContext): Pose {
         const nInputPoses = this.poses.length;
         let sumWeight = 0.0;
         let finalPose: Pose | null = null;

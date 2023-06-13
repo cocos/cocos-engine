@@ -54,12 +54,12 @@ for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
 
-function curveDivs (r: number, arc: number, tol: number) {
+function curveDivs (r: number, arc: number, tol: number): number {
     const da = acos(r / (r + tol)) * 2.0;
     return max(2, ceil(arc / da));
 }
 
-function clamp (v: number, minNum: number, maxNum: number) {
+function clamp (v: number, minNum: number, maxNum: number): number {
     if (v < minNum) {
         return minNum;
     } else if (v > maxNum) {
