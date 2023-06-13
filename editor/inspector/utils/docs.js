@@ -2,7 +2,7 @@
 const pkg = require('../../../package.json');
 
 /** Document Resource Category Label */
-const CREATOR_ELEMENT = 'creator-element';
+const CREATOR_COMPONENT = 'creator-component';
 const CREATOR_ASSET = 'creator-asset';
 
 /** Fixed address for document resources */
@@ -28,7 +28,7 @@ const getDocResolveUrl = function(label, name) {
 };
 
 
-exports.getElementDocResolveUrl = function(editor) {
+exports.getComponentDocResolveUrl = function(editor) {
     if (!editor || !editor.help) {
         return '';
     }
@@ -42,7 +42,7 @@ exports.getElementDocResolveUrl = function(editor) {
     // Extract element names
     const element = help.replace(EDITOR_HELP_REG, '$1');
 
-    return getDocResolveUrl(CREATOR_ELEMENT, element);
+    return getDocResolveUrl(CREATOR_COMPONENT, element);
 
 };
 

@@ -6,7 +6,7 @@ const { throttle } = require('lodash');
 const utils = require('./utils');
 const { trackEventWithTimer } = require('../utils/metrics');
 const { injectionStyle } = require('../utils/prop');
-const { getElementDocResolveUrl } = require('../utils/docs');
+const { getComponentDocResolveUrl } = require('../utils/docs');
 
 const lockList = [];
 let lockPerform = false;
@@ -818,7 +818,7 @@ const Elements = {
             const panel = this;
 
             const $help = panel.$.sceneSkybox.querySelector('ui-link');
-            $help.value = getElementDocResolveUrl({ help: 'i18n:cc.Skybox' });
+            $help.value = getComponentDocResolveUrl({ help: 'i18n:cc.Skybox' });
             $help.addEventListener('click', (event) => {
                 event.stopPropagation();
                 event.preventDefault();
@@ -849,15 +849,15 @@ const Elements = {
 
             // 由于场景属性对象不是继承于 Component 所以没有修饰器，displayName, help 数据在这里配置
             panel.dump._globals.ambient.displayName = 'Ambient';
-            panel.dump._globals.ambient.help = getElementDocResolveUrl({ help: 'i18n:cc.Ambient' });
+            panel.dump._globals.ambient.help = getComponentDocResolveUrl({ help: 'i18n:cc.Ambient' });
             panel.$.sceneAmbient.render(panel.dump._globals.ambient);
 
             panel.dump._globals.fog.displayName = 'Fog';
-            panel.dump._globals.fog.help = getElementDocResolveUrl({ help: 'i18n:cc.Fog' });
+            panel.dump._globals.fog.help = getComponentDocResolveUrl({ help: 'i18n:cc.Fog' });
             panel.$.sceneFog.render(panel.dump._globals.fog);
 
             panel.dump._globals.shadows.displayName = 'Shadows';
-            panel.dump._globals.shadows.help = getElementDocResolveUrl({ help: 'i18n:cc.Shadow' });
+            panel.dump._globals.shadows.help = getComponentDocResolveUrl({ help: 'i18n:cc.Shadow' });
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
             // skyBox 逻辑 start
@@ -923,11 +923,11 @@ const Elements = {
             // skyBox 逻辑 end
 
             panel.dump._globals.octree.displayName = 'Octree Scene Culling';
-            panel.dump._globals.octree.help = getElementDocResolveUrl({ help: 'i18n:cc.OctreeCulling' });
+            panel.dump._globals.octree.help = getComponentDocResolveUrl({ help: 'i18n:cc.OctreeCulling' });
             panel.$.sceneOctree.render(panel.dump._globals.octree);
 
             panel.dump._globals.skin.displayName = 'Skin';
-            panel.dump._globals.skin.help = getElementDocResolveUrl({ help: 'i18n:cc.Skin' });
+            panel.dump._globals.skin.help = getComponentDocResolveUrl({ help: 'i18n:cc.Skin' });
             panel.$.sceneSkin.render(panel.dump._globals.skin);
 
             const $skyProps = panel.$.sceneSkybox.querySelectorAll('ui-prop[type="dump"]');
@@ -1085,7 +1085,7 @@ const Elements = {
 
             panel.$skyboxProps = {};
 
-            panel.$.nodeLink.value = getElementDocResolveUrl({ help: 'i18n:cc.Node' });
+            panel.$.nodeLink.value = getComponentDocResolveUrl({ help: 'i18n:cc.Node' });
 
             panel.$.nodeMenu.addEventListener('click', (event) => {
                 event.stopPropagation();
@@ -1157,7 +1157,7 @@ const Elements = {
                         $active.invalid = false;
                     }
 
-                    const url = getElementDocResolveUrl(dump.editor);
+                    const url = getComponentDocResolveUrl(dump.editor);
                     const $link = $section.querySelector('ui-link');
                     if (url) {
                         $link.setAttribute('value', url);
@@ -1226,7 +1226,7 @@ const Elements = {
                     });
 
                     const $link = $section.querySelector('.link');
-                    const url = getElementDocResolveUrl(component.editor);
+                    const url = getComponentDocResolveUrl(component.editor);
                     if (url) {
                         $link.setAttribute('value', url);
                         $link.addEventListener('click', (event) => {
@@ -1349,7 +1349,7 @@ const Elements = {
                 }
 
                 const dump = $section.dump;
-                const url = getElementDocResolveUrl(dump.editor);
+                const url = getComponentDocResolveUrl(dump.editor);
                 if (url) {
                     $link.setAttribute('value', url);
                 } else {
