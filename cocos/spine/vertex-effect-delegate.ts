@@ -110,7 +110,7 @@ export class VertexEffectDelegate {
      * @method getJitterVertexEffect
      * @return {sp.spine.JitterEffect}
      */
-    getJitterVertexEffect (): spine.VertexEffect | null {
+    getJitterVertexEffect (): spine.VertexEffect {
         return this._vertexEffect;
     }
 
@@ -120,7 +120,7 @@ export class VertexEffectDelegate {
      * @method getSwirlVertexEffect
      * @return {sp.spine.SwirlEffect}
      */
-    getSwirlVertexEffect (): spine.VertexEffect | null {
+    getSwirlVertexEffect (): spine.VertexEffect {
         return this._vertexEffect;
     }
 
@@ -130,7 +130,7 @@ export class VertexEffectDelegate {
      * @method getVertexEffect
      * @return {sp.spine.JitterEffect|sp.spine.SwirlEffect}
      */
-    getVertexEffect (): spine.VertexEffect | null {
+    getVertexEffect (): spine.VertexEffect {
         return this._vertexEffect;
     }
 
