@@ -139,7 +139,7 @@ export class TextProcessing {
     private _maxFontSize = 100;
     private _fontScale = 1;
 
-    private _getStyleFontScale (fontSize: number, fontScale: number, canvasWidth: number, canvasHeight: number) {
+    private _getStyleFontScale (fontSize: number, fontScale: number, canvasWidth: number, canvasHeight: number): number {
         let scale = fontScale;
         if (scale * fontSize > this._maxFontSize && fontSize < this._maxFontSize) { // Font size limit
             scale = this._maxFontSize / fontSize;
@@ -336,8 +336,8 @@ export class TextProcessing {
         style.fontDesc = _fontDesc;
     }
 
-    private _measureText (ctx: CanvasRenderingContext2D, fontDesc) {
-        return (string: string): number => safeMeasureText(ctx, string, fontDesc);
+    private _measureText (ctx: CanvasRenderingContext2D, fontDesc): (str: string) => number {
+        return (str: string): number => safeMeasureText(ctx, str, fontDesc);
     }
 
     private _calculateParagraphLength (paragraphedStrings: string[], ctx: CanvasRenderingContext2D, fontDesc: string): number[] {
@@ -440,7 +440,7 @@ export class TextProcessing {
         this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
         this._context.font = style.fontDesc.replace(
             /(\d+)(\.\d+)?(px|em|rem|pt)/g,
-            (w, m: string, n: string, u: string) => (+m * fontScale + (+n || 0) * fontScale).toString() + u,
+            (w, m: string, n: string, u: string): string => (+m * fontScale + (+n || 0) * fontScale).toString() + u,
         );
 
         this._calculateFillTextStartPosition(style, layout, outputLayoutData);

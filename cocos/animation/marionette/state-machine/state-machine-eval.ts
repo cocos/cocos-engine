@@ -962,7 +962,7 @@ class TopLevelStateMachineEvaluation {
         }
     }
 
-    private _emit (eventBinding: AnimationGraphEventBinding) {
+    private _emit (eventBinding: AnimationGraphEventBinding): void {
         eventBinding.emit(this._controller.node);
     }
 }

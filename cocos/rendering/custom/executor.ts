@@ -73,33 +73,33 @@ class ResourceVisitor implements ResourceGraphVisitor {
     set resName (value: string) {
         this.name = value;
     }
-    createDeviceTex (value: Texture | Framebuffer | ManagedResource | RenderSwapchain) {
+    createDeviceTex (value: Texture | Framebuffer | ManagedResource | RenderSwapchain): void {
         const deviceTex = new DeviceTexture(this.name, value);
         context.deviceTextures.set(this.name, deviceTex);
     }
-    managed (value: ManagedResource) {
+    managed (value: ManagedResource): void {
         this.createDeviceTex(value);
     }
-    managedBuffer (value: ManagedBuffer) {
+    managedBuffer (value: ManagedBuffer): void {
         // noop
     }
-    managedTexture (value: ManagedTexture) {
+    managedTexture (value: ManagedTexture): void {
         // noop
     }
-    persistentBuffer (value: Buffer) {
+    persistentBuffer (value: Buffer): void {
     }
-    persistentTexture (value: Texture) {
+    persistentTexture (value: Texture): void {
         this.createDeviceTex(value);
     }
-    framebuffer (value: Framebuffer) {
+    framebuffer (value: Framebuffer): void {
         this.createDeviceTex(value);
     }
-    swapchain (value: RenderSwapchain) {
+    swapchain (value: RenderSwapchain): void {
         this.createDeviceTex(value);
     }
-    formatView (value: FormatView) {
+    formatView (value: FormatView): void {
     }
-    subresourceView (value: SubresourceView) {
+    subresourceView (value: SubresourceView): void {
     }
 }
 

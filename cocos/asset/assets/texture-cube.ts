@@ -174,7 +174,7 @@ export class TextureCube extends SimpleTexture {
                 cubeMaps.push(cubeMap);
             }
         } else if (value.length > 1) {
-            value.forEach((mipmap) => {
+            value.forEach((mipmap): void => {
                 const cubeMap: ITextureCubeMipmap = {
                     front: mipmap.front.extractMipmap0(),
                     back: mipmap.back.extractMipmap0(),
@@ -190,7 +190,7 @@ export class TextureCube extends SimpleTexture {
         this._setMipmapParams(cubeMaps);
     }
 
-    private _setMipmapParams (value: ITextureCubeMipmap[]) {
+    private _setMipmapParams (value: ITextureCubeMipmap[]): void {
         this._generatedMipmaps = value;
         this._setMipmapLevel(this._generatedMipmaps.length);
         if (this._generatedMipmaps.length > 0) {
@@ -203,8 +203,8 @@ export class TextureCube extends SimpleTexture {
                 baseLevel: this._baseLevel,
                 maxLevel: this._maxLevel,
             });
-            this._generatedMipmaps.forEach((mipmap, level) => {
-                _forEachFace(mipmap, (face, faceIndex) => {
+            this._generatedMipmaps.forEach((mipmap, level): void => {
+                _forEachFace(mipmap, (face, faceIndex): void => {
                     this._assignImage(face, level, faceIndex);
                 });
             });
@@ -264,7 +264,7 @@ export class TextureCube extends SimpleTexture {
 
         for (let j = 0; j < layout.length; j++) {
             const layoutInfo = layout[j];
-            _forEachFace(faceAtlas, (face, faceIndex) => {
+            _forEachFace(faceAtlas, (face, faceIndex): void => {
                 ctx.clearRect(0, 0, imageAtlasAsset.width, imageAtlasAsset.height);
                 const drawImg = face.data as HTMLImageElement;
                 // NOTE: on OH platform, drawImage only supports ImageBitmap and PixelMap type, so we mark drawImg as any.
@@ -404,7 +404,7 @@ export class TextureCube extends SimpleTexture {
 
         for (let i = 0; i < nUpdate; ++i) {
             const level = firstLevel + i;
-            _forEachFace(this._generatedMipmaps[level], (face, faceIndex) => {
+            _forEachFace(this._generatedMipmaps[level], (face, faceIndex): void => {
                 this._assignImage(face, level, faceIndex);
             });
         }
@@ -571,7 +571,7 @@ export class TextureCube extends SimpleTexture {
             mipmapLevel: layout.length,
         });
 
-        _forEachFace(this._mipmapAtlas!.atlas, (face, faceIndex) => {
+        _forEachFace(this._mipmapAtlas!.atlas, (face, faceIndex): void => {
             const tex = new Texture2D();
             tex.image = face;
             tex.reset({
@@ -628,7 +628,7 @@ export class TextureCube extends SimpleTexture {
             const atlas = this.mipmapAtlas.atlas;
             return !!(atlas.top && atlas.bottom && atlas.front && atlas.back && atlas.left && atlas.right);
         } else {
-            return this._mipmaps.length !== 0 && !this._mipmaps.find((x) => !(x.top && x.bottom && x.front && x.back && x.left && x.right));
+            return this._mipmaps.length !== 0 && !this._mipmaps.find((x): boolean => !(x.top && x.bottom && x.front && x.back && x.left && x.right));
         }
     }
 }

@@ -199,7 +199,7 @@ export const ttfUtils =  {
         // TODO update material and uv
     },
 
-    _resetDynamicAtlas (comp: Label) {
+    _resetDynamicAtlas (comp: Label): void {
         if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
