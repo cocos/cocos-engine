@@ -68,7 +68,7 @@ const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactiva
 // all the hideFlags
 const AllHideMasks = DontSave | EditorOnly | LockedInEditor | HideInHierarchy;
 
-const objectsToDestroy: any = [];
+const objectsToDestroy: CCObject[] = [];
 let deferredDestroyTimer: number | null = null;
 
 function compileDestruct (obj, ctor): Function {
