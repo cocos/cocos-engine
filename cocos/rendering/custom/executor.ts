@@ -1012,7 +1012,7 @@ class DevicePreSceneTask extends WebSceneTask {
         // shadowmap
         if (isShadowMap(this.graphScene)) {
             const scene = this.graphScene.scene!;
-            assert(scene.light.light);
+            assert(!!scene.light.light);
             let shadowQueue = this._submitInfo.shadowMap.get(this.graphScene.sceneID);
             if (!shadowQueue) {
                 shadowQueue = new RenderShadowMapBatchedQueue(context.pipeline);

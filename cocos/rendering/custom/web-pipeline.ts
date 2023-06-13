@@ -971,8 +971,8 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
     }
     addComputeView (name: string, view: ComputeView): void {
         if (DEBUG) {
-            assert(view.name);
-            assert(name && this._resourceGraph.contains(name));
+            assert(!!view.name);
+            assert(!!(name && this._resourceGraph.contains(name)));
             const descriptorName = view.name;
             const descriptorID = this._layoutGraph.attributeIndex.get(descriptorName);
             assert(descriptorID !== undefined);
@@ -998,7 +998,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
     }
     addRenderTarget (name: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, clearColor = new Color()): void {
         if (DEBUG) {
-            assert(name && this._resourceGraph.contains(name));
+            assert(!!(name && this._resourceGraph.contains(name)));
         }
         let clearFlag = ClearFlagBit.COLOR;
         if (loadOp === LoadOp.LOAD) {
@@ -1014,7 +1014,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
     }
     addDepthStencil (name: string, loadOp = LoadOp.CLEAR, storeOp = StoreOp.STORE, depth = 1, stencil = 0, clearFlag = ClearFlagBit.DEPTH_STENCIL): void {
         if (DEBUG) {
-            assert(name && this._resourceGraph.contains(name));
+            assert(!!(name && this._resourceGraph.contains(name)));
         }
         const view = new RasterView('',
             AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
@@ -1028,8 +1028,8 @@ export class WebRenderPassBuilder extends WebSetter implements BasicRenderPassBu
         const view = new ComputeView(slotName);
         view.accessType = accessType;
         if (DEBUG) {
-            assert(view.name);
-            assert(name && this._resourceGraph.contains(name));
+            assert(!!view.name);
+            assert(!!(name && this._resourceGraph.contains(name)));
             const descriptorName = view.name;
             const descriptorID = this._layoutGraph.attributeIndex.get(descriptorName);
             assert(descriptorID !== undefined);
@@ -1191,7 +1191,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     }
     addComputeView (name: string, view: ComputeView): void {
         if (DEBUG) {
-            assert(name && this._resourceGraph.contains(name));
+            assert(!!(name && this._resourceGraph.contains(name)));
         }
         if (this._pass.computeViews.has(name)) {
             this._pass.computeViews.get(name)?.push(view);
@@ -1765,8 +1765,8 @@ export class WebPipeline implements BasicPipeline {
             const stageId = this.layoutGraph.locateChild(this.layoutGraph.nullVertex(), layoutName);
             assert(stageId !== 0xFFFFFFFF);
             const layout = this.layoutGraph.getLayout(stageId);
-            assert(layout);
-            assert(layout.descriptorSets.get(UpdateFrequency.PER_PASS));
+            assert(!!layout);
+            assert(!!(layout.descriptorSets.get(UpdateFrequency.PER_PASS)));
         }
         const name = 'Raster';
         const pass = new RasterPass();
