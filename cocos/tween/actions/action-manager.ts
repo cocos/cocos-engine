@@ -39,10 +39,10 @@ let ID_COUNTER = 0;
  * @private
  */
 class HashElement {
-    actions = [];
+    actions: Action[] = [];
     target: Record<string, unknown> | null = null; // ccobject
     actionIndex = 0;
-    currentAction = null; // CCAction
+    currentAction: Action | null = null; // CCAction
     paused = false;
     lock = false;
 }
@@ -451,7 +451,7 @@ export class ActionManager {
      */
     update (dt: number): void {
         const locTargets = this._arrayTargets;
-        let locCurrTarget;
+        let locCurrTarget: HashElement;
         for (let elt = 0; elt < locTargets.length; elt++) {
             this._currentTarget = locTargets[elt];
             locCurrTarget = this._currentTarget;
