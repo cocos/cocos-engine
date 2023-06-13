@@ -75,6 +75,7 @@ function defineProp (cls, className, propName, val): void {
     if (DEV) {
         // check base prototype to avoid name collision
         if (CCClass.getInheritanceChain(cls)
+            // eslint-disable-next-line no-prototype-builtins
             .some((x) => x.prototype.hasOwnProperty(propName))) {
             errorID(3637, className, propName, className);
             return;
@@ -277,7 +278,7 @@ function declareProperties (cls, className, properties, baseClass): void {
     }
 
     const attrs = attributeUtils.getClassAttrs(cls);
-    cls.__values__ = cls.__props__.filter((prop) => attrs[`${prop + DELIMETER}serializable`] !== false);
+    cls.__values__ = cls.__props__.filter((prop) => attrs[`${prop}${DELIMETER}serializable`] !== false);
 }
 
 export function CCClass<TFunction> (options: {
@@ -310,7 +311,7 @@ export function CCClass<TFunction> (options: {
         if (js.isChildClassOf(base, legacyCC.Component)) {
             legacyCC.Component._registerEditorProps(cls, editor);
         } else if (DEV) {
-            warnID(3623, name);
+            warnID(3623, name!);
         }
     }
 

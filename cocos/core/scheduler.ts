@@ -559,7 +559,7 @@ export class Scheduler extends System {
             delay = 0;
         }
 
-        assertID(target, 1502);
+        assertID(!!target, 1502);
 
         const targetId = target.uuid || target.id;
         if (!targetId) {
@@ -863,8 +863,8 @@ export class Scheduler extends System {
     public isScheduled (callback, target: ISchedulable): boolean {
         // key, target
         // selector, target
-        assertID(callback, 1508);
-        assertID(target, 1509);
+        assertID(!!callback, 1508);
+        assertID(!!target, 1509);
         const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
@@ -996,7 +996,7 @@ export class Scheduler extends System {
      * @param target
      */
     public pauseTarget (target: ISchedulable): void {
-        assertID(target, 1503);
+        assertID(!!target, 1503);
         const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
@@ -1028,7 +1028,7 @@ export class Scheduler extends System {
      * @param target
      */
     public resumeTarget (target: ISchedulable): void {
-        assertID(target, 1504);
+        assertID(!!target, 1504);
         const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
@@ -1054,7 +1054,7 @@ export class Scheduler extends System {
      * @param target
      */
     public isTargetPaused (target: ISchedulable): boolean {
-        assertID(target, 1505);
+        assertID(!!target, 1505);
         const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);

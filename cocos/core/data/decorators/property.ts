@@ -207,7 +207,7 @@ function mergePropertyOptions (
             const errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[(propertyKey as string)]) {
                 errorProps[(propertyKey as string)] = true;
-                warnID(3655, propertyKey, getClassName(ctor), propertyKey, propertyKey);
+                warnID(3655, propertyKey as string, getClassName(ctor), propertyKey as string, propertyKey as string);
             }
         }
         if ((descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get) {
@@ -219,7 +219,7 @@ function mergePropertyOptions (
     } else { // Target property is non-accessor
         if (DEV && (propertyRecord.get || propertyRecord.set)) {
             // Specify "accessor options" for non-accessor property is forbidden.
-            errorID(3655, propertyKey, getClassName(ctor), propertyKey, propertyKey);
+            errorID(3655, propertyKey as string, getClassName(ctor), propertyKey  as string, propertyKey  as string);
             return;
         }
 
@@ -234,7 +234,7 @@ function mergePropertyOptions (
         if ((EDITOR && !window.Build) || TEST) {
             // eslint-disable-next-line no-prototype-builtins
             if (!fullOptions && options && options.hasOwnProperty('default')) {
-                warnID(3653, propertyKey, getClassName(ctor));
+                warnID(3653, propertyKey as string, getClassName(ctor));
             }
         }
     }

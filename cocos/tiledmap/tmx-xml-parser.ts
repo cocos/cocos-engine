@@ -817,7 +817,7 @@ export class TMXMapInfo {
         imageLayer.trans = strToColor(data.getAttribute('trans')!);
 
         if (!imageLayer.sourceImage) {
-            errorID(7221, source);
+            errorID(7221, source!);
             console.warn(`Please try asset type of ${source} to 'sprite-frame'`);
             return null;
         }
@@ -1043,8 +1043,7 @@ export class TMXMapInfo {
      * Gets the tile properties.
      * @return {Object}
      */
-    getTileProperties (): Map<number, PropertiesInfo>
-    {
+    getTileProperties (): Map<number, PropertiesInfo> {
         return this._tileProperties;
     }
 

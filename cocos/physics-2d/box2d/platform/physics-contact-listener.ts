@@ -76,7 +76,7 @@ export class PhysicsContactListener extends b2.ContactListener {
         const key = this.getContactKey(contact);
 
         const retContact = PhysicsContactListener._contactMap.get(key);
-        assert(retContact);
+        assert(!!retContact);
 
         retContact.ref--;
         //console.log('   collision--', key, 'current ref is:', retCollision.ref);

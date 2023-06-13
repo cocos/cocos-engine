@@ -197,8 +197,7 @@ export class AnimationClip extends Asset {
      * @zh 动画包含的事件数据。
      * @en Associated event data.
      */
-    get events (): AnimationClip.IEvent[]
-    {
+    get events (): AnimationClip.IEvent[] {
         return this._events;
     }
 
@@ -399,7 +398,7 @@ export class AnimationClip extends Asset {
                 warnID(
                     3937,
                     this.name,
-                    (context.target instanceof Node) ? context.target.name : context.target,
+                    ((context.target instanceof Node) ? context.target.name : context.target) as string,
                 );
             }
             return trackTarget ?? undefined;

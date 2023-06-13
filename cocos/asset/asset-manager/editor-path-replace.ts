@@ -88,7 +88,7 @@ if ((EDITOR || PREVIEW) && !TEST) {
                 let previewServer = '';
                 if (NATIVE) {
                     previewServer = settings.querySettings<string>(Settings.Category.PATH, 'previewServer') || '';
-                    assert(previewServer);
+                    assert(!!previewServer);
                 }
                 text = await fetchText(`${previewServer}/query-extname/${uuid}`) as string;
             }
