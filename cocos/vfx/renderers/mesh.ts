@@ -149,7 +149,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
         if (this.facingMode === MeshFacingMode.NONE) {
             currentRotation = Quat.IDENTITY;
         } else if (this.facingMode === MeshFacingMode.VELOCITY) {
-            currentRotation = parameterMap.getValueUnsafe<VFXQuat>(E_WORLD_ROTATION).data;
+            currentRotation = parameterMap.getQuatValue(E_WORLD_ROTATION).data;
         } else if (this.facingMode === MeshFacingMode.CAMERA) {
             currentRotation = Quat.IDENTITY;
             // const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
@@ -174,7 +174,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
     }
 
     private _updateRenderScale (material: Material, parameterMap: VFXParameterMap) {
-        const renderScale = parameterMap.getValueUnsafe<VFXVec3>(E_RENDER_SCALE).data;
+        const renderScale = parameterMap.getVec3Value(E_RENDER_SCALE).data;
         if (!Vec3.equals(renderScale, this._renderScale)) {
             this._renderScale.set(renderScale.x, renderScale.y, renderScale.z);
             material.setProperty('scale', this._renderScale);
@@ -183,7 +183,7 @@ export class MeshParticleRenderer extends ParticleRenderer {
 
     private _compileMaterial (material: Material, parameterMap: VFXParameterMap) {
         let needRecompile = false;
-        const isWorldSpace = parameterMap.getValueUnsafe<VFXBool>(E_IS_WORLD_SPACE).data;
+        const isWorldSpace = parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
         const define = this._defines;
         if (define[CC_VFX_E_IS_WORLD_SPACE] !== isWorldSpace) {
             define[CC_VFX_E_IS_WORLD_SPACE] = isWorldSpace;

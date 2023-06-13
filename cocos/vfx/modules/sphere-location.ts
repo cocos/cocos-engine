@@ -25,11 +25,11 @@
 import { ccclass, serializable, type, visible } from 'cc.decorator';
 import { ModuleExecStageFlags, VFXModule } from '../vfx-module';
 import { clamp, Enum, TWO_PI, Vec2, Vec3 } from '../../core';
-import { ParticleDataSet, ContextDataSet, EmitterDataSet, UserDataSet } from '../data-set';
 import { ConstantFloatExpression, ConstantVec2Expression, FloatExpression, Vec2Expression } from '../expressions';
 import { DistributionMode, ShapeLocationModule } from './shape-location';
 import { degreesToRadians } from '../../core/utils/misc';
 import { P_POSITION, C_FROM_INDEX, C_TO_INDEX } from '../define';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const pos = new Vec3();
 const distribution = new Vec2();

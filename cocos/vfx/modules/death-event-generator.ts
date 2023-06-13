@@ -25,7 +25,7 @@
 
 import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, EPSILON, Vec3 } from '../../core';
-import { C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_IS_DEAD, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
+import { C_EVENTS, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_IS_DEAD, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { RandomStream } from '../random-stream';
 import { VFXEventInfo } from '../parameters/event';
@@ -54,7 +54,8 @@ export class DeathEventGeneratorModule extends VFXModule {
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const localToWorld = parameterMap.getMat4Value(E_LOCAL_TO_WORLD).data;
         const isWorldSpace = parameterMap.getBoolValue(E_IS_WORLD_SPACE).data;
-        const { events } = context;
+        const events = parameterMap.getEventArrayValue(C_EVENTS);
+        const eventCount = parameterMap.getUint32Value(C_EVENT_COUNT);
         const randomOffset = this.randomSeed;
         const hasVelocity = parameterMap.hasParameter(P_VELOCITY);
         const hasColor = parameterMap.hasParameter(P_COLOR);
@@ -94,7 +95,11 @@ export class DeathEventGeneratorModule extends VFXModule {
                 eventInfo.currentTime = EPSILON;
                 eventInfo.randomSeed = randomSeed[i];
                 eventInfo.type = VFXEventType.DEATH;
-                events.dispatch(eventInfo);
+                if (eventCount.data >= events.capacity) {
+                    events.reserve(events.capacity * 2);
+                }
+                events.setEventAt(eventInfo, eventCount.data);
+                eventCount.data++;
             }
         }
     }

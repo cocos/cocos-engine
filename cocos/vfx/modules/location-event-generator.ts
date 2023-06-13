@@ -25,7 +25,7 @@
 
 import { ccclass, range, serializable, type } from 'cc.decorator';
 import { approx, CCFloat, Color, Vec3 } from '../../core';
-import { C_DELTA_TIME, C_EVENTS, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_INV_LIFETIME, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
+import { C_DELTA_TIME, C_EVENTS, C_EVENT_COUNT, C_FROM_INDEX, C_TO_INDEX, E_IS_WORLD_SPACE, E_LOCAL_TO_WORLD, P_COLOR, P_ID, P_INV_LIFETIME, P_NORMALIZED_AGE, P_POSITION, P_RANDOM_SEED, P_VELOCITY, VFXEventType } from '../define';
 import { VFXModule, ModuleExecStageFlags } from '../vfx-module';
 import { RandomStream } from '../random-stream';
 import { VFXEventInfo } from '../parameters/event';
@@ -55,6 +55,7 @@ export class LocationEventGeneratorModule extends VFXModule {
         const id = parameterMap.getUint32ArrayValue(P_ID).data;
         const randomOffset = this.randomSeed;
         const events = parameterMap.getEventArrayValue(C_EVENTS);
+        const eventCount = parameterMap.getUint32Value(C_EVENT_COUNT);
         const fromIndex = parameterMap.getUint32Value(C_FROM_INDEX).data;
         const toIndex = parameterMap.getUint32Value(C_TO_INDEX).data;
         const deltaTime = parameterMap.getFloatValue(C_DELTA_TIME).data;
@@ -92,7 +93,11 @@ export class LocationEventGeneratorModule extends VFXModule {
                 eventInfo.prevTime = eventInfo.currentTime - deltaTime;
                 eventInfo.randomSeed = randomSeed[i];
                 eventInfo.type = VFXEventType.LOCATION;
-                events.dispatch(eventInfo);
+                if (eventCount.data >= events.capacity) {
+                    events.reserve(events.capacity * 2);
+                }
+                events.setEventAt(eventInfo, eventCount.data);
+                eventCount.data++;
             }
         }
     }

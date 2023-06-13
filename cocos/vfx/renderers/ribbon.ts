@@ -26,13 +26,13 @@ import { Material, RenderingSubMesh } from '../../asset/assets';
 import { Color, Vec3 } from '../../core';
 import { Attribute, Format, FormatInfos, PrimitiveMode, BufferUsageBit } from '../../gfx';
 import { MacroRecord } from '../../render-scene';
-import { EmitterDataSet, ParticleDataSet } from '../data-set';
 import { CC_VFX_P_COLOR, CC_VFX_RENDERER_TYPE, CC_VFX_RENDERER_TYPE_RIBBON, P_COLOR, P_POSITION, P_RIBBON_ID, P_RIBBON_LINK_ORDER, P_RIBBON_WIDTH } from '../define';
 import { VFXColorArray, VFXFloatArray } from '../parameters';
 import { ParticleRenderer } from '../particle-renderer';
 import { VFXDynamicBuffer } from '../vfx-dynamic-buffer';
 import { vfxManager } from '../vfx-manager';
 import { Handle } from '../vfx-parameter';
+import { VFXParameterMap } from '../vfx-parameter-map';
 
 const ribbonPosition = new Attribute('a_vfx_p_position', Format.RGB32F, false, 0, true);       // ribbon position
 const ribbonSize = new Attribute('a_vfx_p_scale', Format.RGB32F, false, 0, true);              // ribbon scale
@@ -63,7 +63,7 @@ class Segment {
     public end: Handle;
     public velocity: Vec3;
 
-    constructor (particles: ParticleDataSet, start: Handle, end: Handle) {
+    constructor (parameterMap: VFXParameterMap, start: Handle, end: Handle) {
         this.start = start;
         this.end = end;
         const positions = parameterMap.getVec3ArrayValue(P_POSITION);
@@ -97,7 +97,7 @@ export class RibbonParticleRenderer extends ParticleRenderer {
         this._dynamicIBO.usedCount += count * 3; // 3 indices per particle
     }
 
-    private _compileMaterial (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
+    private _compileMaterial (material: Material, parameterMap: VFXParameterMap) {
         let needRecompile = this._isMaterialDirty;
         const define = this._defines;
 
@@ -116,7 +116,7 @@ export class RibbonParticleRenderer extends ParticleRenderer {
         this._vertexAttributeHash += `n${attrib.name}f${attrib.format}n${attrib.isNormalized}l${attrib.location}`;
     }
 
-    private _updateAttributes (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
+    private _updateAttributes (material: Material, parameterMap: VFXParameterMap) {
         let vertexStreamSizeDynamic = 0;
         this._vertexAttributeHash = '';
         const define = this._defines;
@@ -151,10 +151,10 @@ export class RibbonParticleRenderer extends ParticleRenderer {
         this._segmentCount = 0;
     }
 
-    private collectSegments (particles: ParticleDataSet) {
+    private collectSegments (parameterMap: VFXParameterMap, count: number) {
         const ribbonIds = parameterMap.getUint32ArrayValue(P_RIBBON_ID);
         const linkOrders = parameterMap.getFloatArrayVale(P_RIBBON_LINK_ORDER);
-        for (let p: Handle = 0; p < parameterMap.count; ++p) {
+        for (let p: Handle = 0; p < count; ++p) {
             const ribbonId: number = ribbonIds.getUint32At(p);
             let target: ParticleOrder[] | undefined = this._particleOrders.get(ribbonId);
             if (!target) {
@@ -176,7 +176,7 @@ export class RibbonParticleRenderer extends ParticleRenderer {
                 const order1: ParticleOrder = orders[oi];
                 if (oi + 1 < orders.length) {
                     const order2: ParticleOrder = orders[oi + 1];
-                    const segment: Segment = new Segment(particles, order1.particle, order2.particle);
+                    const segment: Segment = new Segment(parameterMap, order1.particle, order2.particle);
                     target?.push(segment);
                     this._segmentCount++;
                 }
@@ -184,7 +184,7 @@ export class RibbonParticleRenderer extends ParticleRenderer {
         });
     }
 
-    private assemble (particles: ParticleDataSet) {
+    private assemble (parameterMap: VFXParameterMap) {
         const define = this._defines;
         this._vertexCount = 0;
         this._indexCount = 0;
@@ -332,28 +332,28 @@ export class RibbonParticleRenderer extends ParticleRenderer {
         });
     }
 
-    public render (particles: ParticleDataSet, emitter: EmitterDataSet) {
+    public render (parameterMap: VFXParameterMap, count: number) {
         if (!parameterMap.hasParameter(P_POSITION)) {
             console.error('particles without position data');
             return;
         }
         this.clearCollects();
-        this.collectSegments(particles);
+        this.collectSegments(parameterMap, count);
 
         const material = this.material;
         if (!material) {
             return;
         }
-        this._compileMaterial(material, particles, emitter);
-        this._updateRenderingSubMesh(material, particles, emitter);
+        this._compileMaterial(material, parameterMap);
+        this._updateRenderingSubMesh(material, parameterMap);
         this._isMaterialDirty = false;
 
-        this.assemble(particles);
+        this.assemble(parameterMap);
     }
 
-    private _updateRenderingSubMesh (material: Material, particles: ParticleDataSet, emitter: EmitterDataSet) {
+    private _updateRenderingSubMesh (material: Material, parameterMap: VFXParameterMap) {
         if (!this._renderingSubMesh) {
-            const vertexStreamAttributes = this._updateAttributes(material, particles, emitter);
+            const vertexStreamAttributes = this._updateAttributes(material, parameterMap);
 
             this._dynamicVBO = vfxManager.getOrCreateDynamicBuffer(this._vertexAttributeHash, this._vertexStreamSize, BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST);
             this._dynamicIBO = vfxManager.getOrCreateDynamicBuffer(RIBBON_IBO_HASH, Uint16Array.BYTES_PER_ELEMENT, BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST);
