@@ -1,7 +1,8 @@
 name: run test cases
 
 on:
-  pull_request_target:
+  pull_request:
+#   pull_request_target:
   issue_comment:
     types: [created, edited]
 
@@ -110,7 +111,7 @@ jobs:
           CCTEST_PLUGINS="E:/pr-test/TestPlugin"
           if [ ! -d $TEST_PROJECTS_EXTERNAL ]; then
               mkdir -p $TEST_PROJECTS_EXTERNAL
-              git clone https://github.com/cctests/cocos-test-projects.git $TEST_PROJECTS_EXTERNAL
+              git clone https://github.com/cocos/cocos-test-projects.git $TEST_PROJECTS_EXTERNAL
           else
               echo "directory $TEST_PROJECTS_EXTERNAL is ready"
           fi
@@ -222,7 +223,7 @@ jobs:
           CCTEST_PLUGINS="../../TestPlugin"
           if [ ! -d $TEST_PROJECTS_EXTERNAL ]; then
               mkdir -p $TEST_PROJECTS_EXTERNAL
-              git clone https://github.com/cctests/cocos-test-projects.git $TEST_PROJECTS_EXTERNAL
+              git clone https://github.com/cocos/cocos-test-projects.git $TEST_PROJECTS_EXTERNAL
           else
               echo "directory $TEST_PROJECTS_EXTERNAL is ready"
           fi
